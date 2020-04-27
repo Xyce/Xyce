@@ -157,29 +157,7 @@ class astNode
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->paramType())   { ovc.paramOpVector.push_back(leftAst_); }
-        if (leftAst_->funcType())    { ovc.funcOpVector.push_back(leftAst_); }
-        if (leftAst_->voltageType()) { ovc.voltOpVector.push_back(leftAst_); }
-        if (leftAst_->currentType()) { ovc.currentOpVector.push_back(leftAst_); }
-        if (leftAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(leftAst_); }
-        leftAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->paramType())   { ovc.paramOpVector.push_back(rightAst_); }
-        if (rightAst_->funcType())    { ovc.funcOpVector.push_back(rightAst_); }
-        if (rightAst_->voltageType()) { ovc.voltOpVector.push_back(rightAst_); }
-        if (rightAst_->currentType()) { ovc.currentOpVector.push_back(rightAst_); }
-        if (rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(rightAst_); }
-        rightAst_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_) 
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -800,19 +778,7 @@ class paramOp: public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->paramType())   { ovc.paramOpVector.push_back(paramNode_); }
-        if (paramNode_->funcType())    { ovc.funcOpVector.push_back(paramNode_); }
-        if (paramNode_->voltageType()) { ovc.voltOpVector.push_back(paramNode_); }
-        if (paramNode_->currentType()) { ovc.currentOpVector.push_back(paramNode_); }
-        if (paramNode_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(paramNode_); }
-        paramNode_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS(paramNode_) 
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1475,48 +1441,18 @@ class funcOp: public astNode<ScalarT>
     // still experimenting with these:
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(functionNode_)) )
+      if (funcArgs_.size() != dummyFuncArgs_.size())
       {
-        if (functionNode_->paramType())   { ovc.paramOpVector.push_back(functionNode_); }
-        if (functionNode_->funcType())    { ovc.funcOpVector.push_back(functionNode_); }
-        if (functionNode_->voltageType()) { ovc.voltOpVector.push_back(functionNode_); }
-        if (functionNode_->currentType()) { ovc.currentOpVector.push_back(functionNode_); }
-        if (functionNode_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(functionNode_); }
-
-        if (functionNode_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(functionNode_); }
-        if (functionNode_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(functionNode_); }
-        if (functionNode_->oNoiseType()) { oNoiseOpVec_.push_back(functionNode_); }
-        if (functionNode_->iNoiseType()) { iNoiseOpVec_.push_back(functionNode_); }
-
-        if (funcArgs_.size() != dummyFuncArgs_.size())
-        {
-          std::vector<std::string> errStr;
-          errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_);
-          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
-          yyerror(errStr);
-        }
-
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-        functionNode_->getInterestingOps(ovc);
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        std::vector<std::string> errStr;
+        errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
+        errStr.push_back(funcName_);
+        errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+        errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
+        yyerror(errStr);
       }
-#else
-        if (funcArgs_.size() != dummyFuncArgs_.size())
-        {
-          std::vector<std::string> errStr;
-          errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_);
-          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
-          yyerror(errStr);
-        }
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+      for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_INTERESTING_OPS(functionNode_) 
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-#endif
+      for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1918,39 +1854,7 @@ class ifStatementOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->funcType())    { ovc.funcOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->voltageType()) { ovc.voltOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->currentType()) { ovc.currentOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType())   { ovc.paramOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->funcType())    { ovc.funcOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->voltageType()) { ovc.voltOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->currentType()) { ovc.currentOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->paramType())   { ovc.paramOpVector.push_back(zAst_); }
-        if (zAst_->funcType())    { ovc.funcOpVector.push_back(zAst_); }
-        if (zAst_->voltageType()) { ovc.voltOpVector.push_back(zAst_); }
-        if (zAst_->currentType()) { ovc.currentOpVector.push_back(zAst_); }
-        if (zAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(zAst_); }
-        zAst_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -2114,39 +2018,7 @@ class limitOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->funcType())    { ovc.funcOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->voltageType()) { ovc.voltOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->currentType()) { ovc.currentOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType())   { ovc.paramOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->funcType())    { ovc.funcOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->voltageType()) { ovc.voltOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->currentType()) { ovc.currentOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->paramType())   { ovc.paramOpVector.push_back(zAst_); }
-        if (zAst_->funcType())    { ovc.funcOpVector.push_back(zAst_); }
-        if (zAst_->voltageType()) { ovc.voltOpVector.push_back(zAst_); }
-        if (zAst_->currentType()) { ovc.currentOpVector.push_back(zAst_); }
-        if (zAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(zAst_); }
-        zAst_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -2532,19 +2404,7 @@ class polyOp : public astNode<ScalarT>
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-#if 0
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->paramType())   { ovc.paramOpVector.push_back(polyVars_[ii]); }
-          if (polyVars_[ii]->funcType())    { ovc.funcOpVector.push_back(polyVars_[ii]); }
-          if (polyVars_[ii]->voltageType()) { ovc.voltOpVector.push_back(polyVars_[ii]); }
-          if (polyVars_[ii]->currentType()) { ovc.currentOpVector.push_back(polyVars_[ii]); }
-          if (polyVars_[ii]->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getInterestingOps(ovc);
-        }
-#else
 AST_GET_INTERESTING_OPS(polyVars_[ii]) 
-#endif
       }
     }
 
@@ -2721,38 +2581,14 @@ class tableOp : public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 
-#if 0
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->paramType())   { ovc.paramOpVector.push_back(input_); }
-        if (input_->funcType())    { ovc.funcOpVector.push_back(input_); }
-        if (input_->voltageType()) { ovc.voltOpVector.push_back(input_); }
-        if (input_->currentType()) { ovc.currentOpVector.push_back(input_); }
-        if (input_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(input_); }
-        input_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS(input_)
-#endif
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-#if 0
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->paramType())   { ovc.paramOpVector.push_back(tableArgs_[ii]); }
-            if (tableArgs_[ii]->funcType())    { ovc.funcOpVector.push_back(tableArgs_[ii]); }
-            if (tableArgs_[ii]->voltageType()) { ovc.voltOpVector.push_back(tableArgs_[ii]); }
-            if (tableArgs_[ii]->currentType()) { ovc.currentOpVector.push_back(tableArgs_[ii]); }
-            if (tableArgs_[ii]->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getInterestingOps(ovc);
-          }
-#else
 AST_GET_INTERESTING_OPS(tableArgs_[ii])
-#endif
         }
       }
     }
@@ -3171,39 +3007,7 @@ class agaussOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->funcType())    { ovc.funcOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->voltageType()) { ovc.voltOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->currentType()) { ovc.currentOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType())   { ovc.paramOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->funcType())    { ovc.funcOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->voltageType()) { ovc.voltOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->currentType()) { ovc.currentOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->paramType())   { ovc.paramOpVector.push_back(nAst_); }
-        if (nAst_->funcType())    { ovc.funcOpVector.push_back(nAst_); }
-        if (nAst_->voltageType()) { ovc.voltOpVector.push_back(nAst_); }
-        if (nAst_->currentType()) { ovc.currentOpVector.push_back(nAst_); }
-        if (nAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(nAst_); }
-        nAst_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -3367,39 +3171,7 @@ class gaussOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-#if 0
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->funcType())    { ovc.funcOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->voltageType()) { ovc.voltOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->currentType()) { ovc.currentOpVector.push_back(this->leftAst_); }
-        if (this->leftAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType())   { ovc.paramOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->funcType())    { ovc.funcOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->voltageType()) { ovc.voltOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->currentType()) { ovc.currentOpVector.push_back(this->rightAst_); }
-        if (this->rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getInterestingOps(ovc);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->paramType())   { ovc.paramOpVector.push_back(nAst_); }
-        if (nAst_->funcType())    { ovc.funcOpVector.push_back(nAst_); }
-        if (nAst_->voltageType()) { ovc.voltOpVector.push_back(nAst_); }
-        if (nAst_->currentType()) { ovc.currentOpVector.push_back(nAst_); }
-        if (nAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(nAst_); }
-        nAst_->getInterestingOps(ovc);
-      }
-#else
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
-#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
