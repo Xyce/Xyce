@@ -769,6 +769,126 @@ void newExpression::setupVariousAstArrays_()
 };
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::getValuesFromGroup
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+void newExpression::getValuesFromGroup()
+{
+  // get solution values we need from the group
+  for (int ii=0;ii<voltOpVec_.size();ii++)
+  {
+    Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+    std::vector<std::string> & nodes = voltOp->getVoltageNodes();
+    std::vector<usedType> & vals = voltOp->getVoltageVals();
+
+    for (int jj=0;jj<nodes.size();jj++)
+    {
+      group_->getSolutionVal(nodes[jj], vals[jj]);
+    }
+  }
+
+  for (int ii=0;ii<currentOpVec_.size();ii++)
+  {
+    Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+
+    usedType val;
+    if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
+    {
+      group_->getCurrentVal(currOp->getCurrentDevice(),val);
+    }
+    currOp->setCurrentVal ( val );
+  }
+
+  for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
+  {
+    Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);
+
+    usedType val;
+    group_->getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
+    intVarOp->setInternalDeviceVar ( val );
+  }
+
+  for (int ii=0;ii<paramOpVec_.size();++ii)
+  {
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+
+    // the "isVar" boolean currently serves two purposes.
+    //
+    // (1) if we want derivatives w.r.t. it.
+    //    (this meaning will probably persist after old API is gone, albeit with a different name)
+    //
+    // (2) if it should be considered a dynamic variable that gets its values from the vals array.
+    //    (this meaning will be obsolete later, once old API is gone)
+    //
+    // The old API is set up to set *everything* thru a single std::vector of values,
+    // that is passed into the expression as a function argument to the "evaluate" function.
+    // This vector includes both
+    //
+    //
+    if ( parOp->getIsVar() )
+    {
+      usedType val;
+      group_->getGlobalParameterVal(parOp->getName(),val);
+      parOp->setValue(val);
+    }
+  }
+
+  for (int ii=0;ii<dnoNoiseDevVarOpVec_.size();ii++)
+  {
+    Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (dnoNoiseDevVarOpVec_[ii]);
+
+    usedType val;
+    group_->getDnoNoiseDeviceVar(dnoOp->getNoiseDevice(),val);
+    dnoOp->setNoiseVar ( val );
+  }
+
+  for (int ii=0;ii<dniNoiseDevVarOpVec_.size();ii++)
+  {
+    Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (dniNoiseDevVarOpVec_[ii]);
+    usedType val;
+    group_->getDniNoiseDeviceVar(dniOp->getNoiseDevice(),val);
+    dniOp->setNoiseVar ( val );
+  }
+
+  for (int ii=0;ii<oNoiseOpVec_.size();ii++)
+  {
+    Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (oNoiseOpVec_[ii]);
+    usedType val;
+    group_->getONoise(val);
+    onoiseOp->setNoiseVar ( val );
+  }
+
+  for (int ii=0;ii<iNoiseOpVec_.size();ii++)
+  {
+    Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (iNoiseOpVec_[ii]);
+    usedType val;
+    group_->getINoise(val);
+    inoiseOp->setNoiseVar ( val );
+  }
+
+  timeNodePtr_->setValue(group_->getTime());
+  tempNodePtr_->setValue(group_->getTemp()); // assuming correct units.  Conversion happens in the group
+  vtNodePtr_->setValue(group_->getVT());
+  freqNodePtr_->setValue(group_->getFreq());
+
+  bpTol_ = group_->getBpTol();
+
+  int srcSize = srcAstNodeVec_.size();
+  for (int ii=0;ii< srcSize; ii++) 
+  { 
+    (*(srcAstNodeVec_[ii]))->setBreakPointTol(bpTol_); 
+  }
+
+  timeStep_ = group_->getTimeStep ();
+  timeStepAlpha_ = group_->getTimeStepAlpha ();
+  timeStepPrefac_ = group_->getTimeStepPrefac ();
+}
+
+//-------------------------------------------------------------------------------
 // these two functions return int error codes in the original expression library
 //-------------------------------------------------------------------------------
 
@@ -857,85 +977,7 @@ int newExpression::evaluateFunction (usedType &result)
       }
     }
 
-    // get solution values we need from the group
-    {
-      for (int ii=0;ii<voltOpVec_.size();ii++)
-      {
-        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-        std::vector<usedType> & vals = voltOp->getVoltageVals();
-
-        for (int jj=0;jj<nodes.size();jj++)
-        {
-          group_->getSolutionVal(nodes[jj], vals[jj]);
-        }
-      }
-
-      for (int ii=0;ii<currentOpVec_.size();ii++)
-      {
-        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-
-        usedType val;
-        if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
-        {
-          group_->getCurrentVal(currOp->getCurrentDevice(),val);
-        }
-        currOp->setCurrentVal ( val );
-      }
-
-      for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
-      {
-        Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);
-
-        usedType val;
-        group_->getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
-        intVarOp->setInteranalDeviceVar ( val );
-      }
-
-     // ERK. The global parameter setting here should eventually go away or be changed.
-     // It is only here b/c I am trying to maintain the API to the old expression library for now.
-      for (int ii=0;ii<paramOpVec_.size();++ii)
-      {
-        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-
-        // the "isVar" boolean currently serves two purposes.
-        //
-        // (1) if we want derivatives w.r.t. it.
-        //    (this meaning will probably persist after old API is gone, albeit with a different name)
-        //
-        // (2) if it should be considered a dynamic variable that gets its values from the vals array.
-        //    (this meaning will be obsolete later, once old API is gone)
-        //
-        // The old API is set up to set *everything* thru a single std::vector of values,
-        // that is passed into the expression as a function argument to the "evaluate" function.
-        // This vector includes both
-        //
-        //
-        if ( parOp->getIsVar() )
-        {
-          usedType val;
-          group_->getGlobalParameterVal(parOp->getName(),val);
-          parOp->setValue(val);
-        }
-      }
-    }
-
-    timeNodePtr_->setValue(group_->getTime());
-    tempNodePtr_->setValue(group_->getTemp()); // assuming correct units.  Conversion happens in the group
-    vtNodePtr_->setValue(group_->getVT());
-    freqNodePtr_->setValue(group_->getFreq());
-
-    bpTol_ = group_->getBpTol();
-
-    int srcSize = srcAstNodeVec_.size();
-    for (int ii=0;ii< srcSize; ii++) 
-    { 
-      (*(srcAstNodeVec_[ii]))->setBreakPointTol(bpTol_); 
-    }
-
-    timeStep_ = group_->getTimeStep ();
-    timeStepAlpha_ = group_->getTimeStepAlpha ();
-    timeStepPrefac_ = group_->getTimeStepPrefac ();
+    getValuesFromGroup();
 
     result = astNodePtr_->val();
 

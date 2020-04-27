@@ -111,9 +111,12 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %token <dval> TOK_POLYCOEF "polycoef"
 %token <dval> TOK_NUM	"num"
 %token <sval> TOK_WORD "word"
+%token <sval> TOK_ONOISE "onoise"
+%token <sval> TOK_INOISE "inoise"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
 %token <sval> TOK_CURRENTDEV "currentdevice"
 %token <sval> TOK_INTERNAL_DEV_VAR "internal_device_variable"
+%token <sval> TOK_NOISE_DEV_VAR "noise_device_variable"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -190,6 +193,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %destructor { delete $$; } TOK_VOLTAGENODE
 %destructor { delete $$; } TOK_CURRENTDEV
 %destructor { delete $$; } TOK_INTERNAL_DEV_VAR
+%destructor { delete $$; } TOK_NOISE_DEV_VAR
 %destructor { delete $$; } nonempty_voltagenodelist
 
 
@@ -606,6 +610,50 @@ exp:
       delete $1;
       delete $2;
     }
+  | TOK_WORD TOK_NOISE_DEV_VAR
+    {
+      Teuchos::RCP<astNode<usedType> > * returnPtr;
+      std::string firstArg = (*$1);
+      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+
+      if ( firstArg == std::string("DNO") )
+      {
+        Teuchos::RCP<dnoNoiseVarOp<usedType> > * dnoNoiseVarPtr = new Teuchos::RCP<dnoNoiseVarOp<usedType> >(new dnoNoiseVarOp<usedType>(*$2));
+        returnPtr = new Teuchos::RCP<astNode<usedType> >(*dnoNoiseVarPtr);
+        newExp.getMasterNodeVec().push_back(returnPtr);
+        newExp.getDnoNoiseDevVarOpVec__().push_back(*dnoNoiseVarPtr);
+        delete dnoNoiseVarPtr;
+      }
+      else if ( firstArg == std::string("DNI") )
+      {
+        Teuchos::RCP<dniNoiseVarOp<usedType> > * dniNoiseVarPtr = new Teuchos::RCP<dniNoiseVarOp<usedType> >(new dniNoiseVarOp<usedType>(*$2));
+        returnPtr = new Teuchos::RCP<astNode<usedType> >(*dniNoiseVarPtr);
+        newExp.getMasterNodeVec().push_back(returnPtr);
+        newExp.getDniNoiseDevVarOpVec_().push_back(*dniNoiseVarPtr);
+        delete dniNoiseVarPtr;
+      }
+
+      $$ = returnPtr;
+      delete $1;
+      delete $2;
+    }
+  | TOK_ONOISE
+    {
+      Teuchos::RCP<oNoiseOp<usedType> > * onoisePtr = new Teuchos::RCP<oNoiseOp<usedType> >(new oNoiseOp<usedType>());
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*onoisePtr);
+      newExp.getONoiseOpVec_().push_back(*onoisePtr);
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      $$ = tmpPtr;
+    }
+  | TOK_INOISE
+    {
+      Teuchos::RCP<iNoiseOp<usedType> > * inoisePtr = new Teuchos::RCP<iNoiseOp<usedType> >(new iNoiseOp<usedType>());
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*inoisePtr);
+      newExp.getINoiseOpVec_().push_back(*inoisePtr);
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      $$ = tmpPtr;
+    }
+
   | TOK_MAX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>(*$3,*$5));

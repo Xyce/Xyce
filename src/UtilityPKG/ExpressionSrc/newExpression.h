@@ -71,7 +71,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {};
 
   // primary constructor
@@ -94,7 +94,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -142,7 +142,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -180,7 +180,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -201,6 +201,12 @@ public:
       if (left->voltageType()) { voltOpVec_.push_back(left); }
       if (left->currentType()) { currentOpVec_.push_back(left); }
       if (left->internalDeviceVarType()) { internalDevVarOpVec_.push_back(left); }
+
+      if (left->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(left); }
+      if (left->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(left); }
+      if (left->iNoiseType()) { oNoiseOpVec_.push_back(left); }
+      if (left->oNoiseType()) { iNoiseOpVec_.push_back(left); }
+
       left->getInterestingOps( opVectors_  );
 
 #if 0
@@ -263,7 +269,7 @@ public:
     isTempDepdendent_(right.isTempDepdendent_),
     isVTDepdendent_(right.isVTDepdendent_),
     isFreqDepdendent_(right.isFreqDepdendent_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -334,8 +340,6 @@ public:
     isTempDepdendent_ = right.isTempDepdendent_;
     isVTDepdendent_ = right.isVTDepdendent_;
     isFreqDepdendent_ = right.isFreqDepdendent_;
-
-    //opVectors_ = right.opVectors_; // this can't work and shouldn't
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -424,6 +428,7 @@ public:
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
   // these two functions return int error codes in the original expression library
+  void getValuesFromGroup();
   int evaluate (usedType &result, std::vector< usedType > &derivs);
   int evaluateFunction (usedType &result);
 
@@ -467,6 +472,11 @@ public:
   };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getInternalDevVarOpVec_() { return internalDevVarOpVec_; }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDnoNoiseDevVarOpVec__() { return dnoNoiseDevVarOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDniNoiseDevVarOpVec_() { return dniNoiseDevVarOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getONoiseOpVec_() { return oNoiseOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec_() { return iNoiseOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
@@ -575,6 +585,22 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > internalDevVarOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedInternalDevVarOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > internalDevVarOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > dnoNoiseDevVarOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDnoNoiseDevVarOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dnoNoiseDevVarOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > dniNoiseDevVarOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDniNoiseDevVarOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dniNoiseDevVarOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > oNoiseOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedONoiseOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > oNoiseOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > iNoiseOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedINoiseOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > iNoiseOpNames_;
 
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the

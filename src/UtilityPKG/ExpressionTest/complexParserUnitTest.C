@@ -1314,6 +1314,156 @@ TEST ( Double_Parser_InternalDeniceVariable_Test, np_test0)
   OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, np_test0)
 }
 
+
+#if 1
+
+//-------------------------------------------------------------------------------
+class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    noiseExpressionGroup () : Xyce::Util::baseExpressionGroup(), inoise_(std::complex<double>(0.0,0.0)), onoise_(std::complex<double>(0.0,0.0)) {};
+    ~noiseExpressionGroup () {};
+
+  void setDnoNoiseDeviceVar (const std::string & name, std::complex<double> val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    dnoDeviceVars_[lowerName] = val;
+  };
+
+  void setDniNoiseDeviceVar (const std::string & name, std::complex<double> val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    dniDeviceVars_[lowerName] = val;
+  };
+
+  void setONoise (std::complex<double> val) { onoise_ = val; };
+  void setINoise (std::complex<double> val) { inoise_ = val; };
+
+  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & val) 
+  { 
+    bool retval=true;
+    std::string lowerName = deviceName;
+    Xyce::Util::toLower(lowerName);
+    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & val) 
+  { 
+    bool retval=true;
+    std::string lowerName = deviceName;
+    Xyce::Util::toLower(lowerName);
+    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  virtual bool getONoise(std::complex<double> & retval) { retval=onoise_; return true; }
+  virtual bool getINoise(std::complex<double> & retval) { retval=inoise_; return true; }
+
+  private:
+    std::unordered_map <std::string, std::complex<double> > dnoDeviceVars_;
+    std::unordered_map <std::string, std::complex<double> > dniDeviceVars_;
+    std::complex<double> inoise_, onoise_;
+};
+
+TEST ( Double_Parser_Noise_Test, dno_test)
+{
+  Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*DNO(RES1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, RES1val=std::complex<double>(3.0,0.0);
+  std::complex<double>  refRes = 17.2*RES1val+8.5;
+  noiseVarGroup->setDnoNoiseDeviceVar(std::string("RES1"),RES1val);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result); 
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_Noise_Test, dno_test)
+}
+
+TEST ( Double_Parser_Noise_Test, dni_test)
+{
+  Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*DNI(RES1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, RES1val=std::complex<double>(3.0,0.0);
+  std::complex<double>  refRes = 17.2*RES1val+8.5;
+  noiseVarGroup->setDniNoiseDeviceVar(std::string("RES1"),RES1val);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result); 
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_Noise_Test, dni_test)
+}
+
+TEST ( Double_Parser_Noise_Test, onoise_test)
+{
+  Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*ONOISE+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, ONOISEval=std::complex<double>(3.0,0.0);
+  std::complex<double>  refRes = 17.2*ONOISEval+8.5;
+  noiseVarGroup->setONoise(ONOISEval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result); 
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_Noise_Test, onoise_test)
+}
+
+TEST ( Double_Parser_Noise_Test, inoise_test)
+{
+  Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*INOISE+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, INOISEval=std::complex<double>(3.0,0.0);
+  std::complex<double>  refRes = 17.2*INOISEval+8.5;
+  noiseVarGroup->setINoise(INOISEval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result); 
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_Noise_Test, inoise_test)
+}
+
+#endif
+
+
+
+
+
 //-------------------------------------------------------------------------------
 // .func tests
 class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup

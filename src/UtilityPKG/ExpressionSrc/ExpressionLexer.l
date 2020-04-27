@@ -53,6 +53,7 @@ class ExpressionLexer;
 %s voltagenodedef
 %s currentdevdef
 %s internaldevdef
+%s noisedevdef
 %s polydef
 %s polyargs
 %s polyvoltagenodedef
@@ -272,6 +273,57 @@ NOP N[RIMP]*
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_DEV_VAR;
+}
+
+
+<INITIAL>"DNO"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"DNO"[ \t]*"("    {
+  BEGIN(noisedevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single device name by itself */
+<noisedevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
+}
+
+<INITIAL>"DNI"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"DNI"[ \t]*"("    {
+  BEGIN(noisedevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"ONOISE"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_ONOISE;
+}
+
+<INITIAL>"INOISE"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_INOISE;
+}
+
+ /* single device name by itself */
+<noisedevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
 }
 
  /* built in functions */

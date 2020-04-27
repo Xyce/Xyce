@@ -34,6 +34,22 @@ class currentOp;
 
 inline void yyerror(std::vector<std::string> & s);
 
+#define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
+  if (PTR->paramType()) { ovc.paramOpVector.push_back(PTR); }  \
+  if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
+  if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
+  if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
+  if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
+  if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
+  if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
+  if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
+  if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
+  PTR->getInterestingOps(ovc); }
+
+// this one adds "this"
+#define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR) 
+
+
 //-------------------------------------------------------------------------------
 // this is to make the call to "getInterestingOps" have a single 
 // function argument that never has to change.
@@ -46,13 +62,21 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & func,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoise,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise
       ):
   paramOpVector(param),
     funcOpVector(func),
     voltOpVector(volt),
     currentOpVector(current),
-    internalDevVarOpVector(internalDevVar)
+    internalDevVarOpVector(internalDevVar),
+    dnoNoiseDevVarOpVector(dnoNoiseDevVar),
+    dniNoiseDevVarOpVector(dniNoiseDevVar),
+    oNoiseOpVector(oNoise),
+    iNoiseOpVector(iNoise)
   {};
 
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
@@ -60,6 +84,10 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVarOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoiseOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
 
 };
 
@@ -113,6 +141,13 @@ class astNode
     virtual bool currentType()     { return false; };
     virtual bool internalDeviceVarType()  { return false; };
 
+    virtual bool dnoNoiseVarType() { return false; }
+    virtual bool dniNoiseVarType() { return false; }
+    virtual bool oNoiseType() { return false; }
+    virtual bool iNoiseType() { return false; }
+
+    virtual bool leadCurrentType() { return false; }
+
     virtual bool getFunctionArgType() { return false; };
     virtual void setFunctionArgType() {};
     virtual void unsetFunctionArgType() {};
@@ -122,6 +157,7 @@ class astNode
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(leftAst_)) )
       {
         if (leftAst_->paramType())   { ovc.paramOpVector.push_back(leftAst_); }
@@ -141,6 +177,9 @@ class astNode
         if (rightAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(rightAst_); }
         rightAst_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_) 
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -761,6 +800,7 @@ class paramOp: public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(paramNode_)) )
       {
         if (paramNode_->paramType())   { ovc.paramOpVector.push_back(paramNode_); }
@@ -770,6 +810,9 @@ class paramOp: public astNode<ScalarT>
         if (paramNode_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(paramNode_); }
         paramNode_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS(paramNode_) 
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1040,8 +1083,8 @@ class internalDevVarOp: public astNode<ScalarT>
 
     void setInternalVarDevice(const std::string & devName) { internalDevVarDevice_ = devName; }
     std::string getInternalVarDevice() { return internalDevVarDevice_; }
-    ScalarT getInteranalDeviceVar () { return number_; }
-    void setInteranalDeviceVar (ScalarT n) { number_ = n; }
+    ScalarT getInternalDeviceVar () { return number_; }
+    void setInternalDeviceVar (ScalarT n) { number_ = n; }
 
     virtual bool internalDeviceVarType()  { return true; };
 
@@ -1051,6 +1094,164 @@ class internalDevVarOp: public astNode<ScalarT>
 // data:
     ScalarT number_;
     std::string internalDevVarDevice_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+// noise ops.  Possibly combine these
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class dnoNoiseVarOp: public astNode<ScalarT>
+{
+  public:
+    dnoNoiseVarOp (std::string noiseDevice):
+      astNode<ScalarT>(),
+      number_(0.0),
+      noiseDevice_(noiseDevice),
+      derivIndex_(-1)
+    {
+      Xyce::Util::toUpper(noiseDevice_);
+    };
+
+    virtual ScalarT val() {return number_;}
+
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "noise variable : device = " << noiseDevice_ <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "DNO_";
+      os << noiseDevice_;
+    }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+
+    void setNoiseDevice (const std::string & devName) { noiseDevice_ = devName; }
+    std::string getNoiseDevice () { return noiseDevice_; }
+    ScalarT getNoiseVar () { return number_; }
+    void setNoiseVar (ScalarT n) { number_ = n; }
+
+    virtual bool dnoNoiseVarType()  { return true; };
+
+    virtual std::string getName () { return noiseDevice_; }
+
+  private:
+    ScalarT number_;
+    std::string noiseDevice_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class dniNoiseVarOp: public astNode<ScalarT>
+{
+  public:
+    dniNoiseVarOp (std::string noiseDevice):
+      astNode<ScalarT>(),
+      number_(0.0),
+      noiseDevice_(noiseDevice),
+      derivIndex_(-1)
+    {
+      Xyce::Util::toUpper(noiseDevice_);
+    };
+
+    virtual ScalarT val() {return number_;}
+
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "noise variable : device = " << noiseDevice_ <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "DNO_";
+      os << noiseDevice_;
+    }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+
+    void setNoiseDevice (const std::string & devName) { noiseDevice_ = devName; }
+    std::string getNoiseDevice () { return noiseDevice_; }
+    ScalarT getNoiseVar () { return number_; }
+    void setNoiseVar (ScalarT n) { number_ = n; }
+
+    virtual bool dniNoiseVarType()  { return true; };
+
+    virtual std::string getName () { return noiseDevice_; }
+
+  private:
+    ScalarT number_;
+    std::string noiseDevice_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class oNoiseOp: public astNode<ScalarT>
+{
+  public:
+    oNoiseOp (): astNode<ScalarT>(), number_(0.0), derivIndex_(-1) {};
+    virtual ScalarT val() {return number_;}
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "onoise variable " <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os ) { os << "ONOISE"; }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+    ScalarT getNoiseVar () { return number_; }
+    void setNoiseVar (ScalarT n) { number_ = n; }
+    virtual bool oNoiseType()  { return true; };
+
+  private:
+    ScalarT number_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class iNoiseOp: public astNode<ScalarT>
+{
+  public:
+    iNoiseOp (): astNode<ScalarT>(), number_(0.0), derivIndex_(-1) {};
+    virtual ScalarT val() {return number_;}
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "onoise variable " <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os ) { os << "INOISE"; }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+    ScalarT getNoiseVar () { return number_; }
+    void setNoiseVar (ScalarT n) { number_ = n; }
+    virtual bool iNoiseType()  { return true; };
+
+  private:
+    ScalarT number_;
     int derivIndex_;
 };
 
@@ -1274,6 +1475,7 @@ class funcOp: public astNode<ScalarT>
     // still experimenting with these:
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(functionNode_)) )
       {
         if (functionNode_->paramType())   { ovc.paramOpVector.push_back(functionNode_); }
@@ -1281,6 +1483,11 @@ class funcOp: public astNode<ScalarT>
         if (functionNode_->voltageType()) { ovc.voltOpVector.push_back(functionNode_); }
         if (functionNode_->currentType()) { ovc.currentOpVector.push_back(functionNode_); }
         if (functionNode_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(functionNode_); }
+
+        if (functionNode_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(functionNode_); }
+        if (functionNode_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(functionNode_); }
+        if (functionNode_->oNoiseType()) { oNoiseOpVec_.push_back(functionNode_); }
+        if (functionNode_->iNoiseType()) { iNoiseOpVec_.push_back(functionNode_); }
 
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
@@ -1296,6 +1503,20 @@ class funcOp: public astNode<ScalarT>
         functionNode_->getInterestingOps(ovc);
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
       }
+#else
+        if (funcArgs_.size() != dummyFuncArgs_.size())
+        {
+          std::vector<std::string> errStr;
+          errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
+          errStr.push_back(funcName_);
+          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
+          yyerror(errStr);
+        }
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+AST_GET_INTERESTING_OPS(functionNode_) 
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1697,6 +1918,7 @@ class ifStatementOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(this->leftAst_)) )
       {
         if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
@@ -1726,6 +1948,9 @@ class ifStatementOp : public astNode<ScalarT>
         if (zAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(zAst_); }
         zAst_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1889,6 +2114,7 @@ class limitOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(this->leftAst_)) )
       {
         if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
@@ -1918,6 +2144,9 @@ class limitOp : public astNode<ScalarT>
         if (zAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(zAst_); }
         zAst_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -2303,6 +2532,7 @@ class polyOp : public astNode<ScalarT>
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
+#if 0
         if( !(Teuchos::is_null(polyVars_[ii])) )
         {
           if (polyVars_[ii]->paramType())   { ovc.paramOpVector.push_back(polyVars_[ii]); }
@@ -2312,6 +2542,9 @@ class polyOp : public astNode<ScalarT>
           if (polyVars_[ii]->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(polyVars_[ii]); }
           polyVars_[ii]->getInterestingOps(ovc);
         }
+#else
+AST_GET_INTERESTING_OPS(polyVars_[ii]) 
+#endif
       }
     }
 
@@ -2488,6 +2721,7 @@ class tableOp : public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 
+#if 0
       if( !(Teuchos::is_null(input_)) )
       {
         if (input_->paramType())   { ovc.paramOpVector.push_back(input_); }
@@ -2497,12 +2731,16 @@ class tableOp : public astNode<ScalarT>
         if (input_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(input_); }
         input_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS(input_)
+#endif
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
+#if 0
           if( !(Teuchos::is_null(tableArgs_[ii])) )
           {
             if (tableArgs_[ii]->paramType())   { ovc.paramOpVector.push_back(tableArgs_[ii]); }
@@ -2512,6 +2750,9 @@ class tableOp : public astNode<ScalarT>
             if (tableArgs_[ii]->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(tableArgs_[ii]); }
             tableArgs_[ii]->getInterestingOps(ovc);
           }
+#else
+AST_GET_INTERESTING_OPS(tableArgs_[ii])
+#endif
         }
       }
     }
@@ -2930,6 +3171,7 @@ class agaussOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(this->leftAst_)) )
       {
         if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
@@ -2959,6 +3201,9 @@ class agaussOp : public astNode<ScalarT>
         if (nAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(nAst_); }
         nAst_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -3122,6 +3367,7 @@ class gaussOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
+#if 0
       if( !(Teuchos::is_null(this->leftAst_)) )
       {
         if (this->leftAst_->paramType())   { ovc.paramOpVector.push_back(this->leftAst_); }
@@ -3151,6 +3397,9 @@ class gaussOp : public astNode<ScalarT>
         if (nAst_->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(nAst_); }
         nAst_->getInterestingOps(ovc);
       }
+#else
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
+#endif
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
