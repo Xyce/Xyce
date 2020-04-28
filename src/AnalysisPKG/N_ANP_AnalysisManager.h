@@ -548,7 +548,6 @@ private:
 
   Parallel::Manager *                   parallelManager_;               ///< Pointer to the parallel services manager
   TimeIntg::DataStore *                 dataStore_;                     ///< Data store object
-  IO::ActiveOutput *                    activeOutput_;
 
 
   Mode                  analysisMode_;

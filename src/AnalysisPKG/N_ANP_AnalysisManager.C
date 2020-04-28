@@ -198,7 +198,6 @@ AnalysisManager::AnalysisManager(
     nonlinearEquationLoader_(0),
     parallelManager_(0),
     dataStore_(0),
-    activeOutput_(0),
     analysisMode_(ANP_MODE_TRANSIENT),
     twoLevelMode_(TWO_LEVEL_MODE_TRANSIENT_DCOP),
     resumeSimulation_(false),
