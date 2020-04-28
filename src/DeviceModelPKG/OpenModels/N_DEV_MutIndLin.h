@@ -242,6 +242,7 @@ private:
   // and here's the list of ones we are coupling
   std::vector< std::string > couplingInductor;
   std::vector< double > couplingCoefficient;
+  std::vector< double > initialCondition;
   //Pointers to expressions used by coupling coefficients
   std::vector<Util::Expression *> expPtrs;
   // derivatives with respect to expression variables:

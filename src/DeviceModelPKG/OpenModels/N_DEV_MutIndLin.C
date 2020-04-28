@@ -155,6 +155,11 @@ void Traits::loadInstanceParameters(ParametricData<MutIndLin::Instance> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("");
+   
+  p.addPar ("IC",std::vector<double>(),&MutIndLin::Instance::initialCondition)
+   .setUnit(U_AMP)
+   .setCategory(CAT_NONE)
+   .setDescription("Initial current through the inductor.");
 }
 
 void Traits::loadModelParameters(ParametricData<MutIndLin::Model> &p)
@@ -212,6 +217,12 @@ Instance::Instance(
 
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
+  
+  Xyce::dout() << "Initial condition vector size is " << initialCondition.size() << std::endl;
+  for( int k = 0; k<initialCondition.size() ;k++)
+  {
+    Xyce::dout() << " IC " << k << " = " << initialCondition[k] << std::endl;
+  }
 
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )

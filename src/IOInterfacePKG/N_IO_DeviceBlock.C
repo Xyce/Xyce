@@ -2423,9 +2423,14 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
     }
     param.setGiven(true);
     addInstanceParameter( param );
-
+    
+    param.setTag( "IC" );
+    param.setVal( ( parsedInputLine[i + 4].string_ ).c_str() );
+    param.setGiven(true);
+    addInstanceParameter( param );
+    
     // move to next inductor in the list
-    i += 4;
+    i += 5;
   } while ( ( i < numFields ) && ( parsedInputLine[i].string_ != couplingListFlag ) );
 
   // shouldn't need to do this so I'll comment it out.
