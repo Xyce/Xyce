@@ -37,6 +37,7 @@
 #define Xyce_N_IO_MeasureMax_h
 
 #include <N_IO_MeasureBase.h>
+#include <N_IO_MeasureExtrema.h>
 
 namespace Xyce {
 namespace IO {
@@ -49,49 +50,22 @@ namespace Measure {
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-------------------------------------------------------------------------
-class Max : public Base
+class Max : public Extrema
 {
 public:
   Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
   ~Max() {};
 
-  void prepareOutputVariables();
   void reset();
 
-  void updateTran(
-    Parallel::Machine comm,
-    const double circuitTime,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *stateVec,
-    const Linear::Vector *storeVec,
-    const Linear::Vector *lead_current_vector,
-    const Linear::Vector *junction_voltage_vector,
-    const Linear::Vector *lead_current_dqdt_vector);
-
-  void updateDC(
-    Parallel::Machine comm,
-    const std::vector<Analysis::SweepParam> & dcParamsVec,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *stateVec,
-    const Linear::Vector *storeVec,
-    const Linear::Vector *lead_current_vector,
-    const Linear::Vector *junction_voltage_vector,
-    const Linear::Vector *lead_current_dqdt_vector);
-
-  void updateAC(
-    Parallel::Machine comm,
-    const double frequency,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *imaginaryVec,
-    const Util::Op::RFparamsData *RFparams);
-
   double getMeasureResult();
-  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false); 
+  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
+
+  void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal);
+  void updateMeasureVars(const double indepVarVal, const double depVarVal);
 
 private:
   std::string type_;
-  int numOutVars_;
-  std::vector<double> outVarValues_;
   double maximumValue_;
 
 };

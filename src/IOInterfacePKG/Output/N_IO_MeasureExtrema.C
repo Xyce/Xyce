@@ -21,16 +21,21 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Transient analysis functions.
-// Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Purpose       :  Find the extrema (max, min or peak-to-peak value)
+//                  of a simulation variable
+//
+// Special Notes : This class contains the functions that are common to
+//                 the Max, Min and PeakToPeak classes.  It sits between
+//                 those classes and the Base class.
+//
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2020
 //
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
 
-#include <N_IO_MeasureMax.h>
+#include <N_IO_MeasureExtrema.h>
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
@@ -38,16 +43,15 @@ namespace IO {
 namespace Measure {
 
 //-----------------------------------------------------------------------------
-// Function      : Max::Max()
+// Function      : Extrema::Extrema()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-Max::Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  Base(measureMgr, measureBlock),
-  maximumValue_(0.0)
+Extrema::Extrema(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+  Base(measureMgr, measureBlock)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -57,7 +61,7 @@ Max::Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Max::prepareOutputVariables()
+// Function      : Extrema::prepareOutputVariables()
 // Purpose       : Validates that the number of output variables is legal for this
 //                 measure type, and then makes the vector for those variables.
 // Special Notes :
@@ -65,7 +69,7 @@ Max::Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-void Max::prepareOutputVariables()
+void Extrema::prepareOutputVariables()
 {
   // this measurement should have only one dependent variable.
   // Error out if it doesn't
@@ -73,7 +77,7 @@ void Max::prepareOutputVariables()
 
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for MAX measure, \"" + name_ + "\"";
+    std::string msg = "Too many dependent variables for " + type_ +  " measure, \"" + name_ + "\"";
     Report::UserError0() << msg;
   }
 
@@ -82,28 +86,27 @@ void Max::prepareOutputVariables()
 
 
 //-----------------------------------------------------------------------------
-// Function      : Max::reset()
+// Function      : Extrema::resetExtrema()
 // Purpose       : Called when restarting a measure function.  Resets any state
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 8/28/2014
 //-----------------------------------------------------------------------------
-void Max::reset() 
+void Extrema::resetExtrema()
 {
   resetBase();
-  maximumValue_ = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Max::updateTran()
+// Function      : Extrema::updateTran()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 4/28/2020
 //-----------------------------------------------------------------------------
-void Max::updateTran(
+void Extrema::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
   const Linear::Vector *solnVec,
@@ -138,9 +141,7 @@ void Max::updateTran(
       // each time a new RFC window is entered.
       if( !initialized_  || newRiseFallCrossWindowforLast() )
       {
-        maximumValue_ = outVarValues_[0];
-        calculationInstant_ = circuitTime;
-        initialized_ = true;
+        setMeasureVarsForNewWindow(circuitTime, outVarValues_[0]);
         firstStepInRfcWindow_ = false;
       }
 
@@ -153,26 +154,22 @@ void Max::updateTran(
       }
       rfcWindowEndTime_ = circuitTime;
 
-      // calculation of the maximum value
-      if( maximumValue_ < outVarValues_[0] )
-      {
-        maximumValue_ = outVarValues_[0];
-        calculationInstant_ = circuitTime;
-      }
+      // calculation of the extrema
+      updateMeasureVars(circuitTime, outVarValues_[0]);
     }
   }
 }
 
 
 //-----------------------------------------------------------------------------
-// Function      : Max::updateDC()
+// Function      : Extrema::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
-// Creation Date : 4/9/2017
+// Creation Date : 4/28/2020
 //-----------------------------------------------------------------------------
-void Max::updateDC(
+void Extrema::updateDC(
   Parallel::Machine comm,
   const std::vector<Analysis::SweepParam> & dcParamsVec,
   const Linear::Vector *solnVec,
@@ -216,29 +213,22 @@ void Max::updateDC(
       endACDCmeasureWindow_ = dcSweepVal;
 
       if ( !initialized_ )
-      {
-        maximumValue_ = outVarValues_[0];
-        calculationInstant_ = dcSweepVal;
-        initialized_ = true;
-      }
-      else if ( maximumValue_ < outVarValues_[0] )
-      {
-        maximumValue_ = outVarValues_[0];
-        calculationInstant_ = dcSweepVal;
-      }
+        setMeasureVarsForNewWindow(dcSweepVal, outVarValues_[0]);
+      else
+        updateMeasureVars(dcSweepVal, outVarValues_[0]);
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Max::updateAC()
+// Function      : Extrema::updateAC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical Models & Simulation
 // Creation Date : 1/29/2019
 //-----------------------------------------------------------------------------
-void Max::updateAC(
+void Extrema::updateAC(
   Parallel::Machine comm,
   const double frequency,
   const Linear::Vector *solnVec,
@@ -268,90 +258,11 @@ void Max::updateAC(
     }
     endACDCmeasureWindow_ = frequency;
 
-    if( !initialized_  )
-    {
-      maximumValue_ =  outVarValues_[0]; 
-      calculationInstant_ = frequency;
-      initialized_ = true;
-    }
-    else if( maximumValue_ <  outVarValues_[0])
-    {
-      // calculation of the maximum value
-      maximumValue_ = outVarValues_[0];
-      calculationInstant_ = frequency;
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Max::getMeasureResult()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
-//-----------------------------------------------------------------------------
-double Max::getMeasureResult()
-{
-  if( initialized_ )
-  {
-    calculationResult_ =  maximumValue_;
-  }
-  return calculationResult_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Max::printMeasureResult()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystems Modeling
-// Creation Date : 2/09/2015
-//-----------------------------------------------------------------------------
-std::ostream& Max::printMeasureResult(std::ostream& os, bool printVerbose)
-{
-  basic_ios_all_saver<std::ostream::char_type> save(os);
-  os << std::scientific << std::setprecision(precision_);
-
-  if (!printVerbose)
-  {
-    if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
-    {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
-      // netlist and this is a failed measure.
-      os << name_ << " = FAILED" << std::endl;
-    }
-    else if ( (measureOutputOption_ == "TIME") || (measureOutputOption_ == "FREQ")
-         || (measureOutputOption_ == "SV") )
-    {
-      // output the time (or frequency or value of the first variable in 
-      // the DC sweep vector) when the maximum value occurs.
-      os << name_ << " = " << calculationInstant_ << std::endl;
-    }
+    if ( !initialized_ )
+      setMeasureVarsForNewWindow(frequency, outVarValues_[0]);
     else
-    {
-      // output the maximum value
-      os << name_ << " = " << this->getMeasureResult() << std::endl;
-    }
+      updateMeasureVars(frequency, outVarValues_[0]);
   }
-  else
-  {
-    if (initialized_)
-    {
-      os << name_ << " = " << this->getMeasureResult() ;
-
-      // modeStr is "time" for TRAN mode, "freq" for AC mode and 
-      // "<sweep variable> value" for DC mode.
-      std::string modeStr = setModeStringForMeasureResultText();     
-      os << " at " << modeStr << " = " << calculationInstant_ << std::endl;
-    }
-    else
-    { 
-      os << name_ << " = FAILED" << std::endl;
-    }
-  } 
-
-  return os;
 }
 
 } // namespace Measure

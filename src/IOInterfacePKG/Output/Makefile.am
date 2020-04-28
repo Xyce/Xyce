@@ -9,6 +9,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasureManager.h  \
   N_IO_MeasureBase.C \
   N_IO_MeasureBase.h \
+  N_IO_MeasureExtrema.C \
+  N_IO_MeasureExtrema.h \
   N_IO_MeasureRiseFallDelay.C \
   N_IO_MeasureRiseFallDelay.h \
   N_IO_MeasureAverage.C \

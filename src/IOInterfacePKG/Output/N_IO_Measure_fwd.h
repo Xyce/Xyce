@@ -41,6 +41,7 @@ namespace IO {
 namespace Measure {
 
 class Base;
+class Extrema;
 class Average;
 class DerivativeEvaluation;
 class Duty;

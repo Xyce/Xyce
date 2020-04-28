@@ -22,19 +22,27 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Measure statistics of a simulation variable
+// Purpose        : Find the extrema (max, min or peak-to-peak value)
+//                  of a simulation variable
 //
-// Special Notes  :
+// Special Notes  : This class contains the common functions for the Max, Min and
+//                  PeakToPeak classes, and sits between those classes and the Base
+//                  class. In general, it applies to measures that are based on the
+//                  current value of the simulation variable.  For TRAN measures,
+//                  the FROM, TO, TD, RISE, FALL and CROSS qualifiers can be used
+//                  to limit the measurement window.  For AC and DC measures, the
+//                  FROM and TO qualifiers can be used to limit the measurement
+//                  window.
 //
-// Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 03/10/2009
+// Creation Date  : 04/28/2020
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_MeasureMax_h
-#define Xyce_N_IO_MeasureMax_h
+#ifndef Xyce_N_IO_MeasureExtrema_h
+#define Xyce_N_IO_MeasureExtrema_h
 
 #include <N_IO_MeasureBase.h>
 
@@ -43,20 +51,21 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : Max
-// Purpose       : Measure the maximum value of a simulation variable
+// Class         : Extrema
+// Purpose       : Find the extrema (max, min or peak-to-peak value)
+//                 of a simulation variable
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2010
 //-------------------------------------------------------------------------
-class Max : public Base
+class Extrema : public Base
 {
 public:
-  Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~Max() {};
+  Extrema(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~Extrema() {};
 
   void prepareOutputVariables();
-  void reset();
+  void resetExtrema();
 
   void updateTran(
     Parallel::Machine comm,
@@ -85,15 +94,15 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
-  double getMeasureResult();
-  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false); 
+  virtual double getMeasureResult()=0;
+  virtual std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false)=0;
+
+  virtual void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)=0;
+  virtual void updateMeasureVars(const double indepVarVal, const double depVarVal)=0;
 
 private:
-  std::string type_;
   int numOutVars_;
   std::vector<double> outVarValues_;
-  double maximumValue_;
-
 };
 
 } // namespace Measure
