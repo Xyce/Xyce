@@ -202,9 +202,6 @@ Instance::Instance(
     tempGiven(false),
     scalingRHS(1.0)
 {
-  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
-  Xyce::dout() << "Linear mutual inductor IB " << IB << std::endl;
-  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
   scalingRHS = 1.0;
 
   // set some default values.  May be changed by processParams
@@ -217,13 +214,37 @@ Instance::Instance(
 
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
-  
-  Xyce::dout() << "Initial condition vector size is " << initialCondition.size() << std::endl;
-  for( int k = 0; k<initialCondition.size() ;k++)
-  {
-    Xyce::dout() << " IC " << k << " = " << initialCondition[k] << std::endl;
-  }
 
+  for(int i=0; i<initialCondition.size(); i++)
+  { 
+    Xyce::dout() << "1 initialCondition[" << i << "]=" << initialCondition[i] << std::endl;
+  }
+  // look over IB params for IC data
+  std::vector<Param>::const_iterator paramIt = IB.params.begin();
+  for( ;paramIt != IB.params.end(); ++paramIt)
+  {
+    Xyce::dout() << "tag = " << paramIt->tag() << paramIt->getType() << std::endl;
+    if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
+    {
+      Xyce::dout() << "Found string val with is given " << paramIt->given() << " and trying to convert to double. " << paramIt->getImmutableValue<double>() << std::endl;
+      // in the process of packing up the component inductors into a mutual inductor
+      // whether an initial condition is given or not is lost.  So check if the
+      // initial condition is nonzero and assue that zero was not given 
+      initialCondition.push_back(paramIt->getImmutableValue<double>());
+      if( paramIt->getImmutableValue<double>() != 0)
+      {
+        initialConditionGiven.push_back(true);
+      }
+      else
+      {
+        initialConditionGiven.push_back(false);
+      }
+    }
+  }
+  for(int i=0; i<initialCondition.size(); i++)
+  { 
+    Xyce::dout() << "2 initialCondition[" << i << "]=" << initialCondition[i] << " given state " << initialConditionGiven[i] << std::endl;
+  }
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )
   {

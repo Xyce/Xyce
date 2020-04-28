@@ -1568,7 +1568,6 @@ bool CircuitBlock::getLinePassMI()
               }
               if( param.uTag() == "IC" )
               {
-                Xyce::dout() << "Found and IC on a mutual inductor line and adding it to the otherParams list" <<  param << std::endl;
                 ( MIs[i].otherParams[ES1] ).push_back( param );
               }
             }
