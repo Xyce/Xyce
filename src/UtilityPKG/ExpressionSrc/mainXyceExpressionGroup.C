@@ -21,6 +21,8 @@
 #include <N_DEV_Op.h>
 #include <N_DEV_Const.h>
 
+#include <N_ERH_ErrorMgr.h>
+
 #include <N_UTL_DeviceNameConverters.h>
 
 namespace Xyce {
@@ -491,6 +493,152 @@ bool mainXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceNa
   bool bs1 = getInternalDeviceVar(deviceName, tmpVal);
   retval = std::complex<double>(tmpVal,0.0);
   return bs1;
+}
+
+// noise
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getDnoNoiseDeviceVar
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, double & retval) 
+{
+  retval=0.0; 
+
+  if (!analysisManager_.getNoiseFlag())
+  {
+    Report::UserError0() << "DNO and DNI operators only supported for .NOISE analyses";
+    return false;
+  }
+
+  return true; 
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getDnoNoiseDeviceVar
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+{
+  double val=0.0;
+  bool retBool = getDnoNoiseDeviceVar(deviceName,val);
+  retval=std::complex<double>(val,0.0); 
+  return retBool; 
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getDniNoiseDeviceVar
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, double & retval) 
+{
+  retval=0.0; 
+
+  if (!analysisManager_.getNoiseFlag())
+  {
+    Report::UserError0() << "DNO and DNI operators only supported for .NOISE analyses";
+    return false;
+  }
+
+  return true; 
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getDniNoiseDeviceVar
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+{
+  double val=0.0;
+  bool retBool = getDniNoiseDeviceVar(deviceName,val);
+  retval=std::complex<double>(val,0.0); 
+  return retBool; 
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getONoise
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getONoise(double & retval) 
+{ 
+  retval=0.0; 
+  if (!analysisManager_.getNoiseFlag())
+  {
+    Report::UserError0() << "ONOISE operator only supported for .NOISE analyses";
+    return false;
+  }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getONoise
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getONoise(std::complex<double> & retval) 
+{
+  double val=0.0;
+  bool retBool = getONoise(val);
+  retval=std::complex<double>(val,0.0); 
+  return retBool;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getINoise
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getINoise(double & retval) 
+{ 
+  retval=0.0; 
+  if (!analysisManager_.getNoiseFlag())
+  {
+    Report::UserError0() << "INOISE operator only supported for .NOISE analyses";
+    return false;
+  }
+  return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getINoise
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/28/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getINoise(std::complex<double> & retval) 
+{
+  double val=0.0;
+  bool retBool = getINoise(val);
+  retval=std::complex<double>(val,0.0); 
+  return retBool;
 }
 
 //-------------------------------------------------------------------------------
