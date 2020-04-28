@@ -609,6 +609,9 @@ private:
 
   // time integration related variables
   double bpTol_;
+  double startingTimeStep_;
+  double finalTime_;
+
   double timeStep_;
   double timeStepAlpha_;
   double timeStepPrefac_;

@@ -122,6 +122,8 @@ class astNode
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes) { return true;}
     virtual void setBreakPointTol(double tol){return;};
+    virtual void setStartingTimeStep(double timeStep){return;};
+    virtual void setFinalTime(double finalTime){return;};
 
     virtual void setDerivIndex(int i) {};
     virtual void unsetDerivIndex() {};
@@ -259,6 +261,61 @@ AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_)
   protected:
     Teuchos::RCP<astNode<ScalarT> > leftAst_;
     Teuchos::RCP<astNode<ScalarT> > rightAst_;
+};
+
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class numval : public astNode<ScalarT>
+{
+  public:
+    numval (ScalarT d): astNode<ScalarT>(),number(d) {};
+    numval (std::complex<ScalarT> d): astNode<ScalarT>(),number(std::real(d)) {};
+
+    virtual ScalarT val() { return number; }
+    virtual ScalarT dx(int i) {return 0.0;}
+    ScalarT number;
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "numval number = " << number << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this later for formatting
+      os << number;
+    }
+
+    virtual bool numvalType() { return true; };
+};
+
+//-------------------------------------------------------------------------------
+template <>
+class numval<std::complex<double>> : public astNode<std::complex<double>>
+{
+  public:
+
+    numval (std::complex<double> d): astNode<std::complex<double> >(),number(d) {};
+
+    virtual std::complex<double> val() {return number;}
+    virtual std::complex<double> dx(int i) {return (std::complex<double>(0.0,0.0));}
+    std::complex<double> number;
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "numval number = " << number << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this later for formatting
+      os << "std::complex<double>" << number;
+    }
+
+    virtual bool numvalType() { return true; };
 };
 
 #include "astbinary.h"
@@ -632,61 +689,6 @@ class unaryPlusOp : public astNode<ScalarT>
       os << ")";
     }
 
-};
-
-
-//-------------------------------------------------------------------------------
-template <typename ScalarT>
-class numval : public astNode<ScalarT>
-{
-  public:
-    numval (ScalarT d): astNode<ScalarT>(),number(d) {};
-    numval (std::complex<ScalarT> d): astNode<ScalarT>(),number(std::real(d)) {};
-
-    virtual ScalarT val() { return number; }
-    virtual ScalarT dx(int i) {return 0.0;}
-    ScalarT number;
-
-    virtual void output(std::ostream & os, int indent=0)
-    {
-      os << std::setw(indent) << " ";
-      os << "numval number = " << number << std::endl;
-    }
-
-    virtual void codeGen (std::ostream & os )
-    {
-      // fix this later for formatting
-      os << number;
-    }
-
-    virtual bool numvalType() { return true; };
-};
-
-//-------------------------------------------------------------------------------
-template <>
-class numval<std::complex<double>> : public astNode<std::complex<double>>
-{
-  public:
-
-    numval (std::complex<double> d): astNode<std::complex<double> >(),number(d) {};
-
-    virtual std::complex<double> val() {return number;}
-    virtual std::complex<double> dx(int i) {return (std::complex<double>(0.0,0.0));}
-    std::complex<double> number;
-
-    virtual void output(std::ostream & os, int indent=0)
-    {
-      os << std::setw(indent) << " ";
-      os << "numval number = " << number << std::endl;
-    }
-
-    virtual void codeGen (std::ostream & os )
-    {
-      // fix this later for formatting
-      os << "std::complex<double>" << number;
-    }
-
-    virtual bool numvalType() { return true; };
 };
 
 //-------------------------------------------------------------------------------

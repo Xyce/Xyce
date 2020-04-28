@@ -876,11 +876,15 @@ void newExpression::getValuesFromGroup()
   freqNodePtr_->setValue(group_->getFreq());
 
   bpTol_ = group_->getBpTol();
+  startingTimeStep_ = group_->getStartingTimeStep();
+  finalTime_ = group_->getFinalTime();
 
   int srcSize = srcAstNodeVec_.size();
   for (int ii=0;ii< srcSize; ii++) 
   { 
     (*(srcAstNodeVec_[ii]))->setBreakPointTol(bpTol_); 
+    (*(srcAstNodeVec_[ii]))->setStartingTimeStep(startingTimeStep_);
+    (*(srcAstNodeVec_[ii]))->setFinalTime(finalTime_);
   }
 
   timeStep_ = group_->getTimeStep ();

@@ -727,7 +727,7 @@ double mainXyceExpressionGroup::getFreq()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getBpTol()
 // Purpose       : 
 // Special Notes :
 // Scope         :
@@ -737,6 +737,32 @@ double mainXyceExpressionGroup::getFreq()
 double mainXyceExpressionGroup::getBpTol()
 {
   return deviceManager_.getSolverState().bpTol_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getStartingTimeStep
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/27/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getStartingTimeStep()
+{
+  return deviceManager_.getSolverState().startingTimeStep_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getFinalTime()
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/27/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getFinalTime()
+{
+  return deviceManager_.getSolverState().finalTime_;
 }
 
 } // Util

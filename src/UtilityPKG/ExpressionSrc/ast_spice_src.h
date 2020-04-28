@@ -25,26 +25,52 @@ template <typename ScalarT>
 class spicePulseOp : public astNode<ScalarT>
 {
   public:
-    spicePulseOp (
-        Teuchos::RCP<astNode<ScalarT> > &v1, Teuchos::RCP<astNode<ScalarT> > &v2, Teuchos::RCP<astNode<ScalarT> > &td,
-        Teuchos::RCP<astNode<ScalarT> > &tr, Teuchos::RCP<astNode<ScalarT> > &tf, Teuchos::RCP<astNode<ScalarT> > &pw,
-        Teuchos::RCP<astNode<ScalarT> > &per, Teuchos::RCP<astNode<ScalarT> > &time
-        ):
-      astNode<ScalarT>(), v1_(v1), v2_(v2), td_(td), tr_(tr), tf_(tf), pw_(pw), per_(per), time_(time), bpTol(0.0)
-  {};
+    spicePulseOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+      astNode<ScalarT>(), 
+      v1Given_(false), v2Given_(false), tdGiven_(false),
+      trGiven_(false), tfGiven_(false), pwGiven_(false), perGiven_(false),
+      time_(time), bpTol_(0.0), startingTimeStep_(0.0), finalTime_(0.0)
+  {
+    if (args->size() < 1)
+    {
+      std::vector<std::string> errStr(1,std::string("AST node (spice_pulse) needs at least 1 argument.  V1 is required for the PULSE source function.")); yyerror(errStr);
+    }
+
+    if (args->size() > 7)
+    {
+      std::vector<std::string> errStr(1,std::string("AST node (spice_pulse) has too many arguments")); yyerror(errStr);
+    }
+
+
+    // ERK. Fix this to set the proper defaults, consistent with N_DEV_PulseData
+    //
+    // double tstep = solState_.startingTimeStep_;
+    // double tstop = solState_.finalTime_;
+    // if (!TDgiven)  TD  = 0.0;
+    // if (!TRgiven)  TR  = tstep;
+    // if (!TFgiven)  TF  = tstep;
+    // if (!PWgiven)  PW  = tstop;
+    // if (!PERgiven) PER = tstop;
+    //
+    // At the time of construction, I don't think I have these values yet, so set in the val function.
+    //
+    if (args->size() >= 1) { v1_ = (*args)[0]; v1Given_=true; } else { v1_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 2) { v2_ = (*args)[1]; v2Given_=true; } else { v2_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 3) { td_ = (*args)[2]; tdGiven_=true; } else { td_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 4) { tr_ = (*args)[3]; trGiven_=true; } else { tr_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 5) { tf_ = (*args)[4]; tfGiven_=true; } else { tf_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 6) { pw_ = (*args)[5]; pwGiven_=true; } else { pw_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args->size() >= 7) { per_ = (*args)[6]; perGiven_=true; } else { per_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+  };
 
     virtual ScalarT val()
     {
-      // If neccessary, set the defaults:
-      //double tstep = solState_.startingTimeStep_;
-      //double tstop = solState_.finalTime_;
-      //if (!TDgiven)  TD  = 0.0;
-      //if (!TRgiven)  TR  = tstep;
-      //if (!TFgiven)  TF  = tstep;
-      //if (!PWgiven)  PW  = tstop;
-      //if (!PERgiven) PER = tstop;
-      ScalarT time = std::real(this->time_->val());
+      if (!trGiven_) { Teuchos::RCP<numval<ScalarT> > trTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tr_); trTmpOp->number = startingTimeStep_; }
+      if (!tfGiven_) { Teuchos::RCP<numval<ScalarT> > tfTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tf_); tfTmpOp->number = startingTimeStep_; }
+      if (!pwGiven_) { Teuchos::RCP<numval<ScalarT> > pwTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (pw_); pwTmpOp->number = finalTime_; }
+      if (!perGiven_) { Teuchos::RCP<numval<ScalarT> > perTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (per_); perTmpOp->number = finalTime_; }
 
+      ScalarT time = std::real(this->time_->val());
       ScalarT V1 = this->v1_->val();
       ScalarT V2 = this->v2_->val();
       ScalarT TD = std::real(this->td_->val());
@@ -73,16 +99,16 @@ class spicePulseOp : public astNode<ScalarT>
       ScalarT SourceValue = 0.0;
 
       if (std::real(time) <= 0 || (std::real(time) > (std::real(TR) + std::real(PW) + std::real(TF)) &&
-            (fabs (std::real(time) - std::real(TR+PW+TF)) > std::real(bpTol)) ) )
+            (fabs (std::real(time) - std::real(TR+PW+TF)) > std::real(bpTol_)) ) )
       {
         SourceValue = V1;
       }
-      else if ((std::real(time) > std::real(TR) && fabs(std::real(time)-std::real(TR)) > std::real(bpTol))
-          && (std::real(time) < (std::real(TR) + std::real(PW)) || fabs (std::real(time)-std::real(TR+PW))<std::real(bpTol)) )
+      else if ((std::real(time) > std::real(TR) && fabs(std::real(time)-std::real(TR)) > std::real(bpTol_))
+          && (std::real(time) < (std::real(TR) + std::real(PW)) || fabs (std::real(time)-std::real(TR+PW))<std::real(bpTol_)) )
       {
         SourceValue = V2;
       }
-      else if (std::real(time) > 0 && (std::real(time) < std::real(TR) || fabs(std::real(time)-std::real(TR)) < std::real(bpTol)))
+      else if (std::real(time) > 0 && (std::real(time) < std::real(TR) || fabs(std::real(time)-std::real(TR)) < std::real(bpTol_)))
       {
         if (std::real(TR) != 0.0)
         {
@@ -163,11 +189,9 @@ class spicePulseOp : public astNode<ScalarT>
       return true;
     }
 
-    virtual void setBreakPointTol(double tol)
-    {
-      bpTol = tol;
-      return;
-    }
+    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
+    virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
+    virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -233,8 +257,10 @@ AST_GET_CURRENT_OPS2(per_) AST_GET_CURRENT_OPS2(time_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td_, tr_, tf_, pw_, per_, time_;
-
-    double bpTol;
+    bool v1Given_, v2Given_, tdGiven_, trGiven_, tfGiven_, pwGiven_, perGiven_;
+    double bpTol_;
+    double startingTimeStep_;
+    double finalTime_;
 };
 
 //-------------------------------------------------------------------------------

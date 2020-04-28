@@ -76,6 +76,8 @@ public:
   virtual double getFreq() { return 0.0; }
 
   virtual double getBpTol() { return 0.0; }
+  virtual double getStartingTimeStep() { return 0.0; }
+  virtual double getFinalTime() { return 0.0; }
 
 private:
 

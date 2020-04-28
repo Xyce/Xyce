@@ -916,12 +916,12 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
 
- /* SPICE time-dependent sources.  consider allowing optional length argument lists? */
+ /* SPICE time-dependent sources.  These have optional length argument lists */
  /* pulse( v1,v2,td,tr,tf,pw,per) */
-  | TOK_SPICE_PULSE TOK_LEFTPAREN exp ',' exp ',' exp ',' exp ',' exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_SPICE_PULSE TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>(*$3, *$5, *$7, *$9, *$11, *$13, *$15, tmpPtr2 ));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($3, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(tmpPtr);
