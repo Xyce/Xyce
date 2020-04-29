@@ -2875,10 +2875,6 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_pureArray)
   }
 }
 
-#if 0
-// commenting this out for now, as it doesn't work yet.  It needs to, as the 
-// original Bsrc_C1.cir regression test specifies the table with parentheses 
-// around each time,value pair.
 TEST ( Double_Parser_table_Test, Bsrc_C1_pairsWithParens)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
@@ -2937,7 +2933,6 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_pairsWithParens)
     EXPECT_EQ(refRes,assignResult);
   }
 }
-#endif
 
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.

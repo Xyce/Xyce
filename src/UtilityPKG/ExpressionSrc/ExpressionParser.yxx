@@ -184,6 +184,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %type  <astNodePtr>   exp
 %type  <astNodePtr>   expression
 %type  <nodeVecPtr>   nonempty_arglist
+%type  <nodeVecPtr>   nonempty_arg_pairs
 %type  <nodeVecPtr>   no_comma_arglist
 %type  <nodeVecPtr>   no_comma_coeflist
 %type  <vecsval>  nonempty_voltagenodelist
@@ -879,6 +880,20 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
       delete $6;
     }
+  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arg_pairs 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      delete $5;
+    }
+  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      delete $5;
+    }
   | TOK_SDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>(*$3));
@@ -1035,6 +1050,9 @@ nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >;
 
 nonempty_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  }
   | nonempty_arglist ','  exp { $$->push_back((*$3)); }
+
+nonempty_arg_pairs: TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$2);  $$->push_back((*$4));  } 
+  | nonempty_arg_pairs TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$->push_back((*$3)); $$->push_back((*$5)); }
 
 no_comma_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  }
   | no_comma_arglist  exp { $$->push_back((*$2)); }
