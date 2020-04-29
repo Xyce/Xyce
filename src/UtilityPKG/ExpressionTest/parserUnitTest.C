@@ -573,8 +573,8 @@ TEST ( Double_Parser_SourceFunc_Test, sin2)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
 
   // Note that the original test used a parameter named "v2" for va. So, doing that here.
-  //Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta)-2mv"), testGroup);  // original, without phase
-  Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta,phase)-2mv"), testGroup); // works, but must have all 6 args
+  Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta)-2mv"), testGroup);  // original, without phase
+  //Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta,phase)-2mv"), testGroup); // works, but must have all 6 args
   testExpression.lexAndParseExpression();
 
   // setup the parameters

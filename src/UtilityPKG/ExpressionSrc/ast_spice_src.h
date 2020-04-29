@@ -298,6 +298,11 @@ class spiceSinOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
+      // defaults are as follows: (have to be set here b/c in constructor not sure if we know the final time yet
+      //
+      //   double tstop = solState_.finalTime_;
+      //  if (!FREQgiven)  FREQ  = 1.0/tstop;
+
       if (!freqGiven_ && finalTime_ != 0.0)  
       {
         Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (freq_);
@@ -542,15 +547,28 @@ template <typename ScalarT>
 class spiceSffmOp : public astNode<ScalarT>
 {
   public:
-    spiceSffmOp (
-        Teuchos::RCP<astNode<ScalarT> > &v0,
-        Teuchos::RCP<astNode<ScalarT> > &va,
-        Teuchos::RCP<astNode<ScalarT> > &fc,
-        Teuchos::RCP<astNode<ScalarT> > &mdi,
-        Teuchos::RCP<astNode<ScalarT> > &fs,
-        Teuchos::RCP<astNode<ScalarT> > &time
-        ):
-      astNode<ScalarT>(), v0_(v0), va_(va), fc_(fc), mdi_(mdi), fs_(fs), time_(time) {};
+    spiceSffmOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+      astNode<ScalarT>(), 
+      time_(time),
+      v0Given_(false), vaGiven_(false), fcGiven_(false), mdiGiven_(false), fsGiven_(false),
+      finalTime_(0.0)
+    {
+      if (args->size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) needs at least 2 argument.  V0 and VA are required for the SFFM source function.")); yyerror(errStr);
+      }
+
+      if (args->size() > 5)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) has too many arguments")); yyerror(errStr);
+      } 
+    
+      if (args->size() >= 1) { v0_    = (*args)[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 2) { va_    = (*args)[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 3) { fc_    = (*args)[2]; fcGiven_=true;    } else { fc_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 4) { mdi_   = (*args)[3]; mdiGiven_=true;   } else { mdi_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 5) { fs_    = (*args)[4]; fsGiven_=true;    } else { fs_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    };
 
     virtual ScalarT val()
     {
@@ -558,6 +576,9 @@ class spiceSffmOp : public astNode<ScalarT>
       //double tstop = solState_.finalTime_;
       //if (!FCgiven) FC = 1.0/tstop;
       //if (!FSgiven) FS = 1.0/tstop;
+      //
+      if (!fcGiven_ && finalTime_ != 0.0) { Teuchos::RCP<numval<ScalarT> > fcTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (fc_); fcTmpOp->number = 1.0/finalTime_; }
+      if (!fsGiven_ && finalTime_ != 0.0) { Teuchos::RCP<numval<ScalarT> > fsTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (fs_); fsTmpOp->number = 1.0/finalTime_; }
 
       ScalarT time = std::real(this->time_->val());
 
@@ -578,6 +599,8 @@ class spiceSffmOp : public astNode<ScalarT>
     {
       return 0.0;
     }
+
+    virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -635,6 +658,8 @@ AST_GET_CURRENT_OPS2(mdi_) AST_GET_CURRENT_OPS2(fs_) AST_GET_CURRENT_OPS2(time_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v0_, va_, fc_, mdi_, fs_, time_;
+    bool v0Given_, vaGiven_, fcGiven_, mdiGiven_, fsGiven_;
+    double finalTime_;
 };
 
 #endif
