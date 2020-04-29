@@ -272,19 +272,37 @@ template <typename ScalarT>
 class spiceSinOp : public astNode<ScalarT>
 {
   public:
-    spiceSinOp (
-        Teuchos::RCP<astNode<ScalarT> > &v0, Teuchos::RCP<astNode<ScalarT> > &va, Teuchos::RCP<astNode<ScalarT> > &freq,
-        Teuchos::RCP<astNode<ScalarT> > &td, Teuchos::RCP<astNode<ScalarT> > &theta, Teuchos::RCP<astNode<ScalarT> > &phase,
-        Teuchos::RCP<astNode<ScalarT> > &time
-        ):
-      astNode<ScalarT>(), v0_(v0), va_(va), freq_(freq), td_(td), theta_(theta), phase_(phase), time_(time)
-  {};
+    spiceSinOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+      astNode<ScalarT>(), 
+      time_(time),
+      v0Given_(false), vaGiven_(false), freqGiven_(false), tdGiven_(false), thetaGiven_(false), phaseGiven_(false),
+      finalTime_(0.0)
+    {
+      if (args->size() < 3)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_sin) needs at least 3 argument.  V0, VA and FREQ are required for the SIN source function.")); yyerror(errStr);
+      }
+
+      if (args->size() > 6)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_sin) has too many arguments")); yyerror(errStr);
+      } 
+    
+      if (args->size() >= 1) { v0_    = (*args)[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 2) { va_    = (*args)[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 3) { freq_  = (*args)[2]; freqGiven_=true;  } else { freq_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 4) { td_    = (*args)[3]; tdGiven_=true;    } else { td_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 5) { theta_ = (*args)[4]; thetaGiven_=true; } else { theta_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 6) { phase_ = (*args)[5]; phaseGiven_=true; } else { phase_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    };
 
     virtual ScalarT val()
     {
-      // ERK. do this somehow:
-      //   double tstop = solState_.finalTime_;
-      //  if (!FREQgiven)  FREQ  = 1.0/tstop;
+      if (!freqGiven_ && finalTime_ != 0.0)  
+      {
+        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (freq_);
+        freqTmpOp->number = 1.0/finalTime_;
+      }
 
       ScalarT time = std::real(this->time_->val());
       time -= std::real(this->td_->val());
@@ -307,6 +325,8 @@ class spiceSinOp : public astNode<ScalarT>
     {
       return 0.0;
     }
+
+    virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -365,6 +385,8 @@ AST_GET_CURRENT_OPS2(td_) AST_GET_CURRENT_OPS2(theta_) AST_GET_CURRENT_OPS2(phas
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v0_, va_, freq_, td_, theta_, phase_, time_;
+    bool v0Given_, vaGiven_, freqGiven_, tdGiven_, thetaGiven_, phaseGiven_;
+    double finalTime_;
 };
 
 //-------------------------------------------------------------------------------
@@ -376,12 +398,29 @@ template <typename ScalarT>
 class spiceExpOp : public astNode<ScalarT>
 {
   public:
-    spiceExpOp (
-        Teuchos::RCP<astNode<ScalarT> > &v1, Teuchos::RCP<astNode<ScalarT> > &v2, Teuchos::RCP<astNode<ScalarT> > &td1,
-        Teuchos::RCP<astNode<ScalarT> > &tau1, Teuchos::RCP<astNode<ScalarT> > &td2, Teuchos::RCP<astNode<ScalarT> > &tau2,
-        Teuchos::RCP<astNode<ScalarT> > &time
-        ):
-      astNode<ScalarT>(), v1_(v1), v2_(v2), td1_(td1), tau1_(tau1), td2_(td2), tau2_(tau2), time_(time) {};
+    spiceExpOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+      astNode<ScalarT>(), 
+      time_(time),
+      v1Given_(false), v2Given_(false), td1Given_(false), tau1Given_(false), td2Given_(false), tau2Given_(false),
+      startingTimeStep_(0.0)
+    {
+      if (args->size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_exp) needs at least 2 argument.  V1 and V2 are required for the EXP source function.")); yyerror(errStr);
+      }
+
+      if (args->size() > 6)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (spice_exp) has too many arguments")); yyerror(errStr);
+      } 
+    
+      if (args->size() >= 1) { v1_    = (*args)[0]; v1Given_=true;    } else { v1_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 2) { v2_    = (*args)[1]; v2Given_=true;    } else { v2_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 3) { td1_   = (*args)[2]; td1Given_=true;   } else { td1_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 4) { tau1_  = (*args)[3]; tau1Given_=true;  } else { tau1_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 5) { td2_   = (*args)[4]; td2Given_=true;   } else { td2_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args->size() >= 6) { tau2_  = (*args)[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); } 
+    };
 
     virtual ScalarT val()
     {
@@ -391,6 +430,17 @@ class spiceExpOp : public astNode<ScalarT>
       // if (!TAU1given) TAU1 = tstep;
       // if (!TD2given)  TD2 = TD1 + tstep;
       // if (!TAU2given) TAU2 = tstep;
+
+      if (!tau1Given_)  { Teuchos::RCP<numval<ScalarT> > tau1TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tau1_); tau1TmpOp->number = startingTimeStep_; }
+
+      if (!td2Given_)   
+      { 
+        Teuchos::RCP<numval<ScalarT> > td1TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (td1_); 
+        Teuchos::RCP<numval<ScalarT> > td2TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (td2_); 
+        td2TmpOp->number = td1TmpOp->number + startingTimeStep_;
+      }
+
+      if (!tau2Given_)  { Teuchos::RCP<numval<ScalarT> > tau2TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tau2_); tau2TmpOp->number = startingTimeStep_; }
 
       ScalarT time = std::real(this->time_->val());
       ScalarT SourceValue = 0.0;
@@ -420,6 +470,8 @@ class spiceExpOp : public astNode<ScalarT>
     {
       return 0.0;
     }
+
+    virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -477,6 +529,8 @@ AST_GET_CURRENT_OPS2(tau1_) AST_GET_CURRENT_OPS2(td2_) AST_GET_CURRENT_OPS2(tau2
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td1_, tau1_, td2_, tau2_, time_;
+    bool v1Given_, v2Given_, td1Given_, tau1Given_, td2Given_, tau2Given_;
+    double startingTimeStep_;
 };
 
 //-------------------------------------------------------------------------------

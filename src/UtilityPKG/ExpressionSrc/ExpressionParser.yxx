@@ -928,19 +928,19 @@ exp:
       newExp.setTimeDependent(true);
     }
  /* sin (v0,va,frequency,td,theta,phase) */
-  | TOK_SPICE_SIN   TOK_LEFTPAREN exp ',' exp ',' exp ',' exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_SPICE_SIN   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>(*$3,*$5,*$7,*$9,*$11,*$13,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($3, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
     }
  /* exp ( v1,v2,td1,tau1,td2,tau2) */
-  | TOK_SPICE_EXP   TOK_LEFTPAREN exp ',' exp ',' exp ',' exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_SPICE_EXP   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>(*$3,*$5,*$7,*$9,*$11,*$13,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($3,tmpPtr2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);

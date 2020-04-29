@@ -531,6 +531,10 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
   int numpoints=100;
   double v0(1.65), va(1.65), freq(10000), td(0.0), theta(0.0), phase(-90),time(0.0);
   double dt=(1.0/freq)*(1.0/static_cast<double>(numpoints));
