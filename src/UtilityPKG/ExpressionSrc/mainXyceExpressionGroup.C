@@ -343,6 +343,15 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std:
     }
     else // These cases are valid for .DC and .TRAN
     {
+#if 0
+      // ERK.  This causes problems;  For example, the call to "getBranchVarsNodeMap" 
+      // causes a seg fault in the SOURCES/ebh.cir test case.  
+      //
+      // The segfault occurs at an early phase, probably before this map was actually allocated. (hence the seg fault).
+      // The specific expression, which was part of a Bsrc source, was this:
+      //    V={I(E3)+I(B2)}
+      // The I(E3) current was not found by any of the above code, so we came here and crashed.
+      //
       it = outputManager_.getBranchVarsNodeMap().find(leadCurrent_name );
       // Search lead current vector 
       if (it != outputManager_.getBranchVarsNodeMap().end())
@@ -360,6 +369,7 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std:
           success = true;
         }
       }
+#endif
     }
   }
 
