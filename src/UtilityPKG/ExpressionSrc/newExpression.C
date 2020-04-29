@@ -97,10 +97,20 @@ bool newExpression::lexAndParseExpression()
   {
     std::string fileName("bogusTestFile");
     std::stringstream expressionStringStream ( expressionString_ );
-    Xyce::Util::ExpressionLexer expLexer(fileName,&expressionStringStream);
-    XyceExpression::ExpressionParser expParser(&expLexer,*this);
-    int retCode = expParser.parse();
-    parsed_ = (retCode == 0);
+
+    // if the expressionString_ is empty, bison will throw an error.  
+    // Plus, no point in parsing an empty string.
+    if(expressionString_.empty())
+    {
+      parsed_ = true;  // ERK.   If this is false, and someone calls "evaluate", triggers a fatal error. So let it be true.
+    }
+    else
+    {
+      Xyce::Util::ExpressionLexer expLexer(fileName,&expressionStringStream);
+      XyceExpression::ExpressionParser expParser(&expLexer,*this);
+      int retCode = expParser.parse();
+      parsed_ = (retCode == 0);
+    }
   }
   else
   {
