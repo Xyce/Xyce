@@ -122,6 +122,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %token TOK_SQRT	"sqrt"
 %token TOK_MAX	"max"
 %token TOK_MIN	"min"
+%token TOK_POWER	"power"
 %token TOK_PHASE	"phase"
 %token TOK_REAL	"real"
 %token TOK_IMAG	"imag"
@@ -564,7 +565,7 @@ exp:
       Teuchos::RCP<internalDevVarOp<usedType> > * internalDevVarPtr = new Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(*$2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*internalDevVarPtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      newExp.getInternalDevVarOpVec_().push_back(*internalDevVarPtr);
+      newExp.getInternalDevVarOpVec().push_back(*internalDevVarPtr);
 
       // adjust for complex number variants
       std::string firstArg = (*$1);
@@ -622,7 +623,7 @@ exp:
         Teuchos::RCP<dnoNoiseVarOp<usedType> > * dnoNoiseVarPtr = new Teuchos::RCP<dnoNoiseVarOp<usedType> >(new dnoNoiseVarOp<usedType>(*$2));
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dnoNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
-        newExp.getDnoNoiseDevVarOpVec__().push_back(*dnoNoiseVarPtr);
+        newExp.getDnoNoiseDevVarOpVec().push_back(*dnoNoiseVarPtr);
         delete dnoNoiseVarPtr;
       }
       else if ( firstArg == std::string("DNI") )
@@ -630,7 +631,7 @@ exp:
         Teuchos::RCP<dniNoiseVarOp<usedType> > * dniNoiseVarPtr = new Teuchos::RCP<dniNoiseVarOp<usedType> >(new dniNoiseVarOp<usedType>(*$2));
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dniNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
-        newExp.getDniNoiseDevVarOpVec_().push_back(*dniNoiseVarPtr);
+        newExp.getDniNoiseDevVarOpVec().push_back(*dniNoiseVarPtr);
         delete dniNoiseVarPtr;
       }
 
@@ -642,7 +643,7 @@ exp:
     {
       Teuchos::RCP<oNoiseOp<usedType> > * onoisePtr = new Teuchos::RCP<oNoiseOp<usedType> >(new oNoiseOp<usedType>());
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*onoisePtr);
-      newExp.getONoiseOpVec_().push_back(*onoisePtr);
+      newExp.getONoiseOpVec().push_back(*onoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
     }
@@ -650,7 +651,7 @@ exp:
     {
       Teuchos::RCP<iNoiseOp<usedType> > * inoisePtr = new Teuchos::RCP<iNoiseOp<usedType> >(new iNoiseOp<usedType>());
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*inoisePtr);
-      newExp.getINoiseOpVec_().push_back(*inoisePtr);
+      newExp.getINoiseOpVec().push_back(*inoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
     }
@@ -666,6 +667,14 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new minOp<usedType>(*$3,*$5));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+    }
+  | TOK_POWER TOK_CURRENTDEV
+    {
+      Teuchos::RCP<powerOp<usedType> > * powerPtr = new Teuchos::RCP<powerOp<usedType> >(new powerOp<usedType>(*$2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*powerPtr);
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getPowerOpVec().push_back(*powerPtr);
     }
   | TOK_PHASE exp TOK_RIGHTPAREN
     {

@@ -210,7 +210,7 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence6, "1.0/(4.0*10.0)", (1
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, unaryPlus, "+2.0", (2.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, unaryMinus, "-2.0", (-2.0) )
 
-PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, phase, "P(1.0)", std::arg(1.0) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, phase, "Ph(1.0)", std::arg(1.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real1, "Re(1.0)", 1.0 )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real2, "R(1.0)", 1.0 )
 // Im cannot work along with IM for imaginary current.  disabling
@@ -1084,6 +1084,26 @@ TEST ( Double_Parser_CurrSoln_Test, test1)
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
   OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
+TEST ( Double_Parser_Power_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*P(R1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result=0.0, R1val=3.0;
+  double refRes = 17.2*R1val+8.5;
+  solnGroup->setSoln(std::string("R1"),R1val);
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_Power_Test, test1)
 }
 
 TEST ( Double_Parser_CurrDeriv_Test, test1)

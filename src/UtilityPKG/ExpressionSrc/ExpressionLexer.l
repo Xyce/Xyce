@@ -326,9 +326,15 @@ NOP N[RIMP]*
   return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
 }
 
- /* built in functions */
-<INITIAL>"P"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
+<INITIAL>"P"[ \t]*"("    { 
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_POWER; 
+}
 
+ /* built in functions */
+<INITIAL>"Ph"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
 <INITIAL>"R"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_REAL; }
 <INITIAL>"Re""("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
  /* <INITIAL>"Im"    { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */

@@ -71,7 +71,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {};
 
   // primary constructor
@@ -94,7 +94,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -142,7 +142,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -180,7 +180,7 @@ public:
     isTempDepdendent_(false),
     isVTDepdendent_(false),
     isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -200,6 +200,7 @@ public:
       if (left->funcType())    { funcOpVec_.push_back(left); }
       if (left->voltageType()) { voltOpVec_.push_back(left); }
       if (left->currentType()) { currentOpVec_.push_back(left); }
+      if (left->powerType())   { powerOpVec_.push_back(left); }
       if (left->internalDeviceVarType()) { internalDevVarOpVec_.push_back(left); }
 
       if (left->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(left); }
@@ -254,8 +255,18 @@ public:
     unresolvedVoltOpVec_(right.unresolvedVoltOpVec_),
     voltOpNames_(right.voltOpNames_),
     currentOpVec_(right.currentOpVec_),
+
+
     unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
     currentOpNames_(right.currentOpNames_),
+
+    powerOpVec_(right.powerOpVec_),
+    internalDevVarOpVec_(right.internalDevVarOpVec_),
+    dnoNoiseDevVarOpVec_(right.dnoNoiseDevVarOpVec_),
+    dniNoiseDevVarOpVec_(right.dniNoiseDevVarOpVec_),
+    oNoiseOpVec_(right.oNoiseOpVec_),
+    iNoiseOpVec_(right.iNoiseOpVec_),
+
     bpTol_(right.bpTol_),
     timeStep_(right.timeStep_),
     timeStepAlpha_(right.timeStepAlpha_),
@@ -269,7 +280,7 @@ public:
     isTempDepdendent_(right.isTempDepdendent_),
     isVTDepdendent_(right.isVTDepdendent_),
     isFreqDepdendent_(right.isFreqDepdendent_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -324,6 +335,13 @@ public:
     currentOpVec_ = right.currentOpVec_;
     currentOpNames_ = right.currentOpNames_;
     unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
+
+    powerOpVec_ = right.powerOpVec_;
+    internalDevVarOpVec_ = right.internalDevVarOpVec_;
+    dnoNoiseDevVarOpVec_ = right.dnoNoiseDevVarOpVec_;
+    dniNoiseDevVarOpVec_ = right.dniNoiseDevVarOpVec_;
+    oNoiseOpVec_ = right.oNoiseOpVec_;
+    iNoiseOpVec_ = right.iNoiseOpVec_;
 
     bpTol_ = right.bpTol_;
     timeStep_ = right.timeStep_;
@@ -471,12 +489,13 @@ public:
     return voltOpNames_;
   };
 
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getInternalDevVarOpVec_() { return internalDevVarOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getPowerOpVec() { return powerOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getInternalDevVarOpVec() { return internalDevVarOpVec_; }
 
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getDnoNoiseDevVarOpVec__() { return dnoNoiseDevVarOpVec_; }
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getDniNoiseDevVarOpVec_() { return dniNoiseDevVarOpVec_; }
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getONoiseOpVec_() { return oNoiseOpVec_; }
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec_() { return iNoiseOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDnoNoiseDevVarOpVec() { return dnoNoiseDevVarOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDniNoiseDevVarOpVec() { return dniNoiseDevVarOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getONoiseOpVec() { return oNoiseOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec() { return iNoiseOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
@@ -581,6 +600,10 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > powerOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedPowerOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > powerOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > internalDevVarOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedInternalDevVarOpVec_;

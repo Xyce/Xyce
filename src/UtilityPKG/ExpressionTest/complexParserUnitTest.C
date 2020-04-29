@@ -233,7 +233,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop2)
 TEST ( Complex_Parser_Test, singleCharacter_Pop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
-  Xyce::Util::newExpression testExpression(std::string("P(1.0+2.0J)"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> input(1.0,2.0);
   std::complex<double> refresult(std::arg(input));
@@ -247,7 +247,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Pop)
 TEST ( Complex_Parser_Test, singleCharacter_Pop2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
-  Xyce::Util::newExpression testExpression(std::string("P (1.0+2.0J)"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("Ph (1.0+2.0J)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> input(1.0,2.0);
   std::complex<double> refresult(std::arg(input));

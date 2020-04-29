@@ -813,6 +813,18 @@ void newExpression::getValuesFromGroup()
     currOp->setCurrentVal ( val );
   }
 
+  for (int ii=0;ii<currentOpVec_.size();ii++)
+  {
+    Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+
+    usedType val;
+    if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
+    {
+      group_->getCurrentVal(currOp->getCurrentDevice(),val);
+    }
+    currOp->setCurrentVal ( val );
+  }
+
   for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
   {
     Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);

@@ -39,6 +39,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
   if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
   if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
+  if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
   if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
   if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
   if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
@@ -62,6 +63,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & func,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & power,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
@@ -72,6 +74,7 @@ public:
     funcOpVector(func),
     voltOpVector(volt),
     currentOpVector(current),
+    powerOpVector(power),
     internalDevVarOpVector(internalDevVar),
     dnoNoiseDevVarOpVector(dnoNoiseDevVar),
     dniNoiseDevVarOpVector(dniNoiseDevVar),
@@ -83,6 +86,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & funcOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & powerOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVarOpVector;
@@ -141,6 +145,7 @@ class astNode
     virtual bool funcType()        { return false; };
     virtual bool voltageType()     { return false; };
     virtual bool currentType()     { return false; };
+    virtual bool powerType()       { return false; };
     virtual bool internalDeviceVarType()  { return false; };
 
     virtual bool dnoNoiseVarType() { return false; }
@@ -1012,6 +1017,56 @@ class currentOp: public astNode<ScalarT>
 // data:
     ScalarT number_;
     std::string currentDevice_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class powerOp: public astNode<ScalarT>
+{
+  public:
+    powerOp (std::string powerDevice):
+      astNode<ScalarT>(),
+      number_(0.0),
+      powerDevice_(powerDevice),
+      derivIndex_(-1)
+    {
+      Xyce::Util::toUpper(powerDevice_);
+    };
+
+    virtual ScalarT val() {return number_;}
+
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "Power : device = " << powerDevice_ <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "P_";
+      os << powerDevice_;
+    }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+
+    void setPowerDevice(const std::string & devName) { powerDevice_ = devName; }
+    std::string getPowerDevice() { return powerDevice_; }
+    ScalarT getPowerVal () { return number_; }
+    void setPowerVal (ScalarT n) { number_ = n; }
+
+    virtual bool powerType() { return true; };
+
+    virtual std::string getName () { return powerDevice_; }
+
+  private:
+// data:
+    ScalarT number_;
+    std::string powerDevice_;
     int derivIndex_;
 };
 
