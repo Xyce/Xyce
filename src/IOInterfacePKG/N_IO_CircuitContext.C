@@ -828,7 +828,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         if (parameter.getType() ==  Xyce::Util::EXPR)
 	      {
           std::vector<std::string> specials;
-          parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
+         // parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
+          parameter.getValue<Util::Expression>().getSpecials(specials);
           if (!specials.empty())
 	        {
 	          Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
@@ -864,11 +865,16 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         {
           std::vector<std::string> nodes, instances, leads, variables, specials;
 
-          parameter.getValue<Util::Expression>().get_names(XEXP_NODE, nodes);
-          parameter.getValue<Util::Expression>().get_names(XEXP_INSTANCE, instances);
-          parameter.getValue<Util::Expression>().get_names(XEXP_LEAD, leads);
-          parameter.getValue<Util::Expression>().get_names(XEXP_VARIABLE, variables);
-          parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
+          //parameter.getValue<Util::Expression>().get_names(XEXP_NODE, nodes);
+          //parameter.getValue<Util::Expression>().get_names(XEXP_INSTANCE, instances);
+          //parameter.getValue<Util::Expression>().get_names(XEXP_LEAD, leads);
+          //parameter.getValue<Util::Expression>().get_names(XEXP_VARIABLE, variables);
+          //parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
+          parameter.getValue<Util::Expression>().getVoltageNodes(nodes);
+          parameter.getValue<Util::Expression>().getDeviceCurrents(instances);
+          parameter.getValue<Util::Expression>().getLeadCurrents(leads);
+          parameter.getValue<Util::Expression>().get_names(XEXP_VARIABLE, variables); // what is this? Fix.
+          parameter.getValue<Util::Expression>().getSpecials(specials);
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
           {
@@ -1006,7 +1012,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         std::vector<std::string> strings;
 
         Util::Expression functionBodyExpression(expressionGroup_, functionParameter.stringValue());
-        functionBodyExpression.get_names(XEXP_STRING, strings);
+        //functionBodyExpression.get_names(XEXP_STRING, strings);
+        functionBodyExpression.getUnresolvedParams(strings);
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
         {
           if (find(functionArgs.begin(), functionArgs.end(), *it) == functionArgs.end()
@@ -1239,11 +1246,18 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
       std::vector<std::string> nodes, instances, leads, variables, specials, nodecomps;
-      expression.get_names(XEXP_NODE, nodes);
-      expression.get_names(XEXP_INSTANCE, instances);
-      expression.get_names(XEXP_LEAD, leads);
-      expression.get_names(XEXP_VARIABLE, variables);
-      expression.get_names(XEXP_SPECIAL, specials);
+      //expression.get_names(XEXP_NODE, nodes);
+      //expression.get_names(XEXP_INSTANCE, instances);
+      //expression.get_names(XEXP_LEAD, leads);
+      //expression.get_names(XEXP_VARIABLE, variables);
+      //expression.get_names(XEXP_SPECIAL, specials);
+      //expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
+
+      expression.getVoltageNodes(nodes);
+      expression.getDeviceCurrents(instances);
+      expression.getLeadCurrents(leads);
+      expression.get_names(XEXP_VARIABLE, variables); // what is this? Fix.
+      expression.getSpecials(specials);      
       expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1424,11 +1438,18 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
       std::vector<std::string> nodes, instances, leads, variables, specials, nodecomps;
-      expression.get_names(XEXP_NODE, nodes);
-      expression.get_names(XEXP_INSTANCE, instances);
-      expression.get_names(XEXP_LEAD, leads);
-      expression.get_names(XEXP_VARIABLE, variables);
-      expression.get_names(XEXP_SPECIAL, specials);
+      //expression.get_names(XEXP_NODE, nodes);
+      //expression.get_names(XEXP_INSTANCE, instances);
+      //expression.get_names(XEXP_LEAD, leads);
+      //expression.get_names(XEXP_VARIABLE, variables);
+      //expression.get_names(XEXP_SPECIAL, specials);
+      //expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
+
+      expression.getVoltageNodes(nodes);
+      expression.getDeviceCurrents(instances);
+      expression.getLeadCurrents(leads);
+      expression.get_names(XEXP_VARIABLE, variables); // what is this? Fix.
+      expression.getSpecials(specials);      
       expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1618,12 +1639,11 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
   // Strings in the expression must be previously resolved parameters
   // that appear in paramList else there is an error.
   bool unresolvedStrings = false;
-  if ( expression.get_num(XEXP_STRING) > 0 )
-  {
-    // Get the list of strings in the expression.
-    std::vector<std::string> strings;
-    expression.get_names(XEXP_STRING, strings);
+  std::vector<std::string> strings;
+  expression.getUnresolvedParams(strings);
 
+  if ( !(strings.empty()) )
+  {
     // If the expression is resolvable, each string in the current expression
     // must appear as a resolved parameter in netlistParameters. Get the value
     // if it appears there.
