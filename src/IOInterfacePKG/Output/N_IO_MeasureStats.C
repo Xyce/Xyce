@@ -21,16 +21,20 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Transient analysis functions.
-// Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Purpose       : Measure statistics of a simulation variable over
+//                 an interval
+// Special Notes : This class contains the functions that are common to
+//                 the Average, IntegralEvaluation and RMS classes.  It
+//                 sits between those classes and the Base class.
+//
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2020
 //
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
 
-#include <N_IO_MeasureAverage.h>
+#include <N_IO_MeasureStats.h>
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
@@ -38,19 +42,17 @@ namespace IO {
 namespace Measure {
 
 //-----------------------------------------------------------------------------
-// Function      : Average::Average()
+// Function      : Stats::Stats()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 4/28/2020
 //-----------------------------------------------------------------------------
-Average::Average(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+Stats::Stats(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  averageValue_(0.0),
   lastIndepVarValue_(0.0),
-  lastSignalValue_(0.0),
-  totalAveragingWindow_(0.0)
+  lastSignalValue_(0.0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -60,7 +62,7 @@ Average::Average(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Average::prepareOutputVariables()
+// Function      : Stats::prepareOutputVariables()
 // Purpose       : Validates that the number of output variables is legal for this
 //                 measure type, and then makes the vector for those variables.
 // Special Notes :
@@ -68,7 +70,7 @@ Average::Average(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-void Average::prepareOutputVariables() 
+void Stats::prepareOutputVariables()
 {
   // this measurement should have only one dependent variable.
   // Error out if it doesn't.
@@ -76,7 +78,7 @@ void Average::prepareOutputVariables()
 
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for AVG measure, \"" + name_ + "\"";
+    std::string msg = "Too many dependent variables for " + type_ + " measure, \"" + name_ + "\"";
     Report::UserError0() << msg;
   }
   outVarValues_.resize( numOutVars_, 0.0 );
@@ -84,29 +86,27 @@ void Average::prepareOutputVariables()
 
 
 //-----------------------------------------------------------------------------
-// Function      : Average::reset()
+// Function      : Stats::resetStats()
 // Purpose       : Called when restarting a measure function.  Resets any state
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 8/28/2014
 //-----------------------------------------------------------------------------
-void Average::reset() 
+void Stats::resetStats()
 {
   resetBase();
-  averageValue_ = 0.0;
-  totalAveragingWindow_ = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Average::updateTran()
+// Function      : Stats::updateTran()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 4/28/2020
 //-----------------------------------------------------------------------------
-void Average::updateTran(
+void Stats::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
   const Linear::Vector *solnVec,
@@ -141,9 +141,7 @@ void Average::updateTran(
       // each time a new RFC window is entered.
       if( newRiseFallCrossWindowforLast() )
       {
-        averageValue_ = 0.0;
-        totalAveragingWindow_ = 0.0;
-        initialized_ = false;
+        setMeasureVarsForNewWindow();
         firstStepInRfcWindow_ = false;
       }
 
@@ -156,29 +154,25 @@ void Average::updateTran(
       }
       rfcWindowEndTime_ = circuitTime;
 
-      if( initialized_ && withinMinMaxThresh( outVarValues_[0] ) )
+      if( initialized_ )
       {
-        // Calculating an average of outVarValues_[0];
-        averageValue_ += 0.5 * (circuitTime - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-        totalAveragingWindow_ += (circuitTime - lastIndepVarValue_);
+        updateMeasureVars(circuitTime, outVarValues_[0]);
       }
-    
-      lastIndepVarValue_ = circuitTime;
-      lastSignalValue_ = outVarValues_[0];
-      initialized_=true;
+
+      updateMeasureState(circuitTime, outVarValues_[0]);
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Average::updateDC()
+// Function      : Stats::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/21/2020
 //-----------------------------------------------------------------------------
-void Average::updateDC(
+void Stats::updateDC(
   Parallel::Machine comm,
   const std::vector<Analysis::SweepParam> & dcParamsVec,
   const Linear::Vector *solnVec,
@@ -221,33 +215,23 @@ void Average::updateDC(
       }
       endACDCmeasureWindow_ = dcSweepVal;
 
-      if ( withinMinMaxThresh( outVarValues_[0] ) )
-      {
-        if (initialized_)
-	{
-          // Calculating an average of outVarValues_[0].  The abs() are needed to
-          // account for both monotonically increasing and decreasing stepped variables
-          averageValue_ += 0.5 * abs(dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-          totalAveragingWindow_ += abs(dcSweepVal - lastIndepVarValue_);
-        }
-      }
+      if ( initialized_ )
+        updateMeasureVars(dcSweepVal, outVarValues_[0]);
 
-      lastIndepVarValue_ = dcSweepVal;
-      lastSignalValue_ = outVarValues_[0];
-      initialized_=true;
+      updateMeasureState(dcSweepVal, outVarValues_[0]);
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Average::updateAC()
+// Function      : Stats::updateAC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/21/2020
 //-----------------------------------------------------------------------------
-void Average::updateAC(
+void Stats::updateAC(
   Parallel::Machine comm,
   const double frequency,
   const Linear::Vector *solnVec,
@@ -277,73 +261,31 @@ void Average::updateAC(
     }
     endACDCmeasureWindow_ = frequency;
 
-    if ( withinMinMaxThresh( outVarValues_[0] ) )
-    {
-      if (initialized_)
-      {
-        // Calculating an average of outVarValues_[0]
-        averageValue_ += 0.5 * (frequency - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-        totalAveragingWindow_ += (frequency - lastIndepVarValue_);
-      }
-    }
+    if ( initialized_ )
+      updateMeasureVars(frequency, outVarValues_[0]);
 
-    lastIndepVarValue_ = frequency;
-    lastSignalValue_ = outVarValues_[0];
-    initialized_=true;
+    updateMeasureState(frequency, outVarValues_[0]);
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Average::getMeasureResult()
-// Purpose       :
-// Special Notes : If the averaging window is zero, then measure is reported
-//                 as "FAILED".
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
-//-----------------------------------------------------------------------------
-double Average::getMeasureResult()
-{
-  if( initialized_ )
-  {
-    if (totalAveragingWindow_ > 0)
-      calculationResult_ =  averageValue_ / totalAveragingWindow_;
-    else
-    {
-      calculationResult_ = calculationDefaultVal_;
-      initialized_ = false;
-    }
-  }
-  return calculationResult_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Average::printMeasureWindow
-// Purpose       : prints information related to measure window
-// Special Notes :
+// Function      : Stats::updateMeasureState()
+// Purpose       : Updates the past values of the independent and dependent
+//                 variables.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 measures, it is frequency.  For DC measures, it is the value
+//                 of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 03/25/2020
+// Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-std::ostream& Average::printMeasureWindow(std::ostream& os, const double indepVarValue)
+void Stats::updateMeasureState(const double indepVarVal, const double depVarVal)
 {
-  // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
-  // This a failed measure, but the FROM-TO window should be printed correctly.
-  if ( (fromGiven_ || toGiven_) && (from_==to_) && firstSweepValueFound_ &&
-       ((mode_ == "AC") || (mode_ == "DC")) )
-  {
-    basic_ios_all_saver<std::ostream::char_type> save(os);
-    os << std::scientific << std::setprecision(precision_);
-    std::string modeStr = setModeStringForMeasureWindowText();
-    os << "Measure Start " << modeStr << "= " << startACDCmeasureWindow_
-       << "\tMeasure End " << modeStr << "= " << endACDCmeasureWindow_ << std::endl;
-  }
-  else
-  {
-    Base::printMeasureWindow(os,indepVarValue);
-  }
+  lastIndepVarValue_ = indepVarVal;
+  lastSignalValue_ = depVarVal;
+  initialized_=true;
 
-  return os;
+  return;
 }
 
 } // namespace Measure

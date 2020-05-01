@@ -22,19 +22,29 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Measure statistics of a simulation variable
+// Purpose        : Measure statistics of a simulation variable over
+//                  an interval
 //
-// Special Notes  :
+// Special Notes  : This class contains the common functions for the Average,
+//                  IntegralEvaluation and RMS classes, and sits between those
+//                  classes and the Base class.  In general, it applies to
+//                  measures that are calculated based on a function of the current
+//                  and previous signal value, as calculated over the entire measurement
+//                  window.  For TRAN measures, the FROM, TO, TD, RISE, FALL and
+//                  CROSS qualifiers can be used to limit the measurement window.
+//                  For AC and DC measures, the FROM and TO qualifiers can be used
+//                  to limit the measurement window.
+
 //
-// Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 03/10/2009
+// Creation Date  : 04/28/2020
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_MeasureAverage_h
-#define Xyce_N_IO_MeasureAverage_h
+#ifndef Xyce_N_IO_MeasureStats_h
+#define Xyce_N_IO_MeasureStats_h
 
 #include <N_IO_MeasureBase.h>
 
@@ -43,20 +53,21 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : Average
-// Purpose       : Measure the average value of a simulation variable
+// Class         : Stats
+// Purpose       : Measure statistics of a simulation variable over
+//                 an interval
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/29/2020
 //-------------------------------------------------------------------------
-class Average : public Base
+class Stats : public Base
 {
 public:
-  Average(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~Average() {};
+  Stats(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~Stats() {};
 
   void prepareOutputVariables();
-  void reset();
+  void resetStats();
 
   void updateTran(
     Parallel::Machine comm,
@@ -85,18 +96,23 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
-  double getMeasureResult();
-  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
+  void updateMeasureState(const double indepVarVal, const double depVarVal);
 
-private:
-  std::string type_;
-  int numOutVars_;
-  std::vector<double> outVarValues_;
-  double averageValue_;
+  virtual double getMeasureResult()=0;
+
+  // this function is only used for TRAN mode
+  virtual void setMeasureVarsForNewWindow()=0;
+
+  // this function is defined for AC, DC and TRAN modes
+  virtual void updateMeasureVars(const double indepVarVal, const double depVarVal)=0;
+
+protected:
   double lastIndepVarValue_;
   double lastSignalValue_;
-  double totalAveragingWindow_;
 
+private:
+  int numOutVars_;
+  std::vector<double> outVarValues_;
 };
 
 } // namespace Measure

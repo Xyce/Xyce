@@ -41,6 +41,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_MeasureExtrema.h>
+#include <N_IO_MeasureStats.h>
 #include <N_IO_MeasureAverage.h>
 #include <N_IO_MeasureDerivativeEvaluation.h>
 #include <N_IO_MeasureDuty.h>
