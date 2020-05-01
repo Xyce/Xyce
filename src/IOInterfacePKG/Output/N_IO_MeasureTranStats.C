@@ -21,16 +21,20 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Transient analysis functions.
+// Purpose       : Measure statistics of a simulation variable over
+//                 an interval
+// Special Notes : This class contains the functions that are common to
+//                 the OffTime, OnTime and Frequency classes.  It sits between
+//                 those classes and the Base class.
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 5/1/2020
 //
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
 
-#include <N_IO_MeasureOffTime.h>
+#include <N_IO_MeasureTranStats.h>
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
@@ -38,17 +42,15 @@ namespace IO {
 namespace Measure {
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::OffTime()
+// Function      : TranStats::TranStats()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 5/1/2020
 //-----------------------------------------------------------------------------
-OffTime::OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+TranStats::TranStats(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  totalOffTime_(0.0),
-  numberOfCycles_(0),
   lastTimeValue_(0.0),
   lastSignalValue_(0.0)
 {
@@ -60,7 +62,7 @@ OffTime::OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 }
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::prepareOutputVariables()
+// Function      : TranStats::prepareOutputVariables()
 // Purpose       : Validates that the number of output variables is legal for this
 //                 measure type, and then makes the vector for those variables.
 // Special Notes :
@@ -68,7 +70,7 @@ OffTime::OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-void OffTime::prepareOutputVariables() 
+void TranStats::prepareOutputVariables()
 {
   // this measurement should have only one dependent variable.
   // Error out if it doesn't
@@ -76,7 +78,7 @@ void OffTime::prepareOutputVariables()
 
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for OFF_TIME measure, \"" + name_ + "\"";
+    std::string msg = "Too many dependent variables for " + type_ + " measure, \"" + name_ + "\"";
     Report::UserError0() << msg;
   }
 
@@ -84,30 +86,28 @@ void OffTime::prepareOutputVariables()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::reset()
+// Function      : TranStats::reset()
 // Purpose       : Called when restarting a measure function.  Resets any state
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 8/28/2014
 //-----------------------------------------------------------------------------
-void OffTime::reset() 
+void TranStats::resetTranStats()
 {
   resetBase();
-  totalOffTime_ = 0.0;
-  numberOfCycles_ = 0.0;
 }
 
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::updateTran()
+// Function      : TranStats::updateTran()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 5/1/2020
 //-----------------------------------------------------------------------------
-void OffTime::updateTran(
+void TranStats::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
   const Linear::Vector *solnVec,
@@ -126,17 +126,7 @@ void OffTime::updateTran(
 
       if( initialized_  )
       {
-        if( (outVarValues_[0] - minval_) <= offValue_ )
-        {
-          // add to Off duty time
-          totalOffTime_ += (circuitTime - lastTimeValue_);
-
-          // did we just cross into a new cycle?
-          if( lastSignalValue_ > offValue_ )
-          {
-            numberOfCycles_++;
-          }
-        }
+        updateMeasureVars(circuitTime, outVarValues_[0]);
       }
 
       lastTimeValue_ = circuitTime;
@@ -147,14 +137,14 @@ void OffTime::updateTran(
 
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::updateDC()
+// Function      : TranStats::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void OffTime::updateDC(
+void TranStats::updateDC(
   Parallel::Machine comm,
   const std::vector<Analysis::SweepParam> & dcParamsVec,
   const Linear::Vector *solnVec,
@@ -168,14 +158,14 @@ void OffTime::updateDC(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : OffTime::updateAC()
+// Function      : TranStats::updateAC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical Models & Simulation
 // Creation Date : 8/7/2019
 //-----------------------------------------------------------------------------
-void OffTime::updateAC(
+void TranStats::updateAC(
   Parallel::Machine comm,
   const double frequency,
   const Linear::Vector *solnVec,
@@ -183,30 +173,6 @@ void OffTime::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
 
-}
-
-//-----------------------------------------------------------------------------
-// Function      : OffTime::getMeasureResult()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
-//-----------------------------------------------------------------------------
-double OffTime::getMeasureResult()
-{
-  // This will return the default value (e.g., -1) if the measure is never
-  // initialized.  If the time window is valid but the OFF condition is
-  // never met then this will return 0.0
-  if( initialized_ )
-  {
-    calculationResult_ =  totalOffTime_;
-    if( initialized_ && (numberOfCycles_ > 0))
-    {
-      calculationResult_ /=  numberOfCycles_;
-    }
-  }
-  return calculationResult_;
 }
 
 } // namespace Measure

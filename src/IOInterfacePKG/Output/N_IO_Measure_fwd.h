@@ -43,6 +43,7 @@ namespace Measure {
 class Base;
 class Extrema;
 class Stats;
+class TranStats;
 class Average;
 class DerivativeEvaluation;
 class Duty;

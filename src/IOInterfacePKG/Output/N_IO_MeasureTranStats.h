@@ -22,19 +22,26 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Measure statistics of a simulation variable
+// Purpose        : Measure statistics of a simulation variable over
+//                  an interval
 //
-// Special Notes  :
+// Special Notes  : This class contains the common functions for the OffTime,
+//                  OnTime and Frequency classes, and sits between those
+//                  classes and the Base class.  In general, it applies to TRAN
+//                  measures that are calculated based on a function of the current
+//                  and previous signal value, as calculated over the entire measurement
+//                  window.  The FROM, TO and TD qualifiers can be used to limit
+//                  the measurement window.  RISE, FALl and CROSS are not supported.
 //
-// Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 03/10/2009
+// Creation Date  : 05/1/2020
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_MeasureOffTime_h
-#define Xyce_N_IO_MeasureOffTime_h
+#ifndef Xyce_N_IO_MeasureTranStats_h
+#define Xyce_N_IO_MeasureTranStats_h
 
 #include <N_IO_MeasureBase.h>
 
@@ -43,22 +50,21 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : OffTime
-// Purpose       : Measure off-time of a simulation variable, normalized to
-//                 the number of periods when that variable is in the
-//                 "off state".
+// Class         : TranStats
+// Purpose       : Measure statistics of a simulation variable over
+//                 an interval
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/1/2020
 //-------------------------------------------------------------------------
-class OffTime : public Base
+class TranStats : public Base
 {
 public:
-  OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~OffTime() {};
+  TranStats(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~TranStats() {};
 
   void prepareOutputVariables();
-  void reset();
+  void resetTranStats();
 
   void updateTran(
     Parallel::Machine comm,
@@ -87,17 +93,16 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
-  double getMeasureResult();
+  virtual double getMeasureResult()=0;
+  virtual void updateMeasureVars(const double circuitTime, const double signalVal)=0;
 
-private:
-  std::string type_;
-  int numOutVars_;
-  std::vector<double> outVarValues_;
-  double totalOffTime_;
-  int numberOfCycles_;
+protected:
   double lastTimeValue_;
   double lastSignalValue_;
 
+private:
+  int numOutVars_;
+  std::vector<double> outVarValues_;
 };
 
 } // namespace Measure
