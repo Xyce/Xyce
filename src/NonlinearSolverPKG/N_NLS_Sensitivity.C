@@ -233,14 +233,12 @@ void setupObjectiveFunctions(
     // resolve user-defined functions first
     {
     std::vector<std::string> global_function_names;
-    //objVec[iobj]->expPtr->get_names(XEXP_FUNCTION, global_function_names);
     objVec[iobj]->expPtr->getFuncNames(global_function_names);
  
     std::vector<std::string>::iterator it = global_function_names.begin();
     std::vector<std::string>::iterator end = global_function_names.end();
     const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
-    //objVec[iobj]->expPtr->setFunctionMap(context_function_map);
-    //
+
     for ( ; it != end; ++it)
     {
       Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
@@ -256,15 +254,6 @@ void setupObjectiveFunctions(
 
       std::string functionPrototype(functionParameter.tag());
       std::string functionBody(functionParameter.stringValue());
-
-      // The function prototype is defined here as a string whose
-      // value is the  function name together with its parenthese
-      // enclosed comma separated argument list. To resolve a
-      // function, create an expression from the function prototype
-      // and get its ordered list of arguments via get_names, then
-      // create an expression from the function definition and
-      // order its names from that list. Finally, replace the
-      // function in the expression to be resolved.
       Util::Expression prototypeExression(exprGroup, functionPrototype);
       std::vector<std::string> arguments = prototypeExression.getFunctionArgStringVec ();
 
@@ -334,12 +323,10 @@ void setupObjectiveFunctions(
     std::vector<std::string> strings;
     std::vector<std::string> params;
     std::vector<std::string> globalParams;
-    objVec[iobj]->expPtr->get_names(XEXP_STRING, strings);
+    objVec[iobj]->expPtr->getUnresolvedParams(strings);
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
     const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
-    //objVec[iobj]->expPtr->setParamMap(context_param_map);
-    //objVec[iobj]->expPtr->setGlobalParamMap(context_global_param_map);
     for (int istring=0;istring<strings.size();istring++)
     {
       Util::ParamMap::const_iterator param_it = context_param_map.find(strings[istring]);
@@ -358,45 +345,6 @@ void setupObjectiveFunctions(
         }
         else if (replacement_param.getType() == Xyce::Util::EXPR)
         {
-          //
-          // ERK. Note, none of the current Xyce regression tests for sensitivity 
-          // exercise this code (::EXPR).  And, I believe it does not work with either the old or new expression library.
-          //
-          // The function replace_var is designed for SUBcircuit parameters that cannot be
-          // fully resolved to a constant because they have global parameter usage.  I think this use case is 
-          // not relevant to sensitivities, so this block of code should (probably) be removed.
-          //
-          // This function was initially added to fix this sort of thing:
-          //
-          //  .global_param resval=1
-          //  X1 1 0 RESSUB PARAMS: resistance={resval}
-          //
-          //  .subckt ressub a b params: resistance=100k
-          //  R1 a b resistance
-          //  .ends
-          //
-          //  ie, a global parameter used as a subcircuit argument.  The objective function 
-          //  will never be specified inside a subcircuit, so this doesn't seem relevant.
-          //
-          //
-          // But here are some details anyway, as I probably do have to set up replace_var for 
-          // non-sensitivity use cases like the one above:
-          //
-          // The second argument to replace_var is the RHS of the parameter.  So, in other words if we have:
-          //
-          //  .global_param resGlobal=1
-          //  .param res={resGlobal*2}
-          //  .SENS objfunc={res*I(V1)} param=R1:R
-          //
-          //  Then strings[istring] is "res" and the second argument (replacement_param.getValue) is {resGlobal*2}.
-          //
-          //  This doesn't work with either the old or new expression library, because once 
-          //  this replacement happens, the objective function has effectively been changed from 
-          //  {res*I(V1)} to {resGlobal*2*I(V1)}.  And, at this stage of the setup, "resGlobal" is not in the 
-          //  vector of strings (which we are looping over right now) or of the globalParams, which is normally 
-          //  the final destination for global parameters in this function.  And there is no
-          //  path thru the code that would get us there.
-          //
           if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
           {
             std::string expressionString=objVec[iobj]->expPtr->get_expression();
@@ -407,12 +355,7 @@ void setupObjectiveFunctions(
       }
       else
       {
-        // this block of code will check if the current string is in the global parameter map.
-        // If it is, then it will call the "make_var" function for this string.
-        // In the old expression library, this marks the string as being something that the 
-        // calling code will need to set.  It does not do anything else.
-        // Later, the string will be added to the globalParams container, and also the 
-        // expVarNames vector.
+        // if this string is found in the global parameter map, then attach it to the expression
         param_it = context_global_param_map.find(strings[istring]);
         if (param_it != context_global_param_map.end())
         {
