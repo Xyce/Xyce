@@ -16,6 +16,7 @@ libExpressionSrc_la_SOURCES = \
   expressionGroup.C \
   newExpression.C \
   mainXyceExpressionGroup.C \
+  outputsXyceExpressionGroup.C \
   xyceExpressionGroup.C \
   ExpressionLexer.h \
   ExpressionType.h \
@@ -27,6 +28,7 @@ libExpressionSrc_la_SOURCES = \
   expressionGroup.h \
   newExpression.h \
   mainXyceExpressionGroup.h \
+  outputsXyceExpressionGroup.h \
   xyceExpressionGroup.h 
 
 # these can't be in "SOURCES" above or automake screams about YACC.
