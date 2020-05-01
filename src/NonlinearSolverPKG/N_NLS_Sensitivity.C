@@ -397,9 +397,9 @@ void setupObjectiveFunctions(
           //  the final destination for global parameters in this function.  And there is no
           //  path thru the code that would get us there.
           //
-          std::string expressionString=objVec[iobj]->expPtr->get_expression();
           if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
           {
+            std::string expressionString=objVec[iobj]->expPtr->get_expression();
             Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
                                    << " as substitute for " << strings[istring] << " in expression " << expressionString;
           }
