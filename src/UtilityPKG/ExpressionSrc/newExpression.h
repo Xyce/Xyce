@@ -271,6 +271,13 @@ public:
     timeStep_(right.timeStep_),
     timeStepAlpha_(right.timeStepAlpha_),
     timeStepPrefac_(right.timeStepPrefac_),
+
+    timeOpVec_(right.timeOpVec_),
+    tempOpVec_(right.tempOpVec_),
+    vtOpVec_(right.vtOpVec_),
+    freqOpVec_(right.freqOpVec_),
+    externalExpressions_(right.externalExpressions_),
+
     derivIndexVec_ (right.derivIndexVec_),
     derivNodeIndexMap_(right.derivNodeIndexMap_),
     numDerivs_(right.numDerivs_),
@@ -347,6 +354,12 @@ public:
     timeStep_ = right.timeStep_;
     timeStepAlpha_ = right.timeStepAlpha_;
     timeStepPrefac_ = right.timeStepPrefac_;
+
+    timeOpVec_ = right.timeOpVec_;
+    tempOpVec_ = right.tempOpVec_;
+    vtOpVec_ = right.vtOpVec_;
+    freqOpVec_ = right.freqOpVec_;
+    externalExpressions_ = right.externalExpressions_;
 
     derivIndexVec_ = right.derivIndexVec_;
     derivNodeIndexMap_ = right.derivNodeIndexMap_;

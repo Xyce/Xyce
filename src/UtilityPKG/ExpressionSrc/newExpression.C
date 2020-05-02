@@ -744,6 +744,11 @@ void newExpression::setupVariousAstArrays_()
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
+ 
+    isTimeDependent_ = !(timeOpVec_.empty());
+    isTempDependent_ = !(tempOpVec_.empty());
+    isVTDependent_   = !(vtOpVec_.empty());
+    isFreqDependent_ = !(freqOpVec_.empty());
 
 #if 0
     std::cout << "Array sizes AFTER update:" <<std::endl;

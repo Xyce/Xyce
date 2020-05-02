@@ -496,6 +496,14 @@ TEST ( Double_Parser_SourceFunc_Test, pulse)
   assignExpression.evaluateFunction(result); 
   EXPECT_EQ( (result-(1.0)), 0.0);
 
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copyExpression.getTimeDependent();
+  bool assignTimeDependent = assignExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse)
 }
 
@@ -516,6 +524,9 @@ TEST ( Double_Parser_SourceFunc_Test, pulse_breakpoints)
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   testExpression.getBreakPoints(breakPointTimes);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  EXPECT_EQ(timeDependent, true);
 
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse_breakpoints)
 }
@@ -551,6 +562,14 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copyExpression.getTimeDependent();
+  bool assignTimeDependent = assignExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
 
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
 }
@@ -642,6 +661,14 @@ TEST ( Double_Parser_SourceFunc_Test, sin2)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copyExpression.getTimeDependent();
+  bool assignTimeDependent = assignExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
 
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
 }
