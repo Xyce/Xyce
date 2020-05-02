@@ -209,6 +209,12 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
+  // if dependent on a special, add relevant specials node to the relevant specials vector
+  if(isTimeDependent_) { timeOpVec_.push_back(timeNodePtr_); }
+  if(isTempDependent_) { tempOpVec_.push_back(tempNodePtr_); }
+  if(isVTDependent_) { vtOpVec_.push_back(vtNodePtr_); }
+  if(isFreqDependent_) { freqOpVec_.push_back(freqNodePtr_); }
+
 #if 0
   dumpParseTree(std::cout);
 #endif
@@ -237,6 +243,8 @@ bool newExpression::lexAndParseExpression()
 bool newExpression::attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
+
+  externalExpressions_.push_back(expPtr);
 
   // should I use upper?
   std::string funcNameUpper=funcName;
@@ -290,6 +298,9 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
+
+  externalExpressions_.push_back(expPtr);
+
   std::string paramNameUpper=paramName;
   Xyce::Util::toUpper(paramNameUpper);
   std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
@@ -312,7 +323,7 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
 //                 and puts the class in the state that it should be in
 //                 prior to calling the function lexAndParseExpression
 //
-// Special Notes :
+// Special Notes : I am not sure this function needs to exist and it is hard to maintain reliably.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : ??
@@ -383,12 +394,15 @@ void newExpression::clear ()
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::make_constant
-// Purpose       : Needed for the old API.   Applies a specified value to a 
-//                 specified parameter.
+//
+// Purpose       : This was originally needed for the old API, but it is useful 
+//                 for the new expression library as well.   It applies a 
+//                 specified value to a specified parameter.
+//
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : ??
+// Creation Date : 3/??/2020
 //-------------------------------------------------------------------------------
 bool newExpression::make_constant (std::string const & var, usedType const & val)
 {
@@ -640,6 +654,8 @@ void newExpression::setupVariousAstArrays_()
 
   if (externalDependencies_)
   {
+
+    // 1. setup arrays that require full AST traversal:
     paramOpVec_.clear();
     funcOpVec_.clear();
     voltOpVec_.clear();
@@ -719,8 +735,15 @@ void newExpression::setupVariousAstArrays_()
       currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
 
-    // need to more thoroughly set up the specials booleans.  
-    // Check external dependencies for these nodes.
+    // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
+    //    For specials, this is more appropriate the AST traversal, as there will be at
+    //    most one "time" node per expression object.   I think this should be a faster 
+    //    traversal, generally.
+
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
 
 #if 0
     std::cout << "Array sizes AFTER update:" <<std::endl;
@@ -845,10 +868,10 @@ void newExpression::getValuesFromGroup()
     inoiseOp->setNoiseVar ( val );
   }
 
-  timeNodePtr_->setValue(group_->getTime());
-  tempNodePtr_->setValue(group_->getTemp()); // assuming correct units.  Conversion happens in the group
-  vtNodePtr_->setValue(group_->getVT());
-  freqNodePtr_->setValue(group_->getFreq());
+  for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
+  for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } // Conversion to correct units in group 
+  for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
+  for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(group_->getFreq()); }
 
   bpTol_ = group_->getBpTol();
   startingTimeStep_ = group_->getStartingTimeStep();

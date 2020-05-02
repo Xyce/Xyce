@@ -497,6 +497,11 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getONoiseOpVec() { return oNoiseOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec() { return iNoiseOpVec_; }
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getTimeOpVec() { return timeOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getTempOpVec() { return tempOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getVtOpVec() { return vtOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getFreqOpVec() { return freqOpVec_; }
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
@@ -563,6 +568,35 @@ public:
   }
 
   void outputVariousAstArrays ( std::ostream & os );
+
+
+  // "expression" traversal functions, as opposed to AST traversals.
+  // Expression traverals make more sense for tracking specials (time, temp, vt, freq), as each 
+  // expression object will have zero or one allocation of each special.
+  // (which really should be 100% singletons, but for the time being are not)
+  void getTimeNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & timeVec)
+  {
+    if (!(timeOpVec_.empty())) { timeVec.push_back(timeOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeVec); }
+  }
+
+  void getTempNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & tempVec)
+  {
+    if (!(tempOpVec_.empty())) { tempVec.push_back(tempOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempVec); }
+  }
+
+  void getVtNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & vtVec)
+  {
+    if (!(vtOpVec_.empty())) { vtVec.push_back(vtOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtVec); }
+  }
+
+  void getFreqNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & freqVec)
+  {
+    if (!(freqOpVec_.empty())) { freqVec.push_back(freqOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqVec); }
+  }
 
 private:
   void setupDerivatives_ ();
@@ -651,6 +685,14 @@ private:
   Teuchos::RCP<specialsOp<usedType> > vtNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > freqNodePtr_;
   Teuchos::RCP<piConstOp<usedType> > piNodePtr_;
+
+  // to handle externally attached expressions, which have specials dependence, we need vectors of these things.
+  std::vector<Teuchos::RCP<astNode<usedType> > > timeOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > tempOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > vtOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > freqOpVec_;
+
+  std::vector<Teuchos::RCP<Xyce::Util::newExpression> > externalExpressions_;
 
   // derivative related stuff
   typedef  std::pair< Teuchos::RCP<astNode<usedType> > , int > derivIndexPair_;

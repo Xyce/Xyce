@@ -2662,11 +2662,17 @@ TEST ( Double_Parser_table_Test, break2)
 class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
-    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0)  {};
+    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0), VT(0.0)  {};
     ~tempDepExpressionGroup () {};
+
     virtual double getTemp() { return temp; };
     void setTemp(double t) { temp = t; };
+
+    virtual double getVT() { return VT; };
+    void setVT(double t) { VT = t; };
+
     double temp;
+    double VT;
 };
 
 // adapted from power_thermalres_gear.cir
@@ -4028,8 +4034,118 @@ TEST ( Double_Parser_specials, temp)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
   OUTPUT_MACRO(Double_Parser_specials, temp)
 }
+
+TEST ( Double_Parser_specials, temp2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("temp"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, temp2)
+}
+
+
+//
+TEST ( Double_Parser_specials, vt)
+{
+  Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
+  Xyce::Util::newExpression testExpression(std::string("vt"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  vtGroup->setVT(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool vtDependent = testExpression.getVTDependent();  
+  bool copyVTDependent = copy_testExpression.getVTDependent();
+  bool assignVTDependent = assign_testExpression.getVTDependent();
+
+  EXPECT_EQ(vtDependent, true);
+  EXPECT_EQ(copyVTDependent, true);
+  EXPECT_EQ(assignVTDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, vt)
+}
+
+TEST ( Double_Parser_specials, vt2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("vt"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  vtGroup->setVT(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool vtDependent = testExpression.getVTDependent();  
+  bool copyVTDependent = copy_testExpression.getVTDependent();
+  bool assignVTDependent = assign_testExpression.getVTDependent();
+
+  EXPECT_EQ(vtDependent, true);
+  EXPECT_EQ(copyVTDependent, true);
+  EXPECT_EQ(assignVTDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, vt2)
+}
+//
 
 // these next two tests are for the use case of a parameter that is named either "I" or "V".
 // In an earlier implementation, the parser would get confused by this.  The string res*I*I, 
