@@ -3902,7 +3902,51 @@ TEST ( Double_Parser_specials, time)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copy_testExpression.getTimeDependent();
+  bool assignTimeDependent = assign_testExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
   OUTPUT_MACRO(Double_Parser_specials, time)
+}
+
+TEST ( Double_Parser_specials, time2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("time"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("T"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setTime(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copy_testExpression.getTimeDependent();
+  bool assignTimeDependent = assign_testExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, time2)
 }
 
 TEST ( Double_Parser_specials, freq)
@@ -3921,7 +3965,51 @@ TEST ( Double_Parser_specials, freq)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
   OUTPUT_MACRO(Double_Parser_specials, freq)
+}
+
+TEST ( Double_Parser_specials, freq2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> fExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("freq"), testGroup));
+  fExpression->lexAndParseExpression();
+  std::string fName = "F";
+
+  Xyce::Util::newExpression testExpression(std::string("f"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(fName,fExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();  
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, freq2)
 }
 
 TEST ( Double_Parser_specials, temp)
