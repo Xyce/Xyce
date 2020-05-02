@@ -108,14 +108,15 @@ public:
   bool make_constant (std::string const & var, double const & val);
   bool make_var (std::string const & var);
 
-
-  // ERK new expression stuff:
+  // ERK new expression stuff.  These kind of replace "get_names"
   void getParams           (std::vector<std::string> & params) const;
   void getUnresolvedParams (std::vector<std::string> & params) const;
   void getVoltageNodes     (std::vector<std::string> & nodes) const;
   void getDeviceCurrents   (std::vector<std::string> & devices) const;
   void getLeadCurrents     (std::vector<std::string> & leads) const;
   void getFunctions        (std::vector<std::string> & funcs) const;
+  void getSpecials         (std::vector<std::string> & specials) const;
+  void getPowerCalcs       (std::vector<std::string> & powerCalcs) const;
 
   // ERK new expression stuff, where external dependencies are set in separate 
   // calls.  This is better than set_var/s, but not best.  Best would be to

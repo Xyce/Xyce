@@ -503,11 +503,8 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
       getUnresolvedParams(names);
       break;
 
-    case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
-      if (newExpPtr_->getTimeDependent()) { names.push_back(std::string("TIME")); }
-      if (newExpPtr_->getTempDependent()) { names.push_back(std::string("TEMP")); }
-      if (newExpPtr_->getVTDependent()) { names.push_back(std::string("VT")); }
-      if (newExpPtr_->getFreqDependent()) { names.push_back(std::string("FREQ")); }
+    case XEXP_SPECIAL: 
+      getSpecials(names);
       break;
 
     case XEXP_VARIABLE:
@@ -630,7 +627,9 @@ bool Expression::make_var (std::string const & var)
 //-----------------------------------------------------------------------------
 // Function      : Expression::getUnresolvedParams
 // Purpose       : 
-// Special Notes :
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/20/2020
@@ -657,7 +656,10 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getParams
 // Purpose       : 
-// Special Notes :
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -678,7 +680,10 @@ void Expression::getParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getVoltageNodes
 // Purpose       : 
-// Special Notes :
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -704,7 +709,10 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getVoltageNodes
 // Purpose       : 
-// Special Notes :
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -723,23 +731,27 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::getVoltageNodes
+// Function      : Expression::getLeadCurrents
 // Purpose       : 
-// Special Notes : ERK.  I haven't figured this out yet, but need to.
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-void Expression::getLeadCurrents   (std::vector<std::string> & leads) const
+void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 {
   //params = newExpPtr_->
   //std::cout << "Error. Xyce::Util::Expression::getLeadCurrents not yet implemented." <<std::endl;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::getVoltageNodes
+// Function      : Expression::getFunctions
 // Purpose       : 
-// Special Notes : 
+//
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -753,6 +765,43 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
     if (it == funcs.end())
     {
       funcs.push_back( tmpName );
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getSpecials
+// Purpose       : 
+// Special Notes : ERK.  This doesn't yet track external specials dependencies.  FIX THIS
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getSpecials (std::vector<std::string> & specials) const
+{
+  if (newExpPtr_->getTimeDependent()) { specials.push_back(std::string("TIME")); }
+  if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
+  if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
+  if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getPowerCalcs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) const
+{
+  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(powerCalcs.begin(), powerCalcs.end(), tmpName);
+    if (it == powerCalcs.end())
+    {
+      powerCalcs.push_back( tmpName );
     }
   }
 }
