@@ -163,6 +163,11 @@ public:
     // used to print warnings about measurement time window, etc.
     virtual void printMeasureWarnings(const double endSimTime);
 
+    // used to record start/end sweep values, and the start/end of the measurement window,
+    // for AC and DC measures
+    void recordStartEndACDCsweepVals(const double sweepVal);
+    void recordStartEndACDCmeasureWindow(const double sweepVal);
+
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
     std::string setModeStringForMeasureWindowText();

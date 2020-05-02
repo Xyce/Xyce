@@ -141,12 +141,7 @@ void ErrorFunctions::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-    if (!firstSweepValueFound_)
-    {
-        startSweepValue_ = dcSweepVal;
-        firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -157,13 +152,8 @@ void ErrorFunctions::updateDC(
 
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
-
+      recordStartEndACDCmeasureWindow(dcSweepVal);
+      
       initialized_ = true;
       if ( withinYLimits(outVarValues_[0]) )
         updateErrVars(outVarValues_[0], outVarValues_[1]);
@@ -187,12 +177,7 @@ void ErrorFunctions::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
@@ -202,12 +187,7 @@ void ErrorFunctions::updateAC(
 
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
 
     initialized_ = true;
     if ( withinYLimits(outVarValues_[0]) )

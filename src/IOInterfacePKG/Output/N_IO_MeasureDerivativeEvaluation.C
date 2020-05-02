@@ -313,25 +313,13 @@ void DerivativeEvaluation::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-
-   // Used in descriptive output to stdout. Store first/last frequency values
-    if (!firstSweepValueFound_)
-    {
-      startSweepValue_ = dcSweepVal;
-      firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if (withinDCsweepFromToWindow( dcSweepVal ))
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
     }
 
     if( !calculationDone_ )
@@ -473,23 +461,13 @@ void DerivativeEvaluation::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if (withinFreqWindow( frequency ))
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
   }
 
   if( !calculationDone_ )

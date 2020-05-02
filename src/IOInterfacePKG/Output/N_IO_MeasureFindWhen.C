@@ -318,13 +318,7 @@ void FindWhen::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-
-    if (!firstSweepValueFound_)
-    {
-      startSweepValue_ = dcSweepVal;
-      firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -341,12 +335,7 @@ void FindWhen::updateDC(
 
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
 
       // The second part of this conditional is needed to deal with multiple sweep
       // variables.  We need to reset the last value variables, each time the first
@@ -487,12 +476,7 @@ void FindWhen::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
@@ -502,13 +486,7 @@ void FindWhen::updateAC(
 
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      lastOutputValue_ = outVarValues_[0];
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
 
     if( !initialized_ )
     {

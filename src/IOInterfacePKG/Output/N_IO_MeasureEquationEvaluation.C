@@ -150,26 +150,16 @@ void EquationEvaluation::updateDC(
   {
     double dcSweepVal = dcParamsVec[0].currentVal;
 
-    // Used in descriptive output to stdout. Store name and first/last values of 
+    // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
-    sweepVar_= dcParamsVec[0].name; 
-    if (!firstSweepValueFound_)     
-    {        
-      startSweepValue_ = dcSweepVal;
-      firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    sweepVar_= dcParamsVec[0].name;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
-      // Used in descriptive output to stdout. These are the first/last values 
+      // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)     
-      {        
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
 
       // update our outVarValues_ vector
       for( int i=0; i< numOutVars_; i++ )
@@ -205,23 +195,13 @@ void EquationEvaluation::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)     
-  {        
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
-    // Used in descriptive output to stdout. These are the first/last values 
+    // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)     
-    {        
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
 
     // update our outVarValues_ vector
     for( int i=0; i< numOutVars_; i++ )
