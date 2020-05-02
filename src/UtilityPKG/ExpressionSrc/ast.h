@@ -45,7 +45,23 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
   if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
   if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
+  if (PTR->timeSpecialType()) { ovc.isTimeDependent = true; } \
+  if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
+  if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
+  if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
   PTR->getInterestingOps(ovc); }
+
+#define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
+
+#define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
+
+#define AST_GET_FUNC_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->funcType()) { funcOpVector.push_back(this->PTR); } this->PTR->getFuncOps(funcOpVector); }
+
+#define AST_GET_VOLT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } this->PTR->getVoltageOps(voltOpVector); }
+
+#define AST_GET_CURRENT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } this->PTR->getCurrentOps(currentOpVector); }
+
+#define AST_GET_INTERNAL_DEV_VAR_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->internalDeviceVarType()) { internalDevVarOpVector.push_back(this->PTR); } this->PTR->getInternalDevVarOps(internalDevVarOpVector); }
 
 // this one adds "this"
 #define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR) 
@@ -68,7 +84,11 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoise,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
+  bool timeDep,
+  bool tempDep,
+  bool vTDep,
+  bool FreqDep
       ):
   paramOpVector(param),
     funcOpVector(func),
@@ -79,7 +99,11 @@ public:
     dnoNoiseDevVarOpVector(dnoNoiseDevVar),
     dniNoiseDevVarOpVector(dniNoiseDevVar),
     oNoiseOpVector(oNoise),
-    iNoiseOpVector(iNoise)
+    iNoiseOpVector(iNoise),
+    isTimeDependent(timeDep),
+    isTempDependent(tempDep),
+    isVTDependent(vTDep),
+    isFreqDependent(FreqDep)
   {};
 
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
@@ -93,6 +117,10 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoiseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
 
+  bool isTimeDependent;
+  bool isTempDependent;
+  bool isVTDependent;
+  bool isFreqDependent;
 };
 
 
@@ -153,6 +181,11 @@ class astNode
     virtual bool oNoiseType() { return false; }
     virtual bool iNoiseType() { return false; }
 
+    virtual bool timeSpecialType() { return false; }
+    virtual bool tempSpecialType() { return false; }
+    virtual bool vtSpecialType()   { return false; }
+    virtual bool freqSpecialType() { return false; }
+
     virtual bool leadCurrentType() { return false; }
 
     virtual bool getFunctionArgType() { return false; };
@@ -169,98 +202,34 @@ AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_)
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->paramType()) { paramOpVector.push_back(leftAst_); }
-        leftAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->paramType()) { paramOpVector.push_back(rightAst_); }
-        rightAst_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
     }
 
     // func arg ops are of class paramOp, but have been identified as being
     // function arguments.  (thus being excluded from the getParamOps function, above)
     // This is needed by the ddx function
-    //
-    // ERK. This needs to be propagated down to other AST classes.  2/8/2020. Not done yet.
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->getFunctionArgType()) { funcArgOpVector.push_back(leftAst_); }
-        leftAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->getFunctionArgType()) { funcArgOpVector.push_back(rightAst_); }
-        rightAst_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) 
     }
 
-    // func Ops are operators of class funcOp.
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->funcType()) { funcOpVector.push_back(leftAst_); }
-        leftAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->funcType()) { funcOpVector.push_back(rightAst_); }
-        rightAst_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) 
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->voltageType()) { voltOpVector.push_back(leftAst_); }
-        leftAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->voltageType()) { voltOpVector.push_back(rightAst_); }
-        rightAst_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) 
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->currentType()) { currentOpVector.push_back(leftAst_); }
-        leftAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->currentType()) { currentOpVector.push_back(rightAst_); }
-        rightAst_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
     }
-
     virtual void getInternalDevVarOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector)
     {
-      if( !(Teuchos::is_null(leftAst_)) )
-      {
-        if (leftAst_->internalDeviceVarType()) { internalDevVarOpVector.push_back(leftAst_); }
-        leftAst_->getInternalDevVarOps(internalDevVarOpVector);
-      }
-
-      if( !(Teuchos::is_null(rightAst_)) )
-      {
-        if (rightAst_->internalDeviceVarType()) { internalDevVarOpVector.push_back(rightAst_); }
-        rightAst_->getInternalDevVarOps(internalDevVarOpVector);
-      }
+AST_GET_INTERNAL_DEV_VAR_OPS (leftAst_) AST_GET_INTERNAL_DEV_VAR_OPS (rightAst_) 
     }
 
   protected:
@@ -790,47 +759,27 @@ AST_GET_INTERESTING_OPS(paramNode_)
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->paramType()) { paramOpVector.push_back(paramNode_); }
-        paramNode_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(paramNode_) 
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->getFunctionArgType()) { funcArgOpVector.push_back(paramNode_); }
-        paramNode_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(paramNode_)
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->funcType()) { funcOpVector.push_back(paramNode_); }
-        paramNode_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(paramNode_) 
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->voltageType()) { voltOpVector.push_back(paramNode_); }
-        paramNode_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(paramNode_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(paramNode_)) )
-      {
-        if (paramNode_->currentType()) { currentOpVector.push_back(paramNode_); }
-        paramNode_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(paramNode_)
     }
 
     virtual bool getFunctionArgType() { return thisIsAFunctionArgument_; };
@@ -1495,7 +1444,6 @@ class funcOp: public astNode<ScalarT>
 
     virtual std::string getName() { return funcName_; }
 
-    // still experimenting with these:
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
       if (funcArgs_.size() != dummyFuncArgs_.size())
@@ -1514,47 +1462,27 @@ AST_GET_INTERESTING_OPS(functionNode_)
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(functionNode_)) )
-      {
-        if (functionNode_->paramType()) { paramOpVector.push_back(functionNode_); }
-        functionNode_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(functionNode_) 
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(functionNode_)) )
-      {
-        if (functionNode_->getFunctionArgType()) { funcArgOpVector.push_back(functionNode_); }
-        functionNode_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(functionNode_) 
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(functionNode_)) )
-      {
-        if (functionNode_->funcType()) { funcOpVector.push_back(functionNode_); }
-        functionNode_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(functionNode_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(functionNode_)) )
-      {
-        if (functionNode_->voltageType()) { voltOpVector.push_back(functionNode_); }
-        functionNode_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(functionNode_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(functionNode_)) )
-      {
-        if (functionNode_->currentType()) { currentOpVector.push_back(functionNode_); }
-        functionNode_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(functionNode_) 
     }
 
   private:
@@ -1916,107 +1844,27 @@ AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_I
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType()) { paramOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType()) { paramOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->paramType()) { paramOpVector.push_back(zAst_); }
-        zAst_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_) 
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->getFunctionArgType()) { funcArgOpVector.push_back(zAst_); }
-        zAst_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_) 
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->funcType()) { funcOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->funcType()) { funcOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->funcType()) { funcOpVector.push_back(zAst_); }
-        zAst_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_) 
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->voltageType()) { voltOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->voltageType()) { voltOpVector.push_back(zAst_); }
-        zAst_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_) 
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->currentType()) { currentOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->currentType()) { currentOpVector.push_back(zAst_); }
-        zAst_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_) 
     }
 
   private:
@@ -2080,107 +1928,27 @@ AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_I
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType()) { paramOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType()) { paramOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->paramType()) { paramOpVector.push_back(zAst_); }
-        zAst_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_) 
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->getFunctionArgType()) { funcArgOpVector.push_back(zAst_); }
-        zAst_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_) 
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->funcType()) { funcOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->funcType()) { funcOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->funcType()) { funcOpVector.push_back(zAst_); }
-        zAst_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->voltageType()) { voltOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->voltageType()) { voltOpVector.push_back(zAst_); }
-        zAst_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_) 
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->currentType()) { currentOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(zAst_)) )
-      {
-        if (zAst_->currentType()) { currentOpVector.push_back(zAst_); }
-        zAst_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_) 
     }
 
   private:
@@ -2298,17 +2066,6 @@ class polyOp : public astNode<ScalarT>
           if (  !( (*coefs)[ii]->numvalType() ) ) { allNumVal_ = false; }
         }
 
-#if 0
-        std::cout << "polyOp::polyOp  Number of variables = " << sizeOfVars_ <<std::endl;
-        std::cout << "polyOp::polyOp  size of vars = " << vars->size() <<std::endl;
-        std::cout << "polyOp::polyOp  size of coefs = " << coefs->size() <<std::endl;
-
-        for (int ii=0;ii<polyCoefs_.size();++ii)
-        {
-          std::cout << "polyOp::polyOp  polyCoefs_["<<ii<<"] = " << polyCoefs_[ii]->val() <<std::endl;
-        }
-#endif
-
         if (!allNumVal_)
         {
           std::vector<std::string> errStr(1,std::string("AST node (poly) coefficients must all be simple numbers:"));
@@ -2323,24 +2080,12 @@ class polyOp : public astNode<ScalarT>
       if (!(polyCoefs_.empty()))
       {
         y += polyCoefs_[0]->val();
-#if 0
-        std::cout << "polyCoefs_[0] = " << polyCoefs_[0]->val() 
-            << "  y = " <<  y << std::endl;
-#endif
 
         // simple linear terms  sum_{j=1}^N C_j X_j
         int coefIndex=1;
         for (int ii=0; (coefIndex<polyCoefs_.size() && ii<polyVars_.size()) ;++ii, ++coefIndex)
         {
           y+= polyCoefs_[coefIndex]->val()*polyVars_[ii]->val();
-
-#if 0
-          std::cout 
-            << "polyCoefs_["<<coefIndex<<"] = " << polyCoefs_[coefIndex]->val()
-            << "  polyVars_["<<ii<<"] = " << polyVars_[ii]->val()
-            << "  product = " <<  polyCoefs_[coefIndex]->val()*polyVars_[ii]->val()
-            << "  y = " <<  y << std::endl;
-#endif
         }
 
         // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j
@@ -2470,11 +2215,7 @@ AST_GET_INTERESTING_OPS(polyVars_[ii])
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->paramType()) { paramOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getParamOps(paramOpVector);
-        }
+AST_GET_PARAM_OPS(polyVars_[ii]) 
       }
     }
 
@@ -2483,11 +2224,7 @@ AST_GET_INTERESTING_OPS(polyVars_[ii])
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->getFunctionArgType()) { funcArgOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getFuncArgOps(funcArgOpVector);
-        }
+AST_GET_FUNC_ARG_OPS(polyVars_[ii]) 
       }
     }
 
@@ -2496,11 +2233,7 @@ AST_GET_INTERESTING_OPS(polyVars_[ii])
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->funcType()) { funcOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getFuncOps(funcOpVector);
-        }
+AST_GET_FUNC_OPS(polyVars_[ii]) 
       }
     }
 
@@ -2509,11 +2242,7 @@ AST_GET_INTERESTING_OPS(polyVars_[ii])
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->voltageType()) { voltOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getVoltageOps(voltOpVector);
-        }
+AST_GET_VOLT_OPS(polyVars_[ii]) 
       }
     }
 
@@ -2522,16 +2251,11 @@ AST_GET_INTERESTING_OPS(polyVars_[ii])
       int size=polyVars_.size();
       for(int ii=0;ii<size;ii++)
       {
-        if( !(Teuchos::is_null(polyVars_[ii])) )
-        {
-          if (polyVars_[ii]->currentType()) { currentOpVector.push_back(polyVars_[ii]); }
-          polyVars_[ii]->getCurrentOps(currentOpVector);
-        }
+AST_GET_CURRENT_OPS(polyVars_[ii]) 
       }
     }
 
   private:
-// data:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > polyVars_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > polyCoefs_;
     bool allNumVal_;
@@ -2652,116 +2376,75 @@ AST_GET_INTERESTING_OPS(tableArgs_[ii])
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->paramType()) { paramOpVector.push_back(input_); }
-        input_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(input_) 
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->paramType()) { paramOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getParamOps(paramOpVector);
-          }
+AST_GET_PARAM_OPS(tableArgs_[ii]) 
         }
       }
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->getFunctionArgType()) { funcArgOpVector.push_back(input_); }
-        input_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(input_) 
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->getFunctionArgType()) { funcArgOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getFuncArgOps(funcArgOpVector);
-          }
+AST_GET_FUNC_ARG_OPS(tableArgs_[ii]) 
         }
       }
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->funcType()) { funcOpVector.push_back(input_); }
-        input_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(input_) 
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->funcType()) { funcOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getFuncOps(funcOpVector);
-          }
+AST_GET_FUNC_OPS(tableArgs_[ii]) 
         }
       }
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->voltageType()) { voltOpVector.push_back(input_); }
-        input_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(input_) 
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->voltageType()) { voltOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getVoltageOps(voltOpVector);
-          }
+AST_GET_VOLT_OPS(tableArgs_[ii] ) 
         }
       }
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(input_)) )
-      {
-        if (input_->currentType()) { currentOpVector.push_back(input_); }
-        input_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(input_) 
 
       if (!allNumVal_)
       {
         int size=tableArgs_.size();
         for(int ii=0;ii<size;ii++)
         {
-          if( !(Teuchos::is_null(tableArgs_[ii])) )
-          {
-            if (tableArgs_[ii]->currentType()) { currentOpVector.push_back(tableArgs_[ii]); }
-            tableArgs_[ii]->getCurrentOps(currentOpVector);
-          }
+AST_GET_CURRENT_OPS(tableArgs_[ii]) 
         }
       }
     }
 
   private:
-// data:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
     bool allNumVal_;
     std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
@@ -3069,109 +2752,28 @@ AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_I
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType()) { paramOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType()) { paramOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->paramType()) { paramOpVector.push_back(nAst_); }
-        nAst_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_)
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->getFunctionArgType()) { funcArgOpVector.push_back(nAst_); }
-        nAst_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(nAst_)
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->funcType()) { funcOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->funcType()) { funcOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->funcType()) { funcOpVector.push_back(nAst_); }
-        nAst_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(nAst_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->voltageType()) { voltOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->voltageType()) { voltOpVector.push_back(nAst_); }
-        nAst_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->currentType()) { currentOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->currentType()) { currentOpVector.push_back(nAst_); }
-        nAst_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_)
     }
-
 
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
@@ -3233,107 +2835,27 @@ AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_I
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->paramType()) { paramOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->paramType()) { paramOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getParamOps(paramOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->paramType()) { paramOpVector.push_back(nAst_); }
-        nAst_->getParamOps(paramOpVector);
-      }
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_)
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->getFunctionArgType()) { funcArgOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncArgOps(funcArgOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->getFunctionArgType()) { funcArgOpVector.push_back(nAst_); }
-        nAst_->getFuncArgOps(funcArgOpVector);
-      }
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(nAst_)
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->funcType()) { funcOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->funcType()) { funcOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getFuncOps(funcOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->funcType()) { funcOpVector.push_back(nAst_); }
-        nAst_->getFuncOps(funcOpVector);
-      }
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(nAst_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->voltageType()) { voltOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getVoltageOps(voltOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->voltageType()) { voltOpVector.push_back(nAst_); }
-        nAst_->getVoltageOps(voltOpVector);
-      }
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-      if( !(Teuchos::is_null(this->leftAst_)) )
-      {
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-        this->leftAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(this->rightAst_)) )
-      {
-        if (this->rightAst_->currentType()) { currentOpVector.push_back(this->rightAst_); }
-        this->rightAst_->getCurrentOps(currentOpVector);
-      }
-
-      if( !(Teuchos::is_null(nAst_)) )
-      {
-        if (nAst_->currentType()) { currentOpVector.push_back(nAst_); }
-        nAst_->getCurrentOps(currentOpVector);
-      }
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_)
     }
 
   private:
@@ -3386,7 +2908,10 @@ template <typename ScalarT>
 class specialsOp : public astNode<ScalarT>
 {
   public:
-    specialsOp (std::string typeName) : astNode<ScalarT>(), type_(typeName), value_(0.0) {};
+    specialsOp (std::string typeName) : astNode<ScalarT>(), type_(typeName), value_(0.0) 
+  {
+    Xyce::Util::toUpper(type_);
+  };
 
     virtual ScalarT val() { return value_; };
     virtual ScalarT dx (int i) { return ScalarT(0.0); };
@@ -3403,6 +2928,11 @@ class specialsOp : public astNode<ScalarT>
     void getType(std::string t) { type_ = t; }
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; }
+
+    virtual bool timeSpecialType() { return (type_ == std::string("TIME")); }
+    virtual bool tempSpecialType() { return (type_ == std::string("TEMP")); }
+    virtual bool vtSpecialType()   { return (type_ == std::string("VT")); }
+    virtual bool freqSpecialType() { return (type_ == std::string("FREQ")); }
 
   private:
     std::string type_;

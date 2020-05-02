@@ -4,17 +4,7 @@
 
 #define AST_CALL_SUBFUNC(PTR,FUNC,ARG)  if(this->PTR) { this->PTR->FUNC(ARG);  }
 
-#define AST_CALL_SUBOUTPUT(PTR,OUTSTR)  if(  !(Teuchos::is_null(this->PTR))  ) { os << std::setw(indent) << " "; os << OUTSTR << ": " << std::endl; this->PTR->output(os,indent+1); }
-
-#define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
-
-#define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
-
-#define AST_GET_FUNC_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->funcType()) { funcOpVector.push_back(this->PTR); } this->PTR->getFuncOps(funcOpVector); }
-
-#define AST_GET_VOLT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } this->PTR->getVoltageOps(voltOpVector); }
-
-#define AST_GET_CURRENT_OPS2(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } this->PTR->getCurrentOps(currentOpVector); }
+#define AST_CALL_SUBOUTPUT(PTR)  if(  !(Teuchos::is_null(this->PTR))  ) { os << std::setw(indent) << " "; os << #PTR << ": " << std::endl; this->PTR->output(os,indent+1); }
 
 //-------------------------------------------------------------------------------
 // spice pulse  operator
@@ -199,13 +189,13 @@ class spicePulseOp : public astNode<ScalarT>
       os << "spice pulse operator " << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v1_,"v1")
-      AST_CALL_SUBOUTPUT(v2_,"v2")
-      AST_CALL_SUBOUTPUT(td_,"td")
-      AST_CALL_SUBOUTPUT(tr_,"tr")
-      AST_CALL_SUBOUTPUT(tf_,"tf")
-      AST_CALL_SUBOUTPUT(pw_,"pw")
-      AST_CALL_SUBOUTPUT(per_,"per")
+      AST_CALL_SUBOUTPUT(v1_)
+      AST_CALL_SUBOUTPUT(v2_)
+      AST_CALL_SUBOUTPUT(td_)
+      AST_CALL_SUBOUTPUT(tr_)
+      AST_CALL_SUBOUTPUT(tf_)
+      AST_CALL_SUBOUTPUT(pw_)
+      AST_CALL_SUBOUTPUT(per_)
     }
 
     virtual void codeGen (std::ostream & os )
@@ -250,9 +240,9 @@ AST_GET_VOLT_OPS(per_) AST_GET_VOLT_OPS(time_)
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS2(v1_) AST_GET_CURRENT_OPS2(v2_) AST_GET_CURRENT_OPS2(td_)
-AST_GET_CURRENT_OPS2(tr_) AST_GET_CURRENT_OPS2(tf_) AST_GET_CURRENT_OPS2(pw_)
-AST_GET_CURRENT_OPS2(per_) AST_GET_CURRENT_OPS2(time_)
+AST_GET_CURRENT_OPS(v1_) AST_GET_CURRENT_OPS(v2_) AST_GET_CURRENT_OPS(td_)
+AST_GET_CURRENT_OPS(tr_) AST_GET_CURRENT_OPS(tf_) AST_GET_CURRENT_OPS(pw_)
+AST_GET_CURRENT_OPS(per_) AST_GET_CURRENT_OPS(time_)
     }
 
   private:
@@ -339,12 +329,12 @@ class spiceSinOp : public astNode<ScalarT>
       os << "spice sin operator " << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v0_,"v0")
-      AST_CALL_SUBOUTPUT(va_,"va")
-      AST_CALL_SUBOUTPUT(freq_,"freq")
-      AST_CALL_SUBOUTPUT(td_,"td")
-      AST_CALL_SUBOUTPUT(theta_,"theta")
-      AST_CALL_SUBOUTPUT(phase_,"phase")
+      AST_CALL_SUBOUTPUT(v0_)
+      AST_CALL_SUBOUTPUT(va_)
+      AST_CALL_SUBOUTPUT(freq_)
+      AST_CALL_SUBOUTPUT(td_)
+      AST_CALL_SUBOUTPUT(theta_)
+      AST_CALL_SUBOUTPUT(phase_)
     }
 
     virtual void codeGen (std::ostream & os )
@@ -384,8 +374,8 @@ AST_GET_VOLT_OPS(td_) AST_GET_VOLT_OPS(theta_) AST_GET_VOLT_OPS(phase_) AST_GET_
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS2(v0_) AST_GET_CURRENT_OPS2(va_) AST_GET_CURRENT_OPS2(freq_)
-AST_GET_CURRENT_OPS2(td_) AST_GET_CURRENT_OPS2(theta_) AST_GET_CURRENT_OPS2(phase_) AST_GET_CURRENT_OPS2(time_)
+AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(freq_)
+AST_GET_CURRENT_OPS(td_) AST_GET_CURRENT_OPS(theta_) AST_GET_CURRENT_OPS(phase_) AST_GET_CURRENT_OPS(time_)
     }
 
   private:
@@ -484,12 +474,12 @@ class spiceExpOp : public astNode<ScalarT>
       os << "spice exp operator " << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v1_,"v1")
-      AST_CALL_SUBOUTPUT(v2_,"v2")
-      AST_CALL_SUBOUTPUT(td1_,"td1")
-      AST_CALL_SUBOUTPUT(tau1_,"tau1")
-      AST_CALL_SUBOUTPUT(td2_,"td2")
-      AST_CALL_SUBOUTPUT(tau2_,"tau2")
+      AST_CALL_SUBOUTPUT(v1_)
+      AST_CALL_SUBOUTPUT(v2_)
+      AST_CALL_SUBOUTPUT(td1_)
+      AST_CALL_SUBOUTPUT(tau1_)
+      AST_CALL_SUBOUTPUT(td2_)
+      AST_CALL_SUBOUTPUT(tau2_)
     }
 
     virtual void codeGen (std::ostream & os )
@@ -529,8 +519,9 @@ AST_GET_VOLT_OPS(tau1_) AST_GET_VOLT_OPS(td2_) AST_GET_VOLT_OPS(tau2_) AST_GET_V
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS2(v1_) AST_GET_CURRENT_OPS2(v2_) AST_GET_CURRENT_OPS2(td1_)
-AST_GET_CURRENT_OPS2(tau1_) AST_GET_CURRENT_OPS2(td2_) AST_GET_CURRENT_OPS2(tau2_) AST_GET_CURRENT_OPS2(time_) }
+AST_GET_CURRENT_OPS(v1_) AST_GET_CURRENT_OPS(v2_) AST_GET_CURRENT_OPS(td1_)
+AST_GET_CURRENT_OPS(tau1_) AST_GET_CURRENT_OPS(td2_) AST_GET_CURRENT_OPS(tau2_) AST_GET_CURRENT_OPS(time_) 
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td1_, tau1_, td2_, tau2_, time_;
@@ -608,11 +599,11 @@ class spiceSffmOp : public astNode<ScalarT>
       os << "spice sffm operator " << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v0_,"v0")
-      AST_CALL_SUBOUTPUT(va_,"va")
-      AST_CALL_SUBOUTPUT(fc_,"fc")
-      AST_CALL_SUBOUTPUT(mdi_,"mdi")
-      AST_CALL_SUBOUTPUT(fs_,"fs")
+      AST_CALL_SUBOUTPUT(v0_)
+      AST_CALL_SUBOUTPUT(va_)
+      AST_CALL_SUBOUTPUT(fc_)
+      AST_CALL_SUBOUTPUT(mdi_)
+      AST_CALL_SUBOUTPUT(fs_)
     }
 
     virtual void codeGen (std::ostream & os )
@@ -652,8 +643,8 @@ AST_GET_VOLT_OPS(mdi_) AST_GET_VOLT_OPS(fs_) AST_GET_VOLT_OPS(time_)
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS2(v0_) AST_GET_CURRENT_OPS2(va_) AST_GET_CURRENT_OPS2(fc_)
-AST_GET_CURRENT_OPS2(mdi_) AST_GET_CURRENT_OPS2(fs_) AST_GET_CURRENT_OPS2(time_)
+AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(fc_)
+AST_GET_CURRENT_OPS(mdi_) AST_GET_CURRENT_OPS(fs_) AST_GET_CURRENT_OPS(time_)
     }
 
   private:

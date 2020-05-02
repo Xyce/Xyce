@@ -353,10 +353,10 @@ void newExpression::clear ()
   numDerivs_ = 0;
   traditionalParse_ = true;
   externalDependencies_ = false;
-  isTimeDepdendent_ = false;
-  isTempDepdendent_ = false;
-  isVTDepdendent_ = false;
-  isFreqDepdendent_ = false;
+  isTimeDependent_ = false;
+  isTempDependent_ = false;
+  isVTDependent_ = false;
+  isFreqDependent_ = false;
 
   functionArgStringVec_.clear();
   functionArgOpVec_.clear();
@@ -587,7 +587,41 @@ void newExpression::setupDerivatives_ ()
   derivsSetup_ = true;
 }
 
+#define NEW_EXP_OUTPUT_ARRAY(VECTOR) \
+  if ( !(VECTOR.empty()) )  { \
+  os << #VECTOR << " (size="<<VECTOR.size()<<"):" << std::endl; \
+  for (int ii=0;ii<VECTOR.size();ii++) \
+  { \
+    os << ii << " "; \
+    VECTOR[ii]->output(os,0); \
+  } }
 
+//-------------------------------------------------------------------------------
+// Function      : newExpression::outputVariousAstArrays_
+// Purpose       : debug output
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/1/2020
+//-------------------------------------------------------------------------------
+void newExpression::outputVariousAstArrays( std::ostream & os )
+{
+  os << "Various arrays for expression: " << expressionString_ <<std::endl;
+  if (externalDependencies_) os << "externalDependencies_ = true" <<std::endl;
+  else os << "externalDependencies_ = false" <<std::endl;
+
+NEW_EXP_OUTPUT_ARRAY(paramOpVec_)
+NEW_EXP_OUTPUT_ARRAY(unresolvedParamOpVec_)
+NEW_EXP_OUTPUT_ARRAY(funcOpVec_)
+NEW_EXP_OUTPUT_ARRAY(voltOpVec_)
+NEW_EXP_OUTPUT_ARRAY(currentOpVec_)
+NEW_EXP_OUTPUT_ARRAY(powerOpVec_)
+NEW_EXP_OUTPUT_ARRAY(internalDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY(dnoNoiseDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY(dniNoiseDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY(oNoiseOpVec_)
+NEW_EXP_OUTPUT_ARRAY(iNoiseOpVec_)
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setupVariousAstArrays_
@@ -597,73 +631,11 @@ void newExpression::setupDerivatives_ ()
 // Creator       : Eric Keiter
 // Creation Date : 12/26/2019
 //-------------------------------------------------------------------------------
-// ERK.  12/26/2019. This may be refactored away later.
-// This is not the best way to do this.
-// But, I needed it for several parserUnitTests to pass,
-// post-RCP refactor.
-//
-// Notes from 2/7/2020
-//
-// (1) This function had a bug in it that was not revealed until I made calling
-// this function mandatory when "evaluate" or "evaluateFunction" is called.
-//
-// (2) The flaw was in handling function arguments.  The "getInterestingOps"
-// function was using dummy args instead of actual args.  This has been fixed now.
-//
-// (3) another flaw, which is not fixed, is that the code treats function arguments
-// are parameters.  And even after their paramNodes are "set" by the actual args,
-// they will still get included in the param array.
-//
-// (4) In principal, they don't need to be in this array, as they are function args
-// NOT regular params such as global params, etc.  So possibly the right thing to
-// do is create a different Op for function args.   This is not done yet.
-//
-// (5) this second issue does not break the code, but adds an inefficiency and
-// memory bloat.
-//
-// private function
 void newExpression::setupVariousAstArrays_()
 {
 #if 0
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "Various arrays for expression: " << expressionString_ <<std::endl;
-  if (externalDependencies_) std::cout << "externalDependencies_ = true" <<std::endl;
-  else std::cout << "externalDependencies_ = false" <<std::endl;
-
   std::cout << "Array sizes BEFORE update:" <<std::endl;
-  std::cout << "Size of paramOpVec_ = " << paramOpVec_.size() << std::endl;
-  std::cout << "Size of funcOpVec_ = " << funcOpVec_.size() << std::endl;
-  std::cout << "Size of voltOpVec_ = " << voltOpVec_.size() << std::endl;
-  std::cout << "Size of currentOpVec_ = " << currentOpVec_.size() << std::endl;
-
-  std::cout << "paramOpVec_:" << std::endl;
-  for (int ii=0;ii<paramOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    paramOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "funcOpVec_:" << std::endl;
-  for (int ii=0;ii<funcOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    funcOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "voltOpVec_:" << std::endl;
-  for (int ii=0;ii<voltOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    voltOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "currentOpVec_:" << std::endl;
-  for (int ii=0;ii<currentOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    currentOpVec_[ii]->output(std::cout,0);
-  }
+  outputVariousAstArrays(std::cout);
 #endif
 
   if (externalDependencies_)
@@ -683,12 +655,27 @@ void newExpression::setupVariousAstArrays_()
           paramOpVec_.push_back(astNodePtr_);
         }
       }
-      if (astNodePtr_->funcType()) { funcOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
 
+      if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
+
+      opVectors_.isTimeDependent = isTimeDependent_;
+      opVectors_.isTempDependent = isTempDependent_;
+      opVectors_.isVTDependent = isVTDependent_;
+      opVectors_.isFreqDependent = isFreqDependent_;
+
       astNodePtr_->getInterestingOps( opVectors_  );
+
+      if (opVectors_.isTimeDependent) isTimeDependent_ = true;
+      if (opVectors_.isTempDependent) isTempDependent_ = true;
+      if (opVectors_.isVTDependent  ) isVTDependent_   = true;
+      if (opVectors_.isFreqDependent) isFreqDependent_ = true;
     }
 
 #if 0
@@ -731,49 +718,15 @@ void newExpression::setupVariousAstArrays_()
       std::string tmp = currOp->getCurrentDevice();
       currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
-  }
 
-
-  // need to more thoroughly set up the specials booleans.  Check external dependencies for these nodes.
-
-
+    // need to more thoroughly set up the specials booleans.  
+    // Check external dependencies for these nodes.
 
 #if 0
-  std::cout << "Array sizes AFTER update:" <<std::endl;
-
-  std::cout << "Size of paramOpVec_ = " << paramOpVec_.size() << std::endl;
-  std::cout << "Size of funcOpVec_ = " << funcOpVec_.size() << std::endl;
-  std::cout << "Size of voltOpVec_ = " << voltOpVec_.size() << std::endl;
-  std::cout << "Size of currentOpVec_ = " << currentOpVec_.size() << std::endl;
-
-  std::cout << "paramOpVec_:" << std::endl;
-  for (int ii=0;ii<paramOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    paramOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "funcOpVec_:" << std::endl;
-  for (int ii=0;ii<funcOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    funcOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "voltOpVec_:" << std::endl;
-  for (int ii=0;ii<voltOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    voltOpVec_[ii]->output(std::cout,0);
-  }
-
-  std::cout << "currentOpVec_:" << std::endl;
-  for (int ii=0;ii<currentOpVec_.size();ii++)
-  {
-    std::cout << ii << " ";
-    currentOpVec_[ii]->output(std::cout,0);
-  }
+    std::cout << "Array sizes AFTER update:" <<std::endl;
+    outputVariousAstArrays(std::cout);
 #endif
+  }
 
   astArraysSetup_ = true;
 };

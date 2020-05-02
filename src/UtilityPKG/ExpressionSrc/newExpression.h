@@ -67,11 +67,11 @@ public:
     numDerivs_(0),
     traditionalParse_(true),
     externalDependencies_(false),
-    isTimeDepdendent_(false),
-    isTempDepdendent_(false),
-    isVTDepdendent_(false),
-    isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    isTimeDependent_(false),
+    isTempDependent_(false),
+    isVTDependent_(false),
+    isFreqDependent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {};
 
   // primary constructor
@@ -90,11 +90,11 @@ public:
     numDerivs_(0),
     traditionalParse_(true),
     externalDependencies_(false),
-    isTimeDepdendent_(false),
-    isTempDepdendent_(false),
-    isVTDepdendent_(false),
-    isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    isTimeDependent_(false),
+    isTempDependent_(false),
+    isVTDependent_(false),
+    isFreqDependent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -138,11 +138,11 @@ public:
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false),
-    isTimeDepdendent_(false),
-    isTempDepdendent_(false),
-    isVTDepdendent_(false),
-    isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    isTimeDependent_(false),
+    isTempDependent_(false),
+    isVTDependent_(false),
+    isFreqDependent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -176,11 +176,11 @@ public:
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false),
-    isTimeDepdendent_(false),
-    isTempDepdendent_(false),
-    isVTDepdendent_(false),
-    isFreqDepdendent_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    isTimeDependent_(false),
+    isTempDependent_(false),
+    isVTDependent_(false),
+    isFreqDependent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -276,11 +276,11 @@ public:
     numDerivs_(right.numDerivs_),
     traditionalParse_(right.traditionalParse_),
     externalDependencies_(right.externalDependencies_),
-    isTimeDepdendent_(right.isTimeDepdendent_),
-    isTempDepdendent_(right.isTempDepdendent_),
-    isVTDepdendent_(right.isVTDepdendent_),
-    isFreqDepdendent_(right.isFreqDepdendent_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_)
+    isTimeDependent_(right.isTimeDependent_),
+    isTempDependent_(right.isTempDependent_),
+    isVTDependent_(right.isVTDependent_),
+    isFreqDependent_(right.isFreqDependent_),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -354,10 +354,10 @@ public:
     traditionalParse_ = right.traditionalParse_;
     externalDependencies_ = right.externalDependencies_;
 
-    isTimeDepdendent_ = right.isTimeDepdendent_;
-    isTempDepdendent_ = right.isTempDepdendent_;
-    isVTDepdendent_ = right.isVTDepdendent_;
-    isFreqDepdendent_ = right.isFreqDepdendent_;
+    isTimeDependent_ = right.isTimeDependent_;
+    isTempDependent_ = right.isTempDependent_;
+    isVTDependent_ = right.isVTDependent_;
+    isFreqDependent_ = right.isFreqDependent_;
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -514,17 +514,17 @@ public:
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
-  bool getTimeDependent() { return isTimeDepdendent_; }
-  void setTimeDependent(bool val) { isTimeDepdendent_ = val; }
+  bool getTimeDependent() { return isTimeDependent_; }
+  void setTimeDependent(bool val) { isTimeDependent_ = val; }
 
-  bool getTempDependent() { return isTempDepdendent_; }
-  void setTempDependent(bool val) { isTempDepdendent_ = val; }
+  bool getTempDependent() { return isTempDependent_; }
+  void setTempDependent(bool val) { isTempDependent_ = val; }
 
-  bool getVTDependent() { return isVTDepdendent_; }
-  void setVTDependent(bool val) { isVTDepdendent_ = val; }
+  bool getVTDependent() { return isVTDependent_; }
+  void setVTDependent(bool val) { isVTDependent_ = val; }
 
-  bool getFreqDependent() { return isFreqDepdendent_; }
-  void setFreqDependent(bool val) { isFreqDepdendent_ = val; }
+  bool getFreqDependent() { return isFreqDependent_; }
+  void setFreqDependent(bool val) { isFreqDependent_ = val; }
 
   // note: I don't particularly like these next 2 functions, but they are needed
   // to support the old expression API.
@@ -562,9 +562,11 @@ public:
     }
   }
 
+  void outputVariousAstArrays ( std::ostream & os );
+
 private:
   void setupDerivatives_ ();
-  void setupVariousAstArrays_ () ;
+  void setupVariousAstArrays_ ();
 
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
@@ -660,10 +662,10 @@ private:
   bool traditionalParse_;
   bool externalDependencies_; // true if expression includes a call to a .func, .param or .global_param
 
-  bool isTimeDepdendent_;
-  bool isTempDepdendent_;
-  bool isVTDepdendent_;
-  bool isFreqDepdendent_;
+  bool isTimeDependent_;
+  bool isTempDependent_;
+  bool isVTDependent_;
+  bool isFreqDependent_;
 
   opVectorContainers<usedType> opVectors_;
 };
