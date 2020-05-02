@@ -780,6 +780,9 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("vln")) { VLNval = val; }
   }
 
+  void setPower(const std::string & deviceName, double & val) { return setSoln(deviceName, val); }
+  bool getPower(const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
+
   private:
     //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 
@@ -1126,7 +1129,8 @@ TEST ( Double_Parser_Power_Test, test1)
 
   double result=0.0, R1val=3.0;
   double refRes = 17.2*R1val+8.5;
-  solnGroup->setSoln(std::string("R1"),R1val);
+  solnGroup->setPower(std::string("R1"),R1val);
+
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);

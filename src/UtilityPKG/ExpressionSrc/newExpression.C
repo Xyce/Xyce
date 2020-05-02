@@ -873,6 +873,14 @@ void newExpression::getValuesFromGroup()
     inoiseOp->setNoiseVar ( val );
   }
 
+  for (int ii=0;ii<powerOpVec_.size();ii++)
+  {
+    Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (powerOpVec_[ii]);
+    usedType val;
+    group_->getPower (pwrOp->getPowerDevice(), val);
+    pwrOp->setPowerVal ( val );
+  }
+
   for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
   for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } // Conversion to correct units in group 
   for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
