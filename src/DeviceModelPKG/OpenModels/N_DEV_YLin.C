@@ -446,6 +446,7 @@ bool Model::readTouchStoneFile()
   // where we are in the file, and whether parsing had an error
   int lineNum = 0;
   bool firstLineFound = false;
+  bool defaultOptionLine = false;
   int numVersionLinesFound = 0;
   int numOptionLinesFound = 0;
   int numPortsLinesFound = 0;
@@ -562,6 +563,13 @@ bool Model::readTouchStoneFile()
           // Only read the first Option line.  Any others are silently ignored.
           ++numOptionLinesFound;
 
+          // Record if this is a default Option line with only a # character on it,
+          // so that Z0Vec_ vector can be populated with the default of 50, for each
+          // port, once the number of ports is known.  The other defaults are set
+          // correctly in the Model::Model constructor
+          if (aLine.size() == 1)
+            defaultOptionLine = true;
+
           // The fields on the Option line can be in any order. Yuck!  Also an Option
           // line that only has a # is allowed.
           splitTouchStoneFileLine(aLine,parsedLine);
@@ -668,6 +676,11 @@ bool Model::readTouchStoneFile()
               << getName() << " must be an integer > 0";
             psuccess = false;
           }
+
+          // populate the Z0Vec_ vector for a default Option line.  This may be
+          // overwritten later by info on the [Reference] line.
+          if (defaultOptionLine)
+            for (int i=0; i < numPorts_; i++) {Z0Vec_.push_back(50.0);}
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
           {

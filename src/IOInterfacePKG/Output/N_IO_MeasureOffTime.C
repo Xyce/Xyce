@@ -46,41 +46,15 @@ namespace Measure {
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
 OffTime::OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  Base(measureMgr, measureBlock),
+  TranStats(measureMgr, measureBlock),
   totalOffTime_(0.0),
-  numberOfCycles_(0),
-  lastTimeValue_(0.0),
-  lastSignalValue_(0.0)
+  numberOfCycles_(0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : OffTime::prepareOutputVariables()
-// Purpose       : Validates that the number of output variables is legal for this
-//                 measure type, and then makes the vector for those variables.
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 11/15/2013
-//-----------------------------------------------------------------------------
-void OffTime::prepareOutputVariables() 
-{
-  // this measurement should have only one dependent variable.
-  // Error out if it doesn't
-  numOutVars_ = outputVars_.size();
-
-  if ( numOutVars_ > 1 )
-  {
-    std::string msg = "Too many dependent variables for OFF_TIME measure, \"" + name_ + "\"";
-    Report::UserError0() << msg;
-  }
-
-  outVarValues_.resize( numOutVars_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -93,97 +67,36 @@ void OffTime::prepareOutputVariables()
 //-----------------------------------------------------------------------------
 void OffTime::reset() 
 {
-  resetBase();
+  resetTranStats();
   totalOffTime_ = 0.0;
   numberOfCycles_ = 0.0;
 }
 
-
 //-----------------------------------------------------------------------------
-// Function      : OffTime::updateTran()
-// Purpose       :
+// Function      : OffTime::updateMeasureVars()
+// Purpose       : Updates the offTime
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void OffTime::updateTran(
-  Parallel::Machine comm,
-  const double circuitTime,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *stateVec,
-  const Linear::Vector *storeVec,
-  const Linear::Vector *lead_current_vector,
-  const Linear::Vector *junction_voltage_vector,
-  const Linear::Vector *lead_current_dqdt_vector)
+void OffTime::updateMeasureVars(const double circuitTime, const double signalVal)
 {
-  if( !calculationDone_ && withinTimeWindow( circuitTime ) )
+  if( (signalVal - minval_) <= offValue_ )
   {
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime,
-      solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+    // add to Off duty time
+    totalOffTime_ += (circuitTime - lastTimeValue_);
 
-      if( initialized_  )
-      {
-        if( (outVarValues_[0] - minval_) <= offValue_ )
-        {
-          // add to Off duty time
-          totalOffTime_ += (circuitTime - lastTimeValue_);
-
-          // did we just cross into a new cycle?
-          if( lastSignalValue_ > offValue_ )
-          {
-            numberOfCycles_++;
-          }
-        }
-      }
-
-      lastTimeValue_ = circuitTime;
-      lastSignalValue_ = outVarValues_[0];
-      initialized_=true;
+    // did we just cross into a new cycle?
+    if( lastSignalValue_ > offValue_ )
+    {
+      numberOfCycles_++;
+    }
   }
+
+  return;
 }
 
-
-//-----------------------------------------------------------------------------
-// Function      : OffTime::updateDC()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
-//-----------------------------------------------------------------------------
-void OffTime::updateDC(
-  Parallel::Machine comm,
-  const std::vector<Analysis::SweepParam> & dcParamsVec,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *stateVec,
-  const Linear::Vector *storeVec,
-  const Linear::Vector *lead_current_vector,
-  const Linear::Vector *junction_voltage_vector,
-  const Linear::Vector *lead_current_dqdt_vector)
-{
-
-}
-
-//-----------------------------------------------------------------------------
-// Function      : OffTime::updateAC()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
-// Creation Date : 8/7/2019
-//-----------------------------------------------------------------------------
-void OffTime::updateAC(
-  Parallel::Machine comm,
-  const double frequency,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *imaginaryVec,
-  const Util::Op::RFparamsData *RFparams)
-{
-
-}
 
 //-----------------------------------------------------------------------------
 // Function      : OffTime::getMeasureResult()

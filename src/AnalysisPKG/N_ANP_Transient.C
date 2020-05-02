@@ -3460,7 +3460,7 @@ void Transient::tranStepOutputs()
   // the first output of the simulation (at t=tstart, instead of
   // t=0) the force the interpolator to *not* interpolate, even
   // if it is doing so normally.
-  bool doNotInterpolate = beginningIntegration && tiaParams_.initialOutputTimeGiven && firstTranOutput_;
+  bool doNotInterpolate =tiaParams_.initialOutputTimeGiven && firstTranOutput_;
   bool skipPrintLineOutput = false;
 
   if (testOutputTime(analysisManager_.getStepErrorControl().currentTime, analysisManager_.getNextOutputTime(), tiaParams_.initialOutputTime))

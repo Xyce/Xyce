@@ -46,34 +46,14 @@ namespace Measure {
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
 IntegralEvaluation::IntegralEvaluation(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  Base(measureMgr, measureBlock),
-  integralValue_(0.0),
-  lastIndepVarValue_(0.0),
-  lastSignalValue_(0.0)
+  Stats(measureMgr, measureBlock),
+  integralValue_(0.0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : IntegralEvaluation::prepareOutputVariables()
-// Purpose       : Validates that the number of output variables is legal for this
-//                 measure type, and then makes the vector for those variables.
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 11/15/2013
-//-----------------------------------------------------------------------------
-void IntegralEvaluation::prepareOutputVariables()
-{
-  outVarValues_.resize( outputVars_.size(), 0.0 );
-  
-  // this measurement should have only one dependent variable.
-  if (outVarValues_.size() > 1 )
-    Xyce::Report::UserError0() << "Too many dependent variables for INTEG measure, \"" << name_ << "\"";
 }
 
 
@@ -87,197 +67,56 @@ void IntegralEvaluation::prepareOutputVariables()
 //-----------------------------------------------------------------------------
 void IntegralEvaluation::reset() 
 {
-  resetBase();
+  resetStats();
   integralValue_ = 0.0;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : IntegralEvaluation::updateTran()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
-//-----------------------------------------------------------------------------
-void IntegralEvaluation::updateTran(
-  Parallel::Machine comm,
-  const double circuitTime,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *stateVec,
-  const Linear::Vector *storeVec,
-  const Linear::Vector *lead_current_vector,
-  const Linear::Vector *junction_voltage_vector,
-  const Linear::Vector *lead_current_dqdt_vector)
-{
-  
-  if( !calculationDone_ && withinTimeWindow( circuitTime ) )
-  {
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime,
-      solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0 );
-
-    // Need to set lastOutputValue_ variable to the current signal value
-    // at the first time-step within the measurement window.  (That
-    // window is set by the TO-FROM and TD qualifiers if present.)  This is 
-    // needed so that the RISE/FALL/CROSS count is not incremented at time=0, if
-    // the measured waveform has a DC offset at time=0    
-    if (!firstStepInMeasureWindow_)
-    {
-      lastOutputValue_ = outVarValues_[0]; 
-      firstStepInMeasureWindow_ = true;
-    }
-
-    if( withinRiseFallCrossWindow( outVarValues_[0], rfcLevel_ ) )
-    {
-      // If LAST was specified then this is done
-      // each time a new RFC window is entered.
-      if( newRiseFallCrossWindowforLast() )
-      {
-        integralValue_ = 0.0;
-        initialized_ = false;
-        firstStepInRfcWindow_ = false;
-      }
-
-      // record the start and end times of the RFC window
-      if( !firstStepInRfcWindow_  )
-      {
-        firstStepInRfcWindow_ = true;
-        rfcWindowFound_ = true;
-        rfcWindowStartTime_ = circuitTime;
-      }
-      rfcWindowEndTime_ = circuitTime;
-
-      if( initialized_  )
-      {
-        // update integral of outVarValues_[0];
-        integralValue_ += 0.5 * (circuitTime - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-      }
-
-      lastIndepVarValue_ = circuitTime;
-      lastSignalValue_ = outVarValues_[0];
-      initialized_=true;
-    }
-  }
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : IntegralEvaluation::updateDC()
-// Purpose       :
+// Function      : IntegralEvaluation::setMeasureVarsForNewWindow()
+// Purpose       : Called when entering a new RFC window for TRAN measures
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 3/25/2020
+// Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void IntegralEvaluation::updateDC(
-  Parallel::Machine comm,
-  const std::vector<Analysis::SweepParam> & dcParamsVec,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *stateVec,
-  const Linear::Vector *storeVec,
-  const Linear::Vector *lead_current_vector,
-  const Linear::Vector *junction_voltage_vector,
-  const Linear::Vector *lead_current_dqdt_vector)
+void IntegralEvaluation::setMeasureVarsForNewWindow()
 {
-  // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
-  // In that case, a DC MEASURE will be reported as FAILED.
-  if ( dcParamsVec.size() > 0 )
-  {
-    double dcSweepVal = dcParamsVec[0].currentVal;
+  integralValue_ = 0.0;
+  initialized_ = false;
 
-    // Used in descriptive output to stdout. Store name and first/last values of
-    // first variable found in the DC sweep vector
-    sweepVar_= dcParamsVec[0].name;
-    if (!firstSweepValueFound_)
-    {
-        startSweepValue_ = dcSweepVal;
-        firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
-
-    if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
-    {
-      outVarValues_[0] = getOutputValue(comm, outputVars_[0],
-                                        solnVec, stateVec, storeVec, 0,
-                                        lead_current_vector,
-                                        junction_voltage_vector,
-                                        lead_current_dqdt_vector, 0);
-
-      // Used in descriptive output to stdout. These are the first/last values
-      // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
-
-      if( initialized_  )
-      {
-        // update integral of outVarValues_[0].  Account for both ascending and descending
-        // FROM-TO windows and "direction" (increasing/decreasing) of first swept variable on .DC line.
-        if ( ((from_ <= to_) && (dcSweepVal > startSweepValue_)) || ((from_ >= to_) && (dcSweepVal < startSweepValue_)) )
-          integralValue_ += 0.5 * (dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-        else
-          integralValue_ -= 0.5 * (dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-      }
-
-      lastIndepVarValue_ = dcSweepVal;
-      lastSignalValue_ = outVarValues_[0];
-      initialized_=true;
-    }
-  }
+  return;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : IntegralEvaluation::updateAC()
-// Purpose       :
-// Special Notes :
+// Function      : IntegralEvaluation::updateMeasureVars()
+// Purpose       : Updates the integral value
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 measures, it is frequency.  For DC measures, it is the value
+//                 of the first variable in the DC sweep vector.
 // Scope         : public
-// Creator       : Pete Sholander, 3/25/2020
-// Creation Date : 3/25/2020
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void IntegralEvaluation::updateAC(
-  Parallel::Machine comm,
-  const double frequency,
-  const Linear::Vector *solnVec,
-  const Linear::Vector *imaginaryVec,
-  const Util::Op::RFparamsData *RFparams)
+void IntegralEvaluation::updateMeasureVars(const double indepVarVal, const double signalVal)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
+  // The first branch is always taken by TRAN and AC measures.  For DC mode, we must account for
+  // both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
+  // of first swept variable on .DC line.  This requires the addition of the next two branches
+  // to cover the other three cases.
+  if ((from_ <= to_) && (indepVarVal > startSweepValue_))
   {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
+    integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
   }
-  endSweepValue_ = frequency;
-
-  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  else if ( (from_ >= to_) && (indepVarVal < startSweepValue_) )
   {
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, RFparams);
-
-    // Used in descriptive output to stdout. These are the first/last values
-    // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
-
-    if( initialized_  )
-    {
-      // update integral of outVarValues_[0];
-      integralValue_ += 0.5 * (frequency - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
-    }
-
-    lastIndepVarValue_ = frequency;
-    lastSignalValue_ = outVarValues_[0];
-    initialized_=true;
+    integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
   }
+  else
+  {
+    integralValue_ -= 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+  }
+
+  return;
 }
 
 

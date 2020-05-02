@@ -1307,12 +1307,13 @@ bool OneStep::printOutputSolution(
         dt = 0.0;
       }
       outputManagerAdapter.tranOutput(
-          outputInterpolationTimes[i], dt,
-          *ds.tmpSolVectorPtr,
-          *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
-          *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
-          ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,
-          ds.scaled_dOdpVec_, ds.scaled_dOdpAdjVec_);
+         outputInterpolationTimes[i], dt,
+         *ds.tmpSolVectorPtr,
+         *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
+         *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
+         ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,
+         ds.scaled_dOdpVec_, ds.scaled_dOdpAdjVec_,
+         skipPrintLineOutput);
     }
   }
 

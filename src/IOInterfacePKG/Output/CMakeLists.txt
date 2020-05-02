@@ -5,6 +5,9 @@
 set ( OutputInterface_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureManager.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureBase.C
+     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureExtrema.C
+     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureStats.C
+     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureTranStats.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureRiseFallDelay.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureAverage.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureDuty.C
