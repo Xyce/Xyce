@@ -257,9 +257,11 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp )
   RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<specialsOp<double> > time_op2 = rcp_static_cast<specialsOp<double> > (time_op);
 
+  std::vector< RCP<astNode<double> > > sourceArgs = { v1_op, v2_op, td_op, tr_op, tf_op, pw_op, per_op };
+
   // test initial value(v1)
   time_op2->setValue(time);
-  spicePulseOp<double> pulse( v1_op, v2_op, td_op, tr_op, tf_op, pw_op, per_op, time_op);
+  spicePulseOp<double> pulse( &sourceArgs, time_op);
   EXPECT_EQ(pulse.val(), v1);
 
   // test post-rise value(v2)
@@ -295,9 +297,11 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp_breakPoints )
   RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<specialsOp<double> > time_op2 = rcp_static_cast<specialsOp<double> > (time_op);
 
+  std::vector< RCP<astNode<double> > > sourceArgs = { v1_op, v2_op, td_op, tr_op, tf_op, pw_op, per_op };
+
   // test initial value(v1)
   time_op2->setValue(time);
-  spicePulseOp<double> pulse( v1_op, v2_op, td_op, tr_op, tf_op, pw_op, per_op, time_op);
+  spicePulseOp<double> pulse( &sourceArgs, time_op);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   bool ret = pulse.getBreakPoints(breakPointTimes);
@@ -331,12 +335,14 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSinOp )
   RCP<astNode<double> > theta_op = rcp(new numval<double> (theta));
   RCP<astNode<double> > phase_op = rcp(new numval<double> (phase));
 
+  std::vector< RCP<astNode<double> > > sourceArgs = { v0_op, va_op, freq_op, td_op, theta_op, phase_op };
+
   RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<specialsOp<double> > time_op2 = rcp_static_cast<specialsOp<double> > (time_op);
 
   // test the DCOP value , which should be: DCOPValue = V0 + VA * sin (2.0*mpi*(PHASE/360));
   time_op2->setValue(time);
-  spiceSinOp<double> sinOp (v0_op, va_op, freq_op, td_op, theta_op, phase_op, time_op);
+  spiceSinOp<double> sinOp (&sourceArgs, time_op);
 
   double DCOPValue = v0 + va * std::sin (2.0*M_PI*(phase/360));
   EXPECT_EQ(sinOp.val(), DCOPValue);
@@ -363,12 +369,14 @@ TEST ( Double_Ast_Spice_Src_Test, spiceExpOp )
   RCP<astNode<double> > td2_op = rcp(new numval<double> (td2));
   RCP<astNode<double> > tau2_op = rcp(new numval<double> (tau2));
 
+  std::vector< RCP<astNode<double> > > sourceArgs = { v1_op, v2_op, td1_op, tau1_op, td2_op, tau2_op };
+
   RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<specialsOp<double> > time_op2 = rcp_static_cast<specialsOp<double> > (time_op);
 
   // test time <= td1, which should be v1
   time_op2->setValue(time);
-  spiceExpOp<double> expOp ( v1_op, v2_op, td1_op, tau1_op, td2_op, tau2_op, time_op);
+  spiceExpOp<double> expOp ( &sourceArgs, time_op );
   EXPECT_EQ(expOp.val(), v1);
 
   // test td1 < time <= td2, which should be 
@@ -401,11 +409,13 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSffmOp )
   RCP<astNode<double> > mdi_op = rcp(new numval<double> (mdi));
   RCP<astNode<double> > fs_op = rcp(new numval<double> (fs));
   
+  std::vector< RCP<astNode<double> > > sourceArgs = { v0_op, va_op, fc_op, mdi_op, fs_op };
+
   RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<specialsOp<double> > time_op2 = 
     rcp_static_cast<specialsOp<double> > (time_op);
   
-  spiceSffmOp<double> sffmOp ( v0_op, va_op, fc_op, mdi_op, fs_op, time_op );
+  spiceSffmOp<double> sffmOp ( &sourceArgs, time_op );
 
   // test, which should be    
   // value = v0 + va * sin((2 * mpi * fc * time) + mdi * sin (2 * mpi * fs * time));
@@ -1233,8 +1243,9 @@ TEST ( Double_Ast_table_Test, array2)
   RCP<astNode<double> > td1_op = rcp(new numval<double> (td1));
   RCP<astNode<double> > theta_op = rcp(new numval<double> (theta));
   RCP<astNode<double> > phase_op = rcp(new numval<double> (phase));
+  std::vector< RCP<astNode<double> > > sourceArgs = { v0_op, va_op, freq_op, td1_op, theta_op, phase_op };
   time_op->setValue(time);
-  RCP<astNode<double> > V1op = rcp(new spiceSinOp<double>(v0_op, va_op, freq_op, td1_op, theta_op, phase_op, time_op));
+  RCP<astNode<double> > V1op = rcp(new spiceSinOp<double>( &sourceArgs, time_op ));
 
 // v2 which is a pulse source that goes between 0 and 1.  PW is short
 // v1=0, v2=1, td=0, tr=0.5us, tf=0.5us, pw=2us, per=20us
@@ -1246,7 +1257,10 @@ TEST ( Double_Ast_table_Test, array2)
   RCP<astNode<double> > tf_op = rcp(new numval<double> (tf));
   RCP<astNode<double> > pw_op = rcp(new numval<double> (pw));
   RCP<astNode<double> > per_op = rcp(new numval<double> (per));
-  RCP<astNode<double> > V2op = rcp(new spicePulseOp<double> ( v1_op, v2_op, td2_op, tr_op, tf_op, pw_op, per_op, time_op));
+
+  sourceArgs = { v1_op, v2_op, td2_op, tr_op, tf_op, pw_op, per_op };
+
+  RCP<astNode<double> > V2op = rcp(new spicePulseOp<double> ( &sourceArgs, time_op));
 
   // Set up v2 * (v1+30)/60 = leftArgExpr
   // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled 
