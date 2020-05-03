@@ -636,6 +636,8 @@ public:
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqVec); }
   }
 
+  bool getIsConstant() { return isConstant_; }
+
 private:
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();

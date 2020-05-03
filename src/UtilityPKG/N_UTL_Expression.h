@@ -118,6 +118,8 @@ public:
   void getSpecials         (std::vector<std::string> & specials) const;
   void getPowerCalcs       (std::vector<std::string> & powerCalcs) const;
 
+  bool getIsConstant ();
+
   // ERK new expression stuff, where external dependencies are set in separate 
   // calls.  This is better than set_var/s, but not best.  Best would be to
   // have an all-powerful group that can "pull" these values, rather than

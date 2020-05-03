@@ -1080,6 +1080,7 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
     // to be called unneccessarily.
     //
     // But that will have to come later.
+#if 0
     changed = true;
 
     eVarVals.resize(dpIter->n_vars);
@@ -1091,12 +1092,16 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
         expVarVals[i] = vars[expVarLIDs[i]];
         eVarVals[i-dpIter->lo_var] = expVarVals[i];
       }
-#if 0
     // ERK.  FIX THIS!   commenting out so this will compile
       if (dpIter->expr->set_vars(eVarVals))
         changed = true;
-#endif
     }
+#else
+    if ( !(dpIter->expr->getIsConstant()) ) // ERK.  5/3/2020.  Refine this later.
+    {
+      changed = true;
+    }
+#endif
     if (changed)
     {
       dpIter->expr->evaluateFunction (rval);

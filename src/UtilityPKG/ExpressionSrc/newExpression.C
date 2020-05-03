@@ -757,16 +757,15 @@ void newExpression::setupVariousAstArrays_()
   }
 
   // check if this is expression is a constant
-  
-  bool allParamConstant = paramOpVec_.empty();
-  if (!allParamConstant)
+ 
+  bool noVariableParams = paramOpVec_.empty();
+  if (!noVariableParams)
   {
-    allParamConstant = true;
+    noVariableParams = true;
     for (int ii=0;ii<paramOpVec_.size();ii++)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      bool tmp = parOp->getIsConstant();
-      allParamConstant = allParamConstant && tmp;
+      if ( (parOp->getIsVar()) ) { noVariableParams = false; }
     }
   }
 
@@ -775,9 +774,9 @@ void newExpression::setupVariousAstArrays_()
     !isTempDependent_  &&
     !isVTDependent_    &&
     !isFreqDependent_  &&
-    allParamConstant &&
+    noVariableParams &&
     (unresolvedParamOpVec_.empty()) &&
-    (funcOpVec_.empty()) &&
+    //(funcOpVec_.empty()) &&  // not relevant
     (voltOpVec_.empty()) &&
     (currentOpVec_.empty()) &&
     (powerOpVec_.empty()) &&
@@ -790,6 +789,17 @@ void newExpression::setupVariousAstArrays_()
     {
       isConstant_ = true;
     }
+
+#if 0
+  if (isConstant_)
+  {
+    std::cout << "expression: " << expressionString_ << " is constant" << std::endl;
+  }
+  else
+  {
+    std::cout << "expression: " << expressionString_ << " is constant" << std::endl;
+  }
+#endif
 
   astArraysSetup_ = true;
 };

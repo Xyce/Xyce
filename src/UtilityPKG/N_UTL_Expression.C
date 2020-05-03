@@ -807,6 +807,19 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getIsConstant
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getIsConstant ()
+{
+  return newExpPtr_->getIsConstant();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
 // Purpose       : Returns a string of the expression, post replacements
 //
