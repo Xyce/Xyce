@@ -756,6 +756,41 @@ void newExpression::setupVariousAstArrays_()
 #endif
   }
 
+  // check if this is expression is a constant
+  
+  bool allParamConstant = paramOpVec_.empty();
+  if (!allParamConstant)
+  {
+    allParamConstant = true;
+    for (int ii=0;ii<paramOpVec_.size();ii++)
+    {
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      bool tmp = parOp->getIsConstant();
+      allParamConstant = allParamConstant && tmp;
+    }
+  }
+
+  if (
+    !isTimeDependent_  &&
+    !isTempDependent_  &&
+    !isVTDependent_    &&
+    !isFreqDependent_  &&
+    allParamConstant &&
+    (unresolvedParamOpVec_.empty()) &&
+    (funcOpVec_.empty()) &&
+    (voltOpVec_.empty()) &&
+    (currentOpVec_.empty()) &&
+    (powerOpVec_.empty()) &&
+    (internalDevVarOpVec_.empty()) &&
+    (dnoNoiseDevVarOpVec_.empty()) &&
+    (dniNoiseDevVarOpVec_.empty()) &&
+    (oNoiseOpVec_.empty()) &&
+    (iNoiseOpVec_.empty())
+      )
+    {
+      isConstant_ = true;
+    }
+
   astArraysSetup_ = true;
 };
 
@@ -982,7 +1017,6 @@ int newExpression::evaluateFunction (usedType &result)
   {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
 
-
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
       std::cout << "ERROR.  Unresolved functions in expression " << expressionString_ <<std::endl;
@@ -992,18 +1026,25 @@ int newExpression::evaluateFunction (usedType &result)
       }
     }
 
-    getValuesFromGroup();
-
-    result = astNodePtr_->val();
-
-    // ERK: fix this failsafe properly for std::complex 
-    if (isnan(std::real(result)))
+    if (!isConstant_) 
     {
-      result = 0.0;
+      getValuesFromGroup();
     }
-    if (isinf(std::real(result)))
+
+    if (!isConstant_ || !evaluateFunctionCalledBefore_)
     {
-      result = 1.0e+20; // ERK fix this
+      result = astNodePtr_->val();
+      evaluateFunctionCalledBefore_ = true;
+
+      // ERK: fix this failsafe properly for std::complex 
+      if (isnan(std::real(result))) { result = 0.0; }
+      if (isinf(std::real(result))) { result = 1.0e+20; }
+
+      savedResult_ = result;
+    }
+    else
+    {
+      result = savedResult_;
     }
   }
   else
@@ -1013,7 +1054,7 @@ int newExpression::evaluateFunction (usedType &result)
   }
 
   return retVal;
-};
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getBreakPoints

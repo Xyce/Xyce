@@ -71,6 +71,10 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isConstant_(false),
+    evaluateFunctionCalledBefore_(false),
+    evaluateCalledBefore_(false),
+    savedResult_(0.0),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {};
 
@@ -94,6 +98,10 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isConstant_(false),
+    evaluateFunctionCalledBefore_(false),
+    evaluateCalledBefore_(false),
+    savedResult_(0.0),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
@@ -142,6 +150,10 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isConstant_(false),
+    evaluateFunctionCalledBefore_(false),
+    evaluateCalledBefore_(false),
+    savedResult_(0.0),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
@@ -180,6 +192,10 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isConstant_(false),
+    evaluateFunctionCalledBefore_(false),
+    evaluateCalledBefore_(false),
+    savedResult_(0.0),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
@@ -287,6 +303,10 @@ public:
     isTempDependent_(right.isTempDependent_),
     isVTDependent_(right.isVTDependent_),
     isFreqDependent_(right.isFreqDependent_),
+    isConstant_(right.isConstant_),
+    evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
+    evaluateCalledBefore_(right.evaluateCalledBefore_),
+    savedResult_(right.savedResult_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
@@ -371,6 +391,11 @@ public:
     isTempDependent_ = right.isTempDependent_;
     isVTDependent_ = right.isVTDependent_;
     isFreqDependent_ = right.isFreqDependent_;
+
+    isConstant_ = right.isConstant_;
+    evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
+    evaluateCalledBefore_ = right.evaluateCalledBefore_;
+    savedResult_ = right.savedResult_;
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -721,6 +746,12 @@ private:
   bool isTempDependent_;
   bool isVTDependent_;
   bool isFreqDependent_;
+
+
+  bool isConstant_;
+  bool evaluateFunctionCalledBefore_;
+  bool evaluateCalledBefore_;
+  usedType savedResult_;
 
   opVectorContainers<usedType> opVectors_;
 };
