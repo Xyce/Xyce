@@ -552,7 +552,7 @@ std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double 
         (*it)->printMeasureWarnings( endSimTime );
         // this function prints the measure value, and measure times if appropriate for a given measure such as
         // MIN, MAX, PP, TRIG/TARG
-        (*it)->printMeasureResult( outputStream, true ); 
+        (*it)->printVerboseMeasureResult(outputStream);
         // this function print out information about the time window used.  It prints out
         // no information for frequency-based measures  
         (*it)->printMeasureWindow( outputStream, endSimTime );

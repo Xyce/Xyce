@@ -87,7 +87,8 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   double getMeasureResult();
-  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
   bool withinTrigRiseFallCrossWindow();
   bool withinTargRiseFallCrossWindow(); 
   bool newTrigRiseFallCrossWindowforLast();

@@ -95,7 +95,8 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   virtual double getMeasureResult()=0;
-  virtual std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false)=0;
+  virtual std::ostream& printMeasureResult(std::ostream& os)=0;
+  virtual std::ostream& printVerboseMeasureResult(std::ostream& os)=0;
 
   virtual void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)=0;
   virtual void updateMeasureVars(const double indepVarVal, const double depVarVal)=0;

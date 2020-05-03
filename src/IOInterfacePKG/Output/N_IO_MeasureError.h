@@ -86,7 +86,8 @@ class Error : public Base
       const Util::Op::RFparamsData *RFparams);
 
     double getMeasureResult();
-    std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false); 
+    std::ostream& printMeasureResult(std::ostream& os);
+    std::ostream& printVerboseMeasureResult(std::ostream& os);
 
     // used to print message about measurement time/frequency window, etc.
     std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);

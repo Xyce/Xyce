@@ -626,18 +626,18 @@ double RiseFallDelay::getMeasureResult()
 
 //-----------------------------------------------------------------------------
 // Function      : RiseFallDelay::printMeasureResult()
-// Purpose       :
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 2/09/2015
 //-----------------------------------------------------------------------------
-std::ostream& RiseFallDelay::printMeasureResult(std::ostream& os, bool printVerbose)
+std::ostream& RiseFallDelay::printMeasureResult(std::ostream& os)
 {
-  basic_ios_all_saver<std::ostream::char_type> save(os);
-  os << std::scientific << std::setprecision(precision_);
-  if (!printVerbose)
-  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
@@ -648,9 +648,24 @@ std::ostream& RiseFallDelay::printMeasureResult(std::ostream& os, bool printVerb
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
-  }
-  else
-  {
+
+    return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RiseFallDelay::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 2/22/2015
+//-----------------------------------------------------------------------------
+std::ostream& RiseFallDelay::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if ( timeForTrigFound_ && timeForTargFound_ )
     {
       os << name_ << " = " << this->getMeasureResult() ;
@@ -660,9 +675,8 @@ std::ostream& RiseFallDelay::printMeasureResult(std::ostream& os, bool printVerb
       os << name_ << " = FAILED";
     }     
     os << " with trig time= " << timeForTrig_ << " and targ time= " << timeForTarg_ << std::endl;
-  } 
 
-  return os;
+    return os;
 }
 
 //-----------------------------------------------------------------------------
