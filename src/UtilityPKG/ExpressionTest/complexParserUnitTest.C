@@ -787,7 +787,7 @@ TEST ( Complex_Parser_VoltSoln_Test, test2)
 }
 
 // Test complex .PRINT operators for voltage
-TEST ( Double_Parser_VoltSoln_Test, vr_test0)
+TEST ( Complex_Parser_VoltSoln_Test, vr_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -805,10 +805,10 @@ TEST ( Double_Parser_VoltSoln_Test, vr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vr_test0)
+  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vr_test0)
 }
 
-TEST ( Double_Parser_VoltSoln_Test, vi_test0)
+TEST ( Complex_Parser_VoltSoln_Test, vi_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -826,10 +826,10 @@ TEST ( Double_Parser_VoltSoln_Test, vi_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vi_test0)
+  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vi_test0)
 }
 
-TEST ( Double_Parser_VoltSoln_Test, vm_test0)
+TEST ( Complex_Parser_VoltSoln_Test, vm_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -847,10 +847,10 @@ TEST ( Double_Parser_VoltSoln_Test, vm_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vm_test0)
+  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vm_test0)
 }
 
-TEST ( Double_Parser_VoltSoln_Test, vp_test0)
+TEST ( Complex_Parser_VoltSoln_Test, vp_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -868,11 +868,11 @@ TEST ( Double_Parser_VoltSoln_Test, vp_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vp_test0)
+  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vp_test0)
 }
 
 // Test complex .PRINT operators for current
-TEST ( Double_Parser_CurrentSoln_Test, ir_test0)
+TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -890,10 +890,10 @@ TEST ( Double_Parser_CurrentSoln_Test, ir_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test0)
 }
 
-TEST ( Double_Parser_CurrentSoln_Test, ii_test0)
+TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -911,10 +911,10 @@ TEST ( Double_Parser_CurrentSoln_Test, ii_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test0)
 }
 
-TEST ( Double_Parser_CurrentSoln_Test, im_test0)
+TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -932,10 +932,10 @@ TEST ( Double_Parser_CurrentSoln_Test, im_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test0)
 }
 
-TEST ( Double_Parser_VoltSoln_Test, ip_test0)
+TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -953,7 +953,7 @@ TEST ( Double_Parser_VoltSoln_Test, ip_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test0)
 }
 
 TEST ( Complex_Parser_VoltDeriv_Test, test1)
@@ -1201,7 +1201,7 @@ class internalDevExpressionGroup : public Xyce::Util::baseExpressionGroup
     std::unordered_map <std::string, std::complex<double> > invernalVars_;
 };
 
-TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
+TEST ( Complex_Parser_InternalDeviceVariable_Test, test1)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -1221,12 +1221,12 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(Complex_Parser_CurrSoln_Test, test1)
 }
 
 
 // Test complex .PRINT operators for N()
-TEST ( Double_Parser_InternalDeniceVariable_Test, nr_test0)
+TEST ( Complex_Parser_InternalDeniceVariable_Test, nr_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -1245,10 +1245,10 @@ TEST ( Double_Parser_InternalDeniceVariable_Test, nr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, nr_test0)
+  OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, nr_test0)
 }
 
-TEST ( Double_Parser_InternalDeniceVariable_Test, ni_test0)
+TEST ( Complex_Parser_InternalDeniceVariable_Test, ni_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -1267,10 +1267,10 @@ TEST ( Double_Parser_InternalDeniceVariable_Test, ni_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, ni_test0)
+  OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, ni_test0)
 }
 
-TEST ( Double_Parser_InternalDeniceVariable_Test, nm_test0)
+TEST ( Complex_Parser_InternalDeniceVariable_Test, nm_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -1289,10 +1289,10 @@ TEST ( Double_Parser_InternalDeniceVariable_Test, nm_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, nm_test0)
+  OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, nm_test0)
 }
 
-TEST ( Double_Parser_InternalDeniceVariable_Test, np_test0)
+TEST ( Complex_Parser_InternalDeniceVariable_Test, np_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -1311,7 +1311,7 @@ TEST ( Double_Parser_InternalDeniceVariable_Test, np_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, np_test0)
+  OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, np_test0)
 }
 
 
@@ -1370,7 +1370,7 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
     std::complex<double> inoise_, onoise_;
 };
 
-TEST ( Double_Parser_Noise_Test, dno_test)
+TEST ( Complex_Parser_Noise_Test, dno_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -1389,10 +1389,10 @@ TEST ( Double_Parser_Noise_Test, dno_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_Noise_Test, dno_test)
+  OUTPUT_MACRO(Complex_Parser_Noise_Test, dno_test)
 }
 
-TEST ( Double_Parser_Noise_Test, dni_test)
+TEST ( Complex_Parser_Noise_Test, dni_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -1411,10 +1411,10 @@ TEST ( Double_Parser_Noise_Test, dni_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_Noise_Test, dni_test)
+  OUTPUT_MACRO(Complex_Parser_Noise_Test, dni_test)
 }
 
-TEST ( Double_Parser_Noise_Test, onoise_test)
+TEST ( Complex_Parser_Noise_Test, onoise_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -1433,10 +1433,10 @@ TEST ( Double_Parser_Noise_Test, onoise_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_Noise_Test, onoise_test)
+  OUTPUT_MACRO(Complex_Parser_Noise_Test, onoise_test)
 }
 
-TEST ( Double_Parser_Noise_Test, inoise_test)
+TEST ( Complex_Parser_Noise_Test, inoise_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -1455,7 +1455,7 @@ TEST ( Double_Parser_Noise_Test, inoise_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_Noise_Test, inoise_test)
+  OUTPUT_MACRO(Complex_Parser_Noise_Test, inoise_test)
 }
 
 #endif
@@ -2324,11 +2324,14 @@ TEST ( Complex_Parser_table_Test, break2)
 class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
-    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0)  {};
+    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0), VT(0.0)  {};
     ~tempDepExpressionGroup () {};
     virtual double getTemp() { return temp; };
     void setTemp(double t) { temp = t; };
+    virtual double getVT() { return VT; };
+    void setVT(double t) { VT = t; };
     double temp;
+    double VT;
 };
 
 // adapted from power_thermalres_gear.cir
@@ -3377,6 +3380,51 @@ TEST ( Complex_Parser_specials, time)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copy_testExpression.getTimeDependent();
+  bool assignTimeDependent = assign_testExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, time)
+}
+
+TEST ( Complex_Parser_specials, time2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("time"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setTime(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copy_testExpression.getTimeDependent();
+  bool assignTimeDependent = assign_testExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, time2)
 }
 
 TEST ( Complex_Parser_specials, freq)
@@ -3395,9 +3443,55 @@ TEST ( Complex_Parser_specials, freq)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, freq)
 }
 
-TEST ( Complex_Parser_specials, temp)
+
+TEST (Complex_Parser_specials, freq2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> fExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("freq"), testGroup));
+  fExpression->lexAndParseExpression();
+  std::string fName = "F";
+
+  Xyce::Util::newExpression testExpression(std::string("f"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(fName,fExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, freq2)
+}
+
+TEST (Complex_Parser_specials, temp)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
@@ -3413,7 +3507,118 @@ TEST ( Complex_Parser_specials, temp)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, temp)
 }
+
+TEST (Complex_Parser_specials, temp2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("temp"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, temp2)
+}
+
+//
+TEST (Complex_Parser_specials, vt)
+{
+  Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
+  Xyce::Util::newExpression testExpression(std::string("vt"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  vtGroup->setVT(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool vtDependent = testExpression.getVTDependent();  
+  bool copyVTDependent = copy_testExpression.getVTDependent();
+  bool assignVTDependent = assign_testExpression.getVTDependent();
+
+  EXPECT_EQ(vtDependent, true);
+  EXPECT_EQ(copyVTDependent, true);
+  EXPECT_EQ(assignVTDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, vt)
+}
+
+TEST (Complex_Parser_specials, vt2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("vt"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  vtGroup->setVT(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool vtDependent = testExpression.getVTDependent();  
+  bool copyVTDependent = copy_testExpression.getVTDependent();
+  bool assignVTDependent = assign_testExpression.getVTDependent();
+
+  EXPECT_EQ(vtDependent, true);
+  EXPECT_EQ(copyVTDependent, true);
+  EXPECT_EQ(assignVTDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, vt2)
+}
+//
+
 
 // these next two tests are for the use case of a parameter that is named either "I" or "V".
 // In an earlier implementation, the parser would get confused by this.  The string res*I*I, 

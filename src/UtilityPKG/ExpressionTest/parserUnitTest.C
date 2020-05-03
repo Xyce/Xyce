@@ -4112,7 +4112,6 @@ TEST ( Double_Parser_specials, temp2)
   OUTPUT_MACRO(Double_Parser_specials, temp2)
 }
 
-
 //
 TEST ( Double_Parser_specials, vt)
 {
