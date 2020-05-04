@@ -697,6 +697,21 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
     for (int jj=0;jj<size;jj++)
     {
       std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
+
+      // exclude ground nodes.  
+      // ERK. 5/2/2020: This should be handled on the parser level.  
+      // Allocate a zero-valued "numval" instead.
+      if (tmpName == std::string("0")) { continue; }
+
+      bool thisIsNotGround=true;
+      if (tmpName.size() > 1)
+      {
+        int last = tmpName.size()-1;
+        std::string endOfTmpName = tmpName.substr(last-1,last);
+        if (endOfTmpName == ":0") { thisIsNotGround=false; }
+      }
+      if (!thisIsNotGround) { continue; }
+
       std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
       if (it == nodes.end())
       {
@@ -707,7 +722,7 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::getVoltageNodes
+// Function      : Expression::getDeviceCurrents
 // Purpose       : 
 // Special Notes : ERK: Fix this.  
 //                 It is figuring out a unique list every single time, by 
