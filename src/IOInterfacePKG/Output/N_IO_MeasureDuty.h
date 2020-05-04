@@ -37,6 +37,7 @@
 #define Xyce_N_IO_MeasureDuty_h
 
 #include <N_IO_MeasureBase.h>
+#include <N_IO_MeasureTranStats.h>
 
 namespace Xyce {
 namespace IO {
@@ -49,53 +50,21 @@ namespace Measure {
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-------------------------------------------------------------------------
-class Duty : public Base
+class Duty : public TranStats
 {
 public:
   Duty(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
   ~Duty() {};
 
-  void prepareOutputVariables();
   void reset();
-
-  void updateTran(
-    Parallel::Machine comm,
-    const double circuitTime,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *stateVec,
-    const Linear::Vector *storeVec,
-    const Linear::Vector *lead_current_vector,
-    const Linear::Vector *junction_voltage_vector,
-    const Linear::Vector *lead_current_dqdt_vector);
-
-  void updateDC(
-    Parallel::Machine comm,
-    const std::vector<Analysis::SweepParam> & dcParamsVec,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *stateVec,
-    const Linear::Vector *storeVec,
-    const Linear::Vector *lead_current_vector,
-    const Linear::Vector *junction_voltage_vector,
-    const Linear::Vector *lead_current_dqdt_vector);
-
-  void updateAC(
-    Parallel::Machine comm,
-    const double frequency,
-    const Linear::Vector *solnVec,
-    const Linear::Vector *imaginaryVec,
-    const Util::Op::RFparamsData *RFparams);
-
   double getMeasureResult();
+  void updateMeasureVars(const double circuitTime, const double signalVal);
 
 private:
   std::string type_;
-  int numOutVars_;
-  std::vector<double> outVarValues_;
   double totalOnTime_;
   double totalAveragingWindow_;
-  double lastTimeValue_;
   bool inOnState_;
-
 };
 
 } // namespace Measure
