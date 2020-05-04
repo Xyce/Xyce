@@ -42,5 +42,11 @@ was equal to the current simulation time then the simulation would get stuck in 
 cases are now simulation errors that will cause the \Xyce{} simulation to abort.
 \\ \hline
 
+Removed support for RISE, CROSS and FALL qualifiers for DUTY measure & This change
+makes all of the duty-cycle calculation measures (\texttt{DUTY}, \texttt{FREQ},
+\texttt{OFF\_TIME} and \texttt{ON\_TIME)} have similar behavior.  The
+\texttt{FROM}, \texttt{TO} and \texttt{TD} qualifiers are still supported
+for all four measure types.
+
 \end{longtable}
 }
