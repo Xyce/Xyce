@@ -786,6 +786,72 @@ TEST ( Complex_Parser_VoltSoln_Test, test2)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 }
 
+//
+TEST ( Double_Parser_VoltSoln_Test, test3)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(0)+7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result(0.0,0.0);
+  solnGroup->setSoln(std::string("0"),3.0); // this should do nothing
+  std::complex<double> refRes = std::complex<double>(7.5,0.0);
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
+}
+
+TEST ( Double_Parser_VoltSoln_Test, test4)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(A,0)+7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result(0.0,0.0);
+  std::complex<double> Aval(6.3,2.7);
+  std::complex<double> refRes = 12.0*(Aval)+7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),std::complex<double>(7.0,1.0)); // this should do nothing
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
+}
+
+TEST ( Double_Parser_VoltSoln_Test, test5)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(A,gnd)+7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result(0.0,0.0);
+  std::complex<double> Aval(6.3,2.7);
+  std::complex<double> refRes = 12.0*(Aval)+7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),std::complex<double>(7.0,1.0)); // this should do nothing
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
+}
+//
+
 // Test complex .PRINT operators for voltage
 TEST ( Complex_Parser_VoltSoln_Test, vr_test0)
 {

@@ -104,6 +104,28 @@ int ExpressionLexer::getToken(ExpressionParser::semantic_type *lvalp,  \
 int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, XyceExpression::location *locp,
              Xyce::Util::ExpressionLexer *theLexer);
 
+
+// fix this later
+bool checkGroundNodeName(std::string & name)
+{
+  std::string tmpName = name;
+  Xyce::Util::toUpper(tmpName);
+
+  if (tmpName == std::string("0")) { return true; }
+  if (tmpName == std::string("GND")) { return true; }
+
+  bool thisIsNotGround=true;
+  if (tmpName.size() > 1)
+  {
+    int last = tmpName.size()-1;
+    std::string endOfName = tmpName.substr(last-1,last);
+    if (endOfName == ":0") { thisIsNotGround=false; }
+  }
+  if (!thisIsNotGround) { return true; }
+
+  return false;
+}
+
 %}
 
 // value tokens from the lexer (ExpressionLexer.l)
@@ -429,11 +451,20 @@ exp:
       Teuchos::RCP<astNode<usedType> > * returnPtr;
       if (voltageNodes.size() == 1)
       {
-        Teuchos::RCP<voltageOp<usedType> > * voltPtr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(*$2));
-        tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
+        if ( !checkGroundNodeName((*$2)[0]) )
+        {
+          Teuchos::RCP<voltageOp<usedType> > * voltPtr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(*$2));
+          tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
+          newExp.getVoltOpVec ().push_back(*voltPtr);
+          delete voltPtr;
+        }
+        else
+        {
+          Teuchos::RCP<astNode<usedType> > *voltPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+          tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
+          delete voltPtr;
+        }
         newExp.getMasterNodeVec().push_back(tmpPtr);
-        newExp.getVoltOpVec ().push_back(*voltPtr);
-        delete voltPtr;
       }
       // this was not the original plan for V(A,B), but it seemed like the easiest way to 
       // handle derivative indexing. Instead of having the voltageOp class handle the differencing, 
@@ -441,22 +472,45 @@ exp:
       // pass them as arguments to a binaryMinusOp operator.
       else if (voltageNodes.size() == 2) 
       {
-        std::vector<std::string> nodes1;
-        std::vector<std::string> nodes2;
-        nodes1.push_back(voltageNodes[0]);
-        nodes2.push_back(voltageNodes[1]);
-        Teuchos::RCP<voltageOp<usedType> > * volt1Ptr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes1));
-        Teuchos::RCP<voltageOp<usedType> > * volt2Ptr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes2));
-        Teuchos::RCP<astNode<usedType> > * tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*volt1Ptr);
-        Teuchos::RCP<astNode<usedType> > * tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*volt2Ptr);
+        Teuchos::RCP<astNode<usedType> > * tmp1Ptr;
+        Teuchos::RCP<astNode<usedType> > * tmp2Ptr;
+
+        if ( !checkGroundNodeName( voltageNodes[0]) )
+        {
+          std::vector<std::string> nodes1;
+          nodes1.push_back(voltageNodes[0]);
+          Teuchos::RCP<voltageOp<usedType> > * volt1Ptr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes1));
+          tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*volt1Ptr);
+          newExp.getVoltOpVec ().push_back(*volt1Ptr);
+          delete volt1Ptr;
+        }
+        else
+        {
+          Teuchos::RCP<astNode<usedType> > *voltPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+          tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
+          delete voltPtr;
+        }
+
+        if ( !checkGroundNodeName( voltageNodes[1]) )
+        {
+          std::vector<std::string> nodes2;
+          nodes2.push_back(voltageNodes[1]);
+          Teuchos::RCP<voltageOp<usedType> > * volt2Ptr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes2));
+          tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*volt2Ptr);
+          newExp.getVoltOpVec ().push_back(*volt2Ptr);
+          delete volt2Ptr;
+        }
+        else
+        {
+          Teuchos::RCP<astNode<usedType> > *voltPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+          tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
+          delete voltPtr;
+        }
+
         tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  (*tmp1Ptr,*tmp2Ptr));
         newExp.getMasterNodeVec().push_back(tmp1Ptr);
         newExp.getMasterNodeVec().push_back(tmp2Ptr);
         newExp.getMasterNodeVec().push_back(tmpPtr);
-        newExp.getVoltOpVec ().push_back(*volt1Ptr);
-        newExp.getVoltOpVec ().push_back(*volt2Ptr);
-        delete volt1Ptr;
-        delete volt2Ptr;
       }
 
       // adjust for complex number variants

@@ -698,6 +698,7 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
     {
       std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
 
+#if 0
       // exclude ground nodes.  
       // ERK. 5/2/2020: This should be handled on the parser level.  
       // Allocate a zero-valued "numval" instead.
@@ -711,6 +712,7 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
         if (endOfTmpName == ":0") { thisIsNotGround=false; }
       }
       if (!thisIsNotGround) { continue; }
+#endif
 
       std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
       if (it == nodes.end())
