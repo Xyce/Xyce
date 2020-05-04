@@ -17,9 +17,10 @@ class spicePulseOp : public astNode<ScalarT>
   public:
     spicePulseOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
       astNode<ScalarT>(), 
+      time_(time), 
       v1Given_(false), v2Given_(false), tdGiven_(false),
       trGiven_(false), tfGiven_(false), pwGiven_(false), perGiven_(false),
-      time_(time), bpTol_(0.0), startingTimeStep_(0.0), finalTime_(0.0)
+      bpTol_(0.0), startingTimeStep_(0.0), finalTime_(0.0)
   {
     if (args->size() < 1)
     {
