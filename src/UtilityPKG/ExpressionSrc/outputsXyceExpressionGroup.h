@@ -76,13 +76,6 @@ public:
 
   ~outputsXyceExpressionGroup ();
 
-  virtual bool isOption (const std::string & optionStr)
-  {
-    std::string tmp = optionStr;
-    Xyce::Util::toUpper(tmp);
-    return false; //  FIX THIS
-  }
-
   virtual bool getSolutionSdt(const std::string & nodeName, double & retval )
   {
     bool success=true;

@@ -29,8 +29,6 @@ public:
   baseExpressionGroup () {};
   virtual ~baseExpressionGroup () {};
 
-  virtual bool isOption (const std::string & optionStr) { return false; }
-
   // ERK NOTE:  Need to have a "notify" for .STEP loops.  
   // Important for time-dependent expressions.
 

@@ -563,39 +563,6 @@ void newExpression::setupDerivatives_ ()
         derivIndexVec_.push_back(parNodePair);
       }
     }
-
-    if (group_->isOption (std::string("verbose")))
-    {
-      std::cout << "---------------------------------------------------------------"<<std::endl;
-      std::cout << "For expression " << expressionString_ << " there are ";
-      std::cout << numDerivs_ << " derivative index pairs, ";
-      std::cout << voltOpVec_.size() << " voltage nodes, ";
-      std::cout << currentOpVec_.size() << " current nodes, ";
-      std::cout << paramOpVec_.size() << " param nodes ";
-      std::cout << functionArgOpVec_.size() << " function argument nodes ";
-      std::cout <<std::endl;
-
-      if (numDerivs_>0)
-      {
-        std::cout << "Derivative indices:"<<std::endl;
-        for (int ii=0;ii<numDerivs_;ii++)
-        {
-          std::cout << ii << ": index = " << derivIndexVec_[ii].second;
-          derivIndexVec_[ii].first->output(std::cout);
-          //std::cout << std::endl;
-        }
-      }
-      if (!functionArgOpVec_.empty())
-      {
-        std::cout << "Function Arguments:" <<std::endl;
-        for (int ii=0;ii<functionArgOpVec_.size();ii++)
-        {
-          functionArgOpVec_[ii]->output(std::cout);
-        }
-        std::cout <<std::endl;
-      }
-      std::cout << "---------------------------------------------------------------"<<std::endl;
-    }
   }
 
   derivsSetup_ = true;
