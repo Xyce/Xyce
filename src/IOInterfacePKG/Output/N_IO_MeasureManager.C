@@ -299,6 +299,21 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   // if the measure object is supported, then add it to the active and all lists
   if (theMeasureObject && theMeasureObject->typeSupported_ )
   {
+    // Check for previous measure definition with this object's name.  If found then
+    // remove the previous definition and issue a warning message.
+    int offset=0;
+    for (MeasurementVector::iterator it = allMeasuresList_.begin(); it!=allMeasuresList_.end(); ++it, ++offset)
+    {
+      if (theMeasureObject->name_ == (*it)->name_)
+      {
+        delete (*it);
+        allMeasuresList_.erase(allMeasuresList_.begin()+offset);
+        activeMeasuresList_.erase(activeMeasuresList_.begin()+offset);
+        Report::UserWarning0() << "Measure \"" << theMeasureObject->name_ << "\" redefined, ignoring any previous definitions";
+        break;
+      }
+    }
+
     allMeasuresList_.push_back( theMeasureObject );
     activeMeasuresList_.push_back( theMeasureObject );
     // Used to help register lead current requests with device manager.
