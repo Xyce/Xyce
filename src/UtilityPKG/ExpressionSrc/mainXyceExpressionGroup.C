@@ -737,6 +737,20 @@ double mainXyceExpressionGroup::getFreq()
 } 
 
 //-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getGmin() 
+{ 
+  gmin_ = deviceManager_.getGmin();
+  return gmin_;
+} 
+
+//-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getBpTol()
 // Purpose       : 
 // Special Notes :

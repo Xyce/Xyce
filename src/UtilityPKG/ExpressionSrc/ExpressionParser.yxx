@@ -196,6 +196,7 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_TEMP  "temp"
 %token TOK_VT    "vt"
 %token TOK_FREQ  "freq"
+%token TOK_GMIN  "gmin"
 %token TOK_PI    "pi"
 
 %token TOK_RIGHTPAREN "rightparen"
@@ -323,6 +324,14 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setFreqDependent(true);
+    }
+  | TOK_GMIN
+    {
+      Teuchos::RCP<astNode<usedType> > tmp = newExp.getGminNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.setGminDependent(true);
     }
   | TOK_PI
     {

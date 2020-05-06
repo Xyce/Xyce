@@ -140,33 +140,17 @@ public:
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result);
 
-#if 0
-  bool set_sim_time (double time);
-  bool set_sim_dt (double dt);
-  bool set_temp (double const & temp);
-  bool set_sim_freq (double dt);
-  void set_accepted_time (double const time);
-#endif
-
-#if 0
-  // ERK these two functions should also be removed and replaced with
-  // a traditional "getBreakPoints" function call, which is used every
-  // where else in Xyce.
-  double get_break_time (void);
-  double get_break_time_i (void);
-#else
   bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
-#endif
 
   const std::string & get_input (void) const;
 
   // ERK.  Many of the functions below, here need to go.  Probably not all, but many.
   // order_names and replace_func will definitely be gone.
   int order_names (std::vector< std::string > const & new_names);
-  int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
+  //int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
   bool replace_name (const std::string & old_name, const std::string & new_name);
   int replace_var(std::string const & var_name, const Expression & subexpr);
-  int replace_var(const std::string & var_name, Op::Operator *op);
+  //int replace_var(const std::string & var_name, Op::Operator *op);
   int getNumDdt();
   void getDdtVals (std::vector<double> &);
   void setDdtDerivs (std::vector<double> &);

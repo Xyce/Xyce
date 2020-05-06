@@ -728,7 +728,13 @@ void MembraneUserDefined::substituteFunctions( std::vector<RCP<Util::Expression>
     int numExp = expRCP_.size();
     for( int j=0; j<numExp; j++ )
     {
-      expRCP_.at(j)->replace_func(funcNames_[i], *funcExpRCP_[i], funcNumArgs_[i]);
+      //expRCP_.at(j)->replace_func(funcNames_[i], *funcExpRCP_[i], funcNumArgs_[i]);
+      //
+      // ERK.  This is a neccessary but not sufficient change for the new expression library.
+      //
+      // replace_func is for the old expresison library, and it just does a string replacement.
+      //
+      expRCP_.at(j)->attachFunctionNode(funcNames_[i], *funcExpRCP_[i]);
     }
   }
 }

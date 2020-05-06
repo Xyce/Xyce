@@ -126,6 +126,7 @@ public:
   virtual double getTemp();
   virtual double getVT  ();
   virtual double getFreq();
+  virtual double getGmin();
 
   // in a real Xyce group, need something like this:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
@@ -151,7 +152,7 @@ private:
 
   //Util::Op::Operator * tempOp_;
 
-  double time_, temp_, VT_, freq_;
+  double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
 };
 

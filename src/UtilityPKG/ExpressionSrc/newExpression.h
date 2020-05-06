@@ -71,11 +71,12 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isGminDependent_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -98,11 +99,12 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isGminDependent_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -125,6 +127,7 @@ public:
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
+    gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
   };
 
@@ -150,11 +153,12 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isGminDependent_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -162,6 +166,7 @@ public:
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
+    gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
 
     Teuchos::RCP<astNode<usedType> > time_base = timeNodePtr_;
@@ -192,11 +197,12 @@ public:
     isTempDependent_(false),
     isVTDependent_(false),
     isFreqDependent_(false),
+    isGminDependent_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -204,6 +210,7 @@ public:
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
+    gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
 
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
@@ -303,11 +310,12 @@ public:
     isTempDependent_(right.isTempDependent_),
     isVTDependent_(right.isVTDependent_),
     isFreqDependent_(right.isFreqDependent_),
+    isGminDependent_(right.isGminDependent_),
     isConstant_(right.isConstant_),
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -391,6 +399,7 @@ public:
     isTempDependent_ = right.isTempDependent_;
     isVTDependent_ = right.isVTDependent_;
     isFreqDependent_ = right.isFreqDependent_;
+    isGminDependent_ = right.isGminDependent_;
 
     isConstant_ = right.isConstant_;
     evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
@@ -500,6 +509,7 @@ public:
   Teuchos::RCP<astNode<usedType> > getTempNode () { return tempNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getVtNode () { return vtNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getFreqNode () { return freqNodePtr_; }
+  Teuchos::RCP<astNode<usedType> > getGminNode () { return gminNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getPiNode () { return piNodePtr_; }
 
   // some of the parameter and function objects are stored in multiple containers.
@@ -539,6 +549,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTempOpVec() { return tempOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVtOpVec() { return vtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getFreqOpVec() { return freqOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getGminOpVec() { return gminOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
@@ -568,6 +579,9 @@ public:
 
   bool getFreqDependent() { return isFreqDependent_; }
   void setFreqDependent(bool val) { isFreqDependent_ = val; }
+
+  bool getGminDependent() { return isGminDependent_; }
+  void setGminDependent(bool val) { isGminDependent_ = val; }
 
   // note: I don't particularly like these next 2 functions, but they are needed
   // to support the old expression API.
@@ -609,7 +623,7 @@ public:
 
 
   // "expression" traversal functions, as opposed to AST traversals.
-  // Expression traverals make more sense for tracking specials (time, temp, vt, freq), as each 
+  // Expression traverals make more sense for tracking specials (time, temp, vt, freq, gmin), as each 
   // expression object will have zero or one allocation of each special.
   // (which really should be 100% singletons, but for the time being are not)
   void getTimeNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & timeVec)
@@ -634,6 +648,12 @@ public:
   {
     if (!(freqOpVec_.empty())) { freqVec.push_back(freqOpVec_[0]); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqVec); }
+  }
+
+  void getGminNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & gminVec)
+  {
+    if (!(gminOpVec_.empty())) { gminVec.push_back(gminOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminVec); }
   }
 
   bool getIsConstant() { return isConstant_; }
@@ -724,6 +744,7 @@ private:
   Teuchos::RCP<specialsOp<usedType> > tempNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > vtNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > freqNodePtr_;
+  Teuchos::RCP<specialsOp<usedType> > gminNodePtr_;
   Teuchos::RCP<piConstOp<usedType> > piNodePtr_;
 
   // to handle externally attached expressions, which have specials dependence, we need vectors of these things.
@@ -731,6 +752,7 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > tempOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > vtOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > freqOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > gminOpVec_;
 
   std::vector<Teuchos::RCP<Xyce::Util::newExpression> > externalExpressions_;
 
@@ -748,6 +770,7 @@ private:
   bool isTempDependent_;
   bool isVTDependent_;
   bool isFreqDependent_;
+  bool isGminDependent_;
 
 
   bool isConstant_;

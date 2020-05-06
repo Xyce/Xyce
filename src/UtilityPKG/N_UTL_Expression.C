@@ -265,11 +265,6 @@ bool Expression::set ( const std::string & exp )
   }
   else
   {
-#if 0
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
-    grp_ = xyceGroup;
-#endif
-    //newExpPtr_ = new Xyce::Util::newExpression(expCopy, grp_);
     newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
   }
   newExpPtr_->lexAndParseExpression();
@@ -697,23 +692,6 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
     for (int jj=0;jj<size;jj++)
     {
       std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-
-#if 0
-      // exclude ground nodes.  
-      // ERK. 5/2/2020: This should be handled on the parser level.  
-      // Allocate a zero-valued "numval" instead.
-      if (tmpName == std::string("0")) { continue; }
-
-      bool thisIsNotGround=true;
-      if (tmpName.size() > 1)
-      {
-        int last = tmpName.size()-1;
-        std::string endOfTmpName = tmpName.substr(last-1,last);
-        if (endOfTmpName == ":0") { thisIsNotGround=false; }
-      }
-      if (!thisIsNotGround) { continue; }
-#endif
-
       std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
       if (it == nodes.end())
       {
@@ -1043,169 +1021,6 @@ int Expression::evaluateFunction ( double & exp_r )
   return retVal;
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_time
-// Purpose       : Set 'time' special variable in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set_sim_time(double time)
-{
-  // ERK.  this can go.
-  return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_dt
-// Purpose       : Set time step special variable (dt) in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 12/18/2017
-//-----------------------------------------------------------------------------
-bool Expression::set_sim_dt(double dt)
-{
-  // ERK.  this can go.
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_temp
-// Purpose       : Set 'temp' special variable in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set_temp(double const & tempIn)
-{
-  // ERK.  this can go.
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_freq
-// Purpose       : Set time step special variable (freq) in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 12/18/2017
-//-----------------------------------------------------------------------------
-bool Expression::set_sim_freq(double freq)
-{
-  // ERK.  this can go.
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_accepted_time
-// Purpose       : Set accepted time for converged soltion
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::set_accepted_time(double const time)
-{ 
-  // ERK.  this can go.
-  return;
-}
-#endif
-
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_break_time
-// Purpose       : Returns next breakpoint time
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-double Expression::get_break_time()
-{
-  double retVal=0.0; 
-  //newExpPtr_->evaluate
-  // ERK. Note, I shouldn't have to process this list of BP at all, if the API was any good.
-  // The API should simply request this vector of breakpoints, and I should return it.
-  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
-  newExpPtr_->getBreakPoints ( breakPointTimes );
-#if 0
-  Xyce::Util::BreakPointLess breakPointLess_ = Xyce::Util::BreakPoint::defaultTolerance_;
-  std::sort ( breakPointTimes.begin(), breakPointTimes.end(), breakPointLess_ );
-  std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( breakPointTimes.begin(), breakPointTimes.end());
-  breakPointTimes.resize( std::distance (breakPointTimes.begin(), it ));
-#endif
-
-  // ERK. This is a total kludge.  This really should just be 
-  // replaced by a "getBreakPoints(std::vector<breakpoint> & bpVec)" 
-  // call that follows the same patterns as all the other getBreakPoints calls 
-  // throughout Xyce (especially in device package).
-  //
-  // Having logic here to pull out a single BP is silly.  There is better logic 
-  // for that sort of thing in the time integrator.
-  //
-  // Part of the reason for this (bad) structure is that the old expression library
-  // doesn't setup breakpoints in a smart way.  There are no sources in the old
-  // library that have precomputed formula for breakpoints. (unlike the spice 
-  // sources in the device package).  Instead, it "solves" for when the next 
-  // breakpoint should be, using a Newton-ish loop.  It does this for *all* 
-  // time-dependent expressions, no matter what the nature of their 
-  // time dependence.  It does have the benefit of identifying discontinuities 
-  // in functions like "STP" (the step function) which do not have set breakpoint times.
-  // But it is silly to apply it to things like the PWL or PULSE source, which are sources
-  // with known, fixed breakpoints.
-  //
-  // I should probably attempt to apply the Newton-ish loop to functions like STP, 
-  // however.  I had not considered that.
-  //
-  // Another issue; for time-dependent expressions that do *not* have any 
-  // solution variable dependence, Bsrc's have some hidden (weird) behavior.
-  // In the Bsrc, if the numExtVars==0, then the evaluate function is not called
-  // on the primary expression.  At all.    But, somehow, mysteriously, it gets 
-  // updated.  
-  //
-  // Follow up: I think I just figured this out.  The Bsrc has 2 expression-dependent parameters: V and I.
-  // If the core expression does NOT depend on solution variables, then the expression value is simply 
-  // set to V or I (depending our src type).   V and/or I are updated during the more 
-  // global "updateDependentParams" call, using an "evaluateFunction" call.  If there are no solution vars,
-  // then this is sufficient.  However, if there *are* solution vars, then derivatives are needed,
-  // so, then device takes over and calls "evaluate" prior to and/or during the load functions.
-  //
-  double simTime = newExpPtr_->getTime();
-  int size = breakPointTimes.size();
-  double min = 1.0e+99;
-  for (int ii=0;ii<size;++ii)
-  {
-    double bpTime = breakPointTimes[ii].value();
-    double delta = bpTime-simTime;
-    if (delta > 0.0 && delta < min)
-    {
-      min = delta;
-      retVal = bpTime;
-    }
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_break_time_i
-// Purpose       : Returns next breakpoint time
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-double Expression::get_break_time_i()
-{
-  double retVal=0.0; 
-  // ERK.  I don't understand this yet.  Do we need it?
-  return retVal;
-}
-#else
 //-----------------------------------------------------------------------------
 // Function      : Expression::getBreakPoints
 // Purpose       : Returns next breakpoint time
@@ -1218,7 +1033,6 @@ bool Expression::getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes)
 {
   return newExpPtr_->getBreakPoints(breakPointTimes);
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_input
@@ -1247,37 +1061,6 @@ int Expression::order_names(std::vector<std::string> const & new_names)
 {
   // ERK. this can go.
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_func
-//
-// Purpose       : Replace user defined function with its definition in expression
-// 
-// Special Notes : ERK.  For the "new" expression library, this function will 
-//                 eventually be obsolete.  For now, it is being used to 
-//                 integrate the new library in while using the old API.
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::replace_func (std::string const & func_name,
-                                   Expression & func_def,
-                                   int numArgs)
-{
-
-  // ERK. This can go.
-  int retVal=0; 
-#if 0
-  Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-  if (!(func_def.newExpPtr_->parsed()))
-  {
-    func_def.newExpPtr_->lexAndParseExpression();
-  }
-  xyceGroup->addFunction(func_name, func_def.newExpPtr_);
-#endif
-  return numArgs;
 }
 
 //-----------------------------------------------------------------------------
@@ -1321,29 +1104,6 @@ int Expression::replace_var(
   int retVal=0; 
   //std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
   attachParameterNode (var_name, subexpr);
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_var
-// Purpose       : Replace a variable usage with a parsed sub-expression
-//
-// Special Notes : This is used for subcircuit parameters that cannot be
-//                 fully resolved to a constant because they have global
-//                 parameter usage.
-// Scope         :
-// Creator       : Thomas Russo, SNL
-// Creation Date : 08/10/2010
-//-----------------------------------------------------------------------------
-int Expression::replace_var (std::string const & var_name,
-                             Op::Operator *op )
-{
-  int retVal=0; 
-  {
-  std::cout << "NOTE:  replace_var (op version) just got called on " << var_name <<std::endl;
-  std::cout << "replace_var (op version) is not implemented yet for newExpression" <<std::endl;
-  exit(0);
-  }
   return retVal;
 }
 

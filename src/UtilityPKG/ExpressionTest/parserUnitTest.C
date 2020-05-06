@@ -462,14 +462,17 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::
 class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
-    timeDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0)  {};
+    timeDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0), gmin(0.0)  {};
     ~timeDepExpressionGroup () {};
     virtual double getTime() { return time; };
     virtual double getFreq() { return freq; };
+    virtual double getGmin() { return gmin; };
     void setTime(double t) { time = t; };
     void setFreq(double f) { freq = f; };
+    void setGmin(double g) { gmin = g; };
     double time;
     double freq;
+    double gmin;
 };
 
 TEST ( Double_Parser_SourceFunc_Test, pulse)
@@ -4109,6 +4112,70 @@ TEST ( Double_Parser_specials, freq2)
   EXPECT_EQ(assignFreqDependent, true);
 
   OUTPUT_MACRO(Double_Parser_specials, freq2)
+}
+
+
+TEST ( Double_Parser_specials, gmin)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+  Xyce::Util::newExpression testExpression(std::string("gmin"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setGmin(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool gminDependent = testExpression.getGminDependent();
+  bool copyGminDependent = copy_testExpression.getGminDependent();
+  bool assignGminDependent = assign_testExpression.getGminDependent();
+
+  EXPECT_EQ(gminDependent, true);
+  EXPECT_EQ(copyGminDependent, true);
+  EXPECT_EQ(assignGminDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, gmin)
+}
+
+TEST ( Double_Parser_specials, gmin2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> gExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("gmin"), testGroup));
+  gExpression->lexAndParseExpression();
+  std::string gName = "G";
+
+  Xyce::Util::newExpression testExpression(std::string("g"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(gName,gExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setGmin(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool gminDependent = testExpression.getGminDependent();  
+  bool copyGminDependent = copy_testExpression.getGminDependent();
+  bool assignGminDependent = assign_testExpression.getGminDependent();
+
+  EXPECT_EQ(gminDependent, true);
+  EXPECT_EQ(copyGminDependent, true);
+  EXPECT_EQ(assignGminDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, gmin2)
 }
 
 TEST ( Double_Parser_specials, temp)

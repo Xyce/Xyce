@@ -49,6 +49,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
   if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
+  if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
   PTR->getInterestingOps(ovc); }
 
 #define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
@@ -88,7 +89,8 @@ public:
   bool timeDep,
   bool tempDep,
   bool vTDep,
-  bool FreqDep
+  bool FreqDep,
+  bool gminDep 
       ):
   paramOpVector(param),
     funcOpVector(func),
@@ -103,7 +105,8 @@ public:
     isTimeDependent(timeDep),
     isTempDependent(tempDep),
     isVTDependent(vTDep),
-    isFreqDependent(FreqDep)
+    isFreqDependent(FreqDep),
+    isGminDependent(gminDep)
   {};
 
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
@@ -121,6 +124,7 @@ public:
   bool isTempDependent;
   bool isVTDependent;
   bool isFreqDependent;
+  bool isGminDependent;
 };
 
 
@@ -185,6 +189,7 @@ class astNode
     virtual bool tempSpecialType() { return false; }
     virtual bool vtSpecialType()   { return false; }
     virtual bool freqSpecialType() { return false; }
+    virtual bool gminSpecialType() { return false; }
 
     virtual bool leadCurrentType() { return false; }
 
@@ -2933,6 +2938,7 @@ class specialsOp : public astNode<ScalarT>
     virtual bool tempSpecialType() { return (type_ == std::string("TEMP")); }
     virtual bool vtSpecialType()   { return (type_ == std::string("VT")); }
     virtual bool freqSpecialType() { return (type_ == std::string("FREQ")); }
+    virtual bool gminSpecialType() { return (type_ == std::string("GMIN")); }
 
   private:
     std::string type_;

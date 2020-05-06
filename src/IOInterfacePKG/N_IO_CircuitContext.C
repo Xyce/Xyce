@@ -1547,34 +1547,34 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
             switch (parameter.getType()) 
             {
               case Xyce::Util::STR:
-                Xyce::dout() <<"It is STR type: " <<  parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is STR type: " <<  parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::DBLE:
-                Xyce::dout() <<"It is DBLE type: " <<  parameter.getImmutableValue<double>();
+                Xyce::dout() << parameter.uTag() <<" is DBLE type: " <<  parameter.getImmutableValue<double>() <<std::endl;
                 break;
               case Xyce::Util::EXPR:
-                Xyce::dout() <<"It is EXPR type: " << parameter.getValue<Util::Expression>().get_expression();
+                Xyce::dout() << parameter.uTag() <<" is EXPR type: " << parameter.getValue<Util::Expression>().get_expression() <<std::endl;
                 break;
               case Xyce::Util::BOOL:
-                Xyce::dout() <<"It is BOOL type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is BOOL type: " << parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::STR_VEC:
-                Xyce::dout() <<"It is STR_VEC type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is STR_VEC type: " << parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::INT_VEC:
-                Xyce::dout() <<"It is INT_VEC type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is INT_VEC type: " << parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::DBLE_VEC:
-                Xyce::dout() <<"It is DBLE_VEC type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is DBLE_VEC type: " << parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::DBLE_VEC_IND:
-                Xyce::dout() <<"It is DBLE_VEC_IND type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is DBLE_VEC_IND type: " << parameter.stringValue() <<std::endl;
                 break;
               case Xyce::Util::COMPOSITE:
-                Xyce::dout() <<"It is COMPOSITE type: " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is COMPOSITE type: " << parameter.stringValue() <<std::endl;
                 break;
               default:
-                Xyce::dout() <<"It is default type (whatever that is): " << parameter.stringValue();
+                Xyce::dout() << parameter.uTag() <<" is default type (whatever that is): " << parameter.stringValue() <<std::endl;
             }
           }
         }
@@ -1772,31 +1772,21 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         }
         else
         {
-          if (compare_nocase(strings[i].c_str(), "gmin") == 0
-              || compare_nocase(strings[i].c_str(), "vt") == 0)  // This needs to be generalized, but for now just GMIN and VT
+          if (Util::isBool(strings[i]))
           {
-            Util::Op::Operator *op = opBuilderManager_.createOp(strings[i]);
-            if (op)
-              expression.replace_var(strings[i], op);
+            bool stat = false;
+            if (Util::Bval(strings[i]))
+              stat = expression.make_constant(strings[i], static_cast<double>(1));
+            else
+              stat = expression.make_constant(strings[i], static_cast<double>(0));
+            if (!stat)
+            {
+              Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value";
+            }
           }
           else
           {
-            if (Util::isBool(strings[i]))
-            {
-              bool stat = false;
-              if (Util::Bval(strings[i]))
-                stat = expression.make_constant(strings[i], static_cast<double>(1));
-              else
-                stat = expression.make_constant(strings[i], static_cast<double>(0));
-              if (!stat)
-              {
-                Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value";
-              }
-            }
-            else
-            {
-              unresolvedStrings = true;
-            }
+            unresolvedStrings = true;
           }
         }
       }

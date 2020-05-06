@@ -214,6 +214,7 @@ bool newExpression::lexAndParseExpression()
   if(isTempDependent_) { tempOpVec_.push_back(tempNodePtr_); }
   if(isVTDependent_) { vtOpVec_.push_back(vtNodePtr_); }
   if(isFreqDependent_) { freqOpVec_.push_back(freqNodePtr_); }
+  if(isGminDependent_) { gminOpVec_.push_back(gminNodePtr_); }
 
 #if 0
   dumpParseTree(std::cout);
@@ -368,6 +369,7 @@ void newExpression::clear ()
   isTempDependent_ = false;
   isVTDependent_ = false;
   isFreqDependent_ = false;
+  isGminDependent_ = false;
 
   functionArgStringVec_.clear();
   functionArgOpVec_.clear();
@@ -652,13 +654,14 @@ void newExpression::setupVariousAstArrays_()
       opVectors_.isTempDependent = isTempDependent_;
       opVectors_.isVTDependent = isVTDependent_;
       opVectors_.isFreqDependent = isFreqDependent_;
+      opVectors_.isGminDependent = isGminDependent_;
 
       astNodePtr_->getInterestingOps( opVectors_  );
 
       if (opVectors_.isTimeDependent) isTimeDependent_ = true;
       if (opVectors_.isTempDependent) isTempDependent_ = true;
       if (opVectors_.isVTDependent  ) isVTDependent_   = true;
-      if (opVectors_.isFreqDependent) isFreqDependent_ = true;
+      if (opVectors_.isGminDependent) isGminDependent_ = true;
     }
 
 #if 0
@@ -711,11 +714,13 @@ void newExpression::setupVariousAstArrays_()
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminOpVec_); }
  
     isTimeDependent_ = !(timeOpVec_.empty());
     isTempDependent_ = !(tempOpVec_.empty());
     isVTDependent_   = !(vtOpVec_.empty());
     isFreqDependent_ = !(freqOpVec_.empty());
+    isGminDependent_ = !(gminOpVec_.empty());
 
 #if 0
     std::cout << "Array sizes AFTER update:" <<std::endl;
@@ -741,6 +746,7 @@ void newExpression::setupVariousAstArrays_()
     !isTempDependent_  &&
     !isVTDependent_    &&
     !isFreqDependent_  &&
+    !isGminDependent_  &&  // not relevant
     noVariableParams &&
     (unresolvedParamOpVec_.empty()) &&
     //(funcOpVec_.empty()) &&  // not relevant
@@ -831,18 +837,10 @@ void newExpression::getValuesFromGroup()
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
 
-    // the "isVar" boolean currently serves two purposes.
+    // the "isVar" boolean currently serves two purposes.  If it is true that means:
     //
-    // (1) if we want derivatives w.r.t. it.
-    //    (this meaning will probably persist after old API is gone, albeit with a different name)
-    //
-    // (2) if it should be considered a dynamic variable that gets its values from the vals array.
-    //    (this meaning will be obsolete later, once old API is gone)
-    //
-    // The old API is set up to set *everything* thru a single std::vector of values,
-    // that is passed into the expression as a function argument to the "evaluate" function.
-    // This vector includes both
-    //
+    // (1) we want derivatives w.r.t. it.
+    // (2) it should be considered a dynamic variable that gets its values externally
     //
     if ( parOp->getIsVar() )
     {
@@ -897,6 +895,7 @@ void newExpression::getValuesFromGroup()
   for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } // Conversion to correct units in group 
   for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
   for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(group_->getFreq()); }
+  for (int ii=0;ii<gminOpVec_.size();ii++) { gminOpVec_[ii]->setValue(group_->getGmin()); }
 
   bpTol_ = group_->getBpTol();
   startingTimeStep_ = group_->getStartingTimeStep();

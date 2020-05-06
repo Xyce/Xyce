@@ -283,6 +283,11 @@ public:
     return devOptions_.voltageLimiterFlag;
   }
 
+  double getGmin()
+  {
+    return devOptions_.gmin;
+  }
+
   // setup initial conditions on devices
   bool setICs (Linear::Vector * tmpSolVectorPtr,
                Linear::Vector * tmpCurrSolVectorPtr,
