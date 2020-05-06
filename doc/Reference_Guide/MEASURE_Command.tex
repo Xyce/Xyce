@@ -296,7 +296,12 @@ line of this file will contain the measurement name, \texttt{<result
 name>}, followed by its value for that run.  The \texttt{<result
 name>} must be a legal \Xyce{} character string.  For
 \texttt{DC} and \texttt{AC} measures, the results are stored in the files 
-\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively
+\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively.
+
+If multiple measures are defined with the same \texttt{<result name>} then
+\Xyce{} uses the last such definition, and issues warning messages about
+(and discards) any previous measure definitions with the same
+\texttt{<result name>}.
 
 \argument{measure type}
 
