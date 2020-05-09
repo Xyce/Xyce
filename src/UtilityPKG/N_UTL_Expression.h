@@ -116,6 +116,7 @@ public:
   void getLeadCurrents     (std::vector<std::string> & leads) const;
   void getFunctions        (std::vector<std::string> & funcs) const;
   void getSpecials         (std::vector<std::string> & specials) const;
+  void getVariables        (std::vector<std::string> & variables) const;
   void getPowerCalcs       (std::vector<std::string> & powerCalcs) const;
 
   bool getIsConstant ();

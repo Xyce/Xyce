@@ -503,7 +503,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
       break;
 
     case XEXP_VARIABLE:
-      //names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
+      getVariables(names);
       break;
 
     case XEXP_FUNCTION:
@@ -767,7 +767,7 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getSpecials
 // Purpose       : 
-// Special Notes : ERK.  This doesn't yet track external specials dependencies.  FIX THIS
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -778,6 +778,30 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
   if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
   if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
   if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVariables
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getVariables (std::vector<std::string> & variables) const
+{
+  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+  {
+    if (newExpPtr_->getParamOpVec()[ii]->getIsVar() )
+    {
+      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
+      if (it == variables.end())
+      {
+        variables.push_back( tmpName );
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

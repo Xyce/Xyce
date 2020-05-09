@@ -590,7 +590,6 @@ bool DeviceEntity::getNumericalBSensVectorsforACDefaultParam (
 //-----------------------------------------------------------------------------
 bool DeviceEntity::setParam(const std::string & paramName, double val, bool overrideOriginal)
 {
-  //if (DEBUG_DEVICE)
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << "DeviceEntity::setParam  with paramname = " << paramName << " value = " << val << " overrideOriginal = " << overrideOriginal << std::endl;
@@ -1013,6 +1012,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     // in names.
     dependentParam.expr->order_names( names );
   }
+
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
     expVarNames.push_back(names[i]);
 
@@ -1080,28 +1080,12 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
     // to be called unneccessarily.
     //
     // But that will have to come later.
-#if 0
-    changed = true;
 
-    eVarVals.resize(dpIter->n_vars);
-    if (dpIter->n_vars > 0)
-    {
-      int hi = dpIter->lo_var+dpIter->n_vars;
-      for (int i = dpIter->lo_var; i < hi; ++i)
-      {
-        expVarVals[i] = vars[expVarLIDs[i]];
-        eVarVals[i-dpIter->lo_var] = expVarVals[i];
-      }
-    // ERK.  FIX THIS!   commenting out so this will compile
-      if (dpIter->expr->set_vars(eVarVals))
-        changed = true;
-    }
-#else
-    if ( !(dpIter->expr->getIsConstant()) ) // ERK.  5/3/2020.  Refine this later.
+    if ( !(dpIter->expr->getIsConstant()) ) // ERK.  5/3/2020.  This works, but refine later.
     {
       changed = true;
     }
-#endif
+
     if (changed)
     {
       dpIter->expr->evaluateFunction (rval);
@@ -1596,12 +1580,49 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
               }
 
               std::string name = param.stringValue();
+#if 0
+              // ERK
+              std::cout << "Must be a composite: composite_name = " << composite_name << " name " << name << std::endl;
+
+              if ( param.getType() == Util::EXPR ) 
+              { 
+                std::cout << "param " << tag << " is Util::EXPR type" << std::endl; 
+                Util::Expression & expToBeDumped = param.getValue<Util::Expression>();
+                expToBeDumped.dumpParseTree();
+              }
+              else { std::cout << "param " << tag << " is NOT Util::EXPR type" << std::endl; }
+#endif
               CompositeParam *composite = constructComposite(composite_name, name);
               composite_parameter_map[composite_name].push_back(composite);
               setDefaultParameters(*composite, composite->getParameterMap().begin(), composite->getParameterMap().end(), devOptions_);
+#if 0
+              // ERK
+              ParameterMap::const_iterator pIter = composite->getParameterMap().begin();
+              for (;pIter!= composite->getParameterMap().end(); pIter++)
+              {
+                const std::string &name = (*pIter).first;
+                const Descriptor &param = *(*pIter).second;
+                //std::cout << "name = " << name << "paramDescriptor = " << param << std::endl;
+              }
+
+              //std::cout << "
+#endif
             }
             else
             {
+#if 0
+              // ERK
+              std::cout << "Must be a composite: composite_name = " << composite_name << " name " << param.stringValue() << std::endl;
+
+              if ( param.getType() == Util::EXPR ) 
+              { 
+                std::cout << "param " << tag << " is Util::EXPR type" << std::endl; 
+                Util::Expression & expToBeDumped = param.getValue<Util::Expression>();
+                expToBeDumped.dumpParseTree();
+              }
+              else { std::cout << "param " << tag << " is NOT Util::EXPR type" << std::endl; }
+#endif
+
               if (n >= composite_parameter_map[composite_name].size())
               {
                 UserFatal(*this) << "Error in definition of vector-composite parameter. "
@@ -1722,6 +1743,7 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
 }
 
 
+// this function is called from N_IO_CircuitMetadata.C in the function CircuitMetadata::getDeviceMetadata.
 void populateParams(const ParameterMap &parameter_map, std::vector<Param> &param_list, CompositeParamMap &composite_param_map)
 {
   for (ParameterMap::const_iterator it = parameter_map.begin(); it != parameter_map.end(); ++it)

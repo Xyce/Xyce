@@ -2617,27 +2617,6 @@ bool DeviceMgr::updateDependentParameters_()
     // But that will have to come later.
     bool changed = true;
 
-    std::vector<std::string> geVariables;
-    globalExprIter->get_names(XEXP_VARIABLE, geVariables);
-    std::vector<std::string>::iterator vsIter = geVariables.begin(); 
-    std::vector<std::string>::iterator vs_end = geVariables.end();
-    for ( ; vsIter != vs_end; ++vsIter)
-    {
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-    //
-    // what is a "geVariable" ??? "global expression variable"?
-    //
-    // I suspect that this is a block of code that is not needed with new Expression, 
-    // but need to double check.  It appears to update global variables in 
-    // the expression pointed to by globalExprIter, if they exist.  But the new 
-    // expression library handles this automatically.
-    //
-      if (globalExprIter->set_var(*vsIter, globalParamMap[*vsIter]))
-        changed = true;
-#endif
-    }
-
     if (changed)
     {
       double val;
@@ -4443,9 +4422,9 @@ bool setParameter(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  GlobalParameterMap &          global_parameter_map,
+  GlobalParameterMap &          global_parameter_map,      // globals_.global_params, if called from DeviceMgr::setParam.  This map, inside of the struct globals_ is where the official value of a global param is stored.  The globalParameterOp class will have a reference to the double-precision data location.  This op class is what is used by getParamAndReduce.  So they ultimately point to the same thing, but it is hard to see this directly.
   DeviceMgr &                   device_manager,
-  EntityVector &                dependent_entity_vector,
+  EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
   const std::string &           name,
   double                        value,
@@ -4591,22 +4570,6 @@ void addGlobalParameter(
     globals.global_exp_names.push_back(param.uTag());
 
     Util::Expression &expression = globals.global_expressions.back();
-
-    std::vector<std::string> variables;
-    expression.get_names(XEXP_VARIABLE, variables);
-    std::vector<std::string> specials;
-    expression.get_names(XEXP_SPECIAL, specials);
-
-    std::vector<std::string>::const_iterator it = variables.begin();
-    std::vector<std::string>::const_iterator end = variables.end();
-    for ( ; it != end ; ++it)
-    {
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-      expression.set_var(*it, globals.global_params[*it]);
-#endif
-    }
-
     double val;
     expression.evaluateFunction(val);
     globals.global_params[param.uTag()] = val;
