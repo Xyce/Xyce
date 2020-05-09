@@ -384,6 +384,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
   return;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_names
 //
@@ -531,6 +532,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
   //std::cout << "Expression::get_names(int const & type, std::vector<std::string> & names ) const " << std::endl;
   return;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_type
@@ -782,7 +784,47 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::getVariables
-// Purpose       : 
+//
+// Purpose       : This function returns the names of parameters in the expression 
+//                 which have an ongoing external dependency.  This is typically 
+//                 global_params, which may change.
+//
+//                 This is mostly called on parameters that are used in device
+//                 instances and or models, when Xyce is trying to decide if a 
+//                 model parameter should be considered a "dependent param".  This 
+//                 logic happens in Xyce after all the .param and .global_params 
+//                 have been set up, and all the parameters have been 
+//                 resolved in this expression.  If it happened earlier, it would 
+//                 possibly give the wrong answer.
+//
+//                 Params in the new expression library have 3 possible states:
+//                 isConstant, isVariable, and isAttached.
+//
+//                 "Constant" means that it is probably a .param, and is set during 
+//                 the parsing process, and will never change.  So any variable with 
+//                 this boolean set to true will not be returned by this function.
+//
+//                 "Variable" means that the parameter can be set to a simple number, 
+//                 but that this simple number can be changed during the simulation.  
+//                 So, this is a .global_param, but it is a simple one, that is just
+//                 a number.
+//
+//                 "Attached" is the biggest departure from the old expression library, 
+//                 and it means that the parameter object in this expression points 
+//                 to the top node of another expression class.  A parameter with this 
+//                 status technically could, if you follow the attached AST all the 
+//                 way down, still be "constant", if the attached tree is constant.
+//                 But it could also be variable, and as of this writing I haven't 
+//                 set up an easy way to check this.  So, I just assume for now that 
+//                 attached nodes are variable, unconditionally.  I should fix this 
+//                 later, as this is overkill.
+//
+//                 In this function, "Variable" and "Attached" parameters have their 
+//                 names added to the std::vector of strings.  This probably doesn't 
+//                 100% produce the same result as the old expression library, but 
+//                 it is close enough for now.
+//
+//
 // Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
@@ -792,7 +834,17 @@ void Expression::getVariables (std::vector<std::string> & variables) const
 {
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
-    if (newExpPtr_->getParamOpVec()[ii]->getIsVar() )
+#if 0
+    std::cout << "Expression::getVariables.  expression="<<newExpPtr_->getExpressionString() 
+      << "  param["<<ii<<"] = " << newExpPtr_->getParamOpVec()[ii]->getName() << " ";
+    if (newExpPtr_->getParamOpVec()[ii]->getIsVar())     {std::cout << " isVar=true ";}     else{std::cout << " isVar=false ";}
+    if (newExpPtr_->getParamOpVec()[ii]->getIsConstant()){std::cout << " isConstant=true ";}else{std::cout << " isConstant=false ";}
+    if (newExpPtr_->getParamOpVec()[ii]->getIsAttached()){std::cout << " isAttached=true ";}else{std::cout << " isAttached=false ";}
+    std::cout << std::endl;
+#endif
+
+    if (newExpPtr_->getParamOpVec()[ii]->getIsVar()  ||
+        newExpPtr_->getParamOpVec()[ii]->getIsAttached() )
     {
       std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
       std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
@@ -823,6 +875,19 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
       powerCalcs.push_back( tmpName );
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getNodalCalcs
+// Purpose       : 
+// Special Notes : this may not be necessary for new expression.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getNodalComputation (std::vector<std::string> & nodalCalcs) const
+{
+
 }
 
 //-----------------------------------------------------------------------------

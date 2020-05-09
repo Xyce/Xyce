@@ -172,6 +172,14 @@ class astNode
     virtual void unsetIsVar() {};
     virtual bool getIsVar() { return false; }
 
+    virtual void setIsConstant() {};
+    virtual void unsetIsConstant() {};
+    virtual bool getIsConstant() { return false; }
+
+    virtual void setIsAttached() {};
+    virtual void unsetIsAttached() {};
+    virtual bool getIsAttached() { return false; }
+
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
     virtual bool funcType()        { return false; };
