@@ -103,7 +103,7 @@ public:
   //
   bool set (std::string const & exp);
   void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
-  void get_names (int const & type, std::vector< std::string > & names) const;
+  //void get_names (int const & type, std::vector< std::string > & names) const;
   int get_type (std::string const & var);
   bool make_constant (std::string const & var, double const & val);
   bool make_var (std::string const & var);
@@ -118,6 +118,7 @@ public:
   void getSpecials         (std::vector<std::string> & specials) const;
   void getVariables        (std::vector<std::string> & variables) const;
   void getPowerCalcs       (std::vector<std::string> & powerCalcs) const;
+  void getNodalComputation (std::vector<std::string> & nodalCalcs) const;
 
   bool getIsConstant ();
 

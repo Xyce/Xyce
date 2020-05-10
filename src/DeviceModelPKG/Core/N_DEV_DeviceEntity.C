@@ -918,7 +918,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     // dependentParam's expression also.  This is needed to support global parameters
     // in expressions for the TEMP instance paramter.
     std::vector<std::string> parVars;
-    par.getValue<Util::Expression>().get_names(XEXP_VARIABLE, parVars);
+    par.getValue<Util::Expression>().getVariables(parVars); 
     for (std::vector<std::string>::const_iterator pv_i=parVars.begin(); pv_i != parVars.end(); ++pv_i)
     {
       dependentParam.expr->make_var(*pv_i);
@@ -947,10 +947,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   instances.clear();
   variables.clear();
 
-  dependentParam.expr->get_names(XEXP_NODE, names);
-  dependentParam.expr->get_names(XEXP_LEAD, leads);
-  dependentParam.expr->get_names(XEXP_INSTANCE, instances);
-  dependentParam.expr->get_names(XEXP_VARIABLE, variables);
+  dependentParam.expr->getVoltageNodes(names);
+  dependentParam.expr->getLeadCurrents(leads);
+  dependentParam.expr->getDeviceCurrents(instances);
+  dependentParam.expr->getVariables(variables); 
 
   //std::vector<std::string>::iterator s;
   std::vector<std::string>::iterator iterS;

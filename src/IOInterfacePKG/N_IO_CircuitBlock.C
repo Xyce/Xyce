@@ -1791,7 +1791,7 @@ void CircuitBlock::updateAliasNodeMapHelper()
         // Check the expression for nodes, and add any that start with X (which are 
         // subcircuit interface node names) to aliasNodeMapHelper_
         std::vector<std::string> nodes;
-        expression.get_names(XEXP_NODE, nodes);
+        expression.getVoltageNodes(nodes);
         for (std::vector<std::string>::iterator node_it = nodes.begin(), end = nodes.end(); node_it != end; ++node_it)
         {
           if ((*node_it)[0] == 'X')

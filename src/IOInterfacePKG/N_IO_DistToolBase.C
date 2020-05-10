@@ -831,17 +831,17 @@ bool DistToolBase::instantiateDevice(
           std::vector<std::string> leads;
           if ( expression.get_num( XEXP_NODE ) > 0 )
           {
-            expression.get_names( XEXP_NODE, nodes );
+            expression.getVoltageNodes(nodes);
             names.insert( names.end(), nodes.begin(), nodes.end() );
           }
           if ( expression.get_num( XEXP_INSTANCE ) > 0 )
           {
-            expression.get_names( XEXP_INSTANCE, instances);
+            expression.getDeviceCurrents(instances);
             names.insert( names.end(), instances.begin(), instances.end() );
           }
           if ( expression.get_num( XEXP_LEAD ) > 0 )
           {
-            expression.get_names( XEXP_LEAD, leads);
+            expression.getLeadCurrents(leads);
             names.insert( names.end(), leads.begin(), leads.end() );
           }
 

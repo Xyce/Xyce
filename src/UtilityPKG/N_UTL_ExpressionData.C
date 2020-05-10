@@ -376,7 +376,6 @@ ExpressionData::setup(
   }
 #else
     std::vector<std::string> global_function_names;
-    //expression_->get_names(XEXP_FUNCTION, global_function_names);
     expression_->getFuncNames(global_function_names);
  
     std::vector<std::string>::iterator it = global_function_names.begin();

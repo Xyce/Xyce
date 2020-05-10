@@ -722,13 +722,13 @@ bool extractParamData(
 
       std::vector<std::string> junk;
       std::string msg;
-      expPtr.get_names(XEXP_NODE, junk);
+      expPtr.getVoltageNodes(junk);
       if (junk.size() > 0)
         msg = "Node Voltage";
-      expPtr.get_names(XEXP_INSTANCE, junk);
+      expPtr.getDeviceCurrents(junk);
       if (junk.size() > 0)
         msg = "Device Current";
-      expPtr.get_names(XEXP_LEAD, junk);
+      expPtr.getLeadCurrents(junk);
       if (junk.size() > 0)
         msg = "Lead Current";
       if (msg != "")
@@ -847,13 +847,13 @@ bool extractGlobalParamData(
       
       std::vector<std::string> junk;
       std::string msg;
-      expPtr.get_names(XEXP_NODE, junk);
+      expPtr.getVoltageNodes(junk);
       if (junk.size() > 0)
         msg = "Node Voltage";
-      expPtr.get_names(XEXP_INSTANCE, junk);
+      expPtr.getDeviceCurrents(junk);
       if (junk.size() > 0)
         msg = "Device Current";
-      expPtr.get_names(XEXP_LEAD, junk);
+      expPtr.getLeadCurrents(junk);
       if (junk.size() > 0)
         msg = "Lead Current";
       if (msg != "")

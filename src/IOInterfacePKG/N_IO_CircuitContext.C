@@ -828,7 +828,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         if (parameter.getType() ==  Xyce::Util::EXPR)
 	      {
           std::vector<std::string> specials;
-         // parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
           parameter.getValue<Util::Expression>().getSpecials(specials);
           if (!specials.empty())
 	        {
@@ -865,15 +864,10 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         {
           std::vector<std::string> nodes, instances, leads, variables, specials;
 
-          //parameter.getValue<Util::Expression>().get_names(XEXP_NODE, nodes);
-          //parameter.getValue<Util::Expression>().get_names(XEXP_INSTANCE, instances);
-          //parameter.getValue<Util::Expression>().get_names(XEXP_LEAD, leads);
-          //parameter.getValue<Util::Expression>().get_names(XEXP_VARIABLE, variables);
-          //parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
           parameter.getValue<Util::Expression>().getVoltageNodes(nodes);
           parameter.getValue<Util::Expression>().getDeviceCurrents(instances);
           parameter.getValue<Util::Expression>().getLeadCurrents(leads);
-          parameter.getValue<Util::Expression>().get_names(XEXP_VARIABLE, variables); // what is this? Fix.
+          parameter.getValue<Util::Expression>().getVariables(variables); 
           parameter.getValue<Util::Expression>().getSpecials(specials);
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
@@ -1012,7 +1006,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         std::vector<std::string> strings;
 
         Util::Expression functionBodyExpression(expressionGroup_, functionParameter.stringValue());
-        //functionBodyExpression.get_names(XEXP_STRING, strings);
         functionBodyExpression.getUnresolvedParams(strings);
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
         {
@@ -1252,7 +1245,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       expression.getLeadCurrents(leads);
       expression.getVariables(variables); 
       expression.getSpecials(specials);      
-      expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps); // ERK.  fix this.
+      expression.getNodalComputation(nodecomps);
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
           !variables.empty() || !specials.empty() || !nodecomps.empty())
@@ -1594,7 +1587,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       expression.getLeadCurrents(leads);
       expression.getVariables(variables); 
       expression.getSpecials(specials);      
-      expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
+      expression.getNodalComputation(nodecomps);
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
           !variables.empty() || !specials.empty() || !nodecomps.empty())

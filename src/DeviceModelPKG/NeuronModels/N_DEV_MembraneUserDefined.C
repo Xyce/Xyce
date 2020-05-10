@@ -609,8 +609,14 @@ void MembraneUserDefined::consolidateExpressions()
   for( int i=0; i<numParams; i+=2)
   {
     std::vector<std::string> names;
+#if 0
     int type=0;
     extraParametersExpRCP_.at(i)->get_names(type, names);
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //extraParametersExpRCP_.at(i)->
+#endif
     if( names.size() > 1 )
     {
       Xyce::dout() << "Warning MembraneUserDefined::consolidateExpressions() parameter name vec longer than expected." << names.size() << std::endl;
@@ -626,8 +632,14 @@ void MembraneUserDefined::consolidateExpressions()
   for( int i=0; i<numFuncs; i+=2 )
   {
     std::vector<std::string> names;
+#if 0
     int type=0;
     extraFunctionsExpRCP_.at(i)->get_names(type, names);
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //extraFunctionsExpRCP_.at(i)->get
+#endif
     funcNames_.push_back(names[0]);
     funcExpRCP_.push_back(extraFunctionsExpRCP_.at(i+1));
     funcNumArgs_.push_back( extraFunctionsExpRCP_.at(i+1)->num_vars() );
@@ -761,7 +773,13 @@ void MembraneUserDefined::makeSymbolSet()
   for( int i=0; i<numIndependentVars; i++ )
   {
     std::vector<std::string> expNames;
+#if 0
     indepVarsExpRCP_.at(i)->get_names( type, expNames );
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //indepVarsExpRCP_.at(i)->get
+#endif
     int numExpNames=expNames.size();
     for( int j=0; j<numExpNames; j++ )					// cew ? isn't there just one name per independent var?
     {
@@ -839,7 +857,14 @@ void MembraneUserDefined::convertSymbolsToVars( std::vector<RCP<Util::Expression
   {
     // get the remaining symbol names in the expression
     std::vector<std::string> expNamesTmp;
+#if 0
     expRCP.at(i)->get_names( type, expNamesTmp );
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //expRCP.at(i)->get
+#endif
+
     int numExpNames=expNamesTmp.size();
     for( int j=0; j<numExpNames; j++ )
     {

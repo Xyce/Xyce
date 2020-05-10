@@ -1041,8 +1041,8 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
           if (tmpPar->getType() == Util::EXPR)
           {
             Util::Expression tmpExp = tmpPar->getValue<Util::Expression>();
-            tmpExp.get_names(XEXP_VARIABLE, variables);
-            tmpExp.get_names(XEXP_SPECIAL, specials);
+            tmpExp.getVariables(variables); 
+            tmpExp.getSpecials(specials);      
           }
 
           if (specials.empty() && variables.empty())

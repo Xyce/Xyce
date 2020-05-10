@@ -701,11 +701,11 @@ void printLineDiagnostics(
           // check if there is an underlying expression object with the parameter
           if (parameter.getType() == Util::EXPR)
           {
-            parameter.getValue<Util::Expression>().get_names(XEXP_NODE, nodes);
-            parameter.getValue<Util::Expression>().get_names(XEXP_INSTANCE, instances);
-            parameter.getValue<Util::Expression>().get_names(XEXP_LEAD, leads);
-            parameter.getValue<Util::Expression>().get_names(XEXP_STRING, strings);
-            parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, special);  // special returns vars like TIME
+            parameter.getValue<Util::Expression>().getVoltageNodes(nodes);
+            parameter.getValue<Util::Expression>().getDeviceCurrents(instances);
+            parameter.getValue<Util::Expression>().getLeadCurrents(leads);
+            parameter.getValue<Util::Expression>().getUnresolvedParams(strings);
+            parameter.getValue<Util::Expression>().getSpecials(special);
           }
           else if ( ((parameter.getType()) == Util::DBLE) || ((parameter.getType()) == Util::INT) )
           {
@@ -1234,7 +1234,7 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
 
       Util::Expression exp(exprGroup);
       exp.set(iterParam->tag());
-      exp.get_names(XEXP_LEAD, leads);
+      exp.getLeadCurrents(leads);
 
       // any lead currents found in this expression need to be communicated to the device manager.
       // Multi terminal devices have an extra designator on the name as in name{lead_name}
@@ -1246,7 +1246,7 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
       }
       
       std::vector<std::string> nodalComps;
-      exp.get_names(XEXP_NODAL_COMPUTATION, nodalComps);
+      exp.getNodalComputation(nodalComps);
       for (std::vector<std::string>::const_iterator currNCItr = nodalComps.begin(); currNCItr != nodalComps.end(); ++currNCItr)
       {
         // name should be in the form "P( device_name )" or similar.  Find the first 
