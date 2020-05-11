@@ -69,7 +69,7 @@
 `include "discipline.h"
 
 // Flag for .OP calculations. Commenting this line cancels OP-related variables definition and OP calculations
-// `define OP_CALC
+`define OP_CALC
 
 // *************************************************************************************************************************
 // Macros and constants used in L-UTSOI model

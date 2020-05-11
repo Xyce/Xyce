@@ -8,3 +8,5 @@ the original.
    contribution has explicitly been multiplied by this factor.  Xyce
    does not support an implicit m factor.
 
+-- The OP_CALC macro definition was uncommented, enabling all output variables
+   to be accessible for Xyce.
