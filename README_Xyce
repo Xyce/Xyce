@@ -1,0 +1,10 @@
+The L_UTSOI model contained in this directory has been modified from
+the original.
+
+-- Module attributes have been added to allow the device to plug into Xyce
+   as the level 10240 MOSFET
+
+-- An explicit "M" (multiplicity) parameter has been added and every
+   contribution has explicitly been multiplied by this factor.  Xyce
+   does not support an implicit m factor.
+

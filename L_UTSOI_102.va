@@ -618,7 +618,7 @@
 `define EXTERNAL_TH_NODE
 
 `ifdef EXTERNAL_TH_NODE
-module l_utsoi(D,G,S,B,Tnode);
+module l_utsoi(D,G,S,B,Tnode) (* xyceModelGroup="MOSFET" xyceLevelNumber="10240" xyceDeviceName="L_UTSOI MOSFET" xyceTypeVariable="TYPE"*);
     inout      D, G, S, B, Tnode;
 `else
 module l_utsoi(D,G,S,B);
@@ -1111,6 +1111,11 @@ module l_utsoi(D,G,S,B);
         `MPRnb(STRRUO       ,0.0          ,""                                   ,"Mobility degradation/enhancement coefficient")
         `MPRnb(STRTRUO      ,0.0          ,""                                   ,"Temperature dependence of mobility degradation/enhancement coefficient")
         `MPRnb(STRRVSAT     ,0.0          ,""                                   ,"Saturation velocity degradation/enhancement coefficient")
+
+
+// XYCE HACK:  Add a  multiplicity parameter "M".  Xyce does not do
+// implicit multiplicity.
+        `IPIcz(M           ,1          ,""                                   ,"multiplicity factor")
 
 
     //  Variables
@@ -2897,21 +2902,21 @@ module l_utsoi(D,G,S,B);
 
             // *********** Convert back for NMOS-PMOS and Source-Drain interchange ***********
                 if (sigVds < 0) begin
-                    I(S, D)     <+  TYPE * Idse;
+                    I(S, D)     <+  M*TYPE * Idse;
                 end else begin
-                    I(D, S)     <+  TYPE * Idse;
+                    I(D, S)     <+  M*TYPE * Idse;
                 end
-                I(D, S)     <+  TYPE * (Igidle - Igisle);
-                I(G, S)     <+  TYPE * Igse;
-                I(G, D)     <+  TYPE * Igde;
+                I(D, S)     <+  M*TYPE * (Igidle - Igisle);
+                I(G, S)     <+  M*TYPE * Igse;
+                I(G, D)     <+  M*TYPE * Igde;
                 I(S, B)     <+  0.0;
                 I(D, B)     <+  0.0;
                 I(G, B)     <+  0.0;
-                I(D, S)     <+  gmin * V(D, S);
+                I(D, S)     <+  M*gmin * V(D, S);
 
             // *********** Self heating effect ***********
-                Pwr(THPWR)  <+  Ithpwre;
-                Pwr(THRC)   <+  Ithrce;
+                Pwr(THPWR)  <+  M*Ithpwre;
+                Pwr(THRC)   <+  M*Ithrce;
 
         end    // loadStatic
 
@@ -2965,15 +2970,15 @@ module l_utsoi(D,G,S,B);
                 end
 
             // *********** Introduction of dynamic currents ***********
-                I(G, S)     <+  TYPE * (ddt(Qg) + ddt(Qgse) + ddt(Qovs) + ddt(Qgsif));
-                I(B, S)     <+  TYPE * (ddt(Qb) + ddt(Qssub) + ddt(Qbsif));
-                I(D, S)     <+  TYPE * (ddt(Qd) + ddt(Qdse));
-                I(G, D)     <+  TYPE * (ddt(Qgde) + ddt(Qovd) + ddt(Qgdif));
-                I(B, D)     <+  TYPE * (ddt(Qdsub) + ddt(Qbdif));
-                I(G, B)     <+  TYPE * ddt(Qgbe);
+                I(G, S)     <+  M*TYPE * (ddt(Qg) + ddt(Qgse) + ddt(Qovs) + ddt(Qgsif));
+                I(B, S)     <+  M*TYPE * (ddt(Qb) + ddt(Qssub) + ddt(Qbsif));
+                I(D, S)     <+  M*TYPE * (ddt(Qd) + ddt(Qdse));
+                I(G, D)     <+  M*TYPE * (ddt(Qgde) + ddt(Qovd) + ddt(Qgdif));
+                I(B, D)     <+  M*TYPE * (ddt(Qdsub) + ddt(Qbdif));
+                I(G, B)     <+  M*TYPE * ddt(Qgbe);
 
             // *********** Self heating effect ***********
-                Pwr(THRC)   <+  ddt(Qth);
+                Pwr(THRC)   <+  M*ddt(Qth);
 
         end    // loadDynamic
 
@@ -3053,21 +3058,21 @@ module l_utsoi(D,G,S,B);
 
             // *********** Noise contributions ***********
                 // Thermal induced gate noise
-                I(NOII)     <+  white_noise(SigR_th, "ign_g");
-                I(NOIR)     <+  gSig * V(NOIR);
-                I(NOIC)     <+  ddt(CGeff * V(NOIC));
-                I(G, S)     <+  ddt(-CSGeff * V(NOIC));
-                I(G, D)     <+  ddt(-CDGeff * V(NOIC));
+                I(NOII)     <+  white_noise(M*SigR_th, "ign_g");
+                I(NOIR)     <+  M*gSig * V(NOIR);
+                I(NOIC)     <+  M*ddt(CGeff * V(NOIC));
+                I(G, S)     <+  M*ddt(-CSGeff * V(NOIC));
+                I(G, D)     <+  M*ddt(-CDGeff * V(NOIC));
                 // Drain current thermal noise
-                I(D, S)     <+  white_noise(Sids_th_u, "thermal_ids");
-                I(D, S)     <+  sigVds * migid * I(NOII);
+                I(D, S)     <+  white_noise(M*Sids_th_u, "thermal_ids");
+                I(D, S)     <+  M*sigVds * migid * I(NOII);
                 // Drain current flicker noise
-                I(D, S)     <+  flicker_noise(Sids_fl, EF_i, "flicker");
+                I(D, S)     <+  flicker_noise(M*Sids_fl, EF_i, "flicker");
                 // Gate currents shot noise
-                I(G, S)     <+  white_noise(Sigs_sh, "shot_igs");
-                I(G, D)     <+  white_noise(Sigd_sh, "shot_igd");
+                I(G, S)     <+  white_noise(M*Sigs_sh, "shot_igs");
+                I(G, D)     <+  white_noise(M*Sigd_sh, "shot_igd");
                 // GIDL/GISL shot noise
-                I(D, S)     <+  white_noise(Sids_sh, "shot_ids");
+                I(D, S)     <+  white_noise(M*Sids_sh, "shot_ids");
         end    // noise
 
         //  Operating point info
