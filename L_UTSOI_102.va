@@ -1291,6 +1291,9 @@ module l_utsoi(D,G,S,B);
 
         //  Initialize Model
         //  **************************************************************************************************************
+`ifdef insideADMS
+        @(initial_model)
+`endif
         begin : initializeModel
 
             // *********** Transistor temperature ***********
@@ -1311,6 +1314,9 @@ module l_utsoi(D,G,S,B);
 
         //  Initialize Instance
         //  **************************************************************************************************************
+`ifdef insideADMS
+        @(initial_instance)
+`endif
         begin : initializeInstance
 
             // *********** Initializing channel temperature ***********

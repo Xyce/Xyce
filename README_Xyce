@@ -10,3 +10,7 @@ the original.
 
 -- The OP_CALC macro definition was uncommented, enabling all output variables
    to be accessible for Xyce.
+
+-- the initializeModel and initializeInstance blocks have had
+   ADMS-specific pseudo-events added to them so they are placed in the
+   appropriate Xyce function and are not recomputed unnecessarily.
