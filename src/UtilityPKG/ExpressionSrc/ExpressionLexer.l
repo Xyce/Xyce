@@ -68,9 +68,10 @@ DIGIT [0-9]
 ID [a-zA-Z][a-zA-Z0-9_:]*
 NODE [a-zA-Z0-9_:]*
 
-VOP V[RIMP]*
-IOP I[RIMP]*
-NOP N[RIMP]*
+VOP V[RIMP]?
+IOP I[RIMP]?
+NOP N[RIMP]?
+ /* LEAD I[SDG] */
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
 %}
