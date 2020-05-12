@@ -252,7 +252,18 @@ Instance::Instance(
     inductorData->name = inductorNames[i];
     inductorData->L = inductorInductances[i];
     inductorData->baseL = inductorInductances[i];
-    inductorData->ICGiven = false;
+    // if this is true then the instance block had some IC data, so don't ignore it.
+    if( i < initialCondition.size())
+    {
+      inductorData->ICGiven = initialConditionGiven[i];
+      inductorData->IC=initialCondition[i];
+      Xyce::dout() << "Setting IC = " << inductorData->IC << std::endl;
+    }
+    else
+    {
+      inductorData->ICGiven = false;
+      inductorData->IC = 0.0;
+    }
     inductorData->inductorCurrentOffsets.resize( inductorNames.size() );
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
     inductorData->f_inductorCurrentPtrs.resize( inductorNames.size() );
@@ -1149,6 +1160,7 @@ bool Instance::updatePrimaryState()
   {
     if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
     {
+      Xyce::dout() << "Applying IC value " << i << " " << (*currentInductor)->IC << std::endl;
       inductorCurrents[ i ] = (*currentInductor)->IC;
     }
     else
@@ -1652,6 +1664,11 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     while( currentInductor != endInductor )
     {
       double current   = solVec[(*currentInductor)->li_Branch];
+      if( (getSolverState().dcopFlag) &&  ((*currentInductor)->ICGiven))
+      {
+        Xyce::dout() << "In master loadDAEVectors found IC condition " << (*currentInductor)->IC << std::endl;
+        current = (*currentInductor)->IC;
+      }
       double vNodePos  = solVec[(*currentInductor)->li_Pos];
       double vNodeNeg  = solVec[(*currentInductor)->li_Neg];
 
