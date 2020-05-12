@@ -959,6 +959,13 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
       delete $5;
     }
+  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE '=' nonempty_arg_pairs 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$6));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      delete $6;
+    }
   | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arglist 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));

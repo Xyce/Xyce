@@ -3056,6 +3056,45 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_pairsWithParens)
   }
 }
 
+TEST ( Double_Parser_table_Test, power_e_gear)
+{
+  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
+  {
+    //Xyce::Util::newExpression eTable(std::string("TABLE {V(1,0)} ( 0 , 1 ) ( 1 , 2 )"), grp);
+    Xyce::Util::newExpression eTable(std::string("TABLE {V(1,0)} = ( 0 , 1 ) ( 1 , 2 )"), grp);
+    eTable.lexAndParseExpression();
+
+    Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
+    eTable_leftArg.lexAndParseExpression();
+
+    // v1:
+    //std::vector<double> v1 = { -5.00000000e-01, -4.00000000e-01, -3.00000000e-01, -2.00000000e-01, -1.00000000e-01, 0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00};
+
+    // table output
+    //std::vector<double> refArray = {1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00 };
+
+    // v1:
+    std::vector<double> v1 = {0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00};
+
+    // table output
+    std::vector<double> refArray = {1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00};
+
+    int size = v1.size();
+
+    std::vector<double> result;
+    result.resize(size,0.0);
+
+    for (int ii=0;ii<size;ii++)
+    {
+      bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
+      eTable.evaluateFunction(result[ii]);
+    }
+
+    EXPECT_EQ(refArray,result);
+  }
+}
+
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.
 TEST ( Double_Parser_Param_Test, test1)
