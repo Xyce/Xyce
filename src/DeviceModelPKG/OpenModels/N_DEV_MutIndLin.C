@@ -890,6 +890,9 @@ void Instance::setupPointers ()
 
     (*currentInductor)->f_BraEquNegNodePtr =
         &(dFdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] );
+        
+    (*currentInductor)->f_BraEquBraVarPtr =
+        &(dFdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)] );
 
     for( int j=0; j<numInductors; ++j )
     {
@@ -925,6 +928,9 @@ void Instance::setupPointers ()
 
     (*currentInductor)->q_BraEquNegNodePtr =
         &(dQdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] );
+        
+    (*currentInductor)->q_BraEquBraVarPtr =
+        &(dQdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)] );
 
     for( int j=0; j<numInductors; ++j )
     {
@@ -1664,17 +1670,19 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     while( currentInductor != endInductor )
     {
       double current   = solVec[(*currentInductor)->li_Branch];
+      double branchCoef = 1.0;
       if( (getSolverState().dcopFlag) &&  ((*currentInductor)->ICGiven))
       {
         Xyce::dout() << "In master loadDAEVectors found IC condition " << (*currentInductor)->IC << std::endl;
         current = (*currentInductor)->IC;
+        branchCoef = 0.0;
       }
       double vNodePos  = solVec[(*currentInductor)->li_Pos];
       double vNodeNeg  = solVec[(*currentInductor)->li_Neg];
 
       fVec[((*currentInductor)->li_Pos)]    +=  inst.scalingRHS * current;
       fVec[((*currentInductor)->li_Neg)]    += -inst.scalingRHS * current;
-      fVec[((*currentInductor)->li_Branch)] += -(vNodePos - vNodeNeg);
+      fVec[((*currentInductor)->li_Branch)] += -(vNodePos - vNodeNeg)*branchCoef;
 
       if (inst.loadLeadCurrent)
       {
@@ -1738,10 +1746,26 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
     std::vector< InductorInstanceData* >::iterator endInductor = inst.instanceData.end();
     while( currentInductor != endInductor )
     {
-      *((*currentInductor)->f_PosEquBraVarPtr)  +=  inst.scalingRHS;
-      *((*currentInductor)->f_NegEquBraVarPtr)  += -inst.scalingRHS;
-      *((*currentInductor)->f_BraEquPosNodePtr) += -1.0;
-      *((*currentInductor)->f_BraEquNegNodePtr) +=  1.0;
+    
+      if ( getSolverState().dcopFlag && (*currentInductor)->ICGiven )
+      {
+        Xyce::dout() << "Setting inductor up as current source to handle IC=" << std::endl;
+        // In the case that an initial condition is specified for an
+        // inductor, the DC op should be set up like a current source just
+        // for the operating point calculation.
+        *((*currentInductor)->f_PosEquBraVarPtr)  += 0.0;
+        *((*currentInductor)->f_NegEquBraVarPtr)  += 0.0;
+        *((*currentInductor)->f_BraEquPosNodePtr) += 0.0;
+        *((*currentInductor)->f_BraEquNegNodePtr) += 0.0;
+        *((*currentInductor)->f_BraEquBraVarPtr)  += 1.0;
+      }
+      else
+      {
+        *((*currentInductor)->f_PosEquBraVarPtr)  +=  inst.scalingRHS;
+        *((*currentInductor)->f_NegEquBraVarPtr)  += -inst.scalingRHS;
+        *((*currentInductor)->f_BraEquPosNodePtr) += -1.0;
+        *((*currentInductor)->f_BraEquNegNodePtr) +=  1.0;
+      }
 
       ++currentInductor;
     }
