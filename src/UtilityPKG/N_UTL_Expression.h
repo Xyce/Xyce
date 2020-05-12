@@ -85,28 +85,20 @@ public:
 
   bool parsed() const;
 
-  // ERK new expression stuff
   int getFuncSize();
   void getFuncNames (std::vector<std::string> & funcNames);
   void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
   void attachFunctionNode (const std::string & funcName, const Expression & exp); 
-  void attachParameterNode (const std::string & paramName, const Expression & exp); 
+  void attachParameterNode (const std::string & paramName, const Expression & exp, bool isDotParam = false); 
 
   const std::vector<std::string> & getFunctionArgStringVec ();
 
-  // ERK old expressionstuff.  Many of these need to be removed.
-  // The entire "var" approach, in which the stuff being set comes 
-  // thru a single double-precision vector is bad.
-  //
-  // It makes the code needlessly complex and confusing, for what is fundamentally
-  // a very simple operation.
-  //
+  // ERK some old expressionstuff.  Many of these need to be removed.
   bool set (std::string const & exp);
   void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
-  //void get_names (int const & type, std::vector< std::string > & names) const;
   int get_type (std::string const & var);
-  bool make_constant (std::string const & var, double const & val);
-  bool make_var (std::string const & var);
+  bool make_constant (std::string const & var, double const & val, bool isDotParam=false);
+  bool make_var (std::string const & var, bool isDotParam=false);
 
   // ERK new expression stuff.  These kind of replace "get_names"
   void getParams           (std::vector<std::string> & params) const;
@@ -134,7 +126,6 @@ public:
   bool setLeadCurrent   (const std::string &, const double &);
 
   std::string get_expression (void) const;
-  int get_num(int const & type);
 
   int evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
   int evaluateFunction (std::complex<double> &result);
@@ -146,27 +137,13 @@ public:
 
   const std::string & get_input (void) const;
 
-  // ERK.  Many of the functions below, here need to go.  Probably not all, but many.
-  // order_names and replace_func will definitely be gone.
-  int order_names (std::vector< std::string > const & new_names);
-  //int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
   bool replace_name (const std::string & old_name, const std::string & new_name);
-  int replace_var(std::string const & var_name, const Expression & subexpr);
-  //int replace_var(const std::string & var_name, Op::Operator *op);
-  int getNumDdt();
-  void getDdtVals (std::vector<double> &);
-  void setDdtDerivs (std::vector<double> &);
-  int num_vars() const;
 
-
-  // ERK.  these are fine
   bool isTimeDependent() const;
   bool isRandomDependent() const;
   void dumpParseTree();
 
   static void seedRandom(long seed);
-
-  //Teuchos::RCP<Xyce::Util::newExpression> getNewExpRCP() { return newExpPtr_; }
 
 private:
 

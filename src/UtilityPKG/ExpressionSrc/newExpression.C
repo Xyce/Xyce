@@ -296,7 +296,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, bool isDotParam)
 {
   bool retval=true;
 
@@ -311,6 +311,7 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setNode(expPtr->getAst());
     parOp->setIsAttached();
+    if(isDotParam){ parOp->setIsDotParam(); }
     externalDependencies_ = true;
   }
   else { retval=false; }
@@ -406,7 +407,7 @@ void newExpression::clear ()
 // Creator       : Eric Keiter
 // Creation Date : 3/??/2020
 //-------------------------------------------------------------------------------
-bool newExpression::make_constant (std::string const & var, usedType const & val)
+bool newExpression::make_constant (std::string const & var, usedType const & val, bool isDotParam)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
@@ -420,6 +421,7 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setValue(val);
     parOp->setIsConstant();
+    if(isDotParam){ parOp->setIsDotParam(); }
     retval=true;
   }
   else
@@ -442,7 +444,7 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
 // Creator       : Eric Keiter
 // Creation Date : ??
 //-------------------------------------------------------------------------------
-bool newExpression::make_var (std::string const & var)
+bool newExpression::make_var (std::string const & var, bool isDotParam)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
@@ -456,6 +458,7 @@ bool newExpression::make_var (std::string const & var)
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->unsetValue(); // just to be safe "unset" the value
     parOp->setIsVar();
+    if(isDotParam){ parOp->setIsDotParam(); }
     retval = true; // just means we found it
   }
   else
@@ -812,6 +815,8 @@ void newExpression::getValuesFromGroup()
     currOp->setCurrentVal ( val );
   }
 
+#if 0
+  // don't remember why I wrote this 2x.
   for (int ii=0;ii<currentOpVec_.size();ii++)
   {
     Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
@@ -823,6 +828,7 @@ void newExpression::getValuesFromGroup()
     }
     currOp->setCurrentVal ( val );
   }
+#endif
 
   for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
   {

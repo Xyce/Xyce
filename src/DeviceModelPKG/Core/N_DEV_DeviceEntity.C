@@ -964,7 +964,9 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     }
     if (depend & ParameterType::NO_DEP)
     {
-      if (dependentParam.expr->get_num(XEXP_SPECIAL) > 0)
+      // ERK
+      //if (dependentParam.expr->get_num(XEXP_SPECIAL) > 0)
+      if (dependentParam.expr->isTimeDependent() )
       {
         UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
         return;
@@ -1006,12 +1008,14 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   if (!variables.empty())
     names.insert( names.end(), variables.begin(), variables.end() );
 
+#if 0
   if ( !names.empty() )
   {
     // Order the names in the expression so that it agrees with the order
     // in names.
     dependentParam.expr->order_names( names );
   }
+#endif
 
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
     expVarNames.push_back(names[i]);
@@ -1419,6 +1423,10 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
           {
             if (!param.isNumeric())
             {
+#if 1
+              double test = param.getImmutableValue<double>();
+              std::cout << "test (param is not numeric) = " << test << std::endl;
+#endif
               UserError(*this) << "Cannot convert parameter " << tag <<  " to a numeric value from " << param.stringValue();
               continue;
             }

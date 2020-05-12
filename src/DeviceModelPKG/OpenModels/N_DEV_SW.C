@@ -218,10 +218,12 @@ Instance::Instance(
       expBaseVar = d->lo_var;
       Exp_ptr = d->expr;
 
+#if 0
       expNumDdt = Exp_ptr->getNumDdt();
       ddtVals.resize(expNumDdt);
       li_ddt.resize(expNumDdt);
       numStateVars += expNumDdt;
+#endif
 
       jacStamp[0].resize(2+expNumVars);
       jacStamp[1].resize(2+expNumVars);
@@ -457,11 +459,13 @@ bool Instance::updateSecondaryState ()
   {
     double * staDerivVec = extData.nextStaDerivVectorRawPtr;
 
+#if 0
     for (i=0 ; i<expNumDdt ; ++i)
     {
       ddtVals[i] = staDerivVec[li_ddt[i]];
     }
     Exp_ptr->setDdtDerivs(ddtVals);
+#endif
   }
   // Evaluate Expression with corrected time derivative values
 
@@ -546,11 +550,13 @@ bool Instance::updateIntermediateVars ()
   {
     double * staVec = extData.nextStaVectorRawPtr;
 
+#if 0
     Exp_ptr->getDdtVals (ddtVals);
     for (int i=0 ; i<expNumDdt ; ++i)
     {
       staVec[li_ddt[i]] = ddtVals[i];
     }
+#endif
   }
 
   return true;
@@ -862,11 +868,13 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
 
     if (si.expNumDdt > 0)
     {
+#if 0
       for (int i=0 ; i<si.expNumDdt ; ++i)
       {
         si.ddtVals[i] = staDerivVec[si.li_ddt[i]];
       }
       si.Exp_ptr->setDdtDerivs(si.ddtVals);
+#endif
     }
     // Evaluate Expression with corrected time derivative values
 

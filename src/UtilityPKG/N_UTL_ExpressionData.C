@@ -51,6 +51,9 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_ExpressionSymbolTable.h>
 
+#include <mainXyceExpressionGroup.h>
+#include <outputsXyceExpressionGroup.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -68,11 +71,23 @@ ExpressionData::ExpressionData (
   : expression_(0),
     expressionString_(expression),
     state_(NOT_SETUP),
-    sensitivitiesPossible_(true),
-    expressionGroup_(group) // don't want to use this
+    sensitivitiesPossible_(true)
+    //,
+    //expressionGroup_(group) // don't want to use this
 {
-  //Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp(new outputsXyceExpressionGroup() );
-  //expressionGroup_ = outputsGroup;
+
+  Teuchos::RCP<mainXyceExpressionGroup> mainGroup = Teuchos::rcp_dynamic_cast<mainXyceExpressionGroup>(group);
+
+  Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = 
+    Teuchos::rcp(new outputsXyceExpressionGroup(
+      mainGroup->comm_,
+      mainGroup->top_,
+      mainGroup->analysisManager_,
+      mainGroup->deviceManager_,
+      mainGroup->outputManager_
+        ) );
+
+  expressionGroup_ = outputsGroup;
 }
 
 
@@ -138,32 +153,25 @@ double ExpressionData::evaluate(
 
   double value = 0.0;
 
-  if (solnVecPtr)
+  //if (solnVecPtr)
   {
+
+#if 0
+    // ERK.  This doesn't belong here any more, but keeping for reference.  
+    // This kind of things belongs in the group.
+
     // loop over expressionOps_ to get all the values.
     variableValues_.clear();
     for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
     {
       Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-
       variableValues_.push_back( Util::Op::getValue(comm, *(*it), opDataTmp).real());
     }
+#endif
 
     if (expression_)
     {
-#if 0
-      // support SDT and DDT, among other things.
-      expression_->set_sim_time(current_circuit_time);
-      expression_->set_sim_dt(current_circuit_dt);
-#endif
-
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-      // now get expression value (don't need derivs)
-      expression_->evaluateFunction(value, variableValues_);
-#else
       expression_->evaluateFunction(value);
-#endif
     }
   }
 
@@ -199,28 +207,21 @@ double ExpressionData::evaluate(
 
   double value = 0.0;
 
+#if 0
+  // ERK.  This doesn't belong here any more, but keeping for reference.  
+  // This kind of things belongs in the group.
+
   // loop over expressionOps_ to get all the values.
   variableValues_.clear();
   for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
   {
     variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
   }
+#endif
 
   if (expression_)
   {
-#if 0
-    // support SDT and DDT, among other things.
-    expression_->set_sim_time(current_circuit_time);
-    expression_->set_sim_dt(current_circuit_dt);
-#endif
-
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-    // now get expression value (don't need derivs)
-    expression_->evaluateFunction(value, variableValues_);
-#else
     expression_->evaluateFunction(value);
-#endif
   }
 
   return value;
@@ -257,28 +258,21 @@ void ExpressionData::evaluate(
     Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
   }
 
+#if 0
+  // ERK.  This doesn't belong here any more, but keeping for reference.  
+  // This kind of things belongs in the group.
+
   // loop over expressionOps_ to get all the values.
   variableValues_.clear();
   for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
   {
     variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
   }
+#endif
 
   if (expression_)
   {
-#if 0
-    // support SDT and DDT, among other things.
-    expression_->set_sim_time(current_circuit_time);
-    expression_->set_sim_dt(current_circuit_dt);
-#endif
-
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-    // now get expression value (don't need derivs)
-    expression_->evaluate( result, derivs, variableValues_);
-#else
     expression_->evaluate( result, derivs);
-#endif
   }
 
   return;
@@ -333,48 +327,6 @@ ExpressionData::setup(
 
   // resolve user-defined functions
   {
-#if 0
-  std::vector<std::string> global_function_names;
-  expression_->get_names(XEXP_FUNCTION, global_function_names);
-  std::vector<std::string>::iterator it = global_function_names.begin();
-  std::vector<std::string>::iterator end = global_function_names.end();
-  for ( ; it != end; ++it)
-  {
-    Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
-
-    if (paramMapIter == context_function_map.end())
-    {
-      Report::UserError0() << "Cannot find global function definition for " << *it 
-        << " in expression " << expression_->get_expression();
-      break;
-    }
-
-    const Util::Param &functionParameter = (*paramMapIter).second;
-
-    std::string functionPrototype(functionParameter.tag());
-    std::string functionBody(functionParameter.stringValue());
-
-    // The function prototype is defined here as a string whose
-    // value is the  function name together with its parenthese
-    // enclosed comma separated argument list. To resolve a
-    // function, create an expression from the function prototype
-    // and get its ordered list of arguments via get_names, then
-    // create an expression from the function definition and
-    // order its names from that list. Finally, replace the
-    // function in the expression to be resolved.
-    Util::Expression prototypeExression(expressionGroup_, functionPrototype);
-    std::vector<std::string> arguments;
-    prototypeExression.get_names(XEXP_STRING, arguments);
-    Util::Expression functionExpression(expressionGroup_, functionBody);
-    functionExpression.order_names(arguments);
-
-    if (expression_->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)
-    {
-      Report::UserError0() << "Wrong number of arguments for user defined function " 
-        << functionPrototype << " in expression " << expression_->get_expression();
-    }
-  }
-#else
     std::vector<std::string> global_function_names;
     expression_->getFuncNames(global_function_names);
  
@@ -421,25 +373,24 @@ ExpressionData::setup(
       }
       else
       {
-        std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
+        Xyce::dout()  << "functionParameter is not EXPR type!!!" <<std::endl;
 
         switch (functionParameter.getType()) 
         {
           case Xyce::Util::STR:
-            std::cout <<"It is STR type: " <<  functionParameter.stringValue();
+            Xyce::dout()  <<"It is STR type: " <<  functionParameter.stringValue();
             break;
           case Xyce::Util::DBLE:
-            std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+            Xyce::dout()  <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
             break;
           case Xyce::Util::EXPR:
-            std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+            Xyce::dout()  <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
             break;
           default:
-            std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
+            Xyce::dout()  <<"It is default type (whatever that is): " << functionParameter.stringValue();
         }
       }
     }
-#endif
   }
 
   // this varNames vec is a list of string representations of all of
@@ -511,7 +462,6 @@ ExpressionData::setup(
       {
         Util::ParamMap::const_iterator param_it = context_param_map.find(varName);
 
-#if 0
         if (param_it != context_param_map.end())
         {
           const Util::Param &replacement_param = (*param_it).second;
@@ -519,133 +469,55 @@ ExpressionData::setup(
           if ( replacement_param.getType() == Xyce::Util::STR ||
                replacement_param.getType() == Xyce::Util::DBLE )
           {
-            if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>()))
+            bool isDotParam=true;
+            if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),isDotParam)  )
             {
               Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
             }
           }
           else if (replacement_param.getType() == Xyce::Util::EXPR)
           {
-            std::string expressionString=expression_->get_expression();
-            if (expression_->replace_var(varName, replacement_param.getValue<Util::Expression>()) != 0)
-            {
-              Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-                                     << " as substitute for " << varName << " in expression " << expressionString;
-            }
+            // ERK.  Need to add error messaging to the "attachParameterNode" function to (if need be) output this:
+            //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
+            //                       << " as substitute for " << varName << " in expression " << expressionString;
+            //
+            bool isDotParam=true;
+            expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), isDotParam);
           }
         }
         else
         {
+          // this block of code will check if the current string is in the global parameter map.
+          // If it is, then it will call the "make_var" function for this string.
+          // In the old expression library, this marks the string as being something that the 
+          // calling code will need to set.  It does not do anything else.
+          // Later, the string will be added to the globalParams container, and also the 
+          // expVarNames vector.
           param_it = context_global_param_map.find(varName);
           if (param_it != context_global_param_map.end())
           {
-            if (!expression_->make_var(varName))
+            //globalParams.push_back(varName);
+            param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) ); // ERK check this
+
+            if(param_it->second.getType() == Xyce::Util::EXPR)
             {
-              Report::UserWarning0() << "Problem setting global parameter " << varName;
+              Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+              expression_->attachParameterNode(varName, expToBeAttached);
             }
-            param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) );
+            else
+            {
+              if (!expression_->make_var(varName))
+              {
+                Report::UserWarning0() << "Problem setting global parameter " << varName;
+              }
+            }
           }
           else
           {
-            param_list.push_back( Param( varName , 0.0 ) );
+            Report::UserWarning0() << "This field: " << varName 
+              << " from the expression " << expression_->get_expression() << " is not resolvable";
           }
         }
-#else
-      if (param_it != context_param_map.end())
-      {
-        const Util::Param &replacement_param = (*param_it).second;
-
-        if ( replacement_param.getType() == Xyce::Util::STR ||
-             replacement_param.getType() == Xyce::Util::DBLE )
-        {
-          if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>()))
-          {
-            Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
-          }
-        }
-        else if (replacement_param.getType() == Xyce::Util::EXPR)
-        {
-          //
-          // ERK. Note, none of the current Xyce regression tests for sensitivity 
-          // exercise this code (::EXPR).  And, I believe it does not work with either the old or new expression library.
-          //
-          // The function replace_var is designed for SUBcircuit parameters that cannot be
-          // fully resolved to a constant because they have global parameter usage.  I think this use case is 
-          // not relevant to sensitivities, so this block of code should (probably) be removed.
-          //
-          // This function was initially added to fix this sort of thing:
-          //
-          //  .global_param resval=1
-          //  X1 1 0 RESSUB PARAMS: resistance={resval}
-          //
-          //  .subckt ressub a b params: resistance=100k
-          //  R1 a b resistance
-          //  .ends
-          //
-          //  ie, a global parameter used as a subcircuit argument.  The objective function 
-          //  will never be specified inside a subcircuit, so this doesn't seem relevant.
-          //
-          //
-          // But here are some details anyway, as I probably do have to set up replace_var for 
-          // non-sensitivity use cases like the one above:
-          //
-          // The second argument to replace_var is the RHS of the parameter.  So, in other words if we have:
-          //
-          //  .global_param resGlobal=1
-          //  .param res={resGlobal*2}
-          //  .SENS objfunc={res*I(V1)} param=R1:R
-          //
-          //  Then varName is "res" and the second argument (replacement_param.getValue) is {resGlobal*2}.
-          //
-          //  This doesn't work with either the old or new expression library, because once 
-          //  this replacement happens, the objective function has effectively been changed from 
-          //  {res*I(V1)} to {resGlobal*2*I(V1)}.  And, at this stage of the setup, "resGlobal" is not in the 
-          //  vector of strings (which we are looping over right now) or of the globalParams, which is normally 
-          //  the final destination for global parameters in this function.  And there is no
-          //  path thru the code that would get us there.
-          //
-          if (expression_->replace_var(varName, replacement_param.getValue<Util::Expression>()) != 0)
-          {
-            std::string expressionString=expression_->get_expression();
-            Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-                                   << " as substitute for " << varName << " in expression " << expressionString;
-          }
-        }
-      }
-      else
-      {
-        // this block of code will check if the current string is in the global parameter map.
-        // If it is, then it will call the "make_var" function for this string.
-        // In the old expression library, this marks the string as being something that the 
-        // calling code will need to set.  It does not do anything else.
-        // Later, the string will be added to the globalParams container, and also the 
-        // expVarNames vector.
-        param_it = context_global_param_map.find(varName);
-        if (param_it != context_global_param_map.end())
-        {
-          //globalParams.push_back(varName);
-          param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) ); // ERK check this
-
-          if(param_it->second.getType() == Xyce::Util::EXPR)
-          {
-            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
-            expression_->attachParameterNode(varName, expToBeAttached);
-          }
-          else
-          {
-            if (!expression_->make_var(varName))
-            {
-              Report::UserWarning0() << "Problem setting global parameter " << varName;
-            }
-          }
-        }
-        else
-        {
-          Report::UserWarning0() << "This field: " << varName 
-            << " from the expression " << expression_->get_expression() << " is not resolvable";
-        }
-      }
-#endif
       }
       break;
 

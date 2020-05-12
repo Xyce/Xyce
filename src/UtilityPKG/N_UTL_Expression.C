@@ -216,9 +216,14 @@ void Expression::attachFunctionNode (const std::string & funcName, const Express
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/9/2020
 //-----------------------------------------------------------------------------
-void Expression::attachParameterNode (const std::string & paramName, const Expression & exp)
+void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, bool isDotParam)
 {
-  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_);
+#if 0
+  std::cout << "attachParameterNode name = " << paramName << " which is ";
+  if (isDotParam) { std::cout << "a .param" <<std::endl; }
+    else          { std::cout << "a not .param" <<std::endl; }
+#endif
+  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, isDotParam);
 }
 
 
@@ -340,7 +345,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
     }
   }
 
-  var_type = XEXP_SPECIAL; // ERK.  This doesn't yet track external specials dependencies
+  var_type = XEXP_SPECIAL; // ERK.   Does this need to track gmin?
   if (newExpPtr_->getTimeDependent()) { varValues.push_back(std::string("TIME")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
   if (newExpPtr_->getTempDependent()) { varValues.push_back(std::string("TEMP")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
   if (newExpPtr_->getVTDependent()) { varValues.push_back(std::string("VT")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
@@ -384,160 +389,16 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
   return;
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_names
-//
-// Purpose       : This function returns the names of various entities present 
-//                 in a parsed expression by type.
-//
-// Special Notes : These notes pertain to the Xyce::Util::newExpression implementation.
-//
-//                 This function, which is a holdover of the old expression 
-//                 library, is vaguely named.  Its name, "get_names" begs the 
-//                 question, "names of what?"
-//
-//                 I believe that this function returns a vector of strings, 
-//                 and the strings are all names of different types of entities 
-//                 which may or may not be present in the expression.  These are
-//                 generally entities which will need some kind of external 
-//                 information, from outside the expression class, 
-//                 to be evaluated.
-//
-//                 So, to use the old expression library, the calling code would 
-//                 first call this function, to get the list of named entities.  
-//                 It would then see if it could resolve them all.  For example, 
-//                 a named entity of type XEXP_NODE refers to a voltage node,
-//                 and so the next logical thing to do for those entities 
-//                 would be to see if that node actually existed in the 
-//                 circuit, and what machinery was needed to obtain its value.
-//
-//                 Similar thing with XEXP_FUNCTION, for .FUNC references, etc.
-//
-//                 The full list of types is as follows.
-//
-//                 enum XEXP_TYPES
-//                 {
-//                   XEXP_ALL,            // 0    everything
-//                   XEXP_NODE,           // 1    nodal variables, does this include currents? (no)
-//                   XEXP_INSTANCE,       // 2    current variables, from voltage sources, current sources
-//                   XEXP_LEAD,           // 3    current variables, but not from solution vec. ( like I(R1) )
-//                   XEXP_STRING,         // 4    as-yet unresolved strings.  Once preliminary resolution is done, this is .func arguments.  
-//                   XEXP_SPECIAL,        // 5    special returns vars like TIME
-//                   XEXP_VARIABLE,       // 6    also global params, apparently.  Also, it set_var targets?
-//                   XEXP_FUNCTION,       // 7    these are .funcs
-//                   XEXP_NODAL_COMPUTATION, // 8  these are things like power P()
-//                   XEXP_COUNT     // total
-//                 };
-//
-//                 Note, the implied order of "variables" is the order of the types in the enum.
-//
-//                 The old expression library expects that *all* of these entities will 
-//                 be passed into it when the function "evaluate" or "evaluateFunction" 
-//                 is called, and they will be passed in as a std::vector<double>.   This
-//                 vector will include all of the above things, if they exist.  So, they are
-//                 not passed in via separate calls, or in separate containers.  That is, 
-//                 the global parameter values will be passed in along with the voltage 
-//                 and current values, etc, all in the same vector.  It is up to the user to
-//                 establish the order, using the order_names function.
-//
-//                 I don't like this design.  So I am attempting to have as much of 
-//                 it as possible be handled directly in the interface class 
-//                 (N_UTL_Expression), rather than in this class.
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::get_names(int const & type, std::vector<std::string> & names ) const
-{
-  switch (type)
-  {
-    case XEXP_ALL:  // ERK.  I don't think this one gets called by anyone
-      break;
-
-    case XEXP_NODE:
-      getVoltageNodes(names);
-      break;
-
-    case XEXP_INSTANCE:
-      getDeviceCurrents(names);
-      break;
-
-    case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
-      getLeadCurrents(names);
-      break;
-
-    case XEXP_STRING: // unresolved strings.  
-      // This is called in a few use cases:
-      //
-      // (1) to obtain the function arguments specified in the function definition.  
-      // ie, if you have:
-      //
-      // .func abc(x,y)
-      //
-      // the old Xyce code creates an expression (probably called "functionPrototype") from 
-      // the string "abc(x,y)" and then requests the "strings" back, which will be x,y.  
-      // For it to work properly, the string vector needs to be in the same order as 
-      // they were specified in the prototype.
-      //
-      // (2) to obtain what are probably function arguments in a function body.  
-      // ie, if you have:
-      //
-      // .param a=2.0
-      // .func abc(x,y) {x+y+5*a}
-      //
-      // Then the function body is {x+y+5*a}.  A "resolution" will figure out that "a" 
-      // is a .param, and mark it accordingly, but it will NOT find x and y, as they are 
-      // not .params or .global_params.  As a result, x and y will still be in the list 
-      // of "strings". (I think.  check this).  This seems a bit backward - the code should
-      // already know that x,y are the arguments, if it has already executed use case (1), 
-      // above.
-      //
-      // Note, for this to work, it cannot return any param names (strings) that have 
-      // previously had "set_constant" or "set_var" called on them.
-      getUnresolvedParams(names);
-      break;
-
-    case XEXP_SPECIAL: 
-      getSpecials(names);
-      break;
-
-    case XEXP_VARIABLE:
-      getVariables(names);
-      break;
-
-    case XEXP_FUNCTION:
-      getFunctions(names);
-      break;
-
-    case XEXP_NODAL_COMPUTATION:
-      break;
-
-    case XEXP_COUNT:
-      break;
-
-    default:
-      break;
-
-  }
-
-#if 0
-  for(int ii=0;ii<names.size();++ii)
-  {
-    std::cout << "N_UTL_Expression::get_names:  names["<<ii<<"] = " << names[ii] << std::endl;
-  }
-#endif
-
-  //std::cout << "Expression::get_names(int const & type, std::vector<std::string> & names ) const " << std::endl;
-  return;
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_type
 // Purpose       : Finds the type of an input quantity name
-// Special Notes :
+//
+// Special Notes : This is only called from N_TOP_CktNode_Dev.C, in the 
+//                 function: CktNode_Dev::getDepSolnVars.  It only needs to 
+//                 detect 3 types:  XEXP_NODE, XEXP_INSTANCE and  XEXP_LEAD
+//
+//                 At the moment it does not detect XEXP_LEAD.  So, not done yet.
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -578,11 +439,15 @@ int Expression::get_type ( const std::string & var )
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_constant (const std::string & var, const double & val)
+bool Expression::make_constant (const std::string & var, const double & val, bool isDotParam)
 {
+#if 0
+  std::cout << "make_constant name = " << var << " which is ";
+  if (isDotParam) { std::cout << "a .param" <<std::endl; }
+    else          { std::cout << "a not .param" <<std::endl; }
+#endif
   bool retVal=false; // ERK.  check this.
-  retVal = newExpPtr_->make_constant (var,val);
-  //std::cout << "Expression::make_constant (const std::string & var, const double & val).   var = " << var << "  val = " << val << std::endl;
+  retVal = newExpPtr_->make_constant (var,val, isDotParam);
   return retVal;
 }
 
@@ -613,11 +478,15 @@ bool Expression::make_constant (const std::string & var, const double & val)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_var (std::string const & var)
-{
+bool Expression::make_var (std::string const & var, bool isDotParam)
+{ 
+#if 0
+  std::cout << "mak_var name = " << var << " which is ";
+  if (isDotParam) { std::cout << "a .param" <<std::endl; }
+    else          { std::cout << "a not .param" <<std::endl; }
+#endif
   bool retVal=false; 
-  retVal = newExpPtr_->make_var(var);
-  //std::cout << "Expression::make_var (std::string const & var)  var = " << var << std::endl;
+  retVal = newExpPtr_->make_var(var, isDotParam);
   return retVal;
 }
 
@@ -769,7 +638,7 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getSpecials
 // Purpose       : 
-// Special Notes : 
+// Special Notes : does this need to catch GMIN as well?
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -786,44 +655,15 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
 // Function      : Expression::getVariables
 //
 // Purpose       : This function returns the names of parameters in the expression 
-//                 which have an ongoing external dependency.  This is typically 
-//                 global_params, which may change.
+//                 which have an ongoing external dependency.    This basically 
+//                 means .global_params, and not .params in Xyce. 
 //
-//                 This is mostly called on parameters that are used in device
-//                 instances and or models, when Xyce is trying to decide if a 
-//                 model parameter should be considered a "dependent param".  This 
-//                 logic happens in Xyce after all the .param and .global_params 
-//                 have been set up, and all the parameters have been 
-//                 resolved in this expression.  If it happened earlier, it would 
-//                 possibly give the wrong answer.
-//
-//                 Params in the new expression library have 3 possible states:
-//                 isConstant, isVariable, and isAttached.
-//
-//                 "Constant" means that it is probably a .param, and is set during 
-//                 the parsing process, and will never change.  So any variable with 
-//                 this boolean set to true will not be returned by this function.
-//
-//                 "Variable" means that the parameter can be set to a simple number, 
-//                 but that this simple number can be changed during the simulation.  
-//                 So, this is a .global_param, but it is a simple one, that is just
-//                 a number.
-//
-//                 "Attached" is the biggest departure from the old expression library, 
-//                 and it means that the parameter object in this expression points 
-//                 to the top node of another expression class.  A parameter with this 
-//                 status technically could, if you follow the attached AST all the 
-//                 way down, still be "constant", if the attached tree is constant.
-//                 But it could also be variable, and as of this writing I haven't 
-//                 set up an easy way to check this.  So, I just assume for now that 
-//                 attached nodes are variable, unconditionally.  I should fix this 
-//                 later, as this is overkill.
-//
-//                 In this function, "Variable" and "Attached" parameters have their 
-//                 names added to the std::vector of strings.  This probably doesn't 
-//                 100% produce the same result as the old expression library, but 
-//                 it is close enough for now.
-//
+//                 The param class has several booleans in it, that pertain to 
+//                 different aspects of external resolution.  But, most of them 
+//                 are unrelated to whether or not they were originally a .param 
+//                 or a .global_param.  So, I created another boolean to indicate 
+//                 when or not a parameter is a .param.  If it is, then it can't 
+//                 be a "variable".  If it is not, then it is considered a "variable".
 //
 // Special Notes : 
 // Scope         :
@@ -834,17 +674,7 @@ void Expression::getVariables (std::vector<std::string> & variables) const
 {
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
-#if 0
-    std::cout << "Expression::getVariables.  expression="<<newExpPtr_->getExpressionString() 
-      << "  param["<<ii<<"] = " << newExpPtr_->getParamOpVec()[ii]->getName() << " ";
-    if (newExpPtr_->getParamOpVec()[ii]->getIsVar())     {std::cout << " isVar=true ";}     else{std::cout << " isVar=false ";}
-    if (newExpPtr_->getParamOpVec()[ii]->getIsConstant()){std::cout << " isConstant=true ";}else{std::cout << " isConstant=false ";}
-    if (newExpPtr_->getParamOpVec()[ii]->getIsAttached()){std::cout << " isAttached=true ";}else{std::cout << " isAttached=false ";}
-    std::cout << std::endl;
-#endif
-
-    if (newExpPtr_->getParamOpVec()[ii]->getIsVar()  ||
-        newExpPtr_->getParamOpVec()[ii]->getIsAttached() )
+    if (  !(newExpPtr_->getParamOpVec()[ii]->getIsDotParam ())  )
     {
       std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
       std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
@@ -944,79 +774,6 @@ bool Expression::getIsConstant ()
 std::string Expression::get_expression () const
 {
   return newExpPtr_->getExpressionString();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_num
-// Purpose       : Returns the number of input quantities of a requested type
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::get_num(int const & type)
-{
-  int retVal=0; 
-
-  std::vector<std::string> tmpNames;
-
-  switch (type)
-  {
-    case XEXP_ALL:
-      retVal = newExpPtr_->getVoltOpVec().size() + newExpPtr_->getCurrentOpVec().size() + newExpPtr_->getParamOpVec().size();
-      break;
-
-    case XEXP_NODE:
-      retVal = newExpPtr_->getVoltOpVec().size();
-      break;
-
-    case XEXP_INSTANCE:
-      retVal = newExpPtr_->getCurrentOpVec().size();
-      break;
-
-    case XEXP_LEAD:
-      break;
-
-    case XEXP_STRING: 
-      getUnresolvedParams(tmpNames);
-      retVal = tmpNames.size();
-      break;
-
-    case XEXP_SPECIAL:
-      break;
-
-    case XEXP_VARIABLE:
-      break;
-
-    case XEXP_FUNCTION:
-      retVal = newExpPtr_->getFuncOpVec().size();
-      break;
-
-    case XEXP_NODAL_COMPUTATION:
-      break;
-
-    case XEXP_COUNT:
-      break;
-
-    default:
-      break;
-  }
-
-  {
-    std::map<int, std::string>  typeMap;
-    typeMap[0] = std::string( "ALL");
-    typeMap[1] = std::string( "NODE");
-    typeMap[2] = std::string( "INSTANCE");
-    typeMap[3] = std::string( "LEAD");
-    typeMap[4] = std::string( "STRING");
-    typeMap[5] = std::string( "SPECIAL");
-    typeMap[6] = std::string( "VARIABLE");
-    typeMap[7] = std::string( "FUNCTION");
-    typeMap[8] = std::string( "NODAL_COMPUTATION");
-
-    //std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
-  }
-  return retVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -1137,66 +894,6 @@ const std::string & Expression::get_input () const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::order_names
-// Purpose       : Put input quantity names in a particular order (used for
-//                 replace_func which requires identical ordering for expression
-//                 and user defined function
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::order_names(std::vector<std::string> const & new_names)
-{
-  // ERK. this can go.
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_var
-// Purpose       : Replace a variable usage with a parsed sub-expression
-//
-// Special Notes : This is used for subcircuit parameters that cannot be
-//                 fully resolved to a constant because they have global
-//                 parameter usage.
-//
-//                 ERK: See bug 1801.
-//                 http://charleston.sandia.gov/bugzilla/show_bug.cgi?id=1801
-//
-//                 And also tests:
-//                 Xyce_Regression/Netlists/Certification_Tests/BUG_1801
-//
-//                 ERK.  Do I go thru the "group" for this one?  or not bother.
-//                 Note that parameters,etc that need this step will probably 
-//                 fail to be resolved in my early "resolveExpression" functions.
-//
-//                 ERK. 4/21/2020.  Addendum.  This is about more than what 
-//                 I describe above.  This is also for dealing with parameters 
-//                 that are not simply numerical values, but are expressions. 
-//                 If the RHS of a global_param is an expression, it isn't 
-//                 really correct to call "make_constant" on it,and it also 
-//                 isn't correct to call "make_var".  So, instead, this function
-//                 is called in this case.
-//
-//                 This is a perfect candidate for using the "attachParameterNode" 
-//                 function.
-//
-//
-// Scope         :
-// Creator       : Thomas Russo, SNL
-// Creation Date : 08/10/2010
-//-----------------------------------------------------------------------------
-int Expression::replace_var(
-  const std::string &   var_name,
-  const Expression &    subexpr)
-{
-  int retVal=0; 
-  //std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
-  attachParameterNode (var_name, subexpr);
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Expression::replace_name
 // Purpose       : Change the name of an input quantity
 //
@@ -1279,66 +976,6 @@ bool Expression::replace_name ( const std::string & old_name,
   
   return retVal;
 }
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getNumDdt
-// Purpose       : Return the number of ddt() calls in the expression
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::getNumDdt ()
-{
-  // ERK. Not done.  Might not need it.
-  int retVal=0; 
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getDdtVals
-// Purpose       : Return the most recent arguments of ddt() in the expression
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::getDdtVals ( std::vector<double> & vals )
-{ 
-  // ERK. Not done.  Might not need it.
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::setDdtDerivs
-// Purpose       : Set the evaluated value of the ddt functions
-// Special Notes : This is normally done with derivative values from the
-//                 time integration package
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::setDdtDerivs ( std::vector<double> & vals )
-{ 
-  // ERK. Not done.  Might not need it.
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::num_vars
-// Purpose       : 
-// Special Notes : 
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::num_vars() const
-{
-  // ERK. Not done.  Might not need it.
-  int retVal=0; 
-  return retVal;
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::isTimeDependent

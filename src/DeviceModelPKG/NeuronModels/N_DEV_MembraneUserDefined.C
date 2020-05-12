@@ -642,7 +642,9 @@ void MembraneUserDefined::consolidateExpressions()
 #endif
     funcNames_.push_back(names[0]);
     funcExpRCP_.push_back(extraFunctionsExpRCP_.at(i+1));
+#if 0
     funcNumArgs_.push_back( extraFunctionsExpRCP_.at(i+1)->num_vars() );
+#endif
   }
 
   // substitute parameters into current expression, extra equations and functions

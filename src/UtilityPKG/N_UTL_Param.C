@@ -231,7 +231,14 @@ double Param::getImmutableValue<double>() const
       // Only if this param expression is truely constant can it be converted to a double
       // else it is a fatal error, in the parser most likely
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
-      if (expression.num_vars() == 0)
+
+      //if (expression.num_vars() == 0)
+      // ERK.  I think this makes more sense.  "num_vars" is nebulous.
+      std::vector<std::string> nodes, instances,strings;
+      expression.getVoltageNodes(nodes);
+      expression.getDeviceCurrents(instances);
+      expression.getUnresolvedParams(strings); // ERK. check this
+      if (nodes.empty() && instances.empty() && strings.empty())
       {
         expression.evaluateFunction(val);
       }
@@ -306,8 +313,14 @@ int Param::getImmutableValue<int>() const
     {
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-      if (expression.num_vars() == 0)
-      {
+      //if (expression.num_vars() == 0)
+      // ERK.  I think this makes more sense.  "num_vars" is nebulous.
+      std::vector<std::string> nodes, instances,strings;
+      expression.getVoltageNodes(nodes);
+      expression.getDeviceCurrents(instances);
+      expression.getUnresolvedParams(strings); // ERK. check this
+      if (nodes.empty() && instances.empty() && strings.empty())
+      { 
         expression.evaluateFunction(dVal);
         val = dVal;
       }
@@ -380,8 +393,14 @@ long Param::getImmutableValue<long>() const
     {
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-      if (expression.num_vars() == 0)
-      {
+      //if (expression.num_vars() == 0)
+       // ERK.  I think this makes more sense.  "num_vars" is nebulous.
+      std::vector<std::string> nodes, instances,strings;
+      expression.getVoltageNodes(nodes);
+      expression.getDeviceCurrents(instances);
+      expression.getUnresolvedParams(strings); // ERK. check this
+      if (nodes.empty() && instances.empty() && strings.empty())
+      {  
         expression.evaluateFunction (dVal);
         val = dVal;
       }
@@ -443,8 +462,14 @@ bool Param::getImmutableValue<bool>() const
   {
     Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-    if (expression.num_vars() == 0)
-    {
+    //if (expression.num_vars() == 0)
+     // ERK.  I think this makes more sense.  "num_vars" is nebulous.
+    std::vector<std::string> nodes, instances,strings;
+    expression.getVoltageNodes(nodes);
+    expression.getDeviceCurrents(instances);
+    expression.getUnresolvedParams(strings); // ERK. check this
+    if (nodes.empty() && instances.empty() && strings.empty())
+    {      
       double dVal;
       expression.evaluateFunction (dVal);
       rVal = (dVal != 0);

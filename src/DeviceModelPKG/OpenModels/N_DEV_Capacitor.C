@@ -561,10 +561,12 @@ Instance::Instance(
           if (d->name == "Q")
             solVarDepQ = true;
 
+#if 0
           if (expPtr->getNumDdt() != 0)
           {
             UserError(*this) << "Solution-variable-dependent expression contains time derivatives";
           }
+#endif
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
           {
@@ -578,7 +580,9 @@ Instance::Instance(
             {
               dout() << "     " << "Expression is not time-dependent."  << std::endl;
             }
+#if 0
             dout() << "     " << "Expression depends on " << expPtr->num_vars() << " quantity, of which " << expPtr->num_vars()-expNumVars << " are not solution vars. " << std::endl;
+#endif
           }
 
           // We now need to extend the pos and neg rows of the jacstamps

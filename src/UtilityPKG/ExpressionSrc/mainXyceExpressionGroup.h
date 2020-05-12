@@ -29,6 +29,11 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
+int findNodeIndex(
+  const std::string &       name,
+  const NodeNameMap &       node_map,
+  const IO::AliasNodeMap &      alias_map);
+
 //-----------------------------------------------------------------------------
 // Class         : mainXyceExpressionGroup
 //
@@ -53,6 +58,9 @@ namespace Util {
 //-----------------------------------------------------------------------------
 class mainXyceExpressionGroup : public baseExpressionGroup
 {
+friend class outputsXyceExpressionGroup;
+friend class ExpressionData;
+
 public:
 
   mainXyceExpressionGroup ( 
@@ -102,21 +110,6 @@ public:
 
   virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
-
-  virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval );
-  virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval );
-
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, double & retval);
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval);
-
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, double & retval);
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval);
-
-  virtual bool getONoise(double & retval);
-  virtual bool getONoise(std::complex<double> & retval);
-
-  virtual bool getINoise(double & retval);
-  virtual bool getINoise(std::complex<double> & retval);
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }

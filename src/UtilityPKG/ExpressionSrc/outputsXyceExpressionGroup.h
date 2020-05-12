@@ -18,7 +18,7 @@
 
 #include <N_UTL_Op.h>
 
-#include<newExpression.h>
+#include <newExpression.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
 #include <N_UTL_ExtendedString.h>
@@ -65,6 +65,8 @@ namespace Util {
 //-----------------------------------------------------------------------------
 class outputsXyceExpressionGroup : public baseExpressionGroup
 {
+friend class mainXyceExpressionGroup;
+
 public:
 
   outputsXyceExpressionGroup ( 
@@ -129,6 +131,9 @@ public:
 
   virtual bool getINoise(double & retval);
   virtual bool getINoise(std::complex<double> & retval);
+
+  virtual bool getPower(const std::string & deviceName, double & retval);
+  virtual bool getPower(const std::string & deviceName, std::complex<double> & retval);
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }

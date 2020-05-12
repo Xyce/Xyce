@@ -936,7 +936,11 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
         Report::UserFatal message;
         message.at(modelData.getNetlistLocation());
         message << "Parameter " << parameterPtr->uTag() << " for model " << getName();
-        if (expr.get_num(XEXP_LEAD) > 0)
+
+        //if (expr.get_num(XEXP_LEAD) > 0)
+        std::vector<std::string> leads;
+        expr.getLeadCurrents(leads); // ERK. check this
+        if ( !(leads.empty()) ) // ERK how does this make sense?
         {
           message << " contains illegal use of lead current: ";
         }

@@ -1111,6 +1111,16 @@ bool Topology::outputNameFile(
 //-----------------------------------------------------------------------------
 void Topology::loadNodeSymbols() const
 {
+#if 1
+  std::cout  << "In Topology::loadNodeSymbols. "
+    << "  nodeSymbols_[Util::SOLUTION_SYMBOL].size = " << nodeSymbols_[Util::SOLUTION_SYMBOL].size() 
+    << "  nodeSymbols_[Util::STATE_SYMBOL].size = " << nodeSymbols_[Util::STATE_SYMBOL].size() 
+    << "  nodeSymbols_[Util::STORE_SYMBOL].size = " << nodeSymbols_[Util::STORE_SYMBOL].size() 
+    << "  nodeSymbols_[Util::EXTERN_SYMBOL].size = " << nodeSymbols_[Util::EXTERN_SYMBOL].size() 
+    << "  nodeSymbols_[Util::BRANCH_SYMBOL].size = " << nodeSymbols_[Util::BRANCH_SYMBOL].size() 
+    << std::endl;
+#endif
+
   generateOrderedNodeList();
 
   if (nodeSymbols_[Util::SOLUTION_SYMBOL].empty()) {

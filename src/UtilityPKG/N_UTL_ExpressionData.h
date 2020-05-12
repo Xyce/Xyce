@@ -62,6 +62,8 @@
 namespace Xyce {
 namespace Util {
 
+class baseExpressionGroup;
+
 class ExpressionData
 {
 public:

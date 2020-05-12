@@ -180,6 +180,10 @@ class astNode
     virtual void unsetIsAttached() {};
     virtual bool getIsAttached() { return false; }
 
+    virtual void setIsDotParam() {};
+    virtual void unsetIsDotParam() {};
+    virtual bool getIsDotParam() { return false; }
+
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
     virtual bool funcType()        { return false; };
@@ -727,6 +731,7 @@ class paramOp: public astNode<ScalarT>
       isVar(false),
       isConstant(false),
       isAttached(false),
+      isDotParam(false),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
@@ -815,6 +820,10 @@ AST_GET_CURRENT_OPS(paramNode_)
     void unsetIsAttached() { isAttached = false; }
     bool getIsAttached() { return isAttached; }
 
+    void setIsDotParam() { isDotParam = true; }
+    void unsetIsDotParam() { isDotParam = false; }
+    bool getIsDotParam() { return isDotParam; }
+
   private:
     // data:
     std::string paramName_;
@@ -828,6 +837,7 @@ AST_GET_CURRENT_OPS(paramNode_)
     bool isVar;
     bool isConstant;
     bool isAttached;
+    bool isDotParam; // .param, instead of .global_param
 
     int derivIndex_;
 };
@@ -2325,9 +2335,10 @@ class tableOp : public astNode<ScalarT>
     virtual ScalarT val()
     {
       ScalarT y = 0.0;
+      int size = tableArgs_.size();
+
       if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
       {
-        int size = tableArgs_.size();
         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
         {
           ta_[jj] = (tableArgs_)[ii]->val();
@@ -2335,23 +2346,27 @@ class tableOp : public astNode<ScalarT>
         }
         yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
       }
+
       ScalarT input = std::real(this->input_->val());
-      yInterpolator_.eval(ta_,ya_, input, y);
+      yInterpolator_.eval(ta_,ya_, input, y); 
+
       return y;
     };
 
     virtual ScalarT dx(int i)
     {
       ScalarT dydx = 0.0;
+      int size = tableArgs_.size();
+
       if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  Otherwise, dydx=0
       {
-        int size = tableArgs_.size();
         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
         {
           ta_[jj] = (tableArgs_)[ii]->val();
           dya_[jj] = (tableArgs_)[ii+1]->dx(i);
         }
         dyInterpolator_.init(ta_,dya_); // for linear, this isn't necessary, but for others it is
+
         ScalarT input = std::real(this->input_->val());
         dyInterpolator_.eval(ta_,dya_, input, dydx);
       }

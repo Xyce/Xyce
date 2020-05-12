@@ -206,10 +206,12 @@ Instance::Instance(
       expBaseVar = d->lo_var;
       Exp_ptr = d->expr;
 
+#if 0
       expNumDdt = Exp_ptr->getNumDdt();
       ddtVals.resize(expNumDdt);
       li_ddt.resize(expNumDdt);
       numStateVars += expNumDdt;
+#endif
 
       expVarDerivs.resize(expNumVars);
       myVarVals.resize(expNumVars);
@@ -643,11 +645,13 @@ bool Instance::updatePrimaryState ()
   {
     double * staVec = extData.nextStaVectorRawPtr;
 
+#if 0
     Exp_ptr->getDdtVals (ddtVals);
     for (int i=0 ; i<expNumDdt ; ++i)
     {
       staVec[li_ddt[i]] = ddtVals[i];
     }
+#endif
   }
 
   return bsuccess;
@@ -670,11 +674,13 @@ bool Instance::updateSecondaryState ()
   {
     double * staDerivVec = extData.nextStaDerivVectorRawPtr;
 
+#if 0
     for (int i=0 ; i<expNumDdt ; ++i)
     {
       ddtVals[i] = staDerivVec[li_ddt[i]];
     }
     Exp_ptr->setDdtDerivs(ddtVals);
+#endif
   }
   // Evaluate Expression with corrected time derivative values
   if (expNumVars != 0)
@@ -970,11 +976,13 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     // can be determined by the time integration class
     if (bi.expNumDdt > 0)
     {
+#if 0
       bi.Exp_ptr->getDdtVals (bi.ddtVals);
       for (int j=0 ; j<bi.expNumDdt ; ++j)
       {
         staVec[bi.li_ddt[j]] = bi.ddtVals[j];
       }
+#endif
     }
   }
 
@@ -1000,11 +1008,13 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
 
     if (bi.expNumDdt > 0)
     {
+#if 0
       for (int j=0 ; j<bi.expNumDdt ; ++j)
       {
         bi.ddtVals[j] = staDerivVec[bi.li_ddt[j]];
       }
       bi.Exp_ptr->setDdtDerivs(bi.ddtVals);
+#endif
     }
     // Evaluate Expression with corrected time derivative values
     if (bi.expNumVars != 0)

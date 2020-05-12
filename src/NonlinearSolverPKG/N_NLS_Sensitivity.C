@@ -288,6 +288,7 @@ void setupObjectiveFunctions(
     }
     }
 
+#if 0
     objVec[iobj]->numDdt = objVec[iobj]->expPtr->getNumDdt();
     if ( checkTimeDeriv )
     {
@@ -296,6 +297,7 @@ void setupObjectiveFunctions(
         Report::DevelFatal() <<  "Objective function contains a time derivative, which cannot be processed.";
       }
     }
+#endif
 
     // setup the names:
     objVec[iobj]->expVarNames.clear();
@@ -338,19 +340,25 @@ void setupObjectiveFunctions(
         if ( replacement_param.getType() == Xyce::Util::STR ||
              replacement_param.getType() == Xyce::Util::DBLE )
         {
-          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()))
+          bool isDotParam=true;
+          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()),isDotParam)
           {
             Report::UserWarning0() << "Problem converting parameter " << strings[istring] << " to its value.";
           }
         }
         else if (replacement_param.getType() == Xyce::Util::EXPR)
         {
+#if 0
           if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
           {
             std::string expressionString=objVec[iobj]->expPtr->get_expression();
             Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
                                    << " as substitute for " << strings[istring] << " in expression " << expressionString;
           }
+#else
+          bool isDotParam=true;
+          objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),isDotParam);
+#endif
         }
       }
       else

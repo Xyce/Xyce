@@ -462,7 +462,7 @@ public:
   bool lexAndParseExpression();
 
   bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
-  bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+  bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, bool isDotParam=false);
 
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 
@@ -472,8 +472,8 @@ public:
 
   void setExpressionString (std::string const & exp)  { expressionString_ = exp; }
 
-  bool make_constant (std::string const & var, usedType const & val);
-  bool make_var (std::string const & var);
+  bool make_constant (std::string const & var, usedType const & val, bool isDotParam=false);
+  bool make_var (std::string const & var, bool isDotParam=false);
 
 #if 0
   // ERK.  This doesn't seem to be needed anymore but leaving for now ...

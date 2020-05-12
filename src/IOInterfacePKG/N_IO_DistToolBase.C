@@ -818,32 +818,31 @@ bool DistToolBase::instantiateDevice(
       if (givenParameter && givenParameter->getType() == Xyce::Util::EXPR)
       {
         Util::Expression &expression = givenParameter->getValue<Util::Expression>();
+
+        std::vector<std::string> names;
+        std::vector<std::string> nodes;
+        std::vector<std::string> instances;
+        std::vector<std::string> leads;
+
+        expression.getVoltageNodes(nodes);
+        expression.getDeviceCurrents(instances);
+        expression.getLeadCurrents(leads);
+
+//ERK
+#if 0
         if ( (expression.get_num( XEXP_NODE ) > 0) ||
             (expression.get_num( XEXP_INSTANCE ) > 0) ||
             (expression.get_num( XEXP_LEAD ) > 0) )
+#else
+        if ( (!(nodes.empty())) || (!(instances.empty())) || (!(leads.empty())) )
+#endif
         {
           // If the expression has nodes or voltage source instances, get
           // the nodes and map them appropriately or add the subcircuit
           // prefix to them.
-          std::vector<std::string> names;
-          std::vector<std::string> nodes;
-          std::vector<std::string> instances;
-          std::vector<std::string> leads;
-          if ( expression.get_num( XEXP_NODE ) > 0 )
-          {
-            expression.getVoltageNodes(nodes);
-            names.insert( names.end(), nodes.begin(), nodes.end() );
-          }
-          if ( expression.get_num( XEXP_INSTANCE ) > 0 )
-          {
-            expression.getDeviceCurrents(instances);
-            names.insert( names.end(), instances.begin(), instances.end() );
-          }
-          if ( expression.get_num( XEXP_LEAD ) > 0 )
-          {
-            expression.getLeadCurrents(leads);
-            names.insert( names.end(), leads.begin(), leads.end() );
-          }
+          if ( (!(nodes.empty()))     ) { names.insert( names.end(), nodes.begin(), nodes.end() ); }
+          if ( (!(instances.empty())) ) { names.insert( names.end(), instances.begin(), instances.end() ); }
+          if ( (!(leads.empty()))     ) { names.insert( names.end(), leads.begin(), leads.end() ); }
 
           std::vector<std::string> actualName;
           std::string newName, tmpName;

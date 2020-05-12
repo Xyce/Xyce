@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string>
 
-#include <mainXyceExpressionGroup.h>
+#include <outputsXyceExpressionGroup.h>
 #include <ast.h>
 #include <newExpression.h>
 
@@ -21,6 +21,8 @@
 #include <N_DEV_Op.h>
 #include <N_DEV_Const.h>
 
+#include <mainXyceExpressionGroup.h>
+
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_UTL_DeviceNameConverters.h>
@@ -28,76 +30,15 @@
 namespace Xyce {
 namespace Util {
 
-//-------------------------------------------------------------------------- 
-//  THIS IS COPIED FROM OpBuilders.C.  Fix later ...
-//-------------------------------------------------------------------------- 
-// Function      : findNodeIndex 
-// Purpose       : Determine whether a requested node name is "valid".
-//                 That includes node names in the solution vector, the
-//                 aliasNodeMap and also the Ground node (0).
-//                 The return values are:
-//                   a) -2 if the node is not found on this processor.
-//                   b) -1 if it is a Ground node.
-//                   c) the node index (0 ...N), otherwise.
-// Special Notes :  
-// Creator       : Dave Baur
-// Creation Date : 08/04/14 
-//--------------------------------------------------------------------------
-int findNodeIndex(
-  const std::string &       name,
-  const NodeNameMap &       node_map,
-  const IO::AliasNodeMap &      alias_map)
-{
-  // The return value will be -2 if the specified node name is not
-  // found AND the specified node name is not Ground (0). A value 
-  // of -2 may be returned even for a valid node name, in parallel,
-  // because of how node_map is used in parallel.
-  int nodeIndex = -2;
-
-  // Handle Ground (0).  If .PREPROCESS REPLACEGROUND was used,
-  // then this function assumes that all of the GND nodes have
-  // been replaced with 0 by this point in Xyce startup.
-  if ( name == "0")
-  { 
-    // A node index of -1 will be used in the various get() functions
-    // to denote the Ground node.
-    nodeIndex = -1;
-  } 
-  else
-  {
-    NodeNameMap::const_iterator node_it = node_map.find(name);
-    if (node_it == node_map.end()) 
-    {
-      // If the specified node name is not found in the node_map then
-      // look for it in the AliasNodeMap. An example where this can 
-      // happen is for a subcircuit interface node.
-      IO::AliasNodeMap::const_iterator alias_node_it = alias_map.find(name);
-      if (alias_node_it != alias_map.end())
-      {
-        // (*alias_node_it).second will be the "real name" of the alias node.
-        node_it = node_map.find((*alias_node_it).second);
-      }
-    }
-
-    // get the node index if it exists on this processor.
-    if (node_it != node_map.end()) 
-    {
-      nodeIndex = (*node_it).second;
-    } 
-  }
-
-  return nodeIndex;
-}
-
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Function      : outputsXyceExpressionGroup::outputsXyceExpressionGroup 
 // Purpose       : constructor
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
 //-------------------------------------------------------------------------------
-mainXyceExpressionGroup::mainXyceExpressionGroup ( 
+outputsXyceExpressionGroup::outputsXyceExpressionGroup ( 
  N_PDS_Comm & comm, Topo::Topology & top,
  Analysis::AnalysisManager &analysis_manager,
  Device::DeviceMgr & device_manager,
@@ -115,27 +56,27 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Function      : outputsXyceExpressionGroup::outputsXyceExpressionGroup 
 // Purpose       : destructor
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
 //-------------------------------------------------------------------------------
-mainXyceExpressionGroup::~mainXyceExpressionGroup ()
+outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 {
   //delete tempOp_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionGID_
+// Function      : outputsXyceExpressionGroup::getSolutionGID_
 // Purpose       : 
 // Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
+int outputsXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 {
   int tmpGID=-1;
   std::vector<int> svGIDList1, dummyList;
@@ -189,14 +130,14 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionVal
+// Function      : outputsXyceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : double precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
+bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
   retval = 0.0;
 
@@ -211,14 +152,14 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionVal
+// Function      : outputsXyceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : std::complex<double> precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
+bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
 {
   double real_val=0.0;
   double imag_val=0.0;
@@ -245,14 +186,14 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getCurrentVal
+// Function      : outputsXyceExpressionGroup::getCurrentVal
 // Purpose       : retrieve the value of device current.  This can be a lead current or a Vsrc
 // Special Notes : double precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/26/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, double & retval )
+bool outputsXyceExpressionGroup::getCurrentVal(const std::string & deviceName, double & retval )
 {
 #if 0
   // try a solution variable first.
@@ -275,28 +216,50 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, doub
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getCurrentVal
+// Function      : outputsXyceExpressionGroup::getCurrentVal
 // Purpose       : retrieve the value of device current.  This can be a lead current or a Vsrc
 // Special Notes : double precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/26/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std::complex<double> & retval )
+bool outputsXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std::complex<double> & retval )
 {
   bool success=false;
-#if 0
-  // try a solution variable first.
-  // In the OpBuilder classes, the device name has to be modified substantially 
-  // to use the various maps from the output manager.
-  // But, for the function getSolutionGID_, which is used by getSolutionVal (called here),
-  // this isn't necessary.
-  //
-  // Note;  Currently, the new Expression class will call "getSolutionVal"  first b4 calling this function.
-  // So this function is really just for lead currents.
-  bool solSuccess = getSolutionVal(deviceName,retval);
-#endif
+#if 1
+  ParamList paramList;
+  paramList.push_back(Param(std::string("I"),1  ));
+  paramList.push_back(Param(      deviceName,0.0));
+  Op::OpList internalDeviceVarOps_;
 
+  const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
+
+  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
+  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
+  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
+  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<double> variableValues;
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+#else
   // next try state and store (i.e. this is probably a lead current)
   //if(!solSuccess)
   {
@@ -365,10 +328,11 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std:
   }
 
   return success;
+#endif
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+// Function      : outputsXyceExpressionGroup::getGlobalParameterVal
 //
 // Purpose       : retrieve the value of a parameter that has been 
 //                 declared to be a "var" via the make_var function.
@@ -379,7 +343,7 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std:
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+bool outputsXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
 {
   bool success=true;
   Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
@@ -387,7 +351,7 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+// Function      : outputsXyceExpressionGroup::getGlobalParameterVal
 //
 // Purpose       : retrieve the value of a parameter that has been 
 //                 declared to be a "var" via the make_var function.
@@ -398,7 +362,7 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+bool outputsXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
 {
   bool success=true;
   double tmpval;
@@ -408,7 +372,7 @@ bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramNa
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getInternalDeviceVar
+// Function      : outputsXyceExpressionGroup::getInternalDeviceVar
 // Purpose       : 
 // Special Notes : this is largely copied from the OpBuilder file, specifically 
 //                 the Util::Op::Builder::InternalVariableOpBuilder class.
@@ -438,56 +402,51 @@ bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramNa
 // Creator       : Eric Keiter
 // Creation Date : 4/24/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceName, double & retval )
+bool outputsXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceName, double & retval )
 {
-  retval=0.0;
-
-  // in the InternalVariableOpBuilder, they also check for solution variables, which makes no sense.
-  // skipping that part here.
-
-  int index = findNodeIndex(deviceName, outputManager_.getStateNodeMap(), outputManager_.getAliasNodeMap());
-
-  // Only make the op if the node was found on some processor.
-  int maxIndex=index;
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_MAX, &maxIndex, 1);
-
-  //std::cout << "mainXyceExpressionGroup::getInternalDeviceVar.  state maxIndex = " << maxIndex << std::endl;
+  ParamList paramList;
+  paramList.push_back(Param(std::string("N"),1  ));
+  paramList.push_back(Param(      deviceName,0.0));
+  Op::OpList internalDeviceVarOps_;
 
   const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
-  if (maxIndex > -2)
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
+
+  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
+  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
+  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
+  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<double> variableValues;
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
-    // get it from the state vector
-    retval = (*(dataStore_.nextStatePtr))[maxIndex];
+    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
   }
   else
   {
-    NodeNameMap::const_iterator it = outputManager_.getStoreNodeMap().find(deviceName);
-    if (it != outputManager_.getStoreNodeMap().end())
-    {
-      // get it from the store vector
-      int index = (*it).second;
-      //std::cout << "mainXyceExpressionGroup::getInternalDeviceVar.  store index = " << index << std::endl;
-      retval = (*(dataStore_.nextStorePtr))[index];
-    }
-    else
-    {
-      // ERROR.
-      //new_op = new Util::Op::UndefinedOp(param_tag);
-    }
+    return false;
   }
-
-  return true;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getInternalDeviceVar
+// Function      : outputsXyceExpressionGroup::getInternalDeviceVar
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/24/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval )
+bool outputsXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval )
 {
   retval=std::complex<double>(0.0,0.0);
   double tmpVal=0.0;
@@ -498,14 +457,14 @@ bool mainXyceExpressionGroup::getInternalDeviceVar (const std::string & deviceNa
 
 // noise
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getDnoNoiseDeviceVar
+// Function      : outputsXyceExpressionGroup::getDnoNoiseDeviceVar
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, double & retval) 
+bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, double & retval) 
 {
   retval=0.0; 
 
@@ -519,14 +478,14 @@ bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceNam
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getDnoNoiseDeviceVar
+// Function      : outputsXyceExpressionGroup::getDnoNoiseDeviceVar
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
 {
   double val=0.0;
   bool retBool = getDnoNoiseDeviceVar(deviceName,val);
@@ -535,14 +494,14 @@ bool mainXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceNam
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getDniNoiseDeviceVar
+// Function      : outputsXyceExpressionGroup::getDniNoiseDeviceVar
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, double & retval) 
+bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, double & retval) 
 {
   retval=0.0; 
 
@@ -556,14 +515,14 @@ bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceNam
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getDniNoiseDeviceVar
+// Function      : outputsXyceExpressionGroup::getDniNoiseDeviceVar
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
 {
   double val=0.0;
   bool retBool = getDniNoiseDeviceVar(deviceName,val);
@@ -572,14 +531,14 @@ bool mainXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceNam
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getONoise
+// Function      : outputsXyceExpressionGroup::getONoise
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getONoise(double & retval) 
+bool outputsXyceExpressionGroup::getONoise(double & retval) 
 { 
   retval=0.0; 
   if (!analysisManager_.getNoiseFlag())
@@ -592,14 +551,14 @@ bool mainXyceExpressionGroup::getONoise(double & retval)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getONoise
+// Function      : outputsXyceExpressionGroup::getONoise
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getONoise(std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getONoise(std::complex<double> & retval) 
 {
   double val=0.0;
   bool retBool = getONoise(val);
@@ -608,14 +567,14 @@ bool mainXyceExpressionGroup::getONoise(std::complex<double> & retval)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getINoise
+// Function      : outputsXyceExpressionGroup::getINoise
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getINoise(double & retval) 
+bool outputsXyceExpressionGroup::getINoise(double & retval) 
 { 
   retval=0.0; 
   if (!analysisManager_.getNoiseFlag())
@@ -627,14 +586,14 @@ bool mainXyceExpressionGroup::getINoise(double & retval)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getINoise
+// Function      : outputsXyceExpressionGroup::getINoise
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getINoise(std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getINoise(std::complex<double> & retval) 
 {
   double val=0.0;
   bool retBool = getINoise(val);
@@ -643,28 +602,88 @@ bool mainXyceExpressionGroup::getINoise(std::complex<double> & retval)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTimeStep
+// Function      : outputsXyceExpressionGroup::getPower
+// Purpose       : 
+// Special Notes : Does both Op setup and evaluation; should separate, so only setup 1x
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/12/2020 
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, double & retval)
+{
+  ParamList paramList;
+  paramList.push_back(Param(std::string("P"),1  ));
+  paramList.push_back(Param(      deviceName,0.0));
+  Op::OpList powerOps_;
+
+  const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(powerOps_));
+
+  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
+  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
+  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
+  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<double> variableValues;
+  for (Util::Op::OpList::const_iterator it = powerOps_.begin(); it != powerOps_.end(); ++it)
+  {
+    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getPower
+// Purpose       : 
+// Special Notes : complex version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/12/2020 
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, std::complex<double> & retval)
+{
+  double val=0.0;
+  bool retBool = getPower(deviceName, val);
+  retval=std::complex<double>(val,0.0); 
+  return retBool;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getTimeStep
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTimeStep ()
+double outputsXyceExpressionGroup::getTimeStep ()
 {
   dt_ = deviceManager_.getSolverState().currTimeStep_;
   return dt_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTime
+// Function      : outputsXyceExpressionGroup::getTime
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTime() 
+double outputsXyceExpressionGroup::getTime() 
 { 
   // I would have preferred to use this but as the code is currently written it
   // is not safe.  The earliest call I would need to make to getTime happens before 
@@ -680,14 +699,14 @@ double mainXyceExpressionGroup::getTime()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTemp
+// Function      : outputsXyceExpressionGroup::getTemp
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTemp() 
+double outputsXyceExpressionGroup::getTemp() 
 { 
 #if 0
   // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
@@ -700,68 +719,68 @@ double mainXyceExpressionGroup::getTemp()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : outputsXyceExpressionGroup::
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getVT  () 
+double outputsXyceExpressionGroup::getVT  () 
 { 
   VT_ = (deviceManager_.getDeviceOptions().temp.getImmutableValue<double>())*CONSTKoverQ;
   return VT_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : outputsXyceExpressionGroup::
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getFreq() 
+double outputsXyceExpressionGroup::getFreq() 
 { 
   freq_ = deviceManager_.getSolverState().currFreq_;
   return freq_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getBpTol()
+// Function      : outputsXyceExpressionGroup::getBpTol()
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getBpTol()
+double outputsXyceExpressionGroup::getBpTol()
 {
   return deviceManager_.getSolverState().bpTol_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getStartingTimeStep
+// Function      : outputsXyceExpressionGroup::getStartingTimeStep
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/27/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getStartingTimeStep()
+double outputsXyceExpressionGroup::getStartingTimeStep()
 {
   return deviceManager_.getSolverState().startingTimeStep_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getFinalTime()
+// Function      : outputsXyceExpressionGroup::getFinalTime()
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/27/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getFinalTime()
+double outputsXyceExpressionGroup::getFinalTime()
 {
   return deviceManager_.getSolverState().finalTime_;
 }

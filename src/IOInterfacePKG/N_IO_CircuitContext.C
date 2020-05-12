@@ -1220,13 +1220,19 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
     bool functionsResolved = resolveFunctions(expression);
 
     // resolve variables in the function body
-    if ( expression.get_num(XEXP_STRING) > 0 )
+    //if ( expression.get_num(XEXP_STRING) > 0 )
+    std::vector<std::string> strings;
+    expression.getUnresolvedParams(strings); // ERK. check this
+    if ( !(strings.empty()) )
     {
       //resolveStrings(expression, exceptionStrings);
       resolveStrings(expression);
     }
 
-    if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    //if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    std::vector<std::string> leads;
+    expression.getLeadCurrents(leads); // ERK. check this
+    if ( !(leads.empty()) ) // ERK how does this make sense?
     {
       parameter.setVal(expression);
       return false;
@@ -1563,12 +1569,18 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
     bool functionsResolved = resolveFunctions(expression);
 
     // resolve variables in the function body
-    if ( expression.get_num(XEXP_STRING) > 0 )
+    //if ( expression.get_num(XEXP_STRING) > 0 )
+    std::vector<std::string> strings;
+    expression.getUnresolvedParams(strings); // ERK. check this
+    if ( !(strings.empty()) )
     {
       resolveStrings(expression, funcArgs);
     }
 
-    if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    //if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    std::vector<std::string> leads;
+    expression.getLeadCurrents(leads); // ERK. check this
+    if ( !(leads.empty()) ) // ERK how does this make sense?
     {
       parameter.setVal(expression);
       return false;
@@ -1779,7 +1791,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
   // that appear in paramList else there is an error.
   bool unresolvedStrings = false;
   std::vector<std::string> strings;
-  expression.getUnresolvedParams(strings);
+  expression.getUnresolvedParams(strings); // ERK. check this
 
   if ( !(strings.empty()) )
   {
@@ -1852,7 +1864,8 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         if ( expressionParameter.getType() == Xyce::Util::STR ||
              expressionParameter.getType() == Xyce::Util::DBLE )
         {
-          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>()))
+          bool isDotParam=true;
+          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>(),isDotParam))
           {
             Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
           }
@@ -1860,11 +1873,17 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         else if (expressionParameter.getType() == Xyce::Util::EXPR)
         {
           std::string expressionString=expression.get_expression();
+#if 0
           if (expression.replace_var(strings[i], expressionParameter.getValue<Util::Expression>()) != 0)
           {
             Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
                                    << " as substitute for " << parameterName << " in expression " << expressionString;
           }
+#else
+          // ERK.  Add an error test for nodes that cannot be attached
+          bool isDotParam=true;
+          expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),isDotParam); 
+#endif
         }
       }
       else
@@ -1896,9 +1915,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 
             Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
             expression.attachParameterNode(strings[i], expToBeAttached);
-
-            // ERK. experiment. not needed.
-            //expression.make_var(strings[i]);
           }
           else
           {
@@ -1917,10 +1933,11 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           if (Util::isBool(strings[i]))
           {
             bool stat = false;
+            bool isDotParam=true;
             if (Util::Bval(strings[i]))
-              stat = expression.make_constant(strings[i], static_cast<double>(1));
+              stat = expression.make_constant(strings[i], static_cast<double>(1),isDotParam);
             else
-              stat = expression.make_constant(strings[i], static_cast<double>(0));
+              stat = expression.make_constant(strings[i], static_cast<double>(0),isDotParam);
             if (!stat)
             {
               Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value";

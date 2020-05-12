@@ -67,16 +67,16 @@ namespace {
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 void parameterNameAndArgs(
-  std::string &                         name,
-  std::vector<std::string> &            args,
-  Util::ParamList::const_iterator &     it)
+std::string &                         name,
+std::vector<std::string> &            args,
+Util::ParamList::const_iterator &     it)
 {
   const std::string &param_tag = (*it).tag();
 
   // don't enter this if statement if param_tag == "SENS", or is a Y-device
   if ( (*it).getType() == Util::INT && (param_tag[0] == 'V' || param_tag[0] == 'I' || param_tag[0] == 'N' ||
-                                        param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D' ||
-			                param_tag[0] == 'S' || param_tag[0] == 'Y' || param_tag[0] == 'Z') )
+      param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D' ||
+      param_tag[0] == 'S' || param_tag[0] == 'Y' || param_tag[0] == 'Z') )
   {
     std::ostringstream oss;
     oss << param_tag << "(";
@@ -108,9 +108,9 @@ void parameterNameAndArgs(
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 int findNodeIndex(
-  const std::string &       name,
-  const NodeNameMap &       node_map,
-  const AliasNodeMap &      alias_map)
+const std::string &       name,
+const NodeNameMap &       node_map,
+const AliasNodeMap &      alias_map)
 {
   // The return value will be -2 if the specified node name is not
   // found AND the specified node name is not Ground (0). A value
@@ -189,7 +189,7 @@ struct CircuitTemperatureOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -227,7 +227,7 @@ struct CircuitTimeOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -241,9 +241,9 @@ private:
 struct CircuitOutputNoiseOpBuilder : public Util::Op::Builder
 {
   CircuitOutputNoiseOpBuilder(const OutputMgr & output_manager,
-                              const Analysis::AnalysisManager & analysis_manager)
+      const Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~CircuitOutputNoiseOpBuilder()
@@ -273,7 +273,7 @@ struct CircuitOutputNoiseOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   const Analysis::AnalysisManager &    analysisManager_;
 };
@@ -288,9 +288,9 @@ private:
 struct CircuitInputNoiseOpBuilder : public Util::Op::Builder
 {
   CircuitInputNoiseOpBuilder(const OutputMgr & output_manager,
-                             const Analysis::AnalysisManager & analysis_manager)
+      const Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
 
   {}
 
@@ -321,7 +321,7 @@ struct CircuitInputNoiseOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   const Analysis::AnalysisManager &    analysisManager_;
 };
@@ -337,9 +337,9 @@ private:
 struct CircuitNoiseContOpBuilder : public Util::Op::Builder
 {
   CircuitNoiseContOpBuilder(const OutputMgr & output_manager,
-                            const Analysis::AnalysisManager & analysis_manager)
+      const Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~CircuitNoiseContOpBuilder()
@@ -376,16 +376,16 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
       std::vector<int> typeIndex;
       NodeNameMap::const_iterator nd_it =  outputManager_.getNoiseDeviceNameMap().find(args[0]+"_ND");
       if (nd_it != outputManager_.getNoiseDeviceNameMap().end())
-           devIndex = (*nd_it).second;
+        devIndex = (*nd_it).second;
 
       // Now find the index(es) of the noise type, for the specified device, if one was requested.
       if (args.size() == 2)
       {
-	NodeNameMap::const_iterator nt_it = outputManager_.getNoiseTypeNameMap().begin();
+        NodeNameMap::const_iterator nt_it = outputManager_.getNoiseTypeNameMap().begin();
         int suffix = 0;
 
         while ( !(nt_it == outputManager_.getNoiseTypeNameMap().end()) )
-	{
+        {
           // For ADMS devices, that may have duplicate entries for a given noise type, the entries
           // were "suffixed" with _0, _1, _2, ... .  If there were no duplicate entries, then just
           // the _0 suffix was used.  So, the DNO and DNI operators use a vector-of-ints for
@@ -393,9 +393,9 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
           std::ostringstream s;
           s << suffix;
 
-	  nt_it = outputManager_.getNoiseTypeNameMap().find("noise_" + args[0] + "_" + args[1] + "_" + s.str());
+          nt_it = outputManager_.getNoiseTypeNameMap().find("noise_" + args[0] + "_" + args[1] + "_" + s.str());
           if (nt_it != outputManager_.getNoiseTypeNameMap().end())
-	  {
+          {
             typeIndex.push_back((*nt_it).second);
             ++suffix;
           }
@@ -418,12 +418,12 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
     }
 
     if (new_op)
-          new_op->addArg(args[0]);
+      new_op->addArg(args[0]);
 
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &                    outputManager_;
   const Analysis::AnalysisManager &    analysisManager_;
 };
@@ -461,7 +461,7 @@ struct CircuitFrequencyOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -503,7 +503,7 @@ struct StepSweepOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -545,7 +545,7 @@ struct DCSweepOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -583,7 +583,7 @@ struct DCSweepCurrentValueOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
 };
 
@@ -623,7 +623,7 @@ struct StepNumOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &       outputManager_;
 };
 
@@ -643,7 +643,7 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
 {
   InternalVariableOpBuilder(const OutputMgr & output_manager, Parallel::Machine comm)
     : outputManager_(output_manager),
-      comm_(comm)
+    comm_(comm)
   {}
 
   virtual ~InternalVariableOpBuilder()
@@ -700,7 +700,7 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
         else if (param_tag == "NP" )
         {
           if (outputManager_.getPhaseOutputUsesRadians())
-	  {
+          {
             new_op = new SolutionPhaseRadOp(name, index);
           }
           else
@@ -745,7 +745,7 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   Parallel::Machine     comm_;
 };
@@ -765,7 +765,7 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
 {
   VoltageVariableOpBuilder(const OutputMgr & output_manager, Parallel::Machine comm)
     : outputManager_(output_manager),
-      comm_(comm)
+    comm_(comm)
   {}
 
   virtual ~VoltageVariableOpBuilder()
@@ -812,7 +812,7 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
         int maxIndex=index;
         Parallel::AllReduce(comm_, MPI_MAX, &maxIndex, 1);
         if ( maxIndex > -2 )
-	{
+        {
           if (param_tag == "V" )
           {
             new_op = new SolutionOp(name, index);
@@ -831,14 +831,14 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "VP" )
           {
-	    if (outputManager_.getPhaseOutputUsesRadians())
-	     {
-               new_op = new SolutionPhaseRadOp(name, index);
-             }
-             else
-             {
-               new_op = new SolutionPhaseDegOp(name, index);
-             }
+            if (outputManager_.getPhaseOutputUsesRadians())
+            {
+              new_op = new SolutionPhaseRadOp(name, index);
+            }
+            else
+            {
+              new_op = new SolutionPhaseDegOp(name, index);
+            }
           }
           else if (param_tag == "VDB" )
           {
@@ -885,7 +885,7 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
           else if (param_tag == "VP" )
           {
             if (outputManager_.getPhaseOutputUsesRadians())
-	    {
+            {
               new_op = new VoltageDifferencePhaseRadOp(name, index1, index2);
             }
             else
@@ -907,7 +907,7 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   Parallel::Machine     comm_;
 };
@@ -918,7 +918,7 @@ private:
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 namespace {
-static const char * const func_names[] = {"II", "IR", "IP", "IM", "IDB"};
+  static const char * const func_names[] = {"II", "IR", "IP", "IM", "IDB"};
 }
 
 //--------------------------------------------------------------------------
@@ -939,9 +939,9 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
 {
 
   CurrentVariableOpBuilder(const OutputMgr & output_manager,
-                           const Analysis::AnalysisManager & analysis_manager)
+      const Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~CurrentVariableOpBuilder()
@@ -1041,7 +1041,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           else if (param_tag == "IP" )
           {
             if (outputManager_.getPhaseOutputUsesRadians())
-	    {
+            {
               new_op = new SolutionPhaseRadOp(name, index);
             }
             else
@@ -1083,7 +1083,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           else if (param_tag == "IP" )
           {
             if (outputManager_.getPhaseOutputUsesRadians())
-	    {
+            {
               new_op = new SolutionPhaseRadOp(name, index);
             }
             else
@@ -1117,7 +1117,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
         {
           int index = (*it).second;
           //new_op = new BranchDataCurrentOp(name, index);
-            // need to support the following for other lead current usage
+          // need to support the following for other lead current usage 
           if (param_tag == "IR" )
           {
             new_op = new BranchDataCurrentRealOp(name, index);
@@ -1133,7 +1133,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           else if (param_tag == "IP" )
           {
             if (outputManager_.getPhaseOutputUsesRadians())
-	    {
+            {
               new_op = new BranchDataCurrentPhaseRadOp(name, index);
             }
             else
@@ -1174,7 +1174,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           else if (param_tag == "IP" )
           {
             if (outputManager_.getPhaseOutputUsesRadians())
-	    {
+            {
               new_op = new StorePhaseRadOp(name, index);
             }
             else
@@ -1202,7 +1202,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   const Analysis::AnalysisManager &    analysisManager_;
 };
@@ -1222,9 +1222,9 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
 {
 
   PowerVariableOpBuilder(const OutputMgr & output_manager,
-                         const Analysis::AnalysisManager & analysis_manager)
+      const Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~PowerVariableOpBuilder()
@@ -1341,18 +1341,18 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         NodeNameMap::const_iterator itS = outputManager_.getBranchVarsNodeMap().find(store_name+"S");
         NodeNameMap::const_iterator itB = outputManager_.getBranchVarsNodeMap().find(store_name+"B");
         if ( (itD != outputManager_.getBranchVarsNodeMap().end()) &&
-             (itG != outputManager_.getBranchVarsNodeMap().end()) &&
-             (itS != outputManager_.getBranchVarsNodeMap().end()))
-	{
-	  int indexD = (*itD).second;
-	  int indexG = (*itG).second;
-	  int indexS = (*itS).second;
-	  int indexB = -1;
+            (itG != outputManager_.getBranchVarsNodeMap().end()) &&
+            (itS != outputManager_.getBranchVarsNodeMap().end()))
+        {
+          int indexD = (*itD).second;
+          int indexG = (*itG).second;
+          int indexS = (*itS).second;
+          int indexB = -1;
           if (itB != outputManager_.getBranchVarsNodeMap().end())
-	  {
+          {
             indexB = (*itB).second;
-	  }
-	  new_op = new BranchDataMOSFETPowerOp(name, indexD, indexG, indexS, indexB);
+          }	  
+          new_op = new BranchDataMOSFETPowerOp(name, indexD, indexG, indexS, indexB);
         }
       }
       else if( modifiedName[0] == 'T')
@@ -1362,11 +1362,11 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         NodeNameMap::const_iterator it2 = outputManager_.getBranchVarsNodeMap().find(store_name+"2");
         if ( (it1 != outputManager_.getBranchVarsNodeMap().end()) &&
              (it2 != outputManager_.getBranchVarsNodeMap().end()))
-	{
-	  int index1 = (*it1).second;
-	  int index2 = (*it2).second;
- 	  new_op = new BranchDataTRAPowerOp(name, index1, index2);
-	}
+        {
+          int index1 = (*it1).second;
+          int index2 = (*it2).second;
+          new_op = new BranchDataTRAPowerOp(name, index1, index2);
+        }
       }
       else if( modifiedName[0] == 'Z' )
       {
@@ -1376,22 +1376,22 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         NodeNameMap::const_iterator itG = outputManager_.getBranchVarsNodeMap().find(store_name+"G");
         NodeNameMap::const_iterator itS = outputManager_.getBranchVarsNodeMap().find(store_name+"S");
         if ( (itD != outputManager_.getBranchVarsNodeMap().end()) &&
-             (itG != outputManager_.getBranchVarsNodeMap().end()) &&
-             (itS != outputManager_.getBranchVarsNodeMap().end()))
-	{
-	  int indexD = (*itD).second;
-	  int indexG = (*itG).second;
-	  int indexS = (*itS).second;
- 	  new_op = new BranchDataMESFETPowerOp(name, indexD, indexG, indexS);
-	}
+            (itG != outputManager_.getBranchVarsNodeMap().end()) &&
+            (itS != outputManager_.getBranchVarsNodeMap().end()))
+        {
+          int indexD = (*itD).second;
+          int indexG = (*itG).second;
+          int indexS = (*itS).second;
+          new_op = new BranchDataMESFETPowerOp(name, indexD, indexG, indexS);
+        }
       }
       else
       {
         // default for devices for which power = I*V
-	NodeNameMap::const_iterator it = outputManager_.getBranchVarsNodeMap().find(store_name);
-	if (it != outputManager_.getBranchVarsNodeMap().end())
-	{
-	  int index = (*it).second;
+        NodeNameMap::const_iterator it = outputManager_.getBranchVarsNodeMap().find(store_name);
+        if (it != outputManager_.getBranchVarsNodeMap().end())
+        {
+          int index = (*it).second;
           new_op = new BranchDataPosNegPowerOp(name, index);
         }
       }
@@ -1405,7 +1405,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   const Analysis::AnalysisManager &   analysisManager_;
 };
@@ -1424,9 +1424,9 @@ private:
 struct RFparamsVariableOpBuilder : public Util::Op::Builder
 {
   RFparamsVariableOpBuilder(const OutputMgr & output_manager,
-                            Analysis::AnalysisManager & analysis_manager)
+      Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~RFparamsVariableOpBuilder()
@@ -1488,11 +1488,11 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
       else if ( (param_tag == "SP" ) || (param_tag == "YP") || (param_tag == "ZP") )
       {
         if (outputManager_.getPhaseOutputUsesRadians())
-	{
+        {
           new_op = new RFparamsPhaseRadOp(name, type, rowIdx, colIdx);
         }
         else
-	{
+        {
           new_op = new RFparamsPhaseDegOp(name, type, rowIdx, colIdx);
         }
       }
@@ -1511,7 +1511,7 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const OutputMgr &     outputManager_;
   Analysis::AnalysisManager &    analysisManager_;
 };
@@ -1526,12 +1526,12 @@ private:
 struct ExpressionOpBuilder : public Util::Op::Builder
 {
   ExpressionOpBuilder(
-     Analysis::AnalysisManager & analysis_manager,
+      Analysis::AnalysisManager & analysis_manager,
       Parallel::Machine comm, 
       const OutputMgr & output_manager)
     : comm_(comm),
-      outputManager_(output_manager),
-      analysisManager_(analysis_manager)
+    outputManager_(output_manager),
+    analysisManager_(analysis_manager)
   {}
 
   virtual ~ExpressionOpBuilder()
@@ -1557,7 +1557,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const Parallel::Machine       comm_;
   const OutputMgr &             outputManager_;
   Analysis::AnalysisManager &    analysisManager_;
@@ -1599,7 +1599,7 @@ struct MeasurementOpBuilder : public Util::Op::Builder
     return new_op;
   }
 
-private:
+  private:
   const Measure::Manager &             measureManager_;
 };
 
@@ -1809,7 +1809,7 @@ void registerOpBuilders(
   op_builder_manager.addBuilder(new SensitivityOpBuilder());
   op_builder_manager.addBuilder(new TransientAdjointOpBuilder());
   op_builder_manager.addBuilder(new ExpressionOpBuilder(analysis_manager, comm, output_manager));
-//  op_builder_manager.addBuilder(new StepSweepOpBuilder(output_manager));
+  //  op_builder_manager.addBuilder(new StepSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepCurrentValueOpBuilder(output_manager));
   op_builder_manager.addBuilder(new StepNumOpBuilder(output_manager));
@@ -1832,5 +1832,5 @@ void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::
   op_builder_manager.addBuilder(new MeasurementOpBuilder(measure_manager));
 }
 
-} // namespace IO
+  } // namespace IO
 } // namespace Xyce
