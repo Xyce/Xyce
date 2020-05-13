@@ -8159,7 +8159,7 @@ analog begin : the_module
 `else
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin
             Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + delTemp / pParam_B4SOIrth);
-            Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+            Pwr(t) <+ `MFACTOR_USE * ddt(delTemp * pParam_B4SOIcth);
         end else
             Temp(t) <+ 0;
 `endif
