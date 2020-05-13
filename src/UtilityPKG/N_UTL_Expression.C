@@ -606,8 +606,15 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 {
-  //params = newExpPtr_->
-  //std::cout << "Error. Xyce::Util::Expression::getLeadCurrents not yet implemented." <<std::endl;
+  for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
+    if (it == leads.end())
+    {
+      leads.push_back( tmpName );
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

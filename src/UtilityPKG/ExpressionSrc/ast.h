@@ -39,6 +39,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
   if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
   if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
+  if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
   if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
   if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
   if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
@@ -80,6 +81,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & func,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrent,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & power,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
@@ -96,6 +98,7 @@ public:
     funcOpVector(func),
     voltOpVector(volt),
     currentOpVector(current),
+    leadCurrentOpVector(leadCurrent),
     powerOpVector(power),
     internalDevVarOpVector(internalDevVar),
     dnoNoiseDevVarOpVector(dnoNoiseDevVar),
@@ -113,6 +116,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & funcOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrentOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & powerOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
@@ -189,6 +193,7 @@ class astNode
     virtual bool funcType()        { return false; };
     virtual bool voltageType()     { return false; };
     virtual bool currentType()     { return false; };
+    virtual bool leadCurrentType() { return false; };
     virtual bool powerType()       { return false; };
     virtual bool internalDeviceVarType()  { return false; };
 
@@ -202,8 +207,6 @@ class astNode
     virtual bool vtSpecialType()   { return false; }
     virtual bool freqSpecialType() { return false; }
     virtual bool gminSpecialType() { return false; }
-
-    virtual bool leadCurrentType() { return false; }
 
     virtual bool getFunctionArgType() { return false; };
     virtual void setFunctionArgType() {};
@@ -978,6 +981,7 @@ class currentOp: public astNode<ScalarT>
 
     void setCurrentDevice(const std::string & devName) { currentDevice_ = devName; }
     std::string getCurrentDevice() { return currentDevice_; }
+
     ScalarT getCurrentVal () { return number_; }
     void setCurrentVal (ScalarT n) { number_ = n; }
 
@@ -989,6 +993,63 @@ class currentOp: public astNode<ScalarT>
 // data:
     ScalarT number_;
     std::string currentDevice_;
+    int derivIndex_;
+};
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class leadCurrentOp: public astNode<ScalarT>
+{
+  public:
+    leadCurrentOp ( std::string designator, std::string leadCurrentDevice):
+      astNode<ScalarT>(),
+      number_(0.0),
+      leadCurrentDesignator_(designator),
+      leadCurrentDevice_(leadCurrentDevice),
+      derivIndex_(-1)
+    {
+      Xyce::Util::toUpper(leadCurrentDesignator_);
+      Xyce::Util::toUpper(leadCurrentDevice_);
+    };
+
+    virtual ScalarT val() {return number_;}
+
+    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "Lead Current: device = " << leadCurrentDevice_ << " designator = " << leadCurrentDesignator_ <<std::endl;
+      os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "I_";
+      os << leadCurrentDevice_;
+    }
+
+    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void unsetDerivIndex() {derivIndex_=-1;};
+
+    void setLeadCurrentDevice(const std::string & devName) { leadCurrentDevice_ = devName; }
+    std::string getLeadCurrentDevice() { return leadCurrentDevice_; }
+
+    void setLeadCurrentDesignator(const std::string & desName) { leadCurrentDesignator_ = desName; }
+    std::string getLeadCurrentDesignator() { return leadCurrentDesignator_; }
+
+    ScalarT getLeadCurrentVar () { return number_; }
+    void setLeadCurrentVar (ScalarT n) { number_ = n; }
+
+    virtual bool leadCurrentType() { return true; };
+
+    virtual std::string getName () { return leadCurrentDevice_; }
+
+  private:
+// data:
+    ScalarT number_;
+    std::string leadCurrentDesignator_;
+    std::string leadCurrentDevice_;
     int derivIndex_;
 };
 

@@ -133,6 +133,7 @@ bool checkGroundNodeName(std::string & name)
 %token <dval> TOK_POLYCOEF "polycoef"
 %token <dval> TOK_NUM	"num"
 %token <sval> TOK_WORD "word"
+%token <sval> TOK_LEAD "lead"
 %token <sval> TOK_ONOISE "onoise"
 %token <sval> TOK_INOISE "inoise"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
@@ -215,6 +216,7 @@ bool checkGroundNodeName(std::string & name)
 %type  <dval>  paren_polycoef
 
 %destructor { delete $$; } TOK_WORD
+%destructor { delete $$; } TOK_LEAD
 %destructor { delete $$; } TOK_VOLTAGENODE
 %destructor { delete $$; } TOK_CURRENTDEV
 %destructor { delete $$; } TOK_INTERNAL_DEV_VAR
@@ -618,6 +620,17 @@ exp:
 
       $$ = returnPtr;
       delete currentPtr;
+      delete $1;
+      delete $2;
+    }
+  | TOK_LEAD TOK_CURRENTDEV
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
+      Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(*leadCurrentPtr);
+      newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
+      newExp.getMasterNodeVec().push_back(returnPtr);
+      $$ = returnPtr;
+      delete leadCurrentPtr;
       delete $1;
       delete $2;
     }

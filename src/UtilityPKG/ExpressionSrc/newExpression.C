@@ -390,6 +390,10 @@ void newExpression::clear ()
   unresolvedCurrentOpVec_.clear();
   currentOpNames_.clear();
 
+  leadCurrentOpVec_.clear();
+  unresolvedLeadCurrentOpVec_.clear();
+  leadCurrentOpNames_.clear();
+
   derivIndexVec_.clear();
 
   return;
@@ -601,6 +605,7 @@ NEW_EXP_OUTPUT_ARRAY(unresolvedParamOpVec_)
 NEW_EXP_OUTPUT_ARRAY(funcOpVec_)
 NEW_EXP_OUTPUT_ARRAY(voltOpVec_)
 NEW_EXP_OUTPUT_ARRAY(currentOpVec_)
+NEW_EXP_OUTPUT_ARRAY(leadCurrentOpVec_)
 NEW_EXP_OUTPUT_ARRAY(powerOpVec_)
 NEW_EXP_OUTPUT_ARRAY(internalDevVarOpVec_)
 NEW_EXP_OUTPUT_ARRAY(dnoNoiseDevVarOpVec_)
@@ -632,6 +637,7 @@ void newExpression::setupVariousAstArrays_()
     funcOpVec_.clear();
     voltOpVec_.clear();
     currentOpVec_.clear();
+    leadCurrentOpVec_.clear();
     internalDevVarOpVec_.clear();
 
     if( !(Teuchos::is_null(astNodePtr_)) )
@@ -646,6 +652,7 @@ void newExpression::setupVariousAstArrays_()
       if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
 
       if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
@@ -755,6 +762,7 @@ void newExpression::setupVariousAstArrays_()
     //(funcOpVec_.empty()) &&  // not relevant
     (voltOpVec_.empty()) &&
     (currentOpVec_.empty()) &&
+    (leadCurrentOpVec_.empty()) &&
     (powerOpVec_.empty()) &&
     (internalDevVarOpVec_.empty()) &&
     (dnoNoiseDevVarOpVec_.empty()) &&
@@ -810,25 +818,20 @@ void newExpression::getValuesFromGroup()
     usedType val;
     if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
     {
-      group_->getCurrentVal(currOp->getCurrentDevice(),val);
+      std::string nothing("");
+      group_->getCurrentVal(currOp->getCurrentDevice(),nothing,val);
     }
     currOp->setCurrentVal ( val );
   }
 
-#if 0
-  // don't remember why I wrote this 2x.
-  for (int ii=0;ii<currentOpVec_.size();ii++)
+  for (int ii=0;ii<leadCurrentOpVec_.size();ii++)
   {
-    Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+    Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
 
     usedType val;
-    if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
-    {
-      group_->getCurrentVal(currOp->getCurrentDevice(),val);
-    }
-    currOp->setCurrentVal ( val );
+    group_->getCurrentVal(leadCurrOp->getLeadCurrentDevice(), leadCurrOp->getLeadCurrentDesignator() , val);
+    leadCurrOp->setLeadCurrentVar ( val );
   }
-#endif
 
   for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
   {

@@ -252,7 +252,10 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
 // Creator       : Eric Keiter
 // Creation Date : 4/26/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, double & retval )
+bool mainXyceExpressionGroup::getCurrentVal(
+    const std::string & deviceName,
+    const std::string & designator,
+    double & retval )
 {
 #if 0
   // try a solution variable first.
@@ -282,7 +285,10 @@ bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, doub
 // Creator       : Eric Keiter
 // Creation Date : 4/26/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getCurrentVal(const std::string & deviceName, std::complex<double> & retval )
+bool mainXyceExpressionGroup::getCurrentVal(
+    const std::string & deviceName,
+    const std::string & designator,
+    std::complex<double> & retval )
 {
   bool success=false;
 #if 0

@@ -71,7 +71,7 @@ NODE [a-zA-Z0-9_:]*
 VOP V[RIMP]?
 IOP I[RIMP]?
 NOP N[RIMP]?
- /* LEAD I[SDG] */
+LEAD I[SDG]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
 %}
@@ -209,6 +209,18 @@ NOP N[RIMP]?
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
+
+<INITIAL>{LEAD}     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>{LEAD}[ \t]*"("    {
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_LEAD;
+} 
 
 <INITIAL>{IOP}     {
   lvalp->sval=new std::string(YYText());

@@ -563,7 +563,10 @@ ExpressionData::setup(
   }
 #endif
 
+#if 0
+  // don't need this anymore, commenting out to avoid confusion
   Util::Op::makeOps(comm, op_builder_manager, NetlistLocation(), param_list.begin(), param_list.end(), std::back_inserter(expressionOps_));
+#endif
 
 #if 0
   {

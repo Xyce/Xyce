@@ -1250,6 +1250,136 @@ TEST ( Double_Parser_CurrDeriv_Test, test2)
   OUTPUT_MACRO(Double_Parser_CurrDeriv_Test, test2)
 }
 
+//-------------------------------------------------------------------------------
+class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    leadCurrentExpressionGroup () :
+      Xyce::Util::baseExpressionGroup() {};
+    ~leadCurrentExpressionGroup () {};
+
+  bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval ) 
+  { 
+    bool retbool = true;
+    retval=0.0; 
+    std::string des=designator;
+    Xyce::Util::toUpper(des);
+
+    if (des==std::string("IG"))
+    {
+      if (IGvalues.find(deviceName) != IGvalues.end()) { retval = IGvalues[deviceName]; }
+      else { retbool = false; }
+    }
+    else if (des==std::string("ID"))
+    {
+      if (IDvalues.find(deviceName) != IDvalues.end()) { retval = IDvalues[deviceName]; }
+      else { retbool = false; }
+    }
+    else if (des==std::string("IS"))
+    {
+      if (ISvalues.find(deviceName) != ISvalues.end()) { retval = ISvalues[deviceName]; }
+      else { retbool = false; }
+    }
+
+    return retbool;
+  }
+
+  bool setCurrentVal  ( const std::string & deviceName, const std::string & designator, double setval ) 
+  {
+    std::string des=designator;
+    Xyce::Util::toUpper(des);
+
+    if (des == std::string("IG")) IGvalues[deviceName] = setval;
+    else if(des == std::string("ID")) IDvalues[deviceName] = setval;
+    else if(des == std::string("IS")) ISvalues[deviceName] = setval;
+
+    return true;
+  }
+
+  private:
+    std::unordered_map <std::string, double > IGvalues;
+    std::unordered_map <std::string, double > IDvalues;
+    std::unordered_map <std::string, double > ISvalues;
+};
+
+TEST ( Double_Parser_LeadCurr_Test, test1)
+{
+  Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*IG(M1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, M1val=3.0;
+  double refRes = 17.2*M1val+8.5;
+  leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IG"),M1val);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+
+  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
+TEST ( Double_Parser_LeadCurr_Test, test2)
+{
+  Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*ID(M1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, M1val=3.0;
+  double refRes = 17.2*M1val+8.5;
+  leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("ID"),M1val);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+
+  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
+TEST ( Double_Parser_LeadCurr_Test, test3)
+{
+  Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*IS(M1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, M1val=3.0;
+  double refRes = 17.2*M1val+8.5;
+  leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IS"),M1val);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+
+  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
 
 //-------------------------------------------------------------------------------
 class internalDevExpressionGroup : public Xyce::Util::baseExpressionGroup
