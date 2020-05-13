@@ -27,3 +27,7 @@ needed modification.  These are documented here:
 - Explicit use of a multiplicity factor has been introduced.  Xyce
   does not have implicit multiplicity for devices, and requires that
   every device implement it explicitly.
+
+- Several contributions contained both static and dynamic (ddt())
+  terms, which ADMS and Xyce/ADMS mishandle.  These contributions were
+  broken up into separate static-only and dynamic-only contributions.

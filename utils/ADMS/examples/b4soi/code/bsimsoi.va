@@ -8123,18 +8123,25 @@ analog begin : the_module
             V(b, si) <+ 0;
 
         // self-heating network (v4.6)
+        // Xyce hack:  all contributions modified to
+        // separate dynamic and static terms due to limitation
+        // of Xyce/ADMS.
 `ifdef PORT_CONNECTED
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    I(b) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    I(b) <+ -Ids * Vds  + delTemp / pParam_B4SOIrth;
+                    I(b) <+  ddt(delTemp * pParam_B4SOIcth);
                 end else if ($port_connected(p)) begin  // last terminal is 'p'
-                    I(p) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    I(p) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
+                    I(p) <+ ddt(delTemp * pParam_B4SOIcth);
                 end else begin  // 4-terminal mode ('t' is internal)
-                    Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
+                    Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
                 end
             end else begin
-                Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
+                Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
             end
         end else begin
             if (TNODEOUT && !$port_connected(t)) begin
@@ -8150,9 +8157,10 @@ analog begin : the_module
             end
         end
 `else
-        if ((SHMOD == 1) && (RTH0 != 0.0))
-            Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
-        else
+        if ((SHMOD == 1) && (RTH0 != 0.0)) begin
+            Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + delTemp / pParam_B4SOIrth);
+            Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+        end else
             Temp(t) <+ 0;
 `endif
         // operating-point information
