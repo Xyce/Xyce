@@ -345,7 +345,18 @@ Instance::Instance(
     inductorData->name = inductorNames[i];
     inductorData->L = inductorInductances[i];
     inductorData->baseL = inductorInductances[i];
-    inductorData->ICGiven = false;
+    // if this is true then the instance block had some IC data, so don't ignore it.
+    if( i < initialCondition.size())
+    {
+      inductorData->ICGiven = initialConditionGiven[i];
+      inductorData->IC=initialCondition[i];
+      Xyce::dout() << "Setting IC = " << inductorData->IC << std::endl;
+    }
+    else
+    {
+      inductorData->ICGiven = false;
+      inductorData->IC = 0.0;
+    }
     inductorData->inductorCurrentOffsets.resize( inductorNames.size() );
 
     instanceData.push_back( inductorData );
@@ -1102,7 +1113,14 @@ bool Instance::updateIntermediateVars ()
   int il=0;
   while( currentInductor != endInductor )
   {
-    Happ += solVector[(*currentInductor)->li_Branch] * inductanceVals[ il ];
+    if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
+    {
+      Happ += ((*currentInductor)->IC) * inductanceVals[ il ];
+    }
+    else
+    {
+      Happ += solVector[(*currentInductor)->li_Branch] * inductanceVals[ il ];
+    }
     il++;
     currentInductor++;
   }
@@ -1677,6 +1695,12 @@ bool Instance::loadDAEFVector ()
   while( currentInductor != endInductor )
   {
     double current   = solVector[(*currentInductor)->li_Branch];
+    double ic_coef = 1.0;
+    if( (getSolverState().dcopFlag) && (*currentInductor)->ICGiven == true )
+    {
+      current = (*currentInductor)->IC;
+      ic_coef=0.0;
+    }
     double vNodePos  = solVector[(*currentInductor)->li_Pos];
     double vNodeNeg  = solVector[(*currentInductor)->li_Neg];
 
@@ -1685,7 +1709,7 @@ bool Instance::loadDAEFVector ()
 
     fVec[((*currentInductor)->li_Neg)]    += -scalingRHS * current;
 
-    fVec[((*currentInductor)->li_Branch)] += -((vNodePos - vNodeNeg)/mid);
+    fVec[((*currentInductor)->li_Branch)] += -ic_coef*((vNodePos - vNodeNeg)/mid);
     double windings = (*currentInductor)->L;
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
@@ -1699,13 +1723,13 @@ bool Instance::loadDAEFVector ()
            << std::endl;
     }
 
-   if (loadLeadCurrent)
-   {
-     double * leadF = extData.nextLeadCurrFCompRawPtr;     
-     double * junctionV = extData.nextJunctionVCompRawPtr;
-     leadF[(*currentInductor)->li_branch_data] =  scalingRHS * current;       
-     junctionV[(*currentInductor)->li_branch_data] = (vNodePos - vNodeNeg);
-   }
+    if (loadLeadCurrent)
+    {
+      double * leadF = extData.nextLeadCurrFCompRawPtr;     
+      double * junctionV = extData.nextJunctionVCompRawPtr;
+      leadF[(*currentInductor)->li_branch_data] =  scalingRHS * current;       
+      junctionV[(*currentInductor)->li_branch_data] = (vNodePos - vNodeNeg);
+    }
 
     currentInductor++;
   }
@@ -1867,14 +1891,21 @@ bool Instance::loadDAEdFdx ()
   while( currentInductor != endInductor )
   {
     // do the normal work for an inductor
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  +=  scalingRHS;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += -scalingRHS;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += -1.0/mid;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] +=  1.0/mid;
+    if( (getSolverState().dcopFlag) && (*currentInductor)->ICGiven == true )
+    {
+      (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 1.0;
+    }
+    else
+    {
+      (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  +=  scalingRHS;
+      (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += -scalingRHS;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += -1.0/mid;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] +=  1.0/mid;
+    }
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
@@ -1913,12 +1944,14 @@ bool Instance::loadDAEdFdx ()
 
     (*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] += delV * (1.0 - (Gap/Path)) * dP_dVn/(mid*mid);
 
+    /*
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-//      Xyce::dout() << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->magOffset] =  " << delV * (1 - (Gap/Path)) * dP_dM/(mid*mid) << std::endl
-//       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vPosOffset]  =  " << delV * (1 - (Gap/Path)) * dP_dVp/(mid*mid) << std::endl
-//       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] = " << delV * (1 - (Gap/Path)) * dP_dVn/(mid*mid) << std::endl;
+      Xyce::dout() << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->magOffset] =  " << delV * (1 - (Gap/Path)) * dP_dM/(mid*mid) << std::endl
+       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vPosOffset]  =  " << delV * (1 - (Gap/Path)) * dP_dVp/(mid*mid) << std::endl
+       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] = " << delV * (1 - (Gap/Path)) * dP_dVn/(mid*mid) << std::endl;
     }
+    */
     currentInductor++;
   }
 
@@ -1976,6 +2009,22 @@ bool Instance::outputPlotFiles(bool force_final_output)
 //-----------------------------------------------------------------------------
 bool Instance::setIC ()
 {
+  double * nextSolVector = extData.nextSolVectorRawPtr;
+  double * currSolVector = extData.currSolVectorRawPtr;
+
+  // loop over each inductor and load it's dFdx components
+  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
+  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
+  while( currentInductor != endInductor )
+  {
+    if ((*currentInductor)->ICGiven)
+    {
+      currSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+      nextSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+    }
+    currentInductor++;
+  }
+  
   return true;
 }
 

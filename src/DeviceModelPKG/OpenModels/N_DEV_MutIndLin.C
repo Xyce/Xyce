@@ -1424,8 +1424,21 @@ bool Instance::loadDAEdFdx ()
 //-----------------------------------------------------------------------------
 bool Instance::setIC ()
 {
-  int i_bra_sol;
-  int i_f_state;
+  double * nextSolVector = extData.nextSolVectorRawPtr;
+  double * currSolVector = extData.currSolVectorRawPtr;
+
+  // loop over each inductor and load it's dFdx components
+  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
+  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
+  while( currentInductor != endInductor )
+  {
+    if ((*currentInductor)->ICGiven)
+    {
+      currSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+      nextSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+    }
+    currentInductor++;
+  }
 
   bool bsuccess = true;
   return bsuccess;
