@@ -306,18 +306,12 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
   
-  for(int i=0; i<initialCondition.size(); i++)
-  { 
-    Xyce::dout() << "1 initialCondition[" << i << "]=" << initialCondition[i] << std::endl;
-  }
   // look over IB params for IC data
   std::vector<Param>::const_iterator paramIt = IB.params.begin();
   for( ;paramIt != IB.params.end(); ++paramIt)
   {
-    Xyce::dout() << "tag = " << paramIt->tag() << paramIt->getType() << std::endl;
     if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
     {
-      Xyce::dout() << "Found string val with is given " << paramIt->given() << " and trying to convert to double. " << paramIt->getImmutableValue<double>() << std::endl;
       // in the process of packing up the component inductors into a mutual inductor
       // whether an initial condition is given or not is lost.  So check if the
       // initial condition is nonzero and assue that zero was not given 
@@ -330,13 +324,7 @@ Instance::Instance(
       {
         initialConditionGiven.push_back(false);
       }
-
-      
     }
-  }
-  for(int i=0; i<initialCondition.size(); i++)
-  { 
-    Xyce::dout() << "2 initialCondition[" << i << "]=" << initialCondition[i] << " given state " << initialConditionGiven[i] << std::endl;
   }
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )
@@ -350,7 +338,6 @@ Instance::Instance(
     {
       inductorData->ICGiven = initialConditionGiven[i];
       inductorData->IC=initialCondition[i];
-      Xyce::dout() << "Setting IC = " << inductorData->IC << std::endl;
     }
     else
     {
@@ -1700,6 +1687,7 @@ bool Instance::loadDAEFVector ()
     {
       current = (*currentInductor)->IC;
       ic_coef=0.0;
+      solVector[(*currentInductor)->li_Branch] = current;
     }
     double vNodePos  = solVector[(*currentInductor)->li_Pos];
     double vNodeNeg  = solVector[(*currentInductor)->li_Neg];

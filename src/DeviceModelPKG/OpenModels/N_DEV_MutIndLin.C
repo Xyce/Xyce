@@ -215,18 +215,12 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
 
-  for(int i=0; i<initialCondition.size(); i++)
-  { 
-    Xyce::dout() << "1 initialCondition[" << i << "]=" << initialCondition[i] << std::endl;
-  }
   // look over IB params for IC data
   std::vector<Param>::const_iterator paramIt = IB.params.begin();
   for( ;paramIt != IB.params.end(); ++paramIt)
   {
-    Xyce::dout() << "tag = " << paramIt->tag() << paramIt->getType() << std::endl;
     if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
     {
-      Xyce::dout() << "Found string val with is given " << paramIt->given() << " and trying to convert to double. " << paramIt->getImmutableValue<double>() << std::endl;
       // in the process of packing up the component inductors into a mutual inductor
       // whether an initial condition is given or not is lost.  So check if the
       // initial condition is nonzero and assue that zero was not given 
@@ -241,10 +235,6 @@ Instance::Instance(
       }
     }
   }
-  for(int i=0; i<initialCondition.size(); i++)
-  { 
-    Xyce::dout() << "2 initialCondition[" << i << "]=" << initialCondition[i] << " given state " << initialConditionGiven[i] << std::endl;
-  }
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )
   {
@@ -257,7 +247,6 @@ Instance::Instance(
     {
       inductorData->ICGiven = initialConditionGiven[i];
       inductorData->IC=initialCondition[i];
-      Xyce::dout() << "Setting IC = " << inductorData->IC << std::endl;
     }
     else
     {
@@ -1686,9 +1675,9 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       double branchCoef = 1.0;
       if( (getSolverState().dcopFlag) &&  ((*currentInductor)->ICGiven))
       {
-        Xyce::dout() << "In master loadDAEVectors found IC condition " << (*currentInductor)->IC << std::endl;
         current = (*currentInductor)->IC;
         branchCoef = 0.0;
+        solVec[(*currentInductor)->li_Branch] = current;
       }
       double vNodePos  = solVec[(*currentInductor)->li_Pos];
       double vNodeNeg  = solVec[(*currentInductor)->li_Neg];
@@ -1762,7 +1751,6 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
     
       if ( getSolverState().dcopFlag && (*currentInductor)->ICGiven )
       {
-        Xyce::dout() << "Setting inductor up as current source to handle IC=" << std::endl;
         // In the case that an initial condition is specified for an
         // inductor, the DC op should be set up like a current source just
         // for the operating point calculation.
