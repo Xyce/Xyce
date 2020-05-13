@@ -53,7 +53,6 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE TRAN <result name> DUTY <variable>
 + [ON=<value>] [OFF=<value>] [MINVAL=<value>]
 + [FROM=<value>] [TO=<value>] [TD=<value>]
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> EQN <expression> 
@@ -297,7 +296,12 @@ line of this file will contain the measurement name, \texttt{<result
 name>}, followed by its value for that run.  The \texttt{<result
 name>} must be a legal \Xyce{} character string.  For
 \texttt{DC} and \texttt{AC} measures, the results are stored in the files 
-\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively
+\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively.
+
+If multiple measures are defined with the same \texttt{<result name>} then
+\Xyce{} uses the last such definition, and issues warning messages about
+(and discards) any previous measure definitions with the same
+\texttt{<result name>}.
 
 \argument{measure type}
 
@@ -340,8 +344,8 @@ The supported measure types and their definitions are:
     is used as a tolerance on the {\tt ON } and {\tt OFF} values, so
     that the thresholds become ({\tt ON} $-$ {\tt MINVAL}) and ({\tt
     OFF} $-$ {\tt MINVAL}).  The measurement window can be limited
-    with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE},
-    {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.
+    with the qualifiers {\tt FROM}, {\tt TO}, and {\tt TD} for
+   {\tt TRAN} measures.
 
 \item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation.
     The measurement window can be limited with the qualifiers {\tt FROM},
@@ -385,7 +389,9 @@ The supported measure types and their definitions are:
     found by cycle counting during the simulation.  Cycles are defined
     through the values of {\tt ON} and {\tt OFF} with {\tt MINVAL}
     being used as a tolerance so that the thresholds becomes ({\tt ON}
-    $-$ {\tt MINVAL}) and ({\tt OFF} $+$ {\tt MINVAL}).
+    $-$ {\tt MINVAL}) and ({\tt OFF} $+$ {\tt MINVAL}). The
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO} and {\tt TD} for {\tt TRAN} measures.
 
   \item[\tt INTEG] Calculates the integral of {\tt outVal} through
     second order numerical integration.  The integration window can be
@@ -543,8 +549,8 @@ found in the simulation will be used.
 The level used to calculate rises, falls and crosses when the
 ``level-crossing'' mode is used.  Its usage is discussed further in
 the subsection on ``Rise, Fall and Cross Qualifiers''.  {\tt
-RFC\_LEVEL} is used by the {\tt AVG}, {\tt DERIV}, {\tt DUTY}, {\tt
-FIND-WHEN}, {\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP}, {\tt RMS} and
+RFC\_LEVEL} is used by the {\tt AVG}, {\tt DERIV}, {\tt FIND-WHEN},
+{\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP}, {\tt RMS} and
 {\tt WHEN} measures.
 
 \argument{MINVAL=value}

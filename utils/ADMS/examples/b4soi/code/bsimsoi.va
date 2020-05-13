@@ -223,6 +223,7 @@
 `define IPIco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr) ;
 `define IPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
 `define IPRnb_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def ;
+`define BPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
 `else
 `define IPRcc_BOTH(nam,def,uni,lwr,upr,des) `IPRcc(nam,def,uni,lwr,upr,des)
 `define IPRco_BOTH(nam,def,uni,lwr,upr,des) `IPRco(nam,def,uni,lwr,upr,des)
@@ -231,6 +232,7 @@
 `define IPIco_BOTH(nam,def,uni,lwr,upr,des) `IPIco(nam,def,uni,lwr,upr,des)
 `define IPIcc_BOTH(nam,def,uni,lwr,upr,des) `IPIcc(nam,def,uni,lwr,upr,des)
 `define IPRnb_BOTH(nam,def,uni,        des) `IPRnb(nam,def,uni,        des)
+`define BPIcc_BOTH(nam,def,uni,lwr,upr,des) `BPIcc(nam,def,uni,lwr,upr,des)
 `endif
 
 `ifdef __XYCE__
@@ -322,7 +324,7 @@ endfunction
 `IPRnb_BOTH( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
 `IPRnb_BOTH( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
 `IPIcc( TNODEOUT       ,0              ,""          ,0          ,1         ,"Flag indicating external temp node" ) /* Changed to instance parameter in v4.6 */
-`BPIcc( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
+`BPIcc_BOTH( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
 /************************/
 /*  Model Parameters    */
 /************************/

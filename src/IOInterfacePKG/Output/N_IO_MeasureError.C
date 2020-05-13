@@ -392,20 +392,19 @@ void Error::updateAC(
 
 //-----------------------------------------------------------------------------
 // Function      : Error::printMeasureResult()
-// Purpose       : ERROR measure needs its own printMeasureResult() function
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes : ERROR measure needs its own printMeasureResult() function
 //                 because it uses parallel comms.
-// Special Notes : 
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 8/03/2016
 //-----------------------------------------------------------------------------
-std::ostream& Error::printMeasureResult(std::ostream& os, bool printVerbose)
+std::ostream& Error::printMeasureResult(std::ostream& os)
 {
-  basic_ios_all_saver<std::ostream::char_type> save(os);
-  os << std::scientific << std::setprecision(precision_);
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
 
-  if (!printVerbose)
-  {
     if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
@@ -416,9 +415,24 @@ std::ostream& Error::printMeasureResult(std::ostream& os, bool printVerbose)
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
-  }
-  else
-  {
+
+    return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Error::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 2/22/2015
+//-----------------------------------------------------------------------------
+std::ostream& Error::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if (initialized_)
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl ;
@@ -439,9 +453,8 @@ std::ostream& Error::printMeasureResult(std::ostream& os, bool printVerbose)
     {
       os << "COMP_FUNCTION was " << comparisonFunctionName_ << std::endl; 
     }     
-  }
-  
-  return os;
+
+    return os;
 }
 
 //-----------------------------------------------------------------------------

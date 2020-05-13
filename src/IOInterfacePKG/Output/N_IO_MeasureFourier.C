@@ -378,13 +378,14 @@ double Fourier::getMeasureResult()
 
 //-----------------------------------------------------------------------------
 // Function      : Fourier::printMeasureResult( std::ostream& os )
-// Purpose       :
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
 // Creation Date : 6/21/13
 //-----------------------------------------------------------------------------
-  std::ostream& Fourier::printMeasureResult( std::ostream& os, bool printVerbose )
+std::ostream& Fourier::printMeasureResult( std::ostream& os)
 {
 
   // Only output results if transient data is available to analyze.
@@ -430,6 +431,21 @@ double Fourier::getMeasureResult()
     os << name_ << ": FAILED" << std::endl;
   }
   
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Fourier::printVerboseMeasureResult( std::ostream& os )
+// Purpose       :
+// Special Notes : This produces the same output, to stdout typically, as
+//                 printMeasureResult() does.
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
+// Creation Date : 6/21/13
+//-----------------------------------------------------------------------------
+std::ostream& Fourier::printVerboseMeasureResult( std::ostream& os)
+{
+  printMeasureResult(os);
   return os;
 }
 

@@ -978,6 +978,49 @@ void Base::printMeasureWarnings(const double endSimTime)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MeasureBase::recordStartEndACDCsweepVals
+// Purpose       : Used to record start/end sweep values for AC and DC measures.
+// Special Notes : For AC measures, sweepVal is frequency. For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystem Modeling
+// Creation Date : 05/2/2020
+//-----------------------------------------------------------------------------
+void Base::recordStartEndACDCsweepVals(const double sweepVal)
+{
+  if (!firstSweepValueFound_)
+  {
+    startSweepValue_ = sweepVal;
+    firstSweepValueFound_ = true;
+  }
+  endSweepValue_ = sweepVal;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MeasureBase::recordStartEndACDCsmeasureWindow
+// Purpose       : Used to record the start/end of the measurement window.
+//                 for AC and DC measures
+// Special Notes : For AC measures, sweepVal is frequency. For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystem Modeling
+// Creation Date : 05/2/2020
+//-----------------------------------------------------------------------------
+void Base::recordStartEndACDCmeasureWindow(const double sweepVal)
+{
+  if (!firstStepInMeasureWindow_)
+  {
+    startACDCmeasureWindow_ = sweepVal;
+    firstStepInMeasureWindow_ = true;
+  }
+  endACDCmeasureWindow_ = sweepVal;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MeasureBase::printMeasureWindow
 // Purpose       : prints information related to time, frequency or DC sweep
 //                 window used.

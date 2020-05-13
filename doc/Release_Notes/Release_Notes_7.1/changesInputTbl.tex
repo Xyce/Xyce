@@ -42,5 +42,29 @@ was equal to the current simulation time then the simulation would get stuck in 
 cases are now simulation errors that will cause the \Xyce{} simulation to abort.
 \\ \hline
 
+Removed support for RISE, CROSS and FALL qualifiers for DUTY measure & This change
+makes all of the duty-cycle calculation measures (\texttt{DUTY}, \texttt{FREQ},
+\texttt{OFF\_TIME} and \texttt{ON\_TIME)} have similar behavior.  The
+\texttt{FROM}, \texttt{TO} and \texttt{TD} qualifiers are still supported
+for all four measure types.
+\\ \hline
+
+Handling of measures with duplicate names & In previous versions of \Xyce{},
+measures with duplicate names would both be evaluated correctly.  However,
+this could cause ambiguity if that name was also used as part of an
+expression such as in an \texttt{EQN} measure.  An example is this
+netlist fragment:
+\begin{verbatim}
+.MEASURE TRAN M1 MIN V(1)
+.MEASURE TRAN M1 MAX V(1)
+.MEASURE TRAN EQNM1 EQN M1
+\end{verbatim}
+To remove this ambiguity, \Xyce{} will now use the last \texttt{M1}
+measure definition, which is the \texttt{MAX} measure in this example,
+and issue a warning message about (and discard) any previous \texttt{M1}
+definitions.  This change applies to all measure modes (\texttt{AC},
+\texttt{DC} and \texttt{TRAN}).
+\\ \hline
+
 \end{longtable}
 }

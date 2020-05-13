@@ -163,17 +163,21 @@ public:
     // used to print warnings about measurement time window, etc.
     virtual void printMeasureWarnings(const double endSimTime);
 
+    // used to record start/end sweep values, and the start/end of the measurement window,
+    // for AC and DC measures
+    void recordStartEndACDCsweepVals(const double sweepVal);
+    void recordStartEndACDCmeasureWindow(const double sweepVal);
+
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
     std::string setModeStringForMeasureWindowText();
     std::string setModeStringForMeasureResultText();
 
-    // used to print the measurement result to an output stream object
-    virtual std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false)
+    // used to print the measurement result to an output stream object, which
+    // is typically the mt0, ma0 or ms0 file
+    virtual std::ostream& printMeasureResult(std::ostream& os)
     {
-      basic_ios_all_saver<std::ostream::char_type> save(os);
-      if (!printVerbose)
-      {
+        basic_ios_all_saver<std::ostream::char_type> save(os);
         if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
 	{
           // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
@@ -184,9 +188,14 @@ public:
 	{
           os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult() << std::endl;
         }
-      }
-      else
-      {
+        return os;
+    }
+
+    // used to print the "verbose" (more descriptive) measurement result to an output stream
+    // object, which is typically stdout
+    virtual std::ostream& printVerboseMeasureResult(std::ostream& os)
+    {
+        basic_ios_all_saver<std::ostream::char_type> save(os);
         if (initialized_)
         {
           os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult() << std::endl;
@@ -195,8 +204,7 @@ public:
         { 
           os << name_ << " = FAILED" << std::endl;
         }
-      }     
-      return os;
+        return os;
     }
 
     // used to print information about RFC window

@@ -90,7 +90,8 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
-  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);
 
 private:

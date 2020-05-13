@@ -59,7 +59,8 @@ public:
   void reset();
 
   double getMeasureResult();
-  std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
 
   void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal);
   void updateMeasureVars(const double indepVarVal, const double depVarVal);

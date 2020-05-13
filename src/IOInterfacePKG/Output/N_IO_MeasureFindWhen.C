@@ -318,13 +318,7 @@ void FindWhen::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-
-    if (!firstSweepValueFound_)
-    {
-      startSweepValue_ = dcSweepVal;
-      firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -341,12 +335,7 @@ void FindWhen::updateDC(
 
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
 
       // The second part of this conditional is needed to deal with multiple sweep
       // variables.  We need to reset the last value variables, each time the first
@@ -487,12 +476,7 @@ void FindWhen::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
@@ -502,13 +486,7 @@ void FindWhen::updateAC(
 
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      lastOutputValue_ = outVarValues_[0];
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
 
     if( !initialized_ )
     {
@@ -631,18 +609,18 @@ void FindWhen::updateAC(
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhen::printMeasureResult()
-// Purpose       :
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 2/22/2015
 //-----------------------------------------------------------------------------
-std::ostream& FindWhen::printMeasureResult(std::ostream& os, bool printVerbose)
+std::ostream& FindWhen::printMeasureResult(std::ostream& os)
 {
-  basic_ios_all_saver<std::ostream::char_type> save(os);
-  os << std::scientific << std::setprecision(precision_);
-  if (!printVerbose)
-  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if ( !calculationDone_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the 
@@ -653,9 +631,24 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os, bool printVerbose)
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
-  }
-  else
-  {
+
+    return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhen::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 2/22/2015
+//-----------------------------------------------------------------------------
+std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if (calculationDone_ || ( measureLastRFC_ && resultFound_ ) )
     {
       os << name_ << " = " << this->getMeasureResult() ;
@@ -680,9 +673,8 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os, bool printVerbose)
       }
     }
     os << std::endl;
-  } 
 
-  return os;
+    return os;
 }
 
 //-----------------------------------------------------------------------------

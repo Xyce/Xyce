@@ -189,14 +189,9 @@ void Stats::updateDC(
     double dcSweepVal = dcParamsVec[0].currentVal;
 
     // Used in descriptive output to stdout. Store name and first/last values of
-    // first variable found in the DC sweep vector
+    // first variable found in the DC sweep vector.
     sweepVar_= dcParamsVec[0].name;
-    if (!firstSweepValueFound_)
-    {
-        startSweepValue_ = dcSweepVal;
-        firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -206,14 +201,9 @@ void Stats::updateDC(
                                         junction_voltage_vector,
                                         lead_current_dqdt_vector, 0);
 
-      // Used in descriptive output to stdout. These are the first/last values
+      // Used in descriptive output to stdout. Record the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
 
       if ( initialized_ )
         updateMeasureVars(dcSweepVal, outVarValues_[0]);
@@ -239,12 +229,7 @@ void Stats::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
@@ -252,14 +237,9 @@ void Stats::updateAC(
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0, RFparams);
 
-    // Used in descriptive output to stdout. These are the first/last values
+    // Used in descriptive output to stdout. Record the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
 
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);

@@ -33,6 +33,14 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1299-SON}: Xyce incorrectly outputs multiple unwanted solution results when 'tstart' given on tran line and .options output also given &
+When a non-zero third parameter (``TSTART'') was given to
+a \texttt{.TRAN} analysis statement and a \texttt{.OPTIONS OUTPUT}
+line was also used to specify detailed printing intervals, \Xyce{}
+would output unwanted information for times prior
+to \texttt{TSTART}.
+\\ \hline
+
 \textbf{203-SON}: Add BSIM 4 SOI model to Xyce &
 The BSIM SOI version 4.6.1 has been added as the level 70 MOSFET.
 \\ \hline

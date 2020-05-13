@@ -139,19 +139,8 @@ void DerivativeEvaluation::updateTran(
 
     if( !initialized_ )
     {
-      // assigned last dependent and independent var to current time and outVarValue_[whenIdx_] 
-      // while we can't interpolate on this step, it ensures that the initial history is
-      // something realistic
-      lastIndepVarValue_=circuitTime;
-      lastDepVarValue_=outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0];
-      if (outputValueTargetGiven_)
-        lastTargValue_ = outputValueTarget_;
-      else
-        lastTargValue_ = outVarValues_[whenIdx_+1];
-
-      initialized_=true;
-    } 
+      setMeasureState(circuitTime);
+    }
 
     if (atGiven_)
     { 
@@ -180,8 +169,8 @@ void DerivativeEvaluation::updateTran(
 	      && withinTimeWindow( circuitTime ) )
     {
       double targVal=0.0;
-      bool doneIfFound=false;
-  
+      updateTargVal(targVal);
+
       // Need to set lastOutputValue_ variable to the current signal value
       // at the first time-step within the measurement window.  (That
       // window is set by the TO-FROM and TD qualifiers if present.)  This is 
@@ -193,25 +182,6 @@ void DerivativeEvaluation::updateTran(
         firstStepInMeasureWindow_ = true;
       }
 
-      if( outputValueTargetGiven_ )
-      {
-        // This is the form WHEN v(a)=fixed value
-        targVal = outputValueTarget_;
-        doneIfFound = true;
-      }
-      else
-      {
-        // This is the form WHEN v(a)= potentially changing value, such as v(a)=v(b)
-        // in that case v(b) is in outVarValues_[whenIdx_+1]
-        targVal = outVarValues_[whenIdx_+1];
-        // since we can't determine if the calculation is done at this piont
-        // we don't set calculationDone_ = true;
-        //doneIfFound = false;
-        // The doneIfFound usage was changed for Xyce 6.4, so that the measure returns the 
-        // derivative at the first time that the WHEN clause is satisfied.
-        doneIfFound = true;
-      }
-    
       // for the WHEN qualifier, the rfc level used is either the target value of the WHEN
       // clause, or the value of the RFC_LEVEL qualifier if one is specified.
       if ( withinRiseFallCrossWindow( outVarValues_[whenIdx_], (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
@@ -243,7 +213,7 @@ void DerivativeEvaluation::updateTran(
           {
             calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);
             calculationInstant_ = circuitTime;
-            calculationDone_ = measureLastRFC_ ? false : doneIfFound;
+            calculationDone_ = !measureLastRFC_;
             resultFound_=true;
           }
           else
@@ -265,7 +235,7 @@ void DerivativeEvaluation::updateTran(
 
               // asymmetrical 3-point approximation for first derivative.  
               calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);         
-              calculationDone_ = measureLastRFC_ ? false : doneIfFound;
+              calculationDone_ = !measureLastRFC_;
               // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
               //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
               // compatibility with the LAST keyword, since FIND-WHEN does not use the intialized_ flag.
@@ -275,14 +245,8 @@ void DerivativeEvaluation::updateTran(
         }
       }
     }
-    
-    lastIndepVarValue_ = circuitTime;
-    lastDepVarValue_ = outVarValues_[whenIdx_]; 
-    lastOutputVarValue_=outVarValues_[0];
-    if (outputValueTargetGiven_)
-      lastTargValue_ = outputValueTarget_;
-    else
-      lastTargValue_ = outVarValues_[whenIdx_+1];
+
+    updateMeasureState(circuitTime);
 }
 
 
@@ -313,25 +277,13 @@ void DerivativeEvaluation::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-
-   // Used in descriptive output to stdout. Store first/last frequency values
-    if (!firstSweepValueFound_)
-    {
-      startSweepValue_ = dcSweepVal;
-      firstSweepValueFound_ = true;
-    }
-    endSweepValue_ = dcSweepVal;
+    recordStartEndACDCsweepVals(dcSweepVal);
 
     if (withinDCsweepFromToWindow( dcSweepVal ))
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      if (!firstStepInMeasureWindow_)
-      {
-        startACDCmeasureWindow_ = dcSweepVal;
-        firstStepInMeasureWindow_ = true;
-      }
-      endACDCmeasureWindow_ = dcSweepVal;
+      recordStartEndACDCmeasureWindow(dcSweepVal);
     }
 
     if( !calculationDone_ )
@@ -344,18 +296,7 @@ void DerivativeEvaluation::updateDC(
 
       if( !initialized_ )
       {
-        // assigned last dependent and independent var to current DC Sweep Val and outVarValue_[whenIdx_]
-        // while we can't interpolate on this step, it ensures that the initial history is
-        // something realistic
-        lastIndepVarValue_=dcSweepVal;
-        lastDepVarValue_=outVarValues_[whenIdx_];
-        lastOutputVarValue_=outVarValues_[0];
-        if (outputValueTargetGiven_)
-          lastTargValue_ = outputValueTarget_;
-        else
-          lastTargValue_ = outVarValues_[whenIdx_+1];
-
-        initialized_=true;
+        setMeasureState(dcSweepVal);
       }
 
       if (atGiven_ && numPointsFound_ > 1)
@@ -385,26 +326,7 @@ void DerivativeEvaluation::updateDC(
                 && withinDCsweepFromToWindow( dcSweepVal ) )
       {
         double targVal=0.0;
-        bool doneIfFound=false;
-
-        if( outputValueTargetGiven_ )
-        {
-          // This is the form WHEN v(a)=fixed value
-          targVal = outputValueTarget_;
-          doneIfFound = true;
-        }
-        else
-        {
-          // This is the form WHEN v(a)= potentially changing value, such as v(a)=v(b)
-          // in that case v(b) is in outVarValues_[whenIdx_+1]
-          targVal = outVarValues_[whenIdx_+1];
-          // since we can't determine if the calculation is done at this point
-          // we don't set calculationDone_ = true;
-          //doneIfFound = false;
-          // The doneIfFound usage was changed for Xyce 6.4, so that the measure returns the
-          // derivative at the first time that the WHEN clause is satisfied.
-          doneIfFound = true;
-        }
+        updateTargVal(targVal); // used by the WHEN clause
 
         if (!resultFound_)
         {
@@ -414,7 +336,7 @@ void DerivativeEvaluation::updateDC(
           {
             calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (dcSweepVal - lastIndepVarValue_);
             calculationInstant_ = dcSweepVal;
-            calculationDone_ = doneIfFound;
+            calculationDone_ = true;
             resultFound_=true;
 	  }
           else
@@ -436,7 +358,7 @@ void DerivativeEvaluation::updateDC(
 
               // asymmetrical 3-point approximation for first derivative.
               calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (dcSweepVal - lastIndepVarValue_);
-              calculationDone_ = doneIfFound;
+              calculationDone_ = true;
               // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
               //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
               // compatibility with the LAST keyword, since DERIV does not use the intialized_ flag.
@@ -446,13 +368,7 @@ void DerivativeEvaluation::updateDC(
         }
       }
 
-      lastIndepVarValue_ = dcSweepVal;
-      lastDepVarValue_ = outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0];
-      if (outputValueTargetGiven_)
-        lastTargValue_ = outputValueTarget_;
-      else
-        lastTargValue_ = outVarValues_[whenIdx_+1];
+      updateMeasureState(dcSweepVal);
     }
   }
 }
@@ -473,23 +389,13 @@ void DerivativeEvaluation::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = frequency;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = frequency;
+  recordStartEndACDCsweepVals(frequency);
 
   if (withinFreqWindow( frequency ))
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    if (!firstStepInMeasureWindow_)
-    {
-      startACDCmeasureWindow_ = frequency;
-      firstStepInMeasureWindow_ = true;
-    }
-    endACDCmeasureWindow_ = frequency;
+    recordStartEndACDCmeasureWindow(frequency);
   }
 
   if( !calculationDone_ )
@@ -501,18 +407,7 @@ void DerivativeEvaluation::updateAC(
 
     if( !initialized_ )
     {
-      // assigned last dependent and independent var to current frequency and outVarValue_[whenIdx_]
-      // while we can't interpolate on this step, it ensures that the initial history is
-      // something realistic
-      lastIndepVarValue_=frequency;
-      lastDepVarValue_=outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0];
-      if (outputValueTargetGiven_)
-        lastTargValue_ = outputValueTarget_;
-      else
-        lastTargValue_ = outVarValues_[whenIdx_+1];
-
-      initialized_=true;
+      setMeasureState(frequency);
     }
 
     if (atGiven_ && numPointsFound_ > 1)
@@ -542,26 +437,7 @@ void DerivativeEvaluation::updateAC(
               && withinFreqWindow( frequency ) )
     {
       double targVal=0.0;
-      bool doneIfFound=false;
-
-      if( outputValueTargetGiven_ )
-      {
-        // This is the form WHEN v(a)=fixed value
-        targVal = outputValueTarget_;
-        doneIfFound = true;
-      }
-      else
-      {
-        // This is the form WHEN v(a)= potentially changing value, such as v(a)=v(b)
-        // in that case v(b) is in outVarValues_[whenIdx_+1]
-        targVal = outVarValues_[whenIdx_+1];
-        // since we can't determine if the calculation is done at this point
-        // we don't set calculationDone_ = true;
-        //doneIfFound = false;
-        // The doneIfFound usage was changed for Xyce 6.4, so that the measure returns the
-        // derivative at the first time that the WHEN clause is satisfied.
-        doneIfFound = true;
-      }
+      updateTargVal(targVal); // used by the WHEN clause
 
       if (!resultFound_)
       {
@@ -571,7 +447,7 @@ void DerivativeEvaluation::updateAC(
         {
           calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (frequency - lastIndepVarValue_);
           calculationInstant_ = frequency;
-          calculationDone_ = doneIfFound;
+          calculationDone_ = true;
           resultFound_=true;
         }
         else
@@ -593,7 +469,7 @@ void DerivativeEvaluation::updateAC(
 
             // asymmetrical 3-point approximation for first derivative.
             calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (frequency - lastIndepVarValue_);
-            calculationDone_ = doneIfFound;
+            calculationDone_ = true;
             // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
             //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
             // compatibility with the LAST keyword, since DERIV does not use the intialized_ flag.
@@ -603,14 +479,86 @@ void DerivativeEvaluation::updateAC(
       }
     }
 
-    lastIndepVarValue_ = frequency;
-    lastDepVarValue_ = outVarValues_[whenIdx_];
-    lastOutputVarValue_=outVarValues_[0];
-    if (outputValueTargetGiven_)
-      lastTargValue_ = outputValueTarget_;
-    else
-      lastTargValue_ = outVarValues_[whenIdx_+1];
+    updateMeasureState(frequency);
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::setMeasureState()
+// Purpose       : initializes the past values of the independent, dependent
+//                 and measured variables, as well as the past target level.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 measures, it is frequency.  For DC measures, it is the value
+//                 of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/05/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::setMeasureState(const double indepVarVal)
+{
+  // assigned last dependent and independent var to current value of the independent
+  // varible and outVarValue_[whenIdx_].  While we can't interpolate on this step, it
+  // ensures that the initial history is something realistic
+  lastIndepVarValue_=indepVarVal;
+  lastDepVarValue_=outVarValues_[whenIdx_];
+  lastOutputVarValue_=outVarValues_[0];
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
+
+  initialized_=true;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::updateMeasureState()
+// Purpose       : updates the past values of the independent, dependent
+//                 and measured variables, as well as the past target level.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 measures, it is frequency.  For DC measures, it is the value
+//                 of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/05/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::updateMeasureState(const double indepVarVal)
+{
+  lastIndepVarValue_ = indepVarVal;
+  lastDepVarValue_ = outVarValues_[whenIdx_];
+  lastOutputVarValue_=outVarValues_[0];
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::updateTargVal
+// Purpose       : updates the target value for the WHEN clause
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/05/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::updateTargVal(double& targVal)
+{
+  if( outputValueTargetGiven_ )
+  {
+    // This is the form WHEN v(a)=fixed value
+    targVal = outputValueTarget_;
+  }
+  else
+  {
+    // This is the form WHEN v(a)= potentially changing value, such as v(a)=v(b)
+    // in that case v(b) is in outVarValues_[whenIdx_+1]
+    targVal = outVarValues_[whenIdx_+1];
+  }
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -628,18 +576,18 @@ double DerivativeEvaluation::getMeasureResult()
 
 //-----------------------------------------------------------------------------
 // Function      : DerivativeEvaluation::printMeasureResult()
-// Purpose       :
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 2/22/2015
 //-----------------------------------------------------------------------------
-std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os, bool printVerbose)
+std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os)
 {
-  basic_ios_all_saver<std::ostream::char_type> save(os);
-  os << std::scientific << std::setprecision(precision_);
-  if (!printVerbose)
-  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if ( !calculationDone_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
@@ -650,9 +598,24 @@ std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os, bool pr
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
-  }
-  else
-  {
+
+    return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 2/22/2015
+//-----------------------------------------------------------------------------
+std::ostream& DerivativeEvaluation::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
     if (calculationDone_ || ( measureLastRFC_ && resultFound_ ) )
     {
       os << name_ << " = " << this->getMeasureResult() ;
@@ -677,9 +640,8 @@ std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os, bool pr
       }
     }
     os << std::endl;
-  } 
 
-  return os;
+    return os;
 }
 
 //-----------------------------------------------------------------------------

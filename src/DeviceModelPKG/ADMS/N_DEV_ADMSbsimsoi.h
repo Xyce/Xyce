@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 20 Apr 2020 12:48:45
+// Creation Date  : Tue, 12 May 2020 16:25:30
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi_h
@@ -4131,6 +4131,8 @@ int modelPar_BJTOFF;
 bool modelPar_given_BJTOFF;
 int modelPar_SOIMOD;
 bool modelPar_given_SOIMOD;
+int modelPar_SHMOD;
+bool modelPar_given_SHMOD;
 int modelPar_TYPE;
 bool modelPar_given_TYPE;
 int modelPar_RGATEMOD;
@@ -5757,6 +5759,7 @@ public:
     double AGBCP2;
     double AGBCPD;
     double AEBCP;
+    int SHMOD;
     int TYPE;
     double VERSION;
     double VBSUSR;

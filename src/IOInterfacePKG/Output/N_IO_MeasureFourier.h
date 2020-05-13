@@ -86,7 +86,8 @@ class Fourier : public Base
       const Util::Op::RFparamsData *RFparams);
 
     double getMeasureResult();
-    std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
+    std::ostream& printMeasureResult(std::ostream& os);
+    std::ostream& printVerboseMeasureResult(std::ostream& os);
     void printMeasureWarnings(const double endSimTime);
     std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
 
