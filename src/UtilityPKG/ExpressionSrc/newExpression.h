@@ -299,6 +299,8 @@ public:
     timeStepAlpha_(right.timeStepAlpha_),
     timeStepPrefac_(right.timeStepPrefac_),
 
+    srcAstNodeVec_(right.srcAstNodeVec_),
+
     timeOpVec_(right.timeOpVec_),
     tempOpVec_(right.tempOpVec_),
     vtOpVec_(right.vtOpVec_),
@@ -344,16 +346,11 @@ public:
     {
       masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
     }
-
-    for (int ii=0;ii<right.srcAstNodeVec_.size();ii++)
-    {
-      srcAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.srcAstNodeVec_[ii])) );
-    }
   };
 
   // assignment operator
   // This is necessary b/c of things like the masterAstNodeVec_ object, which uses raw pointers
- 	newExpression & operator =(const newExpression & right)
+  newExpression & operator =(const newExpression & right)
   {
     group_ = right.group_;
     expressionString_ = right.expressionString_;
@@ -390,6 +387,8 @@ public:
     timeStep_ = right.timeStep_;
     timeStepAlpha_ = right.timeStepAlpha_;
     timeStepPrefac_ = right.timeStepPrefac_;
+
+    srcAstNodeVec_ = right.srcAstNodeVec_;
 
     timeOpVec_ = right.timeOpVec_;
     tempOpVec_ = right.tempOpVec_;
@@ -436,11 +435,6 @@ public:
     for (int ii=0;ii<right.masterAstNodeVec_.size();ii++)
     {
       masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
-    }
-
-    for (int ii=0;ii<right.srcAstNodeVec_.size();ii++)
-    {
-      srcAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.srcAstNodeVec_[ii])) );
     }
 
     return *this;
@@ -572,7 +566,7 @@ public:
   void codeGen( std::ostream & os ) { astNodePtr_->codeGen(os); os << ";" <<std::endl; };
 
   std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
-  std::vector< Teuchos::RCP<astNode<usedType> > * > & getSrcNodeVec() { return srcAstNodeVec_;}
+  std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
 
@@ -751,7 +745,7 @@ private:
 
   // vector of independent sources, but only those with breakpoints.  This
   // vector is ONLY used for obtaining breakpoints.
-  std::vector< Teuchos::RCP<astNode<usedType> > * > srcAstNodeVec_;
+  std::vector< Teuchos::RCP<astNode<usedType> > > srcAstNodeVec_;
 
   // const and specials nodes:
   Teuchos::RCP<specialsOp<usedType> > timeNodePtr_;

@@ -349,12 +349,6 @@ void newExpression::clear ()
   }
   masterAstNodeVec_.clear();
 
-  for (int ii=0;ii<srcAstNodeVec_.size();ii++)
-  {
-    delete srcAstNodeVec_[ii];
-  }
-  srcAstNodeVec_.clear();
-
   expressionString_ = std::string("");
   parsed_ = false;
   derivsSetup_ = false;
@@ -913,9 +907,9 @@ void newExpression::getValuesFromGroup()
   int srcSize = srcAstNodeVec_.size();
   for (int ii=0;ii< srcSize; ii++) 
   { 
-    (*(srcAstNodeVec_[ii]))->setBreakPointTol(bpTol_); 
-    (*(srcAstNodeVec_[ii]))->setStartingTimeStep(startingTimeStep_);
-    (*(srcAstNodeVec_[ii]))->setFinalTime(finalTime_);
+    (srcAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+    (srcAstNodeVec_[ii])->setStartingTimeStep(startingTimeStep_);
+    (srcAstNodeVec_[ii])->setFinalTime(finalTime_);
   }
 
   timeStep_ = group_->getTimeStep ();
@@ -1054,7 +1048,7 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
   int srcSize = srcAstNodeVec_.size();
   for (int ii=0;ii< srcSize; ii++) 
   { 
-    (*(srcAstNodeVec_[ii]))->getBreakPoints(breakPointTimes); 
+    (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
   }
 
 #if 0

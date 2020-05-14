@@ -136,6 +136,7 @@ bool checkGroundNodeName(std::string & name)
 %token <sval> TOK_LEAD "lead"
 %token <sval> TOK_ONOISE "onoise"
 %token <sval> TOK_INOISE "inoise"
+%token <sval> TOK_POWER "power"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
 %token <sval> TOK_CURRENTDEV "currentdevice"
 %token <sval> TOK_INTERNAL_DEV_VAR "internal_device_variable"
@@ -145,7 +146,6 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_SQRT	"sqrt"
 %token TOK_MAX	"max"
 %token TOK_MIN	"min"
-%token TOK_POWER	"power"
 %token TOK_PHASE	"phase"
 %token TOK_REAL	"real"
 %token TOK_IMAG	"imag"
@@ -222,6 +222,9 @@ bool checkGroundNodeName(std::string & name)
 %destructor { delete $$; } TOK_CURRENTDEV
 %destructor { delete $$; } TOK_INTERNAL_DEV_VAR
 %destructor { delete $$; } TOK_NOISE_DEV_VAR
+%destructor { delete $$; } TOK_ONOISE
+%destructor { delete $$; } TOK_INOISE
+%destructor { delete $$; } TOK_POWER
 %destructor { delete $$; } nonempty_voltagenodelist
 %destructor { delete $$; } nonempty_noise_device_list
 
@@ -740,6 +743,8 @@ exp:
       newExp.getONoiseOpVec().push_back(*onoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
+      delete $1;
+      delete onoisePtr;
     }
   | TOK_INOISE
     {
@@ -748,6 +753,8 @@ exp:
       newExp.getINoiseOpVec().push_back(*inoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
+      delete $1;
+      delete inoisePtr;
     }
 
   | TOK_MAX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
@@ -769,6 +776,9 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getPowerOpVec().push_back(*powerPtr);
+      delete $1;
+      delete $2;
+      delete powerPtr;
     }
   | TOK_PHASE exp TOK_RIGHTPAREN
     {
@@ -1049,8 +1059,9 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($3, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      newExp.getSrcNodeVec().push_back(tmpPtr);
+      newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
+      delete $3;
     }
  /* sin (v0,va,frequency,td,theta,phase) */
   | TOK_SPICE_SIN   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
@@ -1060,6 +1071,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
+      delete $3;
     }
  /* exp ( v1,v2,td1,tau1,td2,tau2) */
   | TOK_SPICE_EXP   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
@@ -1069,6 +1081,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
+      delete $3;
     }
  /* sffm (v0,va,fc,mdi,fs) */
   | TOK_SPICE_SFFM   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
@@ -1078,6 +1091,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
+      delete $3;
     }
 
   | exp '?' exp ':' exp
@@ -1161,7 +1175,7 @@ nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::strin
 nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
   | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $$->push_back(*($2)); delete $2; }
 
-nonempty_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  }
+nonempty_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1); }
   | nonempty_arglist ','  exp { $$->push_back((*$3)); }
 
 nonempty_arg_pairs: TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$2);  $$->push_back((*$4));  } 

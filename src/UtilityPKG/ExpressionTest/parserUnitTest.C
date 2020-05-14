@@ -1491,16 +1491,24 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
 
   void setDnoNoiseDeviceVar (const std::vector<std::string> & names, double val)
   {
-    std::vector<std::string> lowerNames = names;
-    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
-    dnoDeviceVars_[lowerNames[0]] = val;
+    std::string lowerName;
+    if ( !(names.empty()) )
+    {
+      lowerName = names[0];
+      Xyce::Util::toLower(lowerName);
+      dnoDeviceVars_[lowerName] = val; 
+    }
   };
 
   void setDniNoiseDeviceVar (const std::vector<std::string> & names, double val)
   {
-    std::vector<std::string> lowerNames = names;
-    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
-    dniDeviceVars_[lowerNames[0]] = val;
+    std::string lowerName;
+    if ( !(names.empty()) )
+    {
+      lowerName = names[0];
+      Xyce::Util::toLower(lowerName);
+      dniDeviceVars_[lowerName] = val; 
+    }
   };
 
   void setONoise (double val) { onoise_ = val; };
@@ -1509,9 +1517,10 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
   { 
     bool retval=true;
-    std::vector<std::string> lowerNames = deviceNames;
-    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
-    if (dnoDeviceVars_.find(lowerNames[0]) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerNames[0]]; }
+    std::string lowerName;
+    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
+    Xyce::Util::toLower(lowerName);
+    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
     else { retval = false; }
     return retval;
   }
@@ -1519,9 +1528,10 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
   { 
     bool retval=true;
-    std::vector<std::string> lowerNames = deviceNames;
-    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
-    if (dniDeviceVars_.find(lowerNames[0]) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerNames[0]]; }
+    std::string lowerName;
+    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
+    Xyce::Util::toLower(lowerName);
+    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
     else { retval = false; }
     return retval;
   }
@@ -4573,11 +4583,11 @@ TEST ( Double_Parser_ASCTH_Test, test0)
 
   std::vector<double> derivs;
   testExpression.evaluate(result, derivs);   
-  EXPECT_EQ( result, refRes);
+  EXPECT_FLOAT_EQ( result, refRes);
   copyExpression.evaluate(result, derivs);   
-  EXPECT_EQ( result, refRes);
+  EXPECT_FLOAT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
-  EXPECT_EQ( result, refRes);
+  EXPECT_FLOAT_EQ( result, refRes);
   OUTPUT_MACRO(Double_Parser_ASCTH_Test, test0)
 }
 
