@@ -136,8 +136,13 @@ the previous discussion applies to \texttt{DERIV} and \texttt{FIND-WHEN} measure
 would cause a parsing error when .LIN was used with .STEP.
 \\ \hline
 
+\textbf{1292-SON, Gitlab Issue \#6}: Inductor coupling (mutual inductor) code does not respect inductor initial condition specification &
+Linear and non-linear mutual inductors were ignoring the initial conditions set on 
+component inductors.  This was a code deficiency as the initial conditions were not 
+passed into the mutual inductor device.  This issue has been fixed.
+\\ \hline
+
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
-
 \end{longtable}
 }
