@@ -2240,8 +2240,10 @@ int CircuitContext::totalMutualInductanceCount()
 
 //-----------------------------------------------------------------------------
 // Function      : CircuitContext::MutualInductance::MutualInductance
-// Purpose       : 
-// Special Notes :
+// Purpose       : Collect data from MI line "Ktrans L1 L2 " etc.
+// Special Notes : This function just collects the data from a line starting
+//                 with K for a linear or non-linear mutual inductor.
+//                 it does not try to find the component inductors.
 // Scope         : public
 // Creator       : Rob Hoekstra
 // Creation Date : 8/27/04
@@ -2280,7 +2282,9 @@ CircuitContext::MutualInductance::MutualInductance( DeviceBlock & device )
 //-----------------------------------------------------------------------------
 // Function      : CircuitContext::bundleMIs
 // Purpose       : Convert all MIs into tokenized device lines
-// Special Notes :
+// Special Notes : Collects the component inductors of a mutual indcutor
+//                 into a full set of data (i.e. type of mutual indcutor
+//                 and all the component inductors.)
 // Scope         : public
 // Creator       :
 // Creation Date :
@@ -2290,17 +2294,18 @@ void CircuitContext::bundleMIs()
   std::string type;
   unsigned int i, j, mTableSize, mTableRowSize;
   StringToken field;
-  std::vector< std::string > tmpInductorList, tmpCouplingList;
+  std::vector< std::string > tmpInductorList, tmpCouplingList, tmpOtherParamsList;
   TokenVector tmpLine;
 
   // retrieve number of K lines in this (sub)circuit
   mTableSize = currentContextPtr_->allIndexedMIs_.size();
-
+  
   for( i = 0; i < mTableSize; ++i )
   {
     // reset lists, tables and indices
     tmpInductorList.clear();
     tmpCouplingList.clear();
+    tmpOtherParamsList.clear();
 
     // reset tmp vars
     std::string tmpName("");
@@ -2331,7 +2336,6 @@ void CircuitContext::bundleMIs()
         tmpModel = mutind.model;
         type = "N";
       }
-
       // else linear coupling
       else
       {
@@ -2368,6 +2372,22 @@ void CircuitContext::bundleMIs()
 
           // retrieve the inductance value
           tmpInductorList.push_back((*mIter).second);
+          
+          // add in initial condition value 
+          std::vector<Device::Param >::iterator mParamIter =  mutind.otherParams[mIter->first].begin();
+          for( ; mParamIter != mutind.otherParams[mIter->first].end(); ++mParamIter)
+          {
+            // this is really backwards.  The device line has already been parsed into Param objects
+            // but we need to put it back into a string to pack up a mutual inductor -- ick!
+            // only do this for params that were actually given
+            //if( mParamIter->given())
+            //{
+              //std::stringstream paramstr;
+              //paramstr << mParamIter->tag() << "=" << mParamIter->stringValue();
+              tmpInductorList.push_back( mParamIter->stringValue() );
+            //}
+        
+          }
 
           // remove inductor from list to prevent duplicates
           if( type == "L" )
@@ -2383,7 +2403,7 @@ void CircuitContext::bundleMIs()
           }
           */
         }
-
+        
         // append to coupling list; names are a bit redundant, but easy to track
         tmpCouplingList.push_back( (*mIter).first );
       }
@@ -2418,7 +2438,7 @@ void CircuitContext::bundleMIs()
         field.string_ = tmpCouplingList[j];
         tmpLine.push_back( field );
       }
-
+      
       // append model name
       if( type == "N" )
       {

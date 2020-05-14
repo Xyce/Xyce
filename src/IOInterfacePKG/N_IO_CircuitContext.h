@@ -88,6 +88,8 @@ public:
 
     // set of inductor names and associated terminals
     std::map< std::string, std::vector< std::string > > terminals;
+    
+    std::map< std::string, std::vector<Device::Param > > otherParams;
 
     // MI name
     std::string name;
