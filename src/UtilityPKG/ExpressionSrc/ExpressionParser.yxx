@@ -580,7 +580,12 @@ exp:
 
       std::string deviceName = (*$2);
 
-      if ( !(deviceName.empty()) && deviceName[0] == 'V') // solution variable current
+      if ( !(deviceName.empty()) && ( 
+            deviceName[0] == 'V' || 
+            deviceName[0] == 'B' || 
+            deviceName[0] == 'E' || 
+            deviceName[0] == 'H' || 
+            deviceName[0] == 'L' )) // solution variable current
       {
         Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
         Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
