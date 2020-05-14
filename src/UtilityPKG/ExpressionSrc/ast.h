@@ -1001,7 +1001,7 @@ template <typename ScalarT>
 class leadCurrentOp: public astNode<ScalarT>
 {
   public:
-    leadCurrentOp ( std::string designator, std::string leadCurrentDevice):
+    leadCurrentOp (std::string designator, std::string leadCurrentDevice):
       astNode<ScalarT>(),
       number_(0.0),
       leadCurrentDesignator_(designator),
@@ -1160,13 +1160,13 @@ template <typename ScalarT>
 class dnoNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dnoNoiseVarOp (std::string noiseDevice):
+    dnoNoiseVarOp (std::vector<std::string> noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
-      noiseDevice_(noiseDevice),
+      noiseDevices_(noiseDevices),
       derivIndex_(-1)
     {
-      Xyce::Util::toUpper(noiseDevice_);
+      for(int ii=0;ii<noiseDevices.size();ii++) { Xyce::Util::toUpper(noiseDevices_[ii]); }
     };
 
     virtual ScalarT val() {return number_;}
@@ -1176,31 +1176,40 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "noise variable : device = " << noiseDevice_ <<std::endl;
+      os << "DNO noise variable : devices = ";
+      for (int ii=0;ii<noiseDevices_.size();ii++)
+      {
+        os << noiseDevices_[ii] << " ";
+      }
+      os << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
     {
       os << "DNO_";
-      os << noiseDevice_;
+      for (int ii=0;ii<noiseDevices_.size();ii++)
+      {
+        os << "_" << noiseDevices_[ii];
+      }
     }
 
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
-    void setNoiseDevice (const std::string & devName) { noiseDevice_ = devName; }
-    std::string getNoiseDevice () { return noiseDevice_; }
+    void setNoiseDevices (const std::vector<std::string> & devNames) { noiseDevices_ = devNames; }
+    std::vector<std::string> getNoiseDevices () { return noiseDevices_; }
+
     ScalarT getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
     virtual bool dnoNoiseVarType()  { return true; };
 
-    virtual std::string getName () { return noiseDevice_; }
+    //virtual std::string getName () { return noiseDevice_; }
 
   private:
     ScalarT number_;
-    std::string noiseDevice_;
+    std::vector<std::string> noiseDevices_;
     int derivIndex_;
 };
 
@@ -1209,13 +1218,13 @@ template <typename ScalarT>
 class dniNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dniNoiseVarOp (std::string noiseDevice):
+    dniNoiseVarOp (std::vector<std::string> noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
-      noiseDevice_(noiseDevice),
+      noiseDevices_(noiseDevices),
       derivIndex_(-1)
     {
-      Xyce::Util::toUpper(noiseDevice_);
+      for(int ii=0;ii<noiseDevices.size();ii++) { Xyce::Util::toUpper(noiseDevices_[ii]); }
     };
 
     virtual ScalarT val() {return number_;}
@@ -1225,31 +1234,39 @@ class dniNoiseVarOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "noise variable : device = " << noiseDevice_ <<std::endl;
+      os << "DNI noise variable : devices = ";
+      for (int ii=0;ii<noiseDevices_.size();ii++)
+      {
+        os << noiseDevices_[ii] << " ";
+      }
+      os << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
     {
-      os << "DNO_";
-      os << noiseDevice_;
+      os << "DNI";
+      for (int ii=0;ii<noiseDevices_.size();ii++)
+      {
+        os << "_" << noiseDevices_[ii];
+      }
     }
 
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
-    void setNoiseDevice (const std::string & devName) { noiseDevice_ = devName; }
-    std::string getNoiseDevice () { return noiseDevice_; }
+    void setNoiseDevices (const std::vector<std::string> & devNames) { noiseDevices_ = devNames; }
+    std::vector<std::string> getNoiseDevices () { return noiseDevices_; }
     ScalarT getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
     virtual bool dniNoiseVarType()  { return true; };
 
-    virtual std::string getName () { return noiseDevice_; }
+    //virtual std::string getName () { return noiseDevice_; }
 
   private:
     ScalarT number_;
-    std::string noiseDevice_;
+    std::vector<std::string> noiseDevices_;
     int derivIndex_;
 };
 

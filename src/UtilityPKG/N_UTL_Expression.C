@@ -615,6 +615,18 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
       leads.push_back( tmpName );
     }
   }
+
+  // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
+  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
+    if (it == leads.end())
+    {
+      leads.push_back( tmpName );
+    }
+  }
+
 }
 
 //-----------------------------------------------------------------------------

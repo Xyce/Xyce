@@ -954,12 +954,16 @@ bool Transient::doInit()
                                       outputManagerAdapter_.getOutputManager().getMainContextFunctionMap(),
                                       outputManagerAdapter_.getOutputManager().getMainContextParamMap(),
                                       outputManagerAdapter_.getOutputManager().getMainContextGlobalParamMap()) == Util::ExpressionData::READY)
-      suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_,
-                                                          outputManagerAdapter_.getOutputManager().getCircuitTime(),
-                                                          outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-                                                          analysisManager_.getDataStore()->currSolutionPtr,
-                                                          analysisManager_.getDataStore()->currStatePtr,
-                                                          analysisManager_.getDataStore()->currStorePtr);
+    {
+        Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                      analysisManager_.getDataStore()->currStatePtr,
+                                      analysisManager_.getDataStore()->currStorePtr, 0);
+
+        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+            outputManagerAdapter_.getOutputManager().getCircuitTime(),
+            outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
+            opDataTmp);
+    }
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();
@@ -1048,12 +1052,14 @@ bool Transient::doTranOP ()
       double suggestedMaxTime=0.0;
       if (maxTimeStepExpression_)
       {
+        Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                      analysisManager_.getDataStore()->currStatePtr,
+                                      analysisManager_.getDataStore()->currStorePtr, 0);
+
         suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            analysisManager_.getDataStore()->currSolutionPtr, 
-            analysisManager_.getDataStore()->currStatePtr, 
-            analysisManager_.getDataStore()->currStorePtr);
+            opDataTmp);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1171,12 +1177,14 @@ bool Transient::doLoopProcess()
       double suggestedMaxTime=0.0;
       if (maxTimeStepExpression_)
       {
+      Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                    analysisManager_.getDataStore()->currStatePtr,
+                                    analysisManager_.getDataStore()->currStorePtr, 0);
+
         suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            analysisManager_.getDataStore()->currSolutionPtr, 
-            analysisManager_.getDataStore()->currStatePtr, 
-            analysisManager_.getDataStore()->currStorePtr);
+            opDataTmp);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1420,12 +1428,14 @@ void Transient::preMixedSignalStepDetails(
     double suggestedMaxTime=0.0;
     if (maxTimeStepExpression_)
     {
+      Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                    analysisManager_.getDataStore()->currStatePtr,
+                                    analysisManager_.getDataStore()->currStorePtr, 0);
+
       suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
           outputManagerAdapter_.getOutputManager().getCircuitTime(),
           outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-          analysisManager_.getDataStore()->currSolutionPtr, 
-          analysisManager_.getDataStore()->currStatePtr, 
-          analysisManager_.getDataStore()->currStorePtr);
+          opDataTmp);
     }
     analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
     analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1818,13 +1828,15 @@ bool Transient::doProcessSuccessfulStep()
   double suggestedMaxTime = 0.0;
   if (maxTimeStepExpression_)
   {
+    Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                  analysisManager_.getDataStore()->currStatePtr,
+                                  analysisManager_.getDataStore()->currStorePtr, 0);
+
     suggestedMaxTime = maxTimeStepExpression_->evaluate(
         comm_, 
         outputManagerAdapter_.getOutputManager().getCircuitTime(), 
         outputManagerAdapter_.getOutputManager().getCircuitTimeStep(), 
-        analysisManager_.getDataStore()->currSolutionPtr, 
-        analysisManager_.getDataStore()->currStatePtr, 
-        analysisManager_.getDataStore()->currStorePtr);
+        opDataTmp);
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();

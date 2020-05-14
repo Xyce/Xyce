@@ -1401,10 +1401,8 @@ void PCE::computePCEOutputs()
       for (int iout=0;iout<outFuncDataVec_.size();++iout)
       {
         UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-
-        double val = outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, 
-              nextSolutionPtr_, nextStatePtr_, nextStorePtr_ );
-
+        Util::Op::OpData opDataTmp(0, nextSolutionPtr_, 0, nextStatePtr_, nextStorePtr_, 0);
+        double val = outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, opDataTmp);
         outFunc.sampleOutputs.push_back(val);
       }
     }

@@ -818,8 +818,8 @@ void newExpression::getValuesFromGroup()
     usedType val;
     if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
     {
-      std::string nothing("");
-      group_->getCurrentVal(currOp->getCurrentDevice(),nothing,val);
+      std::string simple("I");
+      group_->getCurrentVal(currOp->getCurrentDevice(),simple,val);
     }
     currOp->setCurrentVal ( val );
   }
@@ -864,7 +864,7 @@ void newExpression::getValuesFromGroup()
     Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (dnoNoiseDevVarOpVec_[ii]);
 
     usedType val;
-    group_->getDnoNoiseDeviceVar(dnoOp->getNoiseDevice(),val);
+    group_->getDnoNoiseDeviceVar(dnoOp->getNoiseDevices(),val);
     dnoOp->setNoiseVar ( val );
   }
 
@@ -872,7 +872,7 @@ void newExpression::getValuesFromGroup()
   {
     Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (dniNoiseDevVarOpVec_[ii]);
     usedType val;
-    group_->getDniNoiseDeviceVar(dniOp->getNoiseDevice(),val);
+    group_->getDniNoiseDeviceVar(dniOp->getNoiseDevices(),val);
     dniOp->setNoiseVar ( val );
   }
 

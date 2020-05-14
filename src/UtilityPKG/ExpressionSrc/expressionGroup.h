@@ -42,11 +42,11 @@ public:
   virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval ) { retval=0.0; return false; }
   virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval ) {retval=std::complex<double>(0.0,0.0); return false; }
 
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, double & retval) { retval=0.0; return false; }
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval) { retval=0.0; return false; }
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }
 
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, double & retval) { retval=0.0; return false; }
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval) { retval=0.0; return false; }
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }
 
   virtual bool getONoise(double & retval) { retval=0.0; return false; }
   virtual bool getONoise(std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }

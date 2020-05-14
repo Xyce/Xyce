@@ -213,6 +213,7 @@ bool checkGroundNodeName(std::string & name)
 %type  <nodeVecPtr>   no_comma_arglist
 %type  <nodeVecPtr>   no_comma_coeflist
 %type  <vecsval>  nonempty_voltagenodelist
+%type  <vecsval>  nonempty_noise_device_list
 %type  <dval>  paren_polycoef
 
 %destructor { delete $$; } TOK_WORD
@@ -222,6 +223,7 @@ bool checkGroundNodeName(std::string & name)
 %destructor { delete $$; } TOK_INTERNAL_DEV_VAR
 %destructor { delete $$; } TOK_NOISE_DEV_VAR
 %destructor { delete $$; } nonempty_voltagenodelist
+%destructor { delete $$; } nonempty_noise_device_list
 
 
 // Operator Precedence tokens
@@ -573,55 +575,71 @@ exp:
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
 
-      Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      newExp.getCurrentOpVec().push_back(*currentPtr);
+      std::string deviceName = (*$2);
 
-      // adjust for complex number variants
-      std::string firstArg = (*$1);
-      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
-      if (firstArg.size() == 1)
+      if ( !(deviceName.empty()) && deviceName[0] == 'V') // solution variable current
       {
-        returnPtr = tmpPtr;
-      }
-      else if (firstArg.size() == 2)
-      {
-         if ( firstArg == std::string("IR") )
-         {
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
-         else if ( firstArg == std::string("II") )
-         {
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
-         else if ( firstArg == std::string("IM") )
-         {
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
-         else if ( firstArg == std::string("IP") )
-         {
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
-      }
-      else if (firstArg.size() == 3) // do decibels here
-      {
-         if ( firstArg == std::string("IDB") )
-         {
-           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
-      }
+        Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
+        Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
+        newExp.getMasterNodeVec().push_back(tmpPtr);
+        newExp.getCurrentOpVec().push_back(*currentPtr);
 
-      $$ = returnPtr;
-      delete currentPtr;
-      delete $1;
-      delete $2;
+        // adjust for complex number variants
+        std::string firstArg = (*$1);
+        firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+        if (firstArg.size() == 1)
+        {
+          returnPtr = tmpPtr;
+        }
+        else if (firstArg.size() == 2)
+        {
+           if ( firstArg == std::string("IR") )
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg == std::string("II") )
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg == std::string("IM") )
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg == std::string("IP") )
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+        }
+        else if (firstArg.size() == 3) // do decibels here
+        {
+           if ( firstArg == std::string("IDB") )
+           {
+             // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+        }
+
+        $$ = returnPtr;
+        delete currentPtr;
+        delete $1;
+        delete $2;
+      }
+      else // lead current
+      {
+        Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
+        Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(*leadCurrentPtr);
+        newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
+        newExp.getMasterNodeVec().push_back(returnPtr);
+        $$ = returnPtr;
+        delete leadCurrentPtr;
+        delete $1;
+        delete $2;
+      }
     }
   | TOK_LEAD TOK_CURRENTDEV
     {
@@ -688,7 +706,7 @@ exp:
       delete $1;
       delete $2;
     }
-  | TOK_WORD TOK_NOISE_DEV_VAR
+  | TOK_WORD nonempty_noise_device_list
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
       std::string firstArg = (*$1);
@@ -1136,6 +1154,9 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
   ;
+
+nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
+  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $$->push_back(*($2)); delete $2; }
 
 nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
   | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $$->push_back(*($2)); delete $2; }

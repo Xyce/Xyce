@@ -1111,7 +1111,7 @@ bool Topology::outputNameFile(
 //-----------------------------------------------------------------------------
 void Topology::loadNodeSymbols() const
 {
-#if 1
+#if 0
   std::cout  << "In Topology::loadNodeSymbols. "
     << "  nodeSymbols_[Util::SOLUTION_SYMBOL].size = " << nodeSymbols_[Util::SOLUTION_SYMBOL].size() 
     << "  nodeSymbols_[Util::STATE_SYMBOL].size = " << nodeSymbols_[Util::STATE_SYMBOL].size() 

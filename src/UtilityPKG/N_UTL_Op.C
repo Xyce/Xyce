@@ -240,14 +240,14 @@ void makeOps(
 
   for (ParamList::const_iterator it = begin; it != end; ++it)
   {
-#if 1
+#if 0
     std::cout << "About to build " << (*it).tag() <<std::endl;
 #endif
     Operator *new_op = op_builder_manager.createOp(it);
 
     if (!new_op)
     {
-#if 1
+#if 0
       std::cout << "building an undefined Op for " << (*it).tag() <<std::endl;
 #endif
       std::string param_tag = (*it).tag();
@@ -259,7 +259,7 @@ void makeOps(
       new_op->addArgs(args.begin(), args.end());
     }
 
-#if 1
+#if 0
     std::cout << "the new_op id is: " << new_op->id();
     std::cout << " which is ";
     if (new_op->id() == identifier<UndefinedOp>())
@@ -288,7 +288,7 @@ void makeOps(
   std::vector<Identifier>::const_iterator op_identifier_it = op_identifier.begin();
   for (std::vector<Operator *>::iterator it = ops.begin(); it != ops.end(); ++it, ++op_identifier_it)
   {
-#if 1
+#if 0
     std::cout << "checking this Op :  name = " << (*it)->getName() <<std::endl;
 #endif
     if ((*op_identifier_it) == 0) // Defined inconsistently

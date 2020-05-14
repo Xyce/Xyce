@@ -49,10 +49,8 @@ outputsXyceExpressionGroup::outputsXyceExpressionGroup (
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
  outputManager_(output_manager),
- //tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
  time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
 {
-
 }
 
 //-------------------------------------------------------------------------------
@@ -65,7 +63,6 @@ outputsXyceExpressionGroup::outputsXyceExpressionGroup (
 //-------------------------------------------------------------------------------
 outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 {
-  //delete tempOp_;
 }
 
 //-------------------------------------------------------------------------------
@@ -199,26 +196,18 @@ bool outputsXyceExpressionGroup::getCurrentVal(
     double & retval )
 {
   ParamList paramList;
-  //paramList.push_back(Param(std::string("I"),1  ));
   paramList.push_back(Param(designator,1));
   paramList.push_back(Param(deviceName,0.0));
   Op::OpList internalDeviceVarOps_;
 
-  const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
   Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
-
-  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
-  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
-  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
-  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
 
   // loop over expressionOps_ to get all the values.
   std::vector<double> variableValues;
   for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
-    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
 
   retval = 0.0;
@@ -331,21 +320,14 @@ bool outputsXyceExpressionGroup::getInternalDeviceVar (const std::string & devic
   paramList.push_back(Param(      deviceName,0.0));
   Op::OpList internalDeviceVarOps_;
 
-  const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
   Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
-
-  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
-  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
-  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
-  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
 
   // loop over expressionOps_ to get all the values.
   std::vector<double> variableValues;
   for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
-    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
 
   retval = 0.0;
@@ -386,7 +368,7 @@ bool outputsXyceExpressionGroup::getInternalDeviceVar (const std::string & devic
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, double & retval) 
+bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval) 
 {
   retval=0.0; 
 
@@ -394,6 +376,34 @@ bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & device
   {
     Report::UserError0() << "DNO and DNI operators only supported for .NOISE analyses";
     return false;
+  }
+  else
+  {
+    ParamList paramList;
+    paramList.push_back(Param(std::string("DNO"), static_cast<int>(deviceNames.size())));
+    for(int ii=0;ii<deviceNames.size();ii++) { paramList.push_back(Param(deviceNames[ii],0.0)); }
+    Op::OpList dnoOps_;
+
+    const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(dnoOps_));
+
+    // loop over expressionOps_ to get all the values.
+    std::vector<double> variableValues;
+    for (Util::Op::OpList::const_iterator it = dnoOps_.begin(); it != dnoOps_.end(); ++it)
+    {
+      variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    retval = 0.0;
+    if ( !(variableValues.empty()) )
+    {
+      retval = variableValues[0];
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   return true; 
@@ -407,10 +417,10 @@ bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & device
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval) 
 {
   double val=0.0;
-  bool retBool = getDnoNoiseDeviceVar(deviceName,val);
+  bool retBool = getDnoNoiseDeviceVar(deviceNames,val);
   retval=std::complex<double>(val,0.0); 
   return retBool; 
 }
@@ -423,7 +433,7 @@ bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::string & device
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, double & retval) 
+bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval) 
 {
   retval=0.0; 
 
@@ -431,6 +441,34 @@ bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & device
   {
     Report::UserError0() << "DNO and DNI operators only supported for .NOISE analyses";
     return false;
+  }
+  else
+  {
+    ParamList paramList;
+    paramList.push_back(Param(std::string("DNI"),static_cast<int>(deviceNames.size())));
+    for(int ii=0;ii<deviceNames.size();ii++) { paramList.push_back(Param(deviceNames[ii],0.0)); }
+    Op::OpList dniOps_;
+
+    const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(dniOps_));
+
+    // loop over expressionOps_ to get all the values.
+    std::vector<double> variableValues;
+    for (Util::Op::OpList::const_iterator it = dniOps_.begin(); it != dniOps_.end(); ++it)
+    {
+      variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    retval = 0.0;
+    if ( !(variableValues.empty()) )
+    {
+      retval = variableValues[0];
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
   return true; 
@@ -444,10 +482,10 @@ bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & device
 // Creator       : Eric Keiter
 // Creation Date : 4/28/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval) 
+bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval) 
 {
   double val=0.0;
-  bool retBool = getDniNoiseDeviceVar(deviceName,val);
+  bool retBool = getDniNoiseDeviceVar(deviceNames,val);
   retval=std::complex<double>(val,0.0); 
   return retBool; 
 }
@@ -468,8 +506,36 @@ bool outputsXyceExpressionGroup::getONoise(double & retval)
     Report::UserError0() << "ONOISE operator only supported for .NOISE analyses";
     return false;
   }
+  else
+  {
+    ParamList paramList;
+    paramList.push_back(Param(std::string("ONOISE"),0.0));
+    Op::OpList onoiseVarOps_;
+
+    const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(onoiseVarOps_));
+
+    // loop over expressionOps_ to get all the values.
+    std::vector<double> variableValues;
+    for (Util::Op::OpList::const_iterator it = onoiseVarOps_.begin(); it != onoiseVarOps_.end(); ++it)
+    {
+      variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    retval = 0.0;
+    if ( !(variableValues.empty()) )
+    {
+      retval = variableValues[0];
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
+
 }
 
 //-------------------------------------------------------------------------------
@@ -504,6 +570,34 @@ bool outputsXyceExpressionGroup::getINoise(double & retval)
     Report::UserError0() << "INOISE operator only supported for .NOISE analyses";
     return false;
   }
+  else
+  {
+    ParamList paramList;
+    paramList.push_back(Param(std::string("INOISE"),0.0));
+    Op::OpList inoiseVarOps_;
+
+    const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(inoiseVarOps_));
+
+    // loop over expressionOps_ to get all the values.
+    std::vector<double> variableValues;
+    for (Util::Op::OpList::const_iterator it = inoiseVarOps_.begin(); it != inoiseVarOps_.end(); ++it)
+    {
+      variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    retval = 0.0;
+    if ( !(variableValues.empty()) )
+    {
+      retval = variableValues[0];
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -538,21 +632,14 @@ bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, double
   paramList.push_back(Param(      deviceName,0.0));
   Op::OpList powerOps_;
 
-  const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
   Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(powerOps_));
-
-  Linear::Vector *  solnVecPtr = dataStore_.nextSolutionPtr;
-  Linear::Vector *  solnVecImagPtr = dataStore_.nextSolutionPtr; // this is wrong, but leaving for now
-  Linear::Vector *  stateVecPtr = dataStore_.nextStatePtr;
-  Linear::Vector *  stoVecPtr = dataStore_.nextStorePtr;
 
   // loop over expressionOps_ to get all the values.
   std::vector<double> variableValues;
   for (Util::Op::OpList::const_iterator it = powerOps_.begin(); it != powerOps_.end(); ++it)
   {
-    Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opDataTmp).real());
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
 
   retval = 0.0;
@@ -630,13 +717,7 @@ double outputsXyceExpressionGroup::getTime()
 //-------------------------------------------------------------------------------
 double outputsXyceExpressionGroup::getTemp() 
 { 
-#if 0
-  // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
-  Util::Op::OpData op_data;
-  temp_ = (*tempOp_)(comm_.comm(), op_data).real();
-#else
   temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
-#endif
   return temp_;
 } 
 

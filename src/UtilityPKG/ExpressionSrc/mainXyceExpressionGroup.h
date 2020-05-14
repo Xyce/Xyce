@@ -121,8 +121,6 @@ public:
   virtual double getFreq();
   virtual double getGmin();
 
-  // in a real Xyce group, need something like this:
-  //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol();
   virtual double getStartingTimeStep();
   virtual double getFinalTime();
@@ -139,11 +137,9 @@ private:
   Analysis::AnalysisManager & analysisManager_;
   Device::DeviceMgr & deviceManager_;
 
-  IO::AliasNodeMap aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+  IO::AliasNodeMap aliasNodeMap_;
 
   IO::OutputMgr &outputManager_;
-
-  //Util::Op::Operator * tempOp_;
 
   double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;

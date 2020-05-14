@@ -1390,39 +1390,39 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
     noiseExpressionGroup () : Xyce::Util::baseExpressionGroup(), inoise_(std::complex<double>(0.0,0.0)), onoise_(std::complex<double>(0.0,0.0)) {};
     ~noiseExpressionGroup () {};
 
-  void setDnoNoiseDeviceVar (const std::string & name, std::complex<double> val)
+  void setDnoNoiseDeviceVar (const std::vector<std::string> & names, std::complex<double> val)
   {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    dnoDeviceVars_[lowerName] = val;
+    std::vector<std::string> lowerNames = names;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    dnoDeviceVars_[lowerNames[0]] = val;
   };
 
-  void setDniNoiseDeviceVar (const std::string & name, std::complex<double> val)
+  void setDniNoiseDeviceVar (const std::vector<std::string> & names, std::complex<double> val)
   {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    dniDeviceVars_[lowerName] = val;
+    std::vector<std::string> lowerNames = names;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    dniDeviceVars_[lowerNames[0]] = val;
   };
 
   void setONoise (std::complex<double> val) { onoise_ = val; };
   void setINoise (std::complex<double> val) { inoise_ = val; };
 
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & val) 
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & val) 
   { 
     bool retval=true;
-    std::string lowerName = deviceName;
-    Xyce::Util::toLower(lowerName);
-    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
+    std::vector<std::string> lowerNames = deviceNames;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    if (dnoDeviceVars_.find(lowerNames[0]) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerNames[0]]; }
     else { retval = false; }
     return retval;
   }
 
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & val) 
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & val) 
   { 
     bool retval=true;
-    std::string lowerName = deviceName;
-    Xyce::Util::toLower(lowerName);
-    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
+    std::vector<std::string> lowerNames = deviceNames;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    if (dniDeviceVars_.find(lowerNames[0]) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerNames[0]]; }
     else { retval = false; }
     return retval;
   }
@@ -1449,7 +1449,9 @@ TEST ( Complex_Parser_Noise_Test, dno_test)
 
   std::complex<double>  result=0.0, RES1val=std::complex<double>(3.0,0.0);
   std::complex<double>  refRes = 17.2*RES1val+8.5;
-  noiseVarGroup->setDnoNoiseDeviceVar(std::string("RES1"),RES1val);
+  std::vector<std::string> nameVec;
+  nameVec.push_back(std::string("RES1"));
+  noiseVarGroup->setDnoNoiseDeviceVar(nameVec,RES1val);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result); 
@@ -1471,7 +1473,9 @@ TEST ( Complex_Parser_Noise_Test, dni_test)
 
   std::complex<double>  result=0.0, RES1val=std::complex<double>(3.0,0.0);
   std::complex<double>  refRes = 17.2*RES1val+8.5;
-  noiseVarGroup->setDniNoiseDeviceVar(std::string("RES1"),RES1val);
+  std::vector<std::string> nameVec;
+  nameVec.push_back(std::string("RES1"));
+  noiseVarGroup->setDniNoiseDeviceVar(nameVec,RES1val);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result); 

@@ -72,8 +72,6 @@ ExpressionData::ExpressionData (
     expressionString_(expression),
     state_(NOT_SETUP),
     sensitivitiesPossible_(true)
-    //,
-    //expressionGroup_(group) // don't want to use this
 {
 
   Teuchos::RCP<mainXyceExpressionGroup> mainGroup = Teuchos::rcp_dynamic_cast<mainXyceExpressionGroup>(group);
@@ -89,7 +87,6 @@ ExpressionData::ExpressionData (
 
   expressionGroup_ = outputsGroup;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::~ExpressionData
@@ -121,6 +118,7 @@ bool ExpressionData::parsed() const
   return expression_ ? expression_->parsed() : false;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::evaluate
 // Purpose       :
@@ -177,6 +175,7 @@ double ExpressionData::evaluate(
 
   return value;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::evaluate
@@ -207,20 +206,10 @@ double ExpressionData::evaluate(
 
   double value = 0.0;
 
-#if 0
-  // ERK.  This doesn't belong here any more, but keeping for reference.  
-  // This kind of things belongs in the group.
-
-  // loop over expressionOps_ to get all the values.
-  variableValues_.clear();
-  for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-  {
-    variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
-  }
-#endif
-
   if (expression_)
   {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
     expression_->evaluateFunction(value);
   }
 
@@ -258,20 +247,11 @@ void ExpressionData::evaluate(
     Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
   }
 
-#if 0
-  // ERK.  This doesn't belong here any more, but keeping for reference.  
-  // This kind of things belongs in the group.
-
-  // loop over expressionOps_ to get all the values.
-  variableValues_.clear();
-  for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-  {
-    variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
-  }
-#endif
-
   if (expression_)
   {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+
     expression_->evaluate( result, derivs);
   }
 
@@ -332,9 +312,7 @@ ExpressionData::setup(
  
     std::vector<std::string>::iterator it = global_function_names.begin();
     std::vector<std::string>::iterator end = global_function_names.end();
-    //const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
-    //expression_->setFunctionMap(context_function_map);
-    //
+
     for ( ; it != end; ++it)
     {
       Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
@@ -373,7 +351,7 @@ ExpressionData::setup(
       }
       else
       {
-        Xyce::dout()  << "functionParameter is not EXPR type!!!" <<std::endl;
+        Xyce::dout()  << "ExpressionData::setup.  functionParameter is not EXPR type!!!" <<std::endl;
 
         switch (functionParameter.getType()) 
         {
@@ -393,10 +371,6 @@ ExpressionData::setup(
     }
   }
 
-  // this varNames vec is a list of string representations of all of
-  // the vars in the expression.  
-  ParamList param_list;
-
   // query the expression object for all of its dependent vars.
   std::vector<Xyce::Util::ExpressionSymbolTableEntry> theSymbolTable;
   
@@ -409,53 +383,16 @@ ExpressionData::setup(
     std::string varName = it->name;
     int varType = it->type;
     char varLeadDesignator = it->leadDesignator;
-    
-    // based on the type of variable, create the needed Param
-    // objects for setParmContextType_ to work.
 
     switch (varType)
     {
-      case XEXP_NODAL_COMPUTATION: // this covers things like P(Res)
-        // deconstruct the string and turn it into params, push back into
-        // param_list
-        sensitivitiesPossible_=false; 
-        convertNodalComputation(varName, param_list);
-        break;
-
-      case XEXP_NODE: // traditional voltage nodes  Even drops (like V(1,2)) handled here
-        param_list.push_back(Param( "V" , 1 ));
-        param_list.push_back(Param( varName , 0.0 ));
-        break;
-
+      case XEXP_NODAL_COMPUTATION: 
+      case XEXP_NODE:
       case XEXP_INSTANCE:
-      {
-        std::string currentName("I");
-        if( (varLeadDesignator != 0) && (varLeadDesignator!=' ') )
-        {
-          currentName = currentName + varLeadDesignator;
-        }
-        param_list.push_back( Param( currentName , 1 ) );
-        param_list.push_back( Param( varName , 0.0 ) );
-      } 
-      break;
-
       case XEXP_LEAD:
-      {
-        sensitivitiesPossible_=false;// only difference with XEXP_INSTANCE
-
-        std::string currentName("I");
-        if( (varLeadDesignator != 0) && (varLeadDesignator!=' ') )
-        {
-          currentName = currentName + varLeadDesignator;
-        }
-        param_list.push_back( Param( currentName , 1 ) );
-        param_list.push_back( Param( varName , 0.0 ) );
-      }
-      break;
-
       case XEXP_SPECIAL:
-        sensitivitiesPossible_=false;
-        param_list.push_back( Param( varName , 0.0 ) );
+      case XEXP_VARIABLE:
+      case XEXP_FUNCTION:
         break;
 
       case XEXP_STRING:
@@ -496,9 +433,6 @@ ExpressionData::setup(
           param_it = context_global_param_map.find(varName);
           if (param_it != context_global_param_map.end())
           {
-            //globalParams.push_back(varName);
-            param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) ); // ERK check this
-
             if(param_it->second.getType() == Xyce::Util::EXPR)
             {
               Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
@@ -521,15 +455,6 @@ ExpressionData::setup(
       }
       break;
 
-      case XEXP_VARIABLE:
-      {
-        sensitivitiesPossible_=false;
-        // this case is a global param that must be resolved at each use because
-        // it can change during a simulation
-        param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) );
-      }
-      break;
-
       default:
       {
         Report::UserError0() << "Can't find context for expression variable " << varName << " in expression "
@@ -549,46 +474,6 @@ ExpressionData::setup(
   }
 
   state_ = READY;
-
-#if 0
-  {
-  ParamList::iterator first = param_list.begin();
-  ParamList::iterator theEnd = param_list.end();
-  ParamList::iterator iter;
-  int i=0;
-  for (iter=first;iter!=theEnd;iter++,i++)
-  {
-    std::cout << "param_list " << i << " " << *iter;
-  }
-  }
-#endif
-
-#if 0
-  // don't need this anymore, commenting out to avoid confusion
-  Util::Op::makeOps(comm, op_builder_manager, NetlistLocation(), param_list.begin(), param_list.end(), std::back_inserter(expressionOps_));
-#endif
-
-#if 0
-  {
-  // recall that: typedef std::vector<Operator *> OpList;  So NOT a LIST!!!  arg
-  Util::Op::OpList::iterator first = expressionOps_.begin();
-  Util::Op::OpList::iterator theEnd = expressionOps_.end();
-  Util::Op::OpList::iterator iter;
-  int i=0;
-  for (iter=first;iter!=theEnd;iter++,i++)
-  {
-    Op::Operator * opPtr = (*iter);
-    Op::Operator & opRef = *opPtr;
-    const std::vector<std::string> & args = opRef.getArgs();
-    std::cout << "expressionOps_ " << i << "  " << opRef.getName();
-    for (int j=0;j<args.size();j++)
-    {
-      std::cout << "   " << args[j];
-    }
-    std::cout << std::endl;
-  }
-  }
-#endif
 
   return state_;
 }

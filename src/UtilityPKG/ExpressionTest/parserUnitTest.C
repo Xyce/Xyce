@@ -759,6 +759,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { retval = Bval; return true; }
     else if (tmp==std::string("c")) { retval = Cval; return true; }
     else if (tmp==std::string("r1")) { retval = R1val; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val; return true; }
 
     else if (tmp==std::string("vb")) { retval = VBval; return true; }
     else if (tmp==std::string("vc")) { retval = VCval; return true; }
@@ -775,6 +776,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { Bval = val; }
     else if (tmp==std::string("c")) { Cval = val; }
     else if (tmp==std::string("r1")) { R1val = val; }
+    else if (tmp==std::string("v1")) { R1val = val; }
 
     else if (tmp==std::string("vb")) { VBval = val; }
     else if (tmp==std::string("vc")) { VCval = val; }
@@ -1165,16 +1167,16 @@ TEST ( Double_Parser_CurrSoln_Test, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  Xyce::Util::newExpression testExpression(std::string("17.2*I(R1)+8.5"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("17.2*I(V1)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
-  double result=0.0, R1val=3.0;
-  double refRes = 17.2*R1val+8.5;
-  solnGroup->setSoln(std::string("R1"),R1val);
+  double result=0.0, V1val=3.0;
+  double refRes = 17.2*V1val+8.5;
+  solnGroup->setSoln(std::string("V1"),V1val);
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
@@ -1206,16 +1208,16 @@ TEST ( Double_Parser_CurrDeriv_Test, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  Xyce::Util::newExpression testExpression(std::string("17.2*I(R1)+8.5"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("17.2*I(V1)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
-  double result=0.0, R1val=3.0;
-  double refRes = 17.2*R1val+8.5;
-  solnGroup->setSoln(std::string("R1"),R1val);
+  double result=0.0, V1val=3.0;
+  double refRes = 17.2*V1val+8.5;
+  solnGroup->setSoln(std::string("V1"),V1val);
 
   std::vector<double> refDer;
   refDer.push_back( 17.2 );
@@ -1230,19 +1232,19 @@ TEST ( Double_Parser_CurrDeriv_Test, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  Xyce::Util::newExpression testExpression(std::string("20.0*I(R1)*I(R1)*I(R1)+7.5*I(R1)"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("20.0*I(V1)*I(V1)*I(V1)+7.5*I(V1)"), testGroup);
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
-  double result=0.0, R1val=6.3;
-  double refRes = 20.0*std::pow(R1val,3.0)+7.5*R1val;
-  solnGroup->setSoln(std::string("R1"),R1val);
+  double result=0.0, V1val=6.3;
+  double refRes = 20.0*std::pow(V1val,3.0)+7.5*V1val;
+  solnGroup->setSoln(std::string("V1"),V1val);
 
   std::vector<double> refDer;
-  refDer.push_back( 20.0*(3.0/R1val)*std::pow(R1val,3.0)+7.5 );
+  refDer.push_back( 20.0*(3.0/V1val)*std::pow(V1val,3.0)+7.5 );
   std::vector<double> derivs;
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
@@ -1487,39 +1489,39 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
     noiseExpressionGroup () : Xyce::Util::baseExpressionGroup(), inoise_(0.0), onoise_(0.0) {};
     ~noiseExpressionGroup () {};
 
-  void setDnoNoiseDeviceVar (const std::string & name, double val)
+  void setDnoNoiseDeviceVar (const std::vector<std::string> & names, double val)
   {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    dnoDeviceVars_[lowerName] = val;
+    std::vector<std::string> lowerNames = names;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    dnoDeviceVars_[lowerNames[0]] = val;
   };
 
-  void setDniNoiseDeviceVar (const std::string & name, double val)
+  void setDniNoiseDeviceVar (const std::vector<std::string> & names, double val)
   {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    dniDeviceVars_[lowerName] = val;
+    std::vector<std::string> lowerNames = names;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    dniDeviceVars_[lowerNames[0]] = val;
   };
 
   void setONoise (double val) { onoise_ = val; };
   void setINoise (double val) { inoise_ = val; };
 
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, double & val) 
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
   { 
     bool retval=true;
-    std::string lowerName = deviceName;
-    Xyce::Util::toLower(lowerName);
-    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
+    std::vector<std::string> lowerNames = deviceNames;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    if (dnoDeviceVars_.find(lowerNames[0]) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerNames[0]]; }
     else { retval = false; }
     return retval;
   }
 
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, double & val) 
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
   { 
     bool retval=true;
-    std::string lowerName = deviceName;
-    Xyce::Util::toLower(lowerName);
-    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
+    std::vector<std::string> lowerNames = deviceNames;
+    for (int ii=0;ii<lowerNames[ii].size();ii++) { Xyce::Util::toLower(lowerNames[ii]); }
+    if (dniDeviceVars_.find(lowerNames[0]) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerNames[0]]; }
     else { retval = false; }
     return retval;
   }
@@ -1546,7 +1548,9 @@ TEST ( Double_Parser_Noise_Test, dno_test)
 
   double result=0.0, RES1val=3.0;
   double refRes = 17.2*RES1val+8.5;
-  noiseVarGroup->setDnoNoiseDeviceVar(std::string("RES1"),RES1val);
+  std::vector<std::string> nameVec;
+  nameVec.push_back(std::string("RES1"));
+  noiseVarGroup->setDnoNoiseDeviceVar(nameVec, RES1val);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result); 
@@ -1568,7 +1572,9 @@ TEST ( Double_Parser_Noise_Test, dni_test)
 
   double result=0.0, RES1val=3.0;
   double refRes = 17.2*RES1val+8.5;
-  noiseVarGroup->setDniNoiseDeviceVar(std::string("RES1"),RES1val);
+  std::vector<std::string> nameVec;
+  nameVec.push_back(std::string("RES1"));
+  noiseVarGroup->setDniNoiseDeviceVar(nameVec,RES1val);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result); 
@@ -2118,7 +2124,8 @@ TEST ( Double_Parser_Func_Test, longArgList)
 class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
-    ifStatementExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0)  {};
+    ifStatementExpressionGroup () : Xyce::Util::baseExpressionGroup(), 
+    time(0.0), B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
     ~ifStatementExpressionGroup () {};
 
     virtual double getTime() { return time; };
@@ -2128,6 +2135,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     {
       std::string tmp = nodeName; Xyce::Util::toLower(tmp);
       if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
       else if (tmp==std::string("6")) { retval = v6; return true; }
       else if (tmp==std::string("7")) { retval = v7; return true; }
       else { return 0.0; return false; }
@@ -2137,6 +2145,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     {
       std::string tmp = nodeName; Xyce::Util::toLower(tmp);
       if (tmp==std::string("b2")) { B2 = val; }
+      else if (tmp==std::string("v2")) { V2 = val; }
       else if (tmp==std::string("6")) { v6 = val; }
       else if (tmp==std::string("7")) { v7 = val; }
     }
@@ -2145,6 +2154,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
 
     double time;
     double B2;
+    double V2;
     double v6;
     double v7;
 };
@@ -2186,7 +2196,7 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 
   // these expressions uses the .func ifmin and ifmax
   {
-    Xyce::Util::newExpression e3(std::string("ifmax(ifmin(-I(B2), 2.5), 1.5)"), baseGroup);
+    Xyce::Util::newExpression e3(std::string("ifmax(ifmin(-I(V2), 2.5), 1.5)"), baseGroup);
     e3.lexAndParseExpression();
     e3.attachFunctionNode(ifmaxName, ifmax);
     e3.attachFunctionNode(ifminName, ifmin);
@@ -2207,15 +2217,15 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
       double v1 = 0.0;
       if (time <= 0) { v1 = (V0) + (VA) * std::sin (0.0); }
       else { v1 = (V0) + (VA) * std::sin (2.0*mpi*((FREQ)*time + (0.0)/360)) * std::exp( -(time*(0.0))); }
-      double v2 = 2*v1;
-      double b2 = -0.5*v2;
+      double v11 = 2*v1;
+      double v2 = -0.5*v11;
 
       ifGroup->setTime(time);
-      ifGroup->setSoln(std::string("b2"),b2);
+      ifGroup->setSoln(std::string("v2"),v2);
       e3.evaluateFunction(result[ii]);
       copy_e3.evaluateFunction(copyResult[ii]);
       assign_e3.evaluateFunction(assignResult[ii]);
-      refRes[ii] = std::max(std::min(-b2,2.5),1.5);
+      refRes[ii] = std::max(std::min(-v2,2.5),1.5);
     }
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
@@ -2256,7 +2266,7 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
 
   // these expressions uses the .func doubleIt and tripleIt
   {
-    Xyce::Util::newExpression e3(std::string("tripleIt(doubleIt(-I(B2)))"), baseGroup);
+    Xyce::Util::newExpression e3(std::string("tripleIt(doubleIt(-I(V2)))"), baseGroup);
     e3.lexAndParseExpression();
     e3.attachFunctionNode(tripleItName, tripleIt);
     e3.attachFunctionNode(doubleItName, doubleIt);
@@ -2266,12 +2276,12 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
     assign_e3 = e3; 
 
     double result, refRes, copyResult, assignResult;
-    double b2 = -0.5;
-    ifGroup->setSoln(std::string("b2"),b2);
+    double v2 = -0.5;
+    ifGroup->setSoln(std::string("v2"),v2);
     e3.evaluateFunction(result);
     copy_e3.evaluateFunction(copyResult);
     assign_e3.evaluateFunction(assignResult);
-    refRes = -b2*2*3;
+    refRes = -v2*2*3;
 
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
@@ -2286,7 +2296,7 @@ TEST ( Double_Parser_ifstatement, min_max)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
   // these expressions uses min and max AST nodes
-  Xyce::Util::newExpression e4(std::string("max(min(-I(B2), 2.5), 1.5)"), baseGroup);
+  Xyce::Util::newExpression e4(std::string("max(min(-I(V2), 2.5), 1.5)"), baseGroup);
   e4.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_e4(e4); 
@@ -2305,15 +2315,15 @@ TEST ( Double_Parser_ifstatement, min_max)
     double v1 = 0.0;
     if (time <= 0) { v1 = (V0) + (VA) * std::sin (0.0); }
     else { v1 = (V0) + (VA) * std::sin (2.0*mpi*((FREQ)*time + (0.0)/360)) * std::exp( -(time*(0.0))); }
-    double v2 = 2*v1;
-    double b2 = -0.5*v2;
+    double v11 = 2*v1;
+    double v2 = -0.5*v11;
 
     ifGroup->setTime(time);
-    ifGroup->setSoln(std::string("b2"),b2);
+    ifGroup->setSoln(std::string("v2"),v2);
     e4.evaluateFunction(result[ii]);
     copy_e4.evaluateFunction(copyResult[ii]);
     assign_e4.evaluateFunction(assignResult[ii]);
-    refRes[ii] = std::max(std::min(-b2,2.5),1.5);
+    refRes[ii] = std::max(std::min(-v2,2.5),1.5);
   }
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
@@ -2327,7 +2337,7 @@ TEST ( Double_Parser_ifstatement, limit)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
   // these expressions uses limit AST node
-  Xyce::Util::newExpression e5(std::string("limit(-I(B2),1.5,2.5)"), baseGroup);
+  Xyce::Util::newExpression e5(std::string("limit(-I(V2),1.5,2.5)"), baseGroup);
   e5.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_e5(e5); 
@@ -2346,15 +2356,15 @@ TEST ( Double_Parser_ifstatement, limit)
     double v1 = 0.0;
     if (time <= 0) { v1 = (V0) + (VA) * std::sin (0.0); }
     else { v1 = (V0) + (VA) * std::sin (2.0*mpi*((FREQ)*time + (0.0)/360)) * std::exp( -(time*(0.0))); }
-    double v2 = 2*v1;
-    double b2 = -0.5*v2;
+    double v11 = 2*v1;
+    double v2 = -0.5*v11;
 
     ifGroup->setTime(time);
-    ifGroup->setSoln(std::string("b2"),b2);
+    ifGroup->setSoln(std::string("v2"),v2);
     e5.evaluateFunction(result[ii]);
     copy_e5.evaluateFunction(copyResult[ii]);
     assign_e5.evaluateFunction(assignResult[ii]);
-    refRes[ii] = std::max(std::min(-b2,2.5),1.5);
+    refRes[ii] = std::max(std::min(-v2,2.5),1.5);
   }
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
@@ -3550,13 +3560,13 @@ TEST ( Double_Parser_calculus, ddx9)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  Xyce::Util::newExpression ddxTest(std::string("ddx(sin(i(a)),i(a))"), testGroup); ddxTest.lexAndParseExpression();
+  Xyce::Util::newExpression ddxTest(std::string("ddx(sin(i(v1)),i(v1))"), testGroup); ddxTest.lexAndParseExpression();
   
   Xyce::Util::newExpression copy_ddxTest(ddxTest); 
   Xyce::Util::newExpression assign_ddxTest; 
   assign_ddxTest = ddxTest; 
 
-  solnGroup->setSoln(std::string("A"),5.0);
+  solnGroup->setSoln(std::string("V1"),5.0);
   double result;
   ddxTest.evaluateFunction(result);        EXPECT_EQ( result, std::cos(5.0) );
   copy_ddxTest.evaluateFunction(result);   EXPECT_EQ( result, std::cos(5.0) );
@@ -3642,6 +3652,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { retval = Bval_; return true; }
     else if (tmp==std::string("c")) { retval = Cval_; return true; }
     else if (tmp==std::string("r1")) { retval = R1val_; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val_; return true; }
     else { return 0.0; return false; }
   }
 
@@ -3652,6 +3663,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { Bval_ = val; }
     else if (tmp==std::string("c")) { Cval_ = val; }
     else if (tmp==std::string("r1")) { R1val_ = val; }
+    else if (tmp==std::string("v1")) { R1val_ = val; }
   }
 
   private:

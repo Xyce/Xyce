@@ -93,6 +93,7 @@ public:
     const Util::ParamMap &              context_param_map,
     const Util::ParamMap &              context_global_param_map);
 
+#if 0
   double evaluate(
     Parallel::Machine           comm,
     double                      current_circuit_time,
@@ -101,6 +102,7 @@ public:
     const Linear::Vector *      stateVecPtr,
     const Linear::Vector *      stoVecPtr,
     const Linear::Vector *      solnVecImagPtr = 0) const;
+#endif
 
   double evaluate(
       Parallel::Machine comm, 

@@ -71,7 +71,7 @@ NODE [a-zA-Z0-9_:]*
 VOP V[RIMP]?
 IOP I[RIMP]?
 NOP N[RIMP]?
-LEAD I[SDG]
+LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
 %}
@@ -309,6 +309,13 @@ LEAD I[SDG]
   return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
 }
 
+ /* first device in a comma-separated list of two device */
+<noisedevdef>{ID}"," {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
+  return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
+}
+
 <INITIAL>"DNI"     {
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD;
@@ -332,14 +339,22 @@ LEAD I[SDG]
 }
 
  /* single device name by itself */
-<noisedevdef>{ID}")" {
+ /* <noisedevdef>{ID}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
-}
+  } */
 
 <INITIAL>"P"[ \t]*"("    { 
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_POWER; 
+}
+
+
+<INITIAL>"W"[ \t]*"("    { 
   BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren

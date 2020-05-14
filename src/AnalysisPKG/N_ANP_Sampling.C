@@ -893,10 +893,8 @@ void Sampling::updateEnsembleOutputs()
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-
-      double val = outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, 
-          &solution_vector, &state_vector, &store_vector);
-
+      Util::Op::OpData opDataTmp(0, &solution_vector, 0, &state_vector, &store_vector, 0);
+      double val = outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, opDataTmp);
       outFunc.sampleOutputs.push_back(val);
     }
   }

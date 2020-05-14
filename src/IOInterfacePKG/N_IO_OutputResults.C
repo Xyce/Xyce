@@ -255,8 +255,8 @@ void OutputResults::output(
     double result = 0.0;
     if (expression_data.parsed()) 
     {
-      result = expression_data.evaluate(comm, circuit_time, circuit_dt, 
-          &solution_vector, &state_vector, &store_vector);
+      Util::Op::OpData opDataTmp(0, &solution_vector, 0, &state_vector, &store_vector, 0);
+      result = expression_data.evaluate(comm, circuit_time, circuit_dt, opDataTmp);
     }
 
     if (Parallel::rank(comm) == 0)

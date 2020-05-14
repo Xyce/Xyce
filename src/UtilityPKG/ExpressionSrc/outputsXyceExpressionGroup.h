@@ -120,11 +120,11 @@ public:
   virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval );
   virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval );
 
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, double & retval);
-  virtual bool getDnoNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval);
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval);
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval);
 
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, double & retval);
-  virtual bool getDniNoiseDeviceVar(const std::string & deviceName, std::complex<double> & retval);
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & retval);
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, std::complex<double> & retval);
 
   virtual bool getONoise(double & retval);
   virtual bool getONoise(std::complex<double> & retval);
@@ -144,13 +144,13 @@ public:
   virtual double getVT  ();
   virtual double getFreq();
 
-  // in a real Xyce group, need something like this:
-  //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol();
   virtual double getStartingTimeStep();
   virtual double getFinalTime();
 
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
+
+  void setOpData (const Util::Op::OpData & opData) { opData_ = opData; }
 
 private:
 
@@ -162,14 +162,14 @@ private:
   Analysis::AnalysisManager & analysisManager_;
   Device::DeviceMgr & deviceManager_;
 
-  IO::AliasNodeMap aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+  IO::AliasNodeMap aliasNodeMap_;
 
   IO::OutputMgr &outputManager_;
 
-  //Util::Op::Operator * tempOp_;
-
   double time_, temp_, VT_, freq_;
   double dt_, alpha_;
+
+  Util::Op::OpData opData_;
 };
 
 }

@@ -120,8 +120,6 @@ public:
   virtual double getVT  () { return VT_;} 
   virtual double getFreq() { return freq_;} 
 
-  // in a real Xyce group, need something like this:
-  //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
   virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
