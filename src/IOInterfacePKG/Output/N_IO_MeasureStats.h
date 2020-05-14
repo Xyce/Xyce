@@ -109,6 +109,7 @@ public:
 protected:
   double lastIndepVarValue_;
   double lastSignalValue_;
+  int numPointsFound_;
 
 private:
   int numOutVars_;

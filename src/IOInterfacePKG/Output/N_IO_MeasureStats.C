@@ -52,7 +52,8 @@ namespace Measure {
 Stats::Stats(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
   lastIndepVarValue_(0.0),
-  lastSignalValue_(0.0)
+  lastSignalValue_(0.0),
+  numPointsFound_(0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -96,6 +97,7 @@ void Stats::prepareOutputVariables()
 void Stats::resetStats()
 {
   resetBase();
+  numPointsFound_=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -264,6 +266,7 @@ void Stats::updateMeasureState(const double indepVarVal, const double depVarVal)
   lastIndepVarValue_ = indepVarVal;
   lastSignalValue_ = depVarVal;
   initialized_=true;
+  ++numPointsFound_;
 
   return;
 }

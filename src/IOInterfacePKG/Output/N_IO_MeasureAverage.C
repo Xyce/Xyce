@@ -126,17 +126,64 @@ void Average::updateMeasureVars(const double indepVarVal, const double signalVal
 //-----------------------------------------------------------------------------
 double Average::getMeasureResult()
 {
-  if( initialized_ )
-  {
-    if (totalAveragingWindow_ > 0)
+  if( initialized_ && (numPointsFound_ > 1) )
       calculationResult_ =  averageValue_ / totalAveragingWindow_;
-    else
-    {
-      calculationResult_ = calculationDefaultVal_;
-      initialized_ = false;
-    }
-  }
+
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Average::printMeasureResult()
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 5/13/2020
+//-----------------------------------------------------------------------------
+std::ostream& Average::printMeasureResult(std::ostream& os)
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  if ( (!initialized_ || (numPointsFound_ < 2)) && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+  {
+    // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+    // netlist and this is a failed measure.
+    os << name_ << " = FAILED" << std::endl;
+  }
+  else
+  {
+     os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Average::printVerboseMeasureResult()
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 5/13/2020
+//-----------------------------------------------------------------------------
+std::ostream& Average::printVerboseMeasureResult(std::ostream& os)
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  if (initialized_ && (numPointsFound_ > 1))
+  {
+    os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+  else
+  {
+    os << name_ << " = FAILED" << std::endl;
+  }
+
+  return os;
 }
 
 //-----------------------------------------------------------------------------
