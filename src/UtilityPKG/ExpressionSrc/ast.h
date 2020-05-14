@@ -2373,7 +2373,8 @@ class tableOp : public astNode<ScalarT>
   public:
     // functions:
     tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
-      astNode<ScalarT>(), tableArgs_(*args), allNumVal_(true), input_(input)
+      astNode<ScalarT>(), tableArgs_(*args),
+      allNumVal_(true), input_(input)
       {
         int size = tableArgs_.size();
         if (size % 2)
@@ -2426,7 +2427,23 @@ class tableOp : public astNode<ScalarT>
       }
 
       ScalarT input = std::real(this->input_->val());
-      yInterpolator_.eval(ta_,ya_, input, y); 
+   
+      if ( !(ta_.empty()) )
+      {
+        int arraySize=ta_.size();
+        if (std::real(input) < std::real(ta_[0]))
+        {
+          y = ya_[0];
+        }
+        else if (std::real(input) > std::real(ta_[arraySize-1]))
+        {
+          y = ya_[arraySize-1];
+        }
+        else
+        {
+          yInterpolator_.eval(ta_,ya_, input, y); 
+        }
+      }
 
       return y;
     };
@@ -2446,7 +2463,23 @@ class tableOp : public astNode<ScalarT>
         dyInterpolator_.init(ta_,dya_); // for linear, this isn't necessary, but for others it is
 
         ScalarT input = std::real(this->input_->val());
-        dyInterpolator_.eval(ta_,dya_, input, dydx);
+
+        if ( !(ta_.empty()) )
+        {
+          int arraySize=ta_.size();
+          if (std::real(input) < std::real(ta_[0]))
+          {
+            dydx = dya_[0];
+          }
+          else if (std::real(input) > std::real(ta_[arraySize-1]))
+          {
+            dydx = dya_[arraySize-1];
+          }
+          else
+          {
+            dyInterpolator_.eval(ta_,dya_, input, dydx);
+          }
+        }
       }
       return dydx;
     }
@@ -2463,6 +2496,23 @@ class tableOp : public astNode<ScalarT>
     {
       // fix this
       os << "TABLE";
+    }
+
+
+    // ERK.  This is not efficient.
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+     if ( input_->timeSpecialType() )
+     {
+        double time = std::real(this->input_->val());
+        int size = tableArgs_.size();
+        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        {
+          double bpTime =  std::real( (tableArgs_)[ii]->val() );
+          breakPointTimes.push_back( bpTime );
+        }
+      }
+      return true;
     }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)

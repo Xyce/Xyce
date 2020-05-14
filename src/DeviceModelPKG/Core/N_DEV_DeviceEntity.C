@@ -1042,7 +1042,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       GlobalParameterMap::iterator global_param_it = globals_.global_params.find(*iterS);
       if (global_param_it == globals_.global_params.end())
       {
-        UserError(*this) << "Global parameter " << *iterS << " not found";
+        UserError(*this) << "Global parameter " << *iterS << " in " <<
+            dependentParam.expr->get_expression() << " not found";
       }
       else 
       {
