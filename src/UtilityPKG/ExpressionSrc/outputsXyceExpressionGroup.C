@@ -136,16 +136,31 @@ int outputsXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 //-------------------------------------------------------------------------------
 bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
-  retval = 0.0;
+  ParamList paramList;
+  paramList.push_back(Param(std::string("V"),1  ));
+  paramList.push_back(Param(      nodeName,0.0));
+  Op::OpList internalDeviceVarOps_;
 
-  int tmpGID = getSolutionGID_(nodeName);
-  if (tmpGID >= 0)
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<double> variableValues;
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
-    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
-    retval = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &retval, 1);
-  return (tmpGID>=0);
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 //-------------------------------------------------------------------------------
@@ -158,28 +173,34 @@ bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, do
 //-------------------------------------------------------------------------------
 bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
 {
-  double real_val=0.0;
-  double imag_val=0.0;
+  ParamList paramList;
+  paramList.push_back(Param(std::string("V"),1  ));
+  paramList.push_back(Param(      nodeName,0.0));
+  Op::OpList internalDeviceVarOps_;
 
-  int tmpGID = getSolutionGID_(nodeName);
-  if (tmpGID >= 0)
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<std::complex<double> > variableValues;
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
-    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
-    real_val = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
+    double real = Util::Op::getValue(comm_.comm(), *(*it), opData_).real();
+    double imag = Util::Op::getValue(comm_.comm(), *(*it), opData_).imag();
+    std::complex<double> val = std::complex<double>(real,imag);
+    variableValues.push_back( val );
   }
 
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
-
-  // ERK.  To Do:
-  // need to add logic to see if this is frequency domain situation or not.
-  // If not, don't bother getting the imaginary part.
-  //
-  // Xyce currently uses a real equivalent form for everything, rather than std::complex.
-  //
-  // For now, however, just set imag to zero.
-
-  retval = std::complex<double>(real_val,imag_val);
-  return (tmpGID>=0);
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 //-------------------------------------------------------------------------------
@@ -535,7 +556,6 @@ bool outputsXyceExpressionGroup::getONoise(double & retval)
   }
 
   return true;
-
 }
 
 //-------------------------------------------------------------------------------

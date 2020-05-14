@@ -108,7 +108,6 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
  outputManager_(output_manager),
- //tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
  time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
 {
 
@@ -124,7 +123,6 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
 //-------------------------------------------------------------------------------
 mainXyceExpressionGroup::~mainXyceExpressionGroup ()
 {
-  //delete tempOp_;
 }
 
 //-------------------------------------------------------------------------------
@@ -469,13 +467,7 @@ double mainXyceExpressionGroup::getTime()
 //-------------------------------------------------------------------------------
 double mainXyceExpressionGroup::getTemp() 
 { 
-#if 0
-  // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
-  Util::Op::OpData op_data;
-  temp_ = (*tempOp_)(comm_.comm(), op_data).real();
-#else
   temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
-#endif
   return temp_;
 } 
 

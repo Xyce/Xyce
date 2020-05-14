@@ -118,65 +118,6 @@ bool ExpressionData::parsed() const
   return expression_ ? expression_->parsed() : false;
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : ExpressionData::evaluate
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 08/09/04
-//-----------------------------------------------------------------------------
-double ExpressionData::evaluate(
-  Parallel::Machine     comm,
-  double                current_circuit_time,
-  double                current_circuit_dt,
-  const Linear::Vector *  solnVecPtr,
-  const Linear::Vector *  stateVecPtr,
-  const Linear::Vector *  stoVecPtr,
-  const Linear::Vector *  solnVecImagPtr) const
-{
-  if (state_ == NOT_SETUP)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
-  }
-  else if (state_ == PARSE_FAILED)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
-  }
-  else if (state_ == UNRESOLVED_SYMBOL)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
-  }
-
-  double value = 0.0;
-
-  //if (solnVecPtr)
-  {
-
-#if 0
-    // ERK.  This doesn't belong here any more, but keeping for reference.  
-    // This kind of things belongs in the group.
-
-    // loop over expressionOps_ to get all the values.
-    variableValues_.clear();
-    for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-    {
-      Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-      variableValues_.push_back( Util::Op::getValue(comm, *(*it), opDataTmp).real());
-    }
-#endif
-
-    if (expression_)
-    {
-      expression_->evaluateFunction(value);
-    }
-  }
-
-  return value;
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::evaluate
 // Purpose       :
@@ -257,17 +198,6 @@ void ExpressionData::evaluate(
 
   return;
 }
-
-//-----------------------------------------------------------------------------
-// Namespace     : Unnamed
-// Purpose       : file-local scoped methods and data
-// Special Notes : just the declaration, definition at end of file
-// Creator       : Tom Russo, SNL
-// Creation Date : 11/27/2013
-//-----------------------------------------------------------------------------
-namespace {
-void convertNodalComputation(std::string &nodalComputation, ParamList &paramList);
-} // namespace (unnamed)
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::setup
@@ -371,96 +301,66 @@ ExpressionData::setup(
     }
   }
 
-  // query the expression object for all of its dependent vars.
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry> theSymbolTable;
-  
-  expression_->getSymbolTable(theSymbolTable);
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry>::iterator it = theSymbolTable.begin();
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry>::iterator end = theSymbolTable.end(); 
+  // resolve .param and .global_params
+  std::vector<std::string> params;
+  expression_->getParams(params);
 
-  for ( ; it != end; ++it)
+  for (int ii=0;ii<params.size();ii++)
   {
-    std::string varName = it->name;
-    int varType = it->type;
-    char varLeadDesignator = it->leadDesignator;
+    std::string varName = params[ii];
+    Util::ParamMap::const_iterator param_it = context_param_map.find(varName);
 
-    switch (varType)
+    if (param_it != context_param_map.end())
     {
-      case XEXP_NODAL_COMPUTATION: 
-      case XEXP_NODE:
-      case XEXP_INSTANCE:
-      case XEXP_LEAD:
-      case XEXP_SPECIAL:
-      case XEXP_VARIABLE:
-      case XEXP_FUNCTION:
-        break;
+      const Util::Param &replacement_param = (*param_it).second;
 
-      case XEXP_STRING:
+      if ( replacement_param.getType() == Xyce::Util::STR ||
+           replacement_param.getType() == Xyce::Util::DBLE )
       {
-        Util::ParamMap::const_iterator param_it = context_param_map.find(varName);
-
-        if (param_it != context_param_map.end())
+        bool isDotParam=true;
+        if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),isDotParam)  )
         {
-          const Util::Param &replacement_param = (*param_it).second;
-
-          if ( replacement_param.getType() == Xyce::Util::STR ||
-               replacement_param.getType() == Xyce::Util::DBLE )
-          {
-            bool isDotParam=true;
-            if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),isDotParam)  )
-            {
-              Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
-            }
-          }
-          else if (replacement_param.getType() == Xyce::Util::EXPR)
-          {
-            // ERK.  Need to add error messaging to the "attachParameterNode" function to (if need be) output this:
-            //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-            //                       << " as substitute for " << varName << " in expression " << expressionString;
-            //
-            bool isDotParam=true;
-            expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), isDotParam);
-          }
+          Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
+        }
+      }
+      else if (replacement_param.getType() == Xyce::Util::EXPR)
+      {
+        // ERK.  Need to add error messaging to the "attachParameterNode" function to (if need be) output this:
+        //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
+        //                       << " as substitute for " << varName << " in expression " << expressionString;
+        //
+        bool isDotParam=true;
+        expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), isDotParam);
+      }
+    }
+    else
+    {
+      // this block of code will check if the current string is in the global parameter map.
+      // If it is, then it will call the "make_var" function for this string.
+      // In the old expression library, this marks the string as being something that the 
+      // calling code will need to set.  It does not do anything else.
+      // Later, the string will be added to the globalParams container, and also the 
+      // expVarNames vector.
+      param_it = context_global_param_map.find(varName);
+      if (param_it != context_global_param_map.end())
+      {
+        if(param_it->second.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+          expression_->attachParameterNode(varName, expToBeAttached);
         }
         else
         {
-          // this block of code will check if the current string is in the global parameter map.
-          // If it is, then it will call the "make_var" function for this string.
-          // In the old expression library, this marks the string as being something that the 
-          // calling code will need to set.  It does not do anything else.
-          // Later, the string will be added to the globalParams container, and also the 
-          // expVarNames vector.
-          param_it = context_global_param_map.find(varName);
-          if (param_it != context_global_param_map.end())
+          if (!expression_->make_var(varName))
           {
-            if(param_it->second.getType() == Xyce::Util::EXPR)
-            {
-              Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
-              expression_->attachParameterNode(varName, expToBeAttached);
-            }
-            else
-            {
-              if (!expression_->make_var(varName))
-              {
-                Report::UserWarning0() << "Problem setting global parameter " << varName;
-              }
-            }
-          }
-          else
-          {
-            Report::UserWarning0() << "This field: " << varName 
-              << " from the expression " << expression_->get_expression() << " is not resolvable";
+            Report::UserWarning0() << "Problem setting global parameter " << varName;
           }
         }
       }
-      break;
-
-      default:
+      else
       {
-        Report::UserError0() << "Can't find context for expression variable " << varName << " in expression "
-                               << expressionString_ << std::endl
-                               << "Please check to ensure this parameter is correct and set in your netlist.";
-        ++unresolved_symbol_count;
+        Report::UserWarning0() << "This field: " << varName 
+          << " from the expression " << expression_->get_expression() << " is not resolvable";
       }
     }
   }
@@ -495,67 +395,5 @@ void ExpressionData::getExpressionArgs(std::vector<std::string> & args)
   }
 }
 
-//-----------------------------------------------------------------------------
-// Namespace     : Unnamed
-// Purpose       : file-local scoped methods and data
-// Special Notes :
-// Creator       : Tom Russo, SNL
-// Creation Date : 11/27/2013
-//-----------------------------------------------------------------------------
-namespace {
-
-//-----------------------------------------------------------------------------
-// Function      : convertNodalComputation
-// Purpose       : given a nodal expression string (e.g. "VM(A,B)"),
-//                 construct the set of Params that makeOps would expect for
-//                 it
-// Special Notes :
-//
-// Scope         : file-local
-// Creator       : Tom Russo
-// Creation Date : 11/27/2013
-//-----------------------------------------------------------------------------
-void convertNodalComputation(
-  std::string &         nodalComputation,
-  ParamList &           paramList)
-{
-  ParamList tempParamList;
-
-  std::size_t firstParen = nodalComputation.find_first_of("(");
-  std::size_t lastParen = nodalComputation.find_first_of("(");
-  // the length of the name of the param is actually equal to the position
-  // of the first paren
-  std::string compName=nodalComputation.substr(0,firstParen);
-  std::string args=nodalComputation.substr(firstParen+1,nodalComputation.length()-compName.length()-2);
-
-  if (DEBUG_EXPRESSION)
-    Xyce::dout() << "Processing nodalComputation : " << nodalComputation << Util::push<< std::endl
-                 << "name of computation: " << compName << std::endl
-                 << "args: " << args << Util::push << std::endl;
-
-  std::size_t firstComma=args.find_first_of(",");
-  while (firstComma != std::string::npos)
-  {
-    std::string arg = args.substr(0,firstComma);
-    std::size_t argsLength = args.length();
-    args = args.substr(firstComma+1,argsLength-arg.length()-1);
-    firstComma = args.find_first_of(",");
-    tempParamList.push_back(Param(arg,0.0));
-    if (DEBUG_EXPRESSION)
-      Xyce::dout() << "arg " << arg << std::endl;
-  }
-
-  tempParamList.push_back(Param(args, 0.0));
-
-  if (DEBUG_EXPRESSION)
-    Xyce::dout() << "Remaining arg " << args << std::endl
-                 << "There were " << tempParamList.size() << " args." << Util::pop << std::endl
-                 << Util::pop << std::endl;
-
-  paramList.push_back(Param(compName, static_cast<int>(tempParamList.size())));
-  std::copy (tempParamList.begin(), tempParamList.end(), std::back_inserter(paramList));
-}
-
-} // namespace (unnammed)
 } // namespace Util
 } // namespace Xyce
