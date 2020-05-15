@@ -808,13 +808,9 @@ void newExpression::getValuesFromGroup()
   for (int ii=0;ii<currentOpVec_.size();ii++)
   {
     Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-
     usedType val;
-    if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
-    {
-      std::string simple("I");
-      group_->getCurrentVal(currOp->getCurrentDevice(),simple,val);
-    }
+    std::string simple("I");
+    group_->getCurrentVal(currOp->getCurrentDevice(),simple,val);
     currOp->setCurrentVal ( val );
   }
 
