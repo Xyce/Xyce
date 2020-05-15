@@ -105,9 +105,6 @@ public:
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval );
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval );
-
   virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
