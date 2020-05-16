@@ -841,10 +841,10 @@ void newExpression::getValuesFromGroup()
     // (1) we want derivatives w.r.t. it.
     // (2) it should be considered a dynamic variable that gets its values externally
     //
-    if ( parOp->getIsVar() )
+    if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) )
     {
       usedType val;
-      group_->getGlobalParameterVal(parOp->getName(),val);
+      group_->getGlobalParameterVal(parOp->getName(),val); // ERK: this function name is misleading, as it retrieves stuff that isn't necessarily a global param.  Fix.
       parOp->setValue(val);
     }
   }
@@ -1001,7 +1001,7 @@ int newExpression::evaluateFunction (usedType &result)
       }
     }
 
-    if (!isConstant_) 
+    //if (!isConstant_)  // this might be a problem.  commenting out
     {
       getValuesFromGroup();
     }
