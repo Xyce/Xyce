@@ -1352,89 +1352,24 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       }
       else
       {
-#if 0
-        Xyce::dout() << " about to do the other setVal on param 1 " << parameter.uTag() << " (didn't do after setting the parameter 1)";
+        // Reset the parameter value to the value of the expression.
+        double value(0.0);
+        expression.evaluateFunction ( value );
+        parameter.setVal( value );
+        // we have resolved the context so set it and the constant value to 
+        // make later look ups easier.
+        // parameter.addOp(Util::CONSTANT, new IO::ConstantOp(parameter.tag(), value));
+        if (DEBUG_IO)
         {
-        switch (parameter.getType()) 
-        {
-          case Xyce::Util::STR:
-            Xyce::dout() << " " << parameter.uTag() <<" is STR type; value =  " <<  parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::DBLE:
-            Xyce::dout() << " " << parameter.uTag() <<" is DBLE type; value =  " <<  parameter.getImmutableValue<double>() <<std::endl;
-            break;
-          case Xyce::Util::EXPR:
-            Xyce::dout() << " " << parameter.uTag() <<" is EXPR type; value =  " << parameter.getValue<Util::Expression>().get_expression() <<std::endl;
-            break;
-          case Xyce::Util::BOOL:
-            Xyce::dout() << " " << parameter.uTag() <<" is BOOL type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::STR_VEC:
-            Xyce::dout() << " " << parameter.uTag() <<" is STR_VEC type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::INT_VEC:
-            Xyce::dout() << " " << parameter.uTag() <<" is INT_VEC type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::DBLE_VEC:
-            Xyce::dout() << " " << parameter.uTag() <<" is DBLE_VEC type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::DBLE_VEC_IND:
-            Xyce::dout() << " " << parameter.uTag() <<" is DBLE_VEC_IND type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          case Xyce::Util::COMPOSITE:
-            Xyce::dout() << " " << parameter.uTag() <<" is COMPOSITE type; value =  " << parameter.stringValue() <<std::endl;
-            break;
-          default:
-            Xyce::dout() << " " << parameter.uTag() <<" is default type (whatever that is): " << parameter.stringValue() <<std::endl;
+          Xyce::dout() << " CircuitContext::resolveParameter --  Resetting parameter value from " << expressionString << " to " << value << " because it is resolved and not a function" << std::endl;
         }
-        }
-#endif
-        parameter.setVal( expression );
       }
     }
     else
     {
-#if 0
-      Xyce::dout() << " about to do the other setVal on param 2 " << parameter.uTag() << " (didn't do after setting the parameter 1)";
-      {
-      switch (parameter.getType()) 
-      {
-        case Xyce::Util::STR:
-          Xyce::dout() << " " << parameter.uTag() <<" is STR type; value =  " <<  parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::DBLE:
-          Xyce::dout() << " " << parameter.uTag() <<" is DBLE type; value =  " <<  parameter.getImmutableValue<double>() <<std::endl;
-          break;
-        case Xyce::Util::EXPR:
-          Xyce::dout() << " " << parameter.uTag() <<" is EXPR type; value =  " << parameter.getValue<Util::Expression>().get_expression() <<std::endl;
-          break;
-        case Xyce::Util::BOOL:
-          Xyce::dout() << " " << parameter.uTag() <<" is BOOL type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::STR_VEC:
-          Xyce::dout() << " " << parameter.uTag() <<" is STR_VEC type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::INT_VEC:
-          Xyce::dout() << " " << parameter.uTag() <<" is INT_VEC type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::DBLE_VEC:
-          Xyce::dout() << " " << parameter.uTag() <<" is DBLE_VEC type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::DBLE_VEC_IND:
-          Xyce::dout() << " " << parameter.uTag() <<" is DBLE_VEC_IND type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        case Xyce::Util::COMPOSITE:
-          Xyce::dout() << " " << parameter.uTag() <<" is COMPOSITE type; value =  " << parameter.stringValue() <<std::endl;
-          break;
-        default:
-          Xyce::dout() << " " << parameter.uTag() <<" is default type (whatever that is): " << parameter.stringValue() <<std::endl;
-      }
-    }
-#endif
-
-    // Reset the parameter value to the value of the expression with
-    // as much resolution as could be achieved.
-    parameter.setVal(expression);
+      // Reset the parameter value to the value of the expression with
+      // as much resolution as could be achieved.
+      parameter.setVal(expression);
     }
 
     if (DEBUG_IO)
@@ -1477,7 +1412,6 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
             Xyce::dout() << " " << parameter.uTag() <<" is default type (whatever that is): " << parameter.stringValue() <<std::endl;
         }
       }
-
 
       Xyce::dout() << " and its value is ";
       switch (parameter.getType()) {
@@ -1665,70 +1599,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       }
       else
       {
-        if (funcArgs.empty())
-        {
-          // Reset the parameter value to the value of the expression.
-          double value(0.0);
-          expression.evaluateFunction ( value );
-          parameter.setVal( value );
-
-
-          // we have resolved the context so set it and the constant value to 
-          // make later look ups easier.
-          // parameter.addOp(Util::CONSTANT, new IO::ConstantOp(parameter.tag(), value));
-          if (DEBUG_IO)
-          {
-            Xyce::dout() << " CircuitContext::resolveParameter --  Resetting parameter value from " << expressionString << " to " << value << " because funcArgs empty." << std::endl;
-          }
-        }
-        else
-        {
-          parameter.setVal( expression );
-
-#if 0
-          Xyce::dout()  << "Just (maybe) set  function args for " << parameter.getValue<Util::Expression>().get_expression() << std::endl;
-          for (int ii=0;ii<funcArgs.size();ii++) { Xyce::dout() << "funcArgs["<<ii<<"] = " << funcArgs[ii]<<std::endl; }
-          std::vector<std::string> testFuncArgs = expression.getFunctionArgOpVec();
-          for (int ii=0;ii<testFuncArgs.size();ii++) { Xyce::dout() << "testFuncArgs["<<ii<<"] = " << testFuncArgs[ii]<<std::endl; }
-#endif
-
-#if 0
-          {
-            switch (parameter.getType()) 
-            {
-              case Xyce::Util::STR:
-                Xyce::dout() << parameter.uTag() <<" is STR type; value =  " <<  parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::DBLE:
-                Xyce::dout() << parameter.uTag() <<" is DBLE type; value =  " <<  parameter.getImmutableValue<double>() <<std::endl;
-                break;
-              case Xyce::Util::EXPR:
-                Xyce::dout() << parameter.uTag() <<" is EXPR type; value =  " << parameter.getValue<Util::Expression>().get_expression() <<std::endl;
-                break;
-              case Xyce::Util::BOOL:
-                Xyce::dout() << parameter.uTag() <<" is BOOL type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::STR_VEC:
-                Xyce::dout() << parameter.uTag() <<" is STR_VEC type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::INT_VEC:
-                Xyce::dout() << parameter.uTag() <<" is INT_VEC type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::DBLE_VEC:
-                Xyce::dout() << parameter.uTag() <<" is DBLE_VEC type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::DBLE_VEC_IND:
-                Xyce::dout() << parameter.uTag() <<" is DBLE_VEC_IND type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              case Xyce::Util::COMPOSITE:
-                Xyce::dout() << parameter.uTag() <<" is COMPOSITE type; value =  " << parameter.stringValue() <<std::endl;
-                break;
-              default:
-                Xyce::dout() << parameter.uTag() <<" is default type (whatever that is): " << parameter.stringValue() <<std::endl;
-            }
-          }
-#endif
-        }
+        parameter.setVal( expression );
       }
     }
     else
@@ -1873,17 +1744,13 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         else if (expressionParameter.getType() == Xyce::Util::EXPR)
         {
           std::string expressionString=expression.get_expression();
-#if 0
-          if (expression.replace_var(strings[i], expressionParameter.getValue<Util::Expression>()) != 0)
-          {
-            Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
-                                   << " as substitute for " << parameterName << " in expression " << expressionString;
-          }
-#else
-          // ERK.  Add an error test for nodes that cannot be attached
+
+          // ERK.  Add an error test for nodes that cannot be attached below.  Something like:
+          //
+          //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
+          //                         << " as substitute for " << parameterName << " in expression " << expressionString;
           bool isDotParam=true;
           expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),isDotParam); 
-#endif
         }
       }
       else
@@ -1997,45 +1864,8 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
         }
         else
         {
+          // do better here, with error mgr
           Xyce::dout() << "functionParameter is not EXPR type!!!" <<std::endl;
-
-#if 0
-          switch (functionParameter.getType()) 
-          {
-            case Xyce::Util::STR:
-              Xyce::dout() <<"It is STR type; value =  " <<  functionParameter.stringValue();
-              break;
-            case Xyce::Util::DBLE:
-              Xyce::dout() <<"It is DBLE type; value =  " <<  functionParameter.getImmutableValue<double>();
-              break;
-            case Xyce::Util::EXPR:
-              Xyce::dout() <<"It is EXPR type; value =  " << functionParameter.getValue<Util::Expression>().get_expression();
-              break;
-            case Xyce::Util::BOOL:
-              Xyce::dout() <<"It is BOOL type; value =  " << functionParameter.stringValue();
-              break;
-            case Xyce::Util::STR_VEC:
-              Xyce::dout() <<"It is STR_VEC type; value =  " << functionParameter.stringValue();
-              break;
-            case Xyce::Util::INT_VEC:
-              Xyce::dout() <<"It is INT_VEC type; value =  " << functionParameter.stringValue();
-              break;
-            case Xyce::Util::DBLE_VEC:
-              Xyce::dout() <<"It is DBLE_VEC type; value =  " << functionParameter.stringValue();
-              break;
-            case Xyce::Util::DBLE_VEC_IND:
-              Xyce::dout() <<"It is DBLE_VEC_IND type; value =  " << functionParameter.stringValue();
-              break;
-            case Xyce::Util::COMPOSITE:
-              Xyce::dout() <<"It is COMPOSITE type; value =  " << functionParameter.stringValue();
-              break;
-            default:
-              Xyce::dout() <<"It is default type (whatever that is): " << functionParameter.stringValue();
-          }
-
-          Xyce::dout() << std::endl;
-          //exit(0);
-#endif
         }
       }
       else
