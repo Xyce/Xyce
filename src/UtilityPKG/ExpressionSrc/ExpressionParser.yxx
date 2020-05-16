@@ -942,7 +942,12 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-
+  | TOK_LIMIT TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>(*$3,*$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+    }
   | TOK_LIMIT TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>(*$3,*$5,*$7));

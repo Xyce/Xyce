@@ -1973,6 +1973,81 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 };
 
 //-------------------------------------------------------------------------------
+// Hspice version of limit, which is used to specify a probability distribution.
+// The old expression library didn't support that, but returned limit(x,y)=x+y.
+// That is what is implemented here.
+template <typename ScalarT>
+class twoArgLimitOp : public astNode<ScalarT>
+{
+  public:
+    twoArgLimitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
+      astNode<ScalarT>(xAst,yAst) {};
+
+    virtual ScalarT val()
+    {
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
+
+      return (x->val()+y->val());
+    };
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
+
+      return (x->dx (i) + y->dx (i));
+    };
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "twoArgLimit operator " << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      /// fix this
+      os << "TWO_ARG_LIMIT";
+    }
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
+    }
+
+  private:
+};
+
+//-------------------------------------------------------------------------------
 // x limited to range y to z
 // y if x < y
 // x if y < x < z
