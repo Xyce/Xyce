@@ -6,10 +6,10 @@
 
 typedef double basicType;
 
-#ifdef USE_TYPE_COMPLEX
-typedef std::complex<basicType> usedType ;
-#else
+#ifdef USE_TYPE_DOUBLE
 typedef double usedType ;
+#else
+typedef std::complex<basicType> usedType ;
 #endif
 
 #endif

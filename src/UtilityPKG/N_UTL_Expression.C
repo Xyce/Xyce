@@ -806,15 +806,15 @@ std::string Expression::get_expression () const
 int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::complex<double> > & deriv_r)
 {
   int retVal=0;
-#ifdef USE_TYPE_COMPLEX
-  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
-#else
+#ifdef USE_TYPE_DOUBLE
   double result;
   std::vector<double> derivs;
   retVal = newExpPtr_->evaluate( result, derivs );
   exp_r = std::complex<double>(result,0.0);
   deriv_r.resize(derivs.size(),0.0);
   for(int ii=0;ii<derivs.size();ii++) { deriv_r[ii] = std::complex<double>(derivs[ii],0.0); } // could use a lambda here
+#else
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
 #endif
   return retVal;
 }
@@ -830,12 +830,12 @@ int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::compl
 int Expression::evaluateFunction ( std::complex<double> & exp_r )
 {
   int retVal=0; 
-#ifdef USE_TYPE_COMPLEX
-  retVal = newExpPtr_->evaluateFunction ( exp_r );
-#else
+#ifdef USE_TYPE_DOUBLE
   double result;
   retVal = newExpPtr_->evaluateFunction( result );
   exp_r = std::complex<double>(result,0.0);
+#else
+  retVal = newExpPtr_->evaluateFunction ( exp_r );
 #endif
   return retVal;
 }
@@ -851,7 +851,9 @@ int Expression::evaluateFunction ( std::complex<double> & exp_r )
 int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 {
   int retVal=0;
-#ifdef USE_TYPE_COMPLEX
+#ifdef USE_TYPE_DOUBLE
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+#else
   std::complex<double> result;
   std::vector<std::complex<double> > derivs;
   retVal = newExpPtr_->evaluate( result, derivs );
@@ -859,8 +861,6 @@ int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
   exp_r = std::real(result);
   deriv_r.resize(derivs.size(),0.0);
   for(int ii=0;ii<derivs.size();ii++) {  deriv_r[ii] = std::real(derivs[ii]); } // could use a lambda here
-#else
-  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
 #endif
   return retVal;
 }
@@ -876,12 +876,12 @@ int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 int Expression::evaluateFunction ( double & exp_r )
 {
   int retVal=0; 
-#ifdef USE_TYPE_COMPLEX
+#ifdef USE_TYPE_DOUBLE
+  retVal = newExpPtr_->evaluateFunction ( exp_r );
+#else
   std::complex<double> result;
   retVal = newExpPtr_->evaluateFunction ( result );
   exp_r = std::real(result);
-#else
-  retVal = newExpPtr_->evaluateFunction ( exp_r );
 #endif
   return retVal;
 }
@@ -1066,6 +1066,11 @@ void Expression::seedRandom(long seed)
   {
     //ExpressionInternals::seedRandom(seed);
   }
+}
+
+void Expression::treatAsTempAndConvert()
+{
+  newExpPtr_->treatAsTempAndConvert();
 }
 
 } // namespace Util

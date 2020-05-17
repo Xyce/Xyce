@@ -77,8 +77,26 @@ Operator * BuilderManager::createOp(ParamList::const_iterator & it) const
   int index=0;
   for (BuilderVector::const_iterator it1 = opBuilderVector_.begin(), end1 = opBuilderVector_.end(); it1 != end1; ++it1, ++index) 
   {
+#if 0
+    if (index==1)
+    {
+      std::cout << "checkpoint for " << (*it).tag() << std::endl;
+    }
+#endif
     Operator *new_op = (*it1)->createOp(it);
-    if (new_op) { return new_op; }
+    if (new_op)
+    {
+#if 0
+      std::cout << "BuilderManager::createOp. index="<<index<<" succeeded in creating an op for " << (*it).tag() <<std::endl;
+#endif
+      return new_op;
+    }
+#if 0
+    else
+    {
+      std::cout << "BuilderManager::createOp. index="<<index<<" failed    in creating an op for " << (*it).tag() <<std::endl;
+    }
+#endif
   }
   return 0;
 }

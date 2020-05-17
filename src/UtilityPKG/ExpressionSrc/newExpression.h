@@ -25,25 +25,6 @@
 namespace Xyce {
 namespace Util {
 
-#if 0
-static struct constant {
-    const char *name;
-    double value;
-} constants[] = {
-    { "EXP",  exp(1.0) },
-    { "PI", M_PI }
-} ;
-static std::string specSigs[] = {"TIME", "TEMP", "VT", "FREQ"};
-
-bool ExpressionInternals::set_temp(double const & tempIn)
-{
-  set_var(std::string("VT"), tempIn*CONSTKoverQ);
-
-  return set_var(std::string("TEMP"), tempIn-CONSTCtoK);
-}
-
-#endif
-
 //-----------------------------------------------------------------------------
 // Class         : newExpression
 // Purpose       :
@@ -129,6 +110,7 @@ public:
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
+    CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
   };
 
 
@@ -168,6 +150,7 @@ public:
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
+    CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
     Teuchos::RCP<astNode<usedType> > time_base = timeNodePtr_;
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (time_base, xvals, yvals));
@@ -212,6 +195,7 @@ public:
     freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     gminNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("GMIN")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
+    CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
     astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*tableNodePtrPtr_);
@@ -329,6 +313,7 @@ public:
     vtNodePtr_   = right.vtNodePtr_;
     freqNodePtr_ = right.freqNodePtr_;
     piNodePtr_   = right.piNodePtr_;
+    CtoKNodePtr_ = right.CtoKNodePtr_;
     astNodePtr_ = right.astNodePtr_; // copy over the whole tree
 
     // pointers to RCP's. use constructors
@@ -419,6 +404,7 @@ public:
     vtNodePtr_   = right.vtNodePtr_;
     freqNodePtr_ = right.freqNodePtr_;
     piNodePtr_   = right.piNodePtr_;
+    CtoKNodePtr_   = right.CtoKNodePtr_;
     astNodePtr_ = right.astNodePtr_; // copy over the whole tree
 
     // pointers to RCP's. use constructors
@@ -513,6 +499,7 @@ public:
   Teuchos::RCP<astNode<usedType> > getFreqNode () { return freqNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getGminNode () { return gminNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getPiNode () { return piNodePtr_; }
+  Teuchos::RCP<astNode<usedType> > getCtoKNode () { return CtoKNodePtr_; }
 
   // some of the parameter and function objects are stored in multiple containers.
   void setFunctionArgStringVec (const std::vector<std::string> & args);
@@ -662,6 +649,8 @@ public:
 
   bool getIsConstant() { return isConstant_; }
 
+  void treatAsTempAndConvert();
+
 private:
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();
@@ -754,6 +743,7 @@ private:
   Teuchos::RCP<specialsOp<usedType> > freqNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > gminNodePtr_;
   Teuchos::RCP<piConstOp<usedType> > piNodePtr_;
+  Teuchos::RCP<CtoKConstOp<usedType> > CtoKNodePtr_;
 
   // to handle externally attached expressions, which have specials dependence, we need vectors of these things.
   std::vector<Teuchos::RCP<astNode<usedType> > > timeOpVec_;

@@ -4373,6 +4373,18 @@ bool getParamAndReduce(
 {
   Util::Op::Operator *op = device_manager.getOp(comm, name);
   value = op ? (*op)(comm, Util::Op::OpData()).real() : 0.0;
+
+
+#if 0
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+  if (upperName == std::string("ISRC1:ACMAG"))
+  {
+    std::cout << "getParamAndReduce 1.  name = " << name << "  value = " << value <<std::endl;
+    // sdfasdf
+  }
+#endif
+
   return op;
 }
 
@@ -4392,6 +4404,15 @@ double getParamAndReduce(
   double value = 0.0;
   bool found = getParamAndReduce(comm, device_manager, name, value);
 
+#if 0
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+  if (upperName == std::string("ISRC1:ACMAG"))
+  {
+    std::cout << "getParamAndReduce 2.  name = " << name << "  value = " << value <<std::endl;
+    // sdfasdf
+  }
+#endif
   if (!found)
   {
     if (DEBUG_DEVICE)

@@ -9,7 +9,7 @@ LIBPATH = -L/Users/erkeite/GTEST/INSTALL/lib -L/opt/local/lib  $(LIBDIRTRI)
 LIBPATH_AST = -L/Users/erkeite/GTEST/INSTALL/lib  $(LIBDIRTRI)
 INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc9_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../
 CXXFLAGS_AST =  -std=c++11 -g -I/Users/erkeite/GTEST/INSTALL/include/  $(INCLUDE)
-CXXFLAGS     =  -std=c++11 -g -I/Users/erkeite/GTEST/INSTALL/include/  -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS     =  -std=c++11 -DUSE_TYPE_DOUBLE -g -I/Users/erkeite/GTEST/INSTALL/include/  -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 

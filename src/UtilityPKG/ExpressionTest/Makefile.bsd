@@ -7,7 +7,7 @@ LIBDIRTRI=-L/Net/Proj/Xyce/arch/FreeBSD11_trilinos12.12.1_clang/lib
 LIBPATH = -L/usr/local/lib  $(LIBDIRTRI)
 INCLUDE = -I/Net/Proj/Xyce/arch/FreeBSD11_trilinos12.12.1_clang/include  -I../src -I../gtest
 CXXFLAGS_AST =  -std=c++11  -g  -I/usr/local/include/ $(INCLUDE)
-CXXFLAGS =  -std=c++11  -g -I/usr/local/include/  -I/usr/local/include/flex $(INCLUDE)
+CXXFLAGS =  -std=c++11  -DUSE_TYPE_DOUBLE -g -I/usr/local/include/  -I/usr/local/include/flex $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 

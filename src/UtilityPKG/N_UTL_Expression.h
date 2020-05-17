@@ -145,6 +145,8 @@ public:
 
   static void seedRandom(long seed);
 
+  void treatAsTempAndConvert();
+
 private:
 
   Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;

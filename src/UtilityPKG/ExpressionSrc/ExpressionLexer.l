@@ -416,6 +416,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"freq" {return XyceExpression::ExpressionParser::token::TOK_FREQ; }
 <INITIAL>"gmin" {return XyceExpression::ExpressionParser::token::TOK_GMIN; }
 <INITIAL>"pi" {return XyceExpression::ExpressionParser::token::TOK_PI; }
+<INITIAL>"constctok" {return XyceExpression::ExpressionParser::token::TOK_C_TO_K; }
+<INITIAL>"ctok" {return XyceExpression::ExpressionParser::token::TOK_C_TO_K; }
 
  /* random sampling related functions */
 <INITIAL>"rand"  {return XyceExpression::ExpressionParser::token::TOK_RAND; }

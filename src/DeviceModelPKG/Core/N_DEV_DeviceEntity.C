@@ -909,26 +909,12 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   const Descriptor &param = *(*p_i).second;
   if (isTempParam(par.tag()) && param.getAutoConvertTemperature())
   {
-    //User input for temperature is in degrees C.  Devices use degrees K internally.
-    dependentParam.expr = new Util::Expression (
-        solState_.expressionGroup_, "(" + par.stringValue() + ")+CONSTCtoK"); 
-
-    // Need to get the string names of the variables that are in par's expression,
-    // and then use that vector of string names to make them variables in the
-    // dependentParam's expression also.  This is needed to support global parameters
-    // in expressions for the TEMP instance paramter.
-    std::vector<std::string> parVars;
-    par.getValue<Util::Expression>().getVariables(parVars); 
-    for (std::vector<std::string>::const_iterator pv_i=parVars.begin(); pv_i != parVars.end(); ++pv_i)
-    {
-      dependentParam.expr->make_var(*pv_i);
-    }
-
-    dependentParam.expr->make_constant (std::string("CONSTCTOK"), CONSTCtoK);
+    //User input for temperature is in degrees C.  Many (but not all) devices use degrees K internally.
+    dependentParam.expr = new Util::Expression (par.getValue<Util::Expression>());
+    dependentParam.expr->treatAsTempAndConvert();
   }
   else
   {
-    // ERK.  Why do we need to copy construct this?
     dependentParam.expr = new Util::Expression (par.getValue<Util::Expression>());
   }
 

@@ -785,7 +785,7 @@ void newExpression::setupVariousAstArrays_()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup
 // Purpose       : 
-// Special Notes :
+// Special Notes : This function should be used to set isConstant_.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
@@ -846,6 +846,7 @@ void newExpression::getValuesFromGroup()
       usedType val;
       group_->getGlobalParameterVal(parOp->getName(),val); // ERK: this function name is misleading, as it retrieves stuff that isn't necessarily a global param.  Fix.
       parOp->setValue(val);
+
     }
   }
 
@@ -1001,15 +1002,20 @@ int newExpression::evaluateFunction (usedType &result)
       }
     }
 
-    //if (!isConstant_)  // this might be a problem.  commenting out
+    //if (!isConstant_)  // this is a a problem.  commenting out
     {
       getValuesFromGroup();
     }
 
-    if (!isConstant_ || !evaluateFunctionCalledBefore_)
-    {
+    //if (!isConstant_ || !evaluateFunctionCalledBefore_) // this seems to be a problem too. Need to work more on this.  It breaks RC_AC_data_expr.cir in the BUG_1035_SON tests.  probably others as well.  I think the isConstant_ flag needs to be set based on what is gathered in the "getValuesFromGroup" function, and/or other metrics.  Currently it is too simple
+    if (true)
+    { 
       result = astNodePtr_->val();
       evaluateFunctionCalledBefore_ = true;
+
+#if 1
+      std::cout << "newExpression::evaluateFunction. just evaluated the expression tree for " << expressionString_ << " result = " << result << std::endl;
+#endif
 
       // ERK: fix this failsafe properly for std::complex 
       if (isnan(std::real(result))) { result = 0.0; }
@@ -1020,6 +1026,9 @@ int newExpression::evaluateFunction (usedType &result)
     else
     {
       result = savedResult_;
+#if 1
+      std::cout << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " << expressionString_ << " result = " << result << std::endl;
+#endif
     }
   }
   else
@@ -1078,6 +1087,45 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
     Xyce::Util::toUpper(functionArgStringVec_[ii]);
   }
 };
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::treatAsTempAndConvert()
+// Purpose       : This function is used when both of the following are true:
+//
+//   (1) the expression is the RHS of a device "temp" parameter
+//   (2) when the units need to be "auto converted" from C to K units.  
+//
+//   ie, when this if statement is true: if (isTempParam(par.tag()) && param.getAutoConvertTemperature())
+//
+// Special Notes : For the old expression library, this was accomplished by 
+// getting the string of the original expression and then modifying it to 
+// include "+ CONSTCtoK", and then using that new string to create a new expression.
+//
+// This approach doesn't work with the new expression library, b/c the new expression 
+// library doesn't handle external dependencies via string replacements.
+//
+// The CONSTCtoK modification to the string was happening in the device entity, long
+// after the IO package was done with its work on parameters.  And, thus, long after
+// parameter and function resolutions. 
+//
+// With the new expression library, doing a string modification for CONSTCtoK could 
+// not include those IO-based param and func resolutions.  They were lost, because they were
+// not in the string.
+//
+// The right way to fix this is not by re-parsing with a new string.  instead, it is better
+// to just modify the AST, which is what this function does.
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/17/2020
+//-------------------------------------------------------------------------------
+void newExpression::treatAsTempAndConvert()
+{
+  Teuchos::RCP<astNode<usedType> > CtoK = getCtoKNode ();
+  Teuchos::RCP<astNode<usedType> > * newTopPtr = new Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (astNodePtr_, CtoK));
+  getMasterNodeVec().push_back(newTopPtr);
+  setAstPtr(*newTopPtr);
+}
 
 }
 }

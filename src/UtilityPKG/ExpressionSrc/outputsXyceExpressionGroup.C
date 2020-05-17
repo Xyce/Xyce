@@ -737,7 +737,7 @@ double outputsXyceExpressionGroup::getTime()
 //-------------------------------------------------------------------------------
 double outputsXyceExpressionGroup::getTemp() 
 { 
-  temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
+  temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>() - CONSTCtoK;
   return temp_;
 } 
 

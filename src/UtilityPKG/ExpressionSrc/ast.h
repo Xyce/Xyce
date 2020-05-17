@@ -17,6 +17,8 @@
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
 
+#define CONSTCtoK    (273.15)  
+
 template <typename ScalarT>
 class astNode;
 
@@ -3189,6 +3191,28 @@ class piConstOp : public astNode<ScalarT>
     }
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(M_PI); }
+
+  private:
+};
+
+//-------------------------------------------------------------------------------
+// constants
+template <typename ScalarT>
+class CtoKConstOp : public astNode<ScalarT>
+{
+  public:
+    CtoKConstOp (): astNode<ScalarT>() {};
+
+    virtual ScalarT val() { return ScalarT(CONSTCtoK); };
+    virtual ScalarT dx (int i) { return ScalarT(0.0); };
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "CtoK const operator.  val = " << ScalarT(CONSTCtoK) << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
 
   private:
 };
