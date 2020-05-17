@@ -1162,10 +1162,58 @@ TEST ( Double_Parser_VoltDeriv_Test, test6)
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test6)
 }
 
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    currSolnExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
+  {};
+    ~currSolnExpressionGroup () {};
+
+  virtual bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else if (tmp==std::string("c")) { retval = Cval; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val; return true; }
+
+    else if (tmp==std::string("vb")) { retval = VBval; return true; }
+    else if (tmp==std::string("vc")) { retval = VCval; return true; }
+    else if (tmp==std::string("ve")) { retval = VEval; return true; }
+    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
+    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & deviceName, double val)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+    else if (tmp==std::string("c")) { Cval = val; }
+    else if (tmp==std::string("r1")) { R1val = val; }
+    else if (tmp==std::string("v1")) { R1val = val; }
+
+    else if (tmp==std::string("vb")) { VBval = val; }
+    else if (tmp==std::string("vc")) { VCval = val; }
+    else if (tmp==std::string("ve")) { VEval = val; }
+    else if (tmp==std::string("vlp")) { VLPval = val; }
+    else if (tmp==std::string("vln")) { VLNval = val; }
+  }
+
+  private:
+    double Aval, Bval, Cval, R1val;
+    double VBval, VCval, VEval, VLPval, VLNval;
+};
 
 TEST ( Double_Parser_CurrSoln_Test, test1)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("17.2*I(V1)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1206,7 +1254,7 @@ TEST ( Double_Parser_Power_Test, test1)
 
 TEST ( Double_Parser_CurrDeriv_Test, test1)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("17.2*I(V1)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1230,7 +1278,7 @@ TEST ( Double_Parser_CurrDeriv_Test, test1)
 
 TEST ( Double_Parser_CurrDeriv_Test, test2)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*I(V1)*I(V1)*I(V1)+7.5*I(V1)"), testGroup);
   testExpression.lexAndParseExpression();
@@ -2140,6 +2188,16 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
 
     virtual double getTime() { return time; };
     void setTime(double t) { time = t; };
+
+    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+    {
+      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else { return 0.0; return false; }
+    }
 
     virtual bool getSolutionVal(const std::string & nodeName, double & retval )
     {
@@ -3211,7 +3269,6 @@ TEST ( Double_Parser_table_Test, power_e_gear)
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
   {
-    //Xyce::Util::newExpression eTable(std::string("TABLE {V(1,0)} ( 0 , 1 ) ( 1 , 2 )"), grp);
     Xyce::Util::newExpression eTable(std::string("TABLE {V(1,0)} = ( 0 , 1 ) ( 1 , 2 )"), grp);
     eTable.lexAndParseExpression();
 
@@ -3224,11 +3281,37 @@ TEST ( Double_Parser_table_Test, power_e_gear)
     // table output
     std::vector<double> refArray = {1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00 };
 
+    int size = v1.size();
+
+    std::vector<double> result;
+    result.resize(size,0.0);
+
+    for (int ii=0;ii<size;ii++)
+    {
+      bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
+      eTable.evaluateFunction(result[ii]);
+    }
+
+    EXPECT_EQ(refArray,result);
+  }
+}
+
+TEST ( Double_Parser_table_Test, power_endcomma)
+{
+  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
+  {
+    Xyce::Util::newExpression eTable(std::string("TABLE(V(1,0),0,1,1,2,)"), grp);
+    eTable.lexAndParseExpression();
+
+    Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
+    eTable_leftArg.lexAndParseExpression();
+
     // v1:
-    //std::vector<double> v1 = {0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00};
+    std::vector<double> v1 = { -5.00000000e-01, -4.00000000e-01, -3.00000000e-01, -2.00000000e-01, -1.00000000e-01, 0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00};
 
     // table output
-    //std::vector<double> refArray = {1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00};
+    std::vector<double> refArray = {1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00 };
 
     int size = v1.size();
 
@@ -3568,7 +3651,7 @@ TEST ( Double_Parser_calculus, ddx8)
 
 TEST ( Double_Parser_calculus, ddx9)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression ddxTest(std::string("ddx(sin(i(v1)),i(v1))"), testGroup); ddxTest.lexAndParseExpression();
   
@@ -5023,7 +5106,7 @@ TEST ( Double_Parser_poly_Test, test4)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Double_Parser_poly_Test, test5)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // with parens
@@ -5069,7 +5152,7 @@ TEST ( Double_Parser_poly_Test, test5)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Double_Parser_poly_Test, test6)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // without parens
@@ -5116,7 +5199,7 @@ TEST ( Double_Parser_poly_Test, test6)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Double_Parser_poly_Test, test7)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // without parens

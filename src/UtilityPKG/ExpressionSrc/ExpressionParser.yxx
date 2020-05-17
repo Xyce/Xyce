@@ -1020,6 +1020,18 @@ exp:
       }
       delete $5;
     }
+  | TOK_TABLE TOK_LEFTPAREN exp ',' nonempty_arglist ',' TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      if ( (*$3)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(*tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $5;
+    }
   | TOK_TABLE TOK_LEFTPAREN exp ',' '=' nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$6));
