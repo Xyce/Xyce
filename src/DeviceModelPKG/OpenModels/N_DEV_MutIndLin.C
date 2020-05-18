@@ -155,6 +155,11 @@ void Traits::loadInstanceParameters(ParametricData<MutIndLin::Instance> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("");
+   
+  p.addPar ("IC",std::vector<double>(),&MutIndLin::Instance::initialCondition)
+   .setUnit(U_AMP)
+   .setCategory(CAT_NONE)
+   .setDescription("Initial current through the inductor.");
 }
 
 void Traits::loadModelParameters(ParametricData<MutIndLin::Model> &p)
@@ -210,6 +215,26 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
 
+  // look over IB params for IC data
+  std::vector<Param>::const_iterator paramIt = IB.params.begin();
+  for( ;paramIt != IB.params.end(); ++paramIt)
+  {
+    if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
+    {
+      // in the process of packing up the component inductors into a mutual inductor
+      // whether an initial condition is given or not is lost.  So check if the
+      // initial condition is nonzero and assue that zero was not given 
+      initialCondition.push_back(paramIt->getImmutableValue<double>());
+      if( paramIt->getImmutableValue<double>() != 0)
+      {
+        initialConditionGiven.push_back(true);
+      }
+      else
+      {
+        initialConditionGiven.push_back(false);
+      }
+    }
+  }
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )
   {
@@ -217,7 +242,17 @@ Instance::Instance(
     inductorData->name = inductorNames[i];
     inductorData->L = inductorInductances[i];
     inductorData->baseL = inductorInductances[i];
-    inductorData->ICGiven = false;
+    // if this is true then the instance block had some IC data, so don't ignore it.
+    if( i < initialCondition.size())
+    {
+      inductorData->ICGiven = initialConditionGiven[i];
+      inductorData->IC=initialCondition[i];
+    }
+    else
+    {
+      inductorData->ICGiven = false;
+      inductorData->IC = 0.0;
+    }
     inductorData->inductorCurrentOffsets.resize( inductorNames.size() );
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
     inductorData->f_inductorCurrentPtrs.resize( inductorNames.size() );
@@ -844,6 +879,9 @@ void Instance::setupPointers ()
 
     (*currentInductor)->f_BraEquNegNodePtr =
         &(dFdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] );
+        
+    (*currentInductor)->f_BraEquBraVarPtr =
+        &(dFdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)] );
 
     for( int j=0; j<numInductors; ++j )
     {
@@ -879,6 +917,9 @@ void Instance::setupPointers ()
 
     (*currentInductor)->q_BraEquNegNodePtr =
         &(dQdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] );
+        
+    (*currentInductor)->q_BraEquBraVarPtr =
+        &(dQdx[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)] );
 
     for( int j=0; j<numInductors; ++j )
     {
@@ -1114,6 +1155,7 @@ bool Instance::updatePrimaryState()
   {
     if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
     {
+      Xyce::dout() << "Applying IC value " << i << " " << (*currentInductor)->IC << std::endl;
       inductorCurrents[ i ] = (*currentInductor)->IC;
     }
     else
@@ -1371,8 +1413,21 @@ bool Instance::loadDAEdFdx ()
 //-----------------------------------------------------------------------------
 bool Instance::setIC ()
 {
-  int i_bra_sol;
-  int i_f_state;
+  double * nextSolVector = extData.nextSolVectorRawPtr;
+  double * currSolVector = extData.currSolVectorRawPtr;
+
+  // loop over each inductor and load it's dFdx components
+  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
+  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
+  while( currentInductor != endInductor )
+  {
+    if ((*currentInductor)->ICGiven)
+    {
+      currSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+      nextSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+    }
+    currentInductor++;
+  }
 
   bool bsuccess = true;
   return bsuccess;
@@ -1617,12 +1672,19 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     while( currentInductor != endInductor )
     {
       double current   = solVec[(*currentInductor)->li_Branch];
+      double branchCoef = 1.0;
+      if( (getSolverState().dcopFlag) &&  ((*currentInductor)->ICGiven))
+      {
+        current = (*currentInductor)->IC;
+        branchCoef = 0.0;
+        solVec[(*currentInductor)->li_Branch] = current;
+      }
       double vNodePos  = solVec[(*currentInductor)->li_Pos];
       double vNodeNeg  = solVec[(*currentInductor)->li_Neg];
 
       fVec[((*currentInductor)->li_Pos)]    +=  inst.scalingRHS * current;
       fVec[((*currentInductor)->li_Neg)]    += -inst.scalingRHS * current;
-      fVec[((*currentInductor)->li_Branch)] += -(vNodePos - vNodeNeg);
+      fVec[((*currentInductor)->li_Branch)] += -(vNodePos - vNodeNeg)*branchCoef;
 
       if (inst.loadLeadCurrent)
       {
@@ -1686,10 +1748,25 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
     std::vector< InductorInstanceData* >::iterator endInductor = inst.instanceData.end();
     while( currentInductor != endInductor )
     {
-      *((*currentInductor)->f_PosEquBraVarPtr)  +=  inst.scalingRHS;
-      *((*currentInductor)->f_NegEquBraVarPtr)  += -inst.scalingRHS;
-      *((*currentInductor)->f_BraEquPosNodePtr) += -1.0;
-      *((*currentInductor)->f_BraEquNegNodePtr) +=  1.0;
+    
+      if ( getSolverState().dcopFlag && (*currentInductor)->ICGiven )
+      {
+        // In the case that an initial condition is specified for an
+        // inductor, the DC op should be set up like a current source just
+        // for the operating point calculation.
+        *((*currentInductor)->f_PosEquBraVarPtr)  += 0.0;
+        *((*currentInductor)->f_NegEquBraVarPtr)  += 0.0;
+        *((*currentInductor)->f_BraEquPosNodePtr) += 0.0;
+        *((*currentInductor)->f_BraEquNegNodePtr) += 0.0;
+        *((*currentInductor)->f_BraEquBraVarPtr)  += 1.0;
+      }
+      else
+      {
+        *((*currentInductor)->f_PosEquBraVarPtr)  +=  inst.scalingRHS;
+        *((*currentInductor)->f_NegEquBraVarPtr)  += -inst.scalingRHS;
+        *((*currentInductor)->f_BraEquPosNodePtr) += -1.0;
+        *((*currentInductor)->f_BraEquNegNodePtr) +=  1.0;
+      }
 
       ++currentInductor;
     }

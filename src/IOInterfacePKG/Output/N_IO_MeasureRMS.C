@@ -121,18 +121,64 @@ void RMS::updateMeasureVars(const double indepVarVal, const double signalVal)
 //-----------------------------------------------------------------------------
 double RMS::getMeasureResult()
 {
-  if( initialized_ )
-  {
-    if (abs(totalIntegrationWindow_) > 0)
+  if ( initialized_ && (numPointsFound_ > 1) )
       calculationResult_ =  sqrt(integralXsq_ / totalIntegrationWindow_);
-    else
-    {
-      calculationResult_ = calculationDefaultVal_;
-      initialized_=false;
-    }
 
-  }
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RMS::printMeasureResult()
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 5/13/2020
+//-----------------------------------------------------------------------------
+std::ostream& RMS::printMeasureResult(std::ostream& os)
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  if ( (!initialized_ || (numPointsFound_ < 2)) && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+  {
+    // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+    // netlist and this is a failed measure.
+    os << name_ << " = FAILED" << std::endl;
+  }
+  else
+  {
+     os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RMS::printVerboseMeasureResult()
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creation Date : 5/13/2020
+//-----------------------------------------------------------------------------
+std::ostream& RMS::printVerboseMeasureResult(std::ostream& os)
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  if ( initialized_ && (numPointsFound_ > 1) )
+  {
+    os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+  else
+  {
+    os << name_ << " = FAILED" << std::endl;
+  }
+
+  return os;
 }
 
 //-----------------------------------------------------------------------------

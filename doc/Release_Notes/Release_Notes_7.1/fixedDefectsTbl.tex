@@ -136,8 +136,18 @@ the previous discussion applies to \texttt{DERIV} and \texttt{FIND-WHEN} measure
 would cause a parsing error when .LIN was used with .STEP.
 \\ \hline
 
+\textbf{1292-SON, Gitlab Issue \#6}: Inductor coupling (mutual inductor) code does not respect inductor initial condition specification &
+Linear and non-linear mutual inductors were ignoring the initial conditions set on 
+component inductors.  This was a code deficiency as the initial conditions were not 
+passed into the mutual inductor device.  This issue has been fixed.
+\\ \hline
+
+\textbf{1287-SON, Github Issue \#6}: Ill-formed .IC line leads to segfaults on some Linuxen
+& Empty .IC/.DCVOLT/.NODESET lines were causing Xyce to seg fault on certain platforms.
+A warning is now emitted for empty .IC/.DCVOLT/.NODESET lines and the line is effectively ignored.
+\\ \hline
+
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
-
 \end{longtable}
 }

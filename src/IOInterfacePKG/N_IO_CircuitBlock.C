@@ -1566,6 +1566,10 @@ bool CircuitBlock::getLinePassMI()
                 ++paramIter;
                 ( MIs[i].terminals[ES1] ).push_back( *paramIter );
               }
+              if( param.uTag() == "IC" )
+              {
+                ( MIs[i].otherParams[ES1] ).push_back( param );
+              }
             }
           }
         }

@@ -110,6 +110,11 @@ void Traits::loadInstanceParameters(ParametricData<MutIndNonLin::Instance> &p)
   .setUnit(U_NONE)
   .setCategory(CAT_NONE)
   .setDescription("");
+   
+  p.addPar ("IC",std::vector<double>(),&MutIndNonLin::Instance::initialCondition)
+   .setUnit(U_AMP)
+   .setCategory(CAT_NONE)
+   .setDescription("Initial current through the inductor.");
 }
 
 void Traits::loadModelParameters(ParametricData<MutIndNonLin::Model> &p)
@@ -300,7 +305,27 @@ Instance::Instance(
 
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
-
+  
+  // look over IB params for IC data
+  std::vector<Param>::const_iterator paramIt = IB.params.begin();
+  for( ;paramIt != IB.params.end(); ++paramIt)
+  {
+    if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
+    {
+      // in the process of packing up the component inductors into a mutual inductor
+      // whether an initial condition is given or not is lost.  So check if the
+      // initial condition is nonzero and assue that zero was not given 
+      initialCondition.push_back(paramIt->getImmutableValue<double>());
+      if( paramIt->getImmutableValue<double>() != 0)
+      {
+        initialConditionGiven.push_back(true);
+      }
+      else
+      {
+        initialConditionGiven.push_back(false);
+      }
+    }
+  }
   // now load the instance data vector
   for( int i=0; i<inductorNames.size(); ++i )
   {
@@ -308,7 +333,17 @@ Instance::Instance(
     inductorData->name = inductorNames[i];
     inductorData->L = inductorInductances[i];
     inductorData->baseL = inductorInductances[i];
-    inductorData->ICGiven = false;
+    // if this is true then the instance block had some IC data, so don't ignore it.
+    if( i < initialCondition.size())
+    {
+      inductorData->ICGiven = initialConditionGiven[i];
+      inductorData->IC=initialCondition[i];
+    }
+    else
+    {
+      inductorData->ICGiven = false;
+      inductorData->IC = 0.0;
+    }
     inductorData->inductorCurrentOffsets.resize( inductorNames.size() );
 
     instanceData.push_back( inductorData );
@@ -1065,7 +1100,14 @@ bool Instance::updateIntermediateVars ()
   int il=0;
   while( currentInductor != endInductor )
   {
-    Happ += solVector[(*currentInductor)->li_Branch] * inductanceVals[ il ];
+    if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
+    {
+      Happ += ((*currentInductor)->IC) * inductanceVals[ il ];
+    }
+    else
+    {
+      Happ += solVector[(*currentInductor)->li_Branch] * inductanceVals[ il ];
+    }
     il++;
     currentInductor++;
   }
@@ -1640,6 +1682,13 @@ bool Instance::loadDAEFVector ()
   while( currentInductor != endInductor )
   {
     double current   = solVector[(*currentInductor)->li_Branch];
+    double ic_coef = 1.0;
+    if( (getSolverState().dcopFlag) && (*currentInductor)->ICGiven == true )
+    {
+      current = (*currentInductor)->IC;
+      ic_coef=0.0;
+      solVector[(*currentInductor)->li_Branch] = current;
+    }
     double vNodePos  = solVector[(*currentInductor)->li_Pos];
     double vNodeNeg  = solVector[(*currentInductor)->li_Neg];
 
@@ -1648,7 +1697,7 @@ bool Instance::loadDAEFVector ()
 
     fVec[((*currentInductor)->li_Neg)]    += -scalingRHS * current;
 
-    fVec[((*currentInductor)->li_Branch)] += -((vNodePos - vNodeNeg)/mid);
+    fVec[((*currentInductor)->li_Branch)] += -ic_coef*((vNodePos - vNodeNeg)/mid);
     double windings = (*currentInductor)->L;
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
@@ -1662,13 +1711,13 @@ bool Instance::loadDAEFVector ()
            << std::endl;
     }
 
-   if (loadLeadCurrent)
-   {
-     double * leadF = extData.nextLeadCurrFCompRawPtr;     
-     double * junctionV = extData.nextJunctionVCompRawPtr;
-     leadF[(*currentInductor)->li_branch_data] =  scalingRHS * current;       
-     junctionV[(*currentInductor)->li_branch_data] = (vNodePos - vNodeNeg);
-   }
+    if (loadLeadCurrent)
+    {
+      double * leadF = extData.nextLeadCurrFCompRawPtr;     
+      double * junctionV = extData.nextJunctionVCompRawPtr;
+      leadF[(*currentInductor)->li_branch_data] =  scalingRHS * current;       
+      junctionV[(*currentInductor)->li_branch_data] = (vNodePos - vNodeNeg);
+    }
 
     currentInductor++;
   }
@@ -1830,14 +1879,21 @@ bool Instance::loadDAEdFdx ()
   while( currentInductor != endInductor )
   {
     // do the normal work for an inductor
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  +=  scalingRHS;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += -scalingRHS;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += -1.0/mid;
-
-    (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] +=  1.0/mid;
+    if( (getSolverState().dcopFlag) && (*currentInductor)->ICGiven == true )
+    {
+      (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] += 0.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 1.0;
+    }
+    else
+    {
+      (*dFdxMatPtr)[((*currentInductor)->li_Pos)]   [((*currentInductor)->APosEquBraVarOffset)]  +=  scalingRHS;
+      (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += -scalingRHS;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += -1.0/mid;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] +=  1.0/mid;
+    }
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
@@ -1876,12 +1932,14 @@ bool Instance::loadDAEdFdx ()
 
     (*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] += delV * (1.0 - (Gap/Path)) * dP_dVn/(mid*mid);
 
+    /*
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-//      Xyce::dout() << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->magOffset] =  " << delV * (1 - (Gap/Path)) * dP_dM/(mid*mid) << std::endl
-//       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vPosOffset]  =  " << delV * (1 - (Gap/Path)) * dP_dVp/(mid*mid) << std::endl
-//       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] = " << delV * (1 - (Gap/Path)) * dP_dVn/(mid*mid) << std::endl;
+      Xyce::dout() << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->magOffset] =  " << delV * (1 - (Gap/Path)) * dP_dM/(mid*mid) << std::endl
+       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vPosOffset]  =  " << delV * (1 - (Gap/Path)) * dP_dVp/(mid*mid) << std::endl
+       << "(*dFdxMatPtr)[(*currentInductor)->li_Branch][(*currentInductor)->vNegOffset] = " << delV * (1 - (Gap/Path)) * dP_dVn/(mid*mid) << std::endl;
     }
+    */
     currentInductor++;
   }
 
@@ -1939,6 +1997,22 @@ bool Instance::outputPlotFiles(bool force_final_output)
 //-----------------------------------------------------------------------------
 bool Instance::setIC ()
 {
+  double * nextSolVector = extData.nextSolVectorRawPtr;
+  double * currSolVector = extData.currSolVectorRawPtr;
+
+  // loop over each inductor and load it's dFdx components
+  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
+  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
+  while( currentInductor != endInductor )
+  {
+    if ((*currentInductor)->ICGiven)
+    {
+      currSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+      nextSolVector[(*currentInductor)->li_Branch] = (*currentInductor)->IC;
+    }
+    currentInductor++;
+  }
+  
   return true;
 }
 
