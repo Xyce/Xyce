@@ -2147,6 +2147,25 @@ class stpOp : public astNode<ScalarT>
 
     virtual ScalarT dx (int i) { return 0.0; }
 
+    // this needs to perform a detection
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+      // stpOp returns a 1 or a 0.  
+      // If the current value is 1, then find time at which it switches to 0
+      // or vice versa.  This function is not called unless the stp is 
+      // part of a time-dependent expression.  Assume for now that the argument 
+      // (leftAst) is time dependent.  Check this later.
+      //
+      // Algorithm:   take the current time, and add a time interval to it.
+      //
+      // how much? should be related to recent time step sizes.
+      //
+      // and then re-evaluate leftAst_  (x) with the modified time.  Keep doing this until 
+      // we find a point where x switches from x<=0 to x>0 or vice versa.
+
+      return true;
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";

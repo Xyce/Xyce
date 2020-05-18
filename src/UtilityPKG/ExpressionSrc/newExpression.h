@@ -284,6 +284,7 @@ public:
     timeStepPrefac_(right.timeStepPrefac_),
 
     srcAstNodeVec_(right.srcAstNodeVec_),
+    stpAstNodeVec_(right.stpAstNodeVec_),
 
     timeOpVec_(right.timeOpVec_),
     tempOpVec_(right.tempOpVec_),
@@ -374,6 +375,7 @@ public:
     timeStepPrefac_ = right.timeStepPrefac_;
 
     srcAstNodeVec_ = right.srcAstNodeVec_;
+    stpAstNodeVec_ = right.stpAstNodeVec_;
 
     timeOpVec_ = right.timeOpVec_;
     tempOpVec_ = right.tempOpVec_;
@@ -554,6 +556,7 @@ public:
 
   std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
+  std::vector< Teuchos::RCP<astNode<usedType> > > & getStpNodeVec() { return stpAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
 
@@ -735,6 +738,9 @@ private:
   // vector of independent sources, but only those with breakpoints.  This
   // vector is ONLY used for obtaining breakpoints.
   std::vector< Teuchos::RCP<astNode<usedType> > > srcAstNodeVec_;
+
+  // vector of STP objects.  Also needed for breakpoints.  STP devices will need to auto-detect breakpoints
+  std::vector< Teuchos::RCP<astNode<usedType> > > stpAstNodeVec_;
 
   // const and specials nodes:
   Teuchos::RCP<specialsOp<usedType> > timeNodePtr_;

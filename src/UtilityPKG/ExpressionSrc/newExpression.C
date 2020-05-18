@@ -1043,29 +1043,38 @@ int newExpression::evaluateFunction (usedType &result)
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getBreakPoints
 // Purpose       : 
-// Special Notes : 
+// Special Notes : do not need to be sorted; other parts of Xyce will sort them
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/23/2020
 //-------------------------------------------------------------------------------
 bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
 {
-  int srcSize = srcAstNodeVec_.size();
-  for (int ii=0;ii< srcSize; ii++) 
-  { 
-    (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
-  }
+
+  if(isTimeDependent_) 
+  {
+    int srcSize = srcAstNodeVec_.size();
+    for (int ii=0;ii< srcSize; ii++) 
+    { 
+      (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
+    }
+
+    int stpSize = stpAstNodeVec_.size();
+    for (int ii=0;ii< stpSize; ii++) 
+    { 
+      (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
+    }
 
 #if 0
-  if (srcSize>0)
-  {
-    std::cout << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
-    for (int ii=0;ii<breakPointTimes.size();ii++)
     {
-      std::cout << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
+      std::cout << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
+      for (int ii=0;ii<breakPointTimes.size();ii++)
+      {
+        std::cout << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
+      }
     }
-  }
 #endif
+  }
 
   return true;
 }
