@@ -624,11 +624,6 @@ level 70 MOSFETS operate in floating body mode.  The temperature node
 is an internal node of the device, and its value may still be printed
 using the N() notation (see section~\ref{Print_Device_Info}.
 
-\textbf{NOTE:} Shortly before Release 7.1 was frozen for release, it
-was reported that the level 70 MOSFET model suffers from severe
-convergence problems when SHMOD=1.  This issue is under investigation,
-but we were unable to fix it in time for the 7.1 release.
-
 The BSIM SOI 4.6.1 device supports output of the internal variables in
 table~\ref{M_70_OutputVars} on the \texttt{.PRINT} line of a netlist.
 To access them from a print line, use the syntax

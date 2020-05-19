@@ -4462,6 +4462,7 @@ analog begin : the_module
     else
         delTemp = 0;
 `endif
+    DevTemp = $temperature + DTEMP;
     DevTemp = delTemp + DevTemp;
     TempRatio = DevTemp / B4SOItnom;
     /* TempRatio used for Vth and mobility */
