@@ -698,7 +698,10 @@ bool Instance::updateTemperature ( const double & temp_tmp)
 
   if (tempModelEnabled)
   {
-    updateDependentParameters(temp_tmp);
+    if( !(getSolverState().tranopFlag) )// ERK; this conditional is necessary with new expression.
+    {
+      updateDependentParameters(temp_tmp);
+    }
     R = resistivity * length / area;
     // Apply the multiplicityFactor factor M (from the instance line).
     factor = 1/multiplicityFactor;
@@ -747,7 +750,6 @@ bool Instance::updateTemperature ( const double & temp_tmp)
     G = 1.0/(R * factor);
   else
     G = 0.0;
-
 
   return true;
 }

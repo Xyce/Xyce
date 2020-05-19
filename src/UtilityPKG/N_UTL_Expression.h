@@ -114,16 +114,7 @@ public:
 
   bool getIsConstant ();
 
-  // ERK new expression stuff, where external dependencies are set in separate 
-  // calls.  This is better than set_var/s, but not best.  Best would be to
-  // have an all-powerful group that can "pull" these values, rather than
-  // have them be set.  These are appropriate only if I continue to use the 
-  // lightweight group, and that is not my long term plan.
-  //
-  bool setParam         (const std::string &, const double &);
-  bool setVoltageNode   (const std::string &, const double &);
-  bool setDeviceCurrent (const std::string &, const double &);
-  bool setLeadCurrent   (const std::string &, const double &);
+  bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;
 

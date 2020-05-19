@@ -753,6 +753,20 @@ bool Expression::getIsConstant ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setTemperature
+// Purpose       :
+// Special Notes : This is ONLY called when you want to override the
+//                 'circuit' temperature.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/19/2020
+//-----------------------------------------------------------------------------
+bool Expression::setTemperature   (const double & temp)
+{
+  return newExpPtr_->setTemperature(temp);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
 // Purpose       : Returns a string of the expression, post replacements
 //

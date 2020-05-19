@@ -1192,6 +1192,11 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
+    if ( dpIter->expr->setTemperature(tempIn))
+    {
+      changed = true;
+    }
+
     // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
     // depending on various calls such as set_sim_time, which let each expression 
     // report back if its internal time variable (or temp, or freq, etc) had changed.

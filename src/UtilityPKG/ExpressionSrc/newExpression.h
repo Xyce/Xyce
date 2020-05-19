@@ -53,6 +53,7 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+    overrideGroupTemperature_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -81,6 +82,7 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+    overrideGroupTemperature_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -136,6 +138,7 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+    overrideGroupTemperature_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -181,6 +184,7 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+    overrideGroupTemperature_(false),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -302,6 +306,7 @@ public:
     isVTDependent_(right.isVTDependent_),
     isFreqDependent_(right.isFreqDependent_),
     isGminDependent_(right.isGminDependent_),
+    overrideGroupTemperature_(right.overrideGroupTemperature_),
     isConstant_(right.isConstant_),
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
@@ -395,6 +400,7 @@ public:
     isFreqDependent_ = right.isFreqDependent_;
     isGminDependent_ = right.isGminDependent_;
 
+    overrideGroupTemperature_ = right.overrideGroupTemperature_;
     isConstant_ = right.isConstant_;
     evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
     evaluateCalledBefore_ = right.evaluateCalledBefore_;
@@ -654,6 +660,8 @@ public:
 
   void treatAsTempAndConvert();
 
+  bool setTemperature (const double & temp);
+
 private:
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();
@@ -776,6 +784,7 @@ private:
   bool isFreqDependent_;
   bool isGminDependent_;
 
+  bool overrideGroupTemperature_;
 
   bool isConstant_;
   bool evaluateFunctionCalledBefore_;

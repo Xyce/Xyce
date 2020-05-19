@@ -892,7 +892,9 @@ void newExpression::getValuesFromGroup()
   }
 
   for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
-  for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } // Conversion to correct units in group 
+
+  // Conversion to correct units in group 
+  if (!overrideGroupTemperature_) { for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } }
   for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
   for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(group_->getFreq()); }
   for (int ii=0;ii<gminOpVec_.size();ii++) { gminOpVec_[ii]->setValue(group_->getGmin()); }
@@ -1013,13 +1015,20 @@ int newExpression::evaluateFunction (usedType &result)
       result = astNodePtr_->val();
       evaluateFunctionCalledBefore_ = true;
 
-#if 0
+#if 1
       std::cout << "newExpression::evaluateFunction. just evaluated the expression tree for " << expressionString_ << " result = " << result << std::endl;
+      dumpParseTree(std::cout);
 #endif
 
       // ERK: fix this failsafe properly for std::complex 
-      if (isnan(std::real(result))) { result = 0.0; }
-      if (isinf(std::real(result))) { result = 1.0e+20; }
+      if (isnan(std::real(result))) 
+      { 
+        result = 0.0; 
+      }
+      if (isinf(std::real(result))) 
+      { 
+        result = 1.0e+20; 
+      }
 
       savedResult_ = result;
     }
@@ -1134,6 +1143,41 @@ void newExpression::treatAsTempAndConvert()
   Teuchos::RCP<astNode<usedType> > * newTopPtr = new Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (astNodePtr_, CtoK));
   getMasterNodeVec().push_back(newTopPtr);
   setAstPtr(*newTopPtr);
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setTemperatuure
+// Purpose       : 
+// Special Notes : this is only called to overide the getTemeprature call to the 
+//                 group.  This will not happen very much; only when a device 
+//                 model has an internal self-heating model, and thus has a 
+//                 local temperature.  As of this writing, the only device that 
+//                 I know of that needs this is the thermal resistor.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/19/2020
+//-------------------------------------------------------------------------------
+bool newExpression::setTemperature (const double & temp)
+{
+  bool changed = false;
+
+  if ( !(tempOpVec_.empty()) )
+  {
+    double newTemp = temp-CONSTCtoK;
+    double oldTemp = std::real(tempOpVec_[0]->val());
+
+    if (oldTemp != newTemp) 
+    {
+      changed = true;
+      for (int ii=0;ii<tempOpVec_.size();ii++) 
+      { 
+        tempOpVec_[ii]->setValue(newTemp);
+      }
+      overrideGroupTemperature_ = true;
+    }
+  }
+
+  return changed;
 }
 
 }
