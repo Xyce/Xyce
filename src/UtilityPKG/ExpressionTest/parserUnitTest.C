@@ -280,6 +280,17 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoSec,  "6.0ps", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoSec,  "6.0fs", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milSec,  "2.0mils", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraHz,  "3.0thz", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaHz,  "5.0ghz", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloHz,  "7.0khz", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, megaHz,  "2.0meghz", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, mega2Hz,  "4.0xhz", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, microHz,  "2.0uhz", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, nanoHz,  "9.0nhz", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoHz,  "6.0phz", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoHz,  "6.0fhz", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milHz,  "2.0milhz", 2.0*(25.4e-6) )
+
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraVolt,  "3.0tv", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaVolt,  "5.0gv", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloVolt,  "7.0kv", 7.0e+3)
@@ -306,6 +317,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milAmp,  "2.0mila", 2.0*(25.
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, volt,  "7.0v", 7.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, amp,  "6.0a", 6.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, sec,  "5.0s", 5.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, hz,  "5.0hz", 5.0 )
 
 // upper case metrix prefix/suffix tests
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERA,  "3.0T", 3.0e+12)
@@ -356,6 +368,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MILAMP,  "2.0MILA", 2.0*(25.
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, VOLT,  "4.0V", 4.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, AMP,  "3.0A", 3.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SEC,  "2.0S", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, HZ,  "2.0HZ", 2.0 )
 
 // lower case metrix prefix/suffix tests
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, sin_tera,  "sin(3.0t)", std::sin(3.0e+12))
@@ -379,6 +392,17 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_nanoSec,  "exp(9.0ns)", 
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_picoSec,  "exp(6.0ps)", std::exp(6.0e-12))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_femtoSec,  "exp(6.0fs)", std::exp(6.0*1.0e-15))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_milSec,  "exp(2.0mils)", std::exp(2.0*(25.4e-6)))
+
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_teraHz,  "exp(3.0e-12thz)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_gigaHz,  "exp(5.0e-9ghz)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_kiloHz,  "exp(7.0e-3khz)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_megaHz,  "exp(2.0e-6meghz)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_mega2Hz,  "exp(4.0e-6xhz)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_microHz,  "exp(2.0uhz)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_nanoHz,  "exp(9.0nhz)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_picoHz,  "exp(6.0phz)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_femtoHz,  "exp(6.0fhz)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, exp_milHz,  "exp(2.0milhz)", std::exp(2.0*(25.4e-6)))
 
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, cos_teraVolt,  "cos(3.0tv)", std::cos(3.0e+12))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, cos_gigaVolt,  "cos(5.0gv)", std::cos(5.0e+9))
@@ -430,6 +454,17 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_PICOSEC,  "EXP(6.0PS)", 
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_FEMTOSEC,  "EXP(6.0FS)", std::exp(6.0*1.0e-15))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_MILSEC,  "EXP(2.0MILS)", std::exp(2.0*(25.4e-6)))
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_TERAHZ,  "EXP(3.0E-12THZ)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_GIGAHZ,  "EXP(5.0E-9GHZ)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_KILOHZ,  "EXP(7.0E-3KHZ)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_MEGAHZ,  "EXP(2.0E-6MEGHZ)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_MEGA2HZ,  "EXP(4.0E-6XHZ)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_MICROHZ,  "EXP(2.0UHZ)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_NANOHZ,  "EXP(9.0NHZ)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_PICOHZ,  "EXP(6.0PHZ)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_FEMTOHZ,  "EXP(6.0FHZ)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, EXP_MILHZ,  "EXP(2.0MILHZ)", std::exp(2.0*(25.4e-6)))
+
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, COS_TERAVOLT,  "COS(3.0TV)", std::cos(3.0e+12))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, COS_GIGAVOLT,  "COS(5.0GV)", std::cos(5.0e+9))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, COS_KILOVOLT,  "COS(7.0KV)", std::cos(7.0e+3))
@@ -456,7 +491,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TAN_MILAMP,  "TAN(2.0MILA)",
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_VOLT,  "SIN(5.0V)", std::sin(5.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_AMP,  "SIN(6.0A)", std::sin(6.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
-
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_HZ,  "SIN(7.0HZ)", std::sin(7.0))
 
 // source functions:
 class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup

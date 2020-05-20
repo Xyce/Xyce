@@ -129,6 +129,54 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
+
+ /* dealing with Hz */
+<INITIAL>{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+ /* numbers with 3-character suffixes; meg and mil */
+<INITIAL>{DIGIT}+[mM][eE][gG][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."{DIGIT}*[mM][eE][gG][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}+[mM][iI][lL][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."{DIGIT}*[mM][iI][lL][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][Hh][Zz] {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
  /* ----------------------------------------------------------*/
  /* single character ops */
 <INITIAL>"+" |
