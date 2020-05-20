@@ -720,6 +720,7 @@ class paramOp: public astNode<ScalarT>
       isVar(false),
       isConstant(false),
       isAttached(false),
+      isDotParam(false),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
