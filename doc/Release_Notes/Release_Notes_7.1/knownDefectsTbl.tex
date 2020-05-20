@@ -269,11 +269,6 @@ use of a single character $V$ as a global parameter name can result in
 either netlist parsing failures or incorrect results
 from \texttt{.PRINT} lines.  \\ \hline
 
-\textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
-There have been reports of convergence problems (e.g., the \Xyce{}
-simulation fails part way through and says that the ``time step is too
-small'') when the \texttt{rgatemod} parameter is non-zero. \\ \hline
-
 \textbf{794-SON}: Bug in TABLE Form of \Xyce{} Controlled Sources & In some case, a \Xyce{}
 netlist that contains a controlled source that uses the TABLE form will get
 the correct answer at first.  However, it may then "stall" (e.g, keep

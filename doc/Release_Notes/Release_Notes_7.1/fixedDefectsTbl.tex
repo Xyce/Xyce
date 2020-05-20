@@ -33,6 +33,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
+A bug in the BSIM4 led to convergence problems (e.g., the \Xyce{}
+simulation fails part way through and says that the ``time step is too
+small'') when the \texttt{rgatemod} parameter is non-zero. \\ \hline
+
 \textbf{1299-SON}: Xyce incorrectly outputs multiple unwanted solution results when 'tstart' given on tran line and .options output also given &
 When a non-zero third parameter (``TSTART'') was given to
 a \texttt{.TRAN} analysis statement and a \texttt{.OPTIONS OUTPUT}
