@@ -180,8 +180,8 @@
         </admst:when>
         <admst:otherwise>
           <!-- track dependencies of analog function output arguments -->
+          <admst:variable name="function" select="%(.)"/>
           <admst:if test="[definition/datatypename='analogfunction']">
-            <admst:variable name="function" select="%(.)"/>
             <admst:if test="[exists(definition/variable[(output='yes') and (name!=$function/name)])]">
               <admst:variable name="globalhandleafoutputs" string="yes"/>
               <admst:variable name="globalaf" path="."/>
