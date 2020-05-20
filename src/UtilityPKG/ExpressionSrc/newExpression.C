@@ -1015,7 +1015,7 @@ int newExpression::evaluateFunction (usedType &result)
       result = astNodePtr_->val();
       evaluateFunctionCalledBefore_ = true;
 
-#if 1
+#if 0
       std::cout << "newExpression::evaluateFunction. just evaluated the expression tree for " << expressionString_ << " result = " << result << std::endl;
       dumpParseTree(std::cout);
 #endif
@@ -1035,7 +1035,7 @@ int newExpression::evaluateFunction (usedType &result)
     else
     {
       result = savedResult_;
-#if 1
+#if 0
       std::cout << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " << expressionString_ << " result = " << result << std::endl;
 #endif
     }
