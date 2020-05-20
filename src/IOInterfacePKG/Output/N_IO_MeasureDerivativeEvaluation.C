@@ -135,7 +135,7 @@ void DerivativeEvaluation::updateTran(
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
     if( !initialized_ )
     {
@@ -277,13 +277,13 @@ void DerivativeEvaluation::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-    recordStartEndACDCsweepVals(dcSweepVal);
+    recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if (withinDCsweepFromToWindow( dcSweepVal ))
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      recordStartEndACDCmeasureWindow(dcSweepVal);
+      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
     }
 
     if( !calculationDone_ )
@@ -291,7 +291,7 @@ void DerivativeEvaluation::updateDC(
       // update our outVarValues_ vector
       updateOutputVars(comm, outVarValues_, dcSweepVal,
         solnVec, stateVec, storeVec, 0, lead_current_vector,
-	junction_voltage_vector, lead_current_dqdt_vector, 0);
+	junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0,0 );
       ++numPointsFound_;
 
       if( !initialized_ )
@@ -389,20 +389,20 @@ void DerivativeEvaluation::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCsweepVals(frequency);
+  recordStartEndACDCNoiseSweepVals(frequency);
 
   if (withinFreqWindow( frequency ))
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    recordStartEndACDCmeasureWindow(frequency);
+    recordStartEndACDCNoiseMeasureWindow(frequency);
   }
 
   if( !calculationDone_ )
   {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, RFparams);
+                     imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
     ++numPointsFound_;
 
     if( !initialized_ )
@@ -481,6 +481,26 @@ void DerivativeEvaluation::updateAC(
 
     updateMeasureState(frequency);
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::updateNoise()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creation Date : 5/12/2010
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+
 }
 
 //-----------------------------------------------------------------------------

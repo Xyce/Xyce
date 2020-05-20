@@ -48,6 +48,7 @@
 #include <N_IO_Measure_fwd.h>
 
 #include <N_ANP_AnalysisManager.h>
+#include <N_ANP_NoiseData.h>
 #include <N_ANP_RegisterAnalysis.h>
 #include <N_ANP_StepEvent.h>
 #include <N_ANP_SweepParam.h>
@@ -133,6 +134,15 @@ public:
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
+
+  void updateNoiseMeasures(
+    Parallel::Machine comm,
+    const double frequency,
+    const Linear::Vector *real_solution_vector,
+    const Linear::Vector *imaginary_solution_vector,
+    const double totalOutputNoiseDens_,
+    const double totalInputNoiseDens_,
+    const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec_);
 
   void outputResultsToMTFile(int stepNumber) const;
   std::ostream & outputResults(std::ostream& outputStream) const;

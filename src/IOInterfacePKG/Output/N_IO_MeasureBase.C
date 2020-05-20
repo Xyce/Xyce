@@ -125,8 +125,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     rfcWindowStartTime_(0.0),
     rfcWindowEndTime_(0.0),
     sweepVar_(""),
-    startACDCmeasureWindow_(0.0),
-    endACDCmeasureWindow_(0.0),
+    startACDCNoiseMeasureWindow_(0.0),
+    endACDCNoiseMeasureWindow_(0.0),
     startSweepValue_(0.0),
     endSweepValue_(0.0),
     firstSweepValueFound_(false),
@@ -515,11 +515,12 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         measureOutputOption_ = "SV";
       }
     }
-    else if( tag[0]=='V' || tag[0]=='I' || tag[0]=='N' || tag[0]=='P' || tag[0]=='W') 
+    else if( tag[0]=='V' || (tag[0]=='I' && tag != "INOISE") || tag[0]=='N' ||
+             tag[0]=='P' || tag[0]=='W' || tag[0]=='D')
     {
       // this if clause must come last because we are only checking the 
       // first letter and don't with to get confused with kewords 
-      // that happen to start with V, I, N, P or W.
+      // that happen to start with V, I, N, P, W or D.
       int nodes = (*it).getImmutableValue<int>();
       Util::Param aParam;
       aParam.set( tag, nodes );
@@ -838,12 +839,15 @@ void Base::updateOutputVars(
   const Linear::Vector *lead_current_vector,
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
   const Util::Op::RFparamsData *RFparams)
 {
   int vecIndex = 0;
   for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
   {
-    outputVarVec[vecIndex] = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector, 0, 0, 0, 0, 0, 0, 0, 0 , 0, RFparams)).real();
+    outputVarVec[vecIndex] = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector, 0, 0, 0, 0, 0, 0, totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, RFparams)).real();
     vecIndex++;
   }
 }
@@ -889,8 +893,8 @@ void Base::resetBase()
   rfcWindowFound_ = false;
   rfcWindowStartTime_ = 0.0;
   rfcWindowEndTime_ = 0.0;
-  startACDCmeasureWindow_ = 0.0;
-  endACDCmeasureWindow_ = 0.0;
+  startACDCNoiseMeasureWindow_ = 0.0;
+  endACDCNoiseMeasureWindow_ = 0.0;
 }
 
 
@@ -912,9 +916,12 @@ double Base::getOutputValue(
   const Linear::Vector *lead_current_vector,
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
   const Util::Op::RFparamsData *RFparams)
 {
-  double retVal = getValue(comm, *op, Util::Op::OpData(0, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector,0, 0, 0, 0, 0, 0, 0, 0 , 0, RFparams)).real();
+  double retVal = getValue(comm, *op, Util::Op::OpData(0, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector,0, 0, 0, 0, 0, 0, totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, RFparams)).real();
   return retVal;
 }
 
@@ -931,7 +938,7 @@ double Base::getOutputValue(
 void Base::printMeasureWarnings(const double endSimTime)
 {
   if ( (calculationResult_ == calculationDefaultVal_) &&
-       ( mode_ == "TRAN" || mode_ == "AC" ) )
+       ( mode_ == "TRAN" || mode_ == "AC" || mode_ == "NOISE") )
   {
     // print warning if time window or AT value was non-sensensical 
     if ( fromGiven_ && !tdGiven_ && toGiven_ && to_ < from_)
@@ -963,7 +970,7 @@ void Base::printMeasureWarnings(const double endSimTime)
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside sim window";
       }
     }
-    else if (mode_ == "AC")
+    else if ( (mode_ == "AC") || (mode_ == "NOISE") )
     {
       if ( ( fromGiven_ && from_ >= endSweepValue_ ) || ( tdGiven_ && td_ >= endSweepValue_ ) )
       {
@@ -978,15 +985,15 @@ void Base::printMeasureWarnings(const double endSimTime)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MeasureBase::recordStartEndACDCsweepVals
-// Purpose       : Used to record start/end sweep values for AC and DC measures.
-// Special Notes : For AC measures, sweepVal is frequency. For DC measures, it
+// Function      : MeasureBase::recordStartEndACDCNoiseSweepVals
+// Purpose       : Used to record start/end sweep values for AC, DC and NOISE measures.
+// Special Notes : For AC and NOISE measures, sweepVal is frequency. For DC measures, it
 //                 is the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 05/2/2020
 //-----------------------------------------------------------------------------
-void Base::recordStartEndACDCsweepVals(const double sweepVal)
+void Base::recordStartEndACDCNoiseSweepVals(const double sweepVal)
 {
   if (!firstSweepValueFound_)
   {
@@ -1001,21 +1008,21 @@ void Base::recordStartEndACDCsweepVals(const double sweepVal)
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::recordStartEndACDCsmeasureWindow
 // Purpose       : Used to record the start/end of the measurement window.
-//                 for AC and DC measures
-// Special Notes : For AC measures, sweepVal is frequency. For DC measures, it
-//                 is the value of the first variable in the DC sweep vector.
+//                 for AC, DC and NOISE measures
+// Special Notes : For AC and NOISE measures, sweepVal is frequency. For DC measures,
+//                 it is the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 05/2/2020
 //-----------------------------------------------------------------------------
-void Base::recordStartEndACDCmeasureWindow(const double sweepVal)
+void Base::recordStartEndACDCNoiseMeasureWindow(const double sweepVal)
 {
   if (!firstStepInMeasureWindow_)
   {
-    startACDCmeasureWindow_ = sweepVal;
+    startACDCNoiseMeasureWindow_ = sweepVal;
     firstStepInMeasureWindow_ = true;
   }
-  endACDCmeasureWindow_ = sweepVal;
+  endACDCNoiseMeasureWindow_ = sweepVal;
 
   return;
 }
@@ -1046,13 +1053,13 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 
     endOfWindow = (toGiven_) ? to_ : endSimTime;
   }
-  else if ( (mode_== "AC") || (mode_ == "DC") )
+  else if ( (mode_== "AC") || (mode_ == "DC") || (mode_ == "NOISE") )
   {
     // handle AC and DC cases
     if (initialized_)
     {
-      startOfWindow = startACDCmeasureWindow_;
-      endOfWindow = endACDCmeasureWindow_;
+      startOfWindow = startACDCNoiseMeasureWindow_;
+      endOfWindow = endACDCNoiseMeasureWindow_;
     }
     else
     {
@@ -1064,7 +1071,7 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 
   // modeStr is "Time" for TRAN mode, "Freq" for AC mode and 
   // "<sweep variable> Value" for DC mode.
-  if ( (mode_ == "AC") || (mode_ == "TRAN") || ((mode_ == "DC") && firstSweepValueFound_) )
+  if ( (mode_ == "AC") || (mode_ == "NOISE") || (mode_ == "TRAN") || ((mode_ == "DC") && firstSweepValueFound_) )
   {
     std::string modeStr = setModeStringForMeasureWindowText();
     os << "Measure Start " << modeStr << "= " << startOfWindow 
@@ -1090,7 +1097,7 @@ std::string Base::setModeStringForMeasureWindowText()
   {
     modeStr = "Time";
   }
-  else if (mode_ == "AC")
+  else if ( (mode_ == "AC") || (mode_ == "NOISE") )
   {
     modeStr = "Freq";
   }
@@ -1119,7 +1126,7 @@ std::string Base::setModeStringForMeasureResultText()
   {
     modeStr = "time";
   }
-  else if (mode_ == "AC")
+  else if ( (mode_ == "AC") || (mode_ == "NOISE") )
   {
     modeStr = "freq";
   }

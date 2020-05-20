@@ -121,7 +121,7 @@ void Extrema::updateTran(
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
     // Need to set lastOutputValue_ variable to the current signal value
     // at the first time-step within the measurement window  (That
@@ -188,7 +188,7 @@ void Extrema::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-    recordStartEndACDCsweepVals(dcSweepVal);
+    recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -196,11 +196,11 @@ void Extrema::updateDC(
                                         solnVec, stateVec, storeVec, 0,
                                         lead_current_vector,
                                         junction_voltage_vector,
-                                        lead_current_dqdt_vector, 0);
+                                        lead_current_dqdt_vector, 0, 0, 0, 0);
 
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      recordStartEndACDCmeasureWindow(dcSweepVal);
+      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
       if ( !initialized_ )
         setMeasureVarsForNewWindow(dcSweepVal, outVarValues_[0]);
@@ -226,17 +226,55 @@ void Extrema::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCsweepVals(frequency);
+  recordStartEndACDCNoiseSweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
     // update our outVarValues_ vector 
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, RFparams);
+                     imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
 
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    recordStartEndACDCmeasureWindow(frequency);
+    recordStartEndACDCNoiseMeasureWindow(frequency);
+
+    if ( !initialized_ )
+      setMeasureVarsForNewWindow(frequency, outVarValues_[0]);
+    else
+      updateMeasureVars(frequency, outVarValues_[0]);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Extrema::updateNoise()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creation Date : 5/11/2020
+//-----------------------------------------------------------------------------
+void Extrema::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndACDCNoiseSweepVals(frequency);
+
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0,
+                     totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if ( !initialized_ )
       setMeasureVarsForNewWindow(frequency, outVarValues_[0]);

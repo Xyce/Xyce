@@ -99,6 +99,15 @@ class Base
               const Linear::Vector *imaginaryVec,
               const Util::Op::RFparamsData *RFparams) {}
 
+    virtual void updateNoise(
+              Parallel::Machine comm,
+              const double frequency,
+              const Linear::Vector *solnVec,
+              const Linear::Vector *imaginaryVec,
+              const double totalOutputNoiseDens,
+              const double totalInputNoiseDens,
+              const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec) {}
+
 protected:
   // used by individual measure classes to update the output variables 
   // on which they depend 
@@ -113,6 +122,9 @@ protected:
       const Linear::Vector *lead_current_vector,
       const Linear::Vector *junction_voltage_vector,
       const Linear::Vector *lead_current_dqdt_vector,
+      const double totalOutputNoiseDens,
+      const double totalInputNoiseDens,
+      const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
       const Util::Op::RFparamsData *RFparams);
 
     void resetBase();
@@ -147,6 +159,9 @@ public:
       const Linear::Vector *lead_current_vector,
       const Linear::Vector *junction_voltage_vector,
       const Linear::Vector *lead_current_dqdt_vector,
+      const double totalOutputNoiseDens,
+      const double totalInputNoiseDens,
+      const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
       const Util::Op::RFparamsData *RFparams);
 
     // used to get the measurement result
@@ -164,9 +179,9 @@ public:
     virtual void printMeasureWarnings(const double endSimTime);
 
     // used to record start/end sweep values, and the start/end of the measurement window,
-    // for AC and DC measures
-    void recordStartEndACDCsweepVals(const double sweepVal);
-    void recordStartEndACDCmeasureWindow(const double sweepVal);
+    // for AC, DC and NOISE measures
+    void recordStartEndACDCNoiseSweepVals(const double sweepVal);
+    void recordStartEndACDCNoiseMeasureWindow(const double sweepVal);
 
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
@@ -347,9 +362,9 @@ public:
 
     // variables used to record start/end of Sweep window for AC and DC measures
     ExtendedString sweepVar_;
-    double startACDCmeasureWindow_; // used to record FROM-TO values
-    double endACDCmeasureWindow_;
-    double startSweepValue_; // used to record first/last values of AC or DC sweep vector
+    double startACDCNoiseMeasureWindow_; // used to record FROM-TO values
+    double endACDCNoiseMeasureWindow_;
+    double startSweepValue_; // used to record first/last values of AC, DC or NOISE sweep vector
     double endSweepValue_;
     bool firstSweepValueFound_;
 

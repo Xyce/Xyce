@@ -75,10 +75,10 @@ void Min::reset()
 //-----------------------------------------------------------------------------
 // Function      : Min::setMeasureVarsForNewWindow()
 // Purpose       : Called when entering a new RFC window for TRAN measures, or
-//                 a new FROM-TO window for AC and DC measures.
+//                 a new FROM-TO window for AC, DC and NOISE measures.
 // Special Notes : For TRAN measure, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 and NOISE measures, it is frequency.  For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
@@ -183,8 +183,8 @@ std::ostream& Min::printVerboseMeasureResult(std::ostream& os)
     if (initialized_)
     {
       os << name_ << " = " << this->getMeasureResult() ;
-    
-      // modeStr is "time" for TRAN mode, "freq" for AC mode and 
+
+      // modeStr is "time" for TRAN mode, "freq" for AC and NOISE modes, and
       // "<sweep variable> value" for DC mode.
       std::string modeStr = setModeStringForMeasureResultText();          
       os << " at " << modeStr << " = " << calculationInstant_ << std::endl;

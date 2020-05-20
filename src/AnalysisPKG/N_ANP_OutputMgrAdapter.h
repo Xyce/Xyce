@@ -251,12 +251,22 @@ public:
     const Linear::BlockVector & freqDomainJunctionVoltageVecReal, 
     const Linear::BlockVector & freqDomainJunctionVoltageVecImaginary );
 
+  // This version also updates the AC mode measures.
   void outputAC(
      double freq, 
      double fStart,
      double fStop,
      const Linear::Vector & solnVecRealPtr, 
      const Linear::Vector & solnVecImaginaryPtr,
+     const Util::Op::RFparamsData & RFparams);
+
+  // This version does not update the AC mode measures.
+  void outputACwoMeasureUpdates (
+     double frequency,
+     double fStart,
+     double fStop,
+     const Linear::Vector &  solnVecRealPtr,
+     const Linear::Vector &  solnVecImaginaryPtr,
      const Util::Op::RFparamsData & RFparams);
 
   void outputSensitivityAC(

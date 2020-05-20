@@ -199,8 +199,8 @@ std::ostream& RMS::printMeasureWindow(std::ostream& os, const double indepVarVal
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
     std::string modeStr = setModeStringForMeasureWindowText();
-    os << "Measure Start " << modeStr << "= " << startACDCmeasureWindow_
-       << "\tMeasure End " << modeStr << "= " << endACDCmeasureWindow_ << std::endl;
+    os << "Measure Start " << modeStr << "= " << startACDCNoiseMeasureWindow_
+       << "\tMeasure End " << modeStr << "= " << endACDCNoiseMeasureWindow_ << std::endl;
   }
   else
   {

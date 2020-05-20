@@ -231,7 +231,7 @@ void RiseFallDelay::updateTran(
   {
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
     // Need to set lastTrigOutputValue_ and lastTargOutputValue_ variables to the 
     // current signal values at the first time-step within the measurement window.

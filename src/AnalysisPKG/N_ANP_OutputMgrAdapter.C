@@ -400,7 +400,7 @@ void OutputMgrAdapter::outputHB_FD (
 //-----------------------------------------------------------------------------
 // Function      : OutputMgrAdapter::outputAC
 // Purpose       : constructor
-// Special Notes :
+// Special Notes : This version updates the AC mode measures
 // Scope         : public
 // Creator       :
 // Creation Date :
@@ -416,6 +416,28 @@ void OutputMgrAdapter::outputAC (
   outputManager_.setCircuitFrequency(frequency);
 
   measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr, &RFparams);
+
+  outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
+
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgrAdapter::outputACwoMeasureUpdates
+// Purpose       : constructor
+// Special Notes : This version does not try to update the AC mode measures
+// Scope         : public
+// Creator       :
+// Creation Date :
+//-----------------------------------------------------------------------------
+void OutputMgrAdapter::outputACwoMeasureUpdates (
+  double                frequency,
+  double                fStart,
+  double                fStop,
+  const Linear::Vector &  solnVecRealPtr,
+  const Linear::Vector &  solnVecImaginaryPtr,
+  const Util::Op::RFparamsData & RFparams)
+{
+  outputManager_.setCircuitFrequency(frequency);
 
   outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
 
@@ -481,7 +503,9 @@ void OutputMgrAdapter::outputNoise (
   double totalInputNoiseDens_, 
   const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_)
 {
-  
+  measureManager_.updateNoiseMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr,
+      totalOutputNoiseDens_, totalInputNoiseDens_, &noiseDataVec_);
+
   outputManager_.outputNoise(comm_, frequency, solnVecRealPtr, solnVecImaginaryPtr, 
       totalOutputNoiseDens_, totalInputNoiseDens_,noiseDataVec_);
 }

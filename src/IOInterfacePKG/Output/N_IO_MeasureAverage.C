@@ -94,8 +94,8 @@ void Average::setMeasureVarsForNewWindow()
 // Function      : Average::updateMeasureVars()
 // Purpose       : Updates the average value and the averaging window
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 and NOISE measures, it is frequency.  For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
@@ -106,7 +106,7 @@ void Average::updateMeasureVars(const double indepVarVal, const double signalVal
   if ( withinMinMaxThresh(signalVal) )
   {
     // The abs() is needed to account for both increasing and decreasing DC sweeps.  The abs() has
-    // no effect on TRAN or AC, since the time and frequency values are monotonically increasing
+    // no effect on TRAN, AC or NOISE, since the time and frequency values are monotonically increasing
     // for those two cases.
     averageValue_ += 0.5 * abs(indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
     totalAveragingWindow_ += abs(indepVarVal - lastIndepVarValue_);
@@ -204,8 +204,8 @@ std::ostream& Average::printMeasureWindow(std::ostream& os, const double indepVa
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
     std::string modeStr = setModeStringForMeasureWindowText();
-    os << "Measure Start " << modeStr << "= " << startACDCmeasureWindow_
-       << "\tMeasure End " << modeStr << "= " << endACDCmeasureWindow_ << std::endl;
+    os << "Measure Start " << modeStr << "= " << startACDCNoiseMeasureWindow_
+       << "\tMeasure End " << modeStr << "= " << endACDCNoiseMeasureWindow_ << std::endl;
   }
   else
   {

@@ -84,6 +84,15 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
+  void updateNoise(
+    Parallel::Machine comm,
+    const double frequency,
+    const Linear::Vector *solnVec,
+    const Linear::Vector *imaginaryVec,
+    const double totalOutputNoiseDens,
+    const double totalInputNoiseDens,
+    const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
+
   double getMeasureResult();
   std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
   std::ostream& printMeasureResult(std::ostream& os);

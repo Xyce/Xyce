@@ -136,7 +136,7 @@ void FindWhen::updateTran(
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
     // Need to set lastOutputValue_ variable to the current signal value
     // at the first time-step within the measurement window.  (That
@@ -318,7 +318,7 @@ void FindWhen::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-    recordStartEndACDCsweepVals(dcSweepVal);
+    recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -326,21 +326,21 @@ void FindWhen::updateDC(
                                         solnVec, stateVec, storeVec, 0,
                                         lead_current_vector,
                                         junction_voltage_vector,
-                                        lead_current_dqdt_vector, 0);
+                                        lead_current_dqdt_vector, 0, 0, 0, 0);
 
       // update our outVarValues_ vector
       updateOutputVars(comm, outVarValues_, dcSweepVal,
         solnVec, stateVec, storeVec, 0, lead_current_vector,
-        junction_voltage_vector, lead_current_dqdt_vector, 0);
+        junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      recordStartEndACDCmeasureWindow(dcSweepVal);
+      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
       // The second part of this conditional is needed to deal with multiple sweep
       // variables.  We need to reset the last value variables, each time the first
       // sweep variable rolls over.
-      if( !initialized_ || (initialized_ && dcSweepVal == startACDCmeasureWindow_) )
+      if( !initialized_ || (initialized_ && dcSweepVal == startACDCNoiseMeasureWindow_) )
       {
         // Assigned last independent and dependent var to dcSweepVal and outVarValue_[whenIdx_]
         // While we can't interpolate on this step, it ensures that the initial history is
@@ -476,17 +476,17 @@ void FindWhen::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCsweepVals(frequency);
+  recordStartEndACDCNoiseSweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, RFparams);
+                     imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
 
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    recordStartEndACDCmeasureWindow(frequency);
+    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if( !initialized_ )
     {
