@@ -630,6 +630,25 @@ bool DeviceEntity::setParam(const std::string & paramName, double val, bool over
     }
     Xyce::Device::setOriginalValue(*this,param.getSerialNumber(), val);
   }
+
+
+#if 1
+  // ERK.  This is an experiment for newExpression.    It is to address the following use case:
+  // 
+  // .global_param vdi=0.5
+  //  V1 1 0 {vdi}
+  //  .DC V1 0.1 0.1 1
+  //
+  // If setParam is called on an entity parameter (in the example V1:DCV0), *and* 
+  // that parameter is a "depedent" parameter (V1:DCV0={vdi}), then probably 
+  // it should be (temporarily) removed from the vector of dependent params 
+  // when setParam is called on it (On V1:DCV0)  This is b/c the updateDependentParams
+  // function will be called *after* the setParam function, and thus will
+  // override it.   You don't want that, based on the gold standard in test BUG_754_SON.
+  //
+  //
+  dependentParamExcludeMap_[paramName] = 1;
+#endif
   
   return true;
 }
@@ -994,31 +1013,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   if (!variables.empty())
     names.insert( names.end(), variables.begin(), variables.end() );
 
-#if 0
-  if ( !names.empty() )
-  {
-    // Order the names in the expression so that it agrees with the order
-    // in names.
-    dependentParam.expr->order_names( names );
-  }
-#endif
-
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
     expVarNames.push_back(names[i]);
-
-#if 0
-  // ERK.  FIX THIS!   commenting out so this will compile
-  // Is this needed?
-  if (dependentParam.n_vars > 0)
-  {
-    std::vector<double> zeros;
-    zeros.resize(dependentParam.n_vars);
-    for (int i=0 ; i<dependentParam.n_vars ; ++i)
-      zeros[i] = 0;
-
-    dependentParam.expr->set_vars(zeros);
-  }
-#endif
 
   dependentParam.global_params.clear();
   if (!variables.empty())
@@ -1033,10 +1029,6 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
       else 
       {
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-        dependentParam.expr->set_var(*iterS, (*global_param_it).second);
-#endif
         dependentParam.global_params.push_back(*iterS);
       }
     }
@@ -1059,22 +1051,20 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
-    // depending on various calls such as set_sim_time, which let each expression 
-    // report back if its internal time variable (or temp, or freq, etc) had changed.
-    //
-    // Those function calls don't exist anymore due to the new expression refactor.
-    //
-    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
-    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
-    // If this isn't changed, then a lot of "processParam" function calls are going 
-    // to be called unneccessarily.
-    //
-    // But that will have to come later.
-
-    if ( !(dpIter->expr->getIsConstant()) ) // ERK.  5/3/2020.  This works, but refine later.
+    // Don't re-evaluate the dependent parameter expression unless you have to.
+    // Also, don't re-evaluate if this parameter has been overridden by a setParam call.
+    if ( !(dependentParamExcludeMap_.empty()) ) 
     {
-      changed = true;
+      // check for a setParam call
+      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
+    }
+
+    changed = true;
+    // ERK.  5/3/2020.  This partially works, but refine later.  
+    // The logic inside of newExpression to determine the "isConstant" boolean is flawed.
+    if ( dpIter->expr->getIsConstant() ) 
+    {
+      changed = false;
     }
 
     if (changed)
@@ -1096,7 +1086,7 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateGlobalParameters
 // Purpose       : Update values of global parameters in expressions
-// Special Notes :
+// Special Notes : ERK.  This function can probably be deleted, for new Expression.
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 11/17/05
@@ -1121,11 +1111,6 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         {
           DevelFatal(*this).in("DeviceEntity::updateGlobalParameters") << "Failed to find global parameter " << *gp;
         }
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
-        if (dpIter->expr->set_var(*gp, global_map[*gp]))
-          changed = true;
-#endif
       }
     }
   }
