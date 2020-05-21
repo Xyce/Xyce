@@ -22,7 +22,9 @@ needed modification.  These are documented here:
   "@(initial_instance)" pseudo-event.  Doing so assures that this code
   is only executed when necessary --- at code initialization or
   whenever an instance or model parameter changes as part of a .STEP
-  analysis.
+  analysis.  As a consequence of this change, a line of code setting
+  "DevTemp" to the ambient temperature needed to be duplicated both in
+  the initial_instance and main body of the code.
 
 - Explicit use of a multiplicity factor has been introduced.  Xyce
   does not have implicit multiplicity for devices, and requires that
@@ -31,3 +33,4 @@ needed modification.  These are documented here:
 - Several contributions contained both static and dynamic (ddt())
   terms, which ADMS and Xyce/ADMS mishandle.  These contributions were
   broken up into separate static-only and dynamic-only contributions.
+
