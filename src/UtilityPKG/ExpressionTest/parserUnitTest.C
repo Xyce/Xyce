@@ -783,7 +783,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
   public:
     solnExpressionGroup () :
       Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
-         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0), ACC1val(0.0)
   {};
     ~solnExpressionGroup () {};
 
@@ -801,6 +801,8 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("ve")) { retval = VEval; return true; }
     else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
     else if (tmp==std::string("vln")) { retval = VLNval; return true; }
+    else if (tmp==std::string("yacc_acc1")) { retval = ACC1val; return true; }
+    else if (tmp==std::string("yacc!acc1")) { retval = ACC1val; return true; }
     else { return 0.0; return false; }
   }
 
@@ -818,6 +820,8 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("ve")) { VEval = val; }
     else if (tmp==std::string("vlp")) { VLPval = val; }
     else if (tmp==std::string("vln")) { VLNval = val; }
+    else if (tmp==std::string("yacc_acc1")) { ACC1val = val; }
+    else if (tmp==std::string("yacc!acc1")) { ACC1val = val; }
   }
 
   void setPower(const std::string & deviceName, double & val) { return setSoln(deviceName, val); }
@@ -827,7 +831,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 
   double Aval, Bval, Cval, R1val;
-  double VBval, VCval, VEval, VLPval, VLNval;
+  double VBval, VCval, VEval, VLPval, VLNval, ACC1val;
 };
 
 TEST ( Double_Parser_VoltSoln_Test, test0)
@@ -1285,6 +1289,49 @@ TEST ( Double_Parser_Power_Test, test1)
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
   OUTPUT_MACRO(Double_Parser_Power_Test, test1)
+}
+
+TEST ( Double_Parser_Power_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*W(R1)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result=0.0, R1val=3.0;
+  double refRes = 17.2*R1val+8.5;
+  solnGroup->setPower(std::string("R1"),R1val);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_Power_Test, test2)
+}
+
+TEST ( Double_Parser_Power_Test, test3)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+//Xyce::Util::newExpression testExpression(std::string("1-W(YACC_ACC1)"), testGroup);  // this is parseable
+  Xyce::Util::newExpression testExpression(std::string("1-W(YACC!ACC1)"), testGroup);  // this cannot be parsed!
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result=0.0, ACC1val=3.0;
+  double refRes = 1-ACC1val;
+  solnGroup->setPower(std::string("YACC_ACC1"),ACC1val);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_Power_Test, test2)
 }
 
 TEST ( Double_Parser_CurrDeriv_Test, test1)
