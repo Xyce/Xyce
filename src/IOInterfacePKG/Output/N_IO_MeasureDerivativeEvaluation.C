@@ -160,8 +160,7 @@ void DerivativeEvaluation::updateTran(
       if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
 	  (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_)) && circuitTime > 0) )
       {
-        // asymmetrical 3-point approximation for first derivative.  
-        calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_); 
+        updateCalculationResult(circuitTime);
         calculationDone_ = true;
       }
     }
@@ -211,7 +210,7 @@ void DerivativeEvaluation::updateTran(
           // of the target value 
           if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
           {
-            calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);
+            updateCalculationResult(circuitTime);
             calculationInstant_ = circuitTime;
             calculationDone_ = !measureLastRFC_;
             resultFound_=true;
@@ -233,8 +232,7 @@ void DerivativeEvaluation::updateTran(
               // use same time interpolation algorithm as FIND-WHEN measure
               interpolateCalculationInstant(circuitTime, targVal);
 
-              // asymmetrical 3-point approximation for first derivative.  
-              calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);         
+              updateCalculationResult(circuitTime);
               calculationDone_ = !measureLastRFC_;
               // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
               //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
@@ -301,71 +299,14 @@ void DerivativeEvaluation::updateDC(
 
       if (atGiven_ && numPointsFound_ > 1)
       {
-        // check and see if last point and this point bound the target point
-        double backDiff    = lastIndepVarValue_ - at_;
-        double forwardDiff = dcSweepVal - at_;
-
-        // if we bound the target then either
-        //  (backDiff < 0) && (forwardDiff > 0)
-        //   OR
-        //  (backDiff > 0) && (forwardDiff < 0)
-        // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-        //
-        // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
-        // Only do this equality test if at least two points have been found, since the
-        // three-point difference approx. for the derivative needs a "previous point".
-        if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
-        {
-          // asymmetrical 3-point approximation for first derivative.
-          calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (dcSweepVal - lastIndepVarValue_);
-          calculationDone_ = true;
-        }
+        // process AT qualifer
+        processATforACDCNoise(dcSweepVal);
       }
       else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
                 && withinDCsweepFromToWindow( dcSweepVal ) )
       {
-        double targVal=0.0;
-        updateTargVal(targVal); // used by the WHEN clause
-
-        if (!resultFound_)
-        {
-          // this is the simple case where Xyce output a value within tolerance
-          // of the target value
-          if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
-          {
-            calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (dcSweepVal - lastIndepVarValue_);
-            calculationInstant_ = dcSweepVal;
-            calculationDone_ = true;
-            resultFound_=true;
-	  }
-          else
-          {
-            // check and see if last point and this point bound the target point
-            double backDiff    = lastDepVarValue_ - targVal;
-            double forwardDiff = outVarValues_[whenIdx_] - targVal;
-
-            // if we bound the target then either
-            //  (backDiff < 0) && (forwardDiff > 0)
-            //   OR
-            //  (backDiff > 0) && (forwardDiff < 0)
-            // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-            if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-                (backDiff == 0.0) )
-	    {
-              // use same time interpolation algorithm as FIND-WHEN measure
-              interpolateCalculationInstant(dcSweepVal, targVal);
-
-              // asymmetrical 3-point approximation for first derivative.
-              calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (dcSweepVal - lastIndepVarValue_);
-              calculationDone_ = true;
-              // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
-              //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-              // compatibility with the LAST keyword, since DERIV does not use the intialized_ flag.
-              resultFound_ = true;
-            }
-          }
-        }
+        // process WHEN qualifer
+        processWHENforACDCNoise(dcSweepVal);
       }
 
       updateMeasureState(dcSweepVal);
@@ -412,71 +353,14 @@ void DerivativeEvaluation::updateAC(
 
     if (atGiven_ && numPointsFound_ > 1)
     {
-      // check and see if last point and this point bound the target point
-      double backDiff    = lastIndepVarValue_ - at_;
-      double forwardDiff = frequency - at_;
-
-      // if we bound the frequency target then either
-      //  (backDiff < 0) && (forwardDiff > 0)
-      //   OR
-      //  (backDiff > 0) && (forwardDiff < 0)
-      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-      //
-      // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
-      // Only do this equality test if at least two points have been found, since the
-      // three-point difference approx. for the derivative needs a "previous point".
-      if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
-      {
-        // asymmetrical 3-point approximation for first derivative.
-        calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (frequency - lastIndepVarValue_);
-        calculationDone_ = true;
-      }
+      // process AT qualifer
+      processATforACDCNoise(frequency);
     }
     else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
               && withinFreqWindow( frequency ) )
     {
-      double targVal=0.0;
-      updateTargVal(targVal); // used by the WHEN clause
-
-      if (!resultFound_)
-      {
-        // this is the simple case where Xyce output a value within tolerance
-        // of the target value
-        if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
-        {
-          calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (frequency - lastIndepVarValue_);
-          calculationInstant_ = frequency;
-          calculationDone_ = true;
-          resultFound_=true;
-        }
-        else
-        {
-          // check and see if last point and this point bound the target point
-          double backDiff    = lastDepVarValue_ - targVal;
-          double forwardDiff = outVarValues_[whenIdx_] - targVal;
-
-          // if we bound the target then either
-          //  (backDiff < 0) && (forwardDiff > 0)
-          //   OR
-          //  (backDiff > 0) && (forwardDiff < 0)
-          // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-          if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-              (backDiff == 0.0) )
-	  {
-            // use same time interpolation algorithm as FIND-WHEN measure
-            interpolateCalculationInstant(frequency, targVal);
-
-            // asymmetrical 3-point approximation for first derivative.
-            calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (frequency - lastIndepVarValue_);
-            calculationDone_ = true;
-            // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
-            //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-            // compatibility with the LAST keyword, since DERIV does not use the intialized_ flag.
-            resultFound_ = true;
-          }
-        }
-      }
+      // process WHEN qualifer
+      processWHENforACDCNoise(frequency);
     }
 
     updateMeasureState(frequency);
@@ -500,7 +384,154 @@ void DerivativeEvaluation::updateNoise(
   const double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndACDCNoiseSweepVals(frequency);
 
+  if (withinFreqWindow( frequency ))
+  {
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    recordStartEndACDCNoiseMeasureWindow(frequency);
+  }
+
+  if( !calculationDone_ )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0,
+                     totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+    ++numPointsFound_;
+
+    if( !initialized_ )
+    {
+      setMeasureState(frequency);
+    }
+
+    if (atGiven_ && numPointsFound_ > 1)
+    {
+      // process AT qualifer
+      processATforACDCNoise(frequency);
+    }
+    else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
+              && withinFreqWindow( frequency ) )
+    {
+      // process WHEN qualifer
+      processWHENforACDCNoise(frequency);
+    }
+
+    updateMeasureState(frequency);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::updateCalculationResult()
+// Purpose       :
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 and NOISE measures, it is frequency.  For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/22/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::updateCalculationResult(const double indepVarVal)
+{
+  // asymmetrical 3-point approximation for first derivative.
+  calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (indepVarVal - lastIndepVarValue_);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::processATforACDCNoise()
+// Purpose       : Processes the AT condition for AC, DC and NOISE modes
+// Special Notes : For AC and NOISE measures, the independent variable is
+//                 frequency.  For DC measures, it is the value of the first
+//                 variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/21/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::processATforACDCNoise(const double indepVarVal)
+{
+  // check and see if last point and this point bound the target point
+  double backDiff    = lastIndepVarValue_ - at_;
+  double forwardDiff = indepVarVal - at_;
+
+  // if we bound the frequency target then either
+  //  (backDiff < 0) && (forwardDiff > 0)
+  //   OR
+  //  (backDiff > 0) && (forwardDiff < 0)
+  // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+  //
+  // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
+  // Only do this equality test if at least two points have been found, since the
+  // three-point difference approx. for the derivative needs a "previous point".
+  if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+       (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+  {
+    // asymmetrical 3-point approximation for first derivative.
+    updateCalculationResult(indepVarVal);
+    calculationDone_ = true;
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::processWHENforACDCNoise()
+// Purpose       : Processes the WHEN condition for AC, DC and NOISE modes
+// Special Notes : For AC and NOISE measures, the independent variable is
+//                 frequency.  For DC measures, it is the value of the first
+//                 variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/21/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::processWHENforACDCNoise(const double indepVarVal)
+{
+  double targVal=0.0;
+  updateTargVal(targVal); // used by the WHEN clause
+
+  if (!resultFound_)
+  {
+    // this is the simple case where Xyce output a value within tolerance
+    // of the target value
+    if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
+    {
+      updateCalculationResult(indepVarVal);
+      calculationInstant_ = indepVarVal;
+      calculationDone_ = true;
+      resultFound_=true;
+    }
+    else
+    {
+      // check and see if last point and this point bound the target point
+      double backDiff    = lastDepVarValue_ - targVal;
+      double forwardDiff = outVarValues_[whenIdx_] - targVal;
+
+      // if we bound the target then either
+      //  (backDiff < 0) && (forwardDiff > 0)
+      //   OR
+      //  (backDiff > 0) && (forwardDiff < 0)
+      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+      if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+          (backDiff == 0.0) )
+      {
+        // use same time interpolation algorithm as FIND-WHEN measure
+        interpolateCalculationInstant(indepVarVal, targVal);
+
+        // asymmetrical 3-point approximation for first derivative.
+        updateCalculationResult(indepVarVal);
+        calculationDone_ = true;
+        // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
+        //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
+        // compatibility with the LAST keyword.
+        resultFound_ = true;
+      }
+    }
+  }
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -508,8 +539,8 @@ void DerivativeEvaluation::updateNoise(
 // Purpose       : initializes the past values of the independent, dependent
 //                 and measured variables, as well as the past target level.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 and NOISE measures, it is frequency.  For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
@@ -537,8 +568,8 @@ void DerivativeEvaluation::setMeasureState(const double indepVarVal)
 // Purpose       : updates the past values of the independent, dependent
 //                 and measured variables, as well as the past target level.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 and NOISE measures, it is frequency.  For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
@@ -645,7 +676,7 @@ std::ostream& DerivativeEvaluation::printVerboseMeasureResult(std::ostream& os)
       }
       else
       {
-        // modeStr is "time" for TRAN mode, "freq" for AC mode and
+        // modeStr is "time" for TRAN mode, "freq" for AC and NOISE modes, and
         // "<sweep variable> value" for DC mode.
         std::string modeStr = setModeStringForMeasureResultText();
         os << " at " << modeStr << " = " << calculationInstant_;

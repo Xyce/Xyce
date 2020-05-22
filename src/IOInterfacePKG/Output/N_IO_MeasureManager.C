@@ -1282,6 +1282,8 @@ extractMEASUREData(
 
   // allowed types for the NOISE mode
   typeSetNoise.insert( std::string("AVG") );
+  typeSetNoise.insert( std::string("DERIVATIVE") );
+  typeSetNoise.insert( std::string("DERIV") );
   typeSetNoise.insert( std::string("EQN") );
   typeSetNoise.insert( std::string("ERR") );
   typeSetNoise.insert( std::string("ERR1") );

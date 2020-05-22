@@ -99,6 +99,10 @@ public:
   std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);
 
+  void updateCalculationResult(const double indepVarVal);
+  void processATforACDCNoise(const double indepVarVal);
+  void processWHENforACDCNoise(const double indepVarVal);
+
   void setMeasureState(const double indepVarVal);
   void updateMeasureState(const double indepVarVal);
   void updateTargVal(double& targVal);
