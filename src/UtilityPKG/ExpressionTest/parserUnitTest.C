@@ -3410,6 +3410,30 @@ TEST ( Double_Parser_table_Test, power_endcomma)
   }
 }
 
+// Schedule is like a table, but with no interpolation.
+// If the schedule is (t0, dt0, t1, dt1, t2, dt2) 
+// then the value is: 
+// if time < t0      value = 0 
+// if t0 < time < t1 value = dt0 
+// if t1 < time < t2 value = dt1 
+// if t2 < time      value = dt2
+TEST ( Double_Parser_schedule_Test, test1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = timeGroup;
+  {
+    Xyce::Util::newExpression eSchedule(std::string("schedule( 0.5e-3, 0, 1.0e-3, 1.0e-6, 1.5e-3, 1.0e-4, 2.0e-3, 0 )"), grp);
+    eSchedule.lexAndParseExpression();
+
+    double result = 0.0;
+    double reference = 1.0e-6;
+    timeGroup->setTime(1.2e-3);
+    eSchedule.evaluateFunction(result);
+
+    EXPECT_EQ(reference,result);
+  }
+}
+
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.
 TEST ( Double_Parser_Param_Test, test1)

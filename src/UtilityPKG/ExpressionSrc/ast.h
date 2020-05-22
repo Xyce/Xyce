@@ -2709,6 +2709,221 @@ AST_GET_CURRENT_OPS(tableArgs_[ii])
 };
 
 //-------------------------------------------------------------------------------
+// SCHEULDE(y,z,*)
+// f(time) where f(y) = z
+// kind of like a table, but with no interpolation
+template <typename ScalarT>
+class scheduleOp : public astNode<ScalarT>
+{
+  public:
+    // functions:
+    scheduleOp (
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > * args,
+        Teuchos::RCP<astNode<ScalarT> > &time
+        ):
+      time_(time), 
+      astNode<ScalarT>(), tableArgs_(*args),
+      allNumVal_(true)
+      {
+        int size = tableArgs_.size();
+        if (size % 2)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (schedule) needs an even number of arguments")); yyerror(errStr);
+        }
+        else
+        {
+          allNumVal_=true; ta_.resize(size/2); ya_.resize(size/2); 
+          //dya_.resize(size/2,0.0);
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            ya_[jj] = (tableArgs_)[ii+1]->val();
+            if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allNumVal_ = false; }
+          }
+        }
+      };
+
+     //If the schedule is (t0, dt0, t1, dt1, t2, dt2) 
+     // then the value is: 
+     // if time < t0      value = 0 
+     // if t0 < time < t1 value = dt0 
+     // if t1 < time < t2 value = dt1 
+     // if t2 < time      value = dt2
+    virtual ScalarT val()
+    {
+      ScalarT y = 0.0;
+      int size = tableArgs_.size();
+
+      if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+      {
+        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        {
+          ta_[jj] = (tableArgs_)[ii]->val();
+          ya_[jj] = (tableArgs_)[ii+1]->val();
+        }
+      }
+
+      ScalarT time = std::real(this->time_->val());
+   
+      if ( !(ta_.empty()) )
+      {
+        int arraySize=ta_.size();
+        if (std::real(time) < std::real(ta_[0]))
+        {
+          y = 0.0;
+        }
+        else if (std::real(time) > std::real(ta_[arraySize-1]))
+        {
+          y = ya_[arraySize-1];
+        }
+        else
+        {
+          for (int ii=0;ii<arraySize-1;ii++)
+          {
+            if (std::real(time) > std::real(ta_[ii]) && std::real(time) <= std::real(ta_[ii+1]) )
+            {
+              y = ya_[ii];
+              break;
+            }
+          }
+        }
+      }
+
+      return y;
+    };
+
+    virtual ScalarT dx(int i)
+    {
+      // ERK.  Not implemented.  Might not be needed
+      ScalarT dydx = 0.0;
+      return dydx;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "schedule operator " << std::endl;
+      //++indent;
+      //this->time_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this
+      os << "SCHEDULE ";
+    }
+
+
+    // ERK.  This is not efficient.
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+     if ( time_->timeSpecialType() ) // this should always be true ....
+     {
+        double time = std::real(this->time_->val());
+        int size = tableArgs_.size();
+        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        {
+          double bpTime =  std::real( (tableArgs_)[ii]->val() );
+          breakPointTimes.push_back( bpTime );
+        }
+      }
+      return true;
+    }
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+
+AST_GET_INTERESTING_OPS(time_)
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_INTERESTING_OPS(tableArgs_[ii])
+        }
+      }
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_PARAM_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_FUNC_ARG_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_FUNC_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_VOLT_OPS(tableArgs_[ii] ) 
+        }
+      }
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_CURRENT_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+  private:
+    Teuchos::RCP<astNode<ScalarT> > time_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
+    bool allNumVal_;
+    std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
+    std::vector<ScalarT> ya_;
+};
+
+//-------------------------------------------------------------------------------
 // time integral of x
 template <typename ScalarT>
 class sdtOp : public astNode<ScalarT>

@@ -185,6 +185,7 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_SIGN	"sign"
 %token TOK_STP	"stp"
 %token TOK_TABLE	"table"
+%token TOK_SCHEDULE	"schedule"
 %token TOK_URAMP	"uramp"
 %token TOK_POLY	"poly"
 
@@ -199,7 +200,7 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_FREQ  "freq"
 %token TOK_GMIN  "gmin"
 %token TOK_PI    "pi"
-%token TOK_C_TO_K    "pi"
+%token TOK_C_TO_K    "CtoK"
 
 %token TOK_RIGHTPAREN "rightparen"
 %token TOK_LEFTPAREN  "leftparen"
@@ -1080,6 +1081,16 @@ exp:
         newExp.setTimeDependent(true); 
       }
       delete $5;
+    }
+  | TOK_SCHEDULE TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($3, tmpPtr2));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getSrcNodeVec().push_back(*tmpPtr);
+      newExp.setTimeDependent(true);
+      delete $3;
     }
   | TOK_SDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {

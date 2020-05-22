@@ -477,6 +477,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"stp"   {return XyceExpression::ExpressionParser::token::TOK_STP; }
 <INITIAL>"sqrt"  {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 <INITIAL>"table" {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
+<INITIAL>"schedule" {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
 <INITIAL>"poly""("  {
