@@ -1197,8 +1197,15 @@ bool Simulator::getDeviceNames(const std::string &modelGroupName, std::vector<st
   }
 
   Device::Device *device = deviceManager_->getDevice(model_group);
-  Device::getDeviceInstanceNames(*device, std::back_inserter(deviceNames));
 
+  if (!device)
+  {
+    Report::UserWarning0() << "No devices from model group " << modelGroupName << " found in netlist";
+    return false;
+  }
+
+  Device::getDeviceInstanceNames(*device, std::back_inserter(deviceNames));
+  
   return true;
 }
 
