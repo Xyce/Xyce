@@ -428,8 +428,11 @@ bool Instance::loadDAEdFdx()
 
 //-----------------------------------------------------------------------------
 // Function      : Model::readTouchStoneFile
-// Purpose       : This is the initial version of a parser to read in a
-//                 Touchstone 2 formatted file.
+// Purpose       : This function reads in the first few lines of a Touchstone 1
+//                 or Touchstone 2 formatted file.  After finding the first
+//                 non-comment line that is not blank, processing then branches
+//                 based on whether the file format appears to be Touchstone 1
+//                 or Touchstone 2.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
@@ -439,13 +442,94 @@ bool Model::readTouchStoneFile()
 {
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
-    Xyce::dout() << "Processing Touchstone2 input file " << TSFileName_
+    Xyce::dout() << "Processing Touchstone input file " << TSFileName_
                  << " for model " << getName() << std::endl;
   }
 
   // where we are in the file, and whether parsing had an error
   int lineNum = 0;
-  bool firstLineFound = false;
+  bool psuccess = false;
+
+  // try to open the data file
+  std::ifstream inputFile;
+
+  // Error out if the user-specified file does not exist, cannot
+  // be opened, or is a directory name rather than a file name.
+  // See SON Bug 785 and SRN Bug 2100 for more details.
+  if ( !(Util::checkIfValidFile(TSFileName_)) )
+  {
+    Report::UserError() << "Touchstone input file \"" << TSFileName_ << "\" for model "
+                        << getName() << " could not be found.";
+    return false;
+  }
+
+  // open the Touchstone formatted input file
+  inputFile.open( TSFileName_.c_str(),std::ifstream::in);
+  if( !inputFile.good() )
+  {
+    Report::UserError() << "Touchstone file \"" << TSFileName_ << "\" for model "
+                        << getName() << " could not be opened.";
+    return false;
+  }
+
+  // Start reading lines in the input file
+  bool firstLineFound = false;  // found first line that is not blank or a comment
+  bool voLineFound = false;     // potentially valid [Version] or Option line found
+  ExtendedString aLine("");
+  IO::TokenVector parsedLine;
+  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+
+  while( !(inputFile.eof() || (aLine.substr(0,5) == "[END]") || (voLineFound)) )
+  {
+    // start processing with first non-blank or non-comment line
+    if ( (aLine.size() > 0) && (aLine[0] != TSCommentChar_ ) )
+    {
+      // [Version] line must be the first non-blank and non-comment line in
+      // a Touchstone 2 formatted file.  The Option line must be the first
+      // such line in a Touchstone 1 file.
+      if (firstLineFound)
+      {
+        Report::UserError() << "No valid [Version] or Option line in file " << TSFileName_
+               << " for model " << getName() << " at line " << lineNum;
+        return false;
+      }
+
+      if (aLine.substr(0,9) == "[VERSION]")
+      {
+	psuccess = readTouchStone2File(inputFile, aLine, lineNum);
+        voLineFound = true;  // stops further processing of input file in this loop
+      }
+      else if (aLine[0] == '#')
+      {
+        psuccess = readTouchStone1File(inputFile, aLine, lineNum);
+        voLineFound = true;
+      }
+
+      firstLineFound = true; // used for error handling
+    }
+    else
+    {
+      // skip over leading blank and comment lines
+      readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+    }
+  }
+
+  inputFile.close();
+
+  return psuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::readTouchStone2File
+// Purpose       : This is a parser to read in a Touchstone 2 formatted file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 08/20/2019
+//-----------------------------------------------------------------------------
+bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum)
+{
+  // where we are in the file, and whether parsing had an error
   bool defaultOptionLine = false;
   int numVersionLinesFound = 0;
   int numOptionLinesFound = 0;
@@ -461,198 +545,71 @@ bool Model::readTouchStoneFile()
   bool skipReadNextLine = false;
   bool psuccess = true;
 
-  // try to open the data file
-  std::ifstream inputFile;
-
-  // Error out if the user-specified file does not exist, cannot
-  // be opened, or is a directory name rather than a file name.
-  // See SON Bug 785 and SRN Bug 2100 for more details.
-  if ( !(Util::checkIfValidFile(TSFileName_)) )
-  {
-    Report::UserError() << "Touchstone2 input file \"" << TSFileName_ << "\" for model "
-                        << getName() << " could not be found.";
-    return false;
-  }
-
-  // open the Touchstone 2 formatted input file
-  inputFile.open( TSFileName_.c_str(),std::ifstream::in);
-  if( !inputFile.good() )
-  {
-    Report::UserError() << "Touchstone file \"" << TSFileName_ << "\" for model "
-                        << getName() << " could not be opened.";
-    return false;
-  }
-
-  // parse the file
+  // used to parse each line of the file
   ExtendedString aLine("");
   IO::TokenVector parsedLine;
-  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
-  while( (!inputFile.eof()) || (aLine.substr(0,5) == "[END]") )
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() << "Found [Version] line at lineNum " << lineNum << std::endl;
+  }
+
+  ++numVersionLinesFound;
+  splitTouchStoneFileLine(firstLine,parsedLine);
+
+  if ( parsedLine.size() < 2 )
+  {
+    Report::UserError() << "Invalid [Version] line in file " << TSFileName_
+      << " for model " << getName() << " at line " << lineNum;
+    return false;
+  }
+  else
+  {
+    if (parsedLine[1].string_ != "2.0")
+    {
+      Report::UserError() << "Unsupported [Version] " << parsedLine[1].string_ << " in file "
+        << TSFileName_ << " for model " << getName() << " at line " << lineNum;
+        return false;
+    }
+    else
+    {
+      TSVersion_ = parsedLine[1].string_;
+    }
+  }
+
+  // skip over any comment lines
+  if (!inputFile.eof())
+  {
+    readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+  }
+  while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
+  {
+    readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+  }
+
+  // now parse the Option line, which starts with #
+  if (inputFile.eof() || (aLine[0] != '#') )
+  {
+    Report::UserError() << "Option line not found immediately after [Version] line in file "
+      << TSFileName_ << " for model " << getName() << " at line " << lineNum;
+      return false;
+  }
+  else
+  {
+    if ( !processTouchStoneOptionLine(aLine, lineNum, numOptionLinesFound, defaultOptionLine) )
+      return false;
+  }
+
+  while ( !(inputFile.eof() || (aLine.substr(0,5) == "[END]")) )
   {
     if ( aLine[0] != TSCommentChar_ )
     {
-      // [Version] line must be the first non-blank and non-comment line in
-      // a Touchstone 2 formatted file.  This parser assumes a version 2.0 file.
-      // So, the option line must be the next non-comment line after the [Version]
-      // line.
+      // There can only be one [Version] in a a Touchstone 2 formatted file.
       if (aLine.substr(0,9) == "[VERSION]")
       {
-        if (!firstLineFound)
-	{
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-	    Xyce::dout() << "Found [Version] line at lineNum " << lineNum << std::endl;
-          }
-
-          firstLineFound = true;
-          ++numVersionLinesFound;
-          splitTouchStoneFileLine(aLine,parsedLine);
-
-          if ( parsedLine.size() < 2 )
-          {
-            Report::UserError() << "Invalid [Version] line in file " << TSFileName_
-	      << " for model " << getName() << " at line " << lineNum;
-            return false;
-          }
-          else
-	  {
-            if (parsedLine[1].string_ != "2.0")
-	    {
-              Report::UserError() << "Unsupported [Version] " << parsedLine[1].string_ << " in file "
-                << TSFileName_ << " for model " << getName() << " at line " << lineNum;
-              return false;
-            }
-            else
-	    {
-              TSVersion_ = parsedLine[1].string_;
-            }
-          }
-        }
-        else if (firstLineFound || numVersionLinesFound > 1)
-	{
-          Report::UserError() << "Invalid [Version] line in file " << TSFileName_
+        Report::UserError() << "Invalid [Version] line in file " << TSFileName_
                << " for model " << getName() << " at line " << lineNum;
-          return false;
-        }
-
-        // skip over any comment lines
-        if (!inputFile.eof())
-        {
-	  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-        }
-        while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
-	{
-          readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-        }
-
-        // now parse the Option line, which starts with #
-        if (inputFile.eof() || (aLine[0] != '#') )
-	{
-          Report::UserError() << "Option line not found immediately after [Version] line in file "
-            << TSFileName_ << " for model " << getName() << " at line " << lineNum;
-          return false;
-        }
-        else if ( numOptionLinesFound < 1 )
-	{
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-            Xyce::dout() << "Found Option line at lineNum " << lineNum << std::endl;
-          }
-
-          // Only read the first Option line.  Any others are silently ignored.
-          ++numOptionLinesFound;
-
-          // Record if this is a default Option line with only a # character on it,
-          // so that Z0Vec_ vector can be populated with the default of 50, for each
-          // port, once the number of ports is known.  The other defaults are set
-          // correctly in the Model::Model constructor
-          if (aLine.size() == 1)
-            defaultOptionLine = true;
-
-          // The fields on the Option line can be in any order. Yuck!  Also an Option
-          // line that only has a # is allowed.
-          splitTouchStoneFileLine(aLine,parsedLine);
-
-          for (int i=1; i<parsedLine.size(); ++i)
-	  {
-            ExtendedString tokenStr(parsedLine[i].string_);
-            if (tokenStr == "S")
-            {
-              paramType_ = ParamType::S;
-            }
-            else if (tokenStr == "Y")
-            {
-              paramType_ = ParamType::Y;
-            }
-            else if (tokenStr == "Z")
-	    {
-              paramType_ = ParamType::Z;
-            }
-            else if (tokenStr == "RI")
-	    {
-              dataFormat_ = DataFormat::RI;
-            }
-            else if (tokenStr == "MA")
-	    {
-              dataFormat_ = DataFormat::MA;
-	    }
-            else if (tokenStr == "DB")
-	    {
-              dataFormat_ = DataFormat::DB;
-            }
-            else if (tokenStr == "HZ")
-	    {
-              // There are four allowed frequency multipliers.  So, explicitly
-              // check for each one and hard-code the conversion.
-	      freqMultiplier_ = 1.0;
-            }
-            else if (tokenStr == "KHZ")
-            {
-	      freqMultiplier_ = 1.0e+3;
-            }
-            else if (tokenStr == "MHZ")
-            {
-	      freqMultiplier_ = 1.0e+6;
-            }
-            else if (tokenStr == "GHZ")
-	    {
-              freqMultiplier_ = 1.0e+9;
-            }
-            else if ( tokenStr == "R" )
-	    {
-              if (i < parsedLine.size()-1)
-	      {
-                ExtendedString RStr(parsedLine[i+1].string_);
-                if (RStr.isValue())
-		{
-                  Z0Vec_.push_back(RStr.Value());
-                }
-                else
-		{
-                  Report::UserError() << "Invalid value for R on option line in file " << TSFileName_
-                    << " for model " << getName() << " at line " << lineNum;
-                  return false;
-                }
-              }
-              else
-	      {
-                Report::UserError() << "Missing value for R on option line in file " << TSFileName_
-                  << " for model " << getName() << " at line " << lineNum;
-                return false;
-              }
-            }
-          }
-
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-            Xyce::dout() << "After processing Option line:" << std::endl
-               << "  Parameter type is " << paramType_ << std::endl
-               << "  Data format is " << dataFormat_ << std::endl
-               << "  Frequency Mutliplier is " << freqMultiplier_ << std::endl
-               << "  R value is " << Z0Vec_[0] << std::endl;
-          }
-        }
+        return false;
       }
       else if (aLine.substr(0,17) == "[NUMBER OF PORTS]")
       {
@@ -905,10 +862,6 @@ bool Model::readTouchStoneFile()
           readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
 
-        std::vector<std::complex<double> > inputIscData;
-        Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
-        inputNetworkData.shape(numPorts_, numPorts_);
-
         // Set expected number of data elements on first line, assuming "FULL", "UPPER" or
         // "LOWER" formats
         if (matrixFormat_ == MatrixFormat::FULL)
@@ -939,138 +892,8 @@ bool Model::readTouchStoneFile()
           if (parsedLine.size() == expectedNumElementsPerNetworkDataLine)
 	  {
             ++numDataLinesFound;
-
-            ExtendedString freqStr(parsedLine[0].string_);
-            freqVec_.push_back(freqMultiplier_*freqStr.Value());
-
-            // Offset into parsedLine, for the data values.  The frequency value is at offset=0
-            int offset=1;
-
-            // These values work, for FULL format, for the inner (column index) loop below
-            int startIdx=0;
-            int endIdx=numPorts_-1;
-
-            // for 2-port networks, this assumes [Two-Port Data Order] = "12_21"
-	    for (int i=0; i<=numPorts_-1; ++i)
-	    {
-              // adjust the starting or ending column index, in the inner loop, for UPPER or
-              // LOWER format respectively
-              if (matrixFormat_ == MatrixFormat::UPPER)
-                startIdx = i;
-              else if (matrixFormat_ == MatrixFormat::LOWER)
-                endIdx = i;
-
-              for (int j=startIdx; j<=endIdx; ++j)
-	      {
-                // data will be converted to RI format for internal use in
-                // YLin model
-                ExtendedString Str1(parsedLine[offset].string_);
-	        ExtendedString Str2(parsedLine[offset+1].string_);
-                if (dataFormat_ == DataFormat::RI)
-		{
-                  // Use inputNetworkData(i,j) format for accessing, in
-                  // order to use row-column indexing.  Also, indexing
-                  // starts at (0,0).
-                  inputNetworkData(i,j).real(Str1.Value());
-                  inputNetworkData(i,j).imag(Str2.Value());
-                }
-                else if (dataFormat_ == DataFormat::MA)
-		{
-                  double mag = Str1.Value();
-                  double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData(i,j).real(mag*cos(angle));
-                  inputNetworkData(i,j).imag(mag*sin(angle));
-                }
-                else if (dataFormat_ == DataFormat::DB)
-		{
-                  double mag = pow(10.0,0.05*Str1.Value());
-                  double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData(i,j).real(mag*cos(angle));
-                  inputNetworkData(i,j).imag(mag*sin(angle));
-                }
-                else
-		{
-                  Report::UserError() << "Incorrect data format " << dataFormat_ << " for network data in file "
-                    << TSFileName_ << " for model " << getName();
-                  return false;
-                }
-
-                // move offset to start of next pair of real/imaginary values
-                offset += 2;
-
-                // internally, the data is stored in Full format.  So, populate the values
-                // on the other side of the diagonal
-                if ( (i!=j) && ((matrixFormat_ == MatrixFormat::UPPER) || (matrixFormat_ == MatrixFormat::LOWER)) )
-                  inputNetworkData(j,i) = inputNetworkData(i,j);
-              }
-            }
-
-            if ( (twoPortDataOrder_ == "21_12") && (numPorts_ == 2) )
-	    {
-              // indexing into inputNetworkData starts at (0,0)
-	      complex tempVal = inputNetworkData(0,1);
-              inputNetworkData(0,1) = inputNetworkData(1,0);
-              inputNetworkData(1,0) = tempVal;
-	    }
-
-            // YLin model will use Y-parameter format internally
-            if (paramType_== ParamType::S)
-	    {
-              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
-              YParams.shape(numPorts_, numPorts_);
-	      Util::stoy(inputNetworkData,YParams,Z0Vec_);
-              inputNetworkDataVec_.push_back(YParams);
-            }
-            else if (paramType_== ParamType::Z)
-	    {
-              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
-              YParams.shape(numPorts_, numPorts_);
-	      Util::ztoy(inputNetworkData,YParams);
-              inputNetworkDataVec_.push_back(YParams);
-            }
-            else
-	    {
-              // input was in Y-parameter format
-              inputNetworkDataVec_.push_back(inputNetworkData);
-            }
-
-            // Handle optional Isc data. There are two additional columns for
-	    // each port added to each row, if that data is included.  This code only
-            // only works for Full matrix format.
-            if (IscFD_)
-	    {
-              inputIscData.clear();
-              for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
-	      {
-                ExtendedString Str1(parsedLine[i].string_);
-                ExtendedString Str2(parsedLine[i+1].string_);
-                if (dataFormat_ == DataFormat::RI)
-		{
-                  inputIscData.push_back(std::complex<double>(Str1.Value(), Str2.Value()));
-                 }
-                else if (dataFormat_ == DataFormat::MA)
-		{
-                  double mag = Str1.Value();
-                  double angle = M_PI*Str2.Value()/180.0;
-                  inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
-                }
-                else if (dataFormat_ == DataFormat::DB)
-		{
-                  double mag = pow(10.0,0.05*Str1.Value());
-                  double angle = M_PI*Str2.Value()/180.0;
-                  inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
-                }
-
-                if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-                {
-                  Xyce::dout() << "For Freq " << freqVec_[freqVec_.size()-1] << " Isc" << pIdx
-                               << "=(" << inputIscData[pIdx-1].real() << ", "
-                               << inputIscData[pIdx-1].imag() << ")" << std::endl;
-                }
-
-              }
-              inputIscFDVec_.push_back(inputIscData);
-	    }
+            if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+              return false;
 
             // clear parsedLine here, to support parsing network data that
             // is "wrapped" across multiple rows in the input file
@@ -1152,16 +975,159 @@ bool Model::readTouchStoneFile()
     psuccess = false;
   }
 
-  inputFile.close();
-
   return psuccess;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Model::readTouchStone1File
+// Purpose       : This is a parser to read in a Touchstone 1 formatted file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 05/25/2020
+//-----------------------------------------------------------------------------
+bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum)
+{
+  int numOptionLinesFound=0;
+  bool defaultOptionLine=false;
+  int expectedNumElementsPerNetworkDataLine;
+
+  // assume this is a Touchstone 1 file, since the first non-comment line started with #
+  TSVersion_="1.0";
+  twoPortDataOrder_ = "21_12";
+
+  // process Option line
+  if ( !processTouchStoneOptionLine(firstLine, lineNum, numOptionLinesFound, defaultOptionLine) )
+    return false;
+  if (defaultOptionLine)
+    Z0Vec_.push_back(50.0); // remaining port impedances are set below
+
+  // read next line in file, and then begin parsing
+  ExtendedString aLine("");
+  IO::TokenVector tempParsedLine;
+  IO::TokenVector parsedLine;
+
+  // skip over comment and blank lines to find first network data line
+  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_)) )
+    readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+
+  if (aLine[0] == '[')
+  {
+    // Touchstone 2 meta-data lines not allowed in Touchstone 1 format
+    Report::UserError() << "Invalid Touchstone 1 format, or possible missing [Version] line in Touchstone 2 "
+      << "format, in file " << TSFileName_ << " for model " << getName() << " at line " << lineNum;
+    return false;
+  }
+  splitTouchStoneFileLine(aLine,parsedLine);
+
+  // skip over comment and blank lines to find second network data line
+  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_)) )
+    readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+
+  if (aLine[0] == '[')
+  {
+    // Touchstone 2 meta-data lines not allowed in Touchstone 1 format
+    Report::UserError() << "Invalid Touchstone 1 format, or possible missing [Version] line in Touchstone 2 "
+      << "format, in file " << TSFileName_ << " for model " << getName() << " at line " << lineNum;
+    return false;
+  }
+
+  // loop over remaining lines
+  while (!inputFile.eof())
+  {
+    if ( (aLine.size() > 0) && (aLine[0] != TSCommentChar_) )
+    {
+      if (aLine[0] == '[')
+      {
+        // Touchstone 2 meta-data lines not allowed in Touchstone 1 format
+        Report::UserError() << "Invalid Touchstone 1 format, or possible missing [Version] line in Touchstone 2 "
+	   << "format, in file " << TSFileName_ << " for model " << getName() << " at line " << lineNum;
+        return false;
+      }
+
+      splitTouchStoneFileLine(aLine,tempParsedLine);
+
+      if (tempParsedLine.size()%2 == 0)
+      {
+        // lines with a even number of elements are "column wrapped".  So, add them to the
+        // parsedLine.
+        parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
+      }
+      else
+      {
+        // lines with an odd number of elements on them are the start of the next complete line
+        // of network data. So, process the previous "unwrapped" line here.
+        numFreq_++;
+
+        // Can determine the number of ports, and populate the Z0 vector, once the first
+	// complete data line has been found.
+        if (numFreq_ == 1)
+        {
+          expectedNumElementsPerNetworkDataLine = parsedLine.size();
+          numPorts_ = sqrt(0.5*(parsedLine.size()-1));
+          // Populate Z0 vector also
+          for (int i=1; i<numPorts_; ++i)
+            Z0Vec_.push_back(Z0Vec_[0]);
+        }
+        else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine)
+	{
+          Report::UserError() << "Invalid network data line in file " << TSFileName_
+             << " for model " << getName() << " at line " << lineNum;
+          return false;
+        }
+
+        if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+          return false;
+
+        // start accumulating a new line of network data
+        parsedLine.clear();
+        parsedLine = tempParsedLine;
+      }
+    }
+
+    readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
+  }
+
+  if (numFreq_ == 0)
+  {
+    Report::UserError() << "Unable to parse network data section in file " << TSFileName_
+      << " for model " << getName() << ".  Number of frequencies < 1";
+    return false;
+  }
+
+  // handle last complete line of network data, if there is one
+  if (parsedLine.size() > 0)
+  {
+    numFreq_++;
+
+    // Handle the pathological case of only one network data line
+    if (numFreq_ == 1)
+    {
+      expectedNumElementsPerNetworkDataLine = parsedLine.size();
+      numPorts_ = sqrt(0.5*(parsedLine.size()-1));
+      for (int i=1; i<numPorts_; ++i)
+        Z0Vec_.push_back(Z0Vec_[0]);
+    }
+    else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine)
+    {
+      Report::UserError() << "Invalid network data line in file " << TSFileName_
+        << " for model " << getName() << " at line " << lineNum;
+     return false;
+    }
+
+    if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+      return false;
+  }
+
+  return true;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Model::splitTouchStoneFileLine
 // Purpose       : Handle in-line comments, and then split a line from a
-//                 Touchstone 2 formatted file into a TokenVector
+//                 Touchstone 1 or Touchstone 2 formatted file into a TokenVector
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
@@ -1185,7 +1151,7 @@ void Model::splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector
 // Function      : Model::readAndUpperCaseTouchStoneFileLine
 // Purpose       : Read in a line from a Touchstone 2 formatted file, upper-case
 //                 it, and then also increment the lineNum counter.
-// Special Notes : 
+// Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 08/20/2019
@@ -1197,6 +1163,270 @@ void Model::splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector
   lineNum++;
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::processTouchStoneOptionLine
+// Purpose       : Process the option line read in from either a Touchstone 1
+//                 or Touchstone 2 formatted file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 05/25/2020
+//-----------------------------------------------------------------------------
+bool Model::processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum, int& numOptionLinesFound, bool& defaultOptionLine)
+{
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() << "Found Option line at lineNum " << lineNum << std::endl;
+  }
+
+  // Only read the first Option line.  Any others are silently ignored.
+  ++numOptionLinesFound;
+
+  // Record if this is a default Option line with only a # character on it,
+  // so that Z0Vec_ vector can be populated with the default of 50, for each
+  // port, once the number of ports is known.  The other defaults are set
+  // correctly in the Model::Model constructor
+  if (aLine.size() == 1)
+    defaultOptionLine = true;
+
+  // The fields on the Option line can be in any order. Yuck!  Also an Option
+  // line that only has a # is allowed.
+  IO::TokenVector parsedLine;
+  splitTouchStoneFileLine(aLine,parsedLine);
+
+  for (int i=1; i<parsedLine.size(); ++i)
+  {
+    ExtendedString tokenStr(parsedLine[i].string_);
+    if (tokenStr == "S")
+    {
+      paramType_ = ParamType::S;
+    }
+    else if (tokenStr == "Y")
+    {
+      paramType_ = ParamType::Y;
+    }
+    else if (tokenStr == "Z")
+    {
+      paramType_ = ParamType::Z;
+    }
+    else if (tokenStr == "RI")
+    {
+      dataFormat_ = DataFormat::RI;
+    }
+    else if (tokenStr == "MA")
+    {
+      dataFormat_ = DataFormat::MA;
+    }
+    else if (tokenStr == "DB")
+    {
+      dataFormat_ = DataFormat::DB;
+    }
+    else if (tokenStr == "HZ")
+    {
+      // There are four allowed frequency multipliers.  So, explicitly
+      // check for each one and hard-code the conversion.
+      freqMultiplier_ = 1.0;
+    }
+    else if (tokenStr == "KHZ")
+    {
+      freqMultiplier_ = 1.0e+3;
+    }
+    else if (tokenStr == "MHZ")
+    {
+      freqMultiplier_ = 1.0e+6;
+    }
+    else if (tokenStr == "GHZ")
+    {
+      freqMultiplier_ = 1.0e+9;
+    }
+    else if ( tokenStr == "R" )
+    {
+      if (i < parsedLine.size()-1)
+      {
+        ExtendedString RStr(parsedLine[i+1].string_);
+        if (RStr.isValue())
+        {
+          Z0Vec_.push_back(RStr.Value());
+        }
+        else
+        {
+          Report::UserError() << "Invalid value for R on option line in file " << TSFileName_
+            << " for model " << getName() << " at line " << lineNum;
+          return false;
+        }
+      }
+      else
+      {
+        Report::UserError() << "Missing value for R on option line in file " << TSFileName_
+          << " for model " << getName() << " at line " << lineNum;
+        return false;
+      }
+    }
+  }
+
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+     Xyce::dout() << "After processing Option line:" << std::endl
+       << "  Parameter type is " << paramType_ << std::endl
+       << "  Data format is " << dataFormat_ << std::endl
+       << "  Frequency Mutliplier is " << freqMultiplier_ << std::endl
+       << "  R value is " << Z0Vec_[0] << std::endl;
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::processTouchStoneNetworkDataLine
+// Purpose       : Process a network data line read in from either a Touchstone 1
+//                 or Touchstone 2 formatted file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 05/25/2020
+//-----------------------------------------------------------------------------
+bool Model::processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine, int expectedNumElementsPerNetworkDataLine)
+{
+  std::vector<std::complex<double> > inputIscData;
+  Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
+  inputNetworkData.shape(numPorts_, numPorts_);
+
+  ExtendedString freqStr(parsedLine[0].string_);
+  freqVec_.push_back(freqMultiplier_*freqStr.Value());
+
+  // Offset into parsedLine, for the data values.  The frequency value is at offset=0
+  int offset=1;
+
+  // These values work, for FULL format, for the inner (column index) loop below
+  int startIdx=0;
+  int endIdx=numPorts_-1;
+
+  // For 2-port networks, this assumes [Two-Port Data Order] = "12_21".  If it is
+  // actually "21_12" then that is handled below.
+  for (int i=0; i<=numPorts_-1; ++i)
+  {
+    // adjust the starting or ending column index, in the inner loop, for UPPER or
+    // LOWER format respectively
+    if (matrixFormat_ == MatrixFormat::UPPER)
+       startIdx = i;
+    else if (matrixFormat_ == MatrixFormat::LOWER)
+       endIdx = i;
+
+    for (int j=startIdx; j<=endIdx; ++j)
+    {
+      // data will be converted to RI format for internal use in
+      // YLin model
+      ExtendedString Str1(parsedLine[offset].string_);
+      ExtendedString Str2(parsedLine[offset+1].string_);
+      if (dataFormat_ == DataFormat::RI)
+      {
+        // Use inputNetworkData(i,j) format for accessing, in
+        // order to use row-column indexing.  Also, indexing
+        // starts at (0,0).
+        inputNetworkData(i,j).real(Str1.Value());
+        inputNetworkData(i,j).imag(Str2.Value());
+      }
+      else if (dataFormat_ == DataFormat::MA)
+      {
+        double mag = Str1.Value();
+        double angle = M_PI*Str2.Value()/180.0;
+        inputNetworkData(i,j).real(mag*cos(angle));
+        inputNetworkData(i,j).imag(mag*sin(angle));
+      }
+      else if (dataFormat_ == DataFormat::DB)
+      {
+        double mag = pow(10.0,0.05*Str1.Value());
+        double angle = M_PI*Str2.Value()/180.0;
+        inputNetworkData(i,j).real(mag*cos(angle));
+        inputNetworkData(i,j).imag(mag*sin(angle));
+      }
+      else
+      {
+        Report::UserError() << "Incorrect data format " << dataFormat_ << " for network data in file "
+          << TSFileName_ << " for model " << getName();
+        return false;
+      }
+
+      // move offset to start of next pair of real/imaginary values
+      offset += 2;
+
+      // internally, the data is stored in Full format.  So, populate the values
+      // on the other side of the diagonal
+      if ( (i!=j) && ((matrixFormat_ == MatrixFormat::UPPER) || (matrixFormat_ == MatrixFormat::LOWER)) )
+        inputNetworkData(j,i) = inputNetworkData(i,j);
+    }
+  }
+
+  if ( (twoPortDataOrder_ == "21_12") && (numPorts_ == 2) )
+  {
+    // indexing into inputNetworkData starts at (0,0)
+    complex tempVal = inputNetworkData(0,1);
+    inputNetworkData(0,1) = inputNetworkData(1,0);
+    inputNetworkData(1,0) = tempVal;
+  }
+
+  // YLin model will use Y-parameter format internally
+  if (paramType_== ParamType::S)
+  {
+    Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+    YParams.shape(numPorts_, numPorts_);
+    Util::stoy(inputNetworkData,YParams,Z0Vec_);
+    inputNetworkDataVec_.push_back(YParams);
+  }
+  else if (paramType_== ParamType::Z)
+  {
+    Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+    YParams.shape(numPorts_, numPorts_);
+    Util::ztoy(inputNetworkData,YParams);
+    inputNetworkDataVec_.push_back(YParams);
+  }
+  else
+  {
+    // input was in Y-parameter format
+    inputNetworkDataVec_.push_back(inputNetworkData);
+  }
+
+  // Handle optional Isc data. There are two additional columns for
+  // each port added to each row, if that data is included.  This code only
+  // only works for Full matrix format.
+  if (IscFD_)
+  {
+    inputIscData.clear();
+    for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
+    {
+      ExtendedString Str1(parsedLine[i].string_);
+      ExtendedString Str2(parsedLine[i+1].string_);
+      if (dataFormat_ == DataFormat::RI)
+      {
+        inputIscData.push_back(std::complex<double>(Str1.Value(), Str2.Value()));
+      }
+      else if (dataFormat_ == DataFormat::MA)
+      {
+        double mag = Str1.Value();
+        double angle = M_PI*Str2.Value()/180.0;
+        inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
+      }
+      else if (dataFormat_ == DataFormat::DB)
+      {
+        double mag = pow(10.0,0.05*Str1.Value());
+        double angle = M_PI*Str2.Value()/180.0;
+        inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
+      }
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        Xyce::dout() << "For Freq " << freqVec_[freqVec_.size()-1] << " Isc" << pIdx
+                     << "=(" << inputIscData[pIdx-1].real() << ", "
+                     << inputIscData[pIdx-1].imag() << ")" << std::endl;
+      }
+
+    }
+    inputIscFDVec_.push_back(inputIscData);
+  }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------

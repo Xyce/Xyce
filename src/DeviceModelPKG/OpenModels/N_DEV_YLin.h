@@ -255,8 +255,16 @@ public:
   virtual bool processInstanceParams() /* override */;
 
   bool readTouchStoneFile();
+  bool readTouchStone1File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum);
+  bool readTouchStone2File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum);
+
+  // helper functions for processing lines in Touchstone files
   void splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine);
   void readAndUpperCaseTouchStoneFileLine(std::istream & in, ExtendedString& line, int& lineNum);
+
+  // Option and network data lines have common processing between Touchstone 1 and 2 formats
+  bool processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum, int& numOptionLinesFound, bool& defaultOptionLine);
+  bool processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine, int expectedNumElementsPerNetworkDataLine);
 
   void readISC_TD_File();
 
