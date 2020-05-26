@@ -87,4 +87,11 @@ One important note is that time-dependent expressions are supported
 for the current and voltage parameters of a B source, but
 frequency-dependent expressions are not.
 
+B-sources were originally developed primarily to support DC and transient analysis.  
+As such, their support for frequency domain analysis (AC and HB) has some 
+limitations.  The main limitation to be aware of is that time-dependent sources, 
+in which the variable \alltt{TIME} is used in the expression, will not work with AC or HB analysis.  
+However, a purely dependent B source (which depends only on other solution variables) will 
+work with AC and HB.
+
 \end{Device}
