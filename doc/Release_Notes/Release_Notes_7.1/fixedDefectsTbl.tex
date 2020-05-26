@@ -152,5 +152,10 @@ passed into the mutual inductor device.
 A warning is now emitted for empty .IC/.DCVOLT/.NODESET lines and the line is effectively ignored.
 \\ \hline
 
+\textbf{1264-SON}: .dc specification including a temperature sweep can cause many unnecessary processParams calls
+&  A flaw in Xyce design resulted in a lot of superfluous parameter handling, which caused Xyce to be inefficient in some use cases.
+\\ \hline
+
+
 \end{longtable}
 }
