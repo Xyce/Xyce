@@ -33,6 +33,13 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1303-SON}: Segfault in mixed signal interface &
+The Python method \texttt{getDeviceNames()}, and the underlying
+\texttt{xyce\_getDeviceNames()} method in the mixed signal interface,
+would segfault if invoked for some model groups (e.g, D, L and M) when
+there were no devices from that model group in the \Xyce{} netlist.
+\\ \hline
+
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
 \end{longtable}
