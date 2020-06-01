@@ -958,7 +958,7 @@ void Base::printMeasureWarnings(const double endSimTime)
     {
         Xyce::Report::UserWarning() << name_ << " failed. Measured Rise,Fall,Cross=(" << 
           actualRise_ << "," << actualFall_ << "," << actualCross_ << ")";
-    }    
+    }
     else if (mode_ == "TRAN")
     {
       if ( ( fromGiven_ && from_ >= endSimTime ) || ( tdGiven_ && td_ >= endSimTime ) )
@@ -968,6 +968,10 @@ void Base::printMeasureWarnings(const double endSimTime)
       else if ( atGiven_ && (at_ < 0 || at_ > endSimTime) ) 
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside sim window";
+      }
+      else if ( atGiven_ && (at_ < from_ || at_ > to_) )
+      {
+        Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }
     }
     else if ( (mode_ == "AC") || (mode_ == "NOISE") )
@@ -979,6 +983,10 @@ void Base::printMeasureWarnings(const double endSimTime)
       else if ( atGiven_ && (at_ < startSweepValue_ || at_ > endSweepValue_) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside frequency sweep window";
+      }
+      else if ( atGiven_ && (at_ < from_ || at_ > to_) )
+      {
+        Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }
     }
   }

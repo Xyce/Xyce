@@ -132,6 +132,8 @@ void DerivativeEvaluation::updateTran(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  if (!calculationDone_ && withinTimeWindow( circuitTime ))
+  {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
@@ -164,8 +166,7 @@ void DerivativeEvaluation::updateTran(
         calculationDone_ = true;
       }
     }
-    else if ( ( outputValueTargetGiven_ || (numOutVars_ == 3) ) && !calculationDone_ 
-	      && withinTimeWindow( circuitTime ) )
+    else if ( outputValueTargetGiven_ || (numOutVars_ == 3) )
     {
       double targVal=0.0;
       updateTargVal(targVal);
@@ -243,8 +244,9 @@ void DerivativeEvaluation::updateTran(
         }
       }
     }
+  }
 
-    updateMeasureState(circuitTime);
+  updateMeasureState(circuitTime);
 }
 
 
@@ -277,15 +279,12 @@ void DerivativeEvaluation::updateDC(
     sweepVar_= dcParamsVec[0].name;
     recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
-    if (withinDCsweepFromToWindow( dcSweepVal ))
+    if (!calculationDone_ && withinDCsweepFromToWindow(dcSweepVal))
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
       recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
-    }
 
-    if( !calculationDone_ )
-    {
       // update our outVarValues_ vector
       updateOutputVars(comm, outVarValues_, dcSweepVal,
         solnVec, stateVec, storeVec, 0, lead_current_vector,
@@ -302,15 +301,15 @@ void DerivativeEvaluation::updateDC(
         // process AT qualifer
         processATforACDCNoise(dcSweepVal);
       }
-      else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
-                && withinDCsweepFromToWindow( dcSweepVal ) )
+      else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
       {
         // process WHEN qualifer
         processWHENforACDCNoise(dcSweepVal);
       }
 
-      updateMeasureState(dcSweepVal);
     }
+
+    updateMeasureState(dcSweepVal);
   }
 }
 
@@ -332,15 +331,12 @@ void DerivativeEvaluation::updateAC(
   // Used in descriptive output to stdout. Store first/last frequency values
   recordStartEndACDCNoiseSweepVals(frequency);
 
-  if (withinFreqWindow( frequency ))
+  if( !calculationDone_ && withinFreqWindow(frequency) )
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
     recordStartEndACDCNoiseMeasureWindow(frequency);
-  }
 
-  if( !calculationDone_ )
-  {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
@@ -356,15 +352,14 @@ void DerivativeEvaluation::updateAC(
       // process AT qualifer
       processATforACDCNoise(frequency);
     }
-    else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
-              && withinFreqWindow( frequency ) )
+    else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
     {
       // process WHEN qualifer
       processWHENforACDCNoise(frequency);
     }
-
-    updateMeasureState(frequency);
   }
+
+  updateMeasureState(frequency);
 }
 
 //-----------------------------------------------------------------------------
@@ -387,15 +382,12 @@ void DerivativeEvaluation::updateNoise(
   // Used in descriptive output to stdout. Store first/last frequency values
   recordStartEndACDCNoiseSweepVals(frequency);
 
-  if (withinFreqWindow( frequency ))
+  if (!calculationDone_ && withinFreqWindow( frequency))
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
     recordStartEndACDCNoiseMeasureWindow(frequency);
-  }
 
-  if( !calculationDone_ )
-  {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0,
@@ -412,15 +404,14 @@ void DerivativeEvaluation::updateNoise(
       // process AT qualifer
       processATforACDCNoise(frequency);
     }
-    else if ( (numPointsFound_ > 1) && ( outputValueTargetGiven_ || (numOutVars_ == 3) )
-              && withinFreqWindow( frequency ) )
+    else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
     {
       // process WHEN qualifer
       processWHENforACDCNoise(frequency);
     }
-
-    updateMeasureState(frequency);
   }
+
+  updateMeasureState(frequency);
 }
 
 //-----------------------------------------------------------------------------
