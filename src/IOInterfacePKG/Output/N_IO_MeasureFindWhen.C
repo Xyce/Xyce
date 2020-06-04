@@ -608,6 +608,156 @@ void FindWhen::updateAC(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FindWhen::updateNoise()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 6/03/2020
+//-----------------------------------------------------------------------------
+void FindWhen::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndACDCNoiseSweepVals(frequency);
+
+  if( !calculationDone_ && withinFreqWindow(frequency) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0,
+                     totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    recordStartEndACDCNoiseMeasureWindow(frequency);
+
+    if( !initialized_ )
+    {
+      // Assigned last independent and dependent var to frequency and outVarValue_[whenIdx_]
+      // While we can't interpolate on this step, it ensures that the initial history is
+      // something realistic.
+      lastIndepVarValue_=frequency;
+      lastDepVarValue_=outVarValues_[whenIdx_];
+      lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
+      initialized_=true;
+    }
+
+    double targVal=0.0;
+    bool doneIfFound=false;
+    if( outputValueTargetGiven_ )
+    {
+      // This is the form WHEN v(a)=fixed value
+      targVal = outputValueTarget_;
+      doneIfFound = true;
+    }
+    else
+    {
+      // This is the form WHEN v(a)= potentially changing value, such as v(a)=v(b)
+      // in that case v(b) is in outVarValues_[whenIdx_+1]
+      targVal = outVarValues_[whenIdx_+1];
+      // since we can't determine if the calculation is done at this point
+      // we don't set calculationDone_ = true;
+      //doneIfFound = false;
+      // The doneIfFound usage was changed for Xyce 6.4, so that the measure returns the
+      // value (or time) at the first time that the WHEN clause is satisfied.
+      doneIfFound=true;
+    }
+
+    if (atGiven_)
+    {
+      // check and see if last point and this point bound the target point
+      double backDiff    = lastIndepVarValue_ - at_;
+      double forwardDiff = frequency - at_;
+
+      // if we bound the frequency target then either
+      //  (backDiff < 0) && (forwardDiff > 0)
+      //   OR
+      //  (backDiff > 0) && (forwardDiff < 0)
+      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+      //
+      // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
+      if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+      {
+        calculationResult_= outVarValues_[0] - (frequency - at_)*
+	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
+        calculationDone_ = true;
+        resultFound_ = true;
+      }
+    }
+    else if (type_ == "WHEN")
+    {
+      if (!resultFound_)
+      {
+        // this is the simple case where Xyce output a value within a tolerance
+        // of the target value
+        if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
+        {
+          calculationInstant_ = frequency;
+          if (findGiven_)
+	  {
+            calculationResult_ = outVarValues_[0];
+	  }
+          else
+          {
+            calculationResult_ = frequency;
+          }
+          calculationDone_ = doneIfFound;
+          // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
+          //  measure.  If it is false, the measure shows FAILED in stdout.
+          resultFound_ = true;
+        }
+        else
+        {
+          // check and see if the lines defined by the current and previous values in the WHEN
+          // clause indicate that the two lines, defined by those four values, have crossed.
+          double prevDiff    = lastDepVarValue_ - lastTargValue_;
+          double currentDiff = outVarValues_[whenIdx_] - targVal;
+
+          // if the lines intersected then either
+          //  (prevDiff < 0) && (currentDiff > 0)
+          //   OR
+          //  (prevDiff > 0) && (currentDiff < 0)
+          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
+          {
+            // Set the calculationInstant_ and calculationResult_ via interpolation
+            interpolateResults(frequency, targVal);
+
+            calculationDone_ = doneIfFound;
+            // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
+            //  measure.  If it is false, the measure shows FAILED in stdout.
+            resultFound_ = true;
+          }
+        }
+      }
+    }
+  }
+
+  // remember the last points in case we need to interpolate to the frequency when v(a)=x.
+  // lastDepVarValue_ is used to interpolate the frequency at which the measurement occurs.
+  // lastOutputVarValue_ is used to interpolate the output value for a FIND-WHEN measure.
+  lastIndepVarValue_=frequency;
+  lastDepVarValue_=outVarValues_[whenIdx_];
+  lastOutputVarValue_=outVarValues_[0];
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FindWhen::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
 //                 object, which is typically the mt0, ma0 or ms0 file

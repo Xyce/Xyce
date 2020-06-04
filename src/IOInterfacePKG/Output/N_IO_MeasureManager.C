@@ -1288,6 +1288,7 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("ERR") );
   typeSetNoise.insert( std::string("ERR1") );
   typeSetNoise.insert( std::string("ERR2") );
+  typeSetNoise.insert( std::string("FIND") );
   typeSetNoise.insert( std::string("INTEGRAL") );
   typeSetNoise.insert( std::string("INTEG") );
   typeSetNoise.insert( std::string("MAX") );
@@ -1295,6 +1296,7 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("PARAM") );
   typeSetNoise.insert( std::string("PP") );
   typeSetNoise.insert( std::string("RMS") );
+  typeSetNoise.insert( std::string("WHEN") );
 
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid
   // for one of the allowed modes (e.g, TRAN, AC, NOISE or DC).  This happens after we've parsed the
