@@ -530,9 +530,8 @@ bool Model::readTouchStoneFile()
 bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum)
 {
   // where we are in the file, and whether parsing had an error
-  bool defaultOptionLine = false;
   int numVersionLinesFound = 0;
-  int numOptionLinesFound = 0;
+  bool optionLineFound = false;
   int numPortsLinesFound = 0;
   int numTwoPortDataOrderLinesFound = 0;
   int numFreqLinesFound = 0;
@@ -540,7 +539,6 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
   int numMatrixFormatLinesFound = 0;
   int numNetworkDataLinesFound = 0;
   int numNetworkDataElementsFound = 0;
-  int expectedNumElementsPerNetworkDataLine;
 
   bool skipReadNextLine = false;
   bool psuccess = true;
@@ -596,13 +594,15 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
   }
   else
   {
-    if ( !processTouchStoneOptionLine(aLine, lineNum, numOptionLinesFound, defaultOptionLine) )
+    optionLineFound = processTouchStoneOptionLine(aLine, lineNum);
+    if (!optionLineFound)
       return false;
   }
 
   while ( !(inputFile.eof() || (aLine.substr(0,5) == "[END]")) )
   {
-    if ( aLine[0] != TSCommentChar_ )
+    // subsequent Option lines are silently ignored
+    if ( (aLine[0] != TSCommentChar_) && (aLine[0] != '#') )
     {
       // There can only be one [Version] in a a Touchstone 2 formatted file.
       if (aLine.substr(0,9) == "[VERSION]")
@@ -636,7 +636,7 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 
           // populate the Z0Vec_ vector for a default Option line.  This may be
           // overwritten later by info on the [Reference] line.
-          if (defaultOptionLine)
+          if (defaultOptionLine_)
             for (int i=0; i < numPorts_; i++) {Z0Vec_.push_back(50.0);}
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
@@ -857,7 +857,7 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 	{
 	  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
-        while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
+        while( (!inputFile.eof()) && ((aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
 	{
           readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
@@ -865,13 +865,13 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
         // Set expected number of data elements on first line, assuming "FULL", "UPPER" or
         // "LOWER" formats
         if (matrixFormat_ == MatrixFormat::FULL)
-          expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_) + 1;
+          expectedNumElementsPerNetworkDataLine_ = 2*(numPorts_*numPorts_) + 1;
         else
-          expectedNumElementsPerNetworkDataLine = numPorts_*(numPorts_+1) + 1;
+          expectedNumElementsPerNetworkDataLine_ = numPorts_*(numPorts_+1) + 1;
 
         // only format "FULL" is supported if frequency-domain ISC data is given
         if (IscFD_)
-          expectedNumElementsPerNetworkDataLine += 2*numPorts_;
+          expectedNumElementsPerNetworkDataLine_ += 2*numPorts_;
 
         parsedLine.clear();
 
@@ -883,16 +883,16 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
           IO::TokenVector tempParsedLine;
           splitTouchStoneFileLine(aLine,tempParsedLine);
           numNetworkDataElementsFound += tempParsedLine.size();
-          if ( tempParsedLine.size() <= expectedNumElementsPerNetworkDataLine )
+          if ( tempParsedLine.size() <= expectedNumElementsPerNetworkDataLine_ )
 	  {
             parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
 
           // We have a complete line of network data if this conditional is true
-          if (parsedLine.size() == expectedNumElementsPerNetworkDataLine)
+          if (parsedLine.size() == expectedNumElementsPerNetworkDataLine_)
 	  {
             ++numDataLinesFound;
-            if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+            if ( !processTouchStoneNetworkDataLine(parsedLine) )
               return false;
 
             // clear parsedLine here, to support parsing network data that
@@ -920,7 +920,7 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
       skipReadNextLine=false;
   }
 
-  if ( (Z0Vec_.size() == 0) && (numOptionLinesFound > 0) )
+  if ( (Z0Vec_.size() == 0) && optionLineFound )
   {
     // Handle case where optional [Reference] line is missing and the Option
     // line did not have a R value.  Use the default R value of 50.
@@ -937,7 +937,7 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 
   // Some final error checking that the Touchstone 2 file had all of the required
   // lines.
-  if ( (numVersionLinesFound == 0) || (numOptionLinesFound == 0) )
+  if ( (numVersionLinesFound == 0) || !optionLineFound )
   {
     Report::UserError() << "File " << TSFileName_ << " for model " << getName()
       << " lacked valid [Version] and/or Option lines";
@@ -965,13 +965,13 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
     psuccess = false;
   }
 
-  if ( (numNetworkDataElementsFound != numFreq_*expectedNumElementsPerNetworkDataLine) &&
+  if ( (numNetworkDataElementsFound != numFreq_*expectedNumElementsPerNetworkDataLine_) &&
        (numPorts_ != 0) && (numFreq_ != 0) )
   {
     Report::UserError() << "Incorrect number of entries in [Network Data] block found in file "
                         << TSFileName_ << " for model " << getName()
                         << ". Found " << numNetworkDataElementsFound
-                        << ". Expected " << numFreq_*expectedNumElementsPerNetworkDataLine;
+                        << ". Expected " << numFreq_*expectedNumElementsPerNetworkDataLine_;
     psuccess = false;
   }
 
@@ -988,18 +988,14 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 //-----------------------------------------------------------------------------
 bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum)
 {
-  int numOptionLinesFound=0;
-  bool defaultOptionLine=false;
-  int expectedNumElementsPerNetworkDataLine;
-
   // assume this is a Touchstone 1 file, since the first non-comment line started with #
   TSVersion_="1.0";
   twoPortDataOrder_ = "21_12";
 
   // process Option line
-  if ( !processTouchStoneOptionLine(firstLine, lineNum, numOptionLinesFound, defaultOptionLine) )
+  if ( !processTouchStoneOptionLine(firstLine, lineNum) )
     return false;
-  if (defaultOptionLine)
+  if (defaultOptionLine_)
     Z0Vec_.push_back(50.0); // remaining port impedances are set below
 
   // read next line in file, and then begin parsing
@@ -1009,7 +1005,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
 
   // skip over comment and blank lines to find first network data line
   readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_)) )
+  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
   if (aLine[0] == '[')
@@ -1023,7 +1019,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
 
   // skip over comment and blank lines to find second network data line
   readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_)) )
+  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
   if (aLine[0] == '[')
@@ -1037,7 +1033,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
   // loop over remaining lines
   while (!inputFile.eof())
   {
-    if ( (aLine.size() > 0) && (aLine[0] != TSCommentChar_) )
+    if ( (aLine.size() > 0) && (aLine[0] != TSCommentChar_) && (aLine[0] != '#') )
     {
       if (aLine[0] == '[')
       {
@@ -1065,20 +1061,17 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
 	// complete data line has been found.
         if (numFreq_ == 1)
         {
-          expectedNumElementsPerNetworkDataLine = parsedLine.size();
-          numPorts_ = sqrt(0.5*(parsedLine.size()-1));
-          // Populate Z0 vector also
-          for (int i=1; i<numPorts_; ++i)
-            Z0Vec_.push_back(Z0Vec_[0]);
+          if ( !setVarsFromTouchStone1File(parsedLine) )
+	    return false;
         }
-        else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine)
+        else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine_)
 	{
           Report::UserError() << "Invalid network data line in file " << TSFileName_
              << " for model " << getName() << " at line " << lineNum;
           return false;
         }
 
-        if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+        if ( !processTouchStoneNetworkDataLine(parsedLine) )
           return false;
 
         // start accumulating a new line of network data
@@ -1105,21 +1098,56 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
     // Handle the pathological case of only one network data line
     if (numFreq_ == 1)
     {
-      expectedNumElementsPerNetworkDataLine = parsedLine.size();
-      numPorts_ = sqrt(0.5*(parsedLine.size()-1));
-      for (int i=1; i<numPorts_; ++i)
-        Z0Vec_.push_back(Z0Vec_[0]);
+      if ( !setVarsFromTouchStone1File(parsedLine) )
+	return false;
     }
-    else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine)
+    else if (parsedLine.size() != expectedNumElementsPerNetworkDataLine_)
     {
       Report::UserError() << "Invalid network data line in file " << TSFileName_
         << " for model " << getName() << " at line " << lineNum;
      return false;
     }
 
-    if ( !processTouchStoneNetworkDataLine(parsedLine, expectedNumElementsPerNetworkDataLine) )
+    if ( !processTouchStoneNetworkDataLine(parsedLine) )
       return false;
   }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::setVarsFromTouchStone1File
+// Purpose       : Set model variables based on first complete line of network
+//                 data in a Touchstone 1 file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 08/20/2019
+//-----------------------------------------------------------------------------
+bool Model::setVarsFromTouchStone1File(const IO::TokenVector & parsedLine)
+{
+  // Assume that the first complete line of network data has the correct
+  // number of elements on it.
+  expectedNumElementsPerNetworkDataLine_ = parsedLine.size();
+
+  if (!IscFD_)
+    numPorts_ = sqrt(0.5*(parsedLine.size()-1));
+  else
+  {
+    // solution of quadratic equation with a=b=2 and c=(1-parsedLine.size())
+    numPorts_ = 0.25*(sqrt(4.0 + 8.0*(parsedLine.size()-1)) - 2.0);
+  }
+
+  if ( (numPorts_ < 1) || (std::floor(numPorts_) != numPorts_) )
+  {
+    // derived value for numPorts_ must be an integer >=1
+    Report::UserError() << "Error determining number of ports from file " << TSFileName_
+	      << "for model " << getName();
+  }
+
+  // Populate Z0 vector also
+  for (int i=1; i<numPorts_; ++i)
+    Z0Vec_.push_back(Z0Vec_[0]);
 
   return true;
 }
@@ -1174,22 +1202,19 @@ void Model::splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 05/25/2020
 //-----------------------------------------------------------------------------
-bool Model::processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum, int& numOptionLinesFound, bool& defaultOptionLine)
+bool Model::processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum)
 {
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << "Found Option line at lineNum " << lineNum << std::endl;
   }
 
-  // Only read the first Option line.  Any others are silently ignored.
-  ++numOptionLinesFound;
-
   // Record if this is a default Option line with only a # character on it,
   // so that Z0Vec_ vector can be populated with the default of 50, for each
   // port, once the number of ports is known.  The other defaults are set
   // correctly in the Model::Model constructor
   if (aLine.size() == 1)
-    defaultOptionLine = true;
+    defaultOptionLine_ = true;
 
   // The fields on the Option line can be in any order. Yuck!  Also an Option
   // line that only has a # is allowed.
@@ -1287,7 +1312,7 @@ bool Model::processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 05/25/2020
 //-----------------------------------------------------------------------------
-bool Model::processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine, int expectedNumElementsPerNetworkDataLine)
+bool Model::processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine)
 {
   std::vector<std::complex<double> > inputIscData;
   Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
@@ -1394,7 +1419,7 @@ bool Model::processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine, 
   if (IscFD_)
   {
     inputIscData.clear();
-    for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
+    for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine_; i=i+2, pIdx++)
     {
       ExtendedString Str1(parsedLine[i].string_);
       ExtendedString Str2(parsedLine[i+1].string_);
@@ -1647,6 +1672,9 @@ Model::Model(
     numFreq_(0),
     Z0Vec_(0),
     freqVec_(0),
+    defaultOptionLine_(false),
+    expectedNumElementsPerNetworkDataLine_(0),
+    IscFD_(false),
     IscTD_(false)
 {
   // Set params to constant default values.
