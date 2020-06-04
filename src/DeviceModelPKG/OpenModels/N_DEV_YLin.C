@@ -1143,6 +1143,7 @@ bool Model::setVarsFromTouchStone1File(const IO::TokenVector & parsedLine)
     // derived value for numPorts_ must be an integer >=1
     Report::UserError() << "Error determining number of ports from file " << TSFileName_
 	      << "for model " << getName();
+    return false;
   }
 
   // Populate Z0 vector also
