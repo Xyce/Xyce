@@ -446,6 +446,14 @@ Section~\ref{Output_Control} and the \Xyce{} Reference
 Guide\ReferenceGuide provide a more detailed explanation of how to use
 expressions in the \texttt{.PRINT} line.
 
+\subsection{ABM devices in frequency domain analysis}
+
+ABM devices can be used in both types of frequency domain analysis, AC and HB.  
+However, there is one important limitation.   They can only be used in this type of analysis 
+if the source is not an independent source.  In other words, they cannot be time-dependent.
+ABM sources that only depend on circuit solution variables (such as voltage node values) 
+will work in both AC and HB.
+
 %%% Local Variables:
 %%% mode: latex
 %%% End:

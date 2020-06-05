@@ -99,9 +99,13 @@
     (TRA).  The LTRA and TRA models will need to be replaced with
     lumped transmission line models (YTRANSLINE) to perform
     small-signal AC analysis.  For harmonic balance, the two
-    transmission line models do work correctly in frequency domain,
-    but the nonlinear dependent sources (B source and nonlinear
-    variants of E, F, G, and H sources) do not. \\ \hline
+    transmission line models do work correctly in frequency domain.
+
+    Independent behavioral sources, such as a time-dependent B, E, F, G, or H 
+    source, will not work correctly with either AC or HB. 
+    However, such sources which are purely dependent (only depending on solution 
+    variables and not time) will work in AC and HB.
+    \\ \hline
 
     \Xyce{} uses \texttt{FREQ} as the special variable denoting the
     current simulation frequency  & Other simulators may use \texttt{HERTZ}

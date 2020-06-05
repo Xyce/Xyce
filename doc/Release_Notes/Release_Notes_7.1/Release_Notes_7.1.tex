@@ -36,8 +36,9 @@ Version \XyceVersionVar{} Release Notes}
 
 \date{\today}
 
-% Approved May 2020
-% SAND Number SAND2020-TBD
+% R&A requested 27 May 2020 Tracking number  1139007
+% Approved 27 May 2020
+% SAND Number SAND2020-5434 O
 
 % ---------------------------------------------------------------------------- %
 % Start the document
@@ -71,14 +72,21 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+  \item XDM works with Python 3.x
+  \item Translation of HSPICE .DATA command has been added.
+  \item Better translation of HSPICE .MEASURE commands when compatible with Xyce.
+  \item The translation of P-elements from HSPICE to Xyce is more complete.
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
   \item The BSIM SOI version 4.6.1 has been added as the level 70
     MOSFET.  At this time the implementation is limited to the
-    four-node version without exposed body nodes.
+    four-node version without exposed body nodes.  It has been
+    observed that the gate capacitor model may have compatibility
+    issues with PDKs that are expecting versions 4.5 or earlier.  For
+    this reason the older BSIM-SOI 4.5.0 has also been added as the
+    level 70450 MOSFET.
   \item The BSIM6 model now supports a multiplicity factor, M, on its
     instance line.
   \item Models derived from Verilog-A sources (PSP, MEXTRAM, BSIM6,
@@ -90,11 +98,6 @@ please visit the \XyceTM{} web page at
   \item The L\_UTSOI MOSFET model version 102.4.0 has been added as
     the level 10240 MOSFET.  Due to licensing restrictions, this model is
     not available in open source builds or in source form.
-\end{XyceItemize}
-
-\subsubsection*{Enhanced Solver Stability, Performance and Features}
-\begin{XyceItemize}
-  \item place holder
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -183,7 +186,7 @@ systems.
 \begin{XyceItemize}
   \item FreeBSD 11.x on Intel x86-64 and AMD64 architectures (serial
     and parallel)
-  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Distributions of Linux other than Red Hat Enterprise Linux 7
   \item Microsoft Windows under Cygwin and MinGW.
 \end{XyceItemize}
 
