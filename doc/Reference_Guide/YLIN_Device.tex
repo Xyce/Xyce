@@ -36,8 +36,7 @@ YLIN YLIN1 1 0 2 0 YLIN_MOD1
 \end{Parameters}
 
 \comments
-At present, the YLIN device is only supported in the frequency domain for HB analysis, where
-the S-parameter model has data at the exact frequencies requested by the .HB analysis.
+At present, the YLIN device is only supported in the frequency domain for HB analyses.
 
 \end{Device}
 
@@ -45,16 +44,18 @@ the S-parameter model has data at the exact frequencies requested by the .HB ana
 \paragraph{Model Parameters}
 \input{Lin_1_Device_Model_Params}
 
-The Touchstone file name must be specified.  At present, the YLIN device only
-accepts Touchstone 2 formatted input files \cite{touchstone2_std_2009}.
+The Touchstone file name must be specified.  The YLIN device accepts both
+Touchstone 1 and Touchstone 2 formatted input files \cite{touchstone2_std_2009}.
 
 For coupling with EM codes, such as EIGER, the YLIN device also accepts
-a non-standard version of the Touchstone 2 input files.  If the \texttt{ISC\_FD}
-model parameter is set to true then each row of [Network Data] in the input
+a non-standard version of the Touchstone input files.  If the \texttt{ISC\_FD}
+model parameter is set to true then each row of ``network data'' in the input
 file also contains additional columns with the ``per-port frequency-domain
 short-circuit currents''.   There are then two such additional columns for each
-port. The format of (\texttt{RI}, \texttt{MA} or \texttt{DB}) of those additional
-columns will be as specified by the Option line in the Touchstone 2 metadata.
+port.  The format (\texttt{RI}, \texttt{MA} or \texttt{DB}) of those additional
+columns will be as specified by the Option line in the Touchstone file.  In this
+non-standard case, only the ``Full'' matrix format is supported for
+Touchstone 2 input files.
 
 
 
