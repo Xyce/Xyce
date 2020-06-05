@@ -1,5 +1,0 @@
-The ".cir" files here are copies of the ".sp" netlists, modified to work with Xyce.
-
-The ".gs" files are the data from the ".lis" files, edited for ease of
-plotting in gnuplot alongside the output of Xyce, which is specified
-in "gnuplot" format.

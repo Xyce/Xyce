@@ -1,0 +1,31 @@
+In order to work in Xyce, several things in the BSIM SOI 4.6.1 code
+needed modification.  These are documented here:
+
+
+- Xyce/ADMS does not support the $port_connected function to specify
+  optional nodes, and therefore the PORT_CONNECTED macro in the
+  Verilog-A source has been left unset.  The B4SOI in Xyce can only
+  have the thermal node internal, and does not provide access to the
+  "p" and "b" nodes on the instance line.  The BODYMOD parameter is
+  ignored and the model will always operate in floating body mode
+  (bodymod=0).
+
+- Attributes have been added to some parameters to make them instance
+  or both instance and model parameters.
+
+- Bias-independent code has been wrapped in an ADMS-specific
+  "@(initial_instance)" pseudo-event.  Doing so assures that this code
+  is only executed when necessary --- at code initialization or
+  whenever an instance or model parameter changes as part of a .STEP
+  analysis.  As a consequence of this change, a line of code setting
+  "DevTemp" to the ambient temperature needed to be duplicated both in
+  the initial_instance and main body of the code.
+
+- Explicit use of a multiplicity factor has been introduced.  Xyce
+  does not have implicit multiplicity for devices, and requires that
+  every device implement it explicitly.
+
+- Several contributions contained both static and dynamic (ddt())
+  terms, which ADMS and Xyce/ADMS mishandle.  These contributions were
+  broken up into separate static-only and dynamic-only contributions.
+

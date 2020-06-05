@@ -33,6 +33,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
+A bug in the BSIM4 led to convergence problems (e.g., the \Xyce{}
+simulation fails part way through and says that the ``time step is too
+small'') when the \texttt{rgatemod} parameter is non-zero. \\ \hline
+
 \textbf{1299-SON}: Xyce incorrectly outputs multiple unwanted solution results when 'tstart' given on tran line and .options output also given &
 When a non-zero third parameter (``TSTART'') was given to
 a \texttt{.TRAN} analysis statement and a \texttt{.OPTIONS OUTPUT}
@@ -139,7 +144,7 @@ would cause a parsing error when .LIN was used with .STEP.
 \textbf{1292-SON, Gitlab Issue \#6}: Inductor coupling (mutual inductor) code does not respect inductor initial condition specification &
 Linear and non-linear mutual inductors were ignoring the initial conditions set on 
 component inductors.  This was a code deficiency as the initial conditions were not 
-passed into the mutual inductor device.  This issue has been fixed.
+passed into the mutual inductor device.
 \\ \hline
 
 \textbf{1287-SON, Github Issue \#6}: Ill-formed .IC line leads to segfaults on some Linuxen
@@ -147,7 +152,10 @@ passed into the mutual inductor device.  This issue has been fixed.
 A warning is now emitted for empty .IC/.DCVOLT/.NODESET lines and the line is effectively ignored.
 \\ \hline
 
-\textbf{xxx-SRN}: Place holder title &
-Place holder description.  \\ \hline
+\textbf{1264-SON}: .dc specification including a temperature sweep can cause many unnecessary processParams calls
+&  A flaw in Xyce design resulted in a lot of superfluous parameter handling, which caused Xyce to be inefficient in some use cases.
+\\ \hline
+
+
 \end{longtable}
 }

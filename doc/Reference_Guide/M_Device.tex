@@ -611,11 +611,15 @@ The following tables give parameters for the level 18 MOSFET.
 \input{M_18_Device_Model_Params}
 
 \clearpage
-\subsubsection{Level 70 MOSFET Tables (BSIM SOI 4.6.1)}
+\subsubsection{Levels 70 and 70450 MOSFET Tables (BSIM SOI 4.6.1 and 4.5.0)}
 For complete documentation of the BSIMSOI model, see the users' manual
 for the BSIMSOI, available for download at
 \url{http://bsim.berkeley.edu/models/bsimsoi/}.
 \Xyce{} implements Version 4.6.1 of the BSIMSOI as the level 70 device.
+
+Instance and model parameters of the level 70 MOSFET are given in
+tables~\ref{M_70_Device_Instance_Params} and
+\ref{M_70_Device_Model_Params}.
 
 Only the four-terminal variant of the BSIM SOI is supported at this
 time, meaning that the ``BODYMOD'' parameter is ignored and the
@@ -624,20 +628,33 @@ level 70 MOSFETS operate in floating body mode.  The temperature node
 is an internal node of the device, and its value may still be printed
 using the N() notation (see section~\ref{Print_Device_Info}.
 
-\textbf{NOTE:} Shortly before Release 7.1 was frozen for release, it
-was reported that the level 70 MOSFET model suffers from severe
-convergence problems when SHMOD=1.  This issue is under investigation,
-but we were unable to fix it in time for the 7.1 release.
-
 The BSIM SOI 4.6.1 device supports output of the internal variables in
 table~\ref{M_70_OutputVars} on the \texttt{.PRINT} line of a netlist.
 To access them from a print line, use the syntax
 \texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
 name of the specific level 70 M device in your netlist.
 
+\textbf{NOTE:} It has been observed that the gate capacitance model of
+BSIM-SOI 4.6.1 behaves differently than earlier versions, and the team
+has seen significant disagreement of gate currents when comparing
+identical simulations with other simulators that have only earlier
+BSIM-SOI models.  For this reason, we are also providing BSIM-SOI
+4.5.0 as the level 70450 MOSFET.  This model does agree with these
+other simulators.  The parameters and output variables are given in
+tables~\ref{M_70450_Device_Instance_Params},
+\ref{M_70450_Device_Model_Params}, and \ref{M_70450_OutputVars}.
+Unlike BSIM-SOI 4.6.1, the 4.5.0 model's original Verilog-A source
+code does not contain descriptions and units for the parameters, and
+these appear blank in the tables.  For descriptions and units, see the
+corresponding parameters in the level 70 tables.
+
 \input{M_70_Device_Instance_Params}
 \input{M_70_Device_Model_Params}
 \input{M_70_OutputVars}
+\input{M_70450_Device_Instance_Params}
+\input{M_70450_Device_Model_Params}
+\input{M_70450_OutputVars}
+
 \clearpage
 \subsubsection{Level 77 MOSFET Tables (BSIM6 version 6.1.1)}
 \Xyce{} includes the BSIM6 MOSFET model, version 6.1.1.  Full

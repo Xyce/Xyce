@@ -18,6 +18,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMSbsimcmg_110.C \
   N_DEV_ADMSbsim6.C \
   N_DEV_ADMSbsimsoi.C \
+  N_DEV_ADMSbsimsoi450.C \
   N_DEV_ADMSvbic13.C \
   N_DEV_ADMSvbic13_4t.C \
   N_DEV_ADMSbjt504va.C \
@@ -38,6 +39,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMSbsimcmg_110.h \
   N_DEV_ADMSbsim6.h \
   N_DEV_ADMSbsimsoi.h \
+  N_DEV_ADMSbsimsoi450.h \
   N_DEV_ADMSvbic13.h \
   N_DEV_ADMSvbic13_t.h \
   N_DEV_ADMSbjt504va.h \
