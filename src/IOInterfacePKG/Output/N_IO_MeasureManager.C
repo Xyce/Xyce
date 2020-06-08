@@ -365,6 +365,12 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
                              << " do not agree";
         bsuccess = false;
       }
+      else if ( ( (*it)->getMeasureMode() == "NOISE") && !(analysisMode == Xyce::Analysis::ANP_MODE_NOISE) )
+      {
+        Report::UserError0() << "Netlist analysis statement and measure mode (NOISE) for measure " << (*it)->getMeasureName()
+                             << " do not agree";
+        bsuccess = false;
+      }
     }
   }
   
@@ -374,7 +380,7 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
 //-----------------------------------------------------------------------------
 // Function      : Manager::setMeasureOutputFileSuffix
 // Purpose       : The output files for different measure modes use different
-//               : suffixes.  It's .mt for TRAN, .ma for AC and .ms for DC.
+//               : suffixes.  It's .mt for TRAN, .ma for AC and NOISE, and .ms for DC.
 //               : The default of .mt was set in the constructor for the Measure 
 //               : Manager.
 // Special Notes : This function is used for both measure and remeasure
@@ -388,7 +394,7 @@ void Manager::setMeasureOutputFileSuffix(const Analysis::Mode analysisMode)
   {
     measureOutputFileSuffix_=".mt";
   }
-  else if ( analysisMode == Xyce::Analysis::ANP_MODE_AC )
+  else if ( (analysisMode == Xyce::Analysis::ANP_MODE_AC) || (analysisMode == Xyce::Analysis::ANP_MODE_NOISE) )
   {
     measureOutputFileSuffix_=".ma";
   }  
@@ -475,6 +481,33 @@ void Manager::updateACMeasures(
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
     (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector, RFparams);
+  }
+  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
+                            activeMeasuresList_.end()); }
+
+//-----------------------------------------------------------------------------
+// Function      : Manager::updateNoiseMeasures
+// Purpose       : Called during the simulation to update the measure objects
+//               : for .NOISE analyses
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/12/2020
+//-----------------------------------------------------------------------------
+void Manager::updateNoiseMeasures(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *real_solution_vector,
+  const Linear::Vector *imaginary_solution_vector,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec
+  )
+{
+  for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it)
+  {
+    (*it)->updateNoise(comm, frequency, real_solution_vector, imaginary_solution_vector,
+		       totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec);
   }
   activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end()); }
@@ -1181,6 +1214,7 @@ extractMEASUREData(
   std::set<std::string> typeSetTran;
   std::set<std::string> typeSetAc;
   std::set<std::string> typeSetDc;
+  std::set<std::string> typeSetNoise;
 
   // allowed types for the TRAN mode
   typeSetTran.insert( std::string("TRIG") );
@@ -1246,13 +1280,33 @@ extractMEASUREData(
   typeSetDc.insert( std::string("RMS") );
   typeSetDc.insert( std::string("WHEN") );
 
-  // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid 
-  // for one of the allowed modes (e.g, TRAN, AC or DC).  This happens after we've parsed the
+  // allowed types for the NOISE mode
+  typeSetNoise.insert( std::string("AVG") );
+  typeSetNoise.insert( std::string("DERIVATIVE") );
+  typeSetNoise.insert( std::string("DERIV") );
+  typeSetNoise.insert( std::string("EQN") );
+  typeSetNoise.insert( std::string("ERR") );
+  typeSetNoise.insert( std::string("ERR1") );
+  typeSetNoise.insert( std::string("ERR2") );
+  typeSetNoise.insert( std::string("FIND") );
+  typeSetNoise.insert( std::string("INTEGRAL") );
+  typeSetNoise.insert( std::string("INTEG") );
+  typeSetNoise.insert( std::string("MAX") );
+  typeSetNoise.insert( std::string("MIN") );
+  typeSetNoise.insert( std::string("PARAM") );
+  typeSetNoise.insert( std::string("PP") );
+  typeSetNoise.insert( std::string("RMS") );
+  typeSetNoise.insert( std::string("WHEN") );
+
+  // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid
+  // for one of the allowed modes (e.g, TRAN, AC, NOISE or DC).  This happens after we've parsed the
   // MODE and TYPE fields on the measure line.  In those cases, we just care that the
   // TYPE is in the combined union set.
   set_union( typeSetTran.begin(), typeSetTran.end(), typeSetAc.begin(),
              typeSetAc.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
   set_union( typeSetDc.begin(), typeSetDc.end(), typeSet.begin(),
+             typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
+  set_union( typeSetNoise.begin(), typeSetNoise.end(), typeSet.begin(),
              typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
 
   // Sets of allowed keywords.  simpleKeywords must have a numeric value.
@@ -1321,25 +1375,27 @@ extractMEASUREData(
   Util::Param parameter;
 
   // Look for the fixed items.
-  // First word should be the MODE (e.g., TRAN, DC or AC)
+  // First word should be the MODE (e.g., TRAN, DC, AC or NOISE)
   ExtendedString currentWord(parsed_line[1].string_);
   currentWord.toUpper();
   if (currentWord == "TR")
   {
     currentWord = "TRAN"; // TR is a synonym for TRAN
   }
-  // parsedMeasureMode is a local variable will be used to allow DC and AC mode to only 
+  // parsedMeasureMode is a local variable will be used to allow DC, AC and NOISE mode to only
   // be enabled for selected measure types.
   std::string parsedMode = currentWord;
 
-  if( (currentWord == "TRAN" ) || (currentWord == "AC" ) || currentWord == "DC" )
+  if( (currentWord == "TRAN" ) || (currentWord == "AC" ) || (currentWord == "DC") ||
+      (currentWord == "NOISE") )
   {
     parameter.set("MODE", std::string(currentWord));
     option_block.addParam(parameter);
   }
   else
   {
-    Report::UserError0().at(netlist_filename, parsed_line[1].lineNumber_) << "Unknown mode in .MEASURE line.  Should be TRAN/TR, DC or AC";
+    Report::UserError0().at(netlist_filename, parsed_line[1].lineNumber_) << "Unknown mode in .MEASURE line.  "
+	<< "Should be TRAN/TR, DC, AC or NOISE";
      return false;
   }
 
@@ -1351,14 +1407,14 @@ extractMEASUREData(
   {
     currentWord = "TRAN"; // TR is a synonym for TRAN
   }
-  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" )
+  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" && currentWord != "NOISE")
   {
     parameter.set("NAME", std::string(currentWord));
     option_block.addParam(parameter);
   }
   else
   {
-    Report::UserError0().at(netlist_filename, parsed_line[2].lineNumber_) << "Illegal name in .MEASURE line.  Cannot be AC, DC or TRAN/TR";
+    Report::UserError0().at(netlist_filename, parsed_line[2].lineNumber_) << "Illegal name in .MEASURE line.  Cannot be AC, DC, NOISE or TRAN/TR";
     return false;
   }
 
@@ -1415,8 +1471,23 @@ extractMEASUREData(
       return false;
     }
   }
+  else if (parsedMode == "NOISE")
+  {
+    if(  typeSetNoise.find( currentWord ) != typeSetNoise.end()  )
+    {
+      parameter.set("TYPE", std::string(currentWord));
+      option_block.addParam(parameter);
+      parsedType=currentWord;  // used later to enable the VAL= syntax for TRIG and TARG
+    }
+    else
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
+	 << "FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for NOISE measure mode";
+      return false;
+    }
+  }
 
-  // already got MEASURE <DC|AC|TRAN> name TYPE
+  // already got MEASURE <DC|AC|NOISE|TRAN> name TYPE
   // now try and parse of the rest of the line catching keywords when they're found
   int position = 4;
 
@@ -1681,11 +1752,11 @@ extractMEASUREData(
 
         // The second part of this if clause is to ensure we don't catch keywords that start
         // with I, V, N, P or W, and mistake them for Ixxx( ) or Vxxx().  Also need to not
-        // mistake PAR for P().
-        if( (nextWord[0] == 'I' || nextWord[0] == 'V' || nextWord[0] == 'N'
-             || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'S' ||
+        // mistake PAR for P(), and to properly handle the INOISE operator.
+        if( ( (nextWord[0] == 'I' && nextWord != "INOISE") || nextWord[0] == 'V' || nextWord[0] == 'N'
+             || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'D' || nextWord[0] == 'S' ||
              nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
-            (simpleKeywords.find( nextWord ) == simpleKeywords.end() ) )
+            (simpleKeywords.find( nextWord ) == simpleKeywords.end()) )
         {
           // need to do a bit of look ahead here to see if this is a V(a) or V(a,b)
           int numNodes = 1;

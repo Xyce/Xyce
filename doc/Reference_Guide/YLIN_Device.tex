@@ -1,0 +1,61 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+The linear (YLIN) device allows an S-, Y-, or Z-parameter model to
+be used to define an N-port device.  It is mostly commonly used
+as part of a Harmonic Balance (HB) analysis.
+
+\begin{Device}\label{YLIN_DEVICE}
+
+\device
+\begin{alltt}
+YLIN <name>  <(+) node> <(-) node> [model name]
+\end{alltt}
+
+\model
+.MODEL <model name> LIN [model parameters]
+
+\examples
+\begin{alltt}
+YLIN YLIN1 1 0 2 0 YLIN_MOD1
+.MODEL YLIN_MOD1 LIN TSTONEFILE=yparams.y2p
+\end{alltt}
+
+\parameters
+\begin{Parameters}
+
+\param{model name}
+  Name of the model defined in a .MODEL line.
+
+\end{Parameters}
+
+\comments
+At present, the YLIN device is only supported in the frequency domain for HB analysis, where
+the S-parameter model has data at the exact frequencies requested by the .HB analysis.
+
+\end{Device}
+
+
+\paragraph{Model Parameters}
+\input{Lin_1_Device_Model_Params}
+
+The Touchstone file name must be specified.  At present, the YLIN device only
+accepts Touchstone 2 formatted input files \cite{touchstone2_std_2009}.
+
+For coupling with EM codes, such as EIGER, the YLIN device also accepts
+a non-standard version of the Touchstone 2 input files.  If the \texttt{ISC\_FD}
+model parameter is set to true then each row of [Network Data] in the input
+file also contains additional columns with the ``per-port frequency-domain
+short-circuit currents''.   There are then two such additional columns for each
+port. The format of (\texttt{RI}, \texttt{MA} or \texttt{DB}) of those additional
+columns will be as specified by the Option line in the Touchstone 2 metadata.
+
+
+
+

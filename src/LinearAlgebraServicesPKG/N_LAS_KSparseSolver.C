@@ -275,7 +275,9 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
   if (linearStatus != 0)
   {
     // Create a KLU solver if we don't have one.
-    std::cout << "Creating a KLU solver to perform bad solve!" << std::endl;
+    if (DEBUG_LINEAR)
+      Xyce::lout() << "Creating a KLU solver to perform bad solve!" << std::endl;
+
     if (kluSolver_ == Teuchos::null)
     {
       Amesos amesosFactory;

@@ -1578,8 +1578,9 @@ bool NOISE::doProcessSuccessfulStep()
   bool bsuccess = true;
 
   // The raw output (via -r and -a) still uses .outputAC.  So, this possibly still needs
-  // to be fixed or changed.
-  outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
+  // to be fixed or changed.  The outputACwoMeasureUpdates() function does not try to
+  // update any AC mode measures.
+  outputManagerAdapter_.outputACwoMeasureUpdates (currentFreq_, fStart_,fStop_,
 	    saved_AC_X_->block(0), saved_AC_X_-> block(1), RFparams_);
 
   outputManagerAdapter_.outputNoise (currentFreq_, saved_AC_X_->block(0), saved_AC_X_-> block(1),

@@ -123,7 +123,7 @@ void Stats::updateTran(
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0);
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0 ,0);
 
     // Need to set lastOutputValue_ variable to the current signal value
     // at the first time-step within the measurement window.  (That
@@ -193,7 +193,7 @@ void Stats::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector.
     sweepVar_= dcParamsVec[0].name;
-    recordStartEndACDCsweepVals(dcSweepVal);
+    recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
@@ -201,11 +201,11 @@ void Stats::updateDC(
                                         solnVec, stateVec, storeVec, 0,
                                         lead_current_vector,
                                         junction_voltage_vector,
-                                        lead_current_dqdt_vector, 0);
+                                        lead_current_dqdt_vector, 0, 0 , 0, 0);
 
       // Used in descriptive output to stdout. Record the first/last values
       // within the measurement window.
-      recordStartEndACDCmeasureWindow(dcSweepVal);
+      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
       if ( initialized_ )
         updateMeasureVars(dcSweepVal, outVarValues_[0]);
@@ -231,17 +231,55 @@ void Stats::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCsweepVals(frequency);
+  recordStartEndACDCNoiseSweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, RFparams);
+                     imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
 
     // Used in descriptive output to stdout. Record the first/last values
     // within the measurement window.
-    recordStartEndACDCmeasureWindow(frequency);
+    recordStartEndACDCNoiseMeasureWindow(frequency);
+
+    if ( initialized_ )
+      updateMeasureVars(frequency, outVarValues_[0]);
+
+    updateMeasureState(frequency, outVarValues_[0]);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Stats::updateNoise()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 5/11/2020
+//-----------------------------------------------------------------------------
+void Stats::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndACDCNoiseSweepVals(frequency);
+
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0,
+                     totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+
+    // Used in descriptive output to stdout. Record the first/last values
+    // within the measurement window.
+    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);
@@ -255,8 +293,8 @@ void Stats::updateAC(
 // Purpose       : Updates the past values of the independent and dependent
 //                 variables.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 and NOISE measures, it is frequency.  For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020

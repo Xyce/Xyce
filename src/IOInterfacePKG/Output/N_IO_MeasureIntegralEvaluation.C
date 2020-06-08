@@ -91,16 +91,16 @@ void IntegralEvaluation::setMeasureVarsForNewWindow()
 // Function      : IntegralEvaluation::updateMeasureVars()
 // Purpose       : Updates the integral value
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 measures, it is frequency.  For DC measures, it is the value
-//                 of the first variable in the DC sweep vector.
+//                 or NOISE measures, it is frequency.  For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
 void IntegralEvaluation::updateMeasureVars(const double indepVarVal, const double signalVal)
 {
-  // The first branch is always taken by TRAN and AC measures.  For DC mode, we must account for
-  // both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
+  // The first branch is always taken by TRAN, AC or NOISE measures.  For DC mode, we must account
+  // for both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
   // of first swept variable on .DC line.  This requires the addition of the next two branches
   // to cover the other three cases.
   if ((from_ <= to_) && (indepVarVal > startSweepValue_))

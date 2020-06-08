@@ -117,7 +117,7 @@ void EquationEvaluation:: updateTran(
     // update our outVarValues_ vector
     for( int i=0; i< numOutVars_; i++ )
     {
-      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector, 0 );
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
     }
 
     // not intuitive, but the output of this measure is just the outputVars_ operator evaluated 
@@ -153,13 +153,13 @@ void EquationEvaluation::updateDC(
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
-    recordStartEndACDCsweepVals(dcSweepVal);
+    recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
-      recordStartEndACDCmeasureWindow(dcSweepVal);
+      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
       // update our outVarValues_ vector
       for( int i=0; i< numOutVars_; i++ )
@@ -168,7 +168,7 @@ void EquationEvaluation::updateDC(
                                           solnVec, stateVec, storeVec, 0,
                                           lead_current_vector,
                                           junction_voltage_vector,
-                                          lead_current_dqdt_vector, 0);
+                                          lead_current_dqdt_vector, 0, 0, 0, 0);
       }
       // not intuitive, but the output of this measure is just the outputVars_ operator evaluated 
       // within the FromToWindow.  At this time there shouldn't be more than one outVarValues_ so just
@@ -195,19 +195,59 @@ void EquationEvaluation::updateAC(
   const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCsweepVals(frequency);
+  recordStartEndACDCNoiseSweepVals(frequency);
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
-    recordStartEndACDCmeasureWindow(frequency);
+    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     // update our outVarValues_ vector
     for( int i=0; i< numOutVars_; i++ )
     {
       outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, 0, 0,
-                                        imaginaryVec, 0, 0, 0, RFparams);
+                                        imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
+    }
+    // not intuitive, but the output of this measure is just the outputVars_ operator evaluated 
+    // within the FromToWindow.  At this time there shouldn't be more than one outVarValues_ so just
+    // take the first element.
+    initialized_ = true;
+    calculationResult_=outVarValues_[0];
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EquationEvaluation::updateNoise()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 5/11/2020
+//-----------------------------------------------------------------------------
+void EquationEvaluation::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndACDCNoiseSweepVals(frequency);
+
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    recordStartEndACDCNoiseMeasureWindow(frequency);
+
+    // update our outVarValues_ vector
+    for( int i=0; i< numOutVars_; i++ )
+    {
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, 0, 0,
+                                        imaginaryVec, 0, 0, 0, totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
     }
     // not intuitive, but the output of this measure is just the outputVars_ operator evaluated 
     // within the FromToWindow.  At this time there shouldn't be more than one outVarValues_ so just

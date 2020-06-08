@@ -490,7 +490,9 @@ A time {\em at which} the measurement calculation will occur.  This is
 used by the {\tt DERIV} and {\tt FIND} measures and the {\tt TRIG} clause.  Note that
 ill-considered use of the {\tt FROM}, {\tt TO}, {\tt TD} and {\tt AT}
 qualifiers in the same {\tt TRIG-TARG} measure statement can cause an
-empty measurement window, and thus a failed measure.
+empty measurement window, and thus a failed measure.  Finally, the {\tt FROM}
+and {\tt TO} qualifiers take precedence over the {\tt AT} qualifier for
+{\tt DERIV} and {\tt FIND} measures.
 
 \argument{FROM=value}
 

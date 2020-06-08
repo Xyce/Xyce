@@ -255,8 +255,17 @@ public:
   virtual bool processInstanceParams() /* override */;
 
   bool readTouchStoneFile();
+  bool readTouchStone1File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum);
+  bool readTouchStone2File(std::ifstream& inputFile, const ExtendedString& firstLine, int lineNum);
+
+  // helper functions for processing lines in Touchstone files
   void splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine);
   void readAndUpperCaseTouchStoneFileLine(std::istream & in, ExtendedString& line, int& lineNum);
+  bool setVarsFromTouchStone1File(const IO::TokenVector & parsedLine);
+
+  // Option and network data lines have common processing between Touchstone 1 and 2 formats
+  bool processTouchStoneOptionLine(const ExtendedString& aLine, int lineNum);
+  bool processTouchStoneNetworkDataLine(const IO::TokenVector& parsedLine);
 
   void readISC_TD_File();
 
@@ -286,6 +295,9 @@ private:
   int                    numFreq_;          ///< Number of frequency points
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
+
+  bool defaultOptionLine_;                      ///< Touchstone file contains a default Option line
+  int  expectedNumElementsPerNetworkDataLine_;  ///< Used during parsing
 
   bool                                                IscFD_;          ///< Touchstone file contains frequency-doman short-circuit current data
   std::vector< std::vector<std::complex<double> > >   inputIscFDVec_;  ///< Vector of vectors of per-port frequency-doman short-circuit currents
