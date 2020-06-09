@@ -261,6 +261,8 @@ public:
   // helper functions for processing lines in Touchstone files
   void splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine);
   void readAndUpperCaseTouchStoneFileLine(std::istream & in, ExtendedString& line, int& lineNum);
+  bool isTouchStoneBlankOrCommentLine(const ExtendedString& line);
+  bool isTouchStoneBlankCommentOrOptionLine(const ExtendedString& line);
   bool setVarsFromTouchStone1File(const IO::TokenVector & parsedLine);
 
   // Option and network data lines have common processing between Touchstone 1 and 2 formats
