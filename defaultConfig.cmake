@@ -62,6 +62,7 @@ option ( Xyce_USE_PARMETIS         "Use ParMETIS for partitioning"              
 option ( Xyce_ATHENA               "Build the ATHENA device"                       ON )
 option ( Xyce_ADMS_SENSITIVITIES               "Enable analytic sensitivities in ADMS-generated devices"                       ON )
 option ( Xyce_REPO_ACCESS       "access to xyce source git repository"             OFF )
+option ( Xyce_STOKHOS_ENABLE       "Enable PCE code that uses stokhos"             ON )
 
 # verbosity options
 option ( Xyce_VERBOSE_LINEAR       "verbosity in linear solver"                    OFF )
