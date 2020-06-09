@@ -1094,8 +1094,9 @@ exp:
     }
   | TOK_SDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
-      Teuchos::RCP<astNode<usedType> > * sdtPtr = new Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>(*$3, dtNode));
+      Teuchos::RCP<astNode<usedType> > * sdtPtr = new Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>(*$3, dtNode, timeNode));
       $$ = sdtPtr;
       newExp.getMasterNodeVec().push_back(sdtPtr);
       newExp.getSdtOpVec().push_back(*sdtPtr);
@@ -1103,10 +1104,12 @@ exp:
     }
   | TOK_DDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * ddtPtr = new Teuchos::RCP<astNode<usedType> >(new ddtOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
+      Teuchos::RCP<astNode<usedType> > * ddtPtr = new Teuchos::RCP<astNode<usedType> >(new ddtOp<usedType>(*$3, dtNode, timeNode));
       $$ = ddtPtr;
       newExp.getMasterNodeVec().push_back(ddtPtr);
-      newExp.getSdtOpVec().push_back(*ddtPtr);
+      newExp.getDdtOpVec().push_back(*ddtPtr);
       newExp.setTimeDependent(true);
     }
   | TOK_DDX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN

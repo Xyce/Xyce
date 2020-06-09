@@ -79,6 +79,8 @@ public:
   virtual double getStartingTimeStep() { return 0.0; }
   virtual double getFinalTime() { return 0.0; }
 
+  virtual unsigned int getStepNumber () { return 0; }
+
 private:
 
 };

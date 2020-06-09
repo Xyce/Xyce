@@ -414,5 +414,19 @@ double mainXyceExpressionGroup::getFinalTime()
   return deviceManager_.getSolverState().finalTime_;
 }
 
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getStepNumber()
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/9/2020 
+//-------------------------------------------------------------------------------
+unsigned int mainXyceExpressionGroup::getStepNumber()
+{
+  //return deviceManager_.getSolverState().timeStepNumber_; // either of these should work
+  return analysisManager_.getStepNumber();
+}
+
 } // Util
 } // Xyce

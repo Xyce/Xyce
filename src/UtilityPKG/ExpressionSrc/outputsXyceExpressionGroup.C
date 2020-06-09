@@ -700,7 +700,8 @@ bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, std::c
 //-------------------------------------------------------------------------------
 double outputsXyceExpressionGroup::getTimeStep ()
 {
-  dt_ = deviceManager_.getSolverState().currTimeStep_;
+  //dt_ = deviceManager_.getSolverState().currTimeStep_;
+  dt_ = outputManager_.getCircuitTimeStep();
   return dt_;
 }
 
@@ -722,8 +723,8 @@ double outputsXyceExpressionGroup::getTime()
   //
   //const TimeIntg::StepErrorControl & secControl_ = (analysisManager_.getStepErrorControl());
   //time_ = secControl_.nextTime;
-  
-  time_ = deviceManager_.getSolverState().currTime_;
+  //time_ = deviceManager_.getSolverState().currTime_;
+  time_ = outputManager_.getCircuitTime();
   return time_;
 } 
 
@@ -808,5 +809,18 @@ double outputsXyceExpressionGroup::getFinalTime()
   return deviceManager_.getSolverState().finalTime_;
 }
 
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getStepNumber()
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/9/2020 
+//-------------------------------------------------------------------------------
+unsigned int outputsXyceExpressionGroup::getStepNumber()
+{
+  //return deviceManager_.getSolverState().timeStepNumber_; // either of these should work
+  return analysisManager_.getStepNumber();
+}
 } // Util
 } // Xyce

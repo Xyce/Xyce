@@ -793,6 +793,31 @@ void newExpression::setupVariousAstArrays_()
 };
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::processSuccessfulTimeStep_
+//
+// Purpose       : Tells relevant AST nodes to update their time arrays, etc.
+//                 Some AST nodes, such as DDT and SDT (time derivative and 
+//                 time integral, respectively) maintain arrays of data, where the 
+//                 array index refers to time.  These arrays have to be rotated 
+//                 when the time step advances, but it is difficult to know inside 
+//                 of an AST node when this advance should happen.  This function 
+//                 call is the method to let the SDT and DDT operators know that
+//                 they need to update.
+//
+// Special Notes : I have been debating exactly how to handle this issue, and I 
+//                 am not yet sure if this is the best way.  For now, this function
+//                 is an experiment.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/7/2020
+//-------------------------------------------------------------------------------
+void newExpression::processSuccessfulTimeStep_ ()
+{
+  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
+  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
 // Purpose       : 
 // Special Notes : This function should be used to set isConstant_.
@@ -922,9 +947,31 @@ void newExpression::getValuesFromGroup_()
     (srcAstNodeVec_[ii])->setFinalTime(finalTime_);
   }
 
+  double oldTime_ = time_;
+  time_ = group_->getTime();
   timeStep_ = group_->getTimeStep ();
   timeStepAlpha_ = group_->getTimeStepAlpha ();
   timeStepPrefac_ = group_->getTimeStepPrefac ();
+
+#if 0
+  unsigned int oldStepNumber_ = stepNumber_;
+  stepNumber_ = group_->getStepNumber ();
+#if 1
+  std::cout << "newExpression::getValuesFromGroup.  oldStepNumber_ = " << oldStepNumber_ << " stepNumber_ = " << stepNumber_ << std::endl;
+#endif
+  if (oldStepNumber_ != stepNumber_)
+  {
+    processSuccessfulTimeStep_ ();
+  }
+#else
+
+  if (oldTime_ != time_) // try again
+  {
+    processSuccessfulTimeStep_ ();
+  }
+
+#endif
+
 }
 
 //-------------------------------------------------------------------------------
@@ -1058,31 +1105,6 @@ int newExpression::evaluateFunction (usedType &result)
   }
 
   return retVal;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : newExpression::processSuccessfulTimeStep
-//
-// Purpose       : Tells relevant AST nodes to update their time arrays, etc.
-//                 Some AST nodes, such as DDT and SDT (time derivative and 
-//                 time integral, respectively) maintain arrays of data, where the 
-//                 array index refers to time.  These arrays have to be rotated 
-//                 when the time step advances, but it is difficult to know inside 
-//                 of an AST node when this advance should happen.  This function 
-//                 call is the method to let the SDT and DDT operators know that
-//                 they need to update.
-//
-// Special Notes : I have been debating exactly how to handle this issue, and I 
-//                 am not yet sure if this is the best way.  For now, this function
-//                 is an experiment.
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 6/7/2020
-//-------------------------------------------------------------------------------
-void newExpression::processSuccessfulTimeStep ()
-{
-  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
-  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
 }
 
 //-------------------------------------------------------------------------------

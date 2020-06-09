@@ -6013,7 +6013,7 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
     sdtExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0)
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0), stepNumber(0)
   {};
     ~sdtExpressionGroup () {};
 
@@ -6038,10 +6038,14 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual double getTimeStep() { return timeStep; };
   void setTimeStep(double dt) { timeStep = dt; };
 
+  void setStepNumber (unsigned int number) { stepNumber = number; }
+  unsigned int getStepNumber () { return stepNumber; }
+
   private:
     double Aval, Bval;
     double time;
     double timeStep;
+    unsigned int stepNumber;
 };
 
 TEST ( Double_Parser_Integral_Test, sdt1)
@@ -6070,13 +6074,12 @@ TEST ( Double_Parser_Integral_Test, sdt1)
     double Aval=time;
     sdtGroup->setSoln(std::string("A"),Aval);
     sdtGroup->setTime(time);
-    if (ii!=0) { sdtGroup->setTimeStep(dt); }
-    else { sdtGroup->setTimeStep(0.0); }
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
     testExpression.evaluateFunction(result);   
     refRes = time*time*0.5;
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
-    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt1)
@@ -6106,13 +6109,12 @@ TEST ( Double_Parser_Integral_Test, sdt2)
   for (int ii=0;ii<numSteps;ii++)
   {
     sdtGroup->setTime(time);
-    if (ii!=0) { sdtGroup->setTimeStep(dt); }
-    else { sdtGroup->setTimeStep(0.0); }
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
     testExpression.evaluateFunction(result);   
     refRes = 3.0*std::sin(time);
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
-    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt2)
@@ -6147,16 +6149,11 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     double Aval=time;
     sdtGroup->setSoln(std::string("A"),Aval);
     sdtGroup->setTime(time);
-    if (ii!=0) 
-    { 
-      sdtGroup->setTimeStep(dt); 
-      refDerivs[0] = 0.5*dt;
-    }
-    else 
-    { 
-      sdtGroup->setTimeStep(0.0); 
-      refDerivs[0] = 0.0;
-    }
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt); 
+
+    if (ii!=0) { refDerivs[0] = 0.5*dt; }
+    else       { refDerivs[0] = 0.0; }
 
     testExpression.evaluate(result,derivs);   
 
@@ -6164,7 +6161,6 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
     time += dt;
-    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt3)
@@ -6200,16 +6196,11 @@ TEST ( Double_Parser_Integral_Test, sdt4)
   for (int ii=0;ii<numSteps;ii++)
   {
     sdtGroup->setTime(time);
-    if (ii!=0) 
-    { 
-      sdtGroup->setTimeStep(dt); 
-      refDerivs[0] = dt;
-    }
-    else 
-    { 
-      sdtGroup->setTimeStep(0.0); 
-      refDerivs[0] = 0.0;
-    }
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt); 
+
+    if (ii!=0) { refDerivs[0] = dt;  }
+    else       { refDerivs[0] = 0.0; }
 
     testExpression.evaluate(result,derivs);   
 
@@ -6217,7 +6208,6 @@ TEST ( Double_Parser_Integral_Test, sdt4)
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
     time += dt;
-    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt4)

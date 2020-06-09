@@ -125,7 +125,7 @@ public:
     childAnalysis_.setStepNumber(step);
   }
 
-  int getStepNumber()
+  unsigned int getStepNumber()
   {
     return childAnalysis_.getStepNumber();
   }

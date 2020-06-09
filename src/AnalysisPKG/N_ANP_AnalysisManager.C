@@ -931,9 +931,8 @@ double AnalysisManager::getPauseTime() const
 // Creator       :
 // Creation Date : 12/16/2010
 //-----------------------------------------------------------------------------
-int AnalysisManager::getStepNumber() const
+unsigned int AnalysisManager::getStepNumber() const
 {
-
   if (!currentAnalysisStack_.empty()){
     return currentAnalysisStack_.back()->getStepNumber();
   }

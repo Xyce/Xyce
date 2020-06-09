@@ -119,6 +119,8 @@ public:
   virtual double getStartingTimeStep();
   virtual double getFinalTime();
 
+  virtual unsigned int getStepNumber ();
+
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
 private:

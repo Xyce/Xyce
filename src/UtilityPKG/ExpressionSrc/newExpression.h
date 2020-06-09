@@ -42,9 +42,11 @@ public:
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
+    time_(0.0),
     timeStep_(0.0),
     timeStepAlpha_(0.0),
     timeStepPrefac_(0.0),
+    stepNumber_(0),
     numDerivs_(0),
     traditionalParse_(true),
     externalDependencies_(false),
@@ -71,9 +73,11 @@ public:
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
+    time_(0.0),
     timeStep_(0.0),
     timeStepAlpha_(0.0),
     timeStepPrefac_(0.0),
+    stepNumber_(0),
     numDerivs_(0),
     traditionalParse_(true),
     externalDependencies_(false),
@@ -128,9 +132,11 @@ public:
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
+    time_(0.0),
     timeStep_(0.0),
     timeStepAlpha_(0.0),
     timeStepPrefac_(0.0),
+    stepNumber_(0),
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false),
@@ -175,9 +181,11 @@ public:
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
+    time_(0.0),
     timeStep_(0.0),
     timeStepAlpha_(0.0),
     timeStepPrefac_(0.0),
+    stepNumber_(0),
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false),
@@ -290,9 +298,11 @@ public:
     ddtOpVec_(right.ddtOpVec_),
 
     bpTol_(right.bpTol_),
+    time_(right.time_),
     timeStep_(right.timeStep_),
     timeStepAlpha_(right.timeStepAlpha_),
     timeStepPrefac_(right.timeStepPrefac_),
+    stepNumber_(right.stepNumber_),
 
     srcAstNodeVec_(right.srcAstNodeVec_),
     stpAstNodeVec_(right.stpAstNodeVec_),
@@ -386,9 +396,11 @@ public:
     ddtOpVec_ = right.ddtOpVec_;
 
     bpTol_ = right.bpTol_;
+    time_ = right.time_;
     timeStep_ = right.timeStep_;
     timeStepAlpha_ = right.timeStepAlpha_;
     timeStepPrefac_ = right.timeStepPrefac_;
+    stepNumber_ = right.stepNumber_;
 
     srcAstNodeVec_ = right.srcAstNodeVec_;
     stpAstNodeVec_ = right.stpAstNodeVec_;
@@ -504,8 +516,6 @@ public:
   // these two functions return int error codes in the original expression library
   int evaluate (usedType &result, std::vector< usedType > &derivs);
   int evaluateFunction (usedType &result);
-
-  void processSuccessfulTimeStep ();// experiment
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
@@ -688,9 +698,10 @@ public:
   bool setTemperature (const double & temp);
 
 private:
-  void getValuesFromGroup_();
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();
+  void processSuccessfulTimeStep_ ();
+  void getValuesFromGroup_();
 
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
@@ -771,9 +782,11 @@ private:
   double startingTimeStep_;
   double finalTime_;
 
+  double time_;
   double timeStep_;
   double timeStepAlpha_;
   double timeStepPrefac_;
+  unsigned int stepNumber_;
 
   // vector of independent sources, but only those with breakpoints.  This
   // vector is ONLY used for obtaining breakpoints.

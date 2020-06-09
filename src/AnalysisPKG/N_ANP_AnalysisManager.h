@@ -237,7 +237,7 @@ public:
   int getDoubleDCOPStep() const;
 
   // Gets/sets the step number.
-  int getStepNumber() const;
+  unsigned int getStepNumber() const;
   int getTranStepNumber();
 
   void setStepNumber(int step);
