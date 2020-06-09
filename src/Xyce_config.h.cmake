@@ -434,7 +434,7 @@
 #cmakedefine Xyce_ATHENA
 #cmakedefine HAVE_LIBARAENV
 #cmakedefine Xyce_ADMS_SENSITIVITIES
-#cmakedefine Xyce_STOKHOS_ENABLE
+#cmakedefine01 Xyce_STOKHOS_ENABLE
 
 /* -- verbosity options ------------- */
 #cmakedefine Xyce_VERBOSE_LINEAR
