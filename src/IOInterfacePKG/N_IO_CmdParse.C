@@ -113,7 +113,7 @@ void usage(std::ostream &os)
      << "  -syntax                     check netlist syntax and exit\n"
      << "  -norun                      netlist syntax and topology and exit\n"
      << "  -namesfile <path>           output internal names file to <path> and exit\n"
-    //     << "  -noise_names_file <path>    output noise source names file to <path> and exit\n"
+     << "  -noise_names_file <path>    output noise source names file to <path> and exit\n"
      << "  -quiet                      suppress some of the simulation-progress messages sent to stdout\n"
      << "  -jacobian_test              jacobian matrix diagnostic\n"
      << "  -delim <TAB|COMMA|string>   set the output file field delimiter\n"
