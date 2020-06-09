@@ -57,6 +57,13 @@ if ( WIN32 )
    set (_CRT_SECURE_NO_WARNINGS TRUE)
 endif()
 
+#
+# packed (binary) restart files are not supported under Windows.
+# automatically disable under Windows
+if ( WIN32 )
+   set (Xyce_RESTART_NOPACK TRUE)
+endif()
+
 # Look for the Windows directory commands
 # This is to support the `initializeEarly` function in
 # `src/CircuitPKG/N_CIR_Xyce.C`. The actual code is called only if

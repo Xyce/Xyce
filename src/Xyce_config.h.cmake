@@ -22,7 +22,7 @@
 #cmakedefine Xyce_SHYLU
 #cmakedefine SHYLUBASKER
 #cmakedefine Xyce_AMESOS2
-#cmakedefine01 Xyce_STOKHOS_ENABLE
+#cmakedefine Xyce_STOKHOS_ENABLE
 #cmakedefine Xyce_ROL
 
 #cmakedefine Xyce_USE_ISORROPIA
@@ -35,6 +35,9 @@
 #cmakedefine Xyce_USE_FFT
 #cmakedefine Xyce_USE_INTEL_FFT
 #cmakedefine Xyce_USE_FFTW
+
+// Binary Restart files
+#cmakedefine Xyce_RESTART_NOPACK
 
 // Enable usage tracking
 #cmakedefine Xyce_USE_CURL
