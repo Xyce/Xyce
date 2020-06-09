@@ -58,7 +58,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -87,7 +87,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -106,6 +106,7 @@ public:
 
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
+    dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
@@ -143,10 +144,11 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
+    dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
@@ -189,10 +191,11 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
+    dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
     vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
@@ -217,8 +220,10 @@ public:
 
       if (left->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(left); }
       if (left->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(left); }
-      if (left->iNoiseType()) { oNoiseOpVec_.push_back(left); }
-      if (left->oNoiseType()) { iNoiseOpVec_.push_back(left); }
+      if (left->oNoiseType()) { oNoiseOpVec_.push_back(left); }
+      if (left->iNoiseType()) { iNoiseOpVec_.push_back(left); }
+      if (left->sdtType()) { sdtOpVec_.push_back(left); }
+      if (left->ddtType()) { ddtOpVec_.push_back(left); }
 
       left->getInterestingOps( opVectors_  );
 
@@ -281,6 +286,8 @@ public:
     dniNoiseDevVarOpVec_(right.dniNoiseDevVarOpVec_),
     oNoiseOpVec_(right.oNoiseOpVec_),
     iNoiseOpVec_(right.iNoiseOpVec_),
+    sdtOpVec_(right.sdtOpVec_),
+    ddtOpVec_(right.ddtOpVec_),
 
     bpTol_(right.bpTol_),
     timeStep_(right.timeStep_),
@@ -291,6 +298,7 @@ public:
     stpAstNodeVec_(right.stpAstNodeVec_),
 
     timeOpVec_(right.timeOpVec_),
+    dtOpVec_(right.dtOpVec_),
     tempOpVec_(right.tempOpVec_),
     vtOpVec_(right.vtOpVec_),
     freqOpVec_(right.freqOpVec_),
@@ -311,9 +319,10 @@ public:
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
+    dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
     tempNodePtr_ = right.tempNodePtr_;
     vtNodePtr_   = right.vtNodePtr_;
@@ -373,6 +382,8 @@ public:
     dniNoiseDevVarOpVec_ = right.dniNoiseDevVarOpVec_;
     oNoiseOpVec_ = right.oNoiseOpVec_;
     iNoiseOpVec_ = right.iNoiseOpVec_;
+    sdtOpVec_ = right.sdtOpVec_;
+    ddtOpVec_ = right.ddtOpVec_;
 
     bpTol_ = right.bpTol_;
     timeStep_ = right.timeStep_;
@@ -383,6 +394,7 @@ public:
     stpAstNodeVec_ = right.stpAstNodeVec_;
 
     timeOpVec_ = right.timeOpVec_;
+    dtOpVec_ = right.dtOpVec_;
     tempOpVec_ = right.tempOpVec_;
     vtOpVec_ = right.vtOpVec_;
     freqOpVec_ = right.freqOpVec_;
@@ -407,6 +419,7 @@ public:
     savedResult_ = right.savedResult_;
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
+    dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
     tempNodePtr_ = right.tempNodePtr_;
     vtNodePtr_   = right.vtNodePtr_;
@@ -489,9 +502,10 @@ public:
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
   // these two functions return int error codes in the original expression library
-  void getValuesFromGroup();
   int evaluate (usedType &result, std::vector< usedType > &derivs);
   int evaluateFunction (usedType &result);
+
+  void processSuccessfulTimeStep ();// experiment
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
@@ -501,6 +515,7 @@ public:
 
   Teuchos::RCP<paramOp<usedType> > & getGarbageParam() {return garbageParamOpPtr_;}
 
+  Teuchos::RCP<astNode<usedType> > getDtNode () { return dtNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getTimeNode () { return timeNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getTempNode () { return tempNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getVtNode () { return vtNodePtr_; }
@@ -542,7 +557,11 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getONoiseOpVec() { return oNoiseOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec() { return iNoiseOpVec_; }
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getSdtOpVec() { return sdtOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDdtOpVec() { return ddtOpVec_; }
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTimeOpVec() { return timeOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getDtOpVec() { return dtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTempOpVec() { return tempOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVtOpVec() { return vtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getFreqOpVec() { return freqOpVec_; }
@@ -623,13 +642,19 @@ public:
 
 
   // "expression" traversal functions, as opposed to AST traversals.
-  // Expression traverals make more sense for tracking specials (time, temp, vt, freq, gmin), as each 
+  // Expression traverals make more sense for tracking specials (time, dt, temp, vt, freq, gmin), as each 
   // expression object will have zero or one allocation of each special.
   // (which really should be 100% singletons, but for the time being are not)
   void getTimeNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & timeVec)
   {
     if (!(timeOpVec_.empty())) { timeVec.push_back(timeOpVec_[0]); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeVec); }
+  }
+
+  void getDtNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & dtVec)
+  {
+    if (!(dtOpVec_.empty())) { dtVec.push_back(dtOpVec_[0]); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getDtNodes(dtVec); }
   }
 
   void getTempNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & tempVec)
@@ -663,6 +688,7 @@ public:
   bool setTemperature (const double & temp);
 
 private:
+  void getValuesFromGroup_();
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();
 
@@ -729,6 +755,12 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedINoiseOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > iNoiseOpNames_;
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > sdtOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedSdtOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > ddtOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDdtOpVec_;
+
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the
   // branches of the tree, as some of the nodes use the same pointer.
@@ -751,6 +783,7 @@ private:
   std::vector< Teuchos::RCP<astNode<usedType> > > stpAstNodeVec_;
 
   // const and specials nodes:
+  Teuchos::RCP<specialsOp<usedType> > dtNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > timeNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > tempNodePtr_;
   Teuchos::RCP<specialsOp<usedType> > vtNodePtr_;
@@ -761,6 +794,7 @@ private:
 
   // to handle externally attached expressions, which have specials dependence, we need vectors of these things.
   std::vector<Teuchos::RCP<astNode<usedType> > > timeOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > dtOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > tempOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > vtOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > freqOpVec_;

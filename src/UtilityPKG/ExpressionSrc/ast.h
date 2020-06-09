@@ -48,7 +48,9 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
   if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
   if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
-  if (PTR->timeSpecialType()) { ovc.isTimeDependent = true; } \
+  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
+  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
   if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
   if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
@@ -90,6 +92,8 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoise,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
   bool timeDep,
   bool tempDep,
   bool vTDep,
@@ -107,6 +111,8 @@ public:
     dniNoiseDevVarOpVector(dniNoiseDevVar),
     oNoiseOpVector(oNoise),
     iNoiseOpVector(iNoise),
+    sdtOpVector(sdt),
+    ddtOpVector(ddt),
     isTimeDependent(timeDep),
     isTempDependent(tempDep),
     isVTDependent(vTDep),
@@ -125,6 +131,8 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVarOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoiseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
 
   bool isTimeDependent;
   bool isTempDependent;
@@ -148,6 +156,8 @@ class astNode
 
     astNode(Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       leftAst_(left),rightAst_(right) {};
+
+    virtual void processSuccessfulTimeStep () {};
 
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
@@ -204,7 +214,11 @@ class astNode
     virtual bool oNoiseType() { return false; }
     virtual bool iNoiseType() { return false; }
 
+    virtual bool sdtType() { return false; }
+    virtual bool ddtType() { return false; }
+
     virtual bool timeSpecialType() { return false; }
+    virtual bool dtSpecialType()   { return false; }
     virtual bool tempSpecialType() { return false; }
     virtual bool vtSpecialType()   { return false; }
     virtual bool freqSpecialType() { return false; }
@@ -2929,22 +2943,56 @@ template <typename ScalarT>
 class sdtOp : public astNode<ScalarT>
 {
   public:
-    sdtOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+    sdtOp(Teuchos::RCP<astNode<ScalarT> > &left,
+        Teuchos::RCP<astNode<ScalarT> > &dt)
+      : astNode<ScalarT>(left),
+      dt_(dt),
+      val1(0.0),
+      val2(0.0),
+      integral_old(0.0),
+      integral(0.0)
+    {};
+
+    virtual void processSuccessfulTimeStep ()
+    {
+      integral_old = integral;
+      val1 = val2;
+    }
 
     virtual ScalarT val()
     {
-      std::vector<std::string> errStr(1,std::string("AST node (sdt) without an val function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
-      return ret;
+      double deltaT = 0.0;
+
+      if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+      else
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
+        yyerror(errStr);
+      }
+
+      val2 = this->leftAst_->val();
+      //std::cout << "dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2 <<std::endl;
+
+      ScalarT deltaI = 0.5*(val1+val2)*deltaT;
+      integral = integral_old + deltaI;
+
+      return integral;
     };
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (sdt) without a dx function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
-      return ret;
+      double deltaT = 0.0;
+      if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+      else
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
+        yyerror(errStr);
+      }
+
+      ScalarT dVal2dx = this->leftAst_->dx(i);
+      ScalarT dIdVal2 = 0.5*deltaT;
+      ScalarT dIdx = dIdVal2*dVal2dx;
+      return dIdx;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -2961,6 +3009,14 @@ class sdtOp : public astNode<ScalarT>
       os << "SDT";
     }
 
+    virtual bool sdtType() { return true; }
+
+  private:
+    Teuchos::RCP<astNode<ScalarT> > dt_;
+    ScalarT val1;
+    ScalarT val2;
+    ScalarT integral_old;
+    ScalarT integral;
 };
 
 //-------------------------------------------------------------------------------
@@ -2971,9 +3027,11 @@ class ddtOp : public astNode<ScalarT>
   public:
     ddtOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
+    virtual void processSuccessfulTimeStep () {}; // fix later
+
     virtual ScalarT val()
     {
-      std::vector<std::string> errStr(1,std::string("AST node (ddt) without an val function"));
+      std::vector<std::string> errStr(1,std::string("AST node (ddt) without a val function"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -3000,6 +3058,8 @@ class ddtOp : public astNode<ScalarT>
       // fix this
       os << "DDT";
     }
+
+    virtual bool ddtType() { return true; }
 
 };
 
@@ -3180,7 +3240,7 @@ class agaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (agauss) without an val function"));
+      std::vector<std::string> errStr(1,std::string("AST node (agauss) without a val function"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -3263,7 +3323,7 @@ class gaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (gauss) without an val function"));
+      std::vector<std::string> errStr(1,std::string("AST node (gauss) without a val function"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -3340,7 +3400,7 @@ class randOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      std::vector<std::string> errStr(1,std::string("AST node (rand) without an val function"));
+      std::vector<std::string> errStr(1,std::string("AST node (rand) without a val function"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -3398,6 +3458,7 @@ class specialsOp : public astNode<ScalarT>
     void setValue(ScalarT val) { value_ = val; }
 
     virtual bool timeSpecialType() { return (type_ == std::string("TIME")); }
+    virtual bool dtSpecialType()   { return (type_ == std::string("DT")); }
     virtual bool tempSpecialType() { return (type_ == std::string("TEMP")); }
     virtual bool vtSpecialType()   { return (type_ == std::string("VT")); }
     virtual bool freqSpecialType() { return (type_ == std::string("FREQ")); }

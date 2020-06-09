@@ -210,7 +210,11 @@ bool newExpression::lexAndParseExpression()
   }
 
   // if dependent on a special, add relevant specials node to the relevant specials vector
-  if(isTimeDependent_) { timeOpVec_.push_back(timeNodePtr_); }
+  if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
+  { 
+    timeOpVec_.push_back(timeNodePtr_); 
+    dtOpVec_.push_back(dtNodePtr_); 
+  }
   if(isTempDependent_) { tempOpVec_.push_back(tempNodePtr_); }
   if(isVTDependent_) { vtOpVec_.push_back(vtNodePtr_); }
   if(isFreqDependent_) { freqOpVec_.push_back(freqNodePtr_); }
@@ -606,6 +610,8 @@ NEW_EXP_OUTPUT_ARRAY(dnoNoiseDevVarOpVec_)
 NEW_EXP_OUTPUT_ARRAY(dniNoiseDevVarOpVec_)
 NEW_EXP_OUTPUT_ARRAY(oNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(iNoiseOpVec_)
+NEW_EXP_OUTPUT_ARRAY(sdtOpVec_)
+NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
 }
 
 //-------------------------------------------------------------------------------
@@ -653,6 +659,9 @@ void newExpression::setupVariousAstArrays_()
       if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
+
+      if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
 
       opVectors_.isTimeDependent = isTimeDependent_;
       opVectors_.isTempDependent = isTempDependent_;
@@ -715,12 +724,13 @@ void newExpression::setupVariousAstArrays_()
     //    traversal, generally.
 
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
+    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getDtNodes(dtOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminOpVec_); }
  
-    isTimeDependent_ = !(timeOpVec_.empty());
+    isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
     isTempDependent_ = !(tempOpVec_.empty());
     isVTDependent_   = !(vtOpVec_.empty());
     isFreqDependent_ = !(freqOpVec_.empty());
@@ -783,14 +793,14 @@ void newExpression::setupVariousAstArrays_()
 };
 
 //-------------------------------------------------------------------------------
-// Function      : newExpression::getValuesFromGroup
+// Function      : newExpression::getValuesFromGroup_
 // Purpose       : 
 // Special Notes : This function should be used to set isConstant_.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
 //-------------------------------------------------------------------------------
-void newExpression::getValuesFromGroup()
+void newExpression::getValuesFromGroup_()
 {
   // get solution values we need from the group
   for (int ii=0;ii<voltOpVec_.size();ii++)
@@ -892,6 +902,7 @@ void newExpression::getValuesFromGroup()
   }
 
   for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
+  for (int ii=0;ii<dtOpVec_.size();ii++) { dtOpVec_[ii]->setValue(group_->getTimeStep()); }
 
   // Conversion to correct units in group 
   if (!overrideGroupTemperature_) { for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } }
@@ -1006,7 +1017,7 @@ int newExpression::evaluateFunction (usedType &result)
 
     //if (!isConstant_)  // this is a a problem.  commenting out
     {
-      getValuesFromGroup();
+      getValuesFromGroup_();
     }
 
     //if (!isConstant_ || !evaluateFunctionCalledBefore_) // this seems to be a problem too. Need to work more on this.  It breaks RC_AC_data_expr.cir in the BUG_1035_SON tests.  probably others as well.  I think the isConstant_ flag needs to be set based on what is gathered in the "getValuesFromGroup" function, and/or other metrics.  Currently it is too simple
@@ -1047,6 +1058,31 @@ int newExpression::evaluateFunction (usedType &result)
   }
 
   return retVal;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::processSuccessfulTimeStep
+//
+// Purpose       : Tells relevant AST nodes to update their time arrays, etc.
+//                 Some AST nodes, such as DDT and SDT (time derivative and 
+//                 time integral, respectively) maintain arrays of data, where the 
+//                 array index refers to time.  These arrays have to be rotated 
+//                 when the time step advances, but it is difficult to know inside 
+//                 of an AST node when this advance should happen.  This function 
+//                 call is the method to let the SDT and DDT operators know that
+//                 they need to update.
+//
+// Special Notes : I have been debating exactly how to handle this issue, and I 
+//                 am not yet sure if this is the best way.  For now, this function
+//                 is an experiment.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/7/2020
+//-------------------------------------------------------------------------------
+void newExpression::processSuccessfulTimeStep ()
+{
+  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
+  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
 }
 
 //-------------------------------------------------------------------------------

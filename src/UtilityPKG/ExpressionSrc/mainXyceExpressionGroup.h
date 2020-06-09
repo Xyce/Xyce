@@ -45,13 +45,19 @@ int findNodeIndex(
 //                 be a single instance of this (or possible a small 
 //                 number of copies).
 //
-//                 This class will contain all the machinery necessary to provide newExpression with the information it needs to evaluate *any* expression for Xyce.  ie, any external information, such as solution values, global parameter values, etc.
+//                 This class will contain all the machinery necessary to provide 
+//                 newExpression with the information it needs to evaluate *any* 
+//                 expression for Xyce.  ie, any external information, such as 
+//                 solution values, global parameter values, etc.
 //
-//                 The most significant difference is (intended to be) the handling of user defined functions.  i.e., .funcs.
+//                 The most significant difference is (intended to be) the handling 
+//                 of user defined functions.  i.e., .funcs.
 //
-//                 The old expression library handled these in a very inefficient way, via string substitutions.
+//                 The old expression library handled these in a very inefficient 
+//                 way, via string substitutions.
 //
-//                 The new expression library handles them by attaching the node of the .func to the expression that is calling it.
+//                 The new expression library handles them by attaching the node 
+//                 of the .func to the expression that is calling it.
 //
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
@@ -72,15 +78,6 @@ public:
 
   ~mainXyceExpressionGroup ();
 
-  virtual bool getSolutionSdt(const std::string & nodeName, double & retval )
-  {
-    bool success=true;
-    std::string tmp = nodeName;
-    Xyce::Util::toUpper(tmp);
-    retval = 0.0;
-    return success; // FIX THIS
-  }
-
   virtual bool getSolutionDdt (const std::string & nodeName, std::complex<double> & retval ) 
   { 
     retval=std::complex<double>(0.0,0.0);
@@ -94,12 +91,6 @@ public:
     Xyce::Util::toUpper(tmp);
     retval = 0.0;
     return success; // FIX THIS
-  }
-
-  virtual bool getSolutionSdt (const std::string & nodeName, std::complex<double> & retval ) 
-  { 
-    retval=std::complex<double>(0.0,0.0);
-    return false; 
   }
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );

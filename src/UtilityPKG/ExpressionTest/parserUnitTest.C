@@ -803,7 +803,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("vln")) { retval = VLNval; return true; }
     else if (tmp==std::string("yacc_acc1")) { retval = ACC1val; return true; }
     else if (tmp==std::string("yacc!acc1")) { retval = ACC1val; return true; }
-    else { return 0.0; return false; }
+    else { retval = 0.0; return false; }
   }
 
   void setSoln(const std::string & nodeName, double val)
@@ -5981,6 +5981,246 @@ TEST ( Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
   OUTPUT_MACRO3(Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
+}
+
+template <typename ScalarT>
+inline void trapezoidIntegral (
+   const std::vector<double> & times,
+   const std::vector<double> & values,
+   std::vector<double> & testIntegral,
+   ScalarT & integral)
+{
+  int cpSize = times.size();
+  int midIndex = cpSize-1;
+  integral=0.0;
+
+  testIntegral.resize(cpSize,0.0);
+
+  for (int is=0;is<cpSize-1;++is)
+  {
+    double deltaT = times[is+1]-times[is];
+    double pulse1 = values[is];
+    double pulse2 = values[is+1];
+    double Tau1 = times[is];
+    double Tau2 = times[is+1];
+    double deltaI = 0.5*(pulse1+pulse2)*deltaT;
+    integral += deltaI;
+    testIntegral[is+1] = integral;
+  }
+}
+
+class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    sdtExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0)
+  {};
+    ~sdtExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else { retval= 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+  }
+
+  virtual double getTime() { return time; };
+  void setTime(double t) { time = t; };
+
+  virtual double getTimeStep() { return timeStep; };
+  void setTimeStep(double dt) { timeStep = dt; };
+
+  private:
+    double Aval, Bval;
+    double time;
+    double timeStep;
+};
+
+TEST ( Double_Parser_Integral_Test, sdt1)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    if (ii!=0) { sdtGroup->setTimeStep(dt); }
+    else { sdtGroup->setTimeStep(0.0); }
+    testExpression.evaluateFunction(result);   
+    refRes = time*time*0.5;
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt1)
+}
+
+TEST ( Double_Parser_Integral_Test, sdt2)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(3.0*cos(time))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    sdtGroup->setTime(time);
+    if (ii!=0) { sdtGroup->setTimeStep(dt); }
+    else { sdtGroup->setTimeStep(0.0); }
+    testExpression.evaluateFunction(result);   
+    refRes = 3.0*std::sin(time);
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt2)
+}
+
+TEST ( Double_Parser_Integral_Test, sdt3)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    if (ii!=0) 
+    { 
+      sdtGroup->setTimeStep(dt); 
+      refDerivs[0] = 0.5*dt;
+    }
+    else 
+    { 
+      sdtGroup->setTimeStep(0.0); 
+      refDerivs[0] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);   
+
+    refRes = time*time*0.5;
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt3)
+}
+
+TEST ( Double_Parser_Integral_Test, sdt4)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(2.0*v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+  double Aval=1.0;
+  sdtGroup->setSoln(std::string("A"),Aval);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    sdtGroup->setTime(time);
+    if (ii!=0) 
+    { 
+      sdtGroup->setTimeStep(dt); 
+      refDerivs[0] = dt;
+    }
+    else 
+    { 
+      sdtGroup->setTimeStep(0.0); 
+      refDerivs[0] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);   
+
+    refRes = 2.0*time;
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt4)
 }
 
 int main (int argc, char **argv)
