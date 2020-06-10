@@ -145,7 +145,7 @@ public:
     bool withinRiseFallCrossWindow( double measureVal, double crossVal  );
     bool newRiseFallCrossWindowforLast();
     void setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag ); 
-    bool withinDCsweepFromToWindow( double sweepValue ); //used with DC
+    bool withinDCsweepFromToWindow( double sweepValue, double stepVal ); //used with DC
     bool withinMinMaxThresh( double value);
 
     // used to call the output manager's getPrgetImmutableValue<int>()
