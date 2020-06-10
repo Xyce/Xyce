@@ -953,24 +953,29 @@ void newExpression::getValuesFromGroup_()
   timeStepAlpha_ = group_->getTimeStepAlpha ();
   timeStepPrefac_ = group_->getTimeStepPrefac ();
 
-#if 0
   unsigned int oldStepNumber_ = stepNumber_;
   stepNumber_ = group_->getStepNumber ();
-#if 1
+#if 0
   std::cout << "newExpression::getValuesFromGroup.  oldStepNumber_ = " << oldStepNumber_ << " stepNumber_ = " << stepNumber_ << std::endl;
 #endif
   if (oldStepNumber_ != stepNumber_)
   {
+#if 0
+    std::cout << "newExpression calling processSuccessfulTimeStep_" <<std::endl;
+#endif
     processSuccessfulTimeStep_ ();
   }
-#else
 
+#if 0
   if (oldTime_ != time_) // try again
   {
+#if 1
+    std::cout << "newExpression calling processSuccessfulTimeStep_" <<std::endl;
+#endif
     processSuccessfulTimeStep_ ();
   }
-
 #endif
+
 
 }
 

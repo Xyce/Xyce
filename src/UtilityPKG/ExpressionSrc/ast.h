@@ -3101,8 +3101,8 @@ class ddtOp : public astNode<ScalarT>
         timeDerivative = 0.0;
       }
 
-      std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
-        << " ddt = " << timeDerivative <<std::endl;
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
+        //<< " ddt = " << timeDerivative <<std::endl;
 
       return timeDerivative;
     };
@@ -3137,8 +3137,8 @@ class ddtOp : public astNode<ScalarT>
       }
 
       ddt_dx = 0.0; // this is a test.
-      std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
-        << " ddt_dx = " << ddt_dx <<std::endl;
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
+        //<< " ddt_dx = " << ddt_dx <<std::endl;
 
       return ddt_dx;
     };
