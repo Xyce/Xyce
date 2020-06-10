@@ -70,6 +70,32 @@ if ( CMAKE_HOST_WIN32 )
   set ( CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\xyce.sandia.gov")
   set ( CPACK_NSIS_CONTACT "xyce-support@sandia.gov" )
   set ( CPACK_NSIS_MODIFY_PATH ON )
+  
+  # there is probably a better way to do this with 
+  # file(GET_RUNTIME_DEPENDENCIES...)
+  # but that requires cmake 3.17.3 or higher.  For now 
+  # rely on the old method but we should transition to the 
+  # new way when more recent versions of cmake are available.
+  
+  # Add the required intel library.  This is permitted for redistribution.
+  set ( INTELLIBPATH "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler" )
+  string ( REPLACE "\\" "/" INTELLIBPATH ${INTELLIBPATH} )
+  if ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
+    # For native Windows builds, check for these two dll's.  If they don't exist,
+    # assume the package is being build on the legacy Windows build system and use that
+    # dll and path instead.
+    install ( FILES ${INTELLIBPATH}/libmmd.dll
+	    DESTINATION bin
+	    COMPONENT Runtime)
+    install ( FILES ${INTELLIBPATH}/svml_dispmd.dll
+	    DESTINATION bin
+	    COMPONENT Runtime)
+  else ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
+    set ( INTELLIBPATH "$ENV{ICPP_COMPILER12_CYGWIN}/redist/ia32/compiler" )
+    install ( FILES ${INTELLIBPATH}/libmmd.dll
+	    DESTINATION bin
+	    COMPONENT Runtime)
+  endif ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
 
   # registry settings
   set ( CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${Xyce_INSTALL_NAME}" )
