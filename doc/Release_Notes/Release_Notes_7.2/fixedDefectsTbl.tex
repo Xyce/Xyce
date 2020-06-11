@@ -33,6 +33,17 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1306-SON}: Fix FROM and TO qualifiers for DC mode measures &
+The \texttt{FROM} and \texttt{TO} qualifiers would work correctly if
+either both were used on a \texttt{.MEASURE DC} line, or if neither
+was used.  Measures such as these now also work correctly for all
+supported DC measure types:
+\begin{verbatim}
+.measure dc maxFrom max v(1) FROM=4
+.measure dc minTo min v(1) TO=4
+\end{verbatim}
+\\ \hline
+
 \textbf{1303-SON}: Segfault in mixed signal interface &
 The Python method \texttt{getDeviceNames()}, and the underlying
 \texttt{xyce\_getDeviceNames()} method in the mixed signal interface,
