@@ -66,7 +66,7 @@ class ExpressionLexer;
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
 ID [a-zA-Z][a-zA-Z0-9_:!]*
-NODE [a-zA-Z0-9_:]*
+NODE [a-zA-Z0-9_:$]*
 
 VOP V[RIMP]?
 IOP I[RIMP]?
