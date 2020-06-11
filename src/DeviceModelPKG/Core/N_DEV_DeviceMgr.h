@@ -268,6 +268,11 @@ public:
     return solState_;
   }
 
+  const ExternData &getExternData() const
+  {
+    return externData_;
+  }
+
   const ArtificialParameterMap &getArtificialParameterMap() const
   {
     return artificialParameterMap_;

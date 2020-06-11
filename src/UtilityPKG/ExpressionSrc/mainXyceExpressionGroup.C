@@ -201,8 +201,12 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
   int tmpGID = getSolutionGID_(nodeName);
   if (tmpGID >= 0)
   {
-    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
-    retval = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector)
+    {
+      retval = nextSolVector->getElementByGlobalIndex(tmpGID, 0);
+    }
+
   }
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &retval, 1);
   return (tmpGID>=0);
@@ -224,8 +228,11 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
   int tmpGID = getSolutionGID_(nodeName);
   if (tmpGID >= 0)
   {
-    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
-    real_val = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector)
+    { 
+      real_val = nextSolVector->getElementByGlobalIndex(tmpGID, 0);
+    }
   }
 
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
