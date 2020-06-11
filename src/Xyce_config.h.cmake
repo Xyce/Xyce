@@ -405,7 +405,6 @@
 #cmakedefine Xyce_DEPENDENCY_TRACKING
 #cmakedefine Xyce_EXTDEV 
 #cmakedefine Xyce_NEW_DAE_FORMULATION 
-#cmakedefine Xyce_OP_START
 
 // The autotools build system only passes this in on the commandline.
 #ifndef Xyce_PARALLEL_MPI

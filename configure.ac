@@ -328,8 +328,6 @@ XYCE_DEBUG_OPTION(debug_circuit,no,[circuit package debugging output])
 XYCE_DEBUG_OPTION(debug_directsolve,no,[direct solver package debugging output])
 XYCE_DEBUG_OPTION(debug_restart,no,[restart debugging output])
 
-XYCE_DEBUG_OPTION(op_start,yes,[allow startup from previous operating point])
-
 dnl check if the developer wants to skip the probe of the fortran compiler
 XYCE_DEBUG_OPTION(fortran_blas,yes,[test for fortran blas using fortran compiler --- disable this if you are using C blas],Xyce_FORTRAN_BLAS,FORTRAN_BLAS)
 

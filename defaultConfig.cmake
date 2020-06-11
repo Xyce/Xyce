@@ -40,7 +40,6 @@ option ( Xyce_DEPENDENCY_TRACKING  "do not reject slow dependency extractors"   
 option ( Xyce_EXTDEV               "Ext device extensions"                         ON  )
 option ( Xyce_ML                   "enable ML preconditioner support"              OFF )
 option ( Xyce_NEW_DAE_FORMULATION  "new DAE formulation"                           OFF )
-option ( Xyce_OP_START             "allow startup from previous operating point"   ON  )
 option ( Xyce_PARALLEL_MPI         "enable parallel build with MPI"                OFF )
 option ( Xyce_PARDISO_MKL          "Pardiso direct solver"                         OFF )
 option ( Xyce_RAD_MODELS           "Radiation Model Library"                       ON  )
