@@ -2444,7 +2444,6 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     double v7;
 };
 
-// currently doesn't work
 TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
@@ -2475,9 +2474,6 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 
   ifmax_LHS.getFuncPrototypeName (ifmaxName);
   ifmin_LHS.getFuncPrototypeName (ifminName);
-
-  //ifGroup->addFunction( ifmaxName ,  ifmax);
-  //ifGroup->addFunction( ifminName ,  ifmin);
 
   // these expressions uses the .func ifmin and ifmax
   {
@@ -2515,7 +2511,7 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
     EXPECT_EQ( assignResult, refRes);
-    OUTPUT_MACRO2(Double_Parser_ifstatement, ifmin_ifmax_func, e3) 
+    OUTPUT_MACRO2(Double_Parser_ifstatement, ifmin_ifmax_func, e3)
   }
 }
 
