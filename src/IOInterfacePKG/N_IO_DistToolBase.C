@@ -828,14 +828,7 @@ bool DistToolBase::instantiateDevice(
         expression.getDeviceCurrents(instances);
         expression.getLeadCurrents(leads);
 
-//ERK
-#if 0
-        if ( (expression.get_num( XEXP_NODE ) > 0) ||
-            (expression.get_num( XEXP_INSTANCE ) > 0) ||
-            (expression.get_num( XEXP_LEAD ) > 0) )
-#else
         if ( (!(nodes.empty())) || (!(instances.empty())) || (!(leads.empty())) )
-#endif
         {
           // If the expression has nodes or voltage source instances, get
           // the nodes and map them appropriately or add the subcircuit
