@@ -976,7 +976,7 @@ void newExpression::getValuesFromGroup_()
   }
 #endif
 
-
+  phaseOutputUsesRadians_ = group_->getPhaseOutputUsesRadians();
 }
 
 //-------------------------------------------------------------------------------

@@ -29,10 +29,6 @@ public:
   baseExpressionGroup () {};
   virtual ~baseExpressionGroup () {};
 
-  // ERK NOTE:  Need to have a "notify" for .STEP loops.  
-  // Important for time-dependent expressions.
-
-  // might adopt "next" "curr" "prev"? or some other (better) nomenclature?
   virtual bool getSolutionDdt (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
   virtual bool getSolutionVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
 
@@ -80,6 +76,8 @@ public:
   virtual double getFinalTime() { return 0.0; }
 
   virtual unsigned int getStepNumber () { return 0; }
+
+  virtual bool getPhaseOutputUsesRadians() { return true; }
 
 private:
 

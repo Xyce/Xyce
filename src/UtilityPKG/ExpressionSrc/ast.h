@@ -441,9 +441,13 @@ template <typename ScalarT>
 class phaseOp : public astNode<ScalarT>
 {
   public:
-    phaseOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+    phaseOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), phaseOutputUsesRadians_(true)
+    {};
 
-    virtual ScalarT val() { return std::arg(this->leftAst_->val()); }
+    virtual ScalarT val() 
+    { 
+      return (std::arg(this->leftAst_->val())) * ((phaseOutputUsesRadians_)?1.0:(180.0/M_PI)); 
+    }
 
     virtual ScalarT dx(int i)
     {
@@ -467,6 +471,8 @@ class phaseOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+
+    bool phaseOutputUsesRadians_;
 };
 
 //-------------------------------------------------------------------------------

@@ -60,6 +60,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
+    phaseOutputUsesRadians_(true),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
@@ -91,6 +92,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
+    phaseOutputUsesRadians_(true),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
@@ -150,6 +152,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
+    phaseOutputUsesRadians_(true),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
@@ -199,6 +202,7 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
+    phaseOutputUsesRadians_(true),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
@@ -329,6 +333,7 @@ public:
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
+    phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
@@ -429,6 +434,7 @@ public:
     evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
     evaluateCalledBefore_ = right.evaluateCalledBefore_;
     savedResult_ = right.savedResult_;
+    phaseOutputUsesRadians_ = right.phaseOutputUsesRadians_;
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
@@ -839,6 +845,8 @@ private:
   usedType savedResult_;
 
   opVectorContainers<usedType> opVectors_;
+
+  bool phaseOutputUsesRadians_;
 };
 
 }
