@@ -828,7 +828,6 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
   bool getPower(const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
 
   private:
-    //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 
   double Aval, Bval, Cval, R1val;
   double VBval, VCval, VEval, VLPval, VLNval, ACC1val;
@@ -1058,6 +1057,142 @@ TEST ( Double_Parser_VoltSoln_Test, vp_test0)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
   OUTPUT_MACRO( Double_Parser_VoltSoln_Test, vp_test0)
 }
+
+//-------------------------------------------------------------------------------
+// weird character voltage node tests.
+// to support bug 1034, the NODE needs to recognize a lot of weird characters: 
+// from bug 1034: 
+// ` ~ ! @ # $ % ^ & - _ + [ ] | \ < > . ? / 
+//
+// From the INVALID_CHARS/valid_chars_expressions.cir test:
+//
+//.print DC WIDTH=6 PRECISION=1 v(3) {v(1`)} {v(1~)} {v(1!)} {v(1@)} 
+// + {v(1$)} {v(1%)} {v(1^)} {v(1&)} 
+// + {v(1*)} {v(1-)} {v(1_)} {v(1+)} {v(1[)} 
+// + {v(1])} {v(1|)} {v(1\)} {v(1<)} {v(1>)} {v(1.)} 
+// + {v(1?)} {v(1/)} 
+// + {v(1#)}
+// *+ {v(#)}
+// + {v(`)} {v(~)} {v(!)} {v(@)} 
+// + {v($)} {v(%)} {v(^)} {v(&)} 
+// + {v(*)} {v(-)} {v(_)} {v(+)} {v([)} 
+// + {v(])} {v(|)} {v(\)} {v(<)} {v(>)} {v(.)} 
+// + {v(?)} {v(/)} 
+// + v(X1:1`) v(X1:1~) v(X1:1!) v(X1:1@) 
+// + v(X1:1#) v(X1:1$) v(X1:1%) v(X1:1^) v(X1:1&) v(X1:1-)
+// + v(X1:1_) v(X1:1+) v(X1:1[) v(X1:1]) v(X1:1|) v(X1:1\) v(X1:1<) 
+// + v(X1:1>) v(X1:1.) v(X1:1?) v(X1:1/) 
+// + v(X1:`) v(X1:~) v(X1:!) v(X1:@) v(X1:#) v(X1:$) v(X1:%) v(X1:^)
+// + v(X1:&) v(X1:-) v(X1:_) v(X1:+) v(X1:[) v(X1:]) v(X1:|) v(X1:\) 
+// + v(X1:<) v(X1:>) v(X1:.) v(X1:?) v(X1:/) 
+// + {I(R3+)} {P(R3+)} {W(R3+)} {I(R-4)}
+// + {IC(Q1+)} {IB(Q1+)} {IE(Q1+)}
+//
+//-------------------------------------------------------------------------------
+class solutionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solutionGroup () : Xyce::Util::baseExpressionGroup() {};
+    ~solutionGroup () {};
+
+  void setSoln(const std::string & name, double val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    internalVars_[lowerName] = val;
+  };
+
+  virtual bool getSolutionVal(const std::string & name, double & val )
+  {
+    bool retval=true;
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    if (internalVars_.find(lowerName) != internalVars_.end()) { val = internalVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  private:
+    std::unordered_map <std::string, double> internalVars_;
+};
+
+TEST ( Double_Parser_VoltSoln_Test, weirdChar)
+{
+  Teuchos::RCP<solutionGroup> solnGroup = Teuchos::rcp(new solutionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+
+  std::vector<std::string> validNodes = 
+  {
+    std::string("1`"),
+    std::string("1~"),
+    std::string("1!"),
+    std::string("1@"),
+    std::string("1$"),
+    std::string("1%"),
+    std::string("1^"),
+    std::string("1&"),
+    std::string("1*"),
+    std::string("1-"),
+    std::string("1_"),
+    std::string("1+"),
+    std::string("1["),
+    std::string("1]"),
+    std::string("1|"),
+    std::string("1\\"),
+    std::string("1<"),
+    std::string("1>"),
+    std::string("1."),
+    std::string("1?"),
+    std::string("1/"),
+    std::string("1#"),
+    std::string("`"),
+    std::string("~"),
+    std::string("!"),
+    std::string("@"),
+    std::string("$"),
+    std::string("%"),
+    std::string("^"),
+    std::string("&"),
+    std::string("*"),
+    std::string("-"),
+    std::string("_"),
+    std::string("+"),
+    std::string("["),
+    std::string("]"),
+    std::string("|"),
+    std::string("\\"),
+    std::string("<"),
+    std::string(">"),
+    std::string("."),
+    std::string("?"),
+    std::string("/")
+  };
+
+  for (int ii=0;ii< validNodes.size();ii++)
+  {
+    std::string nodeName = validNodes[ii];
+
+    std::string expressionString = "v(" + nodeName + ")";
+
+    Xyce::Util::newExpression testExpression(expressionString, testGroup);
+    testExpression.lexAndParseExpression();
+
+    Xyce::Util::newExpression copyExpression(testExpression); 
+    Xyce::Util::newExpression assignExpression; 
+    assignExpression = testExpression; 
+
+    double result=0.0, Aval=3.0;
+    double refRes = Aval;
+    solnGroup->setSoln(nodeName,Aval);
+
+    testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+    OUTPUT_MACRO(Double_Parser_VoltSoln_Test, weirdChar)
+  }
+}
+
 
 TEST ( Double_Parser_VoltDeriv_Test, test1)
 {

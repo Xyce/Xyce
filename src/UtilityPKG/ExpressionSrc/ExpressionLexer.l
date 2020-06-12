@@ -59,14 +59,30 @@ class ExpressionLexer;
 %s polyvoltagenodedef
 %s polycurrentdevdef
 
- /* ID is used for device instance names, particularly inside of current vars */
- /* NODE is used for voltage node names, particularly inside of voltage vars */
- /* Both ID and NODE include the colon, to handle Xyce subcircuit syntax */
+ /* ID is used for a variety of random strings, including function and 
+    parameter names.  So, it cannot have characters in it that could 
+    also be interpretted as operators, such as '+' and '-'.   This 
+    distinguishes ID from DEV, below. */
+
+ /* DEV is used for device instance names, particularly inside of current vars.  I(DEV) */
+ /* NODE is used for voltage node names, particularly inside of voltage vars  V(NODE) and V(NODE,NODE) */
+
+ /* Both DEV and NODE include the colon, to handle Xyce subcircuit syntax */
  /* Other simulators use other delimiters for subcircuit names, so might */
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
 ID [a-zA-Z][a-zA-Z0-9_:!]*
-NODE [a-zA-Z0-9_:$]*
+
+ /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
+DEV [a-zA-Z][a-zA-Z0-9_:!\+\-]*
+
+ /* to support bug 1034, the NODE needs to recognize a lot of weird characters: */
+ /* from bug 1034: */
+ /* ` ~ ! @ # $ % ^ & - _ + [ ] | \ < > . ? / */
+ /* unfortunately, some of these are special regex characters, so they need to be */
+ /* handled with a preceding backslash.  Probably more elegant regex, such as a 
+    range of ASCI characters could be used for NODE, but this seems to work for now */
+NODE [a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\/\^\*\[\]]* 
 
 VOP V[RIMP]?
 IOP I[RIMP]?
@@ -296,7 +312,7 @@ LEAD I[SDGBEC1-9]
 } 
 
  /* single device name by itself */
-<currentdevdef>{ID}")" {
+<currentdevdef>{DEV}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
@@ -329,13 +345,12 @@ LEAD I[SDGBEC1-9]
 }
 
  /* single device name by itself */
-<internaldevdef>{ID}")" {
+<internaldevdef>{DEV}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_DEV_VAR;
 }
-
 
 <INITIAL>"DNO"     {
   lvalp->sval=new std::string(YYText());
@@ -350,7 +365,7 @@ LEAD I[SDGBEC1-9]
 }
 
  /* single device name by itself */
-<noisedevdef>{ID}")" {
+<noisedevdef>{DEV}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
@@ -358,7 +373,7 @@ LEAD I[SDGBEC1-9]
 }
 
  /* first device in a comma-separated list of two device */
-<noisedevdef>{ID}"," {
+<noisedevdef>{DEV}"," { 
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
   return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
@@ -551,7 +566,6 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-
 <polyargs>"V""("     {
   BEGIN(polyvoltagenodedef); 
   lvalp->sval=new std::string(YYText());
@@ -586,7 +600,7 @@ LEAD I[SDGBEC1-9]
 }
 
  /* single device name by itself */
-<polycurrentdevdef>{ID}")" {
+<polycurrentdevdef>{DEV}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(polyargs);
