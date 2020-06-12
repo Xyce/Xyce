@@ -937,6 +937,27 @@ TEST ( Complex_Parser_VoltSoln_Test, vp_test0)
   OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vp_test0)
 }
 
+TEST ( Complex_Parser_VoltSoln_Test, vdb_test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("vdb(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  double refRes = 20.0*std::log10(std::abs(Aval)); 
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vdb_test0)
+}
+
 //-------------------------------------------------------------------------------
 // weird character voltage node tests.
 // to support bug 1034, the NODE needs to recognize a lot of weird characters: 
@@ -1143,7 +1164,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, ir_test0)
 }
 
 TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
@@ -1164,7 +1185,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, ii_test0)
 }
 
 TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
@@ -1185,7 +1206,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, im_test0)
 }
 
 TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
@@ -1206,7 +1227,28 @@ TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, ip_test0)
+}
+
+TEST ( Complex_Parser_VoltSoln_Test, idb_test0)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("idb(vb)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, VBval=std::complex<double>(3.0,2.0);
+  double refRes = 20.0*std::log10(std::abs(VBval)); 
+  solnGroup->setSoln(std::string("vb"),VBval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, idb_test0)
 }
 
 TEST ( Complex_Parser_VoltDeriv_Test, test1)
@@ -1567,6 +1609,27 @@ TEST ( Complex_Parser_InternalDeniceVariable_Test, np_test0)
   OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, np_test0)
 }
 
+TEST ( Complex_Parser_InternalDeniceVariable_Test, ndb_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("nDb  (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  double refRes = 20.0*std::log10(std::abs(Aval)); 
+  intVarGroup->setInternalDeviceVar(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Complex_Parser_InternalDeniceVariable_Test, ndb_test0)
+}
 
 #if 1
 

@@ -546,7 +546,7 @@ exp:
       {
         returnPtr = tmpPtr;
       }
-      else if (firstArg.size() >= 2)
+      else if (firstArg.size() == 2)
       {
          if ( firstArg == std::string("VR") )
          {
@@ -566,17 +566,28 @@ exp:
          else if ( firstArg == std::string("VP") )
          {
            returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
-          newExp.getMasterNodeVec().push_back(returnPtr);
+           newExp.getMasterNodeVec().push_back(returnPtr);
          }
       }
       else if (firstArg.size() == 3) // do decibels here
       {
-         if ( firstArg == std::string("VDB") )
-         {
-           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
-           Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
+        if ( firstArg == std::string("VDB") )
+        {
+          // this needs to implement 20.0*std::log10(abs(*tmpPtr))  
+          Teuchos::RCP<astNode<usedType> > * numvalPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+          Teuchos::RCP<astNode<usedType> > * absPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+          Teuchos::RCP<astNode<usedType> > * log10Ptr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*absPtr));
+          returnPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (*numvalPtr,*log10Ptr));
+
+          newExp.getMasterNodeVec().push_back(numvalPtr);
+          newExp.getMasterNodeVec().push_back(absPtr);
+          newExp.getMasterNodeVec().push_back(log10Ptr);
+          newExp.getMasterNodeVec().push_back(returnPtr);
+        }
+      }
+      else
+      {
+        std::cout << "Unrecognized voltage operator " << firstArg << std::endl;
       }
 
       $$ = returnPtr;
@@ -633,12 +644,23 @@ exp:
         }
         else if (firstArg.size() == 3) // do decibels here
         {
-           if ( firstArg == std::string("IDB") )
-           {
-             // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
-             returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
-             newExp.getMasterNodeVec().push_back(returnPtr);
-           }
+          if ( firstArg == std::string("IDB") )
+          {
+            // this needs to implement 20.0*std::log10(abs(*tmpPtr))  
+            Teuchos::RCP<astNode<usedType> > * numvalPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+            Teuchos::RCP<astNode<usedType> > * absPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+            Teuchos::RCP<astNode<usedType> > * log10Ptr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*absPtr));
+            returnPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (*numvalPtr,*log10Ptr));
+
+            newExp.getMasterNodeVec().push_back(numvalPtr);
+            newExp.getMasterNodeVec().push_back(absPtr);
+            newExp.getMasterNodeVec().push_back(log10Ptr);
+            newExp.getMasterNodeVec().push_back(returnPtr);
+          }
+        }
+        else
+        {
+          std::cout << "Unrecognized current operator " << firstArg << std::endl;
         }
 
         $$ = returnPtr;
@@ -710,12 +732,23 @@ exp:
       }
       else if (firstArg.size() == 3) // do decibels here
       {
-         if ( firstArg == std::string("NDB") )
-         {
-           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
-           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
-           newExp.getMasterNodeVec().push_back(returnPtr);
-         }
+        if ( firstArg == std::string("NDB") )
+        {
+          // this needs to implement 20.0*std::log10(abs(*tmpPtr))  
+          Teuchos::RCP<astNode<usedType> > * numvalPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+          Teuchos::RCP<astNode<usedType> > * absPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+          Teuchos::RCP<astNode<usedType> > * log10Ptr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*absPtr));
+          returnPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (*numvalPtr,*log10Ptr));
+
+          newExp.getMasterNodeVec().push_back(numvalPtr);
+          newExp.getMasterNodeVec().push_back(absPtr);
+          newExp.getMasterNodeVec().push_back(log10Ptr);
+          newExp.getMasterNodeVec().push_back(returnPtr);
+        }
+      }
+      else
+      {
+        std::cout << "Unrecognized internal variable operator " << firstArg << std::endl;
       }
 
       $$ = returnPtr;
@@ -735,7 +768,6 @@ exp:
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dnoNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
         newExp.getDnoNoiseDevVarOpVec().push_back(*dnoNoiseVarPtr);
-        delete dnoNoiseVarPtr;
       }
       else if ( firstArg == std::string("DNI") )
       {
@@ -743,7 +775,6 @@ exp:
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dniNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
         newExp.getDniNoiseDevVarOpVec().push_back(*dniNoiseVarPtr);
-        delete dniNoiseVarPtr;
       }
 
       $$ = returnPtr;
