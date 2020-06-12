@@ -1074,9 +1074,60 @@ TEST ( Complex_Parser_VoltSoln_Test, weirdChar)
 }
 
 // Test complex .PRINT operators for current
+
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    currSolnExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
+  {};
+    ~currSolnExpressionGroup () {};
+
+  virtual bool getCurrentVal(const std::string & deviceName, const std::string & designator, std::complex<double> & retval)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else if (tmp==std::string("c")) { retval = Cval; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val; return true; }
+
+    else if (tmp==std::string("vb")) { retval = VBval; return true; }
+    else if (tmp==std::string("vc")) { retval = VCval; return true; }
+    else if (tmp==std::string("ve")) { retval = VEval; return true; }
+    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
+    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & deviceName, std::complex<double> val)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+    else if (tmp==std::string("c")) { Cval = val; }
+    else if (tmp==std::string("r1")) { R1val = val; }
+    else if (tmp==std::string("v1")) { R1val = val; }
+
+    else if (tmp==std::string("vb")) { VBval = val; }
+    else if (tmp==std::string("vc")) { VCval = val; }
+    else if (tmp==std::string("ve")) { VEval = val; }
+    else if (tmp==std::string("vlp")) { VLPval = val; }
+    else if (tmp==std::string("vln")) { VLNval = val; }
+  }
+
+  private:
+    std::complex<double> Aval, Bval, Cval, R1val;
+    std::complex<double> VBval, VCval, VEval, VLPval, VLNval;
+};
+
 TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("Ir (vb)"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1097,7 +1148,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
 
 TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("iI (vb)"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1118,7 +1169,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
 
 TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("IM(vb)"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1139,7 +1190,7 @@ TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
 
 TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("ip(vb)"), testGroup);
   testExpression.lexAndParseExpression();
@@ -1304,10 +1355,11 @@ TEST ( Complex_Parser_VoltDeriv_Test, test6)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
+
 TEST ( Complex_Parser_CurrSoln_Test, test1)
 {
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
   Xyce::Util::newExpression testExpression(std::string("17.2*I(vb)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
@@ -1326,8 +1378,8 @@ TEST ( Complex_Parser_CurrSoln_Test, test1)
 
 TEST ( Complex_Parser_CurrDeriv_Test, test1)
 {
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
   Xyce::Util::newExpression testExpression(std::string("17.2*I(vb)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
   //testExpression.resolveExpression(); // this won't do anything, but is the proper order
@@ -1351,8 +1403,8 @@ TEST ( Complex_Parser_CurrDeriv_Test, test1)
 
 TEST ( Complex_Parser_CurrDeriv_Test, test2)
 {
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
   Xyce::Util::newExpression testExpression(std::string("20.0*I(VB)*I(VB)*I(VB)+7.5*I(VB)"), testGroup);
   testExpression.lexAndParseExpression();
   //testExpression.resolveExpression(); // this won't do anything, but is the proper order
@@ -2105,6 +2157,16 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     virtual double getTime() { return time; };
     void setTime(double t) { time = t; };
 
+    bool getCurrentVal(const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) 
+    {
+      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else { return 0.0; return false; }
+    }
+
     virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
     {
       std::string tmp = nodeName; Xyce::Util::toLower(tmp);
@@ -2159,8 +2221,8 @@ TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
   ifmax->setFunctionArgStringVec ( ifmaxArgStrings );
   ifmax->lexAndParseExpression();
 
-  std::string ifmaxName;//="ifmax";
-  std::string ifminName;//="ifmin";
+  std::string ifmaxName;
+  std::string ifminName;
 
   ifmax_LHS.getFuncPrototypeName (ifmaxName);
   ifmin_LHS.getFuncPrototypeName (ifminName);
@@ -2169,7 +2231,6 @@ TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
   {
     Xyce::Util::newExpression e3(std::string("ifmax(ifmin(-I(V2), 2.5), 1.5)"), baseGroup);
     e3.lexAndParseExpression();
-    //e3.resolveExpression();
     e3.attachFunctionNode(ifmaxName, ifmax);
     e3.attachFunctionNode(ifminName, ifmin);
 
@@ -2185,9 +2246,10 @@ TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
     std::vector<std::complex<double> > copyResult(numpoints), assignResult(numpoints);
     for (int ii=0;ii<numpoints;ii++,time+=dt)
     {
-      std::complex<double> V0=2, VA=1;
+      std::complex<double> V0=std::complex<double>(2.0,0.0); 
+      std::complex<double> VA=std::complex<double>(1.0,0.0);
       double FREQ=1, mpi = M_PI;
-      std::complex<double> v1 = 0.0;
+      std::complex<double> v1 = std::complex<double>(0.0,0.0);
       if (time <= 0) { v1 = (V0) + (VA) * std::sin (0.0); }
       else { v1 = (V0) + (VA) * std::sin (2.0*mpi*((FREQ)*time + (0.0)/360)) * std::exp( -(time*(0.0))); }
       std::complex<double> v11 = 2.0*v1;
@@ -2203,6 +2265,7 @@ TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
     EXPECT_EQ( assignResult, refRes);
+    OUTPUT_MACRO2(Complex_Parser_ifstatement, ifmin_ifmax_func, e3) 
   }
 }
 
@@ -3040,7 +3103,7 @@ TEST ( Complex_Parser_calculus, ddx8)
 
 TEST ( Complex_Parser_calculus, ddx9)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression ddxTest(std::string("ddx(sin(i(vb)),i(vb))"), testGroup); ddxTest.lexAndParseExpression();
   
@@ -4173,7 +4236,7 @@ TEST ( Complex_Parser_poly_Test, test4)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Complex_Parser_poly_Test, test5)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // with parens
@@ -4219,7 +4282,7 @@ TEST ( Complex_Parser_poly_Test, test5)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Complex_Parser_poly_Test, test6)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // without parens
@@ -4266,7 +4329,7 @@ TEST ( Complex_Parser_poly_Test, test6)
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Complex_Parser_poly_Test, test7)
 {
-  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
   // without parens
