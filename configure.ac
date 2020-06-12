@@ -298,7 +298,6 @@ AM_CONDITIONAL(BUILD_ROL_SUPPORT, test "x$USE_ROL" = "xyes")
 
 dnl optionally compile in support for Stokhos
 XYCE_DEBUG_OPTION(stokhos,no,[Stokhos UQ library support],Xyce_STOKHOS_ENABLE, USE_STOKHOS)
-AM_CONDITIONAL(BUILD_STOKHOS, test "x$USE_STOKHOS" = "xyes")
 
 dnl Must include AMD
 XYCE_DEBUG_OPTION(amd,yes,[AMD reordering],Xyce_AMD,AMD)
@@ -778,6 +777,11 @@ fi
 AC_CHECK_HEADER(NOX_Abstract_Vector.H,,[AC_MSG_ERROR([Sorry, NOX headers not found])])
 AC_CHECK_HEADER(LOCA_Parameter_Vector.H,,[AC_MSG_ERROR([Sorry, LOCA headers not found])])
 AC_CHECK_HEADER([Sacado_No_Kokkos.hpp], [], [AC_MSG_ERROR([Sorry, Sacado headers not found])])
+
+if test "x$USE_STOKHOS" = "xyes" ; then
+AC_CHECK_HEADER([Stokhos_Sacado.hpp], [], [AC_MSG_ERROR([Sorry, stokhos support requested but stokhos headers not found])])
+fi
+
 AC_LANG_POP(C++)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
