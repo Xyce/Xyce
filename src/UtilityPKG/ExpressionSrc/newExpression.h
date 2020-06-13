@@ -60,8 +60,8 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    phaseOutputUsesRadians_(true),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    phaseOutputUsesRadians_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, phaseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -92,8 +92,8 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    phaseOutputUsesRadians_(true),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    phaseOutputUsesRadians_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, phaseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -152,8 +152,8 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    phaseOutputUsesRadians_(true),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    phaseOutputUsesRadians_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, phaseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -202,8 +202,8 @@ public:
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
     savedResult_(0.0),
-    phaseOutputUsesRadians_(true),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    phaseOutputUsesRadians_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, phaseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -236,6 +236,7 @@ public:
       if (left->iNoiseType()) { iNoiseOpVec_.push_back(left); }
       if (left->sdtType()) { sdtOpVec_.push_back(left); }
       if (left->ddtType()) { ddtOpVec_.push_back(left); }
+      if (left->phaseType()) { phaseOpVec_.push_back(left); }
 
       left->getInterestingOps( opVectors_  );
 
@@ -300,6 +301,7 @@ public:
     iNoiseOpVec_(right.iNoiseOpVec_),
     sdtOpVec_(right.sdtOpVec_),
     ddtOpVec_(right.ddtOpVec_),
+    phaseOpVec_(right.phaseOpVec_),
 
     bpTol_(right.bpTol_),
     time_(right.time_),
@@ -334,7 +336,7 @@ public:
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, phaseOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
@@ -399,6 +401,7 @@ public:
     iNoiseOpVec_ = right.iNoiseOpVec_;
     sdtOpVec_ = right.sdtOpVec_;
     ddtOpVec_ = right.ddtOpVec_;
+    phaseOpVec_ = right.phaseOpVec_;
 
     bpTol_ = right.bpTol_;
     time_ = right.time_;
@@ -575,6 +578,7 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getSdtOpVec() { return sdtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getDdtOpVec() { return ddtOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getPhaseOpVec() { return phaseOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTimeOpVec() { return timeOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getDtOpVec() { return dtOpVec_; }
@@ -777,6 +781,9 @@ private:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > ddtOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDdtOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > phaseOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedPhaseOpVec_;
 
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the

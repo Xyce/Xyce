@@ -49,7 +49,7 @@ outputsXyceExpressionGroup::outputsXyceExpressionGroup (
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
  outputManager_(output_manager),
- time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
+ time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), gmin_(0.0), dt_(0.0), alpha_(0.0)
 {
 }
 
@@ -771,6 +771,20 @@ double outputsXyceExpressionGroup::getFreq()
 } 
 
 //-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getGmin
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double outputsXyceExpressionGroup::getGmin() 
+{ 
+  gmin_ = deviceManager_.getGmin();
+  return gmin_;
+} 
+
+//-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getBpTol()
 // Purpose       : 
 // Special Notes :
@@ -822,5 +836,19 @@ unsigned int outputsXyceExpressionGroup::getStepNumber()
   //return deviceManager_.getSolverState().timeStepNumber_; // either of these should work
   return analysisManager_.getStepNumber();
 }
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getPhaseOutputUsesRadians
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/13/2020 
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getPhaseOutputUsesRadians()
+{
+  return outputManager_.getPhaseOutputUsesRadians();
+}
+
 } // Util
 } // Xyce

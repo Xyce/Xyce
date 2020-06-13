@@ -567,6 +567,7 @@ exp:
          {
            returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
            newExp.getMasterNodeVec().push_back(returnPtr);
+           newExp.getPhaseOpVec().push_back(*returnPtr);
          }
       }
       else if (firstArg.size() == 3) // do decibels here
@@ -640,6 +641,7 @@ exp:
            {
              returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
              newExp.getMasterNodeVec().push_back(returnPtr);
+             newExp.getPhaseOpVec().push_back(*returnPtr);
            }
         }
         else if (firstArg.size() == 3) // do decibels here
@@ -728,6 +730,7 @@ exp:
          {
            returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
            newExp.getMasterNodeVec().push_back(returnPtr);
+           newExp.getPhaseOpVec().push_back(*returnPtr);
          }
       }
       else if (firstArg.size() == 3) // do decibels here
@@ -830,6 +833,7 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getPhaseOpVec().push_back(*tmpPtr);
     }
   | TOK_REAL exp TOK_RIGHTPAREN
     {

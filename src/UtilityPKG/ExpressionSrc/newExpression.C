@@ -612,6 +612,7 @@ NEW_EXP_OUTPUT_ARRAY(oNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(iNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(sdtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
+NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
 }
 
 //-------------------------------------------------------------------------------
@@ -662,6 +663,7 @@ void newExpression::setupVariousAstArrays_()
 
       if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
 
       opVectors_.isTimeDependent = isTimeDependent_;
       opVectors_.isTempDependent = isTempDependent_;
@@ -977,6 +979,11 @@ void newExpression::getValuesFromGroup_()
 #endif
 
   phaseOutputUsesRadians_ = group_->getPhaseOutputUsesRadians();
+  for (int ii=0;ii<phaseOpVec_.size();ii++)
+  {
+    Teuchos::RCP<phaseOp<usedType> > phOp = Teuchos::rcp_static_cast<phaseOp<usedType> > (phaseOpVec_[ii]);
+    phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
+  }
 }
 
 //-------------------------------------------------------------------------------

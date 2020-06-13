@@ -128,6 +128,7 @@ public:
   virtual double getTemp();
   virtual double getVT  ();
   virtual double getFreq();
+  virtual double getGmin();
 
   virtual double getBpTol();
   virtual double getStartingTimeStep();
@@ -135,9 +136,12 @@ public:
 
   virtual unsigned int getStepNumber ();
 
+  virtual bool getPhaseOutputUsesRadians();
+
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
   void setOpData (const Util::Op::OpData & opData) { opData_ = opData; }
+
 
 private:
 
@@ -153,7 +157,7 @@ private:
 
   IO::OutputMgr &outputManager_;
 
-  double time_, temp_, VT_, freq_;
+  double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
 
   Util::Op::OpData opData_;

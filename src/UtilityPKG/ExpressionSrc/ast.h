@@ -50,6 +50,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
   if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
   if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
   if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
   if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
@@ -94,6 +95,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
   bool timeDep,
   bool tempDep,
   bool vTDep,
@@ -113,6 +115,7 @@ public:
     iNoiseOpVector(iNoise),
     sdtOpVector(sdt),
     ddtOpVector(ddt),
+    phaseOpVector(phase),
     isTimeDependent(timeDep),
     isTempDependent(tempDep),
     isVTDependent(vTDep),
@@ -133,6 +136,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
 
   bool isTimeDependent;
   bool isTempDependent;
@@ -216,6 +220,7 @@ class astNode
 
     virtual bool sdtType() { return false; }
     virtual bool ddtType() { return false; }
+    virtual bool phaseType()       { return false; };
 
     virtual bool timeSpecialType() { return false; }
     virtual bool dtSpecialType()   { return false; }
@@ -441,7 +446,7 @@ template <typename ScalarT>
 class phaseOp : public astNode<ScalarT>
 {
   public:
-    phaseOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), phaseOutputUsesRadians_(true)
+    phaseOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), phaseOutputUsesRadians_(false)
     {};
 
     virtual ScalarT val() 
@@ -455,6 +460,13 @@ class phaseOp : public astNode<ScalarT>
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
+    }
+
+    virtual bool phaseType()       { return true; };
+
+    void setPhaseOutputUsesRadians( bool usesRadians )
+    {
+      phaseOutputUsesRadians_ = usesRadians;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1409,9 +1421,12 @@ class funcOp: public astNode<ScalarT>
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
         }
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-        number_ = functionNode_->val();
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        else
+        {
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+          number_ = functionNode_->val();
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        }
       }
       else
       {
@@ -1434,54 +1449,56 @@ class funcOp: public astNode<ScalarT>
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
         }
-
-        // Two phases, do do a complete chain rule calculation:
-        //
-        // all the "d" symbols should be partials:
-        // chain rule :  F′(x) = F'(x) + f′(g(x)) * g′(x)  ->  df/dx = df/dx + df/dp * dp/dx
-        //
-        // phase 1:  F'(x) = df/dx.
-        //
-        // For this phase, the funcArgs are in the "full" form -
-        //   ie, if they represent an AST tree, we use the whole tree to evaluate.
-        number_ = 0.0;
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-        number_ = functionNode_->dx(i);
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-
-        // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
-        //
-        // g(x) = funcArg->val().  This should be evaluated inside of dx call.
-        // g'(x) = funcArg->dx(i)
-        // f'(g(x)) = functionNode_->dx(ii);
-        //
-        // For this phase, the funcArgs are simple params.
-        //   ie, they don't have an AST tree, just a number.
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii)
+        else
         {
-          // the index is intentionally negative, starting at -1.  This is so it
-          // doesn't conflict with derivative indices that were already set at
-          // the top of the tree in the newExpression::evaluate function.
-          int index=-ii-1;
-          dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() );
-          dummyFuncArgs_[ii]->setDerivIndex ( index );
+          // Two phases, do do a complete chain rule calculation:
+          //
+          // all the "d" symbols should be partials:
+          // chain rule :  F′(x) = F'(x) + f′(g(x)) * g′(x)  ->  df/dx = df/dx + df/dp * dp/dx
+          //
+          // phase 1:  F'(x) = df/dx.
+          //
+          // For this phase, the funcArgs are in the "full" form -
+          //   ie, if they represent an AST tree, we use the whole tree to evaluate.
+          number_ = 0.0;
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+          number_ = functionNode_->dx(i);
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+
+          // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
+          //
+          // g(x) = funcArg->val().  This should be evaluated inside of dx call.
+          // g'(x) = funcArg->dx(i)
+          // f'(g(x)) = functionNode_->dx(ii);
+          //
+          // For this phase, the funcArgs are simple params.
+          //   ie, they don't have an AST tree, just a number.
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii)
+          {
+            // the index is intentionally negative, starting at -1.  This is so it
+            // doesn't conflict with derivative indices that were already set at
+            // the top of the tree in the newExpression::evaluate function.
+            int index=-ii-1;
+            dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() );
+            dummyFuncArgs_[ii]->setDerivIndex ( index );
+          }
+
+          // This can be a big slowdown, for nested function calls.  num1 (functionNode_->dx) is the problem.
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii)  // loop over args (p).  ii = p index, i = x index
+          {
+            int index=-ii-1;
+            ScalarT delta = 0.0;
+            ScalarT num2 = funcArgs_[ii]->dx(i); // usually zero ...
+            if (num2 != 0.0) { delta = num2 * functionNode_->dx(index); } // slow poke. do not evaluate if not needed.
+            number_ += delta; 
+          }
+
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii)
+          {
+            dummyFuncArgs_[ii]->unsetValue ();
+            dummyFuncArgs_[ii]->unsetDerivIndex ();
+          } // restore
         }
-
-        // This can be a big slowdown, for nested function calls.  num1 (functionNode_->dx) is the problem.
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii)  // loop over args (p).  ii = p index, i = x index
-        {
-          int index=-ii-1;
-          ScalarT delta = 0.0;
-          ScalarT num2 = funcArgs_[ii]->dx(i); // usually zero ...
-          if (num2 != 0.0) { delta = num2 * functionNode_->dx(index); } // slow poke. do not evaluate if not needed.
-          number_ += delta; 
-        }
-
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii)
-        {
-          dummyFuncArgs_[ii]->unsetValue ();
-          dummyFuncArgs_[ii]->unsetDerivIndex ();
-        } // restore
       }
       return number_;
     }
@@ -1506,10 +1523,12 @@ class funcOp: public astNode<ScalarT>
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
         }
-
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-        functionNode_->output(os,indent+2);
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        else
+        {
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+          functionNode_->output(os,indent+2);
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        }
       }
       else
       {
@@ -1579,9 +1598,12 @@ class funcOp: public astNode<ScalarT>
         errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
         yyerror(errStr);
       }
-      for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+      else
+      {
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_INTERESTING_OPS(functionNode_) 
-      for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+      }
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)

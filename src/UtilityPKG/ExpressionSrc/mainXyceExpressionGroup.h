@@ -121,6 +121,8 @@ public:
 
   virtual unsigned int getStepNumber ();
 
+  virtual bool getPhaseOutputUsesRadians();
+
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
 private:

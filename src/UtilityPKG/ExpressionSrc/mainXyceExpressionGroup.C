@@ -108,7 +108,7 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
  outputManager_(output_manager),
- time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
+ time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), gmin_(0.0), dt_(0.0), alpha_(0.0)
 {
 
 }
@@ -369,7 +369,7 @@ double mainXyceExpressionGroup::getFreq()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getGmin
 // Purpose       : 
 // Special Notes :
 // Scope         :
@@ -433,6 +433,19 @@ unsigned int mainXyceExpressionGroup::getStepNumber()
 {
   //return deviceManager_.getSolverState().timeStepNumber_; // either of these should work
   return analysisManager_.getStepNumber();
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getPhaseOutputUsesRadians
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/13/2020 
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getPhaseOutputUsesRadians()
+{
+  return outputManager_.getPhaseOutputUsesRadians();
 }
 
 } // Util
