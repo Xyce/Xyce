@@ -22,6 +22,10 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputMOR.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputROM.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputResults.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputFileBase.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputCsd.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputHDF5.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_PrintDeviceCount.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_InitialConditions.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterExternal.C
@@ -34,15 +38,17 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimeCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqCSV.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimePrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimeTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqTecplot.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHDF5.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopy.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyPrn.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyProbe.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDEPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDECSV.C
@@ -105,6 +111,7 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSampling.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_WildcardSupport.C
       CACHE INTERNAL "X_S" )
 
 set ( XYCE_SOURCES ${XYCE_SOURCES} ${IOInterface_SOURCES} PARENT_SCOPE )

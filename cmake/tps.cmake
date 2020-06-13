@@ -314,7 +314,9 @@ endif()
 
 # Find a usable FFT library
 message(STATUS "Looking for usable FFT libraries")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+string( FIND "${Trilinos_TPL_LIBRARIES}" "mkl_core" MKL_LIBS_FOUND )
+if (MKL_LIBS_FOUND GREATER -1)
+
      message(STATUS "Looking for usable FFT libraries - found the Intel Math Kernel Library")
      set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
      set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability")

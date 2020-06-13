@@ -50,6 +50,7 @@
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_WIN_DIRCOMMANDS
 #cmakedefine _CRT_SECURE_NO_WARNINGS
+#cmakedefine HAVE_DIRECT_H
 
 // POSIX features
 #cmakedefine HAVE_DLFCN_H
@@ -83,7 +84,6 @@
 
 // Enable analytic sensitivities in ADMS-generated devices
 #cmakedefine Xyce_ADMS_SENSITIVITIES
-#cmakedefine01 Xyce_STOKHOS_ENABLE
 
 // Support for Charon coupling
 #cmakedefine Xyce_CHARON

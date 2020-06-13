@@ -46,3 +46,4 @@ endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings
+
