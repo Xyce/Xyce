@@ -345,7 +345,8 @@ LEAD I[SDGBEC1-9]
 }
 
  /* single device name by itself */
-<internaldevdef>{DEV}")" {
+ /* this needs to be a "NODE" macro rather than "DEV" b/c the N() can be used to obtain voltage nodes */
+<internaldevdef>{NODE}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
