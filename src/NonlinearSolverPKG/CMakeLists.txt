@@ -1,3 +1,7 @@
+#
+# CMakeLists.txt for NonlinearSolverPKG
+#
+
 
 # -- process files for this library ------------------------------------------
 
@@ -25,16 +29,17 @@ set ( NonlinearSolver_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_Vector.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_XyceTests.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ParamMgr.C 
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ReturnCodes.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_Sensitivity.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_SensitivityResiduals.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_TwoLevelNewton.C 
       CACHE INTERNAL "X_S" )
 
-  
+set ( XYCE_SOURCES ${XYCE_SOURCES} ${NonlinearSolver_SOURCES} PARENT_SCOPE )  
 # add header files to project
 set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
       ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
+      PARENT_SCOPE )
 
 
 

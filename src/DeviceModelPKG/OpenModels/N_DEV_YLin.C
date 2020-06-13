@@ -51,6 +51,7 @@
 #include <N_UTL_AssemblyTypes.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_RFparams.h>
+#include <N_UTL_Math.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>

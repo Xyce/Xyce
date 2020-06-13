@@ -28,11 +28,11 @@ set ( OutputInterface_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_Remeasure.C
       CACHE INTERNAL "X_S" )
 
-  
+set ( XYCE_SOURCES ${XYCE_SOURCES} ${OutputInterface_SOURCES} PARENT_SCOPE)  
 # add header files to project
 set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
       ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
+      PARENT_SCOPE )
 
 
 

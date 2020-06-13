@@ -1,4 +1,13 @@
+#
+# .gitignore file for Xyce project
+#
+
+# Ignore Mac OS X artifact files.
+build
+**/._*
+**/.DS_Store
 *~
+build
 .*.swp
 Makefile.in
 aclocal.m4

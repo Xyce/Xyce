@@ -1,4 +1,6 @@
 
+# required source subdirectories
+add_subdirectory( Output )
 # -- process files for this library ------------------------------------------
 
 # class source list
@@ -28,9 +30,6 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_InitialConditions.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterExternal.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterLocal.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingCSV.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingPrn.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyProbe.C
@@ -82,7 +81,6 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_Outputter.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterAC.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterDC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSampling.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHB.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDE.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterRawOverride.C
@@ -109,14 +107,18 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_PkgOptionsMgr.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_FourierMgr.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_ParsingHelpers.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingTecplot.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingCSV.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSampling.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_WildcardSupport.C
       CACHE INTERNAL "X_S" )
 
-
+set ( XYCE_SOURCES ${XYCE_SOURCES} ${IOInterface_SOURCES} PARENT_SCOPE )
 # add header files to project
 set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
       ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
+      PARENT_SCOPE )
 
 
 
@@ -126,5 +128,3 @@ set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
       IOInterface
       CACHE INTERNAL "X_L" )
 
-# required source subdirectories
-add_subdirectory( Output )
