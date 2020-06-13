@@ -71,10 +71,10 @@ class ExpressionLexer;
  /* Other simulators use other delimiters for subcircuit names, so might */
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
-ID [a-zA-Z][a-zA-Z0-9_:!]*
+ID [a-zA-Z!_`@#][a-zA-Z0-9_:!`@#]*
 
  /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
-DEV [a-zA-Z][a-zA-Z0-9_:!\+\-]*
+DEV [a-zA-Z][a-zA-Z0-9_:!`@#\+\-]*
 
  /* to support bug 1034, the NODE needs to recognize a lot of weird characters: */
  /* from bug 1034: */
@@ -497,7 +497,6 @@ LEAD I[SDGBEC1-9]
 
 <INITIAL>"poly""("  {
     BEGIN(polydef);
-//std::cout << "found POLY" <<std::endl;
     return XyceExpression::ExpressionParser::token::TOK_POLY; 
   } 
 
@@ -505,7 +504,6 @@ LEAD I[SDGBEC1-9]
     std::string tmp(YYText());
     tmp.erase(tmp.length()-1);
     lvalp->dval=Xyce::Util::Value(tmp);
-//std::cout << "poly size = " << lvalp->dval <<std::endl;
     BEGIN(polyargs);
     return XyceExpression::ExpressionParser::token::TOK_POLYSIZE; 
   }
@@ -513,56 +511,47 @@ LEAD I[SDGBEC1-9]
  /* numbers with suffixes */
 <polyargs>[-+]?{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
  /* numbers with 3-character suffixes; meg and mil */
 <polyargs>[-+]?{DIGIT}+[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}+[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
 <polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
@@ -570,7 +559,6 @@ LEAD I[SDGBEC1-9]
   BEGIN(polyvoltagenodedef); 
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-//std::cout << "poly V( found" <<std::endl;
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
@@ -579,7 +567,6 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(polyargs);
-//std::cout << "poly VOLTAGENODE found = "<< *(lvalp->sval) << std::endl;
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
 
@@ -587,7 +574,6 @@ LEAD I[SDGBEC1-9]
 <polyvoltagenodedef>{NODE}"," {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
-//std::cout << "poly VOLTAGENODE found = "<< *(lvalp->sval) << std::endl;
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
 
@@ -595,7 +581,6 @@ LEAD I[SDGBEC1-9]
   BEGIN(polycurrentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-//std::cout << "poly I( found" <<std::endl;
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
@@ -604,7 +589,6 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(polyargs);
-//std::cout << "poly CURRENTDEV found" << *(lvalp->sval) << std::endl;
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
   }
 
@@ -617,9 +601,7 @@ LEAD I[SDGBEC1-9]
 
 <polyargs>.  {
   BEGIN(INITIAL);
-//std::cout << "end of poly found " <<std::endl;
   lvalp->sval=new std::string(YYText());
-//std::cout << "remaining string after the end (before yyless) " << *(lvalp->sval) <<std::endl;
   yyless(0);
 }
 
@@ -633,7 +615,8 @@ LEAD I[SDGBEC1-9]
  /* letters */
 {ID}+ { lvalp->sval=new std::string(YYText());  return XyceExpression::ExpressionParser::token::TOK_WORD; }
 
-"#"[^\n\r]*     /* eat up one-line comments */
+ /* in order for # to be an allowed character in parameter and function names, this one-line comment rule had to go */
+ /* "#"[^\n\r]* */   /* eat up one-line comments */
 [ \t]+                     { llocp->step(); }   /* eat up whitespace */
 (\n+|(\r\n)+|\r+)          { llocp->lines(YYLeng()); }
 

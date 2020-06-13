@@ -843,10 +843,10 @@ private:
   bool evaluateFunctionCalledBefore_;
   bool evaluateCalledBefore_;
   usedType savedResult_;
+  bool phaseOutputUsesRadians_;
 
   opVectorContainers<usedType> opVectors_;
 
-  bool phaseOutputUsesRadians_;
 };
 
 }
