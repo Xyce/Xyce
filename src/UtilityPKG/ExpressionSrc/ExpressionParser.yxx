@@ -771,6 +771,7 @@ exp:
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dnoNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
         newExp.getDnoNoiseDevVarOpVec().push_back(*dnoNoiseVarPtr);
+        delete dnoNoiseVarPtr;
       }
       else if ( firstArg == std::string("DNI") )
       {
@@ -778,6 +779,7 @@ exp:
         returnPtr = new Teuchos::RCP<astNode<usedType> >(*dniNoiseVarPtr);
         newExp.getMasterNodeVec().push_back(returnPtr);
         newExp.getDniNoiseDevVarOpVec().push_back(*dniNoiseVarPtr);
+        delete dniNoiseVarPtr;
       }
 
       $$ = returnPtr;
