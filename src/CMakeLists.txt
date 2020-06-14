@@ -54,12 +54,8 @@ endif()
 add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
 target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIR}
-     ${Boost_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC ${FFT} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
-
-if(Xyce_USE_CURL)
-  target_link_libraries(XyceStatic PUBLIC ${CURL_LIBRARY})
-endif(Xyce_USE_CURL)
+     ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
+target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
@@ -69,7 +65,7 @@ target_link_libraries(Xyce XyceStatic)
 # ---- And the installation of them. ----------------
 # rename the library		# a word to the wise about Windows
 				# A Static library named "xyce" will produce 
-				# a file names xyce.lib. 
+				# a file named xyce.lib.
 				# A Shared library named "xyce" will produce
 				# two files, one named xyce.dll and another 
 				# named xyce.lib, which is not the same as the

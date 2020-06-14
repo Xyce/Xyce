@@ -353,7 +353,7 @@ find_package(FLEX)
 # for that behavior?
 find_package(BISON 2.4)
 # The 2.4 specifies the minimum version.  That is ok at the moment, as Bison
-# has been functional for many versions (through 3.4 at the time of this
+# has been functional for many versions (through 3.6 at the time of this
 # writing).  Historically, though, new versions have had backward
 # incompatibility issues.  If that occurs again, the BISON_VERSION variable
 # will have to be probed for a certain range.
@@ -366,15 +366,15 @@ endif ()
 # Find CURL
 if (Xyce_USE_CURL)
      if (Xyce_TRACKING_URL)
-          message(STATUS "Looking for CURL")
+          message(STATUS "Looking for cURL")
           find_package(CURL REQUIRED)
           message(STATUS "The usage tracking capability is enabled. Using: ${Xyce_TRACKING_URL}")
      else()
           message("Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL.\n"
-               "Changing Xyce_USE_CURL to FALSE.")
-          set(Xyce_USE_CURL FALSE CACHE BOOL "Enable the tracking capability capability using CURL" FORCE)
+                  "Changing Xyce_USE_CURL to FALSE - disabling usage tracking")
+          set(Xyce_USE_CURL FALSE CACHE BOOL "Enable the usage tracking capability using CURL" FORCE)
      endif()
 else()
-     message(STATUS "Run tracking is not enabled")
+     message(STATUS "Usage tracking is not enabled")
 endif()
 
