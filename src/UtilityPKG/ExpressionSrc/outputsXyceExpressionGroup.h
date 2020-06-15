@@ -147,6 +147,8 @@ public:
 
   virtual bool getPhaseOutputUsesRadians();
 
+  virtual void setRFParamsRequested(std::string type);
+
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
   void setOpData (const Util::Op::OpData & opData) { opData_ = opData; }

@@ -224,6 +224,15 @@ bool newExpression::lexAndParseExpression()
   dumpParseTree(std::cout);
 #endif
 
+  // let AC analysis know if it needs to produce RF param output
+
+  if ( !(Teuchos::is_null(group_)) ) 
+  {
+    if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
+    if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
+    if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
+  }
+
   return parsed_;
 }
 
@@ -742,6 +751,13 @@ void newExpression::setupVariousAstArrays_()
     std::cout << "Array sizes AFTER update:" <<std::endl;
     outputVariousAstArrays(std::cout);
 #endif
+
+    if ( !(Teuchos::is_null(group_)) ) 
+    {
+      if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
+      if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
+      if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
+    }
   }
 
   // check if this is expression is a constant

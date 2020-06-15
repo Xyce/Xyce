@@ -88,6 +88,8 @@ public:
 
   virtual bool getPhaseOutputUsesRadians() { return true; }
 
+  virtual void setRFParamsRequested(std::string type) {}
+
 private:
 
 };

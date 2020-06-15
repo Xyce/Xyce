@@ -1012,5 +1012,18 @@ bool outputsXyceExpressionGroup::getPhaseOutputUsesRadians()
   return outputManager_.getPhaseOutputUsesRadians();
 }
 
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::setRFParamsRequested
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/15/2020 
+//-------------------------------------------------------------------------------
+void outputsXyceExpressionGroup::setRFParamsRequested(std::string type)
+{
+  analysisManager_.setRFParamsRequested(type);
+}
+
 } // Util
 } // Xyce
