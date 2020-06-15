@@ -366,9 +366,15 @@ endif ()
 # Find CURL
 if (Xyce_USE_CURL)
      if (Xyce_TRACKING_URL)
-          message(STATUS "Looking for cURL")
+       message(STATUS "Looking for cURL")
+       # We have been having trouble on Windows, where it seems that
+       # CURLConfig.cmake is not getting the right variables set.
+       #  Let's try telling FindCURL not to use it.
+          set(CURL_NO_CURL_CMAKE ON)
           find_package(CURL REQUIRED)
+          # Now, what did this tell us?
           message(STATUS "The usage tracking capability is enabled. Using: ${Xyce_TRACKING_URL}")
+          message(STATUS "CURL_LIBRARIES is ${CURL_LIBRARIES} and CURL_INCLUDE_DIRS is ${CURL_INCLUDE_DIRS}")
      else()
           message("Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL.\n"
                   "Changing Xyce_USE_CURL to FALSE - disabling usage tracking")
