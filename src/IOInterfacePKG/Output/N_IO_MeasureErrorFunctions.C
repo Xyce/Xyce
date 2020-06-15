@@ -137,13 +137,14 @@ void ErrorFunctions::updateDC(
  if ( dcParamsVec.size() > 0 )
  {
     double dcSweepVal = dcParamsVec[0].currentVal;
+    double stepVal = dcParamsVec[0].stepVal;
 
     // Used in descriptive output to stdout. Store name and first/last values of
     // first variable found in the DC sweep vector
     sweepVar_= dcParamsVec[0].name;
     recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
-    if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
+    if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal,stepVal) )
     {
       // update our outVarValues_ vector
       updateOutputVars(comm, outVarValues_, dcSweepVal,

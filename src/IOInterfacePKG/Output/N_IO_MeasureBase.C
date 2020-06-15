@@ -641,32 +641,46 @@ bool Base::withinFreqWindow( double freq )
 // Function      : MeasureBase::withinDCsweepFromToWindow
 // Purpose       : Checks if the current value of the DC Sweep variable is
 //                 within measurement window
-// Special Notes : Used just for DC mode, since the sweep variable (on a .DC
+// Special Notes : Used just for DC mode, since the first sweep variable (on a .DC
 //                 line) can be either monotonically increasing or monotonically 
 //                 decreasing.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 04/26/2017
 //-----------------------------------------------------------------------------
-bool Base::withinDCsweepFromToWindow( double sweepValue )
+bool Base::withinDCsweepFromToWindow(double sweepValue, double stepVal )
 {
   // function used for DC mode
   bool retVal = true;
-  if( to_ >= from_ )
-  { 
-    // assumes FROM value is less than TO value
-    if( (fromGiven_ && (sweepValue < from_ )) || (toGiven_ && (sweepValue > to_)) )
+
+  if (fromGiven_ && toGiven_)
+  {
+    if( to_ >= from_ )
     {
-      retVal = false;
+      if ( (sweepValue < from_ ) || (sweepValue > to_) )
+      {
+        retVal = false;
+      }
+    }
+    else
+    {
+      if( (sweepValue > from_ ) || (sweepValue < to_) )
+      {
+        retVal = false;
+      }
     }
   }
-  else
+  else if (toGiven_)
   {
-    // assumes FROM value is greater than TO value
-    if( (fromGiven_ && (sweepValue > from_ )) || (toGiven_ && (sweepValue < to_)) ) 
-    {
+    // handle both ascending and descending sweeps
+    if ( ((stepVal >= 0) && (sweepValue > to_)) || ((stepVal < 0) && (sweepValue < to_)) )
       retVal = false;
-    }
+  }
+  else if (fromGiven_)
+  {
+    // handle both ascending and descending sweeps
+    if ( ((stepVal >= 0) && (sweepValue < from_)) || ((stepVal < 0) && (sweepValue > from_)) )
+      retVal = false;
   }
 
   return retVal;

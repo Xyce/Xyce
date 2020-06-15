@@ -99,21 +99,30 @@ void IntegralEvaluation::setMeasureVarsForNewWindow()
 //-----------------------------------------------------------------------------
 void IntegralEvaluation::updateMeasureVars(const double indepVarVal, const double signalVal)
 {
-  // The first branch is always taken by TRAN, AC or NOISE measures.  For DC mode, we must account
-  // for both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
-  // of first swept variable on .DC line.  This requires the addition of the next two branches
-  // to cover the other three cases.
-  if ((from_ <= to_) && (indepVarVal > startSweepValue_))
+  if (fromGiven_ && toGiven_)
   {
-    integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
-  }
-  else if ( (from_ >= to_) && (indepVarVal < startSweepValue_) )
-  {
-    integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    // The first branch is always taken by TRAN, AC or NOISE measures.  For DC mode, we must account
+    // for both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
+    // of first swept variable on .DC line.  This requires the addition of the next two branches
+    // to cover the other three cases.
+    if ((from_ <= to_) && (indepVarVal > startSweepValue_))
+    {
+      integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    }
+    else if ( (from_ >= to_) && (indepVarVal < startSweepValue_) )
+    {
+      integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    }
+    else
+    {
+      integralValue_ -= 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    }
   }
   else
   {
-    integralValue_ -= 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    // For the other three cases (FROM given, or TO given, or neither given, then the
+    // (indepVarVal - lastIndepVarValue_) term accounts for the sweep (integration) direction
+    integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
   }
 
   return;

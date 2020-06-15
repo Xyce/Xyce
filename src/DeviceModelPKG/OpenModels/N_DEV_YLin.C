@@ -51,6 +51,7 @@
 #include <N_UTL_AssemblyTypes.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_RFparams.h>
+#include <N_UTL_Math.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
@@ -575,12 +576,12 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
     }
   }
 
-  // skip over any comment lines
+  // skip over any comment and blank lines
   if (!inputFile.eof())
   {
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
   }
-  while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
+  while( (!inputFile.eof()) && isTouchStoneBlankOrCommentLine(aLine) )
   {
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
   }
@@ -601,8 +602,8 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 
   while ( !(inputFile.eof() || (aLine.substr(0,5) == "[END]")) )
   {
-    // subsequent Option lines are silently ignored
-    if ( (aLine[0] != TSCommentChar_) && (aLine[0] != '#') )
+    // subsequent Option lines are silently ignored, along with blank or comment lines
+    if ( !isTouchStoneBlankCommentOrOptionLine(aLine) )
     {
       // There can only be one [Version] in a a Touchstone 2 formatted file.
       if (aLine.substr(0,9) == "[VERSION]")
@@ -857,7 +858,7 @@ bool Model::readTouchStone2File(std::ifstream& inputFile, const ExtendedString& 
 	{
 	  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
-        while( (!inputFile.eof()) && ((aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
+        while( (!inputFile.eof()) && isTouchStoneBlankCommentOrOptionLine(aLine) )
 	{
           readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
@@ -1005,7 +1006,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
 
   // skip over comment and blank lines to find first network data line
   readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
+  while (!inputFile.eof() && isTouchStoneBlankCommentOrOptionLine(aLine))
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
   if (aLine[0] == '[')
@@ -1019,7 +1020,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
 
   // skip over comment and blank lines to find second network data line
   readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
-  while (!inputFile.eof() && ((aLine.size() == 0) || (aLine[0] == TSCommentChar_) || (aLine[0] == '#')) )
+  while (!inputFile.eof() && isTouchStoneBlankCommentOrOptionLine(aLine))
     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
   if (aLine[0] == '[')
@@ -1033,7 +1034,7 @@ bool Model::readTouchStone1File(std::ifstream& inputFile, const ExtendedString& 
   // loop over remaining lines
   while (!inputFile.eof())
   {
-    if ( (aLine.size() > 0) && (aLine[0] != TSCommentChar_) && (aLine[0] != '#') )
+    if ( !isTouchStoneBlankCommentOrOptionLine(aLine) )
     {
       if (aLine[0] == '[')
       {
@@ -1178,20 +1179,59 @@ void Model::splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector
 
 //-----------------------------------------------------------------------------
 // Function      : Model::readAndUpperCaseTouchStoneFileLine
-// Purpose       : Read in a line from a Touchstone 2 formatted file, upper-case
-//                 it, and then also increment the lineNum counter.
+// Purpose       : Read in a line from a Touchstone formatted file, upper-case
+//                 it, remove any leading whitespace, and then also increment
+//                 the lineNum counter.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 08/20/2019
 //-----------------------------------------------------------------------------
-  void Model::readAndUpperCaseTouchStoneFileLine(std::istream & inputFile, ExtendedString& aLine, int& lineNum)
+void Model::readAndUpperCaseTouchStoneFileLine(std::istream & inputFile, ExtendedString& aLine, int& lineNum)
 {
   IO::readLine(inputFile,aLine);
   aLine.toUpper();
+
+  // remove any leading whitespace
+  const std::string nonid(" \t\n\r\0");
+  size_t start=aLine.find_first_not_of(nonid);
+  if (start == std::string::npos)
+    aLine="";
+  else
+    aLine = aLine.substr(start);
+
   lineNum++;
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::isTouchStoneBlankOrCommentLine
+// Purpose       :
+// Special Notes : "Blank lines" have zero length, since any leading whitespace
+//                 has been removed from aLine already.  So, the comment
+//                 character will always be the first character on the line.
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 06/08/2020
+//-----------------------------------------------------------------------------
+bool Model::isTouchStoneBlankOrCommentLine(const ExtendedString& aLine)
+{
+  return ( (aLine.size() == 0) || (aLine[0] == TSCommentChar_) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::isTouchStoneBlankCommentOptionLine
+// Purpose       :
+// Special Notes : Option lines begin with a single '#' character, since any
+//                 leading whitespace has been removed from aLine already.
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models & Simulation
+// Creation Date : 06/08/2020
+//-----------------------------------------------------------------------------
+bool Model::isTouchStoneBlankCommentOrOptionLine(const ExtendedString& aLine)
+{
+  return ( isTouchStoneBlankOrCommentLine(aLine) || (aLine[0] == '#') );
 }
 
 //-----------------------------------------------------------------------------

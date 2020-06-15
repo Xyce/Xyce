@@ -47,6 +47,7 @@
 #include <N_LAS_Vector.h>
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
+#include <N_UTL_Math.h>
 
 // ----------   Trilinos Includes   ----------
 

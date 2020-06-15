@@ -404,8 +404,9 @@ and locate transient events. (Note: \texttt{.MEAS} is an allowed synonym for
 \Format{\par\texttt{.MEASURE <analysis type> <measure name> <measure type>
 <simulation variable> \newline + [qualifiers]}}
 \texttt{<analysis type>} is the analysis under which the measure should be calculated.  
-Currently,  transient (\texttt{.TRAN}), dc (\texttt{.DC}) and ac (\texttt{.AC}) analyses 
-are supported, and \texttt{.MEASURE} can be used with \texttt{.STEP} in all three cases. 
+Currently,  transient (\texttt{.TRAN}), dc (\texttt{.DC}), ac (\texttt{.AC})
+and noise (\texttt{.NOISE}) analyses
+are supported, and \texttt{.MEASURE} can be used with \texttt{.STEP} in all four cases.
 The specified measure is referenced by \texttt{<measure name>}.  That name is used 
 in the summary output at the end of the simulation to report the value of that
 measure, and can also be used in \texttt{.PRINT} statements.  The
@@ -463,8 +464,8 @@ of the waveform during the simulation.
 
 The \texttt{AVG},\texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, \texttt{ERR2},
 \texttt{FIND-AT}, \texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP},
-\texttt{RMS} and \texttt{WHEN} measures are supported for all three ``measure modes'' (\texttt{TRAN},
-\texttt{DC} and \texttt{AC}).  The \texttt{TRIG-TARG} measure is only supported for
+\texttt{RMS} and \texttt{WHEN} measures are supported for all four ``measure modes'' (\texttt{TRAN},
+\texttt{DC}, \texttt{AC} and \texttt{NOISE}).  The \texttt{TRIG-TARG} measure is only supported for
 \texttt{TRAN} measure mode.  
 
 The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \texttt{TRAN} and
@@ -582,15 +583,16 @@ measures, the results are stored in files called \texttt{circuitFileName.mt\#}, 
 the suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
 iterations (\texttt{.STEP} iterations) of a given simulation. Each line of this file
 will contain the measurement name, followed by its value for that run and/or step 
-iteration.  For \texttt{DC} and \texttt{AC} measures, the results are stored in the files 
-\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#}, respectively.
+iteration.  For \texttt{DC} measures, the results are stored in the files
+\texttt{circuitFileName.ms\#}, while \texttt{AC} and \texttt{NOISE} measures
+use the files \texttt{circuitFileName.ma\#}.
 
 \Xyce{} also supports an ability to {\it re-measure} results from a prior run of \Xyce{}.
 In this mode, one can modify \texttt{.MEASURE} statements and have \Xyce{} recalculate 
 the results based on existing simulation data.  This can be useful if the original simulation 
 takes some time to complete.  (Note: \texttt{remeasure} works for both transient and 
 dc analyses.  However, it may be most useful for transient analyses.  It is not currently
-supported for ac analyses.)  The syntax in the netlist is the same and the only thing that
+supported for ac or noise analyses.)  The syntax in the netlist is the same and the only thing that
 changes is how one invokes \Xyce{}.  For example, if the netlist is called {\tt myNetlist.cir}
 and the existing output file is called {\tt myNetlist.cir.prn}, then remeasure is accomplished with:
 {\tt

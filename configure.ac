@@ -298,7 +298,6 @@ AM_CONDITIONAL(BUILD_ROL_SUPPORT, test "x$USE_ROL" = "xyes")
 
 dnl optionally compile in support for Stokhos
 XYCE_DEBUG_OPTION(stokhos,no,[Stokhos UQ library support],Xyce_STOKHOS_ENABLE, USE_STOKHOS)
-AM_CONDITIONAL(BUILD_STOKHOS, test "x$USE_STOKHOS" = "xyes")
 
 dnl Must include AMD
 XYCE_DEBUG_OPTION(amd,yes,[AMD reordering],Xyce_AMD,AMD)
@@ -327,8 +326,6 @@ XYCE_DEBUG_OPTION(debug_nonlinear,no,[nonlinear solver package debugging output]
 XYCE_DEBUG_OPTION(debug_circuit,no,[circuit package debugging output])
 XYCE_DEBUG_OPTION(debug_directsolve,no,[direct solver package debugging output])
 XYCE_DEBUG_OPTION(debug_restart,no,[restart debugging output])
-
-XYCE_DEBUG_OPTION(op_start,yes,[allow startup from previous operating point])
 
 dnl check if the developer wants to skip the probe of the fortran compiler
 XYCE_DEBUG_OPTION(fortran_blas,yes,[test for fortran blas using fortran compiler --- disable this if you are using C blas],Xyce_FORTRAN_BLAS,FORTRAN_BLAS)
@@ -780,6 +777,11 @@ fi
 AC_CHECK_HEADER(NOX_Abstract_Vector.H,,[AC_MSG_ERROR([Sorry, NOX headers not found])])
 AC_CHECK_HEADER(LOCA_Parameter_Vector.H,,[AC_MSG_ERROR([Sorry, LOCA headers not found])])
 AC_CHECK_HEADER([Sacado_No_Kokkos.hpp], [], [AC_MSG_ERROR([Sorry, Sacado headers not found])])
+
+if test "x$USE_STOKHOS" = "xyes" ; then
+AC_CHECK_HEADER([Stokhos_Sacado.hpp], [], [AC_MSG_ERROR([Sorry, stokhos support requested but stokhos headers not found])])
+fi
+
 AC_LANG_POP(C++)
 
 dnl Checks for typedefs, structures, and compiler characteristics.

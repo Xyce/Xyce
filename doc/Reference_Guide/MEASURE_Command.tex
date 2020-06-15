@@ -12,19 +12,18 @@ The \texttt{.MEASURE} statement allows calculation or reporting of simulation
 metrics to an external file, as well as to the standard output and/or a log file.  One can 
 measure when simulated signals reach designated values, or when they are equal
 to other simulation values.  The \texttt{.MEASURE} statement is supported for 
-\texttt{.TRAN}, \texttt{.DC} and \texttt{.AC} analyses.  It can be used with {\tt .STEP} 
-in all three cases.  For HSPICE compatibility, \texttt{.MEAS} is an allowed
-synonym for \texttt{.MEASURE}.
+\texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE} analyses.  It can
+be used with {\tt .STEP}  in all four cases.  For HSPICE compatibility,
+\texttt{.MEAS} is an allowed synonym for \texttt{.MEASURE}.
 
 The syntaxes for the \texttt{.MEASURE} statements are shown below.  The \texttt{AVG},
 \texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, \texttt{ERR2}, \texttt{FIND-AT},
 \texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS}
-and \texttt{WHEN} measures are supported for all three ``measure modes'' (\texttt{TRAN},
-\texttt{DC} and \texttt{AC}).  The \texttt{TRIG-TARG} measure is only supported for
+and \texttt{WHEN} measures are supported for all four ``measure modes'' (\texttt{TRAN}, 
+\texttt{AC}, \texttt{DC} and \texttt{NOISE}).  The \texttt{TRIG-TARG} measure is only supported for
 \texttt{TRAN} measure mode.  Note that each measure type (e.g., \texttt{MAX}) may be listed
-thrice, once for each supported measure mode. This is because only a subset of the allowed
-``qualifiers'' (e.g., \texttt{FROM} and \texttt{TO}) may be supported for the \texttt{DC}
-and \texttt{AC} measure modes.
+twice. This is because only a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and
+\texttt{TO}) may be supported for the \texttt{AC}, \texttt{DC} and \texttt{NOISE} measure modes.
 
 The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \texttt{TRAN} and
 \texttt{DC} measure modes.  The \texttt{DUTY}, \texttt{FREQ}, \texttt{FOUR}, \texttt{OFF\_TIME}
@@ -145,124 +144,66 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 + [FROM=<value>] [TO=<value>] [TD=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE DC <result name> AVG <variable>
-+ [FROM=<value>] [TO=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> DERIV <variable> AT=<value>
-+ [MINVAL=<value>] [DEFAULT_VAL=<value>]
-+ [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> DERIV <variable>
-+ WHEN <variable>=<variable\(\sb{2}\)>|<value>
-+ [MINVAL=<value>] [FROM=<value>] [TO=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> EQN <expression> 
-+ [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> <ERR|ERR1|ERR2>
-+ <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
-+ [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
 .MEASURE DC <result name> ERROR <variable> FILE=<value>
 + [DEPVARCOL=<value>] [COMP_FUNCTION=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE DC <result name> FIND <variable> AT=<value>
-+ [MINVAL=<value>] [DEFAULT_VAL=<value>]
-+ [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> FIND <variable>
-+ WHEN <variable>=<variable\(\sb{2}\)>|<value>
-+ [FROM=<value>] [TO=<value>]
-+ [MINVAL=<value>] [DEFAULT_VAL=<value>]
-+ [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> INTEG <variable>
+.MEASURE <AC|DC|NOISE> <result name> AVG <variable>
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE DC <result name> MAX <variable>
-+ [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] 
-+ [PRINT=<value>] [OUTPUT=<value>]
-
-.MEASURE DC <result name> MIN <variable>
-+ [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>]
-+ [PRINT=<value>] [OUTPUT=<value>]
-
-.MEASURE DC <result name> PP <variable>
-+ [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE DC <result name> RMS <variable>
-+ [FROM=<value>] [TO=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
-+ [FROM=<value>] [TO=<value>]
+.MEASURE <AC|DC|NOISE> <result name> DERIV <variable> AT=<value>
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> AVG <variable>
-+ [FROM=<value>] [TO=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE AC <result name> DERIV <variable> AT=<value>
-+ [MINVAL=<value>] [DEFAULT_VAL=<value>]
-+ [PRECISION=<value>] [PRINT=<value>]
-
-.MEASURE AC <result name> DERIV <variable>
+.MEASURE <AC|DC|NOISE> <result name> DERIV <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [MINVAL=<value>] [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> EQN <expression> 
+.MEASURE <AC|DC|NOISE> <result name> EQN <expression> 
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> <ERR|ERR1|ERR2>
+.MEASURE <AC|DC|NOISE> <result name> <ERR|ERR1|ERR2>
 + <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> FIND <variable> AT=<value>
+.MEASURE <AC|DC|NOISE> <result name> FIND <variable> AT=<value>
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> FIND <variable>
+.MEASURE <AC|DC|NOISE> <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> INTEG <variable>
+.MEASURE <AC|DC|NOISE> <result name> INTEG <variable>
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> MAX <variable>
+.MEASURE <AC|DC|NOISE> <result name> MAX <variable>
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] 
 + [PRINT=<value>] [OUTPUT=<value>]
 
-.MEASURE AC <result name> MIN <variable>
+.MEASURE <AC|DC|NOISE> <result name> MIN <variable>
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>]
 + [PRINT=<value>] [OUTPUT=<value>]
 
-.MEASURE AC <result name> PP <variable>
+.MEASURE <AC|DC|NOISE> <result name> PP <variable>
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE AC <result name> RMS <variable>
+.MEASURE <AC|DC|NOISE> <result name> RMS <variable>
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-MEASURE AC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
+MEASURE <AC|DC|NOISE> <result name>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
@@ -280,6 +221,7 @@ MEASURE AC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 .MEASURE DC maxV1 MAX V(1)
 .MEAS DC minV2 MIN V(2)
 .MEASURE AC maxV1R MAX VR(1)
+.MEASURE NOISE maxonoise MAX ONOISE
 \end{alltt}
 
 \arguments
@@ -294,9 +236,10 @@ files called \texttt{circuitFileName.mt\#}, where the suffixed number
 iterations (\texttt{.STEP} iterations) of a given simulation. Each
 line of this file will contain the measurement name, \texttt{<result
 name>}, followed by its value for that run.  The \texttt{<result
-name>} must be a legal \Xyce{} character string.  For
-\texttt{DC} and \texttt{AC} measures, the results are stored in the files 
-\texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively.
+name>} must be a legal \Xyce{} character string.  For \texttt{DC} measures,
+the results are stored in the files \texttt{circuitFileName.ms\#},
+while \texttt{AC} and \texttt{NOISE} measures use the files
+\texttt{circuitFileName.ma\#}.
 
 If multiple measures are defined with the same \texttt{<result name>} then
 \Xyce{} uses the last such definition, and issues warning messages about
@@ -323,8 +266,8 @@ The supported measure types and their definitions are:
     the simulation, or within the extent of the measurement window.
     The measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN}
-    measures, and with {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC}
-    measures.
+    measures, and with {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and
+    {\tt NOISE} measures.
 
   \item[\tt DERIV] Computes the derivative of {\tt <variable>} at a
     user-specified time (by using the {\tt AT} qualifier) or when a
@@ -332,8 +275,8 @@ The supported measure types and their definitions are:
     qualifier). If the {\tt WHEN} qualifier is used then the
     measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
-    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
-    and {\tt AC} measures. The {\tt MINVAL} qualifier is used as a
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
+    {\tt DC} and {\tt NOISE} measures. The {\tt MINVAL} qualifier is used as a
     comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE
     compatibility, {\tt DERIVATIVE} is an allowed synonym for {\tt
     DERIV}.
@@ -350,7 +293,7 @@ The supported measure types and their definitions are:
 \item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation.
     The measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO} and {\tt TD} for {\tt TRAN} measures, and with {\tt FROM}
-    and {\tt TO} for {\tt DC} and {\tt AC} measures.  As noted in the
+    and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.  As noted in the
     ``Additional Examples'' subsection, the expression can use the
     results of other measure statements.
 
@@ -397,21 +340,21 @@ The supported measure types and their definitions are:
     second order numerical integration.  The integration window can be
     limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
     RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
-    {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures.  For
-    HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for
+    {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
+    For HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for
     {\tt INTEG}.
 
   \item[\tt MAX] Returns the maximum value of {\tt <variable>} during
     the simulation.  The measurement window can be limited with the
     qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL}
     and {\tt CROSS} for {\tt TRAN} measures, and with {\tt FROM} and
-    {\tt TO} for {\tt DC} and {\tt AC} measures.
+    {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
 
   \item[\tt MIN] Returns the minimum value of {\tt <variable>} during
     the simulation.  The measurement window can be limited with the
     qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL}
     and {\tt CROSS} for {\tt TRAN} measures, and with {\tt FROM} and
-    {\tt TO} for {\tt DC} and {\tt AC} measures.
+    {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
 
   \item[\tt OFF\_TIME] Returns the time that {\tt <variable>} is below
     {\tt OFF} during the simulation or measurement window, normalized
@@ -433,8 +376,8 @@ The supported measure types and their definitions are:
     the minimum value {\tt <variable>} during the simulation. The
     measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
-    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
-    and {\tt AC} measures.
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
+    {\tt DC} and {\tt NOISE} measures.
 
   \item[\tt RMS] Computes the root-mean-squared value of {\tt
     <variable>} during the simulation, which is defined as ''the
@@ -442,7 +385,7 @@ The supported measure types and their definitions are:
     the period of interest''.  The measurement window can be
     limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
     RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
-    {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures.
+    {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
 
   \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
     time between a trigger event and a target event.  The trigger is
@@ -462,9 +405,9 @@ The supported measure types and their definitions are:
     <variable\(\sb{2}\)>} or the constant value, {\tt value}.  The
     time over which the value is searched can be limited the qualifiers
     {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
-    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
-    and {\tt AC} measures. The qualifier {\tt MINVAL} acts as a tolerance
-    for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
+    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
+    {\tt DC} and {\tt NOISE} measures. The qualifier {\tt MINVAL} acts as
+    a tolerance for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
     is specified, the comparison used is when {\tt <variable>} $=$
     {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
     {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt
@@ -651,9 +594,9 @@ value of {\tt VALUE} will print the maximum (or minimum) value to
 the \texttt {.mt\#} file.  A value of {\tt TIME} will print the time
 of the maximum (or minimum) value to the \texttt{.mt\#} file. For {\tt
 DC} measures, a value of {\tt SV} will output the value of the first
-variable on the {\tt .DC} line to the \texttt{.ms\#} file.  For {\tt
-AC} measures, a value of {\tt FREQ} will print the frequency at which
-the maximum (or minimum) value occurs to the \texttt{.ma\#} file.
+variable on the {\tt .DC} line to the \texttt{.ms\#} file.  For {\tt AC}
+and {\tt NOISE} measures, a value of {\tt FREQ} will print the frequency
+at which the maximum (or minimum) value occurs to the \texttt{.ma\#} file.
 This parameter does not affect the descriptive output that is printed
 to the standard output.  The ``Additional Examples'' subsection gives
 an example for the {\tt MAX} measure.
@@ -719,10 +662,9 @@ and log file.  Additionally, for \texttt{TRAN} measures, the results
 are stored in files called
 \texttt{circuitFileName.mt\#}, where the suffixed number (\texttt{\#}) starts
 at \texttt{0} and increases for multiple iterations (\texttt{.STEP}
-iterations) of a given simulation. For \texttt{DC} and \texttt{AC}
-measures, the results are stored in the
-files \texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#}
-respectively.
+iterations) of a given simulation. For \texttt{DC} measures, the results are
+stored in the files \texttt{circuitFileName.ms\#}, while \texttt{AC} and
+\texttt{NOISE} measures use the files \texttt{circuitFileName.ma\#}.
 
 A user-defined measure can also be output at each time-step via
 inclusion in a .PRINT command.  For example, this netlist excerpt
@@ -1072,7 +1014,7 @@ Measure Start Time= 0.000000e+00        Measure End Time= 1.000000e+00
 For a DC measure, one would use \texttt{OUTPUT=SV} instead
 of \texttt{OUTPUT=TIME}.  In that case, the ``sweep value'' (SV) is
 the value of the first variable on the
-\texttt{.DC} line. For an AC measure, one would use \texttt{OUTPUT=FREQ}.
+\texttt{.DC} line. For an AC or NOISE measure, one would use \texttt{OUTPUT=FREQ}.
 
 \subsubsection{Suppresssing Measure Output}
 \label{Measure_Suppressing_Measure_Output}
@@ -1216,17 +1158,25 @@ One caveat is that AC mode measures that use \texttt{V(a)} will actually
 measure \texttt{VR(a)}. The same caveat applies to the use of \texttt{S(1,1)}.
 An AC mode measure would measure \texttt{SR(1,1)} instead.
 
+\subsubsection{Operator Support for NOISE Mode Measures}
+\label{Measure_AC_Op_Support}
+\index{measure!supported operators for AC measures}
+All of the operators supported on \texttt{.PRINT NOISE} lines are supported
+for NOISE measure mode.  One caveat is that NOISE mode measures that use
+\texttt{V(a)} will actually measure \texttt{VR(a)}.
+
 \subsubsection{Behavior for Unsupported Modes and Types}
 \label{Measure_Unsupported_Types}
 \index{measure!unsupported types}
 The \texttt{.MEASURE} statement is supported
-for \texttt{.TRAN}, \texttt{.DC} and
-\texttt{.AC} analyses. It can be used with {\tt .STEP} in all three cases.
-So, \Xyce{} does not support \texttt{NOISE} or \texttt{HB} measure
-modes.  If those two modes are included in the netlist then \Xyce{}
+for \texttt{.TRAN}, \texttt{.AC}, \texttt{.DC} and \texttt{.NOISE}
+analyses. It can be used with {\tt .STEP} in all four cases.
+So, \Xyce{} does not support \texttt{HB} measure mode.  If that mode
+is included in the netlist then \Xyce{}
 parsing will fail and emit error messages.  Similarly, \Xyce{} parsing
 will fail if the requested measure type is not supported for a given
-measure mode (e.g., \texttt{OFF\_TIME} for a \texttt{DC} or \texttt{AC} measure).
+measure mode (e.g., \texttt{OFF\_TIME} for a \texttt{AC}, \texttt{DC}
+or \texttt{NOISE} measure).
 
 \subsubsection{HSPICE Compatibility}
 \label{Measure_HSpice_Compatibility}
@@ -1235,6 +1185,8 @@ There are known incompatibilities between the \Xyce{} and HSPICE implementation
 of {\tt .MEASURE}.  They include the following:
 
 \begin{XyceItemize}
+  \item Since \texttt{.AC} and \texttt{.NOISE} are separate analysis types in
+        \Xyce{}, there are separate \texttt{AC} and \texttt{NOISE} measure modes.
 
   \item Several of the \Xyce{} measure types ({\tt DUTY}, {\tt EQN},
          {\tt FREQ}, {\tt FOUR}, {\tt ON\_TIME}, and {\tt OFF\_TIME})

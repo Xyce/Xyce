@@ -46,22 +46,23 @@ set ( OpenModels_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Vsrc.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ROM.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_TransLine.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_YLin.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGrid.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridBranch.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridBusShunt.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridGenBus.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridTransformer.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_AntiWindupLimiter.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_YLin.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_StepDelay.C
       CACHE INTERNAL "X_S" )
-
+  
+set ( XYCE_SOURCES ${XYCE_SOURCES} ${OpenModels_SOURCES} PARENT_SCOPE)
 
 # add header files to project
 set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${REACTION_PARSER_INC}
-      CACHE INTERNAL "X_I" )
+      PARENT_SCOPE )
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

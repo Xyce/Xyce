@@ -1,31 +1,17 @@
 
-# -- build targets -----------------------------------------------------------
+add_executable(twoLevelNewtonLinearDC EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/twoLevelNewtonLinearDC.C )
+target_include_directories(twoLevelNewtonLinearDC PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(twoLevelNewtonLinearDC XyceStatic )
 
-# create binary
-add_executable( twoLevelNewtonLinearDC
-                EXCLUDE_FROM_ALL
-                ${CMAKE_CURRENT_SOURCE_DIR}/twoLevelNewtonLinearDC.C )
-add_executable( twoLevelNewtonLinearTran
-                EXCLUDE_FROM_ALL
-                ${CMAKE_CURRENT_SOURCE_DIR}/twoLevelNewtonLinearTran.C )
 
-target_include_directories( twoLevelNewtonLinearDC PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+add_executable(twoLevelNewtonLinearTran EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/twoLevelNewtonLinearTran.C )
+target_include_directories(twoLevelNewtonLinearTran PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(twoLevelNewtonLinearTran XyceStatic )
 
-target_include_directories( twoLevelNewtonLinearTran PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
 
-# link against available Xyce library 
-if ( Xyce_ENABLE_SHARED )
-  target_link_libraries( twoLevelNewtonLinearDC lib_xyce_shared ${DAKOTA_OBJS} )
-else ( Xyce_ENABLE_SHARED )
-  target_link_libraries( twoLevelNewtonLinearDC lib_xyce_static ${DAKOTA_OBJS} )
-endif ( Xyce_ENABLE_SHARED )
-if ( Xyce_ENABLE_SHARED )
-  target_link_libraries( twoLevelNewtonLinearTran lib_xyce_shared ${DAKOTA_OBJS} )
-else ( Xyce_ENABLE_SHARED )
-  target_link_libraries( twoLevelNewtonLinearTran lib_xyce_static ${DAKOTA_OBJS} )
-endif ( Xyce_ENABLE_SHARED )
+#if( Xyce_ENABLED_SHARED )
+#  target_link_librarie(twoLevelNewtonLinearDC lib_xyce_shared )
+#else( Xyce_ENABLED_SHARED )
+#  target_link_libraries(twoLevelNewtonLinearDC lib_xyce_static )
+#endif( Xyce_ENABLED_SHARED )
 

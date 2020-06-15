@@ -40,6 +40,7 @@
 // ---------- Xyce Includes ----------
 
 #include <N_UTL_fwd.h>
+#include <N_UTL_Math.h>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_HBDirectSolver.h>

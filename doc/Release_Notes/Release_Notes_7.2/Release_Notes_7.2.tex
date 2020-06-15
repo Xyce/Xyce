@@ -102,13 +102,11 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-  \item The AVG, DERIV, FIND-WHEN, INTEG, RMS and WHEN measure types are
-now supported for .AC and .DC analyses.
-  \item The ERR, ERR1, ERR2 and FIND-AT measure types are now supported
-for all three measure modes (AC, DC and TRAN).
-  \item For the Mixed Signal interface, methods were added to allow
-the user to query for the names of all of the devices in the
-netlist, and for the parameter values of any device in the netlist.
+  \item .MEASURE is now supported for .NOISE analyses.
+  \item The DNI and DNO operators can print out the individual input and
+    output noise contributions for each noise source within a device.
+  \item The -noise\_names\_file command line option can generate a
+    listing of the noise source names for each device in a netlist.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

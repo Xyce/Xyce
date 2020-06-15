@@ -1,6 +1,17 @@
 
-# -- process files for this library ------------------------------------------
+# generate a timestamp.h
+string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
+execute_process(
+     COMMAND git -C ${CMAKE_SOURCE_DIR} log --pretty=format:%h -1
+     OUTPUT_VARIABLE GITSHA  ERROR_QUIET)
+if (NOT ${GITSHA} STREQUAL "")
+     set(GITSTRING "-g-${GITSHA}")
+endif ()
+set(XYCEBUILDTIMESTAMP "${CONFIGURE_TIME}${GITSTRING}")
+configure_file(timestamp.h.cmake timestamp.h)
 
+
+# -- process files for this library ------------------------------------------
 
 # process source file options
 if ( Xyce_USE_INTEL_FFT )
@@ -40,7 +51,6 @@ set ( Utility_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_SendCURL.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_RandomNumbers.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_ReportHandler.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_RFparams.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_Timer.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_CPUTime.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_MallocUsed.C
@@ -57,13 +67,15 @@ set ( Utility_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_NetlistLocation.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_NodeSymbols.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_CheckIfValidFile.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_RFparams.C
       CACHE INTERNAL "X_S" )
 
-
+set ( XYCE_SOURCES ${XYCE_SOURCES} ${Utility_SOURCES} PARENT_SCOPE)
 # add header files to project
 set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
       ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
+      ${CMAKE_CURRENT_BINARY_DIR} 
+      PARENT_SCOPE )
 
 
 

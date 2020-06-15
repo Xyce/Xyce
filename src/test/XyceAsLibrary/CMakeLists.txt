@@ -1,17 +1,14 @@
 
-# -- build targets -----------------------------------------------------------
+add_executable( bug1574 EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/bug1574.C )
+target_link_libraries( bug1574 XyceStatic )
+
+add_executable( testHarness1685 EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/testHarness1685.C )
+target_link_libraries( testHarness1685 XyceStatic )
 
 
-# create binary 1 of 2
-add_executable( testHarness1685 
-                EXCLUDE_FROM_ALL
-                ${CMAKE_CURRENT_SOURCE_DIR}/testHarness1685.C )
-
-# link against available Xyce library 
-if ( Xyce_ENABLE_SHARED )
-  target_link_libraries( testHarness1685 lib_xyce_shared ${DAKOTA_OBJS} )
-else ( Xyce_ENABLE_SHARED )
-  target_link_libraries( testHarness1685 lib_xyce_static ${DAKOTA_OBJS} )
-endif ( Xyce_ENABLE_SHARED )
-
+#if( Xyce_ENABLED_SHARED )
+#  target_link_libraries( bug1574 lib_xyce_shared )
+#else( Xyce_ENABLED_SHARED )
+#  target_link_libraries( bug1574 lib_xyce_static )
+#endif( Xyce_ENABLED_SHARED )
 

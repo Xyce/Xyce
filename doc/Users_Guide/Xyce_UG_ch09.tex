@@ -1478,7 +1478,82 @@ Note that stationary noise is not supported in every \Xyce{} device.
 A list of \Xyce{} devices, and which of them support stationary noise,
 is given in the \Xyce{} Reference Guide\ReferenceGuide{}.
 
+The \texttt{DNI} and \texttt{DNO} operators can print out the individual
+input and output noise contributions for each noise source within a device
+via \verb|.PRINT NOISE| lines.  Figure ~\ref{DniDnoExample} provides an
+example.
 
+The \texttt{-noise\_names\_file} command line option can generate a listing
+of the noise source names for each device in a netlist.  The output of that
+command for the netlist given in figure ~\ref{DniDnoExample} is shown in
+figure ~\ref{NoiseNamesFile}.  In this example, \texttt{DNI(M1)} would
+output the input noise contribution for all noise sources in MOSFET M1, while
+\texttt{DNI(Q1,FN)} would only output the input flicker-noise contribution
+from MOSFET M1.
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* Noise Analysis: DNI and DNO Usage
+* A Simple MOSFET Gain Stage.\color{black}
+
+M1 3 2 0 0 nmos w=4u l=1u
+.model nmos nmos level=1 tox=1e-7
+
+Rsource 1 2 100k
+Rload 3 vdd 25k
+
+Vdd1 vdd 0 5
+Vin 1 0 1.44 ac .1 sin(0 1 1e+5 0 0)
+
+\color{blue}* Noise commands\color{black}
+.noise v(3) Vin dec 10 100 1000Meg  1
+
+\color{blue}* Noise file output\color{black}
+.print noise inoise onoise
++ DNI(rsource) DNI(rload) DNI(M1)
++ DNI(M1,RD) DNI(M1,RS) DNI(M1,ID) DNI(M1,FN)
++ DNO(rsource) DNO(rload) DNO(M1)
++ DNO(M1,RD) DNO(M1,RS) DNO(M1,ID) DNO(M1,FN)
+
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Noise Example: Use of DNI and DNO Operators]
+{Noise Example: Use of DNI and DNO Operators\label{DniDnoExample} }
+\end{centering}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+Valid DNO() and DNI() operators for this netlist.
+Format is DNO(deviceName) for the total output noise for
+a device or DNO(deviceName, noiseSource) for an individual
+output noise contribution.  If a device (e.g., R1) only
+has one noise source then use DNO(R1) to get the total
+output noise.
+
+deviceName       noiseType
+RLOAD
+M1
+M1      fn
+M1      id
+M1      rd
+M1      rs
+RSOURCE
+\end{vquote}
+\end{minipage}
+}
+\caption[Example Output for -noise\_names\_file Command Line Option]
+{Example Output for -noise\_names\_file Command Line Option\label{NoiseNamesFile} }
+\end{centering}
+\end{figure}
 
 %%%%%%
 % -------------------------------------------------------------------------
