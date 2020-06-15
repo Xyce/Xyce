@@ -703,6 +703,7 @@ class unaryMinusOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
 //-------------------------------------------------------------------------------
@@ -732,6 +733,7 @@ class unaryPlusOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
 //-------------------------------------------------------------------------------
@@ -2705,7 +2707,8 @@ class tableOp : public astNode<ScalarT>
     // functions:
     tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
       astNode<ScalarT>(), tableArgs_(*args),
-      allNumVal_(true), input_(input)
+      allNumVal_(true), input_(input),
+      preComputedBreakpointsDone_(false)
       {
         int size = tableArgs_.size();
         if (size % 2)
@@ -2725,6 +2728,8 @@ class tableOp : public astNode<ScalarT>
       };
 
     // special constructor for values read in from a file, that are now stored in std::vector objects
+    // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
+    // the above numvalType test in the first constructor.
     tableOp (Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
       astNode<ScalarT>(), allNumVal_(true), input_(input)
       {
@@ -2830,18 +2835,21 @@ class tableOp : public astNode<ScalarT>
     }
 
 
-    // ERK.  This is not efficient.
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
      if ( input_->timeSpecialType() )
      {
-        double time = std::real(this->input_->val());
-        int size = tableArgs_.size();
-        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
-        {
-          double bpTime =  std::real( (tableArgs_)[ii]->val() );
-          breakPointTimes.push_back( bpTime );
-        }
+       if (!preComputedBreakpointsDone_) // make sure this only happens once
+       {
+         double time = std::real(this->input_->val());
+         int size = tableArgs_.size();
+         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+         {
+           double bpTime =  std::real( (tableArgs_)[ii]->val() );
+           breakPointTimes.push_back( bpTime );
+         }
+         preComputedBreakpointsDone_ = true;
+       }
       }
       return true;
     }
@@ -2940,10 +2948,11 @@ AST_GET_CURRENT_OPS(tableArgs_[ii])
     Xyce::Util::linear<ScalarT> yInterpolator_; // possibly make this a user choice
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice
     Teuchos::RCP<astNode<ScalarT> > input_;
+    bool preComputedBreakpointsDone_;
 };
 
 //-------------------------------------------------------------------------------
-// SCHEULDE(y,z,*)
+// SCHEDULE (y,z,*)
 // f(time) where f(y) = z
 // kind of like a table, but with no interpolation
 template <typename ScalarT>
