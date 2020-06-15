@@ -58,6 +58,9 @@ class ExpressionLexer;
 %s polyargs
 %s polyvoltagenodedef
 %s polycurrentdevdef
+%s sparamdef
+%s yparamdef
+%s zparamdef
 
  /* ID is used for a variety of random strings, including function and 
     parameter names.  So, it cannot have characters in it that could 
@@ -87,6 +90,12 @@ NODE [a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\/\^\*\[\]]*
 VOP V[RIMP]?
 IOP I[RIMP]?
 NOP N[RIMP]?
+
+  /* RF parameters */
+SOP S[RIMP]?
+YOP Y[RIMP]?
+ZOP Z[RIMP]?
+
 LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
@@ -342,6 +351,132 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+  /* S-parameters */
+<INITIAL>{SOP}    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>{SOP}[ \t]*"("     {
+  BEGIN(sparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"SDB"    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"SDB"[ \t]*"("     {
+  BEGIN(sparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* second index in a comma-separated list of two sparam indices */
+<sparamdef>{DIGIT}+")" {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
+}
+
+ /* first index in a comma-separated list of two sparam indices */
+<sparamdef>{DIGIT}+"," {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
+}
+
+  /* Y-parameters */
+<INITIAL>{YOP}    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>{YOP}[ \t]*"("     {
+  BEGIN(yparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"YDB"    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"YDB"[ \t]*"("     {
+  BEGIN(yparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* second index in a comma-separated list of two yparam indices */
+<yparamdef>{DIGIT}+")" {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
+}
+
+ /* first index in a comma-separated list of two yparam indices */
+<yparamdef>{DIGIT}+"," {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
+}
+
+  /* Z-parameters */
+<INITIAL>{ZOP}    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>{ZOP}[ \t]*"("     {
+  BEGIN(zparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"ZDB"    {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"ZDB"[ \t]*"("     {
+  BEGIN(zparamdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* second index in a comma-separated list of two zparam indices */
+<zparamdef>{DIGIT}+")" {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
+}
+
+ /* first index in a comma-separated list of two zparam indices */
+<zparamdef>{DIGIT}+"," {
+  std::string tmp(YYText());
+  tmp.erase(tmp.length()-1);
+  lvalp->ival=Xyce::Util::Value(tmp);
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM_ARG;
 }
 
  /* single device name by itself */

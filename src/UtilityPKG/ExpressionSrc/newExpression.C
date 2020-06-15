@@ -928,6 +928,30 @@ void newExpression::getValuesFromGroup_()
     pwrOp->setPowerVal ( val );
   }
 
+  for (int ii=0;ii<sparamOpVec_.size();ii++)
+  {
+    Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (sparamOpVec_[ii]);
+    usedType val;
+    group_->getSparam (sparOp->getSparamArgs(), val);
+    sparOp->setValue ( val );
+  }
+
+  for (int ii=0;ii<yparamOpVec_.size();ii++)
+  {
+    Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (yparamOpVec_[ii]);
+    usedType val;
+    group_->getYparam (yparOp->getYparamArgs(), val);
+    yparOp->setValue ( val );
+  }
+
+  for (int ii=0;ii<zparamOpVec_.size();ii++)
+  {
+    Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (zparamOpVec_[ii]);
+    usedType val;
+    group_->getZparam (zparOp->getZparamArgs(), val);
+    zparOp->setValue ( val );
+  }
+
   for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
   for (int ii=0;ii<dtOpVec_.size();ii++) { dtOpVec_[ii]->setValue(group_->getTimeStep()); }
 
@@ -1014,6 +1038,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     }
 
 #if 0
+    std::cout << "Parse Tree for " << expressionString_ << std::endl;
     dumpParseTree(std::cout);
 #endif
 

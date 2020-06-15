@@ -62,9 +62,11 @@ class ExpressionLexer;
   Teuchos::RCP<astNode<usedType> > * astNodePtr;
   std::vector< Teuchos::RCP<astNode<usedType> > > * nodeVecPtr;
 
+  int ival;
   double dval;
   std::string *sval;
   std::vector<std::string> *vecsval;
+  std::vector<int> *vecival;
 };
 
 %{
@@ -141,6 +143,7 @@ bool checkGroundNodeName(std::string & name)
 %token <sval> TOK_CURRENTDEV "currentdevice"
 %token <sval> TOK_INTERNAL_DEV_VAR "internal_device_variable"
 %token <sval> TOK_NOISE_DEV_VAR "noise_device_variable"
+%token <ival> TOK_RFPARAM_ARG "rf_param_arg"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -215,6 +218,7 @@ bool checkGroundNodeName(std::string & name)
 %type  <nodeVecPtr>   no_comma_arglist
 %type  <nodeVecPtr>   no_comma_coeflist
 %type  <vecsval>  nonempty_voltagenodelist
+%type  <vecival>  nonempty_rfparam_arg_list
 %type  <vecsval>  nonempty_noise_device_list
 %type  <dval>  paren_polycoef
 
@@ -228,6 +232,7 @@ bool checkGroundNodeName(std::string & name)
 %destructor { delete $$; } TOK_INOISE
 %destructor { delete $$; } TOK_POWER
 %destructor { delete $$; } nonempty_voltagenodelist
+%destructor { delete $$; } nonempty_rfparam_arg_list
 %destructor { delete $$; } nonempty_noise_device_list
 
 
@@ -681,6 +686,104 @@ exp:
         delete $1;
         delete $2;
       }
+    }
+  | TOK_WORD nonempty_rfparam_arg_list
+    {
+      std::string firstArg = (*$1);
+      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+
+      std::vector<int> sparamIndices = *$2; 
+      Teuchos::RCP<astNode<usedType> > * tmpPtr;
+      Teuchos::RCP<astNode<usedType> > * returnPtr;
+      if (sparamIndices.size() == 2)
+      {
+        if (firstArg[0] == 'S')
+        {
+          Teuchos::RCP<sparamOp<usedType> > * sparPtr = new Teuchos::RCP<sparamOp<usedType> >(new sparamOp<usedType>(*$2));
+          tmpPtr = new Teuchos::RCP<astNode<usedType> >(*sparPtr);
+          newExp.getSparamOpVec ().push_back(*sparPtr);
+          delete sparPtr;
+        }
+        else if (firstArg[0] == 'Y')
+        {
+          Teuchos::RCP<yparamOp<usedType> > * yparPtr = new Teuchos::RCP<yparamOp<usedType> >(new yparamOp<usedType>(*$2));
+          tmpPtr = new Teuchos::RCP<astNode<usedType> >(*yparPtr);
+          newExp.getYparamOpVec ().push_back(*yparPtr);
+          delete yparPtr;
+        }
+        else if (firstArg[0] == 'Z')
+        {
+          Teuchos::RCP<zparamOp<usedType> > * zparPtr = new Teuchos::RCP<zparamOp<usedType> >(new zparamOp<usedType>(*$2));
+          tmpPtr = new Teuchos::RCP<astNode<usedType> >(*zparPtr);
+          newExp.getZparamOpVec ().push_back(*zparPtr);
+          delete zparPtr;
+        }
+        else
+        {
+          std::cout << "Unrecognized RF parameter: " << firstArg <<std::endl;
+        }
+
+        newExp.getMasterNodeVec().push_back(tmpPtr);
+
+        // adjust for complex number variants
+        // remove whitespace from the first argument
+        if (firstArg.size() == 1)
+        {
+          returnPtr = tmpPtr;
+        }
+        else if (firstArg.size() == 2)
+        {
+           if ( firstArg[1] == 'R')
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg[1] == 'I')
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg[1] == 'M')
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+           }
+           else if ( firstArg[1] == 'P')
+           {
+             returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
+             newExp.getMasterNodeVec().push_back(returnPtr);
+             newExp.getPhaseOpVec().push_back(*returnPtr);
+           }
+        }
+        else if (firstArg.size() == 3) // do decibels here
+        {
+          if ( firstArg[1] == 'D' && firstArg[2] == 'B')
+          {
+            // this needs to implement 20.0*std::log10(abs(*tmpPtr))  
+            Teuchos::RCP<astNode<usedType> > * numvalPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+            Teuchos::RCP<astNode<usedType> > * absPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+            Teuchos::RCP<astNode<usedType> > * log10Ptr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*absPtr));
+            returnPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (*numvalPtr,*log10Ptr));
+
+            newExp.getMasterNodeVec().push_back(numvalPtr);
+            newExp.getMasterNodeVec().push_back(absPtr);
+            newExp.getMasterNodeVec().push_back(log10Ptr);
+            newExp.getMasterNodeVec().push_back(returnPtr);
+          }
+        }
+        else
+        {
+          std::cout << "Unrecognized RF operator " << firstArg << std::endl;
+        }
+      }
+      else
+      {
+        std::cout << "Wrong number of arguments to S-parameter !" <<std::endl;
+      }
+
+      $$ = returnPtr;
+      delete $1;
+      delete $2;
     }
   | TOK_LEAD TOK_CURRENTDEV
     {
@@ -1291,6 +1394,9 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
   ;
+
+nonempty_rfparam_arg_list: TOK_RFPARAM_ARG { $$ = new std::vector<int>; $$->push_back($1); }
+  | nonempty_rfparam_arg_list  TOK_RFPARAM_ARG  { $$->push_back($2); }
 
 nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
   | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $$->push_back(*($2)); delete $2; }

@@ -57,8 +57,17 @@ public:
 
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
 
-  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; } 
-  virtual bool getGlobalParameterVal (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; } 
+  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
+  virtual bool getGlobalParameterVal (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
+
+  virtual bool getSparam (const std::vector<int> & args, double & retval ) { retval=0.0; return false; }
+  virtual bool getSparam (const std::vector<int> & args, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
+
+  virtual bool getYparam (const std::vector<int> & args, double & retval ) { retval=0.0; return false; }
+  virtual bool getYparam (const std::vector<int> & args, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
+
+  virtual bool getZparam (const std::vector<int> & args, double & retval ) { retval=0.0; return false; }
+  virtual bool getZparam (const std::vector<int> & args, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
 
   virtual double getTimeStep () { return 0.0; }
 

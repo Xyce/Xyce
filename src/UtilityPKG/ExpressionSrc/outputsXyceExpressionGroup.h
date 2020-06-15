@@ -120,6 +120,15 @@ public:
   virtual bool getPower(const std::string & deviceName, double & retval);
   virtual bool getPower(const std::string & deviceName, std::complex<double> & retval);
 
+  virtual bool getSparam (const std::vector<int> & args, double & retval );
+  virtual bool getSparam (const std::vector<int> & args, std::complex<double> & retval );
+
+  virtual bool getYparam (const std::vector<int> & args, double & retval );
+  virtual bool getYparam (const std::vector<int> & args, std::complex<double> & retval );
+
+  virtual bool getZparam (const std::vector<int> & args, double & retval );
+  virtual bool getZparam (const std::vector<int> & args, std::complex<double> & retval );
+
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
   virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX

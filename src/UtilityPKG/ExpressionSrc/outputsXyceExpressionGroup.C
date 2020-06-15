@@ -691,6 +691,168 @@ bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, std::c
 }
 
 //-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getSparam
+// Purpose       :
+// Special Notes : double version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getSparam (const std::vector<int> & args, double & retval )
+{
+  return false;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getSparam
+// Purpose       :
+// Special Notes : complex version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getSparam (const std::vector<int> & args, std::complex<double> & retval )
+{
+  retval=0.0;
+  ParamList paramList;
+
+  paramList.push_back(Param(std::string("S"),static_cast<int>(args.size())));
+  for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+  Op::OpList sparamOps_;
+
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<std::complex<double> > variableValues;
+  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  {
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getYparam
+// Purpose       :
+// Special Notes : double version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getYparam (const std::vector<int> & args, double & retval )
+{
+  return false;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getYparam
+// Purpose       :
+// Special Notes : complex version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getYparam (const std::vector<int> & args, std::complex<double> & retval )
+{
+  retval=0.0;
+  ParamList paramList;
+
+  paramList.push_back(Param(std::string("Y"),static_cast<int>(args.size())));
+  for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+  Op::OpList sparamOps_;
+
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<std::complex<double> > variableValues;
+  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  {
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getZparam
+// Purpose       :
+// Special Notes : double version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getZparam (const std::vector<int> & args, double & retval )
+{
+  return false;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::getZparam
+// Purpose       :
+// Special Notes : complex version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/14/2020
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::getZparam (const std::vector<int> & args, std::complex<double> & retval )
+{
+  retval=0.0;
+  ParamList paramList;
+
+  paramList.push_back(Param(std::string("Z"),static_cast<int>(args.size())));
+  for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+  Op::OpList sparamOps_;
+
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+
+  // loop over expressionOps_ to get all the values.
+  std::vector<std::complex<double> > variableValues;
+  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  {
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getTimeStep
 // Purpose       : 
 // Special Notes :
