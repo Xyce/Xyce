@@ -60,7 +60,7 @@ target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBR
 # In the case where CURL has been built with CMake, then we have NOT
 # gotten CURL_LIBRARIES or CURL_INCLUDE_DIRS set, we have instead gotten
 # an import library defined.  Let's check for that:
-if (Xyce_USE_CURL and NOT DEFINED CURL_LIBRARIES)
+if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceStatic PUBLIC CURL::curl)
 endif(Xyce_USE_CURL and NOT DEFINED CURL_LIBRARIES)
 
