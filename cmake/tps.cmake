@@ -368,12 +368,7 @@ if (Xyce_USE_CURL)
      if (Xyce_TRACKING_URL)
        message(STATUS "Looking for cURL")
           find_package(CURL REQUIRED)
-          # Now, what did this tell us?
           message(STATUS "The usage tracking capability is enabled. Using: ${Xyce_TRACKING_URL}")
-          if (CURL_DIR)
-            message(STATUS "We found CURL_DIR=${CURL_DIR}")
-          endif(CURL_DIR)
-          message(STATUS "CURL_LIBRARIES is ${CURL_LIBRARIES} and CURL_INCLUDE_DIRS is ${CURL_INCLUDE_DIRS}")
      else()
           message("Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL.\n"
                   "Changing Xyce_USE_CURL to FALSE - disabling usage tracking")
