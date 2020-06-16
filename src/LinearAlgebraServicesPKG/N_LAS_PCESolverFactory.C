@@ -43,14 +43,6 @@
 
 #include <Xyce_config.h>
 
-
-// ---------- Standard Includes ----------
-
-#include "Epetra_LinearProblem.h"
-#include "Epetra_MultiVector.h"
-#include "Epetra_Vector.h"
-#include "Epetra_Comm.h"
-
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_PCESolverFactory.h>

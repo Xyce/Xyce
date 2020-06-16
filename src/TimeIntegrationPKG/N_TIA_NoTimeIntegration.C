@@ -60,12 +60,6 @@
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_FeatureTest.h>
 
-//Need Epetra Stuff for now, since directly manipulating Epetra Objs for
-//obtainJacobian.  This will be abstracted later
-#include <Epetra_Import.h>
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_Map.h>
-
 namespace Xyce {
 namespace TimeIntg {
 
