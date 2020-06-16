@@ -6634,14 +6634,17 @@ other variables does not get propagated into a variable's
 <!-- callfunction: handle $strobe -->
 <admst:template match="callfunction">
   <admst:choose>
-    <admst:when test="function[name='\$strobe']">
+    <admst:when test="function[name='\$strobe' or name='\$write'  or name='\$display']">
       <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
       <admst:variable name="skipFunctionPrecomp" select="y"/>
       <admst:text format="std::cerr "/>
       <admst:for-each select="function/arguments">
       <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
       </admst:for-each>
-      <admst:text format=" &lt;&lt;  std::endl; \n"/>
+      <admst:if test="[function/name='\$strobe' or function/name='\$display']">
+        <admst:text format=" &lt;&lt;  std::endl"/>
+      </admst:if>
+      <admst:text format="; \n"/>
       <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     </admst:when>
     <admst:when test="function[name='\$finish']">
