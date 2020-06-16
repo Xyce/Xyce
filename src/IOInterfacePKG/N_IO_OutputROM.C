@@ -34,10 +34,6 @@
 
 #include <Xyce_config.h>
 
-#undef HAVE_LIBPARMETIS
-#include <EpetraExt_RowMatrixOut.h>
-#include <Epetra_CrsMatrix.h>
-
 #include <N_IO_OutputROM.h>
 #include <N_IO_mmio.h>
 #include <N_LAS_Vector.h>
@@ -156,20 +152,15 @@ void outputROM(Parallel::Machine comm, const std::string &netlist_filename,
   std::string gfile = netlist_filename + ".Ghat";
   std::string cfile = netlist_filename + ".Chat";
 
-  // Get Epetra_CrsMatrix objects from Ghat and Chat
-  Epetra_CrsMatrix& epetraGhat =(const_cast<Linear::Matrix*>(&Ghat))->epetraObj();
-  Epetra_CrsMatrix& epetraChat =(const_cast<Linear::Matrix*>(&Chat))->epetraObj();
-
-  // Write out objects using EpetraExt
-  EpetraExt::RowMatrixToMatrixMarketFile(gfile.c_str(), epetraGhat);
-  EpetraExt::RowMatrixToMatrixMarketFile(cfile.c_str(), epetraChat);
+  // Write out objects
+  Ghat.writeToFile( gfile.c_str(), false, true );
+  Chat.writeToFile( cfile.c_str(), false, true ); 
 
   // Write out Bhat and Lhat.
   // NOTE:  Only do this on one processor if running in parallel.
 
   if (Parallel::rank(comm) == 0)
   {
-
     // Open files for Bhat, and Lhat
     FILE *b_file, *l_file;
     MMIO::MM_typecode matcode;

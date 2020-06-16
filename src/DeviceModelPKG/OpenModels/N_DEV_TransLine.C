@@ -52,7 +52,6 @@
 #include <N_DEV_SolverState.h>
 #include <N_DEV_TransLine.h>
 #include <N_ERH_ErrorMgr.h>
-#include <N_IO_mmio.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Vector.h>
 #include <N_UTL_Expression.h>

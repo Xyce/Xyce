@@ -65,6 +65,7 @@
 #endif
 
 #include <EpetraExt_View_MultiVector.h>
+#include <EpetraExt_MultiVectorOut.h>
 #include <Teuchos_BLAS.hpp>
 
 namespace Xyce {
@@ -909,48 +910,55 @@ bool MultiVector::importOverlap()
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/19/00
 //-----------------------------------------------------------------------------
-void MultiVector::writeToFile(const char *filename, bool useLIDs )
+void MultiVector::writeToFile( const char * filename, bool useLIDs, bool mmFormat ) const
 {
   int numProcs = aMultiVector_->Comm().NumProc();
   int localRank = aMultiVector_->Comm().MyPID();
   int masterRank = 0;
 
-  for( int p = 0; p < numProcs; ++p )
+  if (!mmFormat)
   {
-    //A barrier inside the loop so each processor waits its turn.
-    aMultiVector_->Comm().Barrier();
-
-    if(p == localRank)
+    for( int p = 0; p < numProcs; ++p )
     {
-      FILE *file = NULL;
+      //A barrier inside the loop so each processor waits its turn.
+      aMultiVector_->Comm().Barrier();
 
-      if(masterRank == localRank)
+      if(p == localRank)
       {
-        //This is the master processor, open a new file.
-        file = fopen(filename,"w");
+        FILE *file = NULL;
 
-        //Write the RDP_MultiVector dimension n into the file.
-        fprintf(file,"%d\n",globalLength());
-      }
-      else
-      {
-        //This is not the master proc, open file for appending
-        file = fopen(filename,"a");
-      }
-
-      //Now loop over the local portion of the RDP_MultiVector.
-      int length  = localLength();
-      int numVecs = numVectors();
-
-      for (int i = 0; i < numVecs; ++i)
-        for (int j = 0; j < length; ++j)
+        if(masterRank == localRank)
         {
-          int loc = aMultiVector_->Map().GID(j);
-          if( useLIDs ) loc = j;
-          fprintf(file,"%d %d %20.13e\n",i,loc,(*aMultiVector_)[i][j]);
+          //This is the master processor, open a new file.
+          file = fopen(filename,"w");
+
+          //Write the RDP_MultiVector dimension n into the file.
+          fprintf(file,"%d\n",globalLength());
         }
-      fclose(file);
+        else
+        {
+          //This is not the master proc, open file for appending
+          file = fopen(filename,"a");
+        }
+
+        //Now loop over the local portion of the RDP_MultiVector.
+        int length  = localLength();
+        int numVecs = numVectors();
+
+        for (int i = 0; i < numVecs; ++i)
+          for (int j = 0; j < length; ++j)
+          {
+            int loc = aMultiVector_->Map().GID(j);
+            if( useLIDs ) loc = j;
+            fprintf(file,"%d %d %20.13e\n",i,loc,(*aMultiVector_)[i][j]);
+          }
+        fclose(file);
+      }
     }
+  }
+  else 
+  {
+    EpetraExt::MultiVectorToMatrixMarketFile( filename, *aMultiVector_ );
   }
 }
 

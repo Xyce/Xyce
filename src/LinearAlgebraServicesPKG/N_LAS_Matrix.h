@@ -207,7 +207,7 @@ public:
   bool putLocalRow(int row, int length, const double * coeffs, const int * colIndices);
 
   // Output the matrix to a file
-  void writeToFile(const char * filename, bool useLIDs = false, bool mmFormat=false );
+  void writeToFile(const char * filename, bool useLIDs = false, bool mmFormat=false ) const;
 
   Epetra_CrsMatrix & epetraObj() { return *aDCRSMatrix_; }
   const Epetra_CrsMatrix & epetraObj() const { return *aDCRSMatrix_; }

@@ -223,7 +223,7 @@ public:
   bool importOverlap();
 
   // Dump vector entries to file.
-  virtual void writeToFile( const char * filename, bool useLIDs = false );
+  virtual void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
 
   // Friend of the Matrix and IterativeSolver classes so their
   // member functions can access our private members.

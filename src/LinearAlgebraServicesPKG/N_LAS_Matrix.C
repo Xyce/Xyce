@@ -726,7 +726,7 @@ const double * Matrix::operator()( int row, int col_offset ) const
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/19/00
 //-----------------------------------------------------------------------------
-void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat )
+void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) const
 {
   if (!mmFormat)
   {
