@@ -355,7 +355,7 @@ void Error::updateDC(
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;
-    sweepVar_= dcParamsVec[0].name; // used in descriptive output to stdout
+    sweepVar_= setDCSweepVarName(dcParamsVec); // used in descriptive output to stdout
   }
  
 }
