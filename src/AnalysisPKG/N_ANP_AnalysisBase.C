@@ -306,10 +306,7 @@ operator-(
   s.iterationMatrixFactorizations_ = s0.iterationMatrixFactorizations_ - s1.iterationMatrixFactorizations_;
   s.linearSolves_ = s0.linearSolves_ - s1.linearSolves_;
   s.failedLinearSolves_ = s0.failedLinearSolves_ - s1.failedLinearSolves_;
-
-  if (s0.linearIters_ > s1.linearIters_)
-    s.linearIters_ = s0.linearIters_ - s1.linearIters_;
-
+  s.linearIters_ = s0.linearIters_ - s1.linearIters_;
   s.residualEvaluations_ = s0.residualEvaluations_ - s1.residualEvaluations_;
   s.nonlinearConvergenceFailures_ = s0.nonlinearConvergenceFailures_ - s1.nonlinearConvergenceFailures_;
   s.residualLoadTime_ = s0.residualLoadTime_ - s1.residualLoadTime_;
@@ -339,11 +336,18 @@ bool AnalysisBase::printLoopInfo(int t1, int t2)
 
   lout() << "\tNumber Successful Steps Taken:\t\t" << saveStatCountsVector_[t2].successfulStepsTaken_ - saveStatCountsVector_[t1].successfulStepsTaken_ << std::endl
          << "\tNumber Failed Steps Attempted:\t\t" << saveStatCountsVector_[t2].failedStepsAttempted_ - saveStatCountsVector_[t1].failedStepsAttempted_ << std::endl
-         << "\tNumber Jacobians Evaluated:\t\t" << saveStatCountsVector_[t2].jacobiansEvaluated_ - saveStatCountsVector_[t1].jacobiansEvaluated_ << std::endl
-         << "\tNumber Iteration Matrix Factorizations:\t" << saveStatCountsVector_[t2].iterationMatrixFactorizations_ - saveStatCountsVector_[t1].iterationMatrixFactorizations_ << std::endl
-         << "\tNumber Linear Solves:\t\t\t" << saveStatCountsVector_[t2].linearSolves_ - saveStatCountsVector_[t1].linearSolves_ << std::endl
+         << "\tNumber Jacobians Evaluated:\t\t" << saveStatCountsVector_[t2].jacobiansEvaluated_ - saveStatCountsVector_[t1].jacobiansEvaluated_ << std::endl;
+
+  // This statistic is only collected when two-level Newton is being used.
+  if (saveStatCountsVector_[t2].iterationMatrixFactorizations_ > saveStatCountsVector_[t1].iterationMatrixFactorizations_)
+  {
+    lout() << "\tNumber Iteration Matrix Factorizations:\t" << saveStatCountsVector_[t2].iterationMatrixFactorizations_ - saveStatCountsVector_[t1].iterationMatrixFactorizations_ << std::endl;
+  }
+
+  lout() << "\tNumber Linear Solves:\t\t\t" << saveStatCountsVector_[t2].linearSolves_ - saveStatCountsVector_[t1].linearSolves_ << std::endl
          << "\tNumber Failed Linear Solves:\t\t" << saveStatCountsVector_[t2].failedLinearSolves_ - saveStatCountsVector_[t1].failedLinearSolves_ << std::endl;
 
+  // This statistic is only collected when iterative linear solvers are being used.
   if (saveStatCountsVector_[t2].linearIters_ > saveStatCountsVector_[t1].linearIters_)
   {
     lout() << "\tNumber Linear Solver Iterations:\t" << saveStatCountsVector_[t2].linearIters_ - saveStatCountsVector_[t1].linearIters_ << std::endl;
