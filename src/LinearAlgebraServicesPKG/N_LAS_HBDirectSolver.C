@@ -363,9 +363,15 @@ void HBDirectSolver::createBlockStructures()
   {
 
     Teuchos::RCP<Matrix> parMatrix;
+    Teuchos::RCP<Vector> parVector;
+    N_PDS_ParMap * columnMapPtr, * rowMapPtr;
     if (numProcs > 1)
     {
       parMatrix = Teuchos::rcp( builder_.createMatrix() );
+      parVector = Teuchos::rcp( builder_.createVector() );
+
+      columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+      rowMapPtr = parVector->pmap();
     }
 
     // Get the separated stored Jacobian matrices from the HB loader.
@@ -388,7 +394,7 @@ void HBDirectSolver::createBlockStructures()
       int parRow = row;
       if (numProcs > 1)
       {
-        parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+        parRow = rowMapPtr->localToGlobalIndex( row );
       }
 
       int numCols = lindQdxRowPtr[row+1] - lindQdxRowPtr[row];
@@ -397,7 +403,7 @@ void HBDirectSolver::createBlockStructures()
         int col = lindQdxIndices[ lindQdxRowPtr[row] + j ];
         if (numProcs > 1)
         {
-          col = (parMatrix->epetraObj()).ColMap().GID( col );
+          col = columnMapPtr->localToGlobalIndex( col );
         }
         nnzCol[col].push_back( parRow );
       }
@@ -412,7 +418,7 @@ void HBDirectSolver::createBlockStructures()
       int parRow = row;
       if (numProcs > 1)
       {
-        parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+        parRow = rowMapPtr->localToGlobalIndex( row );
       }
 
       int numCols = lindFdxRowPtr[row+1] - lindFdxRowPtr[row];
@@ -421,7 +427,7 @@ void HBDirectSolver::createBlockStructures()
         int col = lindFdxIndices[ lindFdxRowPtr[row] + j ];
         if (numProcs > 1)
         {
-          col = (parMatrix->epetraObj()).ColMap().GID( col );
+          col = columnMapPtr->localToGlobalIndex( col );
         }
         nnzCol[col].push_back( parRow );
       }
@@ -440,8 +446,8 @@ void HBDirectSolver::createBlockStructures()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
-          col = (parMatrix->epetraObj()).ColMap().GID( col );
+          parRow = rowMapPtr->localToGlobalIndex( row );
+          col = columnMapPtr->localToGlobalIndex( col );
         }
         if (col != -1)
         {
@@ -473,7 +479,7 @@ void HBDirectSolver::createBlockStructures()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+          parRow = rowMapPtr->localToGlobalIndex( row );
         }
 
         int numCols = nonlindFdxRowPtr[row+1] - nonlindFdxRowPtr[row];
@@ -495,7 +501,7 @@ void HBDirectSolver::createBlockStructures()
           } 
           if (numProcs > 1)
           { 
-            col = (parMatrix->epetraObj()).ColMap().GID( col );
+            col = columnMapPtr->localToGlobalIndex( col );     
           }
           nnzCol_nl[col].push_back( parRow );
         }
@@ -537,7 +543,7 @@ void HBDirectSolver::createBlockStructures()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+          parRow = rowMapPtr->localToGlobalIndex( row );
         }
 
         int numCols = nonlindQdxRowPtr[row+1] - nonlindQdxRowPtr[row];
@@ -559,7 +565,7 @@ void HBDirectSolver::createBlockStructures()
           }
           if (numProcs > 1)
           { 
-            col = (parMatrix->epetraObj()).ColMap().GID( col );
+            col = columnMapPtr->localToGlobalIndex( col );        
           }
           nnzCol_nl[col].push_back( parRow );
         }
@@ -739,9 +745,15 @@ void HBDirectSolver::formHBJacobian()
   }
 
   Teuchos::RCP<Matrix> parMatrix;
+  Teuchos::RCP<Vector> parVector;
+  N_PDS_ParMap * columnMapPtr = 0, * rowMapPtr = 0;
   if (numProcs > 1)
   {
     parMatrix = Teuchos::rcp( builder_.createMatrix() );
+    parVector = Teuchos::rcp( builder_.createVector() );
+
+    columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+    rowMapPtr = parVector->pmap();
   }
 
   // load nonlin dFdx
@@ -844,7 +856,7 @@ void HBDirectSolver::formHBJacobian()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+          parRow = rowMapPtr->localToGlobalIndex( row );
         }
  
         int numCols = nonlindFdxRowPtr[row+1] - nonlindFdxRowPtr[row];
@@ -860,7 +872,7 @@ void HBDirectSolver::formHBJacobian()
 
           if (numProcs > 1)
           {
-            col = (parMatrix->epetraObj()).ColMap().GID( col );
+            col = columnMapPtr->localToGlobalIndex( col );
           }
           double val = nonlindFdxValues[ nonlindFdxRowPtr[row] + j ];
 
@@ -948,8 +960,8 @@ void HBDirectSolver::formHBJacobian()
       int parRow = row;
       if (numProcs > 1)
       {
-        parRow = (parMatrix->epetraObj()).RowMap().GID( row );
-        col = (parMatrix->epetraObj()).ColMap().GID( col );
+        parRow = rowMapPtr->localToGlobalIndex( row );
+        col = columnMapPtr->localToGlobalIndex( col );
       }
 
       if ( solver_ == "LAPACK" )
@@ -1089,7 +1101,7 @@ void HBDirectSolver::formHBJacobian()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+          parRow = rowMapPtr->localToGlobalIndex( row );
         }
 
         int numCols = nonlindQdxRowPtr[row+1] - nonlindQdxRowPtr[row];
@@ -1104,7 +1116,7 @@ void HBDirectSolver::formHBJacobian()
 
           if (numProcs > 1)
           {
-            col = (parMatrix->epetraObj()).ColMap().GID( col );
+            col = columnMapPtr->localToGlobalIndex( col );
           }
           double val = nonlindQdxValues[ nonlindQdxRowPtr[row] + j ];
 
@@ -1232,8 +1244,8 @@ void HBDirectSolver::formHBJacobian()
       int parRow = row;
       if (numProcs > 1)
       {
-        parRow = (parMatrix->epetraObj()).RowMap().GID( row );
-        col = (parMatrix->epetraObj()).ColMap().GID( col );
+        parRow = rowMapPtr->localToGlobalIndex( row );
+        col = columnMapPtr->localToGlobalIndex( col );
       }
 
       if ( solver_ == "LAPACK" )
@@ -1295,7 +1307,7 @@ void HBDirectSolver::formHBJacobian()
     int parRow = row;
     if (numProcs > 1)
     {
-      parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+      parRow = rowMapPtr->localToGlobalIndex( row );
     }
 
     int numCols = lindQdxRowPtr[row+1] - lindQdxRowPtr[row];
@@ -1304,7 +1316,7 @@ void HBDirectSolver::formHBJacobian()
       int col = lindQdxIndices[ lindQdxRowPtr[row] + j ];
       if (numProcs > 1)
       {
-        col = (parMatrix->epetraObj()).ColMap().GID( col );
+        col = columnMapPtr->localToGlobalIndex( col );
       }
       double val = lindQdxValues[ lindQdxRowPtr[row] + j ];
 
@@ -1360,7 +1372,7 @@ void HBDirectSolver::formHBJacobian()
     int parRow = row;
     if (numProcs > 1)
     {
-      parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+      parRow = rowMapPtr->localToGlobalIndex( row );
     }
 
     int numCols = lindFdxRowPtr[row+1] - lindFdxRowPtr[row];
@@ -1369,7 +1381,7 @@ void HBDirectSolver::formHBJacobian()
       int col = lindFdxIndices[ lindFdxRowPtr[row] + j ];
       if (numProcs > 1)
       {
-        col = (parMatrix->epetraObj()).ColMap().GID( col );
+        col = columnMapPtr->localToGlobalIndex( col );
       }
       double val = lindFdxValues[ lindFdxRowPtr[row] + j ];
 
@@ -1413,8 +1425,8 @@ void HBDirectSolver::formHBJacobian()
       int parRow = row;
       if (numProcs > 1)
       {
-        parRow = (parMatrix->epetraObj()).RowMap().GID( row );
-        col = (parMatrix->epetraObj()).ColMap().GID( col );
+        parRow = rowMapPtr->localToGlobalIndex( row );
+        col = columnMapPtr->localToGlobalIndex( col );
       }
 
       if ( solver_ == "LAPACK" )
@@ -1728,7 +1740,7 @@ int HBDirectSolver::solve()
         {
           R_.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, std::complex<double>(-1.0,0.0), A_, X_, std::complex<double>(1.0,0.0) );
           rnorm = R_.normFrobenius();
-          std::cout << "Linear System Residual (LAPACK) : " << rnorm/bnorm << std::endl; 
+          Xyce::dout() << "Linear System Residual (LAPACK) : " << rnorm/bnorm << std::endl; 
         }
       }
 #if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
@@ -1753,7 +1765,7 @@ int HBDirectSolver::solve()
           }
 
           rnorm = B_.normFrobenius();
-          std::cout << "Linear System Residual (BASKER) : " << rnorm/bnorm << std::endl; 
+          Xyce::dout() << "Linear System Residual (BASKER) : " << rnorm/bnorm << std::endl; 
         }
       }
       else if ( solver_ == "BLOCK_BASKER" )
@@ -1785,12 +1797,12 @@ int HBDirectSolver::solve()
           for (int j=0; j<n_; j++)
           {
             double bjnorm = bB_[j].normFrobenius();
-            std::cout << "Residual norm of block " << j << " is " << bjnorm << std::endl;
+            Xyce::dout() << "Residual norm of block " << j << " is " << bjnorm << std::endl;
             rnorm += ( bjnorm*bjnorm );
           }
           rnorm = Teuchos::ScalarTraits<double>::magnitude(
                     Teuchos::ScalarTraits<double>::squareroot( rnorm ) );
-          std::cout << "Linear System Residual (BLOCK BASKER) : " << rnorm/bnorm << std::endl; 
+          Xyce::dout() << "Linear System Residual (BLOCK BASKER) : " << rnorm/bnorm << std::endl; 
         }
       }
 #endif

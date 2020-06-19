@@ -400,10 +400,11 @@ void ESDirectSolver::createBlockStructures()
     }
     else
     {
-      Teuchos::RCP<Xyce::Linear::Matrix> parMatrix;
-      parMatrix = Teuchos::rcp( builder_.createMatrix() );
-      Teuchos::RCP<Xyce::Linear::Vector> parVector;
-      parVector = Teuchos::rcp( builder_.createVector() );
+      Teuchos::RCP<Xyce::Linear::Matrix> parMatrix = Teuchos::rcp( builder_.createMatrix() );
+      Teuchos::RCP<Xyce::Linear::Vector> parVector = Teuchos::rcp( builder_.createVector() );
+
+      N_PDS_ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+      N_PDS_ParMap * rowMapPtr = parVector->pmap();
 
       // Determine the number of unique unknowns for each row.
       // This code is inspired by the similar code in the HBDirectSolver that Heidi 
@@ -422,7 +423,7 @@ void ESDirectSolver::createBlockStructures()
         int parRow = row;
         if (numProcs > 1)
         {
-          parRow = (parMatrix->epetraObj()).RowMap().GID( row );
+          parRow = rowMapPtr->localToGlobalIndex( row );
         }
 
         int lengthRef = subMat.getLocalRowLength(row);
@@ -436,7 +437,7 @@ void ESDirectSolver::createBlockStructures()
           int col = colIndices[icol];
           if (numProcs > 1)
           {
-            col = (parMatrix->epetraObj()).ColMap().GID( col );
+            col = columnMapPtr->localToGlobalIndex( col );
           }
           nnzCol[col].push_back( parRow );
         }
