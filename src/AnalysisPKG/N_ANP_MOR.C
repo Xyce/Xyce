@@ -475,9 +475,9 @@ bool MOR::doInit()
   ///  }
 
   ///  Xyce::dout() << "Printing GPtr: " << std::endl;
-  ///  GPtr_->printPetraObject();
+  ///  GPtr_->printPetraObject(Xyce::dout());
   ///  Xyce::dout() << "Printing CPtr: " << std::endl;
-  ///  CPtr_->printPetraObject();
+  ///  CPtr_->printPetraObject(Xyce::dout());
 
 
   // Storage for row extraction
@@ -508,7 +508,7 @@ bool MOR::doInit()
 
 
   ///  Xyce::dout() << "Printing GPtr (after scaling): " << std::endl;
-  ///  GPtr_->printPetraObject();
+  ///  GPtr_->printPetraObject(Xyce::dout());
 
   return bsuccess;
 }
@@ -556,10 +556,10 @@ bool MOR::reduceSystem()
   }
 
   ///  Xyce::dout() << "Printing out BPtr" << std::endl;
-  ///  BPtr_->epetraObj().Print(Xyce::dout());
+  ///  BPtr_->printPetraObject(Xyce::dout());
 
   ///  Xyce::dout() << "Printing out sCpG" << std::endl;
-  ///  (sCpG_MatrixPtr_->epetraObj()).Print(Xyce::dout());
+  ///  sCpG_MatrixPtr_->printPetraObject(Xyce::dout());
 
   // Create linear problem for (G + s0 * C)
   origProblem_ = rcp(new Epetra_LinearProblem(&sCpG_MatrixPtr_->epetraObj(), &RPtr_->epetraObj(), &BPtr_->epetraObj() ) );
