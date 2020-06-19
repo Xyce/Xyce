@@ -620,6 +620,8 @@ LEAD I[SDGBEC1-9]
 
  /* random sampling related functions */
 <INITIAL>"rand"  {return XyceExpression::ExpressionParser::token::TOK_RAND; }
+<INITIAL>"unif"  {return XyceExpression::ExpressionParser::token::TOK_UNIF; }
+<INITIAL>"aunif"  {return XyceExpression::ExpressionParser::token::TOK_AUNIF; }
 <INITIAL>"agauss"  {return XyceExpression::ExpressionParser::token::TOK_AGAUSS; }
 <INITIAL>"gauss"  {return XyceExpression::ExpressionParser::token::TOK_GAUSS; }
 

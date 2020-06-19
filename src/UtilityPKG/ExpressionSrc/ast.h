@@ -3277,6 +3277,9 @@ class sdtOp : public astNode<ScalarT>
 
 //-------------------------------------------------------------------------------
 // time derivative of x
+//
+// This class can compute a Backward Euler time derivative locally in this class, 
+// or it can rely on an externally supplied time derivative.
 template <typename ScalarT>
 class ddtOp : public astNode<ScalarT>
 {
@@ -3288,55 +3291,60 @@ class ddtOp : public astNode<ScalarT>
       : astNode<ScalarT>(left),
       dt_(dt),
       time_(time),
-      val1(0.0),
-      val2(0.0),
-      timeDerivative(0.0)
+      val1_(0.0),
+      val2_(0.0),
+      timeDerivative_(0.0),
+      useExternDeriv_(false)
     {};
 
     virtual void processSuccessfulTimeStep ()
     {
-      val1 = val2;
+      //std::cout << "ddtOp::processSuccessfulTimeStep " << std::endl;
+      val1_ = val2_;
     }
 
     virtual ScalarT val()
     {
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
-      timeDerivative = 0.0;
 
-      if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
-      else
+      if (!useExternDeriv_ )
       {
-        std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null time pointer"));
-        yyerror(errStr);
-      }
+        timeDerivative_ = 0.0;
 
-      if (time != 0.0) // at time point zero, treat dt as zero.
-      {
-        if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+        if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
         else
         {
-          std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
+          std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null time pointer"));
           yyerror(errStr);
         }
 
-        val2 = this->leftAst_->val();
+        if (time != 0.0) // at time point zero, treat dt as zero.
+        {
+          if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+          else
+          {
+            std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
+            yyerror(errStr);
+          }
 
-        // for now, hardwire to backward Euler
-        timeDerivative = (val2-val1)/deltaT;
+          val2_ = this->leftAst_->val();
+
+          // for now, hardwire to backward Euler
+          timeDerivative_ = (val2_-val1_)/deltaT;
+        }
+        else
+        {
+          timeDerivative_ = 0.0;
+        }
       }
-      else
-      {
-        timeDerivative = 0.0;
-      }
 
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
-        //<< " ddt = " << timeDerivative <<std::endl;
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1_ << " val2 = " << val2_ << " ddt = " << timeDerivative_ <<std::endl;
 
-      return timeDerivative;
+      return timeDerivative_;
     };
 
-    virtual ScalarT dx(int i)
+    virtual ScalarT dx(int i) // ERK.  this isn't right for the version that uses setDdtDeriv, as it is hardwired to BE.
     {
       ScalarT ddt_dx = 0.0;
       ScalarT time = 0.0;
@@ -3366,7 +3374,7 @@ class ddtOp : public astNode<ScalarT>
       }
 
       ddt_dx = 0.0; // this is a test.
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1 << " val2 = " << val2
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1_ << " val2 = " << val2_
         //<< " ddt_dx = " << ddt_dx <<std::endl;
 
       return ddt_dx;
@@ -3388,12 +3396,16 @@ class ddtOp : public astNode<ScalarT>
 
     virtual bool ddtType() { return true; }
 
+    ScalarT getDdtArg() { return val2_ = this->leftAst_->val(); }
+    void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
+
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
     Teuchos::RCP<astNode<ScalarT> > time_;
-    ScalarT val1;
-    ScalarT val2;
-    ScalarT timeDerivative;
+    ScalarT val1_;
+    ScalarT val2_;
+    ScalarT timeDerivative_;
+    bool useExternDeriv_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3560,6 +3572,7 @@ class ddxOp : public astNode<ScalarT>
 //-------------------------------------------------------------------------------
 // Random number sampled from normal distribution with
 // mean μ and standard deviation (α)/n
+// This uses absolute variation
 template <typename ScalarT>
 class agaussOp : public astNode<ScalarT>
 {
@@ -3573,9 +3586,7 @@ class agaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (agauss) without a val function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
+      ScalarT ret = mu->val();// this is only right if not doing sampling
       return ret;
     };
 
@@ -3584,8 +3595,6 @@ class agaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (agauss) without a dx function"));
-      yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
     };
@@ -3643,6 +3652,7 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 //-------------------------------------------------------------------------------
 // Random number sampled from normal distribution with
 // mean μ and standard deviation (α ∗ μ )/n
+// This uses relative variation
 template <typename ScalarT>
 class gaussOp : public astNode<ScalarT>
 {
@@ -3656,9 +3666,7 @@ class gaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (gauss) without a val function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
+      ScalarT ret = mu->val();// this is only right if not doing sampling
       return ret;
     };
 
@@ -3667,8 +3675,6 @@ class gaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      std::vector<std::string> errStr(1,std::string("AST node (gauss) without a dx function"));
-      yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
     };
@@ -3722,6 +3728,160 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
 };
+
+#if 1
+//-------------------------------------------------------------------------------
+// Random number sampled from uniform distribution with
+// mean μ and standard deviation (α)/n
+// This uses absolute variation
+template <typename ScalarT>
+class aunifOp : public astNode<ScalarT>
+{
+  public:
+    aunifOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
+      astNode<ScalarT>(xAst,yAst)
+  {};
+
+    virtual ScalarT val()
+    {
+      Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
+      ScalarT ret = mu->val();// this is only right if not doing sampling
+      return ret;
+    };
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
+      ScalarT ret = 0.0;
+      return ret;
+    };
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "aunif operator " << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this
+      os << "AGAUSS";
+    }
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) 
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) 
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) 
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
+    }
+
+  private:
+};
+
+//-------------------------------------------------------------------------------
+// Random number sampled from uniform distribution with
+// mean μ and standard deviation (α ∗ μ )/n
+// This uses relative variation
+template <typename ScalarT>
+class unifOp : public astNode<ScalarT>
+{
+  public:
+    unifOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
+      astNode<ScalarT>(xAst,yAst)
+      {};
+
+    virtual ScalarT val()
+    {
+      Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
+      ScalarT ret = mu->val();// this is only right if not doing sampling
+      return ret;
+    };
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
+      ScalarT ret = 0.0;
+      return ret;
+    };
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "unif operator " << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this
+      os << "GAUSS";
+    }
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) 
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) 
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) 
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
+    }
+
+  private:
+};
+#endif
 
 //-------------------------------------------------------------------------------
 // random number between 0 and 1 sampled from a uniform distribution

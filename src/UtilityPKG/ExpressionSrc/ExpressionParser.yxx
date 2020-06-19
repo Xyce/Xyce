@@ -173,6 +173,8 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_TANH	"tanh"
 %token TOK_IF "if"
 
+%token TOK_AUNIF	"aunif"
+%token TOK_UNIF	"unif"
 %token TOK_AGAUSS	"agauss"
 %token TOK_CEIL	"ceil"
 %token TOK_GAUSS	"gauss"
@@ -1267,6 +1269,18 @@ exp:
   | TOK_GAUSS TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new gaussOp<usedType>(*$3,*$5,*$7));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+    }
+  | TOK_AUNIF TOK_LEFTPAREN exp ',' exp  TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new aunifOp<usedType>(*$3,*$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+    }
+  | TOK_UNIF TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new unifOp<usedType>(*$3,*$5));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
