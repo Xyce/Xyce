@@ -961,7 +961,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         retryFunctions.push_back(asYetUnresolvedFunctions[i]);
         somethingLeftToDo=true;
-        Xyce::dout() << "pushing back onto retryFunctions(1).  size = " << retryFunctions.size() <<std::endl;
+#if 0
+        Xyce::dout() << "pushing back " 
+          << asYetUnresolvedFunctions[i].functionName  << " " 
+          << asYetUnresolvedFunctions[i].functionNameAndArgs
+          << " = " 
+          << asYetUnresolvedFunctions[i].functionBody 
+          << " onto retryFunctions(1).  size = " << retryFunctions.size() <<std::endl;
+#endif
       }
       else
       {
@@ -1777,16 +1784,20 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           // and a better group is set up.
           if (expressionParameter.getType() == Xyce::Util::EXPR)
           {
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter: " 
               << expressionParameter.tag() << std::endl;
+#endif
 
             Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
             expression.attachParameterNode(strings[i], expToBeAttached);
           }
           else
           {
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to make_var this parameter: " 
               << expressionParameter.tag() << std::endl;
+#endif
 
             if (!expression.make_var(strings[i])) // ERK????
             {
@@ -1865,7 +1876,10 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
         else
         {
           // do better here, with error mgr
-          Xyce::dout() << "functionParameter is not EXPR type!!!" <<std::endl;
+          //Xyce::dout() << "functionParameter is not EXPR type!!!" <<std::endl;
+          //Report::DevelFatal().at(netlistFileName, subcircuitLine[0].lineNumber_)
+          Report::DevelFatal()
+            << "functionParameter " <<  funcNames[ii] << " is not EXPR type!!!";
         }
       }
       else
