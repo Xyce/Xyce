@@ -663,10 +663,6 @@ Matrix::bracketProxy& Matrix::operator[]( int row )
   proxy_.rowLID_ = row;
   return proxy_;
 }
-/*double * Matrix::operator[]( int row )
-{
-  return (*oDCRSMatrix_)[row];
-}*/
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::operator[] const
@@ -681,10 +677,6 @@ const Matrix::bracketProxy& Matrix::operator[]( int row ) const
   proxy_.rowLID_ = row;
   return proxy_;
 }
-/*double * Matrix::operator[]( int row ) const
-{
-  return (*oDCRSMatrix_)[row];
-}*/
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::operator()
