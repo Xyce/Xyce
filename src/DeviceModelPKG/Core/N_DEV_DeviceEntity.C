@@ -721,6 +721,22 @@ bool DeviceEntity::getParam(const std::string & name, double & result) const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceEntity::processSuccessfulTimeStep
+// Purpose       : 
+// Special Notes :
+// Scope         : 
+// Creator       : Eric Keiter
+// Creation Date : 6/16/2020
+//-----------------------------------------------------------------------------
+void DeviceEntity::processSuccessfulTimeStep ()
+{
+  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
+  std::vector<Depend>::iterator end = dependentParams_.end();
+  for ( ; dpIter != end; ++dpIter) { dpIter->expr->processSuccessfulTimeStep(); }
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceEntity::setDefaultParam
 // Purpose       :
 // Special Notes :

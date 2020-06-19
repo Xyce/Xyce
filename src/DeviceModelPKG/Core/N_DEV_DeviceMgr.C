@@ -3916,6 +3916,28 @@ void DeviceMgr::acceptStep()
       solState_.ltraDoCompact_ = false;
     }
   }
+
+
+  // tell the various dependent parameters (ie ones with expressions) 
+  // to advance their time steps as needed.
+  std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
+
+  // Update global params for new time and other global params
+  std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
+  std::vector<Util::Expression>::iterator globalExprEnd  = globalExpressionsVec.end();
+  for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
+  {
+    globalExprIter->processSuccessfulTimeStep();
+  }
+
+  EntityVector::iterator iter;
+  EntityVector::iterator begin = dependentPtrVec_.begin();
+  EntityVector::iterator end = dependentPtrVec_.end();
+  for (iter=begin; iter!=end;++iter)
+  {
+    (*iter)->processSuccessfulTimeStep();
+  }
+
 }
 
 

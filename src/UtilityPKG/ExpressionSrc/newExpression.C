@@ -811,31 +811,6 @@ void newExpression::setupVariousAstArrays_()
 };
 
 //-------------------------------------------------------------------------------
-// Function      : newExpression::processSuccessfulTimeStep_
-//
-// Purpose       : Tells relevant AST nodes to update their time arrays, etc.
-//                 Some AST nodes, such as DDT and SDT (time derivative and 
-//                 time integral, respectively) maintain arrays of data, where the 
-//                 array index refers to time.  These arrays have to be rotated 
-//                 when the time step advances, but it is difficult to know inside 
-//                 of an AST node when this advance should happen.  This function 
-//                 call is the method to let the SDT and DDT operators know that
-//                 they need to update.
-//
-// Special Notes : I have been debating exactly how to handle this issue, and I 
-//                 am not yet sure if this is the best way.  For now, this function
-//                 is an experiment.
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 6/7/2020
-//-------------------------------------------------------------------------------
-void newExpression::processSuccessfulTimeStep_ ()
-{
-  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
-  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
-}
-
-//-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
 // Purpose       : 
 // Special Notes : This function should be used to set isConstant_.
@@ -997,24 +972,29 @@ void newExpression::getValuesFromGroup_()
 
   unsigned int oldStepNumber_ = stepNumber_;
   stepNumber_ = group_->getStepNumber ();
+
+  // ERK: neither of the below methods seem to work correctly, so this will need to 
+  // be a "push" operation from the calling code.
+
 #if 0
   std::cout << "newExpression::getValuesFromGroup.  oldStepNumber_ = " << oldStepNumber_ << " stepNumber_ = " << stepNumber_ << std::endl;
-#endif
+
   if (oldStepNumber_ != stepNumber_)
   {
 #if 0
-    std::cout << "newExpression calling processSuccessfulTimeStep_" <<std::endl;
+    std::cout << "newExpression calling processSuccessfulTimeStep" <<std::endl;
 #endif
-    processSuccessfulTimeStep_ ();
+    processSuccessfulTimeStep ();
   }
+#endif
 
 #if 0
   if (oldTime_ != time_) // try again
   {
 #if 1
-    std::cout << "newExpression calling processSuccessfulTimeStep_" <<std::endl;
+    std::cout << "newExpression calling processSuccessfulTimeStep" <<std::endl;
 #endif
-    processSuccessfulTimeStep_ ();
+    processSuccessfulTimeStep ();
   }
 #endif
 
@@ -1127,7 +1107,7 @@ int newExpression::evaluateFunction (usedType &result)
       evaluateFunctionCalledBefore_ = true;
 
 #if 0
-      std::cout << "newExpression::evaluateFunction. just evaluated the expression tree for " << expressionString_ << " result = " << result << std::endl;
+      std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
       dumpParseTree(std::cout);
 #endif
 
@@ -1289,6 +1269,131 @@ bool newExpression::setTemperature (const double & temp)
   }
 
   return changed;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::processSuccessfulTimeStep
+//
+// Purpose       : Tells relevant AST nodes to update their time arrays, etc.
+//                 Some AST nodes, such as DDT and SDT (time derivative and 
+//                 time integral, respectively) maintain arrays of data, where the 
+//                 array index refers to time.  These arrays have to be rotated 
+//                 when the time step advances, but it is difficult to know inside 
+//                 of an AST node when this advance should happen.  This function 
+//                 call is the method to let the SDT and DDT operators know that
+//                 they need to update.
+//
+// Special Notes : I have been debating exactly how to handle this issue, and I 
+//                 am not yet sure if this is the best way.  For now, this function
+//                 is an experiment.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 6/7/2020
+//-------------------------------------------------------------------------------
+void newExpression::processSuccessfulTimeStep ()
+{
+  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
+  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
+}
+
+//-----------------------------------------------------------------------------
+//
+// ERK.  Note: NONE of what follows here will work if ddt is 
+// inside of a .func that is called more than once!!!!
+//
+// fix later.  This needs better book-keeping.  
+//
+// For ddts that are inside of .funcs, there are the following complications.
+// (1) arg to ddt is different once the passed values are sub'd in.
+// (2) the value of ddt passed in by setDdtVals has to happen at the correct time.
+//
+// Another way of thinking about it;  the ddt evaluation depends on a history 
+// (or state) and that history goes with the *call* to ddt, not the allocation 
+// of ddt.
+//
+// processing of sdt will have the same problem.
+//
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::getDdtVals
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void newExpression::getDdtVals   (std::vector<double> & vals)
+{
+  std::vector<std::complex<double> > cmplxVals;
+  getDdtVals(cmplxVals);
+  vals.clear();
+  vals.resize(cmplxVals.size());
+  for (int ii=0;ii<cmplxVals.size();ii++) { vals[ii] = std::real(cmplxVals[ii]); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::getDdtVals
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void newExpression::getDdtVals   (std::vector<std::complex<double> > & vals)
+{
+  vals.clear();
+  vals.resize(ddtOpVec_.size());
+  for (int ii=0;ii<ddtOpVec_.size();ii++) 
+  { 
+    Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
+    vals[ii] = ddt->getDdtArg();
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::setDdtDerivs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void newExpression::setDdtDerivs (std::vector<double> & vals)
+{
+  for (int ii=0;ii<ddtOpVec_.size();ii++) 
+  { 
+    Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
+    usedType tmp(vals[ii]);
+    ddt->setDdtDeriv(tmp);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void setVal(Teuchos::RCP<ddtOp<double> > & ddt, std::complex<double> & tmpVal)
+{
+  ddt->setDdtDeriv(std::real(tmpVal));
+}
+
+//-----------------------------------------------------------------------------
+void setVal(Teuchos::RCP<ddtOp<std::complex<double> > > & ddt, std::complex<double> & tmpVal)
+{
+  ddt->setDdtDeriv(tmpVal);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::setDdtDerivs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void newExpression::setDdtDerivs (std::vector<std::complex<double> > & vals)
+{
+  for (int ii=0;ii<ddtOpVec_.size();ii++) 
+  { 
+    Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
+    setVal(ddt,vals[ii]); 
+  }
 }
 
 }

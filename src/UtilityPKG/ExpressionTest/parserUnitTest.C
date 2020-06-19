@@ -6415,6 +6415,7 @@ TEST ( Double_Parser_Integral_Test, sdt1)
     refRes = time*time*0.5;
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt1)
@@ -6450,6 +6451,7 @@ TEST ( Double_Parser_Integral_Test, sdt2)
     refRes = 3.0*std::sin(time);
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt2)
@@ -6496,6 +6498,7 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
     time += dt;
+    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt3)
@@ -6543,6 +6546,7 @@ TEST ( Double_Parser_Integral_Test, sdt4)
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
     time += dt;
+    testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt4)

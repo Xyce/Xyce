@@ -145,11 +145,7 @@ public:
   virtual bool updateSource ();
 
   virtual bool processParams ();
-
-  virtual bool processInstanceParams () 
-  {
-    return true;
-  }
+  virtual bool processInstanceParams () { return true; }
 
   virtual bool updateTemperature(const double & temp_tmp);
 

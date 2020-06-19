@@ -1062,6 +1062,8 @@ void Expression::dumpParseTree()
 // Function      : ExpressionInternals::seedRandom
 // Purpose       : Public method to initialize random number generator
 //                 used by rand(), gauss() and agauss() functions.
+// Special Notes : 
+// Scope         :
 // Creator       : Tom Russo
 // Creation Date : 03/28/17
 //-----------------------------------------------------------------------------
@@ -1082,9 +1084,69 @@ void Expression::seedRandom(long seed)
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::treatAsTempAndConvert
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
 void Expression::treatAsTempAndConvert()
 {
   newExpPtr_->treatAsTempAndConvert();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::processSuccessfulTimeStep
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::processSuccessfulTimeStep ()
+{
+  newExpPtr_->processSuccessfulTimeStep ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::getNumDdt
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+int Expression::getNumDdt()
+{
+  return newExpPtr_->getNumDdt();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::getDdtVals
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getDdtVals (std::vector<double> & vals)
+{
+  return newExpPtr_->getDdtVals(vals);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionInternals::setDdtDerivs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setDdtDerivs (std::vector<double> & vals)
+{
+  return newExpPtr_->setDdtDerivs(vals);
 }
 
 } // namespace Util

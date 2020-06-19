@@ -1772,7 +1772,7 @@ bool Transient::doProcessSuccessfulStep()
 
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
-    dout() << "  Transient::processSuccessfulStep()" << std::endl
+    dout() << "  Transient::doProcessSuccessfulStep()" << std::endl
            << "Newton step succeeded:" << std::endl
            << "nextSolutionPtr: " << std::endl;
 

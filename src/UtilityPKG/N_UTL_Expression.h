@@ -138,6 +138,13 @@ public:
 
   void treatAsTempAndConvert();
 
+  void processSuccessfulTimeStep ();
+
+  // ddt information.  This is for Bsrc support of ddt.
+  int getNumDdt();
+  void getDdtVals (std::vector<double> & vals);
+  void setDdtDerivs (std::vector<double> & vals);
+
 private:
 
   Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;

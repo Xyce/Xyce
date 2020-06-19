@@ -119,8 +119,8 @@ public:
   virtual ~DeviceEntity();
 
   virtual bool processParams() = 0;
-
   virtual bool processInstanceParams() = 0;
+  virtual void processSuccessfulTimeStep();
 
   virtual CompositeParam *constructComposite(const std::string &composite_name, const std::string &param_name) 
   {

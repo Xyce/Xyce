@@ -719,10 +719,17 @@ public:
 
   bool setTemperature (const double & temp);
 
+  void processSuccessfulTimeStep ();
+
+  int getNumDdt () { return ddtOpVec_.size(); }
+  void getDdtVals   (std::vector<double> & vals);
+  void getDdtVals   (std::vector<std::complex<double> > & vals);
+  void setDdtDerivs (std::vector<double> & vals);
+  void setDdtDerivs (std::vector<std::complex<double> > & vals);
+
 private:
   void setupDerivatives_ ();
   void setupVariousAstArrays_ ();
-  void processSuccessfulTimeStep_ ();
   void getValuesFromGroup_();
 
   Teuchos::RCP<baseExpressionGroup> group_;
