@@ -1310,6 +1310,7 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($3, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
       delete $3;
     }
@@ -1320,6 +1321,7 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($3,tmpPtr2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
       delete $3;
     }

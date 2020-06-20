@@ -322,6 +322,16 @@ class spiceSinOp : public astNode<ScalarT>
       return 0.0;
     }
 
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+      if (tdGiven_)
+      {
+        double basetime=0.0;
+        ScalarT TD = std::real(this->td_->val());
+        breakPointTimes.push_back(std::real(basetime+TD));
+      }
+    }
+
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -465,6 +475,23 @@ class spiceExpOp : public astNode<ScalarT>
     virtual ScalarT dx (int i)
     {
       return 0.0;
+    }
+
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+      if (td1Given_)
+      {
+        double basetime=0.0;
+        ScalarT TD1 = std::real(this->td2_->val());
+        breakPointTimes.push_back(std::real(basetime+TD1));
+      }
+
+      if (td2Given_)
+      {
+        double basetime=0.0;
+        ScalarT TD2 = std::real(this->td2_->val());
+        breakPointTimes.push_back(std::real(basetime+TD2));
+      }
     }
 
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
