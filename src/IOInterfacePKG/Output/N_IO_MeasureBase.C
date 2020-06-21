@@ -1050,6 +1050,56 @@ void Base::recordStartEndACDCNoiseMeasureWindow(const double sweepVal)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MeasureBase::setDCSweepVarName
+// Purpose       : Used to record the name of the DC sweep variable that is
+//                 used for the measurement window.
+// Special Notes : For TABLE-based sweeps (for .DC data=table), it is the row
+//                 index for that table.  For all other DC sweep types, it
+//                 is the name of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/16/2020
+//-----------------------------------------------------------------------------
+std::string Base::setDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec)
+{
+  ExtendedString sweepVarName("");
+
+  if (dcParamsVec[0].type == "TABLE")
+    sweepVarName = "Table Row";
+  else
+  {
+    sweepVarName = dcParamsVec[0].name;
+    sweepVarName.toUpper();
+  }
+
+  return sweepVarName;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MeasureBase::setDCSweepVal
+// Purpose       : Used to set the current value of the DC sweep variable that is
+//                 used for the measurement window.
+// Special Notes : For TABLE-based sweeps (for .DC data=table), it is the current
+//                 row index within that table where that index starts at 1.  For
+//                 all other DC sweep types, it is the current value of the first
+//                 variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/16/2020
+//-----------------------------------------------------------------------------
+double Base::setDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec)
+{
+  double sweepVal;
+  if (dcParamsVec[0].type == "TABLE")
+    sweepVal = (dcParamsVec[0].count%dcParamsVec[0].maxStep) +1 ;
+  else
+    sweepVal = dcParamsVec[0].currentVal;
+
+ return sweepVal;
+
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MeasureBase::printMeasureWindow
 // Purpose       : prints information related to time, frequency or DC sweep
 //                 window used.
@@ -1126,7 +1176,7 @@ std::string Base::setModeStringForMeasureWindowText()
   else
   {
     // DC case
-    modeStr = sweepVar_.toUpper() + " Value";
+    modeStr = sweepVar_ + " Value";
   }
 
   return modeStr;
@@ -1155,7 +1205,7 @@ std::string Base::setModeStringForMeasureResultText()
   else
   {
     // DC case
-    modeStr = sweepVar_.toUpper() + " value";
+    modeStr = sweepVar_ + " value";
   }
 
   return modeStr;

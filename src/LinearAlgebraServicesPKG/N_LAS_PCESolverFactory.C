@@ -43,14 +43,6 @@
 
 #include <Xyce_config.h>
 
-
-// ---------- Standard Includes ----------
-
-#include "Epetra_LinearProblem.h"
-#include "Epetra_MultiVector.h"
-#include "Epetra_Vector.h"
-#include "Epetra_Comm.h"
-
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_PCESolverFactory.h>
@@ -111,7 +103,7 @@ PCESolverFactory::create(
   Problem &             problem,
   const IO::CmdParse &  command_line) const
 {
-  int lsDim = (problem.epetraObj().GetRHS())->GlobalLength();
+  int lsDim = (problem.getRHS())->globalLength();
 
   //If the linear system is trivial, i.e. the matrix is 1x1, then just create a simple solver
   if (lsDim == 1)

@@ -183,12 +183,13 @@ void Extrema::updateDC(
  // In that case, a DC MEASURE will be reported as FAILED.
  if ( dcParamsVec.size() > 0 )
  {
-    double dcSweepVal = dcParamsVec[0].currentVal;
+    double dcSweepVal = setDCSweepVal(dcParamsVec);
     double stepVal = dcParamsVec[0].stepVal;
 
     // Used in descriptive output to stdout. Store name and first/last values of
-    // first variable found in the DC sweep vector
-    sweepVar_= dcParamsVec[0].name;
+    // first variable found in the DC sweep vector, or the first/last
+    // table row indexes.
+    sweepVar_ = setDCSweepVarName(dcParamsVec);
     recordStartEndACDCNoiseSweepVals(dcSweepVal);
 
     if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal,stepVal) )

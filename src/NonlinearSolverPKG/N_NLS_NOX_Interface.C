@@ -261,7 +261,6 @@ bool Interface::initializeAll()
 
   // Set the processor ID for printing in the nonlinear solver
   // For now, processor 0 will output information to the screen
-  //int myPID = (dsPtr_->nextSolutionPtr->epetraObj()).Comm().MyPID();
   int myPID = pdsMgrPtr_->getPDSComm()->procID();
   dcParams_.setOutputOptions(myPID, 0);
   transientParams_.setOutputOptions(myPID, 0);

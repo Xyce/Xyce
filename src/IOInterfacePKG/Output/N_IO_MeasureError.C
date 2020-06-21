@@ -37,7 +37,7 @@
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Interpolators.h>
-#include <Epetra_SerialDenseVector.h>
+#include <Teuchos_SerialDenseVector.hpp>
 
 namespace Xyce {
 namespace IO {
@@ -355,7 +355,7 @@ void Error::updateDC(
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;
-    sweepVar_= dcParamsVec[0].name; // used in descriptive output to stdout
+    sweepVar_= setDCSweepVarName(dcParamsVec); // used in descriptive output to stdout
   }
  
 }
@@ -501,7 +501,7 @@ double Error::getMeasureResult()
   if (!gotMeasureResult_ && initialized_)
   {
     // make an epetra vector to hold difference values
-    Epetra_SerialDenseVector differenceVector(dataValues_.size());
+    Teuchos::SerialDenseVector<int,double> differenceVector(dataValues_.size());
 
     if (mode_ == "DC")
     {
@@ -536,15 +536,15 @@ double Error::getMeasureResult()
     // default to L2NORM for any string that is not L1NORM or INFNORM
     if( comparisonFunctionName_ == "L1NORM" )
     {
-      calculationResult_ = differenceVector.Norm1();
+      calculationResult_ = differenceVector.normOne();
     }
     else if( comparisonFunctionName_ == "INFNORM" )
     {
-      calculationResult_ = differenceVector.NormInf();
+      calculationResult_ = differenceVector.normInf();
     }
     else
     {
-      calculationResult_ = differenceVector.Norm2();
+      calculationResult_ = differenceVector.normFrobenius();
     }
   }
   gotMeasureResult_=true;

@@ -83,15 +83,7 @@
 
 #include <N_TOP_Topology.h>
 
-#include <Epetra_SerialComm.h>
-#include <Epetra_Map.h>
-#include <Epetra_BlockMap.h>
-#include <Epetra_CrsMatrix.h>
 #include <Epetra_CrsGraph.h>
-#include <Epetra_MultiVector.h>
-#include <Epetra_Vector.h>
-#include <Epetra_Export.h>
-#include <Epetra_LinearProblem.h>
 
 #include<N_UTL_ExtendedString.h>
 #include<N_NLS_ReturnCodes.h>

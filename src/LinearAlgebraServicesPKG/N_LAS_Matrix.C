@@ -663,10 +663,6 @@ Matrix::bracketProxy& Matrix::operator[]( int row )
   proxy_.rowLID_ = row;
   return proxy_;
 }
-/*double * Matrix::operator[]( int row )
-{
-  return (*oDCRSMatrix_)[row];
-}*/
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::operator[] const
@@ -681,10 +677,6 @@ const Matrix::bracketProxy& Matrix::operator[]( int row ) const
   proxy_.rowLID_ = row;
   return proxy_;
 }
-/*double * Matrix::operator[]( int row ) const
-{
-  return (*oDCRSMatrix_)[row];
-}*/
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::operator()
@@ -726,7 +718,7 @@ const double * Matrix::operator()( int row, int col_offset ) const
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/19/00
 //-----------------------------------------------------------------------------
-void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat )
+void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) const
 {
   if (!mmFormat)
   {

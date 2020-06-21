@@ -183,6 +183,9 @@ public:
     void recordStartEndACDCNoiseSweepVals(const double sweepVal);
     void recordStartEndACDCNoiseMeasureWindow(const double sweepVal);
 
+    std::string setDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
+    double      setDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec);
+
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
     std::string setModeStringForMeasureWindowText();

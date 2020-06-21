@@ -280,6 +280,7 @@ void RemeasureDC::resetSweepVars()
 {
   dcStepCount=0;
   dcParamsVec[0].updateCurrentVal(dcStepCount);
+  dcParamsVec[0].count=0; // for compatibility of .STEP with .DC data=table sweeps
 
   return;
 }

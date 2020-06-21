@@ -57,10 +57,6 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OptionBlock.h>
 
-// ---------- Forward Declarations ----------
-class Amesos_BaseSolver;
-class Epetra_LinearProblem;
-
 namespace Xyce {
 namespace Analysis {
 
