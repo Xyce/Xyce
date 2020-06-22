@@ -50,6 +50,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
   if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
   if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
   if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
   if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
   if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
@@ -98,6 +99,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
@@ -121,6 +123,7 @@ public:
     iNoiseOpVector(iNoise),
     sdtOpVector(sdt),
     ddtOpVector(ddt),
+    stpOpVector(stp),
     phaseOpVector(phase),
     sparamOpVector(sparam),
     yparamOpVector(yparam),
@@ -145,6 +148,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
@@ -232,6 +236,7 @@ class astNode
 
     virtual bool sdtType() { return false; }
     virtual bool ddtType() { return false; }
+    virtual bool stpType() { return false; }
     virtual bool phaseType()       { return false; };
     virtual bool sparamType()       { return false; };
     virtual bool yparamType()       { return false; };
@@ -2370,35 +2375,46 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
     Teuchos::RCP<astNode<ScalarT> > zAst_;
 };
 
-
 //-------------------------------------------------------------------------------
 // step function :  1 if x > 0
 template <typename ScalarT>
 class stpOp : public astNode<ScalarT>
 {
   public:
-    stpOp (Teuchos::RCP<astNode<ScalarT> > &left):
-      astNode<ScalarT>(left) {};
+    stpOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &time):
+      astNode<ScalarT>(left),
+      time_(time)
+  {};
 
     virtual ScalarT val() { return ((std::real(this->leftAst_->val()))>0)?1.0:0.0; }
 
     virtual ScalarT dx (int i) { return 0.0; }
 
-    // this needs to perform a detection
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       // stpOp returns a 1 or a 0.  
-      // If the current value is 1, then find time at which it switches to 0
-      // or vice versa.  This function is not called unless the stp is 
-      // part of a time-dependent expression.  Assume for now that the argument 
-      // (leftAst) is time dependent.  Check this later.
-      //
-      // Algorithm:   take the current time, and add a time interval to it.
-      //
-      // how much? should be related to recent time step sizes.
-      //
-      // and then re-evaluate leftAst_  (x) with the modified time.  Keep doing this until 
-      // we find a point where x switches from x<=0 to x>0 or vice versa.
+      // The following solves a single Newton iterate to obtain the next breakpoint.
+      // This assumes that the argument to stp is linearly dependent on time.
+      // If it is not dependent on time, then dfdt=0, and no breakpoint is computed.
+      // If it s NON-linearly dependent, then the code below is wrong.
+      int index = -99;
+      time_->setDerivIndex(index);
+      ScalarT dfdt = this->leftAst_->dx(index);
+      ScalarT f = this->leftAst_->val();
+      time_->unsetDerivIndex();
+
+      // -(F(t)-A)/F'(t)
+      if (std::real(dfdt) != 0.0)
+      {
+        double delta_bpTime =  -std::real(f)/std::real(dfdt);
+        if ( delta_bpTime >= 0.0)
+        {
+          double time = std::real(time_->val());
+          double bpTime = time+delta_bpTime;
+          breakPointTimes.push_back( bpTime );
+          //std::cout << "stpOp::getBreakPoints.  Adding breakpoint = " << bpTime << std::endl;
+        }
+      }
 
       return true;
     }
@@ -2417,6 +2433,10 @@ class stpOp : public astNode<ScalarT>
       os << "STP";
     }
 
+    virtual bool stpType() { return true; }
+
+  private:
+    Teuchos::RCP<astNode<ScalarT> > time_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3929,13 +3949,17 @@ template <typename ScalarT>
 class specialsOp : public astNode<ScalarT>
 {
   public:
-    specialsOp (std::string typeName) : astNode<ScalarT>(), type_(typeName), value_(0.0) 
+    specialsOp (std::string typeName) : astNode<ScalarT>(), type_(typeName), value_(0.0), derivIndex_(-1)
   {
     Xyce::Util::toUpper(type_);
   };
 
     virtual ScalarT val() { return value_; };
-    virtual ScalarT dx (int i) { return ScalarT(0.0); };
+    virtual ScalarT dx (int i)
+    {
+      ScalarT retval = (derivIndex_==i)?1.0:0.0;
+      return retval;
+    };
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3950,6 +3974,9 @@ class specialsOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; }
 
+    virtual void setDerivIndex(int i) { derivIndex_=i; };
+    virtual void unsetDerivIndex() { derivIndex_=-1; };
+
     virtual bool timeSpecialType() { return (type_ == std::string("TIME")); }
     virtual bool dtSpecialType()   { return (type_ == std::string("DT")); }
     virtual bool tempSpecialType() { return (type_ == std::string("TEMP")); }
@@ -3960,6 +3987,7 @@ class specialsOp : public astNode<ScalarT>
   private:
     std::string type_;
     ScalarT value_;
+    int derivIndex_;
 };
 
 //-------------------------------------------------------------------------------
