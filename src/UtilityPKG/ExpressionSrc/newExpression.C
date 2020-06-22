@@ -964,6 +964,18 @@ void newExpression::getValuesFromGroup_()
     (srcAstNodeVec_[ii])->setFinalTime(finalTime_);
   }
 
+  int stpSize = stpAstNodeVec_.size();
+  for (int ii=0;ii< stpSize; ii++) 
+  { 
+    (stpAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+  }
+
+  int compSize = compAstNodeVec_.size();
+  for (int ii=0;ii< compSize; ii++) 
+  { 
+    (compAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+  }
+
   double oldTime_ = time_;
   time_ = group_->getTime();
   timeStep_ = group_->getTimeStep ();
@@ -1164,6 +1176,14 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
     { 
       (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
     }
+
+    int compSize = compAstNodeVec_.size();
+    for (int ii=0;ii< compSize; ii++) 
+    { 
+      (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
+    }
+
+
 
 #if 0
     {

@@ -246,6 +246,13 @@ AST_GET_CURRENT_OPS(tr_) AST_GET_CURRENT_OPS(tf_) AST_GET_CURRENT_OPS(pw_)
 AST_GET_CURRENT_OPS(per_) AST_GET_CURRENT_OPS(time_)
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(v1_) AST_GET_TIME_OPS(v2_) AST_GET_TIME_OPS(td_)
+AST_GET_TIME_OPS(tr_) AST_GET_TIME_OPS(tf_) AST_GET_TIME_OPS(pw_)
+AST_GET_TIME_OPS(per_) AST_GET_TIME_OPS(time_)
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td_, tr_, tf_, pw_, per_, time_;
     bool v1Given_, v2Given_, tdGiven_, trGiven_, tfGiven_, pwGiven_, perGiven_;
@@ -330,6 +337,7 @@ class spiceSinOp : public astNode<ScalarT>
         ScalarT TD = std::real(this->td_->val());
         breakPointTimes.push_back(std::real(basetime+TD));
       }
+      return true;
     }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
@@ -387,6 +395,12 @@ AST_GET_VOLT_OPS(td_) AST_GET_VOLT_OPS(theta_) AST_GET_VOLT_OPS(phase_) AST_GET_
     {
 AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(freq_)
 AST_GET_CURRENT_OPS(td_) AST_GET_CURRENT_OPS(theta_) AST_GET_CURRENT_OPS(phase_) AST_GET_CURRENT_OPS(time_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(freq_)
+AST_GET_TIME_OPS(td_) AST_GET_TIME_OPS(theta_) AST_GET_TIME_OPS(phase_) AST_GET_TIME_OPS(time_)
     }
 
   private:
@@ -492,6 +506,7 @@ class spiceExpOp : public astNode<ScalarT>
         ScalarT TD2 = std::real(this->td2_->val());
         breakPointTimes.push_back(std::real(basetime+TD2));
       }
+      return true;
     }
 
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
@@ -549,6 +564,12 @@ AST_GET_VOLT_OPS(tau1_) AST_GET_VOLT_OPS(td2_) AST_GET_VOLT_OPS(tau2_) AST_GET_V
     {
 AST_GET_CURRENT_OPS(v1_) AST_GET_CURRENT_OPS(v2_) AST_GET_CURRENT_OPS(td1_)
 AST_GET_CURRENT_OPS(tau1_) AST_GET_CURRENT_OPS(td2_) AST_GET_CURRENT_OPS(tau2_) AST_GET_CURRENT_OPS(time_) 
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(v1_) AST_GET_TIME_OPS(v2_) AST_GET_TIME_OPS(td1_)
+AST_GET_TIME_OPS(tau1_) AST_GET_TIME_OPS(td2_) AST_GET_TIME_OPS(tau2_) AST_GET_TIME_OPS(time_) 
     }
 
   private:
@@ -673,6 +694,12 @@ AST_GET_VOLT_OPS(mdi_) AST_GET_VOLT_OPS(fs_) AST_GET_VOLT_OPS(time_)
     {
 AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(fc_)
 AST_GET_CURRENT_OPS(mdi_) AST_GET_CURRENT_OPS(fs_) AST_GET_CURRENT_OPS(time_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(fc_)
+AST_GET_TIME_OPS(mdi_) AST_GET_TIME_OPS(fs_) AST_GET_TIME_OPS(time_)
     }
 
   private:

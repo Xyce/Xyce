@@ -74,6 +74,8 @@ inline void yyerror(std::vector<std::string> & s);
 
 #define AST_GET_INTERNAL_DEV_VAR_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->internalDeviceVarType()) { internalDevVarOpVector.push_back(this->PTR); } this->PTR->getInternalDevVarOps(internalDevVarOpVector); }
 
+#define AST_GET_TIME_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->timeSpecialType()) { timeOpVector.push_back(this->PTR); } this->PTR->getTimeOps(timeOpVector); }
+
 // this one adds "this"
 #define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR) 
 
@@ -160,7 +162,6 @@ public:
   bool isFreqDependent;
   bool isGminDependent;
 };
-
 
 //-------------------------------------------------------------------------------
 // base node class
@@ -293,6 +294,11 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
 AST_GET_INTERNAL_DEV_VAR_OPS (leftAst_) AST_GET_INTERNAL_DEV_VAR_OPS (rightAst_) 
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+    }
+
   protected:
     Teuchos::RCP<astNode<ScalarT> > leftAst_;
     Teuchos::RCP<astNode<ScalarT> > rightAst_;
@@ -354,6 +360,73 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 };
 
 #include "astbinary.h"
+
+
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+inline void computeBreakPoint(
+    Teuchos::RCP<astNode<ScalarT> > & leftAst_,
+    Teuchos::RCP<astNode<ScalarT> > & rightAst_,
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVec_,
+    double bpTol_,
+    std::vector<Xyce::Util::BreakPoint> & bpTimes_
+    )
+{
+  timeOpVec_.clear();
+
+  if (leftAst_->timeSpecialType()) { timeOpVec_.push_back(leftAst_); }
+  if (rightAst_->timeSpecialType()) { timeOpVec_.push_back(rightAst_); }
+  leftAst_->getTimeOps(timeOpVec_);
+  rightAst_->getTimeOps(timeOpVec_);
+
+  //std::cout << "computeBreakPoint.  timeOpVec size = " << timeOpVec_.size() << std::endl;
+  //std::cout << "left arg:" <<std::endl;
+  //leftAst_->output(std::cout);
+  //std::cout << "right arg:" <<std::endl;
+  //rightAst_->output(std::cout);
+
+  if (!(timeOpVec_.empty()))
+  {
+    // use some fancy machinery to ensure that we aren't returning 
+    // many copies of the same breakpoint.  
+    Xyce::Util::BreakPointLess breakPointLess_(bpTol_);
+    Xyce::Util::BreakPointEqual breakPointEqual_(bpTol_);
+    std::sort ( bpTimes_.begin(), bpTimes_.end(), breakPointLess_ );
+    std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( bpTimes_.begin(), bpTimes_.end(), breakPointEqual_ );
+    bpTimes_.resize( std::distance (bpTimes_.begin(), it ));
+
+    // The following solves a single Newton iterate to obtain the next breakpoint.
+    // This assumes that the argument to stp is linearly dependent on time.
+    // If it is not dependent on time, then dfdt=0, and no breakpoint is computed.
+    // If it s NON-linearly dependent, then the code below is wrong.
+    int index = -99999;
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setDerivIndex(index); }
+    Teuchos::RCP<binaryMinusOp<ScalarT> > f_Ast_ = Teuchos::rcp(new binaryMinusOp<ScalarT>(leftAst_,rightAst_));
+    ScalarT dfdt = f_Ast_->dx(index);
+    ScalarT f = f_Ast_->val();
+
+    //std::cout << "computeBreakPoint.  dfdt = " << dfdt << "  f = " << f << std::endl;
+
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->unsetDerivIndex(); }
+
+    // The Newton iterate is:  -(F(t)-A)/F'(t)
+    if (std::real(dfdt) != 0.0)
+    {
+      double delta_bpTime =  -std::real(f)/std::real(dfdt);
+      if ( delta_bpTime >= 0.0)
+      {
+        double time = std::real(timeOpVec_[0]->val());
+        double bpTime = time+delta_bpTime;
+        //std::cout << "computed BreakPoint: " << bpTime <<std::endl;
+        bpTimes_.push_back( bpTime );
+        std::sort ( bpTimes_.begin(), bpTimes_.end(), breakPointLess_ );
+        std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( bpTimes_.begin(), bpTimes_.end(), breakPointEqual_ );
+        bpTimes_.resize( std::distance (bpTimes_.begin(), it ));
+      }
+    }
+  }
+}
+
 #include "astfuncs.h"
 #include "astcomp.h"
 #include "ast_spice_src.h"
@@ -860,6 +933,11 @@ AST_GET_VOLT_OPS(paramNode_)
 AST_GET_CURRENT_OPS(paramNode_)
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(paramNode_) 
+    }
+
     virtual bool getFunctionArgType() { return thisIsAFunctionArgument_; };
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
@@ -1061,8 +1139,8 @@ class sparamOp: public astNode<ScalarT>
     sparamOp (std::vector<int> args):
       astNode<ScalarT>(),
       number_(0.0),
-      sparamArgs_(args),
-      derivIndex_(-1)
+      derivIndex_(-1),
+      sparamArgs_(args)
     {
     };
 
@@ -1120,8 +1198,8 @@ class yparamOp: public astNode<ScalarT>
     yparamOp (std::vector<int> args):
       astNode<ScalarT>(),
       number_(0.0),
-      yparamArgs_(args),
-      derivIndex_(-1)
+      derivIndex_(-1),
+      yparamArgs_(args)
     {
     };
 
@@ -1179,8 +1257,8 @@ class zparamOp: public astNode<ScalarT>
     zparamOp (std::vector<int> args):
       astNode<ScalarT>(),
       number_(0.0),
-      zparamArgs_(args),
-      derivIndex_(-1)
+      derivIndex_(-1),
+      zparamArgs_(args)
     {
     };
 
@@ -1830,6 +1908,11 @@ AST_GET_VOLT_OPS(functionNode_)
 AST_GET_CURRENT_OPS(functionNode_) 
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(functionNode_) 
+    }
+
   private:
 // data:
     std::string funcName_;
@@ -2212,6 +2295,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_) 
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > zAst_;
 };
@@ -2286,6 +2374,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
     }
 
   private:
@@ -2371,6 +2464,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_) 
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_) 
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > zAst_;
 };
@@ -2381,43 +2479,32 @@ template <typename ScalarT>
 class stpOp : public astNode<ScalarT>
 {
   public:
-    stpOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &time):
-      astNode<ScalarT>(left),
-      time_(time)
-  {};
+    stpOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), bpTol_(0.0) { };
 
-    virtual ScalarT val() { return ((std::real(this->leftAst_->val()))>0)?1.0:0.0; }
+    virtual ScalarT val() 
+    { 
+      // stpOp returns a 1 or a 0.  
+      Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
+      computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
+      return ((std::real(this->leftAst_->val()))>0)?1.0:0.0; 
+    }
 
     virtual ScalarT dx (int i) { return 0.0; }
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
-      // stpOp returns a 1 or a 0.  
-      // The following solves a single Newton iterate to obtain the next breakpoint.
-      // This assumes that the argument to stp is linearly dependent on time.
-      // If it is not dependent on time, then dfdt=0, and no breakpoint is computed.
-      // If it s NON-linearly dependent, then the code below is wrong.
-      int index = -99;
-      time_->setDerivIndex(index);
-      ScalarT dfdt = this->leftAst_->dx(index);
-      ScalarT f = this->leftAst_->val();
-      time_->unsetDerivIndex();
-
-      // -(F(t)-A)/F'(t)
-      if (std::real(dfdt) != 0.0)
+      if(!(bpTimes_.empty()))
       {
-        double delta_bpTime =  -std::real(f)/std::real(dfdt);
-        if ( delta_bpTime >= 0.0)
+        for (int ii=0;ii<bpTimes_.size();ii++)
         {
-          double time = std::real(time_->val());
-          double bpTime = time+delta_bpTime;
-          breakPointTimes.push_back( bpTime );
-          //std::cout << "stpOp::getBreakPoints.  Adding breakpoint = " << bpTime << std::endl;
+          breakPointTimes.push_back(bpTimes_[ii]);
         }
       }
 
       return true;
     }
+
+    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2436,7 +2523,9 @@ class stpOp : public astNode<ScalarT>
     virtual bool stpType() { return true; }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > time_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
+    double bpTol_;
+    std::vector<Xyce::Util::BreakPoint> bpTimes_;
 };
 
 //-------------------------------------------------------------------------------
@@ -2709,6 +2798,15 @@ AST_GET_CURRENT_OPS(polyVars_[ii])
       }
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+AST_GET_TIME_OPS(polyVars_[ii]) 
+      }
+    }
+
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > polyVars_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > polyCoefs_;
@@ -2959,6 +3057,20 @@ AST_GET_CURRENT_OPS(tableArgs_[ii])
       }
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_TIME_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
     bool allNumVal_;
@@ -2983,10 +3095,7 @@ class scheduleOp : public astNode<ScalarT>
     scheduleOp (
         std::vector<Teuchos::RCP<astNode<ScalarT> > > * args,
         Teuchos::RCP<astNode<ScalarT> > &time
-        ):
-      time_(time), 
-      astNode<ScalarT>(), tableArgs_(*args),
-      allNumVal_(true)
+        ): astNode<ScalarT>(), time_(time), tableArgs_(*args), allNumVal_(true)
       {
         int size = tableArgs_.size();
         if (size % 2)
@@ -3174,6 +3283,20 @@ AST_GET_CURRENT_OPS(time_)
         for(int ii=0;ii<size;ii++)
         {
 AST_GET_CURRENT_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(time_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_TIME_OPS(tableArgs_[ii]) 
         }
       }
     }
@@ -3665,6 +3788,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_)
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_)
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
 };
@@ -3745,6 +3873,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_)
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_)
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
 };
@@ -3823,6 +3956,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
     }
 
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+    }
+
   private:
 };
 
@@ -3897,6 +4035,11 @@ AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
 AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
     }
 
   private:

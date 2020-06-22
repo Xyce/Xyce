@@ -615,6 +615,7 @@ public:
   std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getStpNodeVec() { return stpAstNodeVec_;}
+  std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
 
@@ -834,8 +835,11 @@ private:
   // vector is ONLY used for obtaining breakpoints.
   std::vector< Teuchos::RCP<astNode<usedType> > > srcAstNodeVec_;
 
-  // vector of STP objects.  Also needed for breakpoints.  STP devices will need to auto-detect breakpoints
+  // vector of STP objects.  Also needed for breakpoints.  STP devices will need to auto-detect breakpoints, if argument includes time
   std::vector< Teuchos::RCP<astNode<usedType> > > stpAstNodeVec_;
+
+  // vector of COMP objects.  Also needed for breakpoints.  STP devices may need to auto-detect breakpoints, if comparing to a time
+  std::vector< Teuchos::RCP<astNode<usedType> > > compAstNodeVec_;
 
   // const and specials nodes:
   Teuchos::RCP<specialsOp<usedType> > dtNodePtr_;

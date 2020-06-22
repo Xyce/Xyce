@@ -1107,8 +1107,7 @@ exp:
     }
   | TOK_STP TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new stpOp<usedType>(*$3,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new stpOp<usedType>(*$3));
       $$ = tmpPtr;
       newExp.getStpNodeVec().push_back(*tmpPtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1355,36 +1354,42 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new eqOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_NE exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new neOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_GT exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new gtOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_LT exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ltOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_GE exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new geOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_LE exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new leOp<usedType>(*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getCompNodeVec().push_back(*tmpPtr);
     }
   | exp TOK_OR exp
     {
