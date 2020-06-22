@@ -193,6 +193,16 @@ TEST ( Double_Parser_Test, singleParam_P)
   EXPECT_DOUBLE_EQ( result, 0.0);
 }
 
+TEST ( Double_Parser_Test, singleParam_E)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("E"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 0.0);
+}
+
 // binary operators
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAdd, "1.0+2.0", (1.0+2.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryMinus, "1.0-2.0", (1.0-2.0) )
@@ -3793,6 +3803,36 @@ TEST ( Double_Parser_Param_Test, test1)
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
   OUTPUT_MACRO(Double_Parser_Param_Test, test1)
+}
+
+// this form of test1 doesn't rely on the group to resolve the parameter.
+// Instead, it allows the user to attach it.
+TEST ( Double_Parser_Param_Test, testE1)
+{
+  Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "E1";
+
+  Xyce::Util::newExpression testExpression(std::string("E1"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(p1Name,p1Expression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(Double_Parser_Param_Test, testE1)
 }
 
 //-----------------------------------------------------------------------------

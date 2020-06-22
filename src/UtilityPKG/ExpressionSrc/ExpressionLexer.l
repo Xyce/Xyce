@@ -113,12 +113,12 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -129,12 +129,12 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaA]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -144,12 +144,12 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaA]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -161,12 +161,12 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+<INITIAL>{DIGIT}*"."{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -751,7 +751,10 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"spice_sffm" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SFFM; }
 
  /* letters */
-{ID}+ { lvalp->sval=new std::string(YYText());  return XyceExpression::ExpressionParser::token::TOK_WORD; }
+<INITIAL>{ID}+ { 
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD; 
+}
 
  /* in order for # to be an allowed character in parameter and function names, this one-line comment rule had to go */
  /* "#"[^\n\r]* */   /* eat up one-line comments */
