@@ -12,8 +12,7 @@ class NAME : public astNode<ScalarT>                                            
                                                                                             \
     virtual ScalarT val()                                                                   \
     {                                                                                       \
-      Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));    \
-      computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);          \
+      computeBreakPoint ( this->leftAst_, this->rightAst_, timeOpVec_, bpTol_, bpTimes_);   \
       return VAL;                                                                           \
     }                                                                                       \
                                                                                             \
