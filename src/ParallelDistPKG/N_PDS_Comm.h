@@ -153,6 +153,7 @@ public:
                       const int count) const = 0; 
  
   virtual Epetra_Comm * petraComm() = 0;
+  virtual const Epetra_Comm * petraComm() const = 0;
 
   // Communicator Barrier function.
   // A no-op for a serial communicator.  For MPI, it causes each processor in

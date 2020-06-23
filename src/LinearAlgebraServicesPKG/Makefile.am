@@ -58,6 +58,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockMatrix.C \
   N_LAS_BlockSystemHelpers.C \
   N_LAS_EpetraHelpers.C \
+  N_LAS_MatrixFreeEpetraOperator.C \
   N_LAS_IfpackPrecond.C \
   N_LAS_ESDirectSolver.C \
   N_LAS_ESSolverFactory.C \
@@ -97,6 +98,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockMatrix.h \
   N_LAS_BlockSystemHelpers.h \
   N_LAS_EpetraHelpers.h \
+  N_LAS_MatrixFreeEpetraOperator.h \
   N_LAS_Preconditioner.h \
   N_LAS_NoPrecond.h \
   N_LAS_IfpackPrecond.h \

@@ -61,8 +61,6 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 
-#include <Epetra_CrsMatrix.h>
-
 // ----------   Static Declarations ----------
 
 namespace Xyce {

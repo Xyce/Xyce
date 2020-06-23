@@ -12,7 +12,6 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_SensitivityResiduals.C \
   N_NLS_ConductanceExtractor.C \
   N_NLS_ConstraintBT.C \
-  N_NLS_MatrixFreeEpetraOperator.C \
   N_NLS_NLParams.C \
   N_NLS_ParamMgr.C \
   N_NLS_NOX.C \
@@ -39,7 +38,6 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_SensitivityResiduals.h \
   N_NLS_ConductanceExtractor.h \
   N_NLS_Manager.h \
-  N_NLS_MatrixFreeEpetraOperator.h \
   N_NLS_NLParams.h \
   N_NLS_ParamMgr.h \
   N_NLS_ReturnCodes.h \

@@ -24,8 +24,8 @@
 //
 // Purpose        : This is an HB specific class that derives off of
 // Epetra_Operator and supports the matrix-free load method that we need for
-// HB.  It takes a pointer to the NonLinearSolver so that it can correctly do
-// the apply function, which calls applyJacobian.
+// HB.  It takes a pointer to an operator so that it can correctly do
+// the apply function, which calls applyJacobian in the nonlinear solver.
 //
 // Creator        : Todd Coffey, 1414
 //
@@ -36,8 +36,8 @@
 //
 //-------------------------------------------------------------------------
 
-#ifndef Xyce_N_NLS_MatrixFreeEpetraOperator_h
-#define Xyce_N_NLS_MatrixFreeEpetraOperator_h
+#ifndef Xyce_N_LAS_MatrixFreeEpetraOperator_h
+#define Xyce_N_LAS_MatrixFreeEpetraOperator_h
 
 // ---------- Standard Includes ----------
 #include <Teuchos_RCP.hpp>
@@ -59,7 +59,7 @@ using Teuchos::RCP;
 using Teuchos::rcp;
 
 namespace Xyce {
-namespace Nonlinear {
+namespace Linear {
 
 //-----------------------------------------------------------------------------
 // Class         : MatrixFreeEpetraOperator
@@ -79,9 +79,7 @@ public:
   virtual ~MatrixFreeEpetraOperator();
 
   void initialize(
-      RCP<NonLinearSolver> nonlinearSolver,
-      RCP<Linear::Vector> solVector, 
-      RCP<Linear::Vector> rhsVector,
+      RCP<Operator> linearOperator,
       RCP<const N_PDS_ParMap> solutionMap
       );
 
@@ -152,21 +150,17 @@ public:
 
 private:
   bool isInitialized_;
-  Teuchos::RCP<Linear::Vector> solVectorRCPtr_;
-  Teuchos::RCP<Linear::Vector> rhsVectorRCPtr_;
-  Teuchos::RCP<NonLinearSolver> nonlinearSolverRCPtr_;
+  Teuchos::RCP<Operator> linearOperatorRCPtr_;
   Teuchos::RCP<const N_PDS_ParMap> solutionMap_;
 };
 
 // Non-member constructor
 RCP<MatrixFreeEpetraOperator> matrixFreeEpetraOperator(
-    RCP<NonLinearSolver> nonlinearSolver,
-    RCP<Linear::Vector> solVector,
-    RCP<Linear::Vector> rhsVector,
+    RCP<Operator> linearOperator,
     RCP<const N_PDS_ParMap> solutionMap
     );
 
-} // namespace Nonlinear
+} // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_NLS_MatrixFreeEpetraOperator_h
+#endif // Xyce_N_LAS_MatrixFreeEpetraOperator_h

@@ -64,8 +64,6 @@ namespace NOX {
     class List;
   }
 }
-class Ifpack_IlukGraph;
-class Ifpack_CrsRiluk;
 
 namespace Xyce {
 namespace Nonlinear {
@@ -185,7 +183,6 @@ protected:
   bool isValidJacobian_;
   bool isValidGradient_;
   bool isValidNewton_;
-  mutable bool isValidPreconditioner_;
   mutable bool linearStatus_;
 
   // Value of the 2-Norm of F
@@ -195,9 +192,9 @@ protected:
   // preconditioner (iterative) or Jacobian (direct).
   mutable bool haveSolverFactors_;
 
-}; // class SharedSystem
+}; // class Group
 
 }}} // namespace N_NLS_NOX
 
-#endif // Xyce_N_NLS_NOX_SharedSystem_h
+#endif // Xyce_N_NLS_NOX_Group_h
 
