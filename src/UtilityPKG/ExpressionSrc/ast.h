@@ -363,7 +363,24 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 
 
 //-------------------------------------------------------------------------------
-template <typename ScalarT>
+// This function is called by the various comparison operators (greater than, 
+// less than, etc) as well as the stpOp class to compute breakpoints.
+// It is only intended to work for comparisons involving time.  It is not designed
+// to catch other types of events, such as when a voltage exceeds a given value.
+//
+// This function uses Newton's method to compute the (hopefully) nearest 
+// breakpoint.  The tolerance is the breakpoint tolerance.  The max number 
+// of iterations is 20.
+//
+// This is typically called from the val() function of an operator.  The 
+// reason this is necessary is to handle the use case of the operator being 
+// inside of a .func.  If inside of a .func, then it has to be called as 
+// part of an AST traversal.  As a result, this function is called more than it 
+// needs to be  (every Newton step instead of every time step) and is a little 
+// bit wasteful in that regard.  Possibly, this could be revisited later to
+// squeeze out more efficiency.
+//-------------------------------------------------------------------------------
+  template <typename ScalarT>
 inline void computeBreakPoint(
     Teuchos::RCP<astNode<ScalarT> > & leftAst_,
     Teuchos::RCP<astNode<ScalarT> > & rightAst_,
@@ -379,51 +396,58 @@ inline void computeBreakPoint(
   leftAst_->getTimeOps(timeOpVec_);
   rightAst_->getTimeOps(timeOpVec_);
 
-  //std::cout << "computeBreakPoint.  timeOpVec size = " << timeOpVec_.size() << std::endl;
-  //std::cout << "left arg:" <<std::endl;
-  //leftAst_->output(std::cout);
-  //std::cout << "right arg:" <<std::endl;
-  //rightAst_->output(std::cout);
-
   if (!(timeOpVec_.empty()))
   {
-    // use some fancy machinery to ensure that we aren't returning 
-    // many copies of the same breakpoint.  
-    Xyce::Util::BreakPointLess breakPointLess_(bpTol_);
-    Xyce::Util::BreakPointEqual breakPointEqual_(bpTol_);
-    std::sort ( bpTimes_.begin(), bpTimes_.end(), breakPointLess_ );
-    std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( bpTimes_.begin(), bpTimes_.end(), breakPointEqual_ );
-    bpTimes_.resize( std::distance (bpTimes_.begin(), it ));
+    bpTimes_.clear();
 
-    // The following solves a single Newton iterate to obtain the next breakpoint.
-    // This assumes that the argument to stp is linearly dependent on time.
-    // If it is not dependent on time, then dfdt=0, and no breakpoint is computed.
-    // If it s NON-linearly dependent, then the code below is wrong.
-    int index = -99999;
-    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setDerivIndex(index); }
+    // The following uses Newton's method to obtain the next breakpoint.
+    // If it fails to converge, then it will not save one.
+    // Possibly bpTol (which is the breakpoint tolerance used by the time integrator) 
+    // is too tight for this calculation.  Look into this later, perhaps.
     Teuchos::RCP<binaryMinusOp<ScalarT> > f_Ast_ = Teuchos::rcp(new binaryMinusOp<ScalarT>(leftAst_,rightAst_));
+
+    int index = -99999;
+
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setDerivIndex(index); }
     ScalarT dfdt = f_Ast_->dx(index);
     ScalarT f = f_Ast_->val();
 
-    //std::cout << "computeBreakPoint.  dfdt = " << dfdt << "  f = " << f << std::endl;
-
-    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->unsetDerivIndex(); }
-
     // The Newton iterate is:  -(F(t)-A)/F'(t)
-    if (std::real(dfdt) != 0.0)
+    double delta_bpTime =  0.0;
+    if (std::real(dfdt) != 0.0) { delta_bpTime =  -std::real(f)/std::real(dfdt); }
+    double time = std::real(timeOpVec_[0]->val());
+    double bpTime = time+delta_bpTime;
+
+    // test
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
+    f = f_Ast_->val();
+    dfdt = f_Ast_->dx(index);
+
+#if 0
+    std::cout << "0: computeBreakPoint.  BreakPoint: " << bpTime << " f = " << f <<std::endl;
+#endif
+    int iteration = 1;
+    while (std::abs(std::real(f)) > bpTol_ && iteration < 20)  // iterate
     {
-      double delta_bpTime =  -std::real(f)/std::real(dfdt);
-      if ( delta_bpTime >= 0.0)
-      {
-        double time = std::real(timeOpVec_[0]->val());
-        double bpTime = time+delta_bpTime;
-        //std::cout << "computed BreakPoint: " << bpTime <<std::endl;
-        bpTimes_.push_back( bpTime );
-        std::sort ( bpTimes_.begin(), bpTimes_.end(), breakPointLess_ );
-        std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( bpTimes_.begin(), bpTimes_.end(), breakPointEqual_ );
-        bpTimes_.resize( std::distance (bpTimes_.begin(), it ));
-      }
+      delta_bpTime =  0.0;
+      if (std::real(dfdt) != 0.0) { delta_bpTime =  -std::real(f)/std::real(dfdt); }
+      bpTime +=delta_bpTime;
+
+      for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
+      dfdt = f_Ast_->dx(index);
+      f = f_Ast_->val();
+
+#if 0
+      std::cout << iteration << ": computeBreakPoint.  BreakPoint: " << bpTime << " f = " << f <<std::endl;
+#endif
+      ++iteration;
     }
+
+    // cleanup, restore
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->unsetDerivIndex(); }
+    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(time); }
+
+    if (std::abs(std::real(f)) <= bpTol_) { bpTimes_.push_back( bpTime ); }// save this breakpoint if we converged
   }
 }
 
