@@ -2079,10 +2079,51 @@ TEST ( Double_Parser_Noise_Test, inoise_test)
 class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup
 {
   public:
-    testExpressionGroupWithFuncSupport () : Xyce::Util::baseExpressionGroup()  {};
+    testExpressionGroupWithFuncSupport () : 
+      Xyce::Util::baseExpressionGroup(),
+    B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
+      
+    
     ~testExpressionGroupWithFuncSupport () {};
 
+    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+    {
+      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else if (tmp==std::string("z")) { retval = vz; return true; }
+      else { return 0.0; return false; }
+    }
+
+    virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else if (tmp==std::string("z")) { retval = vz; return true; }
+      else { return 0.0; return false; }
+    }
+
+    void setSoln(const std::string & nodeName, double val)
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { B2 = val; }
+      else if (tmp==std::string("v2")) { V2 = val; }
+      else if (tmp==std::string("6")) { v6 = val; }
+      else if (tmp==std::string("7")) { v7 = val; }
+      else if (tmp==std::string("z")) { vz = val; }
+    }
+
   private:
+    double B2;
+    double V2;
+    double v6;
+    double v7;
+    double vz;
 };
 
 //-------------------------------------------------------------------------------
@@ -2136,6 +2177,118 @@ TEST ( Double_Parser_Func_Test, test1)
   OUTPUT_MACRO(Double_Parser_Func_Test, test1)
 }
 
+//-------------------------------------------------------------------------------
+// this test is inspired by the BUG_547_SON/mb_orig.cir test case, which seemed
+// to have trouble with the function name DC_AC.
+TEST ( Double_Parser_Func_Test, test_mb_orig)
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func DM_AC.
+  Xyce::Util::newExpression testExpression(std::string("DM_AC(2,3)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func DM_AC(A,B) {A+B}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A+B"), testGroup) );
+
+  // I originally had this set up so that the calling code would manually set the 
+  // vector of prototype function arguments, as well as the name of the function 
+  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
+  // function prototype DM_AC(A,B) has to be parsed, and the appropriate information 
+  // pulled out of it.  In Xyce, the old expression library is used to parse the 
+  // prototype(LHS), so attempting same here.
+  Xyce::Util::newExpression f1_LHS (std::string("DM_AC(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  // during lex/parse, this vector of arg strings will be compared to any
+  // param classes.  If it finds them, then they will be placed in the
+  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(Double_Parser_Func_Test, test_mb_orig)
+}
+
+//-------------------------------------------------------------------------------
+// this test is inspired by the BUG_547_SON/mb_orig.cir test case, which seemed
+// to have trouble with the function name DC_AC, among other things
+TEST ( Double_Parser_Func_Test, test_mb_orig2)
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func DM_AC.
+  Xyce::Util::newExpression testExpression(std::string("(0 + I(B2)*I(V2)*DM_AC(v(z)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func DM_AC(x) {TABLE(x,0,0)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("TABLE(x,0,0)"), testGroup) );
+
+  // I originally had this set up so that the calling code would manually set the 
+  // vector of prototype function arguments, as well as the name of the function 
+  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
+  // function prototype DM_AC(A,B) has to be parsed, and the appropriate information 
+  // pulled out of it.  In Xyce, the old expression library is used to parse the 
+  // prototype(LHS), so attempting same here.
+  Xyce::Util::newExpression f1_LHS (std::string("DM_AC(x)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  // during lex/parse, this vector of arg strings will be compared to any
+  // param classes.  If it finds them, then they will be placed in the
+  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double b2 = 7.0;
+  double v2 = 3.0;
+  double vz = 1.0;
+  funcGroup->setSoln(std::string("v2"),v2);
+  funcGroup->setSoln(std::string("z"),vz);
+  funcGroup->setSoln(std::string("b2"),b2);
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, 0.0 );
+  OUTPUT_MACRO(Double_Parser_Func_Test, test_mb_orig2)
+}
 
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Func_Test, test_underscoreName)

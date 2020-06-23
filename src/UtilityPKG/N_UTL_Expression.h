@@ -101,16 +101,17 @@ public:
   bool make_var (std::string const & var, bool isDotParam=false);
 
   // ERK new expression stuff.  These kind of replace "get_names"
-  void getParams           (std::vector<std::string> & params) const;
-  void getUnresolvedParams (std::vector<std::string> & params) const;
-  void getVoltageNodes     (std::vector<std::string> & nodes) const;
-  void getDeviceCurrents   (std::vector<std::string> & devices) const;
-  void getLeadCurrents     (std::vector<std::string> & leads) const;
-  void getFunctions        (std::vector<std::string> & funcs) const;
-  void getSpecials         (std::vector<std::string> & specials) const;
-  void getVariables        (std::vector<std::string> & variables) const;
-  void getPowerCalcs       (std::vector<std::string> & powerCalcs) const;
-  void getNodalComputation (std::vector<std::string> & nodalCalcs) const;
+  void getParams              (std::vector<std::string> & params) const;
+  void getUnresolvedParams    (std::vector<std::string> & params) const;
+  void getVoltageNodes        (std::vector<std::string> & nodes) const;
+  void getDeviceCurrents      (std::vector<std::string> & devices) const;
+  void getLeadCurrents        (std::vector<std::string> & leads) const;
+  void getFunctions           (std::vector<std::string> & funcs) const;
+  void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
+  void getSpecials            (std::vector<std::string> & specials) const;
+  void getVariables           (std::vector<std::string> & variables) const;
+  void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
+  void getNodalComputation    (std::vector<std::string> & nodalCalcs) const;
 
   bool getIsConstant ();
 

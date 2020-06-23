@@ -1937,6 +1937,9 @@ AST_GET_CURRENT_OPS(functionNode_)
 AST_GET_TIME_OPS(functionNode_) 
     }
 
+    bool getNodeResolved() { return nodeResolved_; }
+    bool getArgsResolved() { return argsResolved_; }
+
   private:
 // data:
     std::string funcName_;

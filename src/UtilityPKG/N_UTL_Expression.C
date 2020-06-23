@@ -626,7 +626,6 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
       leads.push_back( tmpName );
     }
   }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -650,6 +649,35 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
     if (it == funcs.end())
     {
       funcs.push_back( tmpName );
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedFunctions
+// Purpose       : 
+// Special Notes : ERK: Fix this.  
+//                 It is figuring out a unique list every single time, by 
+//                 using "find"
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 6/23/2020
+//-----------------------------------------------------------------------------
+void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = newExpPtr_->getFuncOpVec();
+  for (int ii=0;ii<funcOpVec.size();ii++)
+  {
+    Teuchos::RCP<funcOp<usedType> > funPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec[ii]);
+
+    if( !(funPtr->getNodeResolved()) || !(funPtr->getArgsResolved()) ) 
+    {
+      std::string tmpName = funcOpVec[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
+      if (it == funcs.end())
+      {
+        funcs.push_back( tmpName );
+      }
     }
   }
 }

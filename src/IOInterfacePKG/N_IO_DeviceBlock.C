@@ -2164,10 +2164,8 @@ bool DeviceBlock::setParameterValues()
 
           strings.clear();
           funcs.clear();
-          //e.get_names(XEXP_STRING, strings);
-          e.getUnresolvedParams(strings); // ERK check this.
-          //e.get_names(XEXP_FUNCTION, funcs);
-          e.getFuncNames(funcs);
+          e.getUnresolvedParams(strings);
+          e.getUnresolvedFunctions(funcs);
           if (strings.size() + funcs.size() == 1)
             msg << ":";
           else if (strings.size() + funcs.size() > 1)
