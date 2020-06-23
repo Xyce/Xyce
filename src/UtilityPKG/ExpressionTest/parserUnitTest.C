@@ -279,6 +279,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, pico,  "6.0p", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femto,  "6.0f", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, mil,  "2.0mil", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, Sec,      "3.0s", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraSec,  "3.0ts", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaSec,  "5.0gs", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloSec,  "7.0ks", 7.0e+3)
@@ -290,6 +291,19 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoSec,  "6.0ps", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoSec,  "6.0fs", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milSec,  "2.0mils", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, Henry,      "3.0h", 3.0)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraHenry,  "3.0th", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaHenry,  "5.0gh", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloHenry,  "7.0kh", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, megaHenry,  "2.0megh", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, mega2Henry,  "4.0xh", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, microHenry,  "2.0uh", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, nanoHenry,  "9.0nh", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoHenry,  "6.0ph", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoHenry,  "6.0fh", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milHenry,  "2.0milh", 2.0*(25.4e-6) )
+
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, Hz,      "3.0hz", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraHz,  "3.0thz", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaHz,  "5.0ghz", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloHz,  "7.0khz", 7.0e+3)
@@ -301,6 +315,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoHz,  "6.0phz", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoHz,  "6.0fhz", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milHz,  "2.0milhz", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, Volt,      "3.0v", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraVolt,  "3.0tv", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaVolt,  "5.0gv", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloVolt,  "7.0kv", 7.0e+3)
@@ -312,6 +327,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, picoVolt,  "6.0pv", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, femtoVolt,  "6.0fv", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, milVolt,  "2.0milv", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, Amp,     "3.0a", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, teraAmp,  "3.0ta", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, gigaAmp,  "5.0ga", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, kiloAmp,  "7.0ka", 7.0e+3)
@@ -328,6 +344,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, volt,  "7.0v", 7.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, amp,  "6.0a", 6.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, sec,  "5.0s", 5.0 )
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, hz,  "5.0hz", 5.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, henry,  "5.0h", 5.0 )
 
 // upper case metrix prefix/suffix tests
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERA,  "3.0T", 3.0e+12)
@@ -341,6 +358,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, PICO,  "6.0P", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, FEMTO,  "6.0F", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MIL,  "2.0MIL", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SEC,  "3.0S", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERASEC,  "3.0TS", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, GIGASEC,  "5.0GS", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, KILOSEC,  "7.0KS", 7.0e+3)
@@ -352,6 +370,19 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, PICOSEC,  "6.0PS", 6.0E-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, FEMTOSEC,  "6.0FS", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MILSEC,  "2.0MILS", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, HENRY,  "3.0H", 3.0)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERAHENRY,  "3.0TH", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, GIGAHENRY,  "5.0GH", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, KILOHENRY,  "7.0KH", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MEGAHENRY,  "2.0MEGH", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MEGA2HENRY,  "4.0XH", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MICROHENRY,  "2.0UH", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, NANOHENRY,  "9.0NH", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, PICOHENRY,  "6.0PH", 6.0E-12)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, FEMTOHENRY,  "6.0FH", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MILHENRY,  "2.0MILH", 2.0*(25.4e-6) )
+
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, VOLT,  "3.0V", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERAVOLT,  "3.0TV", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, GIGAVOLT,  "5.0GV", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, KILOVOLT,  "7.0KV", 7.0E+3)
@@ -363,6 +394,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, PICOVOLT,  "6.0PV", 6.0e-12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, FEMTOVOLT,  "6.0FV", 6.0*1.0e-15)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MILVOLT,  "2.0MILV", 2.0*(25.4e-6) )
 
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, AMP,  "3.0A", 3.0)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, TERAAMP,  "3.0TA", 3.0e+12)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, GIGAAMP,  "5.0GA", 5.0e+9)
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, KILOAMP,  "7.0KA", 7.0e+3)
@@ -375,10 +407,11 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, FEMTOAMP,  "6.0FA", 6.0*1.0e
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, MILAMP,  "2.0MILA", 2.0*(25.4e-6) )
 
 // unit suffixes, which should be ignored, upper case
-PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, VOLT,  "4.0V", 4.0 )
-PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, AMP,  "3.0A", 3.0 )
-PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SEC,  "2.0S", 2.0 )
-PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, HZ,  "2.0HZ", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, VOLT2,  "4.0V", 4.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, AMP2,  "3.0A", 3.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SEC2,  "2.0S", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, HZ2,  "2.0HZ", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, HENRY2,  "2.0HZ", 2.0 )
 
 // lower case metrix prefix/suffix tests
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, sin_tera,  "sin(3.0t)", std::sin(3.0e+12))
@@ -502,6 +535,135 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_VOLT,  "SIN(5.0V)", std:
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_AMP,  "SIN(6.0A)", std::sin(6.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_HZ,  "SIN(7.0HZ)", std::sin(7.0))
+
+// the next 6 tests were all added when I was trying ot narrow down the problem
+// with the lmod_indmod regression test case, which was failing.
+// The issue turned out to be that I didn't include Henrys in the units that 
+// could be handled by the lexer.  So, it (sort of) lexed "10mH", but ignored the "H", and
+// then threw away everything to the right of it rather than emitting an obvious error.
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("10mH*2*(1+0.010*(90-27)+0.926e-4*(90-27)**2)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres(0.039950588);
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod1)
+}
+
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("(90-27)**2)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres = 63*63;
+  testExpression.evaluateFunction(result);
+
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod2)
+}
+
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("10mH"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres = 10.0*(1.0e-3);
+  testExpression.evaluateFunction(result);
+
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod3)
+}
+
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod4)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("1+0.010*(90-27)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres = 1.63;
+  testExpression.evaluateFunction(result);
+
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod4)
+}
+
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod5)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("0.926e-4*(90-27)**2)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres = (0.926e-4)*63*63;
+  testExpression.evaluateFunction(result);
+
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod5)
+}
+
+TEST ( Double_Parser_Test, simpleExpression_lmod_indmod6)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("10mH*2"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result(0.0);
+  double refres = 10.0*(1.0e-3)*2.0;
+  testExpression.evaluateFunction(result);
+
+  testExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  copyExpression.evaluateFunction(result);   EXPECT_DOUBLE_EQ( result, refres);
+  assignExpression.evaluateFunction(result); EXPECT_DOUBLE_EQ( result, refres);
+
+  OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod6)
+}
 
 // source functions:
 class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -3824,7 +3986,7 @@ TEST ( Double_Parser_Param_Test, testE1)
   Xyce::Util::newExpression assign_testExpression; 
   assign_testExpression = testExpression; 
 
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 

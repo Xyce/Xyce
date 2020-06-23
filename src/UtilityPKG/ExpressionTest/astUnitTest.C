@@ -1650,17 +1650,15 @@ TEST ( Double_Ast_int_Test, test2)
 
 TEST ( Double_Ast_stp_Test, test1)
 {
-  RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<astNode<double> > valA = rcp(new numval<double> (10.25));
-  RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA, time_op));
+  RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA));
   EXPECT_EQ(stp1->val(), 1);
 }
 
 TEST ( Double_Ast_stp_Test, test2)
 {
-  RCP<astNode<double> > time_op = rcp(new specialsOp<double> (std::string("time")));
   RCP<astNode<double> > valA = rcp(new numval<double> (-2));
-  RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA, time_op));
+  RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA));
   EXPECT_EQ(stp1->val(), 0);
 }
 
