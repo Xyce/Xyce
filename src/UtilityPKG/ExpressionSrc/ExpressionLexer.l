@@ -96,6 +96,14 @@ SOP S[RIMP]?
 YOP Y[RIMP]?
 ZOP Z[RIMP]?
 
+SUFFIX [tTgGkKmMxXuUnNpPfF]
+
+MEG [mM][eE][gG]
+MIL [mM][iI][lL]
+
+UNIT [sSvVaAhH]
+HZ   [Hh][Zz]
+
 LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
@@ -108,96 +116,96 @@ LEAD I[SDGBEC1-9]
 
  /* ------------------------------------------------------------------------*/
  /* numbers with suffixes */
-<INITIAL>{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<INITIAL>{DIGIT}+{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<INITIAL>{DIGIT}+[mM][eE][gG][sSvVaAhH]? {
+<INITIAL>{DIGIT}+{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}+[mM][eE][gG][sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}+[mM][iI][lL][sSvVaAhH]? {
+<INITIAL>{DIGIT}+{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}+[mM][iI][lL][sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."{DIGIT}+{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaAhH]? {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
 
  /* dealing with Hz */
-<INITIAL>{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+<INITIAL>{DIGIT}+{SUFFIX}?{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+<INITIAL>{DIGIT}*"."{DIGIT}+{SUFFIX}?{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[Hh][Zz] {
+<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<INITIAL>{DIGIT}+[mM][eE][gG][Hh][Zz] {
+<INITIAL>{DIGIT}+{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][eE][gG][Hh][Zz] {
+<INITIAL>{DIGIT}*"."{DIGIT}*{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][Hh][Zz] {
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}+[mM][iI][lL][Hh][Zz] {
+<INITIAL>{DIGIT}+{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][iI][lL][Hh][Zz] {
+<INITIAL>{DIGIT}*"."{DIGIT}*{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][Hh][Zz] {
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -647,48 +655,48 @@ LEAD I[SDGBEC1-9]
   }
 
  /* numbers with suffixes */
-<polyargs>[-+]?{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}+{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<polyargs>[-+]?{DIGIT}+[mM][eE][gG][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}+{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}+[mM][iI][lL][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}+{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
-<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaAhH]? {
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
