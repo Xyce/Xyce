@@ -608,6 +608,12 @@ exp:
 
       std::string deviceName = (*$2);
 
+      if ( !(deviceName.empty()) && ( deviceName[0] == 'X' ))// inside a subcircuit.  So, for the logic below, need to strip out everything until the last ":"
+      {
+        std::size_t found = deviceName.find_last_of(":");
+        if ( found != std::string::npos) { deviceName = deviceName.substr(found+1); }
+      }
+
       if ( !(deviceName.empty()) && ( 
             deviceName[0] == 'V' || 
             deviceName[0] == 'B' || 
