@@ -561,12 +561,10 @@ Instance::Instance(
           if (d->name == "Q")
             solVarDepQ = true;
 
-#if 0
           if (expPtr->getNumDdt() != 0)
           {
             UserError(*this) << "Solution-variable-dependent expression contains time derivatives";
           }
-#endif
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
           {
