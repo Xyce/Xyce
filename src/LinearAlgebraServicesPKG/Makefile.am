@@ -99,6 +99,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockSystemHelpers.h \
   N_LAS_EpetraHelpers.h \
   N_LAS_MatrixFreeEpetraOperator.h \
+  N_LAS_Operator.h \
   N_LAS_Preconditioner.h \
   N_LAS_NoPrecond.h \
   N_LAS_IfpackPrecond.h \
