@@ -203,7 +203,7 @@ Manager::addGlobalAccessor(
 
   if (!parMaps_[id])
   {
-    Report::DevelFatal0().in("Manager::addParallelMap") << "ParallelMap " << id << " has not been created";
+    Report::DevelFatal0().in("Manager::addParallelMap") << "Parallel Map " << id << " has not been created";
     return 0;
   }
 
