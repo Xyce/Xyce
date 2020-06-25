@@ -40,6 +40,15 @@
 %\\ \hline
 %
 %
+
+\textbf{Gitlab issue 22} Limitations on allowed parameter names is not fully documented &
+The exact limitations on allowed parameter names is not clear in the
+documentation, nor is any exhaustive list available.  Single-character
+non-alphabetic names are mostly illegal for either \texttt{.param}
+or \texttt{.global\_param} names, but there may be other undocumented
+limitations.  These invalid parameter names will generally cause Xyce
+to exit with an appropriate error message.  \\ \hline
+
 \textbf{1262-SON}: Duplicate L device definitions are not a parsing error
 when one of the duplicate L devices is part of a K device &
 As an example, this netlist will not produce a parsing error.  Instead,
@@ -258,16 +267,6 @@ not replace ground synonyms if they appear in B source expressions.
 \textbf{\textit{Workaround}}: Do not use ground synonyms (\texttt{GND},
 \texttt{GROUND}, etc.) in expressions.  Use a literal ``0'' when
 referring to the ground node in expressions.\\ \hline
-
-\textbf{812-SON}: Undocumented limitations on, and bugs with, parameter and
-global parameter names & Based on external customer input and
-pre-release testing, there are some bugs and undocumented limitations
-on parameter and global parameter names in
-\Xyce{}. Parameters and global parameters should start with a letter, rather
-than with a number or ``special'' character like \#.  In addition, the
-use of a single character $V$ as a global parameter name can result in
-either netlist parsing failures or incorrect results
-from \texttt{.PRINT} lines.  \\ \hline
 
 \textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
 There have been reports of convergence problems (e.g., the \Xyce{}
