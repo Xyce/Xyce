@@ -186,11 +186,13 @@ Devices that may be expected to work in AC or HB analysis do not at
 this time.  For AC this includes, but is not limited to, the lossy
 transmission line (LTRA) and lossless transmission line (TRA).  For
 HB, the transmission lines do work but the nonlinear dependent sources
-(B source and nonlinear E, F, G, or H source) do not.
+(B source and nonlinear E, F, G, or H source) do not work when the
+expression is explicitly time-dependent.
 
 \textbf{\textit{Workaround}}: The LTRA and TRA models will need to be replaced
 with lumped transmission line models (YTRANSLINE) for AC analysis.
-There is not yet a workaround for the B source in harmonic balance.
+There is not yet a workaround for the time-dependent B source in
+harmonic balance.
 \\ \hline
 
 \textbf{967-SON}: Zoltan segmentation fault with OpenMPI 2.1.x and 3.0.0 on
@@ -267,11 +269,6 @@ not replace ground synonyms if they appear in B source expressions.
 \textbf{\textit{Workaround}}: Do not use ground synonyms (\texttt{GND},
 \texttt{GROUND}, etc.) in expressions.  Use a literal ``0'' when
 referring to the ground node in expressions.\\ \hline
-
-\textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
-There have been reports of convergence problems (e.g., the \Xyce{}
-simulation fails part way through and says that the ``time step is too
-small'') when the \texttt{rgatemod} parameter is non-zero. \\ \hline
 
 \textbf{794-SON}: Bug in TABLE Form of \Xyce{} Controlled Sources & In some case, a \Xyce{}
 netlist that contains a controlled source that uses the TABLE form will get
