@@ -1118,7 +1118,7 @@ int newExpression::evaluateFunction (usedType &result)
       result = astNodePtr_->val();
       evaluateFunctionCalledBefore_ = true;
 
-#if 1
+#if 0
       std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
       dumpParseTree(std::cout);
 #endif
