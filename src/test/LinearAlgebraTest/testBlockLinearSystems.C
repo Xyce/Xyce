@@ -23,7 +23,7 @@
 //
 // test the N_LAS_BlockSystemHelpers
 //
-
+#include <N_LAS_Graph.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
@@ -44,7 +44,6 @@
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
 #include <Epetra_CrsMatrix.h>
-#include <Epetra_CrsGraph.h>
 #include <Epetra_MultiVector.h>
 #include <Epetra_Vector.h>
 #include <Epetra_Export.h>
@@ -193,13 +192,14 @@ int main(int argc, char* argv[])
   int offset=1;
   while ( offset <= MaxGID ) offset *= 10;
 
-  Teuchos::RCP<Epetra_CrsGraph> blockGraph = createBlockGraph( offset, blockPattern, *blockMaps[0], A->Graph() );
+  Linear::Graph baseGraph( Teuchos::rcp( &(A->Graph()), false ) );
+  Teuchos::RCP<Linear::Graph> blockGraph = createBlockGraph( offset, blockPattern, *blockMaps[0], baseGraph );
   
   // -----------------------------------------------------
   // Now test block matrices.
   // -----------------------------------------------------
 
-  Teuchos::RCP<N_LAS_BlockMatrix> blockMatrix = Teuchos::rcp ( new N_LAS_BlockMatrix( numBlocks, blockPattern, *blockGraph, A->Graph()) );
+  Teuchos::RCP<N_LAS_BlockMatrix> blockMatrix = Teuchos::rcp ( new N_LAS_BlockMatrix( numBlocks, blockPattern, *blockGraph, baseGraph );
 
   // Insert the linear system on the diagonals and zeros on the off diagonal blocks
   N_LAS_Matrix origMatrix( A );

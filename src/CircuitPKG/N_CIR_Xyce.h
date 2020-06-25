@@ -64,8 +64,6 @@ using Teuchos::RCP;
 #include <N_DEV_ADC.h>
 #include <N_DEV_DAC.h>
 
-class Epetra_CrsGraph;
-
 #include <N_IO_CmdParse.h>
 
 namespace Xyce {

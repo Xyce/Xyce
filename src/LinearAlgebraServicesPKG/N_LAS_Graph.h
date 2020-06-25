@@ -59,16 +59,16 @@ class Graph
 public:
 
   // Simple constructor using Epetra_CrsGraph
-  Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph );
+  Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph );
 
   // Destructor
   virtual ~Graph() {}
 
-  const Teuchos::RCP<Epetra_CrsGraph>& epetraObj() { return epetraGraph_; }
+  const Teuchos::RCP<const Epetra_CrsGraph>& epetraObj() const { return epetraGraph_; }
 
 private:
 
-  Teuchos::RCP<Epetra_CrsGraph> epetraGraph_;
+  Teuchos::RCP<const Epetra_CrsGraph> epetraGraph_;
 
 };
 

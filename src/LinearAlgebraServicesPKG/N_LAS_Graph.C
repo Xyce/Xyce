@@ -48,7 +48,7 @@
 namespace Xyce {
 namespace Linear {
 
-  Graph::Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph )
+  Graph::Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph )
   : epetraGraph_(graph)
   {}
 

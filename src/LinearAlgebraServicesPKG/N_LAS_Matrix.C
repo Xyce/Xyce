@@ -940,5 +940,69 @@ N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
   return aColMap_;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getColMap
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/6/17
+//-----------------------------------------------------------------------------
+Graph* Matrix::getGraph()
+{
+  if (!baseGraph_)
+    baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+
+  return baseGraph_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getColMap
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/6/17
+//-----------------------------------------------------------------------------
+const Graph* Matrix::getGraph() const 
+{
+  if (!baseGraph_)
+    baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+
+  return baseGraph_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getColMap
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/6/17
+//-----------------------------------------------------------------------------
+Graph* Matrix::getOverlapGraph()
+{
+  if (!overlapGraph_)
+    overlapGraph_ = new Graph( Teuchos::rcp( &(oDCRSMatrix_->Graph()), false ) );
+
+  return overlapGraph_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getColMap
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/6/17
+//-----------------------------------------------------------------------------
+const Graph* Matrix::getOverlapGraph() const 
+{
+  if (!overlapGraph_)
+    overlapGraph_ = new Graph( Teuchos::rcp( &(oDCRSMatrix_->Graph()), false ) );
+
+  return overlapGraph_;
+}
+
 } // namespace Linear
 } // namespace Xyce

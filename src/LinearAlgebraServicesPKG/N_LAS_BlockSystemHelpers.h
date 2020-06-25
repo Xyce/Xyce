@@ -116,6 +116,16 @@ Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vec
                                                 N_PDS_ParMap& blockMap, const Epetra_CrsGraph& baseGraph );
 
 //-----------------------------------------------------------------------------
+// Function      : createBlockGraph
+// Purpose       : A helper function for creating block parallel graphs.
+// Special Notes :
+// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
+// Creation Date : 6/22/11
+//-----------------------------------------------------------------------------
+Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern,
+                                      N_PDS_ParMap& blockMap, const Graph& baseGraph );
+
+//-----------------------------------------------------------------------------
 // Function      : createBlockFreqERFParMap
 // Purpose       : A helper function for creating block parallel maps for 
 //               : the frequency domain.  The map generated here has all the

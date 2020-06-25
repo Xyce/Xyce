@@ -219,10 +219,10 @@ public:
   N_PDS_ParMap* getColMap( N_PDS_Comm& comm );
 
   // Get graph for assembled matrix
-  Graph* getBaseGraph() { return baseGraph_; }
-  const Graph* getBaseGraph() const { return baseGraph_; }
-  Graph* getOverlapGraph() { return overlapGraph_; } 
-  const Graph* getOverlapGraph() const { return overlapGraph_; } 
+  Graph* getGraph();
+  const Graph* getGraph() const; 
+  Graph* getOverlapGraph(); 
+  const Graph* getOverlapGraph() const; 
 
   // --------------------------------------------------------------------------------
   // Overlapped/assembled matrix methods
@@ -261,7 +261,8 @@ protected:
   // Column maps, assembled and overlapped.
   N_PDS_ParMap *aColMap_, *oColMap_;
 
-  Graph *overlapGraph_, *baseGraph_;
+  // Graphs, assembled and overlapped.
+  mutable Graph *overlapGraph_, *baseGraph_;
 
   // Dummy variable for loading ground node contributions.
   mutable bracketProxy proxy_;
