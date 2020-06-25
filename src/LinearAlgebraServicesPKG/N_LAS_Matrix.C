@@ -48,6 +48,7 @@
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
@@ -92,6 +93,10 @@ Matrix::~Matrix()
   delete offsetIndex_;
   delete aColMap_;
   delete oColMap_;
+  if (baseGraph_)
+    delete baseGraph_;
+  if (overlapGraph_)
+    delete overlapGraph_;
 }
 
 
@@ -110,10 +115,12 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(true),
+  overlapGraph_(0),
+  baseGraph_(0),
+  proxy_( 0, *this ),
   groundLID_(-1),
   groundNode_(0.0),
-  proxy_( 0, *this )
+  isOwned_(true)
 {
   aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
   oDCRSMatrix_ = aDCRSMatrix_;
@@ -133,10 +140,12 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(isOwned),
+  overlapGraph_(0),
+  baseGraph_(0),
+  proxy_( 0, *this ),
   groundLID_(-1),
   groundNode_(0.0),
-  proxy_( 0, *this )
+  isOwned_(isOwned)
 {
   oDCRSMatrix_ = aDCRSMatrix_;
 }
@@ -157,10 +166,12 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(true),
+  overlapGraph_(0),
+  baseGraph_(0),
+  proxy_( 0, *this ),
   groundLID_(-1),
   groundNode_(0.0),
-  proxy_( 0, *this )
+  isOwned_(true)
 {
   if ( baseGraph != overlapGraph )
   {
@@ -176,6 +187,47 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
   else
   {
     aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
+    oDCRSMatrix_ = aDCRSMatrix_;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::Matrix
+// Purpose       : Constructor
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 08/21/02
+//-----------------------------------------------------------------------------
+Matrix::Matrix( Graph* overlapGraph,
+                Graph* baseGraph )
+: aDCRSMatrix_(0),
+  oDCRSMatrix_(0),
+  exporter_(0),
+  offsetIndex_(0),
+  aColMap_(0),
+  oColMap_(0),
+  overlapGraph_(overlapGraph),
+  baseGraph_(baseGraph),
+  proxy_( 0, *this ),
+  groundLID_(-1),
+  groundNode_(0.0),
+  isOwned_(true)
+{
+  if ( baseGraph!= overlapGraph )
+  {
+    oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(overlapGraph->epetraObj()) );
+
+    // Get ground node, if there is one.
+    groundLID_ = overlapGraph->epetraObj()->LRID( -1 );
+
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
+    exporter_ = new Epetra_Export( overlapGraph->epetraObj()->RowMap(), baseGraph->epetraObj()->RowMap() );
+    offsetIndex_ = new Epetra_OffsetIndex( *(overlapGraph->epetraObj()), *(baseGraph->epetraObj()), *exporter_ );
+  }
+  else
+  {
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
     oDCRSMatrix_ = aDCRSMatrix_;
   }
 }

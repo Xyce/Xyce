@@ -58,6 +58,7 @@ set ( LinearAlgebraServices_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_PCESolverFactory.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_IfpackPrecond.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_LAFactory.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Graph.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Matrix.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMatrix.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMultiVector.C

@@ -43,6 +43,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_FilteredMultiVector.C \
   N_LAS_MOROperators.C \
   N_LAS_QueryUtil.C \
+  N_LAS_Graph.C \
   N_LAS_System.C \
   N_LAS_SystemHelpers.C \
   N_LAS_Builder.C \
@@ -86,6 +87,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_MOROperators.h \
   N_LAS_MultiVector.h \
   N_LAS_QueryUtil.h \
+  N_LAS_Graph.h \
   N_LAS_System.h \
   N_LAS_SystemHelpers.h \
   N_LAS_Vector.h \
