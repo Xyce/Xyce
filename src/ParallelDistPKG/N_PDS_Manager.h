@@ -150,8 +150,7 @@ public:
   // Add a matrix graph object
   bool addMatrixGraph(
     int                         id,
-    Epetra_CrsGraph *           graph,
-    EpetraExt::CrsGraph_View *  trans = 0 );
+    Epetra_CrsGraph *           graph );
 
   bool linkMatrixGraph(int new_id, int link_id);
 
@@ -163,7 +162,6 @@ private:
   N_PDS_ParMap *                parMaps_[MAP_COUNT];
   N_PDS_GlobalAccessor *        globalAccessors_[MAP_COUNT];
   Epetra_CrsGraph *             matrixGraphs_[MAP_COUNT];
-  EpetraExt::CrsGraph_View *    matrixGraphTransforms_[MAP_COUNT];
 
   std::map<int,int>             linkedMapsGraphs_;
 };
