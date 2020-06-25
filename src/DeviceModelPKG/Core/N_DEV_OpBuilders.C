@@ -188,11 +188,25 @@ struct DeviceGlobalParameterOpBuilder : public Util::Op::Builder
     }
     else
     {
-      const double *result = deviceManager_.findGlobalPar(param_tag);
-      if (result)
+      // Don't even look for this parameter name if we are actually
+      // a function call with arguments!  (all of these things are
+      // the first characters of valid access operators (voltage, current
+      // internal vars, power, noise, S params, Y params, Z params)
+      if ( !((*it).getType() == Util::INT
+             && (param_tag[0] == 'V'
+                                  || param_tag[0] == 'I' || param_tag[0] == 'N'
+                                  || param_tag[0] == 'P' || param_tag[0] == 'W'
+                                  || param_tag[0] == 'D' || param_tag[0] == 'S'
+                 || param_tag[0] == 'Y' || param_tag[0] == 'Z')
+             && (*it).getImmutableValue<int>() >0 )
+           )
       {
-        // Refactor: [DGB] Should use the address.
-        new_op = new DeviceMgrGlobalParameterOp(param_tag, deviceManager_, *result);
+        const double *result = deviceManager_.findGlobalPar(param_tag);
+        if (result)
+        {
+          // Refactor: [DGB] Should use the address.
+          new_op = new DeviceMgrGlobalParameterOp(param_tag, deviceManager_, *result);
+        }
       }
     }
 
