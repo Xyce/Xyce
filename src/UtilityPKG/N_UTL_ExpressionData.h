@@ -93,23 +93,13 @@ public:
     const Util::ParamMap &              context_param_map,
     const Util::ParamMap &              context_global_param_map);
 
-#if 0
-  double evaluate(
-    Parallel::Machine           comm,
-    double                      current_circuit_time,
-    double                      current_circuit_dt,
-    const Linear::Vector *      solnVecPtr,
-    const Linear::Vector *      stateVecPtr,
-    const Linear::Vector *      stoVecPtr,
-    const Linear::Vector *      solnVecImagPtr = 0) const;
-#endif
-
-  double evaluate(
+  void evaluate(
       Parallel::Machine comm, 
       double current_circuit_time, 
       double current_circuit_dt, 
-      const Util::Op::OpData & opData) const;
-
+      const Util::Op::OpData & opData,
+      double &result
+      ) const;
 
   void evaluate(
       Parallel::Machine comm, 
@@ -118,6 +108,24 @@ public:
       const Util::Op::OpData & opData,
       double &result, 
       std::vector< double > &derivs 
+      ) const;
+
+  // complex versions
+  void evaluate(
+      Parallel::Machine comm, 
+      double current_circuit_time, 
+      double current_circuit_dt, 
+      const Util::Op::OpData & opData,
+      std::complex<double>  &result
+      ) const;
+
+  void evaluate(
+      Parallel::Machine comm, 
+      double current_circuit_time, 
+      double current_circuit_dt, 
+      const Util::Op::OpData & opData,
+      std::complex<double> &result, 
+      std::vector< std::complex<double> > &derivs 
       ) const;
 
 private:

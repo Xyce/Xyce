@@ -1919,6 +1919,43 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, ni_test0)
   OUTPUT_MACRO(Double_Parser_InternalDeviceVariable_Test, test0)
 }
 
+
+TEST ( Double_Parser_InternalDeviceVariable_Test, testConflict)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("N+17.2*N(M3:GM)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Teuchos::RCP<Xyce::Util::newExpression> nExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("-0.5"), testGroup));
+  nExpression->lexAndParseExpression();
+  std::string nName = "N";
+  testExpression.attachParameterNode(nName,nExpression);
+
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, M3GMval=3.0;
+  double refRes = 17.2*M3GMval+8.5 + (-0.5);
+  intVarGroup->setInternalDeviceVar(std::string("M3:GM"),M3GMval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result); 
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_InternalDeviceVariable_Test, test1)
+}
+
+
 //-------------------------------------------------------------------------------
 class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
 {

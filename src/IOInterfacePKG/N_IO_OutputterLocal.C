@@ -358,6 +358,18 @@ createOps(
       *inserter++ = new RFparamsRealOp("Re(" + RFparamsName + ")", type, index1, index2);
       *inserter++ = new RFparamsImaginaryOp("Im(" + RFparamsName + ")", type, index1, index2);
     }
+    // Not sure if this is good idea.    The result is Re({stuf}) and Im({stuf}) even if "stuf" is 
+    // something complex-specific like VI(B).  Re({VI(B)}) doesn't really make sense.
+    else if (expandComplexTypes && (*it)->id() == Util::Op::identifier<ExpressionOp>())
+    {
+      const ExpressionOp *op = dynamic_cast<const ExpressionOp *>(*it);
+      if (op)
+      {
+        *inserter++ = new ExpressionRealOp( *op );
+        *inserter++ = new ExpressionImaginaryOp( *op );
+        delete *it;
+      }
+    }
     else
       *inserter++ = *it;
   }

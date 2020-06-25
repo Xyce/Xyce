@@ -126,11 +126,13 @@ bool ExpressionData::parsed() const
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 02/16/2015
 //-----------------------------------------------------------------------------
-double ExpressionData::evaluate(
+void ExpressionData::evaluate(
   Parallel::Machine             comm,
   double                        current_circuit_time,
   double                        current_circuit_dt,
-  const Util::Op::OpData &      op_data) const
+  const Util::Op::OpData &      op_data,
+  double                        &result
+  ) const
 {
   if (state_ == NOT_SETUP)
   {
@@ -145,17 +147,15 @@ double ExpressionData::evaluate(
     Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
   }
 
-  double value = 0.0;
-
   if (expression_)
   {
     Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
     outputsGroup->setOpData(op_data);
     expression_->processSuccessfulTimeStep();
-    expression_->evaluateFunction(value);
+    expression_->evaluateFunction(result);
   }
 
-  return value;
+  return;
 }
 
 
@@ -174,6 +174,88 @@ void ExpressionData::evaluate(
   const Util::Op::OpData &      op_data,
   double &result, 
   std::vector< double > &derivs 
+  ) const
+{
+  if (state_ == NOT_SETUP)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
+  }
+  else if (state_ == PARSE_FAILED)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
+  }
+  else if (state_ == UNRESOLVED_SYMBOL)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
+  }
+
+  if (expression_)
+  {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluate( result, derivs);
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionData::evaluate
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 02/16/2015
+//-----------------------------------------------------------------------------
+void ExpressionData::evaluate(
+  Parallel::Machine             comm,
+  double                        current_circuit_time,
+  double                        current_circuit_dt,
+  const Util::Op::OpData &      op_data,
+  std::complex<double>          &result
+  ) const
+{
+  if (state_ == NOT_SETUP)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
+  }
+  else if (state_ == PARSE_FAILED)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
+  }
+  else if (state_ == UNRESOLVED_SYMBOL)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
+  }
+
+  if (expression_)
+  {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluateFunction(result);
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionData::evaluate
+// Purpose       : Evaluate result and derivatives
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/25/2018
+//-----------------------------------------------------------------------------
+void ExpressionData::evaluate(
+  Parallel::Machine             comm,
+  double                        current_circuit_time,
+  double                        current_circuit_dt,
+  const Util::Op::OpData &      op_data,
+  std::complex<double> &result, 
+  std::vector< std::complex<double> > &derivs 
   ) const
 {
   if (state_ == NOT_SETUP)

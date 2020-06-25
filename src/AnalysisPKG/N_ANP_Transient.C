@@ -959,10 +959,12 @@ bool Transient::doInit()
                                       analysisManager_.getDataStore()->currStatePtr,
                                       analysisManager_.getDataStore()->currStorePtr, 0);
 
-        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            opDataTmp);
+            //opDataTmp);
+            opDataTmp, suggestedMaxTime);
     }
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
@@ -1056,10 +1058,12 @@ bool Transient::doTranOP ()
                                       analysisManager_.getDataStore()->currStatePtr,
                                       analysisManager_.getDataStore()->currStorePtr, 0);
 
-        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            opDataTmp);
+            //opDataTmp);
+            opDataTmp, suggestedMaxTime);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1181,10 +1185,11 @@ bool Transient::doLoopProcess()
                                     analysisManager_.getDataStore()->currStatePtr,
                                     analysisManager_.getDataStore()->currStorePtr, 0);
 
-        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            opDataTmp);
+            opDataTmp, suggestedMaxTime);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1432,10 +1437,12 @@ void Transient::preMixedSignalStepDetails(
                                     analysisManager_.getDataStore()->currStatePtr,
                                     analysisManager_.getDataStore()->currStorePtr, 0);
 
-      suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+     // suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+      maxTimeStepExpression_->evaluate(comm_, 
           outputManagerAdapter_.getOutputManager().getCircuitTime(),
           outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-          opDataTmp);
+          //opDataTmp);
+          opDataTmp,suggestedMaxTime);
     }
     analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
     analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1832,11 +1839,13 @@ bool Transient::doProcessSuccessfulStep()
                                   analysisManager_.getDataStore()->currStatePtr,
                                   analysisManager_.getDataStore()->currStorePtr, 0);
 
-    suggestedMaxTime = maxTimeStepExpression_->evaluate(
+    //suggestedMaxTime = maxTimeStepExpression_->evaluate(
+    maxTimeStepExpression_->evaluate(
         comm_, 
         outputManagerAdapter_.getOutputManager().getCircuitTime(), 
         outputManagerAdapter_.getOutputManager().getCircuitTimeStep(), 
-        opDataTmp);
+        //opDataTmp);
+        opDataTmp, suggestedMaxTime);
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();
