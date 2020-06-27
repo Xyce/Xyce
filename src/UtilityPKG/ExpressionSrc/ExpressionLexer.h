@@ -13,11 +13,12 @@ class ExpressionLexer: public yyFlexLexer
 {
 public:
   ExpressionLexer(
+    //const NetlistLocation &     netlist_location,
     const std::string &         expression_filename,
     std::istream *              input = 0,
     std::ostream *              output = 0)
     : yyFlexLexer(input,output),
-    //: expFlexLexer(input,output),
+      //netlistLocation_(netlist_location),
       expressionFilename_(expression_filename)
   {}
 

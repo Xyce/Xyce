@@ -15,6 +15,7 @@
 #include <Teuchos_RCP.hpp>
 
 #include "location.hh"
+#include <N_ERH_Message.h>
 #include "ExpressionType.h"
 #include "ast.h"
 #include "newExpression.h"
@@ -1479,5 +1480,6 @@ XyceExpression::ExpressionParser::error(
   const std::string &                               message)
 {
   //Xyce::Report::UserError().at(theLexer->netlistLocation_)
- std::cout << "ERROR!!! " << message << " in expression " << newExp.getExpressionString() << std::endl;
+  Xyce::Report::UserError()
+   << "ERROR!!! " << message << " in expression " << newExp.getExpressionString() << std::endl;
 }
