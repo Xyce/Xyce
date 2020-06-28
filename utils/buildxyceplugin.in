@@ -181,7 +181,7 @@ CLEANFILES=""
 OBJFILES=""
 
 scanargs $@
-if [ $? != 0 ]
+if [ $? != 0  -o "${VAFILES}x" = "x" ]
 then
     usage
     exit 1
