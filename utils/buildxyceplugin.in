@@ -187,6 +187,17 @@ then
     exit 1
 fi
 
+echo "buildxyceplugin is building a plugin from the Verilog-A files:"
+echo ${VAFILES}
+if [ "${pluginname}x" = "x" ]
+then
+    echo "The plugin name will be generated automatically from the module name"
+    echo "in the last file of this list."
+else
+    echo "The plugin name will be ${pluginname}.so"
+fi
+
+count=0
 set -- ${VAFILES}
 while [ $# -ge 1 ]
 do
@@ -221,14 +232,17 @@ do
            CLEANFILES="${CLEANFILES} ${CXXFIL} ${OBJFIL} N_DEV_ADMS${module}.h"
        fi
        OBJFILES="$OBJFILES N_DEV_ADMS${module}.lo"
-       
+
+       count=`echo $count+1|bc`
     else
         echo "Input file not found:  $input"
         exit 1
     fi
     shift 1
 done
-        
+
+echo "Processing of ${count} Verilog-A input files complete."
+
 if [ "x$pluginname" = "x" ]
 then
     pluginname=Xyce_Plugin_$module
