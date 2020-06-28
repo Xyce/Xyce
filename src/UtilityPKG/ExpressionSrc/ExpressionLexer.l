@@ -769,6 +769,9 @@ LEAD I[SDGBEC1-9]
 [ \t]+                     { llocp->step(); }   /* eat up whitespace */
 (\n+|(\r\n)+|\r+)          { llocp->lines(YYLeng()); }
 
-.  { std::cout << "Unrecognized character: " <<  YYText() << std::endl; }
+.  { 
+    //std::string errStr ("Unrecognized character: " + std::string(YYText())) ; yyerror(errStr);
+    std::cout << "Unrecognized character: " <<  YYText() << std::endl; 
+    }
 
 %%
