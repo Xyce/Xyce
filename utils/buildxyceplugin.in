@@ -198,6 +198,8 @@ else
 fi
 
 count=0
+modules=""
+
 set -- ${VAFILES}
 while [ $# -ge 1 ]
 do
@@ -218,6 +220,8 @@ do
        
        # determine the module name
        module=`ls -rt N_DEV_ADMS*.C | tail -1 | sed -e 's/N_DEV_ADMS\(.*\).C/\1/'`
+       echo "Input file $input provides module $module"
+       modules=${module}" "${modules}
        echo "#include <N_DEV_ADMS${module}.h>" >> .headerstring_$$
        echo "Xyce::Device::ADMS${module}::registerDevice();" >> .registerstring_$$
 
@@ -300,5 +304,6 @@ else
     echo "Requested destination directory not writeable, not installing plugin.  Look in the .libs subdirectory of the current working directory to find your plugin."
 fi
 echo "Done!  Your plugin may now be used by running Xyce with the option '-plugin ${DESTDIR}/${pluginname}.so'"
+echo "This plugin provides the Verilog-A modules: $modules"
 cleanup  ${OBJFILES} ${pluginname}_bootstrap.lo ${CLEANFILES}
 cleanup .adms*.xml .interface*.xml .*.adms constants.vams disciplines.vams discipline.h
