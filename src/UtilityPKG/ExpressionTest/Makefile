@@ -18,12 +18,12 @@ all:  test
 test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
 
 # main program
-astUnitTest: astUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o
-	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C N_UTL_BreakPoint.o  -lm -lgtest -lgtest_main  $(RCPLIBS)
+astUnitTest: astUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o -lm -lgtest -lgtest_main  $(RCPLIBS)
 
 
-astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o
-	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  N_UTL_BreakPoint.o  -lm -lgtest -lgtest_main $(RCPLIBS)
+astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o -lm -lgtest -lgtest_main $(RCPLIBS)
 
 # expression lexer/parser
 ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h ../N_UTL_Interpolators.h

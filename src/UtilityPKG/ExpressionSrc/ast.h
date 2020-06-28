@@ -16,6 +16,7 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_ERH_Message.h>
 
 #define CONSTCtoK    (273.15)  
 
@@ -191,7 +192,7 @@ class astNode
     virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) {};
     virtual void unsetNode() {};
 
-    virtual void setFuncArgs(std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec ) {};
+    virtual void setFuncArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec ) {};
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes) { return true;}
     virtual void setBreakPointTol(double tol){return;};
@@ -1715,12 +1716,14 @@ class funcOp: public astNode<ScalarT>
       {
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
+#if 0
           std::vector<std::string> errStr;
           errStr.push_back(std::string("funcOp::val() FuncOp Function Args sizes don't match for: "));
           errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
+#endif
         }
         else
         {
@@ -1744,11 +1747,13 @@ class funcOp: public astNode<ScalarT>
       {
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
+#if 0
           std::string tmp = "funcOp::dx() FuncOp Function Args sizes don't match for " + funcName_;
           std::vector<std::string> errStr(1,tmp);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
+#endif
         }
         else
         {
@@ -1817,12 +1822,14 @@ class funcOp: public astNode<ScalarT>
 
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
+#if 0
           std::vector<std::string> errStr;
           errStr.push_back(std::string("funcOp::output() FuncOp Function Args sizes don't match for: "));
           errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
+#endif
         }
         else
         {
@@ -1859,24 +1866,24 @@ class funcOp: public astNode<ScalarT>
       number_ = 0.0;
     };
 
-    virtual void setFuncArgs(std::vector< Teuchos::RCP<paramOp<ScalarT> > > & tmpParamVec )
+    virtual void setFuncArgs(const std::vector< Teuchos::RCP<paramOp<ScalarT> > > & tmpParamVec )
     {
       dummyFuncArgs_.clear(); dummyFuncArgs_.resize(tmpParamVec.size());
       for (int ii=0;ii<tmpParamVec.size();++ii)
       {
         dummyFuncArgs_[ii] = tmpParamVec[ii];
       }
-      argsResolved_ = true;
+      argsResolved_ = true; 
     };
 
-    virtual void setFuncArgs(std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec )
+    virtual void setFuncArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec )
     {
       dummyFuncArgs_.clear(); dummyFuncArgs_.resize(tmpArgVec.size());
       for (int ii=0;ii<tmpArgVec.size();++ii)
       {
         dummyFuncArgs_[ii] = tmpArgVec[ii];
       }
-      argsResolved_ = true;
+      argsResolved_ = true; 
     };
 
     std::vector< Teuchos::RCP<astNode<ScalarT> > > & getFuncArgs()
@@ -1892,12 +1899,14 @@ class funcOp: public astNode<ScalarT>
     {
       if (funcArgs_.size() != dummyFuncArgs_.size())
       {
+#if 0
         std::vector<std::string> errStr;
         errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
         errStr.push_back(funcName_);
         errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
         errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
         yyerror(errStr);
+#endif
       }
       else
       {
@@ -4208,9 +4217,11 @@ class CtoKConstOp : public astNode<ScalarT>
 //-------------------------------------------------------------------------------
 inline void yyerror(std::vector<std::string> & s)
 {
+  //Xyce::Report::UserError() << "ERROR!!!  in expression " << newExp.getExpressionString() << std::endl;
   for (int i=0;i<s.size();++i)
   {
-    std::cerr << "\t" << s[i] << std::endl;
+    //std::cerr << "\t" << s[i] << std::endl;
+    Xyce::Report::UserError() << s[i] ;
   }
 }
 

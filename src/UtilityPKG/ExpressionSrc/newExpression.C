@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "newExpression.h"
+#include <N_ERH_Message.h>
 
 #if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
 #include <float.h>
@@ -271,19 +272,32 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
     { 
       if ( !(Teuchos::is_null(tmpVec[ii])) ) 
       {
-#if 0
-        std::cout << "newExpression::attachFunctionNode. Attaching " << funcName << " to " << expressionString_ <<std::endl;
-#endif
         tmpVec[ii]->setNode(expPtr->getAst()); 
       }
       else { retval=false; }
 
       Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
+
       if ( !(Teuchos::is_null(castedFuncPtr)) )
       {
         castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() ); 
       }
       else { retval=false; }
+
+      int size1 = castedFuncPtr->getFuncArgs().size();
+      int size2 = expPtr->getFunctionArgOpVec().size();
+      // getFunctionArgStringVec
+      if (size1 != size2)
+      {
+        std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
+        for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
+        {
+          errMsg += expPtr->getFunctionArgStringVec()[ii]; 
+          if (size2 > 1 && ii < size2-1) { errMsg += ","; }
+        }
+        errMsg += ") in expression " + expressionString_;
+        Xyce::Report::UserError() << errMsg;
+      }
     }
     externalDependencies_ = true;
   }

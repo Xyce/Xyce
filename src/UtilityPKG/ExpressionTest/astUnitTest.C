@@ -143,7 +143,7 @@ TEST ( Double_Ast_Func_Test, phaseOp )
   double a1(-1.0);
   RCP<astNode<double> > arg1 = rcp(new numval<double> (a1));
   RCP<astNode<double> > testPhase = rcp(new phaseOp<double>(arg1)); 
-  EXPECT_EQ(testPhase->val(), std::arg(a1));  
+  EXPECT_EQ(testPhase->val(), std::arg(a1)*(180.0/M_PI));   // default behavior uses Degrrees, not radians
 }
 
 TEST ( Complex_Ast_Func_Test, powOp )
@@ -199,7 +199,7 @@ TEST ( Complex_Ast_Func_Test, phaseOp )
   std::complex<double> a1(-1.0,0.0);
   RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
   RCP<astNode<cmplx> > testPhase = rcp(new phaseOp<cmplx>(arg1)); 
-  EXPECT_EQ(testPhase->val(), std::arg(a1));   
+  EXPECT_EQ(testPhase->val(), std::arg(a1)*(180.0/M_PI));   // default behavior uses Degrrees, not radians
 }
 
 TEST ( Complex_Ast_Func_Test, realOp )

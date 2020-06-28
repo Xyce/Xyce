@@ -6944,6 +6944,107 @@ TEST ( Double_Parser_Integral_Test, sdt4)
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt4)
 }
 
+//-------------------------------------------------------------------------------
+// Testing out error trapping.  This needs some work.
+
+//-------------------------------------------------------------------------------
+// For this test, see invalid math error message (See Message/Function/invalid_math_operator.cir, which has 'b =# n' )
+//
+//  As of this writing (6/27/2020) the new expression library doesn't believe this is an error.  It incorrectly passes.
+TEST ( Double_Parser_ErrorTest, invalidMath)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("b =# n"), testGroup); // this is what is in the regression test
+  //Xyce::Util::newExpression testExpression(std::string("b * "), testGroup); // this exits with an error
+  //Xyce::Util::newExpression testExpression(std::string("sin()"), testGroup); // this exits with an error
+  testExpression.lexAndParseExpression();
+  //testExpression.dumpParseTree(std::cout);
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+//  EXPECT_DOUBLE_EQ( (result-(1.0)), 0.0);
+}
+
+//-------------------------------------------------------------------------------
+// For this test see bug 850 SON, which has the following bad_user_defined_func.cir:
+// 
+//  * User defined functions (udf) from the bug report for SON Bug 850.
+//  * These functions were called UGAUSS in the bug report.
+//  .FUNC udfA(mu,sigma) {exp(mu/sigma)}       ; User Defined Func. A
+//  .func udfB(mu,sigma,t) {exp((t-mu)/sigma)} ; User Defined Func. B
+//
+//  VTEST    1    0     10
+//  R1       1    2     50
+//
+//  * All of these B-source statements should produce a netlist parsing error.
+//  * The inline comments give their behavior with Xyce 6.7.
+//  
+//  * udfA should have two arguments, but is given three arguments
+//  B1 2 0     I = {(V(2)+udfA(10m,1u,23))/50} ; segfault with Func. A
+//  B2 2 0     I = {udfA(10m,1u,23)/50}   ; runs fine with Func. A, but shouldn't
+//  B3 2 0     I = {udfA(10m,1u,23)+V(2)} ; segfaults with Func. A.
+//  B4 2 0     I = {udfA(10m,1u,23)}      ; correctly aborts with Func. A 
+//  
+//  * udfB should have three arguments, and is only given two arguments
+//  B5 2 0     I = {(V(2)+udfB(10m,1u))/50}  ; segfault with Func. B
+//  B6 2 0     I = {(udfB(10m,1u)+V(2))/50}  ; segfault with Func. B  
+//  B7 2 0     I = {(udfB(20m,1u))/50}    ; runs fine with Func. B, but shouldn't
+//
+//  As of this writing (6/27/2020) the new expression library DOES believe these 
+//  are errors.  However, as I haven't yet figured out how to properly do unit 
+//  tests on error messages, I've hacked the code below to (rightfully) pass.
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func udfA.
+  //Xyce::Util::newExpression testExpression(std::string("udfA(10m,1u,23)/50"), testGroup); // this, correctly fails
+  Xyce::Util::newExpression testExpression(std::string("udfA(10p,1u)/50"), testGroup); // this passes, correctly.
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A,B) {A+B}
+  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("exp(mu/sigma)"), testGroup) );
+
+  // I originally had this set up so that the calling code would manually set the 
+  // vector of prototype function arguments, as well as the name of the function 
+  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
+  // function prototype F1(A,B) has to be parsed, and the appropriate information 
+  // pulled out of it.  In Xyce, the old expression library is used to parse the 
+  // prototype(LHS), so attempting same here.
+  Xyce::Util::newExpression udfA_LHS (std::string("udfA(mu,sigma)"), testGroup);
+  udfA_LHS.lexAndParseExpression();
+
+  std::vector<std::string> udfAArgStrings ;
+  udfA_LHS.getFuncPrototypeArgStrings(udfAArgStrings);
+  udfAExpression->setFunctionArgStringVec (udfAArgStrings);
+  // during lex/parse, this vector of arg strings will be compared to any
+  // param classes.  If it finds them, then they will be placed in the
+  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
+  udfAExpression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string udfAName;
+  udfA_LHS.getFuncPrototypeName(udfAName);
+
+  testExpression.attachFunctionNode(udfAName, udfAExpression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  //OUTPUT_MACRO(Double_Parser_Func_Test, test1)
+}
+
+
 int main (int argc, char **argv)
 {
   {
