@@ -42,13 +42,16 @@
 
 #include <Epetra_LinearProblem.h>
 #include <Epetra_CrsMatrix.h>
+#include <Epetra_MultiVector.h>
 
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_Problem.h>
 
+#include <N_LAS_Operator.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
+#include <N_LAS_MatrixFreeEpetraOperator.h>
 
 namespace Xyce {
 namespace Linear {
@@ -100,14 +103,15 @@ Problem::Problem( Matrix* A, MultiVector* x, MultiVector* b )
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/04/08
 //-----------------------------------------------------------------------------
-Problem::Problem( const RCP<Epetra_Operator> & Op, const RCP<MultiVector> & x, const RCP<MultiVector> & b )
+Problem::Problem( const RCP<Operator> & Op, const RCP<MultiVector> & x, const RCP<MultiVector> & b )
  : Op_(Op),
    x_(x),
-   b_(b),
-   epetraProblem_( rcp( new Epetra_LinearProblem( &*Op,
-                                             &(x_->epetraObj()),
-                                             &(b_->epetraObj()) ) ) )
+   b_(b)
 {
+  epetraOp_ = matrixFreeEpetraOperator( Op, Teuchos::rcp( x->pmap(), false ) );
+  epetraProblem_ =  rcp( new Epetra_LinearProblem( &*epetraOp_,
+                                             &(x_->epetraObj()),
+                                             &(b_->epetraObj()) ) ); 
   matrixFreeFlag_ = true;
 }
 
@@ -130,7 +134,7 @@ Problem::Problem( const RCP<Epetra_LinearProblem> & epetraProblem )
   }
   else {
     matrixFreeFlag_ = true;
-    Op_ = Teuchos::rcp(epetraProblem_->GetOperator(), false);
+    epetraOp_ = Teuchos::rcp(epetraProblem_->GetOperator(), false);
   }
 }
 

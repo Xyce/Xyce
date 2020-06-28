@@ -166,10 +166,9 @@ void DerivativeEvaluation::updateTran(
         calculationDone_ = true;
       }
     }
-    else if ( outputValueTargetGiven_ || (numOutVars_ == 3) )
+    else if ( whenGiven_ && outputValueTargetGiven_ || (numOutVars_ == 3) )
     {
-      double targVal=0.0;
-      updateTargVal(targVal);
+      double targVal= updateTargVal();
 
       // Need to set lastOutputValue_ variable to the current signal value
       // at the first time-step within the measurement window.  (That
@@ -204,43 +203,14 @@ void DerivativeEvaluation::updateTran(
           rfcWindowFound_ = true;
           rfcWindowStartTime_ = circuitTime;
         }
- 
-        if (!resultFound_)
+
+        // process WHEN qualifer
+        if ( isWHENcondition(circuitTime, targVal) )
 	{
-          // this is the simple case where Xyce output a value within tolerance 
-          // of the target value 
-          if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
-          {
-            updateCalculationResult(circuitTime);
-            calculationInstant_ = circuitTime;
-            calculationDone_ = !measureLastRFC_;
-            resultFound_=true;
-          }
-          else
-          {
-            // check and see if last point and this point bound the target point 
-            double backDiff    = lastDepVarValue_ - targVal;
-            double forwardDiff = outVarValues_[whenIdx_] - targVal;
-
-            // if we bound the target then either
-            //  (backDiff < 0) && (forwardDiff > 0)  
-            //   OR
-            //  (backDiff > 0) && (forwardDiff < 0) 
-            // or more simply sgn( backDiff ) = - sgn( forwardDiff ) 
-            if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-                (backDiff == 0.0) )
-            {
-              // use same time interpolation algorithm as FIND-WHEN measure
-              interpolateCalculationInstant(circuitTime, targVal);
-
-              updateCalculationResult(circuitTime);
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
-              //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-              // compatibility with the LAST keyword, since FIND-WHEN does not use the intialized_ flag.
-              resultFound_ = true;
-            }
-          }
+          calculationInstant_ = interpolateCalculationInstant(circuitTime, targVal);
+          updateCalculationResult(circuitTime);
+          calculationDone_ = !measureLastRFC_;
+          resultFound_=true;
         }
       }
     }
@@ -280,37 +250,52 @@ void DerivativeEvaluation::updateDC(
     // table row indexes.
     sweepVar_= setDCSweepVarName(dcParamsVec);
     recordStartEndACDCNoiseSweepVals(dcSweepVal);
+    ++numPointsFound_;
 
-    if (!calculationDone_ && withinDCsweepFromToWindow(dcSweepVal, stepVal))
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, dcSweepVal,
+      solnVec, stateVec, storeVec, 0, lead_current_vector,
+      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0,0 );
+
+    // Consider intervals where either the current or previous sweep value is within the
+    // measurement window, since the WHEN clause uses the interpolated calculation instant.
+    if (!calculationDone_ && (withinDCsweepFromToWindow(dcSweepVal, stepVal) ||
+                              withinDCsweepFromToWindow(lastIndepVarValue_, stepVal)) )
     {
       // Used in descriptive output to stdout. These are the first/last values
       // within the measurement window.
       recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
-      // update our outVarValues_ vector
-      updateOutputVars(comm, outVarValues_, dcSweepVal,
-        solnVec, stateVec, storeVec, 0, lead_current_vector,
-	junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0,0 );
-      ++numPointsFound_;
-
-      if( !initialized_ )
+      if (atGiven_ && (numPointsFound_ > 1) && withinDCsweepFromToWindow(at_,stepVal) )
       {
-        setMeasureState(dcSweepVal);
-      }
-
-      if (atGiven_ && numPointsFound_ > 1)
-      {
-        // process AT qualifer
-        processATforACDCNoise(dcSweepVal);
+        // process AT qualifer. The AT value must be within the measurement window.
+        if (isATforACDCNoise(dcSweepVal))
+        {
+          updateCalculationResult(dcSweepVal);
+          calculationDone_ = true;
+        }
       }
       else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
       {
-        // process WHEN qualifer
-        processWHENforACDCNoise(dcSweepVal);
-      }
+        double targVal=updateTargVal();
 
+        // process WHEN qualifer
+        if ( isWHENcondition(dcSweepVal, targVal) )
+        {
+          // use same time interpolation algorithm as FIND-WHEN measure
+          double whenTime = interpolateCalculationInstant(dcSweepVal, targVal);
+          if ( withinDCsweepFromToWindow(whenTime, stepVal) )
+	  {
+            calculationInstant_ = whenTime;
+            updateCalculationResult(dcSweepVal);
+            calculationDone_ = true;
+            resultFound_=true;
+          }
+        }
+      }
     }
 
+    initialized_=true;
     updateMeasureState(dcSweepVal);
   }
 }
@@ -332,35 +317,50 @@ void DerivativeEvaluation::updateAC(
 {
   // Used in descriptive output to stdout. Store first/last frequency values
   recordStartEndACDCNoiseSweepVals(frequency);
+  ++numPointsFound_;
 
-  if( !calculationDone_ && withinFreqWindow(frequency) )
+  // update our outVarValues_ vector
+  updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                   imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
+
+  // Consider intervals where either the current or previous frequency value is within the
+  // measurement window, since the WHEN clause uses the interpolated calculation instant.
+  if ( !calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
     recordStartEndACDCNoiseMeasureWindow(frequency);
 
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
-    ++numPointsFound_;
-
-    if( !initialized_ )
+    if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
-      setMeasureState(frequency);
+      // Process AT qualifer.  The AT value must be within the measurement window.
+      if (isATforACDCNoise(frequency))
+      {
+        updateCalculationResult(frequency);
+        calculationDone_ = true;
+      }
     }
+    else if (whenGiven_ && (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
+    {
+      double targVal=updateTargVal();
 
-    if (atGiven_ && numPointsFound_ > 1)
-    {
-      // process AT qualifer
-      processATforACDCNoise(frequency);
-    }
-    else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
-    {
-      // process WHEN qualifer
-      processWHENforACDCNoise(frequency);
+      // Process WHEN qualifer, using the same time interpolation algorithm as FIND-WHEN measure.
+      // The measure will succeed if the interpolated WHEN time is inside of the measurement window.
+      if (isWHENcondition(frequency, targVal))
+      {
+        double whenTime = interpolateCalculationInstant(frequency, targVal);
+        if ( withinFreqWindow(whenTime) )
+	{
+          calculationInstant_ = whenTime;
+          updateCalculationResult(frequency);
+          calculationDone_ = true;
+          resultFound_=true;
+        }
+      }
     }
   }
 
+  initialized_ = true;
   updateMeasureState(frequency);
 }
 
@@ -383,36 +383,52 @@ void DerivativeEvaluation::updateNoise(
 {
   // Used in descriptive output to stdout. Store first/last frequency values
   recordStartEndACDCNoiseSweepVals(frequency);
+  ++numPointsFound_;
 
-  if (!calculationDone_ && withinFreqWindow( frequency))
+  // update our outVarValues_ vector
+  updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                   imaginaryVec, 0, 0, 0,
+                   totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+
+  // Consider intervals where either the current or previous frequency value is within the
+  // measurement window, since the WHEN clause uses the interpolated calculation instant.
+  if (!calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
   {
     // Used in descriptive output to stdout. These are the first/last values
     // within the measurement window.
     recordStartEndACDCNoiseMeasureWindow(frequency);
 
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
-                     imaginaryVec, 0, 0, 0,
-                     totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
-    ++numPointsFound_;
-
-    if( !initialized_ )
+    if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
-      setMeasureState(frequency);
+      // Process AT qualifer.  The AT value must be within the measurement window.
+      if (isATforACDCNoise(frequency))
+      {
+        updateCalculationResult(frequency);
+        calculationDone_ = true;
+      }
     }
+    else if (whenGiven_ && (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
+    {
+      double targVal=updateTargVal();
 
-    if (atGiven_ && numPointsFound_ > 1)
-    {
-      // process AT qualifer
-      processATforACDCNoise(frequency);
-    }
-    else if ( (numPointsFound_ > 1) && (outputValueTargetGiven_ || (numOutVars_ == 3)) )
-    {
-      // process WHEN qualifer
-      processWHENforACDCNoise(frequency);
+      // Process WHEN qualifer, using the same time interpolation algorithm as FIND-WHEN measure.
+      // The measure will succeed if the interpolated WHEN time is inside of the measurement window.
+      if ( isWHENcondition(frequency, targVal) )
+      {
+        // use same time interpolation algorithm as FIND-WHEN measure
+        double whenTime = interpolateCalculationInstant(frequency, targVal);
+        if ( withinFreqWindow(whenTime) )
+	{
+          calculationInstant_ = whenTime;
+          updateCalculationResult(frequency);
+          calculationDone_ = true;
+          resultFound_=true;
+        }
+      }
     }
   }
 
+  initialized_ = true;
   updateMeasureState(frequency);
 }
 
@@ -435,8 +451,8 @@ void DerivativeEvaluation::updateCalculationResult(const double indepVarVal)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluation::processATforACDCNoise()
-// Purpose       : Processes the AT condition for AC, DC and NOISE modes
+// Function      : DerivativeEvaluation::isATforACDCNoise
+// Purpose       : Evaluates if the AT condition is true for AC, DC and NOISE modes.
 // Special Notes : For AC and NOISE measures, the independent variable is
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.
@@ -444,7 +460,7 @@ void DerivativeEvaluation::updateCalculationResult(const double indepVarVal)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::processATforACDCNoise(const double indepVarVal)
+bool DerivativeEvaluation::isATforACDCNoise(const double indepVarVal)
 {
   // check and see if last point and this point bound the target point
   double backDiff    = lastIndepVarValue_ - at_;
@@ -457,33 +473,24 @@ void DerivativeEvaluation::processATforACDCNoise(const double indepVarVal)
   // or more simply sgn( backDiff ) = - sgn( forwardDiff )
   //
   // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
-  // Only do this equality test if at least two points have been found, since the
-  // three-point difference approx. for the derivative needs a "previous point".
-  if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-       (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
-  {
-    // asymmetrical 3-point approximation for first derivative.
-    updateCalculationResult(indepVarVal);
-    calculationDone_ = true;
-  }
-
-  return;
+  return ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+	   (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluation::processWHENforACDCNoise()
-// Purpose       : Processes the WHEN condition for AC, DC and NOISE modes
+// Function      : DerivativeEvaluation::isWHENcondition
+// Purpose       : Evaluates if the WHEN condition is true for all modes
 // Special Notes : For AC and NOISE measures, the independent variable is
 //                 frequency.  For DC measures, it is the value of the first
-//                 variable in the DC sweep vector.
+//                 variable in the DC sweep vector.  For TRAN measures, it
+//                 is the circuit time.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::processWHENforACDCNoise(const double indepVarVal)
+bool DerivativeEvaluation::isWHENcondition(const double indepVarVal, const double targVal)
 {
-  double targVal=0.0;
-  updateTargVal(targVal); // used by the WHEN clause
+  bool whenFound=false;
 
   if (!resultFound_)
   {
@@ -491,10 +498,7 @@ void DerivativeEvaluation::processWHENforACDCNoise(const double indepVarVal)
     // of the target value
     if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
     {
-      updateCalculationResult(indepVarVal);
-      calculationInstant_ = indepVarVal;
-      calculationDone_ = true;
-      resultFound_=true;
+      whenFound=true;
     }
     else
     {
@@ -510,21 +514,12 @@ void DerivativeEvaluation::processWHENforACDCNoise(const double indepVarVal)
       if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
           (backDiff == 0.0) )
       {
-        // use same time interpolation algorithm as FIND-WHEN measure
-        interpolateCalculationInstant(indepVarVal, targVal);
-
-        // asymmetrical 3-point approximation for first derivative.
-        updateCalculationResult(indepVarVal);
-        calculationDone_ = true;
-        // resultFound_ is used to control the descriptive output (to stdout) for a DERIV
-        //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-        // compatibility with the LAST keyword.
-        resultFound_ = true;
+        whenFound = true;
       }
     }
   }
 
-  return;
+  return whenFound;
 }
 
 //-----------------------------------------------------------------------------
@@ -588,8 +583,10 @@ void DerivativeEvaluation::updateMeasureState(const double indepVarVal)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::updateTargVal(double& targVal)
+double DerivativeEvaluation::updateTargVal()
 {
+  double targVal = 0.0;
+
   if( outputValueTargetGiven_ )
   {
     // This is the form WHEN v(a)=fixed value
@@ -602,7 +599,7 @@ void DerivativeEvaluation::updateTargVal(double& targVal)
     targVal = outVarValues_[whenIdx_+1];
   }
 
-  return;
+  return targVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -737,7 +734,7 @@ std::ostream& DerivativeEvaluation::printRFCWindow(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/25/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::interpolateCalculationInstant(double currIndepVarValue, double targVal)
+double DerivativeEvaluation::interpolateCalculationInstant(double currIndepVarValue, double targVal)
 {
   // Calculate slopes and y-intercepts of the two lines, to get them into
   // canonical y=ax+c and y=bx+d form.  If the WHEN clause is of the form
@@ -751,9 +748,9 @@ void DerivativeEvaluation::interpolateCalculationInstant(double currIndepVarValu
 
   // This is the algebra for when the time, frequency or DC sweep value when the two non-parallel
   // lines associated with WHEN clause intersect.
-  calculationInstant_ = (d-c)/(a-b);
+  double calcInstant = (d-c)/(a-b);
 
-  return;
+  return calcInstant;
 }
 
 } // namespace Measure

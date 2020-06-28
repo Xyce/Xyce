@@ -213,8 +213,8 @@ private:
   // constructor.
   bool doDelete_;
 
-}; // class SharedSystem
+}; // class Vector
 }}} // namespace N_NLS_NOX
 
-#endif // Xyce_N_NLS_NOX_SharedSystem_h
+#endif // Xyce_N_NLS_NOX_Vector_h
 

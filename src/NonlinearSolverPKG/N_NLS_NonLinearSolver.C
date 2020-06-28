@@ -61,7 +61,6 @@
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_ConstraintBT.h>
 #include <N_NLS_Manager.h>
-#include <N_NLS_MatrixFreeEpetraOperator.h>
 #include <N_NLS_NonLinearSolver.h>
 #include <N_NLS_TwoLevelNewton.h>
 #include <N_PDS_Manager.h>
@@ -477,18 +476,9 @@ bool NonLinearSolver::initializeAll()
   }
   else
   {
-    // Matrix free harmonic balance linear solver options
-    // Create MatrixFreeLinearProblem
-    Teuchos::RCP<MatrixFreeEpetraOperator>
-      matFreeOp = matrixFreeEpetraOperator(
-          Teuchos::rcp(this, false),
-          Teuchos::rcp(NewtonVectorPtr_, false),
-          Teuchos::rcp(rhsVectorPtr_, false),
-          bld_.getSolutionMap()
-          );
-
-    // Create Linear::Problem
-    lasProblemPtr_ = new Linear::Problem( Teuchos::rcp_dynamic_cast<Epetra_Operator>(matFreeOp, true),
+    // Matrix free harmonic balance linear problem 
+    Teuchos::RCP<Linear::Operator> jacOp = Teuchos::rcp(this, false); 
+    lasProblemPtr_ = new Linear::Problem( jacOp,
                                           Teuchos::rcp(NewtonVectorPtr_, false),
                                           Teuchos::rcp(rhsVectorPtr_, false) );
   }
@@ -845,7 +835,7 @@ bool NonLinearSolver::jacobian_()
 // Creator       : Todd Coffey, Ting Mei
 // Creation Date : 07/29/08
 //-----------------------------------------------------------------------------
-bool NonLinearSolver::applyJacobian(const Linear::Vector& input, Linear::Vector& result)
+bool NonLinearSolver::applyJacobian(const Linear::Vector& input, Linear::Vector& result) 
 {
   Stats::StatTop _jacobianStat("Apply Jacobian");
   Stats::TimeBlock _jacobianTime(_jacobianStat);
@@ -963,6 +953,39 @@ NonLinearSolver::setDebugFlags(
   else
     contStep_ = 0;
 }
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::apply
+// Purpose       : Apply matrix free operator with Linear::MultiVectors
+// Special Notes :
+// Scope         : public
+// Creator       : Todd Coffey, 1414
+// Creation Date : 9/4/08
+//-----------------------------------------------------------------------------
+int NonLinearSolver::apply(
+  const Linear::MultiVector& X, 
+  Linear::MultiVector& Y,
+  Teuchos::ETransp mode ) const
+{
+  if (mode == Teuchos::TRANS || mode == Teuchos::CONJ_TRANS)
+    return -1;
+
+  // Have to const cast here, fix const correctness in NL/Loader layer later.
+  NonLinearSolver* nc_this = const_cast<NonLinearSolver* >( this );
+
+  bool status = true;
+  for (int i=0 ; i<X.numVectors() ; ++i)
+  {
+    bool localStatus = nc_this->applyJacobian(*X.getVectorView(i), *Y.getNonConstVectorView(i));
+    status = status && localStatus;
+  }
+
+  if (status)
+    return 0;
+  else
+    return -1;
+}
+
 
 } // namespace Nonlinear
 } // namespace Xyce

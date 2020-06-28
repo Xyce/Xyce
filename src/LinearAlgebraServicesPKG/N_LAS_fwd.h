@@ -67,6 +67,8 @@ class System;
 struct Transform;
 class Vector;
 class QueryUtil;
+class Operator;
+class MatrixFreeEpetraOperator;
 
 static const int iterativeMin = 10000;
 

@@ -2618,20 +2618,6 @@ bool Interface::applyJacobian(const Linear::Vector& input, Linear::Vector& resul
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Interface::computeGradient()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       :
-// Creation Date :
-//-----------------------------------------------------------------------------
-bool Interface::computeGradient()
-{
-  bool status = Nonlinear::NonLinearSolver::gradient_();
-  return status;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Interface::computeDfDpMulti	
 // Purpose       :
 // Special Notes :

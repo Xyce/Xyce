@@ -47,6 +47,7 @@
 
 #include <N_LAS_PCESolverFactory.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_MultiVector.h>
 
 #include <N_ERH_ErrorMgr.h>
 

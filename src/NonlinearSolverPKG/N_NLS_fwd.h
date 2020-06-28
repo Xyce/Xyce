@@ -65,7 +65,6 @@ class ConductanceExtractor;
 class Sensitivity;
 class TwoLevelNewton;
 class ConstraintBT;
-class MatrixFreeEpetraOperator;
 class DampedNewton;
 
 namespace N_NLS_NOX {

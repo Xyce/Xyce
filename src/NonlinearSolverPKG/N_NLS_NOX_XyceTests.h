@@ -216,7 +216,7 @@ protected:
   bool allDevicesConverged_;
   bool innerDevicesConverged_;
 
-}; // class SharedSystem
+}; // class XyceTests
 
 inline void XyceTests::setReturnCodes 
   (const Xyce::Nonlinear::ReturnCodes & retCodesTmp)
@@ -227,5 +227,5 @@ inline void XyceTests::setReturnCodes
 
 }}} // namespace N_NLS_NOX
 
-#endif // Xyce_N_NLS_NOX_SharedSystem_h
+#endif // Xyce_N_NLS_NOX_XyceTests_h
 

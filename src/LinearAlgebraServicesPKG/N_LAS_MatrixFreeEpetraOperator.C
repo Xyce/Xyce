@@ -41,12 +41,15 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_NLS_NonLinearSolver.h>
-#include <N_NLS_MatrixFreeEpetraOperator.h>
+
+#include <N_LAS_Operator.h>
+#include <N_LAS_MatrixFreeEpetraOperator.h>
+
+#include <N_PDS_Comm.h>
 #include <N_LAS_Vector.h>
 
 namespace Xyce {
-namespace Nonlinear {
+namespace Linear {
 
 //-----------------------------------------------------------------------------
 // Function      : matrixFreeEpetraOperator
@@ -57,17 +60,13 @@ namespace Nonlinear {
 // Creation Date : 9/4/08
 //-----------------------------------------------------------------------------
 RCP<MatrixFreeEpetraOperator> matrixFreeEpetraOperator(
-    RCP<NonLinearSolver> nonlinearSolver,
-    RCP<Linear::Vector> solVector,
-    RCP<Linear::Vector> rhsVector,
+    RCP<Operator> linearOperator,
     RCP<const N_PDS_ParMap> solutionMap
     )
 {
   RCP<MatrixFreeEpetraOperator> epetraOperator =
     rcp(new MatrixFreeEpetraOperator);
-  epetraOperator->initialize(nonlinearSolver,
-      solVector,
-      rhsVector,
+  epetraOperator->initialize(linearOperator,
       solutionMap
       );
   return epetraOperator;
@@ -108,15 +107,11 @@ MatrixFreeEpetraOperator::~MatrixFreeEpetraOperator()
 // Creation Date : 9/4/08
 //-----------------------------------------------------------------------------
 void MatrixFreeEpetraOperator::initialize(
-      RCP<NonLinearSolver> nonlinearSolver,
-      RCP<Linear::Vector> solVector,
-      RCP<Linear::Vector> rhsVector,
+      RCP<Operator> linearOperator,
       RCP<const N_PDS_ParMap> solutionMap
     )
 {
-  nonlinearSolverRCPtr_ = nonlinearSolver;
-  solVectorRCPtr_ = solVector;
-  rhsVectorRCPtr_ = rhsVector;
+  linearOperatorRCPtr_ = linearOperator;
   solutionMap_ = solutionMap;
   isInitialized_ = true;
 }
@@ -179,23 +174,12 @@ int MatrixFreeEpetraOperator::Apply(
     Report::DevelFatal0().in("MatrixFreeEpetraOperator::Apply")
       << "I'm not initialized!";
   }
-  bool status = true;
-  for (int i=0 ; i<X.numVectors() ; ++i)
-  {
-    const Linear::Vector x(X.epetraVector(i), true);
-    Linear::Vector y(Y.epetraVector(i), true);
-    bool localStatus = nonlinearSolverRCPtr_->applyJacobian(x,y);
-    status = status && localStatus;
-  }
-  if (status)
-  {
-    return 0;
-  }
-  else
-  {
-    return -1;
-  }
+
+  int status = linearOperatorRCPtr_->apply(X,Y);
+
+  return status;
 }
+
 //-----------------------------------------------------------------------------
 // Function      : MatrixFreeEpetraOperator::ApplyInverse
 // Purpose       : Apply inverse of matrix free operator with Epetra_MultiVectors
@@ -303,7 +287,7 @@ const Epetra_Comm & MatrixFreeEpetraOperator::Comm() const
     Report::DevelFatal0().in("MatrixFreeEpetraOperator::Comm")
       << "I'm not initialized!";
   }
-  return(rhsVectorRCPtr_->epetraObj().Comm());
+  return(*(solutionMap_->pdsComm()).petraComm());
 }
 
 //-----------------------------------------------------------------------------
@@ -342,5 +326,5 @@ const Epetra_Map & MatrixFreeEpetraOperator::OperatorRangeMap() const
   return(*(solutionMap_->petraMap()));
 }
 
-} // namespace Nonlinear
+} // namespace Linear
 } // namespace Xyce

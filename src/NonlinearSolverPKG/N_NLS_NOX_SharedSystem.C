@@ -49,9 +49,6 @@
 #include "N_LAS_System.h"
 #include "N_LAS_Builder.h"
 #include "N_ERH_ErrorMgr.h"
-#include "Epetra_CrsMatrix.h"
-#include "Ifpack_IlukGraph.h"
-#include "Ifpack_CrsRiluk.h"
 
 // ----------   NOX Includes   ----------
 
@@ -89,9 +86,7 @@ SharedSystem::SharedSystem(Linear::Vector& soln,
   xyceInterfacePtr_(0),
   matrixFreeFlag_(false),
   ownerOfJacobian_(0),
-  ownerOfStateVectors_(0),
-  ifpackGraphPtr_(0),
-  ifpackPreconditionerPtr_(0)
+  ownerOfStateVectors_(0)
 {
   reset(soln, f, jacobian, newton, gradient, lasSys, interface);
 }
@@ -106,7 +101,6 @@ SharedSystem::SharedSystem(Linear::Vector& soln,
 //-----------------------------------------------------------------------------
 SharedSystem::~SharedSystem()
 {
-  deletePreconditioner();
   delete xyceSolnPtr_;
   delete xyceFPtr_;
   delete xyceNewtonPtr_;
@@ -145,9 +139,6 @@ void SharedSystem::reset(Linear::Vector& x,
   xyceFPtr_ = new Vector(f, lasSys);
   xyceNewtonPtr_ = new Vector(newton, lasSys);
   xyceGradientPtr_ = new Vector(gradient, lasSys);
-
-  // Wipe the preconditioner clean
-  deletePreconditioner();
 }
 
 //-----------------------------------------------------------------------------
@@ -250,24 +241,6 @@ bool SharedSystem::computeNewton(const Vector& F, Vector& Newton,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : SharedSystem::computeGradient
-// Purpose       : Compute the Gradient corresponding to the current
-//                 primary solution vector. 
-// Special Notes :
-// Scope         : public
-// Creator       : 
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool SharedSystem::computeGradient(const Vector& F, Vector& Gradient)
-{
-  *xyceFPtr_ = F;
-  xyceGradientPtr_->scale(0.0);
-  bool status = xyceInterfacePtr_->computeGradient();
-  Gradient = *xyceGradientPtr_;
-  return status;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : SharedSystem::applyJacobian
 // Purpose       : 
 // Special Notes :
@@ -327,93 +300,6 @@ bool SharedSystem::computeDfDpMulti
                    (paramIDs, dfdp, isValidF);
     
   return status;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SharedSystem::computePreconditioner
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : 
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool SharedSystem::computePreconditioner()
-{
-  Epetra_CrsMatrix* crs = dynamic_cast<Epetra_CrsMatrix*>
-    (&(xyceJacobianPtr_->epetraObj()));
-
-  if (crs == 0) {
-    dout() << "SharedSystem::computePreconditioner() - " 
-	 << "Dynamic cast to CRS Matrix failed!" << std::endl;
-  }
-  
-  deletePreconditioner();
-  ifpackGraphPtr_ = new Ifpack_IlukGraph(crs->Graph(),
-					 1,
-					 0);
-  ifpackGraphPtr_->ConstructFilledGraph();
-  ifpackPreconditionerPtr_ = new Ifpack_CrsRiluk(*ifpackGraphPtr_);
-  ifpackPreconditionerPtr_->InitValues(*crs);
-  ifpackPreconditionerPtr_->Factor();
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SharedSystem::deletePreconditioner
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : 
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool SharedSystem::deletePreconditioner()
-{
-  delete ifpackPreconditionerPtr_;
-  delete ifpackGraphPtr_;
-  ifpackPreconditionerPtr_ = 0;
-  ifpackGraphPtr_ = 0;
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SharedSystem::applyRightPreconditioning
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : 
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool SharedSystem::applyRightPreconditioning(bool useTranspose, 
-					     Teuchos::ParameterList& params,
-					     const Vector& input, 
-					     Vector& result)
-{
-  if (ifpackPreconditionerPtr_ == 0) {
-    Report::DevelFatal0().in("SharedSystem::applyRightPreconditioning")
-      << "Preconditioner is 0!";
-  }
-
-  if (useTranspose)
-    ifpackPreconditionerPtr_->SetUseTranspose(useTranspose);
-  
-  Linear::Vector& nonConstInput = 
-    const_cast<Linear::Vector&>(input.getNativeVectorRef_());
-  Epetra_MultiVector& epVecInput = 
-    const_cast<Epetra_MultiVector&>(nonConstInput.epetraObj());
-  
-  Linear::Vector& nonConstResult = 
-    const_cast<Linear::Vector&>(result.getNativeVectorRef_());
-  Epetra_MultiVector& epVecResult = 
-    const_cast<Epetra_MultiVector&>(nonConstResult.epetraObj());
-  
-  int errorCode = ifpackPreconditionerPtr_->
-    ApplyInverse(epVecInput, epVecResult);
-  
-  // Unset the transpose call
-  if (useTranspose)
-    ifpackPreconditionerPtr_->SetUseTranspose(false);    
-
-  return true;
 }
 
 //-----------------------------------------------------------------------------

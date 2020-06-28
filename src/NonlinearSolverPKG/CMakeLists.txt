@@ -12,7 +12,6 @@ set ( NonlinearSolver_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_DampedNewton.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_LOCA_Group.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_Manager.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_MatrixFreeEpetraOperator.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NLParams.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NonLinearSolver.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_GStepping.C 

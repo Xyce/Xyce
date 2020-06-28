@@ -369,7 +369,6 @@ NOX::Abstract::Group::ReturnType Group::computeGradient()
   NOX::Abstract::Group::ReturnType status = 
     applyJacobianTranspose(fVec_, *gradVecPtr_);
 
-  //isValidGradient_ = sharedSystemPtr_->computeGradient(fVec_, *gradVecPtr_);
   if (status == Ok)
     isValidGradient_ = true;
   else 
@@ -509,15 +508,11 @@ Group::applyJacobianInverse(Teuchos::ParameterList& params,
   if (!isJacobian())
     throwError("applyJacobianInverse", "Jacobian is not Valid!");
 
-  //bool status = sharedSystemPtr_->computeNewton(input, result, params);
-  bool status = true;
-
-  // can't do this, because "const".  Arrgh.
   linearStatus_ = sharedSystemPtr_->computeNewton(input, result, params);
 
   haveSolverFactors_ = true;
 
-  return (status ? Ok : Failed);
+  return (isJacobian()?Ok:Failed);
 }
   
 //-----------------------------------------------------------------------------
@@ -534,9 +529,7 @@ Group::applyRightPreconditioning(bool useTranspose,
 				 const NOX::Abstract::Vector& input, 
 				 NOX::Abstract::Vector& result) const
 {
-  return applyRightPreconditioning(useTranspose, params,
-				   dynamic_cast<const Vector&>(input), 
-				   dynamic_cast<Vector&> (result));
+  return Failed;
 }
  
 //-----------------------------------------------------------------------------
@@ -557,14 +550,7 @@ Group::applyRightPreconditioning(bool useTranspose,
     // throw error - Jacobian is not owned by this group 
   }
 
-  if (!isValidPreconditioner_) {
-    sharedSystemPtr_->computePreconditioner();
-    isValidPreconditioner_ = true;
-  }
-  sharedSystemPtr_->applyRightPreconditioning(useTranspose, params,
-					      input, result);
-  
-  return NOX::Abstract::Group::Ok;
+  return Failed;
 }
 
 //-----------------------------------------------------------------------------
@@ -803,7 +789,6 @@ void Group::resetIsValid_()
   isValidGradient_ = false;
   isValidJacobian_ = false;
   isValidNewton_ = false;
-  isValidPreconditioner_ = false;
 }
 
 //-----------------------------------------------------------------------------

@@ -43,18 +43,11 @@
 
 #include <Xyce_config.h>
 
-
-// ---------- Standard Includes ----------
-
-#include "Epetra_LinearProblem.h"
-#include "Epetra_MultiVector.h"
-#include "Epetra_Vector.h"
-#include "Epetra_Comm.h"
-
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_HBSolverFactory.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_MultiVector.h>
 
 #include <N_ERH_ErrorMgr.h>
 

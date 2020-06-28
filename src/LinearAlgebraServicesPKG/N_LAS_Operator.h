@@ -22,79 +22,49 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : interface to linear problem
+// Purpose        : Abstract interface to linear solver type.
 //
 // Special Notes  :
 //
-// Creator        : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creator        : Heidi Thornquist, SNL
 //
-// Creation Date  : 05/17/04
+// Creation Date  : 06/19/20
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_Problem_h
-#define Xyce_N_LAS_Problem_h
+#ifndef Xyce_N_LAS_Operator_h
+#define Xyce_N_LAS_Operator_h
 
 #include <N_LAS_fwd.h>
-#include <N_PDS_fwd.h>
-#include <N_PDS_ParMap.h>
 
 #include <Teuchos_RCP.hpp>
-using Teuchos::RCP;
-using Teuchos::rcp;
-
-class Epetra_LinearProblem;
-class Epetra_Operator;
+#include <Teuchos_BLAS_types.hpp>
 
 namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Class         : Problem
-// Purpose       : interface to linear problem
+// Class         : Operator
+// Purpose       : Abstract interface to an operator.
 // Special Notes :
-// Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
-// Creation Date : 05/17/04
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 06/19/20
 //-----------------------------------------------------------------------------
-class Problem
+class Operator
 {
 
 public:
-  //Constructors
-  Problem( const RCP<Matrix> & A, const RCP<MultiVector> & x, const RCP<MultiVector> & b );
-  Problem( const RCP<Operator> & Op, const RCP<MultiVector> & x, const RCP<MultiVector> & b );
-  Problem( Matrix* A, MultiVector* x, MultiVector* b );
 
-  //Epetra constructors
-  Problem( const RCP<Epetra_LinearProblem> & epetraProblem );
+  //Apply method
+  virtual int apply(const Linear::MultiVector& X, Linear::MultiVector& Y, 
+                    Teuchos::ETransp mode = Teuchos::NO_TRANS) const = 0;
 
-  //Destructor
-  ~Problem();
+  //Whether or not the operator supports Teuchos::TRANS or Teuchos::CONJ_TRANS
+  virtual bool hasTransposeApply() const { return false; }
 
-  // Access linear problem components
-  RCP<Matrix>& getJac () { return A_; }
-  RCP<Operator>& getOp () { return Op_; }
-  RCP<MultiVector>& getRHS() { return b_; }
-  RCP<MultiVector>& getLHS() { return x_; }
-
-  Epetra_LinearProblem & epetraObj() { return *epetraProblem_; }
-
-  bool matrixFree() const { return(matrixFreeFlag_); }
-
-private:
-
-  RCP<Matrix> A_;
-  RCP<Operator> Op_;
-  RCP<MultiVector> x_;
-  RCP<MultiVector> b_;
-
-  RCP<Epetra_LinearProblem> epetraProblem_;
-  RCP<Epetra_Operator> epetraOp_;
-
-  bool matrixFreeFlag_;
 };
 
 } // namespace Linear

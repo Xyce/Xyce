@@ -158,6 +158,7 @@ public:
               const int count) const;
 
   Epetra_Comm * petraComm() { return petraComm_; }
+  const Epetra_Comm * petraComm() const { return petraComm_; }
 
   // Communicator Barrier function.
   // A no-op for a serial communicator.  For MPI, it causes each processor in

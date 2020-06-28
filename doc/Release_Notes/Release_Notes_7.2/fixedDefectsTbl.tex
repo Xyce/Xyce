@@ -33,6 +33,17 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{812-SON}: Incorrect response when N or V is used as a global param name &
+Use of a \texttt{.GLOBAL\_PARAM} statement to define a parameter which
+had a name identical to a valid print line accessor function
+(e.g. ``V'' or ``N'') would result in error messages of the form
+``Function or variable ... is not defined'' when that accessor was
+used on a print line, with the undefined variable being the node or
+device name inside the parentheses of the accessor.  This was a bug in
+handling of global parameters, and the only workaround had been to
+avoid such parameter names.  This workaround is no longer
+necessary. \\ \hline
+
 \textbf{1306-SON}: Fix FROM and TO qualifiers for DC mode measures &
 The \texttt{FROM} and \texttt{TO} qualifiers would work correctly if
 either both were used on a \texttt{.MEASURE DC} line, or if neither

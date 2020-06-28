@@ -60,6 +60,8 @@ using Teuchos::rcp;
 #include <N_NLS_NonLinInfo.h>
 #include <N_UTL_Stats.h>
 
+#include <N_LAS_Operator.h>
+
 // ---------- Using Declarations ----------
 using Teuchos::RCP;
 
@@ -75,7 +77,7 @@ namespace Nonlinear {
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 5/01/00
 //-----------------------------------------------------------------------------
-class NonLinearSolver
+class NonLinearSolver : public Linear::Operator
 {
   friend class ConductanceExtractor;
   friend class Sensitivity;
@@ -186,7 +188,10 @@ public:
 
   void  setDebugFlags(int output_step_number, double        time);
   
+  //Apply methods
   virtual bool applyJacobian(const Linear::Vector& input, Linear::Vector& result);
+  int apply(const Linear::MultiVector& X, Linear::MultiVector& Y,
+                    Teuchos::ETransp mode = Teuchos::NO_TRANS) const;
 
 public:
   // for now.

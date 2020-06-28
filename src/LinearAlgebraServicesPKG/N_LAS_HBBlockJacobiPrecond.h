@@ -51,6 +51,7 @@ class Epetra_CrsGraph;
 class Epetra_CrsMatrix;
 class Epetra_MultiVector;
 class Epetra_Map;
+class Epetra_Import;
 class Epetra_LinearProblem;
 class Amesos_BaseSolver;
 

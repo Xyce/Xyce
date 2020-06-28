@@ -25,7 +25,7 @@
 // Purpose        : Interface to let multiple N_NLS::NOX::Group's
 //                  share a single system of RHS Vector, Jacobian
 //                  matrix, Newton vector, and gradient vector.
-//                  Closely related to the NOX::Epetra::SharedSystem
+//                  Closely related to the NOX::SharedSystem
 //                  class.
 //
 // Special Notes  :
@@ -54,9 +54,6 @@
 
 #include <vector>
 
-class Ifpack_IlukGraph;
-class Ifpack_CrsRiluk;
-
 //-----------------------------------------------------------------------------
 // Class         : N_NLS::NOX::SharedSystem
 //
@@ -66,7 +63,7 @@ class Ifpack_CrsRiluk;
 //      vectors and matrices in the Xyce nonlinear solver.
 //
 //      Closely related conceptually to the
-//      NOX::Epetra::SharedJacobian class.
+//      NOX::SharedJacobian class.
 //
 // Creator       : Tammy Kolda, SNL, 8950
 //
@@ -130,8 +127,6 @@ public:
   bool computeNewton(const Vector& F, Vector& Newton,
 		     Teuchos::ParameterList& params);
 
-  bool computeGradient(const Vector& F, Vector& Gradient);
-
   bool applyJacobian(const Vector& input, Vector& result) const;
 
   bool applyJacobianTranspose(const Vector& input, Vector& result) const;
@@ -157,14 +152,6 @@ public:
   // Use for debugging (corresponding to the ones in N_NLS_NonLinearSolver).
   void debugOutput1 (Xyce::Linear::Matrix & jacobian, Xyce::Linear::Vector & rhs);
   void debugOutput3 (Xyce::Linear::Vector & dxVector, Xyce::Linear::Vector & xVector);
-
-  // Preconditioning objects for the Group::applyRightPreconditioning method
-  bool computePreconditioner();
-  bool deletePreconditioner();
-  bool applyRightPreconditioning(bool useTranspose, 
-				 Teuchos::ParameterList& params,
-				 const Vector& input, 
-				 Vector& result);
 
   // This is used to construct vectors in the group.  We used to
   // clone a time integrator vector but when the DC Op point fails,
@@ -196,10 +183,6 @@ private:
 
   const Group* ownerOfJacobian_;
   const Group* ownerOfStateVectors_;
-
-  // Ifpack preconditioning objects for applyRightPreconditioning method
-  mutable Ifpack_IlukGraph* ifpackGraphPtr_;
-  mutable Ifpack_CrsRiluk* ifpackPreconditionerPtr_;
 
 }; // class SharedSystem
 }}} // namespace N_NLS_NOX

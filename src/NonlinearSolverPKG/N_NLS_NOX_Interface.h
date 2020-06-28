@@ -145,8 +145,6 @@ namespace N_NLS_NOX {
 
       bool computeNewton(Teuchos::ParameterList& p);
 
-      bool computeGradient();
-
       bool computeDfDpMulti (const std::vector< int > & paramIDs, 
                              NOX::Abstract::MultiVector & dfdp, 
                              bool isValidF);

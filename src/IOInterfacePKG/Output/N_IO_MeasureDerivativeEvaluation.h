@@ -100,15 +100,15 @@ public:
   std::ostream& printRFCWindow(std::ostream& os);
 
   void updateCalculationResult(const double indepVarVal);
-  void processATforACDCNoise(const double indepVarVal);
-  void processWHENforACDCNoise(const double indepVarVal);
+  bool isATforACDCNoise(const double indepVarVal);
+  bool isWHENcondition(const double indepVarVal, const double targVal);
 
   void setMeasureState(const double indepVarVal);
   void updateMeasureState(const double indepVarVal);
-  void updateTargVal(double& targVal);
+  double updateTargVal();
 
   // used for debugging purpose
-  void interpolateCalculationInstant(double currIndepVarValue, double targVal);
+  double interpolateCalculationInstant(double currIndepVarValue, double targVal);
 
 private:
   std::string type_;
