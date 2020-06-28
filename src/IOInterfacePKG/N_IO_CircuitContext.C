@@ -1192,7 +1192,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
     if (DEBUG_IO)
     {
       Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
-                   << " has expression value ";
+                   << " has expression value " << std::endl;
     }
 
     // Extract the expression from the parameter value by stripping off
@@ -1476,7 +1476,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
     if (DEBUG_IO)
     {
       Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
-                   << " has expression value ";
+                   << " has expression value " << std::endl;
     }
 
     // Extract the expression from the parameter value by stripping off
