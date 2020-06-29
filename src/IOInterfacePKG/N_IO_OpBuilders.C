@@ -59,12 +59,12 @@ namespace IO {
 
 namespace {
 
-//-------------------------------------------------------------------------- 
-// Function      : parameterNameAndArgs 
+//--------------------------------------------------------------------------
+// Function      : parameterNameAndArgs
 // Purpose       : Return a parameter's names and arguments
-// Special Notes :  
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 void parameterNameAndArgs(
   std::string &                         name,
@@ -94,8 +94,8 @@ void parameterNameAndArgs(
   }
 }
 
-//-------------------------------------------------------------------------- 
-// Function      : findNodeIndex 
+//--------------------------------------------------------------------------
+// Function      : findNodeIndex
 // Purpose       : Determine whether a requested node name is "valid".
 //                 That includes node names in the solution vector, the
 //                 aliasNodeMap and also the Ground node (0).
@@ -103,9 +103,9 @@ void parameterNameAndArgs(
 //                   a) -2 if the node is not found on this processor.
 //                   b) -1 if it is a Ground node.
 //                   c) the node index (0 ...N), otherwise.
-// Special Notes :  
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 int findNodeIndex(
   const std::string &       name,
@@ -113,7 +113,7 @@ int findNodeIndex(
   const AliasNodeMap &      alias_map)
 {
   // The return value will be -2 if the specified node name is not
-  // found AND the specified node name is not Ground (0). A value 
+  // found AND the specified node name is not Ground (0). A value
   // of -2 may be returned even for a valid node name, in parallel,
   // because of how node_map is used in parallel.
   int nodeIndex = -2;
@@ -122,18 +122,18 @@ int findNodeIndex(
   // then this function assumes that all of the GND nodes have
   // been replaced with 0 by this point in Xyce startup.
   if ( name == "0")
-  { 
+  {
     // A node index of -1 will be used in the various get() functions
     // to denote the Ground node.
     nodeIndex = -1;
-  } 
+  }
   else
   {
     NodeNameMap::const_iterator node_it = node_map.find(name);
-    if (node_it == node_map.end()) 
+    if (node_it == node_map.end())
     {
       // If the specified node name is not found in the node_map then
-      // look for it in the AliasNodeMap. An example where this can 
+      // look for it in the AliasNodeMap. An example where this can
       // happen is for a subcircuit interface node.
       AliasNodeMap::const_iterator alias_node_it = alias_map.find(name);
       if (alias_node_it != alias_map.end())
@@ -144,10 +144,10 @@ int findNodeIndex(
     }
 
     // get the node index if it exists on this processor.
-    if (node_it != node_map.end()) 
+    if (node_it != node_map.end())
     {
       nodeIndex = (*node_it).second;
-    } 
+    }
   }
 
   return nodeIndex;
@@ -155,12 +155,12 @@ int findNodeIndex(
 
 } // namespace <unnamed>
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitTemperatureOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitTemperatureOpBuilder
 // Purpose       : This creates an OutputMgrTemperatureOp
-// Special Notes :  
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitTemperatureOpBuilder : public Util::Op::Builder
 {
@@ -176,12 +176,12 @@ struct CircuitTemperatureOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrTemperatureOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "TEMP") 
+    if (param_tag == "TEMP")
     {
       new_op  = new OutputMgrTemperatureOp(param_tag, outputManager_);
     }
@@ -193,12 +193,12 @@ private:
   const OutputMgr &     outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitTimeOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitTimeOpBuilder
 // Purpose       : This creates an OutputMgrTimeOp
-// Special Notes :  
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitTimeOpBuilder : public Util::Op::Builder
 {
@@ -214,12 +214,12 @@ struct CircuitTimeOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrTimeOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "TIME") 
+    if (param_tag == "TIME")
     {
       new_op  = new OutputMgrTimeOp(param_tag, outputManager_, 1.0);
     }
@@ -231,12 +231,12 @@ private:
   const OutputMgr &     outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitOutputNoiseOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitOutputNoiseOpBuilder
 // Purpose       : This creates an OutputMgrOutputNoiseOp
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitOutputNoiseOpBuilder : public Util::Op::Builder
 {
@@ -254,7 +254,7 @@ struct CircuitOutputNoiseOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrOutputNoiseOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -278,12 +278,12 @@ private:
   const Analysis::AnalysisManager &    analysisManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitInputNoiseOpBuilder 
-// Purpose       : This creates an OutputMgrInputNoiseOp 
-// Special Notes : 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitInputNoiseOpBuilder
+// Purpose       : This creates an OutputMgrInputNoiseOp
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitInputNoiseOpBuilder : public Util::Op::Builder
 {
@@ -351,7 +351,7 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrInputNoiseContOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -428,12 +428,12 @@ private:
   const Analysis::AnalysisManager &    analysisManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitFrequencyOpBuilder 
-// Purpose       : This creates an OutputMgrFrequencyOp 
-// Special Notes : 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitFrequencyOpBuilder
+// Purpose       : This creates an OutputMgrFrequencyOp
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitFrequencyOpBuilder : public Util::Op::Builder
 {
@@ -453,7 +453,8 @@ struct CircuitFrequencyOpBuilder : public Util::Op::Builder
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if ( param_tag == "FREQ" ){
+    if ( param_tag == "FREQ" )
+    {
       new_op  = new OutputMgrFrequencyOp(param_tag, outputManager_);
     }
 
@@ -464,12 +465,12 @@ private:
   const OutputMgr &     outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::StepSweepOpBuilder 
-// Purpose       : This creates an OutputMgrStepSweepOp 
-// Special Notes : 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::StepSweepOpBuilder
+// Purpose       : This creates an OutputMgrStepSweepOp
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct StepSweepOpBuilder : public Util::Op::Builder
 {
@@ -485,7 +486,7 @@ struct StepSweepOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrStepSweepOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -506,12 +507,12 @@ private:
   const OutputMgr &     outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::DCSweepOpBuilder 
-// Purpose       : This creates an OutputMgrDCSweepOp 
-// Special Notes : 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::DCSweepOpBuilder
+// Purpose       : This creates an OutputMgrDCSweepOp
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct DCSweepOpBuilder : public Util::Op::Builder
 {
@@ -527,7 +528,7 @@ struct DCSweepOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrDCSweepOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -548,12 +549,12 @@ private:
   const OutputMgr &     outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::DCSweepCurrentValueOpBuilder 
-// Purpose       : This creates an OutputMgrDCSweepCurrentValueOp 
-// Special Notes : 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::DCSweepCurrentValueOpBuilder
+// Purpose       : This creates an OutputMgrDCSweepCurrentValueOp
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct DCSweepCurrentValueOpBuilder : public Util::Op::Builder
 {
@@ -569,12 +570,13 @@ struct DCSweepCurrentValueOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<OutputMgrDCSweepCurrentValueOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "sweep") {
+    if (param_tag == "sweep")
+    {
       new_op  = new OutputMgrDCSweepCurrentValueOp(param_tag, outputManager_);
     }
 
@@ -612,7 +614,8 @@ struct StepNumOpBuilder : public Util::Op::Builder
     const std::string &param_tag = (*it).tag();
     const std::string &param_string = (*it).stringValue();
 
-    if (param_tag == "STEPNUM") {
+    if (param_tag == "STEPNUM")
+    {
       new_op  = new StepNumOp(param_tag, outputManager_);
       new_op->addArg(param_string);
     }
@@ -624,17 +627,17 @@ private:
   const OutputMgr &       outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::InternalVariableOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::InternalVariableOpBuilder
 // Purpose       : Builds various "solution operators".  See the list
-//                 below in registerCreateFunctions().  It includes N(), 
+//                 below in registerCreateFunctions().  It includes N(),
 //                 StateOp() and StoreOp().  The code below also lists
 //                 NR(), NI(), NM(), NP() and NDB(). However, those operators
 //                 won't pass netlist parsing and aren't fully implemented
-//                 yet. See SON Bug 880 for more details. 
-// Special Notes : 
+//                 yet. See SON Bug 880 for more details.
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct InternalVariableOpBuilder : public Util::Op::Builder
 {
@@ -658,7 +661,7 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<StoreOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -672,10 +675,10 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
       // An index of -2 means the node was not found on this processor.  -1 is the "index"
       // for the Ground node.  An index >= 0 means that the node was found on this processor.
       int index = findNodeIndex(args[0], outputManager_.getSolutionNodeMap(), outputManager_.getAliasNodeMap());
-      
-      // Only make the op if the node was found on some processor.  
+
+      // Only make the op if the node was found on some processor.
       int maxIndex=index;
-      Parallel::AllReduce(comm_, MPI_MAX, &maxIndex, 1); 
+      Parallel::AllReduce(comm_, MPI_MAX, &maxIndex, 1);
       if (maxIndex > -2)
       {
         if (param_tag == "N" )
@@ -713,7 +716,7 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
       else
       {
         int index = findNodeIndex(args[0], outputManager_.getStateNodeMap(), outputManager_.getAliasNodeMap());
-        
+
         // Only make the op if the node was found on some processor.
         int maxIndex=index;
         Parallel::AllReduce(comm_, MPI_MAX, &maxIndex, 1);
@@ -747,16 +750,16 @@ private:
   Parallel::Machine     comm_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::VoltageVariableOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::VoltageVariableOpBuilder
 // Purpose       : Builds various "solution operators" for voltage variables.
 //                 See the list below in registerCreateFunctions().  This
 //                 includes the operators for V(), VR(), VI(), VM(), VP()
 //                 and VDB(). It includes, for example, V(a) and also the
 //                 corresponding "voltage difference" form of V(a,b).
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct VoltageVariableOpBuilder : public Util::Op::Builder
 {
@@ -786,7 +789,7 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<VoltageDifferenceDecibelsOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -853,8 +856,8 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
         // An index of -2 means the node was not found on this processor.  -1 is the "index"
         // for the Ground node.  An index >= 0 means that the node was found on this processor.
         int index1 = findNodeIndex(args[0], outputManager_.getSolutionNodeMap(), outputManager_.getAliasNodeMap());
-        int index2 = findNodeIndex(args[1], outputManager_.getSolutionNodeMap(), outputManager_.getAliasNodeMap());       
-        
+        int index2 = findNodeIndex(args[1], outputManager_.getSolutionNodeMap(), outputManager_.getAliasNodeMap());
+
         // Only make the op if both nodes were found on some processor, where the nodes may have
         // been found on different processors in parallel.
         int maxIndex1=index1;
@@ -909,28 +912,28 @@ private:
   Parallel::Machine     comm_;
 };
 
-//-------------------------------------------------------------------------- 
+//--------------------------------------------------------------------------
 // Allowed set of current operators, besides I()
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 namespace {
 static const char * const func_names[] = {"II", "IR", "IP", "IM", "IDB"};
 }
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CurrentVariableOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CurrentVariableOpBuilder
 // Purpose       : Builds for various "solution operators" and "store
 //                 operators" for lead current variables.  See the list
-//                 below in registerCreateFunctions().  This includes the 
-//                 operators for I(), IR(), II(), IM(), IP() and IDB(). 
-//                 The BranchData forms are used to get values for lead 
+//                 below in registerCreateFunctions().  This includes the
+//                 operators for I(), IR(), II(), IM(), IP() and IDB().
+//                 The BranchData forms are used to get values for lead
 //                 currents that are not part of the solution vector.
-//                 Note also that special handling is needed for YPDE, C 
+//                 Note also that special handling is needed for YPDE, C
 //                 and L devices.
 // Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CurrentVariableOpBuilder : public Util::Op::Builder
 {
@@ -969,7 +972,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<BranchDataCurrentDecibelsOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -992,7 +995,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
       if (!param_func && (param_tag.length() > 1) )
       {
         leadCurrent_name += param_tag[1];
-      } 
+      }
 
       // this if block allows for spaces in YPDE names as in I1(YPDE NAME)
       // we try to find devices based on store_name in the following blocks of code,
@@ -1005,13 +1008,13 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           store_name.replace(4, 1, ":");
         }
       }
-      
+
       NodeNameMap::const_iterator it;
-      // Search solution vector first, specifically excluding the C Device.  For the C device, 
+      // Search solution vector first, specifically excluding the C Device.  For the C device,
       // we will search in the lead current vector.  If the IC parameter is specified for a
       // capacitor, then a voltage source is used to enforce that IC value at the DCOP.  However,
-      // the contribution from that V-source has been included in the lead-current vector.  
-      if ( !new_op && !startswith_nocase(modifiedName, "C") ) 
+      // the contribution from that V-source has been included in the lead-current vector.
+      if ( !new_op && !startswith_nocase(modifiedName, "C") )
       {
         std::string solution_name = modifiedName + "_BRANCH";         // if it is in the solution vec.
         const NodeNameMap &x = outputManager_.getSolutionNodeMap();
@@ -1106,15 +1109,15 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
       }
 
       // These cases are valid for .DC and .TRAN
-      if( !new_op) 
+      if( !new_op)
       {
         it = outputManager_.getBranchVarsNodeMap().find(leadCurrent_name );
-        // Search lead current vector 
+        // Search lead current vector
         if (it != outputManager_.getBranchVarsNodeMap().end())
         {
           int index = (*it).second;
           //new_op = new BranchDataCurrentOp(name, index);
-            // need to support the following for other lead current usage 
+            // need to support the following for other lead current usage
           if (param_tag == "IR" )
           {
             new_op = new BranchDataCurrentRealOp(name, index);
@@ -1147,8 +1150,8 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
             new_op = new BranchDataCurrentOp(name, index);
           }
         }
-      } 
- 
+      }
+
       if( !new_op )
       {
         // Search store
@@ -1189,7 +1192,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           }
         }
       }
- 
+
       if (new_op)
       {
         new_op->addArg(args[0]);
@@ -1204,16 +1207,16 @@ private:
   const Analysis::AnalysisManager &    analysisManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::PowerVariableOpBuilder 
-// Purpose       : Builds various operators" for power calculations.  See 
-//                 the list below in registerCreateFunctions(). This includes  
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::PowerVariableOpBuilder
+// Purpose       : Builds various operators" for power calculations.  See
+//                 the list below in registerCreateFunctions(). This includes
 //                 includes the operators for P() and W().  Note that
-//                 different operators are needed for each of the various 
+//                 different operators are needed for each of the various
 //                 multi-terminal devices like J, Q, M, T and Z.
 // Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct PowerVariableOpBuilder : public Util::Op::Builder
 {
@@ -1269,7 +1272,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
       }
       // Node name could be circuit_context:DeviceTypeDeviceName while internally it should be DeviceType:circuit_context:DeviceName.
       std::string modifiedName = Util::xyceDeviceNameToSpiceName(args[0]);
-            
+
       // could be a device lead current "DEV_I" or a branch current.
       // so we don't have to duplicate solution vars(branch currents) in the
       // store vector, look for each type.
@@ -1290,7 +1293,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
       // Search store
       if( modifiedName[0] == 'Q' )
       {
-        // BJT type.  
+        // BJT type.
         // this should be encapsulated into the BJT class as some point
         NodeNameMap::const_iterator itB = outputManager_.getBranchVarsNodeMap().find(store_name+"B");
         NodeNameMap::const_iterator itE = outputManager_.getBranchVarsNodeMap().find(store_name+"E");
@@ -1299,21 +1302,21 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         if ( (itB != outputManager_.getBranchVarsNodeMap().end()) &&
              (itE != outputManager_.getBranchVarsNodeMap().end()) &&
              (itC != outputManager_.getBranchVarsNodeMap().end()))
-		{
-		  int indexB = (*itB).second;
-		  int indexC = (*itC).second;
-		  int indexE = (*itE).second;
-		  int indexS = -1;
-                  if (itS != outputManager_.getBranchVarsNodeMap().end())
-                    indexS = (*itS).second;
-		  
-		  new_op = new BranchDataBJTPowerOp(name, indexB, indexC, indexE, indexS);
-		}
-      
+        {
+          int indexB = (*itB).second;
+          int indexC = (*itC).second;
+          int indexE = (*itE).second;
+          int indexS = -1;
+          if (itS != outputManager_.getBranchVarsNodeMap().end())
+            indexS = (*itS).second;
+
+          new_op = new BranchDataBJTPowerOp(name, indexB, indexC, indexE, indexS);
+        }
+
       }
       else if( modifiedName[0] == 'J' )
       {
-        // JFET type.  
+        // JFET type.
         // this should be encapsulated into the JFET class as some point
         NodeNameMap::const_iterator itD = outputManager_.getBranchVarsNodeMap().find(store_name+"D");
         NodeNameMap::const_iterator itG = outputManager_.getBranchVarsNodeMap().find(store_name+"G");
@@ -1321,17 +1324,17 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         if ( (itD != outputManager_.getBranchVarsNodeMap().end()) &&
              (itG != outputManager_.getBranchVarsNodeMap().end()) &&
              (itS != outputManager_.getBranchVarsNodeMap().end()))
-		{
-		  int indexD = (*itD).second;
-		  int indexG = (*itG).second;
-		  int indexS = (*itS).second;
- 		  new_op = new BranchDataJFETPowerOp(name, indexD, indexG, indexS);
-		}
-      
+        {
+          int indexD = (*itD).second;
+          int indexG = (*itG).second;
+          int indexS = (*itS).second;
+          new_op = new BranchDataJFETPowerOp(name, indexD, indexG, indexS);
+        }
+
       }
       else if( modifiedName[0] == 'M' )
       {
-        // MOSFET type.  
+        // MOSFET type.
         // this should be encapsulated into the MOSFET class as some point
         NodeNameMap::const_iterator itD = outputManager_.getBranchVarsNodeMap().find(store_name+"D");
         NodeNameMap::const_iterator itG = outputManager_.getBranchVarsNodeMap().find(store_name+"G");
@@ -1348,7 +1351,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
           if (itB != outputManager_.getBranchVarsNodeMap().end())
 	  {
             indexB = (*itB).second;
-	  }	  
+	  }
 	  new_op = new BranchDataMOSFETPowerOp(name, indexD, indexG, indexS, indexB);
         }
       }
@@ -1358,7 +1361,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
         NodeNameMap::const_iterator it1 = outputManager_.getBranchVarsNodeMap().find(store_name+"1");
         NodeNameMap::const_iterator it2 = outputManager_.getBranchVarsNodeMap().find(store_name+"2");
         if ( (it1 != outputManager_.getBranchVarsNodeMap().end()) &&
-             (it2 != outputManager_.getBranchVarsNodeMap().end())) 
+             (it2 != outputManager_.getBranchVarsNodeMap().end()))
 	{
 	  int index1 = (*it1).second;
 	  int index2 = (*it2).second;
@@ -1367,7 +1370,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
       }
       else if( modifiedName[0] == 'Z' )
       {
-        // MESFET type.  
+        // MESFET type.
         // this should be encapsulated into the MESFET class as some point
         NodeNameMap::const_iterator itD = outputManager_.getBranchVarsNodeMap().find(store_name+"D");
         NodeNameMap::const_iterator itG = outputManager_.getBranchVarsNodeMap().find(store_name+"G");
@@ -1513,12 +1516,12 @@ private:
   Analysis::AnalysisManager &    analysisManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::ExpressionOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::ExpressionOpBuilder
 // Purpose       : Makes an ExpressionOp or ConstantOp.
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct ExpressionOpBuilder : public Util::Op::Builder
 {
@@ -1536,7 +1539,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<Util::Op::ConstantOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -1555,12 +1558,12 @@ private:
   const OutputMgr &             outputManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::MeasurementOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::MeasurementOpBuilder
 // Purpose       : Builds a MeasurementOp.
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct MeasurementOpBuilder : public Util::Op::Builder
 {
@@ -1576,7 +1579,7 @@ struct MeasurementOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<MeasureOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -1594,12 +1597,12 @@ private:
   const Measure::Manager &             measureManager_;
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::CircuitIndexOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::CircuitIndexOpBuilder
 // Purpose       : Builds a CircuitIndexOp.
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct CircuitIndexOpBuilder : public Util::Op::Builder
 {
@@ -1614,12 +1617,12 @@ struct CircuitIndexOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<CurrentIndexOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "INDEX") 
+    if (param_tag == "INDEX")
     {
       new_op  = new CurrentIndexOp(param_tag);
     }
@@ -1628,14 +1631,14 @@ struct CircuitIndexOpBuilder : public Util::Op::Builder
   }
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::SensitivityOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::SensitivityOpBuilder
 // Purpose       : Builds various "sensitivity operators".  See the
-//                 list below in registerCreateFunctions(). This includes 
+//                 list below in registerCreateFunctions(). This includes
 //                 the operators for both direct and adjoint sensitivities.
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct SensitivityOpBuilder : public Util::Op::Builder
 {
@@ -1654,14 +1657,14 @@ struct SensitivityOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<SensitivitydOdpAdjointScaledOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
     const std::string &param_string = (*it).stringValue();
 
     // Certain variables were added to this list with the temporary tag "SENS",
-    // in the OutputMgr::registerSens function.  They also contain 
+    // in the OutputMgr::registerSens function.  They also contain
     // OP information, which can be used here to construct the proper name
     // for each derivative.
     if (param_tag == "SENS")
@@ -1702,13 +1705,13 @@ struct SensitivityOpBuilder : public Util::Op::Builder
   }
 };
 
-//-------------------------------------------------------------------------- 
-// Structure     : Util::Op::Builder::TransientAdjointOpBuilder 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::TransientAdjointOpBuilder
 // Purpose       : Builder for various "sensitivity operators".  See
 //                 the list below in registerCreateFunctions().
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 struct TransientAdjointOpBuilder : public Util::Op::Builder
 {
@@ -1727,14 +1730,14 @@ struct TransientAdjointOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<SensitivitydOdpAdjointScaledOp>();
   }
 
-  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
     const std::string &param_string = (*it).stringValue();
 
     // Certain variables were added to this list with the temporary tag "SENS",
-    // in the OutputMgr::registerSens function.  They also contain 
+    // in the OutputMgr::registerSens function.  They also contain
     // OP information, which can be used here to construct the proper name
     // for each derivative.
     if (param_tag == "SENS")
@@ -1775,14 +1778,14 @@ struct TransientAdjointOpBuilder : public Util::Op::Builder
   }
 };
 
-//-------------------------------------------------------------------------- 
-// Function      : registerOpBuilders 
+//--------------------------------------------------------------------------
+// Function      : registerOpBuilders
 // Purpose       : register various builders with the op_builder_manager
 // Special Notes : Error handling for some Ops depends on the analysis mode.
 //                 For those Op types, a const reference to the analysis_manager
 //                 is passed in.
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::Machine comm, OutputMgr &output_manager,
                         Analysis::AnalysisManager &analysis_manager)
@@ -1808,12 +1811,12 @@ void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::
   op_builder_manager.addBuilder(new RFparamsVariableOpBuilder(output_manager,analysis_manager));
 }
 
-//-------------------------------------------------------------------------- 
-// Function      : registerOpBuilders 
+//--------------------------------------------------------------------------
+// Function      : registerOpBuilders
 // Purpose       : register MeasurementOpBuilder with the op_builder_manager
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur
-// Creation Date : 08/04/14 
+// Creation Date : 08/04/14
 //--------------------------------------------------------------------------
 void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::Machine comm, Measure::Manager &measure_manager)
 {

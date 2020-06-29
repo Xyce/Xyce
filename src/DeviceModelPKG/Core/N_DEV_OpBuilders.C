@@ -56,7 +56,7 @@ namespace Device {
 //-----------------------------------------------------------------------------
 // Namespace     : Unnamed
 // Purpose       : file-local scoped methods and data
-// Special Notes : 
+// Special Notes :
 // Creator       : Dave Baur, Raytheon
 // Creation Date : 11/11/2014
 //-----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace {
 /// @author Dave Baur, Raytheon
 /// @date 11/11/2014
 ///
-void parameterNameAndArgs(std::string &name, std::vector<std::string> &args, Util::ParamList::const_iterator &it) 
+void parameterNameAndArgs(std::string &name, std::vector<std::string> &args, Util::ParamList::const_iterator &it)
 {
   const std::string &param_tag = (*it).tag();
 
@@ -168,14 +168,15 @@ struct DeviceGlobalParameterOpBuilder : public Util::Op::Builder
 ///
 /// @author Dave Baur, Raytheon
 /// @date 11/11/14
-///  
+///
   virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
   {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
     const std::string &param_string = (*it).stringValue();
 
-    if (param_tag == "GLOBAL_PARAMETER") {
+    if (param_tag == "GLOBAL_PARAMETER")
+    {
       // new_op  = new DeviceMgrGlobalParameterOp(param_string, deviceManager_, param_string);
       // new_op->addArg(param_string);
       const double *result = deviceManager_.findGlobalPar(param_string);
@@ -259,7 +260,7 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntityOpBuilder::makeOp
 // Purpose       :
-// Special Notes : 
+// Special Notes :
 // Scope         : public
 // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
 // Creation Date : 11/11/14
@@ -272,7 +273,7 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
 ///
 /// @author Dave Baur, Raytheon
 /// @date 11/11/14
-///  
+///
   virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -281,7 +282,7 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
     int arg_count = 0;
     if ((*it).getType() == Util::INT)
       arg_count = (*it).getImmutableValue<int>();
-    if (arg_count == 0) 
+    if (arg_count == 0)
     {
       const DeviceEntity *device_entity = deviceManager_.getDeviceEntity(param_tag);
       if (device_entity)
@@ -371,7 +372,7 @@ struct ArtificialParameterOpBuilder : public Util::Op::Builder
 ///
 /// @author Dave Baur, Raytheon
 /// @date 11/11/14
-///  
+///
   virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
@@ -432,7 +433,7 @@ struct DeviceOptionsOpBuilder : public Util::Op::Builder
   {
     builder_manager.addCreateFunction<DeviceOptionsOp>();
   }
-  
+
 //-----------------------------------------------------------------------------
 // Function      : DeviceOptionsOpBuilder::makeOp
 // Purpose       :
@@ -451,7 +452,7 @@ struct DeviceOptionsOpBuilder : public Util::Op::Builder
 ///
 /// @author Dave Baur, Raytheon
 /// @date 11/11/14
-///  
+///
   virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
