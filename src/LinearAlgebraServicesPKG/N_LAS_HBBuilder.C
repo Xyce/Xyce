@@ -45,7 +45,6 @@
 
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
-#include <Epetra_CrsGraph.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
@@ -450,14 +449,14 @@ bool HBBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurren
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-bool HBBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
+bool HBBuilder::generateGraphs( const Graph& baseFullGraph )
 {
   if( Teuchos::is_null(BaseMap_) )
     Xyce::Report::DevelFatal0().in("HBBuilder::generateGraphs")
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  BaseFullGraph_ = rcp(new Epetra_CrsGraph( BaseFullGraph ));
+  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
 
   return true;
 }

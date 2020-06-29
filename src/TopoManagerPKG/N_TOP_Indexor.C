@@ -45,6 +45,7 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_ParMap.h>
 
+#include <N_LAS_Graph.h>
 #include <Epetra_CrsGraph.h>
 
 namespace Xyce {
@@ -104,11 +105,9 @@ bool
 Indexor::setupAcceleratedMatrixIndexing(
   int           graph_id)
 {
-  Epetra_CrsGraph *graph = pdsMgr_.getMatrixGraph( graph_id );
-  if( graph == 0 )
-    return false;
+  const Epetra_CrsGraph & graph = *(pdsMgr_.getMatrixGraph( graph_id )->epetraObj());
 
-  int NumRows = graph->NumMyRows();
+  int NumRows = graph.NumMyRows();
   matrixIndexMap_.clear();
   matrixIndexMap_.resize( NumRows );
 
@@ -116,7 +115,7 @@ Indexor::setupAcceleratedMatrixIndexing(
   int * Elements;
   for( int i = 0; i < NumRows; ++i )
   {
-    graph->ExtractMyRowView( i, NumElements, Elements );
+    graph.ExtractMyRowView( i, NumElements, Elements );
     for( int j = 0; j < NumElements; ++j ) matrixIndexMap_[i][ Elements[j] ] = j;
   }
 
@@ -154,9 +153,7 @@ Indexor::matrixGlobalToLocal(
   const std::vector<int> &              gids,
   std::vector< std::vector<int> > &     stamp )
 {
-  Epetra_CrsGraph *graph = pdsMgr_.getMatrixGraph(graph_id);
-  if( graph == 0 )
-    return false;
+  const Epetra_CrsGraph & graph = *(pdsMgr_.getMatrixGraph( graph_id )->epetraObj());
 
   int numRows = stamp.size();
 
@@ -170,10 +167,10 @@ Indexor::matrixGlobalToLocal(
       int numCols = stamp[i].size();
       if (gids[i] != -1)
       {
-        int rowLID = graph->LRID(gids[i]);
+        int rowLID = graph.LRID(gids[i]);
         for( int j = 0; j < numCols; ++j )
         {
-          int lid = graph->LCID(stamp[i][j]);
+          int lid = graph.LCID(stamp[i][j]);
           if (stamp[i][j] != -1)
             stamp[i][j] = matrixIndexMap_[rowLID][lid];
           else
@@ -194,7 +191,7 @@ Indexor::matrixGlobalToLocal(
       int numCols = stamp[i].size();
       if (gids[i] != -1)
       { 
-        graph->ExtractMyRowView( graph->LRID(gids[i]), numElements, elements );
+        graph.ExtractMyRowView( graph.LRID(gids[i]), numElements, elements );
 
         std::map<int,int> indexToOffsetMap;
         for( int j = 0; j < numElements; ++j ) 
@@ -202,7 +199,7 @@ Indexor::matrixGlobalToLocal(
 
         for( int j = 0; j < numCols; ++j )
         {
-          int lid = graph->LCID(stamp[i][j]);
+          int lid = graph.LCID(stamp[i][j]);
           stamp[i][j] = indexToOffsetMap[lid];
         }
       }

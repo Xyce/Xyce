@@ -59,7 +59,6 @@
 #include <N_DEV_DeviceMgr.h>
 
 #include <Epetra_BlockMap.h>
-#include <Epetra_CrsGraph.h>
 #include <Epetra_CrsMatrix.h>
 
 #include <N_PDS_Comm.h>  

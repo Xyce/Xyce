@@ -940,7 +940,7 @@ bool NOISE::createACLinearSystem_()
   N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
 
   RCP<N_PDS_ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
-  Linear::Graph baseFullGraph( rcp(pds_manager.getMatrixGraph(Parallel::JACOBIAN), false) );
+  Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
   int offset = baseMap->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
@@ -961,10 +961,10 @@ bool NOISE::createACLinearSystem_()
   blockPattern[1].resize(2);
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
-  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, baseFullGraph);
+  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph);
 
   delete ACMatrix_;
-  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, baseFullGraph);
+  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
 
   ACMatrix_->put( 0.0 ); // Zero out whole matrix.
   // Matrix will be loaded with nonzero (C,G) sub-matrices later.

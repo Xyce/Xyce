@@ -446,67 +446,6 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
-                                                N_PDS_ParMap& blockMap, const Epetra_CrsGraph& baseGraph )
-{
-  int numBlockRows = blockPattern.size();
-  int numMyBaseRows = baseGraph.NumMyRows();
-  int maxIndices = baseGraph.MaxNumIndices();
- 
-  int maxBlockCols = blockPattern[0].size();
-  for (int i=1; i<numBlockRows; ++i) { 
-    int cols=blockPattern[i].size();
-    if (cols > maxBlockCols)
-      maxBlockCols = cols;
-  }
- 
-  //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  Teuchos::RCP<Epetra_CrsGraph> newGraph = rcp(new Epetra_CrsGraph( Copy, *(blockMap.petraBlockMap()), 0 ));
-  
-  std::vector<int> indices(maxIndices);
-  int shift=0, index=0, baseRow=0, blockRow=0, numIndices=0;
-  int maxNNZs = maxIndices*maxBlockCols;
-  std::vector<int> newIndices(maxNNZs);  // Make as large as the combined maximum of indices and column blocks
-
-  for( int j = 0; j < numMyBaseRows; ++j )
-  {
-    // Extract the base entries from the base row.
-    baseRow = baseGraph.GRID(j);
-    baseGraph.ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &indices[0] );
-
-    for( int i = 0; i < numBlockRows; ++i )
-    {
-      // For this harmonic, which row will be inserted.
-      blockRow = baseRow + offset*i;
-
-      int numBlockCols = blockPattern[i].size();
-
-      // Find all entries from a row before inserting it.
-      for( int k = 0; k < numBlockCols; ++k )
-      {
-        // Find which block column to start at.
-        shift = blockPattern[i][k]*offset;  // Actual column index.
-        index = k*numIndices;  // Pointer to next block of column indices.
-        for( int kk = 0; kk < numIndices; ++kk ) newIndices[index+kk] = indices[kk] + shift;
-      }
-
-      // Insert entire row for all blocks.
-      newGraph->InsertGlobalIndices( blockRow, numBlockCols*numIndices, &newIndices[0] );
-    }
-  }
-  newGraph->FillComplete();
-  newGraph->OptimizeStorage();
- 
-  return newGraph;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : createBlockGraph
-// Purpose       : A helper function for creating block parallel graphs.
-// Special Notes :
-// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
-// Creation Date : 6/22/11
-//-----------------------------------------------------------------------------
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
                                       N_PDS_ParMap& blockMap, const Graph& baseGraph )
 {

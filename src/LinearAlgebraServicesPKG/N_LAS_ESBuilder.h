@@ -53,7 +53,6 @@
 
 
 class Epetra_Map;
-class Epetra_CrsGraph;
 
 class N_PDS_ParMap;
 
@@ -123,7 +122,7 @@ class ESBuilder : public Builder
   bool generateStoreMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStoreMap );
   bool generateLeadCurrentMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
 
-  bool generateGraphs( const Epetra_CrsGraph & BaseFullGraph );
+  bool generateGraphs( const Graph& BaseFullGraph );
 
   // Return maps for sampling linear system.
   Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const
@@ -188,8 +187,8 @@ private:
   Teuchos::RCP<N_PDS_ParMap> BaseStoreMap_;
   Teuchos::RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
 
-  Teuchos::RCP<Epetra_CrsGraph> BaseFullGraph_;
-  Teuchos::RCP<Epetra_CrsGraph> blockGraph_;
+  Teuchos::RCP<Graph> baseFullGraph_;
+  Teuchos::RCP<Graph> blockGraph_;
 
   std::vector<std::vector<int> > blockPattern_;
 

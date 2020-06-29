@@ -52,5 +52,9 @@ namespace Linear {
   : epetraGraph_(graph)
   {}
 
+  Graph::Graph( const Graph& graph )
+  : epetraGraph_(graph.epetraGraph_)
+  {}
+
 } // namespace Linear
 } // namespace Xyce

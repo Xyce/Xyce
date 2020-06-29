@@ -38,6 +38,7 @@
 #include <Epetra_Map.h>
 #include <Epetra_CrsGraph.h>
 
+#include <N_LAS_Graph.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
@@ -160,8 +161,8 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createDAEdFdxMatrix( double initialValue 
     return new Xyce::Linear::BlockMatrix( Size_,
                                  offset_, 
                                  Cols,
-                                 *MPDEdFdxGraph_,
-                                 *BasedFdxGraph_,
+                                 MPDEdFdxGraph_.get(),
+                                 BasedFdxGraph_.get(),
                                  2);
   }
   else
@@ -169,8 +170,8 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createDAEdFdxMatrix( double initialValue 
     return new Xyce::Linear::BlockMatrix( Size_,
                                  offset_,
                                  Cols,
-                                 *MPDEdFdxGraph_,
-                                 *BasedFdxGraph_);
+                                 MPDEdFdxGraph_.get(),
+                                 BasedFdxGraph_.get());
   }
 }
 
@@ -302,27 +303,27 @@ bool N_MPDE_Builder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadC
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
-                                     const Epetra_CrsGraph & BasedFdxGraph,
-                                     const Epetra_CrsGraph & BaseFullGraph )
+bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
+                                     const Xyce::Linear::Graph & BasedFdxGraph,
+                                     const Xyce::Linear::Graph & BaseFullGraph )
 {
   if( Teuchos::is_null(BaseMap_) )
     Xyce::Report::DevelFatal0().in("N_MPDE_Builder::generateGraphs")
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  BasedQdxGraph_ = rcp(new Epetra_CrsGraph( BasedQdxGraph ));
-  BasedFdxGraph_ = rcp(new Epetra_CrsGraph( BasedFdxGraph ));
-  BaseFullGraph_ = rcp(new Epetra_CrsGraph( BaseFullGraph ));
+  BasedQdxGraph_ = rcp(new Xyce::Linear::Graph( BasedQdxGraph ));
+  BasedFdxGraph_ = rcp(new Xyce::Linear::Graph( BasedFdxGraph ));
+  BaseFullGraph_ = rcp(new Xyce::Linear::Graph( BaseFullGraph ));
 
   int BlockSize = BaseMap_->numLocalEntities();
 
   //Construct MPDE dFdX Graph
-  MPDEdFdxGraph_ = rcp(new Epetra_CrsGraph( Copy,
-                                            *(MPDEMap_->petraBlockMap()),
-                                            0 ));
-  
-  int MaxIndices = BasedFdxGraph_->MaxNumIndices();
+  Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
+                                                           *(MPDEMap_->petraBlockMap()),
+                                                           0 );
+
+  int MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();
   std::vector<int> Indices(MaxIndices);
   int NumIndices;
   int BaseRow;
@@ -332,11 +333,11 @@ bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph.ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BasedFdxGraph_->epetraObj()->ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
       for( int k = 0; k < NumIndices; ++k ) Indices[k] += offset_*i;
       //Diagonal Block
       MPDERow = BaseRow + offset_*i;
-      MPDEdFdxGraph_->InsertGlobalIndices( MPDERow, NumIndices, &Indices[0] );
+      epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &Indices[0] );
     }
   }
 
@@ -345,10 +346,10 @@ bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
     Xyce::dout() << "Q and F graphs before adding warped terms:" << std::endl
                  << "MPDEdFdxGraph = [same as MPDEQddxGraph]" << std::endl
                  << "MPDEdFdxGraph = " << std::endl;
-    MPDEdFdxGraph_->Print(Xyce::dout());
+    epetraMPDEGraph->Print(Xyce::dout());
   }
 
-  MaxIndices = BasedFdxGraph_->MaxNumIndices();
+  MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();
   Indices.resize(MaxIndices);
   std::vector<int> NewIndices(MaxIndices);
   int DiscStart = Disc_.Start();
@@ -366,14 +367,14 @@ bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph.ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BasedFdxGraph.epetraObj()->ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
 
       MPDERow = BaseRow + offset_*i;
       for( int k = 0; k < DiscWidth; ++k )
       {
         int Shift = Cols[k]*offset_;
         for( int kk = 0; kk < NumIndices; ++kk ) NewIndices[kk] = Indices[kk] + Shift;
-        MPDEdFdxGraph_->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
+        epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
       }
     }
   }
@@ -390,18 +391,18 @@ bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
         MPDERow = BaseRow + offset_*i;
         NumIndices = 1;
         NewIndices[0] = omegaGID_; 
-        MPDEdFdxGraph_->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
+        epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
       }
     }
     if ( BaseMap_->pdsComm().procID() == augProcID_ )
     {
       NumIndices = 1;
       Indices[0] = phiGID_;
-      MPDEdFdxGraph_->InsertGlobalIndices( phiGID_, NumIndices, &Indices[0] );
+      epetraMPDEGraph->InsertGlobalIndices( phiGID_, NumIndices, &Indices[0] );
 
       Teuchos::RCP<std::vector<int> > phaseGraph = warpMPDEPhasePtr_->getPhaseGraph();
       NumIndices = phaseGraph->size();
-      MPDEdFdxGraph_->InsertGlobalIndices( omegaGID_, NumIndices, &((*phaseGraph)[0]) );
+      epetraMPDEGraph->InsertGlobalIndices( omegaGID_, NumIndices, &((*phaseGraph)[0]) );
 
       // An (omegaGID, omegaGID) entry must be inserted if not done by the phase graph.
       // This is because when the augmented column is loaded, an entry is expected for each
@@ -417,32 +418,30 @@ bool N_MPDE_Builder::generateGraphs( const Epetra_CrsGraph & BasedQdxGraph,
       NumIndices = 1;
       NewIndices.clear();
       NewIndices.push_back(omegaGID_);
-      MPDEdFdxGraph_->InsertGlobalIndices( phiGID_, NumIndices, &NewIndices[0] );
+      epetraMPDEGraph->InsertGlobalIndices( phiGID_, NumIndices, &NewIndices[0] );
 
       // Add (omegaGID, omegaGID) entry if one doesn't already exist.
       if (!isOmegaCol) 
-        MPDEdFdxGraph_->InsertGlobalIndices( omegaGID_, NumIndices, &NewIndices[0] );
+        epetraMPDEGraph->InsertGlobalIndices( omegaGID_, NumIndices, &NewIndices[0] );
     }
   }
-  MPDEdFdxGraph_->FillComplete();
-  MPDEdFdxGraph_->OptimizeStorage();
+  epetraMPDEGraph->FillComplete();
+  epetraMPDEGraph->OptimizeStorage();
 
+  MPDEdFdxGraph_ = rcp(new Xyce::Linear::Graph( rcp( epetraMPDEGraph ) ) );
+  
   //Construct MPDE dQdx Graph
-  MPDEdQdxGraph_ = rcp(new Epetra_CrsGraph( *MPDEdFdxGraph_ ));
-  MPDEdQdxGraph_->FillComplete();
-  MPDEdQdxGraph_->OptimizeStorage();
+  MPDEdQdxGraph_ = MPDEdFdxGraph_;
 
   //Construct MPDE Full Graph
-  MPDEFullGraph_ = rcp(new Epetra_CrsGraph( *MPDEdFdxGraph_ ));
-  MPDEFullGraph_->FillComplete();
-  MPDEFullGraph_->OptimizeStorage();
+  MPDEFullGraph_ = MPDEdFdxGraph_;
 
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
   {  
     Xyce::dout() << "Final MPDEdQdxGraph = " << std::endl;
-    MPDEdQdxGraph_->Print(Xyce::dout());
+    MPDEdQdxGraph_->epetraObj()->Print(Xyce::dout());
     Xyce::dout() << "Final MPDEdFdxGraph = " << std::endl;
-    MPDEdFdxGraph_->Print(Xyce::dout());
+    MPDEdFdxGraph_->epetraObj()->Print(Xyce::dout());
   }
 
   return true;

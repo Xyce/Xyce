@@ -43,8 +43,7 @@
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
 #include <N_PDS_ParMap.h>
-
-#include <Epetra_CrsGraph.h>
+#include <N_LAS_Graph.h>
 
 namespace Xyce {
 namespace Parallel {
@@ -252,7 +251,7 @@ N_PDS_GlobalAccessor * Manager::createGlobalAccessor()
 bool
 Manager::addMatrixGraph(
   int                           id,
-  Epetra_CrsGraph *             graph )
+  Linear::Graph *               graph )
 {
   if (matrixGraphs_[id])
   {

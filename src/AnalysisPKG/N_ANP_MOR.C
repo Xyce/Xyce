@@ -1136,7 +1136,7 @@ bool MOR::createOrigLinearSystem_()
 
   N_PDS_ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
   N_PDS_ParMap &oBaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION_OVERLAP_GND);
-  Linear::Graph BaseFullGraph( Teuchos::rcp( pdsManager.getMatrixGraph(Parallel::JACOBIAN), false ) );
+  Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
 
@@ -1149,9 +1149,9 @@ bool MOR::createOrigLinearSystem_()
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
   int offset = Linear::generateOffset( BaseMap );
-  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], BaseFullGraph);
+  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], *baseFullGraph);
 
-  sCpG_REFMatrixPtr_ = rcp ( new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, BaseFullGraph) );
+  sCpG_REFMatrixPtr_ = rcp ( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
 
   // Load diagonal blocks of real equivalent form: (G - s0*C)
   sCpG_REFMatrixPtr_->put( 0.0 ); // Zero out whole matrix
@@ -1248,7 +1248,7 @@ bool MOR::createRedLinearSystem_()
     int offset= Linear::generateOffset( redPDSMap );
     RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
-    sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, *(redCPtr_->getGraph()) ) );
+    sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
 
     // Load diagonal blocks of real equivalent form: (G - s0*C)
     sCpG_ref_redMatrixPtr_->put( 0.0 ); // Zero out whole matrix

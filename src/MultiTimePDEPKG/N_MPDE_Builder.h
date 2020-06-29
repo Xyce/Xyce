@@ -59,7 +59,6 @@ class N_MPDE_Manager;
 class N_PDS_ParMap;
 
 class Epetra_Map;
-class Epetra_CrsGraph;
 
 //-----------------------------------------------------------------------------
 // Class         : N_MPDE_Builder
@@ -127,9 +126,9 @@ class N_MPDE_Builder : public Xyce::Linear::Builder
   bool generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap );
   bool generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
 
-  bool generateGraphs( const Epetra_CrsGraph & BasedQdxGraph, 
-                       const Epetra_CrsGraph & BasedFdxGraph,
-                       const Epetra_CrsGraph & BaseFullGraph );
+  bool generateGraphs( const Xyce::Linear::Graph& BasedQdxGraph, 
+                       const Xyce::Linear::Graph& BasedFdxGraph,
+                       const Xyce::Linear::Graph& BaseFullGraph );
 
   Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const;
   Teuchos::RCP<N_PDS_ParMap> getSolutionMap();
@@ -173,13 +172,13 @@ const N_MPDE_Discretization &   Disc_;
   RCP<N_PDS_ParMap> MPDEStoreMap_;
   RCP<N_PDS_ParMap> MPDELeadCurrentMap_;
 
-  RCP<Epetra_CrsGraph> BasedQdxGraph_;
-  RCP<Epetra_CrsGraph> BasedFdxGraph_;
-  RCP<Epetra_CrsGraph> BaseFullGraph_;
+  RCP<Xyce::Linear::Graph> BasedQdxGraph_;
+  RCP<Xyce::Linear::Graph> BasedFdxGraph_;
+  RCP<Xyce::Linear::Graph> BaseFullGraph_;
 
-  RCP<Epetra_CrsGraph> MPDEdQdxGraph_;
-  RCP<Epetra_CrsGraph> MPDEdFdxGraph_;
-  RCP<Epetra_CrsGraph> MPDEFullGraph_;
+  RCP<Xyce::Linear::Graph> MPDEdQdxGraph_;
+  RCP<Xyce::Linear::Graph> MPDEdFdxGraph_;
+  RCP<Xyce::Linear::Graph> MPDEFullGraph_;
 };
 
 #endif

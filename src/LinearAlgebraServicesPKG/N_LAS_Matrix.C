@@ -93,8 +93,11 @@ Matrix::~Matrix()
   delete offsetIndex_;
   delete aColMap_;
   delete oColMap_;
-  if (baseGraph_)
+
+  if (overlapGraph_ != baseGraph_)
+  {
     delete baseGraph_;
+  }
   if (overlapGraph_)
     delete overlapGraph_;
 }
@@ -124,6 +127,9 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
 {
   aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
   oDCRSMatrix_ = aDCRSMatrix_;
+
+  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+  overlapGraph_ = baseGraph_;
 }
 
 //-----------------------------------------------------------------------------
@@ -148,6 +154,9 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
   isOwned_(isOwned)
 {
   oDCRSMatrix_ = aDCRSMatrix_;
+
+  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+  overlapGraph_ = baseGraph_;
 }
 
 //-----------------------------------------------------------------------------
@@ -158,8 +167,8 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 08/21/02
 //-----------------------------------------------------------------------------
-Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
-                Epetra_CrsGraph * baseGraph )
+Matrix::Matrix( const Graph* overlapGraph,
+                const Graph* baseGraph )
 : aDCRSMatrix_(0),
   oDCRSMatrix_(0),
   exporter_(0),
@@ -168,47 +177,6 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
   oColMap_(0),
   overlapGraph_(0),
   baseGraph_(0),
-  proxy_( 0, *this ),
-  groundLID_(-1),
-  groundNode_(0.0),
-  isOwned_(true)
-{
-  if ( baseGraph != overlapGraph )
-  {
-    oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *overlapGraph );
-
-    // Get ground node, if there is one.
-    groundLID_ = overlapGraph->LRID( -1 );
-
-    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
-    exporter_ = new Epetra_Export( overlapGraph->RowMap(), baseGraph->RowMap() );
-    offsetIndex_ = new Epetra_OffsetIndex( *overlapGraph, *baseGraph, *exporter_ );
-  }
-  else
-  {
-    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
-    oDCRSMatrix_ = aDCRSMatrix_;
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::Matrix
-// Purpose       : Constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 08/21/02
-//-----------------------------------------------------------------------------
-Matrix::Matrix( Graph* overlapGraph,
-                Graph* baseGraph )
-: aDCRSMatrix_(0),
-  oDCRSMatrix_(0),
-  exporter_(0),
-  offsetIndex_(0),
-  aColMap_(0),
-  oColMap_(0),
-  overlapGraph_(overlapGraph),
-  baseGraph_(baseGraph),
   proxy_( 0, *this ),
   groundLID_(-1),
   groundNode_(0.0),
@@ -230,6 +198,9 @@ Matrix::Matrix( Graph* overlapGraph,
     aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
     oDCRSMatrix_ = aDCRSMatrix_;
   }
+
+  overlapGraph_ = new Graph( *overlapGraph );
+  baseGraph_ = new Graph( *baseGraph );
 }
 
 //-----------------------------------------------------------------------------
@@ -938,70 +909,6 @@ N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
     aColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
   
   return aColMap_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 9/6/17
-//-----------------------------------------------------------------------------
-Graph* Matrix::getGraph()
-{
-  if (!baseGraph_)
-    baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
-
-  return baseGraph_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 9/6/17
-//-----------------------------------------------------------------------------
-const Graph* Matrix::getGraph() const 
-{
-  if (!baseGraph_)
-    baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
-
-  return baseGraph_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 9/6/17
-//-----------------------------------------------------------------------------
-Graph* Matrix::getOverlapGraph()
-{
-  if (!overlapGraph_)
-    overlapGraph_ = new Graph( Teuchos::rcp( &(oDCRSMatrix_->Graph()), false ) );
-
-  return overlapGraph_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 9/6/17
-//-----------------------------------------------------------------------------
-const Graph* Matrix::getOverlapGraph() const 
-{
-  if (!overlapGraph_)
-    overlapGraph_ = new Graph( Teuchos::rcp( &(oDCRSMatrix_->Graph()), false ) );
-
-  return overlapGraph_;
 }
 
 } // namespace Linear

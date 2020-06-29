@@ -68,22 +68,12 @@ class BlockMatrix : public Matrix
 {
  public:
 
-  //Constructors
   BlockMatrix( int size,
                      int offset,
                      const std::vector< std::vector<int> > & blockColumns,
-                     const Epetra_CrsGraph & globalGraph,
-                     const Epetra_CrsGraph & subBlockGraph,
+                     const Graph* globalGraph,
+                     const Graph* subBlockGraph,
                      int augmentCount = 0 );
-
-  BlockMatrix( int size,
-                     int offset,
-                     const std::vector< std::vector<int> > & blockColumns,
-                     const Graph& globalGraph,
-                     const Graph& subBlockGraph,
-                     int augmentCount = 0 )
-  : BlockMatrix( size, offset, blockColumns, *globalGraph.epetraObj(), *subBlockGraph.epetraObj(), augmentCount )
-  {}
 
   //Destructor
   ~BlockMatrix() {}

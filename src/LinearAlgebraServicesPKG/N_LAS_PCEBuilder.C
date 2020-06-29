@@ -247,7 +247,7 @@ Matrix * PCEBuilder::createMatrix( double initialValue ) const
 //-----------------------------------------------------------------------------
 Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix( double initialValue ) const
 {
-  return rcp (new Linear::BlockMatrix( numBlockRows_, offset_, blockPattern_, *blockGraph_, *BaseFullGraph_) );
+  return rcp (new Linear::BlockMatrix( numBlockRows_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get() ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -275,7 +275,7 @@ Matrix * PCEBuilder::createQuadMatrix( double initialValue ) const
 //-----------------------------------------------------------------------------
 Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix( double initialValue ) const
 {
-  return rcp (new Linear::BlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, *quadBlockGraph_, *BaseFullGraph_) );
+  return rcp (new Linear::BlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, quadBlockGraph_.get(), baseFullGraph_.get()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -445,8 +445,8 @@ bool PCEBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurre
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
 bool PCEBuilder::generateGraphs( 
-    const Epetra_CrsGraph & pceGraph,
-    const Epetra_CrsGraph & BaseFullGraph 
+    const Graph& pceGraph,
+    const Graph& baseFullGraph 
     )
 {
   if( Teuchos::is_null(BaseMap_) )
@@ -454,8 +454,8 @@ bool PCEBuilder::generateGraphs(
       << "Need to setup Maps first";
 
   //Copies of graphs
-  pceGraph_ = rcp(new Epetra_CrsGraph( pceGraph ));
-  BaseFullGraph_ = rcp(new Epetra_CrsGraph( BaseFullGraph ));
+  pceGraph_ = rcp(new Graph( pceGraph ));
+  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
 
   int numBlockRows = numBlockRows_;
   blockPattern_.clear();
@@ -499,9 +499,9 @@ bool PCEBuilder::generateGraphs(
     quadBlockPattern_[i][0] = i; 
   }
 
-  blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *PCEMap_, *BaseFullGraph_ );
+  blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *PCEMap_, *baseFullGraph_ );
 
-  quadBlockGraph_ = Linear::createBlockGraph(offset_, quadBlockPattern_, *quadMap_, *BaseFullGraph_ );
+  quadBlockGraph_ = Linear::createBlockGraph(offset_, quadBlockPattern_, *quadMap_, *baseFullGraph_ );
 
   return true;
 }

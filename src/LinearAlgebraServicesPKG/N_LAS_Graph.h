@@ -61,6 +61,9 @@ public:
   // Simple constructor using Epetra_CrsGraph
   Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph );
 
+  // Copy constructor
+  Graph( const Graph& graph );
+
   // Destructor
   virtual ~Graph() {}
 

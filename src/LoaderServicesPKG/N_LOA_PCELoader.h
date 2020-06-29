@@ -180,8 +180,6 @@ public:
 
   void registerPCEtripleProductTensor ( Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > & tmpCijk) { Cijk_ = tmpCijk; }
 
-  void registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph);
-
   void registerSolverFactory (Xyce::Linear::SolverFactory *tmpLasSolverPtr);
 
   //void registerLinearSystem (Linear::System * linear_system_ptr) { lasSysPtr_ = linear_system_ptr; }
@@ -289,12 +287,6 @@ private:
 
   // Expansion method
   Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > expnMethod_;
-
-  // PCE block graph
-  Teuchos::RCP<Epetra_CrsGraph> pceGraph_;
-
-  // PCE block matrix 
-  Teuchos::RCP<Epetra_CrsMatrix> pceMat_;
 
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceF;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceQ;
