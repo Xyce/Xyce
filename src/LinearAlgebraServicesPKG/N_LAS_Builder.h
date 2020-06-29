@@ -138,17 +138,17 @@ public:
                                   ) const;
 
   // Return the graphs with reference to the separated solution map
-  virtual void getSeparatedGraph( RCP<Graph>& linear_graph,
-                                  RCP<Graph>& linNonlin_graph,
-                                  RCP<Graph>& nonlin_graph,
-                                  RCP<Graph>& nonlinLin_graph
+  virtual void getSeparatedGraph( RCP<const Graph>& linear_graph,
+                                  RCP<const Graph>& linNonlin_graph,
+                                  RCP<const Graph>& nonlin_graph,
+                                  RCP<const Graph>& nonlinLin_graph
                                 ) const;
 
   // Return the graphs with reference to the global solution map
-  virtual void getGlobalSeparatedGraph( RCP<Graph>& linear_graph,
-                                        RCP<Graph>& linNonlin_graph,
-                                        RCP<Graph>& nonlin_graph,
-                                        RCP<Graph>& nonlinLin_graph
+  virtual void getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
+                                        RCP<const Graph>& linNonlin_graph,
+                                        RCP<const Graph>& nonlin_graph,
+                                        RCP<const Graph>& nonlinLin_graph
                                       ) const;
 
   virtual RCP<const N_PDS_ParMap> getSolutionMap() const;

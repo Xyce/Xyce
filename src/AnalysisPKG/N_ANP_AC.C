@@ -896,7 +896,7 @@ bool AC::createLinearSystem_()
   N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
 
   RCP<N_PDS_ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
-  Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
+  const Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
   int offset = baseMap->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.

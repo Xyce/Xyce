@@ -114,7 +114,7 @@ public:
   }
 
     // Gets a matrix graph object.
-  Linear::Graph * getMatrixGraph(int id)
+  const Linear::Graph * getMatrixGraph(int id) const
   {
     return matrixGraphs_[id];
   }

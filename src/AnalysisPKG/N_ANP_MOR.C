@@ -1136,7 +1136,7 @@ bool MOR::createOrigLinearSystem_()
 
   N_PDS_ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
   N_PDS_ParMap &oBaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION_OVERLAP_GND);
-  Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
+  const Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
 

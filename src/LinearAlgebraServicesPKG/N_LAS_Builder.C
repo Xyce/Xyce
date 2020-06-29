@@ -184,8 +184,8 @@ Matrix * Builder::createMatrix(const double initialValue) const
 
   Matrix * mat = 0;
 
-  Graph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
-  Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
+  const Graph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
+  const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
 
   mat = new Matrix( overlapGraph, baseGraph );
 
@@ -776,7 +776,7 @@ bool Builder::setupSeparatedLSObjects()
     nlLinearGraph->Print(std::cout); 
     std::cout << "Local Nonlinear->Linear graph: " << std::endl;
     lcl_nlLinearGraph->Print(std::cout); 
-    Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
+    const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
     std::cout << "Base graph: " << std::endl;
     baseGraph->epetraObj()->Print(std::cout);
   }
@@ -810,10 +810,10 @@ void Builder::getSeparatedSolnMap( RCP<N_PDS_ParMap>& linear_map,
 // Creator       : Heidi Thornquist and Ting Mei, Electrical Simulation and Modeling
 // Creation Date : 04/01/15
 //-----------------------------------------------------------------------------
-void Builder::getSeparatedGraph( RCP<Graph>& linear_graph,
-                                 RCP<Graph>& linNonlin_graph,
-                                 RCP<Graph>& nonlin_graph,
-                                 RCP<Graph>& nonlinLin_graph
+void Builder::getSeparatedGraph( RCP<const Graph>& linear_graph,
+                                 RCP<const Graph>& linNonlin_graph,
+                                 RCP<const Graph>& nonlin_graph,
+                                 RCP<const Graph>& nonlinLin_graph
                                ) const
 {
   linear_graph = Teuchos::rcp(pdsMgr_->getMatrixGraph( Parallel::LINEAR_JACOBIAN ),false);
@@ -831,10 +831,10 @@ void Builder::getSeparatedGraph( RCP<Graph>& linear_graph,
 // Creator       : Heidi Thornquist and Ting Mei, Electrical Simulation and Modeling
 // Creation Date : 04/01/15
 //-----------------------------------------------------------------------------
-void Builder::getGlobalSeparatedGraph( RCP<Graph>& linear_graph,
-                                       RCP<Graph>& linNonlin_graph,
-                                       RCP<Graph>& nonlin_graph,
-                                       RCP<Graph>& nonlinLin_graph
+void Builder::getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
+                                       RCP<const Graph>& linNonlin_graph,
+                                       RCP<const Graph>& nonlin_graph,
+                                       RCP<const Graph>& nonlinLin_graph
                                      ) const
 {
   linear_graph = Teuchos::rcp(pdsMgr_->getMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN ),false);
