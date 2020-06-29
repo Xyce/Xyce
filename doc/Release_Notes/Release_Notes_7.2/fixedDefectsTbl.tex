@@ -44,6 +44,14 @@ handling of global parameters, and the only workaround had been to
 avoid such parameter names.  This workaround is no longer
 necessary. \\ \hline
 
+\textbf{1307-SON}: Improve Compatibility of .MEASURE with .DATA &
+If a \texttt{.DATA} statement is used to define a table-based sweep
+on a \texttt{.DC} line then \texttt{DC} measures now correctly use
+the row index in that table as their ``swept variable''.  The
+\texttt{.MEASURE} section of the \Xyce{} Reference Guide provides
+an example of this use case.
+\\ \hline
+
 \textbf{1306-SON}: Fix FROM and TO qualifiers for DC mode measures &
 The \texttt{FROM} and \texttt{TO} qualifiers would work correctly if
 either both were used on a \texttt{.MEASURE DC} line, or if neither
