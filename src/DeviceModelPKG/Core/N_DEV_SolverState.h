@@ -104,7 +104,7 @@ public:
   double                lastTimeStep_;          ///< BJT, Others
   double                currTime_;              ///< DeviceEntity for expression time, breakpoints
                                                 ///< DeviceMgr for dependent parameters, breakpoints, extern device
-                                                ///< SourceData devices, ADC, DAC LTRA, TRA, Region, NumericalJacobian, RxnSet, Xygra, Digital
+                                                ///< SourceData devices, ADC, DAC LTRA, TRA, Region, NumericalJacobian, RxnSet, Digital
                                                 ///< 2D PDE, Diode PDE, Charon, Synapse, Neuron, Others
   double                finalTime_;             ///< Analysis final time, SourceData devices
   double                startingTimeStep_;      ///< SourceData devices

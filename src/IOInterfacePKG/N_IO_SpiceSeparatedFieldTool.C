@@ -415,7 +415,7 @@ replgndvar)
           allowedVCSetPtr = theIterator->second;
         }
         
-        if (ucFieldString == "YPDE" || ucFieldString == "YEXT" || ucFieldString == "YXYGRA" || ucFieldString == "YGENEXT")
+        if (ucFieldString == "YPDE" || ucFieldString == "YEXT" || ucFieldString == "YGENEXT")
         {
           noImplicitExpression = true;
         }
@@ -973,10 +973,6 @@ void SpiceSeparatedFieldTool::initializeVCMaps_()
   allowedVectorCompositeSets_[2]->insert(std::string("FIELDDATA"));
   modelsWithVC_["TRANLINEEMP"]=allowedVectorCompositeSets_[2];
 
-  // This is only used by the YXygra device
-  allowedVectorCompositeSets_[3]->insert(std::string("COIL"));
-  yDevicesWithVC_["YXYGRA"]=allowedVectorCompositeSets_[3];
-  
   // This is only used by the YEXT device
   allowedVectorCompositeSets_[4]->insert(std::string("NODE"));
   yDevicesWithVC_["YEXT"]=allowedVectorCompositeSets_[4];

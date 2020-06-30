@@ -126,8 +126,6 @@ class PDE_Electrode;
 class PDE_1DElectrode;
 class PDE_2DElectrode;
 
-class XygraCoilData;
-
 class SpecieSource;
 
 class ScalingVars;
@@ -137,11 +135,6 @@ class DeviceMgrGlobalParameterOp;
 typedef unordered_map<std::string, InstanceBlock, HashNoCase, EqualNoCase> DeviceNameInstanceBlockMap;
 
 namespace GeneralExternal {
-class Instance;
-class Model;
-}
-
- namespace Xygra {
 class Instance;
 class Model;
 }

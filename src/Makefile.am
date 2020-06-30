@@ -111,7 +111,6 @@ include_HEADERS = \
   $(srcdir)/AnalysisPKG/N_ANP_fwd.h \
   $(srcdir)/AnalysisPKG/N_ANP_NoiseData.h \
   $(srcdir)/CircuitPKG/N_CIR_Xyce.h \
-  $(srcdir)/CircuitPKG/N_CIR_Xygra.h \
   $(srcdir)/CircuitPKG/N_CIR_GenCouplingSimulator.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Configuration.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Const.h \
