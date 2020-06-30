@@ -104,8 +104,10 @@ int ExpressionLexer::getToken(ExpressionParser::semantic_type *lvalp,  \
   // "%name-prefix" is changed, this line needs to be changed, too.
 #define yylex XyceExpressionlex
 
-int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, XyceExpression::location *locp,
-             Xyce::Util::ExpressionLexer *theLexer);
+int XyceExpressionlex(
+    XyceExpression::ExpressionParser::semantic_type *lvalp, 
+    XyceExpression::location *locp,
+    Xyce::Util::ExpressionLexer *theLexer);
 
 
 // fix this later
@@ -1468,10 +1470,12 @@ paren_polycoef: TOK_POLYCOEF
 
 %%
 
-int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, XyceExpression::location *locp,
-                  Xyce::Util::ExpressionLexer *theLexer)
+int XyceExpressionlex(
+    XyceExpression::ExpressionParser::semantic_type *lvalp, 
+    XyceExpression::location *locp,
+    Xyce::Util::ExpressionLexer *theLexer)
 {
-        return(theLexer->getToken(lvalp,locp));
+  return(theLexer->getToken(lvalp,locp));
 }
 
 void

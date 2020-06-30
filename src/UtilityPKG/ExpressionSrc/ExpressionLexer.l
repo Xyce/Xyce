@@ -64,7 +64,7 @@ class ExpressionLexer;
 
  /* ID is used for a variety of random strings, including function and 
     parameter names.  So, it cannot have characters in it that could 
-    also be interpretted as operators, such as '+' and '-'.   This 
+    also be interpretted as operators, such as '!', '+' and '-'. This 
     distinguishes ID from DEV, below. */
 
  /* DEV is used for device instance names, particularly inside of current vars.  I(DEV) */
@@ -74,7 +74,7 @@ class ExpressionLexer;
  /* Other simulators use other delimiters for subcircuit names, so might */
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
-ID [a-zA-Z!_`@#][a-zA-Z0-9_:!`@#]*
+ID [a-zA-Z_`@#][a-zA-Z0-9_:`@#]*
 
  /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
 DEV [a-zA-Z][a-zA-Z0-9_:!`@#\+\-]*
@@ -116,7 +116,7 @@ LEAD I[SDGBEC1-9]
 
  /* ------------------------------------------------------------------------*/
  /* numbers with suffixes */
-<INITIAL>{DIGIT}+{SUFFIX}?{UNIT}? {
+<INITIAL>{DIGIT}+"."?{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -132,7 +132,7 @@ LEAD I[SDGBEC1-9]
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<INITIAL>{DIGIT}+{MEG}{UNIT}? {
+<INITIAL>{DIGIT}+"."?{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -147,7 +147,7 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}+{MIL}{UNIT}? {
+<INITIAL>{DIGIT}+"."?{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -164,7 +164,7 @@ LEAD I[SDGBEC1-9]
 
 
  /* dealing with Hz */
-<INITIAL>{DIGIT}+{SUFFIX}?{HZ} {
+<INITIAL>{DIGIT}+"."?{SUFFIX}?{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -180,7 +180,7 @@ LEAD I[SDGBEC1-9]
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<INITIAL>{DIGIT}+{MEG}{HZ} {
+<INITIAL>{DIGIT}+"."?{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -195,7 +195,7 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}+{MIL}{HZ} {
+<INITIAL>{DIGIT}+"."?{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
@@ -771,7 +771,7 @@ LEAD I[SDGBEC1-9]
 
 .  { 
     //std::string errStr ("Unrecognized character: " + std::string(YYText())) ; yyerror(errStr);
-    std::cout << "Unrecognized character: " <<  YYText() << std::endl; 
+    std::cout << "Unrecognized character: " <<  YYText() << " in expression " << expressionString << std::endl; 
     }
 
 %%

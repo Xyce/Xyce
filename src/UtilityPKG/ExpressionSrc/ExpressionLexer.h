@@ -9,17 +9,14 @@ namespace Xyce {
 namespace Util {
 
 class ExpressionLexer: public yyFlexLexer
-//class ExpressionLexer: public expFlexLexer
 {
 public:
   ExpressionLexer(
-    //const NetlistLocation &     netlist_location,
-    const std::string &         expression_filename,
+    const std::string & exprStr,
     std::istream *              input = 0,
     std::ostream *              output = 0)
     : yyFlexLexer(input,output),
-      //netlistLocation_(netlist_location),
-      expressionFilename_(expression_filename)
+      expressionString(exprStr)
   {}
 
   virtual ~ExpressionLexer()
@@ -27,8 +24,7 @@ public:
 
   int getToken(XyceExpression::ExpressionParser::semantic_type *lvalp, XyceExpression::location *llocp);
 
-  //const NetlistLocation         netlistLocation_;
-  const std::string &           expressionFilename_;
+  const std::string expressionString;
 };
 
 }

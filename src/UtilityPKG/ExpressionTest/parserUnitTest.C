@@ -7045,6 +7045,69 @@ TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
 }
 
 
+//-------------------------------------------------------------------------------
+// ERK. 6/30/2020.
+//
+// This failed to parse in a recent circuit:  '1e-9*(w==2.0u)+1e9*(w!=2.0u)'
+//
+// The following tests are about this.  It appears that the "==" operator works
+// but the "!=" operator does not, as of this writing.  The reason, as it turns
+// out is because I added "!" to the allowed characters for parameter strings
+// So, w!=2.0 can be interpretted as a parameter named "w!" equals 2.0.  This doesn't
+// happen if there is a space between the w and the "!".  The fix appears to be
+// to just exclude "!" from the TOK_ID in the lexer file.
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_inlineComp, equiv)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2u"), baseGroup)); 
+  wExpression->lexAndParseExpression();
+  std::string wName="w";
+
+  Xyce::Util::newExpression e11(std::string("1e-9*(w==2.0u)"), baseGroup);
+  e11.lexAndParseExpression();
+  e11.attachParameterNode(wName,wExpression);
+
+  //Xyce::Util::newExpression copy_e11(e11); 
+  //Xyce::Util::newExpression assign_e11; 
+  //assign_e11 = e11; 
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e-9);
+  //copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  //assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+
+  OUTPUT_MACRO2(Double_Parser_ternary_precedence, equiv, e11) 
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_inlineComp, notEquiv)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2"), baseGroup)); 
+  wExpression->lexAndParseExpression();
+  std::string wName="w";
+
+  Xyce::Util::newExpression e11(std::string("1e9*(w!=2.0u)"), baseGroup);
+  e11.lexAndParseExpression();
+  e11.attachParameterNode(wName,wExpression);
+
+  //Xyce::Util::newExpression copy_e11(e11); 
+  //Xyce::Util::newExpression assign_e11; 
+  //assign_e11 = e11; 
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e9);
+  //copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  //assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+
+  OUTPUT_MACRO2(Double_Parser_ternary_precedence, notEquiv, e11) 
+}
+
 int main (int argc, char **argv)
 {
   {

@@ -96,7 +96,6 @@ bool newExpression::lexAndParseExpression()
 
   if (traditionalParse_)
   {
-    std::string fileName("bogusTestFile");
     std::stringstream expressionStringStream ( expressionString_ );
 
     // if the expressionString_ is empty, bison will throw an error.  
@@ -107,7 +106,7 @@ bool newExpression::lexAndParseExpression()
     }
     else
     {
-      Xyce::Util::ExpressionLexer expLexer(fileName,&expressionStringStream);
+      Xyce::Util::ExpressionLexer expLexer(expressionString_, &expressionStringStream);
       XyceExpression::ExpressionParser expParser(&expLexer,*this);
       int retCode = expParser.parse();
       parsed_ = (retCode == 0);
