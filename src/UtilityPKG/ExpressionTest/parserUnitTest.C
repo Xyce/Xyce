@@ -209,6 +209,27 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryMinus, "1.0-2.0", (1.0-2.0)
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryMul, "4.0*3.0", (4.0*3.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryDiv, "1.0/4.0", (1.0/4.0) )
 
+// these "extra" tests all came from my needing to add another bunch of lexer rules for processing numbers.
+// Mainly, numbers specified as 1.  or .2, where one side of the decimal point doesn't have a number at all.
+// I couldn't think of a way to handle them with a single regex (or lexer rule).  
+// The regression test that triggered this was Certification_Tests/BUG_80_SON/Bad_PWL_Source.   The test was
+// not about this issue, but it contains a couple of expressions like this.
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra1, "{4.*PI*1.E-7}", (4*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra2, "{.4*PI*.1E-7}", (0.4*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra3, "{4.u*PI*1.E-7}", (4e-6*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra4, "{.4u*PI*.1E-7}", (0.4e-6*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra5, "{4.*PI*1.E-7u}", (4*M_PI *1.0e-7*1.0e-6) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra6, "{.4*PI*.1E-7u}", (0.4*M_PI *0.1e-7*1.0e-6) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra7, "{4.*PI*1.E-7meg}", (4*M_PI *1.0e-7*1.0e+6) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra8, "{.4*PI*.1E-7meg}", (0.4*M_PI *0.1e-7*1.0e+6) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra9, "{4.meg*PI*1.E-7}", (4e+6*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra10, "{.4meg*PI*.1E-7}", (0.4e+6*M_PI *0.1e-7) )
+
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra11, "{4.*PI*1.E-7mil}", (4*M_PI *1.0e-7*(25.4e-6)) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra12, "{.4*PI*.1E-7mil}", (0.4*M_PI *0.1e-7*(25.4e-6)) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra13, "{4.mil*PI*1.E-7}", (4*(25.4e-6)*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAddExtra14, "{.4mil*PI*.1E-7}", (0.4*(25.4e-6)*M_PI *0.1e-7) )
+
 // simple precendence testing (via binary operators):
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence1, "3.0*2.0+4.0", (3.0*2.0+4.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence2, "5.0+4.0/2.0", (5.0+4.0/2.0) )
@@ -536,7 +557,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_AMP,  "SIN(6.0A)", std::
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_HZ,  "SIN(7.0HZ)", std::sin(7.0))
 
-// the next 6 tests were all added when I was trying ot narrow down the problem
+// the next 6 tests were all added when I was trying to narrow down the problem
 // with the lmod_indmod regression test case, which was failing.
 // The issue turned out to be that I didn't include Henrys in the units that 
 // could be handled by the lexer.  So, it (sort of) lexed "10mH", but ignored the "H", and
@@ -1274,6 +1295,11 @@ class solutionGroup : public Xyce::Util::baseExpressionGroup
     internalVars_[lowerName] = val;
   };
 
+  bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+  {
+    return getSolutionVal(deviceName, retval);
+  }
+
   virtual bool getSolutionVal(const std::string & name, double & val )
   {
     bool retval=true;
@@ -1927,7 +1953,7 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, testConflict)
   Xyce::Util::newExpression testExpression(std::string("N+17.2*N(M3:GM)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 
@@ -1936,7 +1962,7 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, testConflict)
   std::string nName = "N";
   testExpression.attachParameterNode(nName,nExpression);
 
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 
@@ -7041,9 +7067,45 @@ TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
   //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  //OUTPUT_MACRO(Double_Parser_Func_Test, test1)
+  OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_user_defined_func)
 }
 
+//-------------------------------------------------------------------------------
+// From: SENS/improperObjFormat.cir
+//
+//  objfunc={{I(VM),V(3)*V(3)}
+//
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_ErrorTest,  bad_obj_func)
+{
+  Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
+
+  // this expression will use the .func udfA.
+  //Xyce::Util::newExpression testExpression(std::string("POW(I(VM),V(3),V(3))"), testGroup);  // this should fail, and does
+  //Xyce::Util::newExpression testExpression(std::string("(I(VM),V(3)*V(3))"), testGroup);  // this should fail in parsing, and does
+  //Xyce::Util::newExpression testExpression(std::string("{I(VM),V(3)*V(3)}"), testGroup);  // this should fail in parsing, and does
+  //Xyce::Util::newExpression testExpression(std::string("I(VM),V(3)*V(3)"), testGroup);  // this should fail in parsing, but does not
+  Xyce::Util::newExpression testExpression(std::string("I(VM)*V(3)*V(3)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+   solGroup->setSoln(std::string("VM"), 2.0);
+   solGroup->setSoln(std::string("3"), 3.0);
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+ 
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, 18.0 );
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 1.0 );
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 1.0 );
+  OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_obj_func)
+}
 
 //-------------------------------------------------------------------------------
 // ERK. 6/30/2020.
@@ -7070,14 +7132,14 @@ TEST ( Double_Parser_inlineComp, equiv)
   e11.lexAndParseExpression();
   e11.attachParameterNode(wName,wExpression);
 
-  //Xyce::Util::newExpression copy_e11(e11); 
-  //Xyce::Util::newExpression assign_e11; 
-  //assign_e11 = e11; 
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
 
   double result=0.0;
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e-9);
-  //copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
-  //assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0e-9);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0e-9);
 
   OUTPUT_MACRO2(Double_Parser_ternary_precedence, equiv, e11) 
 }
@@ -7096,14 +7158,14 @@ TEST ( Double_Parser_inlineComp, notEquiv)
   e11.lexAndParseExpression();
   e11.attachParameterNode(wName,wExpression);
 
-  //Xyce::Util::newExpression copy_e11(e11); 
-  //Xyce::Util::newExpression assign_e11; 
-  //assign_e11 = e11; 
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
 
   double result=0.0;
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e9);
-  //copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
-  //assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0e9);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0e9);
 
   OUTPUT_MACRO2(Double_Parser_ternary_precedence, notEquiv, e11) 
 }

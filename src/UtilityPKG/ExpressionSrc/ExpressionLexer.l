@@ -96,6 +96,8 @@ SOP S[RIMP]?
 YOP Y[RIMP]?
 ZOP Z[RIMP]?
 
+EXPONENT [eE][\-\+]?{DIGIT}{1,3}
+
 SUFFIX [tTgGkKmMxXuUnNpPfF]
 
 MEG [mM][eE][gG]
@@ -126,12 +128,17 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{UNIT}? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
- /* numbers with 3-character suffixes; meg and mil */
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{UNIT}? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+ /* numbers with 3-character suffixes; meg */
 <INITIAL>{DIGIT}+"."?{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
@@ -142,11 +149,17 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MEG}{UNIT}? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MEG}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{MEG}{UNIT}? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+ /* numbers with 3-character suffixes; mil */
 <INITIAL>{DIGIT}+"."?{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
@@ -157,11 +170,15 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MIL}{UNIT}? {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MIL}{UNIT}? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{MIL}{UNIT}? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
 
  /* dealing with Hz */
 <INITIAL>{DIGIT}+"."?{SUFFIX}?{HZ} {
@@ -174,12 +191,17 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{HZ} {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
- /* numbers with 3-character suffixes; meg and mil */
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{SUFFIX}?{HZ} {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+ /* numbers with 3-character suffixes; meg */
 <INITIAL>{DIGIT}+"."?{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
@@ -190,11 +212,17 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MEG}{HZ} {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MEG}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{MEG}{HZ} {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+ /* numbers with 3-character suffixes; mil */
 <INITIAL>{DIGIT}+"."?{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
@@ -205,7 +233,12 @@ LEAD I[SDGBEC1-9]
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}{MIL}{HZ} {
+<INITIAL>{DIGIT}*"."{DIGIT}+[eE][\-\+]?{DIGIT}{1,3}{MIL}{HZ} {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
+  }
+
+<INITIAL>{DIGIT}+"."?[eE][\-\+]?{DIGIT}{1,3}{1,3}{MIL}{HZ} {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
      return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
