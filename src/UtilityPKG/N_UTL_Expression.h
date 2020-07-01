@@ -95,7 +95,6 @@ public:
 
   // ERK some old expressionstuff.  Many of these need to be removed.
   bool set (std::string const & exp);
-  void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
   int get_type (std::string const & var);
   bool make_constant (std::string const & var, double const & val, bool isDotParam=false);
   bool make_var (std::string const & var, bool isDotParam=false);
