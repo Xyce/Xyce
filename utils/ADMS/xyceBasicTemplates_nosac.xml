@@ -894,6 +894,9 @@ struct Traits: public DeviceTraits&lt;Model, Instance
     <admst:join select="node[#collapsible='yes']" separator=",\n    ">
       <admst:text format="collapseNode_%(name)(false)"/>
     </admst:join>
+    <admst:if test="[count(callfunction[function/name='\$bound_step'])>0]">
+      <admst:text format=",\n  maxTimeStep_(getDeviceOptions().defaultMaxTimeStep)"/>
+    </admst:if>
     <admst:text format=",\n    admsTemperature(getDeviceOptions().temp.getImmutableValue&lt;double&gt;())\n"/>
   </admst:template>
 
@@ -6631,7 +6634,7 @@ other variables does not get propagated into a variable's
   <admst:return name="fname" value="$expression"/>
 </admst:template>
 
-<!-- callfunction: handle $strobe -->
+<!-- callfunction: handle $strobe and $bound_step-->
 <admst:template match="callfunction">
   <admst:choose>
     <admst:when test="function[name='\$strobe' or name='\$write'  or name='\$display']">
@@ -6654,6 +6657,16 @@ other variables does not get propagated into a variable's
         </admst:when>
         <admst:otherwise>
           <admst:text format=" UserError(*this) &lt;&lt; &quot;%(function/name) called.&quot; &lt;&lt; std::endl; \n"/>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:when>
+    <admst:when test="function[name='\$bound_step']">
+      <admst:choose>
+        <admst:when test="[$globalCurrentScope ='sensitivity']">
+          <!-- do absolutely nothing -->
+        </admst:when>
+        <admst:otherwise>
+          <admst:text format=" maxTimeStep_ = %(printTerm(function/arguments[1]));\n"/>
         </admst:otherwise>
       </admst:choose>
     </admst:when>

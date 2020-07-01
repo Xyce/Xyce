@@ -2169,6 +2169,24 @@ bool Instance::loadDAEdQdx()
   return bsuccess;
 }
 
+
+<admst:if test="[count($theModule/callfunction[function/name='\$bound_step'])>0]">
+//-----------------------------------------------------------------------------
+// Function      : Instance::getMaxTimeStepSize
+// Purpose       : restrict time integrator max time step
+// Special Notes : 
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+//-----------------------------------------------------------------------------
+double Instance::getMaxTimeStepSize()
+{
+return maxTimeStep_;
+}
+
+</admst:if>
+
+
 //-----------------------------------------------------------------------------
 // Function      : Instance::updateTemperature
 // Purpose       : Set temperature and update any parameters that depend on it
