@@ -75,19 +75,7 @@ Expression::Expression(
    newExpPtr_(NULL),
    grp_(baseGrp_)
 {
-  // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
-  // but I was in a hurry today.
-  std::string expCopy = exp;
-  if ( !(expCopy.empty()))
-  {
-    if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
-    {
-      expCopy.erase(0,1);// lop off open curly brace
-      expCopy.erase(expCopy.length()-1); // lop off close curly brace
-    }
-  }
-
-  newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy,grp_) );
+  newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(exp,grp_) );
 
   if (!(functionArgStringVec.empty()))
   {
