@@ -1897,53 +1897,65 @@ class funcOp: public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-      if (funcArgs_.size() != dummyFuncArgs_.size())
-      {
-#if 0
-        std::vector<std::string> errStr;
-        errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-        errStr.push_back(funcName_);
-        errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-        errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
-        yyerror(errStr);
-#endif
-      }
-      else
-      {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_INTERESTING_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-      }
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_PARAM_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_FUNC_ARG_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_FUNC_OPS(functionNode_)
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_VOLT_OPS(functionNode_)
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_CURRENT_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_TIME_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
     bool getNodeResolved() { return nodeResolved_; }
@@ -3595,10 +3607,7 @@ class ddxOp : public astNode<ScalarT>
 {
   public:
     ddxOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right) , foundX_(false)
-    {
-      resolveArg_();
-    }
+      astNode<ScalarT>(left,right) , foundX_(false) { }
 
     void resolveArg_()
     {
@@ -3699,8 +3708,15 @@ class ddxOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("DDX unsupported type"));
         yyerror(errStr);
       }
+    };
 
-      if (!foundX_)
+    virtual ScalarT val()
+    {
+      ScalarT ret = 0.0;
+
+      if( !foundX_ ) { resolveArg_(); }
+
+      if (!foundX_ || (Teuchos::is_null( astNodeX_)))
       {
         std::string msg = "DDX argument ";
         std::string tmp;
@@ -3731,26 +3747,20 @@ class ddxOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,msg);
         yyerror(errStr);
       }
-    };
 
-    virtual ScalarT val()
-    {
-      ScalarT ret = 0.0;
-      if( !(Teuchos::is_null( astNodeX_)))
-      {
-        astNodeX_->setDerivIndex(0);
-        astNodeX_->setIsVar();
-        ret = this->leftAst_->dx(0);
-        astNodeX_->unsetDerivIndex();
-        astNodeX_->unsetIsVar();
-      }
+      astNodeX_->setDerivIndex(0);
+      astNodeX_->setIsVar();
+      ret = this->leftAst_->dx(0);
+      astNodeX_->unsetDerivIndex();
+      astNodeX_->unsetIsVar();
+
       return ret;
     };
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (ddx) without a dx function"));
-      yyerror(errStr);
+      //std::vector<std::string> errStr(1,std::string("AST node (ddx) without a dx function"));
+      //yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
     }

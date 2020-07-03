@@ -4949,9 +4949,9 @@ TEST ( Double_Parser_calculus, derivsThruFuncs6 )
   double Bval=2.5;
   solnFuncGroup->setSoln(std::string("B"),Bval);
   double result;
-  double refRes = 1.25e-01; 
+  double refRes = 1.0;
 
-#if 1
+#if 0
   derivFuncTestExpr.dumpParseTree(std::cout);
 #endif
 
@@ -4996,9 +4996,9 @@ TEST ( Double_Parser_calculus, derivsThruFuncs7 )
   double Bval=2.5;
   solnFuncGroup->setSoln(std::string("B"),Bval);
   double result;
-  double refRes = 1.25e-01; 
+  double refRes = 1.0;
 
-#if 1
+#if 0
   derivFuncTestExpr.dumpParseTree(std::cout);
 #endif
 
