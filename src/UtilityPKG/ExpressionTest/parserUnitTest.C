@@ -4919,6 +4919,98 @@ TEST ( Double_Parser_calculus, derivsThruFuncs5 )
   EXPECT_EQ( derivs,derivsRef);
 }
 
+//
+TEST ( Double_Parser_calculus, derivsThruFuncs6 )
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
+
+  // this expression is the RHS of a .func statement:  .func F1(A,B) {A-B}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A-B"), testGroup));
+  std::vector<std::string> f1ArgStrings;
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->lexAndParseExpression();
+
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  Xyce::Util::newExpression derivFuncTestExpr(std::string("DDX(F1(V(B),3.0),V(B))"), testGroup); 
+  derivFuncTestExpr.lexAndParseExpression();
+  derivFuncTestExpr.attachFunctionNode(f1Name, f1Expression);
+
+  //Xyce::Util::newExpression copy_derivFuncTestExpr(derivFuncTestExpr); 
+  //Xyce::Util::newExpression assign_derivFuncTestExpr; 
+  //assign_derivFuncTestExpr = derivFuncTestExpr; 
+
+  double Bval=2.5;
+  solnFuncGroup->setSoln(std::string("B"),Bval);
+  double result;
+  double refRes = 1.25e-01; 
+
+#if 1
+  derivFuncTestExpr.dumpParseTree(std::cout);
+#endif
+
+  derivFuncTestExpr.evaluateFunction(result);       EXPECT_EQ(result, refRes);
+  //copy_derivFuncTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
+  //assign_derivFuncTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+}
+
+//
+TEST ( Double_Parser_calculus, derivsThruFuncs7 )
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
+
+  // this expression is the RHS of a .global_param statement:  .global_param P1 {V(B)}
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("V(B)"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "P1";
+
+  // this expression is the RHS of a .func statement:  .func F1(A,B) {A-B}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A-B"), testGroup));
+  std::vector<std::string> f1ArgStrings;
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->lexAndParseExpression();
+
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  Xyce::Util::newExpression derivFuncTestExpr(std::string("DDX(F1(P1,3.0),P1)"), testGroup); 
+  derivFuncTestExpr.lexAndParseExpression();
+  derivFuncTestExpr.attachFunctionNode(f1Name, f1Expression);
+  derivFuncTestExpr.attachParameterNode(p1Name , p1Expression);
+
+  //Xyce::Util::newExpression copy_derivFuncTestExpr(derivFuncTestExpr); 
+  //Xyce::Util::newExpression assign_derivFuncTestExpr; 
+  //assign_derivFuncTestExpr = derivFuncTestExpr; 
+
+  double Bval=2.5;
+  solnFuncGroup->setSoln(std::string("B"),Bval);
+  double result;
+  double refRes = 1.25e-01; 
+
+#if 1
+  derivFuncTestExpr.dumpParseTree(std::cout);
+#endif
+
+  derivFuncTestExpr.evaluateFunction(result);       EXPECT_EQ(result, refRes);
+  //copy_derivFuncTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
+  //assign_derivFuncTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+}
+
+
+
+
+
 //class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
 class solnExpressionGroup2 : public Xyce::Util::baseExpressionGroup
 {
