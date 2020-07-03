@@ -915,23 +915,24 @@ bool Expression::replace_name ( const std::string & old_name,
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::isTimeDependent
-// Purpose       : Return true if expression is either explicitly or implicitly
+// Purpose       : Return true if expression is either explicitly OR implicitly
 //                 time dependent
-// Special Notes : The ExpressionInternals::isTimeDependent method only returns
-//                 true if the expression is implicitly time dependent.
-//
-//                 It is impossible at this time for indirect time dependence
-//                 through global_params to be detected through this method.
-//
+// Special Notes : 
 // Scope         :
-// Creator       : Richard Schiek, SNL
+// Creator       : 
 // Creation Date : 10/07/2013
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
-  // ERK. Not done.  Probably do need this.
-  //return false;
-  return true;
+  // ERK. This is important so that (for example) capacitors with expression 
+  // dependent capacitance aren't calling updateTemperature over and over 
+  // again.   If they think an expression dependent parameter is time 
+  // dependent, then they are obligated to keep re-evaluating it.
+  // So, this needs to give the right answer.
+  bool explicitTimeDep = newExpPtr_->getTimeDependent();
+  bool sdtDep = !(newExpPtr_->getSdtOpVec().empty());
+  bool ddtDep = !(newExpPtr_->getDdtOpVec().empty());
+  return (explicitTimeDep || sdtDep || ddtDep);
 }
 
 //-----------------------------------------------------------------------------
