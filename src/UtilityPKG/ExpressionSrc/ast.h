@@ -3702,7 +3702,33 @@ class ddxOp : public astNode<ScalarT>
 
       if (!foundX_)
       {
-        std::vector<std::string> errStr(1,std::string("DDX argument not resolved"));
+        std::string msg = "DDX argument ";
+        std::string tmp;
+        if (this->rightAst_->paramType() || this->rightAst_->getFunctionArgType())
+        {
+          tmp = this->rightAst_->getName();
+        }
+        else if (this->rightAst_->currentType())
+        {
+          tmp = "I(" + this->rightAst_->getName() + ")";
+        }
+        else if (this->rightAst_->voltageType())
+        {
+          std::vector<std::string> tmpVec = this->rightAst_->getNodeNames();
+          if (!(tmpVec.empty()))
+          {
+            tmp = "V(";
+            for (int ii=0;ii<tmpVec.size();ii++)
+            {
+              tmp += tmpVec[ii];
+              if (tmpVec.size() > 1 && ii > 0 &&  ii < tmpVec.size()-1) { tmp+= ","; }
+            }
+            tmp += ")";
+          }
+        }
+        msg += tmp + " not resolved";
+
+        std::vector<std::string> errStr(1,msg);
         yyerror(errStr);
       }
     };
@@ -3735,6 +3761,7 @@ class ddxOp : public astNode<ScalarT>
       os << "ddx (derivative) operator " << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
     }
 
     virtual void codeGen (std::ostream & os )
