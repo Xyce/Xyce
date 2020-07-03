@@ -632,7 +632,6 @@ bool DeviceEntity::setParam(const std::string & paramName, double val, bool over
   }
 
 
-#if 1
   // ERK.  This is an experiment for newExpression.    It is to address the following use case:
   // 
   // .global_param vdi=0.5
@@ -648,7 +647,6 @@ bool DeviceEntity::setParam(const std::string & paramName, double val, bool over
   //
   //
   dependentParamExcludeMap_[paramName] = 1;
-#endif
   
   return true;
 }
