@@ -42,6 +42,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_LAFactory.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_QueryUtil.h>
@@ -58,7 +59,6 @@
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Map.h>
 #include <Epetra_Export.h>
-#include <EpetraExt_View_CrsGraph.h>
 #include <EpetraExt_BlockMapOut.h>
 
 using std::max;
@@ -184,8 +184,8 @@ Matrix * Builder::createMatrix(const double initialValue) const
 
   Matrix * mat = 0;
 
-  Epetra_CrsGraph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
-  Epetra_CrsGraph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
+  const Graph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
+  const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
 
   mat = new Matrix( overlapGraph, baseGraph );
 
@@ -434,7 +434,8 @@ bool Builder::generateGraphs()
   }
   overlapGraph->FillComplete();
   overlapGraph->OptimizeStorage();
-  pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, overlapGraph );
+  Graph * oGraph = new Graph( Teuchos::rcp( overlapGraph ) );
+  pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, oGraph );
 
   if( pdsMgr_->getPDSComm()->isSerial() )
   {
@@ -451,11 +452,12 @@ bool Builder::generateGraphs()
 
     localGraph->FillComplete();
     localGraph->OptimizeStorage();
+    Graph * lGraph = new Graph( Teuchos::rcp( localGraph ) );
 
     if (VERBOSE_LINEAR)
       Xyce::lout() << "Local Graph Transformed!\n"  << std::endl;
 
-    pdsMgr_->addMatrixGraph( Parallel::JACOBIAN, localGraph );
+    pdsMgr_->addMatrixGraph( Parallel::JACOBIAN, lGraph );
   }
 
   // Clean up GID arrays in lasQueryUtil
@@ -554,15 +556,15 @@ bool Builder::setupSeparatedLSObjects()
   // for A and B are static, where C and D can change over the course of a transient.
   //
   Epetra_Map * baseMap = pdsMgr_->getParallelMap(Parallel::SOLUTION)->petraMap();
-  Epetra_CrsGraph * baseFullGraph = pdsMgr_->getMatrixGraph(Parallel::JACOBIAN);
-  int numLocalRows = baseFullGraph->NumMyRows();
+  const Epetra_CrsGraph & baseFullGraph = *(pdsMgr_->getMatrixGraph(Parallel::JACOBIAN)->epetraObj());
+  int numLocalRows = baseFullGraph.NumMyRows();
 
   std::vector<int> linArrayNZs(numLocalRows), nonlinArrayNZs(numLocalRows);
   std::vector<int> linNLArrayNZs(numLocalRows), nlLinArrayNZs(numLocalRows);
   std::vector< std::vector<int> > linArrayCols(numLocalRows), nonlinArrayCols(numLocalRows);
   std::vector< std::vector<int> > linNLArrayCols(numLocalRows), nlLinArrayCols(numLocalRows);
  
-  int numIndices, maxIndices = baseFullGraph->MaxNumIndices();
+  int numIndices, maxIndices = baseFullGraph.MaxNumIndices();
   std::vector<int> Indices(maxIndices); 
 
   // Check if there are any linear GID entries in linArrayCols.  If not, this linear variable
@@ -571,7 +573,7 @@ bool Builder::setupSeparatedLSObjects()
   std::vector<int>::iterator lin_it = linGIDs.begin();
   for ( ; lin_it != linGIDs.end(); lin_it++ )
   {
-    baseFullGraph->ExtractGlobalRowCopy( *lin_it, maxIndices, numIndices, &Indices[0] );
+    baseFullGraph.ExtractGlobalRowCopy( *lin_it, maxIndices, numIndices, &Indices[0] );
     std::sort( Indices.begin(), Indices.begin()+numIndices );
 
     // There are no linear GIDs associated with this linear row, move it to a nonlinear GID.
@@ -602,7 +604,7 @@ bool Builder::setupSeparatedLSObjects()
     std::vector<int>::iterator found_it = std::find( linGIDs.begin(), linGIDs.end(), arrayGIDs[i] );
 
     int baseRow = baseMap->GID(i);
-    baseFullGraph->ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &Indices[0] );
+    baseFullGraph.ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &Indices[0] );
     std::sort( Indices.begin(), Indices.begin()+numIndices );
 
     // Check if this is a row associated with a linear device
@@ -666,7 +668,7 @@ bool Builder::setupSeparatedLSObjects()
   pdsMgr_->addParallelMap(Parallel::LINEAR_SOLUTION, linSolnMap);
   pdsMgr_->addParallelMap(Parallel::NONLINEAR_SOLUTION, nonlinSolnMap);
 
-  //if (DEBUG_LINEAR)
+  if (DEBUG_LINEAR)
   {
     Xyce::dout() << "Linear Solution Map:" << std::endl;
     linSolnMap->petraMap()->Print(std::cout);
@@ -729,10 +731,14 @@ bool Builder::setupSeparatedLSObjects()
   nlLinearGraph->FillComplete();
   nlLinearGraph->OptimizeStorage();
 
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN, linearGraph );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LIN_NONLIN_JACOBIAN, linearNLGraph );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLINEAR_JACOBIAN, nonlinGraph );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLIN_LIN_JACOBIAN, nlLinearGraph );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN, 
+                           new Graph( Teuchos::rcp(linearGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LIN_NONLIN_JACOBIAN,
+                           new Graph( Teuchos::rcp(linearNLGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLINEAR_JACOBIAN,
+                           new Graph( Teuchos::rcp(nonlinGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLIN_LIN_JACOBIAN, 
+                           new Graph( Teuchos::rcp(nlLinearGraph) ) );
 
   lcl_linearGraph->FillComplete();
   lcl_linearGraph->OptimizeStorage();
@@ -743,12 +749,16 @@ bool Builder::setupSeparatedLSObjects()
   lcl_nlLinearGraph->FillComplete( *linSolnMap->petraMap(), *nonlinSolnMap->petraMap() );
   lcl_nlLinearGraph->OptimizeStorage();
 
-  pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, lcl_linearGraph );
-  pdsMgr_->addMatrixGraph( Parallel::LIN_NONLIN_JACOBIAN, lcl_linearNLGraph );
-  pdsMgr_->addMatrixGraph( Parallel::NONLINEAR_JACOBIAN, lcl_nonlinGraph );
-  pdsMgr_->addMatrixGraph( Parallel::NONLIN_LIN_JACOBIAN, lcl_nlLinearGraph );
+  pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, 
+                           new Graph( Teuchos::rcp(lcl_linearGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::LIN_NONLIN_JACOBIAN, 
+                           new Graph( Teuchos::rcp(lcl_linearNLGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::NONLINEAR_JACOBIAN,
+                           new Graph( Teuchos::rcp(lcl_nonlinGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::NONLIN_LIN_JACOBIAN, 
+                           new Graph( Teuchos::rcp(lcl_nlLinearGraph) ) );
 
-  //if (DEBUG_LINEAR)
+  if (DEBUG_LINEAR)
   {
     std::cout << "Linear graph: " << std::endl;
     linearGraph->Print(std::cout);  
@@ -766,9 +776,9 @@ bool Builder::setupSeparatedLSObjects()
     nlLinearGraph->Print(std::cout); 
     std::cout << "Local Nonlinear->Linear graph: " << std::endl;
     lcl_nlLinearGraph->Print(std::cout); 
-    Epetra_CrsGraph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
+    const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
     std::cout << "Base graph: " << std::endl;
-    baseGraph->Print(std::cout);
+    baseGraph->epetraObj()->Print(std::cout);
   }
 
   return true;
@@ -800,10 +810,10 @@ void Builder::getSeparatedSolnMap( RCP<N_PDS_ParMap>& linear_map,
 // Creator       : Heidi Thornquist and Ting Mei, Electrical Simulation and Modeling
 // Creation Date : 04/01/15
 //-----------------------------------------------------------------------------
-void Builder::getSeparatedGraph( RCP<Epetra_CrsGraph>& linear_graph,
-                                 RCP<Epetra_CrsGraph>& linNonlin_graph,
-                                 RCP<Epetra_CrsGraph>& nonlin_graph,
-                                 RCP<Epetra_CrsGraph>& nonlinLin_graph
+void Builder::getSeparatedGraph( RCP<const Graph>& linear_graph,
+                                 RCP<const Graph>& linNonlin_graph,
+                                 RCP<const Graph>& nonlin_graph,
+                                 RCP<const Graph>& nonlinLin_graph
                                ) const
 {
   linear_graph = Teuchos::rcp(pdsMgr_->getMatrixGraph( Parallel::LINEAR_JACOBIAN ),false);
@@ -821,10 +831,10 @@ void Builder::getSeparatedGraph( RCP<Epetra_CrsGraph>& linear_graph,
 // Creator       : Heidi Thornquist and Ting Mei, Electrical Simulation and Modeling
 // Creation Date : 04/01/15
 //-----------------------------------------------------------------------------
-void Builder::getGlobalSeparatedGraph( RCP<Epetra_CrsGraph>& linear_graph,
-                                       RCP<Epetra_CrsGraph>& linNonlin_graph,
-                                       RCP<Epetra_CrsGraph>& nonlin_graph,
-                                       RCP<Epetra_CrsGraph>& nonlinLin_graph
+void Builder::getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
+                                       RCP<const Graph>& linNonlin_graph,
+                                       RCP<const Graph>& nonlin_graph,
+                                       RCP<const Graph>& nonlinLin_graph
                                      ) const
 {
   linear_graph = Teuchos::rcp(pdsMgr_->getMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN ),false);

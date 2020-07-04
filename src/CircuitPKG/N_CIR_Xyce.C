@@ -1170,7 +1170,7 @@ Simulator::RunStatus Simulator::initializeLate()
 //                 in the netlist
 // Special Notes : "modelGroupName" takes a string of the form the devices would
 //                 have when instantiated in a netlist, e.g. "R" for resistors or 
-//                 "YXYGRA" for Xygra devices.  For U devices, the modelGroupName would
+//                 "YGENEXT" for GenExt devices.  For U devices, the modelGroupName would
 //                 be "BUF" and not UBUF".  The returned device name(s) will be the 
 //                 fully qualified name(s), including any subcircuit hierarchy.
 //                 For a YADC device named ADC1, it would be YADC!ADC1.
@@ -1833,8 +1833,8 @@ bool Simulator::obtainResponse(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceMgr::getXygraInstancePtr_
-// Purpose       : Returns the pointer to a named Xygra device instance
+// Function      : DeviceMgr::getDACInstancePtr_
+// Purpose       : Returns the pointer to a named DAC device instance
 // Special Notes :
 // Scope         : PRIVATE
 // Creator       : Tom Russo, SNL, Electrical and Microsystems Modeling

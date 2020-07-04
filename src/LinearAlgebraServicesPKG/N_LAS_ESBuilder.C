@@ -42,6 +42,7 @@
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_QueryUtil.h>
+#include <N_LAS_Graph.h>
 
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
@@ -52,7 +53,6 @@
 
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
-#include <Epetra_CrsGraph.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
@@ -217,7 +217,7 @@ Matrix * ESBuilder::createMatrix( double initialValue ) const
 //-----------------------------------------------------------------------------
 Teuchos::RCP<BlockMatrix> ESBuilder::createBlockMatrix( double initialValue ) const
 {
-  return rcp (new Linear::BlockMatrix( numSamples_, offset_, blockPattern_, *blockGraph_, *BaseFullGraph_) );
+  return rcp (new Linear::BlockMatrix( numSamples_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -374,14 +374,14 @@ bool ESBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurren
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-bool ESBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
+bool ESBuilder::generateGraphs( const Graph& baseFullGraph )
 {
   if( Teuchos::is_null(BaseMap_) )
     Xyce::Report::DevelFatal0().in("ESBuilder::generateGraphs")
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  BaseFullGraph_ = rcp(new Epetra_CrsGraph( BaseFullGraph ));
+  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
 
   int numBlocks = numSamples_;
   blockPattern_.clear();
@@ -392,7 +392,7 @@ bool ESBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
     blockPattern_[i][0] = i; 
   }
 
-  blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *ESMap_, *BaseFullGraph_ );
+  blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *ESMap_, *baseFullGraph_ );
 
   return true;
 }

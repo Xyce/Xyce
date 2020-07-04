@@ -84,7 +84,6 @@
 #include <N_DEV_Vcvs.h>
 #include <N_DEV_VDMOS.h>
 #include <N_DEV_Vsrc.h>
-#include <N_DEV_Xygra.h>
 #include <N_DEV_TransLine.h>
 #include <N_DEV_YLin.h>
 #include <N_DEV_PowerGrid.h>
@@ -147,7 +146,6 @@ registerOpenDevices(const DeviceCountMap& deviceMap,
   AntiWindupLimiter::registerDevice(deviceMap, levelSet);
   StepDelay::registerDevice(deviceMap, levelSet);
   Battery::registerDevice(deviceMap, levelSet);
-  Xygra::registerDevice(deviceMap, levelSet);
   GeneralExternal::registerDevice(deviceMap, levelSet);
 
   if (includeMI)

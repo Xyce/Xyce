@@ -7,5 +7,4 @@ SUBDIRS = \
   DeviceInterface \
   RandomTest \
   GenExtTestHarnesses \
-  XygraTestHarnesses \
   TwoLevelNewton $(MAYBE_VPITESTS)

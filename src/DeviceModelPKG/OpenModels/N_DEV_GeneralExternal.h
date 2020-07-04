@@ -267,7 +267,7 @@ private:
   void setupDenseJacStamp_();
 
 public:
-  // iterator reference to the Xygra model which owns this instance.
+  // iterator reference to the general external model which owns this instance.
   // Getters and setters
   Model &getModel()
   {

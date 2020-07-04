@@ -29,7 +29,6 @@ libOpenModels_la_SOURCES = \
   N_DEV_MutIndLin.C \
   N_DEV_MutIndNonLin.C \
   N_DEV_MutIndNonLin2.C \
-  N_DEV_Xygra.C \
   N_DEV_OpAmp.C \
   N_DEV_Digital.C \
   N_DEV_VDMOS.C \
@@ -80,7 +79,6 @@ libOpenModels_la_SOURCES = \
   N_DEV_MutIndLin.h \
   N_DEV_MutIndNonLin.h \
   N_DEV_MutIndNonLin2.h \
-  N_DEV_Xygra.h \
   N_DEV_OpAmp.h \
   N_DEV_Digital.h \
   N_DEV_VDMOS.h \

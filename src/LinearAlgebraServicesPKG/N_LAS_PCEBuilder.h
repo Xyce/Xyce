@@ -53,9 +53,6 @@
 // ---------- Forward Declarations ----------
 
 
-class Epetra_Map;
-class Epetra_CrsGraph;
-
 class N_PDS_ParMap;
 
 namespace Xyce {
@@ -142,8 +139,8 @@ class PCEBuilder : public Builder
   bool generateLeadCurrentMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
 
   bool generateGraphs( 
-    const Epetra_CrsGraph & pceGraph,
-      const Epetra_CrsGraph & BaseFullGraph );
+    const Graph& pceGraph,
+    const Graph& baseFullGraph );
 
   // Return maps for sampling linear system.
   Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const
@@ -202,10 +199,10 @@ private:
   Teuchos::RCP<N_PDS_ParMap> BaseStoreMap_;
   Teuchos::RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
 
-  Teuchos::RCP<Epetra_CrsGraph> pceGraph_;
-  Teuchos::RCP<Epetra_CrsGraph> BaseFullGraph_;
-  Teuchos::RCP<Epetra_CrsGraph> blockGraph_;
-  Teuchos::RCP<Epetra_CrsGraph> quadBlockGraph_;
+  Teuchos::RCP<Graph> pceGraph_;
+  Teuchos::RCP<Graph> baseFullGraph_;
+  Teuchos::RCP<Graph> blockGraph_;
+  Teuchos::RCP<Graph> quadBlockGraph_;
 
   std::vector<std::vector<int> > blockPattern_;
   std::vector<std::vector<int> > quadBlockPattern_;

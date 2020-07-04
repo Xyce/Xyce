@@ -112,8 +112,8 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern,
-                                                N_PDS_ParMap& blockMap, const Epetra_CrsGraph& baseGraph );
+Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern,
+                                      N_PDS_ParMap& blockMap, const Graph& baseGraph );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockFreqERFParMap

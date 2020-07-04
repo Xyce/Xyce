@@ -70,12 +70,13 @@ namespace Linear {
 BlockMatrix::BlockMatrix( int size,
                           int offset,
                           const std::vector< std::vector<int> > & blockColumns,
-                          const Epetra_CrsGraph & globalGraph,
-                          const Epetra_CrsGraph & subBlockGraph,
+                          const Graph* globalGraph,
+                          const Graph* subBlockGraph,
                           int augmentCount )
-: Matrix( new Epetra_CrsMatrix( Copy, globalGraph ), true ),
+
+: Matrix( new Epetra_CrsMatrix( Copy, *(globalGraph->epetraObj()) ), true ),
   blocksViewGlobalMat_(true),
-  blockSize_( subBlockGraph.NumMyRows() ),
+  blockSize_( subBlockGraph->epetraObj()->NumMyRows() ),
   offset_( offset ),
   numBlockRows_( size ),
   augmentCount_( augmentCount ),
@@ -83,7 +84,7 @@ BlockMatrix::BlockMatrix( int size,
   blocks_( size )
 {
   // Individual blocks cannot be a view of the global matrix because of graph ordering and communication
-  if ( globalGraph.Comm().NumProc() > 1 )
+  if ( globalGraph->epetraObj()->Comm().NumProc() > 1 )
   {
     blocksViewGlobalMat_ = false;
 
@@ -93,18 +94,18 @@ BlockMatrix::BlockMatrix( int size,
       blocks_[i].resize( numCols );
       for( int j = 0; j < numCols; ++j )
       {
-        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( Copy, subBlockGraph );
+        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( Copy, *(subBlockGraph->epetraObj()) );
         blocks_[i][j] = Teuchos::rcp( new Matrix( bMat ) );
       }
     }
 
     // Get the local indices for the sub block so assembling is easier
     baseNumCols_.resize( blockSize_ );
-    baseIndices_.resize( subBlockGraph.NumMyNonzeros() );
+    baseIndices_.resize( subBlockGraph->epetraObj()->NumMyNonzeros() );
     int ptr = 0;
     for( int i = 0; i < blockSize_; ++i )
     {
-      subBlockGraph.ExtractMyRowCopy( i, subBlockGraph.NumMyNonzeros()-ptr, baseNumCols_[i], &baseIndices_[ptr] );
+      subBlockGraph->epetraObj()->ExtractMyRowCopy( i, subBlockGraph->epetraObj()->NumMyNonzeros()-ptr, baseNumCols_[i], &baseIndices_[ptr] );
       ptr += baseNumCols_[i];
     }
   }
@@ -113,7 +114,7 @@ BlockMatrix::BlockMatrix( int size,
     std::vector<int> baseNumCols( blockSize_ );
     std::vector< int* > baseIndices( blockSize_ );
     for( int i = 0; i < blockSize_; ++i )
-      subBlockGraph.ExtractMyRowView( i, baseNumCols[i], baseIndices[i] );
+      subBlockGraph->epetraObj()->ExtractMyRowView( i, baseNumCols[i], baseIndices[i] );
 
     std::vector< double* > Values( blockSize_ );
     int NumEntries;
@@ -128,7 +129,7 @@ BlockMatrix::BlockMatrix( int size,
 
       for( int j = 0; j < numCols; ++j )
       {
-        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( View, subBlockGraph );
+        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( View, *(subBlockGraph->epetraObj()) );
 
         for( int k = 0; k < blockSize_; ++k )
           bMat->InsertMyValues( k, baseNumCols[k], Values[k]+j*baseNumCols[k], baseIndices[k] );
@@ -145,14 +146,14 @@ BlockMatrix::BlockMatrix( int size,
     int augStart = blockSize_ * size;
     for( int i = 0; i < augmentCount_; ++i )
     {
-      augmentGIDs_[i] = globalGraph.RowMap().GID(augStart+i);
+      augmentGIDs_[i] = globalGraph->epetraObj()->RowMap().GID(augStart+i);
     }
   }
 
   // Communicate the augmented GIDs to all processors.
   // All other processors other than the one that owns the augmented GID will have -1.
   std::vector<int> tmpAugmentGIDs = augmentGIDs_;
-  globalGraph.Comm().MaxAll( &tmpAugmentGIDs[0], &augmentGIDs_[0], augmentCount_ );
+  globalGraph->epetraObj()->Comm().MaxAll( &tmpAugmentGIDs[0], &augmentGIDs_[0], augmentCount_ );
 }
 
 //-----------------------------------------------------------------------------

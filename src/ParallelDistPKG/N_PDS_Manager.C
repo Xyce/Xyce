@@ -43,11 +43,7 @@
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
 #include <N_PDS_ParMap.h>
-
-#include <Epetra_CrsGraph.h>
-
-#undef HAVE_LIBPARMETIS
-#include <EpetraExt_View_CrsGraph.h>
+#include <N_LAS_Graph.h>
 
 namespace Xyce {
 namespace Parallel {
@@ -67,8 +63,7 @@ Manager::Manager(
   : pdsComm_(0),
     parMaps_(),
     globalAccessors_(),
-    matrixGraphs_(),
-    matrixGraphTransforms_()
+    matrixGraphs_()
 {
   pdsComm_ = Xyce::Parallel::createPDSComm(iargs, cargs, comm);
 }
@@ -207,7 +202,7 @@ Manager::addGlobalAccessor(
 
   if (!parMaps_[id])
   {
-    Report::DevelFatal0().in("Manager::addParallelMap") << "ParallelMap " << id << " has not been created";
+    Report::DevelFatal0().in("Manager::addParallelMap") << "Parallel Map " << id << " has not been created";
     return 0;
   }
 
@@ -256,8 +251,7 @@ N_PDS_GlobalAccessor * Manager::createGlobalAccessor()
 bool
 Manager::addMatrixGraph(
   int                           id,
-  Epetra_CrsGraph *             graph,
-  EpetraExt::CrsGraph_View *    trans )
+  Linear::Graph *               graph )
 {
   if (matrixGraphs_[id])
   {
@@ -266,9 +260,6 @@ Manager::addMatrixGraph(
   }
 
   matrixGraphs_[ id ] = graph;
-
-  if (trans)
-    matrixGraphTransforms_[ id ] = trans;
 
   return true;
 }
@@ -299,9 +290,6 @@ Manager::linkMatrixGraph(
   linkedMapsGraphs_[new_id] = link_id;
   matrixGraphs_[new_id] = matrixGraphs_[link_id];
 
-  if (matrixGraphTransforms_[link_id])
-    matrixGraphTransforms_[new_id] = matrixGraphTransforms_[link_id];  
- 
   return true;
 }
 
@@ -317,15 +305,8 @@ bool Manager::deleteMatrixGraph( int id )
 {
   if (linkedMapsGraphs_.find( id ) == linkedMapsGraphs_.end())
   {
-    if (matrixGraphTransforms_[id]) {
-      delete matrixGraphTransforms_[id];
-      matrixGraphTransforms_[id] = 0;
-      matrixGraphs_[id] = 0;
-    }
-    else {
-      delete matrixGraphs_[id];
-      matrixGraphs_[id] = 0;
-    }
+    delete matrixGraphs_[id];
+    matrixGraphs_[id] = 0;
   }
 
   return true;

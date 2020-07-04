@@ -43,16 +43,11 @@
 #include <map>
 
 #include <N_PDS_fwd.h>
+#include <N_LAS_fwd.h>
 
 #ifdef Xyce_PARALLEL_MPI
 #include <mpi.h>
 #endif
-
-class Epetra_CrsGraph;
-
-namespace EpetraExt {
-class CrsGraph_View;
-}
 
 namespace Xyce {
 namespace Parallel {
@@ -119,7 +114,7 @@ public:
   }
 
     // Gets a matrix graph object.
-  Epetra_CrsGraph * getMatrixGraph(int id)
+  const Linear::Graph * getMatrixGraph(int id) const
   {
     return matrixGraphs_[id];
   }
@@ -150,8 +145,7 @@ public:
   // Add a matrix graph object
   bool addMatrixGraph(
     int                         id,
-    Epetra_CrsGraph *           graph,
-    EpetraExt::CrsGraph_View *  trans = 0 );
+    Linear::Graph *             graph );
 
   bool linkMatrixGraph(int new_id, int link_id);
 
@@ -162,8 +156,7 @@ private:
   Communicator *                pdsComm_;               ///< Pointer to the PDS_Comm object.
   N_PDS_ParMap *                parMaps_[MAP_COUNT];
   N_PDS_GlobalAccessor *        globalAccessors_[MAP_COUNT];
-  Epetra_CrsGraph *             matrixGraphs_[MAP_COUNT];
-  EpetraExt::CrsGraph_View *    matrixGraphTransforms_[MAP_COUNT];
+  Linear::Graph *               matrixGraphs_[MAP_COUNT];
 
   std::map<int,int>             linkedMapsGraphs_;
 };

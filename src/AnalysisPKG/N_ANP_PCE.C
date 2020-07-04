@@ -81,6 +81,7 @@
 // new PCE loader class
 #include <N_LOA_PCELoader.h>
 
+#include <N_LAS_Graph.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_System.h>
@@ -867,7 +868,6 @@ void  PCE::setupBlockSystemObjects ()
   pceLoaderPtr_->registerPCEquadMethod (quadMethod) ;
   pceLoaderPtr_->registerPCEexpnMethod (expnMethod) ;
   pceLoaderPtr_->registerPCEtripleProductTensor (Cijk) ;
-  pceLoaderPtr_->registerPCEgraph (pceGraph);
 
   //-----------------------------------------
 
@@ -1009,18 +1009,18 @@ void PCE::setupStokhosObjects ()
        *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()),file);
   }
 
-  pceGraph = Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk,
-     *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()) );
+  pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk,
+     *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()) ) ) );
 
-  numBlockRows_ = pceGraph->NumMyRows();
+  numBlockRows_ = pceGraph->epetraObj()->NumMyRows();
 
 #if 0
   std::cout << "Cijk:" <<std::endl;
   Cijk->print(std::cout);
 
   // this is the matrix that gets output to A.mm
-  Epetra_CrsMatrix mat(Copy, *pceGraph);
-  pceGraph->PrintGraphData(std::cout);
+  Epetra_CrsMatrix mat(Copy, *pceGraph->epetraObj());
+  pceGraph->epetraObj()->PrintGraphData(std::cout);
   mat.Print(std::cout);
 #endif
 #endif

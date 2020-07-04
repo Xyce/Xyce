@@ -43,6 +43,7 @@
 #include <N_PDS_fwd.h>
 #include <N_TOP_fwd.h>
 #include <N_IO_fwd.h>
+#include <N_LAS_fwd.h>
 
 #include <N_ANP_UQSupport.h>
 #include <N_ANP_AnalysisBase.h>
@@ -253,7 +254,7 @@ private:
 
   bool useSparseGrid_;
 
-  Teuchos::RCP<Epetra_CrsGraph> pceGraph;
+  Teuchos::RCP<Linear::Graph> pceGraph;
 #endif
 
   bool stdOutputFlag_;

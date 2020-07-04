@@ -64,10 +64,6 @@
 #include <N_PDS_ParMap.h>
 #include <N_DEV_DeviceMgr.h>
 
-#include <Epetra_BlockMap.h>
-#include <Epetra_CrsGraph.h>
-#include <Epetra_CrsMatrix.h>
-
 #include <N_PDS_Comm.h>  
 
 using Teuchos::rcp;
@@ -169,20 +165,6 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 
   b_dV_voltlim_quad_Ptr_ = pceBuilderPtr_->createQuadBlockVector();
   b_dV_voltlim_coef_Ptr_ = pceBuilderPtr_->createBlockVector();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCELoader::registerPCEGraph
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 07/28/2019
-//-----------------------------------------------------------------------------
-void PCELoader::registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph)
-{
-  pceGraph_ = tmpPceGraph;
-  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_)); // do I need this?
 }
 
 //-----------------------------------------------------------------------------

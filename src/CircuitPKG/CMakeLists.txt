@@ -7,7 +7,6 @@ set ( Circuit_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_CIR_Xyce.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_CIR_SecondLevelSimulator.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_CIR_MixedSignalSimulator.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_CIR_Xygra.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_CIR_GenCouplingSimulator.C
       CACHE INTERNAL "X_S" )
 

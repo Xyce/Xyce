@@ -47,10 +47,7 @@
 // to eliminate RCP warnings, putting N_PDS_Manager header here.
 #include <N_PDS_Manager.h>
 
-
 class N_PDS_ParMap;
-
-class Epetra_CrsGraph;
 
 using Teuchos::RCP;
 using Teuchos::rcp;
@@ -141,17 +138,17 @@ public:
                                   ) const;
 
   // Return the graphs with reference to the separated solution map
-  virtual void getSeparatedGraph( RCP<Epetra_CrsGraph>& linear_graph,
-                                  RCP<Epetra_CrsGraph>& linNonlin_graph,
-                                  RCP<Epetra_CrsGraph>& nonlin_graph,
-                                  RCP<Epetra_CrsGraph>& nonlinLin_graph
+  virtual void getSeparatedGraph( RCP<const Graph>& linear_graph,
+                                  RCP<const Graph>& linNonlin_graph,
+                                  RCP<const Graph>& nonlin_graph,
+                                  RCP<const Graph>& nonlinLin_graph
                                 ) const;
 
   // Return the graphs with reference to the global solution map
-  virtual void getGlobalSeparatedGraph( RCP<Epetra_CrsGraph>& linear_graph,
-                                        RCP<Epetra_CrsGraph>& linNonlin_graph,
-                                        RCP<Epetra_CrsGraph>& nonlin_graph,
-                                        RCP<Epetra_CrsGraph>& nonlinLin_graph
+  virtual void getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
+                                        RCP<const Graph>& linNonlin_graph,
+                                        RCP<const Graph>& nonlin_graph,
+                                        RCP<const Graph>& nonlinLin_graph
                                       ) const;
 
   virtual RCP<const N_PDS_ParMap> getSolutionMap() const;

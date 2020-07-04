@@ -96,8 +96,8 @@ public:
   //Constructors
   Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray);
 
-  Matrix( Epetra_CrsGraph * overlapGraph,
-          Epetra_CrsGraph * baseGraph );
+  Matrix( const Graph* overlapGraph,
+          const Graph* baseGraph );
 
   //Constructor from an existing Epetra_CrsMatrix (makes copy of origMatrix)
   Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned = true );
@@ -160,6 +160,10 @@ public:
   // Get column map for overlapped matrix
   N_PDS_ParMap* getOverlapColMap( N_PDS_Comm& comm );
 
+  // Get graphs for overlapped matrix
+  Graph* getOverlapGraph() { return overlapGraph_; }
+  const Graph* getOverlapGraph() const { return overlapGraph_; }
+
   // --------------------------------------------------------------------------------
   // Assembled matrix methods
   // - Underlying this class is both an overlapped matrix and assembled matrix.
@@ -215,6 +219,10 @@ public:
   // Get column map for assembled matrix
   N_PDS_ParMap* getColMap( N_PDS_Comm& comm );
 
+  // Get graph for assembled matrix
+  Graph* getGraph() { return baseGraph_; }
+  const Graph* getGraph() const { return baseGraph_; }
+
   // --------------------------------------------------------------------------------
   // Overlapped/assembled matrix methods
   // - Underlying this class is both an overlapped matrix and assembled matrix.
@@ -251,6 +259,9 @@ protected:
 
   // Column maps, assembled and overlapped.
   N_PDS_ParMap *aColMap_, *oColMap_;
+
+  // Graphs, assembled and overlapped.
+  Graph *overlapGraph_, *baseGraph_;
 
   // Dummy variable for loading ground node contributions.
   mutable bracketProxy proxy_;

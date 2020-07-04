@@ -350,6 +350,11 @@ public:
     bool loadDAEdQdx ();
     bool loadDAEdFdx ();
 
+    <admst:if test="[count(callfunction[function/name='\$bound_step'])>0]">
+      <admst:text format="double  getMaxTimeStepSize();\n"/>
+      <admst:text format="virtual bool  maxTimeStepSupported() {return true;};\n"/>
+    </admst:if>
+
     <admst:if test="[count(node[#collapsible='yes'])>0]">
       void collapseNodes();
     </admst:if>
@@ -399,6 +404,10 @@ public:
     // These store the Jdxp's for F and Q, respectively
     std::vector&lt;double&gt; Jdxp_static;
     std::vector&lt;double&gt; Jdxp_dynamic;
+    </admst:if>
+
+    <admst:if test="[count(callfunction[function/name='\$bound_step'])>0]">
+      <admst:text format="double  maxTimeStep_;\n"/>
     </admst:if>
 
     // this is what we'll use when any model uses \$temperature.  We'll

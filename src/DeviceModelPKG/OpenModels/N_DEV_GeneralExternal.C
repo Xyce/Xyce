@@ -1573,7 +1573,7 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
   isize = instanceContainer.size();
 
   os << std::endl;
-  os << "Number of Xygra instances: " << isize << std::endl;
+  os << "Number of GenExt instances: " << isize << std::endl;
   os << "    name=\t\tmodelName\tParameters" << std::endl;
   for (i=0, iter=first; iter!=last; ++iter, ++i)
   {

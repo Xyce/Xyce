@@ -49,6 +49,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_System.h>
+#include <N_LAS_Graph.h>
 
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
@@ -86,7 +87,6 @@
 
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Operator.h>
-#include <Epetra_CrsGraph.h>
 #include <Epetra_MultiVector.h>
 #include <Epetra_LinearProblem.h>
 #include <Amesos.h>
@@ -1136,7 +1136,7 @@ bool MOR::createOrigLinearSystem_()
 
   N_PDS_ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
   N_PDS_ParMap &oBaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION_OVERLAP_GND);
-  Epetra_CrsGraph &BaseFullGraph = *pdsManager.getMatrixGraph(Parallel::JACOBIAN);
+  const Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
 
@@ -1149,9 +1149,9 @@ bool MOR::createOrigLinearSystem_()
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
   int offset = Linear::generateOffset( BaseMap );
-  RCP<Epetra_CrsGraph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], BaseFullGraph);
+  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], *baseFullGraph);
 
-  sCpG_REFMatrixPtr_ = rcp ( new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, BaseFullGraph) );
+  sCpG_REFMatrixPtr_ = rcp ( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
 
   // Load diagonal blocks of real equivalent form: (G - s0*C)
   sCpG_REFMatrixPtr_->put( 0.0 ); // Zero out whole matrix
@@ -1246,9 +1246,9 @@ bool MOR::createRedLinearSystem_()
     blockPattern[1][0] = 0; blockPattern[1][1] = 1;
    
     int offset= Linear::generateOffset( redPDSMap );
-    RCP<Epetra_CrsGraph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, (redCPtr_->epetraObj()).Graph() );
+    RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
-    sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, (redCPtr_->epetraObj()).Graph() ) );
+    sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
 
     // Load diagonal blocks of real equivalent form: (G - s0*C)
     sCpG_ref_redMatrixPtr_->put( 0.0 ); // Zero out whole matrix

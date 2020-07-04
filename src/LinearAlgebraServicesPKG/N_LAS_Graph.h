@@ -22,58 +22,60 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : Abstract interface to linear solver type.
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  :
 //
-// Creator        : Ting Mei   
+// Creator        : Heidi Thornquist, SNL
 //
-// Creation Date  : 01/11
+// Creation Date  : 06/19/20
+//
+//
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_fwd_h
-#define Xyce_N_LAS_fwd_h
+#ifndef Xyce_N_LAS_Graph_h
+#define Xyce_N_LAS_Graph_h
+
+#include <N_LAS_fwd.h>
+
+#include <Teuchos_RCP.hpp>
+#include <Epetra_CrsGraph.h>
 
 namespace Xyce {
 namespace Linear {
 
-class AmesosSolver;
-class AztecOOSolver;
+//-----------------------------------------------------------------------------
+// Class         : Graph
+// Purpose       : Interface to a graph object
+// Special Notes : This is necessary to define the non-zero pattern of the matrix.
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 06/19/20
+//-----------------------------------------------------------------------------
+class Graph
+{
 
-class BlockMatrix;
-class BlockVector;
-class Builder;
-class ESBuilder;
-class ESBuilder2;
-class ESSolverFactory;
-class PCEBuilder;
-class PCESolverFactory;
-class HBBuilder;
-class HBSolverFactory;
-class HBPrecondFactory;
-class FilteredMatrix;
-class FilteredMultiVector;
-class Matrix;
-class MultiVector;
-class SolverFactory;
-class PrecondFactory;
-class Preconditioner;
-class Problem;
-class Solver;
-class System;
-struct Transform;
-class Vector;
-class QueryUtil;
-class Operator;
-class Graph;
-class MatrixFreeEpetraOperator;
+public:
 
-static const int iterativeMin = 10000;
+  // Simple constructor using Epetra_CrsGraph
+  Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph );
+
+  // Copy constructor
+  Graph( const Graph& graph );
+
+  // Destructor
+  virtual ~Graph() {}
+
+  const Teuchos::RCP<const Epetra_CrsGraph>& epetraObj() const { return epetraGraph_; }
+
+private:
+
+  Teuchos::RCP<const Epetra_CrsGraph> epetraGraph_;
+
+};
 
 } // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_LAS_fwd_h
+#endif

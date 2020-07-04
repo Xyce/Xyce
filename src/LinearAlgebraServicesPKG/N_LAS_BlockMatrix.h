@@ -44,13 +44,12 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_LAS_fwd.h>
-
 #include <N_LAS_Matrix.h>
+#include <N_LAS_Graph.h>
 
 // ----------  Other Includes   ----------
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
-
 
 class Epetra_CrsGraph;
 class Epetra_Map;
@@ -69,12 +68,11 @@ class BlockMatrix : public Matrix
 {
  public:
 
-  //Constructors
   BlockMatrix( int size,
                      int offset,
                      const std::vector< std::vector<int> > & blockColumns,
-                     const Epetra_CrsGraph & globalGraph,
-                     const Epetra_CrsGraph & subBlockGraph,
+                     const Graph* globalGraph,
+                     const Graph* subBlockGraph,
                      int augmentCount = 0 );
 
   //Destructor

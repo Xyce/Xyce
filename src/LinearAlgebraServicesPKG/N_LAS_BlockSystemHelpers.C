@@ -48,6 +48,7 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
 
+#include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_BlockMatrix.h>
 
@@ -445,12 +446,14 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
-                                                N_PDS_ParMap& blockMap, const Epetra_CrsGraph& baseGraph )
+Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
+                                      N_PDS_ParMap& blockMap, const Graph& baseGraph )
 {
+  Teuchos::RCP<const Epetra_CrsGraph> epetraGraph = baseGraph.epetraObj();
+
   int numBlockRows = blockPattern.size();
-  int numMyBaseRows = baseGraph.NumMyRows();
-  int maxIndices = baseGraph.MaxNumIndices();
+  int numMyBaseRows = epetraGraph->NumMyRows();
+  int maxIndices = epetraGraph->MaxNumIndices();
  
   int maxBlockCols = blockPattern[0].size();
   for (int i=1; i<numBlockRows; ++i) { 
@@ -460,7 +463,7 @@ Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vec
   }
  
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  Teuchos::RCP<Epetra_CrsGraph> newGraph = rcp(new Epetra_CrsGraph( Copy, *(blockMap.petraBlockMap()), 0 ));
+  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *(blockMap.petraBlockMap()), 0 ));
   
   std::vector<int> indices(maxIndices);
   int shift=0, index=0, baseRow=0, blockRow=0, numIndices=0;
@@ -470,8 +473,8 @@ Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vec
   for( int j = 0; j < numMyBaseRows; ++j )
   {
     // Extract the base entries from the base row.
-    baseRow = baseGraph.GRID(j);
-    baseGraph.ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &indices[0] );
+    baseRow = epetraGraph->GRID(j);
+    epetraGraph->ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &indices[0] );
 
     for( int i = 0; i < numBlockRows; ++i )
     {
@@ -490,15 +493,16 @@ Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vec
       }
 
       // Insert entire row for all blocks.
-      newGraph->InsertGlobalIndices( blockRow, numBlockCols*numIndices, &newIndices[0] );
+      newEpetraGraph->InsertGlobalIndices( blockRow, numBlockCols*numIndices, &newIndices[0] );
     }
   }
-  newGraph->FillComplete();
-  newGraph->OptimizeStorage();
+  newEpetraGraph->FillComplete();
+  newEpetraGraph->OptimizeStorage();
+
+  Teuchos::RCP<Graph> newGraph = Teuchos::rcp( new Graph( newEpetraGraph ) );
  
   return newGraph;
 }
-
 //-----------------------------------------------------------------------------
 // Function      : createBlockFreqERFParMap
 // Purpose       : A helper function for creating block parallel maps for

@@ -1186,7 +1186,6 @@ AC_CONFIG_FILES([Makefile
  src/test/RandomTest/Makefile
  src/test/FFTInterface/Makefile
  src/test/LinearAlgebraTest/Makefile
- src/test/XygraTestHarnesses/Makefile
  src/test/GenExtTestHarnesses/Makefile
  src/test/MPITest/Makefile
  src/test/TwoLevelNewton/Makefile

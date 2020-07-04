@@ -111,7 +111,6 @@ include_HEADERS = \
   $(srcdir)/AnalysisPKG/N_ANP_fwd.h \
   $(srcdir)/AnalysisPKG/N_ANP_NoiseData.h \
   $(srcdir)/CircuitPKG/N_CIR_Xyce.h \
-  $(srcdir)/CircuitPKG/N_CIR_Xygra.h \
   $(srcdir)/CircuitPKG/N_CIR_GenCouplingSimulator.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Configuration.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Const.h \
@@ -194,10 +193,6 @@ include_HEADERS = \
 
 xmldir = $(datadir)/xml
 xml_DATA= $(top_srcdir)/utils/ADMS/adms.implicit.xml \
-	$(top_srcdir)/utils/ADMS/xyceVersion.xml \
-	$(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml \
-	$(top_srcdir)/utils/ADMS/xyceImplementationFile.xml \
-	$(top_srcdir)/utils/ADMS/xyceHeaderFile.xml \
 	$(top_srcdir)/utils/ADMS/xyceVersion_nosac.xml \
 	$(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml \
 	$(top_srcdir)/utils/ADMS/xyceAnalogFunction_nosac.xml \

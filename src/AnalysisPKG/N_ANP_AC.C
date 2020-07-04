@@ -51,6 +51,7 @@
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_Builder.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_System.h>
@@ -79,10 +80,9 @@
 #include <N_PDS_Serial.h>
 #include <N_PDS_ParMap.h>
 
-#include <Epetra_CrsGraph.h>
 #include <N_DEV_DeviceMgr.h>
-#include<N_UTL_ExtendedString.h>
-#include<N_NLS_ReturnCodes.h>
+#include <N_UTL_ExtendedString.h>
+#include <N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
 
 #include <Teuchos_RCP.hpp>
@@ -896,7 +896,7 @@ bool AC::createLinearSystem_()
   N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
 
   RCP<N_PDS_ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
-  Epetra_CrsGraph &baseFullGraph = *pds_manager.getMatrixGraph(Parallel::JACOBIAN);
+  const Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
   int offset = baseMap->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
@@ -917,10 +917,10 @@ bool AC::createLinearSystem_()
   blockPattern[1].resize(2);
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
-  RCP<Epetra_CrsGraph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, baseFullGraph);
+  RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph );
 
   delete ACMatrix_;
-  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, baseFullGraph);
+  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph );
 
   ACMatrix_->put( 0.0 ); // Zero out whole matrix.
   // Matrix will be loaded with nonzero (C,G) sub-matrices later.
@@ -952,7 +952,7 @@ bool AC::createLinearSystem_()
 
     dCdp_ = linearSystem_.builder().createMatrix ();
     dGdp_ = linearSystem_.builder().createMatrix ();
-    dJdp_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, *blockGraph, baseFullGraph);
+    dJdp_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
 
     dBdp_     = new Linear::BlockVector(numBlocks, blockMap, baseMap);
     dXdp_     = new Linear::BlockVector(numBlocks, blockMap, baseMap);

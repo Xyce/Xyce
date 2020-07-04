@@ -47,8 +47,6 @@
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
 
-#include <Epetra_MultiVector.h>
-
 using Xyce::DEBUG_MPDE;
 
 //-----------------------------------------------------------------------------

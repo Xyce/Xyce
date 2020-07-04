@@ -1178,6 +1178,56 @@ will fail if the requested measure type is not supported for a given
 measure mode (e.g., \texttt{OFF\_TIME} for a \texttt{AC}, \texttt{DC}
 or \texttt{NOISE} measure).
 
+\subsubsection{Compatibility with .DATA}
+The \texttt{.DATA} command can be used to specify table-based \texttt{.AC},
+\texttt{.DC} or \texttt{.NOISE} sweeps for those three analysis types. For
+\texttt{AC} and \texttt{NOISE} measures, the ``swept variable'' then uses
+the frequency values in the table specified on the \texttt{.AC} or
+\texttt{.NOISE} line.
+
+For \texttt{DC} measures, the swept variable uses the row index in the
+table specified on the \texttt{.DC} line.  An example is as follows:
+\begin{alltt}
+* example of .DATA with DC measures
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+
+.data test
++ r1           r2
++ 1.0e+00  4.0e+00
++ 4.0e+00  6.0e+00
++ 6.0e+00  4.0e+00
+.enddata
+
+.DC data=test
+.print DC V(1) V(2)
+
+.OPTIONS MEASURE MEASDGT=1
+.MEASURE DC MAXV2TO MAX V(2) TO=2
+.MEASURE DC MAXV2FROM MAX V(2) FROM=2
+
+.END
+\end{alltt}
+
+The measure results reported in stdout will be as follows where the respective
+maximum values occur for the R1 and R2 values given in the first and second rows
+of the \texttt{test} table:
+\begin{alltt}
+MAXV2TO = 8.0e-01 at Table Row value = 1.0e+00
+Measure Start Table Row Value= 1.0e+00  Measure End Table Row Value= 2.0e+00
+
+MAXV2FROM = 6.0e-01 at Table Row value = 2.0e+00
+Measure Start Table Row Value= 2.0e+00  Measure End Table Row Value= 3.0e+00
+\end{alltt}
+
+All valid measure types will return an answer when a data-based sweep is used
+on the \texttt{.AC}, \texttt{.DC} or \texttt{.NOISE} line.  However, the results
+for \texttt{AVG}, \texttt{DERIV}, \texttt{FIND}, \texttt{INTEG}, \texttt{RMS}
+and \texttt{WHEN} measures may be ``non-physical'' if the frequency values in the
+data table are not monotonically increasing.  In addition, for \texttt{DC} measures
+the effective step size between table rows is equal to one.
+
 \subsubsection{HSPICE Compatibility}
 \label{Measure_HSpice_Compatibility}
 \index{measure!HSPICE compatibility}

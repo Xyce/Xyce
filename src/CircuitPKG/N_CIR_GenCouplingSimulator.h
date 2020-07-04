@@ -25,7 +25,7 @@
 // Purpose        : Provide a class for more general Xyce/Alegra coupling
 //
 // Special Notes  : This class is meant to provide a more general Xyce/Alegra
-//                  coupling API than that provided by the N_CIR_Xygra class,
+//                  coupling API than that provided by the old N_CIR_Xygra class,
 //                  which is fairly general but clearly set up and named
 //                  for its primary use case, simulating coils in Alegra
 //                  and coupling them loosely to Xyce.

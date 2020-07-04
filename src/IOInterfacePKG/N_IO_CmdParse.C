@@ -131,7 +131,7 @@ void usage(std::ostream &os)
      << "  -randseed <number>          seed random number generator used by expressions and sampling methods\n"
 
 #ifdef HAVE_DLFCN_H
-     << "  -plugin                     load device plugin\n"
+     << "  -plugin <plugin list>       load device plugin libraries (comma-separated list)\n"
 #endif
 
 #ifdef Xyce_Dakota

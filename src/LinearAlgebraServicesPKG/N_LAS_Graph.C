@@ -20,60 +20,41 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : Implementation file for the Abstract interface to the
+//                  vector types (RDP, RSP, CDP or CSP).
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  :
 //
-// Creator        : Ting Mei   
+// Creator        : Scott A. Hutchinson, SNL, Computational Sciences
 //
-// Creation Date  : 01/11
+// Creation Date  : 10/13/00
 //
-//
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_fwd_h
-#define Xyce_N_LAS_fwd_h
+#include <Xyce_config.h>
+
+
+// ---------- Standard Includes ----------
+
+// ----------   Xyce Includes   ----------
+
+#include <N_LAS_Graph.h>
+#include <N_UTL_FeatureTest.h>
+
+// ---------  Other Includes  -----------
 
 namespace Xyce {
 namespace Linear {
 
-class AmesosSolver;
-class AztecOOSolver;
+  Graph::Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph )
+  : epetraGraph_(graph)
+  {}
 
-class BlockMatrix;
-class BlockVector;
-class Builder;
-class ESBuilder;
-class ESBuilder2;
-class ESSolverFactory;
-class PCEBuilder;
-class PCESolverFactory;
-class HBBuilder;
-class HBSolverFactory;
-class HBPrecondFactory;
-class FilteredMatrix;
-class FilteredMultiVector;
-class Matrix;
-class MultiVector;
-class SolverFactory;
-class PrecondFactory;
-class Preconditioner;
-class Problem;
-class Solver;
-class System;
-struct Transform;
-class Vector;
-class QueryUtil;
-class Operator;
-class Graph;
-class MatrixFreeEpetraOperator;
-
-static const int iterativeMin = 10000;
+  Graph::Graph( const Graph& graph )
+  : epetraGraph_(graph.epetraGraph_)
+  {}
 
 } // namespace Linear
 } // namespace Xyce
-
-#endif // Xyce_N_LAS_fwd_h

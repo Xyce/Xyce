@@ -78,10 +78,10 @@ plugin: lib$nameSpace.la
 install-plugin: install
 
 $classname.C $classname.h: \$(srcdir)/%(/filename)
-	admsXml -e \$(top_srcdir)/utils/ADMS/xyceVersion.xml -e \$(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml -e \$(top_srcdir)/utils/ADMS/xyceHeaderFile.xml -e \$(top_srcdir)/utils/ADMS/xyceImplementationFile.xml \$(srcdir)/%(/filename)
+	admsXml -x -e \$(top_srcdir)/utils/ADMS/adms.implicit.xml -e \$(top_srcdir)/utils/ADMS/xyceVersion_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceAnalogFunction_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceHeaderFile_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceImplementationFile_nosac.xml \$(srcdir)/%(/filename)
 
 $bootstrapname.C: \$(srcdir)/%(/filename)
-	admsXml -e \$(top_srcdir)/utils/ADMS/xyceVersion.xml -e \$(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml -e \$(top_srcdir)/utils/ADMS/xyceBootstrapFile.xml \$(srcdir)/%(/filename)
+	admsXml -x -e \$(top_srcdir)/utils/ADMS/adms.implicit.xml -e \$(top_srcdir)/utils/ADMS/xyceVersion_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml -e \$(top_srcdir)/utils/ADMS/xyceBootstrapFile.xml \$(srcdir)/%(/filename)
 
 $bootstrapname.lo: $classname.h
 

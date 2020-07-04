@@ -60,7 +60,6 @@
 #include <N_LAS_Builder.h>
 #include <N_NLS_TwoLevelEnum.h>
 #include <N_UTL_Stats.h>
-#include <Epetra_CrsMatrix.h>
 
 namespace Xyce {
 namespace Loader {
