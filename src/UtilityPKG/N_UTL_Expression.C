@@ -288,6 +288,8 @@ int Expression::get_type ( const std::string & var )
 
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & leadMap = newExpPtr_->getLeadCurrentOpNames ();
+
 
   if ( voltMap.find(tmpName) != voltMap.end() )
   {
@@ -296,6 +298,10 @@ int Expression::get_type ( const std::string & var )
   else if ( currMap.find(tmpName) != currMap.end() )
   {
     retVal = XEXP_INSTANCE;
+  }
+  else if ( leadMap.find(tmpName) != leadMap.end() )
+  {
+    retVal = XEXP_LEAD;
   }
   else
   {
@@ -491,6 +497,16 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
     }
   }
 
+  // experiment:
+  for (int ii=0;ii<newExpPtr_->getBsrcCurrentOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getBsrcCurrentOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
+    if (it == leads.end())
+    {
+      leads.push_back( tmpName );
+    }
+  }
   // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
@@ -858,59 +874,7 @@ const std::string & Expression::get_input () const
 bool Expression::replace_name ( const std::string & old_name,
                                 const std::string & new_name)
 {
-  bool retVal=false; 
-  //std::cout << "NOTE:  replace_name just got called on " << old_name << " to now be " << new_name <<std::endl;
-
-  bool found=false;
-  {
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
-
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltMap.find(old_name);
-
-    if (iter != voltMap.end())
-    {
-      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
-
-      for(int ii=0;ii<astVec.size();++ii)
-      {
-        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-        for(int jj=0;jj<nodes.size();++jj)
-        {
-          if(nodes[jj]==old_name)
-          {
-            nodes[jj] = new_name;
-          }
-        }
-      }
-      voltMap[new_name] = astVec;
-      voltMap.erase(old_name);
-      found=true;
-    }
-  }
-
-  if(!found)
-  {
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currMap.find(old_name);
-
-    if (iter != currMap.end())
-    {
-      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
-
-      for(int ii=0;ii<astVec.size();++ii)
-      {
-        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (astVec[ii]);
-        currOp->setCurrentDevice(new_name);
-      }
-
-      currMap[new_name] = astVec;
-      currMap.erase(old_name);
-      found=true;
-    }
-  }
-  
-  return retVal;
+  return newExpPtr_->replaceName( old_name, new_name );
 }
 
 //-----------------------------------------------------------------------------

@@ -618,18 +618,37 @@ exp:
         if ( found != std::string::npos) { deviceName = deviceName.substr(found+1); }
       }
 
+      // allocate either a solution variable current object or a lead current object.  
+      Teuchos::RCP<astNode<usedType> > * tmpPtr;
       if ( !(deviceName.empty()) && ( 
-            deviceName[0] == 'V' || 
-            deviceName[0] == 'B' || 
-            deviceName[0] == 'E' || 
-            deviceName[0] == 'H' || 
+            deviceName[0] == 'V' ||
+            deviceName[0] == 'B' ||  // Bsrc's can be either one, but impossible to tell which at the expression parsing stage
+            deviceName[0] == 'E' ||
+            deviceName[0] == 'H' ||
             deviceName[0] == 'L' )) // solution variable current
       {
         Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
-        Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
         newExp.getMasterNodeVec().push_back(tmpPtr);
         newExp.getCurrentOpVec().push_back(*currentPtr);
+        if (deviceName[0] == 'B')  
+        { 
+          (*currentPtr)->setBsrcFlag();
+          newExp.getBsrcCurrentOpVec().push_back(*currentPtr);  // this object is necessary because Bsrc's can be either lead or solution var
+        }
+        delete currentPtr;
+      }
+      else // lead current.  Previously, this block was below the "complex variant" block.  
+           // Now it is here.  At present, no lead currents are complex numbers, but in theory that will change.
+      {
+        Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(*leadCurrentPtr);
+        newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
+        newExp.getMasterNodeVec().push_back(tmpPtr);
+        delete leadCurrentPtr;
+      }
 
+      {
         // adjust for complex number variants
         std::string firstArg = (*$1);
         firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
@@ -683,10 +702,10 @@ exp:
         }
 
         $$ = returnPtr;
-        delete currentPtr;
         delete $1;
         delete $2;
       }
+#if 0
       else // lead current
       {
         Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
@@ -698,6 +717,7 @@ exp:
         delete $1;
         delete $2;
       }
+#endif
     }
   | TOK_WORD nonempty_rfparam_arg_list
     {

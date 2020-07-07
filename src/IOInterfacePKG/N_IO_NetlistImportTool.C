@@ -1235,6 +1235,7 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
       Util::Expression exp(exprGroup);
       exp.set(iterParam->tag());
       exp.getLeadCurrents(leads);
+      //exp.getBsrcCurrents(leads);
 
       // any lead currents found in this expression need to be communicated to the device manager.
       // Multi terminal devices have an extra designator on the name as in name{lead_name}

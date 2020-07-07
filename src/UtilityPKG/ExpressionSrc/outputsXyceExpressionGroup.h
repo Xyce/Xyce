@@ -156,7 +156,9 @@ public:
 
 private:
 
+#if 0
   int getSolutionGID_(const std::string & nodeName);
+#endif
 
   N_PDS_Comm & comm_;
   Topo::Topology & top_;

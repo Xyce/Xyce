@@ -43,6 +43,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
   if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
   if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
+  if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
   if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
   if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
   if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
@@ -94,6 +95,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrent,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrent,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & power,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
@@ -118,6 +120,7 @@ public:
     voltOpVector(volt),
     currentOpVector(current),
     leadCurrentOpVector(leadCurrent),
+    bsrcCurrentOpVector(bsrcCurrent),
     powerOpVector(power),
     internalDevVarOpVector(internalDevVar),
     dnoNoiseDevVarOpVector(dnoNoiseDevVar),
@@ -143,6 +146,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrentOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrentOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & powerOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
@@ -228,6 +232,7 @@ class astNode
     virtual bool voltageType()     { return false; };
     virtual bool currentType()     { return false; };
     virtual bool leadCurrentType() { return false; };
+    virtual bool bsrcCurrentType() { return false; };
     virtual bool powerType()       { return false; };
     virtual bool internalDeviceVarType()  { return false; };
 
@@ -1114,7 +1119,8 @@ class currentOp: public astNode<ScalarT>
       astNode<ScalarT>(),
       number_(0.0),
       currentDevice_(currentDevice),
-      derivIndex_(-1)
+      derivIndex_(-1),
+      bsrcFlag_(false)
     {
       Xyce::Util::toUpper(currentDevice_);
     };
@@ -1146,14 +1152,20 @@ class currentOp: public astNode<ScalarT>
     void setCurrentVal (ScalarT n) { number_ = n; }
 
     virtual bool currentType() { return true; };
+    virtual bool bsrcCurrentType() { return bsrcFlag_; }
 
     virtual std::string getName () { return currentDevice_; }
+
+    bool getBsrcFlag   () { return bsrcFlag_; }
+    void setBsrcFlag  () { bsrcFlag_ = true; }
+    void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
   private:
 // data:
     ScalarT number_;
     std::string currentDevice_;
     int derivIndex_;
+    bool bsrcFlag_;
 };
 
 //-------------------------------------------------------------------------------

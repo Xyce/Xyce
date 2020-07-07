@@ -28,6 +28,7 @@
 namespace Xyce {
 namespace Util {
 
+#if 0
 //-------------------------------------------------------------------------- 
 //  THIS IS COPIED FROM OpBuilders.C.  Fix later ...
 //-------------------------------------------------------------------------- 
@@ -88,6 +89,7 @@ int findNodeIndex(
 
   return nodeIndex;
 }
+#endif
 
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 

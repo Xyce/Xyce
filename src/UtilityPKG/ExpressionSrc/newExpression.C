@@ -189,7 +189,7 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
-  // set up names vectors for voltage and current nodes.
+  // set up names vectors for voltages, currents and leads.
   {
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
@@ -206,6 +206,13 @@ bool newExpression::lexAndParseExpression()
       Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
       std::string tmp = currOp->getCurrentDevice();
       currentOpNames_[tmp].push_back(currentOpVec_[ii]);
+    }
+
+    for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
+      std::string tmp = leadCurrOp->getLeadCurrentDevice();
+      leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
     }
   }
 
@@ -1210,6 +1217,90 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
   }
 
   return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceName
+// Purpose       : 
+// Special Notes : ERK.  This called (via N_UTL_Expression) from the 
+//                 N_IO_DistToolBase.C file/class
+//                 in the function DistToolBase::instantiateDevice.
+//
+//                 "Input quantity" in this case means voltage nodes (XEXP_NODE), 
+//                 device instances (XEXP_INSTANCE), and lead currents (XEXP_LEAD).
+//
+//                 Sometimes, they are specified in expressions without their 
+//                 names being fully resolved.  ie, the expression is inside of 
+//                 a subcircuit, and thus implicitly assumes the full prefix.
+//
+//                 So, this function adds the full prefix to these names, 
+//                 so they can be fully resolved.
+//
+//                 The function DistToolBase::instantiateDevice calls this 
+//                 function twice for some reason that I don't (yet) understand.
+//                 It seems to require 2 passes to properly update the name. ie,
+//                 "name" -> "; name" -> "prefix:name".
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
+{
+  bool retVal=false; 
+
+  if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+
+  bool found=false;
+  {
+    //const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
+
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
+
+    if (iter != voltOpNames_.end())
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
+
+      for(int ii=0;ii<astVec.size();++ii)
+      {
+        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
+        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
+        for(int jj=0;jj<nodes.size();++jj)
+        {
+          if(nodes[jj]==old_name)
+          {
+            nodes[jj] = new_name;
+          }
+        }
+      }
+      voltOpNames_[new_name] = astVec;
+      voltOpNames_.erase(old_name);
+      found=true;
+    }
+  }
+
+  if(!found)
+  {
+    //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
+    
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currentOpNames_.find(old_name);
+
+    if (iter != currentOpNames_.end())
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
+
+      for(int ii=0;ii<astVec.size();++ii)
+      {
+        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (astVec[ii]);
+        currOp->setCurrentDevice(new_name);
+      }
+
+      currentOpNames_[new_name] = astVec;
+      currentOpNames_.erase(old_name);
+      found=true;
+    }
+  }
+  
+  return retVal;
 }
 
 //-------------------------------------------------------------------------------

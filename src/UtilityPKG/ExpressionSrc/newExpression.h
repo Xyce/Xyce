@@ -61,7 +61,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -93,7 +93,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -153,7 +153,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -203,7 +203,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -227,6 +227,7 @@ public:
       if (left->voltageType()) { voltOpVec_.push_back(left); }
       if (left->currentType()) { currentOpVec_.push_back(left); }
       if (left->leadCurrentType()) { leadCurrentOpVec_.push_back(left); }
+      if (left->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(left); }
       if (left->powerType())   { powerOpVec_.push_back(left); }
       if (left->internalDeviceVarType()) { internalDevVarOpVec_.push_back(left); }
 
@@ -297,6 +298,10 @@ public:
     unresolvedLeadCurrentOpVec_(right.unresolvedLeadCurrentOpVec_),
     leadCurrentOpNames_(right.leadCurrentOpNames_),
 
+    bsrcCurrentOpVec_(right.bsrcCurrentOpVec_),
+    unresolvedBsrcCurrentOpVec_(right.unresolvedBsrcCurrentOpVec_),
+    bsrcCurrentOpNames_(right.bsrcCurrentOpNames_),
+
     powerOpVec_(right.powerOpVec_),
     internalDevVarOpVec_(right.internalDevVarOpVec_),
     dnoNoiseDevVarOpVec_(right.dnoNoiseDevVarOpVec_),
@@ -343,7 +348,7 @@ public:
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, stpAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
@@ -399,6 +404,10 @@ public:
     leadCurrentOpVec_ = right.leadCurrentOpVec_;
     leadCurrentOpNames_ = right.leadCurrentOpNames_;
     unresolvedLeadCurrentOpVec_ = right.unresolvedLeadCurrentOpVec_;
+
+    bsrcCurrentOpVec_ = right.bsrcCurrentOpVec_;
+    bsrcCurrentOpNames_ = right.bsrcCurrentOpNames_;
+    unresolvedBsrcCurrentOpVec_ = right.unresolvedBsrcCurrentOpVec_;
 
     powerOpVec_ = right.powerOpVec_;
     internalDevVarOpVec_ = right.internalDevVarOpVec_;
@@ -572,7 +581,7 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return voltOpNames_;
@@ -602,13 +611,25 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return currentOpNames_;
   };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getLeadCurrentOpVec () { return leadCurrentOpVec_; };
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLeadCurrentOpNames ()
+  {
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    return leadCurrentOpNames_;
+  }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getBsrcCurrentOpVec () { return bsrcCurrentOpVec_; };
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getBsrcCurrentOpNames ()
+  {
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    return bsrcCurrentOpNames_;
+  }
 
   void codeGen( std::ostream & os ) { astNodePtr_->codeGen(os); os << ";" <<std::endl; };
 
@@ -618,6 +639,8 @@ public:
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
+
+  bool replaceName ( const std::string & old_name, const std::string & new_name);
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
@@ -772,6 +795,10 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > leadCurrentOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedLeadCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpNames_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > bsrcCurrentOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedBsrcCurrentOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > bsrcCurrentOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > powerOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedPowerOpVec_;

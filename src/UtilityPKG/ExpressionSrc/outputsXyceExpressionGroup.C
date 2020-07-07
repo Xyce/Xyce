@@ -65,6 +65,7 @@ outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 {
 }
 
+#if 0
 //-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getSolutionGID_
 // Purpose       : 
@@ -125,6 +126,7 @@ int outputsXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 
   return tmpGID;
 }
+#endif
 
 //-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getSolutionVal
