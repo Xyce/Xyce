@@ -257,10 +257,10 @@ void DerivativeEvaluation::updateDC(
       solnVec, stateVec, storeVec, 0, lead_current_vector,
       junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0,0 );
 
-    // Consider intervals where either the current or previous sweep value is within the
-    // measurement window, since the WHEN clause uses the interpolated calculation instant.
-    if (!calculationDone_ && (withinDCsweepFromToWindow(dcSweepVal) ||
-                              withinDCsweepFromToWindow(lastIndepVarValue_)) )
+    // Consider all intervals since the WHEN clause uses the interpolated calculation
+    // instant.  We check that the interpolated WHEN time is within the measurement
+    // window each time one is found.
+    if (!calculationDone_)
     {
       if (atGiven_ && (numPointsFound_ > 1) && withinDCsweepFromToWindow(at_) )
       {
@@ -319,9 +319,10 @@ void DerivativeEvaluation::updateAC(
   updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                    imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
 
-  // Consider intervals where either the current or previous frequency value is within the
-  // measurement window, since the WHEN clause uses the interpolated calculation instant.
-  if ( !calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
+  // Consider all intervals since the WHEN clause uses the interpolated calculation
+  // instant.  We check that the interpolated WHEN time is within the measurement
+  // window each time one is found.
+  if (!calculationDone_)
   {
     if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
@@ -382,9 +383,10 @@ void DerivativeEvaluation::updateNoise(
                    imaginaryVec, 0, 0, 0,
                    totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
 
-  // Consider intervals where either the current or previous frequency value is within the
-  // measurement window, since the WHEN clause uses the interpolated calculation instant.
-  if (!calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
+  // Consider all intervals since the WHEN clause uses the interpolated calculation
+  // instant.  We check that the interpolated WHEN time is within the measurement
+  // window each time one is found.
+  if (!calculationDone_)
   {
     if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
