@@ -242,14 +242,14 @@ void DerivativeEvaluation::updateDC(
   // In that case, a DC MEASURE will be reported as FAILED.
   if ( dcParamsVec.size() > 0 )
   {
-    double dcSweepVal = setDCSweepVal(dcParamsVec);
-    double stepVal = dcParamsVec[0].stepVal;
+    double dcSweepVal = getDCSweepVal(dcParamsVec);
+    if (dcParamsVec[0].stepVal < 0)
+      dcSweepAscending_=false;
 
-    // Used in descriptive output to stdout. Store name and first/last values of
-    // either the first variable found in the DC sweep vector, or the first/last
-    // table row indexes.
-    sweepVar_= setDCSweepVarName(dcParamsVec);
-    recordStartEndACDCNoiseSweepVals(dcSweepVal);
+    // Used in descriptive output to stdout. Store name of the first variable found in
+    // the DC sweep vector.
+    sweepVar_= getDCSweepVarName(dcParamsVec);
+    firstSweepValueFound_ = true;
     ++numPointsFound_;
 
     // update our outVarValues_ vector
@@ -259,14 +259,10 @@ void DerivativeEvaluation::updateDC(
 
     // Consider intervals where either the current or previous sweep value is within the
     // measurement window, since the WHEN clause uses the interpolated calculation instant.
-    if (!calculationDone_ && (withinDCsweepFromToWindow(dcSweepVal, stepVal) ||
-                              withinDCsweepFromToWindow(lastIndepVarValue_, stepVal)) )
+    if (!calculationDone_ && (withinDCsweepFromToWindow(dcSweepVal) ||
+                              withinDCsweepFromToWindow(lastIndepVarValue_)) )
     {
-      // Used in descriptive output to stdout. These are the first/last values
-      // within the measurement window.
-      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
-
-      if (atGiven_ && (numPointsFound_ > 1) && withinDCsweepFromToWindow(at_,stepVal) )
+      if (atGiven_ && (numPointsFound_ > 1) && withinDCsweepFromToWindow(at_) )
       {
         // process AT qualifer. The AT value must be within the measurement window.
         if (isATforACDCNoise(dcSweepVal))
@@ -284,7 +280,7 @@ void DerivativeEvaluation::updateDC(
         {
           // use same time interpolation algorithm as FIND-WHEN measure
           double whenTime = interpolateCalculationInstant(dcSweepVal, targVal);
-          if ( withinDCsweepFromToWindow(whenTime, stepVal) )
+          if ( withinDCsweepFromToWindow(whenTime) )
 	  {
             calculationInstant_ = whenTime;
             updateCalculationResult(dcSweepVal);
@@ -315,8 +311,8 @@ void DerivativeEvaluation::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
   ++numPointsFound_;
 
   // update our outVarValues_ vector
@@ -327,10 +323,6 @@ void DerivativeEvaluation::updateAC(
   // measurement window, since the WHEN clause uses the interpolated calculation instant.
   if ( !calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
   {
-    // Used in descriptive output to stdout. These are the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
-
     if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
       // Process AT qualifer.  The AT value must be within the measurement window.
@@ -381,8 +373,8 @@ void DerivativeEvaluation::updateNoise(
   const double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
   ++numPointsFound_;
 
   // update our outVarValues_ vector
@@ -394,10 +386,6 @@ void DerivativeEvaluation::updateNoise(
   // measurement window, since the WHEN clause uses the interpolated calculation instant.
   if (!calculationDone_ && (withinFreqWindow(frequency) || withinFreqWindow(lastIndepVarValue_)) )
   {
-    // Used in descriptive output to stdout. These are the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
-
     if (atGiven_ && (numPointsFound_ > 1) && withinFreqWindow(at_))
     {
       // Process AT qualifer.  The AT value must be within the measurement window.
@@ -693,12 +681,13 @@ std::ostream& DerivativeEvaluation::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& DerivativeEvaluation::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& DerivativeEvaluation::printMeasureWindow(std::ostream& os, const double endSimTime,
+				                       const double startSweepVal, const double endSweepVal)
 {
   //no op
   if (!atGiven_) 
-  { 
-    Base::printMeasureWindow(os,endSimTime); 
+  {
+    Base::printMeasureWindow(os, endSimTime, startSweepVal, endSweepVal);
   }
   else
   {

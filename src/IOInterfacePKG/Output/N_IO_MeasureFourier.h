@@ -88,8 +88,10 @@ class Fourier : public Base
     double getMeasureResult();
     std::ostream& printMeasureResult(std::ostream& os);
     std::ostream& printVerboseMeasureResult(std::ostream& os);
-    void printMeasureWarnings(const double endSimTime);
-    std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
+    void printMeasureWarnings(const double endSimTime, const double startSweepVal,
+                              const double endSweepVal);
+    std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+				     const double startSweepVal, const double endSweepVal);
 
   private:
     void getLastPeriod_();

@@ -189,22 +189,23 @@ std::ostream& RMS::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/25/2020
 //-----------------------------------------------------------------------------
-std::ostream& RMS::printMeasureWindow(std::ostream& os, const double indepVarValue)
+std::ostream& RMS::printMeasureWindow(std::ostream& os, const double endSimTime,
+				      const double startSweepVal, const double endSweepVal)
 {
   // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
   // This a failed measure, but the FROM-TO window should be printed correctly.
   if ( (fromGiven_ || toGiven_) && (from_==to_) && firstSweepValueFound_ &&
-       ((mode_ == "AC") || (mode_ == "DC")) )
+       ((mode_ == "AC") || (mode_ == "DC") || (mode_ == "NOISE")) )
   {
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
     std::string modeStr = setModeStringForMeasureWindowText();
-    os << "Measure Start " << modeStr << "= " << startACDCNoiseMeasureWindow_
-       << "\tMeasure End " << modeStr << "= " << endACDCNoiseMeasureWindow_ << std::endl;
+    os << "Measure Start " << modeStr << "= " << from_
+       << "\tMeasure End " << modeStr << "= " << to_ << std::endl;
   }
   else
   {
-    Base::printMeasureWindow(os,indepVarValue);
+    Base::printMeasureWindow(os, endSimTime, startSweepVal, endSweepVal);
   }
 
   return os;

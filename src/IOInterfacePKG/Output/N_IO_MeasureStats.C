@@ -188,26 +188,22 @@ void Stats::updateDC(
   // In that case, a DC MEASURE will be reported as FAILED.
   if ( dcParamsVec.size() > 0 )
   {
-    double dcSweepVal = setDCSweepVal(dcParamsVec);
-    double stepVal = dcParamsVec[0].stepVal;
+    double dcSweepVal = getDCSweepVal(dcParamsVec);
+    if (dcParamsVec[0].stepVal < 0)
+      dcSweepAscending_=false;
 
-    // Used in descriptive output to stdout. Store name and first/last values of
-    // first variable found in the DC sweep vector, or the first/last
-    // table row indexes.
-    sweepVar_= setDCSweepVarName(dcParamsVec);
-    recordStartEndACDCNoiseSweepVals(dcSweepVal);
+    // Used in descriptive output to stdout. Store name of first variable found in
+    // the DC sweep vector.
+    sweepVar_= getDCSweepVarName(dcParamsVec);
+    firstSweepValueFound_ = true;
 
-    if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal, stepVal) )
+    if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal) )
     {
       outVarValues_[0] = getOutputValue(comm, outputVars_[0],
                                         solnVec, stateVec, storeVec, 0,
                                         lead_current_vector,
                                         junction_voltage_vector,
                                         lead_current_dqdt_vector, 0, 0 , 0, 0);
-
-      // Used in descriptive output to stdout. Record the first/last values
-      // within the measurement window.
-      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
 
       if ( initialized_ )
         updateMeasureVars(dcSweepVal, outVarValues_[0]);
@@ -232,18 +228,14 @@ void Stats::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
-
-    // Used in descriptive output to stdout. Record the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);
@@ -269,8 +261,8 @@ void Stats::updateNoise(
   const double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
 
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
@@ -278,10 +270,6 @@ void Stats::updateNoise(
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0,
                      totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
-
-    // Used in descriptive output to stdout. Record the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);

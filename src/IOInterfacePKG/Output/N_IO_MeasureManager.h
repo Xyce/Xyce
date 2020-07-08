@@ -148,6 +148,8 @@ public:
   std::ostream & outputResults(std::ostream& outputStream) const;
   std::ostream & outputVerboseResults(std::ostream& outputStream, double endSimTime=0) const;
 
+  void recordStartEndSweepVals(const double sweepVal);
+
   const Base *find(const std::string &name) const;
 
   void remeasure(
@@ -191,9 +193,14 @@ private:
   double measGlobalDefaultVal_;
   bool measGlobalDefaultValGiven_;
 
+  // used for recording start/end values for AC, DC and NOISE sweeps
+  bool firstSweepValueFound_;
+  double startSweepValue_;
+  double endSweepValue_;
+
   MeasurementVector     allMeasuresList_;
   MeasurementVector     activeMeasuresList_;
-  
+
   //added to help register lead currents with device manager
   std::set<std::string> devicesNeedingLeadCurrents_;   
 };

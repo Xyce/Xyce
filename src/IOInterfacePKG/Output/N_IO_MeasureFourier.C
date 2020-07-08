@@ -457,7 +457,8 @@ std::ostream& Fourier::printVerboseMeasureResult( std::ostream& os)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-void Fourier::printMeasureWarnings(const double endSimTime)
+void Fourier::printMeasureWarnings(const double endSimTime, const double startSweepVal,
+                                   const double endSweepVal)
 {
   //no op
 }
@@ -470,7 +471,8 @@ void Fourier::printMeasureWarnings(const double endSimTime)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& Fourier::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& Fourier::printMeasureWindow(std::ostream& os, const double endSimTime,
+				          const double startSweepVal, const double endSweepVal)
 {
   //no op
   return os;

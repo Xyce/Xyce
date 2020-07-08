@@ -52,6 +52,7 @@ FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureB
   lastDepVarValue_(0.0),
   lastOutputVarValue_(0.0),
   lastTargValue_(0.0),
+  startDCMeasureWindow_(0.0),
   whenIdx_(0)
 
 {
@@ -110,6 +111,7 @@ void FindWhen::reset()
   lastDepVarValue_=0.0;
   lastOutputVarValue_=0.0;
   lastTargValue_=0.0;
+  startDCMeasureWindow_=0.0;
 }
 
 
@@ -313,16 +315,16 @@ void FindWhen::updateDC(
   // In that case, a DC MEASURE will be reported as FAILED.
   if ( dcParamsVec.size() > 0 )
   {
-    double dcSweepVal = setDCSweepVal(dcParamsVec);
-    double stepVal = dcParamsVec[0].stepVal;
+    double dcSweepVal = getDCSweepVal(dcParamsVec);
+    if (dcParamsVec[0].stepVal < 0)
+      dcSweepAscending_=false;
 
-    // Used in descriptive output to stdout. Store name and first/last values of
-    // first variable found in the DC sweep vector, or the first/last
-    // table row indexes.
-    sweepVar_= setDCSweepVarName(dcParamsVec);
-    recordStartEndACDCNoiseSweepVals(dcSweepVal);
+    // Used in descriptive output to stdout. Store name of first variable found in
+    // the DC sweep vector.
+    sweepVar_= getDCSweepVarName(dcParamsVec);
+    firstSweepValueFound_ = true;
 
-    if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal, stepVal) )
+    if( !calculationDone_ && withinDCsweepFromToWindow(dcSweepVal) )
     {
       outVarValues_[0] = getOutputValue(comm, outputVars_[0],
                                         solnVec, stateVec, storeVec, 0,
@@ -335,14 +337,16 @@ void FindWhen::updateDC(
         solnVec, stateVec, storeVec, 0, lead_current_vector,
         junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
-      // Used in descriptive output to stdout. These are the first/last values
-      // within the measurement window.
-      recordStartEndACDCNoiseMeasureWindow(dcSweepVal);
+      if (!firstStepInMeasureWindow_)
+      {
+        startDCMeasureWindow_ = dcSweepVal;
+        firstStepInMeasureWindow_ = true;
+      }
 
       // The second part of this conditional is needed to deal with multiple sweep
       // variables.  We need to reset the last value variables, each time the first
       // sweep variable rolls over.
-      if( !initialized_ || (initialized_ && dcSweepVal == startACDCNoiseMeasureWindow_) )
+      if( !initialized_ || (initialized_ && dcSweepVal == startDCMeasureWindow_) )
       {
         // Assigned last independent and dependent var to dcSweepVal and outVarValue_[whenIdx_]
         // While we can't interpolate on this step, it ensures that the initial history is
@@ -477,18 +481,14 @@ void FindWhen::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
-
-    // Used in descriptive output to stdout. These are the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if( !initialized_ )
     {
@@ -626,8 +626,8 @@ void FindWhen::updateNoise(
   const double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
-  // Used in descriptive output to stdout. Store first/last frequency values
-  recordStartEndACDCNoiseSweepVals(frequency);
+  // Used in descriptive output to stdout
+  firstSweepValueFound_ = true;
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
@@ -635,10 +635,6 @@ void FindWhen::updateNoise(
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0,
                      totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
-
-    // Used in descriptive output to stdout. These are the first/last values
-    // within the measurement window.
-    recordStartEndACDCNoiseMeasureWindow(frequency);
 
     if( !initialized_ )
     {
@@ -837,11 +833,12 @@ std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/8/2020
 //-----------------------------------------------------------------------------
-std::ostream& FindWhen::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& FindWhen::printMeasureWindow(std::ostream& os, const double endSimTime,
+				           const double startSweepVal, const double endSweepVal)
 {
   if (!atGiven_)
   {
-    Base::printMeasureWindow(os,endSimTime);
+    Base::printMeasureWindow(os, endSimTime, startSweepVal, endSweepVal);
   }
   else
   {

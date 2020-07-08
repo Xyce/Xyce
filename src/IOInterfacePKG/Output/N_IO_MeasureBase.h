@@ -145,7 +145,7 @@ public:
     bool withinRiseFallCrossWindow( double measureVal, double crossVal  );
     bool newRiseFallCrossWindowforLast();
     void setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag ); 
-    bool withinDCsweepFromToWindow( double sweepValue, double stepVal ); //used with DC
+    bool withinDCsweepFromToWindow( double sweepValue ); //used with DC
     bool withinMinMaxThresh( double value);
 
     // used to call the output manager's getPrgetImmutableValue<int>()
@@ -176,18 +176,14 @@ public:
     std::string getMeasurePrintOption() { return measurePrintOption_; }
 
     // used to print warnings about measurement time window, etc.
-    virtual void printMeasureWarnings(const double endSimTime);
+    virtual void printMeasureWarnings(const double endSimTime, const double startSweepVal,
+                                      const double endSweepVal);
 
-    // used to record start/end sweep values, and the start/end of the measurement window,
-    // for AC, DC and NOISE measures
-    void recordStartEndACDCNoiseSweepVals(const double sweepVal);
-    void recordStartEndACDCNoiseMeasureWindow(const double sweepVal);
-
-    std::string setDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
-    double      setDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec);
+    std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
 
     // used to print message about measurement time window, etc.
-    virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
+    virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+                                             const double startSweepVal, const double endSweepVal);
     std::string setModeStringForMeasureWindowText();
     std::string setModeStringForMeasureResultText();
 
@@ -363,13 +359,11 @@ public:
     double rfcWindowStartTime_;
     double rfcWindowEndTime_;
 
-    // variables used to record start/end of Sweep window for AC and DC measures
+    // variables used for evaluating FROM-TO window for DC measures, and for printing
+    // out the measure window info for AC, DC and NOISE measures.
     ExtendedString sweepVar_;
-    double startACDCNoiseMeasureWindow_; // used to record FROM-TO values
-    double endACDCNoiseMeasureWindow_;
-    double startSweepValue_; // used to record first/last values of AC, DC or NOISE sweep vector
-    double endSweepValue_;
     bool firstSweepValueFound_;
+    bool dcSweepAscending_;
 
     // used for error checking (find without a when qualifer) and for differentiating
     // between a find and a find-when measure
@@ -424,6 +418,8 @@ public:
     int independentVarColumn_;            // if the data file has more then two columns, this is the indpendent var column (defaults to 0)
     int dependentVarColumn_;              // if there are more then two columns in the data file, this is the dependent var (defaults to 1);
 };
+
+double getDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec);
 
 } // namespace Measure
 } // namespace IO
