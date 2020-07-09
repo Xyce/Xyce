@@ -11,7 +11,7 @@ CXXFLAGS =  -std=c++11 -DUSE_TYPE_DOUBLE  -g -I/usr/local/include/ $(INCLUDE)
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
 MAINLIBS = -Wl,--no-as-needed -ldl -lm -lgtest -lgtest_main
-RCPLIBS =  -lteuchoscomm -lteuchosparameterlist -lteuchoscore -lteuchoskokkoscomm -lteuchoskokkoscompat -lkokkoscore -lteuchosnumerics -lteuchosremainder  -pthread
+RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosnumerics -lteuchosremainder -pthread
 
 all:  test
 
