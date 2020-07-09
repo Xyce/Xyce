@@ -44,6 +44,14 @@ handling of global parameters, and the only workaround had been to
 avoid such parameter names.  This workaround is no longer
 necessary. \\ \hline
 
+\textbf{1310-SON}: Improve FROM and TO info printed to stdout for AC,
+DC and Noise measures & The information printed to stdout for the
+start and end points of the measurement window, for AC, DC and NOISE
+measures, is now correct for cases where the FROM and/or TO values
+are not equal to a sweep value.  That information is also now
+correct for DERIV-WHEN, FIND-WHEN and WHEN measures.
+\\ \hline
+
 \textbf{1307-SON}: Improve Compatibility of .MEASURE with .DATA &
 If a \texttt{.DATA} statement is used to define a table-based sweep
 on a \texttt{.DC} line then \texttt{DC} measures now correctly use
