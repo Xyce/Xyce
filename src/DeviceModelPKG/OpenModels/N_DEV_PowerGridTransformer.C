@@ -503,14 +503,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 {
   // the Variable Tap (VT) and Phase Shift (PS) transformer have a fifth column
   // in their Jacobian for the control input (either N or Phi)
-  if ( transType_ == VT)
-  {
-    addInternalNode(symbol_table, li_N, getName(), "N");
-  }
-  else if ( transType_ == PS)
-  {
-    addInternalNode(symbol_table, li_Phi, getName(), "Phi");
-  }
+  // the extra node symbol for N or Phi does not need to be added since it is external
 }
 
 //-----------------------------------------------------------------------------
