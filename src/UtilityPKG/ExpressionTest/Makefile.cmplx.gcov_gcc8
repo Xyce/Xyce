@@ -7,7 +7,7 @@ BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib  $(LIBDIRTRI)
 LIBPATH_AST = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/
 CXXFLAGS_AST =  -O0 -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  $(INCLUDE)
 CXXFLAGS     =  -O0  -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  -I/opt/local/include/ $(INCLUDE)
 
@@ -16,8 +16,7 @@ CXXFLAGS     =  -O0  -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++11 -I
 XYCELIBS = -std=c++11 -fno-inline -fprofile-arcs -ftest-coverage -g -O0 -Wl,-framework -Wl,Accelerate -Wl,-bind_at_load -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib -L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosremainder -lteuchosnumerics -lteuchoscomm -lteuchosparameterlist -lteuchoscore -lkokkoscore -lgtest -lgtest_main 
 
 all:  test
-
-test:  complexParserUnitTest   
+test:  complexParserUnitTest 
 
 # expression lexer/parser
 ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h ../N_UTL_Interpolators.h
@@ -44,11 +43,32 @@ N_UTL_ExtendedString.o: ../N_UTL_ExtendedString.C ../N_UTL_ExtendedString.h
 N_UTL_NoCase.o: ../N_UTL_NoCase.C ../N_UTL_NoCase.h
 	$(CXX) $(CXXFLAGS) -c $<
 
+N_ERH_Message.o: ../../ErrorHandlingPKG/N_ERH_Message.C ../../ErrorHandlingPKG/N_ERH_Message.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_ERH_Messenger.o: ../../ErrorHandlingPKG/N_ERH_Messenger.C ../../ErrorHandlingPKG/N_ERH_Messenger.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_ERH_ErrorMgr.o: ../../ErrorHandlingPKG/N_ERH_ErrorMgr.C ../../ErrorHandlingPKG/N_ERH_ErrorMgr.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_NetlistLocation.o: ../N_UTL_NetlistLocation.C ../N_UTL_NetlistLocation.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_Marshal.o: ../N_UTL_Marshal.C ../N_UTL_Marshal.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_LogStream.o: ../N_UTL_LogStream.C ../N_UTL_LogStream.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_ReportHandler.o: ../N_UTL_ReportHandler.C ../N_UTL_ReportHandler.h
+	$(CXX) $(CXXFLAGS) -c $<
+
 newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o ../N_UTL_Interpolators.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-complexParserUnitTest: complexParserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o   $(XYCELIBS)
+complexParserUnitTest: complexParserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  ../N_UTL_Interpolators.h
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o   N_UTL_NetlistLocation.o N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
 
 
 # these are both simple tests to see if I could get gcov/lcov to work.
