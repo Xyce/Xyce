@@ -353,7 +353,7 @@ public:
     return resolvedFunctions_;
   }
 
-  const Util::ParamList &getParams() const
+  const Util::UParamList &getParams() const
   {
     return resolvedParams_;
   }
@@ -412,7 +412,7 @@ private:
 
   ModelMap models_;
 
-  Util::ParamList unresolvedParams_;
+  Util::UParamList unresolvedParams_;
   std::set<std::string> globalNodes_;
   Util::ParamList unresolvedGlobalParams_;
   std::vector<FunctionBlock> unresolvedFunctions_;
@@ -432,7 +432,7 @@ private:
   std::string subcircuitPrefix_;
   unordered_map<std::string, std::string> nodeMap_; // note: does not need to be serialized.
   bool resolved_;
-  Util::ParamList resolvedParams_;
+  Util::UParamList resolvedParams_;
   Util::ParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
 };
