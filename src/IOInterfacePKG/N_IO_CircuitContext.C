@@ -1650,6 +1650,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
     return stringsResolved && functionsResolved;
 
   }
+ 
   // Handle quoted parameters e.g. "filename" (which get turned into
   // TABLEs)
   resolveQuote(parameter);
