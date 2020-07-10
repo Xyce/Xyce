@@ -43,6 +43,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include <iostream>
 
 #include <N_UTL_fwd.h>
 #include <N_UTL_Pack.h>
@@ -486,6 +487,16 @@ public:
   void setTimeDependent( bool timeDependent );
   bool isTimeDependent() const;
 
+  bool operator==(const Param &right) const
+  {
+    return (compare_nocase(tag_.c_str(), right.tag_.c_str()) == 0);
+  }
+
+  bool operator!=(const Param &right) const
+  {
+    return !(compare_nocase(tag_.c_str(), right.tag_.c_str()) == 0);
+  }
+
 private:
   std::string         tag_;
   ParamData<void> *   data_;
@@ -577,6 +588,7 @@ typename It::value_type *findParameter(It begin, It end, const std::string &name
 // deepCompare -- compare TAG and Value if TAGS are the same
 bool deepCompare(const Param &s0, const Param &s1);
 
+typedef unordered_set<Param> UParamList;
 typedef std::list<Param> ParamList;
 typedef unordered_map<std::string, Param, HashNoCase, EqualNoCase> ParamMap;
 typedef unordered_map<std::string, ParamMap, HashNoCase, EqualNoCase> OptionsMetadataMap;
@@ -649,5 +661,19 @@ bool setValue(const Xyce::Util::Param &param, const char *tag, std::vector<T> &v
 
 } // namespace Util
 } // namespace Xyce
+
+
+namespace std
+{
+template<>
+struct hash<Xyce::Util::Param>
+{
+  std::size_t operator()(const Xyce::Util::Param& p) const
+  {
+    std::size_t res = std::hash<std::string>{}(p.uTag());
+    return res;
+  }
+};
+}
 
 #endif
