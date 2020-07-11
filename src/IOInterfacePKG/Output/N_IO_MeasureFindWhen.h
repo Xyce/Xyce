@@ -98,7 +98,8 @@ public:
     const double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
-  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
+  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+				   const double startSweepVal, const double endSweepVal);
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);
@@ -118,6 +119,8 @@ private:
   double lastDepVarValue_;
   double lastOutputVarValue_;
   double lastTargValue_;
+
+  double startDCMeasureWindow_;
 
   // This variable controls what is tested against in the WHEN clause.  
   // It refers to an index in the outputVarValues_ array.  Its value 

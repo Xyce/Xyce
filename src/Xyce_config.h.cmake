@@ -28,7 +28,6 @@
 #cmakedefine Xyce_USE_ISORROPIA
 
 // Trilinos TPLs
-#cmakedefine Xyce_USE_PARMETIS
 #cmakedefine Xyce_AMD
 
 // FFT

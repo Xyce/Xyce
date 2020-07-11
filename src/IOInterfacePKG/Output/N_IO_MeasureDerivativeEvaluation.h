@@ -94,7 +94,8 @@ public:
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
   double getMeasureResult();
-  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
+  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+				   const double startSweepVal, const double endSweepVal);
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);

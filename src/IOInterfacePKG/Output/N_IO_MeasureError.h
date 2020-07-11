@@ -90,7 +90,8 @@ class Error : public Base
     std::ostream& printVerboseMeasureResult(std::ostream& os);
 
     // used to print message about measurement time/frequency window, etc.
-    std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
+    std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+				     const double startSweepVal, const double endSweepVal);
 
   private:
     // these are used to hold the variable names, and data from the external file

@@ -61,7 +61,8 @@ public:
   double getMeasureResult();
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
+  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
+				   const double startSweepVal, const double endSweepVal);
 
   void setMeasureVarsForNewWindow();
   void updateMeasureVars(const double indepVarVal, const double signalVal);

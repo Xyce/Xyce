@@ -181,7 +181,7 @@ public:
     return circuitContext_.getFunctions();
   }
 
-  const Util::ParamList &getMainContextParams() const
+  const Util::UParamList &getMainContextParams() const
   {
     return circuitContext_.getParams();
   }

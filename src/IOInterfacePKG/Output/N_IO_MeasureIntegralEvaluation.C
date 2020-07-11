@@ -101,26 +101,32 @@ void IntegralEvaluation::updateMeasureVars(const double indepVarVal, const doubl
 {
   if (fromGiven_ && toGiven_)
   {
-    // The first branch is always taken by TRAN, AC or NOISE measures.  For DC mode, we must account
-    // for both ascending and descending FROM-TO windows and the "direction" (increasing/decreasing)
-    // of first swept variable on .DC line.  This requires the addition of the next two branches
-    // to cover the other three cases.
-    if ((from_ <= to_) && (indepVarVal > startSweepValue_))
+    if (mode_ == "DC")
     {
-      integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
-    }
-    else if ( (from_ >= to_) && (indepVarVal < startSweepValue_) )
-    {
-      integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+      // For DC mode, we must account for both ascending and descending FROM-TO windows and
+      // the "direction" (increasing/decreasing) of first swept variable on .DC line.
+      if ((from_ <= to_) && dcSweepAscending_)
+      {
+        integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+      }
+      else if ((from_ >= to_) && !dcSweepAscending_)
+      {
+        integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+      }
+      else
+      {
+        integralValue_ -= 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+      }
     }
     else
     {
-      integralValue_ -= 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+      // handles AC, NOISE and TRAN cases
+      integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
     }
   }
   else
   {
-    // For the other three cases (FROM given, or TO given, or neither given, then the
+    // For the other three cases (FROM given, or TO given, or neither given, the
     // (indepVarVal - lastIndepVarValue_) term accounts for the sweep (integration) direction
     integralValue_ += 0.5 * (indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
   }

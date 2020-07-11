@@ -390,7 +390,7 @@ void CircuitContext::addParams(
     resolveQuote(parameter);
     resolveTableFileType(parameter);
     resolveStringType(parameter);
-    currentContextPtr_->unresolvedParams_.push_back(parameter);
+    currentContextPtr_->unresolvedParams_.insert(parameter);
   }
 }
 
@@ -635,6 +635,7 @@ void CircuitContext::addFunction(FunctionBlock const& function)
 bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstanceParams )
 {
   Util::ParamList retryParams;
+  Util::UParamList uretryParams;
   std::vector<FunctionBlock> retryFunctions;
 
   if (currentContextPtr_->subcircuitParameters_.empty() &&
@@ -658,9 +659,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   currentContextPtr_->resolvedGlobalParams_.clear();
   currentContextPtr_->resolvedFunctions_.clear();
 
-
   Util::ParamList asYetUnresolvedSubcircuitParameters=currentContextPtr_->subcircuitParameters_;
-  Util::ParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
+  Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
   Util::ParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
   std::vector<FunctionBlock> asYetUnresolvedFunctions=currentContextPtr_->unresolvedFunctions_;
 
@@ -676,11 +676,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     resolvedSomethingThisLoop=false;
     somethingLeftToDo=false;
     retryParams.clear();
+    uretryParams.clear();
     retryFunctions.clear();
 
     // Add subcircuitParameters_ to the set of resolved parameters.
     // currentContextPtr_->resolvedParams_.addParameters( currentContextPtr_->subcircuitParameters_ );
+    Util::Param* paramPtr;
     Util::Param parameter;
+    Util::UParamList::iterator ustart, uend, uparamIter;
     Util::ParamList::iterator paramIter;
     Util::ParamList::iterator start =
       asYetUnresolvedSubcircuitParameters.begin();
@@ -688,65 +691,64 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       asYetUnresolvedSubcircuitParameters.end();
     for (paramIter = start; paramIter != end; ++paramIter)
     {
-      Util::Param par = *paramIter;
+      parameter = *paramIter;
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve attempting to resolve" << par.uTag()<< std::endl;
+        Xyce::dout() << " CircuitContext::resolve attempting to resolve" << parameter.uTag()<< std::endl;
       }
 
-      if (par.getType() == Xyce::Util::STR && !par.isNumeric())
+      if (parameter.getType() == Xyce::Util::STR && !parameter.isNumeric())
       {
-        ExtendedString arg ( par.stringValue() );
+        ExtendedString arg ( parameter.stringValue() );
         arg.toUpper();
         if (arg.possibleParam())
         {
-          par.setVal(std::string("{" + arg + "}"));
+          parameter.setVal(std::string("{" + arg + "}"));
         }
       }
 
-      if (!resolveParameter(par))
+      if (!resolveParameter(parameter))
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "Unable to resolve subcircuit param " << par.uTag() << std::endl;
+          Xyce::dout() << "Unable to resolve subcircuit param " << parameter.uTag() << std::endl;
         }
 
-        retryParams.push_back(par);
+        retryParams.push_back(parameter);
         somethingLeftToDo=true;
       }
       else
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "resolveParameter returned true on parameter " << par.uTag() << " after resolution its type is " << par.getType() << "with value " ;
-          switch (par.getType()) {
+          Xyce::dout() << "resolveParameter returned true on parameter " << parameter.uTag() << " after resolution its type is " << parameter.getType() << "with value " ;
+          switch (parameter.getType()) {
             case Xyce::Util::STR:
-              Xyce::dout() << par.stringValue();
+              Xyce::dout() << parameter.stringValue();
               break;
             case Xyce::Util::DBLE:
-              Xyce::dout() << par.getImmutableValue<double>();
+              Xyce::dout() << parameter.getImmutableValue<double>();
               break;
             case Xyce::Util::EXPR:
-              Xyce::dout() << par.getValue<Util::Expression>().get_expression();
+              Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
               break;
             default:
-              Xyce::dout() << par.stringValue();
+              Xyce::dout() << parameter.stringValue();
           }
           Xyce::dout() << std::endl;
         }
 
-        currentContextPtr_->resolvedParams_.push_back(par);
+        currentContextPtr_->resolvedParams_.insert(parameter);
         resolvedSomethingThisLoop=true;
       }
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve done attempting to resolve" << par.uTag()<< std::endl;
+        Xyce::dout() << " CircuitContext::resolve done attempting to resolve" << parameter.uTag()<< std::endl;
       }
     }
     asYetUnresolvedSubcircuitParameters=retryParams;
     retryParams.clear();
 
-    Util::Param* paramPtr;
     // Reset the subcircuit parameter values with the instance parameter
     // values as needed.
     int i;
@@ -778,41 +780,40 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       // Look for the parameter in resolvedParams_, issue
       // a warning and continue if not found. Otherwise, if found
       // set the value.
-      parameter.setTag(subcircuitInstanceParams[i].uTag());
-      paramPtr = Util::findParameter(currentContextPtr_->resolvedParams_.begin(), currentContextPtr_->resolvedParams_.end(), parameter.tag());
-
-      if ( paramPtr == NULL )
+       
+      std::pair<Util::UParamList::iterator, bool> rP_iter = currentContextPtr_->resolvedParams_.insert(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
+      if ( rP_iter.second )
       {
-        currentContextPtr_->resolvedParams_.push_back(subcircuitInstanceParams[i]);
         if (DEBUG_IO)
         {
-          Xyce::dout() << " did not find in resolvdParams_, adding parameter " << subcircuitInstanceParams[i].uTag() << std::endl;
+          Xyce::dout() << " did not find in resolvedParams_, adding parameter " << subcircuitInstanceParams[i].uTag() << std::endl;
         }
       }
       else
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << " found in resolvdParams_, setting parameter " << paramPtr->uTag() << std::endl;
+          Xyce::dout() << " found in resolvedParams_, setting parameter " << subcircuitInstanceParams[i].uTag() << std::endl;
         }
-
-        paramPtr->setVal(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
+       
+        Util::Param& par = const_cast<Util::Param&>(*rP_iter.first);     
+        par.setVal(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
       }
     }
 
     // Resolve any .PARAM parameters in the current context and add to
     // the resolvedParams_.
-    start = asYetUnresolvedParameters.begin();
-    end = asYetUnresolvedParameters.end();
-    for (paramIter = start; paramIter != end; ++paramIter)
+    ustart = asYetUnresolvedParameters.begin();
+    uend = asYetUnresolvedParameters.end();
+    for (uparamIter = ustart; uparamIter != uend; ++uparamIter)
     {
-      parameter = *paramIter;
+      parameter = *uparamIter;
 
       if (!resolveParameter(parameter))
       {
         // save it for later, because it might use functions that haven't
         // been resolved yet.
-        retryParams.push_back(parameter);
+        uretryParams.insert(parameter);
         somethingLeftToDo=true;
       }
       else
@@ -830,12 +831,12 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 	    Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
 	  }
         }
-        currentContextPtr_->resolvedParams_.push_back(parameter);
+        currentContextPtr_->resolvedParams_.insert(parameter);
         resolvedSomethingThisLoop=true;
       }
     }
-    asYetUnresolvedParameters=retryParams;
-    retryParams.clear();
+    asYetUnresolvedParameters=uretryParams;
+    uretryParams.clear();
 
     // Resolve any .GLOBAL_PARAM parameters in the current context and add to
     // the resolvedGlobalParams_.
@@ -1004,7 +1005,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       Report::UserError0() << "Unable to resolve .subckt parameter " << (*it).uTag() << " found in .PARAM statement";
     }
 
-    for (Util::ParamList::iterator it = asYetUnresolvedParameters.begin(); it != asYetUnresolvedParameters.end(); ++it)
+    for (Util::UParamList::iterator it = asYetUnresolvedParameters.begin(); it != asYetUnresolvedParameters.end(); ++it)
     {
       Report::UserError0() << "Unable to resolve parameter " << (*it).uTag() << " found in .PARAM statement";
     }
@@ -1387,6 +1388,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter,
     return stringsResolved && functionsResolved;
 
   }
+ 
   // Handle quoted parameters e.g. "filename" (which get turned into
   // TABLEs)
   resolveQuote(parameter);
@@ -1651,12 +1653,13 @@ bool CircuitContext::getResolvedParameter(Util::Param & parameter) const
 {
   bool success = false;
 
-  const Util::Param* parameterPtr = findParameter(currentContextPtr_->resolvedParams_.begin(), currentContextPtr_->resolvedParams_.end(), parameter.tag());
-  if (parameterPtr != NULL)
+  Util::UParamList::const_iterator rP_iter = currentContextPtr_->resolvedParams_.find( parameter );
+ 
+  if ( rP_iter != currentContextPtr_->resolvedParams_.end() )
   {
     // Found a parameter with given name, set the value
     // of parameter and return.
-    parameter.setVal(*parameterPtr);
+    parameter.setVal(*rP_iter);
     success = true;
   }
   else if (currentContextPtr_->parentContextPtr_ != NULL)
@@ -2599,7 +2602,7 @@ int Pack<IO::CircuitContext>::packedByteCount(
   // count unresolved params
   size = circuit_context.unresolvedParams_.size();
   byteCount += sizeof( int );
-  for (Util::ParamList::const_iterator it = circuit_context.unresolvedParams_.begin(), end = circuit_context.unresolvedParams_.end(); it != end; ++it)
+  for (Util::UParamList::const_iterator it = circuit_context.unresolvedParams_.begin(), end = circuit_context.unresolvedParams_.end(); it != end; ++it)
   {
     byteCount += Pack<Util::Param>::packedByteCount(*it);
   }
@@ -2757,7 +2760,7 @@ Pack<IO::CircuitContext>::pack(
   // pack unresolved params
   size = circuit_context.unresolvedParams_.size();
   comm->pack( &size, 1, buf, bsize, pos );
-  for (Util::ParamList::const_iterator it = circuit_context.unresolvedParams_.begin(), end = circuit_context.unresolvedParams_.end(); it != end; ++it)
+  for (Util::UParamList::const_iterator it = circuit_context.unresolvedParams_.begin(), end = circuit_context.unresolvedParams_.end(); it != end; ++it)
   {
     Pack<Util::Param>::pack(*it, buf, bsize, pos, comm );
   }
@@ -2926,7 +2929,7 @@ Pack<IO::CircuitContext>::unpack(
   {
     Util::Param aParam;
     Pack<Util::Param>::unpack(aParam, pB, bsize, pos, comm );
-    circuit_context.unresolvedParams_.push_back( aParam );
+    circuit_context.unresolvedParams_.insert( aParam );
   }
 
   // unpack global node names

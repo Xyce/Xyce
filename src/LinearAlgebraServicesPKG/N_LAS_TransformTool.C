@@ -165,7 +165,7 @@ operator()( const Util::OptionBlock & options )
 #endif
 
   // Change graph to hypergraph partitioning if ParMETIS is not enabled.
-#ifndef Xyce_USE_PARMETIS
+#ifndef HAVE_LIBPARMETIS
   if ( partition && ( partition_type == "GRAPH" ) ) {
     Report::UserWarning0()
         << "TransformTool::operator():  ParMETIS not enabled, changing partitioning to HYPERGRAPH.";

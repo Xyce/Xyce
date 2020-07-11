@@ -125,11 +125,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     rfcWindowStartTime_(0.0),
     rfcWindowEndTime_(0.0),
     sweepVar_(""),
-    startACDCNoiseMeasureWindow_(0.0),
-    endACDCNoiseMeasureWindow_(0.0),
-    startSweepValue_(0.0),
-    endSweepValue_(0.0),
     firstSweepValueFound_(false),
+    dcSweepAscending_(true),
     findGiven_(false),
     whenGiven_(false),
     fractionToExtrema_(0.0),
@@ -648,7 +645,7 @@ bool Base::withinFreqWindow( double freq )
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 04/26/2017
 //-----------------------------------------------------------------------------
-bool Base::withinDCsweepFromToWindow(double sweepValue, double stepVal )
+bool Base::withinDCsweepFromToWindow(double sweepValue)
 {
   // function used for DC mode
   bool retVal = true;
@@ -673,13 +670,13 @@ bool Base::withinDCsweepFromToWindow(double sweepValue, double stepVal )
   else if (toGiven_)
   {
     // handle both ascending and descending sweeps
-    if ( ((stepVal >= 0) && (sweepValue > to_)) || ((stepVal < 0) && (sweepValue < to_)) )
+    if ( (dcSweepAscending_ && (sweepValue > to_)) || (!dcSweepAscending_ && (sweepValue < to_)) )
       retVal = false;
   }
   else if (fromGiven_)
   {
     // handle both ascending and descending sweeps
-    if ( ((stepVal >= 0) && (sweepValue < from_)) || ((stepVal < 0) && (sweepValue > from_)) )
+    if ( (dcSweepAscending_ && (sweepValue < from_)) || (!dcSweepAscending_ && (sweepValue > from_)) )
       retVal = false;
   }
 
@@ -890,10 +887,9 @@ void Base::resetBase()
   isRising_=false;
   isFalling_=false;
 
-  // reset values associated with recording min/max DC sweep vector values
+  // reset values associated with sweep vector values
   firstSweepValueFound_=false;
-  startSweepValue_=0.0;
-  endSweepValue_=0.0;
+  dcSweepAscending_=true;
 
   // reset default values
   calculationResult_ = calculationDefaultVal_;
@@ -907,8 +903,6 @@ void Base::resetBase()
   rfcWindowFound_ = false;
   rfcWindowStartTime_ = 0.0;
   rfcWindowEndTime_ = 0.0;
-  startACDCNoiseMeasureWindow_ = 0.0;
-  endACDCNoiseMeasureWindow_ = 0.0;
 }
 
 
@@ -949,7 +943,8 @@ double Base::getOutputValue(
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-void Base::printMeasureWarnings(const double endSimTime)
+void Base::printMeasureWarnings(const double endSimTime, const double startSweepVal,
+                                const double endSweepVal)
 {
   if ( (calculationResult_ == calculationDefaultVal_) &&
        ( mode_ == "TRAN" || mode_ == "AC" || mode_ == "NOISE") )
@@ -990,11 +985,11 @@ void Base::printMeasureWarnings(const double endSimTime)
     }
     else if ( (mode_ == "AC") || (mode_ == "NOISE") )
     {
-      if ( ( fromGiven_ && from_ >= endSweepValue_ ) || ( tdGiven_ && td_ >= endSweepValue_ ) )
+      if ( ( fromGiven_ && from_ >= endSweepVal ) || ( tdGiven_ && td_ >= endSweepVal ) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. FROM value > highest frequency value";
       }
-      else if ( atGiven_ && (at_ < startSweepValue_ || at_ > endSweepValue_) )
+      else if ( atGiven_ && (at_ < startSweepVal || at_ > endSweepVal) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside frequency sweep window";
       }
@@ -1007,51 +1002,8 @@ void Base::printMeasureWarnings(const double endSimTime)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MeasureBase::recordStartEndACDCNoiseSweepVals
-// Purpose       : Used to record start/end sweep values for AC, DC and NOISE measures.
-// Special Notes : For AC and NOISE measures, sweepVal is frequency. For DC measures, it
-//                 is the value of the first variable in the DC sweep vector.
-// Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystem Modeling
-// Creation Date : 05/2/2020
-//-----------------------------------------------------------------------------
-void Base::recordStartEndACDCNoiseSweepVals(const double sweepVal)
-{
-  if (!firstSweepValueFound_)
-  {
-    startSweepValue_ = sweepVal;
-    firstSweepValueFound_ = true;
-  }
-  endSweepValue_ = sweepVal;
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MeasureBase::recordStartEndACDCsmeasureWindow
-// Purpose       : Used to record the start/end of the measurement window.
-//                 for AC, DC and NOISE measures
-// Special Notes : For AC and NOISE measures, sweepVal is frequency. For DC measures,
-//                 it is the value of the first variable in the DC sweep vector.
-// Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystem Modeling
-// Creation Date : 05/2/2020
-//-----------------------------------------------------------------------------
-void Base::recordStartEndACDCNoiseMeasureWindow(const double sweepVal)
-{
-  if (!firstStepInMeasureWindow_)
-  {
-    startACDCNoiseMeasureWindow_ = sweepVal;
-    firstStepInMeasureWindow_ = true;
-  }
-  endACDCNoiseMeasureWindow_ = sweepVal;
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MeasureBase::setDCSweepVarName
-// Purpose       : Used to record the name of the DC sweep variable that is
+// Function      : MeasureBase::getDCSweepVarName
+// Purpose       : Used to get the name of the DC sweep variable that is
 //                 used for the measurement window.
 // Special Notes : For TABLE-based sweeps (for .DC data=table), it is the row
 //                 index for that table.  For all other DC sweep types, it
@@ -1060,7 +1012,7 @@ void Base::recordStartEndACDCNoiseMeasureWindow(const double sweepVal)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 06/16/2020
 //-----------------------------------------------------------------------------
-std::string Base::setDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec)
+std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec)
 {
   ExtendedString sweepVarName("");
 
@@ -1076,30 +1028,6 @@ std::string Base::setDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MeasureBase::setDCSweepVal
-// Purpose       : Used to set the current value of the DC sweep variable that is
-//                 used for the measurement window.
-// Special Notes : For TABLE-based sweeps (for .DC data=table), it is the current
-//                 row index within that table where that index starts at 1.  For
-//                 all other DC sweep types, it is the current value of the first
-//                 variable in the DC sweep vector.
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 06/16/2020
-//-----------------------------------------------------------------------------
-double Base::setDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec)
-{
-  double sweepVal;
-  if (dcParamsVec[0].type == "TABLE")
-    sweepVal = (dcParamsVec[0].count%dcParamsVec[0].maxStep) +1 ;
-  else
-    sweepVal = dcParamsVec[0].currentVal;
-
- return sweepVal;
-
-}
-
-//-----------------------------------------------------------------------------
 // Function      : MeasureBase::printMeasureWindow
 // Purpose       : prints information related to time, frequency or DC sweep
 //                 window used.
@@ -1108,7 +1036,8 @@ double Base::setDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime,
+				       const double startSweepVal, const double endSweepVal)
 {
   basic_ios_all_saver<std::ostream::char_type> save(os);
   os << std::scientific << std::setprecision(precision_);
@@ -1125,20 +1054,56 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 
     endOfWindow = (toGiven_) ? to_ : endSimTime;
   }
-  else if ( (mode_== "AC") || (mode_ == "DC") || (mode_ == "NOISE") )
+  else if ( (mode_== "AC") || (mode_ == "NOISE") )
   {
-    // handle AC and DC cases
+    // handle AC and NOISE cases
     if (initialized_)
     {
-      startOfWindow = startACDCNoiseMeasureWindow_;
-      endOfWindow = endACDCNoiseMeasureWindow_;
+      startOfWindow = (fromGiven_) ? std::max(from_,startSweepVal) : startSweepVal;
+      endOfWindow = (toGiven_) ? std::min(to_,endSweepVal) : endSweepVal;
     }
     else
     {
-      startOfWindow = startSweepValue_;
-      endOfWindow = endSweepValue_;
+      startOfWindow = startSweepVal;
+      endOfWindow = endSweepVal;
     }
-    
+  }
+  else if (mode_ == "DC")
+  {
+    if (initialized_)
+    {
+      // adjust the FROM and TO values, printed to stdout, based on the direction
+      // (ascending or descending) of the DC sweep.
+      double fromVal, toVal;
+      if ( (fromGiven_ && toGiven_ && dcSweepAscending_ && (from_ > to_)) ||
+           (fromGiven_ && toGiven_ && !dcSweepAscending_ && (from_ < to_)) )
+      {
+        fromVal = to_;
+        toVal = from_;
+      }
+      else
+      {
+        fromVal = from_;
+        toVal = to_;
+      }
+
+      // account for both sweep directions, relative to FROM and TO values (if given).
+      if (dcSweepAscending_)
+      {
+        startOfWindow = (fromGiven_) ? std::max(fromVal,startSweepVal) : startSweepVal;
+        endOfWindow = (toGiven_) ? std::min(toVal,endSweepVal) : endSweepVal;
+      }
+      else
+      {
+        startOfWindow = (fromGiven_) ? std::min(fromVal,startSweepVal) : startSweepVal;
+        endOfWindow = (toGiven_) ? std::max(toVal,endSweepVal) : endSweepVal;
+      }
+    }
+    else
+    {
+      startOfWindow = startSweepVal;
+      endOfWindow = endSweepVal;
+    }
   }
 
   // modeStr is "Time" for TRAN mode, "Freq" for AC mode and 
@@ -1298,7 +1263,29 @@ bool Base::checkMeasureLine()
   return bsuccess;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : getDCSweepVal
+// Purpose       : Used to get the current value of the DC sweep variable that
+//                 will be used for the measurement window.
+// Special Notes : For TABLE-based sweeps (for .DC data=table), it is the current
+//                 row index within that table where that index starts at 1.  For
+//                 all other DC sweep types, it is the current value of the first
+//                 variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/16/2020
+//-----------------------------------------------------------------------------
+double getDCSweepVal(const std::vector<Analysis::SweepParam> & dcParamsVec)
+{
+  double sweepVal;
+  if (dcParamsVec[0].type == "TABLE")
+    sweepVal = (dcParamsVec[0].count%dcParamsVec[0].maxStep) +1 ;
+  else
+    sweepVal = dcParamsVec[0].currentVal;
 
-} // namespace IO
+ return sweepVal;
+}
+
+} // namespace Measure
 } // namespace IO
 } // namespace Xyce

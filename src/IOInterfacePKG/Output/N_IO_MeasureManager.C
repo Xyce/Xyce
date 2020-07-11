@@ -102,7 +102,10 @@ Manager::Manager(
     measOut_(true),
     measOutGiven_(false),
     measGlobalDefaultVal_(-1),
-    measGlobalDefaultValGiven_(false)
+    measGlobalDefaultValGiven_(false),
+    firstSweepValueFound_(false),
+    startSweepValue_(0.0),
+    endSweepValue_(0.0)
 {}
 
 //-----------------------------------------------------------------------------
@@ -454,6 +457,11 @@ void Manager::updateDCMeasures(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  // Used in descriptive output to stdout. Store first/last values of first variable
+  // found in the DC sweep vector, or the first/last table row indexes for a data sweep.
+  if ( dcParamsVec.size() > 0 )
+    recordStartEndSweepVals(getDCSweepVal(dcParamsVec));
+
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
     (*it)->updateDC(comm, dcParamsVec, solnVec, stateVec, storeVec, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
@@ -478,6 +486,9 @@ void Manager::updateACMeasures(
   const Linear::Vector *imaginary_solution_vector,
   const Util::Op::RFparamsData *RFparams)
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndSweepVals(frequency);
+
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
     (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector, RFparams);
@@ -504,6 +515,9 @@ void Manager::updateNoiseMeasures(
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec
   )
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  recordStartEndSweepVals(frequency);
+
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it)
   {
     (*it)->updateNoise(comm, frequency, real_solution_vector, imaginary_solution_vector,
@@ -596,14 +610,14 @@ std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double 
       if ( ((*it)->getMeasurePrintOption() == "ALL") || ((*it)->getMeasurePrintOption() == "STDOUT") )
       { 
         // this function prints out diagnostic information if the measure failed.  An example
-        // is a nonsensical time window.  It currently prints no info for frequency-based measures
-        (*it)->printMeasureWarnings( endSimTime );
+        // is a nonsensical time window.
+        (*it)->printMeasureWarnings( endSimTime, startSweepValue_, endSweepValue_ );
         // this function prints the measure value, and measure times if appropriate for a given measure such as
         // MIN, MAX, PP, TRIG/TARG
         (*it)->printVerboseMeasureResult(outputStream);
-        // this function print out information about the time window used.  It prints out
-        // no information for frequency-based measures  
-        (*it)->printMeasureWindow( outputStream, endSimTime );
+        // this function print out information about the measurement window used.  The sweep values
+        // refer to the AC, DC or NOISE sweep values.
+        (*it)->printMeasureWindow( outputStream, endSimTime, startSweepValue_, endSweepValue_ );
         // this function prints out information about the time window used for Rise/Fall/Cross
         // if one of those keywords was specified
         (*it)->printRFCWindow( outputStream );
@@ -613,6 +627,27 @@ std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double 
   }
   
   return outputStream;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Manager::recordStartEndACDCNoiseSweepVals
+// Purpose       : Used to record start/end sweep values for AC, DC and NOISE measures.
+// Special Notes : For AC and NOISE measures, sweepVal is frequency. For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystem Modeling
+// Creation Date : 06/30/2020
+//-----------------------------------------------------------------------------
+void Manager::recordStartEndSweepVals(const double sweepVal)
+{
+  if (!firstSweepValueFound_)
+  {
+    startSweepValue_ = sweepVal;
+    firstSweepValueFound_ = true;
+  }
+  endSweepValue_ = sweepVal;
+
+  return;
 }
 
 //-----------------------------------------------------------------------------

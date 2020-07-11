@@ -355,7 +355,7 @@ void Error::updateDC(
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;
-    sweepVar_= setDCSweepVarName(dcParamsVec); // used in descriptive output to stdout
+    sweepVar_= getDCSweepVarName(dcParamsVec); // used in descriptive output to stdout
   }
  
 }
@@ -465,7 +465,8 @@ std::ostream& Error::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/8/2016
 //-----------------------------------------------------------------------------
-std::ostream& Error::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& Error::printMeasureWindow(std::ostream& os, const double endSimTime,
+				        const double startSweepVal, const double endSweepVal)
 {
   // The measure window info is not printed for DC mode.
   if (mode_ != "DC")
