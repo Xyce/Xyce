@@ -1,3 +1,39 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//
+// Purpose        :
+//
+// Special Notes  :
+//
+// Creator        : Eric R. Keiter, SNL
+//
+// Creation Date  : 10/xx/2019
+//
+//
+//
+//
+//-----------------------------------------------------------------------------
 
 #include <iostream>
 #include <unordered_map>
@@ -647,11 +683,15 @@ bool outputsXyceExpressionGroup::getINoise(std::complex<double> & retval)
 // Creator       : Eric Keiter
 // Creation Date : 5/12/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, double & retval)
+bool outputsXyceExpressionGroup::getPower(const std::string & tag, const std::string & deviceName, double & retval)
 {
+  std::string tmpTag = tag;
+  Xyce::Util::toUpper(tmpTag);
+  if (tmpTag != "P" && tmpTag != "W") { tmpTag = "P"; }
+
   ParamList paramList;
-  paramList.push_back(Param(std::string("P"),1  ));
-  paramList.push_back(Param(      deviceName,0.0));
+  paramList.push_back(Param(    tmpTag, 1  ));
+  paramList.push_back(Param(deviceName,0.0));
   Op::OpList powerOps_;
 
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
@@ -684,10 +724,10 @@ bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, double
 // Creator       : Eric Keiter
 // Creation Date : 5/12/2020 
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getPower(const std::string & deviceName, std::complex<double> & retval)
+bool outputsXyceExpressionGroup::getPower(const std::string & tag, const std::string & deviceName, std::complex<double> & retval)
 {
   double val=0.0;
-  bool retBool = getPower(deviceName, val);
+  bool retBool = getPower(tag, deviceName, val);
   retval=std::complex<double>(val,0.0); 
   return retBool;
 }

@@ -459,6 +459,26 @@ ExpressionData::setup(
 
   state_ = READY;
 
+  // Check ops now.
+  //
+  // ERK.  The old expression library allocated all the necessary ops in this function, and 
+  // those allocations provided early error checking to see if the expression included any
+  // invalid ops.
+  //
+  // The new expression library provides values to the expression using the group object.
+  // So, all Ops needed by the expression are allocated and evaluated by the group.
+  //
+  // Currently, the outputs group allocates those Ops as it needs them, so the easiest 
+  // way to force them to be allocated at this stage is to simply evaluate the expression.
+  // The result of that evaluation is discarded.
+  //
+  if (expression_)
+  {
+    double result;
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    expression_->evaluateFunction(result);
+  }
+
   return state_;
 }
 

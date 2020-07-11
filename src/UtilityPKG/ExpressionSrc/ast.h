@@ -1,3 +1,39 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//
+// Purpose        :
+//
+// Special Notes  :
+//
+// Creator        : Eric R. Keiter, SNL
+//
+// Creation Date  : 10/xx/2019
+//
+//
+//
+//
+//-----------------------------------------------------------------------------
 
 #ifndef ast_H
 #define ast_H
@@ -1407,9 +1443,10 @@ template <typename ScalarT>
 class powerOp: public astNode<ScalarT>
 {
   public:
-    powerOp (std::string powerDevice):
+    powerOp ( std::string tag, std::string powerDevice):
       astNode<ScalarT>(),
       number_(0.0),
+      tag_(tag),
       powerDevice_(powerDevice),
       derivIndex_(-1)
     {
@@ -1437,6 +1474,7 @@ class powerOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setPowerDevice(const std::string & devName) { powerDevice_ = devName; }
+    std::string getPowerTag   () { return tag_; }
     std::string getPowerDevice() { return powerDevice_; }
     ScalarT getPowerVal () { return number_; }
     void setPowerVal (ScalarT n) { number_ = n; }
@@ -1448,6 +1486,7 @@ class powerOp: public astNode<ScalarT>
   private:
 // data:
     ScalarT number_;
+    std::string tag_; // either P or W
     std::string powerDevice_;
     int derivIndex_;
 };

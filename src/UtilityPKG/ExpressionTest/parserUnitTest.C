@@ -1,4 +1,40 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
 
+//-------------------------------------------------------------------------
+//
+// Purpose        :
+//
+// Special Notes  :
+//
+// Creator        : Eric R. Keiter, SNL, Parallel Computational Sciences
+//
+// Creation Date  : 10/xx/2019
+//
+//
+//
+//
+//-------------------------------------------------------------------------
+//
 // this is from  https://youtu.be/nbFXI9SDfbk
 //
 // can build with:
@@ -1018,7 +1054,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
   }
 
   void setPower(const std::string & deviceName, double & val) { return setSoln(deviceName, val); }
-  bool getPower(const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
+  bool getPower(const std::string & tag, const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
 
   private:
 
@@ -7173,7 +7209,6 @@ TEST ( Double_Parser_ErrorTest,  bad_obj_func)
   Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
 
-  // this expression will use the .func udfA.
   //Xyce::Util::newExpression testExpression(std::string("POW(I(VM),V(3),V(3))"), testGroup);  // this should fail, and does
   //Xyce::Util::newExpression testExpression(std::string("(I(VM),V(3)*V(3))"), testGroup);  // this should fail in parsing, and does
   //Xyce::Util::newExpression testExpression(std::string("{I(VM),V(3)*V(3)}"), testGroup);  // this should fail in parsing, and does
@@ -7260,6 +7295,40 @@ TEST ( Double_Parser_inlineComp, notEquiv)
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0e9);
 
   OUTPUT_MACRO2(Double_Parser_ternary_precedence, notEquiv, e11) 
+}
+
+
+// This test emits the following error messages:
+//
+// Netlist error: Function or variable W(YACC!ACC1) is not defined
+// Netlist error: Function or variable P(K1) is not defined
+// Netlist error: Function or variable W(K2) is not defined
+// Netlist error: Function or variable P(OLINE1) is not defined
+// Netlist error: Function or variable P(UAND1) is not defined
+// Netlist error: Function or variable P(YOR!OR1) is not defined
+//
+TEST ( Double_Parser_ErrorTest,  power_unsupported_devices)
+{
+  Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("{W(YACC!ACC1)}"), testGroup);
+  //Xyce::Util::newExpression testExpression(std::string("{P(K1)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+ 
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 1.0 );
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 1.0 );
+  OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_obj_func)
 }
 
 int main (int argc, char **argv)

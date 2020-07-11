@@ -1,3 +1,40 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//
+// Purpose        :
+//
+// Special Notes  :
+//
+// Creator        : Eric R. Keiter, SNL
+//
+// Creation Date  : 10/xx/2019
+//
+//
+//
+//
+//-----------------------------------------------------------------------------
+
 #ifndef _astfuncs_h_
 #define _astfuncs_h_
 
@@ -104,7 +141,8 @@ class atanhOp : public astNode<ScalarT>
     if      (std::real(arg) < std::real(Epsilon) - 1.0) { arg = Epsilon - 1.0; }
     else if (std::real(arg) > 1.0 - std::real(Epsilon)) { arg = 1.0 - Epsilon; }
 
-    return std::atanh(arg); // old expression library returns (log((1.0 + arg) / (1.0 - arg)) / 2.0)
+   // return std::atanh(arg); // old expression library returns (log((1.0 + arg) / (1.0 - arg)) / 2.0)
+    return (log((1.0 + arg) / (1.0 - arg)) / 2.0);  // ERK.  tried this, in hopes it would fixed bug 254 test. didn't help
   } 
 
   virtual ScalarT dx(int i) 
@@ -113,7 +151,7 @@ class atanhOp : public astNode<ScalarT>
     ScalarT retdx=0.0;
     ScalarT arg = this->leftAst_->val();
 
-    if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
+    //if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
       retdx = (this->leftAst_->dx(i)/(1.-this->leftAst_->val()*this->leftAst_->val()));
     }
