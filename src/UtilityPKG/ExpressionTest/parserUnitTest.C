@@ -843,16 +843,7 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
 
 // This test is taken from the sources.cir Xyce regression test.  This is the "B2" source in that test.
 // The test runs with Xyce if I comment out the B2 source.  So I created this unit test to track down the problem.
-//
-// The problem is that (as of this writing 4/23/2020) is that I wrote the spice 
-// sources in the new expression library to have a hardwired number of comma-separated arguments.
-// For the spice_sin source, the hardwired number is 6.   In the regression test, only 5 arguments
-// are given.  if I add the 6th (for phase) it runs fine and appears to give the right answer.
-//
-// I know how to modify the spice sources to have a variable number of args.  That is now on my to-do list.
-//
-// This means that I need to modify the spice sources so they can have a variable number of arguments.
-// I know how to do this;  I did it with POLY for example.
+// The test ultimately did find the problem and it is now fixed.
 TEST ( Double_Parser_SourceFunc_Test, sin2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -7099,6 +7090,104 @@ TEST ( Double_Parser_Integral_Test, sdt4)
 }
 
 //-------------------------------------------------------------------------------
+// breakpoint function testing
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Breakpoint_Test, stp1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func stpTest.
+  Xyce::Util::newExpression testExpression(std::string("stpTest(time)*0.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func stpTest(t) {t-0.5}
+  Teuchos::RCP<Xyce::Util::newExpression> stpTestExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("stp(T-0.5)"), testGroup) );
+
+  // LSH of stpTest .func declaration
+  Xyce::Util::newExpression stpTest_LHS (std::string("stpTest(t)"), testGroup);
+  stpTest_LHS.lexAndParseExpression();
+
+  std::vector<std::string> stpTestArgStrings ;
+  stpTest_LHS.getFuncPrototypeArgStrings(stpTestArgStrings);
+  stpTestExpression->setFunctionArgStringVec (stpTestArgStrings);
+  stpTestExpression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string stpTestName;
+  stpTest_LHS.getFuncPrototypeName(stpTestName);
+
+  testExpression.attachFunctionNode(stpTestName, stpTestExpression);
+
+  timeDepGroup->setTime(0.4);
+  double result;
+  testExpression.evaluateFunction(result);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+
+  EXPECT_EQ( numBp, 1 );
+  EXPECT_EQ( bpVals[0], 0.5 );
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, stp1)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Breakpoint_Test, stp2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func f1.
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)*stp(time-0.5)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func f1(x) {5.0*x}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("5.0*x"), testGroup) );
+
+  // LSH of f1 .func declaration
+  Xyce::Util::newExpression f1_LHS (std::string("f1(x)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  timeDepGroup->setTime(0.4);
+  double result;
+  testExpression.evaluateFunction(result);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+
+  EXPECT_EQ( numBp, 1 );
+  EXPECT_EQ( bpVals[0], 0.5 );
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, stp2)
+}
+
+//-------------------------------------------------------------------------------
 // Testing out error trapping.  This needs some work.
 
 //-------------------------------------------------------------------------------
@@ -7320,7 +7409,7 @@ TEST ( Double_Parser_ErrorTest,  power_unsupported_devices)
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
  
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 

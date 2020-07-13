@@ -125,11 +125,9 @@ namespace Util {
 //-------------------------------------------------------------------------------
 bool newExpression::lexAndParseExpression()
 {
-  
 #if 0
   std::cout << "lexAndParseExpression for " << expressionString_ <<std::endl;
 #endif
-
   if (traditionalParse_)
   {
     std::stringstream expressionStringStream ( expressionString_ );
@@ -268,7 +266,6 @@ bool newExpression::lexAndParseExpression()
 #endif
 
   // let AC analysis know if it needs to produce RF param output
-
   if ( !(Teuchos::is_null(group_)) ) 
   {
     if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
@@ -300,7 +297,6 @@ bool newExpression::lexAndParseExpression()
 bool newExpression::attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
-
   externalExpressions_.push_back(expPtr);
 
   // should I use upper?
@@ -368,7 +364,6 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, bool isDotParam)
 {
   bool retval=true;
-
   externalExpressions_.push_back(expPtr);
 
   std::string paramNameUpper=paramName;
@@ -617,7 +612,6 @@ void newExpression::setupDerivatives_ ()
     //
     // Solution: only differentiate params that have their "setIsVar" boolean set to true.
     //
-
     for (int ii=0;ii<paramOpVec_.size();ii++)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
@@ -677,6 +671,7 @@ NEW_EXP_OUTPUT_ARRAY(oNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(iNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(sdtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
+NEW_EXP_OUTPUT_ARRAY(stpAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
 }
 
@@ -694,17 +689,28 @@ void newExpression::setupVariousAstArrays_()
   std::cout << "Array sizes BEFORE update:" <<std::endl;
   outputVariousAstArrays(std::cout);
 #endif
-
   if (externalDependencies_)
   {
-
     // 1. setup arrays that require full AST traversal:
     paramOpVec_.clear();
     funcOpVec_.clear();
     voltOpVec_.clear();
     currentOpVec_.clear();
     leadCurrentOpVec_.clear();
+    bsrcCurrentOpVec_.clear();
+    powerOpVec_.clear();
     internalDevVarOpVec_.clear();
+    dnoNoiseDevVarOpVec_.clear();
+    dniNoiseDevVarOpVec_.clear();
+    oNoiseOpVec_.clear();
+    iNoiseOpVec_.clear();
+    sdtOpVec_.clear();
+    ddtOpVec_.clear();
+    stpAstNodeVec_.clear();
+    phaseOpVec_.clear();
+    sparamOpVec_.clear();
+    yparamOpVec_.clear();
+    zparamOpVec_.clear();
 
     if( !(Teuchos::is_null(astNodePtr_)) )
     {
@@ -719,6 +725,8 @@ void newExpression::setupVariousAstArrays_()
       if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->powerType()) { powerOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
 
       if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
@@ -728,7 +736,12 @@ void newExpression::setupVariousAstArrays_()
 
       if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
       if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
+
+      if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
 
       opVectors_.isTimeDependent = isTimeDependent_;
       opVectors_.isTempDependent = isTempDependent_;
@@ -1091,48 +1104,29 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
-    if (!astArraysSetup_)
-    {
-      setupVariousAstArrays_ ();
-    }
-
-    if (!derivsSetup_)
-    {
-      setupDerivatives_ ();
-    }
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    if (!derivsSetup_) { setupDerivatives_ (); }
 
 #if 0
     std::cout << "Parse Tree for " << expressionString_ << std::endl;
     dumpParseTree(std::cout);
 #endif
-
     int err1 = evaluateFunction (result);
-
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
-
     for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
-
     for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
-
     for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
   }
   else
   {
-    std::cout << "Error.  Expression " << expressionString_ << " is not parsed yet" << std::endl;
-    exit(0);
+    Xyce::Report::UserError() << "Error.  Expression " << expressionString_ << " was not successfully parsed." << std::endl;
   }
 
   // fix these properly for std::complex later.
   for(int ii=0;ii<derivs.size();++ii)
   {
-    if ( isnan(std::real(derivs[ii])) )
-    {
-      derivs[ii] = 0.0;
-    }
-    if ( isinf(std::real(derivs[ii])) ) 
-    {
-      derivs[ii] = 1.0e+10; // fix this
-    }
+    if ( isnan(std::real(derivs[ii])) ) { derivs[ii] = 0.0; }
+    if ( isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this 
   }
   // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
@@ -1153,7 +1147,6 @@ int newExpression::evaluateFunction (usedType &result)
   if (parsed_)
   {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
       std::cout << "ERROR.  Unresolved functions in expression " << expressionString_ <<std::endl;
@@ -1178,17 +1171,9 @@ int newExpression::evaluateFunction (usedType &result)
       std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
       dumpParseTree(std::cout);
 #endif
-
       // ERK: fix this failsafe properly for std::complex 
-      if (isnan(std::real(result))) 
-      { 
-        result = 0.0; 
-      }
-      if (isinf(std::real(result))) 
-      { 
-        result = 1.0e+20; 
-      }
-
+      if (isnan(std::real(result))) { result = 0.0; }
+      if (isinf(std::real(result))) { result = 1.0e+20; }
       savedResult_ = result;
     }
     else
@@ -1218,29 +1203,16 @@ int newExpression::evaluateFunction (usedType &result)
 //-------------------------------------------------------------------------------
 bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
 {
-
   if(isTimeDependent_) 
   {
     int srcSize = srcAstNodeVec_.size();
-    for (int ii=0;ii< srcSize; ii++) 
-    { 
-      (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
-    }
+    for (int ii=0;ii< srcSize; ii++) { (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int stpSize = stpAstNodeVec_.size();
-    for (int ii=0;ii< stpSize; ii++) 
-    { 
-      (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
-    }
+    for (int ii=0;ii< stpSize; ii++) { (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int compSize = compAstNodeVec_.size();
-    for (int ii=0;ii< compSize; ii++) 
-    { 
-      (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); 
-    }
-
-
-
+    for (int ii=0;ii< compSize; ii++) { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 #if 0
     {
       std::cout << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
@@ -1283,30 +1255,19 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
 bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
 {
   bool retVal=false; 
-
   if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-
   bool found=false;
   {
-    //const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
-
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
 
     if (iter != voltOpNames_.end())
     {
       std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
-
       for(int ii=0;ii<astVec.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
         std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-        for(int jj=0;jj<nodes.size();++jj)
-        {
-          if(nodes[jj]==old_name)
-          {
-            nodes[jj] = new_name;
-          }
-        }
+        for(int jj=0;jj<nodes.size();++jj) { if(nodes[jj]==old_name) { nodes[jj] = new_name; } }
       }
       voltOpNames_[new_name] = astVec;
       voltOpNames_.erase(old_name);
@@ -1316,8 +1277,6 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
 
   if(!found)
   {
-    //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
-    
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currentOpNames_.find(old_name);
 
     if (iter != currentOpNames_.end())
@@ -1335,7 +1294,6 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
       found=true;
     }
   }
-  
   return retVal;
 }
 
@@ -1528,13 +1486,27 @@ void newExpression::setDdtDerivs (std::vector<double> & vals)
 }
 
 //-----------------------------------------------------------------------------
-void setVal(Teuchos::RCP<ddtOp<double> > & ddt, std::complex<double> & tmpVal)
+// Function      : setDdt
+// Purpose       : Helper function for setDdtDerivs
+// Special Notes : double version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void setDdt(Teuchos::RCP<ddtOp<double> > & ddt, std::complex<double> & tmpVal)
 {
   ddt->setDdtDeriv(std::real(tmpVal));
 }
 
 //-----------------------------------------------------------------------------
-void setVal(Teuchos::RCP<ddtOp<std::complex<double> > > & ddt, std::complex<double> & tmpVal)
+// Function      : setDdt
+// Purpose       : Helper function for setDdtDerivs
+// Special Notes : std::complex<double> version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void setDdt(Teuchos::RCP<ddtOp<std::complex<double> > > & ddt, std::complex<double> & tmpVal)
 {
   ddt->setDdtDeriv(tmpVal);
 }
@@ -1552,7 +1524,7 @@ void newExpression::setDdtDerivs (std::vector<std::complex<double> > & vals)
   for (int ii=0;ii<ddtOpVec_.size();ii++) 
   { 
     Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
-    setVal(ddt,vals[ii]); 
+    setDdt(ddt,vals[ii]); 
   }
 }
 
