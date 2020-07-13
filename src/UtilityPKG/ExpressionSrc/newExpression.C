@@ -672,6 +672,7 @@ NEW_EXP_OUTPUT_ARRAY(iNoiseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(sdtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(stpAstNodeVec_)
+NEW_EXP_OUTPUT_ARRAY(compAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
 }
 
@@ -707,6 +708,7 @@ void newExpression::setupVariousAstArrays_()
     sdtOpVec_.clear();
     ddtOpVec_.clear();
     stpAstNodeVec_.clear();
+    compAstNodeVec_.clear();
     phaseOpVec_.clear();
     sparamOpVec_.clear();
     yparamOpVec_.clear();
@@ -737,6 +739,7 @@ void newExpression::setupVariousAstArrays_()
       if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
       if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
 
       if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }

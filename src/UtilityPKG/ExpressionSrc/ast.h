@@ -89,6 +89,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
   if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
   if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
+  if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
   if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
   if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
   if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
@@ -141,6 +142,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & comp,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
@@ -166,6 +168,7 @@ public:
     sdtOpVector(sdt),
     ddtOpVector(ddt),
     stpOpVector(stp),
+    compOpVector(comp),
     phaseOpVector(phase),
     sparamOpVector(sparam),
     yparamOpVector(yparam),
@@ -192,6 +195,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & compOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
@@ -280,6 +284,7 @@ class astNode
     virtual bool sdtType() { return false; }
     virtual bool ddtType() { return false; }
     virtual bool stpType() { return false; }
+    virtual bool compType() { return false; }
     virtual bool phaseType()       { return false; };
     virtual bool sparamType()       { return false; };
     virtual bool yparamType()       { return false; };

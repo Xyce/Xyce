@@ -7091,6 +7091,12 @@ TEST ( Double_Parser_Integral_Test, sdt4)
 
 //-------------------------------------------------------------------------------
 // breakpoint function testing
+//
+// The two stp tests, below will cause the function computeBreakPoint to be 
+// called in ast.h.  That function evaluates a Newton loop to obtain the next
+// breakpoint.  However, for the STP operator, in these tests, this is a linear
+// problem.  So, it won't use the bottom part of the function, where it continues
+// for subsequent iterations.
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Breakpoint_Test, stp1)
 {
@@ -7185,6 +7191,172 @@ TEST ( Double_Parser_Breakpoint_Test, stp2)
   EXPECT_EQ( bpVals[0], 0.5 );
 
   OUTPUT_MACRO(Double_Parser_Breakpoint_Test, stp2)
+}
+
+//-------------------------------------------------------------------------------
+// Breakpoint test inspired by ABM_BREAK/breaks.cir:
+//
+// V1   1  0  PULSE(0 3 0.01 1ms 1ms 0.05 0.15)
+// B2   2  0  V = {Table(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)}
+// B3   3  0  V = {v(2) + v(1) * if(abs(sin(5*PI*time)) > 0.9, (abs(sin(5*PI*time))-0.9)*10, 0)}
+//
+//
+TEST ( Double_Parser_Breakpoint_Test, abm_breaks1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression is inspired by B3, above.
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "sin" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * if(abs(sin(5*PI*time)) > 0.9, (abs(sin(5*PI*time))-0.9)*10, 0)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // do some math.   sin(5*pi*time) = 0.9 ->  sin^(-1)(0.9) = 5*pi*time   ->     time = sin^(-1)(0.9)/(5*pi) = firstBP
+  double firstBP = std::asin(0.9)/(5.0*M_PI);
+  double seconBP = (M_PI - std::asin(0.9))/(5.0*M_PI);
+  //std::cout << "firstBP = " << firstBP << std::endl;
+  //std::cout << "seconBP = " << seconBP << std::endl;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp > 0) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+
+  timeDepGroup->setTime(seconBP-0.01);
+  testExpression.evaluateFunction(result);
+  breakPointTimes.clear();
+  testExpression.getBreakPoints(breakPointTimes);
+  if (numBp > 0)  
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, seconBP );
+  }
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, abm_breaks1)
+}
+
+//-------------------------------------------------------------------------------
+// made up test, for the equiv operator
+TEST ( Double_Parser_Breakpoint_Test, timeSquared1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "time*time" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * if((time*time == 4.0 ), 2.0, 1.0)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  double firstBP = 2.0;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp == 1) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+  else
+  {
+    EXPECT_EQ( numBp, 1);
+  }
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, timeSquared1)
+}
+
+//-------------------------------------------------------------------------------
+// made up test, for the equiv operator, which uses it in a .func
+TEST ( Double_Parser_Breakpoint_Test, timeSquared2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func f1.
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "time*time" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * f1(time)}"), testGroup);
+
+  testExpression.lexAndParseExpression();
+
+  // this expression is the LHS of a .func statement:  .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  Xyce::Util::newExpression f1_LHS (std::string("F1(x)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = 
+    Teuchos::rcp(new Xyce::Util::newExpression(std::string( "if((x*x == 4.0 ), 2.0, 1.0)"), testGroup));
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  double firstBP = 2.0;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp == 1) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+  else
+  {
+    EXPECT_EQ( numBp, 1);
+  }
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, timeSquared2)
 }
 
 //-------------------------------------------------------------------------------

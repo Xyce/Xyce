@@ -74,6 +74,8 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->output(os,indent+1);                                                 \
     }                                                                                       \
                                                                                             \
+    virtual bool compType() { return true; }                                                \
+                                                                                            \
     virtual void codeGen (std::ostream & os )                                               \
     {                                                                                       \
       os << "(";                                                                            \
