@@ -141,8 +141,8 @@ class atanhOp : public astNode<ScalarT>
     if      (std::real(arg) < std::real(Epsilon) - 1.0) { arg = Epsilon - 1.0; }
     else if (std::real(arg) > 1.0 - std::real(Epsilon)) { arg = 1.0 - Epsilon; }
 
-   // return std::atanh(arg); // old expression library returns (log((1.0 + arg) / (1.0 - arg)) / 2.0)
-    return (log((1.0 + arg) / (1.0 - arg)) / 2.0);  // ERK.  tried this, in hopes it would fixed bug 254 test. didn't help
+    return std::atanh(arg); // old expression library returns (log((1.0 + arg) / (1.0 - arg)) / 2.0)
+    //return (log((1.0 + arg) / (1.0 - arg)) / 2.0);  // ERK.  tried this, in hopes it would fixed bug 254 test. didn't help
   } 
 
   virtual ScalarT dx(int i) 
@@ -151,7 +151,7 @@ class atanhOp : public astNode<ScalarT>
     ScalarT retdx=0.0;
     ScalarT arg = this->leftAst_->val();
 
-    //if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
+    if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
       retdx = (this->leftAst_->dx(i)/(1.-this->leftAst_->val()*this->leftAst_->val()));
     }
