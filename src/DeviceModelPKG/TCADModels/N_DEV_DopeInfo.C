@@ -345,8 +345,8 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr(solState_.expressionGroup_);
-      expr.set(exprString);
+      Util::Expression expr(solState_.expressionGroup_,exprString);
+      //expr.set(exprString);
 
       for (i=0;i<NX;++i)
       {
@@ -1077,8 +1077,8 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr(solState_.expressionGroup_);
-      expr.set(exprString);
+      Util::Expression expr(solState_.expressionGroup_,exprString);
+      //expr.set(exprString);
 
       for (i=0;i<NX;++i)
       {

@@ -140,7 +140,7 @@ bool newExpression::lexAndParseExpression()
     }
     else
     {
-      Xyce::Util::ExpressionLexer expLexer(expressionString_, &expressionStringStream);
+      Xyce::Util::ExpressionLexer expLexer(originalExpressionString_, &expressionStringStream);
       XyceExpression::ExpressionParser expParser(&expLexer,*this);
       int retCode = expParser.parse();
       parsed_ = (retCode == 0);
@@ -333,7 +333,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
           errMsg += expPtr->getFunctionArgStringVec()[ii]; 
           if (size2 > 1 && ii < size2-1) { errMsg += ","; }
         }
-        errMsg += ") in expression " + expressionString_;
+        errMsg += ") in expression " + originalExpressionString_;
         Xyce::Report::UserError() << errMsg;
       }
     }
@@ -414,6 +414,7 @@ void newExpression::clear ()
   masterAstNodeVec_.clear();
 
   expressionString_ = std::string("");
+  originalExpressionString_ = std::string("");
   parsed_ = false;
   derivsSetup_ = false;
   astArraysSetup_ = false;
@@ -1122,7 +1123,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   }
   else
   {
-    Xyce::Report::UserError() << "Error.  Expression " << expressionString_ << " was not successfully parsed." << std::endl;
+    Xyce::Report::UserError() << "Error.  Expression " << originalExpressionString_ << " was not successfully parsed." << std::endl;
   }
 
   // fix these properly for std::complex later.
@@ -1152,7 +1153,7 @@ int newExpression::evaluateFunction (usedType &result)
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
-      std::cout << "ERROR.  Unresolved functions in expression " << expressionString_ <<std::endl;
+      std::cout << "ERROR.  Unresolved functions in expression " << originalExpressionString_ <<std::endl;
       for(int ii=0;ii<unresolvedFuncOpVec_.size();++ii)
       {
         std::cout << "unresolvedFuncOpVec_[" << ii << "] = " << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
@@ -1189,7 +1190,7 @@ int newExpression::evaluateFunction (usedType &result)
   }
   else
   {
-    std::cout << "Error.  Expression " << expressionString_ << " is not parsed yet" << std::endl;
+    std::cout << "Error.  Expression " << originalExpressionString_ << " is not parsed yet" << std::endl;
     exit(0);
   }
 

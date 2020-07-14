@@ -229,43 +229,6 @@ const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::set
-// Purpose       : Set the value of the expression to a string
-// Special Notes : ERK: is this needed?  Does anyone call it?
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set ( const std::string & exp )
-{
-  bool retVal = false; 
-
-  std::string expCopy = exp;
-
-  if ( !(expCopy.empty()))
-  {
-    if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
-    {
-      expCopy.erase(0,1);// lop off open curly brace
-      expCopy.erase(expCopy.length()-1); // lop off close curly brace
-    }
-  }
-
-  if ( !(Teuchos::is_null(newExpPtr_)) )
-  {
-    newExpPtr_->clear();
-    newExpPtr_->setExpressionString (expCopy);
-  }
-  else
-  {
-    newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
-  }
-  newExpPtr_->lexAndParseExpression();
-
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Expression::get_type
 // Purpose       : Finds the type of an input quantity name
 //
@@ -289,7 +252,6 @@ int Expression::get_type ( const std::string & var )
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & leadMap = newExpPtr_->getLeadCurrentOpNames ();
-
 
   if ( voltMap.find(tmpName) != voltMap.end() )
   {
@@ -507,6 +469,38 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
       leads.push_back( tmpName );
     }
   }
+  // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
+  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
+    if (it == leads.end())
+    {
+      leads.push_back( tmpName );
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentsExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const
+{
+  for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
+    if (it == leads.end())
+    {
+      leads.push_back( tmpName );
+    }
+  }
+
   // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {

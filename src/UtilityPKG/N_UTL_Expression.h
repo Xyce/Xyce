@@ -94,7 +94,6 @@ public:
   const std::vector<std::string> & getFunctionArgStringVec ();
 
   // ERK some old expressionstuff.  Many of these need to be removed.
-  bool set (std::string const & exp);
   int get_type (std::string const & var);
   bool make_constant (std::string const & var, double const & val, bool isDotParam=false);
   bool make_var (std::string const & var, bool isDotParam=false);
@@ -105,6 +104,7 @@ public:
   void getVoltageNodes        (std::vector<std::string> & nodes) const;
   void getDeviceCurrents      (std::vector<std::string> & devices) const;
   void getLeadCurrents        (std::vector<std::string> & leads) const;
+  void getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const;
   void getFunctions           (std::vector<std::string> & funcs) const;
   void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
   void getSpecials            (std::vector<std::string> & specials) const;

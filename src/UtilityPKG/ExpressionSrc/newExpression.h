@@ -103,6 +103,7 @@ public:
   newExpression ( std::string const & exp, Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_(exp),
+    originalExpressionString_(exp),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -163,6 +164,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_("TIME"),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -213,6 +215,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_("TIME"),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -280,30 +283,7 @@ public:
       if (left->zparamType()) { zparamOpVec_.push_back(left); }
 
       left->getInterestingOps( opVectors_  );
-
-#if 0
-      paramNameVec_.clear();
-      std::vector<Teuchos::RCP<astNode<usedType> > >::iterator iterParamOp;
-      for (iterParamOp=paramOpVec_.begin();iterParamOp!=paramOpVec_.end();)
-      {
-        std::string name = iterParamOp->getName();
-        std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(),name);
-
-        if (nameIter != paramNameVec_.end())
-        {
-          paramNameVec_.push_back(name);
-          ++iterParamOp;
-        }
-        else
-        {
-          iterParamOp = paramOpVec_.erase(iterParamOp);
-        }
-      }
-#endif
     }
-// setup voltOpNames here?
-// setup currentOpNames here?
-
   };
 
   // copy constructor - this may need work
@@ -311,6 +291,7 @@ public:
   newExpression (const newExpression & right) :
     group_(right.group_),
     expressionString_(right.expressionString_),
+    originalExpressionString_(right.originalExpressionString_),
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
@@ -420,6 +401,7 @@ public:
   {
     group_ = right.group_;
     expressionString_ = right.expressionString_;
+    originalExpressionString_ = right.originalExpressionString_;
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
@@ -557,25 +539,8 @@ public:
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
-  void setExpressionString (std::string const & exp)  { expressionString_ = exp; }
-
   bool make_constant (std::string const & var, usedType const & val, bool isDotParam=false);
   bool make_var (std::string const & var, bool isDotParam=false);
-
-#if 0
-  // ERK.  This doesn't seem to be needed anymore but leaving for now ...
-  void getGlobalParamNames ( std::vector<std::string> & names )
-  {
-    for (int ii=0;ii<paramOpVec_.size();++ii)
-    {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if ( parOp->getIsVar() )
-      {
-        names.push_back( parOp->getName() );
-      }
-    }
-  };
-#endif
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
@@ -677,6 +642,7 @@ public:
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
+  const std::string & getOriginalExpressionString() { return originalExpressionString_; };
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
 
@@ -797,6 +763,7 @@ private:
 
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
+  std::string originalExpressionString_; // before toUpper, used for error messages
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;

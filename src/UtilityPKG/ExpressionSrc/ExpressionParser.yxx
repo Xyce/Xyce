@@ -1529,5 +1529,5 @@ XyceExpression::ExpressionParser::error(
 {
   //Xyce::Report::UserError().at(theLexer->netlistLocation_)
   Xyce::Report::UserError()
-   << message << " in expression " << newExp.getExpressionString() << std::endl;
+   << message << " in expression " << newExp.getOriginalExpressionString() << std::endl;
 }

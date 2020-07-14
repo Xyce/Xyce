@@ -967,7 +967,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   variables.clear();
 
   dependentParam.expr->getVoltageNodes(names);
-  dependentParam.expr->getLeadCurrents(leads);
+  dependentParam.expr->getLeadCurrentsExcludeBsrc(leads); // use this call, b/c Bsrc's also included in "instances" at this point; avoid redundancy
   dependentParam.expr->getDeviceCurrents(instances);
   dependentParam.expr->getVariables(variables); 
 
