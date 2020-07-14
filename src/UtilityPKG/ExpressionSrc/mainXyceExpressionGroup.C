@@ -64,69 +64,6 @@
 namespace Xyce {
 namespace Util {
 
-#if 0
-//-------------------------------------------------------------------------- 
-//  THIS IS COPIED FROM OpBuilders.C.  Fix later ...
-//-------------------------------------------------------------------------- 
-// Function      : findNodeIndex 
-// Purpose       : Determine whether a requested node name is "valid".
-//                 That includes node names in the solution vector, the
-//                 aliasNodeMap and also the Ground node (0).
-//                 The return values are:
-//                   a) -2 if the node is not found on this processor.
-//                   b) -1 if it is a Ground node.
-//                   c) the node index (0 ...N), otherwise.
-// Special Notes :  
-// Creator       : Dave Baur
-// Creation Date : 08/04/14 
-//--------------------------------------------------------------------------
-int findNodeIndex(
-  const std::string &       name,
-  const NodeNameMap &       node_map,
-  const IO::AliasNodeMap &      alias_map)
-{
-  // The return value will be -2 if the specified node name is not
-  // found AND the specified node name is not Ground (0). A value 
-  // of -2 may be returned even for a valid node name, in parallel,
-  // because of how node_map is used in parallel.
-  int nodeIndex = -2;
-
-  // Handle Ground (0).  If .PREPROCESS REPLACEGROUND was used,
-  // then this function assumes that all of the GND nodes have
-  // been replaced with 0 by this point in Xyce startup.
-  if ( name == "0")
-  { 
-    // A node index of -1 will be used in the various get() functions
-    // to denote the Ground node.
-    nodeIndex = -1;
-  } 
-  else
-  {
-    NodeNameMap::const_iterator node_it = node_map.find(name);
-    if (node_it == node_map.end()) 
-    {
-      // If the specified node name is not found in the node_map then
-      // look for it in the AliasNodeMap. An example where this can 
-      // happen is for a subcircuit interface node.
-      IO::AliasNodeMap::const_iterator alias_node_it = alias_map.find(name);
-      if (alias_node_it != alias_map.end())
-      {
-        // (*alias_node_it).second will be the "real name" of the alias node.
-        node_it = node_map.find((*alias_node_it).second);
-      }
-    }
-
-    // get the node index if it exists on this processor.
-    if (node_it != node_map.end()) 
-    {
-      nodeIndex = (*node_it).second;
-    } 
-  }
-
-  return nodeIndex;
-}
-#endif
-
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
 // Purpose       : constructor

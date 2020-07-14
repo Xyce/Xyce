@@ -939,17 +939,13 @@ void newExpression::getValuesFromGroup_()
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
 
-    // the "isVar" boolean currently serves two purposes.  If it is true that means:
-    //
     // (1) we want derivatives w.r.t. it.
     // (2) it should be considered a dynamic variable that gets its values externally
-    //
     if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) )
     {
       usedType val;
       group_->getGlobalParameterVal(parOp->getName(),val); // ERK: this function name is misleading, as it retrieves stuff that isn't necessarily a global param.  Fix.
       parOp->setValue(val);
-
     }
   }
 

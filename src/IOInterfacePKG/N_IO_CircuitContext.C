@@ -1756,6 +1756,10 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
           //                         << " as substitute for " << parameterName << " in expression " << expressionString;
+#if 0
+            Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter as a dotParam: " 
+              << expressionParameter.tag() << std::endl;
+#endif
           bool isDotParam=true;
           expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),isDotParam); 
         }
