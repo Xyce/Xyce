@@ -7308,7 +7308,6 @@ TEST ( Double_Parser_Breakpoint_Test, timeSquared2)
   // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
   // is necessary b/c "time*time" is a nonlinear function.
   Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * f1(time)}"), testGroup);
-
   testExpression.lexAndParseExpression();
 
   // this expression is the LHS of a .func statement:  .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
@@ -7357,6 +7356,85 @@ TEST ( Double_Parser_Breakpoint_Test, timeSquared2)
   }
 
   OUTPUT_MACRO(Double_Parser_Breakpoint_Test, timeSquared2)
+}
+
+//-------------------------------------------------------------------------------
+// breakpoint test, for table source
+TEST ( Double_Parser_Breakpoint_Test, tableBreakPoint)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("Table({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  tableExpression.lexAndParseExpression();
+
+  double result=0.0;
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  timeDepGroup->setTime(0.0);
+  tableExpression.evaluateFunction(result); 
+  tableExpression.getBreakPoints(breakPointTimes);
+
+  int size = breakPointTimes.size();
+  EXPECT_EQ(size,6);
+
+  if (size==6)
+  {
+    std::vector<double> refTimes = {0, 0.3, 0.301, 0.302, 0.6, 1};
+    for(int ii=0;ii<size;ii++)
+    {
+      EXPECT_DOUBLE_EQ( refTimes[ii], breakPointTimes[ii].value() );
+    }
+  }
+
+  OUTPUT_MACRO2(Double_Parser_Breakpoint_Test, tableBreakPoint, tableExpression) 
+}
+
+//-------------------------------------------------------------------------------
+// breakpoint test, for table source
+TEST ( Double_Parser_Breakpoint_Test, tableBreakPoint2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("f1(2.0)"), grp);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the LHS of a .func statement:  .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  Xyce::Util::newExpression f1_LHS (std::string("F1(x)"), grp);
+  f1_LHS.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = 
+    Teuchos::rcp(new Xyce::Util::newExpression(std::string("X*Table({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp));
+          
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  double result=0.0;
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  timeDepGroup->setTime(0.0);
+  testExpression.evaluateFunction(result); 
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int size = breakPointTimes.size();
+  EXPECT_EQ(size,6);
+
+  if (size==6)
+  {
+    std::vector<double> refTimes = {0, 0.3, 0.301, 0.302, 0.6, 1};
+    for(int ii=0;ii<size;ii++)
+    {
+      EXPECT_DOUBLE_EQ( refTimes[ii], breakPointTimes[ii].value() );
+    }
+  }
+
+  OUTPUT_MACRO(Double_Parser_Breakpoint_Test, tableBreakPoint2)
 }
 
 //-------------------------------------------------------------------------------

@@ -708,6 +708,7 @@ void newExpression::setupVariousAstArrays_()
     iNoiseOpVec_.clear();
     sdtOpVec_.clear();
     ddtOpVec_.clear();
+    srcAstNodeVec_.clear();
     stpAstNodeVec_.clear();
     compAstNodeVec_.clear();
     phaseOpVec_.clear();
@@ -739,6 +740,7 @@ void newExpression::setupVariousAstArrays_()
 
       if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
       if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
       if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
       if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
       if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }

@@ -88,6 +88,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
   if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
   if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
   if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
   if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
   if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
@@ -141,6 +142,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & src,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & comp,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
@@ -167,6 +169,7 @@ public:
     iNoiseOpVector(iNoise),
     sdtOpVector(sdt),
     ddtOpVector(ddt),
+    srcOpVector(src),
     stpOpVector(stp),
     compOpVector(comp),
     phaseOpVector(phase),
@@ -194,6 +197,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & srcOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & compOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
@@ -283,6 +287,7 @@ class astNode
 
     virtual bool sdtType() { return false; }
     virtual bool ddtType() { return false; }
+    virtual bool srcType() { return false; }
     virtual bool stpType() { return false; }
     virtual bool compType() { return false; }
     virtual bool phaseType()       { return false; };
@@ -3075,6 +3080,8 @@ class tableOp : public astNode<ScalarT>
       }
       return true;
     }
+
+    virtual bool srcType() { return ( input_->timeSpecialType() ); }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
