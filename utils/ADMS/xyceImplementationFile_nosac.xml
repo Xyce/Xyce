@@ -127,7 +127,12 @@
     </admst:if>
   </admst:for-each>
   <admst:message format="Top-level analog/code assigns to %(count(analog/code/@assignedVars)) variables.\n"/>
-
+  <admst:if test="[exists(@optnodes)]">
+    <admst:message format="Module has %(count(@optnodes)) optional nodes:\n"/>
+    <admst:for-each select="@optnodes">
+      <admst:message format="   %(name)\n"/>
+    </admst:for-each>
+  </admst:if>
   <!-- The output proper -->
   <admst:open file="$classname.C">
 //-------------------------------------------------------------------------

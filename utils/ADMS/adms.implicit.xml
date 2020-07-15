@@ -177,6 +177,9 @@
         </admst:when>
         <admst:when test="[name='\$port_connected']">
           <admst:value-to select="dependency" string="constant"/>
+          <admst:message format="Got port_connected, node is %(arguments[1]/name) of type %(arguments[1]/datatypename), its module is %(arguments[1]/module)\n"/>
+          <admst:assert test="[arguments[1]/datatypename='node']" format="Argument %(arguments[1]) to port_connected is not a node\n"/>
+          <admst:push into="arguments[1]/module/@optnodes" select="arguments[1]" onduplicate="ignore"/>
         </admst:when>
         <admst:otherwise>
           <!-- track dependencies of analog function output arguments -->
