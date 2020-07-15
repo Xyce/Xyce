@@ -350,6 +350,10 @@ public:
     bool loadDAEdQdx ();
     bool loadDAEdFdx ();
 
+    <admst:if test="[exists(@optnodes)]">
+      <admst:text format="static int numOptionalNodes() {return %(count(@optnodes));};\n"/>
+    </admst:if>
+
     <admst:if test="[count(callfunction[function/name='\$bound_step'])>0]">
       <admst:text format="double  getMaxTimeStepSize();\n"/>
       <admst:text format="virtual bool  maxTimeStepSupported() {return true;};\n"/>
@@ -441,6 +445,11 @@ public:
     // These instance-owned vectors are for storage of lead current data
     std::vector&lt;double&gt; leadCurrentF;
     std::vector&lt;double&gt; leadCurrentQ;
+
+    <admst:if test="[exists(@optnodes)]">
+      std::vector&lt;bool&gt; portsConnected_;
+    </admst:if>
+
     };
 
 

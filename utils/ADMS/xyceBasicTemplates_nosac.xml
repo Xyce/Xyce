@@ -423,7 +423,14 @@ struct Traits: public DeviceTraits&lt;Model, Instance
 
     <admst:text format="  static const char *name() {return &quot;%($theDeviceName)&quot;;}\n"/>
     <admst:text format="  static const char *deviceTypeName() {return &quot;%($theSpiceDevice) level %($theLevelNumber)&quot;;}\n"/>
+    <admst:choose>
+      <admst:when test="[exists(@optnodes)]">
+  static int numNodes() {return <admst:text format="%(xyceNumberExternalNodes(.)-count(@optnodes))"/>;}
+      </admst:when>
+      <admst:otherwise>
   static int numNodes() {return <admst:text format="%(xyceNumberExternalNodes(.))"/>;}
+      </admst:otherwise>
+    </admst:choose>
   static bool modelRequired() {return 
      <admst:choose>
        <admst:when test="variable[parametertype='model' and input='yes']">
@@ -5244,6 +5251,10 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv12" select="0.0"/>
     <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
+      <admst:when test="[name='\$port_connected']">
+        <admst:assert test="arguments[1]/adms[datatypename='node']" format="\$port_connected argument must be a node\n"/>
+        <admst:variable name="expression" select="portsConnected_[%(xyceNodeConstantName(arguments[1])/[name='nodeConstant']/value)]"/>
+      </admst:when>
       <admst:when test="[name='min' or name='max' and $skipFunctionPrecomp='y']">
         <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
       </admst:when>

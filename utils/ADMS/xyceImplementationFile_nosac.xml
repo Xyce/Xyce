@@ -11,7 +11,7 @@
       Creation Date: 13 May 2008
 
 
-     Copyright 2002-2020 National Technology & Engineering Solutions of
+     Copyright 2002-2020 National Technology &amp; Engineering Solutions of
      Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
      NTESS, the U.S. Government retains certain rights in this software.
 
@@ -604,6 +604,20 @@ Instance::Instance(
   <admst:text format="    numIntVars = %(xyceNumberInternalNodes(.)) + %(count(/module/@extraUnknowns));\n"/>
   <admst:text format="    numExtVars = %(xyceNumberExternalNodes(.));\n"/>
 
+
+  <admst:if test="[exists(@optnodes)]">
+    portsConnected_.resize(numExtVars,true);
+    if (instance_block.numExtVars &lt; numExtVars)
+    {
+       // some of our optional nodes were not given...
+       for (int i=instance_block.numExtVars ; i&lt;numExtVars; i++)
+       {
+         portsConnected_[i]=false;
+       }
+       numIntVars += (numExtVars-instance_block.numExtVars);
+       numExtVars = instance_block.numExtVars;
+     }
+  </admst:if>
   // Right now, we only have store for limited probes and output vars...
   setNumStoreVars(%(count(@limitedProbes))+%(count(/module/variable[output='yes' and input!='yes'])));
 
