@@ -975,18 +975,19 @@ class paramOp: public astNode<ScalarT>
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
+    void setName(const std::string & name) { paramName_ = name; }
     virtual std::string getName() { return paramName_; }
 
     virtual bool paramType() { return !thisIsAFunctionArgument_ ; };
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-AST_GET_INTERESTING_OPS(paramNode_) 
+AST_GET_INTERESTING_OPS(paramNode_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-AST_GET_PARAM_OPS(paramNode_) 
+AST_GET_PARAM_OPS(paramNode_)
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
@@ -996,7 +997,7 @@ AST_GET_FUNC_ARG_OPS(paramNode_)
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-AST_GET_FUNC_OPS(paramNode_) 
+AST_GET_FUNC_OPS(paramNode_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
@@ -1011,13 +1012,16 @@ AST_GET_CURRENT_OPS(paramNode_)
 
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
-AST_GET_TIME_OPS(paramNode_) 
+AST_GET_TIME_OPS(paramNode_)
     }
 
     virtual bool getFunctionArgType() { return thisIsAFunctionArgument_; };
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
+    // isVar, isAttached, and isConstant are all checked by the
+    // Expression::getUnresolvedParams function.
+    //
     // the variable "isVar" is to support the old expression library API.
     // If true, it means that this parameter is one of the variables included
     // in the "vars" array that is passed into the functions expression::evalauate
@@ -1026,14 +1030,20 @@ AST_GET_TIME_OPS(paramNode_)
     void unsetIsVar() { isVar = false; }
     bool getIsVar() { return isVar; }
 
+    // this flag checks if this parameter is just a simple constant.
     void setIsConstant() { isConstant = true; }
     void unsetIsConstant() { isConstant = false; }
     bool getIsConstant() { return isConstant; }
 
+    // this flag indicates if an external AST has been attached
+    // to this class
     void setIsAttached() { isAttached = true; }
     void unsetIsAttached() { isAttached = false; }
     bool getIsAttached() { return isAttached; }
 
+    // the isDotParam flag is to support the Expression::getVariables function
+    // It needs to only return global params.  This flag indicates that
+    // this parameter is a .param, not a .global_param.
     void setIsDotParam() { isDotParam = true; }
     void unsetIsDotParam() { isDotParam = false; }
     bool getIsDotParam() { return isDotParam; }
@@ -1234,7 +1244,7 @@ class sparamOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "SParam("; 
+      os << "SParam(";
       int size=sparamArgs_.size();
       for (int ii=0;ii<size;ii++)
       {
