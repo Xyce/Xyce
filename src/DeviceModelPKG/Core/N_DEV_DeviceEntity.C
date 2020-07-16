@@ -1414,10 +1414,6 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
           {
             if (!param.isNumeric())
             {
-#if 1
-              double test = param.getImmutableValue<double>();
-              std::cout << "test (param is not numeric) = " << test << std::endl;
-#endif
               UserError(*this) << "Cannot convert parameter " << tag <<  " to a numeric value from " << param.stringValue();
               continue;
             }
