@@ -345,6 +345,7 @@ bool Expression::make_var (std::string const & var, bool isDotParam)
 //-----------------------------------------------------------------------------
 void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
+  params.clear();
   std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
   for (int ii=0;ii<paramOpVec.size();ii++)
   {
@@ -375,6 +376,7 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 void Expression::getParams (std::vector<std::string> & params) const
 {
+  params.clear();
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
@@ -399,6 +401,7 @@ void Expression::getParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 {
+  nodes.clear();
   for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
   {
     int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
@@ -428,6 +431,7 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 //-----------------------------------------------------------------------------
 void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 {
+  devices.clear();
   for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
@@ -449,6 +453,7 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 {
+  leads.clear();
   for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
@@ -491,6 +496,7 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const
 {
+  leads.clear();
   for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
@@ -527,6 +533,7 @@ void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) c
 //-----------------------------------------------------------------------------
 void Expression::getFunctions (std::vector<std::string> & funcs) const
 {
+  funcs.clear();
   for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
@@ -550,6 +557,7 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
 {
+  funcs.clear();
   std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = newExpPtr_->getFuncOpVec();
   for (int ii=0;ii<funcOpVec.size();ii++)
   {
@@ -577,6 +585,7 @@ void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 void Expression::getSpecials (std::vector<std::string> & specials) const
 {
+  specials.clear();
   if (newExpPtr_->getTimeDependent()) { specials.push_back(std::string("TIME")); }
   if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
   if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
@@ -604,6 +613,7 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
 //-----------------------------------------------------------------------------
 void Expression::getVariables (std::vector<std::string> & variables) const
 {
+  variables.clear();
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
     if (  !(newExpPtr_->getParamOpVec()[ii]->getIsDotParam ())  )
@@ -616,6 +626,15 @@ void Expression::getVariables (std::vector<std::string> & variables) const
       }
     }
   }
+
+#if 1
+  if ( !(variables.empty()) )
+  {
+    std::cout << "Expression::getVariables call for " << newExpPtr_->getExpressionString() << std::endl;
+    for (int ii=0;ii<variables.size();ii++) { std::cout << variables[ii] << std::endl; }
+    newExpPtr_->dumpParseTree(std::cout);
+  }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -628,6 +647,7 @@ void Expression::getVariables (std::vector<std::string> & variables) const
 //-----------------------------------------------------------------------------
 void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) const
 {
+  powerCalcs.clear();
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
@@ -869,6 +889,20 @@ bool Expression::replace_name ( const std::string & old_name,
                                 const std::string & new_name)
 {
   return newExpPtr_->replaceName( old_name, new_name );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::replace_param_name
+// Purpose       : Change the name of parameter name
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 07/15/2020
+//-----------------------------------------------------------------------------
+bool Expression::replace_param_name ( const std::string & old_name,
+                                      const std::string & new_name)
+{
+  return newExpPtr_->replaceParamName( old_name, new_name );
 }
 
 //-----------------------------------------------------------------------------

@@ -302,6 +302,7 @@ public:
     functionArgOpVec_ (right.functionArgOpVec_),
     paramOpVec_(right.paramOpVec_),
     unresolvedParamOpVec_(right.unresolvedParamOpVec_),
+    paramOpNames_(right.paramOpNames_),
     funcOpVec_(right.funcOpVec_),
     unresolvedFuncOpVec_(right.unresolvedFuncOpVec_),
     voltOpVec_(right.voltOpVec_),
@@ -412,6 +413,7 @@ public:
     functionArgOpVec_  = right.functionArgOpVec_;
     paramOpVec_ = right.paramOpVec_;
     unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
+    paramOpNames_ = right.paramOpNames_;
     funcOpVec_ = right.funcOpVec_;
     unresolvedFuncOpVec_ = right.unresolvedFuncOpVec_;
     voltOpVec_ = right.voltOpVec_;
@@ -575,8 +577,13 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getParamOpVec () { return paramOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedParamOpVector() {  return unresolvedParamOpVec_; };
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpMap () { return paramOpMap_; };
   std::vector<std::string> & getParamNameVec () { return paramNameVec_; };
+
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpNames ()
+  {
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    return paramOpNames_;
+  };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getFuncOpVec () { return funcOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedFuncOpVec() { return unresolvedFuncOpVec_; };
@@ -646,6 +653,7 @@ public:
   const std::string & getOriginalExpressionString() { return originalExpressionString_; };
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
+  bool replaceParamName ( const std::string & old_name, const std::string & new_name);
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
@@ -783,7 +791,7 @@ private:
   std::vector<std::string> paramNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedParamOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpMap_; 
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpNames_;
 
   std::vector<std::string> funcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > funcOpVec_;

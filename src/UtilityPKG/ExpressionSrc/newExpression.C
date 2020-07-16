@@ -132,7 +132,7 @@ bool newExpression::lexAndParseExpression()
   {
     std::stringstream expressionStringStream ( expressionString_ );
 
-    // if the expressionString_ is empty, bison will throw an error.  
+    // if the expressionString_ is empty, bison will throw an error.
     // Plus, no point in parsing an empty string.
     if(expressionString_.empty())
     {
@@ -156,36 +156,36 @@ bool newExpression::lexAndParseExpression()
     // The following comments are pertainent to the RHS of .func expressions.  For example,
     // if the netlist has the following function: .func f(x,y) {2*x+3*y}, I am calling:
     //
-    // LHS ->  f(x,y) 
+    // LHS ->  f(x,y)
     // RHS ->  {2*x+3*y}
     //
-    // Xyce processes the LHS and RHS of a .func declaration separately, but the 
-    // RHS needs to know information from the LHS to do it right.  The following 
-    // comments and code below are all about how to correctly handle "x" and "y" 
-    // in the RHS expression {2*x+3*y}.  They need to be treated differently 
+    // Xyce processes the LHS and RHS of a .func declaration separately, but the
+    // RHS needs to know information from the LHS to do it right.  The following
+    // comments and code below are all about how to correctly handle "x" and "y"
+    // in the RHS expression {2*x+3*y}.  They need to be treated differently
     // than params.
     //
-    // The paramOpVec_ was set up during parsing of the RHS. See the ExpressionParser.yxx 
-    // file and the Bison-produced ExpressionParser.cxx file.  All the code for 
+    // The paramOpVec_ was set up during parsing of the RHS. See the ExpressionParser.yxx
+    // file and the Bison-produced ExpressionParser.cxx file.  All the code for
     // setting up the paramOpVec_ is there.
     //
-    // The functionArgStringVec is not set up during RHS parsing, as just parsing the 
-    // RHS of an expression doesn't have enough information to know which things 
+    // The functionArgStringVec is not set up during RHS parsing, as just parsing the
+    // RHS of an expression doesn't have enough information to know which things
     // are function arguments and which things are parameters.  So, functionArgStringVec
-    // should be set up and passed into newExpression BEFORE ::lexAndParseExpression 
+    // should be set up and passed into newExpression BEFORE ::lexAndParseExpression
     // is called, probably right after the expression was allocated.  If not, then
     // the code below will not work.  The functionArgStringVec contains the "prototype"
-    // arguments for a function.  It must come from parsing of the LHS of the 
-    // .func declaration.  This code (newExpression) doesn't care how this parsing is 
-    // done, of course.  But note that the Xyce IO package actually uses the 
-    // expression library to determine functionArgStringVec, but it does so by 
-    // allocating a completely different expression object of the LHS "f(x,y)" 
+    // arguments for a function.  It must come from parsing of the LHS of the
+    // .func declaration.  This code (newExpression) doesn't care how this parsing is
+    // done, of course.  But note that the Xyce IO package actually uses the
+    // expression library to determine functionArgStringVec, but it does so by
+    // allocating a completely different expression object of the LHS "f(x,y)"
     // and parsing it.
     //
     // In the example .func f(x,y) {2*x+3*y}, the functionArgStringVec object would contain
     // "x" and "y".  Since they are passed into the function, they should
     // not be considered as params or global_params, and excluded from any operations
-    // that are specific to params/global_params.  As noted, however, at parse time 
+    // that are specific to params/global_params.  As noted, however, at parse time
     // for the RHS it is impossible to tell the difference.
     //
     // Anyway, the paramOpVec_, immediately after parsing the RHS will contain
@@ -223,7 +223,7 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
-  // set up names vectors for voltages, currents and leads.
+  // set up names vectors for voltages, currents and leads, params.
   {
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
@@ -248,13 +248,20 @@ bool newExpression::lexAndParseExpression()
       std::string tmp = leadCurrOp->getLeadCurrentDevice();
       leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
     }
+
+    for (int ii=0;ii<paramOpVec_.size();++ii)
+    {
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      std::string tmp = parOp->getName();
+      paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+    }
   }
 
   // if dependent on a special, add relevant specials node to the relevant specials vector
   if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
-  { 
-    timeOpVec_.push_back(timeNodePtr_); 
-    dtOpVec_.push_back(dtNodePtr_); 
+  {
+    timeOpVec_.push_back(timeNodePtr_);
+    dtOpVec_.push_back(dtNodePtr_);
   }
   if(isTempDependent_) { tempOpVec_.push_back(tempNodePtr_); }
   if(isVTDependent_) { vtOpVec_.push_back(vtNodePtr_); }
@@ -266,7 +273,7 @@ bool newExpression::lexAndParseExpression()
 #endif
 
   // let AC analysis know if it needs to produce RF param output
-  if ( !(Teuchos::is_null(group_)) ) 
+  if ( !(Teuchos::is_null(group_)) )
   {
     if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
     if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
@@ -279,10 +286,10 @@ bool newExpression::lexAndParseExpression()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::attachFunctionNode
 //
-// Purpose       : resolve external functions.  This function is to provide a 
-//                 different method for function resolution, which doesn't rely on 
+// Purpose       : resolve external functions.  This function is to provide a
+//                 different method for function resolution, which doesn't rely on
 //                 the group.  Instead, the calling code is responsible for finding
-//                 the expression that must be associated with this function name, 
+//                 the expression that must be associated with this function name,
 //                 and then passing both in.  This function then performs the attachment.
 //
 // This must be a separate phase from the setup in lexAndParseExpression function, as
@@ -306,11 +313,11 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
   if (funcOpMap_.find(funcNameUpper) != funcOpMap_.end())
   {
     std::vector<Teuchos::RCP<astNode<usedType> > > & tmpVec = funcOpMap_[funcNameUpper];
-    for (int ii=0;ii<tmpVec.size();++ii) 
-    { 
-      if ( !(Teuchos::is_null(tmpVec[ii])) ) 
+    for (int ii=0;ii<tmpVec.size();++ii)
+    {
+      if ( !(Teuchos::is_null(tmpVec[ii])) )
       {
-        tmpVec[ii]->setNode(expPtr->getAst()); 
+        tmpVec[ii]->setNode(expPtr->getAst());
       }
       else { retval=false; }
 
@@ -318,7 +325,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 
       if ( !(Teuchos::is_null(castedFuncPtr)) )
       {
-        castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() ); 
+        castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() );
       }
       else { retval=false; }
 
@@ -330,7 +337,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
         std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
         for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
         {
-          errMsg += expPtr->getFunctionArgStringVec()[ii]; 
+          errMsg += expPtr->getFunctionArgStringVec()[ii];
           if (size2 > 1 && ii < size2-1) { errMsg += ","; }
         }
         errMsg += ") in expression " + originalExpressionString_;
@@ -346,10 +353,10 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 //-------------------------------------------------------------------------------
 // Function      : newExpression::attachParameterNode
 //
-// Purpose       : resolve external parameters.  This function is to provide a 
-//                 different method for parameter resolution, which doesn't rely on 
+// Purpose       : resolve external parameters.  This function is to provide a
+//                 different method for parameter resolution, which doesn't rely on
 //                 the group.  Instead, the calling code is responsible for finding
-//                 the expression that must be associated with this parameter name, 
+//                 the expression that must be associated with this parameter name,
 //                 and then passing both in.  This function then performs the attachment.
 //
 // This must be a separate phase from the setup in lexAndParseExpression function, as
@@ -385,7 +392,7 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
 //-------------------------------------------------------------------------------
 // Function      : newExpression::clear
 //
-// Purpose       : Empties/resets out everything in the newExpression class, 
+// Purpose       : Empties/resets out everything in the newExpression class,
 //                 and puts the class in the state that it should be in
 //                 prior to calling the function lexAndParseExpression
 //
@@ -437,6 +444,7 @@ void newExpression::clear ()
   paramNameVec_.clear();
   paramOpVec_.clear();
   unresolvedParamOpVec_.clear();
+  paramOpNames_.clear();
 
   funcOpVec_.clear();
   unresolvedFuncOpVec_.clear();
@@ -461,8 +469,8 @@ void newExpression::clear ()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::make_constant
 //
-// Purpose       : This was originally needed for the old API, but it is useful 
-//                 for the new expression library as well.   It applies a 
+// Purpose       : This was originally needed for the old API, but it is useful
+//                 for the new expression library as well.   It applies a
 //                 specified value to a specified parameter.
 //
 // Special Notes :
@@ -498,7 +506,7 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
 //-------------------------------------------------------------------------------
 // Function      : newExpression::make_var
 //
-// Purpose       : Needed for the old API.   This sets the "var" boolean flag on 
+// Purpose       : Needed for the old API.   This sets the "var" boolean flag on
 //                 a specified parameter. In the old API, this means two things:
 //                   (1) it is a global parameter rather than a regular parameter.
 //                   (2) it should have derivatives computed.
@@ -774,7 +782,7 @@ void newExpression::setupVariousAstArrays_()
       //funcOpMap_[tmp].push_back(funcOpVec_[ii]);
       funcNameVec_.push_back(tmp);
     }
-    
+
     //paramNameVec_.clear();
     //paramOpMap_.clear();
     for (int ii=0;ii<paramOpVec_.size();++ii)
@@ -787,6 +795,7 @@ void newExpression::setupVariousAstArrays_()
     }
 #endif
 
+    voltOpNames_.clear();
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
@@ -797,6 +806,7 @@ void newExpression::setupVariousAstArrays_()
       }
     }
 
+    currentOpNames_.clear();
     for (int ii=0;ii<currentOpVec_.size();++ii)
     {
       Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
@@ -804,9 +814,25 @@ void newExpression::setupVariousAstArrays_()
       currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
 
+    leadCurrentOpNames_.clear();
+    for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
+      std::string tmp = leadCurrOp->getLeadCurrentDevice();
+      leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
+    }
+
+    paramOpNames_.clear();
+    for (int ii=0;ii<paramOpVec_.size();++ii)
+    {
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      std::string tmp = parOp->getName();
+      paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+    }
+
     // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
     //    For specials, this is more appropriate the AST traversal, as there will be at
-    //    most one "time" node per expression object.   I think this should be a faster 
+    //    most one "time" node per expression object.   I think this should be a faster
     //    traversal, generally.
 
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
@@ -815,7 +841,7 @@ void newExpression::setupVariousAstArrays_()
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminOpVec_); }
- 
+
     isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
     isTempDependent_ = !(tempOpVec_.empty());
     isVTDependent_   = !(vtOpVec_.empty());
@@ -827,7 +853,7 @@ void newExpression::setupVariousAstArrays_()
     outputVariousAstArrays(std::cout);
 #endif
 
-    if ( !(Teuchos::is_null(group_)) ) 
+    if ( !(Teuchos::is_null(group_)) )
     {
       if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
       if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
@@ -836,7 +862,7 @@ void newExpression::setupVariousAstArrays_()
   }
 
   // check if this is expression is a constant
- 
+
   bool noVariableParams = paramOpVec_.empty();
   if (!noVariableParams)
   {
@@ -887,11 +913,11 @@ void newExpression::setupVariousAstArrays_()
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
-// Purpose       : 
+// Purpose       :
 // Special Notes : This function should be used to set isConstant_.
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-------------------------------------------------------------------------------
 void newExpression::getValuesFromGroup_()
 {
@@ -1017,7 +1043,7 @@ void newExpression::getValuesFromGroup_()
   for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
   for (int ii=0;ii<dtOpVec_.size();ii++) { dtOpVec_[ii]->setValue(group_->getTimeStep()); }
 
-  // Conversion to correct units in group 
+  // Conversion to correct units in group
   if (!overrideGroupTemperature_) { for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } }
   for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
   for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(group_->getFreq()); }
@@ -1028,23 +1054,23 @@ void newExpression::getValuesFromGroup_()
   finalTime_ = group_->getFinalTime();
 
   int srcSize = srcAstNodeVec_.size();
-  for (int ii=0;ii< srcSize; ii++) 
-  { 
-    (srcAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+  for (int ii=0;ii< srcSize; ii++)
+  {
+    (srcAstNodeVec_[ii])->setBreakPointTol(bpTol_);
     (srcAstNodeVec_[ii])->setStartingTimeStep(startingTimeStep_);
     (srcAstNodeVec_[ii])->setFinalTime(finalTime_);
   }
 
   int stpSize = stpAstNodeVec_.size();
-  for (int ii=0;ii< stpSize; ii++) 
-  { 
-    (stpAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+  for (int ii=0;ii< stpSize; ii++)
+  {
+    (stpAstNodeVec_[ii])->setBreakPointTol(bpTol_);
   }
 
   int compSize = compAstNodeVec_.size();
-  for (int ii=0;ii< compSize; ii++) 
-  { 
-    (compAstNodeVec_[ii])->setBreakPointTol(bpTol_); 
+  for (int ii=0;ii< compSize; ii++)
+  {
+    (compAstNodeVec_[ii])->setBreakPointTol(bpTol_);
   }
 
   double oldTime_ = time_;
@@ -1056,7 +1082,7 @@ void newExpression::getValuesFromGroup_()
   unsigned int oldStepNumber_ = stepNumber_;
   stepNumber_ = group_->getStepNumber ();
 
-  // ERK: neither of the below methods seem to work correctly, so this will need to 
+  // ERK: neither of the below methods seem to work correctly, so this will need to
   // be a "push" operation from the calling code.
 
 #if 0
@@ -1099,7 +1125,7 @@ void newExpression::getValuesFromGroup_()
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-------------------------------------------------------------------------------
 int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 {
@@ -1128,7 +1154,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   for(int ii=0;ii<derivs.size();++ii)
   {
     if ( isnan(std::real(derivs[ii])) ) { derivs[ii] = 0.0; }
-    if ( isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this 
+    if ( isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this
   }
   // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
@@ -1141,7 +1167,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-------------------------------------------------------------------------------
 int newExpression::evaluateFunction (usedType &result)
 {
@@ -1158,6 +1184,11 @@ int newExpression::evaluateFunction (usedType &result)
       }
     }
 
+#if 0
+    std::cout << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;
+    dumpParseTree(std::cout);
+#endif
+
     //if (!isConstant_)  // this is a a problem.  commenting out
     {
       getValuesFromGroup_();
@@ -1165,7 +1196,7 @@ int newExpression::evaluateFunction (usedType &result)
 
     //if (!isConstant_ || !evaluateFunctionCalledBefore_) // this seems to be a problem too. Need to work more on this.  It breaks RC_AC_data_expr.cir in the BUG_1035_SON tests.  probably others as well.  I think the isConstant_ flag needs to be set based on what is gathered in the "getValuesFromGroup" function, and/or other metrics.  Currently it is too simple
     if (true)
-    { 
+    {
       result = astNodePtr_->val();
       evaluateFunctionCalledBefore_ = true;
 
@@ -1173,7 +1204,7 @@ int newExpression::evaluateFunction (usedType &result)
       std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
       dumpParseTree(std::cout);
 #endif
-      // ERK: fix this failsafe properly for std::complex 
+      // ERK: fix this failsafe properly for std::complex
       if (isnan(std::real(result))) { result = 0.0; }
       if (isinf(std::real(result))) { result = 1.0e+20; }
       savedResult_ = result;
@@ -1197,7 +1228,7 @@ int newExpression::evaluateFunction (usedType &result)
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getBreakPoints
-// Purpose       : 
+// Purpose       :
 // Special Notes : do not need to be sorted; other parts of Xyce will sort them
 // Scope         :
 // Creator       : Eric Keiter
@@ -1205,7 +1236,7 @@ int newExpression::evaluateFunction (usedType &result)
 //-------------------------------------------------------------------------------
 bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
 {
-  if(isTimeDependent_) 
+  if(isTimeDependent_)
   {
     int srcSize = srcAstNodeVec_.size();
     for (int ii=0;ii< srcSize; ii++) { (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
@@ -1231,32 +1262,31 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::replaceName
-// Purpose       : 
-// Special Notes : ERK.  This called (via N_UTL_Expression) from the 
+// Purpose       :
+// Special Notes : ERK.  This called (via N_UTL_Expression) from the
 //                 N_IO_DistToolBase.C file/class
 //                 in the function DistToolBase::instantiateDevice.
 //
-//                 "Input quantity" in this case means voltage nodes (XEXP_NODE), 
+//                 "Input quantity" in this case means voltage nodes (XEXP_NODE),
 //                 device instances (XEXP_INSTANCE), and lead currents (XEXP_LEAD).
 //
-//                 Sometimes, they are specified in expressions without their 
-//                 names being fully resolved.  ie, the expression is inside of 
+//                 Sometimes, they are specified in expressions without their
+//                 names being fully resolved.  ie, the expression is inside of
 //                 a subcircuit, and thus implicitly assumes the full prefix.
 //
-//                 So, this function adds the full prefix to these names, 
+//                 So, this function adds the full prefix to these names,
 //                 so they can be fully resolved.
 //
-//                 The function DistToolBase::instantiateDevice calls this 
+//                 The function DistToolBase::instantiateDevice calls this
 //                 function twice for some reason that I don't (yet) understand.
 //                 It seems to require 2 passes to properly update the name. ie,
 //                 "name" -> "; name" -> "prefix:name".
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-------------------------------------------------------------------------------
 bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
 {
-  bool retVal=false; 
   if (!astArraysSetup_) { setupVariousAstArrays_ (); }
   bool found=false;
   {
@@ -1296,16 +1326,53 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
       found=true;
     }
   }
-  return retVal;
+
+  return found;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceParamName
+// Purpose       :
+// Special Notes : for bug 1801 tests
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 07/15/2020
+//-------------------------------------------------------------------------------
+bool newExpression::replaceParamName ( const std::string & old_name, const std::string & new_name)
+{
+  bool retVal=false;
+  if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+  bool found=false;
+  if(!found)
+  {
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = paramOpNames_.find(old_name);
+
+    if (iter != paramOpNames_.end())
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
+
+      for(int ii=0;ii<astVec.size();++ii)
+      {
+        Teuchos::RCP<paramOp<usedType> > currOp = Teuchos::rcp_static_cast<paramOp<usedType> > (astVec[ii]);
+        currOp->setName(new_name);
+      }
+
+      paramOpNames_[new_name] = astVec;
+      paramOpNames_.erase(old_name);
+      found=true;
+    }
+  }
+
+  return found;
 }
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setFunctionArgStringVec
-// Purpose       : 
+// Purpose       :
 // Special Notes : this must be set prior to lexAndParseExpression.
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-------------------------------------------------------------------------------
 void newExpression::setFunctionArgStringVec (const std::vector<std::string> & args)
 {
@@ -1322,22 +1389,22 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
 // Purpose       : This function is used when both of the following are true:
 //
 //   (1) the expression is the RHS of a device "temp" parameter
-//   (2) when the units need to be "auto converted" from C to K units.  
+//   (2) when the units need to be "auto converted" from C to K units.
 //
 //   ie, when this if statement is true: if (isTempParam(par.tag()) && param.getAutoConvertTemperature())
 //
-// Special Notes : For the old expression library, this was accomplished by 
-// getting the string of the original expression and then modifying it to 
+// Special Notes : For the old expression library, this was accomplished by
+// getting the string of the original expression and then modifying it to
 // include "+ CONSTCtoK", and then using that new string to create a new expression.
 //
-// This approach doesn't work with the new expression library, b/c the new expression 
+// This approach doesn't work with the new expression library, b/c the new expression
 // library doesn't handle external dependencies via string replacements.
 //
 // The CONSTCtoK modification to the string was happening in the device entity, long
 // after the IO package was done with its work on parameters.  And, thus, long after
-// parameter and function resolutions. 
+// parameter and function resolutions.
 //
-// With the new expression library, doing a string modification for CONSTCtoK could 
+// With the new expression library, doing a string modification for CONSTCtoK could
 // not include those IO-based param and func resolutions.  They were lost, because they were
 // not in the string.
 //
@@ -1358,11 +1425,11 @@ void newExpression::treatAsTempAndConvert()
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setTemperatuure
-// Purpose       : 
-// Special Notes : this is only called to overide the getTemeprature call to the 
-//                 group.  This will not happen very much; only when a device 
-//                 model has an internal self-heating model, and thus has a 
-//                 local temperature.  As of this writing, the only device that 
+// Purpose       :
+// Special Notes : this is only called to overide the getTemeprature call to the
+//                 group.  This will not happen very much; only when a device
+//                 model has an internal self-heating model, and thus has a
+//                 local temperature.  As of this writing, the only device that
 //                 I know of that needs this is the thermal resistor.
 // Scope         :
 // Creator       : Eric Keiter
@@ -1377,11 +1444,11 @@ bool newExpression::setTemperature (const double & temp)
     double newTemp = temp-CONSTCtoK;
     double oldTemp = std::real(tempOpVec_[0]->val());
 
-    if (oldTemp != newTemp) 
+    if (oldTemp != newTemp)
     {
       changed = true;
-      for (int ii=0;ii<tempOpVec_.size();ii++) 
-      { 
+      for (int ii=0;ii<tempOpVec_.size();ii++)
+      {
         tempOpVec_[ii]->setValue(newTemp);
       }
       overrideGroupTemperature_ = true;
@@ -1395,15 +1462,15 @@ bool newExpression::setTemperature (const double & temp)
 // Function      : newExpression::processSuccessfulTimeStep
 //
 // Purpose       : Tells relevant AST nodes to update their time arrays, etc.
-//                 Some AST nodes, such as DDT and SDT (time derivative and 
-//                 time integral, respectively) maintain arrays of data, where the 
-//                 array index refers to time.  These arrays have to be rotated 
-//                 when the time step advances, but it is difficult to know inside 
-//                 of an AST node when this advance should happen.  This function 
+//                 Some AST nodes, such as DDT and SDT (time derivative and
+//                 time integral, respectively) maintain arrays of data, where the
+//                 array index refers to time.  These arrays have to be rotated
+//                 when the time step advances, but it is difficult to know inside
+//                 of an AST node when this advance should happen.  This function
 //                 call is the method to let the SDT and DDT operators know that
 //                 they need to update.
 //
-// Special Notes : I have been debating exactly how to handle this issue, and I 
+// Special Notes : I have been debating exactly how to handle this issue, and I
 //                 am not yet sure if this is the best way.  For now, this function
 //                 is an experiment.
 // Scope         :
@@ -1418,28 +1485,28 @@ void newExpression::processSuccessfulTimeStep ()
 
 //-----------------------------------------------------------------------------
 //
-// ERK.  Note: NONE of what follows here will work if ddt is 
+// ERK.  Note: NONE of what follows here will work if ddt is
 // inside of a .func that is called more than once!!!!
 //
-// fix later.  This needs better book-keeping.  
+// fix later.  This needs better book-keeping.
 //
 // For ddts that are inside of .funcs, there are the following complications.
 // (1) arg to ddt is different once the passed values are sub'd in.
 // (2) the value of ddt passed in by setDdtVals has to happen at the correct time.
 //
-// Another way of thinking about it;  the ddt evaluation depends on a history 
-// (or state) and that history goes with the *call* to ddt, not the allocation 
+// Another way of thinking about it;  the ddt evaluation depends on a history
+// (or state) and that history goes with the *call* to ddt, not the allocation
 // of ddt.
 //
 // processing of sdt will have the same problem.
 //
 //-----------------------------------------------------------------------------
 // Function      : ExpressionInternals::getDdtVals
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void newExpression::getDdtVals   (std::vector<double> & vals)
 {
@@ -1452,18 +1519,18 @@ void newExpression::getDdtVals   (std::vector<double> & vals)
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionInternals::getDdtVals
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void newExpression::getDdtVals   (std::vector<std::complex<double> > & vals)
 {
   vals.clear();
   vals.resize(ddtOpVec_.size());
-  for (int ii=0;ii<ddtOpVec_.size();ii++) 
-  { 
+  for (int ii=0;ii<ddtOpVec_.size();ii++)
+  {
     Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
     vals[ii] = ddt->getDdtArg();
   }
@@ -1471,16 +1538,16 @@ void newExpression::getDdtVals   (std::vector<std::complex<double> > & vals)
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionInternals::setDdtDerivs
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void newExpression::setDdtDerivs (std::vector<double> & vals)
 {
-  for (int ii=0;ii<ddtOpVec_.size();ii++) 
-  { 
+  for (int ii=0;ii<ddtOpVec_.size();ii++)
+  {
     Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
     usedType tmp(vals[ii]);
     ddt->setDdtDeriv(tmp);
@@ -1493,7 +1560,7 @@ void newExpression::setDdtDerivs (std::vector<double> & vals)
 // Special Notes : double version
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void setDdt(Teuchos::RCP<ddtOp<double> > & ddt, std::complex<double> & tmpVal)
 {
@@ -1506,7 +1573,7 @@ void setDdt(Teuchos::RCP<ddtOp<double> > & ddt, std::complex<double> & tmpVal)
 // Special Notes : std::complex<double> version
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void setDdt(Teuchos::RCP<ddtOp<std::complex<double> > > & ddt, std::complex<double> & tmpVal)
 {
@@ -1515,18 +1582,18 @@ void setDdt(Teuchos::RCP<ddtOp<std::complex<double> > > & ddt, std::complex<doub
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionInternals::setDdtDerivs
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date :
 //-----------------------------------------------------------------------------
 void newExpression::setDdtDerivs (std::vector<std::complex<double> > & vals)
 {
-  for (int ii=0;ii<ddtOpVec_.size();ii++) 
-  { 
+  for (int ii=0;ii<ddtOpVec_.size();ii++)
+  {
     Teuchos::RCP<ddtOp<usedType> > ddt = Teuchos::rcp_static_cast<ddtOp<usedType> > (ddtOpVec_[ii]);
-    setDdt(ddt,vals[ii]); 
+    setDdt(ddt,vals[ii]);
   }
 }
 

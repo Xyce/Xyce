@@ -128,7 +128,8 @@ public:
 
   const std::string & get_input (void) const;
 
-  bool replace_name (const std::string & old_name, const std::string & new_name);
+  bool replace_name (const std::string & old_name, const std::string & new_name);  // this is for voltage names
+  bool replace_param_name (const std::string & old_name, const std::string & new_name); // this is for params
 
   bool isTimeDependent() const;
   bool isRandomDependent() const;
