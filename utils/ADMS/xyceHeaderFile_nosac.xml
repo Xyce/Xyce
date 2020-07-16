@@ -258,6 +258,9 @@ return ifFalse;
 <admst:text format="void evaluateInitialInstance(\n"/>
 <admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
 <admst:text format="modelSensStruct &amp; modelStruct,\n"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format="std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+</admst:if>
 <admst:text format=" double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance);\n\n"/>
 
 <admst:text format="void evaluateInitialModel(\n"/>
@@ -351,7 +354,7 @@ public:
     bool loadDAEdFdx ();
 
     <admst:if test="[exists(@optnodes)]">
-      <admst:text format="static int numOptionalNodes() {return %(count(@optnodes));};\n"/>
+      <admst:text format="static int numOptionalNodes() {return %(xyceNumberOptionalNodes(.));};\n"/>
     </admst:if>
 
     <admst:if test="[count(callfunction[function/name='\$bound_step'])>0]">

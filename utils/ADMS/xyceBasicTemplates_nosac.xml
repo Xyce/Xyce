@@ -91,6 +91,29 @@
 
   <!--
    =================================================================-
+   xyceNumberOptionalNodes
+    return the number of optional nodes in the given
+    module
+   =================================================================-
+  -->
+  <admst:template match="xyceNumberOptionalNodes">
+    <admst:text format="%(count(node[grounded='no' and location='external' and exists(#optional)]))"/>
+  </admst:template>
+
+  <!--
+   =================================================================-
+   xyceNumberRequiredNodes
+    return the number of required nodes in the given
+    module.  This is the number of location='external' nodes less
+    the number of optionals.
+   =================================================================-
+  -->
+  <admst:template match="xyceNumberRequiredNodes">
+    <admst:text format="%(count(node[grounded='no' and location='external' and not exists(#optional)]))"/>
+  </admst:template>
+
+  <!--
+   =================================================================-
    xyceNumberLeadCurrents
     return the number of lead currents needed
    =================================================================-
@@ -423,14 +446,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
 
     <admst:text format="  static const char *name() {return &quot;%($theDeviceName)&quot;;}\n"/>
     <admst:text format="  static const char *deviceTypeName() {return &quot;%($theSpiceDevice) level %($theLevelNumber)&quot;;}\n"/>
-    <admst:choose>
-      <admst:when test="[exists(@optnodes)]">
-  static int numNodes() {return <admst:text format="%(xyceNumberExternalNodes(.)-count(@optnodes))"/>;}
-      </admst:when>
-      <admst:otherwise>
-  static int numNodes() {return <admst:text format="%(xyceNumberExternalNodes(.))"/>;}
-      </admst:otherwise>
-    </admst:choose>
+  static int numNodes() {return <admst:text format="%(xyceNumberRequiredNodes(.))"/>;}
   static bool modelRequired() {return 
      <admst:choose>
        <admst:when test="variable[parametertype='model' and input='yes']">
@@ -660,6 +676,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
   <admst:template match="xyceDeclareNodeConstants">
     <admst:text format="   // node numbers\n"/>
     <admst:for-each select="node[grounded='no']">
+      <admst:text test="[exists(#optional)]" format="// optional node %(.):\n"/>
       <admst:text format="    static const int %(xyceNodeConstantName(.)/[name='nodeConstant']/value) = %(position(.)-1);\n"/>
     </admst:for-each>
     <admst:text format="    static const int admsNodeID_GND = -1;\n"/>
@@ -6800,6 +6817,9 @@ other variables does not get propagated into a variable's
    <!-- don't generate these if not declaring, because the caller
         might need to add things like "in." or "mod." to them. -->
    <admst:if test="[$globalDeclareVars='yes']">
+     <admst:if test="[exists(@optnodes)]">
+       <admst:text format="std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+     </admst:if>
      <admst:text format="// basic variables\n"/>
      <admst:text format=" double admsTemperature"/>
      <admst:text format=", double adms_vt_nom"/>
