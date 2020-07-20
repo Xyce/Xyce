@@ -626,7 +626,7 @@ Instance::Instance(
 
   <admst:choose>
     <admst:when test="[exists(@optnodes)]">
-      <admst:text format="  numBranchDataVarsIfAllocated = min(%(xyceNumberLeadCurrents(.)),numExtVars);\n"/>
+      <admst:text format="  numBranchDataVarsIfAllocated = std::min(%(xyceNumberLeadCurrents(.)),numExtVars);\n"/>
     </admst:when>
     <admst:otherwise>
       <admst:text format="  numBranchDataVarsIfAllocated = %(xyceNumberLeadCurrents(.));\n"/>
@@ -2484,7 +2484,11 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 <admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
 <admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:if test="[exists(@optnodes)]">
-  <admst:text format="std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+  <admst:join select="node[grounded='no']" separator=",\n">
+    <admst:text format="const int "/>
+    <admst:text format="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
 </admst:if>
 <admst:text format=" double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
 <admst:text format="{\n"/>
@@ -2836,7 +2840,10 @@ Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
   <admst:text format="instanceStruct,\n"/>
   <admst:text format="modelStruct,\n"/>
   <admst:if test="[exists(@optnodes)]">
-    <admst:text format="in.portsConnected_,\n"/>
+    <admst:join select="node[grounded='no']" separator=",\n">
+      <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    </admst:join>
+    <admst:text format=",\n in.portsConnected_,\n"/>
   </admst:if>
   <admst:text format="in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
 </admst:if>
@@ -3179,7 +3186,10 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
     <admst:text format="instanceStruct,\n"/>
     <admst:text format="modelStruct,\n"/>
     <admst:if test="[exists(@optnodes)]">
-      <admst:text format="in.portsConnected_,\n"/>
+      <admst:join select="node[grounded='no']" separator=",\n">
+        <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+      </admst:join>
+      <admst:text format=",\n in.portsConnected_,\n"/>
     </admst:if>
     <admst:text format="in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
   </admst:if>
@@ -3215,6 +3225,9 @@ probeVars,
 </admst:if>
 <admst:variable name="globalDeclareVars" select="no"/>
 <admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format=" in.portsConnected_,\n"/>
+</admst:if>
 <admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
 
   // We now have the F and Q vector stuff, populate the dependencies:

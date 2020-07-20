@@ -6818,7 +6818,7 @@ other variables does not get propagated into a variable's
         might need to add things like "in." or "mod." to them. -->
    <admst:if test="[$globalDeclareVars='yes']">
      <admst:if test="[exists(@optnodes)]">
-       <admst:text format="std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+       <admst:text format="const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
      </admst:if>
      <admst:text format="// basic variables\n"/>
      <admst:text format=" double admsTemperature"/>

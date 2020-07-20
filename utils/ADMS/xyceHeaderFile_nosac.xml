@@ -259,7 +259,11 @@ return ifFalse;
 <admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
 <admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:if test="[exists(@optnodes)]">
-  <admst:text format="std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+  <admst:join select="node[grounded='no']" separator=",\n">
+    <admst:text format="const int "/>
+    <admst:text format="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
 </admst:if>
 <admst:text format=" double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance);\n\n"/>
 
