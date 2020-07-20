@@ -8131,18 +8131,18 @@ analog begin : the_module
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    I(b) <+ -Ids * Vds  + delTemp / pParam_B4SOIrth;
-                    I(b) <+  ddt(delTemp * pParam_B4SOIcth);
+                    I(b) <+ `MFACTOR_USE*(-Ids * Vds  + delTemp / pParam_B4SOIrth);
+                    I(b) <+  `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else if ($port_connected(p)) begin  // last terminal is 'p'
-                    I(p) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                    I(p) <+ ddt(delTemp * pParam_B4SOIcth);
+                    I(p) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    I(p) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else begin  // 4-terminal mode ('t' is internal)
-                    Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                    Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+                    Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end
             end else begin
-                Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+                Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
             end
         end else begin
             if (TNODEOUT && !$port_connected(t)) begin
