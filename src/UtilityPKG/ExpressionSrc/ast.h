@@ -1908,12 +1908,13 @@ class funcOp: public astNode<ScalarT>
           functionNode_->output(os,indent+2);
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
         }
+
+        os << std::setw(indent) << " " << "val = " << val() << std::endl;
       }
       else
       {
         os << std::setw(indent) << " " << "functionNode_ is not resolved " << std::endl;
       }
-      os << std::setw(indent) << " " << "val = " << val() << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
