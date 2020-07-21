@@ -376,6 +376,15 @@ PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tanh,  "tanh(0.5)", std:
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow1,  "pow(2.0,3.0)", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow2,  "2.0**3.0", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
 
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow1,  "pow(2.5,2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.0,0.0)))
+
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow2a,  "pow(2.5,-2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-2.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow2b,  "pow(2.5,-3.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-3.0,0.0)))
+
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow3a,  "pow(2.5,2.1)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.1,0.0)))
+
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow3b,  "pow(-2.5,3.1)", std::pow(std::complex<double>(-2.5,-0.0),std::complex<double>(3.1,0.0)))
+
 // Hspice only:
 //PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow3,  "2.0^3.0", std::pow(2.0,3.0))
 
