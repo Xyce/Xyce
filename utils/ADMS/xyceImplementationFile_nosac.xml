@@ -667,7 +667,20 @@ Instance::Instance(
   <admst:for-each select="node/[#collapsible='yes']">
   if (collapseNode_%(name))
   {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, we only *literally* collapse it if it's not
+  // connected
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
   collapsedNodes.push_back(IntPair(%(xyceNodeConstantName(.)/[name='nodeConstant']/value),%(xyceNodeConstantName(@collapsesTo)/[name='nodeConstant']/value)));
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to ground.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+  </admst:if>
   }
   </admst:for-each>
 </admst:if>
@@ -722,7 +735,16 @@ void Instance::collapseNodes()
   <admst:for-each select="node/[#collapsible='yes']">
   if (collapseNode_%(name))
   {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, and is external if it's connected --- so don't
+  // decrement the internal node count!
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
     numIntVars--;
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  }
+  </admst:if>
   }
   </admst:for-each>
 }
@@ -789,7 +811,22 @@ void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
   <!-- for the moment, we'll forbid collapsing external nodes to anything
        even if they're just optional nodes.  This might be a problem.  -->
   <admst:for-each select="node[grounded='no' and location='external']">
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+          <!-- even though this node is external, its node has been mapped
+               to ground *and* we never, ever use this LID.  So we don't 
+               need to check portsConnected_ -->
+          <admst:text format="  if (collapseNode_%(name))\n"/>
+          <admst:text format="  {\n    %(xyceNodeLIDVariable(.)) = -1;\n  }\n"/>
+          <admst:text format="  else\n  {\n"/>
+      </admst:if>
+    </admst:if>
     <admst:text format="  %(xyceNodeLIDVariable(.)) = localLIDVec[nodeMap[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)]];\n"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+        <admst:text format="  }\n"/>
+      </admst:if>
+    </admst:if>
   </admst:for-each>
 
   <admst:for-each select="node[grounded='no' and location='internal']">
