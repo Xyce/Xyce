@@ -91,6 +91,29 @@
 
   <!--
    =================================================================-
+   xyceNumberOptionalNodes
+    return the number of optional nodes in the given
+    module
+   =================================================================-
+  -->
+  <admst:template match="xyceNumberOptionalNodes">
+    <admst:text format="%(count(node[grounded='no' and location='external' and exists(#optional)]))"/>
+  </admst:template>
+
+  <!--
+   =================================================================-
+   xyceNumberRequiredNodes
+    return the number of required nodes in the given
+    module.  This is the number of location='external' nodes less
+    the number of optionals.
+   =================================================================-
+  -->
+  <admst:template match="xyceNumberRequiredNodes">
+    <admst:text format="%(count(node[grounded='no' and location='external' and not exists(#optional)]))"/>
+  </admst:template>
+
+  <!--
+   =================================================================-
    xyceNumberLeadCurrents
     return the number of lead currents needed
    =================================================================-
@@ -423,7 +446,12 @@ struct Traits: public DeviceTraits&lt;Model, Instance
 
     <admst:text format="  static const char *name() {return &quot;%($theDeviceName)&quot;;}\n"/>
     <admst:text format="  static const char *deviceTypeName() {return &quot;%($theSpiceDevice) level %($theLevelNumber)&quot;;}\n"/>
-  static int numNodes() {return <admst:text format="%(xyceNumberExternalNodes(.))"/>;}
+  static int numNodes() {return <admst:text format="%(xyceNumberRequiredNodes(.))"/>;}
+
+  <admst:if test="[exists(@optnodes)]">
+  static int numOptionalNodes() {return %(xyceNumberOptionalNodes(.));};
+  </admst:if>
+
   static bool modelRequired() {return 
      <admst:choose>
        <admst:when test="variable[parametertype='model' and input='yes']">
@@ -653,6 +681,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
   <admst:template match="xyceDeclareNodeConstants">
     <admst:text format="   // node numbers\n"/>
     <admst:for-each select="node[grounded='no']">
+      <admst:text test="[exists(#optional)]" format="// optional node %(.):\n"/>
       <admst:text format="    static const int %(xyceNodeConstantName(.)/[name='nodeConstant']/value) = %(position(.)-1);\n"/>
     </admst:for-each>
     <admst:text format="    static const int admsNodeID_GND = -1;\n"/>
@@ -5244,6 +5273,10 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv12" select="0.0"/>
     <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
+      <admst:when test="[name='\$port_connected']">
+        <admst:assert test="arguments[1]/adms[datatypename='node']" format="\$port_connected argument must be a node\n"/>
+        <admst:variable name="expression" select="portsConnected_[%(xyceNodeConstantName(arguments[1])/[name='nodeConstant']/value)]"/>
+      </admst:when>
       <admst:when test="[name='min' or name='max' and $skipFunctionPrecomp='y']">
         <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
       </admst:when>
@@ -6640,7 +6673,14 @@ other variables does not get propagated into a variable's
     <admst:when test="function[name='\$strobe' or name='\$write'  or name='\$display']">
       <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
       <admst:variable name="skipFunctionPrecomp" select="y"/>
-      <admst:text format="std::cerr "/>
+      <admst:choose>
+        <admst:when test="[$globalCurrentScope ='sensitivity']">
+          <admst:text format="UserInfo(theInstance) "/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:text format="UserInfo(*this) "/>
+        </admst:otherwise>
+      </admst:choose>
       <admst:for-each select="function/arguments">
       <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
       </admst:for-each>
@@ -6789,6 +6829,9 @@ other variables does not get propagated into a variable's
    <!-- don't generate these if not declaring, because the caller
         might need to add things like "in." or "mod." to them. -->
    <admst:if test="[$globalDeclareVars='yes']">
+     <admst:if test="[exists(@optnodes)]">
+       <admst:text format="const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+     </admst:if>
      <admst:text format="// basic variables\n"/>
      <admst:text format=" double admsTemperature"/>
      <admst:text format=", double adms_vt_nom"/>

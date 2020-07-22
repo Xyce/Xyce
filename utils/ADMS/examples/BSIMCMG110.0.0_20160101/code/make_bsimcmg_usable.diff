@@ -26,11 +26,13 @@
    setNumBranchDataVars(0);
 --- N_DEV_ADMSbsimcmg_110.h.orig	2019-08-15 21:07:19.259727178 -0600
 +++ N_DEV_ADMSbsimcmg_110.h	2019-08-15 21:30:23.064821405 -0600
-@@ -7530,6 +7530,7 @@
+@@ -7530,8 +7530,9 @@
    static const char *deviceTypeName() {return "m level 110";}
  
    static int numNodes() {return 4;}
 +  static int numOptionalNodes() {return 1;}
+
+
    static bool modelRequired() {return true;}
    static bool isLinearDevice() {return false;}
  

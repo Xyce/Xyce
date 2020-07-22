@@ -598,15 +598,15 @@
    `define MFACTOR_USE 1.0
 `endif
 
-//`define __THERMAL_NODE__
+`define __THERMAL_NODE__
 `ifdef __THERMAL_NODE__
-	module bsim6(d, g, s, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="78" xyceDeviceName="BSIM6" xyceTypeVariable="TYPE" *);
+	module bsim6(d, g, s, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="77" xyceDeviceName="BSIM6" xyceTypeVariable="TYPE" *);
 	inout      d, g, s, b, t;
 `else
 
 	module bsim6(d, g, s, b) (* xyceModelGroup="MOSFET" xyceLevelNumber="77" xyceDeviceName="BSIM6" xyceTypeVariable="TYPE" *);
 	inout      d, g, s, b;
-`endif 
+`endif
 electrical d, g, s, b;
 
 
@@ -2457,7 +2457,10 @@ analog begin
  `ifdef __THERMAL_NODE__
    if ($port_connected(t) == 0) begin
      `ifdef __SHMOD__
-          $strobe("5 terminal Module, while 't' node is not connected, SH is activated.");
+          // There is no point to this strobe, so comment it out.
+          // The behavior of the 5 terminal module with t not connected is
+          // identical to the 4 terminal, so shut up about it.
+          // $strobe("5 terminal Module, while 't' node is not connected, SH is activated.");
      `else
           Temp(t) <+ 0;
           $strobe("5 terminal Module, while 't' node is not connected, SH is not activated.");
