@@ -231,8 +231,10 @@ enum MessageType
   USR_FATAL        = MSG_USER | MSG_FATAL | MSG_TERMINATE,
   USR_ERROR        = MSG_USER | MSG_ERROR,
   USR_WARNING      = MSG_USER | MSG_WARNING,
+  USR_INFO         = MSG_USER | MSG_INFORMATION,
   USR_FATAL_0      = USR_FATAL | MSG_SYMMETRIC,
   USR_ERROR_0      = USR_ERROR | MSG_SYMMETRIC,
+  USR_INFO_0       = USR_INFO  | MSG_SYMMETRIC,
   USR_WARNING_0    = USR_WARNING | MSG_SYMMETRIC,
 
   // developer error types:
@@ -442,6 +444,32 @@ struct UserWarning0 : public Message
 {
   UserWarning0(MessageCode message_code = MessageCode::s_defaultMessageCode)
     : Message(USR_WARNING_0, message_code)
+  {}
+};
+
+///
+/// A non-fatal informational message due to user input
+///
+/// This asymmetric version will emit the error message on any
+/// processor that encounters it.
+///
+struct UserInfo : public Message
+{
+  UserInfo(MessageCode message_code = MessageCode::s_defaultMessageCode)
+    : Message(USR_INFO, message_code)
+  {}
+};
+
+///
+/// A non-fatal informational message due to user input
+///
+/// This symmetric version will emit the warning message only from proc 0,
+/// no matter how many processors emit the same message.
+///
+struct UserInfo0 : public Message
+{
+  UserInfo0(MessageCode message_code = MessageCode::s_defaultMessageCode)
+    : Message(USR_INFO_0, message_code)
   {}
 };
 

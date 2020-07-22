@@ -133,6 +133,22 @@ ParamError::ParamError(const DeviceEntity &device_entity)
   os() << deviceEntityHeader(device_entity) << ": ";
 }
 
+UserInfo::UserInfo(const DeviceEntity &device_entity)
+  : Report::UserInfo()
+{
+  at(device_entity.netlistLocation());
+
+  os() << deviceEntityHeader(device_entity) << ": ";
+}
+
+UserInfo0::UserInfo0(const DeviceEntity &device_entity)
+  : Report::UserInfo0()
+{
+  at(device_entity.netlistLocation());
+
+  os() << deviceEntityHeader(device_entity) << ": ";
+}
+
 UserWarning::UserWarning(const DeviceEntity &device_entity)
   : Report::UserWarning()
 {
