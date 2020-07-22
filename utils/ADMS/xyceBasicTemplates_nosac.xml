@@ -447,6 +447,11 @@ struct Traits: public DeviceTraits&lt;Model, Instance
     <admst:text format="  static const char *name() {return &quot;%($theDeviceName)&quot;;}\n"/>
     <admst:text format="  static const char *deviceTypeName() {return &quot;%($theSpiceDevice) level %($theLevelNumber)&quot;;}\n"/>
   static int numNodes() {return <admst:text format="%(xyceNumberRequiredNodes(.))"/>;}
+
+  <admst:if test="[exists(@optnodes)]">
+  static int numOptionalNodes() {return %(xyceNumberOptionalNodes(.));};
+  </admst:if>
+
   static bool modelRequired() {return 
      <admst:choose>
        <admst:when test="variable[parametertype='model' and input='yes']">
