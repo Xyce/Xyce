@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 22 Jul 2020 11:54:17
+// Creation Date  : Wed, 22 Jul 2020 14:59:45
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -3297,6 +3297,7 @@ const int admsNodeID_d,
 const int admsNodeID_g,
 const int admsNodeID_s,
 const int admsNodeID_b,
+const int admsNodeID_t,
 const int admsNodeID_di,
 const int admsNodeID_si,
 const int admsNodeID_gi,
@@ -3306,15 +3307,30 @@ const int admsNodeID_sbulk,
 const int admsNodeID_dbulk,
 const int admsNodeID_N1,
 const int admsNodeID_N2,
-const int admsNodeID_t,
 instanceSensStruct & instanceStruct,
 modelSensStruct & modelStruct,
+const std::vector<bool> & portsConnected_,
 // basic variables
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance);
 
 void evaluateInitialInstance(
 instanceSensStruct & instanceStruct,
 modelSensStruct & modelStruct,
+const int admsNodeID_d,
+const int admsNodeID_g,
+const int admsNodeID_s,
+const int admsNodeID_b,
+const int admsNodeID_t,
+const int admsNodeID_di,
+const int admsNodeID_si,
+const int admsNodeID_gi,
+const int admsNodeID_gm,
+const int admsNodeID_bi,
+const int admsNodeID_sbulk,
+const int admsNodeID_dbulk,
+const int admsNodeID_N1,
+const int admsNodeID_N2,
+ const std::vector<bool> & portsConnected_,
  double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
@@ -3344,6 +3360,7 @@ struct Traits: public DeviceTraits<Model, Instance, MOSFET1::Traits>
 
   static int numNodes() {return 4;}
 
+  static int numOptionalNodes() {return 1;};
 
   static bool modelRequired() {return true;}
   static bool isLinearDevice() {return false;}
@@ -4145,6 +4162,7 @@ public:
     int li_g;
     int li_s;
     int li_b;
+    int li_t;
     int li_di;
     int li_si;
     int li_gi;
@@ -4154,7 +4172,6 @@ public:
     int li_dbulk;
     int li_N1;
     int li_N2;
-    int li_t;
     // end Nodal LID Variables
     // Branch LID Variables
     // end Branch LID Variables
@@ -4163,6 +4180,7 @@ public:
     int li_branch_ig;
     int li_branch_is;
     int li_branch_ib;
+    int li_branch_it;
     // end Lead (branch) LID Variables
     // Jacobian  pointers
     double * f_di_Equ_t_Node_Ptr;
@@ -4520,16 +4538,17 @@ public:
     static const int admsNodeID_g = 1;
     static const int admsNodeID_s = 2;
     static const int admsNodeID_b = 3;
-    static const int admsNodeID_di = 4;
-    static const int admsNodeID_si = 5;
-    static const int admsNodeID_gi = 6;
-    static const int admsNodeID_gm = 7;
-    static const int admsNodeID_bi = 8;
-    static const int admsNodeID_sbulk = 9;
-    static const int admsNodeID_dbulk = 10;
-    static const int admsNodeID_N1 = 11;
-    static const int admsNodeID_N2 = 12;
-    static const int admsNodeID_t = 13;
+// optional node t:
+    static const int admsNodeID_t = 4;
+    static const int admsNodeID_di = 5;
+    static const int admsNodeID_si = 6;
+    static const int admsNodeID_gi = 7;
+    static const int admsNodeID_gm = 8;
+    static const int admsNodeID_bi = 9;
+    static const int admsNodeID_sbulk = 10;
+    static const int admsNodeID_dbulk = 11;
+    static const int admsNodeID_N1 = 12;
+    static const int admsNodeID_N2 = 13;
     static const int admsNodeID_GND = -1;
    // end node numbers
    // Additional IDs for branch equations
@@ -4642,6 +4661,7 @@ public:
     int li_store_VTH;
    // end store LIDs for output vars
      // bools for collapsing nodes
+     bool collapseNode_t;
      bool collapseNode_di;
      bool collapseNode_si;
      bool collapseNode_gi;
@@ -4649,7 +4669,6 @@ public:
      bool collapseNode_bi;
      bool collapseNode_sbulk;
      bool collapseNode_dbulk;
-     bool collapseNode_t;
  // Arrays to hold probes
  std::vector < double > probeVars;
  std::vector < std::vector < double > > d_probeVars;
@@ -4687,6 +4706,7 @@ std::vector<double> noiseContribsExponent;
     std::vector<double> leadCurrentF;
     std::vector<double> leadCurrentQ;
 
+      std::vector<bool> portsConnected_;
 
     };
 
