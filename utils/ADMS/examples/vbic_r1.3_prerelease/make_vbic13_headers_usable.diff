@@ -1,10 +1,12 @@
 --- N_DEV_ADMSvbic13_4t.h	2015-08-27 14:34:36.000000000 -0600
 +++ N_DEV_ADMSvbic13_4t.h	2015-08-27 13:35:57.000000000 -0600
-@@ -1078,6 +1078,7 @@
+@@ -1078,8 +1078,9 @@
    static const char *deviceTypeName() {return "q level 12";}
  
    static int numNodes() {return 4;}
 +  static int numOptionalNodes() { return 6;}
+
+
    static bool modelRequired() {return true;}
    static bool isLinearDevice() {return false;}
  
