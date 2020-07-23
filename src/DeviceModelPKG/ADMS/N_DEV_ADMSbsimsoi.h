@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 22 Jul 2020 11:54:17
+// Creation Date  : Thu, 23 Jul 2020 13:37:49
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi_h
@@ -4193,7 +4193,6 @@ const int admsProbeID_V_gi_e,
 const int admsProbeID_V_gm_e,
 const int admsProbeID_V_s_si,
 const int admsProbeID_V_d_di,
-const int admsProbeID_V_b_GND,
 const int admsProbeID_V_si_GND,
 const int admsProbeID_V_di_GND,
 const int admsProbeID_V_gi_GND,
@@ -4207,6 +4206,8 @@ const int admsProbeID_V_gi_si,
 const int admsProbeID_V_b_si,
 const int admsProbeID_V_di_si,
 const int admsProbeID_Temp_t_GND,
+const int admsProbeID_V_p_GND,
+const int admsProbeID_V_b_GND,
 // node constants
 const int admsNodeID_d,
 const int admsNodeID_g,
@@ -4223,12 +4224,27 @@ const int admsNodeID_sb,
 const int admsNodeID_db,
 instanceSensStruct & instanceStruct,
 modelSensStruct & modelStruct,
+const std::vector<bool> & portsConnected_,
 // basic variables
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance);
 
 void evaluateInitialInstance(
 instanceSensStruct & instanceStruct,
 modelSensStruct & modelStruct,
+const int admsNodeID_d,
+const int admsNodeID_g,
+const int admsNodeID_s,
+const int admsNodeID_e,
+const int admsNodeID_p,
+const int admsNodeID_b,
+const int admsNodeID_t,
+const int admsNodeID_di,
+const int admsNodeID_si,
+const int admsNodeID_gi,
+const int admsNodeID_gm,
+const int admsNodeID_sb,
+const int admsNodeID_db,
+ const std::vector<bool> & portsConnected_,
  double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
@@ -4258,6 +4274,7 @@ struct Traits: public DeviceTraits<Model, Instance, MOSFET1::Traits>
 
   static int numNodes() {return 4;}
 
+  static int numOptionalNodes() {return 3;};
 
   static bool modelRequired() {return true;}
   static bool isLinearDevice() {return false;}
@@ -4421,6 +4438,8 @@ public:
      double d_QG_dV_di_si;
      double d_QG_dV_gi_si;
      double d_QG_dTemp_t_GND;
+     double d_QG_dV_p_GND;
+     double d_QG_dV_b_GND;
      double d_QG_dV_b_si;
      double d_QG_dV_e_si;
     double QB;
@@ -4429,6 +4448,8 @@ public:
      double d_QB_dV_di_si;
      double d_QB_dV_gi_si;
      double d_QB_dTemp_t_GND;
+     double d_QB_dV_p_GND;
+     double d_QB_dV_b_GND;
      double d_QB_dV_gi_p;
      double d_QB_dV_db_di;
      double d_QB_dV_sb_si;
@@ -4439,11 +4460,15 @@ public:
      double d_QD_dV_di_si;
      double d_QD_dV_gi_si;
      double d_QD_dTemp_t_GND;
+     double d_QD_dV_p_GND;
+     double d_QD_dV_b_GND;
      double d_QD_dV_b_si;
      double d_QD_dV_e_si;
     double QS;
     double QJD;
      double d_QJD_dTemp_t_GND;
+     double d_QJD_dV_p_GND;
+     double d_QJD_dV_b_GND;
      double d_QJD_dV_gi_p;
      double d_QJD_dV_db_di;
      double d_QJD_dV_sb_si;
@@ -4453,6 +4478,8 @@ public:
      double d_QJD_dV_gi_si;
     double QJS;
      double d_QJS_dTemp_t_GND;
+     double d_QJS_dV_p_GND;
+     double d_QJS_dV_b_GND;
      double d_QJS_dV_gi_p;
      double d_QJS_dV_db_di;
      double d_QJS_dV_sb_si;
@@ -4616,8 +4643,15 @@ public:
     int B4SOIfdMod;
     double B4SOIvtm;
      double d_B4SOIvtm_dTemp_t_GND;
+     double d_B4SOIvtm_dV_p_GND;
+     double d_B4SOIvtm_dV_b_GND;
+     double d_B4SOIvtm_dV_b_GND_dTemp_t_GND;
+     double d_B4SOIvtm_dV_b_GND_dV_p_GND;
+     double d_B4SOIvtm_dV_b_GND_dV_b_GND;
     double B4SOIueff;
      double d_B4SOIueff_dTemp_t_GND;
+     double d_B4SOIueff_dV_p_GND;
+     double d_B4SOIueff_dV_b_GND;
      double d_B4SOIueff_dV_b_si;
      double d_B4SOIueff_dV_e_si;
      double d_B4SOIueff_dV_di_si;
@@ -4629,30 +4663,49 @@ public:
      double d_B4SOIthetavth_dV_b_si_dV_di_si;
      double d_B4SOIthetavth_dV_b_si_dV_gi_si;
      double d_B4SOIthetavth_dV_b_si_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_b_si_dV_p_GND;
+     double d_B4SOIthetavth_dV_b_si_dV_b_GND;
      double d_B4SOIthetavth_dV_e_si;
      double d_B4SOIthetavth_dV_e_si_dV_b_si;
      double d_B4SOIthetavth_dV_e_si_dV_e_si;
      double d_B4SOIthetavth_dV_e_si_dV_di_si;
      double d_B4SOIthetavth_dV_e_si_dV_gi_si;
      double d_B4SOIthetavth_dV_e_si_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_e_si_dV_p_GND;
+     double d_B4SOIthetavth_dV_e_si_dV_b_GND;
      double d_B4SOIthetavth_dV_di_si;
      double d_B4SOIthetavth_dV_di_si_dV_b_si;
      double d_B4SOIthetavth_dV_di_si_dV_e_si;
      double d_B4SOIthetavth_dV_di_si_dV_di_si;
      double d_B4SOIthetavth_dV_di_si_dV_gi_si;
      double d_B4SOIthetavth_dV_di_si_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_di_si_dV_p_GND;
+     double d_B4SOIthetavth_dV_di_si_dV_b_GND;
      double d_B4SOIthetavth_dV_gi_si;
      double d_B4SOIthetavth_dV_gi_si_dV_b_si;
      double d_B4SOIthetavth_dV_gi_si_dV_e_si;
      double d_B4SOIthetavth_dV_gi_si_dV_di_si;
      double d_B4SOIthetavth_dV_gi_si_dV_gi_si;
      double d_B4SOIthetavth_dV_gi_si_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_gi_si_dV_p_GND;
+     double d_B4SOIthetavth_dV_gi_si_dV_b_GND;
      double d_B4SOIthetavth_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_p_GND;
+     double d_B4SOIthetavth_dV_b_GND;
+     double d_B4SOIthetavth_dV_b_GND_dV_b_si;
+     double d_B4SOIthetavth_dV_b_GND_dV_e_si;
+     double d_B4SOIthetavth_dV_b_GND_dV_di_si;
+     double d_B4SOIthetavth_dV_b_GND_dV_gi_si;
+     double d_B4SOIthetavth_dV_b_GND_dTemp_t_GND;
+     double d_B4SOIthetavth_dV_b_GND_dV_p_GND;
+     double d_B4SOIthetavth_dV_b_GND_dV_b_GND;
     double B4SOIInv_ODeff;
     double B4SOIgrbsb;
     double B4SOIgrbdb;
     double B4SOITempSH;
      double d_B4SOITempSH_dTemp_t_GND;
+     double d_B4SOITempSH_dV_p_GND;
+     double d_B4SOITempSH_dV_b_GND;
     double B4SOIgrgeltd;
     double B4SOIsourceResistance;
     double B4SOIdrainResistance;
@@ -4670,6 +4723,8 @@ public:
     double B4SOIdt4;
     double B4SOInstar;
      double d_B4SOInstar_dTemp_t_GND;
+     double d_B4SOInstar_dV_p_GND;
+     double d_B4SOInstar_dV_b_GND;
      double d_B4SOInstar_dV_b_si;
      double d_B4SOInstar_dV_di_si;
      double d_B4SOInstar_dV_gi_si;
@@ -4680,6 +4735,8 @@ public:
      double d_B4SOIAbulk_dV_di_si;
      double d_B4SOIAbulk_dV_gi_si;
      double d_B4SOIAbulk_dTemp_t_GND;
+     double d_B4SOIAbulk_dV_p_GND;
+     double d_B4SOIAbulk_dV_b_GND;
     double B4SOIqinv;
      double d_B4SOIqinv_dV_gi_p;
      double d_B4SOIqinv_dV_db_di;
@@ -4689,26 +4746,36 @@ public:
      double d_B4SOIqinv_dV_di_si;
      double d_B4SOIqinv_dV_gi_si;
      double d_B4SOIqinv_dTemp_t_GND;
+     double d_B4SOIqinv_dV_p_GND;
+     double d_B4SOIqinv_dV_b_GND;
     double B4SOIgm;
      double d_B4SOIgm_dTemp_t_GND;
+     double d_B4SOIgm_dV_p_GND;
+     double d_B4SOIgm_dV_b_GND;
      double d_B4SOIgm_dV_b_si;
      double d_B4SOIgm_dV_e_si;
      double d_B4SOIgm_dV_di_si;
      double d_B4SOIgm_dV_gi_si;
     double B4SOIgds;
      double d_B4SOIgds_dTemp_t_GND;
+     double d_B4SOIgds_dV_p_GND;
+     double d_B4SOIgds_dV_b_GND;
      double d_B4SOIgds_dV_b_si;
      double d_B4SOIgds_dV_e_si;
      double d_B4SOIgds_dV_di_si;
      double d_B4SOIgds_dV_gi_si;
     double B4SOIgmbs;
      double d_B4SOIgmbs_dTemp_t_GND;
+     double d_B4SOIgmbs_dV_p_GND;
+     double d_B4SOIgmbs_dV_b_GND;
      double d_B4SOIgmbs_dV_b_si;
      double d_B4SOIgmbs_dV_e_si;
      double d_B4SOIgmbs_dV_di_si;
      double d_B4SOIgmbs_dV_gi_si;
     double B4SOIrds;
      double d_B4SOIrds_dTemp_t_GND;
+     double d_B4SOIrds_dV_p_GND;
+     double d_B4SOIrds_dV_b_GND;
      double d_B4SOIrds_dV_b_si;
      double d_B4SOIrds_dV_di_si;
      double d_B4SOIrds_dV_gi_si;
@@ -4717,6 +4784,8 @@ public:
      double d_B4SOIVgsteff_dV_di_si;
      double d_B4SOIVgsteff_dV_gi_si;
      double d_B4SOIVgsteff_dTemp_t_GND;
+     double d_B4SOIVgsteff_dV_p_GND;
+     double d_B4SOIVgsteff_dV_b_GND;
      double d_B4SOIVgsteff_dV_b_si;
      double d_B4SOIVgsteff_dV_e_si;
     double B4SOIVdseff;
@@ -4725,14 +4794,20 @@ public:
      double d_B4SOIVdseff_dV_di_si;
      double d_B4SOIVdseff_dV_gi_si;
      double d_B4SOIVdseff_dTemp_t_GND;
+     double d_B4SOIVdseff_dV_p_GND;
+     double d_B4SOIVdseff_dV_b_GND;
     double B4SOIAbovVgst2Vtm;
      double d_B4SOIAbovVgst2Vtm_dV_b_si;
      double d_B4SOIAbovVgst2Vtm_dV_e_si;
      double d_B4SOIAbovVgst2Vtm_dV_di_si;
      double d_B4SOIAbovVgst2Vtm_dV_gi_si;
      double d_B4SOIAbovVgst2Vtm_dTemp_t_GND;
+     double d_B4SOIAbovVgst2Vtm_dV_p_GND;
+     double d_B4SOIAbovVgst2Vtm_dV_b_GND;
     double B4SOIidovVds;
      double d_B4SOIidovVds_dTemp_t_GND;
+     double d_B4SOIidovVds_dV_p_GND;
+     double d_B4SOIidovVds_dV_b_GND;
      double d_B4SOIidovVds_dV_b_si;
      double d_B4SOIidovVds_dV_e_si;
      double d_B4SOIidovVds_dV_di_si;
@@ -4756,6 +4831,11 @@ public:
     double pParam_B4SOIgamma2;
     double pParam_B4SOIvbx;
      double d_pParam_B4SOIvbx_dTemp_t_GND;
+     double d_pParam_B4SOIvbx_dV_p_GND;
+     double d_pParam_B4SOIvbx_dV_b_GND;
+     double d_pParam_B4SOIvbx_dV_b_GND_dTemp_t_GND;
+     double d_pParam_B4SOIvbx_dV_b_GND_dV_p_GND;
+     double d_pParam_B4SOIvbx_dV_b_GND_dV_b_GND;
     double pParam_B4SOIvbi;
     double pParam_B4SOIvbm;
     double pParam_B4SOIxt;
@@ -4763,6 +4843,11 @@ public:
     double pParam_B4SOIlitl;
     double pParam_B4SOIk1;
      double d_pParam_B4SOIk1_dTemp_t_GND;
+     double d_pParam_B4SOIk1_dV_p_GND;
+     double d_pParam_B4SOIk1_dV_b_GND;
+     double d_pParam_B4SOIk1_dV_b_GND_dTemp_t_GND;
+     double d_pParam_B4SOIk1_dV_b_GND_dV_p_GND;
+     double d_pParam_B4SOIk1_dV_b_GND_dV_b_GND;
     double pParam_B4SOIkt1;
     double pParam_B4SOIkt1l;
     double pParam_B4SOIkt2;
@@ -4961,6 +5046,11 @@ public:
     double pParam_B4SOIoxideRatio;
     double pParam_B4SOIk1eff;
      double d_pParam_B4SOIk1eff_dTemp_t_GND;
+     double d_pParam_B4SOIk1eff_dV_p_GND;
+     double d_pParam_B4SOIk1eff_dV_b_GND;
+     double d_pParam_B4SOIk1eff_dV_b_GND_dTemp_t_GND;
+     double d_pParam_B4SOIk1eff_dV_b_GND_dV_p_GND;
+     double d_pParam_B4SOIk1eff_dV_b_GND_dV_b_GND;
     double pParam_B4SOIwdios;
     double pParam_B4SOIwdiod;
     double pParam_B4SOIwdiodCV;
@@ -5011,19 +5101,43 @@ public:
     double here_B4SOIeta0cv;
     double here_B4SOIk2;
      double d_here_B4SOIk2_dTemp_t_GND;
+     double d_here_B4SOIk2_dV_p_GND;
+     double d_here_B4SOIk2_dV_b_GND;
+     double d_here_B4SOIk2_dV_b_GND_dTemp_t_GND;
+     double d_here_B4SOIk2_dV_b_GND_dV_p_GND;
+     double d_here_B4SOIk2_dV_b_GND_dV_b_GND;
     double here_B4SOIk2ox;
     double here_B4SOIu0temp;
     double here_B4SOIvfb;
      double d_here_B4SOIvfb_dTemp_t_GND;
+     double d_here_B4SOIvfb_dV_p_GND;
+     double d_here_B4SOIvfb_dV_b_GND;
+     double d_here_B4SOIvfb_dV_b_GND_dTemp_t_GND;
+     double d_here_B4SOIvfb_dV_b_GND_dV_p_GND;
+     double d_here_B4SOIvfb_dV_b_GND_dV_b_GND;
     double here_B4SOIvsattemp;
     double here_B4SOIvth0;
      double d_here_B4SOIvth0_dTemp_t_GND;
+     double d_here_B4SOIvth0_dV_p_GND;
+     double d_here_B4SOIvth0_dV_b_GND;
+     double d_here_B4SOIvth0_dV_b_GND_dTemp_t_GND;
+     double d_here_B4SOIvth0_dV_b_GND_dV_p_GND;
+     double d_here_B4SOIvth0_dV_b_GND_dV_b_GND;
     double DevTemp;
      double d_DevTemp_dTemp_t_GND;
+     double d_DevTemp_dV_p_GND;
+     double d_DevTemp_dV_b_GND;
+     double d_DevTemp_dV_b_GND_dTemp_t_GND;
+     double d_DevTemp_dV_b_GND_dV_p_GND;
+     double d_DevTemp_dV_b_GND_dV_b_GND;
     double fourkt;
      double d_fourkt_dTemp_t_GND;
+     double d_fourkt_dV_p_GND;
+     double d_fourkt_dV_b_GND;
     double gdnoise;
      double d_gdnoise_dTemp_t_GND;
+     double d_gdnoise_dV_p_GND;
+     double d_gdnoise_dV_b_GND;
      double d_gdnoise_dV_gi_p;
      double d_gdnoise_dV_db_di;
      double d_gdnoise_dV_sb_si;
@@ -5033,6 +5147,8 @@ public:
      double d_gdnoise_dV_gi_si;
     double gsnoise;
      double d_gsnoise_dTemp_t_GND;
+     double d_gsnoise_dV_p_GND;
+     double d_gsnoise_dV_b_GND;
      double d_gsnoise_dV_gi_p;
      double d_gsnoise_dV_db_di;
      double d_gsnoise_dV_sb_si;
@@ -5078,6 +5194,9 @@ public:
     int li_branch_ig;
     int li_branch_is;
     int li_branch_ie;
+    int li_branch_ip;
+    int li_branch_ib;
+    int li_branch_it;
     // end Lead (branch) LID Variables
     // Jacobian  pointers
     double * f_di_Equ_sb_Node_Ptr;
@@ -5131,38 +5250,40 @@ public:
     double * f_b_Equ_di_Node_Ptr;
     double * f_b_Equ_p_Node_Ptr;
     double * f_b_Equ_t_Node_Ptr;
+    double * f_db_Equ_b_Node_Ptr;
+    double * f_db_Equ_p_Node_Ptr;
     double * f_db_Equ_t_Node_Ptr;
     double * f_db_Equ_e_Node_Ptr;
     double * f_db_Equ_si_Node_Ptr;
     double * f_db_Equ_gi_Node_Ptr;
     double * f_db_Equ_di_Node_Ptr;
-    double * f_db_Equ_b_Node_Ptr;
     double * f_db_Equ_sb_Node_Ptr;
     double * f_db_Equ_db_Node_Ptr;
+    double * f_sb_Equ_b_Node_Ptr;
+    double * f_sb_Equ_p_Node_Ptr;
     double * f_sb_Equ_t_Node_Ptr;
     double * f_sb_Equ_e_Node_Ptr;
     double * f_sb_Equ_si_Node_Ptr;
     double * f_sb_Equ_gi_Node_Ptr;
     double * f_sb_Equ_di_Node_Ptr;
-    double * f_sb_Equ_b_Node_Ptr;
     double * f_sb_Equ_sb_Node_Ptr;
     double * f_sb_Equ_db_Node_Ptr;
     double * f_gi_Equ_sb_Node_Ptr;
     double * f_gi_Equ_si_Node_Ptr;
     double * f_gi_Equ_db_Node_Ptr;
     double * f_gi_Equ_di_Node_Ptr;
+    double * f_gi_Equ_b_Node_Ptr;
+    double * f_gi_Equ_p_Node_Ptr;
     double * f_gi_Equ_t_Node_Ptr;
     double * f_gi_Equ_e_Node_Ptr;
     double * f_gi_Equ_gi_Node_Ptr;
-    double * f_gi_Equ_b_Node_Ptr;
-    double * f_gi_Equ_p_Node_Ptr;
     double * f_p_Equ_gi_Node_Ptr;
     double * f_p_Equ_p_Node_Ptr;
+    double * f_p_Equ_b_Node_Ptr;
     double * f_p_Equ_t_Node_Ptr;
     double * f_p_Equ_si_Node_Ptr;
     double * f_p_Equ_di_Node_Ptr;
     double * f_p_Equ_e_Node_Ptr;
-    double * f_p_Equ_b_Node_Ptr;
     double * f_p_Equ_sb_Node_Ptr;
     double * f_p_Equ_db_Node_Ptr;
     double * f_gi_Equ_gm_Node_Ptr;
@@ -5170,34 +5291,35 @@ public:
     double * f_e_Equ_b_Node_Ptr;
     double * f_e_Equ_si_Node_Ptr;
     double * f_e_Equ_gi_Node_Ptr;
+    double * f_e_Equ_p_Node_Ptr;
     double * f_e_Equ_t_Node_Ptr;
     double * f_e_Equ_e_Node_Ptr;
     double * f_e_Equ_di_Node_Ptr;
-    double * f_db_Equ_p_Node_Ptr;
-    double * f_sb_Equ_p_Node_Ptr;
     double * f_gm_Equ_gm_Node_Ptr;
     double * f_gm_Equ_si_Node_Ptr;
+    double * f_gm_Equ_b_Node_Ptr;
+    double * f_gm_Equ_p_Node_Ptr;
     double * f_gm_Equ_t_Node_Ptr;
     double * f_gm_Equ_gi_Node_Ptr;
     double * f_gm_Equ_di_Node_Ptr;
     double * f_gm_Equ_e_Node_Ptr;
-    double * f_gm_Equ_b_Node_Ptr;
     double * f_gm_Equ_sb_Node_Ptr;
     double * f_gm_Equ_db_Node_Ptr;
-    double * f_gm_Equ_p_Node_Ptr;
     double * f_e_Equ_gm_Node_Ptr;
     double * f_e_Equ_sb_Node_Ptr;
     double * f_e_Equ_db_Node_Ptr;
-    double * f_e_Equ_p_Node_Ptr;
     double * f_g_Equ_g_Node_Ptr;
     double * f_g_Equ_gm_Node_Ptr;
     double * f_gm_Equ_g_Node_Ptr;
+    double * f_g_Equ_b_Node_Ptr;
+    double * f_g_Equ_p_Node_Ptr;
     double * f_g_Equ_t_Node_Ptr;
     double * f_t_Equ_gi_Node_Ptr;
     double * f_t_Equ_si_Node_Ptr;
     double * f_t_Equ_di_Node_Ptr;
     double * f_t_Equ_e_Node_Ptr;
     double * f_t_Equ_b_Node_Ptr;
+    double * f_t_Equ_p_Node_Ptr;
     double * f_t_Equ_t_Node_Ptr;
     double * q_di_Equ_sb_Node_Ptr;
     double * q_di_Equ_si_Node_Ptr;
@@ -5250,38 +5372,40 @@ public:
     double * q_b_Equ_di_Node_Ptr;
     double * q_b_Equ_p_Node_Ptr;
     double * q_b_Equ_t_Node_Ptr;
+    double * q_db_Equ_b_Node_Ptr;
+    double * q_db_Equ_p_Node_Ptr;
     double * q_db_Equ_t_Node_Ptr;
     double * q_db_Equ_e_Node_Ptr;
     double * q_db_Equ_si_Node_Ptr;
     double * q_db_Equ_gi_Node_Ptr;
     double * q_db_Equ_di_Node_Ptr;
-    double * q_db_Equ_b_Node_Ptr;
     double * q_db_Equ_sb_Node_Ptr;
     double * q_db_Equ_db_Node_Ptr;
+    double * q_sb_Equ_b_Node_Ptr;
+    double * q_sb_Equ_p_Node_Ptr;
     double * q_sb_Equ_t_Node_Ptr;
     double * q_sb_Equ_e_Node_Ptr;
     double * q_sb_Equ_si_Node_Ptr;
     double * q_sb_Equ_gi_Node_Ptr;
     double * q_sb_Equ_di_Node_Ptr;
-    double * q_sb_Equ_b_Node_Ptr;
     double * q_sb_Equ_sb_Node_Ptr;
     double * q_sb_Equ_db_Node_Ptr;
     double * q_gi_Equ_sb_Node_Ptr;
     double * q_gi_Equ_si_Node_Ptr;
     double * q_gi_Equ_db_Node_Ptr;
     double * q_gi_Equ_di_Node_Ptr;
+    double * q_gi_Equ_b_Node_Ptr;
+    double * q_gi_Equ_p_Node_Ptr;
     double * q_gi_Equ_t_Node_Ptr;
     double * q_gi_Equ_e_Node_Ptr;
     double * q_gi_Equ_gi_Node_Ptr;
-    double * q_gi_Equ_b_Node_Ptr;
-    double * q_gi_Equ_p_Node_Ptr;
     double * q_p_Equ_gi_Node_Ptr;
     double * q_p_Equ_p_Node_Ptr;
+    double * q_p_Equ_b_Node_Ptr;
     double * q_p_Equ_t_Node_Ptr;
     double * q_p_Equ_si_Node_Ptr;
     double * q_p_Equ_di_Node_Ptr;
     double * q_p_Equ_e_Node_Ptr;
-    double * q_p_Equ_b_Node_Ptr;
     double * q_p_Equ_sb_Node_Ptr;
     double * q_p_Equ_db_Node_Ptr;
     double * q_gi_Equ_gm_Node_Ptr;
@@ -5289,34 +5413,35 @@ public:
     double * q_e_Equ_b_Node_Ptr;
     double * q_e_Equ_si_Node_Ptr;
     double * q_e_Equ_gi_Node_Ptr;
+    double * q_e_Equ_p_Node_Ptr;
     double * q_e_Equ_t_Node_Ptr;
     double * q_e_Equ_e_Node_Ptr;
     double * q_e_Equ_di_Node_Ptr;
-    double * q_db_Equ_p_Node_Ptr;
-    double * q_sb_Equ_p_Node_Ptr;
     double * q_gm_Equ_gm_Node_Ptr;
     double * q_gm_Equ_si_Node_Ptr;
+    double * q_gm_Equ_b_Node_Ptr;
+    double * q_gm_Equ_p_Node_Ptr;
     double * q_gm_Equ_t_Node_Ptr;
     double * q_gm_Equ_gi_Node_Ptr;
     double * q_gm_Equ_di_Node_Ptr;
     double * q_gm_Equ_e_Node_Ptr;
-    double * q_gm_Equ_b_Node_Ptr;
     double * q_gm_Equ_sb_Node_Ptr;
     double * q_gm_Equ_db_Node_Ptr;
-    double * q_gm_Equ_p_Node_Ptr;
     double * q_e_Equ_gm_Node_Ptr;
     double * q_e_Equ_sb_Node_Ptr;
     double * q_e_Equ_db_Node_Ptr;
-    double * q_e_Equ_p_Node_Ptr;
     double * q_g_Equ_g_Node_Ptr;
     double * q_g_Equ_gm_Node_Ptr;
     double * q_gm_Equ_g_Node_Ptr;
+    double * q_g_Equ_b_Node_Ptr;
+    double * q_g_Equ_p_Node_Ptr;
     double * q_g_Equ_t_Node_Ptr;
     double * q_t_Equ_gi_Node_Ptr;
     double * q_t_Equ_si_Node_Ptr;
     double * q_t_Equ_di_Node_Ptr;
     double * q_t_Equ_e_Node_Ptr;
     double * q_t_Equ_b_Node_Ptr;
+    double * q_t_Equ_p_Node_Ptr;
     double * q_t_Equ_t_Node_Ptr;
     // Jacobian offsets
     int A_di_Equ_sb_NodeOffset;
@@ -5370,38 +5495,40 @@ public:
     int A_b_Equ_di_NodeOffset;
     int A_b_Equ_p_NodeOffset;
     int A_b_Equ_t_NodeOffset;
+    int A_db_Equ_b_NodeOffset;
+    int A_db_Equ_p_NodeOffset;
     int A_db_Equ_t_NodeOffset;
     int A_db_Equ_e_NodeOffset;
     int A_db_Equ_si_NodeOffset;
     int A_db_Equ_gi_NodeOffset;
     int A_db_Equ_di_NodeOffset;
-    int A_db_Equ_b_NodeOffset;
     int A_db_Equ_sb_NodeOffset;
     int A_db_Equ_db_NodeOffset;
+    int A_sb_Equ_b_NodeOffset;
+    int A_sb_Equ_p_NodeOffset;
     int A_sb_Equ_t_NodeOffset;
     int A_sb_Equ_e_NodeOffset;
     int A_sb_Equ_si_NodeOffset;
     int A_sb_Equ_gi_NodeOffset;
     int A_sb_Equ_di_NodeOffset;
-    int A_sb_Equ_b_NodeOffset;
     int A_sb_Equ_sb_NodeOffset;
     int A_sb_Equ_db_NodeOffset;
     int A_gi_Equ_sb_NodeOffset;
     int A_gi_Equ_si_NodeOffset;
     int A_gi_Equ_db_NodeOffset;
     int A_gi_Equ_di_NodeOffset;
+    int A_gi_Equ_b_NodeOffset;
+    int A_gi_Equ_p_NodeOffset;
     int A_gi_Equ_t_NodeOffset;
     int A_gi_Equ_e_NodeOffset;
     int A_gi_Equ_gi_NodeOffset;
-    int A_gi_Equ_b_NodeOffset;
-    int A_gi_Equ_p_NodeOffset;
     int A_p_Equ_gi_NodeOffset;
     int A_p_Equ_p_NodeOffset;
+    int A_p_Equ_b_NodeOffset;
     int A_p_Equ_t_NodeOffset;
     int A_p_Equ_si_NodeOffset;
     int A_p_Equ_di_NodeOffset;
     int A_p_Equ_e_NodeOffset;
-    int A_p_Equ_b_NodeOffset;
     int A_p_Equ_sb_NodeOffset;
     int A_p_Equ_db_NodeOffset;
     int A_gi_Equ_gm_NodeOffset;
@@ -5409,34 +5536,35 @@ public:
     int A_e_Equ_b_NodeOffset;
     int A_e_Equ_si_NodeOffset;
     int A_e_Equ_gi_NodeOffset;
+    int A_e_Equ_p_NodeOffset;
     int A_e_Equ_t_NodeOffset;
     int A_e_Equ_e_NodeOffset;
     int A_e_Equ_di_NodeOffset;
-    int A_db_Equ_p_NodeOffset;
-    int A_sb_Equ_p_NodeOffset;
     int A_gm_Equ_gm_NodeOffset;
     int A_gm_Equ_si_NodeOffset;
+    int A_gm_Equ_b_NodeOffset;
+    int A_gm_Equ_p_NodeOffset;
     int A_gm_Equ_t_NodeOffset;
     int A_gm_Equ_gi_NodeOffset;
     int A_gm_Equ_di_NodeOffset;
     int A_gm_Equ_e_NodeOffset;
-    int A_gm_Equ_b_NodeOffset;
     int A_gm_Equ_sb_NodeOffset;
     int A_gm_Equ_db_NodeOffset;
-    int A_gm_Equ_p_NodeOffset;
     int A_e_Equ_gm_NodeOffset;
     int A_e_Equ_sb_NodeOffset;
     int A_e_Equ_db_NodeOffset;
-    int A_e_Equ_p_NodeOffset;
     int A_g_Equ_g_NodeOffset;
     int A_g_Equ_gm_NodeOffset;
     int A_gm_Equ_g_NodeOffset;
+    int A_g_Equ_b_NodeOffset;
+    int A_g_Equ_p_NodeOffset;
     int A_g_Equ_t_NodeOffset;
     int A_t_Equ_gi_NodeOffset;
     int A_t_Equ_si_NodeOffset;
     int A_t_Equ_di_NodeOffset;
     int A_t_Equ_e_NodeOffset;
     int A_t_Equ_b_NodeOffset;
+    int A_t_Equ_p_NodeOffset;
     int A_t_Equ_t_NodeOffset;
     // end of Jacobian and pointers
    // node numbers
@@ -5444,8 +5572,11 @@ public:
     static const int admsNodeID_g = 1;
     static const int admsNodeID_s = 2;
     static const int admsNodeID_e = 3;
+// optional node p:
     static const int admsNodeID_p = 4;
+// optional node b:
     static const int admsNodeID_b = 5;
+// optional node t:
     static const int admsNodeID_t = 6;
     static const int admsNodeID_di = 7;
     static const int admsNodeID_si = 8;
@@ -5469,20 +5600,21 @@ public:
     static const int admsProbeID_V_gm_e = 8;
     static const int admsProbeID_V_s_si = 9;
     static const int admsProbeID_V_d_di = 10;
-    static const int admsProbeID_V_b_GND = 11;
-    static const int admsProbeID_V_si_GND = 12;
-    static const int admsProbeID_V_di_GND = 13;
-    static const int admsProbeID_V_gi_GND = 14;
-    static const int admsProbeID_V_gm_si = 15;
-    static const int admsProbeID_V_db_di = 16;
-    static const int admsProbeID_V_sb_si = 17;
-    static const int admsProbeID_V_gi_p = 18;
-    static const int admsProbeID_V_b_p = 19;
-    static const int admsProbeID_V_e_si = 20;
-    static const int admsProbeID_V_gi_si = 21;
-    static const int admsProbeID_V_b_si = 22;
-    static const int admsProbeID_V_di_si = 23;
-    static const int admsProbeID_Temp_t_GND = 24;
+    static const int admsProbeID_V_si_GND = 11;
+    static const int admsProbeID_V_di_GND = 12;
+    static const int admsProbeID_V_gi_GND = 13;
+    static const int admsProbeID_V_gm_si = 14;
+    static const int admsProbeID_V_db_di = 15;
+    static const int admsProbeID_V_sb_si = 16;
+    static const int admsProbeID_V_gi_p = 17;
+    static const int admsProbeID_V_b_p = 18;
+    static const int admsProbeID_V_e_si = 19;
+    static const int admsProbeID_V_gi_si = 20;
+    static const int admsProbeID_V_b_si = 21;
+    static const int admsProbeID_V_di_si = 22;
+    static const int admsProbeID_Temp_t_GND = 23;
+    static const int admsProbeID_V_p_GND = 24;
+    static const int admsProbeID_V_b_GND = 25;
    // end probe numbers
    // Store LIDs
    // end store LIDs
@@ -5571,6 +5703,7 @@ std::vector<double> noiseContribsExponent;
     std::vector<double> leadCurrentF;
     std::vector<double> leadCurrentQ;
 
+      std::vector<bool> portsConnected_;
 
     };
 
