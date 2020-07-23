@@ -2304,27 +2304,35 @@ other variables does not get propagated into a variable's
         <admst:choose>
           <admst:when test="lhs/branch[grounded='no']">
             <admst:choose>
-              <admst:when test="lhs/branch/nnode[location='internal']">
-                <!-- <admst:warning format="collectCollapsibles found internal nnode %(lhs/branch/nnode/name) it wants to collapse into %(lhs/branch/pnode/name)\n"/> -->
+              <admst:when test="lhs/branch/nnode[location='internal' or (location='external' and exists(#optional))]">
+                <!-- <admst:if test="[lhs/branch/nnode/location='internal']">
+                  <admst:warning format="collectCollapsibles found internal nnode %(lhs/branch/nnode/name) it wants to collapse into %(lhs/branch/pnode/name)\n"/>
+                </admst:if> -->
+                <admst:if test="[lhs/branch/nnode/location='external']">
+                   <admst:warning format="while processing collapse contributions %(.):  found optional external node %(lhs/branch/nnode/name) we want to collapse into %(lhs/branch/pnode/name).  This might be dangerous and should only work if the optional node is not given at run time.\n"/>
+                </admst:if>
                 <!-- nnode is internal, collapse it into pnode -->
                 <admst:if test="[exists(lhs/branch/nnode/#collapsible) and lhs/branch/nnode/#collapsible='yes']">
                   <!-- nnode is already collapsible to something, so don't just
                        blindly collapse it to pnode... check that pnode is
                        not collapsible, and collapse p into n if not -->
-                  <!-- <admst:warning format="    %(lhs/branch/nnode/name) is already collapsible...\n"/> -->
+                  <!-- <admst:warning format="    %(lhs/branch/nnode/name) is already collapsible onto ...%(lhs/branch/nnode/@collapsesTo/name)\n"/> -->
                   <admst:choose>
                     <admst:when test="[not(exists(lhs/branch/pnode/#collapsible))]">
-                      <!-- <admst:warning format="    but %(lhs/branch/pnode/name) is not collapsible...\n"/> -->
+                      <!-- <admst:warning format="    but %(lhs/branch/pnode/name) is not collapsible, so maybe we can collapse it onto %(lhs/branch/nnode/name) instead of the other way around...\n"/> -->
                       <admst:choose>
                         <admst:when test="[lhs/branch/pnode/name=lhs/branch/nnode/@collapsesTo/name]">
                           <!-- <admst:warning format="But that is OK, because we were already going to do that collapsing!\n"/> -->
                         </admst:when>
-                        <admst:when test="lhs/branch/pnode[location='external']">
+                        <admst:when test="[lhs/branch/pnode/location='external' and not(exists(lhs/branch/pnode/#optional))]">
                           <!-- <admst:warning format="     unfortunately, that is external... rearranging\n"/> -->
-                          <!-- <admst:warning format="     we will make %(lhs/branch/nnode/@collapsesTo/name) collapse to %(lhs/branch/nnode/name) instead, and make %(lhs/branch/nnode/name) collapse to %(lhs/branch/pnode/name) instead\n"/> -->
+                          <!-- <admst:warning format="     we would make %(lhs/branch/nnode/@collapsesTo/name) collapse to %(lhs/branch/nnode/name) instead, and make %(lhs/branch/nnode/name) collapse to %(lhs/branch/pnode/name) instead\n"/> -->
+                          <admst:if test="[lhs/branch/nnode/@collapsesTo/location='external']">
+                            <admst:fatal format="Fatal error with collapse contribution %(.) --- we would wind up collapsing an external node onto an internal!\n"/>
+                          </admst:if>
                           <admst:variable name="saveCollapse" select="%(lhs/branch/nnode/@collapsesTo)"/>
                           <admst:if test="[exists($saveCollapse/#collapsible)]">
-                            <admst:error format="fatal error --- tried to rearrange collapsing of %(lhs/branch/nnode/name) and %($saveCollapse/name) but the latter is already collapsible.\n"/>
+                            <admst:fatal format="fatal error with collapse contribution %(.) --- tried to rearrange collapsing of %(lhs/branch/nnode/name) and %($saveCollapse/name) but the latter is already collapsible.\n"/>
                           </admst:if>
                           <admst:value-to select="$saveCollapse/#collapsible" string="yes"/>
                           <admst:push into="$saveCollapse/@collapsesTo" onduplicate="ignore" select="lhs/branch/nnode"/>
@@ -2332,6 +2340,9 @@ other variables does not get propagated into a variable's
                           <admst:push into="lhs/branch/nnode/@collapsesTo" onduplicate="ignore" select="lhs/branch/pnode"/>
                         </admst:when>
                         <admst:otherwise>
+                          <admst:if test="[lhs/branch/pnode/location='external' and exists(lhs/branch/pnode/#optional)]">
+                            <admst:warning format="   Issue while processing %(.): trying to collapse optional external node %(lhs/branch/pnode/name) onto node %(lhs/branch/nnode/name).  This can only work at run time if the optional node is not given when collapse is needed.\n"/>
+                          </admst:if>
                           <admst:value-to select="lhs/branch/pnode/#collapsible" string="yes"/>
                           <admst:push into="lhs/branch/pnode/@collapsesTo" onduplicate="ignore" select="lhs/branch/nnode"/>
                         </admst:otherwise>
