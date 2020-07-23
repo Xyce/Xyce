@@ -2342,7 +2342,7 @@ other variables does not get propagated into a variable's
                            into something OTHER than what it already collapses
                            to.  -->
                       <admst:if test="[(lhs/branch/pnode/name != lhs/branch/nnode/@collapsesTo/name) and (lhs/branch/nnode/name != lhs/branch/pnode/@collapsesTo/name)]">
-                        <admst:error format="Not yet supported: collapsing a node multiply... both %(lhs/branch/nnode/name) and %(lhs/branch/pnode/name) are already collapsible.  %(lhs/branch/nnode/name) collapses already into %(lhs/branch/nnode/@collapsesTo) and %(lhs/branch/pnode/name) collapses already into %(lhs/branch/pnode/@collapsesTo)\n"/>
+                        <admst:error format="Problem with contribution: %(.)\nNot yet supported: collapsing a node multiply... both %(lhs/branch/nnode/name) and %(lhs/branch/pnode/name) are already collapsible.  %(lhs/branch/nnode/name) collapses already into %(lhs/branch/nnode/@collapsesTo) and %(lhs/branch/pnode/name) collapses already into %(lhs/branch/pnode/@collapsesTo)\n"/>
                       </admst:if>
                     </admst:otherwise>
                   </admst:choose>
