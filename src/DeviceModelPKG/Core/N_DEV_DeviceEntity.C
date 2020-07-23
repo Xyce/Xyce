@@ -1076,10 +1076,18 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
     changed = true;
     // ERK.  5/3/2020.  This partially works, but refine later.  
     // The logic inside of newExpression to determine the "isConstant" boolean is flawed.
+    //
+    // ERK.  7/20/2020.  Not sure why I left this in back in May, but leaving it uncommented breaks bug 1801 tests.
+    // Commenting it out noticably slows down some of the larger tests.
+    //
+    // So, for now, not deleting this code.  Once the "is constant" machinery is reliable, then 
+    // it can be uncommented.  Right now, the machinery is NOT reliable.  7/23/2020
+#if 0 
     if ( dpIter->expr->getIsConstant() ) 
     {
       changed = false;
     }
+#endif
 
     if (changed)
     {
@@ -1100,7 +1108,10 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateGlobalParameters
 // Purpose       : Update values of global parameters in expressions
+//
 // Special Notes : ERK.  This function can probably be deleted, for new Expression.
+//                 ERK.  Wrong about that.    This is needed, still, even with new Expression.
+//
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 11/17/05
@@ -1125,7 +1136,11 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         {
           DevelFatal(*this).in("DeviceEntity::updateGlobalParameters") << "Failed to find global parameter " << *gp;
         }
+        // old expression did a "set_var" call here.
       }
+
+      dpIter->expr->evaluateFunction (rval);
+      changed = true;
     }
   }
 
@@ -1165,9 +1180,13 @@ bool DeviceEntity::updateDependentParameters()
 
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
+    {
       *(dpIter->resultU.result) = rval;
+    }
     else
+    {
       (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+    }
   }
 
   return changed;
@@ -1212,9 +1231,13 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
 
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
+    {
       *(dpIter->resultU.result) = rval;
+    }
     else
+    {
       (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+    }
 
   }
 

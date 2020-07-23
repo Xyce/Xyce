@@ -204,14 +204,15 @@ void Expression::attachFunctionNode (const std::string & funcName, const Express
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/9/2020
 //-----------------------------------------------------------------------------
-void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, bool isDotParam)
+void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type)
 {
 #if 0
   std::cout << "attachParameterNode name = " << paramName << " which is ";
-  if (isDotParam) { std::cout << "a .param" <<std::endl; }
-    else          { std::cout << "a not .param" <<std::endl; }
+  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
 #endif
-  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, isDotParam);
+  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, type);
 }
 
 
@@ -244,6 +245,8 @@ const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 //-----------------------------------------------------------------------------
 int Expression::get_type ( const std::string & var )
 {
+  newExpPtr_->setupVariousAstArrays();
+
   int retVal=0; 
 
   std::string tmpName = var;
@@ -282,15 +285,18 @@ int Expression::get_type ( const std::string & var )
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_constant (const std::string & var, const double & val, bool isDotParam)
+bool Expression::make_constant (const std::string & var, const double & val, enumParamType type)
 {
+  newExpPtr_->setupVariousAstArrays();
+
 #if 0
   std::cout << "make_constant name = " << var << " which is ";
-  if (isDotParam) { std::cout << "a .param" <<std::endl; }
-    else          { std::cout << "a not .param" <<std::endl; }
+  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
 #endif
   bool retVal=false; // ERK.  check this.
-  retVal = newExpPtr_->make_constant (var,val, isDotParam);
+  retVal = newExpPtr_->make_constant (var,val, type);
   return retVal;
 }
 
@@ -321,15 +327,16 @@ bool Expression::make_constant (const std::string & var, const double & val, boo
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_var (std::string const & var, bool isDotParam)
+bool Expression::make_var (std::string const & var, enumParamType type)
 { 
 #if 0
   std::cout << "mak_var name = " << var << " which is ";
-  if (isDotParam) { std::cout << "a .param" <<std::endl; }
-    else          { std::cout << "a not .param" <<std::endl; }
+  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
 #endif
   bool retVal=false; 
-  retVal = newExpPtr_->make_var(var, isDotParam);
+  retVal = newExpPtr_->make_var(var, type);
   return retVal;
 }
 
@@ -345,6 +352,8 @@ bool Expression::make_var (std::string const & var, bool isDotParam)
 //-----------------------------------------------------------------------------
 void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   params.clear();
   std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
   for (int ii=0;ii<paramOpVec.size();ii++)
@@ -376,6 +385,8 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 void Expression::getParams (std::vector<std::string> & params) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   params.clear();
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
@@ -401,6 +412,8 @@ void Expression::getParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   nodes.clear();
   for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
   {
@@ -431,6 +444,8 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 //-----------------------------------------------------------------------------
 void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   devices.clear();
   for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
   {
@@ -453,6 +468,8 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   leads.clear();
   for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
   {
@@ -496,6 +513,8 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const
 {
+  newExpPtr_->setupVariousAstArrays(); 
+
   leads.clear();
   for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
   {
@@ -533,6 +552,8 @@ void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) c
 //-----------------------------------------------------------------------------
 void Expression::getFunctions (std::vector<std::string> & funcs) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   funcs.clear();
   for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
   {
@@ -557,6 +578,8 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   funcs.clear();
   std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = newExpPtr_->getFuncOpVec();
   for (int ii=0;ii<funcOpVec.size();ii++)
@@ -585,6 +608,8 @@ void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 void Expression::getSpecials (std::vector<std::string> & specials) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   specials.clear();
   if (newExpPtr_->getTimeDependent()) { specials.push_back(std::string("TIME")); }
   if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
@@ -613,10 +638,13 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
 //-----------------------------------------------------------------------------
 void Expression::getVariables (std::vector<std::string> & variables) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   variables.clear();
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
-    if (  !(newExpPtr_->getParamOpVec()[ii]->getIsDotParam ())  )
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (newExpPtr_->getParamOpVec()[ii]);
+    if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) 
     {
       std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
       std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
@@ -627,7 +655,7 @@ void Expression::getVariables (std::vector<std::string> & variables) const
     }
   }
 
-#if 1
+#if 0
   if ( !(variables.empty()) )
   {
     std::cout << "Expression::getVariables call for " << newExpPtr_->getExpressionString() << std::endl;
@@ -647,6 +675,8 @@ void Expression::getVariables (std::vector<std::string> & variables) const
 //-----------------------------------------------------------------------------
 void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) const
 {
+  newExpPtr_->setupVariousAstArrays();
+
   powerCalcs.clear();
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
@@ -657,19 +687,6 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
       powerCalcs.push_back( tmpName );
     }
   }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getNodalCalcs
-// Purpose       : 
-// Special Notes : this may not be necessary for new expression.
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 2020
-//-----------------------------------------------------------------------------
-void Expression::getNodalComputation (std::vector<std::string> & nodalCalcs) const
-{
-
 }
 
 //-----------------------------------------------------------------------------
@@ -889,20 +906,6 @@ bool Expression::replace_name ( const std::string & old_name,
                                 const std::string & new_name)
 {
   return newExpPtr_->replaceName( old_name, new_name );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_param_name
-// Purpose       : Change the name of parameter name
-// Special Notes : 
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 07/15/2020
-//-----------------------------------------------------------------------------
-bool Expression::replace_param_name ( const std::string & old_name,
-                                      const std::string & new_name)
-{
-  return newExpPtr_->replaceParamName( old_name, new_name );
 }
 
 //-----------------------------------------------------------------------------

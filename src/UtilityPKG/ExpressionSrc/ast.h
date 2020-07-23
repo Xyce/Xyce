@@ -53,6 +53,7 @@
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_ERH_Message.h>
+#include <expressionParamTypes.h>
 
 #define CONSTCtoK    (273.15)  
 
@@ -920,10 +921,10 @@ class paramOp: public astNode<ScalarT>
       astNode<ScalarT>(),
       paramName_(par),
       thisIsAFunctionArgument_(false),
-      isVar(false),
-      isConstant(false),
-      isAttached(false),
-      isDotParam(false),
+      isVar_(false),
+      isConstant_(false),
+      isAttached_(false),
+      paramType_(DOT_GLOBAL_PARAM),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
@@ -937,10 +938,10 @@ class paramOp: public astNode<ScalarT>
       paramNode_(tmpNode),
       savedParamNode_(tmpNode),
       thisIsAFunctionArgument_(false),
-      isVar(false),
-      isConstant(false),
-      isAttached(false),
-      isDotParam(false),
+      isVar_(false),
+      isConstant_(false),
+      isAttached_(false),
+      paramType_(DOT_GLOBAL_PARAM),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
@@ -950,8 +951,8 @@ class paramOp: public astNode<ScalarT>
     virtual ScalarT dx(int i)
     {
       ScalarT retval=0.0;
-      if (isVar) { retval = (derivIndex_==i)?1.0:0.0; }
-      else       { retval = paramNode_->dx(i); }
+      if (isVar_) { retval = (derivIndex_==i)?1.0:0.0; }
+      else        { retval = paramNode_->dx(i); }
       return retval;
     }
 
@@ -1019,34 +1020,33 @@ AST_GET_TIME_OPS(paramNode_)
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
-    // isVar, isAttached, and isConstant are all checked by the
+    // isVar_, isAttached_, and isConstant_ are all checked by the
     // Expression::getUnresolvedParams function.
     //
-    // the variable "isVar" is to support the old expression library API.
+    // the variable "isVar_" is to support the old expression library API.
     // If true, it means that this parameter is one of the variables included
     // in the "vars" array that is passed into the functions expression::evalauate
     // and expression::evaluateFunction.
-    void setIsVar() { isVar = true; }
-    void unsetIsVar() { isVar = false; }
-    bool getIsVar() { return isVar; }
+    void setIsVar() { isVar_ = true; }
+    void unsetIsVar() { isVar_ = false; }
+    bool getIsVar() { return isVar_; }
 
     // this flag checks if this parameter is just a simple constant.
-    void setIsConstant() { isConstant = true; }
-    void unsetIsConstant() { isConstant = false; }
-    bool getIsConstant() { return isConstant; }
+    void setIsConstant() { isConstant_ = true; }
+    void unsetIsConstant() { isConstant_ = false; }
+    bool getIsConstant() { return isConstant_; }
 
     // this flag indicates if an external AST has been attached
     // to this class
-    void setIsAttached() { isAttached = true; }
-    void unsetIsAttached() { isAttached = false; }
-    bool getIsAttached() { return isAttached; }
+    void setIsAttached() { isAttached_ = true; }
+    void unsetIsAttached() { isAttached_ = false; }
+    bool getIsAttached() { return isAttached_; }
 
-    // the isDotParam flag is to support the Expression::getVariables function
-    // It needs to only return global params.  This flag indicates that
-    // this parameter is a .param, not a .global_param.
-    void setIsDotParam() { isDotParam = true; }
-    void unsetIsDotParam() { isDotParam = false; }
-    bool getIsDotParam() { return isDotParam; }
+    // the param type can be .param, .global_param or a subcircuit argument
+    // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUCKT_ARG_PARAM}
+    void setParamType(enumParamType type) { paramType_ = type; }
+    void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }
+    enumParamType getParamType() { return paramType_; }
 
   private:
     // data:
@@ -1058,10 +1058,12 @@ AST_GET_TIME_OPS(paramNode_)
 
     bool thisIsAFunctionArgument_;
 
-    bool isVar;
-    bool isConstant;
-    bool isAttached;
-    bool isDotParam; // .param, instead of .global_param
+    bool isVar_;
+    bool isConstant_;
+    bool isAttached_;
+
+    enumParamType paramType_;
+
 
     int derivIndex_;
 };

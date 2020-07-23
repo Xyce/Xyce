@@ -4649,6 +4649,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     double Aval_, Bval_, Cval_, R1val_;
 };
 
+
 // These tests (derivsThruFuncs?) tests if derivatives work thru expression arguments.
 // At the time of test creation (2/21/2020), the answer was NO.
 //
@@ -6833,6 +6834,7 @@ TEST ( Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
     dotGlobalParamVector.push_back(parPair);
   }
 
+  //std::cout << "About to do the attachments" << std::endl;
   // do all the attachments
   for (int ii=1;ii<numParams;ii++)
   {
@@ -6841,6 +6843,7 @@ TEST ( Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 
     parPair.second->attachParameterNode(parPairM1.first, parPairM1.second);
   }
+  //std::cout << "Done with the attachments" << std::endl;
 
   testExpression->attachParameterNode(dotGlobalParamVector[numParams-1].first, dotGlobalParamVector[numParams-1].second);
 
@@ -6850,7 +6853,13 @@ TEST ( Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
   std::vector<double> derivs;
   std::vector<double> refderivs = {2.0};
   double refresult = 10.0;
+  //std::cout << "About to evaluate the function" << std::endl;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
+  //std::cout << "Done with valuate the function" << std::endl;
+
+#if 0
+  testExpression->outputVariousAstArraySizes(std::cout);
+#endif
 
   OUTPUT_MACRO3(Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }

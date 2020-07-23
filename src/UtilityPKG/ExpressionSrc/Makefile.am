@@ -29,7 +29,8 @@ libExpressionSrc_la_SOURCES = \
   newExpression.h \
   mainXyceExpressionGroup.h \
   outputsXyceExpressionGroup.h \
-  xyceExpressionGroup.h 
+  xyceExpressionGroup.h  \
+	expressionParamTypes.h
 
 # these can't be in "SOURCES" above or automake screams about YACC.
 EXTRA_DIST=ExpressionLexer.l \

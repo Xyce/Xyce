@@ -345,6 +345,8 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
       }
     }
     externalDependencies_ = true;
+    //addToVariousAstArrays_(expPtr);
+    astArraysSetup_ = false;
   }
   else { retval=false; }
   return retval;
@@ -368,7 +370,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, bool isDotParam)
+bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type)
 {
   bool retval=true;
   externalExpressions_.push_back(expPtr);
@@ -382,8 +384,10 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setNode(expPtr->getAst());
     parOp->setIsAttached();
-    if(isDotParam){ parOp->setIsDotParam(); }
+    parOp->setParamType(type);
     externalDependencies_ = true;
+    //addToVariousAstArrays_(expPtr);
+    astArraysSetup_ = false;
   }
   else { retval=false; }
   return retval;
@@ -478,7 +482,7 @@ void newExpression::clear ()
 // Creator       : Eric Keiter
 // Creation Date : 3/??/2020
 //-------------------------------------------------------------------------------
-bool newExpression::make_constant (std::string const & var, usedType const & val, bool isDotParam)
+bool newExpression::make_constant (std::string const & var, usedType const & val, enumParamType type)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
@@ -492,7 +496,7 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setValue(val);
     parOp->setIsConstant();
-    if(isDotParam){ parOp->setIsDotParam(); }
+    parOp->setParamType(type);
     retval=true;
   }
   else
@@ -515,7 +519,7 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
 // Creator       : Eric Keiter
 // Creation Date : ??
 //-------------------------------------------------------------------------------
-bool newExpression::make_var (std::string const & var, bool isDotParam)
+bool newExpression::make_var (std::string const & var, enumParamType type)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
@@ -529,7 +533,7 @@ bool newExpression::make_var (std::string const & var, bool isDotParam)
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->unsetValue(); // just to be safe "unset" the value
     parOp->setIsVar();
-    if(isDotParam){ parOp->setIsDotParam(); }
+    parOp->setParamType(type);
     retval = true; // just means we found it
   }
   else
@@ -556,77 +560,42 @@ bool newExpression::make_var (std::string const & var, bool isDotParam)
 //-------------------------------------------------------------------------------
 void newExpression::setupDerivatives_ ()
 {
-  // figure out the derivative indices
-  // This assumes we need derivatives with respect to all
-  // voltages and currents.
-  //
-  // I was considering automatically doing parameters as well, but
-  // that isn't what the old library does.  Params are only differentiated
-  // if "make_var" is called on them.
-  {
-    numDerivs_=0;
-    derivIndexVec_.clear();
-
-    for (int ii=0;ii<voltOpVec_.size();ii++)
+  if (!derivsSetup_) 
+  { 
+    // figure out the derivative indices
+    // This assumes we need derivatives with respect to all
+    // voltages and currents.
+    //
+    // I was considering automatically doing parameters as well, but
+    // that isn't what the old library does.  Params are only differentiated
+    // if "make_var" is called on them.
     {
-      Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-      std::vector<std::string> & nodes = voltOp->getVoltageNodes();
+      numDerivs_=0;
+      derivIndexVec_.clear();
 
-      if (nodes.size() == 1) // putting this here b/c I now want to handle the V(A,B) case differently than I planned for
+      for (int ii=0;ii<voltOpVec_.size();ii++)
       {
-        std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
-        std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
-      }
-      else
-      {
-        std::cout << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
-      }
-    }
+        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-    for (int ii=0;ii<currentOpVec_.size();ii++)
-    {
-      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-      std::string tmp = currOp->getCurrentDevice();
-      Xyce::Util::toUpper(tmp);
-      std::unordered_map<std::string, int>::iterator mapIter;
-      mapIter = derivNodeIndexMap_.find(tmp);
-      if (mapIter == derivNodeIndexMap_.end())
-      {
-        derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
+        if (nodes.size() == 1) // putting this here b/c I now want to handle the V(A,B) case differently than I planned for
+        {
+          std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
+          std::unordered_map<std::string, int>::iterator mapIter;
+          mapIter = derivNodeIndexMap_.find(tmp);
+          if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+          derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
+        }
+        else
+        {
+          std::cout << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
+        }
       }
-      derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[tmp]);
-      derivIndexVec_.push_back(currentNodePair);
-    }
 
-    // Complication for params:
-    // Unlike voltages and currents, params can be assigned to each other, etc, and they can be *anything*.
-    // So, for example if I have
-    //
-    //  .param a = {10*c+b}
-    //  .param b = {5*x}
-    //  .param c = {sqrt(y)}
-    //  .param x = 10.0
-    //  .param y = 20.0
-    //
-    // the most likely params I would want differentiated are x and y.
-    // Differentiating w.r.t. a,b,c might not make sense, as they are
-    // placeholders for other expressions.
-    //
-    // So, possibly I need to do this only w.r.t. terminal parameters,
-    // that are set to simple numerical values.  That would mean
-    // that for the above set of expressions, I only would do x and y.
-    //
-    // Solution: only differentiate params that have their "setIsVar" boolean set to true.
-    //
-    for (int ii=0;ii<paramOpVec_.size();ii++)
-    {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if (parOp->getIsVar())
+      for (int ii=0;ii<currentOpVec_.size();ii++)
       {
-        std::string tmp = parOp->getName();
+        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+        std::string tmp = currOp->getCurrentDevice();
         Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
         mapIter = derivNodeIndexMap_.find(tmp);
@@ -634,13 +603,51 @@ void newExpression::setupDerivatives_ ()
         {
           derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
         }
-        derivIndexPair_ parNodePair(paramOpVec_[ii],derivNodeIndexMap_[tmp]);
-        derivIndexVec_.push_back(parNodePair);
+        derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[tmp]);
+        derivIndexVec_.push_back(currentNodePair);
+      }
+
+      // Complication for params:
+      // Unlike voltages and currents, params can be assigned to each other, etc, and they can be *anything*.
+      // So, for example if I have
+      //
+      //  .param a = {10*c+b}
+      //  .param b = {5*x}
+      //  .param c = {sqrt(y)}
+      //  .param x = 10.0
+      //  .param y = 20.0
+      //
+      // the most likely params I would want differentiated are x and y.
+      // Differentiating w.r.t. a,b,c might not make sense, as they are
+      // placeholders for other expressions.
+      //
+      // So, possibly I need to do this only w.r.t. terminal parameters,
+      // that are set to simple numerical values.  That would mean
+      // that for the above set of expressions, I only would do x and y.
+      //
+      // Solution: only differentiate params that have their "setIsVar" boolean set to true.
+      //
+      for (int ii=0;ii<paramOpVec_.size();ii++)
+      {
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        if (parOp->getIsVar())
+        {
+          std::string tmp = parOp->getName();
+          Xyce::Util::toUpper(tmp);
+          std::unordered_map<std::string, int>::iterator mapIter;
+          mapIter = derivNodeIndexMap_.find(tmp);
+          if (mapIter == derivNodeIndexMap_.end())
+          {
+            derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
+          }
+          derivIndexPair_ parNodePair(paramOpVec_[ii],derivNodeIndexMap_[tmp]);
+          derivIndexVec_.push_back(parNodePair);
+        }
       }
     }
-  }
 
-  derivsSetup_ = true;
+    derivsSetup_ = true;
+  }
 }
 
 #define NEW_EXP_OUTPUT_ARRAY(VECTOR) \
@@ -653,7 +660,7 @@ void newExpression::setupDerivatives_ ()
   } }
 
 //-------------------------------------------------------------------------------
-// Function      : newExpression::outputVariousAstArrays_
+// Function      : newExpression::outputVariousAstArrays
 // Purpose       : debug output
 // Special Notes :
 // Scope         :
@@ -685,182 +692,352 @@ NEW_EXP_OUTPUT_ARRAY(compAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
 }
 
+#define NEW_EXP_OUTPUT_ARRAY_SIZE(VECTOR) \
+  if ( !(VECTOR.empty()) )  { \
+  os << #VECTOR << " (size="<<VECTOR.size()<<"):" << std::endl; \
+  }
+
 //-------------------------------------------------------------------------------
-// Function      : newExpression::setupVariousAstArrays_
-// Purpose       : see below
+// Function      : newExpression::outputVariousAstArraySizes
+// Purpose       : debug output
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
+// Creation Date : 5/1/2020
+//-------------------------------------------------------------------------------
+void newExpression::outputVariousAstArraySizes( std::ostream & os )
+{
+  os << "Various arrays for expression: " << expressionString_ <<std::endl;
+  if (externalDependencies_) os << "externalDependencies_ = true" <<std::endl;
+  else os << "externalDependencies_ = false" <<std::endl;
+
+NEW_EXP_OUTPUT_ARRAY_SIZE(paramOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(unresolvedParamOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(funcOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(voltOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(currentOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(leadCurrentOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(powerOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(internalDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(dnoNoiseDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(dniNoiseDevVarOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(oNoiseOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(iNoiseOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(sdtOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(ddtOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(stpAstNodeVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(compAstNodeVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(phaseOpVec_)
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setupVariousAstArrays
+//
+// Purpose       : This function builds up lists of all the relevant data 
+//                 structures required to understand the external depedencies of 
+//                 this expression.
+//
+//                 It is only necessary to call it when the expression has external
+//                 dependencies.  The reason is that during parsing, all the 
+//                 information that can be determined during parsing is added to
+//                 these data structures.  External dependencies, however, 
+//                 cannot be fully evaluated during the parse phase.
+//
+//                 Ideally, however, the data structutes below should be added to
+//                 during the two "attach" functions:
+//
+//                   newExpression::attachFunctionNode
+//                   newExpression::attachParameterNode
+//
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter
 // Creation Date : 12/26/2019
 //-------------------------------------------------------------------------------
-void newExpression::setupVariousAstArrays_()
+void newExpression::setupVariousAstArrays()
 {
-#if 0
-  std::cout << "Array sizes BEFORE update:" <<std::endl;
-  outputVariousAstArrays(std::cout);
-#endif
-  if (externalDependencies_)
+  if (!astArraysSetup_) 
   {
-    // 1. setup arrays that require full AST traversal:
-    paramOpVec_.clear();
-    funcOpVec_.clear();
-    voltOpVec_.clear();
-    currentOpVec_.clear();
-    leadCurrentOpVec_.clear();
-    bsrcCurrentOpVec_.clear();
-    powerOpVec_.clear();
-    internalDevVarOpVec_.clear();
-    dnoNoiseDevVarOpVec_.clear();
-    dniNoiseDevVarOpVec_.clear();
-    oNoiseOpVec_.clear();
-    iNoiseOpVec_.clear();
-    sdtOpVec_.clear();
-    ddtOpVec_.clear();
-    srcAstNodeVec_.clear();
-    stpAstNodeVec_.clear();
-    compAstNodeVec_.clear();
-    phaseOpVec_.clear();
-    sparamOpVec_.clear();
-    yparamOpVec_.clear();
-    zparamOpVec_.clear();
-
-    if( !(Teuchos::is_null(astNodePtr_)) )
-    {
-      if (astNodePtr_->paramType())
-      {
-        if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
-        {
-          paramOpVec_.push_back(astNodePtr_);
-        }
-      }
-      if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->powerType()) { powerOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
-
-      if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
-
-      if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
-
-      if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
-      if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
-
-      opVectors_.isTimeDependent = isTimeDependent_;
-      opVectors_.isTempDependent = isTempDependent_;
-      opVectors_.isVTDependent = isVTDependent_;
-      opVectors_.isFreqDependent = isFreqDependent_;
-      opVectors_.isGminDependent = isGminDependent_;
-
-      astNodePtr_->getInterestingOps( opVectors_  );
-
-      if (opVectors_.isTimeDependent) isTimeDependent_ = true;
-      if (opVectors_.isTempDependent) isTempDependent_ = true;
-      if (opVectors_.isVTDependent  ) isVTDependent_   = true;
-      if (opVectors_.isGminDependent) isGminDependent_ = true;
-    }
-
 #if 0
-    funcNameVec_.clear();
-    //funcOpMap_.clear();
-    for (int ii=0;ii<funcOpVec_.size();++ii)
-    {
-      Teuchos::RCP<funcOp<usedType> > functionOp = Teuchos::rcp_static_cast<funcOp<usedType> > (funcOpVec_[ii]);
-      std::string tmp = functionOp->getName();
-      Xyce::Util::toUpper(tmp);
-      //funcOpMap_[tmp].push_back(funcOpVec_[ii]);
-      funcNameVec_.push_back(tmp);
-    }
-
-    //paramNameVec_.clear();
-    //paramOpMap_.clear();
-    for (int ii=0;ii<paramOpVec_.size();++ii)
-    {
-      Teuchos::RCP<paramOp<usedType> > parameterOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      std::string tmp = parameterOp->getName();
-      Xyce::Util::toUpper(tmp);
-      //paramOpMap_[tmp].push_back(paramOpVec_[ii]);
-      //paramNameVec_.push_back(tmp);
-    }
-#endif
-
-    voltOpNames_.clear();
-    for (int ii=0;ii<voltOpVec_.size();++ii)
-    {
-      Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-      std::vector<std::string> & tmp = voltOp->getVoltageNodes();
-      for (int jj=0;jj<tmp.size();++jj)
-      {
-        voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
-      }
-    }
-
-    currentOpNames_.clear();
-    for (int ii=0;ii<currentOpVec_.size();++ii)
-    {
-      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-      std::string tmp = currOp->getCurrentDevice();
-      currentOpNames_[tmp].push_back(currentOpVec_[ii]);
-    }
-
-    leadCurrentOpNames_.clear();
-    for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
-    {
-      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
-      std::string tmp = leadCurrOp->getLeadCurrentDevice();
-      leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
-    }
-
-    paramOpNames_.clear();
-    for (int ii=0;ii<paramOpVec_.size();++ii)
-    {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      std::string tmp = parOp->getName();
-      paramOpNames_[tmp].push_back(paramOpVec_[ii]);
-    }
-
-    // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
-    //    For specials, this is more appropriate the AST traversal, as there will be at
-    //    most one "time" node per expression object.   I think this should be a faster
-    //    traversal, generally.
-
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getDtNodes(dtOpVec_); }
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
-    for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminOpVec_); }
-
-    isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
-    isTempDependent_ = !(tempOpVec_.empty());
-    isVTDependent_   = !(vtOpVec_.empty());
-    isFreqDependent_ = !(freqOpVec_.empty());
-    isGminDependent_ = !(gminOpVec_.empty());
-
-#if 0
-    std::cout << "Array sizes AFTER update:" <<std::endl;
+    std::cout << "Array sizes BEFORE update:" <<std::endl;
     outputVariousAstArrays(std::cout);
 #endif
-
-    if ( !(Teuchos::is_null(group_)) )
+    if (externalDependencies_)
     {
-      if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
-      if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
-      if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
+      // 1. setup arrays that require full AST traversal:
+      paramOpVec_.clear();
+      funcOpVec_.clear();
+      voltOpVec_.clear();
+      currentOpVec_.clear();
+      leadCurrentOpVec_.clear();
+      bsrcCurrentOpVec_.clear();
+      powerOpVec_.clear();
+      internalDevVarOpVec_.clear();
+      dnoNoiseDevVarOpVec_.clear();
+      dniNoiseDevVarOpVec_.clear();
+      oNoiseOpVec_.clear();
+      iNoiseOpVec_.clear();
+      sdtOpVec_.clear();
+      dtOpVec_.clear();
+      srcAstNodeVec_.clear();
+      stpAstNodeVec_.clear();
+      compAstNodeVec_.clear();
+      phaseOpVec_.clear();
+      sparamOpVec_.clear();
+      yparamOpVec_.clear();
+      zparamOpVec_.clear();
+
+      if( !(Teuchos::is_null(astNodePtr_)) )
+      {
+        if (astNodePtr_->paramType())
+        {
+          if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
+          {
+            paramOpVec_.push_back(astNodePtr_);
+          }
+        }
+        if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->powerType()) { powerOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
+
+        if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
+
+        if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
+
+        if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
+
+        opVectors_.isTimeDependent = isTimeDependent_;
+        opVectors_.isTempDependent = isTempDependent_;
+        opVectors_.isVTDependent = isVTDependent_;
+        opVectors_.isFreqDependent = isFreqDependent_;
+        opVectors_.isGminDependent = isGminDependent_;
+
+        astNodePtr_->getInterestingOps( opVectors_  );
+
+        if (opVectors_.isTimeDependent) isTimeDependent_ = true;
+        if (opVectors_.isTempDependent) isTempDependent_ = true;
+        if (opVectors_.isVTDependent  ) isVTDependent_   = true;
+        if (opVectors_.isGminDependent) isGminDependent_ = true;
+      }
+
+#if 0
+      funcNameVec_.clear();
+      //funcOpMap_.clear();
+      for (int ii=0;ii<funcOpVec_.size();++ii)
+      {
+        Teuchos::RCP<funcOp<usedType> > functionOp = Teuchos::rcp_static_cast<funcOp<usedType> > (funcOpVec_[ii]);
+        std::string tmp = functionOp->getName();
+        Xyce::Util::toUpper(tmp);
+        //funcOpMap_[tmp].push_back(funcOpVec_[ii]);
+        funcNameVec_.push_back(tmp);
+      }
+
+      //paramNameVec_.clear();
+      //paramOpMap_.clear();
+      for (int ii=0;ii<paramOpVec_.size();++ii)
+      {
+        Teuchos::RCP<paramOp<usedType> > parameterOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        std::string tmp = parameterOp->getName();
+        Xyce::Util::toUpper(tmp);
+        //paramOpMap_[tmp].push_back(paramOpVec_[ii]);
+        //paramNameVec_.push_back(tmp);
+      }
+#endif
+
+      voltOpNames_.clear();
+      for (int ii=0;ii<voltOpVec_.size();++ii)
+      {
+        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+        std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+        for (int jj=0;jj<tmp.size();++jj)
+        {
+          voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
+        }
+      }
+
+      currentOpNames_.clear();
+      for (int ii=0;ii<currentOpVec_.size();++ii)
+      {
+        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+        std::string tmp = currOp->getCurrentDevice();
+        currentOpNames_[tmp].push_back(currentOpVec_[ii]);
+      }
+
+      leadCurrentOpNames_.clear();
+      for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
+      {
+        Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
+        std::string tmp = leadCurrOp->getLeadCurrentDevice();
+        leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
+      }
+
+      paramOpNames_.clear();
+      for (int ii=0;ii<paramOpVec_.size();++ii)
+      {
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        std::string tmp = parOp->getName();
+        paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+      }
+
+      // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
+      //    For specials, this is more appropriate the AST traversal, as there will be at
+      //    most one "time" node per expression object.   I think this should be a faster
+      //    traversal, generally.
+
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getDtNodes(dtOpVec_); }
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTempNodes(tempOpVec_); }
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getVtNodes(vtOpVec_); }
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getFreqNodes(freqOpVec_); }
+      for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminOpVec_); }
+
+      isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
+      isTempDependent_ = !(tempOpVec_.empty());
+      isVTDependent_   = !(vtOpVec_.empty());
+      isFreqDependent_ = !(freqOpVec_.empty());
+      isGminDependent_ = !(gminOpVec_.empty());
+
+#if 0
+      std::cout << "Array sizes AFTER update:" <<std::endl;
+      outputVariousAstArrays(std::cout);
+#endif
+
+      if ( !(Teuchos::is_null(group_)) )
+      {
+        if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
+        if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
+        if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
+      }
     }
+
+    checkIsConstant_();
+    astArraysSetup_ = true;
+  }
+};
+
+#define NEW_EXP_ADD_TO_VEC1(VEC1,VEC2) \
+  if ( !(VEC2.empty()) )  { VEC1.insert( VEC1.end(), VEC2.begin(), VEC2.end() ); }
+  
+#define NEW_EXP_ADD_TO_VEC2(VEC1,VEC2) \
+  if ( !(VEC2.empty()) ) { for (int ii=0;ii<VEC2.size();ii++) { VEC1.push_back(VEC2[ii]); } }
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::addToVariousAstArrays_
+// Purpose       :
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 7/23/2020
+//-------------------------------------------------------------------------------
+void newExpression::addToVariousAstArrays_ 
+   (const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  if( !(Teuchos::is_null(expPtr)) )
+  {
+    NEW_EXP_ADD_TO_VEC1(paramOpVec_, expPtr->getParamOpVec ());
+    NEW_EXP_ADD_TO_VEC1(funcOpVec_, expPtr->getFuncOpVec ());
+    NEW_EXP_ADD_TO_VEC1(voltOpVec_, expPtr->getVoltOpVec ());
+    NEW_EXP_ADD_TO_VEC1(currentOpVec_, expPtr->getCurrentOpVec ());
+    NEW_EXP_ADD_TO_VEC1(leadCurrentOpVec_, expPtr->getLeadCurrentOpVec ());
+    NEW_EXP_ADD_TO_VEC1(bsrcCurrentOpVec_, expPtr->getBsrcCurrentOpVec ());
+    NEW_EXP_ADD_TO_VEC1(powerOpVec_, expPtr->getPowerOpVec ());
+    NEW_EXP_ADD_TO_VEC1(internalDevVarOpVec_, expPtr->getInternalDevVarOpVec ());
+    NEW_EXP_ADD_TO_VEC1(dnoNoiseDevVarOpVec_, expPtr->getDnoNoiseDevVarOpVec ());
+    NEW_EXP_ADD_TO_VEC1(dniNoiseDevVarOpVec_, expPtr->getDniNoiseDevVarOpVec ());
+    NEW_EXP_ADD_TO_VEC1(oNoiseOpVec_, expPtr->getONoiseOpVec ());
+    NEW_EXP_ADD_TO_VEC1(iNoiseOpVec_, expPtr->getINoiseOpVec ());
+    NEW_EXP_ADD_TO_VEC1(sdtOpVec_, expPtr->getSdtOpVec ());
+    NEW_EXP_ADD_TO_VEC1(ddtOpVec_, expPtr->getDdtOpVec ());
+    NEW_EXP_ADD_TO_VEC1(srcAstNodeVec_, expPtr->getSrcNodeVec ());
+    NEW_EXP_ADD_TO_VEC1(stpAstNodeVec_, expPtr->getStpNodeVec ());
+    NEW_EXP_ADD_TO_VEC1(compAstNodeVec_, expPtr->getCompNodeVec ());
+    NEW_EXP_ADD_TO_VEC1(phaseOpVec_, expPtr->getPhaseOpVec ());
+    NEW_EXP_ADD_TO_VEC1(sparamOpVec_, expPtr->getSparamOpVec ());
+    NEW_EXP_ADD_TO_VEC1(yparamOpVec_, expPtr->getYparamOpVec ());
+    NEW_EXP_ADD_TO_VEC1(zparamOpVec_, expPtr->getZparamOpVec ());
+
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::const_iterator newIter;
+
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newVoltNames = expPtr->getVoltOpNames();
+    for (newIter=newVoltNames.begin(); newIter != newVoltNames.end(); ++newIter)
+    {
+      const std::string & tmp = newIter->first;
+      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
+      voltOpNames_[tmp].insert( voltOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+    }
+
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newCurrentNames = expPtr->getCurrentOpNames();
+    for (newIter=newCurrentNames.begin(); newIter != newCurrentNames.end(); ++newIter)
+    {
+      const std::string & tmp = newIter->first;
+      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
+      currentOpNames_[tmp].insert( currentOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+    }
+
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newLeadCurrentNames = expPtr->getLeadCurrentOpNames();
+    for (newIter=newLeadCurrentNames.begin(); newIter != newLeadCurrentNames.end(); ++newIter)
+    {
+      const std::string & tmp = newIter->first;
+      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
+      leadCurrentOpNames_[tmp].insert( leadCurrentOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+    }
+
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newParamNames = expPtr->getParamOpNames();
+    for (newIter=newParamNames.begin(); newIter != newParamNames.end(); ++newIter)
+    {
+      const std::string & tmp = newIter->first;
+      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
+      paramOpNames_[tmp].insert( paramOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+    }
+
+    expPtr->getTimeNodes(timeOpVec_);
+    expPtr->getDtNodes(dtOpVec_);
+    expPtr->getTempNodes(tempOpVec_);
+    expPtr->getVtNodes(vtOpVec_);
+    expPtr->getFreqNodes(freqOpVec_);
+    expPtr->getGminNodes(gminOpVec_);
   }
 
+  isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
+  isTempDependent_ = !(tempOpVec_.empty());
+  isVTDependent_   = !(vtOpVec_.empty());
+  isFreqDependent_ = !(freqOpVec_.empty());
+  isGminDependent_ = !(gminOpVec_.empty());
+
+
+  if ( !(Teuchos::is_null(group_)) )
+  {
+    if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
+    if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
+    if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
+  }
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::checkIsConstant_
+// Purpose       :
+// Special Notes : This function is probably obsolete and should be replaced by 
+//                 a different approach in the "getValuesFromGroup" function.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date :
+//-------------------------------------------------------------------------------
+void newExpression::checkIsConstant_()
+{
   // check if this is expression is a constant
 
   bool noVariableParams = paramOpVec_.empty();
@@ -908,8 +1085,7 @@ void newExpression::setupVariousAstArrays_()
   }
 #endif
 
-  astArraysSetup_ = true;
-};
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
@@ -1132,8 +1308,8 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-    if (!derivsSetup_) { setupDerivatives_ (); }
+    setupVariousAstArrays ();
+    setupDerivatives_ ();
 
 #if 0
     std::cout << "Parse Tree for " << expressionString_ << std::endl;
@@ -1174,7 +1350,7 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays ();
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
       std::cout << "ERROR.  Unresolved functions in expression " << originalExpressionString_ <<std::endl;
@@ -1222,6 +1398,10 @@ int newExpression::evaluateFunction (usedType &result)
     std::cout << "Error.  Expression " << originalExpressionString_ << " is not parsed yet" << std::endl;
     exit(0);
   }
+
+#if 0
+  std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
+#endif
 
   return retVal;
 }
@@ -1287,7 +1467,8 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
 //-------------------------------------------------------------------------------
 bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
 {
-  if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+  setupVariousAstArrays ();
+
   bool found=false;
   {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
@@ -1327,42 +1508,9 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
     }
   }
 
-  return found;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : newExpression::replaceParamName
-// Purpose       :
-// Special Notes : for bug 1801 tests
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 07/15/2020
-//-------------------------------------------------------------------------------
-bool newExpression::replaceParamName ( const std::string & old_name, const std::string & new_name)
-{
-  bool retVal=false;
-  if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-  bool found=false;
-  if(!found)
-  {
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = paramOpNames_.find(old_name);
-
-    if (iter != paramOpNames_.end())
-    {
-      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
-
-      for(int ii=0;ii<astVec.size();++ii)
-      {
-        Teuchos::RCP<paramOp<usedType> > currOp = Teuchos::rcp_static_cast<paramOp<usedType> > (astVec[ii]);
-        currOp->setName(new_name);
-      }
-
-      paramOpNames_[new_name] = astVec;
-      paramOpNames_.erase(old_name);
-      found=true;
-    }
-  }
-
+#if 1
+  dumpParseTree(std::cout);
+#endif
   return found;
 }
 

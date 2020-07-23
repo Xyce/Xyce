@@ -50,7 +50,7 @@
 
 // Xyce includes.
 #include <N_UTL_BreakPoint.h>
-#include <N_UTL_Interface_Enum_Types.h>
+#include <expressionParamTypes.h>
 
 // new code includes:
 #include <ast.h>
@@ -534,7 +534,7 @@ public:
   bool lexAndParseExpression();
 
   bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
-  bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, bool isDotParam=false);
+  bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type=DOT_GLOBAL_PARAM);
 
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 
@@ -542,8 +542,9 @@ public:
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
-  bool make_constant (std::string const & var, usedType const & val, bool isDotParam=false);
-  bool make_var (std::string const & var, bool isDotParam=false);
+  bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
+
+  bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
@@ -581,7 +582,7 @@ public:
 
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpNames ()
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays ();
     return paramOpNames_;
   };
 
@@ -594,7 +595,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays ();
     return voltOpNames_;
   };
 
@@ -624,21 +625,21 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays (); 
     return currentOpNames_;
   };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getLeadCurrentOpVec () { return leadCurrentOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLeadCurrentOpNames ()
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays ();
     return leadCurrentOpNames_;
   }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getBsrcCurrentOpVec () { return bsrcCurrentOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getBsrcCurrentOpNames ()
   {
-    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    setupVariousAstArrays (); 
     return bsrcCurrentOpNames_;
   }
 
@@ -653,7 +654,6 @@ public:
   const std::string & getOriginalExpressionString() { return originalExpressionString_; };
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
-  bool replaceParamName ( const std::string & old_name, const std::string & new_name);
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
@@ -708,7 +708,8 @@ public:
     }
   }
 
-  void outputVariousAstArrays ( std::ostream & os );
+  void outputVariousAstArrays     ( std::ostream & os );
+  void outputVariousAstArraySizes ( std::ostream & os );
 
 
   // "expression" traversal functions, as opposed to AST traversals.
@@ -765,9 +766,12 @@ public:
   void setDdtDerivs (std::vector<double> & vals);
   void setDdtDerivs (std::vector<std::complex<double> > & vals);
 
+  void setupVariousAstArrays ();
+
 private:
   void setupDerivatives_ ();
-  void setupVariousAstArrays_ ();
+  void addToVariousAstArrays_ (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+  void checkIsConstant_();
   void getValuesFromGroup_();
 
   Teuchos::RCP<baseExpressionGroup> group_;

@@ -1243,7 +1243,8 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
         size_t leadDesignator = currLeadItr->find_first_of("{");
         devicesNeedingLeadCurrents.insert( currLeadItr->substr(0, leadDesignator));
       }
-      
+     
+#if 0 
       std::vector<std::string> nodalComps;
       exp.getNodalComputation(nodalComps);
       for (std::vector<std::string>::const_iterator currNCItr = nodalComps.begin(); currNCItr != nodalComps.end(); ++currNCItr)
@@ -1258,6 +1259,7 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
           devicesNeedingLeadCurrents.insert( currNCItr->substr(firstParen, lastParen) );
         }
       }
+#endif
       
     }
     else

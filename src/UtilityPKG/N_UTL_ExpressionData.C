@@ -401,8 +401,8 @@ ExpressionData::setup(
       if ( replacement_param.getType() == Xyce::Util::STR ||
            replacement_param.getType() == Xyce::Util::DBLE )
       {
-        bool isDotParam=true;
-        if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),isDotParam)  )
+        enumParamType paramType=DOT_PARAM;
+        if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),paramType)  )
         {
           Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
         }
@@ -413,8 +413,8 @@ ExpressionData::setup(
         //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
         //                       << " as substitute for " << varName << " in expression " << expressionString;
         //
-        bool isDotParam=true;
-        expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), isDotParam);
+        enumParamType paramType=DOT_PARAM;
+        expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), paramType);
       }
     }
     else

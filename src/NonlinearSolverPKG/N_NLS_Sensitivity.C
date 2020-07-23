@@ -340,8 +340,8 @@ void setupObjectiveFunctions(
         if ( replacement_param.getType() == Xyce::Util::STR ||
              replacement_param.getType() == Xyce::Util::DBLE )
         {
-          bool isDotParam=true;
-          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()),isDotParam)
+          enumParamType paramType=DOT_PARAM;
+          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()),paramType)
           {
             Report::UserWarning0() << "Problem converting parameter " << strings[istring] << " to its value.";
           }
@@ -356,8 +356,8 @@ void setupObjectiveFunctions(
                                    << " as substitute for " << strings[istring] << " in expression " << expressionString;
           }
 #else
-          bool isDotParam=true;
-          objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),isDotParam);
+          enumParamType paramType=DOT_PARAM;
+          objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),paramType);
 #endif
         }
       }

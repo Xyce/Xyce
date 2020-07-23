@@ -42,8 +42,7 @@
 #include <iosfwd>
 
 #include <N_UTL_fwd.h>
-#include <N_UTL_Interface_Enum_Types.h>
-#include <N_UTL_ExpressionSymbolTable.h>
+#include <expressionParamTypes.h>
 
 #include <N_UTL_NoCase.h>
 #include <N_UTL_BreakPoint.h>
@@ -89,14 +88,14 @@ public:
   void getFuncNames (std::vector<std::string> & funcNames);
   void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
   void attachFunctionNode (const std::string & funcName, const Expression & exp); 
-  void attachParameterNode (const std::string & paramName, const Expression & exp, bool isDotParam = false); 
+  void attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type=DOT_GLOBAL_PARAM); 
 
   const std::vector<std::string> & getFunctionArgStringVec ();
 
   // ERK some old expressionstuff.  Many of these need to be removed.
   int get_type (std::string const & var);
-  bool make_constant (std::string const & var, double const & val, bool isDotParam=false);
-  bool make_var (std::string const & var, bool isDotParam=false);
+  bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
+  bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
 
   // ERK new expression stuff.  These kind of replace "get_names"
   void getParams              (std::vector<std::string> & params) const;
@@ -110,7 +109,6 @@ public:
   void getSpecials            (std::vector<std::string> & specials) const;
   void getVariables           (std::vector<std::string> & variables) const;
   void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
-  void getNodalComputation    (std::vector<std::string> & nodalCalcs) const;
 
   bool getIsConstant ();
 
@@ -129,7 +127,6 @@ public:
   const std::string & get_input (void) const;
 
   bool replace_name (const std::string & old_name, const std::string & new_name);  // this is for voltage names
-  bool replace_param_name (const std::string & old_name, const std::string & new_name); // this is for params
 
   bool isTimeDependent() const;
   bool isRandomDependent() const;
