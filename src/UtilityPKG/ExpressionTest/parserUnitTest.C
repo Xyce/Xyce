@@ -286,6 +286,7 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag2, "Img(1.0)", 0.0 )
 
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int1, "int(11.2423)", 11)
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int2, "int(-11.2423)", -11)
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int3, "int  (11.2423)", 11)
 
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, uramp1, "uramp(11.2423)", 11.2423)
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, uramp2, "uramp(-11.2423)", 0)
@@ -7677,6 +7678,35 @@ TEST ( Double_Parser_ErrorTest,  power_unsupported_devices)
   //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 1.0 );
   //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 1.0 );
   OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_obj_func)
+}
+
+
+//-------------------------------------------------------------------------------
+//
+// The point of this function is just to get thru the lex/parse phase w/o a 
+// syntax error.  So, I don't care about the result.
+//
+// The issue here (prompted by bug 28) is that the name "int" is used in that 
+// test as a node name.  And, that node name is initially processed as an 
+// expression.  The parser was interpretting "int" as the operator, when it 
+// needed to be perceiving it as an unresolved string.
+//
+// Note to self: I changed the lexer and parser so that the "int" operator 
+// token (TOK_INT) now includes the left paren.  That way, if the left paren 
+// is not present, it it tokenized as the generic TOK_WORD.  Given that the
+// Xyce parser is used in this way, to process node names that ultimately are
+// not really expressions, I should probably update a lot of the
+// operators in this manner to force them to include the left paren in their 
+// token.
+//
+//-------------------------------------------------------------------------------
+TEST ( Double_Parsing_Syntax, bug28_1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Int"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result;
+  testExpression.evaluateFunction(result); 
 }
 
 int main (int argc, char **argv)

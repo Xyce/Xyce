@@ -664,7 +664,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"ddx"  { return XyceExpression::ExpressionParser::token::TOK_DDX; }
 
 <INITIAL>"if"   { return XyceExpression::ExpressionParser::token::TOK_IF; }
-<INITIAL>"int"  { return XyceExpression::ExpressionParser::token::TOK_INT; }
+<INITIAL>"int"[ \t]*"(" { return XyceExpression::ExpressionParser::token::TOK_INT; }
 
 <INITIAL>"pwr"  {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
 <INITIAL>"pow"  {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
