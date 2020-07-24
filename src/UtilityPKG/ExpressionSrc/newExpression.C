@@ -1458,12 +1458,37 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
 //                 so they can be fully resolved.
 //
 //                 The function DistToolBase::instantiateDevice calls this
-//                 function twice for some reason that I don't (yet) understand.
-//                 It seems to require 2 passes to properly update the name. ie,
-//                 "name" -> "; name" -> "prefix:name".
+//                 function to handle subcircuit argument nodes.  This 
+//                 requires a 2-pass procedure to avoid conflicts.  A test
+//                 case where this is important is the bug 1806 test.  In 
+//                 the circuit bug_1806_2.cir, you have the following:
+//
+//                 .param upgefukt=1.5
+//                 .subckt foobar  a b m n o p
+//                 Bfoobar a b V={upgefukt*sqrt((V(m)-V(n))**2+(v(o)-v(p))**2)}
+//                 .ends
+//
+//                 Xomgwtf 10 0 a 0 c 0 foobar
+//
+//
+//                 The parsed expression has the nodes m,n,o and p.
+//
+//                 But, these are names that are local to the subcircuit.  The 
+//                 names  passed into the subcircuit are different.  More than
+//                 one of them (which originally had different names) become 
+//                 ground.  Also, the "internal" "node a" and the "external" 
+//                 "node a" are different.
+//
+//                 To avoid conflicts, the node names are initially changed 
+//                 with a semicolon prefix.  This is normally an invalid character,
+//                 so a node named ";0" would never have come from the parser.  It 
+//                 can only have come from this procedure.  This is the first
+//                 pass.  The second pass basically removes all the semicolons.
+//
+//
 // Scope         :
-// Creator       : Eric Keiter
-// Creation Date :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2020
 //-------------------------------------------------------------------------------
 bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
 {
@@ -1472,6 +1497,7 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
   bool found=false;
   {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpNames_.find(new_name);
 
     if (iter != voltOpNames_.end())
     {
@@ -1482,8 +1508,18 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
         std::vector<std::string> & nodes = voltOp->getVoltageNodes();
         for(int jj=0;jj<nodes.size();++jj) { if(nodes[jj]==old_name) { nodes[jj] = new_name; } }
       }
-      voltOpNames_[new_name] = astVec;
+
+      if (checkNewName != voltOpNames_.end()) // "new" name already exists, so combine the vectors
+      {
+        std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
+        astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
+      }
+      else
+      {
+        voltOpNames_[new_name] = astVec;
+      }
       voltOpNames_.erase(old_name);
+
       found=true;
     }
   }
@@ -1491,6 +1527,7 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
   if(!found)
   {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currentOpNames_.find(old_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = currentOpNames_.find(new_name);
 
     if (iter != currentOpNames_.end())
     {
@@ -1502,13 +1539,21 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
         currOp->setCurrentDevice(new_name);
       }
 
-      currentOpNames_[new_name] = astVec;
+      if (checkNewName != currentOpNames_.end()) // "new" name already exists, so combine the vectors
+      {
+        std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
+        astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
+      }
+      else
+      {
+        currentOpNames_[new_name] = astVec;
+      }
       currentOpNames_.erase(old_name);
       found=true;
     }
   }
 
-#if 1
+#if 0
   dumpParseTree(std::cout);
 #endif
   return found;
