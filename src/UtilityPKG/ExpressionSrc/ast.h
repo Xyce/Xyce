@@ -4205,16 +4205,12 @@ class randOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      std::vector<std::string> errStr(1,std::string("AST node (rand) without a val function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
+      ScalarT ret = 0.5;
       return ret;
     };
 
     virtual ScalarT dx (int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (rand) without a dx function"));
-      yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
     };
