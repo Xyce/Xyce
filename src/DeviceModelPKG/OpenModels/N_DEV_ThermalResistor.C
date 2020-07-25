@@ -698,7 +698,9 @@ bool Instance::updateTemperature ( const double & temp_tmp)
 
   if (tempModelEnabled)
   {
-    if( !(getSolverState().tranopFlag) )// ERK; this conditional is necessary with new expression.
+    // ERK; this conditional is necessary with new expression.  The thermal model doesn't
+    // make sense for anything other than transient.
+    if( !(getSolverState().tranopFlag) && !(getSolverState().dcopFlag) )
     {
       updateDependentParameters(temp_tmp);
     }
