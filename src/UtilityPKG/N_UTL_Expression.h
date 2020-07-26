@@ -117,10 +117,10 @@ public:
   std::string get_expression (void) const;
 
   int evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
-  int evaluateFunction (std::complex<double> &result);
+  int evaluateFunction (std::complex<double> &result, bool efficiencyOn=false);
 
   int evaluate (double &result, std::vector< double > &derivs);
-  int evaluateFunction (double &result);
+  int evaluateFunction (double &result, bool efficiencyOn=false);
 
   bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
 

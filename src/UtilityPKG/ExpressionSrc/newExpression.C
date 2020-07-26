@@ -1095,18 +1095,22 @@ void newExpression::checkIsConstant_()
 // Creator       : Eric Keiter
 // Creation Date :
 //-------------------------------------------------------------------------------
-void newExpression::getValuesFromGroup_()
+bool newExpression::getValuesFromGroup_()
 {
+  bool noChange=true;
+
   // get solution values we need from the group
   for (int ii=0;ii<voltOpVec_.size();ii++)
   {
     Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
     std::vector<std::string> & nodes = voltOp->getVoltageNodes();
     std::vector<usedType> & vals = voltOp->getVoltageVals();
+    std::vector<usedType> oldvals = vals;
 
     for (int jj=0;jj<nodes.size();jj++)
     {
       group_->getSolutionVal(nodes[jj], vals[jj]);
+      if(vals[jj] != oldvals[jj]) noChange=false;
     }
   }
 
@@ -1114,9 +1118,13 @@ void newExpression::getValuesFromGroup_()
   {
     Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
     usedType val;
+    usedType oldval = currOp->getCurrentVal();
+
     std::string simple("I");
     group_->getCurrentVal(currOp->getCurrentDevice(),simple,val);
     currOp->setCurrentVal ( val );
+
+    if (val != oldval) noChange=false;
   }
 
   for (int ii=0;ii<leadCurrentOpVec_.size();ii++)
@@ -1124,8 +1132,11 @@ void newExpression::getValuesFromGroup_()
     Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
 
     usedType val;
+    usedType oldval = leadCurrOp->val();
     group_->getCurrentVal(leadCurrOp->getLeadCurrentDevice(), leadCurrOp->getLeadCurrentDesignator() , val);
     leadCurrOp->setLeadCurrentVar ( val );
+
+    if (val != oldval) noChange=false;
   }
 
   for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
@@ -1133,21 +1144,25 @@ void newExpression::getValuesFromGroup_()
     Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);
 
     usedType val;
+    usedType oldval = intVarOp->val();
     group_->getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
     intVarOp->setInternalDeviceVar ( val );
+
+    if (val != oldval) noChange=false;
   }
 
   for (int ii=0;ii<paramOpVec_.size();++ii)
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
 
-    // (1) we want derivatives w.r.t. it.
-    // (2) it should be considered a dynamic variable that gets its values externally
     if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) )
     {
       usedType val;
+      usedType oldval = parOp->getValue();
       group_->getGlobalParameterVal(parOp->getName(),val); // ERK: this function name is misleading, as it retrieves stuff that isn't necessarily a global param.  Fix.
       parOp->setValue(val);
+
+      if (val != oldval) noChange=false;
     }
   }
 
@@ -1156,75 +1171,160 @@ void newExpression::getValuesFromGroup_()
     Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (dnoNoiseDevVarOpVec_[ii]);
 
     usedType val;
+    usedType oldval=dnoOp->val();
     group_->getDnoNoiseDeviceVar(dnoOp->getNoiseDevices(),val);
     dnoOp->setNoiseVar ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<dniNoiseDevVarOpVec_.size();ii++)
   {
     Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (dniNoiseDevVarOpVec_[ii]);
     usedType val;
+    usedType oldval=dniOp->val();
     group_->getDniNoiseDeviceVar(dniOp->getNoiseDevices(),val);
     dniOp->setNoiseVar ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<oNoiseOpVec_.size();ii++)
   {
     Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (oNoiseOpVec_[ii]);
     usedType val;
+    usedType oldval=onoiseOp->val();
     group_->getONoise(val);
     onoiseOp->setNoiseVar ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<iNoiseOpVec_.size();ii++)
   {
     Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (iNoiseOpVec_[ii]);
     usedType val;
+    usedType oldval=inoiseOp->val();
     group_->getINoise(val);
     inoiseOp->setNoiseVar ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<powerOpVec_.size();ii++)
   {
     Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (powerOpVec_[ii]);
     usedType val;
+    usedType oldval=pwrOp->val();
     group_->getPower ( pwrOp->getPowerTag(), pwrOp->getPowerDevice(), val);
     pwrOp->setPowerVal ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<sparamOpVec_.size();ii++)
   {
     Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (sparamOpVec_[ii]);
     usedType val;
+    usedType oldval=sparOp->val();
     group_->getSparam (sparOp->getSparamArgs(), val);
     sparOp->setValue ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<yparamOpVec_.size();ii++)
   {
     Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (yparamOpVec_[ii]);
     usedType val;
+    usedType oldval=yparOp->val();
     group_->getYparam (yparOp->getYparamArgs(), val);
     yparOp->setValue ( val );
+
+    if (val != oldval) noChange = false;
   }
 
   for (int ii=0;ii<zparamOpVec_.size();ii++)
   {
     Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (zparamOpVec_[ii]);
     usedType val;
+    usedType oldval=zparOp->val();
     group_->getZparam (zparOp->getZparamArgs(), val);
     zparOp->setValue ( val );
+
+    if (val != oldval) noChange = false;
   }
 
-  for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(group_->getTime()); }
-  for (int ii=0;ii<dtOpVec_.size();ii++) { dtOpVec_[ii]->setValue(group_->getTimeStep()); }
+  if ( !(timeOpVec_.empty()) )
+  {
+    usedType oldtime = timeOpVec_[0]->getValue();
+    usedType newtime = group_->getTime();
+    if(oldtime != newtime)
+    {
+      for (int ii=0;ii<timeOpVec_.size();ii++) { timeOpVec_[ii]->setValue(newtime); }
+      noChange = false;
+    }
+  }
 
-  // Conversion to correct units in group
-  if (!overrideGroupTemperature_) { for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(group_->getTemp()); } }
-  for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(group_->getVT()); }
-  for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(group_->getFreq()); }
-  for (int ii=0;ii<gminOpVec_.size();ii++) { gminOpVec_[ii]->setValue(group_->getGmin()); }
+  if ( !(dtOpVec_.empty()) )
+  {
+    usedType oldtimestep = dtOpVec_[0]->getValue();
+    usedType newtimestep = group_->getTimeStep();
+    if(oldtimestep != newtimestep)
+    {
+      for (int ii=0;ii<dtOpVec_.size();ii++) { dtOpVec_[ii]->setValue(newtimestep); }
+      noChange = false;
+    }
+  }
 
+  if ( !(tempOpVec_.empty()) )
+  {
+    usedType oldtemp = tempOpVec_[0]->getValue();
+    usedType newtemp = group_->getTemp();
+
+    if (overrideGroupTemperature_) { newtemp = overrideTemp_; }
+
+    if(oldtemp != newtemp)
+    {
+      for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(newtemp); } 
+      noChange = false;
+    }
+  }
+
+  if ( !(vtOpVec_.empty()) )
+  {
+    usedType oldvt = vtOpVec_[0]->getValue();
+    usedType newvt = group_->getVT ();
+    if(oldvt != newvt)
+    {
+      for (int ii=0;ii<vtOpVec_.size();ii++)   { vtOpVec_[ii]->setValue(newvt); }
+      noChange = false;
+    }
+  }
+
+  if ( !(freqOpVec_.empty()) )
+  {
+    usedType oldfreq = freqOpVec_[0]->getValue();
+    usedType newfreq = group_->getFreq();
+    if(oldfreq != newfreq)
+    {
+      for (int ii=0;ii<freqOpVec_.size();ii++) { freqOpVec_[ii]->setValue(newfreq); }
+      noChange = false;
+    }
+  }
+
+  if ( !(gminOpVec_.empty()) )
+  {
+    usedType oldgmin = gminOpVec_[0]->getValue();
+    usedType newgmin = group_->getGmin();
+    if(oldgmin != newgmin)
+    {
+      for (int ii=0;ii<gminOpVec_.size();ii++) { gminOpVec_[ii]->setValue(newgmin); }
+      noChange = false;
+    }
+  }
+
+  // ERK: should the rest of these affect "noChange" boolean?
   bpTol_ = group_->getBpTol();
   startingTimeStep_ = group_->getStartingTimeStep();
   finalTime_ = group_->getFinalTime();
@@ -1258,37 +1358,16 @@ void newExpression::getValuesFromGroup_()
   unsigned int oldStepNumber_ = stepNumber_;
   stepNumber_ = group_->getStepNumber ();
 
-  // ERK: neither of the below methods seem to work correctly, so this will need to
-  // be a "push" operation from the calling code.
 
-#if 0
-  std::cout << "newExpression::getValuesFromGroup.  oldStepNumber_ = " << oldStepNumber_ << " stepNumber_ = " << stepNumber_ << std::endl;
-
-  if (oldStepNumber_ != stepNumber_)
-  {
-#if 0
-    std::cout << "newExpression calling processSuccessfulTimeStep" <<std::endl;
-#endif
-    processSuccessfulTimeStep ();
-  }
-#endif
-
-#if 0
-  if (oldTime_ != time_) // try again
-  {
-#if 1
-    std::cout << "newExpression calling processSuccessfulTimeStep" <<std::endl;
-#endif
-    processSuccessfulTimeStep ();
-  }
-#endif
-
+  // this probably never changes ... only set it 1x
   phaseOutputUsesRadians_ = group_->getPhaseOutputUsesRadians();
   for (int ii=0;ii<phaseOpVec_.size();ii++)
   {
     Teuchos::RCP<phaseOp<usedType> > phOp = Teuchos::rcp_static_cast<phaseOp<usedType> > (phaseOpVec_[ii]);
     phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
   }
+
+  return noChange;
 }
 
 //-------------------------------------------------------------------------------
@@ -1345,7 +1424,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 // Creator       : Eric Keiter
 // Creation Date :
 //-------------------------------------------------------------------------------
-int newExpression::evaluateFunction (usedType &result)
+int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 {
   int retVal=0;
   if (parsed_)
@@ -1365,19 +1444,31 @@ int newExpression::evaluateFunction (usedType &result)
     dumpParseTree(std::cout);
 #endif
 
-    //if (!isConstant_)  // this is a a problem.  commenting out
+    bool noChange = getValuesFromGroup_();
+    bool doTheEvaluation = true;
+    if (efficiencyOn && noChange)
     {
-      getValuesFromGroup_();
+      if ( evaluateFunctionCalledBefore_ )
+      {
+        doTheEvaluation = false;
+      }
+      else
+      {
+        doTheEvaluation = true;
+        evaluateFunctionCalledBefore_  = true;
+      }
     }
 
-    //if (!isConstant_ || !evaluateFunctionCalledBefore_) // this seems to be a problem too. Need to work more on this.  It breaks RC_AC_data_expr.cir in the BUG_1035_SON tests.  probably others as well.  I think the isConstant_ flag needs to be set based on what is gathered in the "getValuesFromGroup" function, and/or other metrics.  Currently it is too simple
-    if (true)
+    if (doTheEvaluation)
     {
       result = astNodePtr_->val();
-      evaluateFunctionCalledBefore_ = true;
 
 #if 0
-      std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
+      std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ <<std::endl;
+      std::cout<< " result = ";
+      std::cout.width(20); std::cout.precision(13); std::cout.setf(std::ios::scientific);
+      std::cout << result << std::endl;
+
       dumpParseTree(std::cout);
 #endif
       // ERK: fix this failsafe properly for std::complex
@@ -1624,30 +1715,33 @@ void newExpression::treatAsTempAndConvert()
 //                 model has an internal self-heating model, and thus has a
 //                 local temperature.  As of this writing, the only device that
 //                 I know of that needs this is the thermal resistor.
+//
+//                 ERK.  Correction, it isn't quite true.    Currently (7/25/2020)
+//                 this function gets called thru at least two pathways.
+//
+//                 One is via the DeviceMgr::updateTemperature function.   The 
+//                 other is via the DeviceEntity::updateDependentParameters 
+//                 function, but only the one that has "temp" as a function argument.
+//                 That special version of "DeviceEntity::updateDependentParameters"
+//                 seems to only be called from the thermal resistor.  
+//
+//                 But the "updateTemperature" function is called from other places,
+//                 probably whenever .STEP is invoked on TEMP.  I think.  I haven't
+//                 tracked this down yet.
+//
+//                 Both of these pathways are used by the 
+//                 "MULTIPLICITY/thermal_resistor.cir" test case, which uses 
+//                 a thermal resistor, and also performs a .STEP over temperature.
+//
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 5/19/2020
 //-------------------------------------------------------------------------------
 bool newExpression::setTemperature (const double & temp)
 {
-  bool changed = false;
-
-  if ( !(tempOpVec_.empty()) )
-  {
-    double newTemp = temp-CONSTCtoK;
-    double oldTemp = std::real(tempOpVec_[0]->val());
-
-    if (oldTemp != newTemp)
-    {
-      changed = true;
-      for (int ii=0;ii<tempOpVec_.size();ii++)
-      {
-        tempOpVec_[ii]->setValue(newTemp);
-      }
-      overrideGroupTemperature_ = true;
-    }
-  }
-
+  bool changed = false; // the value of changed is now irrelevant
+  overrideGroupTemperature_ = true;
+  overrideTemp_ = temp-CONSTCtoK;
   return changed;
 }
 

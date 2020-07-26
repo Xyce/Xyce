@@ -91,6 +91,7 @@ public:
     isFreqDependent_(false),
     isGminDependent_(false),
     overrideGroupTemperature_(false),
+    overrideTemp_(27.0),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -124,6 +125,7 @@ public:
     isFreqDependent_(false),
     isGminDependent_(false),
     overrideGroupTemperature_(false),
+    overrideTemp_(27.0),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -185,6 +187,7 @@ public:
     isFreqDependent_(false),
     isGminDependent_(false),
     overrideGroupTemperature_(false),
+    overrideTemp_(27.0),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -236,6 +239,7 @@ public:
     isFreqDependent_(false),
     isGminDependent_(false),
     overrideGroupTemperature_(false),
+    overrideTemp_(27.0),
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
@@ -363,6 +367,7 @@ public:
     isFreqDependent_(right.isFreqDependent_),
     isGminDependent_(right.isGminDependent_),
     overrideGroupTemperature_(right.overrideGroupTemperature_),
+    overrideTemp_(right.overrideTemp_),
     isConstant_(right.isConstant_),
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
@@ -475,6 +480,7 @@ public:
     isGminDependent_ = right.isGminDependent_;
 
     overrideGroupTemperature_ = right.overrideGroupTemperature_;
+    overrideTemp_ = right.overrideTemp_;
     isConstant_ = right.isConstant_;
     evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
     evaluateCalledBefore_ = right.evaluateCalledBefore_;
@@ -550,7 +556,7 @@ public:
 
   // these two functions return int error codes in the original expression library
   int evaluate (usedType &result, std::vector< usedType > &derivs);
-  int evaluateFunction (usedType &result);
+  int evaluateFunction (usedType &result, bool efficiencyOn=false);
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
@@ -772,7 +778,7 @@ private:
   void setupDerivatives_ ();
   void addToVariousAstArrays_ (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   void checkIsConstant_();
-  void getValuesFromGroup_();
+  bool getValuesFromGroup_();
 
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
@@ -923,6 +929,7 @@ private:
   bool isGminDependent_;
 
   bool overrideGroupTemperature_;
+  double overrideTemp_;
 
   bool isConstant_;
   bool evaluateFunctionCalledBefore_;

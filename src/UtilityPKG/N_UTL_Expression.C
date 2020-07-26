@@ -785,21 +785,21 @@ int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::compl
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluateFunction
-// Purpose       : Evaluate expression using stored input values
+// Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( std::complex<double> & exp_r )
+int Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficiencyOn )
 {
   int retVal=0; 
 #ifdef USE_TYPE_DOUBLE
   double result;
-  retVal = newExpPtr_->evaluateFunction( result );
+  retVal = newExpPtr_->evaluateFunction( result, efficiencyOn );
   exp_r = std::complex<double>(result,0.0);
 #else
-  retVal = newExpPtr_->evaluateFunction ( exp_r );
+  retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
 #endif
   return retVal;
 }
@@ -837,14 +837,14 @@ int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( double & exp_r )
+int Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
 {
   int retVal=0; 
 #ifdef USE_TYPE_DOUBLE
-  retVal = newExpPtr_->evaluateFunction ( exp_r );
+  retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
 #else
   std::complex<double> result;
-  retVal = newExpPtr_->evaluateFunction ( result );
+  retVal = newExpPtr_->evaluateFunction ( result, efficiencyOn );
   exp_r = std::real(result);
 #endif
   return retVal;

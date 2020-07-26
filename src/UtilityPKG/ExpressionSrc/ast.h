@@ -251,6 +251,7 @@ class astNode
     virtual void setDerivIndex(int i) {};
     virtual void unsetDerivIndex() {};
 
+    virtual ScalarT getValue() { return 0.0; }
     virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
     virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
 
@@ -970,6 +971,7 @@ class paramOp: public astNode<ScalarT>
     virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
     virtual void unsetNode() { paramNode_ = numvalNode_; };
 
+    virtual ScalarT getValue() { return numvalNode_->number; };
     virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
     virtual void unsetValue() { paramNode_ = savedParamNode_; };
 

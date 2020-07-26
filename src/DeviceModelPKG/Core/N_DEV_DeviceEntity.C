@@ -1091,7 +1091,12 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
     if (changed)
     {
+#if 1
       dpIter->expr->evaluateFunction (rval);
+#else
+      bool efficiencyOn=true;
+      dpIter->expr->evaluateFunction (rval,efficiencyOn);
+#endif
       if (dpIter->vectorIndex==-1)
         *(dpIter->resultU.result) = rval;
       else
@@ -1138,8 +1143,12 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         }
         // old expression did a "set_var" call here.
       }
-
+#if 1
       dpIter->expr->evaluateFunction (rval);
+#else
+      bool efficiencyOn=true;
+      dpIter->expr->evaluateFunction (rval,efficiencyOn);
+#endif
       changed = true;
     }
   }
@@ -1178,7 +1187,12 @@ bool DeviceEntity::updateDependentParameters()
     // But that will have to come later.
     changed = true;
 
+#if 1
     dpIter->expr->evaluateFunction (rval);
+#else
+    bool efficiencyOn=true;
+    dpIter->expr->evaluateFunction (rval,efficiencyOn);
+#endif
     if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
@@ -1229,7 +1243,12 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
     // But that will have to come later.
     changed = true;
 
+#if 1
     dpIter->expr->evaluateFunction (rval);
+#else
+    bool efficiencyOn=true;
+    dpIter->expr->evaluateFunction (rval,efficiencyOn);
+#endif
     if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
