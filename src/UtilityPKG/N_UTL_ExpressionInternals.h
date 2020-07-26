@@ -57,22 +57,10 @@
 #include <N_UTL_fwd.h>
 #include <N_UTL_Interface_Enum_Types.h>
 #include <N_UTL_ExpressionSymbolTable.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Util {
-
-
-// This value is derived from the -hspice-ext command line option.  It is
-// set, based on that command line option, in the constructor for the
-// IO::ParsingMgr class.  If set to false then AGAUSS() and GAUSS() will
-// just return the mean rather than a random number.  The default is true.
-extern bool enableRandomExpression;
-
-// This value is derived from the -hspice-ext command line option.  It is
-// set, based on that command line option, in the constructor for the
-// IO::ParsingMgr class.  If set to true then logical AND is &&, logical
-// OR is || and ^ is a synonym for exponentiation.  The default is false.
-extern bool useHspiceMath;
 
 // This function is used to substitute the HSPICE logarithm functions
 // for the Xyce ones.

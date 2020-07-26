@@ -294,7 +294,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"||"   { return XyceExpression::ExpressionParser::token::TOK_OR; }    /* Hspice */
 <INITIAL>"&"    { return XyceExpression::ExpressionParser::token::TOK_AND; } /* Xyce */
 <INITIAL>"&&"   { return XyceExpression::ExpressionParser::token::TOK_AND; }  /* Hspice */
-<INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_XOR; } /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
+ /* <INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_XOR; } */ /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
+<INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_CARET; } /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
 
  /* comparison ops */
 <INITIAL>">"     { return XyceExpression::ExpressionParser::token::TOK_GT; }

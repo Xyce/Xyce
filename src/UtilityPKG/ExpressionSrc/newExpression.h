@@ -51,6 +51,7 @@
 // Xyce includes.
 #include <N_UTL_BreakPoint.h>
 #include <expressionParamTypes.h>
+#include <N_UTL_HspiceBools.h>
 
 // new code includes:
 #include <ast.h>

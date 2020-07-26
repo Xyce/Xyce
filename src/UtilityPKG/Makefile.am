@@ -141,7 +141,8 @@ libUtility_la_SOURCES = \
   N_UTL_Algorithm.h \
   N_UTL_CheckIfValidFile.h \
   N_UTL_Math.h \
-  N_UTL_MathSpecialFunctions.h 
+  N_UTL_MathSpecialFunctions.h  \
+	N_UTL_HspiceBools.h 
 
 BUILT_SOURCES = timestamp-generator
 

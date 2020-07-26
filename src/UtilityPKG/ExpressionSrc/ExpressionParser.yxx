@@ -268,7 +268,8 @@ bool checkGroundNodeName(std::string & name)
 %right  '?' ':'
 %left  TOK_OR "||" TOK_AND "&&"
 %left  TOK_NOT "~"
-%left  TOK_XOR "^"
+  /* %left  TOK_XOR "^" */
+%left  TOK_CARET "^"
 %left  TOK_EQ	"==" TOK_NE	"!=" TOK_LE	"<=" TOK_LT	"<" TOK_GE	">=" TOK_GT	">"
 %left   '-' '+'
 %left   '%'
@@ -1099,7 +1100,15 @@ exp:
     }
   | TOK_LOG TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr;
+      if (Xyce::Util::useHspiceMath)
+      {
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new logOp<usedType>(*$3));
+      }
+      else
+      {
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$3));
+      }
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1455,9 +1464,18 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp TOK_XOR exp
+  /* | exp TOK_XOR exp */
+  | exp TOK_CARET exp
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new xorOp<usedType>(*$1,*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr;
+      if (Xyce::Util::useHspiceMath)
+      {
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  (*$1,*$3));
+      }
+      else
+      {
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new xorOp<usedType>(*$1,*$3));
+      }
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
