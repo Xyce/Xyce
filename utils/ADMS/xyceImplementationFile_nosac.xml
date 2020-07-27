@@ -674,13 +674,22 @@ Instance::Instance(
   {
   </admst:if>
   collapsedNodes.push_back(IntPair(%(xyceNodeConstantName(.)/[name='nodeConstant']/value),%(xyceNodeConstantName(@collapsesTo)/[name='nodeConstant']/value)));
-  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  <admst:choose>
+    <admst:when test="[exists(#optional) and @collapsesTo/name='GND']">
   }
   else
   {
   UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to ground.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
   }
-  </admst:if>
+    </admst:when>
+    <admst:when test="[exists(#optional)]">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to %(@collapsesTo/name), but this is not possible, so we're not actually doing it.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+    </admst:when>
+  </admst:choose>
   }
   </admst:for-each>
 </admst:if>
@@ -879,8 +888,14 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
 {
   <admst:for-each select="node[grounded='no' and location='external' and exists(#optional)]">
       <admst:text format="\n    if (!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    if (!collapseNode_%(name))\n    {"/>
+    </admst:if>
     addInternalNode(symbol_table, %(xyceNodeLIDVariable(.)), getName(), &quot;%(name)&quot;);
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
       <admst:text format="\n    }"/>
+    </admst:if>
+    <admst:text format="\n    }"/>
   </admst:for-each>
   <admst:for-each select="node[grounded='no' and location='internal']">
     <admst:if test="[exists(#collapsible) and #collapsible='yes']">

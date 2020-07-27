@@ -97,10 +97,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         B = exp(A); \
     end
 
-//`define PORT_CONNECTED
+`define PORT_CONNECTED
 `ifdef PORT_CONNECTED
 
-	module bsimsoi(d, g, s, e, p, b, t);
+	module bsimsoi450(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70450" xyceDeviceName="BSIM-SOI 4.5.0" xyceTypeVariable="TYPE" *) ;
 	inout      g, d, s, e, p, b, t;
 `else
 
@@ -2395,6 +2395,7 @@ analog begin : the_module
              B4SOIsoiMod = 1;
 
 `ifdef PORT_CONNECTED
+`ifndef __XYCE__
     if (B4SOIsoiMod == 2) begin /* v3.2 */
         // here->B4SOIbNode = here->B4SOIpNode = 0;
         B4SOIbodyMod = 0;
@@ -2435,7 +2436,100 @@ analog begin : the_module
     if (TNODEOUT && $port_connected(t) == 0) begin
         $strobe("Warning: tnodeout !=0 but terminal 't' is not connected.");
     end
-`else
+`else // __XYCE__
+    // This is the port_connected stuff from 4.6.1, because Xyce
+    // cannot possibly do what 4.5.0 tries to do (Xyce can only handle
+    // optional nodes in order --- one cannot have "t" connected without
+    // both p and b being connected, and so forth.  4.5.0 assumes that
+    // one can tell the difference between 5-node with t connected and 5-node
+    // with p connected. 4.6.1 doesn't make that mistake.
+    // None of the NODECHK stuff has been copied
+    if (B4SOIsoiMod == 2) begin /* v3.2 */
+       if (SHMOD == 0) begin
+          if (TNODEOUT == 0) begin //TNODEOUT = 0 starts here.
+             if ($port_connected(p) && $port_connected(b)) begin
+                //V(b) <+ 0;
+                $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=0.  The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes from the instance line.");
+                $finish(1);
+             end else begin
+                if ($port_connected(p)) begin
+                   $strobe("Error:  you have specified a P node (5th node) when soimod=2 and TNODEOUT=0.  P node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the 5th node.");
+                   $finish(1);
+                   //V(p) <+ 0;
+                end
+             end
+          end else begin //TNODEOUT = 0 for SHMOD = 0 ends here.
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the P and B nodes. With TNODEOUT=1, the fifth node should be the last one and will be used for temperature.");
+                $finish(1);
+                // V(b) <+ 0; //Case 8
+             end
+          end            //TNODEOUT = 1 for SHMOD = 0 ends here.
+       end else begin     //SHMOD = 0 ends here.
+          if (TNODEOUT == 0) begin
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a P and B node (fifth and 6th nodes) when soimod=2, and a temperature node (7th) with TNODEOUT=0.  None of these nodes are used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 6th node.");
+                $finish(1);
+                //V(b) <+ 0;
+             end else begin
+                if ($port_connected(p) && $port_connected(b)) begin
+                   $strobe("Error:  you have specified P and B nodes (5th and 6th node) when soimod=2 and TNODEOUT=0.  These nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes.");
+                   $finish(1);
+                   //V(b) <+ 0;
+                end else begin
+                   if ($port_connected(p)) begin
+                      $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                      $finish(1);
+                      //V(p) <+ 0;
+                   end
+                end
+             end
+          end else begin //TNODEOUT = 0 for SHMOD = 1 ends here.
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a B node (6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The B node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the B node. With TNODEOUT=1, the 6th node should be the last one and will be used for temperature.");
+                $finish(1);
+                // V(b) <+ 0;
+             end
+          end //TNODEOUT = 1 for SHMOD = 1 ends here.
+       end //SHMOD = 1 ends here.
+       // here->B4SOIbNode = here->B4SOIpNode = 0;
+       B4SOIbodyMod = 0;
+       /* For ideal FD, body contact is disabled and no body node */
+    end else begin
+       if ($port_connected(p) == 0) begin /* floating body case -- 4-node */
+          // here->B4SOIbNode = tmp->number;
+          // here->B4SOIpNode = 0;
+          B4SOIbodyMod = 0;
+          if ($port_connected(b)) begin
+             $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
+          end
+       end else begin
+          if ($port_connected(b) == 0) begin
+             /* 5-node body tie, bNode has not been assigned */
+             if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
+                /* ideal body tie, pNode is not used */
+                // here->B4SOIbNode = here->B4SOIpNode;
+                B4SOIbodyMod = 2;
+             end else begin
+                /* nonideal body tie */
+                // here->B4SOIbNode = tmp->number;
+                B4SOIbodyMod = 1;
+             end
+          end else begin
+             /* 6-node body tie, bNode has been assigned */
+             if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
+                $strobe("Warning: model parameter rbody=0!");
+                B4SOIrbody = 1e0;
+                B4SOIbodyMod = 1;
+             end else begin
+                /* nonideal body tie */
+                B4SOIbodyMod = 1;
+             end
+          end
+       end
+    end
+`endif
+`else // PORT_CONNECTED
     // assume only d,g,s,e terminals connected
     B4SOIbodyMod = 0;
 `endif
@@ -4113,10 +4207,36 @@ analog begin : the_module
 
 
     /*  Calculate temperature dependent values for self-heating effect  */
+   // For Xyce, we copy out what BSIM-SOI 4.6.1 does
+`ifndef __XYCE__
     if ((SHMOD == 1) && (RTH0 != 0.0))
         delTemp = Temp(t);
     else
         delTemp = 0;
+`else // __XYCE__
+ `ifdef PORT_CONNECTED
+   if ((SHMOD ==1) && (RTH0 !=0.0)) begin
+      if (TNODEOUT && !$port_connected(t)) begin
+         if ($port_connected(b)) begin       //last terminal is 'b'
+            delTemp = V(b);
+         end else if ($port_connected(p)) begin      //last terminal is 'p'
+            delTemp = V(p);
+         end else begin      // 4-terminal mode ('t' is internal)
+            delTemp = Temp(t);
+         end
+      end else begin
+         delTemp = Temp(t);
+      end
+   end else begin
+      delTemp = 0;
+   end
+ `else
+   if ((SHMOD == 1) && (RTH0 != 0.0))
+     delTemp = Temp(t);
+   else
+     delTemp = 0;
+ `endif // PORT_CONNECTED
+`endif // __XYCE__
 
 `ifdef __XYCE__
     DevTemp = $temperature + DTEMP;
@@ -7771,6 +7891,9 @@ analog begin : the_module
             V(b, si) <+ 0;
 
         // self-heating network
+       // XYCE:  Copied out what BSIM-SOI 4.6.1 does, because this won't
+       // work with optional nodes
+`ifndef __XYCE__
         if ((SHMOD == 1) && (RTH0 != 0.0))
           begin
             Pwr(t) <+ `MFACTOR_USE *(-Ids * Vds  + delTemp / pParam_B4SOIrth);
@@ -7778,7 +7901,51 @@ analog begin : the_module
           end
         else
             Temp(t) <+ 0;
-
+`else // __XYCE__
+ `ifdef PORT_CONNECTED
+         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
+            if (TNODEOUT && !$port_connected(t)) begin
+               if ($port_connected(b)) begin // last terminal is 'b'
+                  I(b) <+ `MFACTOR_USE*(-Ids * Vds  + delTemp / pParam_B4SOIrth);
+                  I(b) <+  `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end else if ($port_connected(p)) begin  // last terminal is 'p'
+                  I(p) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                  I(p) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end else begin  // 4-terminal mode ('t' is internal)
+                  Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                  Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end
+            end else begin
+               Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+               Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+            end
+         end else begin
+            if (TNODEOUT && !$port_connected(t)) begin
+               if ($port_connected(b)) begin // last terminal is 'b'
+                  $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                  $finish(1);
+                  // V(b) <+0;
+               end else if ($port_connected(p)) begin // last terminal is 'p'
+                  $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                  $finish(1);
+                  // V(p) <+ 0;
+               end else begin // 4-terminal mode ('t' is internal)
+                  $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                  $finish(1);
+                  // Temp(t) <+ 0;
+               end
+            end else begin
+               Temp(t) <+ 0;
+            end
+         end
+ `else
+       if ((SHMOD == 1) && (RTH0 != 0.0)) begin
+          Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + delTemp / pParam_B4SOIrth);
+          Pwr(t) <+ `MFACTOR_USE * ddt(delTemp * pParam_B4SOIcth);
+       end else
+         Temp(t) <+ 0;
+ `endif // PORT_CONNECTED
+`endif // __XYCE__
 
         // operating-point information
         IDS   = B4SOItype * Ids;

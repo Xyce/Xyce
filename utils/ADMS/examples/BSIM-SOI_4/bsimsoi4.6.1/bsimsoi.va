@@ -244,13 +244,11 @@
 `endif
 
 // Do not define PORT_CONNECTED for Xyce
-`ifndef __XYCE__
 `define PORT_CONNECTED
-`endif
 
 `ifdef PORT_CONNECTED
 
-    module bsimsoi(d, g, s, e, p, b, t);
+    module bsimsoi(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
     inout      g, d, s, e, p, b, t;
 `else
 
@@ -2572,33 +2570,47 @@ analog begin : the_module
         if (SHMOD == 0) begin
             if (TNODEOUT == 0) begin //TNODEOUT = 0 starts here.
                 if ($port_connected(p) && $port_connected(b)) begin
-                    V(b) <+ 0;
+                    //V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=0.  The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes from the instance line.");
+                   $finish(1);
                 end else begin
                     if ($port_connected(p)) begin
-                        V(p) <+ 0;
+                       $strobe("Error:  you have specified a P node (5th node) when soimod=2 and TNODEOUT=0.  P node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the 5th node.");
+                       $finish(1);
+                       //V(p) <+ 0;
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 0 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0; //Case 8
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the P and B nodes. With TNODEOUT=1, the fifth node should be the last one and will be used for temperature.");
+                   $finish(1);
+                    // V(b) <+ 0; //Case 8
                 end
             end            //TNODEOUT = 1 for SHMOD = 0 ends here.
         end else begin     //SHMOD = 0 ends here.
             if (TNODEOUT == 0) begin
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (fifth and 6th nodes) when soimod=2, and a temperature node (7th) with TNODEOUT=0.  None of these nodes are used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                   //V(b) <+ 0;
                 end else begin
                     if ($port_connected(p) && $port_connected(b)) begin
-                        V(b) <+ 0;
+                       $strobe("Error:  you have specified P and B nodes (5th and 6th node) when soimod=2 and TNODEOUT=0.  These nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes.");
+                       $finish(1);
+                       //V(b) <+ 0;
                     end else begin
                         if ($port_connected(p)) begin
-                            V(p) <+ 0;
+                           $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                           $finish(1);
+                           //V(p) <+ 0;
                         end
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 1 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a B node (6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The B node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the B node. With TNODEOUT=1, the 6th node should be the last one and will be used for temperature.");
+                   $finish(1);
+                   // V(b) <+ 0;
                 end
             end //TNODEOUT = 1 for SHMOD = 1 ends here.
         end //SHMOD = 1 ends here.
@@ -8147,11 +8159,17 @@ analog begin : the_module
         end else begin
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    V(b) <+0;
+                   $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                   // V(b) <+0;
                 end else if ($port_connected(p)) begin // last terminal is 'p'
-                    V(p) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                   $finish(1);
+                   // V(p) <+ 0;
                 end else begin // 4-terminal mode ('t' is internal)
-                    Temp(t) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                   $finish(1);
+                   // Temp(t) <+ 0;
                 end
             end else begin
                 Temp(t) <+ 0;
