@@ -680,9 +680,13 @@ struct Traits: public DeviceTraits&lt;Model, Instance
   -->
   <admst:template match="xyceDeclareNodeConstants">
     <admst:text format="   // node numbers\n"/>
-    <admst:for-each select="node[grounded='no']">
+    <admst:for-each select="node[grounded='no' and location='external']">
       <admst:text test="[exists(#optional)]" format="// optional node %(.):\n"/>
       <admst:text format="    static const int %(xyceNodeConstantName(.)/[name='nodeConstant']/value) = %(position(.)-1);\n"/>
+    </admst:for-each>
+    <admst:variable name="numext" select="%(count(node[grounded='no' and location='external']))"/>
+    <admst:for-each select="node[grounded='no' and location='internal']">
+      <admst:text format="    static const int %(xyceNodeConstantName(.)/[name='nodeConstant']/value) = %(position(.)-1)+$numext;\n"/>
     </admst:for-each>
     <admst:text format="    static const int admsNodeID_GND = -1;\n"/>
     <admst:text format="   // end node numbers\n"/>

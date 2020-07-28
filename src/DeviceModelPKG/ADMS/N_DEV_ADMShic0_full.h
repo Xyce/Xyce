@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 22 Jul 2020 11:54:17
+// Creation Date  : Tue, 28 Jul 2020 16:20:23
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShic0_full_h
@@ -1062,12 +1062,12 @@ public:
     static const int admsNodeID_e = 2;
     static const int admsNodeID_s = 3;
     static const int admsNodeID_tnode = 4;
-    static const int admsNodeID_ci = 5;
-    static const int admsNodeID_bi = 6;
-    static const int admsNodeID_ei = 7;
-    static const int admsNodeID_xf1 = 8;
-    static const int admsNodeID_xf2 = 9;
-    static const int admsNodeID_xf = 10;
+    static const int admsNodeID_ci = 0+5;
+    static const int admsNodeID_bi = 1+5;
+    static const int admsNodeID_ei = 2+5;
+    static const int admsNodeID_xf1 = 3+5;
+    static const int admsNodeID_xf2 = 4+5;
+    static const int admsNodeID_xf = 5+5;
     static const int admsNodeID_GND = -1;
    // end node numbers
    // Additional IDs for branch equations

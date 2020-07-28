@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 22 Jul 2020 11:54:17
+// Creation Date  : Tue, 28 Jul 2020 16:20:23
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvsg_cmc_h
@@ -1395,20 +1395,20 @@ public:
     static const int admsNodeID_g = 1;
     static const int admsNodeID_s = 2;
     static const int admsNodeID_b = 3;
-    static const int admsNodeID_di = 4;
-    static const int admsNodeID_gi = 5;
-    static const int admsNodeID_si = 6;
-    static const int admsNodeID_fp1 = 7;
-    static const int admsNodeID_fp2 = 8;
-    static const int admsNodeID_fp3 = 9;
-    static const int admsNodeID_fp4 = 10;
-    static const int admsNodeID_drc = 11;
-    static const int admsNodeID_src = 12;
-    static const int admsNodeID_tr = 13;
-    static const int admsNodeID_tr1 = 14;
-    static const int admsNodeID_xt1 = 15;
-    static const int admsNodeID_xt2 = 16;
-    static const int admsNodeID_dt = 17;
+    static const int admsNodeID_di = 0+4;
+    static const int admsNodeID_gi = 1+4;
+    static const int admsNodeID_si = 2+4;
+    static const int admsNodeID_fp1 = 3+4;
+    static const int admsNodeID_fp2 = 4+4;
+    static const int admsNodeID_fp3 = 5+4;
+    static const int admsNodeID_fp4 = 6+4;
+    static const int admsNodeID_drc = 7+4;
+    static const int admsNodeID_src = 8+4;
+    static const int admsNodeID_tr = 9+4;
+    static const int admsNodeID_tr1 = 10+4;
+    static const int admsNodeID_xt1 = 11+4;
+    static const int admsNodeID_xt2 = 12+4;
+    static const int admsNodeID_dt = 13+4;
     static const int admsNodeID_GND = -1;
    // end node numbers
    // Additional IDs for branch equations
