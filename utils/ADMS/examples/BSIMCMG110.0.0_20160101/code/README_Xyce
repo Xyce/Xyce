@@ -1,17 +1,12 @@
 The following changes to the BSIMCMG 110.0.0 code were needed to make
 it work with Xyce/ADMS.
 
- - An ifdef conditional was added to define the module as having only
-   4 required nodes.  Neither Xyce/ADMS nor ADMS itself handle the
-   "$port_connected" verilog-A construct needed to support optional
-   nodes.  This must currently be handled by post-generation
-   patching of the C++.
-
  - The "t" thermal node declaration was moved so that it is the first
    node declared after the required d, g, s, and e nodes.  This is
-   done because the patching technique needed to make t an optional
-   node only works if it is assigned by ADMS as the first numbered
-   node after the required nodes.
+   done because technique needed to make t an optional node only works
+   if it is assigned by ADMS as the first numbered node after the
+   required nodes.  This node is optional as a result of the module
+   testing the "$port_connected(t)" function.
 
  - Numerous instance parameters are noted in the BSIM-CMG reference
    manual as being both instance and model parameters, but the
