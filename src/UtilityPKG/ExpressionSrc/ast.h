@@ -96,6 +96,11 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
   if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
   if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
+  if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
+  if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
+  if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
+  if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
+  if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
   if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
   if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
@@ -150,6 +155,11 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparam,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agauss,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gauss,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunif,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unif,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & rand,
   bool timeDep,
   bool tempDep,
   bool vTDep,
@@ -177,6 +187,11 @@ public:
     sparamOpVector(sparam),
     yparamOpVector(yparam),
     zparamOpVector(zparam),
+    agaussOpVector(agauss),
+    gaussOpVector(gauss),
+    aunifOpVector(aunif),
+    unifOpVector(unif),
+    randOpVector(rand),
     isTimeDependent(timeDep),
     isTempDependent(tempDep),
     isVTDependent(vTDep),
@@ -205,6 +220,11 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparamOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agaussOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gaussOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunifOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unifOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & randOpVector;
 
   bool isTimeDependent;
   bool isTempDependent;
@@ -296,6 +316,13 @@ class astNode
     virtual bool sparamType()       { return false; };
     virtual bool yparamType()       { return false; };
     virtual bool zparamType()       { return false; };
+
+// random op types
+    virtual bool agaussType()     { return false; };
+    virtual bool gaussType()      { return false; };
+    virtual bool aunifType()      { return false; };
+    virtual bool unifType()       { return false; };
+    virtual bool randType()       { return false; };
 
     virtual bool timeSpecialType() { return false; }
     virtual bool dtSpecialType()   { return false; }
@@ -3909,6 +3936,8 @@ class agaussOp : public astNode<ScalarT>
       os << "AGAUSS";
     }
 
+    virtual bool agaussType()     { return true; };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -3994,6 +4023,8 @@ class gaussOp : public astNode<ScalarT>
       os << "GAUSS";
     }
 
+    virtual bool gaussType()      { return true; };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -4033,7 +4064,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
     Teuchos::RCP<astNode<ScalarT> > nAst_;
 };
 
-#if 1
 //-------------------------------------------------------------------------------
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α)/n
@@ -4074,8 +4104,10 @@ class aunifOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       // fix this
-      os << "AGAUSS";
+      os << "AUNIF";
     }
+
+    virtual bool aunifType()      { return true; };
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -4155,8 +4187,10 @@ class unifOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       // fix this
-      os << "GAUSS";
+      os << "UNIF";
     }
+
+    virtual bool unifType()       { return true; };
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -4195,7 +4229,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 
   private:
 };
-#endif
 
 //-------------------------------------------------------------------------------
 // random number between 0 and 1 sampled from a uniform distribution
@@ -4228,6 +4261,8 @@ class randOp : public astNode<ScalarT>
       // fix this
       os << "RAND";
     }
+
+    virtual bool randType()       { return true; };
 
   private:
 };

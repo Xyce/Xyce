@@ -98,7 +98,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -132,7 +132,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -194,7 +194,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -246,7 +246,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -287,6 +287,11 @@ public:
       if (left->sparamType()) { sparamOpVec_.push_back(left); }
       if (left->yparamType()) { yparamOpVec_.push_back(left); }
       if (left->zparamType()) { zparamOpVec_.push_back(left); }
+      if (left->agaussType()) { agaussOpVec_.push_back(left); }
+      if (left->gaussType()) { gaussOpVec_.push_back(left); }
+      if (left->aunifType()) { aunifOpVec_.push_back(left); }
+      if (left->unifType()) { unifOpVec_.push_back(left); }
+      if (left->randType()) { randOpVec_.push_back(left); }
 
       left->getInterestingOps( opVectors_  );
     }
@@ -305,15 +310,19 @@ public:
     tableNodePtrPtr_(NULL),
     functionArgStringVec_(right.functionArgStringVec_),
     functionArgOpVec_ (right.functionArgOpVec_),
+    paramNameVec_(right.paramNameVec_),
     paramOpVec_(right.paramOpVec_),
     unresolvedParamOpVec_(right.unresolvedParamOpVec_),
     paramOpNames_(right.paramOpNames_),
+    funcNameVec_(right.funcNameVec_),
     funcOpVec_(right.funcOpVec_),
     unresolvedFuncOpVec_(right.unresolvedFuncOpVec_),
+    voltNameVec_(right.voltNameVec_),
     voltOpVec_(right.voltOpVec_),
     unresolvedVoltOpVec_(right.unresolvedVoltOpVec_),
     voltOpNames_(right.voltOpNames_),
 
+    currentNameVec_(right.currentNameVec_),
     currentOpVec_(right.currentOpVec_),
     unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
     currentOpNames_(right.currentOpNames_),
@@ -374,7 +383,7 @@ public:
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
@@ -417,14 +426,18 @@ public:
     tableNodePtrPtr_ = NULL;
     functionArgStringVec_ = right.functionArgStringVec_;
     functionArgOpVec_  = right.functionArgOpVec_;
+    paramNameVec_ = right.paramNameVec_;
     paramOpVec_ = right.paramOpVec_;
     unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
     paramOpNames_ = right.paramOpNames_;
+    funcNameVec_ = right.funcNameVec_;
     funcOpVec_ = right.funcOpVec_;
     unresolvedFuncOpVec_ = right.unresolvedFuncOpVec_;
+    voltNameVec_ = right.voltNameVec_;
     voltOpVec_ = right.voltOpVec_;
     voltOpNames_ = right.voltOpNames_;
     unresolvedVoltOpVec_ = right.unresolvedVoltOpVec_;
+    currentNameVec_ = right.currentNameVec_;
     currentOpVec_ = right.currentOpVec_;
     currentOpNames_ = right.currentOpNames_;
     unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
@@ -600,6 +613,8 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
+  std::vector<std::string> & getVoltNameVec () { return voltNameVec_; };
+
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
     setupVariousAstArrays ();
@@ -621,6 +636,12 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getYparamOpVec() { return yparamOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getZparamOpVec() { return zparamOpVec_; }
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getAgaussOpVec() { return agaussOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getGaussOpVec() { return gaussOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getAunifOpVec() { return aunifOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getUnifOpVec() { return unifOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getRandOpVec() { return randOpVec_; }
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTimeOpVec() { return timeOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getDtOpVec() { return dtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTempOpVec() { return tempOpVec_; }
@@ -630,6 +651,7 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
+  std::vector<std::string> & getCurrentNameVec () { return currentNameVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
     setupVariousAstArrays (); 
@@ -679,9 +701,6 @@ public:
   bool getGminDependent() { return isGminDependent_; }
   void setGminDependent(bool val) { isGminDependent_ = val; }
 
-  // note: I don't particularly like these next 2 functions, but they are needed
-  // to support the old expression API.
-  //
   // this function is only used to determine function arguments of a function prototype
   // So if we have .func abc(x,y) {x+y+10}
   // At a certain point the prototype abc(x,y) will get parsed, and x,y are the prototype args.
@@ -706,7 +725,6 @@ public:
   }
 
   // when parsing the function prototype, the function name is needed as well.
-  // Note; this was needed by the OLD API.  May not be needed now.
   void getFuncPrototypeName ( std::string & prototypeName) 
   {
     if(!(funcOpVec_.empty()))
@@ -809,10 +827,12 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > funcOpMap_; 
 
+  std::vector<std::string> voltNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpNames_;
 
+  std::vector<std::string> currentNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpNames_;
@@ -866,6 +886,21 @@ private:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > zparamOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedZparamOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > agaussOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedAgaussOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > gaussOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedGaussOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > aunifOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedAunifOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > unifOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedUnifOpVec_;
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > randOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedRandOpVec_;
 
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the

@@ -1562,6 +1562,75 @@ TEST ( Double_Parser_VoltDeriv_Test, test6)
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test6)
 }
 
+TEST ( Double_Parser_VoltDeriv_Test, test7)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A,gnd)*(-V(gnd,A))+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test7)
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test8)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*(V(A,gnd)**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test8)
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test9)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(gnd,A))**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test9)
+}
+
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -6787,6 +6856,11 @@ TEST ( Double_Parser_NestedFunc_Test, 200nest_with_deriv)
   std::vector<double> derivs;
   std::vector<double> refderivs = {2.0};
   double refresult = 10.0;
+
+#if 0
+  // don't do this unless you make "numFuncs" small!
+  testExpression->dumpParseTree(std::cout);
+#endif
 
   // the dx function (called under evaluate) has some bottlenecks
   testExpression->evaluate(result,derivs);   

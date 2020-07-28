@@ -466,10 +466,12 @@ void newExpression::clear ()
   funcOpVec_.clear();
   unresolvedFuncOpVec_.clear();
 
+  voltNameVec_.clear();
   voltOpVec_.clear();
   unresolvedVoltOpVec_.clear();
   voltOpNames_.clear();
 
+  currentNameVec_.clear();
   currentOpVec_.clear();
   unresolvedCurrentOpVec_.clear();
   currentOpNames_.clear();
@@ -591,7 +593,7 @@ void newExpression::setupDerivatives_ ()
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-        if (nodes.size() == 1) // putting this here b/c I now want to handle the V(A,B) case differently than I planned for
+        if (nodes.size() == 1) // 2-node specification is now handled with expression tree.  So, nodes.size should always == 1
         {
           std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
           std::unordered_map<std::string, int>::iterator mapIter;
@@ -832,6 +834,12 @@ void newExpression::setupVariousAstArrays()
         if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
         if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
         if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
+
+        if (astNodePtr_->agaussType())    { agaussOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->gaussType())    { gaussOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->aunifType())    { aunifOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->unifType())    { unifOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->randType())    { randOpVec_.push_back(astNodePtr_); }
 
         opVectors_.isTimeDependent = isTimeDependent_;
         opVectors_.isTempDependent = isTempDependent_;
@@ -1268,6 +1276,22 @@ bool newExpression::getValuesFromGroup_()
     if (val != oldval) noChange = false;
   }
 
+  // random number operators:
+#if 0
+  // possible API:
+  for (int ii=0;ii<agaussOpVec_.size();ii++)
+  {
+    Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
+    usedType val;
+    usedType oldval=agOp->val();
+    group_->getAgaussValue ( agOp->getMean(), agOp->getAlpha(), agOp->getN(), val);
+    agOp->setValue ( val );
+
+    if (val != oldval) noChange = false;
+  }
+#endif
+
+  // specials:
   if ( !(timeOpVec_.empty()) )
   {
     usedType oldtime = timeOpVec_[0]->getValue();
