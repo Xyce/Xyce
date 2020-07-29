@@ -24,6 +24,10 @@ needed modification.  These are documented here:
   TNODEOUT=1 and SHMOD=0 will therefore also cause a fatal error to be
   emitted with instructions to remove the unused external node.
 
+  Further, Xyce cannot support the TNODEOUT option of the BSIM-SOI when
+  when fewer than 7 nodes are specified.  It will exit with a fatal error
+  message explaining the problem.
+
   These changes from the original BSIM-SOI code are isolated in the
   sections of the source code conditional on "$port_connected."
 

@@ -2678,6 +2678,10 @@ analog begin : the_module
                 $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
             end
         end else begin
+            if ($port_connected(t) == 0 && TNODEOUT==1) begin
+               $strobe("Xyce does not implement the BSIM-SOI 4 model with TNODEOUT and fewer than 7 nodes.  Ignore any subsequent messages regarding node collapse, they are meaningless.");
+               $finish(1);
+            end
             if ($port_connected(b) == 0) begin
                 /* 5-node body tie, bNode has not been assigned */
                 if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin

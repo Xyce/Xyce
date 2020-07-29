@@ -11,6 +11,10 @@ needed modification.  These are documented here:
   optional nodes are actually being loaded by the device (i.e., not when
   SOIMOD=2).
 
+  Further, Xyce cannot support the TNODEOUT option of the BSIM-SOI when
+  when fewer than 7 nodes are specified.  It will exit with a fatal error
+  message explaining the problem.
+
   These modified blocks of code are wrapped inside conditional compilation
   blocks checking the definition of "__XYCE__".  The blocks at issue here all
   contain further ifdefs checking "PORT_CONNECTED".

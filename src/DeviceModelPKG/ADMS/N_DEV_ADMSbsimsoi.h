@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 29 Jul 2020 10:38:49
+// Creation Date  : Wed, 29 Jul 2020 13:41:22
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi_h
