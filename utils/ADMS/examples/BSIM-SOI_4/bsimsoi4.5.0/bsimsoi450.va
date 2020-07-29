@@ -160,7 +160,7 @@ parameter real RBSB     = 50.0 from [0:inf) (*type="instance" xyceAlsoModel="yes
 parameter real DELVTO   = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Zero bias threshold voltage variation
 parameter integer SOIMOD   = 0 from [0:3] (*type="instance" xyceAlsoModel="yes"*); // Instance model selector for PD/FD operation /* v3.2 */
 parameter real NBC      = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Number of body contact isolation edge
-parameter real NSEG     = 1 (*type="instance" xyceAlsoModel="yes"*); // Number segments for width partitioning
+parameter real NSEG     = 1 from [1:inf) (*type="instance" xyceAlsoModel="yes"*); // Number segments for width partitioning
 parameter real PDBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at drain side
 parameter real PSBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at source side
 parameter real AGBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Gate to body overlap area for bc parasitics
@@ -177,14 +177,14 @@ parameter integer GIDLMOD  = 0; // parameter for GIDL selector
 parameter integer IIIMOD   = 0; // parameter for III selector
 parameter real EOT      = 100.0e-10; // Effective SiO2 thickness
 parameter real EPSROX   = 3.9; // Dielectric constant of the gate oxide relative to vacuum
-parameter real EPSRSUB  = 11.7; // Dielectric constant of substrate relative to vacuum
+parameter real EPSRSUB  = 11.7 from (0:inf); // Dielectric constant of substrate relative to vacuum
 parameter real NI0SUB   = 1.45e10; // Intrinsic carrier concentration of substrate at Tnom
 parameter real BG0SUB   = 1.16; // Band-gap of substrate at T=0K
 parameter real TBGASUB  = 7.02e-4; // First parameter of band-gap change due to temperature
 parameter real TBGBSUB  = 1108.0; // Second parameter of band-gap change due to temperature
 parameter real PHIG     = 4.05; // Work function of gate
 parameter real EASUB    = 4.05; // Electron affinity of substrate
-parameter real LEFFEOT  = 1.0; // Effective length for extraction of EOT
+parameter real LEFFEOT  = 1.0 from (0:inf); // Effective length for extraction of EOT
 parameter real WEFFEOT  = 10.0; // Effective width for extraction of EOT
 parameter real VDDEOT   = (TYPE == `NMOS) ? 1.5 : -1.5; // Voltage for extraction of EOT
 parameter real TEMPEOT  = 300.15; // Temperature for extraction of EOT
@@ -278,10 +278,10 @@ parameter real PDIBLC2  = 0.0086; // Drain-induced barrier lowering coefficient
 parameter real PDIBLCB  = 0.0; // Body-effect on drain-induced barrier lowering
 parameter real PVAG     = 0.0; // Gate dependence of output resistance parameter
 parameter integer SHMOD    = 0 (*type="instance" xyceAlsoModel="yes"*); // Self heating mode selector
-parameter real TBOX     = 3e-7; // Back gate oxide thickness in meters
-parameter real TSI      = 1e-7; // Silicon-on-insulator thickness in meters
-parameter real ETSI     = 1e-7; // Effective Silicon-on-insulator thickness in meters
-parameter real XJ       = TSI; // Junction Depth
+parameter real TBOX     = 3e-7 from (0:inf); // Back gate oxide thickness in meters
+parameter real TSI      = 1e-7 from (0:inf); // Silicon-on-insulator thickness in meters
+parameter real ETSI     = 1e-7 from (0:inf); // Effective Silicon-on-insulator thickness in meters
+parameter real XJ       = TSI from (0:inf); // Junction Depth
 parameter real AGIDL    = 0.0; // GIDL second parameter
 parameter real BGIDL    = 2.3e9; // GIDL third parameter
 parameter real CGIDL    = 0.5; // GIDL vb parameter
@@ -334,7 +334,7 @@ parameter real B0       = 0.0; // Abulk narrow width parameter
 parameter real B1       = 0.0; // Abulk narrow width parameter
 parameter real CGSL     = 0.0; // New C-V model parameter
 parameter real CGDL     = 0.0; // New C-V model parameter
-parameter real CKAPPA   = 0.6; // New C-V model parameter
+parameter real CKAPPA   = 0.6 from (0:inf); // New C-V model parameter
 parameter real CF       = 0.0; // Fringe capacitance parameter
 parameter real CLC      = 0.1e-7; // Vdsat parameter for C-V model
 parameter real CLE      = 0.0; // Vdsat parameter for C-V model
@@ -485,7 +485,7 @@ parameter real NDIF     = -1.0; // Power coefficient of channel length dependenc
 parameter real VSDFB    = 0.0; // Source/drain bottom diffusion capacitance flatband voltage
 parameter real VSDTH    = 0.0; // Source/drain bottom diffusion capacitance threshold voltage
 parameter real CSDMIN   = 0.0; // Source/drain bottom diffusion minimum capacitance
-parameter real ASD      = 0.3; // Source/drain bottom diffusion smoothing parameter
+parameter real ASD      = 0.3 from (0:inf); // Source/drain bottom diffusion smoothing parameter
 parameter real CSDESW   = 0.0; // Source/drain sidewall fringing capacitance per unit length
 parameter real NTRECF   = 0.0; // Temperature coefficient for Nrecf
 parameter real NTRECR   = 0.0; // Temperature coefficient for Nrecr
@@ -511,11 +511,11 @@ parameter real RHALO    = 1e15; // body halo sheet resistance
 parameter real NTOX     = 1; // power term of gate current
 parameter real TOXREF   = 2.5e-9 from [0:inf); // target oxide thickness
 parameter real EBG      = 1.2; // effective bandgap in gate current calculation
-parameter real VEVB     = 0.075; // Vaux parameter for valence-band electron tunneling
+parameter real VEVB     = 0.075 from (0:inf); // Vaux parameter for valence-band electron tunneling
 parameter real ALPHAGB1 = 0.35; // First Vox dependent parameter for gate current in inversion
 parameter real BETAGB1  = 0.03; // Second Vox dependent parameter for gate current in inversion
 parameter real VGB1     = 300; // Third Vox dependent parameter for gate current in inversion
-parameter real VECB     = 0.026; // Vaux parameter for conduction-band electron tunneling
+parameter real VECB     = 0.026 from (0:inf); // Vaux parameter for conduction-band electron tunneling
 parameter real ALPHAGB2 = 0.43; // First Vox dependent parameter for gate current in accumulation
 parameter real BETAGB2  = 0.05; // Second Vox dependent parameter for gate current in accumulation
 parameter real VGB2     = 17; // Third Vox dependent parameter for gate current in accumulation
@@ -548,7 +548,7 @@ parameter real MOINFD   = 1e3; // Coefficient for the gate-bias dependent surfac
 parameter real XRCRG1   = 12.0; // First fitting parameter the bias-dependent Rg
 parameter real XRCRG2   = 1.0; // Second fitting parameter the bias-dependent Rg
 parameter real RSHG     = 0.1; // Gate sheet resistance
-parameter real NGCON    = 1.0; // Number of gate contacts
+parameter real NGCON    = 1.0 from [1:inf); // Number of gate contacts
 parameter real XGW      = 0.0; // Distance from gate contact center to device edge
 parameter real XGL      = 0.0; // Variation in Ldrawn
 parameter integer RDSMOD   = 0; // Bias-dependent S/D resistance model selector /* v4.0 */

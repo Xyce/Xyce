@@ -42,3 +42,10 @@ needed modification.  These are documented here:
   ranges.  Simulation will likely fail, but at least the user will know what
   they did wrong.
 
+- A number of model and instance parameters were defined with no
+  parameter range, but in fact the model divides by them and would
+  behave badly if they were ever zero.  Appropriate ranges of either
+  (0:inf) or [1:inf) were attached to these parameters.  This will
+  result in Xyce emitting warnings if parameters are set outside these
+  ranges.  Simulation will likely fail, but at least the user will
+  know what they did wrong.
