@@ -1931,7 +1931,7 @@ bool DeviceMgr::parameterExists(
   { \
     std::vector<Xyce::Analysis::SweepParam> tmpParams; expr.FUNC(tmpParams);  \
     if ( !(tmpParams.empty()) )  {\
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains #OP" << std::endl;  \
+      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
       for(int jj=0;jj<tmpParams.size();jj++) {  \
         tmpParams[jj].baseName = paramName; \
         tmpParams[jj].name = paramName + "_" + tmpParams[jj].name; } \
@@ -1939,7 +1939,7 @@ bool DeviceMgr::parameterExists(
     } \
     else  \
     {  \
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " does not contain #OP" << std::endl; \
+      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " does not contain " << #OP << std::endl; \
     }\
   }
 
