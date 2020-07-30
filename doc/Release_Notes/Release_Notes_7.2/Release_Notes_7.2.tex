@@ -76,23 +76,11 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
-  \item The BSIM SOI version 4.6.1 has been added as the level 70
-    MOSFET.  At this time the implementation is limited to the
-    four-node version without exposed body nodes.  Furthermore, we
-    have observed severe convergence problems when SHMOD=1.  The
-    convergence issues are under investigation, but we were unable to
-    fix them in time for this release.
-  \item The BSIM6 model now supports a multiplicity factor, M, on its
-    instance line.
-  \item Models derived from Verilog-A sources (PSP, MEXTRAM, BSIM6,
-    BSIM-CMG, BSIM SOI 4.6.1, HICUM, MVS, and JUNCAP200) now support
-    output variables such as transconductances, capacitances, and
-    conductances.  A new table of available output variables and how
-    to access them has been added to the Reference Guide section for
-    each of these models.
-  \item The L\_UTSOI MOSFET model version 102.4.0 has been added as
-    the level 10240 MOSFET.  Due to licensing restrictions, this model is
-    not available in open source builds or in source form.
+  \item Support for BSIM-SOI 4.6.1 and 4.5.0 has been improved.  \Xyce{}
+    now allows some configurations of the 5-, 6-, and 7- node variants
+    of the model in addition to the 4-node provided by \Xyce{} 7.1.
+  \item The BSIM6 model now supports and optional fifth node, allowing
+    netlist access to the temperature rise due to self-heating.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
