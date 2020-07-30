@@ -49,9 +49,11 @@
 
 #include <Teuchos_RCP.hpp>
 
+#include <N_ANP_SweepParam.h>
 
 namespace Xyce {
 namespace Util {
+
 
 class Param;
 typedef unordered_map<std::string, Param, Xyce::HashNoCase, Xyce::EqualNoCase> ParamMap;
@@ -142,6 +144,14 @@ public:
   int getNumDdt();
   void getDdtVals (std::vector<double> & vals);
   void setDdtDerivs (std::vector<double> & vals);
+
+  // random operator information
+  void getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
 
 private:
 

@@ -933,14 +933,20 @@ bool Expression::isTimeDependent() const
 //-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
-// Special Notes : 
+// Special Notes : This is only based on local dependence, from parsing.
 // Scope         :
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
-  // ERK. Not done.  Probably do need this.
+  if ( !(newExpPtr_->getLocalAgaussOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalGaussOpVec().empty()) ) { return true; }
+  if ( !(newExpPtr_->getLocalAunifOpVec().empty()) ) { return true; }
+  if ( !(newExpPtr_->getLocalUnifOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalRandOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalTwoArgLimitOpVec().empty()) ) { return true; }
+
   return false;
 }
 
@@ -958,7 +964,7 @@ void Expression::dumpParseTree()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::seedRandom
+// Function      : Expression::seedRandom
 // Purpose       : Public method to initialize random number generator
 //                 used by rand(), gauss() and agauss() functions.
 // Special Notes : 
@@ -984,7 +990,7 @@ void Expression::seedRandom(long seed)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::treatAsTempAndConvert
+// Function      : Expression::treatAsTempAndConvert
 // Purpose       : 
 // Special Notes : 
 // Scope         :
@@ -997,7 +1003,7 @@ void Expression::treatAsTempAndConvert()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::processSuccessfulTimeStep
+// Function      : Expression::processSuccessfulTimeStep
 // Purpose       : 
 // Special Notes : 
 // Scope         :
@@ -1010,7 +1016,7 @@ void Expression::processSuccessfulTimeStep ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::getNumDdt
+// Function      : Expression::getNumDdt
 // Purpose       : 
 // Special Notes : 
 // Scope         :
@@ -1023,7 +1029,7 @@ int Expression::getNumDdt()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::getDdtVals
+// Function      : Expression::getDdtVals
 // Purpose       : 
 // Special Notes : 
 // Scope         :
@@ -1036,7 +1042,7 @@ void Expression::getDdtVals (std::vector<double> & vals)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::setDdtDerivs
+// Function      : Expression::setDdtDerivs
 // Purpose       : 
 // Special Notes : 
 // Scope         :
@@ -1047,6 +1053,185 @@ void Expression::setDdtDerivs (std::vector<double> & vals)
 {
   return newExpPtr_->setDdtDerivs(vals);
 }
+
+// random operator information
+//-----------------------------------------------------------------------------
+// Function      : Expression::getAgaussData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAgauss = newExpPtr_->getLocalAgaussOpVec();
+  for (int ii=0;ii<localAgauss.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (localAgauss[ii]);
+
+    usedType mu    = agOp->getMu();
+    usedType alpha = agOp->getAlpha();
+    usedType n     = agOp->getN();
+
+    sampling_param.name       = "AGAUSS_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_AGAUSS;
+    sampling_param.type       = "NORMAL";
+    sampling_param.mean       = std::real(mu);
+    sampling_param.stdDev     = std::real(alpha)/std::real(n);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getGaussData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localGauss = newExpPtr_->getLocalGaussOpVec();
+  for (int ii=0;ii<localGauss.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<gaussOp<usedType> > gaOp = Teuchos::rcp_static_cast<gaussOp<usedType> > (localGauss[ii]);
+
+    usedType mu        = gaOp->getMu();
+    usedType rel_alpha = gaOp->getAlpha();
+    usedType n         = gaOp->getN();
+    usedType alpha     = rel_alpha*mu;
+
+    sampling_param.name       = "GAUSS_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_GAUSS;
+    sampling_param.type       = "NORMAL";
+    sampling_param.mean       = std::real(mu);
+    sampling_param.stdDev     = std::real(alpha)/std::real(n);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getAunifData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAunif = newExpPtr_->getLocalAunifOpVec();
+  for (int ii=0;ii<localAunif.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<aunifOp<usedType> > auOp = Teuchos::rcp_static_cast<aunifOp<usedType> > (localAunif[ii]);
+
+    usedType mu    = auOp->getMu();
+    usedType alpha = auOp->getAlpha();
+
+    sampling_param.name       = "AUNIF_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_AUNIF;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = std::real(mu)-std::real(alpha);
+    sampling_param.stopVal  = std::real(mu)+std::real(alpha);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnifData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localUnif = newExpPtr_->getLocalUnifOpVec();
+  for (int ii=0;ii<localUnif.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<unifOp<usedType> > unOp = Teuchos::rcp_static_cast<unifOp<usedType> > (localUnif[ii]);
+
+    usedType mu        = unOp->getMu();
+    usedType rel_alpha = unOp->getAlpha();
+    usedType alpha     = rel_alpha*mu;
+
+    sampling_param.name       = "UNIF_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_UNIF;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = std::real(mu)-std::real(alpha);
+    sampling_param.stopVal  = std::real(mu)+std::real(alpha);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getRandData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localRand = newExpPtr_->getLocalRandOpVec();
+  for (int ii=0;ii<localRand.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<randOp<usedType> > auOp = Teuchos::rcp_static_cast<randOp<usedType> > (localRand[ii]);
+
+    sampling_param.name       = "RAND_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_RAND;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = 0.0;
+    sampling_param.stopVal  = 1.0;
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLimitData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localTwoArgLimit = newExpPtr_->getLocalTwoArgLimitOpVec();
+  for (int ii=0;ii<localTwoArgLimit.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+    sampleVec.push_back(sampling_param);
+  }
+}
+
 
 } // namespace Util
 } // namespace Xyce

@@ -42,6 +42,7 @@
 #include <stdexcept>
 
 #include <N_ANP_AnalysisManager.h>
+#include <N_ANP_SweepParam.h>
 #include <N_DEV_Algorithm.h>
 #include <N_DEV_Const.h>
 #include <N_DEV_DeviceMgr.h>
@@ -1019,6 +1020,20 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
   // Check if this is a simple resistor, but with a resistance of zero.  If so,
   // then change the type to RESISTOR3.  This variant of the resistor acts like
   // a voltage souce with zero voltage difference.
+  //
+  // ERK.  7/30/2020.  This block of code is pretty fragile, and broke my new 
+  // expression library multiple times.  The reason is that it indirectly 
+  // modifies parameters that are of type Util::EXPR, as long as they 
+  // don't have any dependencies.    
+  //
+  // It isn't obvious from staring at the code below that this happens.  However, 
+  // the call to currentParam->getImmutableValue<double> changes the type from 
+  // Util::EXPR to Util::DBLE.  It performs this change even if the result of 
+  // the if-statement using this call is "false".  In a few cases, I didn't 
+  // want this change to happen and it messed things up.  Note, the Util::Param object 
+  // is supposed to check this stuff as well, and if an expression is non-constant,
+  // then it emits a fatal error when getImmutableValue is called.  I've updated
+  // that code as well.
   if (devOptions_.checkForZeroResistance && (model_type == Resistor::Traits::modelType()))
   {
     const double zeroResistanceValue = devOptions_.zeroResistanceTol;
@@ -1032,6 +1047,7 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
         if (currentParam->given())
         {
           std::vector<std::string> variables, specials;
+          bool isRandomDependent=false;
 
           // check if this is a time-dependent, or variable-dependent expression.
           // If it is, then skip.
@@ -1043,11 +1059,12 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
             Util::Expression tmpExp = tmpPar->getValue<Util::Expression>();
             tmpExp.getVariables(variables); 
             tmpExp.getSpecials(specials);      
+            isRandomDependent = tmpExp.isRandomDependent();
           }
 
-          if (specials.empty() && variables.empty())
+          if (specials.empty() && variables.empty() && !isRandomDependent)
           {
-            if (fabs(currentParam->getImmutableValue<double>()) < devOptions_.zeroResistanceTol)
+            if (fabs(currentParam->getImmutableValue<double>()) < devOptions_.zeroResistanceTol) // call here will change param type from EXPR to DBLE
             {
               // change device type to be the level 3 resistor
               model_type = Resistor3::Traits::modelType();
@@ -1905,6 +1922,99 @@ bool DeviceMgr::parameterExists(
   
   // double value = 0.0;
   // return getParameter(artificialParameterMap_, globals_.global_params, *this, *measureManager_, name, value);
+}
+
+
+// this macro is to support the populateSweepParam function.
+// The OP argument is only used for the debug output part of this.  The functional part only needs FUNC
+#define GET_RANDOM_OP_DATA(FUNC,OP) \
+  { \
+    std::vector<Xyce::Analysis::SweepParam> tmpParams; expr.FUNC(tmpParams);  \
+    if ( !(tmpParams.empty()) )  {\
+      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains #OP" << std::endl;  \
+      for(int jj=0;jj<tmpParams.size();jj++) {  \
+        tmpParams[jj].baseName = paramName; \
+        tmpParams[jj].name = paramName + "_" + tmpParams[jj].name; } \
+      SamplingParams.insert( SamplingParams.end(), tmpParams.begin(), tmpParams.end() );\
+    } \
+    else  \
+    {  \
+      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " does not contain #OP" << std::endl; \
+    }\
+  }
+
+//-----------------------------------------------------------------------------
+// Function      : populateSweepParam
+//
+// Purpose       : populates a vector of "sweep param" objects for a single 
+//                 expression/parameter
+//
+// Special Notes : Currently, each type of random operator has a separate 
+//                 unique "get" function in the expression library.  
+//
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 7/29/2020
+//-----------------------------------------------------------------------------
+void populateSweepParam (  
+    Util::Expression & expr, 
+    const std::string & paramName, 
+    std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+{
+  GET_RANDOM_OP_DATA(getAgaussData,Agauss)
+  GET_RANDOM_OP_DATA(getGaussData,Gauss)
+  GET_RANDOM_OP_DATA(getAunifData,Aunif)
+  GET_RANDOM_OP_DATA(getUnifData,Unif)
+  GET_RANDOM_OP_DATA(getRandData,Rand)
+  GET_RANDOM_OP_DATA(getLimitData,Limit)
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getRandomParameters
+//
+// Purpose       : To conduct Hspice-style sampling analysis, it is necessary 
+//                 to gather all the parameters (global and/or device) which 
+//                 depend upon expressions containing operators such as 
+//                 AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 07/28/2020
+//-----------------------------------------------------------------------------
+void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+{
+  std::vector<Util::Expression> & global_expressions  = globals_.global_expressions;
+  std::vector<std::string> & global_exp_names = globals_.global_exp_names;
+
+  // get random expressions from global parameters first
+  for (int ii=0;ii<global_expressions.size();ii++)
+  {
+    populateSweepParam(global_expressions[ii], global_exp_names[ii], SamplingParams );
+  }
+
+  // now do device params.  When this function is called, 
+  // the "dependentPtrVec_" hasn't been set up yet, so it can't be used.
+  {
+    // models
+    for (int ii=0;ii<modelVector_.size();ii++)
+    {
+      if (!(*(modelVector_[ii])).getDependentParams().empty())
+      {
+        const std::vector<Depend> & depVec = (*(modelVector_[ii])).getDependentParams();
+        for (int jj=0;jj<depVec.size();jj++) { populateSweepParam( *(depVec[jj].expr), depVec[jj].name, SamplingParams ); }
+      }
+    }
+
+    // instances
+    for (int ii=0;ii<instancePtrVec_.size();ii++)
+    {
+      if (!(*(instancePtrVec_[ii])).getDependentParams().empty())
+      {
+        const std::vector<Depend> & depVec = (*(instancePtrVec_[ii])).getDependentParams();
+        for (int jj=0;jj<depVec.size();jj++) { populateSweepParam( *(depVec[jj].expr), depVec[jj].name, SamplingParams ); }
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -4403,7 +4513,6 @@ bool getParamAndReduce(
   if (upperName == std::string("ISRC1:ACMAG"))
   {
     std::cout << "getParamAndReduce 1.  name = " << name << "  value = " << value <<std::endl;
-    // sdfasdf
   }
 #endif
 
@@ -4432,7 +4541,6 @@ double getParamAndReduce(
   if (upperName == std::string("ISRC1:ACMAG"))
   {
     std::cout << "getParamAndReduce 2.  name = " << name << "  value = " << value <<std::endl;
-    // sdfasdf
   }
 #endif
   if (!found)

@@ -235,6 +235,8 @@ public:
   // Virtual function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const = 0; 
 
+  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams) {};
+
   // Virtual method which is called to update the sources.
   virtual bool updateSources()
   {

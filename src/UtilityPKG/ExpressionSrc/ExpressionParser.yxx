@@ -1203,6 +1203,8 @@ exp:
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>(*$3,*$5));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getTwoArgLimitOpVec ().push_back(*tmpPtr);
+      newExp.getLocalTwoArgLimitOpVec ().push_back(*tmpPtr);
     }
   | TOK_LIMIT TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
     {
@@ -1373,6 +1375,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getAgaussOpVec ().push_back(*agaussPtr);
+      newExp.getLocalAgaussOpVec ().push_back(*agaussPtr);
       delete agaussPtr;
     }
   | TOK_GAUSS TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
@@ -1382,6 +1385,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getGaussOpVec ().push_back(*gaussPtr);
+      newExp.getLocalGaussOpVec ().push_back(*gaussPtr);
       delete gaussPtr;
     }
   | TOK_AUNIF TOK_LEFTPAREN exp ',' exp  TOK_RIGHTPAREN
@@ -1391,6 +1395,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getAunifOpVec ().push_back(*aunifPtr);
+      newExp.getLocalAunifOpVec ().push_back(*aunifPtr);
       delete aunifPtr;
     }
   | TOK_UNIF TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
@@ -1400,6 +1405,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getUnifOpVec ().push_back(*unifPtr);
+      newExp.getLocalUnifOpVec ().push_back(*unifPtr);
       delete unifPtr;
     }
   | TOK_RAND TOK_LEFTPAREN TOK_RIGHTPAREN
@@ -1409,6 +1415,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getRandOpVec ().push_back(*randPtr);
+      newExp.getLocalRandOpVec ().push_back(*randPtr);
       delete randPtr;
     }
 

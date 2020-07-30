@@ -172,6 +172,41 @@ void DeviceBlock::print()
       Xyce::dout() << "    " << getInstanceParameter(k).uTag();
       Xyce::dout() << "    " << getInstanceParameter(k).stringValue();
 
+#if 1
+      switch (getInstanceParameter(k).getType()) 
+      {
+        case Xyce::Util::STR:
+          Xyce::dout() << " " <<"STR";
+          break;
+        case Xyce::Util::DBLE:
+          Xyce::dout() << " " <<"DBLE";
+          break;
+        case Xyce::Util::EXPR:
+          Xyce::dout() << " " <<"EXPR";
+          break;
+        case Xyce::Util::BOOL:
+          Xyce::dout() << " " <<"BOOL";
+          break;
+        case Xyce::Util::STR_VEC:
+          Xyce::dout() << " " <<"STR_VEC"; 
+          break;
+        case Xyce::Util::INT_VEC:
+          Xyce::dout() << " "  <<"INT_VEC";
+          break;
+        case Xyce::Util::DBLE_VEC:
+          Xyce::dout() << " " <<"DBLE_VEC"; 
+          break;
+        case Xyce::Util::DBLE_VEC_IND:
+          Xyce::dout() << " " <<"DBLE_VEC_IND"; 
+          break;
+        case Xyce::Util::COMPOSITE:
+          Xyce::dout() << " " <<"COMPOSITE";
+          break;
+        default:
+          Xyce::dout() << " " <<" is default (whatever that is): ";
+      }
+#endif
+
       if ( getInstanceParameter(k).given() )
       {
          Xyce::dout() << "    given";

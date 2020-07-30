@@ -41,6 +41,7 @@
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ERH_Message.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>

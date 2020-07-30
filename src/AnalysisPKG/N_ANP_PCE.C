@@ -41,6 +41,7 @@
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ANP_PCE.h>
 #include <N_ANP_StepEvent.h>
 #include <N_ANP_UQSupport.h>

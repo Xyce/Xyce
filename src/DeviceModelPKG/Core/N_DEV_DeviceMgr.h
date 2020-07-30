@@ -73,6 +73,8 @@ using std::tr1::unordered_map;
 #include <N_UTL_Listener.h>
 #include <N_UTL_Op.h>
 
+class SweepParam;
+
 class expressionGroup;
 
 namespace Xyce {
@@ -518,6 +520,8 @@ public:
 
 // private:
 //   bool getParamNoReduce(const std::string &name, double &value) const;
+
+  void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
 
 private:
   Device &getDeviceByModelType(const EntityTypeId model_type);

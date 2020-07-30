@@ -802,6 +802,12 @@ void newExpression::setupVariousAstArrays()
       yparamOpVec_.clear();
       zparamOpVec_.clear();
 
+      agaussOpVec_.clear();
+      gaussOpVec_.clear();
+      aunifOpVec_.clear();
+      unifOpVec_.clear();
+      randOpVec_.clear();
+
       if( !(Teuchos::is_null(astNodePtr_)) )
       {
         if (astNodePtr_->paramType())

@@ -101,6 +101,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
   if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
   if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
+  if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
   if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
   if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
@@ -160,6 +161,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunif,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & unif,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & rand,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimit,
   bool timeDep,
   bool tempDep,
   bool vTDep,
@@ -192,6 +194,7 @@ public:
     aunifOpVector(aunif),
     unifOpVector(unif),
     randOpVector(rand),
+    twoArgLimitOpVector(twoArgLimit),
     isTimeDependent(timeDep),
     isTempDependent(tempDep),
     isVTDependent(vTDep),
@@ -225,6 +228,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunifOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & unifOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & randOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimitOpVector;
 
   bool isTimeDependent;
   bool isTempDependent;
@@ -318,11 +322,12 @@ class astNode
     virtual bool zparamType()       { return false; };
 
 // random op types
-    virtual bool agaussType()     { return false; };
-    virtual bool gaussType()      { return false; };
-    virtual bool aunifType()      { return false; };
-    virtual bool unifType()       { return false; };
-    virtual bool randType()       { return false; };
+    virtual bool agaussType()      { return false; };
+    virtual bool gaussType()       { return false; };
+    virtual bool aunifType()       { return false; };
+    virtual bool unifType()        { return false; };
+    virtual bool randType()        { return false; };
+    virtual bool twoArgLimitType() { return false; };
 
     virtual bool timeSpecialType() { return false; }
     virtual bool dtSpecialType()   { return false; }
@@ -2456,86 +2461,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
 };
 
 //-------------------------------------------------------------------------------
-// Hspice version of limit, which is used to specify a probability distribution.
-// The old expression library didn't support that, but returned limit(x,y)=x+y.
-// That is what is implemented here.
-template <typename ScalarT>
-class twoArgLimitOp : public astNode<ScalarT>
-{
-  public:
-    twoArgLimitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
-      astNode<ScalarT>(xAst,yAst) {};
-
-    virtual ScalarT val()
-    {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-
-      return (x->val()+y->val());
-    };
-
-    virtual ScalarT dx (int i)
-    {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-
-      return (x->dx (i) + y->dx (i));
-    };
-
-    virtual void output(std::ostream & os, int indent=0)
-    {
-      os << std::setw(indent) << " ";
-      os << "twoArgLimit operator " << std::endl;
-      ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
-    }
-
-    virtual void codeGen (std::ostream & os )
-    {
-      /// fix this
-      os << "TWO_ARG_LIMIT";
-    }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
-    }
-
-  private:
-};
-
-//-------------------------------------------------------------------------------
 // x limited to range y to z
 // y if x < y
 // x if y < x < z
@@ -3938,6 +3863,10 @@ class agaussOp : public astNode<ScalarT>
 
     virtual bool agaussType()     { return true; };
 
+    ScalarT getMu ()    { return (this->leftAst_->val()); };
+    ScalarT getAlpha () { return (this->rightAst_->val()); };
+    ScalarT getN ()     { return nAst_->val() ; };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -4025,6 +3954,10 @@ class gaussOp : public astNode<ScalarT>
 
     virtual bool gaussType()      { return true; };
 
+    ScalarT getMu ()    { return (this->leftAst_->val()); };
+    ScalarT getAlpha () { return (this->rightAst_->val()); };
+    ScalarT getN ()     { return nAst_->val() ; };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -4109,6 +4042,9 @@ class aunifOp : public astNode<ScalarT>
 
     virtual bool aunifType()      { return true; };
 
+    ScalarT getMu ()    { return (this->leftAst_->val()); };
+    ScalarT getAlpha () { return (this->rightAst_->val()); };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
@@ -4192,6 +4128,9 @@ class unifOp : public astNode<ScalarT>
 
     virtual bool unifType()       { return true; };
 
+    ScalarT getMu ()    { return (this->leftAst_->val()); };
+    ScalarT getAlpha () { return (this->rightAst_->val()); };
+
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
@@ -4263,6 +4202,88 @@ class randOp : public astNode<ScalarT>
     }
 
     virtual bool randType()       { return true; };
+
+  private:
+};
+
+//-------------------------------------------------------------------------------
+// Hspice version of limit, which is used to specify a probability distribution.
+// The old expression library didn't support that, but returned limit(x,y)=x+y.
+// That is what is implemented here.
+template <typename ScalarT>
+class twoArgLimitOp : public astNode<ScalarT>
+{
+  public:
+    twoArgLimitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
+      astNode<ScalarT>(xAst,yAst) {};
+
+    virtual ScalarT val()
+    {
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
+
+      return (x->val()+y->val());
+    };
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
+
+      return (x->dx (i) + y->dx (i));
+    };
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "twoArgLimit operator " << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      /// fix this
+      os << "TWO_ARG_LIMIT";
+    }
+
+    virtual bool twoArgLimitType() { return true; };
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+    }
 
   private:
 };

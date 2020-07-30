@@ -850,7 +850,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       parameter = *paramIter;
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve Attempting to resolve global parameter " << parameter.uTag();
+        Xyce::dout() << " CircuitContext::resolve Attempting to resolve global parameter " << parameter.uTag() <<std::endl;
       }
 
       if (!resolveParameter(parameter))
@@ -1258,13 +1258,14 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       expression.getLeadCurrents(leads);
       expression.getVariables(variables); 
       expression.getSpecials(specials);      
+      bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
-          !variables.empty() || !specials.empty())
+          !variables.empty() || !specials.empty() || isRandom)
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty. " << std::endl;
+          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty, or this has a random operator such as AGAUSS." << std::endl;
           if (!nodes.empty())
           {
             Xyce::dout() << " Nodes: " << std::endl;
@@ -1294,6 +1295,11 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
             Xyce::dout() << " Specials: " << std::endl;
             for (unsigned int foo=0; foo<specials.size(); ++foo)
               Xyce::dout() << foo << " : " << specials[foo] << std::endl;
+          }
+
+          if (isRandom)
+          {
+            Xyce::dout() << " Depends on a random operator" << std::endl;
           }
         }
 
@@ -1539,13 +1545,14 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       expression.getLeadCurrents(leads);
       expression.getVariables(variables); 
       expression.getSpecials(specials);      
+      bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
-          !variables.empty() || !specials.empty())
+          !variables.empty() || !specials.empty() || isRandom)
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty. " << std::endl;
+          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty, or this has a random operator such as AGAUSS." << std::endl;
           if (!nodes.empty())
           {
             Xyce::dout() << " Nodes: " << std::endl;
@@ -1575,6 +1582,10 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
             Xyce::dout() << " Specials: " << std::endl;
             for (unsigned int foo=0; foo<specials.size(); ++foo)
               Xyce::dout() << foo << " : " << specials[foo] << std::endl;
+          }
+          if (isRandom)
+          {
+            Xyce::dout() << " Depends on a random operator" << std::endl;
           }
         }
 

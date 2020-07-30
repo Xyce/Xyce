@@ -176,6 +176,8 @@ private:
   bool outFuncGIDsetup_;
 
   bool outputSampleStats_;
+
+  bool useExpressionSamples_;
 };
 
 bool registerSamplingFactory(FactoryBlock &factory_block);

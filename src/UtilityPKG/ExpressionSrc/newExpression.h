@@ -98,7 +98,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {};
 
   // primary constructor
@@ -132,7 +132,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -194,7 +194,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -246,7 +246,7 @@ public:
     evaluateCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -292,6 +292,7 @@ public:
       if (left->aunifType()) { aunifOpVec_.push_back(left); }
       if (left->unifType()) { unifOpVec_.push_back(left); }
       if (left->randType()) { randOpVec_.push_back(left); }
+      if (left->twoArgLimitType()) { twoArgLimitOpVec_.push_back(left); }
 
       left->getInterestingOps( opVectors_  );
     }
@@ -332,7 +333,7 @@ public:
     leadCurrentOpNames_(right.leadCurrentOpNames_),
 
     bsrcCurrentOpVec_(right.bsrcCurrentOpVec_),
-    unresolvedBsrcCurrentOpVec_(right.unresolvedBsrcCurrentOpVec_),
+    //unresolvedBsrcCurrentOpVec_(right.unresolvedBsrcCurrentOpVec_),
     bsrcCurrentOpNames_(right.bsrcCurrentOpNames_),
 
     powerOpVec_(right.powerOpVec_),
@@ -347,6 +348,19 @@ public:
     sparamOpVec_(right.sparamOpVec_),
     yparamOpVec_(right.yparamOpVec_),
     zparamOpVec_(right.zparamOpVec_),
+
+    agaussOpVec_(right.agaussOpVec_),
+    localAgaussOpVec_(right.localAgaussOpVec_),
+    gaussOpVec_(right.gaussOpVec_),
+    localGaussOpVec_(right.localGaussOpVec_),
+    aunifOpVec_(right.aunifOpVec_),
+    localAunifOpVec_(right.localAunifOpVec_),
+    unifOpVec_(right.unifOpVec_),
+    localUnifOpVec_(right.localUnifOpVec_),
+    randOpVec_(right.randOpVec_),
+    localRandOpVec_(right.localRandOpVec_),
+    twoArgLimitOpVec_(right.twoArgLimitOpVec_),
+    localTwoArgLimitOpVec_(right.localTwoArgLimitOpVec_),
 
     bpTol_(right.bpTol_),
     time_(right.time_),
@@ -383,7 +397,7 @@ public:
     evaluateCalledBefore_(right.evaluateCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
-    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
@@ -448,7 +462,7 @@ public:
 
     bsrcCurrentOpVec_ = right.bsrcCurrentOpVec_;
     bsrcCurrentOpNames_ = right.bsrcCurrentOpNames_;
-    unresolvedBsrcCurrentOpVec_ = right.unresolvedBsrcCurrentOpVec_;
+    //unresolvedBsrcCurrentOpVec_ = right.unresolvedBsrcCurrentOpVec_;
 
     powerOpVec_ = right.powerOpVec_;
     internalDevVarOpVec_ = right.internalDevVarOpVec_;
@@ -462,6 +476,19 @@ public:
     sparamOpVec_ = right.sparamOpVec_;
     yparamOpVec_ = right.yparamOpVec_;
     zparamOpVec_ = right.zparamOpVec_;
+
+    agaussOpVec_ = right.agaussOpVec_;
+    localAgaussOpVec_ = right.localAgaussOpVec_;
+    gaussOpVec_ = right.gaussOpVec_;
+    localGaussOpVec_ = right.localGaussOpVec_;
+    aunifOpVec_ = right.aunifOpVec_;
+    localAunifOpVec_ = right.localAunifOpVec_;
+    unifOpVec_ = right.unifOpVec_;
+    localUnifOpVec_ = right.localUnifOpVec_;
+    randOpVec_ = right.randOpVec_;
+    localRandOpVec_ = right.localRandOpVec_;
+    twoArgLimitOpVec_ = right.twoArgLimitOpVec_;
+    localTwoArgLimitOpVec_ = right.localTwoArgLimitOpVec_;
 
     bpTol_ = right.bpTol_;
     time_ = right.time_;
@@ -641,6 +668,14 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getAunifOpVec() { return aunifOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnifOpVec() { return unifOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getRandOpVec() { return randOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getTwoArgLimitOpVec() { return twoArgLimitOpVec_; }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalAgaussOpVec() { return localAgaussOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalGaussOpVec() { return localGaussOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalAunifOpVec() { return localAunifOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalUnifOpVec() { return localUnifOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalRandOpVec() { return localRandOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalTwoArgLimitOpVec() { return localTwoArgLimitOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getTimeOpVec() { return timeOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getDtOpVec() { return dtOpVec_; }
@@ -842,69 +877,58 @@ private:
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > bsrcCurrentOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedBsrcCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > bsrcCurrentOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > powerOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedPowerOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > powerOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > internalDevVarOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedInternalDevVarOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > internalDevVarOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > dnoNoiseDevVarOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDnoNoiseDevVarOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dnoNoiseDevVarOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > dniNoiseDevVarOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDniNoiseDevVarOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dniNoiseDevVarOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > oNoiseOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedONoiseOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > oNoiseOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > iNoiseOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedINoiseOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > iNoiseOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > sdtOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedSdtOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > ddtOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedDdtOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > phaseOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedPhaseOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > sparamOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedSparamOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > yparamOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedYparamOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > zparamOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedZparamOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > agaussOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedAgaussOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localAgaussOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > gaussOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedGaussOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localGaussOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > aunifOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedAunifOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localAunifOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > unifOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedUnifOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localUnifOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > randOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedRandOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localRandOpVec_;
 
-  // master vector of nodes.  This is only used for deleting the ast tree in
-  // the destructor.  The tree should be deleted by marching down the
-  // branches of the tree, as some of the nodes use the same pointer.
+  std::vector<Teuchos::RCP<astNode<usedType> > > twoArgLimitOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localTwoArgLimitOpVec_;
+
+  // master vector of nodes  
+  // This is only used for deleting the ast tree in the destructor
   std::vector< Teuchos::RCP<astNode<usedType> > * > masterAstNodeVec_;
 
   // time integration related variables

@@ -33,6 +33,7 @@
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ANP_Sampling.h>
 #include <N_ANP_StepEvent.h>
 
@@ -130,7 +131,8 @@ Sampling::Sampling(AnalysisManager &analysis_manager, Loader::Loader &loader,
       outputsSetup_(false),
       measuresGiven_(false),
       outFuncGIDsetup_(false),
-      outputSampleStats_(true)
+      outputSampleStats_(true),
+      useExpressionSamples_(false)
 {
   pdsMgrPtr_ = analysisManager_.getPDSManager();
 }
@@ -265,6 +267,10 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       if (beta <= 0) { Report::DevelFatal() << "BETA values for .SAMPLING must be > 0";}
       betaVec_.push_back(beta);
     }
+    else if (iter->uTag() == "USEEXPR")
+    {
+      useExpressionSamples_ = static_cast<bool>(iter->getImmutableValue<bool>());
+    }
     else
     {
       Xyce::Report::UserWarning() << iter->uTag() 
@@ -272,6 +278,11 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     }
   }
 
+  if (useExpressionSamples_)
+  {
+    SweepVector exprSamplingVector_;
+    loader_.getRandomParams(exprSamplingVector_);
+  }
 
   int paramSize = paramNameVec_.size();
   int typeSize = typeVec_.size();
@@ -1574,6 +1585,8 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
 {
   {
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("SAMPLING");
+
+    parameters.insert(Util::ParamMap::value_type("USEEXPR", Util::Param("USEEXPR", true)));
 
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "VECTOR")));

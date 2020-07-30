@@ -48,6 +48,8 @@
 #include <N_UTL_fwd.h>
 #include <N_DEV_fwd.h>
 
+#include <N_ANP_SweepParam.h>
+
 #include <N_DEV_Algorithm.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternDevice.h>
@@ -331,6 +333,19 @@ double CktLoader::getParamAndReduce(
   const std::string &   name) const
 {
   return Device::getParamAndReduce(comm, deviceManager_, name);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CktLoader::getRandomParams
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void CktLoader::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+{
+  return deviceManager_.getRandomParams(SamplingParams);
 }
 
 //-----------------------------------------------------------------------------
