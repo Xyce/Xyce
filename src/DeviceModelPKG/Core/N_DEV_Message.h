@@ -70,6 +70,18 @@ struct UserWarning0 : public Report::UserWarning0
   UserWarning0(const Device &device);
 };
 
+struct UserInfo : public Report::UserInfo
+{
+  UserInfo(const DeviceEntity &device_entity);
+  UserInfo(const Device &device);
+};
+
+struct UserInfo0 : public Report::UserInfo0
+{
+  UserInfo0(const DeviceEntity &device_entity);
+  UserInfo0(const Device &device);
+};
+
 struct UserError : public Report::UserError
 {
   UserError(const DeviceEntity &device_entity);

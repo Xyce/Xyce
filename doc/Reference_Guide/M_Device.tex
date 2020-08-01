@@ -141,16 +141,19 @@ stymie this error trap.
 \end{Parameters}
 
 \vbox{\hrulefill}
-\item[BSIMSOI Options]
+\item[BSIM-SOI Options]
 
 There are a large number of extra instance parameters and optional
-nodes available for the BSIMSOI (level 10) MOSFET.
+nodes available for the BSIM-SOI (level 10 (BSIM-SOI 3.2), level 70
+(BSIM-SOI 4.6.1), and level 70450 (BSIM-SOI 4.5.0)) MOSFET.  Please
+consult the BSIM-SOI technical manual, available at
+\url{http://bsim.berkeley.edu/models/bsimsoi/}, for full details.
 
 \begin{Parameters}
 
 \param{substrate node}
 
-The fourth node of the BSIMSOI device is always the substrate node,
+The fourth node of the BSIM-SOI device is always the substrate node,
 which is referred to as the \texttt{E} node. 
 
 \param{external body contact node}
@@ -160,8 +163,9 @@ If given, the fifth node is the external body contact node,
 tie resistor.  If \texttt{P} is not given, the internal body node is
 not accessible from the netlist and floats.
 
-If there are only five nodes specified and \texttt{TNODEOUT} is also specified,
-the fifth node is the temperature node instead.
+{\em For the BSIM-SOI 3.2 (level=10) only):} If there are only five
+nodes specified and \texttt{TNODEOUT} is also specified, the fifth
+node is the temperature node instead.
 
 \param{internal body contact node}
 
@@ -171,15 +175,20 @@ is not given and \texttt{P} is given, the internal body node is not accessible
 from the netlist, but is still tied to the external body contact through the
 tie resistance.
 
-If there are only six nodes specified and \texttt{TNODEOUT} is also specified,
-the sixth node is the temperature node instead.
+{\em For the BSIM-SOI 3.2 (level=10) only):} If there are only six
+nodes specified and \texttt{TNODEOUT} is also specified, the sixth
+node is the temperature node instead.
 
 \param{temperature node}
 
-If the parameter \texttt{TNODEOUT} is specified, the final node (fifth, sixth,
+{\em For the BSIM-SOI 3.2 (level=10) only):} If the parameter \texttt{TNODEOUT} is specified, the final node (fifth, sixth,
 or seventh) is interpreted as a temperature node.  The temperature node is
 intended for thermal coupling simulation.
 
+{\em For the BSIM-SOI 4.x (level=70 or 70450) only):} The temperature
+node is only accessible for thermal coupling if it is the seventh
+node.  It is available for printing as an internal node in all other
+configurations.
 
 \param{BJTOFF}
 Turns off the parasitic BJT currents.
@@ -421,20 +430,20 @@ If \textrmb{GAMMA2} is not specified, then:
 \right. \]
 \end{enumerate}
 
-\subparagraph{Model level 10 (BSIMSOI version 3.2)}
+\subparagraph{Model level 10 (BSIM-SOI version 3.2)}
 
-The BSIMSOI is an international standard model for SOI (silicon on insulator)
+The BSIM-SOI is an international standard model for SOI (silicon on insulator)
 circuit design and is formulated on top of the BSIM3v3 framework.
-A detailed description can be found in the BSIMSOI 3.1 User's
-Manual~\cite{BSIMSOI:Manual} and the BSIMSOI 3.2 release
+A detailed description can be found in the BSIM-SOI 3.1 User's
+Manual~\cite{BSIMSOI:Manual} and the BSIM-SOI 3.2 release
 notes~\cite{BSIMSOI:3p2:Notes}.
 
-This version (v3.2) of the BSIMSOI includes three depletion models;
-the partially depleted BSIMSOI PD (soiMod=0), the fully depleted BSIMSOI
+This version (v3.2) of the BSIM-SOI includes three depletion models;
+the partially depleted BSIM-SOI PD (soiMod=0), the fully depleted BSIM-SOI
 FD (soiMod=2), and the unified SOI model (soiMod=1).
 
 BSIMPD is the
-Partial-Depletion (PD) mode of the BSIMSOI.  A typical PD SOI MOSFET is formed
+Partial-Depletion (PD) mode of the BSIM-SOI.  A typical PD SOI MOSFET is formed
 on a thin SOI film which is layered on top of a buried oxide.  BSIMPD has
 the following features and enhancements:
 \begin{XyceItemize}
@@ -557,11 +566,11 @@ cards containing default values from the tables.}
 \input{M_9_Device_Model_Params}
 
 \clearpage
-\subsubsection{Level 10 MOSFET Tables (BSIM SOI)}
-For complete documentation of the BSIMSOI model, see the users' manual
-for the BSIMSOI, available for download at
+\subsubsection{Level 10 MOSFET Tables (BSIM-SOI)}
+For complete documentation of the BSIM-SOI model, see the users' manual
+for the BSIM-SOI, available for download at
 \url{http://bsim.berkeley.edu/models/bsimsoi/}.
-\Xyce{} implements Version 3.2 of the BSIMSOI, you will have to get the
+\Xyce{} implements Version 3.2 of the BSIM-SOI, you will have to get the
 documentation from the FTP archive on the Berkeley site.
 
 In addition to the parameters shown in table~\ref{M_10_Device_Instance_Params}, 
@@ -611,22 +620,59 @@ The following tables give parameters for the level 18 MOSFET.
 \input{M_18_Device_Model_Params}
 
 \clearpage
-\subsubsection{Levels 70 and 70450 MOSFET Tables (BSIM SOI 4.6.1 and 4.5.0)}
-For complete documentation of the BSIMSOI model, see the users' manual
-for the BSIMSOI, available for download at
-\url{http://bsim.berkeley.edu/models/bsimsoi/}.
-\Xyce{} implements Version 4.6.1 of the BSIMSOI as the level 70 device.
+\subsubsection{Levels 70 and 70450 MOSFET Tables (BSIM-SOI 4.6.1 and 4.5.0)}
+For complete documentation of the BSIM-SOI model, see the users'
+manual for the BSIM-SOI, available for download at
+\url{http://bsim.berkeley.edu/models/bsimsoi/}.  \Xyce{} implements
+Version 4.6.1 of the BSIM-SOI as the level 70 device and version 4.5.0
+as level 70450.
 
 Instance and model parameters of the level 70 MOSFET are given in
 tables~\ref{M_70_Device_Instance_Params} and
 \ref{M_70_Device_Model_Params}.
 
-Only the four-terminal variant of the BSIM SOI is supported at this
-time, meaning that the ``BODYMOD'' parameter is ignored and the
-temperature node is not accessible as an external connection.  All
-level 70 MOSFETS operate in floating body mode.  The temperature node
-is an internal node of the device, and its value may still be printed
-using the N() notation (see section~\ref{Print_Device_Info}.
+Beginning with \Xyce{} 7.2, the BSIM-SOI models level 70 and 70450
+have {\em limited} support for the optional 5th, 6th, and 7th nodes.
+See the BSIM-SOI technical manual at the BSIM web site for details of
+what configurations the full device supports.  Only some of these use
+cases are supported: Use of the BSIM-SOI 4.x with \texttt{TNODEOUT=0}
+(the default) is supported in 4-, 5-, 6-, and 7-node configurations.
+\texttt{TNODEOUT=1} is supported only in the 7-node configuration,
+with the 7th node being temperature.  No access to the external
+temperature node is available in 5- or 6- node configuration.
+
+When \texttt{TNODEOUT=0}, the temperature node is an internal node of
+the device even when not specified on the instance line, and its value
+may still be printed using the N() notation (see
+section~\ref{Print_Device_Info}).  This someone minimizes the impact
+of the lack of support for \texttt{TNODEOUT=1} in \Xyce{} --- the
+temperature rise due to self-heating is always available for printing,
+but it is not available for creation of a thermal coupling network
+except in the 7-node configuration.
+
+Note that with some choices of model parameters, the BSIM-SOI devices
+attempt to ``collapse'' the ``P'' and ``B'' nodes (external and
+internal body nodes, 5th and 6th netlist nodes if given, internal
+nodes if not given).  Xyce is unable to perform such collapse when the
+nodes are externally specified, and will issue warnings when it finds
+the model trying to do so.  Depending on the actual nodes used for P
+and B, the device may fail to converge or produce invalid results; as
+an example, if P and B are actually specified on the netlist line to
+be the same node, this failure to collapse will not matter --- the
+nodes are already the same.  But if two different node names are used
+for the 5th and 6th nodes, the failure to collapse will leave one node
+floating and the simulation will likely fail if the printed warnings
+are ignored.
+
+A similar problem exists for other choices of model parameter: in some
+cases neither the ``P'' nor ``B'' nodes are used, and if the nodes are
+specified on the netlist line the BSIM-SOI code attempts to collapse
+them to ground.  This is not something \Xyce{} can do, and therefore
+instead \Xyce{} ignores the specified nodes.  This can leave those
+nodes floating and lead to convergence failures unless the specified
+nodes are already the ground node (node 0).  \Xyce{} will issue
+appropriate warnings when this condition exists and suggest removal of
+the unused external nodes from the instance line.
 
 The BSIM SOI 4.6.1 device supports output of the internal variables in
 table~\ref{M_70_OutputVars} on the \texttt{.PRINT} line of a netlist.
@@ -667,6 +713,11 @@ from information present in the original Verilog-A implementation of
 the BSIM6, and lack many descriptions for the parameters.  Consult the
 BSIM6 technical manual from the BSIM group for further details about
 these parameters.
+
+Beginning with version 7.2 of \Xyce{}, an optional fifth node may be
+specified for BSIM6 devices.  If specified, it is the temperature
+node, which is used by the self-heating model and is internal if not
+specified on the instance line.
 
 The BSIM6 device supports output of the internal variables in
 table~\ref{M_77_OutputVars} on the \texttt{.PRINT} line of a netlist.

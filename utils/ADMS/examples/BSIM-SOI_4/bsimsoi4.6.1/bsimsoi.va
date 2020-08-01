@@ -244,13 +244,11 @@
 `endif
 
 // Do not define PORT_CONNECTED for Xyce
-`ifndef __XYCE__
 `define PORT_CONNECTED
-`endif
 
 `ifdef PORT_CONNECTED
 
-    module bsimsoi(d, g, s, e, p, b, t);
+    module bsimsoi(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
     inout      g, d, s, e, p, b, t;
 `else
 
@@ -309,20 +307,20 @@ endfunction
 `IPIcc( DEBUG          ,0              ,""          ,0          ,1         ,"DEBUG on/off flag" )
 `IPRcz_BOTH( RTH0           ,0.0            ,"ohm"                              ,"Instance Thermal Resistance" )
 `IPRcz_BOTH( CTH0           ,1e-5           ,"Ws/mK"                                                    ,"Instance Thermal Capacitance" )
-`IPRnb_BOTH( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
+`IPRcz_BOTH( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
 `IPRnb_BOTH( FRBODY         ,1.0            ,""                                 ,"layout dependent body-resistance coefficient" )
 `IPRcz_BOTH( RBDB           ,50.0           ,"ohm"                              ,"Body resistance" )
 `IPRcz_BOTH( RBSB           ,50.0           ,"ohm"                              ,"Body resistance" )
 `IPRnb_BOTH( DELVTO         ,0.0            ,"V"                                ,"Zero bias threshold voltage variation" )
 `IPIcc_BOTH( SOIMOD         ,0              ,""          ,0          ,3         ,"Instance model selector for PD/FD operation /* v3.2 " )
-`IPRnb_BOTH( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
-`IPRnb_BOTH( NSEG           ,1              ,""                                 ,"Number segments for width partitioning" )
-`IPRnb_BOTH( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
-`IPRnb_BOTH( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
-`IPRnb_BOTH( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
-`IPRnb_BOTH( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC " )
-`IPRnb_BOTH( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
-`IPRnb_BOTH( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
+`IPRcz_BOTH( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
+`IPRco_BOTH( NSEG           ,1              ,""          ,1          ,inf       ,"Number segments for width partitioning" )
+`IPRcz_BOTH( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
+`IPRcz_BOTH( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
+`IPRcz_BOTH( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
+`IPRcz_BOTH( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC " )
+`IPRcz_BOTH( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
+`IPRcz_BOTH( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
 `IPIcc( TNODEOUT       ,0              ,""          ,0          ,1         ,"Flag indicating external temp node" ) /* Changed to instance parameter in v4.6 */
 `BPIcc_BOTH( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
 /************************/
@@ -339,14 +337,14 @@ endfunction
 `MPIcc( IIIMOD         ,0              ,""          ,0          ,1         ,"parameter for III selector" )
 `MPRcz( EOT            ,100.0e-10      ,"m"                                ,"Effective SiO2 thickness" )
 `MPRcz( EPSROX         ,3.9            ,""                                 ,"Dielectric constant of the gate oxide relative to vacuum" )
-`MPRcz( EPSRSUB        ,11.7           ,""                                 ,"Dielectric constant of substrate relative to vacuum" )
+`MPRoz( EPSRSUB        ,11.7           ,""                                 ,"Dielectric constant of substrate relative to vacuum" )
 `MPRcz( NI0SUB         ,1.45e10        ,"cm^-3"                            ,"Intrinsic carrier concentration of substrate at Tnom" )
 `MPRcz( BG0SUB         ,1.16           ,"eV"                               ,"Band-gap of substrate at T=0K" )
 `MPRcz( TBGASUB        ,7.02e-4        ,""                                 ,"First parameter of band-gap change due to temperature" )
 `MPRnb( TBGBSUB        ,1108.0         ,""                                 ,"Second parameter of band-gap change due to temperature" )
 `MPRnb( PHIG           ,4.05           ,"eV"                               ,"Work function of gate" )
 `MPRnb( EASUB          ,4.05           ,"eV"                               ,"Electron affinity of substrate" )
-`MPRnb( LEFFEOT        ,1.0            ,"um"                               ,"Effective length for extraction of EOT" )
+`MPRoz( LEFFEOT        ,1.0            ,"um"                               ,"Effective length for extraction of EOT" )
 `MPRnb( WEFFEOT        ,10.0           ,"um"                               ,"Effective width for extraction of EOT" )
 `MPRnb( VDDEOT         ,((TYPE == `NMOS) ? 1.5 : -1.5),""                  ,"Voltage for extraction of EOT" )
 `MPRnb( TEMPEOT        ,300.15         ,"K"                                ,"Temperature for extraction of EOT" )
@@ -368,17 +366,17 @@ endfunction
 `MPRnb( CDSCD          ,0.0            ,"F/m^2"                            ,"Drain-bias dependence of cdsc" )
 `MPRnb( CIT            ,0.0            ,"F/m^2"                            ,"Interface state capacitance" )
 `MPRnb( NFACTOR        ,1              ,""                                 ,"Subthreshold swing Coefficient" )
-`MPRnb( VSAT           ,8.0e4          ,"m/s"                              ,"Saturation velocity at tnom" )
+`MPRoz( VSAT           ,8.0e4          ,"m/s"                              ,"Saturation velocity at tnom" )
 `MPRnb( AT             ,3.3e4          ,"m/s"                              ,"Temperature coefficient of vsat" )
 `MPRnb( A0             ,1.0            ,""                                 ,"Non-uniform depletion width effect coefficient." )
 `MPRnb( AGS            ,0.0            ,"1/V"                              ,"Gate bias  coefficient of Abulk." )
 `MPRnb( A1             ,0.0            ,"1/V"                              ,"Non-saturation effect coefficient" )
 `MPRnb( A2             ,1.0            ,"1/V"                              ,"Non-saturation effect coefficient" )
 `MPRnb( KETA           ,-0.6           ,"1/V"                              ,"Body-bias coefficient of non-uniform depletion width effect." )
-`MPRnb( NSUB           ,6.0e16         ,"cm^-3"                            ,"Substrate doping concentration with polarity" )
-`MPRnb( NCH            ,1.7e17         ,"cm^-3"                            ,"Channel doping concentration" )
-`MPRnb( NGATE          ,0.0            ,"cm^-3"                            ,"Poly-gate doping concentration" )
-`MPRnb( NSD            ,1.0e20         ,"cm^-3"                            ,"S/D doping concentration" )
+`MPRoz( NSUB           ,6.0e16         ,"cm^-3"                            ,"Substrate doping concentration with polarity" )
+`MPRoz( NCH            ,1.7e17         ,"cm^-3"                            ,"Channel doping concentration" )
+`MPRcz( NGATE          ,0.0            ,"cm^-3"                            ,"Poly-gate doping concentration" )
+`MPRoz( NSD            ,1.0e20         ,"cm^-3"                            ,"S/D doping concentration" )
 `MPRnb( GAMMA1         ,0.0            ,""                                 ,"Vth body coefficient" )
 `MPRnb( GAMMA2         ,0.0            ,""                                 ,"Vth body coefficient" )
 `MPRnb( VBX            ,0.0            ,""                                 ,"Vth transition body Voltage" )
@@ -419,16 +417,16 @@ endfunction
 `MPRnb( UD1            ,0.0            ,""                                 ,"Temperature coefficient of ud" )
 `MPRnb( VOFF           ,-0.08          ,"V"                                ,"Threshold voltage offset" )
 `MPRnb( TNOM           ,27.0           ,"Degree Celsius"                   ,"Parameter measurement temperature" )
-`MPRnb( CGSO           ,0.0            ,"F/m"                              ,"Gate-source overlap capacitance per width" )
-`MPRnb( CGDO           ,0.0            ,"F/m"                              ,"Gate-drain overlap capacitance per width" )
+`MPRcz( CGSO           ,0.0            ,"F/m"                              ,"Gate-source overlap capacitance per width" )
+`MPRcz( CGDO           ,0.0            ,"F/m"                              ,"Gate-drain overlap capacitance per width" )
 `MPRnb( XPART          ,0.0            ,""                                 ,"Channel charge partitioning" )
 `MPRnb( DELTA          ,0.01           ,""                                 ,"Effective Vds parameter" )
-`MPRnb( RSH            ,0.0            ,"ohm"                              ,"Source-drain sheet resistance" )
-`MPRnb( RDSW           ,100            ,""                                 ,"Source-drain resistance per width" )
-`MPRnb( RSW            ,50             ,"ohm(um)^(WR)"                     ,"Source resistance per width /* v4.0 " )
-`MPRnb( RDW            ,50             ,"ohm(um)^(WR)"                     ,"Drain resistance per width /* v4.0 " )
-`MPRnb( RSWMIN         ,0.0            ,"ohm(um)^(WR)"                     ,"Source resistance per width at high Vg" )
-`MPRnb( RDWMIN         ,0.0            ,"ohm(um)^(WR)"                     ,"Drain resistance per width at hight Vg" )
+`MPRcz( RSH            ,0.0            ,"ohm"                              ,"Source-drain sheet resistance" )
+`MPRcz( RDSW           ,100            ,""                                 ,"Source-drain resistance per width" )
+`MPRcz( RSW            ,50             ,"ohm(um)^(WR)"                     ,"Source resistance per width /* v4.0 " )
+`MPRcz( RDW            ,50             ,"ohm(um)^(WR)"                     ,"Drain resistance per width /* v4.0 " )
+`MPRcz( RSWMIN         ,0.0            ,"ohm(um)^(WR)"                     ,"Source resistance per width at high Vg" )
+`MPRcz( RDWMIN         ,0.0            ,"ohm(um)^(WR)"                     ,"Drain resistance per width at hight Vg" )
 `MPRnb( PRWG           ,0.0            ,"V^(-1/2)"                         ,"Gate-bias effect on parasitic resistance" )
 `MPRnb( PRWB           ,0.0            ,"1/V"                              ,"Body-effect on parasitic resistance" )
 `MPRnb( PRT            ,0.0            ,"ohm-um"                           ,"Temperature coefficient of parasitic resistance" )
@@ -441,10 +439,10 @@ endfunction
 `MPRnb( PDIBLC2        ,0.0086         ,""                                 ,"Drain-induced barrier lowering coefficient" )
 `MPRnb( PDIBLCB        ,0.0            ,""                                 ,"Body-effect on drain-induced barrier lowering" )
 `MPRnb( PVAG           ,0.0            ,""                                 ,"Gate dependence of output resistance parameter" )
-`MPRnb( TBOX           ,3e-7           ,"m"                                ,"Back gate oxide thickness in meters" )
-`MPRnb( TSI            ,1e-7           ,"m"                                ,"Silicon-on-insulator thickness in meters" )
-`MPRnb( ETSI           ,1e-7           ,"m"                                ,"Effective Silicon-on-insulator thickness in meters" )
-`MPRnb( XJ             ,TSI            ,"m"                                ,"Junction Depth" )
+`MPRoz( TBOX           ,3e-7           ,"m"                                ,"Back gate oxide thickness in meters" )
+`MPRoz( TSI            ,1e-7           ,"m"                                ,"Silicon-on-insulator thickness in meters" )
+`MPRoz( ETSI           ,1e-7           ,"m"                                ,"Effective Silicon-on-insulator thickness in meters" )
+`MPRoz( XJ             ,TSI            ,"m"                                ,"Junction Depth" )
 `MPRnb( AGIDL          ,0.0            ,"1/ohm"                            ,"GIDL second parameter" )
 `MPRnb( BGIDL          ,2.3e9          ,"V/m"                              ,"GIDL third parameter" )
 `MPRnb( CGIDL          ,0.5            ,"V^3"                              ,"GIDL vb parameter" )
@@ -470,8 +468,8 @@ endfunction
 `MPRnb( PBSWGD         ,PBSWG          ,"V"                                ,"Drain(gate side) sidewall junction capacitance built in potential /* v4.0 " )
 `MPRnb( MJSWG          ,0.5            ,"V"                                ,"Source (gate side) sidewall junction capacitance grading coefficient /* v4.0 " )
 `MPRnb( MJSWGD         ,MJSWG          ,"V"                                ,"Drain (gate side) sidewall junction capacitance grading coefficient /* v4.0 " )
-`MPRnb( CJSWG          ,1e-10          ,"F/m^2"                            ,"Source(gate side) sidewall junction capacitance per unit width /* v4.0 " )
-`MPRnb( CJSWGD         ,CJSWG          ,"F/m^2"                            ,"Drain (gate side) sidewall junction capacitance per unit width /* v4.0 " )
+`MPRoz( CJSWG          ,1e-10          ,"F/m^2"                            ,"Source(gate side) sidewall junction capacitance per unit width /* v4.0 " )
+`MPRoz( CJSWGD         ,CJSWG          ,"F/m^2"                            ,"Drain (gate side) sidewall junction capacitance per unit width /* v4.0 " )
 `MPRnb( LINT           ,0.0            ,"m"                                ,"Length reduction parameter" )
 `MPRnb( LL             ,0.0            ,"m"                                ,"Length reduction parameter" )
 `MPRnb( LLC            ,0.0            ,""                                 ,"Length reduction parameter /* v2.2.3 " )
@@ -497,7 +495,7 @@ endfunction
 `MPRnb( B1             ,0.0            ,"m"                                ,"Abulk narrow width parameter" )
 `MPRnb( CGSL           ,0.0            ,"F/m"                              ,"New C-V model parameter" )
 `MPRnb( CGDL           ,0.0            ,"F/m"                              ,"New C-V model parameter" )
-`MPRnb( CKAPPA         ,0.6            ,"F/m"                              ,"New C-V model parameter" )
+`MPRoz( CKAPPA         ,0.6            ,"F/m"                              ,"New C-V model parameter" )
 `MPRnb( CF             ,0.0            ,"F/m"                              ,"Fringe capacitance parameter" )
 `MPRnb( CLC            ,0.1e-7         ,"m"                                ,"Vdsat parameter for C-V model" )
 `MPRnb( CLE            ,0.0            ,""                                 ,"Vdsat parameter for C-V model" )
@@ -614,21 +612,21 @@ endfunction
 `MPRnb( MBJTII         ,0.4            ,""                                 ,"Internal B-C grading coefficient" )
 `MPRnb( TVBCI          ,0.0            ,""                                 ,"Temperature coefficient for VBCI" )
 `MPRnb( ESATII         ,1e7            ,"V/m"                              ,"Saturation electric field for impact ionization" )
-`MPRnb( NTUN           ,10.0           ,""                                 ,"Reverse tunneling non-ideality factor" )
-`MPRnb( NTUND          ,NTUN           ,""                                 ,"Reverse tunneling non-ideality factor" )
-`MPRnb( NRECF0         ,2.0            ,""                                 ,"Recombination non-ideality factor at forward bias" )
-`MPRnb( NRECF0D        ,NRECF0         ,""                                 ,"Recombination non-ideality factor at forward bias" )
-`MPRnb( NRECR0         ,10.0           ,""                                 ,"Recombination non-ideality factor at reversed bias" )
-`MPRnb( NRECR0D        ,NRECR0         ,""                                 ,"Recombination non-ideality factor at reversed bias" )
-`MPRnb( ISBJT          ,1e-6           ,"A/m^2"                            ,"BJT injection saturation current" )
-`MPRnb( IDBJT          ,ISBJT          ,"A/m^2"                            ,"BJT injection saturation current" )
-`MPRnb( ISDIF          ,0.0            ,"A/m^2"                            ,"Body to source/drain injection saturation current" )
-`MPRnb( IDDIF          ,ISDIF          ,"A/m^2"                            ,"Body to source/drain injection saturation current /* v4.0 " )
-`MPRnb( ISREC          ,1e-5           ,"A/m^2"                            ,"Recombination in depletion saturation current" )
-`MPRnb( IDREC          ,ISREC          ,"A/m^2"                            ,"Recombination in depletion saturation current" )
-`MPRnb( ISTUN          ,0.0            ,"A/m^2"                            ,"Reverse tunneling saturation current" )
-`MPRnb( IDTUN          ,ISTUN          ,"A/m^2"                            ,"Reverse tunneling saturation current" )
-`MPRnb( LN             ,2e-6           ,"m"                                ,"Electron/hole diffusion length" )
+`MPRcz( NTUN           ,10.0           ,""                                 ,"Reverse tunneling non-ideality factor" )
+`MPRcz( NTUND          ,NTUN           ,""                                 ,"Reverse tunneling non-ideality factor" )
+`MPRcz( NRECF0         ,2.0            ,""                                 ,"Recombination non-ideality factor at forward bias" )
+`MPRcz( NRECF0D        ,NRECF0         ,""                                 ,"Recombination non-ideality factor at forward bias" )
+`MPRcz( NRECR0         ,10.0           ,""                                 ,"Recombination non-ideality factor at reversed bias" )
+`MPRcz( NRECR0D        ,NRECR0         ,""                                 ,"Recombination non-ideality factor at reversed bias" )
+`MPRcz( ISBJT          ,1e-6           ,"A/m^2"                            ,"BJT injection saturation current" )
+`MPRcz( IDBJT          ,ISBJT          ,"A/m^2"                            ,"BJT injection saturation current" )
+`MPRcz( ISDIF          ,0.0            ,"A/m^2"                            ,"Body to source/drain injection saturation current" )
+`MPRcz( IDDIF          ,ISDIF          ,"A/m^2"                            ,"Body to source/drain injection saturation current /* v4.0 " )
+`MPRcz( ISREC          ,1e-5           ,"A/m^2"                            ,"Recombination in depletion saturation current" )
+`MPRcz( IDREC          ,ISREC          ,"A/m^2"                            ,"Recombination in depletion saturation current" )
+`MPRcz( ISTUN          ,0.0            ,"A/m^2"                            ,"Reverse tunneling saturation current" )
+`MPRcz( IDTUN          ,ISTUN          ,"A/m^2"                            ,"Reverse tunneling saturation current" )
+`MPRcz( LN             ,2e-6           ,"m"                                ,"Electron/hole diffusion length" )
 `MPRnb( VREC0          ,0.0            ,"V"                                ,"Voltage dependent parameter for recombination current" )
 `MPRnb( VREC0D         ,VREC0          ,"V"                                ,"Voltage dependent parameter for recombination current" )
 `MPRnb( VTUN0          ,0.0            ,"V"                                ,"Voltage dependent parameter for tunneling current" )
@@ -643,12 +641,12 @@ endfunction
 `MPRnb( RBODY          ,0.0            ,"ohm/square"                       ,"Intrinsic body contact sheet resistance" )
 `MPRnb( RBSH           ,0.0            ,"ohm/square"                       ,"Extrinsic body contact sheet resistance" )
 `MPRnb( CGEO           ,0.0            ,"F/m"                              ,"Gate substrate overlap capacitance per unit channel length" )
-`MPRnb( TT             ,1e-12          ,"s"                                ,"Diffusion capacitance transit time coefficient" )
+`MPRcz( TT             ,1e-12          ,"s"                                ,"Diffusion capacitance transit time coefficient" )
 `MPRnb( NDIF           ,-1.0           ,""                                 ,"Power coefficient of channel length dependency for diffusion capacitance" )
 `MPRnb( VSDFB          ,0.0            ,"V"                                ,"Source/drain bottom diffusion capacitance flatband voltage" )
 `MPRnb( VSDTH          ,0.0            ,"V"                                ,"Source/drain bottom diffusion capacitance threshold voltage" )
 `MPRnb( CSDMIN         ,0.0            ,"V"                                ,"Source/drain bottom diffusion minimum capacitance" )
-`MPRnb( ASD            ,0.3            ,""                                 ,"Source/drain bottom diffusion smoothing parameter" )
+`MPRoz( ASD            ,0.3            ,""                                 ,"Source/drain bottom diffusion smoothing parameter" )
 `MPRnb( CSDESW         ,0.0            ,"F/m"                              ,"Source/drain sidewall fringing capacitance per unit length" )
 `MPRnb( NTRECF         ,0.0            ,""                                 ,"Temperature coefficient for Nrecf" )
 `MPRnb( NTRECR         ,0.0            ,""                                 ,"Temperature coefficient for Nrecr" )
@@ -675,11 +673,11 @@ endfunction
 `MPRnb( NTOX           ,1              ,""                                 ,"power term of gate current" )
 `MPRcz( TOXREF         ,2.5e-9         ,"m"                                ,"target oxide thickness" )
 `MPRnb( EBG            ,1.2            ,"eV"                               ,"effective bandgap in gate current calculation" )
-`MPRnb( VEVB           ,0.075          ,""                                 ,"Vaux parameter for valence-band electron tunneling" )
+`MPRoz( VEVB           ,0.075          ,""                                 ,"Vaux parameter for valence-band electron tunneling" )
 `MPRnb( ALPHAGB1       ,0.35           ,"1/V"                              ,"First Vox dependent parameter for gate current in inversion" )
 `MPRnb( BETAGB1        ,0.03           ,"1/V^2"                            ,"Second Vox dependent parameter for gate current in inversion" )
 `MPRnb( VGB1           ,300            ,"V"                                ,"Third Vox dependent parameter for gate current in inversion" )
-`MPRnb( VECB           ,0.026          ,""                                 ,"Vaux parameter for conduction-band electron tunneling" )
+`MPRoz( VECB           ,0.026          ,""                                 ,"Vaux parameter for conduction-band electron tunneling" )
 `MPRnb( ALPHAGB2       ,0.43           ,"1/V"                              ,"First Vox dependent parameter for gate current in accumulation" )
 `MPRnb( BETAGB2        ,0.05           ,"1/V^2"                            ,"Second Vox dependent parameter for gate current in accumulation" )
 `MPRnb( VGB2           ,17             ,"V"                                ,"Third Vox dependent parameter for gate current in accumulation" )
@@ -712,7 +710,7 @@ endfunction
 `MPRnb( XRCRG1         ,12.0           ,""                                 ,"First fitting parameter the bias-dependent Rg" )
 `MPRnb( XRCRG2         ,1.0            ,""                                 ,"Second fitting parameter the bias-dependent Rg" )
 `MPRnb( RSHG           ,0.1            ,"ohm/square"                       ,"Gate sheet resistance" )
-`MPRnb( NGCON          ,1.0            ,""                                 ,"Number of gate contacts" )
+`MPRco( NGCON          ,1.0            ,""         ,1           ,inf       ,"Number of gate contacts" )
 `MPRnb( XGW            ,0.0            ,"m"                                ,"Distance from gate contact center to device edge" )
 `MPRnb( XGL            ,0.0            ,"m"                                ,"Variation in Ldrawn" )
 `MPInb( RDSMOD         ,0              ,""                                 ,"Bias-dependent S/D resistance model selector /* v4.0 " )
@@ -2572,33 +2570,47 @@ analog begin : the_module
         if (SHMOD == 0) begin
             if (TNODEOUT == 0) begin //TNODEOUT = 0 starts here.
                 if ($port_connected(p) && $port_connected(b)) begin
-                    V(b) <+ 0;
+                    //V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=0.  The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes from the instance line.");
+                   $finish(1);
                 end else begin
                     if ($port_connected(p)) begin
-                        V(p) <+ 0;
+                       $strobe("Error:  you have specified a P node (5th node) when soimod=2 and TNODEOUT=0.  P node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the 5th node.");
+                       $finish(1);
+                       //V(p) <+ 0;
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 0 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0; //Case 8
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the P and B nodes. With TNODEOUT=1, the fifth node should be the last one and will be used for temperature.");
+                   $finish(1);
+                    // V(b) <+ 0; //Case 8
                 end
             end            //TNODEOUT = 1 for SHMOD = 0 ends here.
         end else begin     //SHMOD = 0 ends here.
             if (TNODEOUT == 0) begin
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (fifth and 6th nodes) when soimod=2, and a temperature node (7th) with TNODEOUT=0.  None of these nodes are used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                   //V(b) <+ 0;
                 end else begin
                     if ($port_connected(p) && $port_connected(b)) begin
-                        V(b) <+ 0;
+                       $strobe("Error:  you have specified P and B nodes (5th and 6th node) when soimod=2 and TNODEOUT=0.  These nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes.");
+                       $finish(1);
+                       //V(b) <+ 0;
                     end else begin
                         if ($port_connected(p)) begin
-                            V(p) <+ 0;
+                           $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                           $finish(1);
+                           //V(p) <+ 0;
                         end
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 1 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a B node (6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The B node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the B node. With TNODEOUT=1, the 6th node should be the last one and will be used for temperature.");
+                   $finish(1);
+                   // V(b) <+ 0;
                 end
             end //TNODEOUT = 1 for SHMOD = 1 ends here.
         end //SHMOD = 1 ends here.
@@ -2666,6 +2678,10 @@ analog begin : the_module
                 $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
             end
         end else begin
+            if ($port_connected(t) == 0 && TNODEOUT==1) begin
+               $strobe("Xyce does not implement the BSIM-SOI 4 model with TNODEOUT and fewer than 7 nodes.  Ignore any subsequent messages regarding node collapse, they are meaningless.");
+               $finish(1);
+            end
             if ($port_connected(b) == 0) begin
                 /* 5-node body tie, bNode has not been assigned */
                 if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
@@ -8131,27 +8147,33 @@ analog begin : the_module
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    I(b) <+ -Ids * Vds  + delTemp / pParam_B4SOIrth;
-                    I(b) <+  ddt(delTemp * pParam_B4SOIcth);
+                    I(b) <+ `MFACTOR_USE*(-Ids * Vds  + delTemp / pParam_B4SOIrth);
+                    I(b) <+  `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else if ($port_connected(p)) begin  // last terminal is 'p'
-                    I(p) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                    I(p) <+ ddt(delTemp * pParam_B4SOIcth);
+                    I(p) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    I(p) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else begin  // 4-terminal mode ('t' is internal)
-                    Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                    Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+                    Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end
             end else begin
-                Pwr(t) <+ -Ids * Vds + delTemp / pParam_B4SOIrth;
-                Pwr(t) <+ ddt(delTemp * pParam_B4SOIcth);
+                Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
             end
         end else begin
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    V(b) <+0;
+                   $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                   // V(b) <+0;
                 end else if ($port_connected(p)) begin // last terminal is 'p'
-                    V(p) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                   $finish(1);
+                   // V(p) <+ 0;
                 end else begin // 4-terminal mode ('t' is internal)
-                    Temp(t) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                   $finish(1);
+                   // Temp(t) <+ 0;
                 end
             end else begin
                 Temp(t) <+ 0;

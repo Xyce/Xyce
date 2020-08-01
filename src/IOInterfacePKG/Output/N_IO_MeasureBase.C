@@ -1229,9 +1229,17 @@ void Base::setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, i
 { 
   if( currentParamIt->getType() == Xyce::Util::STR )
   {
-    // user requested LAST rise/fall/cross in simulation
-    // so measure all of them and just report the last one.
-    rfcVal = -1;
+    ExtendedString lastStr(currentParamIt->stringValue());
+    if (lastStr.toUpper() == "LAST")
+    {
+      // user requested LAST rise/fall/cross in simulation
+      // so measure all of them and just report the last one.
+      rfcVal = -1;
+    }
+    else
+    {
+      Report::UserError0() << "Invalid value for RISE, FALL or CROSS for measure " << name_ ;
+    }
   }
   else
   {

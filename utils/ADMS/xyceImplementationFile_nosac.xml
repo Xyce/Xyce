@@ -11,7 +11,7 @@
       Creation Date: 13 May 2008
 
 
-     Copyright 2002-2020 National Technology & Engineering Solutions of
+     Copyright 2002-2020 National Technology &amp; Engineering Solutions of
      Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
      NTESS, the U.S. Government retains certain rights in this software.
 
@@ -127,7 +127,12 @@
     </admst:if>
   </admst:for-each>
   <admst:message format="Top-level analog/code assigns to %(count(analog/code/@assignedVars)) variables.\n"/>
-
+  <admst:if test="[exists(@optnodes)]">
+    <admst:message format="Module has %(count(@optnodes)) optional nodes:\n"/>
+    <admst:for-each select="@optnodes">
+      <admst:message format="   %(name)\n"/>
+    </admst:for-each>
+  </admst:if>
   <!-- The output proper -->
   <admst:open file="$classname.C">
 //-------------------------------------------------------------------------
@@ -599,16 +604,40 @@ Instance::Instance(
   <admst:text format="    numIntVars = %(xyceNumberInternalNodes(.)) + %(count(/module/@extraUnknowns));\n"/>
   <admst:text format="    numExtVars = %(xyceNumberExternalNodes(.));\n"/>
 
+
+  <admst:if test="[exists(@optnodes)]">
+    portsConnected_.resize(%(xyceNumberExternalNodes(.)),true);
+    if (instance_block.numExtVars &lt; %(xyceNumberExternalNodes(.)))
+    {
+       // some of our optional nodes were not given...
+       for (int i=instance_block.numExtVars ; i&lt;numExtVars; i++)
+       {
+         portsConnected_[i]=false;
+       }
+       numIntVars += (%(xyceNumberExternalNodes(.))-instance_block.numExtVars);
+       numExtVars = instance_block.numExtVars;
+     }
+  </admst:if>
   // Right now, we only have store for limited probes and output vars...
   setNumStoreVars(%(count(@limitedProbes))+%(count(/module/variable[output='yes' and input!='yes'])));
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
-  numBranchDataVarsIfAllocated = %(xyceNumberLeadCurrents(.));
+
+  <admst:choose>
+    <admst:when test="[exists(@optnodes)]">
+      <admst:text format="  numBranchDataVarsIfAllocated = std::min(%(xyceNumberLeadCurrents(.)),numExtVars);\n"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="  numBranchDataVarsIfAllocated = %(xyceNumberLeadCurrents(.));\n"/>
+    </admst:otherwise>
+  </admst:choose>
+
 
   <!-- We always allocate these arrays to be equal to the number of
        external nodes, even if we're only going to use one of them,
-       as in the case of two-terminal devices -->
+       as in the case of two-terminal devices, and even if some are
+       optional nodes that aren't specified -->
   leadCurrentF.resize(%(count(node[grounded='no' and location='external'])));
   leadCurrentQ.resize(%(count(node[grounded='no' and location='external'])));
 
@@ -638,7 +667,29 @@ Instance::Instance(
   <admst:for-each select="node/[#collapsible='yes']">
   if (collapseNode_%(name))
   {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, we only *literally* collapse it if it's not
+  // connected
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
   collapsedNodes.push_back(IntPair(%(xyceNodeConstantName(.)/[name='nodeConstant']/value),%(xyceNodeConstantName(@collapsesTo)/[name='nodeConstant']/value)));
+  <admst:choose>
+    <admst:when test="[exists(#optional) and @collapsesTo/name='GND']">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to ground.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+    </admst:when>
+    <admst:when test="[exists(#optional)]">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to %(@collapsesTo/name), but this is not possible, so we're not actually doing it.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+    </admst:when>
+  </admst:choose>
   }
   </admst:for-each>
 </admst:if>
@@ -693,7 +744,16 @@ void Instance::collapseNodes()
   <admst:for-each select="node/[#collapsible='yes']">
   if (collapseNode_%(name))
   {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, and is external if it's connected --- so don't
+  // decrement the internal node count!
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
     numIntVars--;
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  }
+  </admst:if>
   }
   </admst:for-each>
 }
@@ -755,8 +815,27 @@ void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
   // Use the node mapping created by createJacStampAndMaps to handle
   // all the node collapse complications.
 
+  <!-- Note:  Here we don't care if the external node is optional.  We
+       are taking care of that in the setting of the localLIDVec -->
+  <!-- for the moment, we'll forbid collapsing external nodes to anything
+       even if they're just optional nodes.  This might be a problem.  -->
   <admst:for-each select="node[grounded='no' and location='external']">
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+          <!-- even though this node is external, its node has been mapped
+               to ground *and* we never, ever use this LID.  So we don't 
+               need to check portsConnected_ -->
+          <admst:text format="  if (collapseNode_%(name))\n"/>
+          <admst:text format="  {\n    %(xyceNodeLIDVariable(.)) = -1;\n  }\n"/>
+          <admst:text format="  else\n  {\n"/>
+      </admst:if>
+    </admst:if>
     <admst:text format="  %(xyceNodeLIDVariable(.)) = localLIDVec[nodeMap[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)]];\n"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+        <admst:text format="  }\n"/>
+      </admst:if>
+    </admst:if>
   </admst:for-each>
 
   <admst:for-each select="node[grounded='no' and location='internal']">
@@ -807,6 +886,17 @@ void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
 //-----------------------------------------------------------------------------
 void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
 {
+  <admst:for-each select="node[grounded='no' and location='external' and exists(#optional)]">
+      <admst:text format="\n    if (!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    if (!collapseNode_%(name))\n    {"/>
+    </admst:if>
+    addInternalNode(symbol_table, %(xyceNodeLIDVariable(.)), getName(), &quot;%(name)&quot;);
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    }"/>
+    </admst:if>
+    <admst:text format="\n    }"/>
+  </admst:for-each>
   <admst:for-each select="node[grounded='no' and location='internal']">
     <admst:if test="[exists(#collapsible) and #collapsible='yes']">
       <admst:text format="\n    if (!collapseNode_%(name))\n    {"/>
@@ -827,9 +917,10 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
 
   if (loadLeadCurrent)
   {
+
   <admst:choose>
     <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
-      addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_D&quot;);
+      <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_D&quot;);\n"/>
     </admst:when>
     <admst:otherwise>
       <!-- and here we have to do special things for MOSFETS and BJTs. -->
@@ -837,30 +928,43 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
         <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and ($theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET' or $theModule/attribute[name='xyceModelGroup']/value='BJT')]">
           <admst:choose>
             <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET']">
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DD&quot;);
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DG&quot;);
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DS&quot;);
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DD&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DG&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DS&quot;);\n"/>
             </admst:when>
             <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='BJT']">
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DC&quot;);
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DB&quot;);
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DE&quot;);
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DC&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DB&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DE&quot;);\n"/>
             </admst:when>
           </admst:choose>
           <admst:for-each select="$theModule/node[grounded='no' and location='external']">
             <admst:if test="[position(.) > 3]">
-              addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);
+              <admst:if test="[exists(#optional)]">
+                <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+              </admst:if>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+              <admst:if test="[exists(#optional)]">
+                <admst:text format="    }\n"/>
+              </admst:if>
             </admst:if>
           </admst:for-each>
         </admst:when>
         <admst:otherwise>
           <admst:for-each select="$theModule/node[grounded='no' and location='external']">
-            addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);
+            <admst:if test="[exists(#optional)]">
+              <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+            </admst:if>
+            <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+            <admst:if test="[exists(#optional)]">
+              <admst:text format="    }\n"/>
+            </admst:if>
           </admst:for-each>
         </admst:otherwise>
       </admst:choose>
     </admst:otherwise>
   </admst:choose>
+
   }
 }
 
@@ -907,17 +1011,24 @@ void Instance::registerBranchDataLIDs(const std::vector&lt;int&gt; &amp; branchL
 
   if (loadLeadCurrent)
   {
+
     <!-- two-terminal devices are special, we only use one of the
          two possible lead currents, the first one. -->
     <admst:choose>
       <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
         <!-- The first node is always GND -->
-        %(xyceLeadBranchLIDVariable($theModule/node[2])) = branchLIDVecRef[0];
+        <admst:text format="    %(xyceLeadBranchLIDVariable($theModule/node[2])) = branchLIDVecRef[0];\n"/>
       </admst:when>
       <admst:otherwise>
-        int i = 0;
+        <admst:text format="    int i = 0;\n"/>
         <admst:for-each select="node[grounded='no' and location='external']">
-          %(xyceLeadBranchLIDVariable(.)) = branchLIDVecRef[i++];
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    %(xyceLeadBranchLIDVariable(.)) = branchLIDVecRef[i++];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
         </admst:for-each>
       </admst:otherwise>
     </admst:choose>
@@ -1027,14 +1138,21 @@ bool Instance::loadDAEFVector()
 
     <admst:choose>
       <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
-        leadF[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentF[0];
+        <admst:text format="    leadF[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentF[0];\n"/>
       </admst:when>
       <admst:otherwise>
         <admst:for-each select="$theModule/node[grounded='no' and location='external']">
-          leadF[%(xyceLeadBranchLIDVariable(.))] = leadCurrentF[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    leadF[%(xyceLeadBranchLIDVariable(.))] = leadCurrentF[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
         </admst:for-each>
       </admst:otherwise>
     </admst:choose>
+
 
     // here we have to do special things for BJTs, MOSFETs and 2-terminal
     // devices for power computation.
@@ -1109,14 +1227,21 @@ bool Instance::loadDAEQVector()
 
     <admst:choose>
       <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
-        leadQ[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentQ[0];
+        <admst:text format="    leadQ[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentQ[0];\n"/>
       </admst:when>
       <admst:otherwise>
         <admst:for-each select="$theModule/node[grounded='no' and location='external']">
-          leadQ[%(xyceLeadBranchLIDVariable(.))] = leadCurrentQ[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    leadQ[%(xyceLeadBranchLIDVariable(.))] = leadCurrentQ[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
         </admst:for-each>
       </admst:otherwise>
     </admst:choose>
+
   }
   return true;
 }
@@ -2410,6 +2535,13 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 <admst:text format="void evaluateInitialInstance(\n"/>
 <admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
 <admst:text format="modelSensStruct &amp; modelStruct,\n"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:join select="node[grounded='no']" separator=",\n">
+    <admst:text format="const int "/>
+    <admst:text format="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+</admst:if>
 <admst:text format=" double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
 <admst:text format="{\n"/>
 <admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_instance']">
@@ -2759,6 +2891,12 @@ Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
   <admst:text format="evaluateInitialInstance(\n"/>
   <admst:text format="instanceStruct,\n"/>
   <admst:text format="modelStruct,\n"/>
+  <admst:if test="[exists(@optnodes)]">
+    <admst:join select="node[grounded='no']" separator=",\n">
+      <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    </admst:join>
+    <admst:text format=",\n in.portsConnected_,\n"/>
+  </admst:if>
   <admst:text format="in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
 </admst:if>
 
@@ -2792,6 +2930,9 @@ probeVars,
 </admst:if>
 <admst:variable name="globalDeclareVars" select="no"/>
 <admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format="in.portsConnected_,\n"/>
+</admst:if>
 <admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
 
 // We now have the F and Q vector stuff, populate the dependencies:
@@ -3096,6 +3237,12 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
     <admst:text format="evaluateInitialInstance(\n"/>
     <admst:text format="instanceStruct,\n"/>
     <admst:text format="modelStruct,\n"/>
+    <admst:if test="[exists(@optnodes)]">
+      <admst:join select="node[grounded='no']" separator=",\n">
+        <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+      </admst:join>
+      <admst:text format=",\n in.portsConnected_,\n"/>
+    </admst:if>
     <admst:text format="in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
   </admst:if>
 
@@ -3130,6 +3277,9 @@ probeVars,
 </admst:if>
 <admst:variable name="globalDeclareVars" select="no"/>
 <admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format=" in.portsConnected_,\n"/>
+</admst:if>
 <admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
 
   // We now have the F and Q vector stuff, populate the dependencies:

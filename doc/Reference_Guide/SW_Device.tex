@@ -11,7 +11,7 @@
 \begin{Device}
 
 \device
-SW<name> <(+) switch node> <(-) switch node> <model name> [ON] [OFF] <control = { expression }>
+S<name> <(+) switch node> <(-) switch node> <model name> [ON] [OFF] <control = { expression }>
 
 \model
 \begin{alltt}
@@ -22,9 +22,9 @@ SW<name> <(+) switch node> <(-) switch node> <model name> [ON] [OFF] <control = 
 
 \examples
 \begin{alltt}
-SW 1 2 SWI OFF CONTROL=\{I(VMON)\}
-SW 1 2 SWV OFF CONTROL=\{V(3)-V(4)\}
-SW 1 2 SW OFF CONTROL=\{if(time>0.001,1,0)\}
+S1 1 2 SWI OFF CONTROL=\{I(VMON)\}
+SW2 1 2 SWV OFF CONTROL=\{V(3)-V(4)\}
+S3 1 2 SW OFF CONTROL=\{if(time>0.001,1,0)\}
 \end{alltt}
 
 \comments
@@ -35,6 +35,10 @@ as an expression.  The examples show how a voltage- or
 current-controlled switch can be implemented with the generic switch.
 Also shown is a relay that turns on when a certain time is reached.
 Model parameters are given in Table ~\ref{S_1_Device_Model_Params}.
+
+The voltage- and current-controlled switch syntaxes are converted at
+parse time to their equivalent generic device, and so all three
+variants in fact use the same code internally.
 
 The power dissipated in the generic switch is calculated with $I \cdot \Delta V$ 
 where the voltage drop is calculated as $(V_+ - V_-)$ and positive current 

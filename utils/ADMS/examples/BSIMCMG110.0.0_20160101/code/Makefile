@@ -28,5 +28,4 @@ N_DEV_ADMSbsimcmg_110.h N_DEV_ADMSbsimcmg_110.C: bsimcmg.va $(XyceADMSFILES) $(B
 	sed -e 's|\([TLA]\)_|\1\\_|g' < M_110_OutputVars.tex_borken > M_110_OutputVars.tex
 	rm M_110_OutputVars.tex_borken
 #	emacs N_DEV_ADMSbsimcmg_110.C --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
-	emacs N_DEV_ADMSbsimcmg_110.h --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
-	patch -l < make_bsimcmg_usable.diff
+#	emacs N_DEV_ADMSbsimcmg_110.h --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer

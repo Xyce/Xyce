@@ -125,44 +125,12 @@ void Stats::updateTran(
       solnVec, stateVec, storeVec, 0, lead_current_vector,
       junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0 ,0);
 
-    // Need to set lastOutputValue_ variable to the current signal value
-    // at the first time-step within the measurement window.  (That
-    // window is set by the TO-FROM and TD qualifiers if present.)  This is 
-    // needed so that the RISE/FALL/CROSS count is not incremented at time=0, if
-    // the measured waveform has a DC offset at time=0  
-    if (!firstStepInMeasureWindow_)
+    if( initialized_ )
     {
-      lastOutputValue_ = outVarValues_[0];
-      firstStepInMeasureWindow_ = true;
+      updateMeasureVars(circuitTime, outVarValues_[0]);
     }
 
-    // rfcLevel_ has a default to 0.0 if RFC_LEVEL qualifier is not specified
-    if( withinRiseFallCrossWindow( outVarValues_[0], rfcLevel_ ) )
-    {
-      // If LAST was specified then this is done
-      // each time a new RFC window is entered.
-      if( newRiseFallCrossWindowforLast() )
-      {
-        setMeasureVarsForNewWindow();
-        firstStepInRfcWindow_ = false;
-      }
-
-      // record the start and end times of the RFC window
-      if( !firstStepInRfcWindow_  )
-      {
-        firstStepInRfcWindow_ = true;
-        rfcWindowFound_ = true;
-        rfcWindowStartTime_ = circuitTime;
-      }
-      rfcWindowEndTime_ = circuitTime;
-
-      if( initialized_ )
-      {
-        updateMeasureVars(circuitTime, outVarValues_[0]);
-      }
-
-      updateMeasureState(circuitTime, outVarValues_[0]);
-    }
+    updateMeasureState(circuitTime, outVarValues_[0]);
   }
 }
 

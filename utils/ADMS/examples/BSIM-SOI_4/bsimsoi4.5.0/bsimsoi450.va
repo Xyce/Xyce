@@ -97,10 +97,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         B = exp(A); \
     end
 
-//`define PORT_CONNECTED
+`define PORT_CONNECTED
 `ifdef PORT_CONNECTED
 
-	module bsimsoi(d, g, s, e, p, b, t);
+	module bsimsoi450(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70450" xyceDeviceName="BSIM-SOI 4.5.0" xyceTypeVariable="TYPE" *) ;
 	inout      g, d, s, e, p, b, t;
 `else
 
@@ -153,20 +153,20 @@ parameter integer BJTOFF   = 0 (*type="instance" xyceAlsoModel="yes"*); // BJT o
 parameter integer DEBUG    = 0; // DEBUG on/off flag
 parameter real RTH0     = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Instance Thermal Resistance
 parameter real CTH0     = 1e-5 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Instance Thermal Capacitance
-parameter real NRB      = 1.0 (*type="instance" xyceAlsoModel="yes"*); // Number of squares in body
+parameter real NRB      = 1.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Number of squares in body
 parameter real FRBODY   = 1.0 (*type="instance" xyceAlsoModel="yes"*); // layout dependent body-resistance coefficient
 parameter real RBDB     = 50.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Body resistance
 parameter real RBSB     = 50.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Body resistance
 parameter real DELVTO   = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Zero bias threshold voltage variation
 parameter integer SOIMOD   = 0 from [0:3] (*type="instance" xyceAlsoModel="yes"*); // Instance model selector for PD/FD operation /* v3.2 */
-parameter real NBC      = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Number of body contact isolation edge
-parameter real NSEG     = 1 (*type="instance" xyceAlsoModel="yes"*); // Number segments for width partitioning
-parameter real PDBCP    = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at drain side
-parameter real PSBCP    = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at source side
-parameter real AGBCP    = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Gate to body overlap area for bc parasitics
-parameter real AGBCP2   = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC */
-parameter real AGBCPD   = AGBCP (*type="instance" xyceAlsoModel="yes"*); // Gate to body overlap area for bc parasitics in DC
-parameter real AEBCP    = 0.0 (*type="instance" xyceAlsoModel="yes"*); // Substrate to body overlap area for bc parasitics
+parameter real NBC      = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Number of body contact isolation edge
+parameter real NSEG     = 1 from [1:inf) (*type="instance" xyceAlsoModel="yes"*); // Number segments for width partitioning
+parameter real PDBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at drain side
+parameter real PSBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Perimeter length for bc parasitics at source side
+parameter real AGBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Gate to body overlap area for bc parasitics
+parameter real AGBCP2   = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC */
+parameter real AGBCPD   = AGBCP from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Gate to body overlap area for bc parasitics in DC
+parameter real AEBCP    = 0.0 from [0:inf) (*type="instance" xyceAlsoModel="yes"*); // Substrate to body overlap area for bc parasitics
 parameter real VBSUSR   = 0.0; // Vbs specified by user
 parameter integer TNODEOUT = 0 from [0:1] (*type="instance"*); // Flag indicating external temp node
 parameter integer RGATEMOD = 0 from [0:3]; // Gate resistance model selector
@@ -177,14 +177,14 @@ parameter integer GIDLMOD  = 0; // parameter for GIDL selector
 parameter integer IIIMOD   = 0; // parameter for III selector
 parameter real EOT      = 100.0e-10; // Effective SiO2 thickness
 parameter real EPSROX   = 3.9; // Dielectric constant of the gate oxide relative to vacuum
-parameter real EPSRSUB  = 11.7; // Dielectric constant of substrate relative to vacuum
+parameter real EPSRSUB  = 11.7 from (0:inf); // Dielectric constant of substrate relative to vacuum
 parameter real NI0SUB   = 1.45e10; // Intrinsic carrier concentration of substrate at Tnom
 parameter real BG0SUB   = 1.16; // Band-gap of substrate at T=0K
 parameter real TBGASUB  = 7.02e-4; // First parameter of band-gap change due to temperature
 parameter real TBGBSUB  = 1108.0; // Second parameter of band-gap change due to temperature
 parameter real PHIG     = 4.05; // Work function of gate
 parameter real EASUB    = 4.05; // Electron affinity of substrate
-parameter real LEFFEOT  = 1.0; // Effective length for extraction of EOT
+parameter real LEFFEOT  = 1.0 from (0:inf); // Effective length for extraction of EOT
 parameter real WEFFEOT  = 10.0; // Effective width for extraction of EOT
 parameter real VDDEOT   = (TYPE == `NMOS) ? 1.5 : -1.5; // Voltage for extraction of EOT
 parameter real TEMPEOT  = 300.15; // Temperature for extraction of EOT
@@ -204,17 +204,17 @@ parameter real CDSCB    = 0.0; // Body-bias dependence of cdsc
 parameter real CDSCD    = 0.0; // Drain-bias dependence of cdsc
 parameter real CIT      = 0.0; // Interface state capacitance
 parameter real NFACTOR  = 1; // Subthreshold swing Coefficient
-parameter real VSAT     = 8.0e4; // Saturation velocity at tnom
+parameter real VSAT     = 8.0e4 from (0:inf); // Saturation velocity at tnom
 parameter real AT       = 3.3e4; // Temperature coefficient of vsat
 parameter real A0       = 1.0; // Non-uniform depletion width effect coefficient.
 parameter real AGS      = 0.0; // Gate bias  coefficient of Abulk.
 parameter real A1       = 0.0; // Non-saturation effect coefficient
 parameter real A2       = 1.0; // Non-saturation effect coefficient
 parameter real KETA     = -0.6; // Body-bias coefficient of non-uniform depletion width effect.
-parameter real NSUB     = 6.0e16; // Substrate doping concentration with polarity
-parameter real NCH      = 1.7e17; // Channel doping concentration
-parameter real NGATE    = 0.0; // Poly-gate doping concentration
-parameter real NSD      = 1.0e20; // S/D doping concentration
+parameter real NSUB     = 6.0e16 from (0:inf); // Substrate doping concentration with polarity
+parameter real NCH      = 1.7e17 from (0:inf); // Channel doping concentration
+parameter real NGATE    = 0.0 from [0:inf); // Poly-gate doping concentration
+parameter real NSD      = 1.0e20 from (0:inf); // S/D doping concentration
 parameter real GAMMA1   = 0.0; // Vth body coefficient
 parameter real GAMMA2   = 0.0; // Vth body coefficient
 parameter real VBX      = 0.0; // Vth transition body Voltage
@@ -255,16 +255,16 @@ parameter real UD       = 0.0; // Coulomb scattering factor of mobility
 parameter real UD1      = 0.0; // Temperature coefficient of ud
 parameter real VOFF     = -0.08; // Threshold voltage offset
 parameter real TNOM     = 27.0; // Parameter measurement temperature
-parameter real CGSO     = 0.0; // Gate-source overlap capacitance per width
-parameter real CGDO     = 0.0; // Gate-drain overlap capacitance per width
+parameter real CGSO     = 0.0 from [0:inf); // Gate-source overlap capacitance per width
+parameter real CGDO     = 0.0 from [0:inf); // Gate-drain overlap capacitance per width
 parameter real XPART    = 0.0; // Channel charge partitioning
 parameter real DELTA    = 0.01; // Effective Vds parameter
-parameter real RSH      = 0.0; // Source-drain sheet resistance
-parameter real RDSW     = 100; // Source-drain resistance per width
-parameter real RSW      = 50; // Source resistance per width /* v4.0 */
-parameter real RDW      = 50; // Drain resistance per width /* v4.0 */
-parameter real RSWMIN   = 0.0; // Source resistance per width at high Vg
-parameter real RDWMIN   = 0.0; // Drain resistance per width at hight Vg
+parameter real RSH      = 0.0 from [0:inf); // Source-drain sheet resistance
+parameter real RDSW     = 100 from [0:inf); // Source-drain resistance per width
+parameter real RSW      = 50 from [0:inf); // Source resistance per width /* v4.0 */
+parameter real RDW      = 50 from [0:inf); // Drain resistance per width /* v4.0 */
+parameter real RSWMIN   = 0.0 from [0:inf); // Source resistance per width at high Vg
+parameter real RDWMIN   = 0.0 from [0:inf); // Drain resistance per width at hight Vg
 parameter real PRWG     = 0.0; // Gate-bias effect on parasitic resistance
 parameter real PRWB     = 0.0; // Body-effect on parasitic resistance
 parameter real PRT      = 0.0; // Temperature coefficient of parasitic resistance
@@ -278,10 +278,10 @@ parameter real PDIBLC2  = 0.0086; // Drain-induced barrier lowering coefficient
 parameter real PDIBLCB  = 0.0; // Body-effect on drain-induced barrier lowering
 parameter real PVAG     = 0.0; // Gate dependence of output resistance parameter
 parameter integer SHMOD    = 0 (*type="instance" xyceAlsoModel="yes"*); // Self heating mode selector
-parameter real TBOX     = 3e-7; // Back gate oxide thickness in meters
-parameter real TSI      = 1e-7; // Silicon-on-insulator thickness in meters
-parameter real ETSI     = 1e-7; // Effective Silicon-on-insulator thickness in meters
-parameter real XJ       = TSI; // Junction Depth
+parameter real TBOX     = 3e-7 from (0:inf); // Back gate oxide thickness in meters
+parameter real TSI      = 1e-7 from (0:inf); // Silicon-on-insulator thickness in meters
+parameter real ETSI     = 1e-7 from (0:inf); // Effective Silicon-on-insulator thickness in meters
+parameter real XJ       = TSI from (0:inf); // Junction Depth
 parameter real AGIDL    = 0.0; // GIDL second parameter
 parameter real BGIDL    = 2.3e9; // GIDL third parameter
 parameter real CGIDL    = 0.5; // GIDL vb parameter
@@ -307,8 +307,8 @@ parameter real PBSWG    = 0.7; // Source(gate side) sidewall junction capacitanc
 parameter real PBSWGD   = PBSWG; // Drain(gate side) sidewall junction capacitance built in potential /* v4.0 */
 parameter real MJSWG    = 0.5; // Source (gate side) sidewall junction capacitance grading coefficient /* v4.0 */
 parameter real MJSWGD   = MJSWG; // Drain (gate side) sidewall junction capacitance grading coefficient /* v4.0 */
-parameter real CJSWG    = 1e-10; // Source(gate side) sidewall junction capacitance per unit width /* v4.0 */
-parameter real CJSWGD   = CJSWG; // Drain (gate side) sidewall junction capacitance per unit width /* v4.0 */
+parameter real CJSWG    = 1e-10 from (0:inf); // Source(gate side) sidewall junction capacitance per unit width /* v4.0 */
+parameter real CJSWGD   = CJSWG from (0:inf); // Drain (gate side) sidewall junction capacitance per unit width /* v4.0 */
 parameter real LINT     = 0.0; // Length reduction parameter
 parameter real LL       = 0.0; // Length reduction parameter
 parameter real LLC      = 0.0; // Length reduction parameter /* v2.2.3 */
@@ -334,7 +334,7 @@ parameter real B0       = 0.0; // Abulk narrow width parameter
 parameter real B1       = 0.0; // Abulk narrow width parameter
 parameter real CGSL     = 0.0; // New C-V model parameter
 parameter real CGDL     = 0.0; // New C-V model parameter
-parameter real CKAPPA   = 0.6; // New C-V model parameter
+parameter real CKAPPA   = 0.6 from (0:inf); // New C-V model parameter
 parameter real CF       = 0.0; // Fringe capacitance parameter
 parameter real CLC      = 0.1e-7; // Vdsat parameter for C-V model
 parameter real CLE      = 0.0; // Vdsat parameter for C-V model
@@ -451,21 +451,21 @@ parameter real ABJTII   = 0.0; // Exponent factor for avalanche current
 parameter real MBJTII   = 0.4; // Internal B-C grading coefficient
 parameter real TVBCI    = 0.0; // Temperature coefficient for VBCI
 parameter real ESATII   = 1e7; // Saturation electric field for impact ionization
-parameter real NTUN     = 10.0; // Reverse tunneling non-ideality factor
-parameter real NTUND    = NTUN; // Reverse tunneling non-ideality factor
-parameter real NRECF0   = 2.0; // Recombination non-ideality factor at forward bias
-parameter real NRECF0D  = NRECF0; // Recombination non-ideality factor at forward bias
-parameter real NRECR0   = 10.0; // Recombination non-ideality factor at reversed bias
-parameter real NRECR0D  = NRECR0; // Recombination non-ideality factor at reversed bias
-parameter real ISBJT    = 1e-6; // BJT injection saturation current
-parameter real IDBJT    = ISBJT; // BJT injection saturation current
-parameter real ISDIF    = 0.0; // Body to source/drain injection saturation current
-parameter real IDDIF    = ISDIF; // Body to source/drain injection saturation current /* v4.0 */
-parameter real ISREC    = 1e-5; // Recombination in depletion saturation current
-parameter real IDREC    = ISREC; // Recombination in depletion saturation current
-parameter real ISTUN    = 0.0; // Reverse tunneling saturation current
-parameter real IDTUN    = ISTUN; // Reverse tunneling saturation current
-parameter real LN       = 2e-6; // Electron/hole diffusion length
+parameter real NTUN     = 10.0 from [0:inf); // Reverse tunneling non-ideality factor
+parameter real NTUND    = NTUN from [0:inf); // Reverse tunneling non-ideality factor
+parameter real NRECF0   = 2.0 from [0:inf); // Recombination non-ideality factor at forward bias
+parameter real NRECF0D  = NRECF0 from [0:inf); // Recombination non-ideality factor at forward bias
+parameter real NRECR0   = 10.0 from [0:inf); // Recombination non-ideality factor at reversed bias
+parameter real NRECR0D  = NRECR0 from [0:inf); // Recombination non-ideality factor at reversed bias
+parameter real ISBJT    = 1e-6 from [0:inf); // BJT injection saturation current
+parameter real IDBJT    = ISBJT from [0:inf); // BJT injection saturation current
+parameter real ISDIF    = 0.0 from [0:inf); // Body to source/drain injection saturation current
+parameter real IDDIF    = ISDIF from [0:inf); // Body to source/drain injection saturation current /* v4.0 */
+parameter real ISREC    = 1e-5 from [0:inf); // Recombination in depletion saturation current
+parameter real IDREC    = ISREC from [0:inf); // Recombination in depletion saturation current
+parameter real ISTUN    = 0.0 from [0:inf); // Reverse tunneling saturation current
+parameter real IDTUN    = ISTUN from [0:inf); // Reverse tunneling saturation current
+parameter real LN       = 2e-6 from [0:inf); // Electron/hole diffusion length
 parameter real VREC0    = 0.0; // Voltage dependent parameter for recombination current
 parameter real VREC0D   = VREC0; // Voltage dependent parameter for recombination current
 parameter real VTUN0    = 0.0; // Voltage dependent parameter for tunneling current
@@ -480,12 +480,12 @@ parameter real AHLID    = AHLI; // High level injection parameter for bipolar cu
 parameter real RBODY    = 0.0; // Intrinsic body contact sheet resistance
 parameter real RBSH     = 0.0; // Extrinsic body contact sheet resistance
 parameter real CGEO     = 0.0; // Gate substrate overlap capacitance per unit channel length
-parameter real TT       = 1e-12; // Diffusion capacitance transit time coefficient
+parameter real TT       = 1e-12 from [0:inf); // Diffusion capacitance transit time coefficient
 parameter real NDIF     = -1.0; // Power coefficient of channel length dependency for diffusion capacitance
 parameter real VSDFB    = 0.0; // Source/drain bottom diffusion capacitance flatband voltage
 parameter real VSDTH    = 0.0; // Source/drain bottom diffusion capacitance threshold voltage
 parameter real CSDMIN   = 0.0; // Source/drain bottom diffusion minimum capacitance
-parameter real ASD      = 0.3; // Source/drain bottom diffusion smoothing parameter
+parameter real ASD      = 0.3 from (0:inf); // Source/drain bottom diffusion smoothing parameter
 parameter real CSDESW   = 0.0; // Source/drain sidewall fringing capacitance per unit length
 parameter real NTRECF   = 0.0; // Temperature coefficient for Nrecf
 parameter real NTRECR   = 0.0; // Temperature coefficient for Nrecr
@@ -511,11 +511,11 @@ parameter real RHALO    = 1e15; // body halo sheet resistance
 parameter real NTOX     = 1; // power term of gate current
 parameter real TOXREF   = 2.5e-9 from [0:inf); // target oxide thickness
 parameter real EBG      = 1.2; // effective bandgap in gate current calculation
-parameter real VEVB     = 0.075; // Vaux parameter for valence-band electron tunneling
+parameter real VEVB     = 0.075 from (0:inf); // Vaux parameter for valence-band electron tunneling
 parameter real ALPHAGB1 = 0.35; // First Vox dependent parameter for gate current in inversion
 parameter real BETAGB1  = 0.03; // Second Vox dependent parameter for gate current in inversion
 parameter real VGB1     = 300; // Third Vox dependent parameter for gate current in inversion
-parameter real VECB     = 0.026; // Vaux parameter for conduction-band electron tunneling
+parameter real VECB     = 0.026 from (0:inf); // Vaux parameter for conduction-band electron tunneling
 parameter real ALPHAGB2 = 0.43; // First Vox dependent parameter for gate current in accumulation
 parameter real BETAGB2  = 0.05; // Second Vox dependent parameter for gate current in accumulation
 parameter real VGB2     = 17; // Third Vox dependent parameter for gate current in accumulation
@@ -548,7 +548,7 @@ parameter real MOINFD   = 1e3; // Coefficient for the gate-bias dependent surfac
 parameter real XRCRG1   = 12.0; // First fitting parameter the bias-dependent Rg
 parameter real XRCRG2   = 1.0; // Second fitting parameter the bias-dependent Rg
 parameter real RSHG     = 0.1; // Gate sheet resistance
-parameter real NGCON    = 1.0; // Number of gate contacts
+parameter real NGCON    = 1.0 from [1:inf); // Number of gate contacts
 parameter real XGW      = 0.0; // Distance from gate contact center to device edge
 parameter real XGL      = 0.0; // Variation in Ldrawn
 parameter integer RDSMOD   = 0; // Bias-dependent S/D resistance model selector /* v4.0 */
@@ -2395,6 +2395,7 @@ analog begin : the_module
              B4SOIsoiMod = 1;
 
 `ifdef PORT_CONNECTED
+`ifndef __XYCE__
     if (B4SOIsoiMod == 2) begin /* v3.2 */
         // here->B4SOIbNode = here->B4SOIpNode = 0;
         B4SOIbodyMod = 0;
@@ -2408,6 +2409,10 @@ analog begin : the_module
                 $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
             end
         end else begin
+            if ($port_connected(t) == 0 && TNODEOUT==1) begin
+               $strobe("Xyce does not implement the BSIM-SOI 4 model with TNODEOUT and fewer than 7 nodes.  Ignore any subsequent messages regarding node collapse, they are meaningless.");
+               $finish(1);
+            end
             if ($port_connected(b) == 0) begin
                 /* 5-node body tie, bNode has not been assigned */
                 if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
@@ -2435,7 +2440,100 @@ analog begin : the_module
     if (TNODEOUT && $port_connected(t) == 0) begin
         $strobe("Warning: tnodeout !=0 but terminal 't' is not connected.");
     end
-`else
+`else // __XYCE__
+    // This is the port_connected stuff from 4.6.1, because Xyce
+    // cannot possibly do what 4.5.0 tries to do (Xyce can only handle
+    // optional nodes in order --- one cannot have "t" connected without
+    // both p and b being connected, and so forth.  4.5.0 assumes that
+    // one can tell the difference between 5-node with t connected and 5-node
+    // with p connected. 4.6.1 doesn't make that mistake.
+    // None of the NODECHK stuff has been copied
+    if (B4SOIsoiMod == 2) begin /* v3.2 */
+       if (SHMOD == 0) begin
+          if (TNODEOUT == 0) begin //TNODEOUT = 0 starts here.
+             if ($port_connected(p) && $port_connected(b)) begin
+                //V(b) <+ 0;
+                $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=0.  The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes from the instance line.");
+                $finish(1);
+             end else begin
+                if ($port_connected(p)) begin
+                   $strobe("Error:  you have specified a P node (5th node) when soimod=2 and TNODEOUT=0.  P node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the 5th node.");
+                   $finish(1);
+                   //V(p) <+ 0;
+                end
+             end
+          end else begin //TNODEOUT = 0 for SHMOD = 0 ends here.
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the P and B nodes. With TNODEOUT=1, the fifth node should be the last one and will be used for temperature.");
+                $finish(1);
+                // V(b) <+ 0; //Case 8
+             end
+          end            //TNODEOUT = 1 for SHMOD = 0 ends here.
+       end else begin     //SHMOD = 0 ends here.
+          if (TNODEOUT == 0) begin
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a P and B node (fifth and 6th nodes) when soimod=2, and a temperature node (7th) with TNODEOUT=0.  None of these nodes are used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 6th node.");
+                $finish(1);
+                //V(b) <+ 0;
+             end else begin
+                if ($port_connected(p) && $port_connected(b)) begin
+                   $strobe("Error:  you have specified P and B nodes (5th and 6th node) when soimod=2 and TNODEOUT=0.  These nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes.");
+                   $finish(1);
+                   //V(b) <+ 0;
+                end else begin
+                   if ($port_connected(p)) begin
+                      $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                      $finish(1);
+                      //V(p) <+ 0;
+                   end
+                end
+             end
+          end else begin //TNODEOUT = 0 for SHMOD = 1 ends here.
+             if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
+                $strobe("Error:  you have specified a B node (6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The B node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the B node. With TNODEOUT=1, the 6th node should be the last one and will be used for temperature.");
+                $finish(1);
+                // V(b) <+ 0;
+             end
+          end //TNODEOUT = 1 for SHMOD = 1 ends here.
+       end //SHMOD = 1 ends here.
+       // here->B4SOIbNode = here->B4SOIpNode = 0;
+       B4SOIbodyMod = 0;
+       /* For ideal FD, body contact is disabled and no body node */
+    end else begin
+       if ($port_connected(p) == 0) begin /* floating body case -- 4-node */
+          // here->B4SOIbNode = tmp->number;
+          // here->B4SOIpNode = 0;
+          B4SOIbodyMod = 0;
+          if ($port_connected(b)) begin
+             $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
+          end
+       end else begin
+          if ($port_connected(b) == 0) begin
+             /* 5-node body tie, bNode has not been assigned */
+             if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
+                /* ideal body tie, pNode is not used */
+                // here->B4SOIbNode = here->B4SOIpNode;
+                B4SOIbodyMod = 2;
+             end else begin
+                /* nonideal body tie */
+                // here->B4SOIbNode = tmp->number;
+                B4SOIbodyMod = 1;
+             end
+          end else begin
+             /* 6-node body tie, bNode has been assigned */
+             if ((B4SOIrbody == 0.0) && (B4SOIrbsh == 0.0)) begin
+                $strobe("Warning: model parameter rbody=0!");
+                B4SOIrbody = 1e0;
+                B4SOIbodyMod = 1;
+             end else begin
+                /* nonideal body tie */
+                B4SOIbodyMod = 1;
+             end
+          end
+       end
+    end
+`endif
+`else // PORT_CONNECTED
     // assume only d,g,s,e terminals connected
     B4SOIbodyMod = 0;
 `endif
@@ -4113,10 +4211,36 @@ analog begin : the_module
 
 
     /*  Calculate temperature dependent values for self-heating effect  */
+   // For Xyce, we copy out what BSIM-SOI 4.6.1 does
+`ifndef __XYCE__
     if ((SHMOD == 1) && (RTH0 != 0.0))
         delTemp = Temp(t);
     else
         delTemp = 0;
+`else // __XYCE__
+ `ifdef PORT_CONNECTED
+   if ((SHMOD ==1) && (RTH0 !=0.0)) begin
+      if (TNODEOUT && !$port_connected(t)) begin
+         if ($port_connected(b)) begin       //last terminal is 'b'
+            delTemp = V(b);
+         end else if ($port_connected(p)) begin      //last terminal is 'p'
+            delTemp = V(p);
+         end else begin      // 4-terminal mode ('t' is internal)
+            delTemp = Temp(t);
+         end
+      end else begin
+         delTemp = Temp(t);
+      end
+   end else begin
+      delTemp = 0;
+   end
+ `else
+   if ((SHMOD == 1) && (RTH0 != 0.0))
+     delTemp = Temp(t);
+   else
+     delTemp = 0;
+ `endif // PORT_CONNECTED
+`endif // __XYCE__
 
 `ifdef __XYCE__
     DevTemp = $temperature + DTEMP;
@@ -7771,6 +7895,9 @@ analog begin : the_module
             V(b, si) <+ 0;
 
         // self-heating network
+       // XYCE:  Copied out what BSIM-SOI 4.6.1 does, because this won't
+       // work with optional nodes
+`ifndef __XYCE__
         if ((SHMOD == 1) && (RTH0 != 0.0))
           begin
             Pwr(t) <+ `MFACTOR_USE *(-Ids * Vds  + delTemp / pParam_B4SOIrth);
@@ -7778,7 +7905,51 @@ analog begin : the_module
           end
         else
             Temp(t) <+ 0;
-
+`else // __XYCE__
+ `ifdef PORT_CONNECTED
+         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
+            if (TNODEOUT && !$port_connected(t)) begin
+               if ($port_connected(b)) begin // last terminal is 'b'
+                  I(b) <+ `MFACTOR_USE*(-Ids * Vds  + delTemp / pParam_B4SOIrth);
+                  I(b) <+  `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end else if ($port_connected(p)) begin  // last terminal is 'p'
+                  I(p) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                  I(p) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end else begin  // 4-terminal mode ('t' is internal)
+                  Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                  Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+               end
+            end else begin
+               Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+               Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
+            end
+         end else begin
+            if (TNODEOUT && !$port_connected(t)) begin
+               if ($port_connected(b)) begin // last terminal is 'b'
+                  $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                  $finish(1);
+                  // V(b) <+0;
+               end else if ($port_connected(p)) begin // last terminal is 'p'
+                  $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                  $finish(1);
+                  // V(p) <+ 0;
+               end else begin // 4-terminal mode ('t' is internal)
+                  $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                  $finish(1);
+                  // Temp(t) <+ 0;
+               end
+            end else begin
+               Temp(t) <+ 0;
+            end
+         end
+ `else
+       if ((SHMOD == 1) && (RTH0 != 0.0)) begin
+          Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + delTemp / pParam_B4SOIrth);
+          Pwr(t) <+ `MFACTOR_USE * ddt(delTemp * pParam_B4SOIcth);
+       end else
+         Temp(t) <+ 0;
+ `endif // PORT_CONNECTED
+`endif // __XYCE__
 
         // operating-point information
         IDS   = B4SOItype * Ids;

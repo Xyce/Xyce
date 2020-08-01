@@ -36,7 +36,6 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE TRAN <result name> AVG <variable>
 + [MIN_THRESH=<value>] [MAX_THRESH=<value>]
 + [FROM=<time>] [TO=<time>] [TD=<time>]
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> DERIV <variable> AT=<value>
@@ -90,7 +89,6 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 
 .MEASURE TRAN <result name> INTEG <variable>
 + [FROM=<value>] [TO=<value>] [TD=<value>]
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> MAX <variable>
@@ -122,7 +120,6 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 
 .MEASURE TRAN <result name> RMS <variable>
 + [FROM=<value>] [TO=<value>] [TD=<value>]
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
@@ -265,9 +262,8 @@ The supported measure types and their definitions are:
   \item[\tt AVG] Computes the arithmetic mean of {\tt <variable>} for
     the simulation, or within the extent of the measurement window.
     The measurement window can be limited with the qualifiers {\tt FROM},
-    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN}
-    measures, and with {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and
-    {\tt NOISE} measures.
+    {\tt TO} and {\tt TD} for {\tt TRAN} measures, and with {\tt FROM}
+    and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
 
   \item[\tt DERIV] Computes the derivative of {\tt <variable>} at a
     user-specified time (by using the {\tt AT} qualifier) or when a
@@ -338,11 +334,10 @@ The supported measure types and their definitions are:
 
   \item[\tt INTEG] Calculates the integral of {\tt outVal} through
     second order numerical integration.  The integration window can be
-    limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
-    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
-    {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
-    For HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for
-    {\tt INTEG}.
+    limited with the qualifiers {\tt FROM}, {\tt TO} and {\tt TD} for
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
+    {\tt DC} and {\tt NOISE} measures.  For HSPICE compatibility,
+    {\tt INTEGRAL} is an allowed synonym for {\tt INTEG}.
 
   \item[\tt MAX] Returns the maximum value of {\tt <variable>} during
     the simulation.  The measurement window can be limited with the
@@ -383,9 +378,9 @@ The supported measure types and their definitions are:
     <variable>} during the simulation, which is defined as ''the
     square root of the area under the {\tt <variable>} curve, divided by
     the period of interest''.  The measurement window can be
-    limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
-    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
-    {\tt FROM} and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.
+    limited with the qualifiers {\tt FROM}, {\tt TO} and {\tt TD} for
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
+    {\tt DC} and {\tt NOISE} measures.
 
   \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
     time between a trigger event and a target event.  The trigger is
@@ -494,9 +489,8 @@ found in the simulation will be used.
 The level used to calculate rises, falls and crosses when the
 ``level-crossing'' mode is used.  Its usage is discussed further in
 the subsection on ``Rise, Fall and Cross Qualifiers''.  {\tt
-RFC\_LEVEL} is used by the {\tt AVG}, {\tt DERIV}, {\tt FIND-WHEN},
-{\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP}, {\tt RMS} and
-{\tt WHEN} measures.
+RFC\_LEVEL} is used by the {\tt DERIV}, {\tt FIND-WHEN},
+{\tt MAX}, {\tt MIN}, {\tt PP} and {\tt WHEN} measures.
 
 \argument{MINVAL=value}
 

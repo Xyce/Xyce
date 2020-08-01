@@ -1290,8 +1290,6 @@ analog begin
       cbox      =  EPSROX * `EPS0 / EOTBOX;
       epsratio  =  EPSRSUB / EPSROX;
 
-`ifndef __XYCE__
-// Xyce cannot handle this
       if ($port_connected(t) == 1) begin
           `ifdef __SHMOD__
               if (SHMOD == 0) begin
@@ -1306,7 +1304,6 @@ analog begin
                 end
           `endif
       end
-`endif // __XYCE__
 
       // Constants for Quantum Mechanical Effects
       mx       =  0.916 * `MEL;
