@@ -241,6 +241,12 @@ public:
 //
   bool setParam(const std::string & name, double val, bool overrideOriginal = false);
 
+  bool setParamRandomExpressionTerms(
+      const std::string & name, 
+      const std::string & opName, 
+      int opIndex,
+      double val, bool overrideOriginal = false);
+
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }
   bool getSeparateLoadFlag ()          { return devOptions_.separateLoad; }
 
@@ -633,6 +639,8 @@ private:
   // used to enable lead-current calcuations for all devices.  This is set, during
   // netlist importation, when I(*), P(*) or W(*) appears on any .PRINT line.
   bool                          iStarRequested_;
+
+  bool                          expressionBasedSamplingEnabled_;
 };
 
 //-----------------------------------------------------------------------------

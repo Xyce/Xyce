@@ -282,102 +282,105 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
   {
     SweepVector exprSamplingVector_;
     loader_.getRandomParams(exprSamplingVector_);
+    samplingVector_.insert
+      (samplingVector_.end(), exprSamplingVector_.begin(), exprSamplingVector_.end());
   }
-
-  int paramSize = paramNameVec_.size();
-  int typeSize = typeVec_.size();
-
-  int meanSize = meanVec_.size();
-  int stdDevSize = stdDevVec_.size();
-
-  int lower_bounds_Size = lower_bounds_Vec_.size();
-  int upper_bounds_Size = upper_bounds_Vec_.size();
-
-  int alphaSize = alphaVec_.size();
-  int betaSize = betaVec_.size();
-
-  if ( paramSize != typeSize ) { Report::DevelFatal() <<  "parameter and type arrays must be equal sizes."; }
-
-  if (meanGiven || normalSpecified) { if (paramSize != meanSize) { Report::DevelFatal() <<  "parameter and mean arrays must be equal sizes. parameter size = " << paramSize << " means size = " << meanSize ; } }
-  if (stdDevGiven || normalSpecified) { if (paramSize != stdDevSize) { Report::DevelFatal() <<  "parameter and stdDev arrays must be equal sizes."; } }
-  if (lower_bounds_Given_ || uniformSpecified) { if (paramSize != lower_bounds_Size) { Report::DevelFatal() <<  "parameter and lower bounds arrays must be equal sizes."; } }
-  if (upper_bounds_Given_ || uniformSpecified) { if (paramSize != upper_bounds_Size) { Report::DevelFatal() <<  "parameter and upper bounds arrays must be equal sizes."; } }
-  if (alphaGiven || gammaSpecified) { if (paramSize != alphaSize) { Report::DevelFatal() <<  "parameter and alpha arrays must be equal sizes."; } }
-  if (betaGiven || gammaSpecified) { if (paramSize != betaSize) { Report::DevelFatal() <<  "parameter and beta arrays must be equal sizes."; } }
-
-
-  // check if the lower bounds are always < upper bounds, assuming both given
-  if (lower_bounds_Given_ && upper_bounds_Given_)
+  else
   {
-    for (int ibound=0;ibound<lower_bounds_Size;++ibound)
+    int paramSize = paramNameVec_.size();
+    int typeSize = typeVec_.size();
+
+    int meanSize = meanVec_.size();
+    int stdDevSize = stdDevVec_.size();
+
+    int lower_bounds_Size = lower_bounds_Vec_.size();
+    int upper_bounds_Size = upper_bounds_Vec_.size();
+
+    int alphaSize = alphaVec_.size();
+    int betaSize = betaVec_.size();
+
+    if ( paramSize != typeSize ) { Report::DevelFatal() <<  "parameter and type arrays must be equal sizes."; }
+
+    if (meanGiven || normalSpecified) { if (paramSize != meanSize) { Report::DevelFatal() <<  "parameter and mean arrays must be equal sizes. parameter size = " << paramSize << " means size = " << meanSize ; } }
+    if (stdDevGiven || normalSpecified) { if (paramSize != stdDevSize) { Report::DevelFatal() <<  "parameter and stdDev arrays must be equal sizes."; } }
+    if (lower_bounds_Given_ || uniformSpecified) { if (paramSize != lower_bounds_Size) { Report::DevelFatal() <<  "parameter and lower bounds arrays must be equal sizes."; } }
+    if (upper_bounds_Given_ || uniformSpecified) { if (paramSize != upper_bounds_Size) { Report::DevelFatal() <<  "parameter and upper bounds arrays must be equal sizes."; } }
+    if (alphaGiven || gammaSpecified) { if (paramSize != alphaSize) { Report::DevelFatal() <<  "parameter and alpha arrays must be equal sizes."; } }
+    if (betaGiven || gammaSpecified) { if (paramSize != betaSize) { Report::DevelFatal() <<  "parameter and beta arrays must be equal sizes."; } }
+
+
+    // check if the lower bounds are always < upper bounds, assuming both given
+    if (lower_bounds_Given_ && upper_bounds_Given_)
     {
-      if(lower_bounds_Vec_[ibound] >= upper_bounds_Vec_[ibound])
+      for (int ibound=0;ibound<lower_bounds_Size;++ibound)
       {
-        Report::DevelFatal() <<  paramNameVec_[ibound] << " lower_bounds must be smaller than upper_bounds.";
+        if(lower_bounds_Vec_[ibound] >= upper_bounds_Vec_[ibound])
+        {
+          Report::DevelFatal() <<  paramNameVec_[ibound] << " lower_bounds must be smaller than upper_bounds.";
+        }
       }
     }
-  }
-  else // if they are NOT given, then this is a problem for uniform distributions.
-  { 
-    // how to check this?  Currently this gets muddled if each param has a different type of distribution.  This probably needs a refactor.
-  }
-
-  // now put all this information into the sampling vector.
-  for (int ip=0;ip<paramSize;++ip)
-  {
-    SweepParam sampling_param;
-    sampling_param.type = typeVec_[ip]; // type = normal, uniform, etc
-    sampling_param.name = paramNameVec_[ip]; // param name
-
-    if (sampling_param.type == "UNIFORM")
-    {
-      sampling_param.startVal = lower_bounds_Vec_[ip];
-      sampling_param.stopVal  = upper_bounds_Vec_[ip];
+    else // if they are NOT given, then this is a problem for uniform distributions.
+    { 
+      // how to check this?  Currently this gets muddled if each param has a different type of distribution.  This probably needs a refactor.
     }
-    else if (sampling_param.type == "NORMAL") 
+
+    // now put all this information into the sampling vector.
+    for (int ip=0;ip<paramSize;++ip)
     {
-      sampling_param.mean     = meanVec_[ip];
-      sampling_param.stdDev   = stdDevVec_[ip];
+      SweepParam sampling_param;
+      sampling_param.type = typeVec_[ip]; // type = normal, uniform, etc
+      sampling_param.name = paramNameVec_[ip]; // param name
 
-      if ( !(lower_bounds_Vec_.empty()) )
+      if (sampling_param.type == "UNIFORM")
       {
-        sampling_param.lower_bound = lower_bounds_Vec_[ip];
-        sampling_param.lower_boundGiven = true;
-
+        sampling_param.startVal = lower_bounds_Vec_[ip];
+        sampling_param.stopVal  = upper_bounds_Vec_[ip];
       }
-
-      if ( !(upper_bounds_Vec_.empty()) )
+      else if (sampling_param.type == "NORMAL") 
       {
-        sampling_param.upper_bound = upper_bounds_Vec_[ip];
-        sampling_param.upper_boundGiven = true;
+        sampling_param.mean     = meanVec_[ip];
+        sampling_param.stdDev   = stdDevVec_[ip];
+
+        if ( !(lower_bounds_Vec_.empty()) )
+        {
+          sampling_param.lower_bound = lower_bounds_Vec_[ip];
+          sampling_param.lower_boundGiven = true;
+
+        }
+
+        if ( !(upper_bounds_Vec_.empty()) )
+        {
+          sampling_param.upper_bound = upper_bounds_Vec_[ip];
+          sampling_param.upper_boundGiven = true;
+        }
       }
-    }
 #if __cplusplus>=201103L
-    else if (sampling_param.type == "GAMMA") 
-    {
-      sampling_param.alpha    = alphaVec_[ip];
-      sampling_param.beta     = betaVec_[ip];
-
-      if ( !(lower_bounds_Vec_.empty()) )
+      else if (sampling_param.type == "GAMMA") 
       {
-        sampling_param.lower_bound = lower_bounds_Vec_[ip];
-        sampling_param.lower_boundGiven = true;
+        sampling_param.alpha    = alphaVec_[ip];
+        sampling_param.beta     = betaVec_[ip];
 
-      }
+        if ( !(lower_bounds_Vec_.empty()) )
+        {
+          sampling_param.lower_bound = lower_bounds_Vec_[ip];
+          sampling_param.lower_boundGiven = true;
 
-      if ( !(upper_bounds_Vec_.empty()) )
-      {
-        sampling_param.upper_bound = upper_bounds_Vec_[ip];
-        sampling_param.upper_boundGiven = true;
+        }
+
+        if ( !(upper_bounds_Vec_.empty()) )
+        {
+          sampling_param.upper_bound = upper_bounds_Vec_[ip];
+          sampling_param.upper_boundGiven = true;
+        }
       }
-    }
 #endif
-    else
-    {
-      Report::DevelFatal().in("parseSamplingParam") << "Unsupported SAMPLING type";
+      else
+      {
+        Report::DevelFatal().in("parseSamplingParam") << "Unsupported SAMPLING type";
+      }
+      samplingVector_.push_back(sampling_param);
     }
-    samplingVector_.push_back(sampling_param);
-
   }
 
   outputManagerAdapter_.setStepSweepVector(samplingVector_);
@@ -790,7 +793,15 @@ bool Sampling::doLoopProcess()
     // Tell the manager if any of our sweeps are being reset in this loop iteration.
     // ERK:  This reset boolean always is set to "false" - holdover from sweeps.
     // It should probably be always true in the sampling case.  Check this.
-    bool reset = UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    bool reset = false;
+    if (useExpressionSamples_)
+    {
+      reset = UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }else
+    {
+      reset = UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }
+
 
     analysisManager_.setSweepSourceResetFlag(reset);
 

@@ -118,6 +118,24 @@ bool setParameter(
   double                        value,
   bool                          override_original);
 
+//-----------------------------------------------------------------------------
+//                 AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+bool setParameterRandomExpressionTerms(
+  Parallel::Machine             comm,
+  ArtificialParameterMap &      artificial_parameter_map,
+  PassthroughParameterSet &     passthrough_parameter_map,
+  GlobalParameterMap &          global_parameter_map,
+  std::vector<Util::Expression> & global_expressions,
+  std::vector<std::string> & global_exp_names,
+  DeviceMgr &                   device_manager,
+  EntityVector &                dependent_entity_vector,
+  const InstanceVector &        extern_device_vector,
+  const std::string &           name,
+  const std::string &           opName,
+  int opIndex,
+  double                        value,
+  bool                          override_original);
+
 } // namespace <unnamed>
 
 //-----------------------------------------------------------------------------
@@ -186,7 +204,8 @@ DeviceMgr::DeviceMgr(
     dotOpOutputFlag_(false),
     ACSpecified_(false),
     HBSpecified_(false),
-    iStarRequested_(false)
+    iStarRequested_(false),
+    expressionBasedSamplingEnabled_(false)
 {
   addArtificialParameter("MOSFET:GAINSCALE", new ArtificialParameters::MOSFETGainScaleParam());
   addArtificialParameter("MOSFET:GAIN", new ArtificialParameters::MOSFETGainScaleParam());
@@ -1893,6 +1912,29 @@ bool DeviceMgr::setParam(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setParamRandomExpressionTerms
+//
+// Purpose       : 
+// 
+// Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 7/30/2020
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setParamRandomExpressionTerms(
+  const std::string &   name, const std::string &   opName, int opIndex,
+  double                val,
+  bool                  overrideOriginal)
+{
+  return setParameterRandomExpressionTerms(comm_, artificialParameterMap_, passthroughParameterSet_, 
+      globals_.global_params, globals_.global_expressions, globals_.global_exp_names, *this,
+      dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, opName, opIndex, val, overrideOriginal);
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::findParam
 // Purpose       : Returns the current value of a named parameter.
 // Special Notes :
@@ -1934,7 +1976,7 @@ bool DeviceMgr::parameterExists(
       if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
       for(int jj=0;jj<tmpParams.size();jj++) {  \
         tmpParams[jj].baseName = paramName; \
-        tmpParams[jj].name = paramName + "_" + tmpParams[jj].name; } \
+        tmpParams[jj].name = paramName ; } \
       SamplingParams.insert( SamplingParams.end(), tmpParams.begin(), tmpParams.end() );\
     } \
     else  \
@@ -2015,6 +2057,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
     }
   }
+
+  if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -4695,6 +4739,167 @@ bool setParameter(
       bool bs1 = extern_device.setInternalParam(name, value);
     }
   }
+
+  return bsuccess;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : setParameterRandomExpressionTerms
+// Purpose       : Update params that depend on random ops such as
+// Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 7/30/2020
+//-----------------------------------------------------------------------------
+bool setParameterRandomExpressionTerms(
+  Parallel::Machine             comm,
+  ArtificialParameterMap &      artificial_parameter_map,
+  PassthroughParameterSet &     passthrough_parameter_map,
+  GlobalParameterMap &          global_parameter_map,      // globals_.global_params, if called from DeviceMgr::setParam.  This map, inside of the struct globals_ is where the official value of a global param is stored.  The globalParameterOp class will have a reference to the double-precision data location.  This op class is what is used by getParamAndReduce.  So they ultimately point to the same thing, but it is hard to see this directly.
+  std::vector<Util::Expression> & global_expressions, // globals_.global_expressions
+  std::vector<std::string> & global_exp_names,  // globals_.global_exp_names
+  DeviceMgr &                   device_manager,
+  EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
+  const InstanceVector &        extern_device_vector,
+  const std::string &           name,
+  const std::string &           opName,
+  int opIndex,
+  double                        value,
+  bool                          override_original)
+{
+  bool bsuccess = true, success = true;
+
+#if 0
+  // artificial params probabaly can't work for AGAUSS, etc.
+  ArtificialParameterMap::iterator artificial_param_it = artificial_parameter_map.find(name);
+  if (artificial_param_it != artificial_parameter_map.end())
+  {
+    (*artificial_param_it).second->setValue(device_manager, value);
+  }
+  else
+#endif
+  {
+    GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
+
+    if (global_param_it != global_parameter_map.end())
+    {
+      // find the expression:
+      std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), name);
+      int globalIndex = std::distance (global_exp_names.begin(), name_it );
+
+      Util::Expression &expression = global_expressions[globalIndex];
+
+
+      double paramValue=0.0;
+      expression.evaluateFunction(paramValue);
+
+      if ((*global_param_it).second != value)
+      {
+        (*global_param_it).second = value;
+        EntityVector::iterator it = dependent_entity_vector.begin();
+        EntityVector::iterator end = dependent_entity_vector.end();
+        for ( ; it != end; ++it)
+        {
+          if ((*it)->updateGlobalParameters(global_parameter_map))
+          {
+            (*it)->processParams();
+            (*it)->processInstanceParams();
+          }
+        }
+      }
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
+        if (override_original)
+        {
+          Xyce::dout()  << " overriding original";
+        }
+        Xyce::dout() << std::endl;
+      }
+
+    }
+    else
+    {
+      // If not artificial, then search for the appropriate natural param(s).
+      DeviceEntity * device_entity = device_manager.getDeviceEntity(name);
+
+      int entity_found = (device_entity != 0);
+      if (entity_found)
+      {
+        bool found;
+        std::string paramName = Util::paramNameFromFullParamName(name);
+        if (paramName == "")
+        {
+          //if (DEBUG_DEVICE)
+          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+          {
+            Xyce::dout() << " in DeviceMgr setParam, setting default parameter to " << value ;
+            if (override_original)
+            {
+              Xyce::dout()  << " overriding original";
+            }
+            Xyce::dout() << std::endl;
+          }
+          found = device_entity->setDefaultParam(value, override_original);
+        }
+        else
+        {
+          //if (DEBUG_DEVICE)
+          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+          {
+            Xyce::dout() << " in DeviceMgr setParam, setting parameter "<< paramName 
+              << " to " << value << std::endl;
+          }
+          found = device_entity->setParam(paramName, value);
+        }
+
+        if (found)
+        {
+          device_entity->processParams (); // if this "entity" is a model, then need to
+          // also do a  "processParams" on the related instances.
+          device_entity->processInstanceParams();
+        }
+
+        entity_found = found;
+      }
+
+      Parallel::AllReduce(comm, MPI_LOR, &entity_found, 1);
+
+      if (entity_found == 0)
+      {
+        //if (DEBUG_DEVICE)
+        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+        {
+          Report::DevelWarning() << "DeviceMgr::setParam.  Unable to find parameter " << name;
+        }
+        else
+        {
+          Report::UserError() << "Unable to find parameter " << name;
+        }
+      }
+    }
+  }
+
+#if 0
+  // ERK. Check this later.
+
+  // Certain parameters should be passed through to the inner solve,
+  // if there is an inner circuit problem.  The names of parameters
+  // that should be passed through are stored in the map.
+  if (passthrough_parameter_map.find(name) != passthrough_parameter_map.end())
+  {
+    InstanceVector::const_iterator it = extern_device_vector.begin();
+    InstanceVector::const_iterator end = extern_device_vector.end();
+    for ( ; it != end; ++it)
+    {
+      ExternDevice::Instance &extern_device = static_cast<ExternDevice::Instance &>(*(*it));
+
+      bool bs1 = extern_device.setInternalParam(name, value);
+    }
+  }
+#endif
 
   return bsuccess;
 }

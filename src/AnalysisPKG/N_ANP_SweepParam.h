@@ -92,6 +92,7 @@ public:
   // Default constructor
   SweepParam () : 
    name(""),
+   opName(""),
    baseName(""),
    type("LIN"),
    startVal(0.0),
@@ -130,6 +131,7 @@ public:
   bool getSweepResetFlag() {return sweepResetFlag_;}
 
   std::string name;
+  std::string opName; // only used with expression-based operators
   std::string baseName; // only used with expression-based operators
   std::string type;
 

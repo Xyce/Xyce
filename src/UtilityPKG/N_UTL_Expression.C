@@ -1076,7 +1076,7 @@ void Expression::getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleV
     usedType alpha = agOp->getAlpha();
     usedType n     = agOp->getN();
 
-    sampling_param.name       = "AGAUSS_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.opName     = "AGAUSS";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Analysis::AST_AGAUSS;
     sampling_param.type       = "NORMAL";
@@ -1109,7 +1109,7 @@ void Expression::getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
     usedType n         = gaOp->getN();
     usedType alpha     = rel_alpha*mu;
 
-    sampling_param.name       = "GAUSS_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.opName     = "GAUSS";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Analysis::AST_GAUSS;
     sampling_param.type       = "NORMAL";
@@ -1140,7 +1140,7 @@ void Expression::getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
     usedType mu    = auOp->getMu();
     usedType alpha = auOp->getAlpha();
 
-    sampling_param.name       = "AUNIF_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.opName     = "AUNIF";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Analysis::AST_AUNIF;
     sampling_param.type       = "UNIFORM";
@@ -1173,7 +1173,7 @@ void Expression::getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
     usedType rel_alpha = unOp->getAlpha();
     usedType alpha     = rel_alpha*mu;
 
-    sampling_param.name       = "UNIF_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.opName     = "UNIF";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Analysis::AST_UNIF;
     sampling_param.type       = "UNIFORM";
@@ -1202,7 +1202,7 @@ void Expression::getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
 
     Teuchos::RCP<randOp<usedType> > auOp = Teuchos::rcp_static_cast<randOp<usedType> > (localRand[ii]);
 
-    sampling_param.name       = "RAND_" + std::to_string(ii); // this will get modified to be preceded by param name, as appropriate
+    sampling_param.opName     = "RAND";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Analysis::AST_RAND;
     sampling_param.type       = "UNIFORM";
@@ -1228,6 +1228,17 @@ void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
   for (int ii=0;ii<localTwoArgLimit.size();ii++)
   {
     Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<twoArgLimitOp<usedType> > auOp = Teuchos::rcp_static_cast<twoArgLimitOp<usedType> > (localTwoArgLimit[ii]);
+
+    sampling_param.opName     = "LIMIT";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Analysis::AST_LIMIT;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = 0.0;
+    sampling_param.stopVal  = 1.0;
+
     sampleVec.push_back(sampling_param);
   }
 }
