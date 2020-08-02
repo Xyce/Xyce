@@ -1531,7 +1531,6 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  /* | exp TOK_XOR exp */
   | exp TOK_CARET exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr;
