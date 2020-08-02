@@ -110,7 +110,7 @@ bool setParameter(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  GlobalParameterMap &          global_parameter_map,
+  Globals &                     globals,
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,
   const InstanceVector &        extern_device_vector,
@@ -124,9 +124,7 @@ bool setParameterRandomExpressionTerms(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  GlobalParameterMap &          global_parameter_map,
-  std::vector<Util::Expression> & global_expressions,
-  std::vector<std::string> & global_exp_names,
+  Globals &                     globals,
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,
   const InstanceVector &        extern_device_vector,
@@ -1907,7 +1905,7 @@ bool DeviceMgr::setParam(
   double                val,
   bool                  overrideOriginal)
 {
-  return setParameter(comm_, artificialParameterMap_, passthroughParameterSet_, globals_.global_params, *this,
+  return setParameter(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
                       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, val, overrideOriginal);
 }
 
@@ -1927,8 +1925,7 @@ bool DeviceMgr::setParamRandomExpressionTerms(
   double                val,
   bool                  overrideOriginal)
 {
-  return setParameterRandomExpressionTerms(comm_, artificialParameterMap_, passthroughParameterSet_, 
-      globals_.global_params, globals_.global_expressions, globals_.global_exp_names, *this,
+  return setParameterRandomExpressionTerms(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, opName, opIndex, val, overrideOriginal);
   return true;
 }
@@ -4617,7 +4614,7 @@ bool setParameter(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  GlobalParameterMap &          global_parameter_map,      // globals_.global_params, if called from DeviceMgr::setParam.  This map, inside of the struct globals_ is where the official value of a global param is stored.  The globalParameterOp class will have a reference to the double-precision data location.  This op class is what is used by getParamAndReduce.  So they ultimately point to the same thing, but it is hard to see this directly.
+  Globals &                     globals,               ///< global variables
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
@@ -4626,6 +4623,7 @@ bool setParameter(
   bool                          override_original)
 {
   bool bsuccess = true, success = true;
+  GlobalParameterMap &  global_parameter_map = globals.global_params;
 
   ArtificialParameterMap::iterator artificial_param_it = artificial_parameter_map.find(name);
   if (artificial_param_it != artificial_parameter_map.end())
@@ -4756,9 +4754,7 @@ bool setParameterRandomExpressionTerms(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  GlobalParameterMap &          global_parameter_map,      // globals_.global_params, if called from DeviceMgr::setParam.  This map, inside of the struct globals_ is where the official value of a global param is stored.  The globalParameterOp class will have a reference to the double-precision data location.  This op class is what is used by getParamAndReduce.  So they ultimately point to the same thing, but it is hard to see this directly.
-  std::vector<Util::Expression> & global_expressions, // globals_.global_expressions
-  std::vector<std::string> & global_exp_names,  // globals_.global_exp_names
+  Globals &                     globals,               ///< global variables
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
@@ -4769,6 +4765,10 @@ bool setParameterRandomExpressionTerms(
   bool                          override_original)
 {
   bool bsuccess = true, success = true;
+
+  GlobalParameterMap &          global_parameter_map = globals.global_params;
+  std::vector<Util::Expression> & global_expressions = globals.global_expressions;
+  std::vector<std::string> & global_exp_names = globals.global_exp_names;
 
 #if 0
   // artificial params probabaly can't work for AGAUSS, etc.
