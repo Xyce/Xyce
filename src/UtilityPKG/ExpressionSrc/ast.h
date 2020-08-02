@@ -53,6 +53,7 @@
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_ERH_Message.h>
+#include <N_UTL_HspiceBools.h>
 #include <expressionParamTypes.h>
 
 #define CONSTCtoK    (273.15)  
@@ -3832,7 +3833,8 @@ class agaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      ScalarT ret = mu->val();// this is only right if not doing sampling
+      ScalarT ret = 0.0;
+      if (Xyce::Util::useHspiceMath) { ret = mu->val(); }// this is only right if not doing sampling
       return ret;
     };
 
@@ -3923,7 +3925,8 @@ class gaussOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & n     = (nAst_);
-      ScalarT ret = mu->val();// this is only right if not doing sampling
+      ScalarT ret = 0.0;
+      if (Xyce::Util::useHspiceMath) { ret = mu->val(); }// this is only right if not doing sampling
       return ret;
     };
 
@@ -4013,7 +4016,8 @@ class aunifOp : public astNode<ScalarT>
     {
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
-      ScalarT ret = mu->val();// this is only right if not doing sampling
+      ScalarT ret = 0.0;
+      if (Xyce::Util::useHspiceMath) { ret = mu->val(); }// this is only right if not doing sampling
       return ret;
     };
 
@@ -4099,7 +4103,8 @@ class unifOp : public astNode<ScalarT>
     {
       Teuchos::RCP<astNode<ScalarT> > & mu    = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & alpha = (this->rightAst_);
-      ScalarT ret = mu->val();// this is only right if not doing sampling
+      ScalarT ret = 0.0;
+      if (Xyce::Util::useHspiceMath) { ret = mu->val(); }// this is only right if not doing sampling
       return ret;
     };
 

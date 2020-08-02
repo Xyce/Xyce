@@ -7783,6 +7783,60 @@ TEST ( Double_Parsing_Syntax, bug28_1)
   testExpression.evaluateFunction(result); 
 }
 
+
+//-------------------------------------------------------------------------------
+// tests for random operators
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Random, agauss0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  Xyce::Util::useHspiceMath = true;
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 1.0);
+  Xyce::Util::useHspiceMath = false; // restore default
+}
+
+TEST ( Double_Parser_Random, gauss0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1,1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  Xyce::Util::useHspiceMath = true;
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 1.0);
+  Xyce::Util::useHspiceMath = false; // restore default
+}
+
+TEST ( Double_Parser_Random, aunif0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("aunif(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  Xyce::Util::useHspiceMath = true;
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 1.0);
+  Xyce::Util::useHspiceMath = false; // restore default
+}
+
+TEST ( Double_Parser_Random, unif0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("unif(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  Xyce::Util::useHspiceMath = true;
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 1.0);
+  Xyce::Util::useHspiceMath = false; // restore default
+}
+
+
+//-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
   {
