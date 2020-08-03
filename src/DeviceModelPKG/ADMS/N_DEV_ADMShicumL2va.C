@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 28 Jul 2020 16:20:23
+// Creation Date  : Mon, 03 Aug 2020 07:55:39
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1084,9 +1084,6 @@ bool Instance::processParams()
 
   // and of course, this routine is where we should put the initial_instance
   // stuff
-  double a_eg=0.0;
-  double aa=0.0;
-  double ab=0.0;
   double C_1=0.0;
   double vge_t0=0.0;
   double vgb_t0=0.0;
@@ -21923,12 +21920,6 @@ instanceSensStruct & instanceStruct,
 modelSensStruct & modelStruct,
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
-  double a_eg=0.0;
-double d_a_eg_dX=0.0;
-  double aa=0.0;
-double d_aa_dX=0.0;
-  double ab=0.0;
-double d_ab_dX=0.0;
   double C_1=0.0;
 double d_C_1_dX=0.0;
   double vge_t0=0.0;
