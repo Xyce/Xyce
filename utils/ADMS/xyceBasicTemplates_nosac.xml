@@ -1929,16 +1929,23 @@ struct Traits: public DeviceTraits&lt;Model, Instance
        if we haven't already done it (because we're an assignment). -->
   <admst:if test="adms[datatypename!='assignment']">
     <admst:variable name="parent" select="%(..)"/>
+    <admst:variable name="this" select="%(.)"/>
     <admst:for-each select="@assignedVars">
-      <!--<admst:message format="Got something other than assignment (%(../datatypename)), pushing %(.) into parent which is of type %($parent/datatypename)\n"/>-->
+      <!-- <admst:message format="Got something other than assignment (%($this/datatypename)), pushing %(.) into parent which is of type %($parent/datatypename)\n"/> -->
       <admst:variable name="thisName" value="%(name)"/>
       <!-- not enough to push with 'onduplicate="ignore"' because the actual
            variable node has more info than just the name, and different
            instances aren't actually duplicates just because the name is the
            same. This would result in multiple declarations if we're not
            careful. -->
-      <admst:if test="[not exists($parent/@assignedVars[name=$thisName])]">
-        <admst:push into="$parent/@assignedVars" select="." onduplicate="ignore"/>
+      <!-- <admst:message format="Want to push variable %(.) into parent.  This variable is defined in environment of type %(block/adms/datatypename) and scope is %(scope).\n"/> -->
+      <admst:variable name="pushUp" string="yes"/>
+      <admst:if test="[$this/adms/datatypename='block' and block=$this]">
+        <!-- <admst:message format="I think this should be local and we shouldn't push up\n"/> -->
+        <admst:variable name="pushUp" string="no"/>
+      </admst:if>
+      <admst:if test="[$pushUp = 'yes']">
+          <admst:push into="$parent/@assignedVars" select="." onduplicate="ignore"/>
       </admst:if>
     </admst:for-each>
   </admst:if>
@@ -2062,6 +2069,14 @@ other variables does not get propagated into a variable's
              <admst:variable name="isFuncDependent" value="yes"/>
            </admst:if>
          </admst:apply-templates>
+         <admst:choose>
+           <admst:when test="[$isFuncDependent='yes']">
+             <admst:return name="isDependent" value="yes"/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:return name="isDependent" value="no"/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:otherwise>
      </admst:choose>
    </admst:when>
