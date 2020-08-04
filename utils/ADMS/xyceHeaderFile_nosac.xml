@@ -43,6 +43,9 @@
 
 <admst:for-each select="/module">
   <admst:variable name="thisModule" select="%(.)"/>
+  <admst:if test="variable[insource='yes' and derivate='yes']">
+    <admst:variable name="doSecondDerivatives" select="yes"/>
+  </admst:if>
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
        related Instance and Model classes -->
   <admst:apply-templates select="." match="xyceClassBaseName">

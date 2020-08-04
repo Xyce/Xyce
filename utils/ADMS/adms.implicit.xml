@@ -46,7 +46,7 @@
 <admst:variable name="globaltreenode"/>
 <admst:variable name="globalhandleafoutputs" string="no"/>
 <admst:variable name="globalaf"/>
-
+<admst:variable name="theDDXProbeToPush"/>
 <admst:template match="e:dependency">
   <admst:choose>
     <admst:when test="[datatypename='expression']">
@@ -165,7 +165,35 @@
         <admst:when test="[name='ddx' or name='\$ddx' or name='\$derivate']">
           <admst:value-to select="$globalassignment/lhs/derivate" string="yes"/>
           <admst:apply-templates select="arguments[1]" match="e:dependency"/>
-          <admst:push into="$globalexpression/variable/ddxprobe" select="arguments[2]" onduplicate="ignore"/>
+          <!-- recursively push a ddxprobe into argument 1-->
+          <!-- call with argument 1 in select, set $theDDXProbeToPush to -->
+          <!-- the PATH to thing to push in -->
+          <admst:template match="pushDDXintoArg">
+            <admst:choose>
+              <admst:when test="[adms/datatypename='variable']">
+                <admst:push into="ddxprobe" select="$theDDXProbeToPush"/>
+              </admst:when>
+              <admst:when test="[adms/datatypename='expression']">
+                <admst:push into="variable/ddxprobe" select="$theDDXProbeToPush"/>
+              </admst:when>
+              <admst:when test="[adms/datatypename='mapply_binary']">
+                <admst:apply-templates match="pushDDXintoArg" select="arg1"/>
+                <admst:apply-templates match="pushDDXintoArg" select="arg2"/>
+              </admst:when>
+              <admst:when test="[adms/datatypename='mapply_ternary']">
+                <admst:apply-templates match="pushDDXintoArg" select="arg2"/>
+                <admst:apply-templates match="pushDDXintoArg" select="arg3"/>
+              </admst:when>
+              <admst:when test="[adms/datatypename='constant' or adms/datatypename='number']">
+              </admst:when>
+              <admst:otherwise>
+                <admst:fatal format="Xyce/ADMS got a ddx expression %(.) of type %(adms/datatypename) and cannot proceed.  We currently support only mapply_binary, mapply_ternary and variable.\n"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:template>
+          <!-- <admst:push into="$globalexpression/variable/ddxprobe" select="arguments[2]" onduplicate="ignore"/> -->
+          <admst:variable name="theDDXProbeToPush" select="%(arguments[2])"/>
+          <admst:apply-templates match="pushDDXintoArg" select="arguments[1]"/>
           <admst:choose>
             <admst:when test="arguments[1]/dependency[.='constant' or .='noprobe']">
               <admst:value-to select="dependency" path="arguments[1]/dependency"/>
@@ -809,7 +837,12 @@
   <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifyn=1])]/#modifyn" path="1"/>
   <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifyc=1])]/#modifyc" path="1"/>
 
-  <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifys=1 or #modifyd=1 or #modifyn=1])]/insource" string="yes"/>
+  <!-- let's try not counting noise source use as "insource", because Xyce
+       only uses "insource" to figure out if we need derivatives.  We don't
+       need derivatives for noise-only sources -->
+
+  <!-- <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifys=1 or #modifyd=1 or #modifyn=1])]/insource" string="yes"/> -->
+  <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifys=1 or #modifyd=1])]/insource" string="yes"/>
   <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifys=1 or #modifyn=1 or #modifyc=1])]/static" string="yes"/>
   <admst:value-to select="(.|blockvariable)/variable[exists(instance[#modifyd=1])]/dynamic" string="yes"/>
   <admst:value-to select="source[#modifys=1 or #modifyn=1]/static" string="yes"/>
