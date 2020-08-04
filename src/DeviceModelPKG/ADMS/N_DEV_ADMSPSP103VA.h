@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 03 Aug 2020 07:55:51
+// Creation Date  : Tue, 04 Aug 2020 16:58:16
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSPSP103VA_h
@@ -3639,13 +3639,7 @@ public:
     double gjund;
     double gwell;
     double Sfl;
-     double d_Sfl_dV_DI_SI;
-     double d_Sfl_dV_GP_SI;
-     double d_Sfl_dV_SI_BP;
     double sqid;
-     double d_sqid_dV_DI_SI;
-     double d_sqid_dV_SI_BP;
-     double d_sqid_dV_GP_SI;
     double mig;
      double d_mig_dV_DI_SI;
      double d_mig_dV_SI_BP;
@@ -3655,35 +3649,13 @@ public:
      double d_CGeff_dV_GP_SI;
      double d_CGeff_dV_SI_BP;
     double c_igid;
-     double d_c_igid_dV_DI_SI;
-     double d_c_igid_dV_SI_BP;
-     double d_c_igid_dV_GP_SI;
     double shot_igcsx;
-     double d_shot_igcsx_dV_GP_SI;
-     double d_shot_igcsx_dV_DI_SI;
-     double d_shot_igcsx_dV_SI_BP;
     double shot_igcdx;
-     double d_shot_igcdx_dV_GP_SI;
-     double d_shot_igcdx_dV_DI_SI;
-     double d_shot_igcdx_dV_SI_BP;
     double shot_igsov;
-     double d_shot_igsov_dV_GP_SI;
-     double d_shot_igsov_dV_DI_SI;
-     double d_shot_igsov_dV_SI_BP;
     double shot_igdov;
-     double d_shot_igdov_dV_GP_SI;
-     double d_shot_igdov_dV_DI_SI;
-     double d_shot_igdov_dV_SI_BP;
     double shot_iavl;
-     double d_shot_iavl_dV_DI_SI;
-     double d_shot_iavl_dV_GP_SI;
-     double d_shot_iavl_dV_SI_BP;
     double jnoisex_s;
-     double d_jnoisex_s_dV_DI_BD;
-     double d_jnoisex_s_dV_SI_BS;
     double jnoisex_d;
-     double d_jnoisex_d_dV_DI_BD;
-     double d_jnoisex_d_dV_SI_BS;
     double ctype;
     double sdint;
     double ise;
