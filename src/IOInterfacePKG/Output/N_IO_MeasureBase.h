@@ -185,6 +185,9 @@ public:
 
     std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
 
+    bool isInvalidTimeFreqWindow(double startSimVal, double endSimVal);
+    bool isInvalidDCsweepWindow(double startSweepVal, double endSweepVal);
+
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
                                              const double startSweepVal, const double endSweepVal);

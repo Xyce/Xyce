@@ -70,6 +70,13 @@ public:
   virtual void updateCalculationResult(double val)=0;
   virtual void updateCalculationInstant(double val)=0;
 
+  bool isATforACDCNoise(const double indepVarVal);
+  bool isWHENcondition(const double indepVarVal, const double targVal);
+
+  void setMeasureState(const double indepVarVal);
+  void updateMeasureState(const double indepVarVal);
+  double updateTargVal();
+
   void updateTran(
     Parallel::Machine comm,
     const double circuitTime,
@@ -121,6 +128,10 @@ protected:
 
 private:
   void interpolateResults(double currIndepVarValue, double targVal);
+  double interpolateCalculationInstant(double currIndepVarValue, double targVal);
+
+  void updateRFCcountForWhen();
+  bool withinRFCWindowForWhen();
 
   int numOutVars_;
   std::vector<double> outVarValues_;
@@ -136,6 +147,7 @@ private:
   double lastTargValue_;
 
   double startDCMeasureWindow_;
+  int numPointsFound_;
 
   // This variable controls what is tested against in the WHEN clause.  
   // It refers to an index in the outputVarValues_ array.  Its value 
