@@ -70,6 +70,13 @@ FindWhenBase::FindWhenBase(const Manager &measureMgr, const Util::OptionBlock & 
   {
     whenIdx_ = 1;
   }
+
+  // hard code this measure type to ignore the RFC_LEVEL qualifier
+  if (rfcLevelGiven_)
+  {
+    rfcLevelGiven_=false;
+    Xyce::Report::UserWarning0() << "RFC_LEVEL will be ignored for measure " << name_;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -205,8 +212,7 @@ void FindWhenBase::updateTran(
         resultFound_ = true;
       }
     }
-    else if( (type_ == "WHEN") &&  withinRiseFallCrossWindow( outVarValues_[whenIdx_], 
-                                     (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
+    else if( (type_ == "WHEN") &&  withinRiseFallCrossWindow(outVarValues_[whenIdx_],targVal) )
     {
       // If LAST was specified then this is done
       // each time a new RFC window is entered.
@@ -391,8 +397,7 @@ void FindWhenBase::updateDC(
           resultFound_ = true;
         }
       }
-      else if ( (type_ == "WHEN") && withinRiseFallCrossWindow( outVarValues_[whenIdx_],
-                                     (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
+      else if ( (type_ == "WHEN") && withinRiseFallCrossWindow(outVarValues_[whenIdx_], targVal) )
       {
         // If LAST was specified then this is done
         // each time a new RFC window is entered.
@@ -539,8 +544,7 @@ void FindWhenBase::updateAC(
         resultFound_ = true;
       }
     }
-    else if ( (type_ == "WHEN") && withinRiseFallCrossWindow( outVarValues_[whenIdx_],
-							      (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
+    else if ( (type_ == "WHEN") && withinRiseFallCrossWindow(outVarValues_[whenIdx_],targVal) )
     {
       // If LAST was specified then this is done
       // each time a new RFC window is entered.
@@ -689,8 +693,7 @@ void FindWhenBase::updateNoise(
         resultFound_ = true;
       }
     }
-    else if ( (type_ == "WHEN") && withinRiseFallCrossWindow( outVarValues_[whenIdx_],
-                                     (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
+    else if ( (type_ == "WHEN") && withinRiseFallCrossWindow(outVarValues_[whenIdx_],targVal) )
     {
       // If LAST was specified then this is done
       // each time a new RFC window is entered.
