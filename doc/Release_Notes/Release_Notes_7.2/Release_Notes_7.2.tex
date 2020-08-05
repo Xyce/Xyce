@@ -97,6 +97,19 @@ please visit the \XyceTM{} web page at
     listing of the noise source names for each device in a netlist.
 \end{XyceItemize}
 
+\subsubsection*{Xyce/ADMS Improvements}
+\begin{XyceItemize}
+  \item Support for \$port\_connected has been added to enable
+    designation of optional nodes.
+  \item Support for \$bound\_step, enabling a device to impose a
+    maximum step size on the simulation, has been added.  This feature
+    is primarily useful only for devices that act like independent
+    sources.
+  \item The deprecated, ``legacy'' Xyce/ADMS back-end that generated
+    code that used Sacado for differentiation has been completely
+    removed.
+\end{XyceItemize}
+
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
 \item The \Xyce{} project is no longer providing binaries for RHEL6.
