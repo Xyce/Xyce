@@ -108,6 +108,10 @@ please visit the \XyceTM{} web page at
   \item The deprecated, ``legacy'' Xyce/ADMS back-end that generated
     code that used Sacado for differentiation has been completely
     removed.
+  \item The logic related to ddx() handling has been improved so that
+    Xyce/ADMS is no longer emitting second derivative code when those
+    derivatives are not needed.  This results in dramatically improved
+    compilation time of Verilog-A derived models.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

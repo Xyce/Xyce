@@ -32,7 +32,8 @@
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
-
+\textbf{Gitlab-ex 42}: Xyce/ADMS unnecessarily outputting second derivative code &
+An error in logic caused Xyce/ADMS to emit unnecessary code to compute second derivatives of variables.  Second derivatives are only required when a variable whose value is computed via ddx() is subsequently used in non-noise contributions (a usage that is strongly discouraged and not present in any common models).  This unnecessary code was often as large or larger than the required code, and resulted in extraordinary compilation times and compiler memory use. \\ \hline 
 \textbf{Gitlab-ex 40}: Xyce/ADMS incorrectly omitting variable declaration in obscure use cases &
 As a result of a design flaw that has been fixed in this release,
 previous versions of Xyce/ADMS would incorrectly omit the declaration
