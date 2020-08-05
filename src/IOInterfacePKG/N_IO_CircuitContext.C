@@ -1774,31 +1774,27 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           if (variables.empty()) paramType=DOT_PARAM;
           else paramType=SUBCKT_ARG_PARAM;
 
-#if 1
           if (paramType==DOT_PARAM)
           {
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter as a dotParam: strings[i] = " << strings[i] << " tag = " 
               << expressionParameter.tag() << " value = " 
               << expressionParameter.getValue<Util::Expression>().get_expression() 
               << std::endl;
-
+#endif
             expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
           }
           else
           {
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter, but NOT as a dotParam (as a subcircuit param): strings[i] = " << strings[i] << " tag = " 
               << expressionParameter.tag() << " value = " 
               << expressionParameter.getValue<Util::Expression>().get_expression() 
               << std::endl;
-
-#if 0
-            expression.replace_param_name(strings[i], expressionParameter.getValue<Util::Expression>().get_expression() ); // only works if it is a simple param1=param2 expression
-            saveForLaterStrings.push_back(expressionParameter.getValue<Util::Expression>().get_expression());
-#else
+#endif
             expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
-#endif
           }
-#endif
+
           // experiment
           variables.clear();
           expression.getVariables(variables);
@@ -1828,7 +1824,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           // and a better group is set up.
           if (expressionParameter.getType() == Xyce::Util::EXPR)
           {
-#if 1
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter: " 
               << expressionParameter.tag() << std::endl;
 #endif
@@ -1838,7 +1834,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           }
           else
           {
-#if 1
+#if 0
             Xyce::dout() << "CircuitContext::resolveStrings. About to make_var this parameter: " 
               << expressionParameter.tag() << std::endl;
 #endif
@@ -1873,85 +1869,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
       }
     }
   }
-
-
-#if 0
-  if ( !(saveForLaterStrings.empty()) ) // this is a special case, for subcircuit arguments that are equal to global params
-  {
-#if 1
-    for (int ii=0;ii<saveForLaterStrings.size();ii++)
-    {
-      ExtendedString parameterName = saveForLaterStrings[ii];
-      parameterName.toUpper();
-      Util::Param expressionParameter(parameterName, "");
-
-      bool parameterFound = getResolvedGlobalParameter(expressionParameter);
-      if (DEBUG_IO)
-      {
-        Xyce::dout() << "CircuitContext::resolveStrings attempting to resolve "
-                     <<  " parameter " << expressionParameter.uTag() << std::endl;
-        if (parameterFound)
-        {
-          Xyce::dout() << "Found it." << std::endl;
-        }
-        else
-        {
-          Xyce::dout() << " Did not find a resolved global parameter named "
-                       << expressionParameter.uTag()	<< std::endl;
-        }
-      }
-
-      if (parameterFound)
-      {
-        // ERK right thing to do, but won't work until set_vars/order_vars, etc are removed, 
-        // and a better group is set up.
-        if (expressionParameter.getType() == Xyce::Util::EXPR)
-        {
-#if 1
-          Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter: " 
-            << expressionParameter.tag() << std::endl;
-#endif
-
-          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
-          expression.attachParameterNode(saveForLaterStrings[ii], expToBeAttached);
-        }
-        else
-        {
-#if 1
-          Xyce::dout() << "CircuitContext::resolveStrings. About to make_var this parameter: " 
-            << expressionParameter.tag() << std::endl;
-#endif
-
-          if (!expression.make_var(saveForLaterStrings[ii])) // ERK????
-          {
-            Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
-          }
-        }
-      }
-      else
-      {
-        if (Util::isBool(saveForLaterStrings[ii]))
-        {
-          bool stat = false;
-          enumParamType paramType=DOT_PARAM;
-          if (Util::Bval(saveForLaterStrings[ii]))
-            stat = expression.make_constant(saveForLaterStrings[ii], static_cast<double>(1),paramType);
-          else
-            stat = expression.make_constant(saveForLaterStrings[ii], static_cast<double>(0),paramType);
-          if (!stat)
-          {
-            Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value";
-          }
-        }
-        else
-        {
-          unresolvedStrings = true;
-        }
-      }
-    }
-#endif
-  }
-#endif
 
   return !unresolvedStrings;
 }
