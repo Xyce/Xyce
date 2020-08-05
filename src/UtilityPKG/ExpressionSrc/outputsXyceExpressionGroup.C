@@ -53,6 +53,7 @@
 #include <N_PDS_Serial.h>
 
 #include <N_ANP_AnalysisManager.h>
+#include <N_ANP_UQSupport.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_Op.h>
 #include <N_DEV_Const.h>

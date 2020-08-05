@@ -57,8 +57,6 @@
 #include <N_UTL_NodeSymbols.h>
 #include <N_UTL_Op.h>
 
-class expressionGroup;
-
 namespace Xyce {
 namespace IO {
 namespace Measure {

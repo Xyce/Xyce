@@ -38,6 +38,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <random>
 
 #include <mainXyceExpressionGroup.h>
 #include <ast.h>
@@ -53,6 +54,8 @@
 #include <N_PDS_Serial.h>
 
 #include <N_ANP_AnalysisManager.h>
+#include <N_ANP_UQSupport.h>
+#include <N_ANP_SweepParam.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_Op.h>
 #include <N_DEV_Const.h>
@@ -83,9 +86,10 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
  outputManager_(output_manager),
- time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), gmin_(0.0), dt_(0.0), alpha_(0.0)
+ time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), gmin_(0.0), dt_(0.0), alpha_(0.0),
+  randomSeed_(0), 
+  randomSetup_(false)
 {
-
 }
 
 //-------------------------------------------------------------------------------
@@ -421,6 +425,150 @@ unsigned int mainXyceExpressionGroup::getStepNumber()
 bool mainXyceExpressionGroup::getPhaseOutputUsesRadians()
 {
   return outputManager_.getPhaseOutputUsesRadians();
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getRandomOpValue
+//
+// Purpose       : provide a value for a single random operator
+//
+// Special Notes : This does NOT connect to the sampling stuff (yet?)  
+//                 This is written to generate the random numbers directly in
+//                 the group.
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 8/3/2020 
+//-------------------------------------------------------------------------------
+void mainXyceExpressionGroup::getRandomOpValue (
+    Util::astRandTypes type, 
+    std::vector<double> args, 
+    double & value) 
+{
+  if (!randomSetup_)
+  {
+    setupRandom_();
+    randomSetup_  = true;
+  }
+
+  if (type==Util::AST_AGAUSS)
+  {
+    double mean, stddev, n;
+    int argSize = args.size();
+    if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  mainXyceExpressionGroup::getRandomOpValue" <<std::endl; }
+    else { mean=args[0]; stddev=args[1]; }
+
+    if(argSize ==3) { n=args[2];  stddev /= n; }
+    if (Xyce::Util::enableRandomExpression)
+    {
+      value = theRandomSamplesGenerator->generateNormalSample(mean, stddev);
+    }
+    else
+    {
+      value = mean;
+    }
+  }
+  else if (type==Util::AST_GAUSS)
+  {
+    double mean, stddev, n;
+    int argSize = args.size();
+    if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  mainXyceExpressionGroup::getRandomOpValue" <<std::endl; }
+    else { mean=args[0]; stddev=args[1]*mean; }
+
+    if(argSize ==3) { n=args[2];  stddev /= n; }
+    if (Xyce::Util::enableRandomExpression)
+    {
+      value = theRandomSamplesGenerator->generateNormalSample(mean, stddev);
+    }
+    else
+    {
+      value = mean;
+    }
+  }
+  else if (type==Util::AST_AUNIF)
+  {
+    double mean, variation, n;
+    int argSize = args.size();
+    if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  mainXyceExpressionGroup::getRandomOpValue" <<std::endl; }
+    else { mean=args[0]; variation=std::abs(std::real(args[1])); }
+
+    if(argSize ==3) { n=args[2];  variation /= n; }
+
+    double min   = std::real(mean) - std::real(variation);
+    double max   = std::real(mean) + std::real(variation);
+    if (Xyce::Util::enableRandomExpression)
+    {
+      value = theRandomSamplesGenerator->generateUniformSample(min, max);
+    }
+    else
+    {
+      value = mean;
+    }
+  }
+  else if (type==Util::AST_UNIF)
+  {
+    double mean, variation, n;
+    int argSize = args.size();
+    if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  mainXyceExpressionGroup::getRandomOpValue" <<std::endl; }
+    else { mean=args[0]; variation=std::abs(std::real(args[1]*mean)); }
+
+    if(argSize ==3) { n=args[2];  variation /= n; }
+
+    double min   = std::real(mean) - std::real(variation);
+    double max   = std::real(mean) + std::real(variation);
+    if (Xyce::Util::enableRandomExpression)
+    {
+      value = theRandomSamplesGenerator->generateUniformSample(min, max);
+    }
+    else
+    {
+      value = mean;
+    }
+  }
+  else if (type==Util::AST_RAND)
+  {
+    if (Xyce::Util::enableRandomExpression)
+    {
+      value = theRandomSamplesGenerator->generateUniformSample(0.0,1.0);
+    }
+    else
+    {
+      value = 0.5;
+    }
+  }
+  else if (type==Util::AST_LIMIT)
+  {
+  }
+  else
+  {
+    Xyce::Report::DevelFatal() << "Error.  mainXyceExpressionGroup::getRandomOpValue" <<std::endl;
+  }
+
+  return; 
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::setupRandom_
+// Purpose       : provide a value for a single random operator
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 8/3/2020 
+//-------------------------------------------------------------------------------
+void mainXyceExpressionGroup::setupRandom_ ()
+{
+  if (theRandomSamplesGenerator == 0) 
+  { 
+    bool userSeedGiven=false;
+    long userSeed=0;
+    randomSeed_ = Analysis::UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed, userSeedGiven);
+
+    theRandomSamplesGenerator = new randomSamplesGenerator(randomSeed_); 
+  }
+  else
+  {
+    randomSeed_ = theRandomSamplesGenerator->randomSeed;
+  }
 }
 
 } // Util

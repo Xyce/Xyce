@@ -43,6 +43,8 @@
 
 #include <Teuchos_RCP.hpp>
 
+#include <astRandEnum.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -124,6 +126,8 @@ public:
   virtual bool getPhaseOutputUsesRadians() { return true; }
 
   virtual void setRFParamsRequested(std::string type) {}
+
+  virtual void getRandomOpValue (  Util::astRandTypes type, std::vector<double> args, double & value) { return; }
 
 private:
 

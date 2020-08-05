@@ -64,10 +64,35 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-int findNodeIndex(
-  const std::string &       name,
-  const NodeNameMap &       node_map,
-  const IO::AliasNodeMap &      alias_map);
+// this assumes seed is generated externally
+// this uses functions from N_ANP_UQSupport
+class randomSamplesGenerator
+{
+  public:
+   randomSamplesGenerator(long seed=0):
+     randomSeed(seed),
+     mt(randomSeed),
+     uniformDistribution(0.0,1.0)
+  {};
+
+   double generateNormalSample(const double mean, const double stddev)
+   {
+     double prob = uniformDistribution(mt);
+     return Analysis::UQ::setupNormal(prob,mean,stddev);
+   }
+
+   double generateUniformSample(const double min, const double max)
+   {
+     double prob = uniformDistribution(mt);
+     return Analysis::UQ::setupUniform(prob, min, max);
+   }
+
+   long randomSeed;
+   std::mt19937 mt;
+   std::uniform_real_distribution<double> uniformDistribution;
+};
+
+static randomSamplesGenerator *theRandomSamplesGenerator=0;
 
 //-----------------------------------------------------------------------------
 // Class         : mainXyceExpressionGroup
@@ -158,9 +183,13 @@ public:
 
   virtual bool getPhaseOutputUsesRadians();
 
+  virtual void getRandomOpValue (  Util::astRandTypes type, std::vector<double> args, double & value);
+
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
 private:
+
+  void setupRandom_ ();
 
   int getSolutionGID_(const std::string & nodeName);
 
@@ -176,6 +205,8 @@ private:
 
   double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
+  long randomSeed_;
+  bool randomSetup_;
 };
 
 }

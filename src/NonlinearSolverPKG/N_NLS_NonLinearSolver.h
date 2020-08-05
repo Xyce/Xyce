@@ -136,11 +136,7 @@ public:
   virtual bool registerOutputMgr (IO::OutputMgr * outPtr);
   virtual bool registerInitialConditionsManager(IO::InitialConditionsManager * ptr);
 
-  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
-  {
-    expressionGroup_ = group;
-    return ( !(Teuchos::is_null(expressionGroup_)) );
-  }
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   virtual bool initializeAll();
 

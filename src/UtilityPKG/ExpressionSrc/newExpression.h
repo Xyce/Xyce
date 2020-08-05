@@ -96,6 +96,7 @@ public:
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
+    getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
@@ -130,6 +131,7 @@ public:
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
+    getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
@@ -192,6 +194,7 @@ public:
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
+    getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
@@ -244,6 +247,7 @@ public:
     isConstant_(false),
     evaluateFunctionCalledBefore_(false),
     evaluateCalledBefore_(false),
+    getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
@@ -395,6 +399,7 @@ public:
     isConstant_(right.isConstant_),
     evaluateFunctionCalledBefore_(right.evaluateFunctionCalledBefore_),
     evaluateCalledBefore_(right.evaluateCalledBefore_),
+    getTheSeedCalledBefore_(right.getTheSeedCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
@@ -525,6 +530,7 @@ public:
     isConstant_ = right.isConstant_;
     evaluateFunctionCalledBefore_ = right.evaluateFunctionCalledBefore_;
     evaluateCalledBefore_ = right.evaluateCalledBefore_;
+    getTheSeedCalledBefore_ = right.getTheSeedCalledBefore_;
     savedResult_ = right.savedResult_;
     phaseOutputUsesRadians_ = right.phaseOutputUsesRadians_;
 
@@ -994,6 +1000,7 @@ private:
   bool isConstant_;
   bool evaluateFunctionCalledBefore_;
   bool evaluateCalledBefore_;
+  bool getTheSeedCalledBefore_;
   usedType savedResult_;
   bool phaseOutputUsesRadians_;
 

@@ -50,13 +50,12 @@
 #include <N_PDS_fwd.h>
 #include <N_TIA_fwd.h>
 #include <N_TOP_fwd.h>
+#include <N_UTL_fwd.h>
 
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Stats.h>
 #include <N_NLS_ReturnCodes.h>
 #include <N_NLS_NonLinearSolver.h>
-
-class expressionGroup;
 
 namespace Xyce {
 namespace Nonlinear {

@@ -388,6 +388,20 @@ bool NonLinearSolver::registerInitialConditionsManager(IO::InitialConditionsMana
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::registerExpressionGroup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/2/2020
+//-----------------------------------------------------------------------------
+bool NonLinearSolver::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+  return ( !(Teuchos::is_null(expressionGroup_)) );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonLinearSolver::registerTwoLevelSolver
 // Purpose       : This function is called in the event that the two-level
 //                 Newton method has been invoked.

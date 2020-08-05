@@ -90,6 +90,7 @@ class BreakPoint;
 class Expression;
 class ExpressionData;
 class ExpressionInternals;
+class baseExpressionGroup;
 class MachineDependentParams;
 class Marshal;
 class OptionBlock;

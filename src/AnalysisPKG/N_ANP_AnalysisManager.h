@@ -63,8 +63,6 @@
 #include <N_UTL_Stats.h>
 #include <N_UTL_Timer.h>
 
-class expressionGroup;
-
 namespace Xyce {
 namespace Analysis {
 

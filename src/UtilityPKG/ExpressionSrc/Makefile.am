@@ -25,6 +25,8 @@ libExpressionSrc_la_SOURCES = \
   astbinary.h \
   astcomp.h \
   astfuncs.h \
+  ast_random.h \
+	astRandEnum.h \
   expressionGroup.h \
   newExpression.h \
   mainXyceExpressionGroup.h \

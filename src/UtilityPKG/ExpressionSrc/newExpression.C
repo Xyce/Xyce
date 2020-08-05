@@ -55,6 +55,9 @@
 #define isinf(x) std::isinf(x)
 #endif
 
+static long seed_ = 0;
+static bool seedSetup_ = false;
+
 //-------------------------------------------------------------------------------
 // Expression Lexer/Parser header stuff
 //
@@ -807,6 +810,7 @@ void newExpression::setupVariousAstArrays()
       aunifOpVec_.clear();
       unifOpVec_.clear();
       randOpVec_.clear();
+      twoArgLimitOpVec_.clear();
 
       if( !(Teuchos::is_null(astNodePtr_)) )
       {
@@ -846,6 +850,7 @@ void newExpression::setupVariousAstArrays()
         if (astNodePtr_->aunifType())    { aunifOpVec_.push_back(astNodePtr_); }
         if (astNodePtr_->unifType())    { unifOpVec_.push_back(astNodePtr_); }
         if (astNodePtr_->randType())    { randOpVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->twoArgLimitType())    { twoArgLimitOpVec_.push_back(astNodePtr_); }
 
         opVectors_.isTimeDependent = isTimeDependent_;
         opVectors_.isTempDependent = isTempDependent_;
@@ -1290,7 +1295,7 @@ bool newExpression::getValuesFromGroup_()
     Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
     usedType val;
     usedType oldval=agOp->val();
-    group_->getAgaussValue ( agOp->getMean(), agOp->getAlpha(), agOp->getN(), val);
+    group_->getAgaussValue ( agOp->getMu(), agOp->getAlpha(), agOp->getN(), val);
     agOp->setValue ( val );
 
     if (val != oldval) noChange = false;
@@ -1409,6 +1414,94 @@ bool newExpression::getValuesFromGroup_()
     Teuchos::RCP<phaseOp<usedType> > phOp = Teuchos::rcp_static_cast<phaseOp<usedType> > (phaseOpVec_[ii]);
     phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
   }
+
+  // deal with random number operators.  This is a work in progress.
+  if (Xyce::Util::enableRandomExpression)
+  {
+    for (int ii=0;ii<agaussOpVec_.size();ii++) 
+    { 
+      Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
+      if ( !(agOp->getSetValueCalledBefore()) )
+      {
+        double value;
+        std::vector<double> args;
+        args.push_back(std::real( agOp->getMu() ));
+        args.push_back(std::real( agOp->getAlpha() ));
+        args.push_back(std::real( agOp->getN() ));
+        group_->getRandomOpValue (Util::AST_AGAUSS, args, value);
+        usedType val = value;
+        agOp->setValue(val);
+      }
+    }
+
+    for (int ii=0;ii<gaussOpVec_.size();ii++) 
+    { 
+      Teuchos::RCP<gaussOp<usedType> > gaOp = Teuchos::rcp_static_cast<gaussOp<usedType> > (gaussOpVec_[ii]);
+      if ( !(gaOp->getSetValueCalledBefore()) )
+      {
+        double value;
+        std::vector<double> args;
+        args.push_back(std::real( gaOp->getMu() ));
+        args.push_back(std::real( gaOp->getAlpha() ));
+        args.push_back(std::real( gaOp->getN() ));
+        group_->getRandomOpValue (Util::AST_GAUSS, args, value);
+        usedType val = value;
+        gaOp->setValue(val);
+      }
+    }
+
+    for (int ii=0;ii<aunifOpVec_.size();ii++) 
+    { 
+      Teuchos::RCP<aunifOp<usedType> > auOp = Teuchos::rcp_static_cast<aunifOp<usedType> > (aunifOpVec_[ii]);
+      if ( !(auOp->getSetValueCalledBefore()) )
+      {
+        double value;
+        std::vector<double> args;
+        args.push_back(std::real( auOp->getMu() ));
+        args.push_back(std::real( auOp->getAlpha() ));
+        //args.push_back(std::real( auOp->getN() ));  // not supported yet
+        group_->getRandomOpValue (Util::AST_AUNIF, args, value);
+        usedType val = value;
+        auOp->setValue(val);
+      }
+    }
+
+    for (int ii=0;ii<unifOpVec_.size();ii++) 
+    { 
+      Teuchos::RCP<unifOp<usedType> > unOp = Teuchos::rcp_static_cast<unifOp<usedType> > (unifOpVec_[ii]);
+      if ( !(unOp->getSetValueCalledBefore()) )
+      {
+        double value;
+        std::vector<double> args;
+        args.push_back(std::real( unOp->getMu() ));
+        args.push_back(std::real( unOp->getAlpha() ));
+        //args.push_back(std::real( unOp->getN() ));  // not supported yet
+        group_->getRandomOpValue (Util::AST_UNIF, args, value);
+        usedType val = value;
+        unOp->setValue(val);
+      }
+    }
+     
+    for (int ii=0;ii<randOpVec_.size();ii++) 
+    { 
+      Teuchos::RCP<randOp<usedType> > raOp = Teuchos::rcp_static_cast<randOp<usedType> > (randOpVec_[ii]);
+      if ( !(raOp->getSetValueCalledBefore()) )
+      {
+        double value;
+        std::vector<double> args;
+        group_->getRandomOpValue (Util::AST_RAND, args, value);
+        usedType val = value;
+        raOp->setValue(val);
+      }
+    }
+  }
+
+#if 0
+  for (int ii=0;ii<twoArgLimitOpVec_.size();ii++) 
+  { 
+    Teuchos::RCP<twoArgLimitOp<usedType> > talOp = Teuchos::rcp_static_cast<twoArgLimitOp<usedType> > (twoArgLimitOpVec_[ii]);
+  }
+#endif
 
   return noChange;
 }

@@ -49,6 +49,8 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Diagnostic.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Device {
 
@@ -122,7 +124,7 @@ SolverState::SolverState ()
 
 //-----------------------------------------------------------------------------
 // Function      : SolverState::InitializeHomotopyBlockSize
-// Purpose       : constructor
+// Purpose       : 
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
@@ -133,6 +135,18 @@ void SolverState::initializeHomotopyBlockSize(int numBlocks)
   gainScale_.resize(numBlocks, 1.0);
 }
 
+//-----------------------------------------------------------------------------
+// Function      : SolverState::registerExpressionGroup
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 08/3/2020
+//-----------------------------------------------------------------------------
+void SolverState::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : SolverState::operator<<

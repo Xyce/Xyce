@@ -48,13 +48,12 @@
 
 #include <N_IO_fwd.h>
 #include <N_TOP_fwd.h>
+#include <N_UTL_fwd.h>
 
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_ParameterBlock.h>
 #include <N_IO_DeviceBlock.h>
 #include <N_UTL_OptionBlock.h>
-
-class expressionGroup;
 
 namespace Xyce {
 namespace IO {

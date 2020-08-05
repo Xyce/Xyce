@@ -59,8 +59,6 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <expressionGroup.h>
-
 namespace Xyce {
 namespace Device {
 
@@ -92,10 +90,7 @@ public:
     return const_cast<Globals &>(globals_);
   }
 
-  void registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
-  {
-    expressionGroup_ = group;
-  }
+  void registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
 public:
 

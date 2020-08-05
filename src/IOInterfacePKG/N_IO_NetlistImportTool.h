@@ -43,6 +43,7 @@
 #include <N_IO_fwd.h>
 #include <N_PDS_fwd.h>
 #include <N_TOP_fwd.h>
+#include <N_UTL_fwd.h>
 
 #include <N_IO_OutputTypes.h>
 
@@ -55,8 +56,6 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Stats.h>
 #include <N_PDS_Comm.h>
-
-class expressionGroup;
 
 namespace Xyce {
 namespace IO {

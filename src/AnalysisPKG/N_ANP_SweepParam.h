@@ -57,19 +57,10 @@
 
 #include <N_UTL_Param.h>
 
+#include <astRandEnum.h>
+
 namespace Xyce {
 namespace Analysis {
-
-enum astRandTypes
-{
-  AST_AGAUSS,          //  0
-  AST_GAUSS,           //  1
-  AST_AUNIF,           //  2
-  AST_UNIF,            //  3
-  AST_RAND,            //  4
-  AST_LIMIT            //  5
-};
-
 
 //-----------------------------------------------------------------------------
 // Class         : SweepParam
@@ -118,7 +109,7 @@ public:
    valList(0),
    dataSetName(""),
    astOpIndex(-1),
-   astType(AST_AGAUSS),
+   astType(Util::AST_AGAUSS),
    sweepResetFlag_(false),
    lastLocalStepNumber_(-1)
    {}
@@ -168,7 +159,7 @@ public:
   std::string dataSetName;
 
   int astOpIndex;
-  enum astRandTypes astType;
+  enum Util::astRandTypes astType;
 
  private:
   bool sweepResetFlag_;

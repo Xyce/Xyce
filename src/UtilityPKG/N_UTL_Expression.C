@@ -1078,7 +1078,7 @@ void Expression::getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleV
 
     sampling_param.opName     = "AGAUSS";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_AGAUSS;
+    sampling_param.astType    = Util::AST_AGAUSS;
     sampling_param.type       = "NORMAL";
     sampling_param.mean       = std::real(mu);
     sampling_param.stdDev     = std::real(alpha)/std::real(n);
@@ -1111,7 +1111,7 @@ void Expression::getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
 
     sampling_param.opName     = "GAUSS";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_GAUSS;
+    sampling_param.astType    = Util::AST_GAUSS;
     sampling_param.type       = "NORMAL";
     sampling_param.mean       = std::real(mu);
     sampling_param.stdDev     = std::real(alpha)/std::real(n);
@@ -1142,7 +1142,7 @@ void Expression::getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
 
     sampling_param.opName     = "AUNIF";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_AUNIF;
+    sampling_param.astType    = Util::AST_AUNIF;
     sampling_param.type       = "UNIFORM";
 
     sampling_param.startVal = std::real(mu)-std::real(alpha);
@@ -1175,7 +1175,7 @@ void Expression::getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
 
     sampling_param.opName     = "UNIF";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_UNIF;
+    sampling_param.astType    = Util::AST_UNIF;
     sampling_param.type       = "UNIFORM";
 
     sampling_param.startVal = std::real(mu)-std::real(alpha);
@@ -1204,7 +1204,7 @@ void Expression::getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
 
     sampling_param.opName     = "RAND";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_RAND;
+    sampling_param.astType    = Util::AST_RAND;
     sampling_param.type       = "UNIFORM";
 
     sampling_param.startVal = 0.0;
@@ -1233,7 +1233,7 @@ void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
 
     sampling_param.opName     = "LIMIT";
     sampling_param.astOpIndex = ii;
-    sampling_param.astType    = Analysis::AST_LIMIT;
+    sampling_param.astType    = Util::AST_LIMIT;
     sampling_param.type       = "UNIFORM";
 
     sampling_param.startVal = 0.0;

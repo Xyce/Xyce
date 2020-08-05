@@ -75,8 +75,6 @@ using std::tr1::unordered_map;
 
 class SweepParam;
 
-class expressionGroup;
-
 namespace Xyce {
 namespace Device {
 
