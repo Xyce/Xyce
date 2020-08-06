@@ -142,7 +142,7 @@ bool useHspiceMath;
 bool newExpression::lexAndParseExpression()
 {
 #if 0
-  std::cout << "lexAndParseExpression for " << expressionString_ <<std::endl;
+  Xyce::dout() << "lexAndParseExpression for " << expressionString_ <<std::endl;
 #endif
   if (traditionalParse_)
   {
@@ -285,7 +285,7 @@ bool newExpression::lexAndParseExpression()
   if(isGminDependent_) { gminOpVec_.push_back(gminNodePtr_); }
 
 #if 0
-  dumpParseTree(std::cout);
+  dumpParseTree(Xyce::dout());
 #endif
 
   // let AC analysis know if it needs to produce RF param output
@@ -334,34 +334,31 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
       if ( !(Teuchos::is_null(tmpVec[ii])) )
       {
         tmpVec[ii]->setNode(expPtr->getAst());
-      }
-      else { retval=false; }
-
-      Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
-
-      if ( !(Teuchos::is_null(castedFuncPtr)) )
-      {
-        castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() );
-      }
-      else { retval=false; }
-
-      int size1 = castedFuncPtr->getFuncArgs().size();
-      int size2 = expPtr->getFunctionArgOpVec().size();
-      // getFunctionArgStringVec
-      if (size1 != size2)
-      {
-        std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
-        for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
+        Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
+        if ( !(Teuchos::is_null(castedFuncPtr)) )
         {
-          errMsg += expPtr->getFunctionArgStringVec()[ii];
-          if (size2 > 1 && ii < size2-1) { errMsg += ","; }
+          castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() );
+
+          int size1 = castedFuncPtr->getFuncArgs().size();
+          int size2 = expPtr->getFunctionArgOpVec().size();
+          // getFunctionArgStringVec
+          if (size1 != size2)
+          {
+            std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
+            for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
+            {
+              errMsg += expPtr->getFunctionArgStringVec()[ii];
+              if (size2 > 1 && ii < size2-1) { errMsg += ","; }
+            }
+            errMsg += ") in expression " + originalExpressionString_;
+            Xyce::Report::UserError() << errMsg;
+          }
         }
-        errMsg += ") in expression " + originalExpressionString_;
-        Xyce::Report::UserError() << errMsg;
+        else { retval=false; }
       }
+      else { retval=false; }
     }
     externalDependencies_ = true;
-    //addToVariousAstArrays_(expPtr);
     astArraysSetup_ = false;
   }
   else { retval=false; }
@@ -402,7 +399,6 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
     parOp->setIsAttached();
     parOp->setParamType(type);
     externalDependencies_ = true;
-    //addToVariousAstArrays_(expPtr);
     astArraysSetup_ = false;
   }
   else { retval=false; }
@@ -519,7 +515,8 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
   }
   else
   {
-    std::cout << "newExpression::make_constant  ERROR.  Could not find parameter " << tmpParName <<std::endl;
+    Xyce::dout() << "newExpression::make_constant  ERROR.  Could not find parameter " << tmpParName  
+      << " in expression: " << expressionString_ <<std::endl;
   }
 
   return retval;
@@ -556,7 +553,7 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
   }
   else
   {
-    std::cout << "newExpression::make_var  ERROR.  Could not find parameter " << tmpParName <<std::endl;
+    Xyce::dout() << "newExpression::make_var  ERROR.  Could not find parameter " << tmpParName <<std::endl;
   }
 
   return retval;
@@ -606,7 +603,7 @@ void newExpression::setupDerivatives_ ()
         }
         else
         {
-          std::cout << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
+          Xyce::dout() << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
         }
       }
 
@@ -777,8 +774,8 @@ void newExpression::setupVariousAstArrays()
   if (!astArraysSetup_) 
   {
 #if 0
-    std::cout << "Array sizes BEFORE update:" <<std::endl;
-    outputVariousAstArrays(std::cout);
+    Xyce::dout() << "Array sizes BEFORE update:" <<std::endl;
+    outputVariousAstArrays(Xyce::dout());
 #endif
     if (externalDependencies_)
     {
@@ -917,12 +914,26 @@ void newExpression::setupVariousAstArrays()
         leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
       }
 
+      // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing, 
+      // but I was wrong.  It needs updating, because it is used by functions such as 
+      // make_const and make_var.  (those functions *should* use the map, instead)
+      //
+      // A vector is needed during parsing, b/c I need to keep the params in their 
+      // original order for some purposes. (I tried a map during parsing and it broke 
+      // some things, b/c maps change the order.
+      //
+      // But, once those issues are over with, a map should be better.  So, make_const and make_var
+      // really should use the map instead.  Then once that happens, it won't be necessary to 
+      // update paramNameVec here.
+      paramNameVec_.clear();
       paramOpNames_.clear();
       for (int ii=0;ii<paramOpVec_.size();++ii)
       {
         Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
         std::string tmp = parOp->getName();
         paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+
+        paramNameVec_.push_back(tmp);
       }
 
       // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
@@ -944,8 +955,8 @@ void newExpression::setupVariousAstArrays()
       isGminDependent_ = !(gminOpVec_.empty());
 
 #if 0
-      std::cout << "Array sizes AFTER update:" <<std::endl;
-      outputVariousAstArrays(std::cout);
+      Xyce::dout() << "Array sizes AFTER update:" <<std::endl;
+      outputVariousAstArrays(Xyce::dout());
 #endif
 
       if ( !(Teuchos::is_null(group_)) )
@@ -969,7 +980,36 @@ void newExpression::setupVariousAstArrays()
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::addToVariousAstArrays_
-// Purpose       :
+//
+// Purpose       : This function is an alternative to setupVariousAstArrays_.
+//
+//                 Whenever the AST tree is expanded by attaching new nodes to
+//                 it, the various book keeping containers are incomplete and need
+//                 to be updated.
+//
+//                 setupVariousAstArrays_ builds up various bookeeping containers
+//                 by traversing the AST tree, and conditionally pushing back 
+//                 onto those containers.   
+//
+//                 This function instead grabs the containers from the new "attach"
+//                 expression, and then adds to the existing ones via std::insert
+//                 commands.
+//
+//                 I thought that this method (using std::insert, and not traversing 
+//                 the tree) would be faster.  In practice it is much slower.   For small
+//                 expressions and trees, either works fine.  But for really large 
+//                 objects, using this method is around 10x slower.  That surprised me,
+//                 and possibly I'm missing something.  But as it is so much slower,
+//                 this function is not called.
+//
+//                 Back when it was called, it was called at the bottom of the 
+//                 functions "attachParameterNode" and "attachFunctionNode"
+//
+//                 So, this function is probably obsolete, but I haven't deleted it
+//                 yet b/c it is mysterious to me why it is so much slower.  Part 
+//                 of me thinks it should still be faster, if only I can figure
+//                 out the issue.
+//
 // Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter
@@ -1109,11 +1149,11 @@ void newExpression::checkIsConstant_()
 #if 0
   if (isConstant_)
   {
-    std::cout << "expression: " << expressionString_ << " is constant" << std::endl;
+    Xyce::dout() << "expression: " << expressionString_ << " is constant" << std::endl;
   }
   else
   {
-    std::cout << "expression: " << expressionString_ << " is constant" << std::endl;
+    Xyce::dout() << "expression: " << expressionString_ << " is constant" << std::endl;
   }
 #endif
 
@@ -1527,8 +1567,8 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     setupDerivatives_ ();
 
 #if 0
-    std::cout << "Parse Tree for " << expressionString_ << std::endl;
-    dumpParseTree(std::cout);
+    Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
+    dumpParseTree(Xyce::dout());
 #endif
     int err1 = evaluateFunction (result);
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
@@ -1568,16 +1608,16 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     setupVariousAstArrays ();
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
-      std::cout << "ERROR.  Unresolved functions in expression " << originalExpressionString_ <<std::endl;
+      Xyce::dout() << "ERROR.  Unresolved functions in expression " << originalExpressionString_ <<std::endl;
       for(int ii=0;ii<unresolvedFuncOpVec_.size();++ii)
       {
-        std::cout << "unresolvedFuncOpVec_[" << ii << "] = " << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
+        Xyce::dout() << "unresolvedFuncOpVec_[" << ii << "] = " << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
       }
     }
 
 #if 0
-    std::cout << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;
-    dumpParseTree(std::cout);
+    Xyce::dout() << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;
+    dumpParseTree(Xyce::dout());
 #endif
 
     bool noChange = getValuesFromGroup_();
@@ -1600,12 +1640,12 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
       result = astNodePtr_->val();
 
 #if 0
-      std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ <<std::endl;
-      std::cout<< " result = ";
-      std::cout.width(20); std::cout.precision(13); std::cout.setf(std::ios::scientific);
-      std::cout << result << std::endl;
+      Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ <<std::endl;
+      Xyce::dout()<< " result = ";
+      Xyce::dout().width(20); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
+      Xyce::dout() << result << std::endl;
 
-      dumpParseTree(std::cout);
+      dumpParseTree(Xyce::dout());
 #endif
       // ERK: fix this failsafe properly for std::complex
       if (isnan(std::real(result))) { result = 0.0; }
@@ -1616,18 +1656,18 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     {
       result = savedResult_;
 #if 0
-      std::cout << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " << expressionString_ << " result = " << result << std::endl;
+      Xyce::dout() << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " << expressionString_ << " result = " << result << std::endl;
 #endif
     }
   }
   else
   {
-    std::cout << "Error.  Expression " << originalExpressionString_ << " is not parsed yet" << std::endl;
+    Xyce::dout() << "Error.  Expression " << originalExpressionString_ << " is not parsed yet" << std::endl;
     exit(0);
   }
 
 #if 0
-  std::cout << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
+  Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
 #endif
 
   return retVal;
@@ -1655,10 +1695,10 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
     for (int ii=0;ii< compSize; ii++) { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 #if 0
     {
-      std::cout << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
+      Xyce::dout() << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
       for (int ii=0;ii<breakPointTimes.size();ii++)
       {
-        std::cout << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
+        Xyce::dout() << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
       }
     }
 #endif
@@ -1781,7 +1821,7 @@ bool newExpression::replaceName ( const std::string & old_name, const std::strin
   }
 
 #if 0
-  dumpParseTree(std::cout);
+  dumpParseTree(Xyce::dout());
 #endif
   return found;
 }

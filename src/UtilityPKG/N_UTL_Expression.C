@@ -207,10 +207,10 @@ void Expression::attachFunctionNode (const std::string & funcName, const Express
 void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type)
 {
 #if 0
-  std::cout << "attachParameterNode name = " << paramName << " which is ";
-  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
+  Xyce::dout() << "attachParameterNode name = " << paramName << " which is ";
+  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
 #endif
   newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, type);
 }
@@ -270,8 +270,9 @@ int Expression::get_type ( const std::string & var )
   }
   else
   {
-    newExpPtr_->dumpParseTree(std::cout);
-    std::cout << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var << std::endl;
+    newExpPtr_->dumpParseTree(Xyce::dout());
+    Xyce::dout() << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var 
+      << " in expression: " << newExpPtr_->getExpressionString()  <<std::endl;
   }
 
   return retVal;
@@ -290,10 +291,10 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
   newExpPtr_->setupVariousAstArrays();
 
 #if 0
-  std::cout << "make_constant name = " << var << " which is ";
-  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
+  Xyce::dout() << "make_constant name = " << var << " which is ";
+  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
 #endif
   bool retVal=false; // ERK.  check this.
   retVal = newExpPtr_->make_constant (var,val, type);
@@ -330,10 +331,10 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 bool Expression::make_var (std::string const & var, enumParamType type)
 { 
 #if 0
-  std::cout << "mak_var name = " << var << " which is ";
-  if (type==DOT_PARAM)               { std::cout << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { std::cout << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { std::cout << "a subcircuit parameter argument" <<std::endl; }
+  Xyce::dout() << "mak_var name = " << var << " which is ";
+  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
+  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
+  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
 #endif
   bool retVal=false; 
   retVal = newExpPtr_->make_var(var, type);
@@ -354,6 +355,10 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
   newExpPtr_->setupVariousAstArrays();
 
+#if 1
+  newExpPtr_->dumpParseTree(Xyce::dout());
+#endif
+
   params.clear();
   std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
   for (int ii=0;ii<paramOpVec.size();ii++)
@@ -367,6 +372,10 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
       if (it == params.end())
       {
         params.push_back( tmpName );
+#if 1
+        Xyce::dout() << "newExpression::getUnresolvedParams for " << newExpPtr_->getExpressionString() 
+          << " pushing back " << tmpName << std::endl;
+#endif
       }
     }
   }
@@ -658,9 +667,9 @@ void Expression::getVariables (std::vector<std::string> & variables) const
 #if 0
   if ( !(variables.empty()) )
   {
-    std::cout << "Expression::getVariables call for " << newExpPtr_->getExpressionString() << std::endl;
-    for (int ii=0;ii<variables.size();ii++) { std::cout << variables[ii] << std::endl; }
-    newExpPtr_->dumpParseTree(std::cout);
+    Xyce::dout() << "Expression::getVariables call for " << newExpPtr_->getExpressionString() << std::endl;
+    for (int ii=0;ii<variables.size();ii++) { Xyce::dout() << variables[ii] << std::endl; }
+    newExpPtr_->dumpParseTree(Xyce::dout());
   }
 #endif
 }
@@ -960,7 +969,7 @@ bool Expression::isRandomDependent() const
 //-----------------------------------------------------------------------------
 void Expression::dumpParseTree()
 {
-  newExpPtr_->dumpParseTree(std::cout);
+  newExpPtr_->dumpParseTree(Xyce::dout());
 }
 
 //-----------------------------------------------------------------------------
