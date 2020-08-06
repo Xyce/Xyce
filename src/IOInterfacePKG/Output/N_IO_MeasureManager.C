@@ -497,6 +497,8 @@ void Manager::updateDCMeasures(
 void Manager::updateACMeasures(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *real_solution_vector,
   const Linear::Vector *imaginary_solution_vector,
   const Util::Op::RFparamsData *RFparams)
@@ -506,7 +508,7 @@ void Manager::updateACMeasures(
 
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
-    (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector, RFparams);
+    (*it)->updateAC(comm, frequency, fStart, fStop, real_solution_vector, imaginary_solution_vector, RFparams);
   }
   activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end()); }
@@ -523,6 +525,8 @@ void Manager::updateACMeasures(
 void Manager::updateNoiseMeasures(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *real_solution_vector,
   const Linear::Vector *imaginary_solution_vector,
   const double totalOutputNoiseDens,
@@ -535,7 +539,7 @@ void Manager::updateNoiseMeasures(
 
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it)
   {
-    (*it)->updateNoise(comm, frequency, real_solution_vector, imaginary_solution_vector,
+    (*it)->updateNoise(comm, frequency, fStart, fStop, real_solution_vector, imaginary_solution_vector,
 		       totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec);
   }
   activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),

@@ -415,7 +415,7 @@ void OutputMgrAdapter::outputAC (
 {
   outputManager_.setCircuitFrequency(frequency);
 
-  measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr, &RFparams);
+  measureManager_.updateACMeasures(comm_, frequency, fStart, fStop, &solnVecRealPtr, &solnVecImaginaryPtr, &RFparams);
 
   outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
 
@@ -497,13 +497,15 @@ void OutputMgrAdapter::outputSParams (
 //-----------------------------------------------------------------------------
 void OutputMgrAdapter::outputNoise (
   double                frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector &  solnVecRealPtr,
   const Linear::Vector &  solnVecImaginaryPtr,
   double totalOutputNoiseDens_, 
   double totalInputNoiseDens_, 
   const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_)
 {
-  measureManager_.updateNoiseMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr,
+  measureManager_.updateNoiseMeasures(comm_, frequency, fStart, fStop, &solnVecRealPtr, &solnVecImaginaryPtr,
       totalOutputNoiseDens_, totalInputNoiseDens_, &noiseDataVec_);
 
   outputManager_.outputNoise(comm_, frequency, solnVecRealPtr, solnVecImaginaryPtr, 

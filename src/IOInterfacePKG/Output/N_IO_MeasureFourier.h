@@ -81,6 +81,8 @@ class Fourier : public Base
     void updateAC(
       Parallel::Machine comm,
       const double frequency,
+      const double fStart,
+      const double fStop,
       const Linear::Vector *solnVec,
       const Linear::Vector *imaginaryVec,
       const Util::Op::RFparamsData *RFparams);

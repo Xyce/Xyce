@@ -1574,7 +1574,7 @@ bool NOISE::doProcessSuccessfulStep()
   outputManagerAdapter_.outputACwoMeasureUpdates (currentFreq_, fStart_,fStop_,
 	    saved_AC_X_->block(0), saved_AC_X_-> block(1), RFparams_);
 
-  outputManagerAdapter_.outputNoise (currentFreq_, saved_AC_X_->block(0), saved_AC_X_-> block(1),
+  outputManagerAdapter_.outputNoise (currentFreq_, fStart_, fStop_, saved_AC_X_->block(0), saved_AC_X_-> block(1),
      totalOutputNoiseDens_, totalInputNoiseDens_, noiseDataVec_);
 
   if ( !firstDoubleDCOPStep() )
