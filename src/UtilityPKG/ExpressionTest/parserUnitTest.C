@@ -7633,7 +7633,7 @@ TEST ( Double_Parser_ErrorTest, invalidMath)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   //Xyce::Util::newExpression testExpression(std::string("b # n"), testGroup); // 
-  Xyce::Util::newExpression testExpression(std::string("b =# n"), testGroup); // this is what is in the regression test
+  Xyce::Util::newExpression testExpression(std::string("b =# n"), testGroup); // this is what is in the regression test.  it now exits with error, but it was necessary to create a special rule in the parser to trap for it.
   //Xyce::Util::newExpression testExpression(std::string("b * "), testGroup); // this exits with an error
   //Xyce::Util::newExpression testExpression(std::string("sin()"), testGroup); // this exits with an error
   testExpression.lexAndParseExpression();

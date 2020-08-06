@@ -218,6 +218,7 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_SCHEDULE	"schedule"
 %token TOK_URAMP	"uramp"
 %token TOK_POLY	"poly"
+%token TOK_BADPOLY	"bad_poly"
 
 %token TOK_SPICE_PULSE "spice_pulse"
 %token TOK_SPICE_SIN "spice_sin"
@@ -1552,9 +1553,32 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
+// error condition patterns
+   | TOK_BADPOLY 
+    {
+      Xyce::Report::UserError() << "Syntax error in number of nodes in expression: " << newExp.getOriginalExpressionString() << std::endl;
+
+      // the "rand" operator is allocated here b/c all of these functions need to return a 
+      // valid operator or else cause a segfault.  It is not intended to be used, as this function
+      // is trapping for an error condition.  randOp is a convenient
+      // choice b/c it doens't require any arguments.
+      Teuchos::RCP<randOp<usedType> > * randPtr = new Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*randPtr);
+      $$ = tmpPtr;
+      delete randPtr;
+    }
   | exp TOK_INVALID_OP exp
     {
       Xyce::Report::UserError() << "Invalid operator in expression " << newExp.getOriginalExpressionString() << std::endl;
+
+      // the "rand" operator is allocated here b/c all of these functions need to return a 
+      // valid operator or else cause a segfault.  It is not intended to be used, as this function
+      // is trapping for an error condition.  randOp is a convenient
+      // choice b/c it doens't require any arguments.
+      Teuchos::RCP<randOp<usedType> > * randPtr = new Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*randPtr);
+      $$ = tmpPtr;
+      delete randPtr;
     }
   ;
 

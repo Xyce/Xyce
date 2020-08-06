@@ -702,7 +702,9 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"schedule" {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
-<INITIAL>"poly""("  {
+<INITIAL>"poly"  { return XyceExpression::ExpressionParser::token::TOK_BADPOLY; } 
+
+<INITIAL>"poly"[ \t]*"("    {
     BEGIN(polydef);
     return XyceExpression::ExpressionParser::token::TOK_POLY; 
   } 
