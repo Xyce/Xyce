@@ -271,6 +271,7 @@ bool checkGroundNodeName(std::string & name)
   /* %left  TOK_XOR "^" */
 %left  TOK_CARET "^"
 %left  TOK_EQ	"==" TOK_NE	"!=" TOK_LE	"<=" TOK_LT	"<" TOK_GE	">=" TOK_GT	">"
+%left TOK_INVALID_OP
 %left   '-' '+'
 %left   '%'
 %left   '*' '/'
@@ -1551,7 +1552,10 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-
+  | exp TOK_INVALID_OP exp
+    {
+      Xyce::Report::UserError() << "Invalid operator in expression " << newExp.getOriginalExpressionString() << std::endl;
+    }
   ;
 
 nonempty_rfparam_arg_list: TOK_RFPARAM_ARG { $$ = new std::vector<int>; $$->push_back($1); }

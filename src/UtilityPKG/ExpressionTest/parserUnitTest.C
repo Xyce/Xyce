@@ -7632,6 +7632,7 @@ TEST ( Double_Parser_Breakpoint_Test, tableBreakPoint2)
 TEST ( Double_Parser_ErrorTest, invalidMath)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  //Xyce::Util::newExpression testExpression(std::string("b # n"), testGroup); // 
   Xyce::Util::newExpression testExpression(std::string("b =# n"), testGroup); // this is what is in the regression test
   //Xyce::Util::newExpression testExpression(std::string("b * "), testGroup); // this exits with an error
   //Xyce::Util::newExpression testExpression(std::string("sin()"), testGroup); // this exits with an error

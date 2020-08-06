@@ -306,6 +306,11 @@ LEAD I[SDGBEC1-9]
 <INITIAL>">="    { return XyceExpression::ExpressionParser::token::TOK_GE; }
 <INITIAL>"<="    { return XyceExpression::ExpressionParser::token::TOK_LE; }
 
+ /* invalid ops */
+<INITIAL>"#"    { return XyceExpression::ExpressionParser::token::TOK_INVALID_OP; }
+<INITIAL>"=#"    { return XyceExpression::ExpressionParser::token::TOK_INVALID_OP; }
+<INITIAL>"#="    { return XyceExpression::ExpressionParser::token::TOK_INVALID_OP; }
+
  /* variants on voltage node ops */
 
 <INITIAL>{VOP}    {
