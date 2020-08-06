@@ -44,5 +44,15 @@ AVG, INTEG and RMS measures. & This changes makes the qualifier support
 for those three measure types consistent for all four measure modes
 (AC, DC, NOISE and TRAN).  This is also consistent with HSPICE.
 \\ \hline
+
+The Xyce-specific RFC\_LEVEL qualifier is no longer supported for the
+DERIV-WHEN, FIND-WHEN and WHEN measures & That qualifier was added to
+improve the performance of the \texttt{RISE}, \texttt{FALL} and
+\texttt{CROSS} qualifiers for \texttt{MAX}, \texttt{MIN} and \texttt{PP}
+measures, and the performance of the \Xyce{}-specific \texttt{FRAC\_MAX}
+qualifier for \texttt{TRIG} and \texttt{TARG} measures.  It was not
+particularly useful for \texttt{WHEN} measures.  This change simplified
+the addition of ``continuous measures''.
+\\ \hline
 \end{longtable}
 }
