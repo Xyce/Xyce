@@ -2919,6 +2919,33 @@ class tableOp : public astNode<ScalarT>
             ya_[jj] = (tableArgs_)[ii+1]->val();
             if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allNumVal_ = false; }
           }
+          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+#if 1
+          // create derivative table
+          // this code mimics the old expression library.   It uses finite differencing
+          // to set up a new table of derivatives.  The new table is based on the midpoints of
+          // the original table, so it has one extra entry.
+          int ya_size = ya_.size();
+          ta2_.resize(ya_size+1);
+          dya_.resize(ya_size+1);
+          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+          for (int ii=1;ii<ya_size;++ii)
+          {
+            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+            ScalarT h = ( ta_[ii]- ta_[ii-1]);
+            if (std::real(h) != 0.0)
+            {
+              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+            }
+            else
+            {
+              dya_[ii] = 0.0;
+            }
+          }
+          dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+#endif
         }
       };
 
@@ -2981,37 +3008,115 @@ class tableOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
+      //ScalarT y = 0.0;
       ScalarT dydx = 0.0;
       int size = tableArgs_.size();
 
-      if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  Otherwise, dydx=0
+      ScalarT dinput_dx = std::real(this->input_->dx(i));
+
+      if (std::real(dinput_dx) != 0.0)
       {
-        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        // derivative w.r.t. input
+        //
+        // this code mimics the old expression library.   It uses finite differencing
+        // to set up a new table of derivatives.  The new table is based on the midpoints of
+        // the original table, so it has one extra entry.
+        //
+        // I initially tried to use the evalDeriv function in the yInterpolator object.
+        // That method doen't use midpoints, it just differntiates the the linear
+        // interpolation device.  That approach failed at least one regression test.
+        //
+        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
         {
-          ta_[jj] = (tableArgs_)[ii]->val();
-          dya_[jj] = (tableArgs_)[ii+1]->dx(i);
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            ya_[jj] = (tableArgs_)[ii+1]->val();
+          }
+          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+          int ya_size = ya_.size();
+          ta2_.resize(ya_size+1);
+          dya_.resize(ya_size+1);
+          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+          for (int ii=1;ii<ya_size;++ii)
+          {
+            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+            ScalarT h = ( ta_[ii]- ta_[ii-1]);
+            if (std::real(h) != 0.0)
+            {
+              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+            }
+            else
+            {
+              dya_[ii] = 0.0;
+            }
+          }
+          dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
         }
-        dyInterpolator_.init(ta_,dya_); // for linear, this isn't necessary, but for others it is
 
         ScalarT input = std::real(this->input_->val());
-
-        if ( !(ta_.empty()) )
+  
+        if ( !(ta2_.empty()) )
         {
-          int arraySize=ta_.size();
-          if (std::real(input) < std::real(ta_[0]))
+          int arraySize=ta2_.size();
+
+          if (std::real(input) <= std::real(ta2_[0]))
           {
-            dydx = dya_[0];
+            dydx = 0.0;
           }
-          else if (std::real(input) > std::real(ta_[arraySize-1]))
+          else if (std::real(input) >= std::real(ta2_[arraySize-1]))
           {
-            dydx = dya_[arraySize-1];
+            dydx = 0.0;
           }
           else
           {
-            dyInterpolator_.eval(ta_,dya_, input, dydx);
+            dyInterpolator_.eval(ta2_,dya_, input, dydx); 
+            dydx *= dinput_dx;
           }
         }
       }
+#if 0
+      // this code is slightly busted, due to the changes above. Fix later.
+      // (dyInterpolator and dya are used a little differently)
+      // This code is for derivatives w.r.t. table values, rather than the input.
+      // This is a use case that the old library didn't handle.  
+      // So, for now, leaving it commented out.
+      else
+      {
+        // derivative w.r.t. table y values
+        //
+        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  
+        {
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            dya_[jj] = (tableArgs_)[ii+1]->dx(i);
+          }
+          dyInterpolator_.init(ta_,dya_); // for linear, this isn't necessary, but for others it is
+
+          ScalarT input = std::real(this->input_->val());
+
+          if ( !(ta_.empty()) )
+          {
+            int arraySize=ta_.size();
+            if (std::real(input) < std::real(ta_[0]))
+            {
+              dydx = dya_[0];
+            }
+            else if (std::real(input) > std::real(ta_[arraySize-1]))
+            {
+              dydx = dya_[arraySize-1];
+            }
+            else
+            {
+              dyInterpolator_.eval(ta_,dya_, input, dydx);
+            }
+          }
+        }
+      }
+#endif
       return dydx;
     }
 
@@ -3155,6 +3260,7 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     bool allNumVal_;
     std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> ya_;
+    std::vector<ScalarT> ta2_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> dya_;
     Xyce::Util::linear<ScalarT> yInterpolator_; // possibly make this a user choice
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice

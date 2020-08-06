@@ -2711,8 +2711,6 @@ TEST ( Double_Parser_Func_Test, test1_multipleLexParse)
   OUTPUT_MACRO(Double_Parser_Func_Test, test1)
 }
 
-
-
 // tests are taken from the "ternary_precedence.cir" Xyce regression test
 TEST ( Double_Parser_ternary_precedence, simple)
 {
@@ -4665,6 +4663,108 @@ TEST ( Double_Parser_calculus, ddx11)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
 }
 
+//-------------------------------------------------------------------------------
+// using ddx with a table thru a func.  
+//
+// This is inspired by the coil gun tests.  One test uses ddx and the other 
+// does not.
+//
+// When this test was created (8/5/2020) the expression that uses ddx just 
+// returned a zero. ie, it didn't work.  Now it is fixed.  The problem was 
+// with the dx function in the tableOp class.
+//
+// ddx seems to work fine thru .funcs, even though I don't seem to have any 
+// unit tests for it other than this one.
+//
+//
+// .param Poff=0.005    
+// .param Zspace=0.0707 
+//
+// offset is then Poff-Zspace = -0.0657
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_calculus, ddx12)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> poffExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("0.005"), testGroup)); 
+  poffExpression->lexAndParseExpression();
+  std::string poffName="Poff";
+
+  Teuchos::RCP<Xyce::Util::newExpression> zspaceExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("0.0707"), testGroup)); 
+  zspaceExpression->lexAndParseExpression();
+  std::string zspaceName="Zspace";
+
+  //.FUNC LMz1_3(x) {TABLE(x, ... )}
+  Teuchos::RCP<Xyce::Util::newExpression> lmz1_3_Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("TABLE(x, -1.562200e-001,8.314111e-007, -1.504200e-001,8.855486e-007, -1.446200e-001,9.441836e-007, -1.388200e-001,1.007741e-006, -1.330200e-001,1.076705e-006, -1.272200e-001,1.151629e-006, -1.214200e-001,1.233096e-006, -1.156200e-001,1.321782e-006, -1.098200e-001,1.418414e-006, -1.040200e-001,1.523815e-006, -9.822000e-002,1.638897e-006, -9.242000e-002,1.764608e-006, -8.662000e-002,1.902105e-006, -8.082000e-002,2.052570e-006, -7.502000e-002,2.217342e-006, -6.922000e-002,2.397851e-006, -6.342000e-002,2.595707e-006, -5.762000e-002,2.812610e-006, -5.182000e-002,3.050351e-006, -4.602000e-002,3.310836e-006, -4.022000e-002,3.596021e-006, -3.442000e-002,3.907863e-006, -2.862000e-002,4.248147e-006, -2.282000e-002,4.618467e-006, -1.702000e-002,5.019898e-006, -1.122000e-002,5.452745e-006, -5.420000e-003,5.916007e-006, 3.800000e-004,6.407217e-006, 6.180000e-003,6.920922e-006, 1.198000e-002,7.449045e-006, 1.778000e-002,7.979794e-006, 2.358000e-002,8.497570e-006, 2.938000e-002,8.984073e-006, 3.518000e-002,9.419870e-006, 4.098000e-002,9.788100e-006, 4.678000e-002,1.007599e-005, 5.258000e-002,1.027653e-005, 5.838000e-002,1.038781e-005, 6.418000e-002,1.041027e-005, 6.998000e-002,1.034424e-005, 7.578000e-002,1.018858e-005, 8.158000e-002,9.944564e-006, 8.738000e-002,9.616062e-006, 9.318000e-002,9.212598e-006, 9.898000e-002,8.749304e-006, 1.047800e-001,8.244964e-006, 1.105800e-001,7.718794e-006, 1.163800e-001,7.187442e-006, 1.221800e-001,6.665222e-006, 1.279800e-001,6.161786e-006, 1.337800e-001,5.683901e-006, 1.395800e-001,5.235392e-006, 1.453800e-001,4.818026e-006, 1.511800e-001,4.431996e-006)"), testGroup)); 
+
+  Xyce::Util::newExpression lmz1_3_LHS (std::string("LMz1_3(x)"), testGroup);
+  lmz1_3_LHS.lexAndParseExpression();
+  std::vector<std::string> lmz1_3_ArgStrings ;
+  lmz1_3_LHS.getFuncPrototypeArgStrings(lmz1_3_ArgStrings);
+
+  lmz1_3_Expression->setFunctionArgStringVec ( lmz1_3_ArgStrings );
+  lmz1_3_Expression->lexAndParseExpression();
+
+  std::string lmz1_3_Name;
+  lmz1_3_LHS.getFuncPrototypeName(lmz1_3_Name);
+
+   //.FUNC dLMzdz1_3(x) TABLE(x,
+  Teuchos::RCP<Xyce::Util::newExpression> dlmzdz1_3_Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("TABLE(x, -0.15622, 0, -0.15332, 9.33405e-06, -0.14752, 1.01095e-05, -0.14172, 1.09582e-05, -0.13592, 1.18903e-05, -0.13012, 1.29179e-05, -0.12432, 1.4046e-05, -0.11852, 1.52907e-05, -0.11272, 1.66607e-05, -0.10692, 1.81726e-05, -0.10112, 1.98417e-05, -0.09532, 2.16743e-05, -0.08952, 2.37064e-05, -0.08372, 2.59422e-05, -0.07792, 2.8409e-05, -0.07212, 3.11222e-05, -0.06632, 3.41131e-05, -0.06052, 3.73971e-05, -0.05472, 4.09898e-05, -0.04892, 4.49112e-05, -0.04312, 4.91698e-05, -0.03732, 5.37659e-05, -0.03152, 5.86697e-05, -0.02572, 6.38483e-05, -0.01992, 6.92122e-05, -0.01412, 7.46288e-05, -0.00832, 7.98728e-05, -0.00252, 8.46914e-05, 0.00328, 8.85698e-05, 0.00908, 9.10557e-05, 0.01488, 9.15084e-05, 0.02068, 8.92717e-05, 0.02648, 8.38798e-05, 0.03228, 7.51374e-05, 0.03808, 6.34879e-05, 0.04388, 4.96362e-05, 0.04968, 3.45759e-05, 0.05548, 1.91862e-05, 0.06128, 3.87241e-06, 0.06708, -1.13845e-05, 0.07288, -2.68379e-05, 0.07868, -4.20717e-05, 0.08448, -5.66383e-05, 0.09028, -6.95628e-05, 0.09608, -7.98783e-05, 0.10188, -8.69552e-05, 0.10768, -9.0719e-05, 0.11348, -9.16124e-05, 0.11928, -9.00379e-05, 0.12508, -8.67993e-05, 0.13088, -8.2394e-05, 0.13668, -7.73291e-05, 0.14248, -7.19597e-05, 0.14828, -6.65569e-05, 0.15118, 0)"), testGroup)); 
+
+  Xyce::Util::newExpression dlmzdz1_3_LHS (std::string("dLMzdz1_3(x)"), testGroup);
+  dlmzdz1_3_LHS.lexAndParseExpression();
+  std::vector<std::string> dlmzdz1_3_ArgStrings ;
+  dlmzdz1_3_LHS.getFuncPrototypeArgStrings(dlmzdz1_3_ArgStrings);
+
+  dlmzdz1_3_Expression->setFunctionArgStringVec ( dlmzdz1_3_ArgStrings );
+  dlmzdz1_3_Expression->lexAndParseExpression();
+
+  std::string dlmzdz1_3_Name;
+  dlmzdz1_3_LHS.getFuncPrototypeName(dlmzdz1_3_Name);
+
+  //Xyce::Util::newExpression ddxTest(std::string("ddx(LMz1_3(v(b)+Poff-Zspace*3),v(b))"), testGroup); 
+  //Xyce::Util::newExpression ddxTest(std::string("ddx(LMz1_3(v(b)+Poff-Zspace*2),v(b))"), testGroup); 
+  Xyce::Util::newExpression ddxTest(std::string("ddx(LMz1_3(v(b)+Poff-Zspace),v(b))"), testGroup); 
+  //Xyce::Util::newExpression ddxTest(std::string("ddx(LMz1_3(v(b)),v(b))"), testGroup); 
+  ddxTest.lexAndParseExpression();
+  ddxTest.attachFunctionNode(lmz1_3_Name, lmz1_3_Expression);
+  ddxTest.attachParameterNode(poffName,poffExpression);
+  ddxTest.attachParameterNode(zspaceName,zspaceExpression);
+  
+  //Xyce::Util::newExpression baseline(std::string("dLMzdz1_3(v(b)+Poff-Zspace*3)"), testGroup); 
+  //Xyce::Util::newExpression baseline(std::string("dLMzdz1_3(v(b)+Poff-Zspace*2)"), testGroup); 
+  Xyce::Util::newExpression baseline(std::string("dLMzdz1_3(v(b)+Poff-Zspace)"), testGroup); 
+  //Xyce::Util::newExpression baseline(std::string("dLMzdz1_3(v(b))"), testGroup); 
+  baseline.lexAndParseExpression();
+  baseline.attachFunctionNode(dlmzdz1_3_Name, dlmzdz1_3_Expression);
+  baseline.attachParameterNode(poffName,poffExpression);
+  baseline.attachParameterNode(zspaceName,zspaceExpression);
+
+std::vector<double> xvals = 
+  {-0.15622, -0.15332, -0.14752, -0.14172, -0.13592, -0.13012, -0.12432, -0.11852,
+   -0.11272, -0.10692, -0.10112, -0.09532, -0.08952, -0.08372, -0.07792, -0.07212,
+   -0.06632, -0.06052, -0.05472, -0.04892, -0.04312, -0.03732, -0.03152, -0.02572,
+   -0.01992, -0.01412, -0.00832, -0.00252, 0.00328, 0.00908, 0.01488, 0.02068,
+    0.02648, 0.03228, 0.03808, 0.04388, 0.04968, 0.05548, 0.06128, 0.06708,
+    0.07288, 0.07868, 0.08448, 0.09028, 0.09608, 0.10188, 0.10768, 0.11348,
+    0.11928, 0.12508, 0.13088, 0.13668, 0.14248, 0.14828, 0.15118 };
+
+  int size = xvals.size();
+  for(int ii=0;ii<size;ii++)
+  {
+    solnGroup->setSoln(std::string("b"), xvals[ii]);
+    double result1;
+    double result2;
+    ddxTest.evaluateFunction(result1);        
+    baseline.evaluateFunction(result2);        
+    //std::cout.setf(std::ios::scientific);
+    //std::cout << xvals[ii] << "\t" << result1 << "\t" << result2 <<std::endl;
+    EXPECT_NEAR(result1, result2, std::abs(1.0e-4*result1));
+  }
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_calculus, simpleDerivs1 )
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -5088,9 +5188,9 @@ TEST ( Double_Parser_calculus, derivsThruFuncs7 )
   derivFuncTestExpr.attachFunctionNode(f1Name, f1Expression);
   derivFuncTestExpr.attachParameterNode(p1Name , p1Expression);
 
-  //Xyce::Util::newExpression copy_derivFuncTestExpr(derivFuncTestExpr); 
-  //Xyce::Util::newExpression assign_derivFuncTestExpr; 
-  //assign_derivFuncTestExpr = derivFuncTestExpr; 
+  Xyce::Util::newExpression copy_derivFuncTestExpr(derivFuncTestExpr); 
+  Xyce::Util::newExpression assign_derivFuncTestExpr; 
+  assign_derivFuncTestExpr = derivFuncTestExpr; 
 
   double Bval=2.5;
   solnFuncGroup->setSoln(std::string("B"),Bval);
@@ -5101,9 +5201,9 @@ TEST ( Double_Parser_calculus, derivsThruFuncs7 )
   derivFuncTestExpr.dumpParseTree(std::cout);
 #endif
 
-  derivFuncTestExpr.evaluateFunction(result);       EXPECT_EQ(result, refRes);
-  //copy_derivFuncTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
-  //assign_derivFuncTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+  derivFuncTestExpr.evaluateFunction(result);        EXPECT_EQ(result, refRes);
+  copy_derivFuncTestExpr.evaluateFunction(result);   EXPECT_EQ(result, refRes);
+  assign_derivFuncTestExpr.evaluateFunction(result); EXPECT_EQ(result, refRes);
 }
 
 
