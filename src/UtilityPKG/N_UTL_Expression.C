@@ -355,7 +355,7 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
   newExpPtr_->setupVariousAstArrays();
 
-#if 1
+#if 0
   newExpPtr_->dumpParseTree(Xyce::dout());
 #endif
 
@@ -372,7 +372,7 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
       if (it == params.end())
       {
         params.push_back( tmpName );
-#if 1
+#if 0
         Xyce::dout() << "newExpression::getUnresolvedParams for " << newExpPtr_->getExpressionString() 
           << " pushing back " << tmpName << std::endl;
 #endif

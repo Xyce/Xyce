@@ -412,7 +412,9 @@ bool newExpression::attachParameterNode(const std::string & paramName, const Teu
 //                 and puts the class in the state that it should be in
 //                 prior to calling the function lexAndParseExpression
 //
-// Special Notes : I am not sure this function needs to exist and it is hard to maintain reliably.
+// Special Notes : This function is hard to maintain reliably. Unfortunately, I 
+//                 can't (yet?) remove it
+//
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : ??
@@ -464,6 +466,7 @@ void newExpression::clear ()
 
   funcOpVec_.clear();
   unresolvedFuncOpVec_.clear();
+  funcOpMap_.clear();
 
   voltNameVec_.clear();
   voltOpVec_.clear();
@@ -479,7 +482,61 @@ void newExpression::clear ()
   unresolvedLeadCurrentOpVec_.clear();
   leadCurrentOpNames_.clear();
 
+  bsrcCurrentOpVec_.clear();
+  bsrcCurrentOpNames_.clear();
+
+  powerOpVec_.clear();
+  powerOpNames_.clear();
+
+  internalDevVarOpVec_.clear();
+  internalDevVarOpNames_.clear();
+
+  dnoNoiseDevVarOpVec_.clear();
+  dnoNoiseDevVarOpNames_.clear();
+
+  dniNoiseDevVarOpVec_.clear();
+  dniNoiseDevVarOpNames_.clear();
+
+  oNoiseOpVec_.clear();
+  oNoiseOpNames_.clear();
+
+  iNoiseOpVec_.clear();
+  iNoiseOpNames_.clear();
+
+  sdtOpVec_.clear();
+  ddtOpVec_.clear();
+  phaseOpVec_.clear();
+  sparamOpVec_.clear();
+  yparamOpVec_.clear();
+  zparamOpVec_.clear();
+  agaussOpVec_.clear();
+  localAgaussOpVec_.clear();
+  gaussOpVec_.clear();
+  localGaussOpVec_.clear();
+  aunifOpVec_.clear();
+  localAunifOpVec_.clear();
+  unifOpVec_.clear();
+  localUnifOpVec_.clear();
+  randOpVec_.clear();
+  localRandOpVec_.clear();
+  twoArgLimitOpVec_.clear();
+  localTwoArgLimitOpVec_.clear();
+ 
+  srcAstNodeVec_.clear();
+  stpAstNodeVec_.clear();
+  compAstNodeVec_.clear();
+
+  timeOpVec_.clear();
+  dtOpVec_.clear();
+  tempOpVec_.clear();
+  vtOpVec_.clear();
+  freqOpVec_.clear();
+  gminOpVec_.clear();
+
+  externalExpressions_.clear();
+
   derivIndexVec_.clear();
+  derivNodeIndexMap_.clear();
 
   return;
 }
@@ -705,6 +762,8 @@ NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(stpAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(compAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
+NEW_EXP_OUTPUT_ARRAY(timeOpVec_)
+NEW_EXP_OUTPUT_ARRAY(dtOpVec_)
 }
 
 #define NEW_EXP_OUTPUT_ARRAY_SIZE(VECTOR) \
@@ -743,6 +802,8 @@ NEW_EXP_OUTPUT_ARRAY_SIZE(ddtOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(stpAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(compAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(phaseOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(timeOpVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(dtOpVec_)
 }
 
 //-------------------------------------------------------------------------------
@@ -779,7 +840,7 @@ void newExpression::setupVariousAstArrays()
 #endif
     if (externalDependencies_)
     {
-      // 1. setup arrays that require full AST traversal:
+      // setup arrays that require full AST traversal:
       paramOpVec_.clear();
       funcOpVec_.clear();
       voltOpVec_.clear();
@@ -793,7 +854,7 @@ void newExpression::setupVariousAstArrays()
       oNoiseOpVec_.clear();
       iNoiseOpVec_.clear();
       sdtOpVec_.clear();
-      dtOpVec_.clear();
+      ddtOpVec_.clear();
       srcAstNodeVec_.clear();
       stpAstNodeVec_.clear();
       compAstNodeVec_.clear();
@@ -863,30 +924,9 @@ void newExpression::setupVariousAstArrays()
         if (opVectors_.isGminDependent) isGminDependent_ = true;
       }
 
-#if 0
-      funcNameVec_.clear();
-      //funcOpMap_.clear();
-      for (int ii=0;ii<funcOpVec_.size();++ii)
-      {
-        Teuchos::RCP<funcOp<usedType> > functionOp = Teuchos::rcp_static_cast<funcOp<usedType> > (funcOpVec_[ii]);
-        std::string tmp = functionOp->getName();
-        Xyce::Util::toUpper(tmp);
-        //funcOpMap_[tmp].push_back(funcOpVec_[ii]);
-        funcNameVec_.push_back(tmp);
-      }
-
-      //paramNameVec_.clear();
-      //paramOpMap_.clear();
-      for (int ii=0;ii<paramOpVec_.size();++ii)
-      {
-        Teuchos::RCP<paramOp<usedType> > parameterOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-        std::string tmp = parameterOp->getName();
-        Xyce::Util::toUpper(tmp);
-        //paramOpMap_[tmp].push_back(paramOpVec_[ii]);
-        //paramNameVec_.push_back(tmp);
-      }
-#endif
-
+      // populate some vectors that depend on the above AST traversal, 
+      // but that were not updated during it. (these could easily be included in the 
+      // traversal, so perhaps do that later)
       voltOpNames_.clear();
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
@@ -915,16 +955,26 @@ void newExpression::setupVariousAstArrays()
       }
 
       // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing, 
-      // but I was wrong.  It needs updating, because it is used by functions such as 
+      // but I was wrong.  It needs updating here, because it is used by functions such as 
       // make_const and make_var.  (those functions *should* use the map, instead)
       //
       // A vector is needed during parsing, b/c I need to keep the params in their 
       // original order for some purposes. (I tried a map during parsing and it broke 
-      // some things, b/c maps change the order.
+      // some things, b/c maps change the order)
       //
       // But, once those issues are over with, a map should be better.  So, make_const and make_var
       // really should use the map instead.  Then once that happens, it won't be necessary to 
-      // update paramNameVec here.
+      // update paramNameVec here.  But for now, to make those functions work properly, it is
+      // what it is.
+      //
+      // Note, it just occured to me(8/7/2020):  the paramNameVec usage in make_var and make_const will
+      // find the first occurance of a particular parameter.  If there are duplicates, it won't 
+      // find the others.  With the map object, it wouldn't have this problem.
+      //
+      // During parsing, there is code in the parser to ensure that there aren't any 
+      // duplicates in the paramOpVec_ or in the parmaNameVec_.  But once external nodes are attached,
+      // it isn't possible to enforce this anymore.  So, at that stage, the paramNameVec_ 
+      // could have duplicates in it, and make_var and make_const will break.
       paramNameVec_.clear();
       paramOpNames_.clear();
       for (int ii=0;ii<paramOpVec_.size();++ii)
@@ -936,10 +986,10 @@ void newExpression::setupVariousAstArrays()
         paramNameVec_.push_back(tmp);
       }
 
-      // 2. setup arrays that require traversal of expression objects (rather than AST nodes)
-      //    For specials, this is more appropriate the AST traversal, as there will be at
-      //    most one "time" node per expression object.   I think this should be a faster
-      //    traversal, generally.
+      // setup arrays that require traversal of expression objects (rather than AST nodes)
+      // For specials, this is more appropriate the AST traversal, as there will be at
+      // most one "time" node per expression object.   I think this should be a faster
+      // traversal, generally.
 
       for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getTimeNodes(timeOpVec_); }
       for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getDtNodes(dtOpVec_); }
@@ -1327,20 +1377,6 @@ bool newExpression::getValuesFromGroup_()
     if (val != oldval) noChange = false;
   }
 
-  // random number operators:
-#if 0
-  // possible API:
-  for (int ii=0;ii<agaussOpVec_.size();ii++)
-  {
-    Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
-    usedType val;
-    usedType oldval=agOp->val();
-    group_->getAgaussValue ( agOp->getMu(), agOp->getAlpha(), agOp->getN(), val);
-    agOp->setValue ( val );
-
-    if (val != oldval) noChange = false;
-  }
-#endif
 
   // specials:
   if ( !(timeOpVec_.empty()) )
@@ -1456,12 +1492,14 @@ bool newExpression::getValuesFromGroup_()
   }
 
   // deal with random number operators.  This is a work in progress.
+ 
+  // The following currently only work for the non-sampling case.
   if (Xyce::Util::enableRandomExpression)
   {
     for (int ii=0;ii<agaussOpVec_.size();ii++) 
     { 
       Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
-      if ( !(agOp->getSetValueCalledBefore()) )
+      if ( !(agOp->getSetValueCalledBefore()) ) // key line for the non-sampling case; can only be updated 1x
       {
         double value;
         std::vector<double> args;
@@ -1944,6 +1982,7 @@ void newExpression::processSuccessfulTimeStep ()
 {
   for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
   for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
+  for (int ii=0;ii<funcOpVec_.size();ii++) { funcOpVec_[ii]->processSuccessfulTimeStep (); }
 }
 
 //-----------------------------------------------------------------------------

@@ -7520,15 +7520,15 @@ TEST ( Double_Parser_Integral_Test, sdt6)
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt6)
 }
 
-
+// this point of this test is to make sure that when SDT is inside of a .FUNC, 
+// and that .FUNC is called more than once, that the integral informmation doesn't 
+// get mangled.  Each call to the .FUNC should carry its own unique SDT state.
 TEST ( Double_Parser_Integral_Test, sdt7)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
 
   Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
-  //Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
-  //Xyce::Util::newExpression testExpression(std::string("F1(V(B))"), testGroup);
   testExpression.lexAndParseExpression();
 
   // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
@@ -7552,7 +7552,7 @@ TEST ( Double_Parser_Integral_Test, sdt7)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 
@@ -7560,10 +7560,9 @@ TEST ( Double_Parser_Integral_Test, sdt7)
   double refRes = 0.0;
 
   double time=0.0;
-  //double finalTime=1.0;
-  double finalTime=0.01;
+  double finalTime=1.0;
 
-  int numSteps = 11;
+  int numSteps = 1001;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)
@@ -7577,16 +7576,86 @@ TEST ( Double_Parser_Integral_Test, sdt7)
     sdtGroup->setTimeStep(dt);
     testExpression.evaluateFunction(result);   
     refRes = time*time*0.5 + 3.0*std::sin(time);
-    //refRes = time*time*0.5;
-    //refRes = 3.0*std::sin(time);
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt6)
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt7)
 }
 
+// this test is similar to sdt7, except that the SDT operators 
+// are behind 2 layers of funcs instead of 1.
+TEST ( Double_Parser_Integral_Test, sdt8)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {f2(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("f2(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  // this expression is the RHS of a .func statement:  .func F2(A) {sdt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f2_LHS (std::string("F2(A)"), testGroup);
+  f2_LHS.lexAndParseExpression();
+  std::vector<std::string> f2ArgStrings ;
+  f2_LHS.getFuncPrototypeArgStrings(f2ArgStrings);
+  f2Expression->setFunctionArgStringVec (f2ArgStrings);
+  f2Expression->lexAndParseExpression();
+  std::string f2Name;
+  f2_LHS.getFuncPrototypeName(f2Name);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    refRes = time*time*0.5 + 3.0*std::sin(time);
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt8)
+}
 
 //-------------------------------------------------------------------------------
 // breakpoint function testing
