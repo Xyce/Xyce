@@ -63,6 +63,711 @@ class testExpressionGroup : public Xyce::Util::baseExpressionGroup
     ~testExpressionGroup () {};
 };
 
+//-------------------------------------------------------------------------------
+class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    timeDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0), gmin(0.0)  {};
+    ~timeDepExpressionGroup () {};
+    virtual double getTime() { return time; };
+    virtual double getFreq() { return freq; };
+    virtual double getGmin() { return gmin; };
+    void setTime(double t) { time = t; };
+    void setFreq(double f) { freq = f; };
+    void setGmin(double g) { gmin = g; };
+    double time;
+    double freq;
+    double gmin;
+};
+
+//-------------------------------------------------------------------------------
+class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solnExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0), ACC1val(0.0)
+  {};
+    ~solnExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else if (tmp==std::string("c")) { retval = Cval; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val; return true; }
+
+    else if (tmp==std::string("vb")) { retval = VBval; return true; }
+    else if (tmp==std::string("vc")) { retval = VCval; return true; }
+    else if (tmp==std::string("ve")) { retval = VEval; return true; }
+    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
+    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
+    else if (tmp==std::string("yacc_acc1")) { retval = ACC1val; return true; }
+    else if (tmp==std::string("yacc!acc1")) { retval = ACC1val; return true; }
+    else { retval = 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+    else if (tmp==std::string("c")) { Cval = val; }
+    else if (tmp==std::string("r1")) { R1val = val; }
+    else if (tmp==std::string("v1")) { R1val = val; }
+
+    else if (tmp==std::string("vb")) { VBval = val; }
+    else if (tmp==std::string("vc")) { VCval = val; }
+    else if (tmp==std::string("ve")) { VEval = val; }
+    else if (tmp==std::string("vlp")) { VLPval = val; }
+    else if (tmp==std::string("vln")) { VLNval = val; }
+    else if (tmp==std::string("yacc_acc1")) { ACC1val = val; }
+    else if (tmp==std::string("yacc!acc1")) { ACC1val = val; }
+  }
+
+  void setPower(const std::string & deviceName, double & val) { return setSoln(deviceName, val); }
+  bool getPower(const std::string & tag, const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
+
+  private:
+
+  double Aval, Bval, Cval, R1val;
+  double VBval, VCval, VEval, VLPval, VLNval, ACC1val;
+};
+
+//-------------------------------------------------------------------------------
+class solutionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solutionGroup () : Xyce::Util::baseExpressionGroup() {};
+    ~solutionGroup () {};
+
+  void setSoln(const std::string & name, double val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    internalVars_[lowerName] = val;
+  };
+
+  bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+  {
+    return getSolutionVal(deviceName, retval);
+  }
+
+  virtual bool getSolutionVal(const std::string & name, double & val )
+  {
+    bool retval=true;
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    if (internalVars_.find(lowerName) != internalVars_.end()) { val = internalVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  private:
+    std::unordered_map <std::string, double> internalVars_;
+};
+
+//-------------------------------------------------------------------------------
+class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    currSolnExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
+  {};
+    ~currSolnExpressionGroup () {};
+
+  virtual bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else if (tmp==std::string("c")) { retval = Cval; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val; return true; }
+
+    else if (tmp==std::string("vb")) { retval = VBval; return true; }
+    else if (tmp==std::string("vc")) { retval = VCval; return true; }
+    else if (tmp==std::string("ve")) { retval = VEval; return true; }
+    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
+    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & deviceName, double val)
+  {
+    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+    else if (tmp==std::string("c")) { Cval = val; }
+    else if (tmp==std::string("r1")) { R1val = val; }
+    else if (tmp==std::string("v1")) { R1val = val; }
+
+    else if (tmp==std::string("vb")) { VBval = val; }
+    else if (tmp==std::string("vc")) { VCval = val; }
+    else if (tmp==std::string("ve")) { VEval = val; }
+    else if (tmp==std::string("vlp")) { VLPval = val; }
+    else if (tmp==std::string("vln")) { VLNval = val; }
+  }
+
+  private:
+    double Aval, Bval, Cval, R1val;
+    double VBval, VCval, VEval, VLPval, VLNval;
+};
+
+//-------------------------------------------------------------------------------
+class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    leadCurrentExpressionGroup () :
+      Xyce::Util::baseExpressionGroup() {};
+    ~leadCurrentExpressionGroup () {};
+
+  bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval ) 
+  { 
+    bool retbool = true;
+    retval=0.0; 
+    std::string des=designator;
+    Xyce::Util::toUpper(des);
+
+    if (des==std::string("IG"))
+    {
+      if (IGvalues.find(deviceName) != IGvalues.end()) { retval = IGvalues[deviceName]; }
+      else { retbool = false; }
+    }
+    else if (des==std::string("ID"))
+    {
+      if (IDvalues.find(deviceName) != IDvalues.end()) { retval = IDvalues[deviceName]; }
+      else { retbool = false; }
+    }
+    else if (des==std::string("IS"))
+    {
+      if (ISvalues.find(deviceName) != ISvalues.end()) { retval = ISvalues[deviceName]; }
+      else { retbool = false; }
+    }
+
+    return retbool;
+  }
+
+  bool setCurrentVal  ( const std::string & deviceName, const std::string & designator, double setval ) 
+  {
+    std::string des=designator;
+    Xyce::Util::toUpper(des);
+
+    if (des == std::string("IG")) IGvalues[deviceName] = setval;
+    else if(des == std::string("ID")) IDvalues[deviceName] = setval;
+    else if(des == std::string("IS")) ISvalues[deviceName] = setval;
+
+    return true;
+  }
+
+  private:
+    std::unordered_map <std::string, double > IGvalues;
+    std::unordered_map <std::string, double > IDvalues;
+    std::unordered_map <std::string, double > ISvalues;
+};
+
+//-------------------------------------------------------------------------------
+class internalDevExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    internalDevExpressionGroup () : Xyce::Util::baseExpressionGroup() {};
+    ~internalDevExpressionGroup () {};
+
+  void setInternalDeviceVar (const std::string & name, double val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    internalVars_[lowerName] = val;
+  };
+
+  bool getInternalDeviceVar       (const std::string & name, double & val)
+  {
+    bool retval=true;
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    if (internalVars_.find(lowerName) != internalVars_.end()) { val = internalVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  private:
+    std::unordered_map <std::string, double> internalVars_;
+};
+
+//-------------------------------------------------------------------------------
+class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    noiseExpressionGroup () : Xyce::Util::baseExpressionGroup(), inoise_(0.0), onoise_(0.0) {};
+    ~noiseExpressionGroup () {};
+
+  void setDnoNoiseDeviceVar (const std::vector<std::string> & names, double val)
+  {
+    std::string lowerName;
+    if ( !(names.empty()) )
+    {
+      lowerName = names[0];
+      Xyce::Util::toLower(lowerName);
+      dnoDeviceVars_[lowerName] = val;
+    }
+  };
+
+  void setDniNoiseDeviceVar (const std::vector<std::string> & names, double val)
+  {
+    std::string lowerName;
+    if ( !(names.empty()) )
+    {
+      lowerName = names[0];
+      Xyce::Util::toLower(lowerName);
+      dniDeviceVars_[lowerName] = val;
+    }
+  };
+
+  void setONoise (double val) { onoise_ = val; };
+  void setINoise (double val) { inoise_ = val; };
+
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
+  { 
+    bool retval=true;
+    std::string lowerName;
+    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
+    Xyce::Util::toLower(lowerName);
+    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
+  { 
+    bool retval=true;
+    std::string lowerName;
+    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
+    Xyce::Util::toLower(lowerName);
+    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  virtual bool getONoise(double & retval) { retval=onoise_; return true; }
+  virtual bool getINoise(double & retval) { retval=inoise_; return true; }
+
+  private:
+    std::unordered_map <std::string, double> dnoDeviceVars_;
+    std::unordered_map <std::string, double> dniDeviceVars_;
+    double inoise_, onoise_;
+};
+
+//-------------------------------------------------------------------------------
+class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    testExpressionGroupWithFuncSupport () : 
+      Xyce::Util::baseExpressionGroup(),
+    B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
+      
+    
+    ~testExpressionGroupWithFuncSupport () {};
+
+    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+    {
+      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else if (tmp==std::string("z")) { retval = vz; return true; }
+      else { return 0.0; return false; }
+    }
+
+    virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else if (tmp==std::string("z")) { retval = vz; return true; }
+      else { return 0.0; return false; }
+    }
+
+    void setSoln(const std::string & nodeName, double val)
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { B2 = val; }
+      else if (tmp==std::string("v2")) { V2 = val; }
+      else if (tmp==std::string("6")) { v6 = val; }
+      else if (tmp==std::string("7")) { v7 = val; }
+      else if (tmp==std::string("z")) { vz = val; }
+    }
+
+  private:
+    double B2;
+    double V2;
+    double v6;
+    double v7;
+    double vz;
+};
+
+//-------------------------------------------------------------------------------
+class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    ifStatementExpressionGroup () : Xyce::Util::baseExpressionGroup(), 
+    time(0.0), B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
+    ~ifStatementExpressionGroup () {};
+
+    virtual double getTime() { return time; };
+    void setTime(double t) { time = t; };
+
+    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+    {
+      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else { return 0.0; return false; }
+    }
+
+    virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { retval = B2; return true; }
+      else if (tmp==std::string("v2")) { retval = V2; return true; }
+      else if (tmp==std::string("6")) { retval = v6; return true; }
+      else if (tmp==std::string("7")) { retval = v7; return true; }
+      else { return 0.0; return false; }
+    }
+
+    void setSoln(const std::string & nodeName, double val)
+    {
+      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+      if (tmp==std::string("b2")) { B2 = val; }
+      else if (tmp==std::string("v2")) { V2 = val; }
+      else if (tmp==std::string("6")) { v6 = val; }
+      else if (tmp==std::string("7")) { v7 = val; }
+    }
+
+  private:
+
+    double time;
+    double B2;
+    double V2;
+    double v6;
+    double v7;
+};
+
+//-------------------------------------------------------------------------------
+class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0), VT(0.0)  {};
+    ~tempDepExpressionGroup () {};
+
+    virtual double getTemp() { return temp; };
+    void setTemp(double t) { temp = t; };
+
+    virtual double getVT() { return VT; };
+    void setVT(double t) { VT = t; };
+
+    double temp;
+    double VT;
+};
+
+
+//-------------------------------------------------------------------------------
+class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    Bsrc_C1_ExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), time(0.0), ONEval(0.0), TWOval(0.0) {};
+    ~Bsrc_C1_ExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("1")) { retval = ONEval; return true; }
+    else if (tmp==std::string("2")) { retval = TWOval; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("1")) { ONEval = val; }
+    else if (tmp==std::string("2")) { TWOval = val; }
+  }
+
+  virtual double getTime() { return time; };
+  void setTime(double t) { time = t; };
+
+  private:
+    double time, ONEval, TWOval;
+};
+
+//-------------------------------------------------------------------------------
+class Bsrc_C1_ExpressionGroup_noparam : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    Bsrc_C1_ExpressionGroup_noparam () :
+      Xyce::Util::baseExpressionGroup(), time(0.0), ONEval(0.0), TWOval(0.0) {};
+    ~Bsrc_C1_ExpressionGroup_noparam () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("1")) { retval = ONEval; return true; }
+    else if (tmp==std::string("2")) { retval = TWOval; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("1")) { ONEval = val; }
+    else if (tmp==std::string("2")) { TWOval = val; }
+  }
+
+  virtual double getTime() { return time; };
+  void setTime(double t) { time = t; };
+
+  private:
+    double time, ONEval, TWOval;
+};
+
+//-------------------------------------------------------------------------------
+class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solnAndFuncExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
+    ~solnAndFuncExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval_; return true; }
+    else if (tmp==std::string("b")) { retval = Bval_; return true; }
+    else if (tmp==std::string("c")) { retval = Cval_; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
+    else if (tmp==std::string("v1")) { retval = R1val_; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval_ = val; }
+    else if (tmp==std::string("b")) { Bval_ = val; }
+    else if (tmp==std::string("c")) { Cval_ = val; }
+    else if (tmp==std::string("r1")) { R1val_ = val; }
+    else if (tmp==std::string("v1")) { R1val_ = val; }
+  }
+
+  private:
+    double Aval_, Bval_, Cval_, R1val_;
+};
+
+//-------------------------------------------------------------------------------
+class solnExpressionGroup2 : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solnExpressionGroup2 () :
+      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
+    ~solnExpressionGroup2 () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval_; return true; }
+    else if (tmp==std::string("b")) { retval = Bval_; return true; }
+    else if (tmp==std::string("c")) { retval = Cval_; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval_ = val; }
+    else if (tmp==std::string("b")) { Bval_ = val; }
+    else if (tmp==std::string("c")) { Cval_ = val; }
+    else if (tmp==std::string("r1")) { R1val_ = val; }
+  }
+
+  private:
+    double Aval_, Bval_, Cval_, R1val_;
+};
+
+//-------------------------------------------------------------------------------
+class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    sdtExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0), stepNumber(0)
+  {};
+    ~sdtExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval; return true; }
+    else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else { retval= 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval = val; }
+    else if (tmp==std::string("b")) { Bval = val; }
+  }
+
+  virtual double getTime() { return time; };
+  void setTime(double t) { time = t; };
+
+  virtual double getTimeStep() { return timeStep; };
+  void setTimeStep(double dt) { timeStep = dt; };
+
+  void setStepNumber (unsigned int number) { stepNumber = number; }
+  unsigned int getStepNumber () { return stepNumber; }
+
+  private:
+    double Aval, Bval;
+    double time;
+    double timeStep;
+    unsigned int stepNumber;
+};
+
+//-------------------------------------------------------------------------------
+class testRandExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+      testRandExpressionGroup () : 
+        Xyce::Util::baseExpressionGroup(), 
+        randomSeed_(0), mtPtr(0),
+        uniformDistribution(0.0,1.0),
+        normalDistribution(0.0,1.0)
+      {
+        std::random_device rd;
+        randomSeed_ = rd();
+        mtPtr = new std::mt19937(randomSeed_);
+      };
+
+      ~testRandExpressionGroup ()  { delete mtPtr; };
+
+  void getRandomOpValue ( Xyce::Util::astRandTypes type, std::vector<double> args, double & value) 
+  {
+    if (type==Xyce::Util::AST_AGAUSS)
+    {
+      double mean, stddev, n;
+      int argSize = args.size();
+      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
+      else { mean=args[0]; stddev=args[1]; }
+
+      if(argSize ==3) { n=args[2];  stddev /= n; }
+      if (Xyce::Util::enableRandomExpression)
+      {
+        double prob = normalDistribution(*mtPtr);
+        value = prob*stddev;
+        value += mean;
+      }
+      else
+      {
+        value = mean;
+      }
+    }
+    else if (type==Xyce::Util::AST_GAUSS)
+    {
+      double mean, stddev, n;
+      int argSize = args.size();
+      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
+      else { mean=args[0]; stddev=args[1]*mean; }
+
+      if(argSize ==3) { n=args[2];  stddev /= n; }
+      if (Xyce::Util::enableRandomExpression)
+      {
+        double prob = normalDistribution(*mtPtr);
+        value = prob*stddev;
+        value += mean;
+      }
+      else
+      {
+        value = mean;
+      }
+    }
+    else if (type==Xyce::Util::AST_AUNIF)
+    {
+      double mean, variation, n;
+      int argSize = args.size();
+      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
+      else { mean=args[0]; variation=std::abs(std::real(args[1])); }
+
+      if(argSize ==3) { n=args[2];  variation /= n; }
+
+      double min   = std::real(mean) - std::real(variation);
+      double max   = std::real(mean) + std::real(variation);
+      if (Xyce::Util::enableRandomExpression)
+      {
+        double prob = uniformDistribution(*mtPtr);
+        double dv = fabs(max-min);
+        value = (dv*prob + min);
+      }
+      else
+      {
+        value = mean;
+      }
+    }
+    else if (type==Xyce::Util::AST_UNIF)
+    {
+      double mean, variation, n;
+      int argSize = args.size();
+      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
+      else { mean=args[0]; variation=std::abs(std::real(args[1]*mean)); }
+
+      if(argSize ==3) { n=args[2];  variation /= n; }
+
+      double min   = std::real(mean) - std::real(variation);
+      double max   = std::real(mean) + std::real(variation);
+      if (Xyce::Util::enableRandomExpression)
+      {
+        double prob = uniformDistribution(*mtPtr);
+        double dv = fabs(max-min);
+        value = (dv*prob + min);
+      }
+      else
+      {
+        value = mean;
+      }
+    }
+    else if (type==Xyce::Util::AST_RAND)
+    {
+      if (Xyce::Util::enableRandomExpression)
+      {
+        value = uniformDistribution(*mtPtr);
+      }
+      else
+      {
+        value = 0.5;
+      }
+    }
+    else
+    {
+      Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl;
+    }
+
+    return; 
+  }
+
+  long randomSeed_;
+  std::mt19937 * mtPtr;
+  std::uniform_real_distribution<double> uniformDistribution;
+  std::normal_distribution<double> normalDistribution;
+};
+
 #define OUTPUT_MACRO(NAME,SUBNAME) \
 { \
   char filename[ ] = "parserUnitTest.out"; \
@@ -725,22 +1430,6 @@ TEST ( Double_Parser_Test, simpleExpression_lmod_indmod6)
 }
 
 // source functions:
-class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    timeDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0), gmin(0.0)  {};
-    ~timeDepExpressionGroup () {};
-    virtual double getTime() { return time; };
-    virtual double getFreq() { return freq; };
-    virtual double getGmin() { return gmin; };
-    void setTime(double t) { time = t; };
-    void setFreq(double f) { freq = f; };
-    void setGmin(double g) { gmin = g; };
-    double time;
-    double freq;
-    double gmin;
-};
-
 TEST ( Double_Parser_SourceFunc_Test, pulse)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -999,62 +1688,6 @@ TEST ( Double_Parser_SourceFunc_Test, sffm)
 }
 
 //-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
-         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0), ACC1val(0.0)
-  {};
-    ~solnExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else if (tmp==std::string("c")) { retval = Cval; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val; return true; }
-    else if (tmp==std::string("v1")) { retval = R1val; return true; }
-
-    else if (tmp==std::string("vb")) { retval = VBval; return true; }
-    else if (tmp==std::string("vc")) { retval = VCval; return true; }
-    else if (tmp==std::string("ve")) { retval = VEval; return true; }
-    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
-    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
-    else if (tmp==std::string("yacc_acc1")) { retval = ACC1val; return true; }
-    else if (tmp==std::string("yacc!acc1")) { retval = ACC1val; return true; }
-    else { retval = 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-    else if (tmp==std::string("c")) { Cval = val; }
-    else if (tmp==std::string("r1")) { R1val = val; }
-    else if (tmp==std::string("v1")) { R1val = val; }
-
-    else if (tmp==std::string("vb")) { VBval = val; }
-    else if (tmp==std::string("vc")) { VCval = val; }
-    else if (tmp==std::string("ve")) { VEval = val; }
-    else if (tmp==std::string("vlp")) { VLPval = val; }
-    else if (tmp==std::string("vln")) { VLNval = val; }
-    else if (tmp==std::string("yacc_acc1")) { ACC1val = val; }
-    else if (tmp==std::string("yacc!acc1")) { ACC1val = val; }
-  }
-
-  void setPower(const std::string & deviceName, double & val) { return setSoln(deviceName, val); }
-  bool getPower(const std::string & tag, const std::string & deviceName, double & retval) { return getSolutionVal(deviceName, retval); }
-
-  private:
-
-  double Aval, Bval, Cval, R1val;
-  double VBval, VCval, VEval, VLPval, VLNval, ACC1val;
-};
-
 TEST ( Double_Parser_VoltSoln_Test, test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -1311,38 +1944,6 @@ TEST ( Double_Parser_VoltSoln_Test, vp_test0)
 // + {IC(Q1+)} {IB(Q1+)} {IE(Q1+)}
 //
 //-------------------------------------------------------------------------------
-class solutionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solutionGroup () : Xyce::Util::baseExpressionGroup() {};
-    ~solutionGroup () {};
-
-  void setSoln(const std::string & name, double val)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    internalVars_[lowerName] = val;
-  };
-
-  bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
-  {
-    return getSolutionVal(deviceName, retval);
-  }
-
-  virtual bool getSolutionVal(const std::string & name, double & val )
-  {
-    bool retval=true;
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    if (internalVars_.find(lowerName) != internalVars_.end()) { val = internalVars_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-
-  private:
-    std::unordered_map <std::string, double> internalVars_;
-};
-
 TEST ( Double_Parser_VoltSoln_Test, weirdChar)
 {
   Teuchos::RCP<solutionGroup> solnGroup = Teuchos::rcp(new solutionGroup() );
@@ -1633,53 +2234,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test9)
 }
 
 //-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    currSolnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
-         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
-  {};
-    ~currSolnExpressionGroup () {};
-
-  virtual bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval)
-  {
-    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else if (tmp==std::string("c")) { retval = Cval; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val; return true; }
-    else if (tmp==std::string("v1")) { retval = R1val; return true; }
-
-    else if (tmp==std::string("vb")) { retval = VBval; return true; }
-    else if (tmp==std::string("vc")) { retval = VCval; return true; }
-    else if (tmp==std::string("ve")) { retval = VEval; return true; }
-    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
-    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & deviceName, double val)
-  {
-    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-    else if (tmp==std::string("c")) { Cval = val; }
-    else if (tmp==std::string("r1")) { R1val = val; }
-    else if (tmp==std::string("v1")) { R1val = val; }
-
-    else if (tmp==std::string("vb")) { VBval = val; }
-    else if (tmp==std::string("vc")) { VCval = val; }
-    else if (tmp==std::string("ve")) { VEval = val; }
-    else if (tmp==std::string("vlp")) { VLPval = val; }
-    else if (tmp==std::string("vln")) { VLNval = val; }
-  }
-
-  private:
-    double Aval, Bval, Cval, R1val;
-    double VBval, VCval, VEval, VLPval, VLNval;
-};
 
 TEST ( Double_Parser_CurrSoln_Test, test1)
 {
@@ -1814,57 +2368,6 @@ TEST ( Double_Parser_CurrDeriv_Test, test2)
 }
 
 //-------------------------------------------------------------------------------
-class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    leadCurrentExpressionGroup () :
-      Xyce::Util::baseExpressionGroup() {};
-    ~leadCurrentExpressionGroup () {};
-
-  bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval ) 
-  { 
-    bool retbool = true;
-    retval=0.0; 
-    std::string des=designator;
-    Xyce::Util::toUpper(des);
-
-    if (des==std::string("IG"))
-    {
-      if (IGvalues.find(deviceName) != IGvalues.end()) { retval = IGvalues[deviceName]; }
-      else { retbool = false; }
-    }
-    else if (des==std::string("ID"))
-    {
-      if (IDvalues.find(deviceName) != IDvalues.end()) { retval = IDvalues[deviceName]; }
-      else { retbool = false; }
-    }
-    else if (des==std::string("IS"))
-    {
-      if (ISvalues.find(deviceName) != ISvalues.end()) { retval = ISvalues[deviceName]; }
-      else { retbool = false; }
-    }
-
-    return retbool;
-  }
-
-  bool setCurrentVal  ( const std::string & deviceName, const std::string & designator, double setval ) 
-  {
-    std::string des=designator;
-    Xyce::Util::toUpper(des);
-
-    if (des == std::string("IG")) IGvalues[deviceName] = setval;
-    else if(des == std::string("ID")) IDvalues[deviceName] = setval;
-    else if(des == std::string("IS")) ISvalues[deviceName] = setval;
-
-    return true;
-  }
-
-  private:
-    std::unordered_map <std::string, double > IGvalues;
-    std::unordered_map <std::string, double > IDvalues;
-    std::unordered_map <std::string, double > ISvalues;
-};
-
 TEST ( Double_Parser_LeadCurr_Test, test1)
 {
   Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
@@ -1945,33 +2448,6 @@ TEST ( Double_Parser_LeadCurr_Test, test3)
 
 
 //-------------------------------------------------------------------------------
-class internalDevExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    internalDevExpressionGroup () : Xyce::Util::baseExpressionGroup() {};
-    ~internalDevExpressionGroup () {};
-
-  void setInternalDeviceVar (const std::string & name, double val)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    internalVars_[lowerName] = val;
-  };
-
-  bool getInternalDeviceVar       (const std::string & name, double & val)
-  {
-    bool retval=true;
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    if (internalVars_.find(lowerName) != internalVars_.end()) { val = internalVars_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-
-  private:
-    std::unordered_map <std::string, double> internalVars_;
-};
-
 TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
@@ -2081,68 +2557,6 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, testConflict)
 
 
 //-------------------------------------------------------------------------------
-class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    noiseExpressionGroup () : Xyce::Util::baseExpressionGroup(), inoise_(0.0), onoise_(0.0) {};
-    ~noiseExpressionGroup () {};
-
-  void setDnoNoiseDeviceVar (const std::vector<std::string> & names, double val)
-  {
-    std::string lowerName;
-    if ( !(names.empty()) )
-    {
-      lowerName = names[0];
-      Xyce::Util::toLower(lowerName);
-      dnoDeviceVars_[lowerName] = val;
-    }
-  };
-
-  void setDniNoiseDeviceVar (const std::vector<std::string> & names, double val)
-  {
-    std::string lowerName;
-    if ( !(names.empty()) )
-    {
-      lowerName = names[0];
-      Xyce::Util::toLower(lowerName);
-      dniDeviceVars_[lowerName] = val;
-    }
-  };
-
-  void setONoise (double val) { onoise_ = val; };
-  void setINoise (double val) { inoise_ = val; };
-
-  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
-  { 
-    bool retval=true;
-    std::string lowerName;
-    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
-    Xyce::Util::toLower(lowerName);
-    if (dnoDeviceVars_.find(lowerName) != dnoDeviceVars_.end()) { val = dnoDeviceVars_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-
-  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
-  { 
-    bool retval=true;
-    std::string lowerName;
-    if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
-    Xyce::Util::toLower(lowerName);
-    if (dniDeviceVars_.find(lowerName) != dniDeviceVars_.end()) { val = dniDeviceVars_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-
-  virtual bool getONoise(double & retval) { retval=onoise_; return true; }
-  virtual bool getINoise(double & retval) { retval=inoise_; return true; }
-
-  private:
-    std::unordered_map <std::string, double> dnoDeviceVars_;
-    std::unordered_map <std::string, double> dniDeviceVars_;
-    double inoise_, onoise_;
-};
-
 TEST ( Double_Parser_Noise_Test, dno_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
@@ -2237,55 +2651,6 @@ TEST ( Double_Parser_Noise_Test, inoise_test)
 
 //-------------------------------------------------------------------------------
 // .func tests
-class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    testExpressionGroupWithFuncSupport () : 
-      Xyce::Util::baseExpressionGroup(),
-    B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
-      
-    
-    ~testExpressionGroupWithFuncSupport () {};
-
-    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
-    {
-      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else if (tmp==std::string("z")) { retval = vz; return true; }
-      else { return 0.0; return false; }
-    }
-
-    virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else if (tmp==std::string("z")) { retval = vz; return true; }
-      else { return 0.0; return false; }
-    }
-
-    void setSoln(const std::string & nodeName, double val)
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { B2 = val; }
-      else if (tmp==std::string("v2")) { V2 = val; }
-      else if (tmp==std::string("6")) { v6 = val; }
-      else if (tmp==std::string("7")) { v7 = val; }
-      else if (tmp==std::string("z")) { vz = val; }
-    }
-
-  private:
-    double B2;
-    double V2;
-    double v6;
-    double v7;
-    double vz;
-};
 
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Func_Test, test1)
@@ -3084,54 +3449,6 @@ TEST ( Double_Parser_Func_Test, longArgList)
 
 //-------------------------------------------------------------------------------
 // tests are taken from the "ifstatement.cir" Xyce regression test
-class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    ifStatementExpressionGroup () : Xyce::Util::baseExpressionGroup(), 
-    time(0.0), B2(0.0), V2(0.0), v6(0.0), v7(0.0) {};
-    ~ifStatementExpressionGroup () {};
-
-    virtual double getTime() { return time; };
-    void setTime(double t) { time = t; };
-
-    bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
-    {
-      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else { return 0.0; return false; }
-    }
-
-    virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else { return 0.0; return false; }
-    }
-
-    void setSoln(const std::string & nodeName, double val)
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { B2 = val; }
-      else if (tmp==std::string("v2")) { V2 = val; }
-      else if (tmp==std::string("6")) { v6 = val; }
-      else if (tmp==std::string("7")) { v7 = val; }
-    }
-
-  private:
-
-    double time;
-    double B2;
-    double V2;
-    double v6;
-    double v7;
-};
-
 TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
@@ -3864,22 +4181,6 @@ TEST ( Double_Parser_table_Test, break2)
   OUTPUT_MACRO2(Double_Parser_table_Test, break2, tableExpression) 
 }
 
-class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0), VT(0.0)  {};
-    ~tempDepExpressionGroup () {};
-
-    virtual double getTemp() { return temp; };
-    void setTemp(double t) { temp = t; };
-
-    virtual double getVT() { return VT; };
-    void setVT(double t) { VT = t; };
-
-    double temp;
-    double VT;
-};
-
 // adapted from power_thermalres_gear.cir
 TEST ( Double_Parser_table_Test, power_thermalres)
 {
@@ -3939,63 +4240,6 @@ TEST ( Double_Parser_table_Test, power_thermalres)
   }
 }
 
-class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    Bsrc_C1_ExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), time(0.0), ONEval(0.0), TWOval(0.0) {};
-    ~Bsrc_C1_ExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { retval = ONEval; return true; }
-    else if (tmp==std::string("2")) { retval = TWOval; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { ONEval = val; }
-    else if (tmp==std::string("2")) { TWOval = val; }
-  }
-
-  virtual double getTime() { return time; };
-  void setTime(double t) { time = t; };
-
-  private:
-    double time, ONEval, TWOval;
-};
-
-class Bsrc_C1_ExpressionGroup_noparam : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    Bsrc_C1_ExpressionGroup_noparam () :
-      Xyce::Util::baseExpressionGroup(), time(0.0), ONEval(0.0), TWOval(0.0) {};
-    ~Bsrc_C1_ExpressionGroup_noparam () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { retval = ONEval; return true; }
-    else if (tmp==std::string("2")) { retval = TWOval; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { ONEval = val; }
-    else if (tmp==std::string("2")) { TWOval = val; }
-  }
-
-  virtual double getTime() { return time; };
-  void setTime(double t) { time = t; };
-
-  private:
-    double time, ONEval, TWOval;
-};
 
 #if 0
 // adapted from Bsrc_C1.cir.
@@ -4787,40 +5031,6 @@ TEST ( Double_Parser_calculus, simpleDerivs1 )
   copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
-
-class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnAndFuncExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
-    ~solnAndFuncExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval_; return true; }
-    else if (tmp==std::string("b")) { retval = Bval_; return true; }
-    else if (tmp==std::string("c")) { retval = Cval_; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
-    else if (tmp==std::string("v1")) { retval = R1val_; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval_ = val; }
-    else if (tmp==std::string("b")) { Bval_ = val; }
-    else if (tmp==std::string("c")) { Cval_ = val; }
-    else if (tmp==std::string("r1")) { R1val_ = val; }
-    else if (tmp==std::string("v1")) { R1val_ = val; }
-  }
-
-  private:
-    double Aval_, Bval_, Cval_, R1val_;
-};
-
-
 // These tests (derivsThruFuncs?) tests if derivatives work thru expression arguments.
 // At the time of test creation (2/21/2020), the answer was NO.
 //
@@ -5205,41 +5415,6 @@ TEST ( Double_Parser_calculus, derivsThruFuncs7 )
   copy_derivFuncTestExpr.evaluateFunction(result);   EXPECT_EQ(result, refRes);
   assign_derivFuncTestExpr.evaluateFunction(result); EXPECT_EQ(result, refRes);
 }
-
-
-
-
-
-//class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
-class solnExpressionGroup2 : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnExpressionGroup2 () :
-      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
-    ~solnExpressionGroup2 () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval_; return true; }
-    else if (tmp==std::string("b")) { retval = Bval_; return true; }
-    else if (tmp==std::string("c")) { retval = Cval_; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval_ = val; }
-    else if (tmp==std::string("b")) { Bval_ = val; }
-    else if (tmp==std::string("c")) { Cval_ = val; }
-    else if (tmp==std::string("r1")) { R1val_ = val; }
-  }
-
-  private:
-    double Aval_, Bval_, Cval_, R1val_;
-};
 
 TEST ( Double_Parser_calculus, derivsThruParams1 )
 {
@@ -7066,45 +7241,6 @@ inline void trapezoidIntegral (
   }
 }
 
-class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    sdtExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0), stepNumber(0)
-  {};
-    ~sdtExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else { retval= 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, double val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-  }
-
-  virtual double getTime() { return time; };
-  void setTime(double t) { time = t; };
-
-  virtual double getTimeStep() { return timeStep; };
-  void setTimeStep(double dt) { timeStep = dt; };
-
-  void setStepNumber (unsigned int number) { stepNumber = number; }
-  unsigned int getStepNumber () { return stepNumber; }
-
-  private:
-    double Aval, Bval;
-    double time;
-    double timeStep;
-    unsigned int stepNumber;
-};
-
 TEST ( Double_Parser_Integral_Test, sdt1)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -7273,6 +7409,184 @@ TEST ( Double_Parser_Integral_Test, sdt4)
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt4)
 }
+
+TEST ( Double_Parser_Integral_Test, sdt5)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    refRes = time*time*0.5;
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt5)
+}
+
+TEST ( Double_Parser_Integral_Test, sdt6)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    refRes = time*time;
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt6)
+}
+
+
+TEST ( Double_Parser_Integral_Test, sdt7)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  //Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
+  //Xyce::Util::newExpression testExpression(std::string("F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  //double finalTime=1.0;
+  double finalTime=0.01;
+
+  int numSteps = 11;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    refRes = time*time*0.5 + 3.0*std::sin(time);
+    //refRes = time*time*0.5;
+    //refRes = 3.0*std::sin(time);
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt6)
+}
+
 
 //-------------------------------------------------------------------------------
 // breakpoint function testing
@@ -7923,131 +8237,6 @@ TEST ( Double_Parser_Random, agauss1)
 }
 
 //-------------------------------------------------------------------------------
-class testRandExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-      testRandExpressionGroup () : 
-        Xyce::Util::baseExpressionGroup(), 
-        randomSeed_(0), mtPtr(0),
-        uniformDistribution(0.0,1.0),
-        normalDistribution(0.0,1.0)
-      {
-        std::random_device rd;
-        randomSeed_ = rd();
-        mtPtr = new std::mt19937(randomSeed_);
-      };
-
-      ~testRandExpressionGroup ()  { delete mtPtr; };
-
-  void getRandomOpValue ( Xyce::Util::astRandTypes type, std::vector<double> args, double & value) 
-  {
-    if (type==Xyce::Util::AST_AGAUSS)
-    {
-      double mean, stddev, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; stddev=args[1]; }
-
-      if(argSize ==3) { n=args[2];  stddev /= n; }
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = normalDistribution(*mtPtr);
-        value = prob*stddev;
-        value += mean;
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_GAUSS)
-    {
-      double mean, stddev, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; stddev=args[1]*mean; }
-
-      if(argSize ==3) { n=args[2];  stddev /= n; }
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = normalDistribution(*mtPtr);
-        value = prob*stddev;
-        value += mean;
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_AUNIF)
-    {
-      double mean, variation, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; variation=std::abs(std::real(args[1])); }
-
-      if(argSize ==3) { n=args[2];  variation /= n; }
-
-      double min   = std::real(mean) - std::real(variation);
-      double max   = std::real(mean) + std::real(variation);
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = uniformDistribution(*mtPtr);
-        double dv = fabs(max-min);
-        value = (dv*prob + min);
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_UNIF)
-    {
-      double mean, variation, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; variation=std::abs(std::real(args[1]*mean)); }
-
-      if(argSize ==3) { n=args[2];  variation /= n; }
-
-      double min   = std::real(mean) - std::real(variation);
-      double max   = std::real(mean) + std::real(variation);
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = uniformDistribution(*mtPtr);
-        double dv = fabs(max-min);
-        value = (dv*prob + min);
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_RAND)
-    {
-      if (Xyce::Util::enableRandomExpression)
-      {
-        value = uniformDistribution(*mtPtr);
-      }
-      else
-      {
-        value = 0.5;
-      }
-    }
-    else
-    {
-      Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl;
-    }
-
-    return; 
-  }
-
-  long randomSeed_;
-  std::mt19937 * mtPtr;
-  std::uniform_real_distribution<double> uniformDistribution;
-  std::normal_distribution<double> normalDistribution;
-};
-
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Random, agauss2)
 {
