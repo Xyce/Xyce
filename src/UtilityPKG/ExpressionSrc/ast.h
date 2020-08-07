@@ -110,6 +110,11 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
   PTR->getInterestingOps(ovc); }
 
+#define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
+  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
+  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  PTR->getStateOps(ovc); }
+
 #define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
 
 #define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
@@ -126,6 +131,7 @@ inline void yyerror(std::vector<std::string> & s);
 
 // this one adds "this"
 #define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR) 
+#define AST_GET_STATE_OPS2(PTR) AST_GET_STATE_OPS (this->PTR) 
 
 
 //-------------------------------------------------------------------------------
@@ -239,6 +245,25 @@ public:
 };
 
 //-------------------------------------------------------------------------------
+// this is to make the call to "getStateOps" have a single 
+// function argument that never has to change.
+template <typename ScalarT>
+struct stateOpVectorContainers
+{
+public:
+  stateOpVectorContainers(
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt
+      ):
+    sdtOpVector(sdt),
+    ddtOpVector(ddt)
+  {};
+
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
+};
+
+//-------------------------------------------------------------------------------
 // base node class
 template <typename ScalarT>
 class astNode
@@ -347,6 +372,11 @@ class astNode
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_) 
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(leftAst_) AST_GET_STATE_OPS(rightAst_) 
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1019,6 +1049,11 @@ class paramOp: public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(paramNode_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(paramNode_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -1822,18 +1857,7 @@ class funcOp: public astNode<ScalarT>
     {
       if (nodeResolved_ && argsResolved_)
       {
-        if (funcArgs_.size() != dummyFuncArgs_.size())
-        {
-#if 0
-          std::vector<std::string> errStr;
-          errStr.push_back(std::string("funcOp::val() FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_);
-          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
-          yyerror(errStr);
-#endif
-        }
-        else
+        if (funcArgs_.size() == dummyFuncArgs_.size())
         {
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
           number_ = functionNode_->val();
@@ -1853,17 +1877,7 @@ class funcOp: public astNode<ScalarT>
     {
       if (nodeResolved_ && argsResolved_)
       {
-        if (funcArgs_.size() != dummyFuncArgs_.size())
-        {
-#if 0
-          std::string tmp = "funcOp::dx() FuncOp Function Args sizes don't match for " + funcName_;
-          std::vector<std::string> errStr(1,tmp);
-          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
-          yyerror(errStr);
-#endif
-        }
-        else
+        if (funcArgs_.size() == dummyFuncArgs_.size())
         {
           // Two phases, do do a complete chain rule calculation:
           //
@@ -1927,19 +1941,7 @@ class funcOp: public astNode<ScalarT>
       {
         os << std::setw(indent) << " " << "functionNode_ ("<<funcName_<<") details: " << std::endl;
 
-
-        if (funcArgs_.size() != dummyFuncArgs_.size())
-        {
-#if 0
-          std::vector<std::string> errStr;
-          errStr.push_back(std::string("funcOp::output() FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_);
-          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
-          yyerror(errStr);
-#endif
-        }
-        else
+        if (funcArgs_.size() == dummyFuncArgs_.size())
         {
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
           functionNode_->output(os,indent+2);
@@ -1970,7 +1972,6 @@ class funcOp: public astNode<ScalarT>
     virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { functionNode_ = tmpNode; nodeResolved_ = true; };
     virtual void unsetNode()
     {
-      //functionNode_ = NULL;
       nodeResolved_ = false;
       number_ = 0.0;
     };
@@ -2009,6 +2010,15 @@ class funcOp: public astNode<ScalarT>
       if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 AST_GET_INTERESTING_OPS(functionNode_) 
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+AST_GET_STATE_OPS(functionNode_) 
       if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
@@ -2427,6 +2437,11 @@ class ifStatementOp : public astNode<ScalarT>
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_) 
@@ -2514,6 +2529,11 @@ class limitOp : public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -2827,6 +2847,15 @@ class polyOp : public astNode<ScalarT>
       for(int ii=0;ii<size;ii++)
       {
 AST_GET_INTERESTING_OPS(polyVars_[ii]) 
+      }
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+AST_GET_STATE_OPS(polyVars_[ii]) 
       }
     }
 
@@ -3171,6 +3200,21 @@ AST_GET_INTERESTING_OPS(tableArgs_[ii])
       }
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+
+AST_GET_STATE_OPS(input_)
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_STATE_OPS(tableArgs_[ii])
+        }
+      }
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(input_) 
@@ -3398,6 +3442,21 @@ AST_GET_INTERESTING_OPS(time_)
         for(int ii=0;ii<size;ii++)
         {
 AST_GET_INTERESTING_OPS(tableArgs_[ii])
+        }
+      }
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+
+AST_GET_STATE_OPS(time_)
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_STATE_OPS(tableArgs_[ii])
         }
       }
     }

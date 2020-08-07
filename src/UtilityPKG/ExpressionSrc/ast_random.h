@@ -104,6 +104,11 @@ class agaussOp : public astNode<ScalarT>
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(nAst_)
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_)
@@ -212,6 +217,11 @@ class gaussOp : public astNode<ScalarT>
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(nAst_)
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_)
@@ -315,6 +325,11 @@ class aunifOp : public astNode<ScalarT>
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) 
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
@@ -414,6 +429,11 @@ class unifOp : public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) 
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -559,6 +579,11 @@ class twoArgLimitOp : public astNode<ScalarT>
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)

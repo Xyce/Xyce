@@ -249,6 +249,13 @@ AST_GET_INTERESTING_OPS(tr_) AST_GET_INTERESTING_OPS(tf_) AST_GET_INTERESTING_OP
 AST_GET_INTERESTING_OPS(per_) AST_GET_INTERESTING_OPS(time_)
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(v1_) AST_GET_STATE_OPS(v2_) AST_GET_STATE_OPS(td_)
+AST_GET_STATE_OPS(tr_) AST_GET_STATE_OPS(tf_) AST_GET_STATE_OPS(pw_)
+AST_GET_STATE_OPS(per_) AST_GET_STATE_OPS(time_)
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(v1_) AST_GET_PARAM_OPS(v2_) AST_GET_PARAM_OPS(td_)
@@ -405,6 +412,12 @@ class spiceSinOp : public astNode<ScalarT>
     {
 AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(freq_)
 AST_GET_INTERESTING_OPS(td_) AST_GET_INTERESTING_OPS(theta_) AST_GET_INTERESTING_OPS(phase_) AST_GET_INTERESTING_OPS(time_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(v0_) AST_GET_STATE_OPS(va_) AST_GET_STATE_OPS(freq_)
+AST_GET_STATE_OPS(td_) AST_GET_STATE_OPS(theta_) AST_GET_STATE_OPS(phase_) AST_GET_STATE_OPS(time_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
@@ -578,6 +591,12 @@ AST_GET_INTERESTING_OPS(v1_) AST_GET_INTERESTING_OPS(v2_) AST_GET_INTERESTING_OP
 AST_GET_INTERESTING_OPS(tau1_) AST_GET_INTERESTING_OPS(td2_) AST_GET_INTERESTING_OPS(tau2_) AST_GET_INTERESTING_OPS(time_)
     }
 
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(v1_) AST_GET_STATE_OPS(v2_) AST_GET_STATE_OPS(td1_)
+AST_GET_STATE_OPS(tau1_) AST_GET_STATE_OPS(td2_) AST_GET_STATE_OPS(tau2_) AST_GET_STATE_OPS(time_)
+    }
+
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
 AST_GET_PARAM_OPS(v1_) AST_GET_PARAM_OPS(v2_) AST_GET_PARAM_OPS(td1_)
@@ -708,6 +727,12 @@ class spiceSffmOp : public astNode<ScalarT>
     {
 AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(fc_)
 AST_GET_INTERESTING_OPS(mdi_) AST_GET_INTERESTING_OPS(fs_) AST_GET_INTERESTING_OPS(time_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(v0_) AST_GET_STATE_OPS(va_) AST_GET_STATE_OPS(fc_)
+AST_GET_STATE_OPS(mdi_) AST_GET_STATE_OPS(fs_) AST_GET_STATE_OPS(time_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
