@@ -131,6 +131,8 @@ public:
   void updateACMeasures(
     Parallel::Machine comm,
     const double frequency,
+    const double fStart,
+    const double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
@@ -138,6 +140,8 @@ public:
   void updateNoiseMeasures(
     Parallel::Machine comm,
     const double frequency,
+    const double fStart,
+    const double fStop,
     const Linear::Vector *real_solution_vector,
     const Linear::Vector *imaginary_solution_vector,
     const double totalOutputNoiseDens_,

@@ -290,6 +290,8 @@ public:
 
   void outputNoise(
       double freq,
+      double fStart,
+      double fStop,
       const Linear::Vector & solnVecRealPtr, 
       const Linear::Vector & solnVecImaginaryPtr, 
       double totalOutputNoiseDens_, 

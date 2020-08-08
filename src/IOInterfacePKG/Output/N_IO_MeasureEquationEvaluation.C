@@ -188,6 +188,8 @@ void EquationEvaluation::updateDC(
 void EquationEvaluation::updateAC(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -222,6 +224,8 @@ void EquationEvaluation::updateAC(
 void EquationEvaluation::updateNoise(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const double totalOutputNoiseDens,

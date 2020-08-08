@@ -936,9 +936,10 @@ double Base::getOutputValue(
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::printMeasureWarnings
 // Purpose       : prints error message related to invalid time windows, etc.
-//                 This function currently only applies to TRAN and AC modes.
-//                 It does not do error checking for DC mode.
-// Special Notes : 
+//                 This function currently only applies to TRAN, TRAN_CONT,
+//                 AC, AC_CONT, NOISE and NOISE_CONT modes.  It does not do
+//                 error checking for DC or DC_CONT modes.
+// Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
@@ -947,7 +948,8 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
                                 const double endSweepVal)
 {
   if ( (calculationResult_ == calculationDefaultVal_) &&
-       ( mode_ == "TRAN" || mode_ == "AC" || mode_ == "NOISE") )
+       ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") || (mode_ == "AC") || (mode_ == "AC_CONT") ||
+         (mode_ == "NOISE") || (mode_ == "NOISE_CONT") ) )
   {
     // print warning if time window or AT value was non-sensensical 
     if ( fromGiven_ && !tdGiven_ && toGiven_ && to_ < from_)
@@ -967,8 +969,8 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
     {
         Xyce::Report::UserWarning() << name_ << " failed. Measured Rise,Fall,Cross=(" << 
           actualRise_ << "," << actualFall_ << "," << actualCross_ << ")";
-    }
-    else if (mode_ == "TRAN")
+    }    
+    else if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
     {
       if ( ( fromGiven_ && from_ >= endSimTime ) || ( tdGiven_ && td_ >= endSimTime ) )
       {
@@ -983,7 +985,7 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }
     }
-    else if ( (mode_ == "AC") || (mode_ == "NOISE") )
+    else if ( (mode_ == "AC") || (mode_ == "AC_CONT") || (mode_ == "NOISE") || (mode_ == "NOISE_CONT") )
     {
       if ( ( fromGiven_ && from_ >= endSweepVal ) || ( tdGiven_ && td_ >= endSweepVal ) )
       {
@@ -1028,6 +1030,54 @@ std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MeasureBase::isInvalidTimeFreqWindow
+// Purpose       : returns true if the specified from_ and to_ values do NOT
+//                 form a valid measurement window, based on the start/end
+//                 simulation values.  So, this function can be used by AC,
+//                 NOISE and TRAN measure modes.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystem Modeling
+// Creation Date : 08/06/2020
+//-----------------------------------------------------------------------------
+bool Base::isInvalidTimeFreqWindow(double startSimVal, double endSimVal)
+{
+  return ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
+           (fromGiven_&& (from_ > endSimVal)) || (toGiven_&& (to_ < startSimVal)) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MeasureBase::isInvalidDCsweepWindow
+// Purpose       : returns true if the specified from_ and to_ values do NOT
+//                 form a valid measurement window, based on the sweep direction
+//                 (ascending or descending) and the start/end DC sweep values.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical and Microsystem Modeling
+// Creation Date : 08/06/2020
+//-----------------------------------------------------------------------------
+bool Base::isInvalidDCsweepWindow(double startSweepVal, double endSweepVal)
+{
+  bool retVal =false;
+
+  // this if-else block could be collapsed into one if statement, but this is clearer.
+  if (dcSweepAscending_)
+  {
+    retVal = ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
+               (fromGiven_&& (from_ > endSweepVal)) || (toGiven_&& (to_ < startSweepVal)) );
+  }
+  else
+  {
+    // the descending case
+    retVal = ( (fromGiven_&& toGiven_ && (from_ < to_)) ||
+               (fromGiven_&& (from_ < endSweepVal)) || (toGiven_&& (to_ > startSweepVal)) );
+  }
+
+  return retVal;
+
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MeasureBase::printMeasureWindow
 // Purpose       : prints information related to time, frequency or DC sweep
 //                 window used.
@@ -1045,7 +1095,7 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
   double startOfWindow=0;
   double endOfWindow=0;
 
-  if ( mode_ == "TRAN" )
+  if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
   {
     if (tdGiven_ || fromGiven_) 
     {
@@ -1054,7 +1104,7 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 
     endOfWindow = (toGiven_) ? to_ : endSimTime;
   }
-  else if ( (mode_== "AC") || (mode_ == "NOISE") )
+  else if ( (mode_== "AC") || (mode_ == "AC_CONT") || (mode_== "NOISE") || (mode_ == "NOISE_CONT") )
   {
     // handle AC and NOISE cases
     if (initialized_)
@@ -1068,7 +1118,7 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
       endOfWindow = endSweepVal;
     }
   }
-  else if (mode_ == "DC")
+  else if ( (mode_ == "DC") || (mode_ == "DC_CONT") )
   {
     if (initialized_)
     {
@@ -1106,9 +1156,11 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
     }
   }
 
-  // modeStr is "Time" for TRAN mode, "Freq" for AC mode and 
-  // "<sweep variable> Value" for DC mode.
-  if ( (mode_ == "AC") || (mode_ == "NOISE") || (mode_ == "TRAN") || ((mode_ == "DC") && firstSweepValueFound_) )
+  // modeStr is "Time" for TRAN and TRAN_CONT modes, "Freq" for AC and AC_CONT modes and
+  // "<sweep variable> Value" for DC and DC_CONT modes.
+  if ( (mode_ == "AC") || (mode_ == "NOISE") || (mode_ == "TRAN") || ((mode_ == "DC") && firstSweepValueFound_) ||
+       (mode_ == "AC_CONT") || (mode_ == "NOISE_CONT") || (mode_ == "TRAN_CONT") ||
+       ((mode_ == "DC_CONT") && firstSweepValueFound_))
   {
     std::string modeStr = setModeStringForMeasureWindowText();
     os << "Measure Start " << modeStr << "= " << startOfWindow 
@@ -1121,8 +1173,8 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::setModeStringForMeasureWindowText()
 // Purpose       : set text string used in various printMeasureWindow() functions. 
-// Special Notes : modeStr is "Time" for TRAN mode, "Freq" for AC mode and 
-//                 "<sweep variable> Value" for DC mode.
+// Special Notes : modeStr is "Time" for TRAN or TRAN_CONT mode, "Freq" for AC or
+//                 AC_CONT mode and "<sweep variable> Value" for DC or DC_CONT mode.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
@@ -1130,17 +1182,17 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 std::string Base::setModeStringForMeasureWindowText()
 {
   std::string modeStr;
-  if (mode_ == "TRAN")
+  if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
   {
     modeStr = "Time";
   }
-  else if ( (mode_ == "AC") || (mode_ == "NOISE") )
+  else if ( (mode_ == "AC")  || (mode_ == "AC_CONT") || (mode_ == "NOISE")  || (mode_ == "NOISE_CONT"))
   {
     modeStr = "Freq";
   }
   else
   {
-    // DC case
+    // DC or DC_CONT case
     modeStr = sweepVar_ + " Value";
   }
 
@@ -1150,8 +1202,9 @@ std::string Base::setModeStringForMeasureWindowText()
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::setModeStringForMeasureResultText()
 // Purpose       : set text string used in various printMeasureResult() functions. 
-// Special Notes : modeStr is "time" for TRAN mode, "freq" for AC mode and 
-//                 "<sweep variable> value" for DC mode.
+// Special Notes : modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC
+//                 or AC_CONT mode and "<sweep variable> value" for DC or DC_CONT
+//                 mode.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
@@ -1159,17 +1212,17 @@ std::string Base::setModeStringForMeasureWindowText()
 std::string Base::setModeStringForMeasureResultText()
 {
   std::string modeStr;
-  if (mode_ == "TRAN")
+  if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
   {
     modeStr = "time";
   }
-  else if ( (mode_ == "AC") || (mode_ == "NOISE") )
+  else if ( (mode_ == "AC") || (mode_ == "AC_CONT") || (mode_ == "NOISE") || (mode_ == "NOISE_CONT"))
   {
     modeStr = "freq";
   }
   else
   {
-    // DC case
+    // DC case or DC_CONT case
     modeStr = sweepVar_ + " value";
   }
 

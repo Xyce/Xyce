@@ -70,6 +70,13 @@ DerivativeEvaluation::DerivativeEvaluation(const Manager &measureMgr, const Util
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
+
+  // hard code this measure type to ignore the RFC_LEVEL qualifier
+  if (rfcLevelGiven_)
+  {
+    rfcLevelGiven_=false;
+    Xyce::Report::UserWarning0() << "RFC_LEVEL will be ignored for measure " << name_;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -183,7 +190,7 @@ void DerivativeEvaluation::updateTran(
 
       // for the WHEN qualifier, the rfc level used is either the target value of the WHEN
       // clause, or the value of the RFC_LEVEL qualifier if one is specified.
-      if ( withinRiseFallCrossWindow( outVarValues_[whenIdx_], (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
+      if ( withinRiseFallCrossWindow( outVarValues_[whenIdx_], targVal) )
       {
         // If LAST was specified then this is done
         // each time a new RFC window is entered.
@@ -307,6 +314,8 @@ void DerivativeEvaluation::updateDC(
 void DerivativeEvaluation::updateAC(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -368,6 +377,8 @@ void DerivativeEvaluation::updateAC(
 void DerivativeEvaluation::updateNoise(
   Parallel::Machine comm,
   const double frequency,
+  const double fStart,
+  const double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const double totalOutputNoiseDens,

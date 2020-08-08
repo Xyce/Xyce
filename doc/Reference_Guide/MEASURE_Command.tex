@@ -45,7 +45,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE TRAN <result name> DERIV <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [MINVAL=<value>] [FROM=<value>] [TO=<value>] [TD=<value>] 
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> DUTY <variable>
@@ -73,7 +73,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE TRAN <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>] [TD=<value>] 
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>] 
 + [PRECISION=<value>] [PRINT=<value>]
 
@@ -124,7 +124,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 
 .MEASURE TRAN <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>] [TD=<value>] 
-+ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST] [RFC_LEVEL=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>] 
 + [PRECISION=<value>] [PRINT=<value>]
 
@@ -487,10 +487,10 @@ found in the simulation will be used.
 \argument{RFC\_LEVEL=value}
 
 The level used to calculate rises, falls and crosses when the
-``level-crossing'' mode is used.  Its usage is discussed further in
-the subsection on ``Rise, Fall and Cross Qualifiers''.  {\tt
-RFC\_LEVEL} is used by the {\tt DERIV}, {\tt FIND-WHEN},
-{\tt MAX}, {\tt MIN}, {\tt PP} and {\tt WHEN} measures.
+``level-crossing'' mode is used by measure types that do not support
+the {\tt WHEN} qualifier.  So, {\tt RFC\_LEVEL} is used by the
+{\tt MAX}, {\tt MIN} and {\tt PP} measures.  Its usage is discussed
+further in the subsection on ``Rise, Fall and Cross Qualifiers''.
 
 \argument{MINVAL=value}
 
@@ -874,11 +874,8 @@ else if( (currentVal-crossVal) <= 0.0) AND (lastVal-crossVal > 0.0) )
 For this mode, the \texttt{crossCount} is then incremented if either
 the
 \texttt{riseCount}  or the \texttt{fallCount} was incremented.  This mode
-should work identically to HSPICE for
-the \texttt{DERIV}, \texttt{FIND},
-\texttt{FIND-WHEN} and \texttt{TRIG-TARG} measures if the \texttt{RFC\_LEVEL}
-qualifier is not specified for the \texttt{DERIV}, \texttt{FIND}
-or \texttt{FIND-WHEN} measures.
+should work identically to HSPICE for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN},
+\texttt{WHEN} and \texttt{TRIG-TARG} measures.
 
 The second mode is termed ``absolute''. In this mode, \Xyce{} attempts
 to auto-detect whether the measured waveform has started a new rise or

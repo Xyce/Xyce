@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 28 Jul 2020 16:20:23
+// Creation Date  : Tue, 04 Aug 2020 16:58:05
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShicumL2va_h
@@ -1083,13 +1083,7 @@ public:
     double Tamb;
     double a;
      double d_a_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_bi_ci;
-     double d_a_dV_bi_ei_dV_tnode_GND;
      double d_a_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_bi_ei;
-     double d_a_dV_bi_ci_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_tnode_GND;
      double d_a_dV_tnode_GND;
     double avs;
     double zetabci;
@@ -1109,56 +1103,28 @@ public:
     double it;
      double d_it_dV_tnode_GND;
      double d_it_dV_bi_ei;
-     double d_it_dV_bi_ei_dV_tnode_GND;
-     double d_it_dV_bi_ei_dV_bi_ei;
-     double d_it_dV_bi_ei_dV_bi_ci;
      double d_it_dV_bi_ci;
-     double d_it_dV_bi_ci_dV_tnode_GND;
-     double d_it_dV_bi_ci_dV_bi_ei;
-     double d_it_dV_bi_ci_dV_bi_ci;
     double ibei;
      double d_ibei_dV_tnode_GND;
      double d_ibei_dV_bi_ei;
-     double d_ibei_dV_bi_ei_dV_tnode_GND;
-     double d_ibei_dV_bi_ei_dV_bi_ei;
     double ibci;
      double d_ibci_dV_tnode_GND;
      double d_ibci_dV_bi_ci;
-     double d_ibci_dV_bi_ci_dV_tnode_GND;
-     double d_ibci_dV_bi_ci_dV_bi_ci;
-     double d_ibci_dV_bi_ci_dV_bi_ei;
      double d_ibci_dV_bi_ei;
     double ibep;
      double d_ibep_dV_tnode_GND;
      double d_ibep_dV_bp_ei;
-     double d_ibep_dV_bp_ei_dV_tnode_GND;
-     double d_ibep_dV_bp_ei_dV_bp_ei;
-     double d_ibep_dV_bp_ei_dV_bi_ci;
-     double d_ibep_dV_bp_ei_dV_bi_ei;
      double d_ibep_dV_bi_ci;
      double d_ibep_dV_bi_ei;
     double iavl;
      double d_iavl_dV_tnode_GND;
      double d_iavl_dV_bi_ei;
      double d_iavl_dV_bi_ci;
-     double d_iavl_dV_bi_ci_dV_tnode_GND;
-     double d_iavl_dV_bi_ci_dV_bi_ei;
-     double d_iavl_dV_bi_ci_dV_bi_ci;
     double ijbcx;
      double d_ijbcx_dV_tnode_GND;
      double d_ijbcx_dV_bp_ci;
-     double d_ijbcx_dV_bp_ci_dV_tnode_GND;
-     double d_ijbcx_dV_bp_ci_dV_bp_ci;
-     double d_ijbcx_dV_bp_ci_dV_bp_ei;
-     double d_ijbcx_dV_bp_ci_dV_bi_ci;
-     double d_ijbcx_dV_bp_ci_dV_bi_ei;
      double d_ijbcx_dV_bp_ei;
      double d_ijbcx_dV_bi_ci;
-     double d_ijbcx_dV_bi_ci_dV_tnode_GND;
-     double d_ijbcx_dV_bi_ci_dV_bp_ci;
-     double d_ijbcx_dV_bi_ci_dV_bp_ei;
-     double d_ijbcx_dV_bi_ci_dV_bi_ci;
-     double d_ijbcx_dV_bi_ci_dV_bi_ei;
      double d_ijbcx_dV_bi_ei;
     double ijsc;
      double d_ijsc_dV_tnode_GND;
@@ -1176,14 +1142,8 @@ public:
      double d_vdt_dV_tnode_GND;
     double Tf;
      double d_Tf_dV_bi_ei;
-     double d_Tf_dV_bi_ei_dV_bi_ei;
-     double d_Tf_dV_bi_ei_dV_tnode_GND;
-     double d_Tf_dV_bi_ei_dV_bi_ci;
      double d_Tf_dV_tnode_GND;
      double d_Tf_dV_bi_ci;
-     double d_Tf_dV_bi_ci_dV_bi_ei;
-     double d_Tf_dV_bi_ci_dV_tnode_GND;
-     double d_Tf_dV_bi_ci_dV_bi_ci;
     double cjcx01;
     double cjcx02;
     double betadc;

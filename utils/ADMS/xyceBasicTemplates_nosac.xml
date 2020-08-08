@@ -45,6 +45,8 @@
 <admst:variable name="derivProbe2"/>
 <admst:variable name="initializeOnDeclare" select="yes"/>
 <admst:variable name="probeList"/>
+<admst:variable name="doSecondDerivs" select="no"/>
+
   <!--
    =================================================================-
    xyceNumberNodes
@@ -310,7 +312,7 @@
           <admst:text format="=0.0"/>
         </admst:if>
         <admst:text format=";\n"/>
-        <admst:if test="[../insource='yes']">
+        <admst:if test="[../insource='yes' and $doSecondDerivs='yes']">
           <!-- this looks fishy to me and presupposes that all ddxprobes are of form V(X,GND), 
                and never V(X,Y) but the former is pretty much what all ddx() usage is in the wild.  -->
           <admst:if test="[exists($myVar/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
@@ -1929,16 +1931,23 @@ struct Traits: public DeviceTraits&lt;Model, Instance
        if we haven't already done it (because we're an assignment). -->
   <admst:if test="adms[datatypename!='assignment']">
     <admst:variable name="parent" select="%(..)"/>
+    <admst:variable name="this" select="%(.)"/>
     <admst:for-each select="@assignedVars">
-      <!--<admst:message format="Got something other than assignment (%(../datatypename)), pushing %(.) into parent which is of type %($parent/datatypename)\n"/>-->
+      <!-- <admst:message format="Got something other than assignment (%($this/datatypename)), pushing %(.) into parent which is of type %($parent/datatypename)\n"/> -->
       <admst:variable name="thisName" value="%(name)"/>
       <!-- not enough to push with 'onduplicate="ignore"' because the actual
            variable node has more info than just the name, and different
            instances aren't actually duplicates just because the name is the
            same. This would result in multiple declarations if we're not
            careful. -->
-      <admst:if test="[not exists($parent/@assignedVars[name=$thisName])]">
-        <admst:push into="$parent/@assignedVars" select="." onduplicate="ignore"/>
+      <!-- <admst:message format="Want to push variable %(.) into parent.  This variable is defined in environment of type %(block/adms/datatypename) and scope is %(scope).\n"/> -->
+      <admst:variable name="pushUp" string="yes"/>
+      <admst:if test="[$this/adms/datatypename='block' and block=$this]">
+        <!-- <admst:message format="I think this should be local and we shouldn't push up\n"/> -->
+        <admst:variable name="pushUp" string="no"/>
+      </admst:if>
+      <admst:if test="[$pushUp = 'yes']">
+          <admst:push into="$parent/@assignedVars" select="." onduplicate="ignore"/>
       </admst:if>
     </admst:for-each>
   </admst:if>
@@ -2062,6 +2071,14 @@ other variables does not get propagated into a variable's
              <admst:variable name="isFuncDependent" value="yes"/>
            </admst:if>
          </admst:apply-templates>
+         <admst:choose>
+           <admst:when test="[$isFuncDependent='yes']">
+             <admst:return name="isDependent" value="yes"/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:return name="isDependent" value="no"/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:otherwise>
      </admst:choose>
    </admst:when>
@@ -4645,7 +4662,7 @@ other variables does not get propagated into a variable's
               <admst:variable name="myprobe" path="."/>
               <admst:if test="[not(exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode]))]">
                 <admst:text format="d_%($myVar/name)_d%(nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode) = "/>
-                <admst:if test="[../insource='yes']">
+                <admst:if test="[../insource='yes' and $doSecondDerivs='yes']">
                   <admst:if test="[exists(../ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
                     <admst:for-each select="$myVar/probe">
                       <admst:text format="d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(nature)_%(branch/pnode)_%(branch/nnode) = "/>
@@ -4676,26 +4693,28 @@ other variables does not get propagated into a variable's
               <!-- now handle the second derivatives as needed if there are ddxprobes in the lhs
                    It would probably be cleaner to do this in the loop above, but it is neither
                    necessary (I think) nor particularly readable.  So we redo loops -->
-              <admst:for-each select="$theLHS/probe">
-                <!-- skip any on which the RHS doesn't depend, because we've already
-                     handled those with explicit 0.0 initialization -->
-                <admst:variable name="myprobe" path="."/>
-                <admst:if test="[exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode])]">
-                  <admst:if test="$theLHS/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode]">
-                    <admst:variable name="derivProbe" select="%(.)"/>
-                    <admst:for-each select="$theLHS/probe">
-                      <admst:variable name="derivProbe2" select="%(.)"/>
-                      <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
-                        <admst:variable name="rhsDeriv12" value="%(returned('returnedExpressionDeriv12')/value)"/>
-                      </admst:apply-templates>
-                      <admst:variable name="lhsname" select="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode)"/>
-                      <admst:if test="[$lhsname != $rhsDeriv12]">
-                        <admst:text format="$lhsname = $rhsDeriv12;\n"/>
-                      </admst:if>
-                    </admst:for-each>
+              <admst:if test="[$doSecondDerivs='yes']">
+                <admst:for-each select="$theLHS/probe">
+                  <!-- skip any on which the RHS doesn't depend, because we've already
+                       handled those with explicit 0.0 initialization -->
+                  <admst:variable name="myprobe" path="."/>
+                  <admst:if test="[exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode])]">
+                    <admst:if test="$theLHS/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode]">
+                      <admst:variable name="derivProbe" select="%(.)"/>
+                      <admst:for-each select="$theLHS/probe">
+                        <admst:variable name="derivProbe2" select="%(.)"/>
+                        <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
+                          <admst:variable name="rhsDeriv12" value="%(returned('returnedExpressionDeriv12')/value)"/>
+                        </admst:apply-templates>
+                        <admst:variable name="lhsname" select="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode)"/>
+                        <admst:if test="[$lhsname != $rhsDeriv12]">
+                          <admst:text format="$lhsname = $rhsDeriv12;\n"/>
+                        </admst:if>
+                      </admst:for-each>
+                    </admst:if>
                   </admst:if>
-                </admst:if>
-              </admst:for-each>
+                </admst:for-each>
+              </admst:if>
             </admst:if>
           </admst:if>
           <!-- if we *ARE* in sensitivity context, emit the derivatives of the expression w.r.t. "X" -->

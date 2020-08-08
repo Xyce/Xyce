@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 28 Jul 2020 16:20:23
+// Creation Date  : Tue, 04 Aug 2020 16:58:05
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -20689,83 +20689,35 @@ bool Instance::updateIntermediateVars()
      double d_idsrf_dV_xt2_GND=0.0;
   double vdsat1i=0.0;
      double d_vdsat1i_dV_gi_si=0.0;
-     double d_vdsat1i_dV_gi_si_dV_gi_si=0.0;
-     double d_vdsat1i_dV_gi_si_dV_di_si=0.0;
-     double d_vdsat1i_dV_gi_si_dTemp_dt_GND=0.0;
      double d_vdsat1i_dV_di_si=0.0;
-     double d_vdsat1i_dV_di_si_dV_gi_si=0.0;
-     double d_vdsat1i_dV_di_si_dV_di_si=0.0;
-     double d_vdsat1i_dV_di_si_dTemp_dt_GND=0.0;
      double d_vdsat1i_dTemp_dt_GND=0.0;
   double vtdibli=0.0;
      double d_vtdibli_dV_gi_si=0.0;
-     double d_vtdibli_dV_gi_si_dV_gi_si=0.0;
-     double d_vtdibli_dV_gi_si_dV_di_si=0.0;
-     double d_vtdibli_dV_gi_si_dTemp_dt_GND=0.0;
      double d_vtdibli_dV_di_si=0.0;
-     double d_vtdibli_dV_di_si_dV_gi_si=0.0;
-     double d_vtdibli_dV_di_si_dV_di_si=0.0;
-     double d_vtdibli_dV_di_si_dTemp_dt_GND=0.0;
      double d_vtdibli_dTemp_dt_GND=0.0;
   double qs=0.0;
      double d_qs_dV_gi_si=0.0;
-     double d_qs_dV_gi_si_dV_gi_si=0.0;
-     double d_qs_dV_gi_si_dV_di_si=0.0;
-     double d_qs_dV_gi_si_dTemp_dt_GND=0.0;
      double d_qs_dV_di_si=0.0;
-     double d_qs_dV_di_si_dV_gi_si=0.0;
-     double d_qs_dV_di_si_dV_di_si=0.0;
-     double d_qs_dV_di_si_dTemp_dt_GND=0.0;
      double d_qs_dTemp_dt_GND=0.0;
   double qb=0.0;
      double d_qb_dV_gi_si=0.0;
-     double d_qb_dV_gi_si_dV_gi_si=0.0;
-     double d_qb_dV_gi_si_dV_di_si=0.0;
-     double d_qb_dV_gi_si_dTemp_dt_GND=0.0;
      double d_qb_dV_di_si=0.0;
-     double d_qb_dV_di_si_dV_gi_si=0.0;
-     double d_qb_dV_di_si_dV_di_si=0.0;
-     double d_qb_dV_di_si_dTemp_dt_GND=0.0;
      double d_qb_dTemp_dt_GND=0.0;
   double qc=0.0;
      double d_qc_dV_gi_si=0.0;
-     double d_qc_dV_gi_si_dV_gi_si=0.0;
-     double d_qc_dV_gi_si_dV_di_si=0.0;
-     double d_qc_dV_gi_si_dTemp_dt_GND=0.0;
      double d_qc_dV_di_si=0.0;
-     double d_qc_dV_di_si_dV_gi_si=0.0;
-     double d_qc_dV_di_si_dV_di_si=0.0;
-     double d_qc_dV_di_si_dTemp_dt_GND=0.0;
      double d_qc_dTemp_dt_GND=0.0;
   double qgd=0.0;
      double d_qgd_dV_gi_si=0.0;
-     double d_qgd_dV_gi_si_dV_gi_si=0.0;
-     double d_qgd_dV_gi_si_dV_di_si=0.0;
-     double d_qgd_dV_gi_si_dTemp_dt_GND=0.0;
      double d_qgd_dV_di_si=0.0;
-     double d_qgd_dV_di_si_dV_gi_si=0.0;
-     double d_qgd_dV_di_si_dV_di_si=0.0;
-     double d_qgd_dV_di_si_dTemp_dt_GND=0.0;
      double d_qgd_dTemp_dt_GND=0.0;
   double qgs=0.0;
      double d_qgs_dV_gi_si=0.0;
-     double d_qgs_dV_gi_si_dV_gi_si=0.0;
-     double d_qgs_dV_gi_si_dV_di_si=0.0;
-     double d_qgs_dV_gi_si_dTemp_dt_GND=0.0;
      double d_qgs_dV_di_si=0.0;
-     double d_qgs_dV_di_si_dV_gi_si=0.0;
-     double d_qgs_dV_di_si_dV_di_si=0.0;
-     double d_qgs_dV_di_si_dTemp_dt_GND=0.0;
      double d_qgs_dTemp_dt_GND=0.0;
   double ids=0.0;
      double d_ids_dV_gi_si=0.0;
-     double d_ids_dV_gi_si_dV_gi_si=0.0;
-     double d_ids_dV_gi_si_dV_di_si=0.0;
-     double d_ids_dV_gi_si_dTemp_dt_GND=0.0;
      double d_ids_dV_di_si=0.0;
-     double d_ids_dV_di_si_dV_gi_si=0.0;
-     double d_ids_dV_di_si_dV_di_si=0.0;
-     double d_ids_dV_di_si_dTemp_dt_GND=0.0;
      double d_ids_dTemp_dt_GND=0.0;
   double vdsatrd=0.0;
      double d_vdsatrd_dV_tr_GND=0.0;
@@ -21118,10 +21070,8 @@ bool Instance::updateIntermediateVars()
      double d_vsars_dV_src_s=0.0;
   double vgsi=0.0;
      double d_vgsi_dV_gi_si=0.0;
-     double d_vgsi_dV_gi_si_dV_gi_si=0.0;
   double vdsi=0.0;
      double d_vdsi_dV_di_si=0.0;
-     double d_vdsi_dV_di_si_dV_di_si=0.0;
   double ttrapfac=0.0;
      double d_ttrapfac_dTemp_dt_GND=0.0;
   double phit=0.0;
@@ -21339,11 +21289,9 @@ d_ttrapfac_dTemp_dt_GND = (model_.tempt)*d_tdut_dTemp_dt_GND;
 ttrapfac = (1.0+((model_.tempt)*(tdut-tnomk)));
 
 d_vdsi_dV_di_si = (model_.type)*d_probeVars[admsProbeID_V_di_si][admsProbeID_V_di_si];
-d_vdsi_dV_di_si_dV_di_si = 0.0;
 vdsi = ((model_.type)*(probeVars[admsProbeID_V_di_si]));
 
 d_vgsi_dV_gi_si = (model_.type)*d_probeVars[admsProbeID_V_gi_si][admsProbeID_V_gi_si];
-d_vgsi_dV_gi_si_dV_gi_si = 0.0;
 vgsi = ((model_.type)*(probeVars[admsProbeID_V_gi_si]));
 if ((((model_.type)*(probeVars[admsProbeID_V_src_d]))<=((model_.type)*(probeVars[admsProbeID_V_src_s]))))
 {
@@ -22345,12 +22293,6 @@ AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(ids,qgs,qgd,qc,qb,qs,vtdib
 d_ids_dTemp_dt_GND = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dTemp_dt_GND,d_qgs_dTemp_dt_GND,d_qgd_dTemp_dt_GND,d_qc_dTemp_dt_GND,d_qb_dTemp_dt_GND,d_qs_dTemp_dt_GND,d_vtdibli_dTemp_dt_GND,d_vdsat1i_dTemp_dt_GND,0.0,0.0,0.0,0.0,0.0,0.0,d_tdut_dTemp_dt_GND,0.0,d_phit_dTemp_dt_GND,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 d_ids_dV_di_si = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dV_di_si,d_qgs_dV_di_si,d_qgd_dV_di_si,d_qc_dV_di_si,d_qb_dV_di_si,d_qs_dV_di_si,d_vtdibli_dV_di_si,d_vdsat1i_dV_di_si,0.0,d_vdsi_dV_di_si,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 d_ids_dV_gi_si = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dV_gi_si,d_qgs_dV_gi_si,d_qgd_dV_gi_si,d_qc_dV_gi_si,d_qb_dV_gi_si,d_qs_dV_gi_si,d_vtdibli_dV_gi_si,d_vdsat1i_dV_gi_si,d_vgsi_dV_gi_si,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
-d_ids_dV_gi_si_dV_gi_si = 0.0/*second derivatives of analog functions not implemented*/;
-d_ids_dV_gi_si_dV_di_si = 0.0/*second derivatives of analog functions not implemented*/;
-d_ids_dV_gi_si_dTemp_dt_GND = 0.0/*second derivatives of analog functions not implemented*/;
-d_ids_dV_di_si_dV_gi_si = 0.0/*second derivatives of analog functions not implemented*/;
-d_ids_dV_di_si_dV_di_si = 0.0/*second derivatives of analog functions not implemented*/;
-d_ids_dV_di_si_dTemp_dt_GND = 0.0/*second derivatives of analog functions not implemented*/;
 ids = evaluator_calc_iq_0.getValues(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type));
 }
 

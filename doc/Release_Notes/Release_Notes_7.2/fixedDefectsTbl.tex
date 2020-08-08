@@ -28,11 +28,25 @@
      SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endfirsthead
-     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
-     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
+     SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
-
+\textbf{Gitlab-ex 42}: Xyce/ADMS unnecessarily outputting second derivative code &
+An error in logic caused Xyce/ADMS to emit unnecessary code to compute second derivatives of variables.  Second derivatives are only required when a variable whose value is computed via ddx() is subsequently used in non-noise contributions (a usage that is strongly discouraged and not present in any common models).  This unnecessary code was often as large or larger than the required code, and resulted in extraordinary compilation times and compiler memory use. \\ \hline 
+\textbf{Gitlab-ex 40}: Xyce/ADMS incorrectly omitting variable declaration in obscure use cases &
+As a result of a design flaw that has been fixed in this release,
+previous versions of Xyce/ADMS would incorrectly omit the declaration
+of a module-scoped variable if the only use of that variable was in a
+lower-level block and an earlier block had a local variable of the
+same name. \\ \hline
+\textbf{Gitlab-ex 24, 390-SON}: Xyce/ADMS does not support \$port\_connected &
+The Verilog-A construct ``\$port\_connected'' tests whether an
+optional node has been specified on the instance line of a device.
+Using this construct anywhere in a Verilog-A model implicitly
+designates the named node as optional.  Xyce/ADMS now supports this
+construct in a limited sense.  See the Xyce/ADMS users guide for
+details. \\ \hline
 \textbf{812-SON}: Incorrect response when N or V is used as a global param name &
 Use of a \texttt{.GLOBAL\_PARAM} statement to define a parameter which
 had a name identical to a valid print line accessor function

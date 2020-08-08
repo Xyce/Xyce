@@ -95,6 +95,8 @@ class Base
     virtual void updateAC(
               Parallel::Machine comm,
               const double frequency,
+              const double fStart,
+              const double fStop,
               const Linear::Vector *solnVec,
               const Linear::Vector *imaginaryVec,
               const Util::Op::RFparamsData *RFparams) {}
@@ -102,6 +104,8 @@ class Base
     virtual void updateNoise(
               Parallel::Machine comm,
               const double frequency,
+              const double fStart,
+              const double fStop,
               const Linear::Vector *solnVec,
               const Linear::Vector *imaginaryVec,
               const double totalOutputNoiseDens,
@@ -180,6 +184,9 @@ public:
                                       const double endSweepVal);
 
     std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
+
+    bool isInvalidTimeFreqWindow(double startSimVal, double endSimVal);
+    bool isInvalidDCsweepWindow(double startSweepVal, double endSweepVal);
 
     // used to print message about measurement time window, etc.
     virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
