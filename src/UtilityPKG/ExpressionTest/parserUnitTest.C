@@ -56,6 +56,18 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_ExtendedString.h>
 
+//-------------------------------------------------------------------------------
+// group classes.  To use the new expression library, it must be passed a group
+// object, usually at construction of the expression object.  This group object
+// must be derived from the base expression group class.  To be useful, they
+// must implement some of the virtual functions of that class.
+//
+// The groups in this file were originally written "as needed" and thus are 
+// partially (or entirely) redundant with each other.  They were originally 
+// scattered throughout this file, near the various tests that used them,  
+// but the file has been rearranged to have them at the top.  These groups
+// could probably be consolidated to have a smaller list.
+//-------------------------------------------------------------------------------
 class testExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
@@ -5903,6 +5915,27 @@ TEST ( Double_Parser_specials, vt2)
 
   OUTPUT_MACRO(Double_Parser_specials, vt2)
 }
+
+TEST (  Double_Parser_specials, CtoK1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("CtoK"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  double refRes(CONSTCtoK);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ(result, refRes);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  copyExpression.evaluateFunction(result); 
+  EXPECT_DOUBLE_EQ(result, refRes);
+
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+  assignExpression.evaluateFunction(result); 
+  EXPECT_DOUBLE_EQ(result, refRes);
+}
+
 //
 
 // these next two tests are for the use case of a parameter that is named either "I" or "V".
