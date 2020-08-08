@@ -36,6 +36,9 @@ cp utils/ADMS/examples/BSIM6.1.1/code/M_77_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/M_70_OutputVars.tex doc/Reference_Guide
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.h src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/M_70450_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/mvs_2.0.0/N_DEV_ADMSmvs_2_0_0_hemt.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mvs_2.0.0/N_DEV_ADMSmvs_2_0_0_etsoi.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mvs_2.0.0/N_DEV_ADMSmvs_2_0_0_hemt.h src/DeviceModelPKG/ADMS/
