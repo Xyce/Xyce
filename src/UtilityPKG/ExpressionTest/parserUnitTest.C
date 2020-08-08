@@ -7241,6 +7241,9 @@ inline void trapezoidIntegral (
   }
 }
 
+//-------------------------------------------------------------------------------
+// SDT tests
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt1)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -7284,7 +7287,7 @@ TEST ( Double_Parser_Integral_Test, sdt2)
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
 
-  Xyce::Util::newExpression testExpression(std::string("SDT(3.0*cos(time))"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("SDT (3.0*cos(time))"), testGroup);
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression);
@@ -7655,6 +7658,434 @@ TEST ( Double_Parser_Integral_Test, sdt8)
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt8)
+}
+
+//-------------------------------------------------------------------------------
+// DDT tests
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Integral_Test, ddt1)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii>0) {refRes = 1.0;}
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt1)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt2)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT (3.0*sin(time))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=0.01;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii > 0)
+    {
+      refRes = 3.0*std::cos(time);
+      EXPECT_FLOAT_EQ( result, refRes);
+    }
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt2)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt3)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt); 
+
+    testExpression.evaluate(result,derivs);   
+
+    if (ii>0)
+    {
+      refDerivs[0] = 1.0/dt;
+      refRes = 1.0;
+      EXPECT_FLOAT_EQ( result, refRes);
+      EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    }
+
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt3)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt4)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(2.0*v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=2*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt); 
+    testExpression.evaluate(result,derivs);   
+
+    if (ii>0)
+    {
+      refDerivs[0] = 2.0/dt;
+      refRes = 4.0;
+      EXPECT_FLOAT_EQ( result, refRes);
+      EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    }
+
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt4)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt5)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {ddt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("ddt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii>0) {refRes = 1.0;}
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt5)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt6)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {ddt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("ddt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii>0) {refRes = 2.0;}
+    EXPECT_FLOAT_EQ( result, refRes);
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt6)
+}
+
+TEST ( Double_Parser_Integral_Test, ddt7)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {ddt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("ddt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setSoln(std::string("B"),Bval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii>0)
+    {
+      refRes = 1.0 + 3.0;
+      EXPECT_FLOAT_EQ( result, refRes);
+    }
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt7)
+}
+
+// this test is similar to ddt7, except that the SDT operators 
+// are behind 2 layers of funcs instead of 1.
+TEST ( Double_Parser_Integral_Test, ddt8)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {f2(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("f2(a)"), testGroup) );
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  // this expression is the RHS of a .func statement:  .func F2(A) {ddt(A)}
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("ddt(a)"), testGroup) );
+
+  Xyce::Util::newExpression f2_LHS (std::string("F2(A)"), testGroup);
+  f2_LHS.lexAndParseExpression();
+  std::vector<std::string> f2ArgStrings ;
+  f2_LHS.getFuncPrototypeArgStrings(f2ArgStrings);
+  f2Expression->setFunctionArgStringVec (f2ArgStrings);
+  f2Expression->lexAndParseExpression();
+  std::string f2Name;
+  f2_LHS.getFuncPrototypeName(f2Name);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  double result = 0.0; 
+  double refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setSoln(std::string("B"),Bval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    testExpression.evaluateFunction(result);   
+    if (ii>0)
+    {
+      refRes = 1.0 + 3.0;
+      EXPECT_FLOAT_EQ( result, refRes);
+    }
+    time += dt;
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt8)
 }
 
 //-------------------------------------------------------------------------------
@@ -8268,6 +8699,20 @@ TEST ( Double_Parsing_Syntax, bug28_1)
   testExpression.evaluateFunction(result); 
 }
 
+#if 0
+// Similar to the above with "int", theoretically a user could attempt to 
+// use operator names as parameter names.  For example (below) sdt.
+//
+// Q:  Should I fix this for all operators that take an argument inside of parens?
+TEST ( Double_Parsing_Syntax, bug28_2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("SDT"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result;
+  testExpression.evaluateFunction(result); 
+}
+#endif
 
 //-------------------------------------------------------------------------------
 // tests for random operators

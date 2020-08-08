@@ -76,6 +76,9 @@ class currentOp;
 template <typename ScalarT>
 class sdtOp;
 
+template <typename ScalarT>
+class ddtOp;
+
 inline void yyerror(std::vector<std::string> & s);
 
 #define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
@@ -275,6 +278,14 @@ struct sdtStateData
   ScalarT val2;
   ScalarT integral_old;
   ScalarT integral;
+};
+
+template <typename ScalarT>
+struct ddtStateData
+{
+  ddtStateData(): val1(0.0), val2(0.0){};
+  ScalarT val1;
+  ScalarT val2;
 };
 
 //-------------------------------------------------------------------------------
@@ -1877,6 +1888,11 @@ class funcOp: public astNode<ScalarT>
         sdtStateVec_[ii]->integral_old = sdtStateVec_[ii]->integral;
         sdtStateVec_[ii]->val1 = sdtStateVec_[ii]->val2;
       }
+      int ddtSize=ddtStateVec_.size();
+      for (int ii=0;ii<ddtSize;ii++) 
+      { 
+        ddtStateVec_[ii]->val1 = ddtStateVec_[ii]->val2;
+      }
     }
 
     virtual ScalarT val()
@@ -1893,6 +1909,10 @@ class funcOp: public astNode<ScalarT>
             sdtStateVec_.resize( sdtSize );
             for (int ii=0;ii<sdtSize;ii++) { sdtStateVec_[ii] = Teuchos::rcp(new sdtStateData<ScalarT>()); }
 
+            int ddtSize = ddtOpVec_.size();
+            ddtStateVec_.resize( ddtSize );
+            for (int ii=0;ii<ddtSize;ii++) { ddtStateVec_[ii] = Teuchos::rcp(new ddtStateData<ScalarT>()); }
+
             stateResolved_ = true;
           }
 
@@ -1903,6 +1923,12 @@ class funcOp: public astNode<ScalarT>
             sdt->setState(sdtStateVec_[ii]); 
           }
 
+          for (int ii=0;ii<ddtOpVec_.size();++ii) 
+          { 
+            Teuchos::RCP<ddtOp<ScalarT> > ddt = Teuchos::rcp_static_cast<ddtOp<ScalarT> > (ddtOpVec_[ii]);
+            ddt->setState(ddtStateVec_[ii]); 
+          }
+
           number_ = functionNode_->val();
 
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
@@ -1910,6 +1936,12 @@ class funcOp: public astNode<ScalarT>
           { 
             Teuchos::RCP<sdtOp<ScalarT> > sdt = Teuchos::rcp_static_cast<sdtOp<ScalarT> > (sdtOpVec_[ii]);
             sdt->unsetState(); 
+          }
+
+          for (int ii=0;ii<ddtOpVec_.size();++ii) 
+          { 
+            Teuchos::RCP<ddtOp<ScalarT> > ddt = Teuchos::rcp_static_cast<ddtOp<ScalarT> > (ddtOpVec_[ii]);
+            ddt->unsetState(); 
           }
         }
       }
@@ -2145,6 +2177,7 @@ AST_GET_TIME_OPS(functionNode_)
     std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtOpVec_;
 
     std::vector<Teuchos::RCP<sdtStateData<ScalarT> > > sdtStateVec_;
+    std::vector<Teuchos::RCP<ddtStateData<ScalarT> > > ddtStateVec_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3754,16 +3787,16 @@ class ddtOp : public astNode<ScalarT>
       : astNode<ScalarT>(left),
       dt_(dt),
       time_(time),
-      val1_(0.0),
-      val2_(0.0),
+      state_(Teuchos::rcp(new ddtStateData<ScalarT>())),
+      default_state_(state_),
+      stateSet_(false),
       timeDerivative_(0.0),
       useExternDeriv_(false)
     {};
 
     virtual void processSuccessfulTimeStep ()
     {
-      //std::cout << "ddtOp::processSuccessfulTimeStep " << std::endl;
-      val1_ = val2_;
+      state_->val1 = state_->val2;
     }
 
     virtual ScalarT val()
@@ -3774,36 +3807,25 @@ class ddtOp : public astNode<ScalarT>
       if (!useExternDeriv_ )
       {
         timeDerivative_ = 0.0;
+        state_->val2 = this->leftAst_->val();
 
         if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
         else
-        {
-          std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null time pointer"));
-          yyerror(errStr);
-        }
+        { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null time pointer")); yyerror(errStr); }
 
         if (time != 0.0) // at time point zero, treat dt as zero.
         {
           if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
           else
-          {
-            std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
-            yyerror(errStr);
-          }
+          { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
-          val2_ = this->leftAst_->val();
 
           // for now, hardwire to backward Euler
-          timeDerivative_ = (val2_-val1_)/deltaT;
-        }
-        else
-        {
-          timeDerivative_ = 0.0;
+          timeDerivative_ = (state_->val2-state_->val1)/deltaT;
         }
       }
 
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1_ << " val2 = " << val2_ << " ddt = " << timeDerivative_ <<std::endl;
-
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state_->val1 << " val2 = " << state_->val2 << " ddt = " << timeDerivative_ <<std::endl;
       return timeDerivative_;
     };
 
@@ -3815,19 +3837,13 @@ class ddtOp : public astNode<ScalarT>
 
       if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
       else
-      {
-        std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null time pointer"));
-        yyerror(errStr);
-      }
+      { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null time pointer")); yyerror(errStr); }
 
       if (time != 0.0) // at time point zero, treat dt as zero.
       {
         if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
         else
-        {
-          std::vector<std::string> errStr(1,std::string("AST node (sdt) has a null dt pointer"));
-          yyerror(errStr);
-        }
+        { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
 
         ScalarT dVal2dx = this->leftAst_->dx(i);
@@ -3836,10 +3852,8 @@ class ddtOp : public astNode<ScalarT>
         ddt_dx = ddt_dVal2 * dVal2dx;
       }
 
-      ddt_dx = 0.0; // this is a test.
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << val1_ << " val2 = " << val2_
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state_->val1 << " val2 = " << state_->val2
         //<< " ddt_dx = " << ddt_dx <<std::endl;
-
       return ddt_dx;
     };
 
@@ -3859,14 +3873,30 @@ class ddtOp : public astNode<ScalarT>
 
     virtual bool ddtType() { return true; }
 
-    ScalarT getDdtArg() { return val2_ = this->leftAst_->val(); }
+    ScalarT getDdtArg() { return state_->val2; }
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
+
+    virtual void setState(Teuchos::RCP<ddtStateData<ScalarT> > & st) 
+    { 
+      if( !stateSet_ )
+      {
+        state_ = st;
+        stateSet_=true;
+      }
+    };
+
+    virtual void unsetState()
+    {
+      state_ = default_state_;
+      stateSet_=false;
+    };
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
     Teuchos::RCP<astNode<ScalarT> > time_;
-    ScalarT val1_;
-    ScalarT val2_;
+    Teuchos::RCP<ddtStateData<ScalarT> > state_;
+    Teuchos::RCP<ddtStateData<ScalarT> > default_state_;
+    bool stateSet_;
     ScalarT timeDerivative_;
     bool useExternDeriv_;
 };
