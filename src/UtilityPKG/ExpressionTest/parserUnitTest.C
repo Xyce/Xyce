@@ -1441,7 +1441,11 @@ TEST ( Double_Parser_Test, simpleExpression_lmod_indmod6)
   OUTPUT_MACRO(Double_Parser_Test, simpleExpression_lmod_indmod6)
 }
 
+//-------------------------------------------------------------------------------
 // source functions:
+//-------------------------------------------------------------------------------
+// pulse
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_SourceFunc_Test, pulse)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -1477,6 +1481,7 @@ TEST ( Double_Parser_SourceFunc_Test, pulse)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse)
 }
 
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_SourceFunc_Test, pulse_breakpoints)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -1501,6 +1506,64 @@ TEST ( Double_Parser_SourceFunc_Test, pulse_breakpoints)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse_breakpoints)
 }
 
+//-------------------------------------------------------------------------------
+// identical to the first pulse test, except that it goes thru a .func
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_SourceFunc_Test, pulse_func)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_pulse(...)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(
+    std::string("A*spice_pulse(0.0,1.0,0.0,10e-6,10e-6,0.1e-6,20.1e-6)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(0.0)), 0.0);
+
+  double tr=10.0e-6, pw=0.1e-6;
+  timeDepGroup->setTime(tr+0.5*pw);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(1.0)), 0.0);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  copyExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(1.0)), 0.0);
+
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+  assignExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copyExpression.getTimeDependent();
+  bool assignTimeDependent = assignExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse_func)
+}
+
+//-------------------------------------------------------------------------------
+// sin
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_SourceFunc_Test, sin)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -1544,6 +1607,70 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
 }
 
+//-------------------------------------------------------------------------------
+// same as sin test, but thru a .func
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_SourceFunc_Test, sin_func)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_sin(...)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(
+    std::string("A*spice_sin(1.65,1.65,10000,0,0,-90)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  int numpoints=100;
+  double v0(1.65), va(1.65), freq(10000), td(0.0), theta(0.0), phase(-90),time(0.0);
+  double dt=(1.0/freq)*(1.0/static_cast<double>(numpoints));
+  std::vector<double> refRes(numpoints), result(numpoints);
+  std::vector<double> copyResult(numpoints), assignResult(numpoints);
+  for (int ii=0;ii<numpoints;ii++,time+=dt)
+  {
+    timeDepGroup->setTime(time); 
+    testExpression.evaluateFunction(result[ii]);
+    copyExpression.evaluateFunction(copyResult[ii]);
+    assignExpression.evaluateFunction(assignResult[ii]);
+    refRes[ii] = v0 + va * std::sin(2.0*M_PI*((freq)*time + (phase)/360)) * std::exp( -(time*(theta)));
+  }
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( copyResult, refRes);
+  EXPECT_EQ( assignResult, refRes);
+
+  bool timeDependent = testExpression.getTimeDependent();
+  bool copyTimeDependent = copyExpression.getTimeDependent();
+  bool assignTimeDependent = assignExpression.getTimeDependent();
+
+  EXPECT_EQ(timeDependent, true);
+  EXPECT_EQ(copyTimeDependent, true);
+  EXPECT_EQ(assignTimeDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin_func)
+}
+
+//-------------------------------------------------------------------------------
 // This test is taken from the sources.cir Xyce regression test.  This is the "B2" source in that test.
 // The test runs with Xyce if I comment out the B2 source.  So I created this unit test to track down the problem.
 // The test ultimately did find the problem and it is now fixed.
@@ -1634,6 +1761,9 @@ TEST ( Double_Parser_SourceFunc_Test, sin2)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
 }
 
+//-------------------------------------------------------------------------------
+// exp
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_SourceFunc_Test, exp)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -1668,6 +1798,60 @@ TEST ( Double_Parser_SourceFunc_Test, exp)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,exp)
 }
 
+//-------------------------------------------------------------------------------
+// same as exp test, but thru a .func
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_SourceFunc_Test, exp_func)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_exp(...)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*spice_exp(1.1,2.0,2e-9,15e-9,5e-9,30e-9)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  int numpoints=100;
+  double v1(1.1), v2(2.0), td1(2e-9), tau1(15e-9), td2(5e-9), tau2(30e-9), time(0.0);
+  double dt=2*td2/static_cast<double>(numpoints);
+  std::vector<double> refRes(numpoints), result(numpoints);
+  std::vector<double> copyResult(numpoints), assignResult(numpoints);
+  for (int ii=0;ii<numpoints;ii++,time+=dt)
+  {
+    timeDepGroup->setTime(time); 
+    testExpression.evaluateFunction(result[ii]);
+    copyExpression.evaluateFunction(copyResult[ii]);
+    assignExpression.evaluateFunction(assignResult[ii]);
+    if (time <= td1)  refRes[ii] = v1;
+    else if (time <= td2 && time > td1) refRes[ii] = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1));
+    else refRes[ii] = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1)) + (v1-v2)*(1.0-std::exp(-(time-td2)/tau2)) ;
+  }
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( copyResult, refRes);
+  EXPECT_EQ( assignResult, refRes);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,exp_func)
+}
+
+//-------------------------------------------------------------------------------
+// sffm
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_SourceFunc_Test, sffm)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -1697,6 +1881,55 @@ TEST ( Double_Parser_SourceFunc_Test, sffm)
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sffm)
+}
+
+//-------------------------------------------------------------------------------
+// same as sffm, but thru a .func
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_SourceFunc_Test, sffm_func)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_sffm(...)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(
+    std::string("A*spice_sffm(-0.5,2.0,100e6,0.3,2.1e6)"),testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  int numpoints=100;
+  double v0(-0.5), va(2.0), fc(100e6), mdi(0.3), fs(2.1e6), time(0.0);
+  double dt=(1.0/2.1e6) /  static_cast<double>(numpoints);
+  std::vector<double> refRes(numpoints), result(numpoints);
+  std::vector<double> copyResult(numpoints), assignResult(numpoints);
+  for (int ii=0;ii<numpoints;ii++,time+=dt)
+  {
+    timeDepGroup->setTime(time); 
+    testExpression.evaluateFunction(result[ii]);
+    copyExpression.evaluateFunction(copyResult[ii]);
+    assignExpression.evaluateFunction(assignResult[ii]);
+    refRes[ii] = v0 + va * sin((2 * M_PI * fc * time) + mdi * sin (2 * M_PI * fs * time));
+  }
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( copyResult, refRes);
+  EXPECT_EQ( assignResult, refRes);
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sffm_func)
 }
 
 //-------------------------------------------------------------------------------
@@ -2663,7 +2896,6 @@ TEST ( Double_Parser_Noise_Test, inoise_test)
 
 //-------------------------------------------------------------------------------
 // .func tests
-
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Func_Test, test1)
 {
@@ -8764,6 +8996,7 @@ TEST ( Double_Parser_Random, agauss0)
   OUTPUT_MACRO(Double_Parser_Random, agauss0)
 }
 
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_Random, agauss1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -8779,6 +9012,41 @@ TEST ( Double_Parser_Random, agauss1)
   EXPECT_DOUBLE_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
 
   OUTPUT_MACRO(Double_Parser_Random, agauss1)
+
+  Xyce::Util::enableRandomExpression = true; // restore default
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Random, agauss1_func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_pulse(...)}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*agauss(1.0,0.1,1.0)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  double result1(0.0);
+  double result2(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  EXPECT_DOUBLE_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+
+  OUTPUT_MACRO(Double_Parser_Random, agauss_func)
 
   Xyce::Util::enableRandomExpression = true; // restore default
 }
@@ -8804,7 +9072,6 @@ TEST ( Double_Parser_Random, agauss2)
 
   //OUTPUT_MACRO(Double_Parser_Random, agauss2)
 }
-
 
 TEST ( Double_Parser_Random, gauss0)
 {
