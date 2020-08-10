@@ -8,6 +8,7 @@ lib_LTLIBRARIES = libADMS.la
 
 libADMS_la_SOURCES = \
   N_DEV_RegisterADMSDevices.C \
+  N_DEV_ADMSDIODE_CMC.C \
   N_DEV_ADMSHBT_X.C \
   N_DEV_ADMSPSP103VA.C \
   N_DEV_ADMSPSP103TVA.C \
@@ -29,6 +30,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMShicumL2va.C \
   N_DEV_ADMShic0_full.C \
   N_DEV_RegisterADMSDevices.h \
+  N_DEV_ADMSDIODE_CMC.h \
   N_DEV_ADMSHBT_X.h \
   N_DEV_ADMSPSP103VA.h \
   N_DEV_ADMSPSP103TVA.h \
