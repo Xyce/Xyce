@@ -7928,7 +7928,7 @@ TEST ( Double_Parser_Integral_Test, sdt8)
 //-------------------------------------------------------------------------------
 // DDT tests
 //-------------------------------------------------------------------------------
-TEST ( Double_Parser_Integral_Test, ddt1)
+TEST ( Double_Parser_Derivative_Test, ddt1)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -7963,10 +7963,10 @@ TEST ( Double_Parser_Integral_Test, ddt1)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt1)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt1)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt2)
+TEST ( Double_Parser_Derivative_Test, ddt2)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8002,10 +8002,10 @@ TEST ( Double_Parser_Integral_Test, ddt2)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt2)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt2)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt3)
+TEST ( Double_Parser_Derivative_Test, ddt3)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8051,10 +8051,10 @@ TEST ( Double_Parser_Integral_Test, ddt3)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt3)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt3)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt4)
+TEST ( Double_Parser_Derivative_Test, ddt4)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8100,10 +8100,10 @@ TEST ( Double_Parser_Integral_Test, ddt4)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt4)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt4)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt5)
+TEST ( Double_Parser_Derivative_Test, ddt5)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8155,10 +8155,10 @@ TEST ( Double_Parser_Integral_Test, ddt5)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt5)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt5)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt6)
+TEST ( Double_Parser_Derivative_Test, ddt6)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8210,10 +8210,10 @@ TEST ( Double_Parser_Integral_Test, ddt6)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt6)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt6)
 }
 
-TEST ( Double_Parser_Integral_Test, ddt7)
+TEST ( Double_Parser_Derivative_Test, ddt7)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8274,12 +8274,12 @@ TEST ( Double_Parser_Integral_Test, ddt7)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt7)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt7)
 }
 
 // this test is similar to ddt7, except that the SDT operators 
 // are behind 2 layers of funcs instead of 1.
-TEST ( Double_Parser_Integral_Test, ddt8)
+TEST ( Double_Parser_Derivative_Test, ddt8)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -8350,7 +8350,7 @@ TEST ( Double_Parser_Integral_Test, ddt8)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, ddt8)
+  OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt8)
 }
 
 //-------------------------------------------------------------------------------

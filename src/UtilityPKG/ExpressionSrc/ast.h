@@ -3803,11 +3803,11 @@ class ddtOp : public astNode<ScalarT>
     {
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
+      state_->val2 = this->leftAst_->val();
 
       if (!useExternDeriv_ )
       {
         timeDerivative_ = 0.0;
-        state_->val2 = this->leftAst_->val();
 
         if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
         else
@@ -3818,7 +3818,6 @@ class ddtOp : public astNode<ScalarT>
           if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
           else
           { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
-
 
           // for now, hardwire to backward Euler
           timeDerivative_ = (state_->val2-state_->val1)/deltaT;
@@ -3835,21 +3834,24 @@ class ddtOp : public astNode<ScalarT>
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
 
-      if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
-      else
-      { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null time pointer")); yyerror(errStr); }
-
-      if (time != 0.0) // at time point zero, treat dt as zero.
+      if (!useExternDeriv_ )
       {
-        if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+        if( !(Teuchos::is_null( time_ ))) { time = std::real(this->time_->val()); }
         else
-        { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
+        { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null time pointer")); yyerror(errStr); }
+
+        if (time != 0.0) // at time point zero, treat dt as zero.
+        {
+          if( !(Teuchos::is_null( dt_ ))) { deltaT = std::real(this->dt_->val()); }
+          else
+          { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
 
-        ScalarT dVal2dx = this->leftAst_->dx(i);
-        ScalarT ddt_dVal2 = 1.0/deltaT;
-        // for now, hardwire to backward Euler
-        ddt_dx = ddt_dVal2 * dVal2dx;
+          ScalarT dVal2dx = this->leftAst_->dx(i);
+          ScalarT ddt_dVal2 = 1.0/deltaT;
+          // for now, hardwire to backward Euler
+          ddt_dx = ddt_dVal2 * dVal2dx;
+        }
       }
 
       //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state_->val1 << " val2 = " << state_->val2
