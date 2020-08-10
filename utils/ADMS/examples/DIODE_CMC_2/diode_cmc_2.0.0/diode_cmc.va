@@ -71,7 +71,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-module DIODE_CMC(A,K);
+// Xyce:  we set device type and level here in attributes
+module DIODE_CMC(A,K) `P(xyceModelGroup="Diode" xyceLevelNumber="2002");
 
 //
 //  Node definitions
@@ -85,7 +86,9 @@ electrical charge_A, charge_K, depl_A;  //internal node -- Diode_cmc recovery an
     //  Diode_cmc model parameters
     ///////////////////////////////
 
-    parameter real LEVEL      = 2002                              `P(info="Model level must be 2002" unit="");
+//XYCE: we don't do level by having a model param in the device, it's part
+// of higher level code.  Use module attributes instead
+//    parameter real LEVEL      = 2002                              `P(info="Model level must be 2002" unit="");
     parameter real VERSION    = 2                                 `P(info="Model version" unit="");
     parameter real SUBVERSION = 0                                 `P(info="Model subversion" unit="");
     parameter real REVISION   = 0                                 `P(info="Model revision" unit="");
@@ -158,7 +161,9 @@ electrical charge_A, charge_K, depl_A;  //internal node -- Diode_cmc recovery an
     /////////////////////////////////////////////////////////////////////////////
 
     analog begin
-
+`ifdef insideADMS
+       @(initial_model)
+`endif
         begin : initialize_Model
 
             EPSSI      =  `EPSO * `EPSRSI;
@@ -168,6 +173,9 @@ electrical charge_A, charge_K, depl_A;  //internal node -- Diode_cmc recovery an
 
 
         // Code independent of bias but dependent on instance parameters
+`ifdef insideADMS
+       @(initial_instance)
+`endif
         begin : initializeInstance
 
             // Clipping of the local model parameters

@@ -70,13 +70,17 @@
     // Note 2: In this va-code, the "from" keyword in the parameter
     // list is not used. Silent clipping is used instead. One could enable
     // the Verilog-A range checking by redefining the `from-macro below.
-    `define P(txt)
+    // Xyce:  we need this is for attributes, they're not comments
+    //`define P(txt)
+    `define P(txt) (* txt *)
     `define AT_MODEL
     `define AT_INSTANCE
     `define AT_NOISE
-    `define from(lower,upper)
-//    `define from(lower,upper) from[lower:upper]
-`define OPdef(OPvarname, OPdesc, OPunit) (*desc=OPdesc*) real OPvarname;
+    // Xyce:  use the limits, please, we use them for range checking
+    //`define from(lower,upper)
+    `define from(lower,upper) from[lower:upper]
+// Xyce:: pass the units, too, please
+`define OPdef(OPvarname, OPdesc, OPunit) (*desc=OPdesc unnits=OPunit*) real OPvarname;
 
 // Some functions
 `define MAX(x,y)              ((x)>(y)?(x):(y))
