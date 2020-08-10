@@ -65,6 +65,7 @@ using \verb|LEVEL=1| in the model parameters, but is also selected if no
 \verb|LEVEL| parameter is specified.  The PSpice implementation
 ~\cite{PSpiceUG:1998} is obtained by specifying \verb|LEVEL=2|.
 The \Xyce{} \verb|LEVEL=200| diode is the JUNCAP200 model.
+The \Xyce{} \verb|LEVEL=2002| diode is the DIODE\_CMC model version 2.0.0.
 
 The \Xyce{} \verb|LEVEL=1| and \verb|LEVEL=2| diodes have a parameter,
 \textrmb{IRF}, that allows the user to adjust the reverse current from
@@ -96,24 +97,37 @@ the linear portion of the reverse current.  \textbf{NOTE: The
 \paragraph{Level 1 and 2 Diode Model Parameters}
 \input{D_1_Device_Model_Params}
 
+\paragraph{JUNCAP200 (level=200) Parameters}
 The JUNCAP200 model has the instance and model parameters in the
 tables below.  Complete documentation of JUNCAP200 may be found at
 \url{http://www.cea.fr/cea-tech/leti/pspsupport/Documents/juncap200p5_summary.pdf}.
 
-\paragraph{JUNCAP200 Instance Parameters}
-\input{D_200_Device_Instance_Params}
 
-\paragraph{JUNCAP200 Model Parameters}
-\input{D_200_Device_Model_Params}
-
-\paragraph{JUNCAP200 Output Variables}
 The JUNCAP200 device supports output of the internal variables in
 table~\ref{D_200_OutputVars} on the \texttt{.PRINT} line of a netlist.
 To access them from a print line, use the syntax
 \texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
 name of the specific level 200 D device in your netlist.
 
+\input{D_200_Device_Instance_Params}
+\input{D_200_Device_Model_Params}
 \input{D_200_OutputVars}
+
+\paragraph{DIODE\_CMC (level=2002) Parameters}
+The DIODE\_CMC model has the instance and model parameters in the
+tables below.  Complete documentation of DIODE\_CMC may be found at
+\url{https://si2.org/standard-models}.
+
+
+The DIODE\_CMC device supports output of the internal variables in
+table~\ref{D_2002_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 200 D device in your netlist.
+
+\input{D_2002_Device_Instance_Params}
+\input{D_2002_Device_Model_Params}
+\input{D_2002_OutputVars}
 
 \paragraph{Level 1 Diode Equations}
 
