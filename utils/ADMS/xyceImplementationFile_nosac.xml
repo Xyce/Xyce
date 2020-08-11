@@ -526,14 +526,14 @@ void Traits::loadModelParameters(ParametricData&lt;%($nameSpace)::Model&gt; &amp
 }
 
 <admst:variable name="skipFunctionPrecomp" select="n"/>
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::processParams
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::processParams()
 {
   // set any non-constant parameter defaults
@@ -585,14 +585,14 @@ bool Instance::processParams()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::Instance
 // Purpose       : "instance block" constructor
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 
 Instance::Instance(
   const Configuration &amp; configuration,
@@ -711,14 +711,14 @@ computeJacStampAndMaps(jacobianElements,collapsedNodes,jacStamp,nodeMap,pairToJa
 }
 
 <admst:if test="[count(node[#collapsible='yes'])>0]">
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::collapseNodes
 // Purpose       : function to handle collapsing of nodes
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::collapseNodes()
 {
 
@@ -762,26 +762,26 @@ void Instance::collapseNodes()
 }
 
 </admst:if>
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::~Instance
 // Purpose       : destructor
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 Instance::~Instance()
 {
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::registerLIDs
 // Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
                              const LocalIdVector &amp; extLIDVecRef)
 {
@@ -879,14 +879,14 @@ void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
   }
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::loadNodeSymbols
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
 {
   <admst:for-each select="node[grounded='no' and location='external' and exists(#optional)]">
@@ -971,14 +971,14 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
   }
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::registerStoreLIDs
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::registerStoreLIDs( const LocalIdVector &amp; stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
@@ -1000,14 +1000,14 @@ void Instance::registerStoreLIDs( const LocalIdVector &amp; stoLIDVecRef)
 </admst:if>
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::registerBranchDataLIDs
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 12/09/11
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::registerBranchDataLIDs(const std::vector&lt;int&gt; &amp; branchLIDVecRef)
 {
   AssertLIDs(branchLIDVecRef.size() == getNumBranchDataVars());
@@ -1038,20 +1038,20 @@ void Instance::registerBranchDataLIDs(const std::vector&lt;int&gt; &amp; branchL
   }
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::jacobianStamp
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 const JacobianStamp &amp; Instance::jacobianStamp() const
 {
     return jacStamp;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::registerJacLIDs
 // Purpose       : Create Offset variables used for referencing jacobian
 //                 elements
@@ -1059,7 +1059,7 @@ const JacobianStamp &amp; Instance::jacobianStamp() const
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::registerJacLIDs( const JacobianStamp &amp; jacLIDVec)
 {
   DeviceInstance::registerJacLIDs(jacLIDVec);
@@ -1067,7 +1067,7 @@ void Instance::registerJacLIDs( const JacobianStamp &amp; jacLIDVec)
 
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::setupPointers
 // Purpose       : Create pointer variables used for referencing jacobian
 //                 elements
@@ -1075,7 +1075,7 @@ void Instance::registerJacLIDs( const JacobianStamp &amp; jacLIDVec)
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::setupPointers( )
 {
 
@@ -1088,7 +1088,7 @@ void Instance::setupPointers( )
 
 // RHS load functions
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::loadDAEFVector
 // Purpose       : load F vector (static contributions) for one instance for
 //                 NEW DAE formulation
@@ -1096,7 +1096,7 @@ void Instance::setupPointers( )
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::loadDAEFVector()
 {
 
@@ -1181,7 +1181,7 @@ bool Instance::loadDAEFVector()
   return bsuccess;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::loadDAEQVector
 // Purpose       : load Q vector (dynamic contributions) for one instance for
 //                 NEW DAE formulation
@@ -1189,7 +1189,7 @@ bool Instance::loadDAEFVector()
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::loadDAEQVector()
 {
 
@@ -1250,7 +1250,7 @@ bool Instance::loadDAEQVector()
 }
 
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::updatePrimaryState
 // Purpose       :
 // Special Notes : In this initial implementation, does little more than
@@ -1258,7 +1258,7 @@ bool Instance::loadDAEQVector()
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::updatePrimaryState()
 {
   bool bsuccess = true;
@@ -1287,14 +1287,14 @@ bool Instance::updatePrimaryState()
   return bsuccess;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::updateSecondaryState
 // Purpose       :
 // Special Notes : In this initial implementation, does nothing
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::updateSecondaryState()
 {
   bool bsuccess = true;
@@ -1305,14 +1305,14 @@ bool Instance::updateSecondaryState()
   return bsuccess;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::updateIntermediateVars
 // Purpose       : update intermediate variables for one %(name) instance
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::updateIntermediateVars()
 {
 
@@ -1612,27 +1612,27 @@ bool Instance::updateIntermediateVars()
 }
 
 <admst:if test="[count(contribution[whitenoise='yes' or flickernoise='yes'])>0]">
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::getNumNoiseSources
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 int Instance::getNumNoiseSources () const
 {
 return %(count(contribution[whitenoise='yes']) + count(contribution[flickernoise='yes']));
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::setupNoiseSources
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::setupNoiseSources (Xyce::Analysis::NoiseData &amp; noiseData)
 {
 int numSources=getNumNoiseSources();
@@ -1670,14 +1670,14 @@ std::string theNoiseName;
 </admst:for-each>
 
 }
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::getNoiseSources
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 void Instance::getNoiseSources (Xyce::Analysis::NoiseData &amp; noiseData)
 {
   <admst:for-each select="contribution[whitenoise='yes' or flickernoise='yes']">
@@ -1694,14 +1694,14 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData &amp; noiseData)
 }
 </admst:if>
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::loadDAEdFdx
 // Purpose       :
 // Special Notes : Load the dFdx ("static jacobian") matrix
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::loadDAEdFdx()
 {
   bool bsuccess = true;
@@ -2022,14 +2022,14 @@ bool Instance::loadDAEdFdx()
 }
 
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::loadDAEdQdx
 // Purpose       :
 // Special Notes : Load the dQdx ("dynamic jacobian") matrix
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::loadDAEdQdx()
 {
   bool bsuccess = true;
@@ -2299,14 +2299,14 @@ bool Instance::loadDAEdQdx()
 
 
 <admst:if test="[count($theModule/callfunction[function/name='\$bound_step'])>0]">
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::getMaxTimeStepSize
 // Purpose       : restrict time integrator max time step
 // Special Notes : 
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 double Instance::getMaxTimeStepSize()
 {
 return maxTimeStep_;
@@ -2315,7 +2315,7 @@ return maxTimeStep_;
 </admst:if>
 
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n\n\n//-----------------------------------------------------------------------------"/>
 // Function      : Instance::updateTemperature
 // Purpose       : Set temperature and update any parameters that depend on it
 // Special Notes : In Xyce ADMS, we'll simply copy the temperature, which is
@@ -2324,7 +2324,7 @@ return maxTimeStep_;
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Instance::updateTemperature(const double &amp; temperatureTemp)
 {
 
@@ -2339,14 +2339,14 @@ bool Instance::updateTemperature(const double &amp; temperatureTemp)
      -->
   <admst:variable name="globalCurrentScope" select="model"/>
 // Class Model
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Model::processParams
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 bool Model::processParams()
 {
 
@@ -2413,14 +2413,14 @@ bool Model::processInstanceParams()
   return true;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Model::Model
 // Purpose       : model block constructor
 // Special Notes :
 // Scope         : public
 // Creator       :
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 Model::Model(
   const Configuration &amp; configuration,
   const ModelBlock &amp;    model_block,
@@ -2445,14 +2445,14 @@ Model::Model(
   processParams();
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Model::~Model
 // Purpose       : destructor
 // Special Notes :
 // Scope         : public
 // Creator       :
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 Model::~Model()
 {
   std::vector&lt;Instance*&gt;::iterator iterI;
@@ -2466,14 +2466,14 @@ Model::~Model()
   }
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Model::printOutInstances
 // Purpose       : debugging tool.
 // Special Notes :
 // Scope         : public
 // Creator       :
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 std::ostream &amp;Model::printOutInstances(std::ostream &amp;os) const
 {
   std::vector&lt;Instance*&gt;::const_iterator iter;
@@ -2500,14 +2500,14 @@ std::ostream &amp;Model::printOutInstances(std::ostream &amp;os) const
   return os;
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : Model::forEachInstance
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : David Baur
 // Creation Date : 2/4/2014
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 /// Apply a device instance "op" to all instances associated with this
 /// model
 ///
@@ -2526,14 +2526,14 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 <admst:variable name="globalCurrentScope" select="sensitivity"/>
 <admst:variable name="globalSensitivityScope" select="instance"/>
 #ifdef Xyce_ADMS_SENSITIVITIES
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : evaluateInitialInstance
 // Purpose       : Evaluate the statements in the initial_instance block
 // Special Notes : specific for sensitivity use
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
 
 <admst:text format="void evaluateInitialInstance(\n"/>
 <admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
@@ -2561,14 +2561,14 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 
 <admst:variable name="globalSensitivityScope" select="model"/>
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
 // Function      : evaluateInitialModel
 // Purpose       : Evaluate the statements in the initial_model block
 // Special Notes : specific for sensitivity use
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
 
 <admst:text format="void evaluateInitialModel(\n"/>
 <admst:text format="modelSensStruct &amp; modelStruct,\n"/>
@@ -2588,7 +2588,7 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 
 <admst:variable name="globalSensitivityScope" select="neither"/>
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
 // Function      : evaluateModelEquations
 // Purpose       : Evaluate the main module block.  Similar to
 //                 updateIntermediateVars, but takes all instance and model
@@ -2598,7 +2598,7 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
 
 <admst:text format="void evaluateModelEquations(\n"/>
 <admst:variable name="globalDeclareVars" select="yes"/>
@@ -2641,14 +2641,14 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
   </admst:for-each>
 <admst:text format="}\n\n"/>
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
 // Function      : InstanceSensitivity::operator()
 // Purpose       : return sensitivity for a single instance parameter
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 /// Compute sensitivity of a device instance&apos;s outputs to a specified instance
 /// parameter
 ///
@@ -2959,14 +2959,14 @@ probeVars,
 
 }
 
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 // Function      : ModelSensitivity::operator()
 // Purpose       : return sensitivity for a single model parameter
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
-//-----------------------------------------------------------------------------
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
 /// Compute sensitivity to a specified model
 /// parameter of all device instances of that model's outputs
 ///
