@@ -294,6 +294,11 @@ public:
     return parametricData_.getMap();
   }
 
+  void resetScaledParams()
+  {
+    dependentScaleParamExcludeMap_.clear();
+  }
+
 private:
   void escape(std::string &) const;
   void checkDepend(ParameterType::ExprAccess &);
@@ -310,6 +315,7 @@ private:
   std::vector<Depend>         dependentParams_;
 
   std::unordered_map <std::string, int> dependentParamExcludeMap_;
+  std::unordered_map <std::string, int> dependentScaleParamExcludeMap_;
 
 protected:
   std::vector<int>            expVarGIDs;

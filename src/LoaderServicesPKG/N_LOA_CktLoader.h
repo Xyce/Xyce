@@ -305,6 +305,9 @@ public:
   virtual bool getVoltageLimiterStatus();
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
 
+  virtual void updateDependentParams ();
+  virtual void resetScaledParams();
+
 public:
   Device::DeviceMgr &   deviceManager_;         ///< Device manager
   Linear::Builder &     builder_;               ///< Matrix and vector builder

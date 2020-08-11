@@ -527,6 +527,9 @@ public:
 
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
 
+  void updateDependentParams();
+  void resetScaledParams();
+
 private:
   Device &getDeviceByModelType(const EntityTypeId model_type);
 

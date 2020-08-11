@@ -2009,7 +2009,7 @@ void populateSweepParam (
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceMgr::getRandomParameters
+// Function      : DeviceMgr::getRandomParams
 //
 // Purpose       : To conduct Hspice-style sampling analysis, it is necessary 
 //                 to gather all the parameters (global and/or device) which 
@@ -2056,6 +2056,53 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   }
 
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::updateDependentParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/11/2020
+//-----------------------------------------------------------------------------
+void DeviceMgr::updateDependentParams()
+{
+  updateDependentParameters_();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::resetScaledParams()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/11/2020
+//-----------------------------------------------------------------------------
+void DeviceMgr::resetScaledParams()
+{
+  ModelVector::iterator iterM;
+  ModelVector::iterator beginM =modelVector_.begin();
+  ModelVector::iterator endM =modelVector_.end();
+  for (iterM=beginM; iterM!=endM;++iterM)
+  {
+    if (!(*iterM)->getDependentParams().empty())
+    {
+      (*iterM)->resetScaledParams();
+    }
+  }
+
+  // do the instances
+  InstanceVector::iterator iter;
+  InstanceVector::iterator begin =instancePtrVec_.begin();
+  InstanceVector::iterator end =instancePtrVec_.end();
+  for (iter=begin; iter!=end;++iter)
+  {
+    if (!(*iter)->getDependentParams().empty())
+    {
+      (*iter)->resetScaledParams();
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

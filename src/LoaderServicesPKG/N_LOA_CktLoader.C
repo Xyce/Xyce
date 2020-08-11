@@ -1466,5 +1466,31 @@ void CktLoader::setVoltageLimiterStatus(bool voltageLimterStatus)
   return deviceManager_.setVoltageLimiterStatus(voltageLimterStatus);
 }
 
+//---------------------------------------------------------------------------
+// Function      : CktLoader::updateDependentParams () 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/11/2020
+//---------------------------------------------------------------------------
+void CktLoader::updateDependentParams () 
+{
+  return deviceManager_.updateDependentParams ();
+}
+
+//---------------------------------------------------------------------------
+// Function      : CktLoader::resetScaledParams() 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/11/2020
+//---------------------------------------------------------------------------
+void CktLoader::resetScaledParams() 
+{
+  return deviceManager_.resetScaledParams();
+}
+
 } // namespace Loader
 } // namespace Xyce

@@ -144,6 +144,8 @@ bool DeviceEntity::scaleParam( const std::string & paramName, double val, double
 
   Xyce::Device::setValueGiven(*this, param.getSerialNumber(), true);
 
+  dependentScaleParamExcludeMap_[paramName] = 1;
+
   return true;
 }
 
@@ -189,6 +191,7 @@ bool DeviceEntity::scaleParam( const std::string & paramName, double val)
 
   Xyce::Device::setValueGiven(*this, param.getSerialNumber(), true);
 
+  dependentScaleParamExcludeMap_[paramName] = 1;
   return true;
 }
 
@@ -1065,7 +1068,7 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // Don't re-evaluate the dependent parameter expression unless you have to.
+    // ERK. Don't re-evaluate the dependent parameter expression unless you have to.
     // Also, don't re-evaluate if this parameter has been overridden by a setParam call.
     if ( !(dependentParamExcludeMap_.empty()) ) 
     {
@@ -1073,38 +1076,32 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
       if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
     }
 
-    changed = true;
-    // ERK.  5/3/2020.  This partially works, but refine later.  
-    // The logic inside of newExpression to determine the "isConstant" boolean is flawed.
-    //
-    // ERK.  7/20/2020.  Not sure why I left this in back in May, but leaving it uncommented breaks bug 1801 tests.
-    // Commenting it out noticably slows down some of the larger tests.
-    //
-    // So, for now, not deleting this code.  Once the "is constant" machinery is reliable, then 
-    // it can be uncommented.  Right now, the machinery is NOT reliable.  7/23/2020
-#if 0 
-    if ( dpIter->expr->getIsConstant() ) 
+    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
     {
-      changed = false;
+      // check for a scaleParam call
+      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
     }
-#endif
 
-    if (changed)
-    {
+    // refine the "changed" variable later.  This was used with the 
+    // old expression library to determine if an expression should be 
+    // re-evaluated or not.  It also determined (in some cases) if
+    // the new expression value was applied or not to the param.
+    changed = true; 
 #if 1
-      dpIter->expr->evaluateFunction (rval);
+    dpIter->expr->evaluateFunction (rval);
 #else
-      bool efficiencyOn=true;
-      dpIter->expr->evaluateFunction (rval,efficiencyOn);
+    // this "efficiencyOn" is an attempt to 
+    // reproduce the "changed" behavior:
+    bool efficiencyOn=true;
+    dpIter->expr->evaluateFunction (rval,efficiencyOn);
 #endif
-      if (dpIter->vectorIndex==-1)
-        *(dpIter->resultU.result) = rval;
-      else
-        (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+    if (dpIter->vectorIndex==-1)
+      *(dpIter->resultU.result) = rval;
+    else
+      (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
 
-      if (dpIter->storeOriginal)
-        Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
-    }
+    if (dpIter->storeOriginal)
+      Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
   }
 
   return changed;
@@ -1113,10 +1110,7 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateGlobalParameters
 // Purpose       : Update values of global parameters in expressions
-//
-// Special Notes : ERK.  This function can probably be deleted, for new Expression.
-//                 ERK.  Wrong about that.    This is needed, still, even with new Expression.
-//
+// Special Notes : 
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 11/17/05
@@ -1143,13 +1137,20 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         }
         // old expression did a "set_var" call here.
       }
+
+      // refine this "changed" variable later.  This was used with the 
+      // old expression library to determine if an expression should be 
+      // re-evaluated or not.  It also determined (in some cases) if
+      // the new expression value was applied or not to the param.
+      changed = true;
 #if 1
       dpIter->expr->evaluateFunction (rval);
 #else
+      // this "efficiencyOn" is an attempt to 
+      // reproduce the "changed" behavior:
       bool efficiencyOn=true;
       dpIter->expr->evaluateFunction (rval,efficiencyOn);
 #endif
-      changed = true;
     }
   }
 
@@ -1173,23 +1174,16 @@ bool DeviceEntity::updateDependentParameters()
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
-    // depending on various calls such as set_sim_time, which let each expression 
-    // report back if its internal time variable (or temp, or freq, etc) had changed.
-    //
-    // Those function calls don't exist anymore due to the new expression refactor.
-    //
-    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
-    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
-    // If this isn't changed, then a lot of "processParam" function calls are going 
-    // to be called unneccessarily.
-    //
-    // But that will have to come later.
-    changed = true;
-
+    // refine this "changed" variable later.  This was used with the 
+    // old expression library to determine if an expression should be 
+    // re-evaluated or not.  It also determined (in some cases) if
+    // the new expression value was applied or not to the param.
+    changed = true; 
 #if 1
     dpIter->expr->evaluateFunction (rval);
 #else
+    // this "efficiencyOn" is an attempt to 
+    // reproduce the "changed" behavior:
     bool efficiencyOn=true;
     dpIter->expr->evaluateFunction (rval,efficiencyOn);
 #endif
@@ -1224,28 +1218,12 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-    if ( dpIter->expr->setTemperature(tempIn))
-    {
-      changed = true;
-    }
-
-    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
-    // depending on various calls such as set_sim_time, which let each expression 
-    // report back if its internal time variable (or temp, or freq, etc) had changed.
-    //
-    // Those function calls don't exist anymore due to the new expression refactor.
-    //
-    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
-    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
-    // If this isn't changed, then a lot of "processParam" function calls are going 
-    // to be called unneccessarily.
-    //
-    // But that will have to come later.
     changed = true;
-
 #if 1
     dpIter->expr->evaluateFunction (rval);
 #else
+    // this "efficiencyOn" is an attempt to 
+    // reproduce the "changed" behavior:
     bool efficiencyOn=true;
     dpIter->expr->evaluateFunction (rval,efficiencyOn);
 #endif

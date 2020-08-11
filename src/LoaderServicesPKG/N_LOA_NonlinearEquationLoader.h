@@ -196,6 +196,9 @@ public:
   bool getVoltageLimiterStatus();
   void setVoltageLimiterStatus(bool voltageLimterStatus);
 
+  virtual void updateDependentParams ();
+  virtual void resetScaledParams();
+
 private:
   Util::Timer * residualTimerPtr_;
   Util::Timer * jacobianTimerPtr_;
