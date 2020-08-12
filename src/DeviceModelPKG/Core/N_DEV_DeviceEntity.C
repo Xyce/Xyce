@@ -1218,6 +1218,11 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
+    if ( dpIter->expr->setTemperature(tempIn))
+    {
+      changed = true;
+    }
+
     changed = true;
 #if 1
     dpIter->expr->evaluateFunction (rval);
