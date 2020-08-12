@@ -3017,6 +3017,7 @@ template <typename ScalarT>
 class tableOp : public astNode<ScalarT>
 {
   public:
+    //-------------------------------------------------------------------------------
     // functions:
     tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
       astNode<ScalarT>(), tableArgs_(*args),
@@ -3039,34 +3040,36 @@ class tableOp : public astNode<ScalarT>
           }
           yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
-#if 1
-          // create derivative table
-          // this code mimics the old expression library.   It uses finite differencing
-          // to set up a new table of derivatives.  The new table is based on the midpoints of
-          // the original table, so it has one extra entry.
-          int ya_size = ya_.size();
-          ta2_.resize(ya_size+1);
-          dya_.resize(ya_size+1);
-          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-          for (int ii=1;ii<ya_size;++ii)
+          if (ya_.size() > 2)
           {
-            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-            ScalarT h = ( ta_[ii]- ta_[ii-1]);
-            if (std::real(h) != 0.0)
+            // create derivative table
+            // this code mimics the old expression library.   It uses finite differencing
+            // to set up a new table of derivatives.  The new table is based on the midpoints of
+            // the original table, so it has one extra entry.
+            int ya_size = ya_.size();
+            ta2_.resize(ya_size+1);
+            dya_.resize(ya_size+1);
+            ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+            dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+            for (int ii=1;ii<ya_size;++ii)
             {
-              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+              ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+              ScalarT h = ( ta_[ii]- ta_[ii-1]);
+              if (std::real(h) != 0.0)
+              {
+                dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+              }
+              else
+              {
+                dya_[ii] = 0.0;
+              }
             }
-            else
-            {
-              dya_[ii] = 0.0;
-            }
+            dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
           }
-          dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
-#endif
         }
       };
 
+    //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, that are now stored in std::vector objects
     // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
     // the above numvalType test in the first constructor.
@@ -3087,6 +3090,7 @@ class tableOp : public astNode<ScalarT>
         }
       };
 
+    //-------------------------------------------------------------------------------
     virtual ScalarT val()
     {
       ScalarT y = 0.0;
@@ -3124,6 +3128,7 @@ class tableOp : public astNode<ScalarT>
       return y;
     };
 
+    //-------------------------------------------------------------------------------
     virtual ScalarT dx(int i)
     {
       //ScalarT y = 0.0;
@@ -3154,28 +3159,31 @@ class tableOp : public astNode<ScalarT>
           yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
           int ya_size = ya_.size();
-          ta2_.resize(ya_size+1);
-          dya_.resize(ya_size+1);
-          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-          for (int ii=1;ii<ya_size;++ii)
+          if (ya_size > 2)
           {
-            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-            ScalarT h = ( ta_[ii]- ta_[ii-1]);
-            if (std::real(h) != 0.0)
+            ta2_.resize(ya_size+1);
+            dya_.resize(ya_size+1);
+            ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+            dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+            for (int ii=1;ii<ya_size;++ii)
             {
-              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+              ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+              ScalarT h = ( ta_[ii]- ta_[ii-1]);
+              if (std::real(h) != 0.0)
+              {
+                dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+              }
+              else
+              {
+                dya_[ii] = 0.0;
+              }
             }
-            else
-            {
-              dya_[ii] = 0.0;
-            }
+            dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
           }
-          dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
         }
 
         ScalarT input = std::real(this->input_->val());
-  
+ 
         if ( !(ta2_.empty()) )
         {
           int arraySize=ta2_.size();
@@ -3192,6 +3200,19 @@ class tableOp : public astNode<ScalarT>
           {
             dyInterpolator_.eval(ta2_,dya_, input, dydx); 
             dydx *= dinput_dx;
+          }
+        }
+        else
+        {
+          dydx=0.0;
+          if  (ya_.size()==2)
+          {
+            if (std::real(input) <= std::real(ya_[1]) && std::real(input) >= std::real(ya_[0]))
+            {
+              ScalarT h = (ta_[1]-ta_[0]);
+              if (std::real(h) != 0.0) { dydx = (ya_[1]-ya_[0])/h;}
+              dydx *= dinput_dx;
+            }
           }
         }
       }
@@ -3397,6 +3418,305 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     std::vector<ScalarT> dya_;
     Xyce::Util::linear<ScalarT> yInterpolator_; // possibly make this a user choice
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice
+
+    Teuchos::RCP<astNode<ScalarT> > input_;
+    bool preComputedBreakpointsDone_;
+};
+
+//-------------------------------------------------------------------------------
+// SPLINE(x,y,z,*)  or AKIMA(x,y,z,*) or WODICKA(x,y,z,*) or BLI(x,y,z,*)
+// f(x) where f(y) = z
+// spline interpolation, multiple (y,z) pairs can be specified
+template <typename ScalarT>
+class interpolatorOp : public astNode<ScalarT>
+{
+  public:
+    //-------------------------------------------------------------------------------
+    // functions:
+    interpolatorOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
+      astNode<ScalarT>(), tableArgs_(*args),
+      allNumVal_(true), input_(input),
+      preComputedBreakpointsDone_(false)
+      {
+        int size = tableArgs_.size();
+        if (size % 2)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (table) needs an even number of arguments")); yyerror(errStr);
+        }
+        else
+        {
+          allNumVal_=true; ta_.resize(size/2); ya_.resize(size/2); 
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            ya_[jj] = (tableArgs_)[ii+1]->val();
+            if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allNumVal_ = false; }
+          }
+          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+        }
+      };
+
+    //-------------------------------------------------------------------------------
+    // special constructor for values read in from a file, that are now stored in std::vector objects
+    // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
+    // the above numvalType test in the first constructor.
+    interpolatorOp (Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
+      astNode<ScalarT>(), allNumVal_(true), input_(input)
+      {
+        allNumVal_=true; int size = xvals.size(); int size2=yvals.size();
+        if (size != size2)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (table) needs x and y vectors to be the same size.")); yyerror(errStr);
+        }
+        ta_.resize(size); ya_.resize(size); 
+
+        for (int ii=0;ii<size;ii++)
+        {
+          ta_[ii] = xvals[ii];
+          ya_[ii] = yvals[ii];
+        }
+      };
+
+    //-------------------------------------------------------------------------------
+    virtual ScalarT val()
+    {
+      ScalarT y = 0.0;
+      int size = tableArgs_.size();
+
+      if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+      {
+        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        {
+          ta_[jj] = (tableArgs_)[ii]->val();
+          ya_[jj] = (tableArgs_)[ii+1]->val();
+        }
+        yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+      }
+
+      ScalarT input = std::real(this->input_->val());
+   
+      if ( !(ta_.empty()) )
+      {
+        int arraySize=ta_.size();
+        if (std::real(input) < std::real(ta_[0]))
+        {
+          y = ya_[0];
+        }
+        else if (std::real(input) > std::real(ta_[arraySize-1]))
+        {
+          y = ya_[arraySize-1];
+        }
+        else
+        {
+          yInterpolator_.eval(ta_,ya_, input, y); 
+        }
+      }
+
+      return y;
+    };
+
+    //-------------------------------------------------------------------------------
+    virtual ScalarT dx(int i)
+    {
+      //ScalarT y = 0.0;
+      ScalarT dydx = 0.0;
+      int size = tableArgs_.size();
+
+      ScalarT dinput_dx = std::real(this->input_->dx(i));
+
+      if (std::real(dinput_dx) != 0.0)
+      {
+        // derivative w.r.t. input
+        //
+        // this code mimics the old expression library.   It uses finite differencing
+        // to set up a new table of derivatives.  The new table is based on the midpoints of
+        // the original table, so it has one extra entry.
+        //
+        // I initially tried to use the evalDeriv function in the yInterpolator object.
+        // That method doen't use midpoints, it just differntiates the the linear
+        // interpolation device.  That approach failed at least one regression test.
+        //
+        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+        {
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            ya_[jj] = (tableArgs_)[ii+1]->val();
+          }
+          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+        }
+
+        ScalarT input = std::real(this->input_->val());
+ 
+        yInterpolator_.evalDeriv(ta_,ya_, input, dydx); 
+        dydx *= dinput_dx;
+
+      }
+      return dydx;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "table operator " << std::endl;
+      //++indent;
+      //this->input_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this
+      os << "TABLE";
+    }
+
+
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+     if ( input_->timeSpecialType() )
+     {
+       if (!preComputedBreakpointsDone_) // make sure this only happens once
+       {
+         double time = std::real(this->input_->val());
+         int size = tableArgs_.size();
+         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+         {
+           double bpTime =  std::real( (tableArgs_)[ii]->val() );
+           breakPointTimes.push_back( bpTime );
+         }
+         preComputedBreakpointsDone_ = true;
+       }
+      }
+      return true;
+    }
+
+    virtual bool srcType() { return ( input_->timeSpecialType() ); }
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+
+AST_GET_INTERESTING_OPS(input_)
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_INTERESTING_OPS(tableArgs_[ii])
+        }
+      }
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+
+AST_GET_STATE_OPS(input_)
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_STATE_OPS(tableArgs_[ii])
+        }
+      }
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_PARAM_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_FUNC_ARG_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_FUNC_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_VOLT_OPS(tableArgs_[ii] ) 
+        }
+      }
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_CURRENT_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(input_) 
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+AST_GET_TIME_OPS(tableArgs_[ii]) 
+        }
+      }
+    }
+
+  private:
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
+    bool allNumVal_;
+    std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
+    std::vector<ScalarT> ya_;
+
+    // All of the following will compile and will work on a lot of cases.
+    Xyce::Util::akima<ScalarT> yInterpolator_;
+    //Xyce::Util::wodicka<ScalarT> yInterpolator_;
+    //Xyce::Util::cubicSpline<ScalarT> yInterpolator_;
+    //Xyce::Util::barycentricLagrange<ScalarT> yInterpolator_;
+
     Teuchos::RCP<astNode<ScalarT> > input_;
     bool preComputedBreakpointsDone_;
 };
