@@ -2989,7 +2989,8 @@ other variables does not get propagated into a variable's
   <admst:variable name="thePnodeName" select="%(pnode/name)"/>
   <admst:variable name="theNnodeName" select="%(nnode/name)"/>
        <admst:choose>
-         <admst:when test="[exists(/module/contribution[lhs/branch/pnode/name='$thePnodeName' and lhs/branch/nnode/name='$theNnodeName' and lhs/nature=lhs/discipline/flow])]">
+         <admst:when test="[exists(/module/contribution[lhs/branch/pnode/name='$thePnodeName' and lhs/branch/nnode/name='$theNnodeName' and lhs/nature=lhs/discipline/flow]) and not exists(/module/contribution[lhs/branch/pnode/name='$thePnodeName' and lhs/branch/nnode/name='$theNnodeName' and lhs/nature=lhs/discipline/potential])]">
+           <admst:warning format="This module makes use of flow probe in branch ($thePnodeName,$theNnodeName) without any associated potential contribution to that branch, and with the use of flow contributions to that branch.  This particular use case is broken in Xyce/ADMS.\n"/>
            <admst:text format="  staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)] -= probeVars[%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
            <admst:text format="  d_staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)] -= d_probeVars[%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
          </admst:when>
