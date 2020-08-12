@@ -1,0 +1,18 @@
+Test of parallel RLC circuit
+*
+* The rlc3.va Verilog-A model implements a two-terminal device representing
+* and inductor, capacitor, and resistor in parallel between the terminals.
+*
+* This netlist does the same thing as rlc_parallel.cir, but with native
+* Xyce models instead.  The intent is to show it produces the same results.
+*
+
+V1 1a 0 SIN (5v 5v 20MEG)
+R1 1a 1 1k
+Rp 1 0 1k
+Lp 1 0 1m
+Cp 1 0 1p
+
+.tran 1n 4u
+.print tran v(1) I(v1)
+.end
