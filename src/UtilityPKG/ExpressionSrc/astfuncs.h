@@ -52,11 +52,14 @@ class NAME ## Op : public astNode<ScalarT>                                      
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \
-      os << #NAME << " operator " << std::endl;                                        \
+      os << #NAME << " operator id = " << this->id_ << std::endl;                      \
       ++indent;                                                                        \
       this->leftAst_->output(os,indent+1);                                             \
     }                                                                                  \
-                                                                                       \
+    virtual void compactOutput(std::ostream & os)                                      \
+    {                                                                                  \
+      os << #NAME << " operator id = " << this->id_ << std::endl;                      \
+    }                                                                                  \
     virtual void codeGen (std::ostream & os )                                          \
     {                                                                                  \
       os << "std::" #NAME << "(";                                                      \
@@ -114,10 +117,15 @@ class tanhOp : public astNode<ScalarT>
   virtual void output(std::ostream & os, int indent=0) 
   { 
     os << std::setw(indent) << " ";
-    os << "tanh" << " operator " << std::endl;
+    os << "tanh" << " operator id = " << this->id_ << std::endl;
     ++indent;
     this->leftAst_->output(os,indent+1);
   } 
+
+  virtual void compactOutput(std::ostream & os)
+  { 
+    os << "tanh" << " operator id = " << this->id_ << std::endl;
+  }
 
   virtual void codeGen (std::ostream & os ) 
   { 
@@ -162,10 +170,15 @@ class atanhOp : public astNode<ScalarT>
   virtual void output(std::ostream & os, int indent=0) 
   { 
    os << std::setw(indent) << " ";
-   os << "atanh" << " operator " << std::endl;
+   os << "atanh" << " operator id = " << this->id_ << std::endl;
    ++indent;
    this->leftAst_->output(os,indent+1);
   } 
+
+  virtual void compactOutput(std::ostream & os)
+  { 
+   os << "atanh" << " operator id = " << this->id_ << std::endl;
+  }
 
   virtual void codeGen (std::ostream & os ) 
   { 

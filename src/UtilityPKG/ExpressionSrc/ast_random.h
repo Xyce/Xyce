@@ -73,11 +73,16 @@ class agaussOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "agauss operator " << std::endl;
+      os << "agauss operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
       nAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "agauss operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -186,11 +191,16 @@ class gaussOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "gauss operator " << std::endl;
+      os << "gauss operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
       nAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "gauss operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -297,10 +307,15 @@ class aunifOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "aunif operator " << std::endl;
+      os << "aunif operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "aunif operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -403,10 +418,15 @@ class unifOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "unif operator " << std::endl;
+      os << "unif operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "unif operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -502,8 +522,10 @@ class randOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "rand operator " << std::endl;
+      os << "rand operator id = " << this->id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os){ output(os,0);}
 
     virtual void codeGen (std::ostream & os )
     {
@@ -557,10 +579,15 @@ class twoArgLimitOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "twoArgLimit operator " << std::endl;
+      os << "twoArgLimit operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "twoArgLimit operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )

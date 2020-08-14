@@ -288,26 +288,39 @@ struct ddtStateData
   ScalarT val2;
 };
 
+struct staticsContainer
+{
+  static unsigned long int nextID;
+  static unsigned long int stepNumber;
+  static bool processSuccessfulStepFlag;
+  static std::unordered_map<unsigned long int,int> processSuccessfulStepMap;
+};
+
 //-------------------------------------------------------------------------------
 // base node class
 template <typename ScalarT>
-class astNode
+class astNode : public staticsContainer
 {
   public:
-    astNode() {};
+    astNode(): id_(0) { id_ = ++(this->nextID); };
     virtual ~astNode() {};
 
-    astNode( Teuchos::RCP<astNode<ScalarT> > &left ):
-      leftAst_(left) {};
+    astNode( Teuchos::RCP<astNode<ScalarT> > &left ): leftAst_(left), id_(0) { id_ = ++(this->nextID); };
 
     astNode(Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      leftAst_(left),rightAst_(right) {};
+      leftAst_(left),rightAst_(right) { id_ = ++(this->nextID); };
 
-    virtual void processSuccessfulTimeStep () {};
+    virtual void processSuccessfulTimeStep () 
+    {
+      sdtState_.integral_old = sdtState_.integral;
+      sdtState_.val1 = sdtState_.val2;
+      ddtState_.val1 = ddtState_.val2;
+    };
 
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
     virtual void output(std::ostream & os, int indent=0) = 0;
+    virtual void compactOutput(std::ostream & os) = 0;
     virtual void codeGen (std::ostream & os ) 
     {
       os << "// This node has not implemented a code gen function yet" <<std::endl;
@@ -441,9 +454,20 @@ AST_GET_INTERNAL_DEV_VAR_OPS (leftAst_) AST_GET_INTERNAL_DEV_VAR_OPS (rightAst_)
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
     }
 
+    virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }
+    virtual sdtStateData<ScalarT> & getSdtState() { return sdtState_; }
+
+    unsigned long int getId () { return id_; }
+    virtual unsigned long int getNodeId () { return id_; }
+
   protected:
     Teuchos::RCP<astNode<ScalarT> > leftAst_;
     Teuchos::RCP<astNode<ScalarT> > rightAst_;
+
+    ddtStateData<ScalarT> ddtState_;
+    sdtStateData<ScalarT> sdtState_;
+
+    unsigned long int id_;
 };
 
 
@@ -462,8 +486,11 @@ class numval : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "numval number = " << number << std::endl;
+      os << "numval number = " << number 
+        << " id = " << this->id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os )
     {
@@ -489,8 +516,11 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "numval number = " << number << std::endl;
+      os << "numval number = " << number
+        << " id = " << id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os )
     {
@@ -627,10 +657,15 @@ class powOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "power operator " << std::endl;
+      os << "power operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "power operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -678,10 +713,15 @@ class atan2Op : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "atan2 operator " << std::endl;
+      os << "atan2 operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "atan2 operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -731,9 +771,14 @@ class phaseOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "phase operator " << std::endl;
+      os << "phase operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "phase operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -767,9 +812,14 @@ class realOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "real operator " << std::endl;
+      os << "real operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "real operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -802,9 +852,14 @@ class imagOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "imag operator " << std::endl;
+      os << "imag operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "imag operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -836,10 +891,15 @@ class maxOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "max operator " << std::endl;
+      os << "max operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "max operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -871,10 +931,15 @@ class minOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "min operator " << std::endl;
+      os << "min operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "min operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -906,9 +971,14 @@ class unaryNotOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "unary NOT operator " << std::endl;
+      os << "unary NOT operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "unary NOT operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -935,9 +1005,14 @@ class unaryMinusOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "unary minus operator " << std::endl;
+      os << "unary minus operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "unary minus operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -965,9 +1040,14 @@ class unaryPlusOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "unary plus operator " << std::endl;
+      os << "unary plus operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "unary plus operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1015,26 +1095,11 @@ class paramOp: public astNode<ScalarT>
       isAttached_(false),
       paramType_(DOT_GLOBAL_PARAM),
       derivIndex_(-1)
-  {
-    numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
-    paramNode_ = numvalNode_;
-    savedParamNode_ = numvalNode_;
-  };
-
-    paramOp (std::string par, Teuchos::RCP<astNode<ScalarT> > & tmpNode):
-      astNode<ScalarT>(),
-      paramName_(par),
-      paramNode_(tmpNode),
-      savedParamNode_(tmpNode),
-      thisIsAFunctionArgument_(false),
-      isVar_(false),
-      isConstant_(false),
-      isAttached_(false),
-      paramType_(DOT_GLOBAL_PARAM),
-      derivIndex_(-1)
-  {
-    numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
-  };
+    {
+      numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
+      paramNode_ = numvalNode_;
+      savedParamNode_ = numvalNode_;
+    };
 
     virtual ScalarT val() { return paramNode_->val(); }
     virtual ScalarT dx(int i)
@@ -1048,7 +1113,15 @@ class paramOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "parameter : " << paramName_ << " = " << val() << std::endl;
+      os << "parameter : " << paramName_ << " = " << val() 
+        << " id = " << this->id_ 
+        << " node_id = " << paramNode_->getId()
+        << std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "parameter : " << paramName_ << " = " << val() << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1143,6 +1216,16 @@ AST_GET_TIME_OPS(paramNode_)
     void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }
     enumParamType getParamType() { return paramType_; }
 
+    virtual void processSuccessfulTimeStep () 
+    {
+      paramNode_->processSuccessfulTimeStep ();
+    };
+
+    ddtStateData<ScalarT> & getDdtState() { return paramNode_->getDdtState(); }
+    sdtStateData<ScalarT> & getSdtState() { return paramNode_->getSdtState(); }
+
+    virtual unsigned long int getNodeId () { return paramNode_->getNodeId(); }
+
   private:
     // data:
     std::string paramName_;
@@ -1158,7 +1241,6 @@ AST_GET_TIME_OPS(paramNode_)
     bool isAttached_;
 
     enumParamType paramType_;
-
 
     int derivIndex_;
 };
@@ -1197,7 +1279,7 @@ class voltageOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "Voltage node:" << std::endl;
+      os << "Voltage node:" << " id = " << this->id_ << std::endl;
       int voltNodeSize = voltageNodes_.size();
       if (voltNodeSize > 0)
       {
@@ -1209,6 +1291,11 @@ class voltageOp: public astNode<ScalarT>
       }
       os << std::setw(indent) << " ";
       os << "value = " << val() << std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "Voltage node: id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1285,8 +1372,13 @@ class currentOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "Isrc : device = " << currentDevice_ <<std::endl;
+      os << "Isrc : device = " << currentDevice_ << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "Isrc : device = " << currentDevice_ << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1348,8 +1440,13 @@ class sparamOp: public astNode<ScalarT>
         os << sparamArgs_[ii];
         if (size>1 && ii < size-1) { os << ","; }
       }
-      os <<std::endl;
+      os << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "SParam id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1407,8 +1504,13 @@ class yparamOp: public astNode<ScalarT>
         os << yparamArgs_[ii];
         if (size>1 && ii < size-1) { os << ","; }
       }
-      os <<std::endl;
+      os << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "YParam id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1466,8 +1568,13 @@ class zparamOp: public astNode<ScalarT>
         os << zparamArgs_[ii];
         if (size>1 && ii < size-1) { os << ","; }
       }
-      os <<std::endl;
+      os << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "ZParam id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1521,8 +1628,13 @@ class leadCurrentOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "Lead Current: device = " << leadCurrentDevice_ << " designator = " << leadCurrentDesignator_ <<std::endl;
+      os << "Lead Current: device = " << leadCurrentDevice_ << " designator = " << leadCurrentDesignator_ << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "Lead Current: device = " << leadCurrentDevice_ << " designator = " << leadCurrentDesignator_ << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1577,8 +1689,13 @@ class powerOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "Power : device = " << powerDevice_ <<std::endl;
+      os << "Power : device = " << powerDevice_ << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "Power : device = " << powerDevice_ << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1629,8 +1746,13 @@ class internalDevVarOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "Internal device variable : device = " << internalDevVarDevice_ <<std::endl;
+      os << "Internal device variable : device = " << internalDevVarDevice_ << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "Internal device variable : device = " << internalDevVarDevice_ << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1686,8 +1808,15 @@ class dnoNoiseVarOp: public astNode<ScalarT>
       {
         os << noiseDevices_[ii] << " ";
       }
-      os << std::endl;
+      os << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "DNO noise variable : devices = ";
+      for (int ii=0;ii<noiseDevices_.size();ii++) { os << noiseDevices_[ii] << " "; }
+      os << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1744,8 +1873,15 @@ class dniNoiseVarOp: public astNode<ScalarT>
       {
         os << noiseDevices_[ii] << " ";
       }
-      os << std::endl;
+      os << " id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "DNI noise variable : devices = ";
+      for (int ii=0;ii<noiseDevices_.size();ii++) { os << noiseDevices_[ii] << " "; }
+      os << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -1787,8 +1923,13 @@ class oNoiseOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "onoise variable " <<std::endl;
+      os << "onoise variable id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "onoise variable id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os ) { os << "ONOISE"; }
@@ -1816,8 +1957,13 @@ class iNoiseOp: public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "onoise variable " <<std::endl;
+      os << "inoise variable id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "value = " << val() <<std::endl;
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "inoise variable id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os ) { os << "INOISE"; }
@@ -1873,13 +2019,16 @@ class funcOp: public astNode<ScalarT>
       astNode<ScalarT>(),
       funcName_(name),
       funcArgs_(*args),
-      number_(0.0),
       nodeResolved_(false),
-      argsResolved_(false),
+      argsResolved_(false)
+#if 0
+      ,
       stateResolved_(false),
-      stateOpVectors_(sdtOpVec_, ddtOpVec_)
+      stateOpVectors_(sdtOpVec_, ddtOpVec_),
+#endif
     {};
 
+#if 0
     //-------------------------------------------------------------------------------
     virtual void processSuccessfulTimeStep ()
     {
@@ -1895,10 +2044,24 @@ class funcOp: public astNode<ScalarT>
         ddtStateVec_[ii]->val1 = ddtStateVec_[ii]->val2;
       }
     }
+#else
+#if 0
+    virtual void processSuccessfulTimeStep () 
+    {
+      astNode<ScalarT>::processSuccessfulTimeStep();
 
+      //setArgs();
+      for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->processSuccessfulTimeStep(); }
+      //unsetArgs();
+    };
+#endif
+#endif
+
+#if 0
     //-------------------------------------------------------------------------------
     void resolveState()
     {
+#if 0
       this->getStateOps(stateOpVectors_);
 
       int sdtSize = sdtOpVec_.size();
@@ -1908,9 +2071,11 @@ class funcOp: public astNode<ScalarT>
       int ddtSize = ddtOpVec_.size();
       ddtStateVec_.resize( ddtSize );
       for (int ii=0;ii<ddtSize;ii++) { ddtStateVec_[ii] = Teuchos::rcp(new ddtStateData<ScalarT>()); }
+#endif
 
       stateResolved_ = true;
     }
+#endif
 
     //-------------------------------------------------------------------------------
     void setArgs() { for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); } }
@@ -1918,11 +2083,13 @@ class funcOp: public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     void unsetArgs() { for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } }
 
+#if 0
     //-------------------------------------------------------------------------------
     void setState()
     {
       for (int ii=0;ii<sdtOpVec_.size();++ii) 
       { 
+        std::cout << "funcOp::setState id = " << id_ << " " << funcName_ << " sdt ii = "<< ii <<std::endl;
         Teuchos::RCP<sdtOp<ScalarT> > sdt = Teuchos::rcp_static_cast<sdtOp<ScalarT> > (sdtOpVec_[ii]);
         sdt->setState(sdtStateVec_[ii]); 
       }
@@ -1933,7 +2100,9 @@ class funcOp: public astNode<ScalarT>
         ddt->setState(ddtStateVec_[ii]); 
       }
     }
+#endif
 
+#if 0
     //-------------------------------------------------------------------------------
     void unsetState()
     {
@@ -1949,19 +2118,23 @@ class funcOp: public astNode<ScalarT>
         ddt->unsetState(); 
       }
     }
+#endif
 
     //-------------------------------------------------------------------------------
     virtual ScalarT val()
     {
+      ScalarT val = 0.0;
       if (nodeResolved_ && argsResolved_)
       {
         if (funcArgs_.size() == dummyFuncArgs_.size())
         {
+#if 0
           if (!stateResolved_) { resolveState(); }
+#endif
 
-          setArgs(); setState();
-          number_ = functionNode_->val();
-          unsetArgs(); unsetState();
+          setArgs(); // setState();
+          val = functionNode_->val();
+          unsetArgs(); // unsetState();
         }
       }
       else
@@ -1970,18 +2143,20 @@ class funcOp: public astNode<ScalarT>
         std::vector<std::string> errStr(1,tmp);
         yyerror(errStr);
       }
-      return number_;
+      return val;
     }
 
     //-------------------------------------------------------------------------------
     virtual ScalarT dx(int i)
     {
-      number_ = 0.0;
+      ScalarT dfdx = 0.0;
       if (nodeResolved_ && argsResolved_)
       {
         if (funcArgs_.size() == dummyFuncArgs_.size())
         {
+#if 0
           if (!stateResolved_) { resolveState(); }
+#endif
 
           // Two phases, do do a complete chain rule calculation:
           //
@@ -1992,9 +2167,9 @@ class funcOp: public astNode<ScalarT>
           //
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
-          setArgs(); setState();
-          number_ = functionNode_->dx(i);
-          unsetArgs(); unsetState();
+          setArgs(); // setState();
+          dfdx = functionNode_->dx(i);
+          unsetArgs(); // unsetState();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
           //
@@ -2021,7 +2196,7 @@ class funcOp: public astNode<ScalarT>
             ScalarT delta = 0.0;
             ScalarT num2 = funcArgs_[ii]->dx(i); // usually zero ...
             if (num2 != 0.0) { delta = num2 * functionNode_->dx(index); } // slow poke. do not evaluate if not needed.
-            number_ += delta; 
+            dfdx += delta; 
           }
 
           for (int ii=0;ii<dummyFuncArgs_.size();++ii)
@@ -2031,13 +2206,13 @@ class funcOp: public astNode<ScalarT>
           } // restore
         }
       }
-      return number_;
+      return dfdx;
     }
 
     //-------------------------------------------------------------------------------
     virtual void output(std::ostream & os, int indent=0)
     {
-      os << std::setw(indent) << " " << "function: " << funcName_ << ":" <<std::endl;;
+      os << std::setw(indent) << " " << "function: " << funcName_ << ": id = " << this->id_ << std::endl;
       os << std::setw(indent) << " " << "function args: " << std::endl; indent++;
       for (int ii=0;ii<funcArgs_.size();++ii) { funcArgs_[ii]->output(os,indent+1); }
 
@@ -2060,6 +2235,12 @@ class funcOp: public astNode<ScalarT>
       }
     }
 
+    //-------------------------------------------------------------------------------
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << " " << "function: " << funcName_ << ": id = " << this->id_ << std::endl;
+    }
+
     virtual void codeGen (std::ostream & os )
     {
       os << funcName_;
@@ -2077,7 +2258,6 @@ class funcOp: public astNode<ScalarT>
     virtual void unsetNode()
     {
       nodeResolved_ = false;
-      number_ = 0.0;
     };
 
     virtual void setFuncArgs(const std::vector< Teuchos::RCP<paramOp<ScalarT> > > & tmpParamVec )
@@ -2184,15 +2364,41 @@ AST_GET_TIME_OPS(functionNode_)
     bool getNodeResolved() { return nodeResolved_; }
     bool getArgsResolved() { return argsResolved_; }
 
+#if 0
+    void setSdtOpVec ( std::vector<Teuchos::RCP<astNode<ScalarT> > > & sdt )
+    {
+      sdtOpVec_.clear();
+      sdtStateVec_.clear();
+      if ( !(sdt.empty()) )  
+      { 
+        sdtOpVec_.insert( sdtOpVec_.end(), sdt.begin(), sdt.end() );  
+        int sdtSize = sdtOpVec_.size(); sdtStateVec_.resize( sdtSize );
+        for (int ii=0;ii<sdtSize;ii++) { sdtStateVec_[ii] = Teuchos::rcp(new sdtStateData<ScalarT>()); }
+      }
+    }
+
+    void setDdtOpVec ( std::vector<Teuchos::RCP<astNode<ScalarT> > > & ddt )
+    {
+      ddtOpVec_.clear();
+      ddtStateVec_.clear();
+      if ( !(ddt.empty()) )  
+      { 
+        ddtOpVec_.insert( ddtOpVec_.end(), ddt.begin(), ddt.end() );  
+        int ddtSize = ddtOpVec_.size(); ddtStateVec_.resize( ddtSize );
+        for (int ii=0;ii<ddtSize;ii++) { ddtStateVec_[ii] = Teuchos::rcp(new ddtStateData<ScalarT>()); }
+      }
+    }
+#endif
+
   private:
 // data:
     std::string funcName_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > funcArgs_;  // the unique args that are passed in to this instance of a function
     std::vector<Teuchos::RCP<astNode<ScalarT> > > dummyFuncArgs_;  // generic args that the functionNode_ owns; ie, that are used to evaluate it.  They have to be temporarily replaced whenever the function is called.
-    ScalarT number_;
     Teuchos::RCP<astNode<ScalarT> > functionNode_;
     bool nodeResolved_;
     bool argsResolved_;
+#if 0
     bool stateResolved_;
 
     stateOpVectorContainers<ScalarT> stateOpVectors_;
@@ -2201,6 +2407,8 @@ AST_GET_TIME_OPS(functionNode_)
 
     std::vector<Teuchos::RCP<sdtStateData<ScalarT> > > sdtStateVec_;
     std::vector<Teuchos::RCP<ddtStateData<ScalarT> > > ddtStateVec_;
+#endif
+
 };
 
 //-------------------------------------------------------------------------------
@@ -2283,10 +2491,15 @@ class pwrsOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "pwrs operator " << std::endl;
+      os << "pwrs operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "pwrs operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2337,9 +2550,14 @@ class sgnOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "sgn operator " << std::endl;
+      os << "sgn operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "sgn operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2380,10 +2598,15 @@ class signOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "sign(x,y) = (sgn(y)|x|) op " << std::endl;
+      os << "sign(x,y) = (sgn(y)|x|) op id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "sign(x,y) = (sgn(y)|x|) op id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2407,18 +2630,20 @@ class ceilOp : public astNode<ScalarT>
 
     virtual ScalarT val() { return std::ceil(std::real(this->leftAst_->val())); }
 
-    virtual ScalarT dx(int i)
-    {
-      // derivative is undefined at integers and 0.0 elsewhere
-      return  0.0;
-    }
+    // derivative is undefined at integers and 0.0 elsewhere
+    virtual ScalarT dx(int i) { return  0.0; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "ceil operator " << std::endl;
+      os << "ceil operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "ceil operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2427,7 +2652,6 @@ class ceilOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
-
 };
 
 //-------------------------------------------------------------------------------
@@ -2440,18 +2664,20 @@ class floorOp : public astNode<ScalarT>
 
     virtual ScalarT val() { return std::floor(std::real(this->leftAst_->val())); }
 
-    virtual ScalarT dx(int i)
-    {
-      // derivative is undefined at integers and 0.0 elsewhere
-      return  0.0;
-    }
+    // derivative is undefined at integers and 0.0 elsewhere
+    virtual ScalarT dx(int i) { return  0.0; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "floor operator " << std::endl;
+      os << "floor operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "floor operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2460,7 +2686,6 @@ class floorOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
-
 };
 
 //-------------------------------------------------------------------------------
@@ -2483,9 +2708,14 @@ class intOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "int operator " << std::endl;
+      os << "int operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "int operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2526,11 +2756,16 @@ class ifStatementOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "if statement operator " << std::endl;
+      os << "if statement operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
       zAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "if statement operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2625,11 +2860,16 @@ class limitOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "limit operator " << std::endl;
+      os << "limit operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
       zAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "limit operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2718,9 +2958,14 @@ class stpOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "step function operator " << std::endl;
+      os << "step function operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "step function operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2758,9 +3003,14 @@ class urampOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "uramp operator " << std::endl;
+      os << "uramp operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "uramp operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -2771,7 +3021,6 @@ class urampOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")):0.0)";
     }
-
 };
 
 //-------------------------------------------------------------------------------
@@ -2939,12 +3188,17 @@ class polyOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ <<std::endl;
+      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ << " id = " << this->id_ << std::endl;
       os << "polynomial variables: " << std::endl;
       ++indent;
       for (int ii=0;ii<polyVars_.size();ii++) { this->polyVars_[ii]->output(os,indent+1); }
       os << "polynomial coefs: " << std::endl;
       for (int ii=0;ii<polyCoefs_.size();ii++) { this->polyCoefs_[ii]->output(os,indent+1); }
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -3282,12 +3536,17 @@ class tableOp : public astNode<ScalarT>
       return dydx;
     }
 
-    virtual void output(std::ostream & os, int indent=0)
+    virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
       os << std::setw(indent) << " ";
-      os << "table operator " << std::endl;
+      os << "table operator id = " << this->id_ << std::endl;
       //++indent;
       //this->input_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "table operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -3578,12 +3837,17 @@ class interpolatorOp : public astNode<ScalarT>
       return dydx;
     }
 
-    virtual void output(std::ostream & os, int indent=0)
+    virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
       os << std::setw(indent) << " ";
-      os << "table operator " << std::endl;
+      os << "interpolator operator id = " << this->id_ << std::endl;
       //++indent;
       //this->input_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "interpolator operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -3832,12 +4096,17 @@ class scheduleOp : public astNode<ScalarT>
       return dydx;
     }
 
-    virtual void output(std::ostream & os, int indent=0)
+    virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
       os << std::setw(indent) << " ";
-      os << "schedule operator " << std::endl;
+      os << "schedule operator id = " << this->id_ << std::endl;
       //++indent;
       //this->time_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os) // FIX THIS
+    {
+      os << "schedule operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -3997,21 +4266,39 @@ class sdtOp : public astNode<ScalarT>
         )
       : astNode<ScalarT>(left),
       dt_(dt),
-      time_(time),
+      time_(time)
+#if 0
+        ,
       state_(Teuchos::rcp(new sdtStateData<ScalarT>())),
       default_state_(state_),
       stateSet_(false)
+#endif
     {
     };
 
+#if 0
     virtual void processSuccessfulTimeStep ()
     {
       state_->integral_old = state_->integral;
       state_->val1 = state_->val2;
     }
+#endif
 
     virtual ScalarT val()
     {
+      if (this->processSuccessfulStepFlag) 
+      { 
+        unsigned long int id = this->leftAst_->getNodeId();
+        if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
+        {
+          this->leftAst_->processSuccessfulTimeStep (); 
+          this->processSuccessfulStepMap[id] = 1;
+#if 0
+          std::cout << "processed successful step for id = " << id << std::endl;
+#endif
+        }
+      }
+
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
 
@@ -4032,19 +4319,39 @@ class sdtOp : public astNode<ScalarT>
         }
       }
 
-      state_->val2 = this->leftAst_->val();
-
-      ScalarT deltaI = 0.5*(state_->val1+state_->val2)*deltaT;
-      state_->integral = state_->integral_old + deltaI;
 
 #if 0
+      state_->val2 = this->leftAst_->val();
+      ScalarT deltaI = 0.5*(state_->val1+state_->val2)*deltaT;
+      state_->integral = state_->integral_old + deltaI;
+#else
+      sdtStateData<ScalarT> & state = this->leftAst_->getSdtState();
+      state.val2 = this->leftAst_->val();
+      ScalarT deltaI = 0.5*(state.val1+state.val2)*deltaT;
+      state.integral = state.integral_old + deltaI;
+#endif
+
+#if 0
+#if 0
+      std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
       std::cout << "time = " << time << " dt = " << deltaT 
         << " val1 = " << state_->val1 << " val2 = " << state_->val2 
         << " integral = " << state_->integral 
         <<std::endl;
+#else
+      std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
+      std::cout << "time = " << time << " dt = " << deltaT 
+        << " val1 = " << state.val1 << " val2 = " << state.val2 
+        << " integral = " << state.integral 
+        <<std::endl;
+#endif
 #endif
 
+#if 0
       return state_->integral;
+#else
+      return state.integral;
+#endif
     };
 
     virtual ScalarT dx(int i)
@@ -4078,9 +4385,14 @@ class sdtOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "sdt (time integral) operator " << std::endl;
+      os << "sdt (time integral) operator " << " id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "sdt (time integral) operator " << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -4091,9 +4403,10 @@ class sdtOp : public astNode<ScalarT>
 
     virtual bool sdtType() { return true; }
 
+#if 0
     virtual void setState(Teuchos::RCP<sdtStateData<ScalarT> > & st) 
     { 
-      if( !stateSet_ )
+      //if( !stateSet_ )
       {
         state_ = st;
         stateSet_=true;
@@ -4105,13 +4418,16 @@ class sdtOp : public astNode<ScalarT>
       state_ = default_state_;
       stateSet_=false;
     };
+#endif
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
     Teuchos::RCP<astNode<ScalarT> > time_;
+#if 0
     Teuchos::RCP<sdtStateData<ScalarT> > state_;
     Teuchos::RCP<sdtStateData<ScalarT> > default_state_;
     bool stateSet_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -4130,23 +4446,42 @@ class ddtOp : public astNode<ScalarT>
       : astNode<ScalarT>(left),
       dt_(dt),
       time_(time),
+#if 0
       state_(Teuchos::rcp(new ddtStateData<ScalarT>())),
       default_state_(state_),
       stateSet_(false),
+#endif
       timeDerivative_(0.0),
       useExternDeriv_(false)
     {};
 
+#if 0
     virtual void processSuccessfulTimeStep ()
     {
       state_->val1 = state_->val2;
     }
+#endif
 
     virtual ScalarT val()
     {
+      if (this->processSuccessfulStepFlag) 
+      { 
+        unsigned long int id = this->leftAst_->getNodeId();
+        if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
+        {
+          this->leftAst_->processSuccessfulTimeStep (); 
+          this->processSuccessfulStepMap[id] = 1;
+        }
+      }
+
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
+#if 0
       state_->val2 = this->leftAst_->val();
+#else
+      ddtStateData<ScalarT> & state = this->leftAst_->getDdtState();
+      state.val2 = this->leftAst_->val();
+#endif
 
       if (!useExternDeriv_ )
       {
@@ -4163,11 +4498,18 @@ class ddtOp : public astNode<ScalarT>
           { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
           // for now, hardwire to backward Euler
+#if 0 
           timeDerivative_ = (state_->val2-state_->val1)/deltaT;
+#else
+          timeDerivative_ = (state.val2-state.val1)/deltaT;
+#endif
         }
       }
-
+#if 0
       //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state_->val1 << " val2 = " << state_->val2 << " ddt = " << timeDerivative_ <<std::endl;
+#else 
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state.val1 << " val2 = " << state.val2 << " ddt = " << timeDerivative_ <<std::endl;
+#endif
       return timeDerivative_;
     };
 
@@ -4196,18 +4538,27 @@ class ddtOp : public astNode<ScalarT>
           ddt_dx = ddt_dVal2 * dVal2dx;
         }
       }
-
+#if 0
       //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state_->val1 << " val2 = " << state_->val2
         //<< " ddt_dx = " << ddt_dx <<std::endl;
+#else
+      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state.val1 << " val2 = " << state.val2
+        //<< " ddt_dx = " << ddt_dx <<std::endl;
+#endif
       return ddt_dx;
     };
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "ddt (time derivative) operator " << std::endl;
+      os << "ddt (time derivative) operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "ddt (time derivative) operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -4218,9 +4569,14 @@ class ddtOp : public astNode<ScalarT>
 
     virtual bool ddtType() { return true; }
 
+#if 0
     ScalarT getDdtArg() { return state_->val2; }
+#else
+    ScalarT getDdtArg() { ddtStateData<ScalarT> & state = this->leftAst_->getDdtState(); return state.val2; }
+#endif
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
 
+#if 0
     virtual void setState(Teuchos::RCP<ddtStateData<ScalarT> > & st) 
     { 
       if( !stateSet_ )
@@ -4235,13 +4591,16 @@ class ddtOp : public astNode<ScalarT>
       state_ = default_state_;
       stateSet_=false;
     };
+#endif
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
     Teuchos::RCP<astNode<ScalarT> > time_;
+#if 0
     Teuchos::RCP<ddtStateData<ScalarT> > state_;
     Teuchos::RCP<ddtStateData<ScalarT> > default_state_;
     bool stateSet_;
+#endif
     ScalarT timeDerivative_;
     bool useExternDeriv_;
 };
@@ -4415,10 +4774,15 @@ class ddxOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "ddx (derivative) operator " << std::endl;
+      os << "ddx (derivative) operator " << " id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "ddx (derivative) operator " << " id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -4456,8 +4820,10 @@ class specialsOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << type_ << " operator.  val = " << value_ << std::endl;
+      os << type_ << " operator.  val = " << value_ << " id = " << this->id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os ) { os << value_; }
 
@@ -4496,8 +4862,10 @@ class piConstOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "pi const operator.  val = " << ScalarT(M_PI) << std::endl;
+      os << "pi const operator.  val = " << ScalarT(M_PI) << " id = " << this->id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(M_PI); }
 
@@ -4518,8 +4886,10 @@ class CtoKConstOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "CtoK const operator.  val = " << ScalarT(CONSTCtoK) << std::endl;
+      os << "CtoK const operator.  val = " << ScalarT(CONSTCtoK) << " id = " << this->id_ << std::endl;
     }
+
+    virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
 

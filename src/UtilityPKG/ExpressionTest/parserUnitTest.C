@@ -7703,9 +7703,12 @@ TEST ( Double_Parser_Integral_Test, sdt5)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-  Xyce::Util::newExpression copyExpression(testExpression);
-  Xyce::Util::newExpression assignExpression;
-  assignExpression = testExpression;
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
 
   double result = 0.0; 
   double refRes = 0.0;
@@ -7788,6 +7791,7 @@ TEST ( Double_Parser_Integral_Test, sdt6)
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt6)
 }
 
+//-------------------------------------------------------------------------------
 // this point of this test is to make sure that when SDT is inside of a .FUNC, 
 // and that .FUNC is called more than once, that the integral informmation doesn't 
 // get mangled.  Each call to the .FUNC should carry its own unique SDT state.
@@ -7852,6 +7856,7 @@ TEST ( Double_Parser_Integral_Test, sdt7)
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt7)
 }
 
+//-------------------------------------------------------------------------------
 // this test is similar to sdt7, except that the SDT operators 
 // are behind 2 layers of funcs instead of 1.
 TEST ( Double_Parser_Integral_Test, sdt8)
@@ -7924,7 +7929,6 @@ TEST ( Double_Parser_Integral_Test, sdt8)
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt8)
 }
-
 //-------------------------------------------------------------------------------
 // DDT tests
 //-------------------------------------------------------------------------------
@@ -8277,6 +8281,7 @@ TEST ( Double_Parser_Derivative_Test, ddt7)
   OUTPUT_MACRO(Double_Parser_Derivative_Test, ddt7)
 }
 
+//-------------------------------------------------------------------------------
 // this test is similar to ddt7, except that the SDT operators 
 // are behind 2 layers of funcs instead of 1.
 TEST ( Double_Parser_Derivative_Test, ddt8)
@@ -8328,7 +8333,8 @@ TEST ( Double_Parser_Derivative_Test, ddt8)
   double time=0.0;
   double finalTime=1.0;
 
-  int numSteps = 1001;
+  //int numSteps = 1001;
+  int numSteps = 11;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)

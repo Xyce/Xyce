@@ -1351,6 +1351,7 @@ exp:
       $$ = sdtPtr;
       newExp.getMasterNodeVec().push_back(sdtPtr);
       newExp.getSdtOpVec().push_back(*sdtPtr);
+      newExp.getLocalSdtOpVec().push_back(*sdtPtr);
       newExp.setTimeDependent(true);
     }
   | TOK_DDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
@@ -1361,6 +1362,7 @@ exp:
       $$ = ddtPtr;
       newExp.getMasterNodeVec().push_back(ddtPtr);
       newExp.getDdtOpVec().push_back(*ddtPtr);
+      newExp.getLocalDdtOpVec().push_back(*ddtPtr);
       newExp.setTimeDependent(true);
     }
   | TOK_DDX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN

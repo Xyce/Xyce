@@ -223,7 +223,7 @@ class spicePulseOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "spice pulse operator " << std::endl;
+      os << "spice pulse operator id = " << this->id_ << std::endl;
       ++indent;
 
       AST_CALL_SUBOUTPUT(v1_)
@@ -233,6 +233,11 @@ class spicePulseOp : public astNode<ScalarT>
       AST_CALL_SUBOUTPUT(tf_)
       AST_CALL_SUBOUTPUT(pw_)
       AST_CALL_SUBOUTPUT(per_)
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "spice pulse operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -390,7 +395,7 @@ class spiceSinOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "spice sin operator " << std::endl;
+      os << "spice sin operator id = " << this->id_ << std::endl;
       ++indent;
 
       AST_CALL_SUBOUTPUT(v0_)
@@ -399,6 +404,11 @@ class spiceSinOp : public astNode<ScalarT>
       AST_CALL_SUBOUTPUT(td_)
       AST_CALL_SUBOUTPUT(theta_)
       AST_CALL_SUBOUTPUT(phase_)
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "spice sin operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -567,7 +577,7 @@ class spiceExpOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "spice exp operator " << std::endl;
+      os << "spice exp operator id = " << this->id_ << std::endl;
       ++indent;
 
       AST_CALL_SUBOUTPUT(v1_)
@@ -576,6 +586,11 @@ class spiceExpOp : public astNode<ScalarT>
       AST_CALL_SUBOUTPUT(tau1_)
       AST_CALL_SUBOUTPUT(td2_)
       AST_CALL_SUBOUTPUT(tau2_)
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "spice exp operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )
@@ -706,7 +721,7 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "spice sffm operator " << std::endl;
+      os << "spice sffm operator id = " << this->id_ << std::endl;
       ++indent;
 
       AST_CALL_SUBOUTPUT(v0_)
@@ -714,6 +729,11 @@ class spiceSffmOp : public astNode<ScalarT>
       AST_CALL_SUBOUTPUT(fc_)
       AST_CALL_SUBOUTPUT(mdi_)
       AST_CALL_SUBOUTPUT(fs_)
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "spice sffm operator id = " << this->id_ << std::endl;
     }
 
     virtual void codeGen (std::ostream & os )

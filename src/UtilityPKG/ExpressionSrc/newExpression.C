@@ -55,9 +55,6 @@
 #define isinf(x) std::isinf(x)
 #endif
 
-static long seed_ = 0;
-static bool seedSetup_ = false;
-
 //-------------------------------------------------------------------------------
 // Expression Lexer/Parser header stuff
 //
@@ -353,6 +350,13 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
             errMsg += ") in expression " + originalExpressionString_;
             Xyce::Report::UserError() << errMsg;
           }
+
+#if 0
+          // handle the "local" sdt and ddt operators
+          castedFuncPtr->setSdtOpVec( expPtr->getLocalSdtOpVec() );
+          castedFuncPtr->setDdtOpVec( expPtr->getLocalDdtOpVec() );
+#endif
+
         }
         else { retval=false; }
       }
@@ -1980,9 +1984,12 @@ bool newExpression::setTemperature (const double & temp)
 //-------------------------------------------------------------------------------
 void newExpression::processSuccessfulTimeStep ()
 {
-  for (int ii=0;ii<sdtOpVec_.size();ii++) { sdtOpVec_[ii]->processSuccessfulTimeStep (); }
-  for (int ii=0;ii<ddtOpVec_.size();ii++) { ddtOpVec_[ii]->processSuccessfulTimeStep (); }
-  for (int ii=0;ii<funcOpVec_.size();ii++) { funcOpVec_[ii]->processSuccessfulTimeStep (); }
+  // this is a kludge, to test an idea
+  staticsContainer::processSuccessfulStepFlag = true;
+  staticsContainer::processSuccessfulStepMap.clear();
+  usedType result;
+  evaluateFunction (result);
+  staticsContainer::processSuccessfulStepFlag = false;
 }
 
 //-----------------------------------------------------------------------------

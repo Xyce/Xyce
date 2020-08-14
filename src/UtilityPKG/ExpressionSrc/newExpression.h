@@ -663,7 +663,11 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getINoiseOpVec() { return iNoiseOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getSdtOpVec() { return sdtOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalSdtOpVec() { return localSdtOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getDdtOpVec() { return ddtOpVec_; }
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getLocalDdtOpVec() { return localDdtOpVec_; }
+
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getPhaseOpVec() { return phaseOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getSparamOpVec() { return sparamOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getYparamOpVec() { return yparamOpVec_; }
@@ -904,8 +908,10 @@ private:
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > iNoiseOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > sdtOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localSdtOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > ddtOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > localDdtOpVec_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > phaseOpVec_;
 

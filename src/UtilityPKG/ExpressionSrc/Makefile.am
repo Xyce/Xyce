@@ -21,6 +21,7 @@ libExpressionSrc_la_SOURCES = \
   ExpressionLexer.h \
   ExpressionType.h \
   ast.h \
+  ast.C \
   ast_spice_src.h \
   astbinary.h \
   astcomp.h \

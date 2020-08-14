@@ -53,11 +53,14 @@ class NAME : public astNode<ScalarT>                                            
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \
-      os << FCTQUOTE << std::endl;                                                     \
+      os << FCTQUOTE << " id = " << this->id_ << std::endl;                            \
       ++indent;                                                                        \
       this->leftAst_->output(os,indent+1);                                             \
       this->rightAst_->output(os,indent+1);                                            \
     }                                                                                  \
+                                                                                       \
+    virtual void compactOutput(std::ostream & os)                                      \
+    { os << FCTQUOTE << " id = " << this->id_ << std::endl; }                          \
                                                                                        \
     virtual void codeGen (std::ostream & os )                                          \
     {                                                                                  \
