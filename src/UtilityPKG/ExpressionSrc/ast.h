@@ -2259,6 +2259,16 @@ AST_GET_TIME_OPS(functionNode_)
     bool getNodeResolved() { return nodeResolved_; }
     bool getArgsResolved() { return argsResolved_; }
 
+    virtual void processSuccessfulTimeStep () 
+    {
+      functionNode_->processSuccessfulTimeStep ();
+    };
+
+    ddtStateData<ScalarT> & getDdtState() { return functionNode_->getDdtState(); }
+    sdtStateData<ScalarT> & getSdtState() { return functionNode_->getSdtState(); }
+
+    virtual unsigned long int getNodeId () { return functionNode_->getNodeId(); }
+
   private:
 // data:
     std::string funcName_;
