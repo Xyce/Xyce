@@ -2001,11 +2001,14 @@ void newExpression::processSuccessfulTimeStep ()
   // that container, use that container to do the state management required 
   // at the end of each successful timem step.
   //
-  staticsContainer::processSuccessfulStepFlag = true;
-  staticsContainer::processSuccessfulStepMap.clear();
-  usedType result;
-  evaluateFunction (result);
-  staticsContainer::processSuccessfulStepFlag = false;
+  if( !(sdtOpVec_.empty())  ||  !(ddtOpVec_.empty()) )
+  {
+    staticsContainer::processSuccessfulStepFlag = true;
+    staticsContainer::processSuccessfulStepMap.clear();
+    usedType result;
+    evaluateFunction (result);
+    staticsContainer::processSuccessfulStepFlag = false;
+  }
 }
 
 //-----------------------------------------------------------------------------
