@@ -350,13 +350,6 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
             errMsg += ") in expression " + originalExpressionString_;
             Xyce::Report::UserError() << errMsg;
           }
-
-#if 0
-          // handle the "local" sdt and ddt operators
-          castedFuncPtr->setSdtOpVec( expPtr->getLocalSdtOpVec() );
-          castedFuncPtr->setDdtOpVec( expPtr->getLocalDdtOpVec() );
-#endif
-
         }
         else { retval=false; }
       }
@@ -1984,7 +1977,30 @@ bool newExpression::setTemperature (const double & temp)
 //-------------------------------------------------------------------------------
 void newExpression::processSuccessfulTimeStep ()
 {
-  // this is a kludge, to test an idea
+  // this is a kludge, to test an idea.
+  // Two things that I don't like about it, but were convenient for now:
+  // (1) using static data in the ast classes.
+  // (2) relying on "evaluateFunction" to process succesful time steps. 
+  //     (i.e. rotate appropriate state data for SDT and DDT, but just once)
+  //
+  // The nice thing about both of these is that they allowed me to not
+  // have to hack every AST class.  The evaluateFunction call will traverse
+  // the AST tree via the val() call.  So, I didn't have to add another 
+  // set of traversal functions.  I just had to hack in some conditional 
+  // code into the sdtOp and ddtOp val() functions.  The drawback is that 
+  // it involves unncessary computational cost, etc.
+  //
+  // The static data is for similar reasons.  I didn't feel like 
+  // doing the work (and all the typing) to do the same thing in a 
+  // non-static way.
+  //
+  // Here is what I would like to do, but haven't done yet:
+  // (1) set up a new traversal function that will create a container of AST 
+  // nodes, which only contains nodes requiring state management.
+  // (2) then, after calling that new traversal function once, to set up 
+  // that container, use that container to do the state management required 
+  // at the end of each successful timem step.
+  //
   staticsContainer::processSuccessfulStepFlag = true;
   staticsContainer::processSuccessfulStepMap.clear();
   usedType result;
