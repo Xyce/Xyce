@@ -7561,6 +7561,7 @@ TEST ( Double_Parser_Integral_Test, sdt2)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs;
 
   double time=0.0;
   double finalTime=1.0;
@@ -7573,9 +7574,20 @@ TEST ( Double_Parser_Integral_Test, sdt2)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
     refRes = 3.0*std::sin(time);
+
+    testExpression.evaluate(result,derivs);   
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_EQ(derivs.size(),0);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_EQ(derivs.size(),0);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_EQ(derivs.size(),0);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7618,11 +7630,18 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     if (ii!=0) { refDerivs[0] = 0.5*dt; }
     else       { refDerivs[0] = 0.0; }
 
-    testExpression.evaluate(result,derivs);   
-
     refRes = time*time*0.5;
+
+    testExpression.evaluate(result,derivs);   
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7666,11 +7685,20 @@ TEST ( Double_Parser_Integral_Test, sdt4)
     if (ii!=0) { refDerivs[0] = dt;  }
     else       { refDerivs[0] = 0.0; }
 
-    testExpression.evaluate(result,derivs);   
-
     refRes = 2.0*time;
+
+    testExpression.evaluate(result,derivs);   
     EXPECT_FLOAT_EQ( result, refRes);
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7703,21 +7731,26 @@ TEST ( Double_Parser_Integral_Test, sdt5)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-  //Xyce::Util::newExpression copyExpression(testExpression);
-  //Xyce::Util::newExpression assignExpression;
-  //assignExpression = testExpression;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
 #if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
+
 
   double time=0.0;
   double finalTime=1.0;
 
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
+
+  refDerivs.push_back(0.5*dt);
 
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -7726,9 +7759,23 @@ TEST ( Double_Parser_Integral_Test, sdt5)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
     refRes = time*time*0.5;
+
+    if (ii!=0) { refDerivs[0] = 0.5*dt;  }
+    else       { refDerivs[0] = 0.0; }
+
+    testExpression.evaluate(result,derivs);   
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
+    copyExpression.evaluate(result,derivs);
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
+    assignExpression.evaluate(result,derivs);
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7767,12 +7814,15 @@ TEST ( Double_Parser_Integral_Test, sdt6)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs;
+  std::vector<double> refDerivs;
 
   double time=0.0;
   double finalTime=1.0;
 
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
+  refDerivs.push_back(dt);
 
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -7781,9 +7831,24 @@ TEST ( Double_Parser_Integral_Test, sdt6)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
+
+    if (ii!=0) { refDerivs[0] = dt;  }
+    else       { refDerivs[0] = 0.0; }
+
     refRes = time*time;
+
+    testExpression.evaluate(result,derivs);   
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7830,6 +7895,8 @@ TEST ( Double_Parser_Integral_Test, sdt7)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -7846,9 +7913,37 @@ TEST ( Double_Parser_Integral_Test, sdt7)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
-    refRes = time*time*0.5 + 3.0*std::sin(time);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7904,6 +7999,8 @@ TEST ( Double_Parser_Integral_Test, sdt8)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -7920,9 +8017,38 @@ TEST ( Double_Parser_Integral_Test, sdt8)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
-    refRes = time*time*0.5 + 3.0*std::sin(time);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -7991,6 +8117,8 @@ TEST ( Double_Parser_Integral_Test, sdt9)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -8007,9 +8135,37 @@ TEST ( Double_Parser_Integral_Test, sdt9)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
-    refRes = time*time*0.5 + 3.0*std::sin(time);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -8079,6 +8235,8 @@ TEST ( Double_Parser_Integral_Test, sdt10)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -8095,10 +8253,39 @@ TEST ( Double_Parser_Integral_Test, sdt10)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
-    refRes = time*time*0.5 + 3.0*std::sin(time);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
     refRes *= 2.0;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = dt;
+      refDerivs[1] = dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -8168,6 +8355,8 @@ TEST ( Double_Parser_Integral_Test, sdt11)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -8184,11 +8373,43 @@ TEST ( Double_Parser_Integral_Test, sdt11)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
+
+#if 0
     refRes = time*time*0.5 + 3.0*std::sin(time);
     refRes *= 4.0;
     refRes += 6.0*std::sin(time);
+#endif
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    //refRes = 4.0*(Aint + Bint)+2.0*Bint;
+    refRes = 4.0*Aint + 6.0*Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 2.0*dt;
+      refDerivs[1] = 3.0*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }
@@ -8229,6 +8450,8 @@ TEST ( Double_Parser_Integral_Test, sdt12)
 
   double result = 0.0; 
   double refRes = 0.0;
+  std::vector<double> derivs(2);
+  std::vector<double> refDerivs(2);
 
   double time=0.0;
   double finalTime=1.0;
@@ -8243,9 +8466,33 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
+
     refRes = 3.0*std::sin(time);
+
+    if (ii!=0)
+    {
+      refDerivs[0] = -3.0*0.5*dt*sin(Aval);
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
     EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    copyExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
+    assignExpression.evaluate(result,derivs);   
+    EXPECT_FLOAT_EQ( result, refRes);
+    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+
     time += dt;
     testExpression.processSuccessfulTimeStep();
   }

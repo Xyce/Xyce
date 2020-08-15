@@ -15,7 +15,7 @@ RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteu
 
 all:  test
 
-test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
+test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest  
 
 # main program
 astUnitTest: astUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
@@ -78,6 +78,7 @@ newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression
 
 parserUnitTest: parserUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  ../N_UTL_Interpolators.h
 	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C ast.o newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o   N_UTL_NetlistLocation.o N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+
 
 parserCopyUnitTest: parserCopyUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_UTL_NetlistLocation.o N_ERH_ErrorMgr.o  N_ERH_Message.o N_ERH_Messenger.o   N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  ../N_UTL_Interpolators.h
 	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C ast.o newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_UTL_NetlistLocation.o N_ERH_ErrorMgr.o N_ERH_Message.o  N_ERH_Messenger.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o -lm -lgtest -lgtest_main  $(RCPLIBS)
