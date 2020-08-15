@@ -1,0 +1,24 @@
+The diode_cmc model required some modifications to work in Xyce.
+
+  - The "P" macro defined in DIODE_CMC_SIMKIT_macrodefs.include was
+    defined as a no-op.  We have used the alternate definition that
+    uses P to define attributes.  Xyce/ADMS uses the attributes so defined
+    and they are not just comments to us.
+
+  - The "from" macro in DIODE_CMC_SIMKIT_macrodefs.include was defined as
+    a no-op.  This macro takes range limits for parameters.  We have 
+    uncommented the alternate definition that enables the ranges to be used
+    for parameter range checking.
+
+  - Attributes have been added to the model to allow it to be the level 2002
+    diode in Xyce.
+
+  - The LEVEL parameter has been commented out.  Xyce handles the level 
+    parameter of a model separately from the device code, and this is not
+    how one writes a model to plug in as a specific model level in Xyce.
+    We use module attributes.
+
+  - ADMS-specific "@(initial_instance)" and "@(initial_model)"
+    pseudo-events have been added to the initializeModel and
+    initializeInstance blocks so that these bias-independent
+    calculations are only performed when needed.

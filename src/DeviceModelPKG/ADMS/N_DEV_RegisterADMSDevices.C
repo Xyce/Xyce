@@ -40,6 +40,7 @@
 
 #include <N_DEV_RegisterDevices.h>
 
+#include <N_DEV_ADMSDIODE_CMC.h>
 #include <N_DEV_ADMSHBT_X.h>
 #include <N_DEV_ADMSPSP103VA.h>
 #include <N_DEV_ADMSPSP103TVA.h>
@@ -73,6 +74,7 @@ registerADMSDevices(const DeviceCountMap& deviceMap,
   BJT::registerDevice();
   MOSFET1::registerDevice();
   Diode::registerDevice();
+  ADMSDIODE_CMC::registerDevice(deviceMap, levelSet);
   ADMSvbic13::registerDevice(deviceMap, levelSet);
   ADMSvbic13_4t::registerDevice(deviceMap, levelSet);
   ADMSHBT_X::registerDevice(deviceMap, levelSet);

@@ -10,6 +10,7 @@
 (cd utils/ADMS/examples/BSIM6.1.1/code &&  make all-source)&
 (cd utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1 &&  make all-source)&
 (cd utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0 &&  make all-source)&
+(cd utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0 &&  make all-source)&
 (cd utils/ADMS/examples/psp102 &&  make all-source)&
 (cd utils/ADMS/examples/psp103 &&  make all-source)&
 (cd utils/ADMS/examples/mextram_504.12.1 &&  make all-source)&
@@ -41,6 +42,8 @@ diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi.h utils/ADMS/examples/
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi.C utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi450.h utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi450.C utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.C
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSDIODE_CMC.h utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0/N_DEV_ADMSDIODE_CMC.h
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSDIODE_CMC.C utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0/N_DEV_ADMSDIODE_CMC.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP102VA.h utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP102VA.C utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP103VA.h utils/ADMS/examples/psp103/N_DEV_ADMSPSP103VA.h
