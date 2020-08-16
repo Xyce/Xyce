@@ -1012,6 +1012,19 @@ void Expression::treatAsTempAndConvert()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::clearProcessSuccessfulTimeStepMap
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::clearProcessSuccessfulTimeStepMap ()
+{
+  newExpression::clearProcessSuccessfulTimeStepMap ();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::processSuccessfulTimeStep
 // Purpose       : 
 // Special Notes : 

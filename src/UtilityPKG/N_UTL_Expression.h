@@ -138,6 +138,7 @@ public:
 
   void treatAsTempAndConvert();
 
+  static void clearProcessSuccessfulTimeStepMap ();
   void processSuccessfulTimeStep ();
 
   // ddt information.  This is for Bsrc support of ddt.

@@ -4118,6 +4118,9 @@ void DeviceMgr::acceptStep()
 
   // tell the various dependent parameters (ie ones with expressions) 
   // to advance their time steps as needed.
+
+  Xyce::Util::Expression::clearProcessSuccessfulTimeStepMap(); // kludge but neccessary for now
+
   std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
 
   // Update global params for new time and other global params

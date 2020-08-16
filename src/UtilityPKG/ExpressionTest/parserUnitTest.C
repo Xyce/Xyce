@@ -7541,7 +7541,15 @@ TEST ( Double_Parser_Integral_Test, sdt1)
     refRes = time*time*0.5;
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+
+    // only one of these "clear" calls is necessary. but test calling all
+    testExpression.clearProcessSuccessfulTimeStepMap(); 
+    copyExpression.clearProcessSuccessfulTimeStepMap();
+    assignExpression.clearProcessSuccessfulTimeStepMap();
+
     testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt1)
@@ -7589,6 +7597,7 @@ TEST ( Double_Parser_Integral_Test, sdt2)
     EXPECT_EQ(derivs.size(),0);
 
     time += dt;
+    staticsContainer::processSuccessfulStepMap.clear();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -7643,6 +7652,7 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     time += dt;
+    staticsContainer::processSuccessfulStepMap.clear();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -7700,6 +7710,7 @@ TEST ( Double_Parser_Integral_Test, sdt4)
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     time += dt;
+    staticsContainer::processSuccessfulStepMap.clear();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -7777,6 +7788,7 @@ TEST ( Double_Parser_Integral_Test, sdt5)
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     time += dt;
+    staticsContainer::processSuccessfulStepMap.clear();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -7850,6 +7862,7 @@ TEST ( Double_Parser_Integral_Test, sdt6)
     EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     time += dt;
+    staticsContainer::processSuccessfulStepMap.clear();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -7945,6 +7958,7 @@ TEST ( Double_Parser_Integral_Test, sdt7)
     EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8050,6 +8064,7 @@ TEST ( Double_Parser_Integral_Test, sdt8)
 
 
     time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8167,6 +8182,7 @@ TEST ( Double_Parser_Integral_Test, sdt9)
     EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8287,6 +8303,7 @@ TEST ( Double_Parser_Integral_Test, sdt10)
 
 
     time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8411,13 +8428,14 @@ TEST ( Double_Parser_Integral_Test, sdt11)
     EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt11)
 }
 
-
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt12)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -8494,13 +8512,14 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt12)
 }
 
-
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt13)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -8552,6 +8571,7 @@ TEST ( Double_Parser_Integral_Test, sdt13)
  
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8625,6 +8645,7 @@ TEST ( Double_Parser_Integral_Test, sdt14)
  
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8734,6 +8755,7 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv)
     refRes = time*time*0.5 + 3.0*std::sin(time);
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8843,6 +8865,7 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv2)
     refRes = 2.0*(time*time*0.5 + 3.0*std::sin(time));
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8884,6 +8907,7 @@ TEST ( Double_Parser_Derivative_Test, ddt1)
     if (ii>0) {refRes = 1.0;}
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8923,6 +8947,7 @@ TEST ( Double_Parser_Derivative_Test, ddt2)
       EXPECT_FLOAT_EQ( result, refRes);
     }
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -8972,6 +8997,7 @@ TEST ( Double_Parser_Derivative_Test, ddt3)
     }
 
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -9021,6 +9047,7 @@ TEST ( Double_Parser_Derivative_Test, ddt4)
     }
 
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -9076,6 +9103,7 @@ TEST ( Double_Parser_Derivative_Test, ddt5)
     if (ii>0) {refRes = 1.0;}
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -9131,6 +9159,7 @@ TEST ( Double_Parser_Derivative_Test, ddt6)
     if (ii>0) {refRes = 2.0;}
     EXPECT_FLOAT_EQ( result, refRes);
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -9195,6 +9224,7 @@ TEST ( Double_Parser_Derivative_Test, ddt7)
       EXPECT_FLOAT_EQ( result, refRes);
     }
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 
@@ -9273,6 +9303,7 @@ TEST ( Double_Parser_Derivative_Test, ddt8)
       EXPECT_FLOAT_EQ( result, refRes);
     }
     time += dt;
+    testExpression.clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
   }
 

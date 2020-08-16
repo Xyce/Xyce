@@ -828,6 +828,8 @@ public:
 
   bool setTemperature (const double & temp);
 
+  static void clearProcessSuccessfulTimeStepMap () { staticsContainer::processSuccessfulStepMap.clear(); }
+
   void processSuccessfulTimeStep ();
 
   int getNumDdt () { return ddtOpVec_.size(); }
