@@ -8514,17 +8514,84 @@ TEST ( Double_Parser_Integral_Test, sdt14)
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
-    testExpression.evaluateFunction(result);   
     refRes = 9.0*(0.5*time  + 0.25 * std::sin(2.0*time));
  
-    EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt14)
 }
+
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Integral_Test, sdt15)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(V(A))"), testGroup);
+  testExpression2.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B*B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(B)"); rhs=std::string("sdt(B*B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    
+    EXPECT_EQ( result, refRes);
+
+    //copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    //assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    //copyExpression.processSuccessfulTimeStep();
+    //assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt15)
+}
+
 
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv)
