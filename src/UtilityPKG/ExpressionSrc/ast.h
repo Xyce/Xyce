@@ -2004,6 +2004,7 @@ class iNoiseOp: public astNode<ScalarT>
 // 10      = handled elsewhere in this AST tree as a numval node
 // *       = handled elsewhere in this AST tree as a binyarMultOp node
 //
+//-------------------------------------------------------------------------------
 template <typename ScalarT>
 class funcOp: public astNode<ScalarT>
 {
@@ -2062,9 +2063,9 @@ class funcOp: public astNode<ScalarT>
           //
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
-          setArgs(); // setState();
+          setArgs(); 
           dfdx = functionNode_->dx(i);
-          unsetArgs(); // unsetState();
+          unsetArgs();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
           //
@@ -4147,9 +4148,6 @@ class sdtOp : public astNode<ScalarT>
         {
           this->leftAst_->processSuccessfulTimeStep (); 
           this->processSuccessfulStepMap[id] = 1;
-#if 0
-          std::cout << "processed successful step for id = " << id << std::endl;
-#endif
         }
       }
 
