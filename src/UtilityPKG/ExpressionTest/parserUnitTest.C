@@ -877,6 +877,47 @@ TEST ( NAME, SUBNAME ) \
   outputFile.close();} \
 }
 
+//-------------------------------------------------------------------------------
+// Small function to make the creation of .func related objects simpler.
+//
+// This function mimics how .func creation and resolution happen inside of Xyce.
+//
+// The lhs and rhs strings are from the original .func declaration.  
+// They are inputs.  For example:  .func f1(a) {sqrt(a)}
+//     lhs = "f1(a)"
+//     rhs = "sqrt(a)"
+//
+// The lhs string is used to create a temporary local expression 
+// object (new_LHS).  This object isn't needed outside this function.  It is
+// used only to pull out the name "f1" and the arguments "a".  The name "f1" 
+// is one of the outputs of this function, and the arguments "a" are needed 
+// to fully resolve the rhs expression.  The rhs expression is the other
+// output of this function.
+//
+// The "newName" and "newExpression" are the outputs, and they contain (in 
+// the above example) "f1" and "sqrt(a)" .  These are the only two 
+// objects needed to attach this .func to another expression.
+//-------------------------------------------------------------------------------
+void createFunc( std::string & lhs, std::string & rhs,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & testGroup,
+  std::string & newName,
+  Teuchos::RCP<Xyce::Util::newExpression> & newExpression
+    )
+{
+  newExpression = Teuchos::rcp(new Xyce::Util::newExpression( rhs , testGroup));
+  Xyce::Util::newExpression new_LHS (lhs, testGroup);
+  new_LHS.lexAndParseExpression();
+
+  std::vector<std::string> newArgStrings ;
+  new_LHS.getFuncPrototypeArgStrings(newArgStrings);
+  newExpression->setFunctionArgStringVec (newArgStrings);
+
+  newExpression->lexAndParseExpression();
+
+  new_LHS.getFuncPrototypeName(newName);
+}
+
+//-------------------------------------------------------------------------------
 // number by itself
 TEST ( Double_Parser_Test, numval)
 {
@@ -9717,29 +9758,12 @@ TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
   Xyce::Util::newExpression testExpression(std::string("udfA(10p,1u)/50"), testGroup); // this passes, correctly.
   testExpression.lexAndParseExpression();
 
-  // this expression is the RHS of a .func statement:  .func F1(A,B) {A+B}
-  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("exp(mu/sigma)"), testGroup) );
-
-  // I originally had this set up so that the calling code would manually set the 
-  // vector of prototype function arguments, as well as the name of the function 
-  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
-  // function prototype F1(A,B) has to be parsed, and the appropriate information 
-  // pulled out of it.  In Xyce, the old expression library is used to parse the 
-  // prototype(LHS), so attempting same here.
-  Xyce::Util::newExpression udfA_LHS (std::string("udfA(mu,sigma)"), testGroup);
-  udfA_LHS.lexAndParseExpression();
-
-  std::vector<std::string> udfAArgStrings ;
-  udfA_LHS.getFuncPrototypeArgStrings(udfAArgStrings);
-  udfAExpression->setFunctionArgStringVec (udfAArgStrings);
-  // during lex/parse, this vector of arg strings will be compared to any
-  // param classes.  If it finds them, then they will be placed in the
-  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
-  udfAExpression->lexAndParseExpression();
-
-  // now parse the function name from the prototype
+  // .func udfA(mu,sigma) {exp(mu/sigma)}
   std::string udfAName;
-  udfA_LHS.getFuncPrototypeName(udfAName);
+  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression;
+  std::string lhs=std::string("udfA(mu,sigma)");
+  std::string rhs=std::string("exp(mu/sigma)");
+  createFunc(lhs,rhs,testGroup, udfAName,udfAExpression);
 
   testExpression.attachFunctionNode(udfAName, udfAExpression);
 
@@ -9747,14 +9771,14 @@ TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
   testExpression.dumpParseTree(std::cout);
 #endif
 
-  //Xyce::Util::newExpression copyExpression(testExpression);
-  //Xyce::Util::newExpression assignExpression;
-  //assignExpression = testExpression;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
 
   double result;
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
-  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
-  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
   OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_user_defined_func)
 }
 
@@ -9979,18 +10003,12 @@ TEST ( Double_Parser_Random, agauss1_func)
   Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
   testExpression.lexAndParseExpression();
 
-  // this expression is the RHS of a .func statement:  .func F1(A) {A*spice_pulse(...)}
-  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*agauss(1.0,0.1,1.0)"), testGroup));
-
-  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
-  f1_LHS.lexAndParseExpression();
-
-  std::vector<std::string> f1ArgStrings ;
-  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
-  f1Expression->setFunctionArgStringVec (f1ArgStrings);
-  f1Expression->lexAndParseExpression();
+  // .func F1(A) {A*spice_pulse(...)}
   std::string f1Name;
-  f1_LHS.getFuncPrototypeName(f1Name);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("A*agauss(1.0,0.1,1.0)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
