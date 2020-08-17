@@ -2027,6 +2027,16 @@ class funcOp: public astNode<ScalarT>
     void unsetArgs() { for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } }
 
     //-------------------------------------------------------------------------------
+    void setSdtStates()
+    {
+    } 
+
+    //-------------------------------------------------------------------------------
+    void unsetSdtStates()
+    {
+    } 
+
+    //-------------------------------------------------------------------------------
     virtual ScalarT val()
     {
       ScalarT val = 0.0;
@@ -2035,7 +2045,9 @@ class funcOp: public astNode<ScalarT>
         if (funcArgs_.size() == dummyFuncArgs_.size())
         {
           setArgs(); 
+          setSdtStates();
           val = functionNode_->val();
+          unsetSdtStates();
           unsetArgs();
         }
       }
@@ -2066,7 +2078,9 @@ class funcOp: public astNode<ScalarT>
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
           setArgs(); 
+          setSdtStates();
           dfdx = functionNode_->dx(i);
+          unsetSdtStates();
           unsetArgs();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
@@ -2186,19 +2200,27 @@ class funcOp: public astNode<ScalarT>
     virtual void setSdtArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpSdtVec )
     {
       sdtNodes_.clear(); sdtNodes_.resize(tmpSdtVec.size());
+      sdtArgNodes_.clear(); sdtArgNodes_.resize(tmpSdtVec.size());
+      sdtStateVec_.clear(); sdtStateVec_.resize(tmpSdtVec.size());
       for (int ii=0;ii<tmpSdtVec.size();++ii)
       {
         sdtNodes_[ii] = tmpSdtVec[ii];
+        Teuchos::RCP<sdtOp<ScalarT> > castedSdtPtr = Teuchos::rcp_dynamic_cast<sdtOp<ScalarT> > (tmpSdtVec[ii]);
+        sdtArgNodes_[ii] = castedSdtPtr->getArg();
       }
       sdtNodesResolved_ = true; 
     };
 
     virtual void setDdtArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpDdtVec )
     {
-      ddtNodes_.clear(); ddtNodes_.resize(tmpDdtVec.size());
+      ddtNodes_.clear();    ddtNodes_.resize(tmpDdtVec.size());
+      ddtArgNodes_.clear(); ddtArgNodes_.resize(tmpDdtVec.size());
+      ddtStateVec_.clear(); ddtStateVec_.resize(tmpDdtVec.size());
       for (int ii=0;ii<tmpDdtVec.size();++ii)
       {
         ddtNodes_[ii] = tmpDdtVec[ii];
+        Teuchos::RCP<ddtOp<ScalarT> > castedDdtPtr = Teuchos::rcp_dynamic_cast<ddtOp<ScalarT> > (tmpDdtVec[ii]);
+        ddtArgNodes_[ii] = castedDdtPtr->getArg();
       }
       ddtNodesResolved_ = true; 
     };
@@ -2300,6 +2322,12 @@ AST_GET_TIME_OPS(functionNode_)
 
     std::vector<Teuchos::RCP<astNode<ScalarT> > > sdtNodes_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtNodes_;
+
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > sdtArgNodes_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtArgNodes_;
+
+    std::vector<sdtStateData<ScalarT> > sdtStateVec_;
+    std::vector<ddtStateData<ScalarT> > ddtStateVec_;
 
     Teuchos::RCP<astNode<ScalarT> > functionNode_;
     bool nodeResolved_;
@@ -4264,6 +4292,8 @@ class sdtOp : public astNode<ScalarT>
 
     virtual bool sdtType() { return true; }
 
+    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
     Teuchos::RCP<astNode<ScalarT> > time_;
@@ -4381,6 +4411,8 @@ class ddtOp : public astNode<ScalarT>
 
     ScalarT getDdtArg() { ddtStateData<ScalarT> & state = this->leftAst_->getDdtState(); return state.val2; }
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
+
+    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
