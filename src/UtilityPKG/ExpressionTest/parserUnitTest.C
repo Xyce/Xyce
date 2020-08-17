@@ -7562,15 +7562,9 @@ TEST ( Double_Parser_Integral_Test, sdt1)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  double result = 0.0; 
-  double refRes = 0.0;
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
-
   for (int ii=0;ii<numSteps;ii++)
   {
     double Aval=time;
@@ -7614,16 +7608,10 @@ TEST ( Double_Parser_Integral_Test, sdt2)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  double result = 0.0; 
-  double refRes = 0.0;
   std::vector<double> derivs;
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 1001;
   double dt = finalTime/(numSteps-1);
-
   for (int ii=0;ii<numSteps;ii++)
   {
     sdtGroup->setTime(time);
@@ -7666,18 +7654,12 @@ TEST ( Double_Parser_Integral_Test, sdt3)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  double result = 0.0; 
-  double refRes = 0.0;
   std::vector<double> derivs;
   std::vector<double> refDerivs;
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
   refDerivs.resize(1,0.5*dt);
-
   for (int ii=0;ii<numSteps;ii++)
   {
     double Aval=time;
@@ -7724,14 +7706,9 @@ TEST ( Double_Parser_Integral_Test, sdt4)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  double result = 0.0; 
-  double refRes = 0.0;
   std::vector<double> derivs;
   std::vector<double> refDerivs;
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
   refDerivs.resize(1,0.5*dt);
@@ -7781,20 +7758,12 @@ TEST ( Double_Parser_Integral_Test, sdt5)
   Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
   testExpression.lexAndParseExpression();
 
-  // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
-  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
-
-  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
-  f1_LHS.lexAndParseExpression();
-
-  std::vector<std::string> f1ArgStrings ;
-  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
-  f1Expression->setFunctionArgStringVec (f1ArgStrings);
-  f1Expression->lexAndParseExpression();
-
-  // now parse the function name from the prototype
+  // .func F1(A) {sdt(A)}
   std::string f1Name;
-  f1_LHS.getFuncPrototypeName(f1Name);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
@@ -7805,15 +7774,9 @@ TEST ( Double_Parser_Integral_Test, sdt5)
   testExpression.dumpParseTree(std::cout);
 #endif
 
-  double result = 0.0; 
-  double refRes = 0.0;
   std::vector<double> derivs;
   std::vector<double> refDerivs;
-
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
 
@@ -7862,20 +7825,12 @@ TEST ( Double_Parser_Integral_Test, sdt6)
   Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(A))"), testGroup);
   testExpression.lexAndParseExpression();
 
-  // this expression is the RHS of a .func statement:  .func F1(A) {sdt(A)}
-  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sdt(a)"), testGroup) );
-
-  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
-  f1_LHS.lexAndParseExpression();
-
-  std::vector<std::string> f1ArgStrings ;
-  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
-  f1Expression->setFunctionArgStringVec (f1ArgStrings);
-  f1Expression->lexAndParseExpression();
-
-  // now parse the function name from the prototype
+  // .func F1(A) {sdt(A)}
   std::string f1Name;
-  f1_LHS.getFuncPrototypeName(f1Name);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
@@ -7883,14 +7838,9 @@ TEST ( Double_Parser_Integral_Test, sdt6)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  double result = 0.0; 
-  double refRes = 0.0;
   std::vector<double> derivs;
   std::vector<double> refDerivs;
-
-  double time=0.0;
-  double finalTime=1.0;
-
+  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = 101;
   double dt = finalTime/(numSteps-1);
   refDerivs.push_back(dt);
