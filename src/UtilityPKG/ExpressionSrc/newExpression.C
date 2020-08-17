@@ -350,6 +350,9 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
             errMsg += ") in expression " + originalExpressionString_;
             Xyce::Report::UserError() << errMsg;
           }
+
+          castedFuncPtr->setSdtArgs( expPtr->getLocalSdtOpVec() );
+          castedFuncPtr->setDdtArgs( expPtr->getLocalDdtOpVec() );
         }
         else { retval=false; }
       }

@@ -8619,7 +8619,6 @@ TEST ( Double_Parser_Integral_Test, sdt14)
   f1Expression->attachFunctionNode(f2Name, f2Expression);
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;

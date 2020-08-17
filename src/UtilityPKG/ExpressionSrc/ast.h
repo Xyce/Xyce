@@ -2015,7 +2015,9 @@ class funcOp: public astNode<ScalarT>
       funcName_(name),
       funcArgs_(*args),
       nodeResolved_(false),
-      argsResolved_(false)
+      argsResolved_(false),
+      sdtNodesResolved_(false),
+      ddtNodesResolved_(false)
     {};
 
     //-------------------------------------------------------------------------------
@@ -2181,6 +2183,26 @@ class funcOp: public astNode<ScalarT>
       return funcArgs_;
     };
 
+    virtual void setSdtArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpSdtVec )
+    {
+      sdtNodes_.clear(); sdtNodes_.resize(tmpSdtVec.size());
+      for (int ii=0;ii<tmpSdtVec.size();++ii)
+      {
+        sdtNodes_[ii] = tmpSdtVec[ii];
+      }
+      sdtNodesResolved_ = true; 
+    };
+
+    virtual void setDdtArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpDdtVec )
+    {
+      ddtNodes_.clear(); ddtNodes_.resize(tmpDdtVec.size());
+      for (int ii=0;ii<tmpDdtVec.size();++ii)
+      {
+        ddtNodes_[ii] = tmpDdtVec[ii];
+      }
+      ddtNodesResolved_ = true; 
+    };
+
     virtual bool funcType()    { return true; };
 
     virtual std::string getName() { return funcName_; }
@@ -2275,9 +2297,15 @@ AST_GET_TIME_OPS(functionNode_)
     std::string funcName_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > funcArgs_;  // the unique args that are passed in to this instance of a function
     std::vector<Teuchos::RCP<astNode<ScalarT> > > dummyFuncArgs_;  // generic args that the functionNode_ owns; ie, that are used to evaluate it.  They have to be temporarily replaced whenever the function is called.
+
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > sdtNodes_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtNodes_;
+
     Teuchos::RCP<astNode<ScalarT> > functionNode_;
     bool nodeResolved_;
     bool argsResolved_;
+    bool sdtNodesResolved_;
+    bool ddtNodesResolved_;
 };
 
 //-------------------------------------------------------------------------------
