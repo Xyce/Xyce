@@ -7550,6 +7550,13 @@ inline void trapezoidIntegral (
 //-------------------------------------------------------------------------------
 // SDT tests
 //-------------------------------------------------------------------------------
+#if 1
+#define NUM_SDT_STEPS 101
+#define NUM_SDT_STEPS2 1001
+#else
+#define NUM_SDT_STEPS 11
+#define NUM_SDT_STEPS2 11
+#endif
 TEST ( Double_Parser_Integral_Test, sdt1)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -7563,7 +7570,7 @@ TEST ( Double_Parser_Integral_Test, sdt1)
   assignExpression = testExpression;
 
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 101;
+  int numSteps = NUM_SDT_STEPS;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -7610,7 +7617,7 @@ TEST ( Double_Parser_Integral_Test, sdt2)
 
   std::vector<double> derivs;
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -7657,7 +7664,7 @@ TEST ( Double_Parser_Integral_Test, sdt3)
   std::vector<double> derivs;
   std::vector<double> refDerivs;
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 101;
+  int numSteps = NUM_SDT_STEPS;
   double dt = finalTime/(numSteps-1);
   refDerivs.resize(1,0.5*dt);
   for (int ii=0;ii<numSteps;ii++)
@@ -7709,7 +7716,7 @@ TEST ( Double_Parser_Integral_Test, sdt4)
   std::vector<double> derivs;
   std::vector<double> refDerivs;
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 101;
+  int numSteps = NUM_SDT_STEPS;
   double dt = finalTime/(numSteps-1);
   refDerivs.resize(1,0.5*dt);
 
@@ -7777,7 +7784,7 @@ TEST ( Double_Parser_Integral_Test, sdt5)
   std::vector<double> derivs;
   std::vector<double> refDerivs;
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 101;
+  int numSteps = NUM_SDT_STEPS;
   double dt = finalTime/(numSteps-1);
 
   refDerivs.push_back(0.5*dt);
@@ -7841,7 +7848,7 @@ TEST ( Double_Parser_Integral_Test, sdt6)
   std::vector<double> derivs;
   std::vector<double> refDerivs;
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 101;
+  int numSteps = NUM_SDT_STEPS;
   double dt = finalTime/(numSteps-1);
   refDerivs.push_back(dt);
 
@@ -7912,7 +7919,7 @@ TEST ( Double_Parser_Integral_Test, sdt7)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)
@@ -8004,7 +8011,7 @@ TEST ( Double_Parser_Integral_Test, sdt8)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8104,7 +8111,7 @@ TEST ( Double_Parser_Integral_Test, sdt9)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8204,7 +8211,7 @@ TEST ( Double_Parser_Integral_Test, sdt10)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8306,7 +8313,7 @@ TEST ( Double_Parser_Integral_Test, sdt11)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8382,7 +8389,7 @@ TEST ( Double_Parser_Integral_Test, sdt12)
   std::vector<double> derivs(2);
   std::vector<double> refDerivs(2);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8450,7 +8457,7 @@ TEST ( Double_Parser_Integral_Test, sdt13)
   assignExpression = testExpression;
 
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
@@ -8504,7 +8511,7 @@ TEST ( Double_Parser_Integral_Test, sdt14)
   assignExpression = testExpression;
 
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)
@@ -8532,6 +8539,7 @@ TEST ( Double_Parser_Integral_Test, sdt14)
 
 
 //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt15)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
@@ -8539,8 +8547,108 @@ TEST ( Double_Parser_Integral_Test, sdt15)
 
   Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
   testExpression.lexAndParseExpression();
-  Xyce::Util::newExpression testExpression2(std::string("f1(V(A))"), testGroup);
+  Xyce::Util::newExpression testExpression2(std::string("f1(V(B))"), testGroup);
   testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(B)"); rhs=std::string("sdt(B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)"); rhs=std::string("f4(a)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(B)"); rhs=std::string("sdt(B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+
+  double result = 0.0, refRes = 0.0, refRes2=0.0, time=0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double mpi = M_PI;
+    double freq = 4000e3;
+    double Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    sdtGroup->setSoln(std::string("A"),Aval);
+
+    double Bval = time;
+    sdtGroup->setSoln(std::string("B"),Bval);
+
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
+    
+    EXPECT_EQ( result, refRes2);
+
+    //copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    //assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
+    //copyExpression.processSuccessfulTimeStep();
+    //assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt15)
+}
+
+//-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Integral_Test, sdt16)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(V(B))"), testGroup);
+  testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
 
   // .func F1(A) {f2(A)}
   std::string f1Name;
@@ -8554,29 +8662,54 @@ TEST ( Double_Parser_Integral_Test, sdt15)
   lhs=std::string("F2(B)"); rhs=std::string("sdt(B*B)");
   createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
 
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)"); rhs=std::string("f4(a)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B*B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(B)"); rhs=std::string("sdt(B*B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+
   f1Expression->attachFunctionNode(f2Name, f2Expression);
   testExpression.attachFunctionNode(f1Name, f1Expression);
   testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
 
   //Xyce::Util::newExpression copyExpression(testExpression);
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
 
-  double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  double result = 0.0, refRes = 0.0, refRes2=0.0, time=0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
   for (int ii=0;ii<numSteps;ii++)
   {
-    double Aval=time;
+    double mpi = M_PI;
+    double freq = 4000e3;
+    double Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
     sdtGroup->setSoln(std::string("A"),Aval);
+
+    double Bval = time;
+    sdtGroup->setSoln(std::string("B"),Bval);
+
     sdtGroup->setTime(time);
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
  
     testExpression.evaluateFunction(result);   
     testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
     
-    EXPECT_EQ( result, refRes);
+    EXPECT_EQ( result, refRes2);
 
     //copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
     //assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
@@ -8585,13 +8718,13 @@ TEST ( Double_Parser_Integral_Test, sdt15)
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
     testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
     //copyExpression.processSuccessfulTimeStep();
     //assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt15)
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt16)
 }
-
 
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv)
@@ -8656,7 +8789,7 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv)
 #endif
 
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)
@@ -8746,7 +8879,7 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv2)
 #endif
 
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
-  int numSteps = 1001;
+  int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
 
   for (int ii=0;ii<numSteps;ii++)
