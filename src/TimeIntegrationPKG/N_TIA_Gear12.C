@@ -741,7 +741,7 @@ bool Gear12::printOutputSolution(
         interpolateSolution(outputInterpolationTimes[i], ds.tmpLeadDeltaVPtr, ds.leadDeltaVHistory);  // interpolate store vector
         interpolateSolution(outputInterpolationTimes[i], ds.tmpLeadCurrentQDerivVectorPtr, ds.leadCurrentQDerivHistory);  // interpolate store vector
       }
-      outputManagerAdapter.tranOutput(outputInterpolationTimes[i], dt, 
+      outputManagerAdapter.tranOutput(outputInterpolationTimes[i], dt, sec.finalTime,
           *ds.tmpSolVectorPtr, *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
           *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
                                       ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_, 
@@ -756,7 +756,7 @@ bool Gear12::printOutputSolution(
   // interpoloate.
   if (outputInterpolationTimes.empty() || doNotInterpolate)
   {
-    outputManagerAdapter.tranOutput( time, timestep, 
+    outputManagerAdapter.tranOutput( time, timestep, sec.finalTime,
         *ds.currSolutionPtr, *ds.currStatePtr, *ds.currStorePtr, 
         *ds.currLeadCurrentPtr, *ds.currLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
                                     ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_, 

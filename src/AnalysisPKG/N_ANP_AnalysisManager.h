@@ -157,6 +157,7 @@ public:
 
   // Gets the final time-step value.
   double getFinalTime() const;
+  double getFinalTimeForRemeasure() const; // version only to used with -remeasure code
 
   // Gets the initial time-step value.
   double getInitialTime() const;

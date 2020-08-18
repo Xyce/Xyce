@@ -181,6 +181,7 @@ void OutputMgrAdapter::dumpRestart(
 void OutputMgrAdapter::tranOutput(
   double                time,
   double                dt,
+  double                finalTime,
   Linear::Vector &      currSolutionPtr,
   Linear::Vector &      stateVecPtr,
   Linear::Vector &      storeVecPtr,
@@ -198,7 +199,8 @@ void OutputMgrAdapter::tranOutput(
     objectiveVec_, dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_
       );
 
-  measureManager_.updateTranMeasures(comm_, time, &currSolutionPtr, &stateVecPtr, &storeVecPtr, &lead_current_vector, &junction_voltage_vector, &lead_current_dqdt_vector);
+  measureManager_.updateTranMeasures(comm_, time, finalTime, &currSolutionPtr, &stateVecPtr, &storeVecPtr,
+                                     &lead_current_vector, &junction_voltage_vector, &lead_current_dqdt_vector);
 
   Util::Op::OpData op_data;
   double temp = (*tempOp_)(comm_, op_data).real();

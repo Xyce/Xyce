@@ -436,6 +436,7 @@ void Manager::setMeasureOutputFileSuffix(const Analysis::Mode analysisMode)
 void Manager::updateTranMeasures(
   Parallel::Machine comm,
   const double circuitTime,
+  const double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -446,7 +447,8 @@ void Manager::updateTranMeasures(
   // loop over active masure objects and get them to update themselves.
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
-    (*it)->updateTran(comm, circuitTime, solnVec, stateVec, storeVec, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
+    (*it)->updateTran(comm, circuitTime, endSimTime, solnVec, stateVec, storeVec,
+                      lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
   }
   activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end());

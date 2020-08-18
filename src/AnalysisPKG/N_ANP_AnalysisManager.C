@@ -1029,6 +1029,19 @@ double AnalysisManager::getFinalTime() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getFinalTimeForRemeasure
+// Purpose       : Gets the final time-step value.
+// Special Notes : This version should ONLY be used for code related to -remeasure
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/13/2020
+//-----------------------------------------------------------------------------
+double AnalysisManager::getFinalTimeForRemeasure() const
+{
+  return getTIAParams().finalTime;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::getInitialTime
 // Purpose       : Gets the initial time-step value.
 // Special Notes :

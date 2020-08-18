@@ -3341,6 +3341,7 @@ void Transient::noopOutputs()
       outputManagerAdapter_.tranOutput(
         analysisManager_.getStepErrorControl().currentTime,
         analysisManager_.getStepErrorControl().currentTimeStep,
+        analysisManager_.getStepErrorControl().finalTime,
         *analysisManager_.getDataStore()->currSolutionPtr,
         *analysisManager_.getDataStore()->currStatePtr,
         *analysisManager_.getDataStore()->currStorePtr,
@@ -3395,6 +3396,7 @@ void Transient::tranopOutputs ()
 
       outputManagerAdapter_.tranOutput(analysisManager_.getStepErrorControl().currentTime,
                                        analysisManager_.getStepErrorControl().currentTimeStep,
+                                       analysisManager_.getStepErrorControl().finalTime,
                                        *analysisManager_.getDataStore()->currSolutionPtr,
                                        *analysisManager_.getDataStore()->currStatePtr,
                                        *analysisManager_.getDataStore()->currStorePtr,

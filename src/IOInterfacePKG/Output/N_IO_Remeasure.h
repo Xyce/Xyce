@@ -142,7 +142,6 @@ public:
   // Used to update the AC measure values.  This function call will need to 
   // be updated when/if lead currents are supported for AC analyses.  This function
   // is also "broken" because the fStart and fStop values are currently hard-coded to 0.
-  // So, the measure window information will be incorrect.
   void updateMeasures(Linear::Vector& varValuesVec)
   {
     measure_manager.updateACMeasures(pds_comm.comm(), frequency, 0, 0, &varValuesVec, 0, 0);
@@ -224,11 +223,12 @@ public:
   // used to update the TRAN measure values
   void updateMeasures(Linear::Vector& varValuesVec)
   {
-    measure_manager.updateTranMeasures(pds_comm.comm(), output_manager.getCircuitTime(), &varValuesVec, 0, 0, &varValuesVec, 0, 0 );
+    measure_manager.updateTranMeasures(pds_comm.comm(), output_manager.getCircuitTime(), endSimTime, &varValuesVec,
+                                       0, 0, &varValuesVec, 0, 0 );
   }
 
 private:
- 
+  double endSimTime;
 };
 
 } // namespace Measure
