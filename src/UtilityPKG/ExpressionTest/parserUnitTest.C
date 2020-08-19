@@ -619,7 +619,10 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
     sdtExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), time(0.0), timeStep(0.0), stepNumber(0)
+      Xyce::Util::baseExpressionGroup(), 
+      Aval(0.0), Bval(0.0), 
+      Cval(0.0), Dval(0.0), 
+      time(0.0), timeStep(0.0), stepNumber(0)
   {};
     ~sdtExpressionGroup () {};
 
@@ -628,6 +631,8 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
     std::string tmp = nodeName; Xyce::Util::toLower(tmp);
     if (tmp==std::string("a")) { retval = Aval; return true; }
     else if (tmp==std::string("b")) { retval = Bval; return true; }
+    else if (tmp==std::string("c")) { retval = Cval; return true; }
+    else if (tmp==std::string("d")) { retval = Dval; return true; }
     else { retval= 0.0; return false; }
   }
 
@@ -636,6 +641,8 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
     std::string tmp = nodeName; Xyce::Util::toLower(tmp);
     if (tmp==std::string("a")) { Aval = val; }
     else if (tmp==std::string("b")) { Bval = val; }
+    else if (tmp==std::string("c")) { Cval = val; }
+    else if (tmp==std::string("d")) { Dval = val; }
   }
 
   virtual double getTime() { return time; };
@@ -648,7 +655,7 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
   unsigned int getStepNumber () { return stepNumber; }
 
   private:
-    double Aval, Bval;
+    double Aval, Bval,Cval,Dval;
     double time;
     double timeStep;
     unsigned int stepNumber;
@@ -8539,6 +8546,17 @@ TEST ( Double_Parser_Integral_Test, sdt14)
 
 
 //-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//
+// In this case, the argument to sdt is a function argument parameter.  So, a 
+// relatively simple scenario
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt15)
 {
@@ -8585,9 +8603,9 @@ TEST ( Double_Parser_Integral_Test, sdt15)
   f3Expression->attachFunctionNode(f4Name, f4Expression);
   testExpression3.attachFunctionNode(f3Name, f3Expression);
 
-  //Xyce::Util::newExpression copyExpression(testExpression);
-  //Xyce::Util::newExpression assignExpression;
-  //assignExpression = testExpression;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
 
   double result = 0.0, refRes = 0.0, refRes2=0.0, time=0.0;
   double finalTime=1.25000000e-07;
@@ -8610,19 +8628,21 @@ TEST ( Double_Parser_Integral_Test, sdt15)
     testExpression.evaluateFunction(result);   
     testExpression2.evaluateFunction(refRes);   
     testExpression3.evaluateFunction(refRes2);
-    
     EXPECT_EQ( result, refRes2);
 
-    //copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    //assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   
+    EXPECT_FLOAT_EQ( result, refRes2);
+
+    assignExpression.evaluateFunction(result);   
+    EXPECT_FLOAT_EQ( result, refRes2);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
     testExpression2.processSuccessfulTimeStep();
     testExpression3.processSuccessfulTimeStep();
-    //copyExpression.processSuccessfulTimeStep();
-    //assignExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt15)
@@ -8637,6 +8657,9 @@ TEST ( Double_Parser_Integral_Test, sdt15)
 // But, testExpression2 calls the same function as testExpression 
 // but using different inputs.  If state is managed carefully, then this should
 // not be a problem.
+//
+// This test is similar, but different from sdt15, in that the argument to sdt
+// is an expression. (B*B) instead of (B).  This was a little harder to manage.
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Integral_Test, sdt16)
 {
@@ -8674,18 +8697,16 @@ TEST ( Double_Parser_Integral_Test, sdt16)
   lhs=std::string("F4(B)"); rhs=std::string("sdt(B*B)");
   createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
 
-
   f1Expression->attachFunctionNode(f2Name, f2Expression);
   testExpression.attachFunctionNode(f1Name, f1Expression);
   testExpression2.attachFunctionNode(f1Name, f1Expression);
 
-
   f3Expression->attachFunctionNode(f4Name, f4Expression);
   testExpression3.attachFunctionNode(f3Name, f3Expression);
 
-  //Xyce::Util::newExpression copyExpression(testExpression);
-  //Xyce::Util::newExpression assignExpression;
-  //assignExpression = testExpression;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
 
   double result = 0.0, refRes = 0.0, refRes2=0.0, time=0.0;
   double finalTime=1.25000000e-07;
@@ -8711,19 +8732,122 @@ TEST ( Double_Parser_Integral_Test, sdt16)
     
     EXPECT_EQ( result, refRes2);
 
-    //copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    //assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
+    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
     testExpression.processSuccessfulTimeStep();
     testExpression2.processSuccessfulTimeStep();
     testExpression3.processSuccessfulTimeStep();
-    //copyExpression.processSuccessfulTimeStep();
-    //assignExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
   }
 
   OUTPUT_MACRO(Double_Parser_Integral_Test, sdt16)
+}
+
+//-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//
+// This is similar, but slightly more complicated than sdt16, in that the 
+// functions have 2 arguments rather than 1.  Among other issues, having 
+// two arguments introduces the possible bug of having (A,B) be treated 
+// the same as (B,A), in terms of  the state key. (the key that determines which
+// state to use).
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Integral_Test, sdt17)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(B),V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(-V(A),V(C))"), testGroup);
+  testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(B),V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A,B)"), rhs=std::string("f2(a,b)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B*B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A,B)"); rhs=std::string("sdt(A+B*B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A,B)"); rhs=std::string("f4(a,b)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B*B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(A,B)"); rhs=std::string("sdt(A+B*B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result = 0.0, refRes = 0.0, refRes2=0.0, time=0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double mpi = M_PI;
+    double freq = 4000e3;
+    double Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    double Bval = time;
+    double Cval= 1.0e3 * std::cos (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setSoln(std::string("C"),Cval);
+
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
+    
+    EXPECT_EQ( result, refRes2);
+
+    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
+    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Double_Parser_Integral_Test, sdt17)
 }
 
 //-------------------------------------------------------------------------------
