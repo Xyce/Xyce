@@ -70,7 +70,7 @@ public:
   virtual void updateCalculationResult(double val)=0;
   virtual void updateCalculationInstant(double val)=0;
 
-  bool isATforACDCNoise(const double indepVarVal);
+  bool isATcondition(const double indepVarVal);
   bool isWHENcondition(const double indepVarVal, const double targVal);
 
   void setMeasureState(const double indepVarVal);
@@ -128,8 +128,8 @@ protected:
   std::vector<double> calculationInstantVec_;
 
 private:
-  void interpolateResults(double currIndepVarValue, double targVal);
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
+  double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);
 
   void updateRFCcountForWhen();
   bool withinRFCWindowForWhen();

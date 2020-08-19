@@ -1030,20 +1030,36 @@ std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MeasureBase::isInvalidTimeFreqWindow
+// Function      : MeasureBase::isInvalidTimeWindow
 // Purpose       : returns true if the specified from_ and to_ values do NOT
-//                 form a valid measurement window, based on the start/end
-//                 simulation values.  So, this function can be used by AC,
-//                 NOISE and TRAN measure modes.
-// Special Notes :
+//                 form a valid measurement window, based on the start/stop
+//                 simulation times.
+// Special Notes : Assumes that all transient simulations start at t=0
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystem Modeling
-// Creation Date : 08/06/2020
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/18/2020
 //-----------------------------------------------------------------------------
-bool Base::isInvalidTimeFreqWindow(double startSimVal, double endSimVal)
+bool Base::isInvalidTimeWindow(double endSimTime)
 {
   return ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
-           (fromGiven_&& (from_ > endSimVal)) || (toGiven_&& (to_ < startSimVal)) );
+           (fromGiven_&& (from_ > endSimTime)) || (toGiven_&& (to_ < 0.0)) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MeasureBase::isInvalidFreqWindow
+// Purpose       : returns true if the specified from_ and to_ values do NOT
+//                 form a valid measurement window, based on the start/stop
+//                 simulation frequencies.  So, this function can be used by
+//                 AC and NOISE measure modes.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/06/2020
+//-----------------------------------------------------------------------------
+bool Base::isInvalidFreqWindow(double fStart, double fStop)
+{
+  return ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
+           (fromGiven_&& (from_ > fStop)) || (toGiven_&& (to_ < fStart)) );
 }
 
 //-----------------------------------------------------------------------------
