@@ -2007,7 +2007,6 @@ void newExpression::processSuccessfulTimeStep ()
   if( !(sdtOpVec_.empty())  ||  !(ddtOpVec_.empty()) )
   {
     staticsContainer::processSuccessfulStepFlag = true;
-    //staticsContainer::processSuccessfulStepMap.clear(); // this is the problem
     usedType result;
     evaluateFunction (result);
     staticsContainer::processSuccessfulStepFlag = false;
