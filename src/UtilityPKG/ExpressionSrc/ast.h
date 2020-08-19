@@ -269,11 +269,27 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
 };
 
-template <typename ScalarT>
-struct sdtStateData
+struct staticsContainer
 {
-  sdtStateData(): val1(0.0), val2(0.0), integral_old(0.0), integral(0.0) {};
+  static unsigned long int nextID;
+  static unsigned long int stepNumber;
+  static bool processSuccessfulStepFlag;
+  static std::unordered_map<unsigned long int,int> processSuccessfulStepMap;
+};
 
+template <typename ScalarT>
+struct sdtStateData : public staticsContainer
+{
+  sdtStateData(): id(0), val1(0.0), val2(0.0), integral_old(0.0), integral(0.0) 
+  { id = ++(this->nextID); };
+
+  virtual void processSuccessfulTimeStep () 
+  {
+    integral_old = integral;
+    val1 = val2;
+  };
+
+  unsigned long int id;
   ScalarT val1;
   ScalarT val2;
   ScalarT integral_old;
@@ -281,19 +297,16 @@ struct sdtStateData
 };
 
 template <typename ScalarT>
-struct ddtStateData
+struct ddtStateData : public staticsContainer
 {
-  ddtStateData(): val1(0.0), val2(0.0){};
+  ddtStateData(): id(0), val1(0.0), val2(0.0)
+  { id = ++(this->nextID); };
+
+  virtual void processSuccessfulTimeStep () { val1 = val2; };
+
+  unsigned long int id;
   ScalarT val1;
   ScalarT val2;
-};
-
-struct staticsContainer
-{
-  static unsigned long int nextID;
-  static unsigned long int stepNumber;
-  static bool processSuccessfulStepFlag;
-  static std::unordered_map<unsigned long int,int> processSuccessfulStepMap;
 };
 
 //-------------------------------------------------------------------------------
@@ -456,6 +469,9 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 
     virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }
     virtual sdtStateData<ScalarT> & getSdtState() { return sdtState_; }
+
+    virtual void setDdtState( const ddtStateData<ScalarT> & ddt) { ddtState_ = ddt; };
+    virtual void setSdtState( const sdtStateData<ScalarT> & sdt) { sdtState_ = sdt; };
 
     unsigned long int getId () { return id_; }
     virtual unsigned long int getNodeId () { return id_; }
@@ -1309,6 +1325,15 @@ class voltageOp: public astNode<ScalarT>
       }
     }
 
+    virtual std::string getName () 
+    {
+      std::string name = std::string("V(");
+      if (voltageNodes_.size() == 1) { name += voltageNodes_[0]; }
+      else if (voltageNodes_.size() == 2) { name += voltageNodes_[0]; name += std::string(","); name += voltageNodes_[1]; }
+      name+= std::string(")");
+      return name;
+    }
+
     virtual void setVals(const std::vector<ScalarT> & vals)
     {
       int size = voltageVals_.size();
@@ -1342,6 +1367,7 @@ class voltageOp: public astNode<ScalarT>
     std::vector<ScalarT> voltageVals_;
     ScalarT number_;
     int derivIndex_;
+    std::string name_;
 };
 
 //-------------------------------------------------------------------------------
@@ -2021,20 +2047,109 @@ class funcOp: public astNode<ScalarT>
     {};
 
     //-------------------------------------------------------------------------------
-    void setArgs() { for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); } }
+    void setArgs() 
+    { 
+#if 0
+      std::cout << "In funcOp::setArgs name = " << funcName_ << " id = " << this->getId () << " arg size = " << dummyFuncArgs_.size() << std::endl;
+#endif
+      for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+      { 
+        dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); 
+#if 0
+        std::cout << "In funcOp::setArgs name = " << funcName_ << " id = " << this->getId () << " arg name = " << funcArgs_[ii]->getName()
+          << " id = " << funcArgs_[ii]->getId() << " node id = " << funcArgs_[ii]->getNodeId() <<std::endl;
+#endif
+      }
+
+      if (!(sdtNodes_.empty()))
+      {
+        std::string stateKey;
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
+          if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
+        }
+        //std::cout << "In funcOp::setArgs key = " << stateKey << std::endl;
+        if( sdtStateVecMap_.find(stateKey) == sdtStateVecMap_.end() )
+        {
+          std::vector<sdtStateData<ScalarT> > sdtStateVec( sdtNodes_.size() );
+          sdtStateVecMap_[stateKey] = sdtStateVec;
+        }
+
+        for (int ii=0;ii<sdtNodes_.size();ii++)
+        {
+          saved_sdtStateVec_[ii] = sdtNodes_[ii]->getSdtState();
+          std::vector<sdtStateData<ScalarT> > & ssVec = sdtStateVecMap_[stateKey];
+          sdtNodes_[ii]->setSdtState( ssVec[ii] );
+        }
+      }
+
+      if (!(ddtNodes_.empty()))
+      {
+        std::string stateKey;
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
+          if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
+        }
+        //std::cout << "In funcOp::setArgs key = " << stateKey << std::endl;
+        if( ddtStateVecMap_.find(stateKey) == ddtStateVecMap_.end() )
+        {
+          std::vector<ddtStateData<ScalarT> > ddtStateVec( ddtNodes_.size() );
+          ddtStateVecMap_[stateKey] = ddtStateVec;
+        }
+
+        for (int ii=0;ii<ddtNodes_.size();ii++)
+        {
+          saved_ddtStateVec_[ii] = ddtNodes_[ii]->getDdtState();
+          std::vector<ddtStateData<ScalarT> > & ssVec = ddtStateVecMap_[stateKey];
+          ddtNodes_[ii]->setDdtState( ssVec[ii] );
+        }
+      }
+    }
 
     //-------------------------------------------------------------------------------
-    void unsetArgs() { for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } }
+    void unsetArgs() 
+    { 
+      if (!(sdtNodes_.empty()))
+      {
+        std::string stateKey;
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
+          if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
+        }
+        //std::cout << "In funcOp::unsetArgs key = " << stateKey << std::endl;
+        for (int ii=0;ii<sdtNodes_.size();ii++)
+        {
+          std::vector<sdtStateData<ScalarT> > & ssVec = sdtStateVecMap_[stateKey];
+          ssVec[ii] = sdtNodes_[ii]->getSdtState();
+          sdtNodes_[ii]->setSdtState(saved_sdtStateVec_[ii]);
+        }
+      }
 
-    //-------------------------------------------------------------------------------
-    void setSdtStates()
-    {
-    } 
+      if (!(ddtNodes_.empty()))
+      {
+        std::string stateKey;
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
+          if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
+        }
+        //std::cout << "In funcOp::unsetArgs key = " << stateKey << std::endl;
+        for (int ii=0;ii<ddtNodes_.size();ii++)
+        {
+          std::vector<ddtStateData<ScalarT> > & ssVec = ddtStateVecMap_[stateKey];
+          ssVec[ii] = ddtNodes_[ii]->getDdtState();
+          ddtNodes_[ii]->setDdtState(saved_ddtStateVec_[ii]);
+        }
+      }
 
-    //-------------------------------------------------------------------------------
-    void unsetSdtStates()
-    {
-    } 
+      for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+      { 
+        dummyFuncArgs_[ii]->unsetNode(); 
+      } 
+    }
 
     //-------------------------------------------------------------------------------
     virtual ScalarT val()
@@ -2045,9 +2160,7 @@ class funcOp: public astNode<ScalarT>
         if (funcArgs_.size() == dummyFuncArgs_.size())
         {
           setArgs(); 
-          setSdtStates();
           val = functionNode_->val();
-          unsetSdtStates();
           unsetArgs();
         }
       }
@@ -2078,9 +2191,9 @@ class funcOp: public astNode<ScalarT>
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
           setArgs(); 
-          setSdtStates();
+          //setSdtStates();
           dfdx = functionNode_->dx(i);
-          unsetSdtStates();
+          //unsetSdtStates();
           unsetArgs();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
@@ -2201,7 +2314,7 @@ class funcOp: public astNode<ScalarT>
     {
       sdtNodes_.clear(); sdtNodes_.resize(tmpSdtVec.size());
       sdtArgNodes_.clear(); sdtArgNodes_.resize(tmpSdtVec.size());
-      sdtStateVec_.clear(); sdtStateVec_.resize(tmpSdtVec.size());
+      saved_sdtStateVec_.clear(); saved_sdtStateVec_.resize(tmpSdtVec.size());
       for (int ii=0;ii<tmpSdtVec.size();++ii)
       {
         sdtNodes_[ii] = tmpSdtVec[ii];
@@ -2215,7 +2328,7 @@ class funcOp: public astNode<ScalarT>
     {
       ddtNodes_.clear();    ddtNodes_.resize(tmpDdtVec.size());
       ddtArgNodes_.clear(); ddtArgNodes_.resize(tmpDdtVec.size());
-      ddtStateVec_.clear(); ddtStateVec_.resize(tmpDdtVec.size());
+      saved_ddtStateVec_.clear(); saved_ddtStateVec_.resize(tmpDdtVec.size());
       for (int ii=0;ii<tmpDdtVec.size();++ii)
       {
         ddtNodes_[ii] = tmpDdtVec[ii];
@@ -2326,8 +2439,11 @@ AST_GET_TIME_OPS(functionNode_)
     std::vector<Teuchos::RCP<astNode<ScalarT> > > sdtArgNodes_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtArgNodes_;
 
-    std::vector<sdtStateData<ScalarT> > sdtStateVec_;
-    std::vector<ddtStateData<ScalarT> > ddtStateVec_;
+    std::unordered_map<std::string, std::vector<sdtStateData<ScalarT> > > sdtStateVecMap_;
+    std::unordered_map<std::string, std::vector<ddtStateData<ScalarT> > > ddtStateVecMap_;
+
+    std::vector<sdtStateData<ScalarT> > saved_sdtStateVec_;
+    std::vector<ddtStateData<ScalarT> > saved_ddtStateVec_;
 
     Teuchos::RCP<astNode<ScalarT> > functionNode_;
     bool nodeResolved_;
@@ -4199,10 +4315,18 @@ class sdtOp : public astNode<ScalarT>
     {
       if (this->processSuccessfulStepFlag) 
       { 
-        unsigned long int id = this->leftAst_->getNodeId();
+        unsigned long int id = this->getSdtState().id;
         if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
         {
-          this->leftAst_->processSuccessfulTimeStep (); 
+          //std::cout << "sdtOp::val processSuccessfulTimeStep for id = " << id <<std::endl;
+          this->getSdtState().processSuccessfulTimeStep (); 
+#if 0
+          std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
+          std::cout << "sdtOp::val "
+            << " val1 = " << this->getSdtState().val1 << " val2 = " << this->getSdtState().val2 
+            << " integral = " << this->getSdtState().integral  << " id = " << this->getSdtState().id 
+            <<std::endl;
+#endif
           this->processSuccessfulStepMap[id] = 1;
         }
       }
@@ -4227,16 +4351,16 @@ class sdtOp : public astNode<ScalarT>
         }
       }
 
-      sdtStateData<ScalarT> & state = this->leftAst_->getSdtState();
+      sdtStateData<ScalarT> & state = this->getSdtState();
       state.val2 = this->leftAst_->val();
       ScalarT deltaI = 0.5*(state.val1+state.val2)*deltaT;
       state.integral = state.integral_old + deltaI;
 
 #if 0
       std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
-      std::cout << "time = " << time << " dt = " << deltaT 
+      std::cout << "sdtOp::val time = " << time << " dt = " << deltaT 
         << " val1 = " << state.val1 << " val2 = " << state.val2 
-        << " integral = " << state.integral 
+        << " integral = " << state.integral  << " id = " << state.id 
         <<std::endl;
 #endif
 
@@ -4323,17 +4447,25 @@ class ddtOp : public astNode<ScalarT>
     {
       if (this->processSuccessfulStepFlag) 
       { 
-        unsigned long int id = this->leftAst_->getNodeId();
+        unsigned long int id = this->getDdtState().id;
         if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
         {
-          this->leftAst_->processSuccessfulTimeStep (); 
+          //std::cout << "ddtOp::val processSuccessfulTimeStep for id = " << id <<std::endl;
+          this->getDdtState().processSuccessfulTimeStep (); 
+#if 0
+          std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
+          std::cout << "ddtOp::val "
+            << " val1 = " << this->getDdtState().val1 << " val2 = " << this->getDdtState().val2 
+            << " integral = " << this->getDdtState().integral  << " id = " << this->getDdtState().id 
+            <<std::endl;
+#endif
           this->processSuccessfulStepMap[id] = 1;
         }
       }
 
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
-      ddtStateData<ScalarT> & state = this->leftAst_->getDdtState();
+      ddtStateData<ScalarT> & state = this->getDdtState();
       state.val2 = this->leftAst_->val();
 
       if (!useExternDeriv_ )
@@ -4409,7 +4541,12 @@ class ddtOp : public astNode<ScalarT>
 
     virtual bool ddtType() { return true; }
 
-    ScalarT getDdtArg() { ddtStateData<ScalarT> & state = this->leftAst_->getDdtState(); return state.val2; }
+    ScalarT getDdtArg() 
+    {
+      ddtStateData<ScalarT> & state = this->getDdtState();
+      return state.val2; 
+    }
+
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
 
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
