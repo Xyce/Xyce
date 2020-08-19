@@ -122,7 +122,7 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
   Xyce::Util::toUpper(nodeNameUpper);
 
   bool foundLocal = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_VNODE), svGIDList1, dummyList, type1);
-  bool found = static_cast<int>(foundLocal);
+  int found = static_cast<int>(foundLocal);
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found, 1);
 
   // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
@@ -131,7 +131,7 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
   {
     foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
   }
-  bool found2 = static_cast<int>(foundLocal2);
+  int found2 = static_cast<int>(foundLocal2);
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1);
 
   // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
@@ -154,7 +154,7 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
       foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
     }
   }
-  bool foundAliasNode = static_cast<int>(foundAliasNodeLocal);
+  int foundAliasNode = static_cast<int>(foundAliasNodeLocal);
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &foundAliasNode, 1);
 
   if(svGIDList1.size()==1)
