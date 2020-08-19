@@ -28,6 +28,9 @@ ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/as
 ExpressionLexer.o: ExpressionLexer.cxx
 	$(CXX) $(CXXFLAGS) -c $<
 
+ast.o:  ../ExpressionSrc/ast.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h 
+	$(CXX) $(CXXFLAGS) -c $<
+
 ExpressionParser.o: ExpressionParser.cxx
 	$(CXX) $(CXXFLAGS) -c $<
 
@@ -67,8 +70,8 @@ N_UTL_ReportHandler.o: ../N_UTL_ReportHandler.C ../N_UTL_ReportHandler.h
 newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o ../N_UTL_Interpolators.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-complexParserUnitTest: complexParserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o   N_UTL_NetlistLocation.o N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
+complexParserUnitTest: complexParserUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  ../N_UTL_Interpolators.h
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C ast.o newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o   N_UTL_NetlistLocation.o N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
 
 
 # these are both simple tests to see if I could get gcov/lcov to work.

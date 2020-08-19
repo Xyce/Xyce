@@ -15,7 +15,7 @@ RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteu
 
 all:  test
 
-test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest  
+test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
 
 # main program
 astUnitTest: astUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
@@ -31,10 +31,10 @@ ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h 
 ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/ExpressionType.h ../N_UTL_Interpolators.h
 	$(BISON) --graph -v -o$@ ../ExpressionSrc/ExpressionParser.yxx
 
-ast.o:  ../ExpressionSrc/ast.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h 
+ExpressionLexer.o: ExpressionLexer.cxx
 	$(CXX) $(CXXFLAGS) -c $<
 
-ExpressionLexer.o: ExpressionLexer.cxx
+ast.o:  ../ExpressionSrc/ast.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
 ExpressionParser.o: ExpressionParser.cxx
