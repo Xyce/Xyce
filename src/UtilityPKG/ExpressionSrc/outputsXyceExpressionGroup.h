@@ -113,21 +113,6 @@ public:
 
   ~outputsXyceExpressionGroup ();
 
-  virtual bool getSolutionDdt (const std::string & nodeName, std::complex<double> & retval ) 
-  { 
-    retval=std::complex<double>(0.0,0.0);
-    return false; 
-  }
-
-  virtual bool getSolutionDdt(const std::string & nodeName, double & retval )
-  {
-    bool success=true;
-    std::string tmp = nodeName;
-    Xyce::Util::toUpper(tmp);
-    retval = 0.0;
-    return success; // FIX THIS
-  }
-
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
