@@ -178,18 +178,14 @@ public:
 
   void reset();
 
-  void updateCalculationResult(double val)
-  {
-    calculationResult_ = val;
-  }
-
-  void updateCalculationInstant(double val)
-  {
-    calculationInstant_ = val;
-  }
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
 
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+private:
+  int RFC_;
 };
 
 //-------------------------------------------------------------------------

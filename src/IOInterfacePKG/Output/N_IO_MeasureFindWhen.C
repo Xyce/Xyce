@@ -848,9 +848,24 @@ std::ostream& FindWhenBase::printRFCWindow(std::ostream& os)
 // Creation Date : 08/03/2020
 //-----------------------------------------------------------------------------
 FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  FindWhenBase(measureMgr, measureBlock)
+  FindWhenBase(measureMgr, measureBlock),
+  RFC_(0)
 {
   doneIfFound_=true;
+
+  if (riseGiven_)
+    RFC_=rise_;
+  else if (fallGiven_)
+    RFC_=fall_;
+  else if (crossGiven_)
+    RFC_=cross_;
+  else
+  {
+    // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
+    crossGiven_=true;
+    cross_=0;
+    RFC_=0;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -867,6 +882,85 @@ void FindWhen::reset()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FindWhen::updateCalculationResult
+// Purpose       : Updates the vector that holds the measure values.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/20/2020
+//-----------------------------------------------------------------------------
+void FindWhen::updateCalculationResult(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store the value once the requested rise (or fall or cross) number has been found
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationResultVec_.push_back(val);
+      calculationResult_ = val;
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current measure value is in calculationResultVec_[0].
+    calculationResultVec_.push_back(val);
+    if (calculationResultVec_.size() > abs(RFC_))
+      calculationResultVec_.erase(calculationResultVec_.begin());
+
+    if (calculationResultVec_.size() == abs(RFC_))
+      calculationResult_ = calculationResultVec_[0];
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhen::updateCalculationInstant
+// Purpose       : Updates the vector that holds the times (or frequencies or
+//                 DC sweep values) when the measure was satisified.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/20/2020
+//-----------------------------------------------------------------------------
+void FindWhen::updateCalculationInstant(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store the value once the requested rise (or fall or cross) number has been found
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationInstantVec_.push_back(val);
+      calculationInstant_ = val;
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current measure instant is in calculationInstantVec_[0].
+    calculationInstantVec_.push_back(val);
+    if (calculationInstantVec_.size() > abs(RFC_))
+      calculationInstantVec_.erase(calculationInstantVec_.begin());
+
+    if (calculationInstantVec_.size() == abs(RFC_))
+      calculationInstant_ = calculationInstantVec_[0];
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FindWhen::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
 //                 object, which is typically the mt0, ma0 or ms0 file
@@ -880,14 +974,24 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os)
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
 
-    if ( !resultFound_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
-    //if ( !calculationDone_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+    // For non-negative RFC values, the calculationResultVec_ will be empty for a failed.
+    // meaure.  For negative RFC values, the calculationResultVec_ will have too
+    // few values for a failed measure.
+    if ( (atGiven_ && !resultFound_) || (calculationResultVec_.size() == 0) ||
+       ((RFC_ < 0) && (abs(RFC_) != calculationResultVec_.size())) )
     {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the 
-      // netlist and this is a failed measure.
-      os << name_ << " = FAILED" << std::endl;
+      if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+      {
+        // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+        // netlist and this is a failed measure.
+        os << name_ << " = FAILED" << std::endl;
+      }
+      else
+      {
+        os << name_ << " = " << this->getMeasureResult() << std::endl;
+      }
     }
-    else 
+    else
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
@@ -906,36 +1010,34 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os)
 //-----------------------------------------------------------------------------
 std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
 {
-    basic_ios_all_saver<std::ostream::char_type> save(os);
-    os << std::scientific << std::setprecision(precision_);
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
 
-    if (resultFound_)
-    //if (calculationDone_ || ( measureLastRFC_ && resultFound_ ) )
+  if (atGiven_ && resultFound_)
+  {
+    os << name_ << " = " << this->getMeasureResult() << " for AT = " << at_;
+  }
+  else if ( ((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+            ((RFC_ < 0) && (calculationInstantVec_.size() == abs(RFC_))) )
+  {
+    // modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC or AC_CONT mode
+    // and "<sweep variable> value" for DC or DC_CONT mode.
+    std::string modeStr = setModeStringForMeasureResultText();
+    os << name_ << " = " << calculationResultVec_[0];
+    if (findGiven_)
+      os << " at " << modeStr << " = " << calculationInstantVec_[0];
+  }
+  else
+  {
+    os << name_ << " = FAILED";
+    if (atGiven_)
     {
-      os << name_ << " = " << this->getMeasureResult() ;
-      if (atGiven_)
-      {
-        os << " for AT = " << at_;
-      }
-      else if (findGiven_)
-      {
-        // modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC or AC_CONT mode
-        // and "<sweep variable> value" for DC or DC_CONT mode.
-        std::string modeStr = setModeStringForMeasureResultText();
-        os << " at " << modeStr << " = " << calculationInstant_;
-      }
+      os << " for AT = " << at_;
     }
-    else
-    { 
-      os << name_ << " = FAILED";
-      if (atGiven_)
-      {
-        os << " for AT = " << at_;
-      }
-    }
-    os << std::endl;
+  }
+  os << std::endl;
 
-    return os;
+  return os;
 }
 
 //-----------------------------------------------------------------------------
@@ -1008,7 +1110,9 @@ void FindWhenCont::reset()
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenCont::updateCalculationResult
-// Purpose       : Called when restarting a measure function.  Resets any state
+// Purpose       : Updates the vector that holds the measure values.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -1029,8 +1133,8 @@ void FindWhenCont::updateCalculationResult(double val)
   }
   else
   {
-    // For negative values, store at most the requested number of values (rfcCont_). If the
-    // size of this vector is less than abs(rfcCont_) then the measure is "failed".  Otherwise
+    // For negative values, store at most the requested number of values (contRFC_). If the
+    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
     // the current measure value is in calculationResultVec_[0].
     calculationResultVec_.push_back(val);
     if (calculationResultVec_.size() > abs(contRFC_))
@@ -1045,7 +1149,10 @@ void FindWhenCont::updateCalculationResult(double val)
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenCont::updateCalculationInstant
-// Purpose       :
+// Purpose       : Updates the vector that holds the times (or frequencies or
+//                 DC sweep values) when the measure was satisified.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -1065,9 +1172,9 @@ void FindWhenCont::updateCalculationInstant(double val)
   }
   else
   {
-    // For negative values, store at most the requested number of values (rfcCont_). If the
-    // size of this vector is less than abs(rfcCont_) then the measure is "failed".  Otherwise
-    // the current measure value is in calculationInstantVec_[0].
+    // For negative values, store at most the requested number of values (contRFC_). If the
+    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
+    // the current instant value is in calculationInstantVec_[0].
     calculationInstantVec_.push_back(val);
     if (calculationInstantVec_.size() > abs(contRFC_))
       calculationInstantVec_.erase(calculationInstantVec_.begin());
