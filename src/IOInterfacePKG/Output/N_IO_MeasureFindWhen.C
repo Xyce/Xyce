@@ -48,7 +48,6 @@ namespace Measure {
 //-----------------------------------------------------------------------------
 FindWhenBase::FindWhenBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  doneIfFound_(true),
   lastIndepVarValue_(0.0),
   lastDepVarValue_(0.0),
   lastOutputVarValue_(0.0),
@@ -187,25 +186,7 @@ void FindWhenBase::updateTran(
 	{
           updateRFCcountForWhen();
           if (withinRFCWindowForWhen())
-	  {
-            updateCalculationInstant(whenTime);
-            if (findGiven_)
-	    {
-              if (numPointsFound_ == 1)
-                updateCalculationResult(outVarValues_[0]);
-              else
-                updateCalculationResult(interpolateFindValue(circuitTime, targVal, whenTime));
-            }
-            else
-	    {
-              updateCalculationResult(whenTime);
-            }
-
-            calculationDone_ = !measureLastRFC_;
-            // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-            //  measure.  If it is false, the measure shows FAILED in stdout.
-            resultFound_ = true;
-          }
+            updateMeasureVars(circuitTime, targVal, whenTime);
         }
       }
     }
@@ -288,35 +269,17 @@ void FindWhenBase::updateDC(
 	// measurement window.
         if (isWHENcondition(dcSweepVal, targVal))
         {
-          double whenTime;
+          double whenSweepVal;
           if (numPointsFound_ == 1)
-	    whenTime = dcSweepVal;
+	    whenSweepVal = dcSweepVal;
           else
-            whenTime = interpolateCalculationInstant(dcSweepVal, targVal);
+            whenSweepVal = interpolateCalculationInstant(dcSweepVal, targVal);
 
-          if (withinDCsweepFromToWindow(whenTime))
+          if (withinDCsweepFromToWindow(whenSweepVal))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              updateCalculationInstant(whenTime);
-              if (findGiven_)
-	      {
-                if (numPointsFound_ == 1)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(interpolateFindValue(dcSweepVal, targVal, whenTime));
-              }
-              else
-	      {
-                updateCalculationResult(whenTime);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+              updateMeasureVars(dcSweepVal, targVal, whenSweepVal);
           }
         }
       }
@@ -377,35 +340,17 @@ void FindWhenBase::updateAC(
 	// measurement window.
         if (isWHENcondition(frequency, targVal))
         {
-          double whenTime;
+          double whenFreq;
           if (numPointsFound_ == 1)
-	    whenTime = frequency;
+	    whenFreq = frequency;
           else
-            whenTime = interpolateCalculationInstant(frequency, targVal);
+            whenFreq = interpolateCalculationInstant(frequency, targVal);
 
-          if (withinFreqWindow(whenTime))
+          if (withinFreqWindow(whenFreq))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              updateCalculationInstant(whenTime);
-              if (findGiven_)
-	      {
-                if (numPointsFound_ == 1)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(interpolateFindValue(frequency, targVal, whenTime));
-              }
-              else
-	      {
-                updateCalculationResult(whenTime);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+	      updateMeasureVars(frequency, targVal, whenFreq);
           }
         }
       }
@@ -470,35 +415,17 @@ void FindWhenBase::updateNoise(
 	// measurement window.
         if (isWHENcondition(frequency, targVal))
         {
-          double whenTime;
+          double whenFreq;
           if (numPointsFound_ == 1)
-	    whenTime = frequency;
+	    whenFreq = frequency;
           else
-            whenTime = interpolateCalculationInstant(frequency, targVal);
+            whenFreq = interpolateCalculationInstant(frequency, targVal);
 
-          if (withinFreqWindow(whenTime))
+          if (withinFreqWindow(whenFreq))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              updateCalculationInstant(whenTime);
-              if (findGiven_)
-	      {
-                if (numPointsFound_ == 1)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(interpolateFindValue(frequency, targVal, whenTime));
-              }
-              else
-	      {
-                updateCalculationResult(whenTime);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+              updateMeasureVars(frequency, targVal, whenFreq);
           }
         }
       }
@@ -585,6 +512,40 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FindWhenBase::updateMeasureVars()
+// Purpose       : Updates the calculation result and calculation instant vectors.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 and NOISE measures, it is frequency.  For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
+//-----------------------------------------------------------------------------
+void FindWhenBase::updateMeasureVars(const double currIndepVarVal, const double targVal,
+                                     const double whenInstant)
+{
+  updateCalculationInstant(whenInstant);
+  if (findGiven_)
+  {
+    if (numPointsFound_ == 1)
+      updateCalculationResult(outVarValues_[0]);
+    else
+      updateCalculationResult(interpolateFindValue(currIndepVarVal, targVal, whenInstant));
+    }
+  else
+  {
+    updateCalculationResult(whenInstant);
+  }
+
+  calculationDone_ = !measureLastRFC_;
+  // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
+  //  measure.  If it is false, the measure shows FAILED in stdout.
+  resultFound_ = true;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FindWhenBase::interpolateCalculationInstant
 // Purpose       : Interpolate the time for when the measure is satisifed.
 //                 This accounts for case of WHEN V(1)=V(2) where both
@@ -625,19 +586,21 @@ double FindWhenBase::interpolateCalculationInstant(double currIndepVarValue, dou
 //-----------------------------------------------------------------------------
 // Function      : FindWhenBase::interpolateFindValue
 // Purpose       : Interpolate the find value (for a FIND-WHEN measure) based
-//                 on the previously determined WHEN time
+//                 on the previously determined WHEN time (or frequency or
+//                 DC sweep value).
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/18/2020
 //-----------------------------------------------------------------------------
-double FindWhenBase::interpolateFindValue(double currIndepVarValue, double targVal, double whenTime)
+double FindWhenBase::interpolateFindValue(double currIndepVarValue, double targVal,
+                                          double whenInstant)
 {
   double findVal;
   if (fabs(outVarValues_[whenIdx_] - targVal) < minval_)
     findVal = outVarValues_[0];
   else
-    findVal = outVarValues_[0] - (currIndepVarValue - whenTime)*
+    findVal = outVarValues_[0] - (currIndepVarValue - whenInstant)*
 	     ( (outVarValues_[0] - lastOutputVarValue_)/(currIndepVarValue - lastIndepVarValue_) );
 
   return findVal;
@@ -851,8 +814,6 @@ FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureB
   FindWhenBase(measureMgr, measureBlock),
   RFC_(0)
 {
-  doneIfFound_=true;
-
   if (riseGiven_)
     RFC_=rise_;
   else if (fallGiven_)
@@ -1058,40 +1019,35 @@ FindWhenCont::FindWhenCont(const Manager &measureMgr, const Util::OptionBlock & 
   contFall_(0),
   contRFC_(0)
 {
-  if (atGiven_)
-    doneIfFound_=true;  // only return one value
+  // these settings will find all times at which the WHEN clause is satisfied,
+  // and may return multiple values.
+  measureLastRFC_=true;
+
+  if (riseGiven_)
+  {
+    contRise_=rise_;
+    contRFC_=contRise_;
+    rise_=-1;
+  }
+  else if (fallGiven_)
+  {
+    contFall_=fall_;
+    contRFC_=contFall_;
+    fall_=-1;
+  }
+  else if (crossGiven_)
+  {
+    contCross_=cross_;
+    contRFC_=contCross_;
+    cross_=-1;
+  }
   else
   {
-    // these settings will find all times at which the WHEN clause is satisfied,
-    // and may return multiple values.
-    doneIfFound_=true;
-    measureLastRFC_=true;
-
-    if (riseGiven_)
-    {
-      contRise_=rise_;
-      contRFC_=contRise_;
-      rise_=-1;
-    }
-    else if (fallGiven_)
-    {
-      contFall_=fall_;
-      contRFC_=contFall_;
-      fall_=-1;
-    }
-    else if (crossGiven_)
-    {
-      contCross_=cross_;
-      contRFC_=contCross_;
-      cross_=-1;
-    }
-    else
-    {
-      contCross_=1;
-      contRFC_=contCross_;
-      cross_=-1;
-      crossGiven_=true;
-    }
+    //  // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
+    contCross_=1;
+    contRFC_=contCross_;
+    cross_=-1;
+    crossGiven_=true;
   }
 }
 
@@ -1113,7 +1069,8 @@ void FindWhenCont::reset()
 // Purpose       : Updates the vector that holds the measure values.  This
 //                 vector may hold multiple values if the RISE, FALL or CROSS
 //                 value is <0.
-// Special Notes :
+// Special Notes : For compatibility with other measure types, the calculationResult_
+//                 variable is also updated with the current measure value.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/03/2020

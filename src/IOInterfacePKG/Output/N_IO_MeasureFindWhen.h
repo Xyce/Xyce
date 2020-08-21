@@ -123,11 +123,11 @@ public:
   std::ostream& printRFCWindow(std::ostream& os);
 
 protected:
-  bool doneIfFound_;
   std::vector<double> calculationResultVec_;
   std::vector<double> calculationInstantVec_;
 
 private:
+  void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
   double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);
 
