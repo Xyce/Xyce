@@ -286,7 +286,10 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="DERIVATIVE" || type=="DERIV" )
   {
-    theMeasureObject = new Measure::DerivativeEvaluation(measureMgr, measureBlock);
+    if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
+      theMeasureObject = new Measure::DerivativeEvaluationCont(measureMgr, measureBlock);
+    else
+      theMeasureObject = new Measure::DerivativeEvaluation(measureMgr, measureBlock);
   }
   else if( type=="INTEGRAL" || type=="INTEG" )
   {
@@ -1356,6 +1359,8 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("WHEN") );
 
   // allowed types for the "continuous" measures
+  typeSetCont.insert( std::string("DERIVATIVE") );
+  typeSetCont.insert( std::string("DERIV") );
   typeSetCont.insert( std::string("FIND") );
   typeSetCont.insert( std::string("WHEN") );
 
@@ -1562,7 +1567,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only FIND and "
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only DERIV, FIND and "
 	 << "WHEN measure types are supported for continuous (CONT) measure modes";
       return false;
     }

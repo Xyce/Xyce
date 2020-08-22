@@ -43,20 +43,25 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : DerivativeEvaluation
-// Purpose       : Measure the derivative of an output variable
+// Class         : DerivativeEvaluationBase
+// Purpose       : Measure the derivative of an output variable.  This class
+//                 contains the variables and functions that are common to
+//                 both the continous and non-continuous versions of this
+//                 measure.  The non-continuous version (e.g., .MEASURE TRAN)
+//                 will only return one measure value.  The continuous version
+//                 (e.g., .MEASURE TRAN_CONT) may return multiple values.
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-------------------------------------------------------------------------
-class DerivativeEvaluation : public Base
+class DerivativeEvaluationBase : public Base
 {
 public:
-  DerivativeEvaluation(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~DerivativeEvaluation() {};
+  DerivativeEvaluationBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~DerivativeEvaluationBase() {};
 
   void prepareOutputVariables();
-  void reset();
+  void resetDerivativeEvaluationBase();
   void updateTran(
     Parallel::Machine comm,
     const double circuitTime,
@@ -101,22 +106,30 @@ public:
   double getMeasureResult();
   std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
 				   const double startSweepVal, const double endSweepVal);
-  std::ostream& printMeasureResult(std::ostream& os);
-  std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);
 
-  void updateCalculationResult(const double indepVarVal);
+  virtual void updateCalculationResult(double val)=0;
+  virtual void updateCalculationInstant(double val)=0;
+
   bool isATforACDCNoise(const double indepVarVal);
   bool isWHENcondition(const double indepVarVal, const double targVal);
 
   void setMeasureState(const double indepVarVal);
   void updateMeasureState(const double indepVarVal);
   double updateTargVal();
+  double getDerivativeValue(const double currIndepVarValue);
 
-  // used for debugging purpose
-  double interpolateCalculationInstant(double currIndepVarValue, double targVal);
+protected:
+  std::vector<double> calculationResultVec_;
+  std::vector<double> calculationInstantVec_;
 
 private:
+  void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
+  double interpolateCalculationInstant(double currIndepVarValue, double targVal);
+
+  void updateRFCcountForWhen();
+  bool withinRFCWindowForWhen();
+
   std::string type_;
   int numOutVars_;
   std::vector<double> outVarValues_;
@@ -125,6 +138,7 @@ private:
   double lastDepVarValue_;
   double lastOutputVarValue_;
   double lastTargValue_;
+  double startDCMeasureWindow_;
   int    numPointsFound_;  // AC and DC calculations need at least two points to be valid
 
   // This variable controls what is tested against in the WHEN clause.  
@@ -133,6 +147,65 @@ private:
   // For the syntax WHEN v(a)=v(b) the value of v(a) is in outputVarValues_[whenIdx_]
   // and the value of v(b) is in outputVarValues_[whenIdx_+1]
   int whenIdx_;
+};
+
+//-------------------------------------------------------------------------
+// Class         : DerivativeEvaluation
+// Purpose       : Non-continuous version of DERIV measure, that returns only
+//                 only one measure value.  This class is invoked by
+//                 .MEASURE AC, .MEASURE DC, .MEASURE NOISE and .MEASURE TRAN.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
+//-------------------------------------------------------------------------
+class DerivativeEvaluation : public DerivativeEvaluationBase
+{
+public:
+  DerivativeEvaluation(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~DerivativeEvaluation() {};
+
+  void reset();
+
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
+
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+private:
+  // This will be set to the value of whichever qualifer (RISE, FALL or CROSS) is being
+  // used by the measure.
+  int RFC_;
+};
+
+//-------------------------------------------------------------------------
+// Class         : DerivativeEvaluationCont
+// Purpose       : Continuous version of DERIV measure that can return multiple
+//                 measure values if RISE, FALL or CROSS is not specified.
+//                 This class is invoked by .MEASURE AC_CONT, .MEASURE DC_CONT,
+//                 .MEASURE NOISE_CONT and .MEASURE TRAN_CONT.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
+//-------------------------------------------------------------------------
+class DerivativeEvaluationCont : public DerivativeEvaluationBase
+{
+public:
+  DerivativeEvaluationCont(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~DerivativeEvaluationCont() {};
+
+  void reset();
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
+
+private:
+  int contCross_;
+  int contRise_;
+  int contFall_;
+  int contRFC_;
 };
 
 } // namespace Measure
