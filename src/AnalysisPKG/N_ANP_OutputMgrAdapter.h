@@ -184,7 +184,8 @@ public:
 
   void tranOutput(
     double time, 
-    double dt, 
+    double dt,
+    double finalTime,
     Linear::Vector & currSolutionPtr, 
     Linear::Vector & stateVecPtr, 
     Linear::Vector & storeVecPtr, 

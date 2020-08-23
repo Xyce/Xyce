@@ -220,6 +220,7 @@ void RiseFallDelay::reset()
 void RiseFallDelay::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
+  const double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,

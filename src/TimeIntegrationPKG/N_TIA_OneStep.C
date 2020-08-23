@@ -790,7 +790,7 @@ bool OneStep::printMPDEOutputSolution(
         // this case of interpolated MPDE
         timept_ = timepoint_vec[s];
         outputManagerAdapter.tranOutput(
-          timept_, dt,
+	  timept_, dt, sec.finalTime,
           blockTmpSolVectorPtr->block(s),
           *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
           ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,
@@ -894,7 +894,7 @@ bool OneStep::printMPDEOutputSolution(
       coeff_sp/dt, blockTmpSolnVecPtr->block(sp)
                                          );
     outputManagerAdapter.tranOutput(
-        timept_, dt,
+        timept_, dt, sec.finalTime,
         blockTmpVecPtr->block(0), *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
         *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
                                     ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,
@@ -1215,7 +1215,7 @@ bool OneStep::printWaMPDEOutputSolution(
         // out.  This dt is wrong, but it only matters for expression output 
         // that depends on SDT or DDT, which probably don't work anyway for 
         // this case of interpolated WaMPDE
-        outputManagerAdapter.tranOutput(t, dt, blockTmpSolVectorPtr->block(b1),
+        outputManagerAdapter.tranOutput(t, dt, sec.finalTime, blockTmpSolVectorPtr->block(b1),
             *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
             *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
             ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,
@@ -1307,7 +1307,7 @@ bool OneStep::printOutputSolution(
         dt = 0.0;
       }
       outputManagerAdapter.tranOutput(
-         outputInterpolationTimes[i], dt,
+         outputInterpolationTimes[i], dt, sec.finalTime,
          *ds.tmpSolVectorPtr,
          *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
          *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
@@ -1322,7 +1322,7 @@ bool OneStep::printOutputSolution(
   // interpoloate.
   if (outputInterpolationTimes.empty() || doNotInterpolate)
   {
-    outputManagerAdapter.tranOutput(time, timestep,
+    outputManagerAdapter.tranOutput(time, timestep, sec.finalTime,
         *ds.currSolutionPtr,
         *ds.currStatePtr, *ds.currStorePtr, *ds.currLeadCurrentPtr, *ds.currLeadDeltaVPtr, *ds.currLeadCurrentQPtr,
         ds.objectiveVec_, ds.dOdpVec_, ds.dOdpAdjVec_,

@@ -48,7 +48,6 @@ namespace Measure {
 //-----------------------------------------------------------------------------
 FindWhenBase::FindWhenBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  doneIfFound_(true),
   lastIndepVarValue_(0.0),
   lastDepVarValue_(0.0),
   lastOutputVarValue_(0.0),
@@ -137,6 +136,7 @@ void FindWhenBase::resetFindWhenBase()
 void FindWhenBase::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
+  const double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -144,49 +144,23 @@ void FindWhenBase::updateTran(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
-  if( !calculationDone_ && withinTimeWindow( circuitTime ) )
+  numPointsFound_++;
+
+  // update our outVarValues_ vector
+  updateOutputVars(comm, outVarValues_, circuitTime,
+    solnVec, stateVec, storeVec, 0, lead_current_vector,
+    junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
+
+  if (numPointsFound_ == 1)
+    setMeasureState(circuitTime);
+
+  if( !calculationDone_ && !isInvalidTimeWindow(endSimTime) )
   {
-    // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime,
-      solnVec, stateVec, storeVec, 0, lead_current_vector,
-      junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
+    initialized_ = true;
 
-    // Need to set lastOutputValue_ variable to the current signal value
-    // at the first time-step within the measurement window.  (That
-    // window is set by the TO-FROM and TD qualifiers if present.)  This is 
-    // needed so that the RISE/FALL/CROSS count is not incremented at time=0, if
-    // the measured waveform has a DC offset at time=0    
-    if (!firstStepInMeasureWindow_)
+    if (atGiven_ && withinTimeWindow(at_))
     {
-      lastOutputValue_ = outVarValues_[0]; 
-      firstStepInMeasureWindow_ = true;
-    }
-
-    if( !initialized_ )
-    {
-      setMeasureState(circuitTime);
-      initialized_ = true;
-    }
-
-    double targVal=updateTargVal();
-
-    // for the FIND-WHEN and WHEN measures, the rfc level used is either the target value
-    // of the WHEN clause, or the value of the RFC_LEVEL qualifier if one is specified.
-    if (atGiven_)
-    {
-      // check and see if last point and this point bound the target point
-      double backDiff    = lastIndepVarValue_ - at_;
-      double forwardDiff = circuitTime - at_;
-
-      // if we bound the frequency target then either
-      //  (backDiff < 0) && (forwardDiff > 0)
-      //   OR
-      //  (backDiff > 0) && (forwardDiff < 0)
-      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-      //
-      // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
-      if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+      if (isATcondition(circuitTime))
       {
         calculationResult_= outVarValues_[0] - (circuitTime - at_)*
 	        ( (outVarValues_[0] - lastOutputVarValue_)/(circuitTime - lastIndepVarValue_) );
@@ -194,69 +168,25 @@ void FindWhenBase::updateTran(
         resultFound_ = true;
       }
     }
-    else if( (type_ == "WHEN") &&  withinRiseFallCrossWindow(outVarValues_[whenIdx_],targVal) )
+    else if (type_ == "WHEN")
     {
-      // If LAST was specified then this is done
-      // each time a new RFC window is entered.
-      if( newRiseFallCrossWindowforLast() )
-      {
-        resultFound_ = false;
-        calculationResult_= calculationDefaultVal_;
-        firstStepInRfcWindow_ = false;
-	//Xyce::dout() << "found new rfc window at time= " << circuitTime << std::endl;
-      }
-      // only record the start time of the RFC window for the FIND-WHEN Measure
-      if( !firstStepInRfcWindow_  )
-      {
-        firstStepInRfcWindow_ = true;
-        rfcWindowFound_ = true;
-        rfcWindowStartTime_ = circuitTime;
-      }
+       double targVal=updateTargVal();
 
-      if (!resultFound_)
+      // The measure will succeed if the interpolated WHEN time is inside of the
+      // measurement window.
+      if (isWHENcondition(circuitTime, targVal))
       {
-        // this is the simple case where Xyce output a value within a tolerance 
-        // of the target value 
-        if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
-        {
-          updateCalculationInstant(circuitTime);
-          if (findGiven_)
-	  {
-            updateCalculationResult(outVarValues_[0]);
-	  }
-          else
-          {
-            updateCalculationResult(circuitTime);
-          }
-          calculationDone_ = measureLastRFC_ ? false : doneIfFound_;
-          // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
-          //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-          // compatibility with the LAST keyword, since FIND-WHEN does not use the intialized_ flag.
-          resultFound_ = true;
-        }
+        double whenTime;
+        if (numPointsFound_ == 1)
+	  whenTime = circuitTime;
         else
-        {
-          // check and see if the lines defined by the current and previous values in the WHEN
-          // clause indicate that the two lines, defined by those four values, have crossed.
-          double prevDiff    = lastDepVarValue_ - lastTargValue_;
-          double currentDiff = outVarValues_[whenIdx_] - targVal;
+          whenTime = interpolateCalculationInstant(circuitTime, targVal);
 
-          // if the lines intersected then either
-          //  (prevDiff < 0) && (currentDiff > 0)
-          //   OR
-          //  (prevDiff > 0) && (currentDiff < 0)
-          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
-          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
-          {
-            // Set the calculationInstant_ and calculationResult_ via interpolation
-            interpolateResults(circuitTime, targVal);
-
-            calculationDone_ = measureLastRFC_ ? false : doneIfFound_;
-            // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
-            //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
-            // compatibility with the LAST keyword, since FIND-WHEN does not use the intialized_ flag.
-            resultFound_ = true;
-          }
+        if (withinTimeWindow(whenTime))
+	{
+          updateRFCcountForWhen();
+          if (withinRFCWindowForWhen())
+            updateMeasureVars(circuitTime, targVal, whenTime);
         }
       }
     }
@@ -264,7 +194,6 @@ void FindWhenBase::updateTran(
 
   updateMeasureState(circuitTime);
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenBase::updateDC()
@@ -324,7 +253,7 @@ void FindWhenBase::updateDC(
       if (atGiven_ && withinDCsweepFromToWindow(at_))
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
-        if (isATforACDCNoise(dcSweepVal))
+        if (isATcondition(dcSweepVal))
         {
           calculationResult_= outVarValues_[0] - (dcSweepVal - at_)*
 	        ( (outVarValues_[0] - lastOutputVarValue_)/(dcSweepVal - lastIndepVarValue_) );
@@ -340,36 +269,17 @@ void FindWhenBase::updateDC(
 	// measurement window.
         if (isWHENcondition(dcSweepVal, targVal))
         {
-          double whenTime;
+          double whenSweepVal;
           if (numPointsFound_ == 1)
-	    whenTime = dcSweepVal;
+	    whenSweepVal = dcSweepVal;
           else
-            whenTime = interpolateCalculationInstant(dcSweepVal, targVal);
+            whenSweepVal = interpolateCalculationInstant(dcSweepVal, targVal);
 
-          if (withinDCsweepFromToWindow(whenTime))
+          if (withinDCsweepFromToWindow(whenSweepVal))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              if (numPointsFound_ == 1)
-	      {
-                updateCalculationInstant(dcSweepVal);
-                if (findGiven_)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(dcSweepVal);
-              }
-              else
-	      {
-                // Set the calculationInstant_ and calculationResult_ via interpolation
-                interpolateResults(dcSweepVal, targVal);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+              updateMeasureVars(dcSweepVal, targVal, whenSweepVal);
           }
         }
       }
@@ -407,13 +317,13 @@ void FindWhenBase::updateAC(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
-  if( !calculationDone_ && !isInvalidTimeFreqWindow(fStart,fStop) )
+  if( !calculationDone_ && !isInvalidFreqWindow(fStart,fStop) )
   {
     initialized_ = true;
     if (atGiven_ && withinFreqWindow(at_))
     {
       // Process AT qualifer.  The AT value must be within the measurement window.
-      if (isATforACDCNoise(frequency))
+      if (isATcondition(frequency))
       {
         calculationResult_= outVarValues_[0] - (frequency - at_)*
 	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
@@ -430,36 +340,17 @@ void FindWhenBase::updateAC(
 	// measurement window.
         if (isWHENcondition(frequency, targVal))
         {
-          double whenTime;
+          double whenFreq;
           if (numPointsFound_ == 1)
-	    whenTime = frequency;
+	    whenFreq = frequency;
           else
-            whenTime = interpolateCalculationInstant(frequency, targVal);
+            whenFreq = interpolateCalculationInstant(frequency, targVal);
 
-          if (withinFreqWindow(whenTime))
+          if (withinFreqWindow(whenFreq))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              if (numPointsFound_ == 1)
-	      {
-                updateCalculationInstant(frequency);
-                if (findGiven_)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(frequency);
-              }
-              else
-	      {
-                // Set the calculationInstant_ and calculationResult_ via interpolation
-                interpolateResults(frequency, targVal);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+	      updateMeasureVars(frequency, targVal, whenFreq);
           }
         }
       }
@@ -500,14 +391,14 @@ void FindWhenBase::updateNoise(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
-  if( !calculationDone_ && !isInvalidTimeFreqWindow(fStart,fStop) )
+  if( !calculationDone_ && !isInvalidFreqWindow(fStart,fStop) )
   {
     initialized_ = true;
 
     if (atGiven_ && withinFreqWindow(at_))
     {
       // Process AT qualifer.  The AT value must be within the measurement window.
-      if (isATforACDCNoise(frequency))
+      if (isATcondition(frequency))
       {
         calculationResult_= outVarValues_[0] - (frequency - at_)*
 	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
@@ -524,36 +415,17 @@ void FindWhenBase::updateNoise(
 	// measurement window.
         if (isWHENcondition(frequency, targVal))
         {
-          double whenTime;
+          double whenFreq;
           if (numPointsFound_ == 1)
-	    whenTime = frequency;
+	    whenFreq = frequency;
           else
-            whenTime = interpolateCalculationInstant(frequency, targVal);
+            whenFreq = interpolateCalculationInstant(frequency, targVal);
 
-          if (withinFreqWindow(whenTime))
+          if (withinFreqWindow(whenFreq))
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	    {
-              if (numPointsFound_ == 1)
-	      {
-                updateCalculationInstant(frequency);
-                if (findGiven_)
-                  updateCalculationResult(outVarValues_[0]);
-                else
-                  updateCalculationResult(frequency);
-              }
-              else
-	      {
-                // Set the calculationInstant_ and calculationResult_ via interpolation
-                interpolateResults(frequency, targVal);
-              }
-
-              calculationDone_ = !measureLastRFC_;
-              // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
-              //  measure.  If it is false, the measure shows FAILED in stdout.
-              resultFound_ = true;
-	    }
+              updateMeasureVars(frequency, targVal, whenFreq);
           }
         }
       }
@@ -564,8 +436,8 @@ void FindWhenBase::updateNoise(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::isATforACDCNoise
-// Purpose       : Evaluates if the AT condition is true for AC, DC and NOISE modes.
+// Function      : FindWhenBase::isATcondition
+// Purpose       : Evaluates if the AT condition is true for all measure modes.
 // Special Notes : For AC and NOISE measures, the independent variable is
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.
@@ -573,7 +445,7 @@ void FindWhenBase::updateNoise(
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-bool FindWhenBase::isATforACDCNoise(const double indepVarVal)
+bool FindWhenBase::isATcondition(const double indepVarVal)
 {
   // check and see if last point and this point bound the target point
   double backDiff    = lastIndepVarValue_ - at_;
@@ -605,15 +477,20 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 {
   bool whenFound=false;
 
-  //if (!resultFound_)
+  if (outVarValues_[whenIdx_] == lastDepVarValue_)
   {
-    // this is the simple case where Xyce output a value within tolerance
-    // of the target value
-    if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
+    // no cross can occur for a constant signal value.
+    return false;
+  }
+  else if (numPointsFound_ > 1)
+  {
+    if (fabs(outVarValues_[whenIdx_] - targVal) < minval_)
     {
+      // this is the simple case where Xyce output a value within tolerance
+      // of the target value
       whenFound=true;
     }
-    else if (numPointsFound_ > 1)
+    else
     {
       // check and see if last point and this point bound the target point
       double backDiff    = lastDepVarValue_ - lastTargValue_;
@@ -624,8 +501,7 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
       //   OR
       //  (backDiff > 0) && (forwardDiff < 0)
       // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-      if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-          (backDiff == 0.0) )
+      if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
       {
         whenFound = true;
       }
@@ -633,6 +509,40 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
   }
 
   return whenFound;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhenBase::updateMeasureVars()
+// Purpose       : Updates the calculation result and calculation instant vectors.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 and NOISE measures, it is frequency.  For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
+//-----------------------------------------------------------------------------
+void FindWhenBase::updateMeasureVars(const double currIndepVarVal, const double targVal,
+                                     const double whenInstant)
+{
+  updateCalculationInstant(whenInstant);
+  if (findGiven_)
+  {
+    if (numPointsFound_ == 1)
+      updateCalculationResult(outVarValues_[0]);
+    else
+      updateCalculationResult(interpolateFindValue(currIndepVarVal, targVal, whenInstant));
+    }
+  else
+  {
+    updateCalculationResult(whenInstant);
+  }
+
+  calculationDone_ = !measureLastRFC_;
+  // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
+  //  measure.  If it is false, the measure shows FAILED in stdout.
+  resultFound_ = true;
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -657,11 +567,43 @@ double FindWhenBase::interpolateCalculationInstant(double currIndepVarValue, dou
   double c = outVarValues_[whenIdx_] - a*currIndepVarValue;
   double d = targVal - b*currIndepVarValue;
 
-  // This is the algebra for when the time, frequency or DC sweep value when the two non-parallel
-  // lines associated with WHEN clause intersect.
-  double calcInstant = (d-c)/(a-b);
+  double calcInstant;
+  if (a==b && d==c)
+  {
+    // pathological case of two lines being identical
+    calcInstant = currIndepVarValue;
+  }
+  else
+  {
+    // This is the algebra for the time, frequency or DC sweep value when the two non-parallel
+    // lines associated with WHEN clause intersect.
+    calcInstant = (d-c)/(a-b);
+  }
 
   return calcInstant;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhenBase::interpolateFindValue
+// Purpose       : Interpolate the find value (for a FIND-WHEN measure) based
+//                 on the previously determined WHEN time (or frequency or
+//                 DC sweep value).
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/18/2020
+//-----------------------------------------------------------------------------
+double FindWhenBase::interpolateFindValue(double currIndepVarValue, double targVal,
+                                          double whenInstant)
+{
+  double findVal;
+  if (fabs(outVarValues_[whenIdx_] - targVal) < minval_)
+    findVal = outVarValues_[0];
+  else
+    findVal = outVarValues_[0] - (currIndepVarValue - whenInstant)*
+	     ( (outVarValues_[0] - lastOutputVarValue_)/(currIndepVarValue - lastIndepVarValue_) );
+
+  return findVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -859,54 +801,6 @@ std::ostream& FindWhenBase::printRFCWindow(std::ostream& os)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::interpolateResults()
-// Purpose       : Interpolate the calculationInstance_ and calculationResult_
-//                 values for when the measure is satisifed.  This accounts
-//                 for case of WHEN V(1)=V(2) where both variables may be
-//                 changing.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 02/13/2020
-//-----------------------------------------------------------------------------
-void FindWhenBase::interpolateResults(double currIndepVarValue, double targVal)
-{
-  // Calculate slopes and y-intercepts of the two lines, to get them into
-  // canonical y=ax+c and y=bx+d form.  If the WHEN clause is of the form
-  // WHEN V(1)=V(2) then the line with (a,c) is the value of V(1), which is the
-  // "dependent variable".  The line with (b,d) is the value of V(2), which
-  // is the "target value".
-  double a = (outVarValues_[whenIdx_] - lastDepVarValue_)/(currIndepVarValue - lastIndepVarValue_);
-  double b = (targVal - lastTargValue_)/(currIndepVarValue - lastIndepVarValue_);
-  double c = outVarValues_[whenIdx_] - a*currIndepVarValue;
-  double d = targVal - b*currIndepVarValue;
-
-  // This is the algebra for when the two non-parallel lines associated with
-  // the WHEN clause intersect.
-  double ci = (d-c)/(a-b);
-  updateCalculationInstant(ci);
-  if (DEBUG_IO)
-  {
-    double targValAtCalcInstant = a*(d-c)/(a-b) + c;
-    Xyce::dout() << "Target value at calculation instant for measure " << name_ << " is:"
-                 << targValAtCalcInstant << std::endl;
-  }
-
-  // For a FIND measure, we need to interpolate the value of the variable in
-  // the find clause and set the measure value to that interpolated value.
-  if (findGiven_)
-  {
-    double tempVar = outVarValues_[0] - (currIndepVarValue - ci)*
-	     ( (outVarValues_[0] - lastOutputVarValue_)/(currIndepVarValue - lastIndepVarValue_) );
-    updateCalculationResult(tempVar);
-  }
-  else
-    updateCalculationResult(ci);
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : FindWhen::FindWhen()
 // Purpose       : Constructor
 // Special Notes : Non-continuous version of FindWhen, that returns only
@@ -917,9 +811,22 @@ void FindWhenBase::interpolateResults(double currIndepVarValue, double targVal)
 // Creation Date : 08/03/2020
 //-----------------------------------------------------------------------------
 FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  FindWhenBase(measureMgr, measureBlock)
+  FindWhenBase(measureMgr, measureBlock),
+  RFC_(0)
 {
-  doneIfFound_=true;
+  if (riseGiven_)
+    RFC_=rise_;
+  else if (fallGiven_)
+    RFC_=fall_;
+  else if (crossGiven_)
+    RFC_=cross_;
+  else
+  {
+    // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
+    crossGiven_=true;
+    cross_=0;
+    RFC_=0;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -936,6 +843,85 @@ void FindWhen::reset()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FindWhen::updateCalculationResult
+// Purpose       : Updates the vector that holds the measure values.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/20/2020
+//-----------------------------------------------------------------------------
+void FindWhen::updateCalculationResult(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store the value once the requested rise (or fall or cross) number has been found
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationResultVec_.push_back(val);
+      calculationResult_ = val;
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current measure value is in calculationResultVec_[0].
+    calculationResultVec_.push_back(val);
+    if (calculationResultVec_.size() > abs(RFC_))
+      calculationResultVec_.erase(calculationResultVec_.begin());
+
+    if (calculationResultVec_.size() == abs(RFC_))
+      calculationResult_ = calculationResultVec_[0];
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhen::updateCalculationInstant
+// Purpose       : Updates the vector that holds the times (or frequencies or
+//                 DC sweep values) when the measure was satisified.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/20/2020
+//-----------------------------------------------------------------------------
+void FindWhen::updateCalculationInstant(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store the value once the requested rise (or fall or cross) number has been found
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationInstantVec_.push_back(val);
+      calculationInstant_ = val;
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current measure instant is in calculationInstantVec_[0].
+    calculationInstantVec_.push_back(val);
+    if (calculationInstantVec_.size() > abs(RFC_))
+      calculationInstantVec_.erase(calculationInstantVec_.begin());
+
+    if (calculationInstantVec_.size() == abs(RFC_))
+      calculationInstant_ = calculationInstantVec_[0];
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FindWhen::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
 //                 object, which is typically the mt0, ma0 or ms0 file
@@ -949,14 +935,24 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os)
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
 
-    if ( !resultFound_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
-    //if ( !calculationDone_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+    // For non-negative RFC values, the calculationResultVec_ will be empty for a failed.
+    // meaure.  For negative RFC values, the calculationResultVec_ will have too
+    // few values for a failed measure.
+    if ( (atGiven_ && !resultFound_) || (calculationResultVec_.size() == 0) ||
+       ((RFC_ < 0) && (abs(RFC_) != calculationResultVec_.size())) )
     {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the 
-      // netlist and this is a failed measure.
-      os << name_ << " = FAILED" << std::endl;
+      if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+      {
+        // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+        // netlist and this is a failed measure.
+        os << name_ << " = FAILED" << std::endl;
+      }
+      else
+      {
+        os << name_ << " = " << this->getMeasureResult() << std::endl;
+      }
     }
-    else 
+    else
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
@@ -975,36 +971,34 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os)
 //-----------------------------------------------------------------------------
 std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
 {
-    basic_ios_all_saver<std::ostream::char_type> save(os);
-    os << std::scientific << std::setprecision(precision_);
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
 
-    if (resultFound_)
-    //if (calculationDone_ || ( measureLastRFC_ && resultFound_ ) )
+  if (atGiven_ && resultFound_)
+  {
+    os << name_ << " = " << this->getMeasureResult() << " for AT = " << at_;
+  }
+  else if ( ((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+            ((RFC_ < 0) && (calculationInstantVec_.size() == abs(RFC_))) )
+  {
+    // modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC or AC_CONT mode
+    // and "<sweep variable> value" for DC or DC_CONT mode.
+    std::string modeStr = setModeStringForMeasureResultText();
+    os << name_ << " = " << calculationResultVec_[0];
+    if (findGiven_)
+      os << " at " << modeStr << " = " << calculationInstantVec_[0];
+  }
+  else
+  {
+    os << name_ << " = FAILED";
+    if (atGiven_)
     {
-      os << name_ << " = " << this->getMeasureResult() ;
-      if (atGiven_)
-      {
-        os << " for AT = " << at_;
-      }
-      else if (findGiven_)
-      {
-        // modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC or AC_CONT mode
-        // and "<sweep variable> value" for DC or DC_CONT mode.
-        std::string modeStr = setModeStringForMeasureResultText();
-        os << " at " << modeStr << " = " << calculationInstant_;
-      }
+      os << " for AT = " << at_;
     }
-    else
-    { 
-      os << name_ << " = FAILED";
-      if (atGiven_)
-      {
-        os << " for AT = " << at_;
-      }
-    }
-    os << std::endl;
+  }
+  os << std::endl;
 
-    return os;
+  return os;
 }
 
 //-----------------------------------------------------------------------------
@@ -1025,40 +1019,35 @@ FindWhenCont::FindWhenCont(const Manager &measureMgr, const Util::OptionBlock & 
   contFall_(0),
   contRFC_(0)
 {
-  if (atGiven_)
-    doneIfFound_=true;  // only return one value
+  // these settings will find all times at which the WHEN clause is satisfied,
+  // and may return multiple values.
+  measureLastRFC_=true;
+
+  if (riseGiven_)
+  {
+    contRise_=rise_;
+    contRFC_=contRise_;
+    rise_=-1;
+  }
+  else if (fallGiven_)
+  {
+    contFall_=fall_;
+    contRFC_=contFall_;
+    fall_=-1;
+  }
+  else if (crossGiven_)
+  {
+    contCross_=cross_;
+    contRFC_=contCross_;
+    cross_=-1;
+  }
   else
   {
-    // these settings will find all times at which the WHEN clause is satisfied,
-    // and may return multiple values.
-    doneIfFound_=true;
-    measureLastRFC_=true;
-
-    if (riseGiven_)
-    {
-      contRise_=rise_;
-      contRFC_=contRise_;
-      rise_=-1;
-    }
-    else if (fallGiven_)
-    {
-      contFall_=fall_;
-      contRFC_=contFall_;
-      fall_=-1;
-    }
-    else if (crossGiven_)
-    {
-      contCross_=cross_;
-      contRFC_=contCross_;
-      cross_=-1;
-    }
-    else
-    {
-      contCross_=1;
-      contRFC_=contCross_;
-      cross_=-1;
-      crossGiven_=true;
-    }
+    //  // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
+    contCross_=1;
+    contRFC_=contCross_;
+    cross_=-1;
+    crossGiven_=true;
   }
 }
 
@@ -1077,8 +1066,11 @@ void FindWhenCont::reset()
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenCont::updateCalculationResult
-// Purpose       : Called when restarting a measure function.  Resets any state
-// Special Notes :
+// Purpose       : Updates the vector that holds the measure values.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes : For compatibility with other measure types, the calculationResult_
+//                 variable is also updated with the current measure value.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/03/2020
@@ -1098,8 +1090,8 @@ void FindWhenCont::updateCalculationResult(double val)
   }
   else
   {
-    // For negative values, store at most the requested number of values (rfcCont_). If the
-    // size of this vector is less than abs(rfcCont_) then the measure is "failed".  Otherwise
+    // For negative values, store at most the requested number of values (contRFC_). If the
+    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
     // the current measure value is in calculationResultVec_[0].
     calculationResultVec_.push_back(val);
     if (calculationResultVec_.size() > abs(contRFC_))
@@ -1114,7 +1106,10 @@ void FindWhenCont::updateCalculationResult(double val)
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenCont::updateCalculationInstant
-// Purpose       :
+// Purpose       : Updates the vector that holds the times (or frequencies or
+//                 DC sweep values) when the measure was satisified.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -1134,9 +1129,9 @@ void FindWhenCont::updateCalculationInstant(double val)
   }
   else
   {
-    // For negative values, store at most the requested number of values (rfcCont_). If the
-    // size of this vector is less than abs(rfcCont_) then the measure is "failed".  Otherwise
-    // the current measure value is in calculationInstantVec_[0].
+    // For negative values, store at most the requested number of values (contRFC_). If the
+    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
+    // the current instant value is in calculationInstantVec_[0].
     calculationInstantVec_.push_back(val);
     if (calculationInstantVec_.size() > abs(contRFC_))
       calculationInstantVec_.erase(calculationInstantVec_.begin());

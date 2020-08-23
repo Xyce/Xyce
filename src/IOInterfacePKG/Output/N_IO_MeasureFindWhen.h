@@ -70,7 +70,7 @@ public:
   virtual void updateCalculationResult(double val)=0;
   virtual void updateCalculationInstant(double val)=0;
 
-  bool isATforACDCNoise(const double indepVarVal);
+  bool isATcondition(const double indepVarVal);
   bool isWHENcondition(const double indepVarVal, const double targVal);
 
   void setMeasureState(const double indepVarVal);
@@ -80,6 +80,7 @@ public:
   void updateTran(
     Parallel::Machine comm,
     const double circuitTime,
+    const double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -122,13 +123,13 @@ public:
   std::ostream& printRFCWindow(std::ostream& os);
 
 protected:
-  bool doneIfFound_;
   std::vector<double> calculationResultVec_;
   std::vector<double> calculationInstantVec_;
 
 private:
-  void interpolateResults(double currIndepVarValue, double targVal);
+  void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
+  double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);
 
   void updateRFCcountForWhen();
   bool withinRFCWindowForWhen();
@@ -177,18 +178,14 @@ public:
 
   void reset();
 
-  void updateCalculationResult(double val)
-  {
-    calculationResult_ = val;
-  }
-
-  void updateCalculationInstant(double val)
-  {
-    calculationInstant_ = val;
-  }
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
 
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+private:
+  int RFC_;
 };
 
 //-------------------------------------------------------------------------

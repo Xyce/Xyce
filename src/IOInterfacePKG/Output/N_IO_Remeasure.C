@@ -97,6 +97,11 @@ RemeasureAC::RemeasureAC(
   // this enum is used to set the file suffix (.ma) and also during checking of the
   // measure mode vs. the analysis mode.
   setAnalysisMode(Xyce::Analysis::ANP_MODE_AC);
+
+  // Note: allocateAnalysisObject(*analysisRegistry_) will likely fail for .AC.  The AC object
+  // constructor segfaults on the initialization of the bVecRealPtr and bVecImgPtr member
+  // variables.
+  //analysis_manager.allocateAnalysisObject(analysis_registry);
 }
 
 
@@ -173,11 +178,8 @@ RemeasureDC::RemeasureDC(
   setAnalysisMode(Xyce::Analysis::ANP_MODE_DC_SWEEP);
 
   // If we are doing remeasure for .DC, then we need to initialize the primary analysis
-  // object, so that the DC Sweep Vector can be made.  The first element in the 
-  // DC Sweep Vector is used by the FROM-TO qualifiers for DC measures.  Note:
-  // allocateAnalysisObject(*analysisRegistry_) will likely fail (segfault) for .TRAN
-  // or .AC, since we don't have all of the TIA parameters at this point.  So, this
-  // allocation is only done in the constructor for the RemeasureDC object.
+  // object, so that the DC Sweep Vector can be made.  The first element in the
+  // DC Sweep Vector is used by the FROM-TO qualifiers for DC measures.
   analysis_manager.allocateAnalysisObject(analysis_registry);
   Analysis::DCSweep *SweepVecPtr = dynamic_cast<Analysis::DCSweep*>(&(analysis_manager.getAnalysisObject()));
   if (SweepVecPtr == 0)
@@ -332,11 +334,15 @@ RemeasureTRAN::RemeasureTRAN(
   OutputMgr &output_manager,
   Analysis::AnalysisManager &analysis_manager,
   Analysis::AnalysisCreatorRegistry &analysis_registry)
-  : RemeasureBase(pds_comm, measure_manager, output_manager, analysis_manager, analysis_registry) 
+  : RemeasureBase(pds_comm, measure_manager, output_manager, analysis_manager, analysis_registry),
+    endSimTime(0.0)
 {
   // this enum is used to set the file suffix (.mt) and also during checking of the
   // measure mode vs. the analysis mode.
   setAnalysisMode(Xyce::Analysis::ANP_MODE_TRANSIENT);
+
+  analysis_manager.allocateAnalysisObject(analysis_registry);
+  endSimTime = analysis_manager.getFinalTimeForRemeasure();
 }
 
 

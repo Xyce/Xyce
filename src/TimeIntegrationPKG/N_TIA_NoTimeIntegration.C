@@ -371,7 +371,7 @@ bool NoTimeIntegration::printOutputSolution(
 
   double dt = 0.0;
   outputManagerAdapter.tranOutput( 
-      time, dt,
+      time, dt, sec.finalTime,
       *solnVecPtr, 
       *ds.currStatePtr, *ds.currStorePtr, 
       *ds.tmpLeadCurrentVectorPtr, *ds.tmpLeadDeltaVPtr, *ds.tmpLeadCurrentQDerivVectorPtr,
