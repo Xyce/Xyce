@@ -446,7 +446,7 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
 {
   if (parameter.isQuoted())
   {
-    Report::UserWarning() << "Automatic conversion of quoted filename to table is DEPRICATED "
+    Report::UserWarning() << "Automatic conversion of quoted filename to table is DEPRECATED "
       << " and will be removed in a future version of Xyce.  Please use the new syntax of tablefile(\"filename\") ";
     // The parameter is time dependent with its time history defined by the set
     // of time-value pairs in the file given by the value of the parameter.
