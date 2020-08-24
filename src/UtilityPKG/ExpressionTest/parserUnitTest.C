@@ -7587,9 +7587,11 @@ TEST ( Double_Parser_Integral_Test, sdt1)
     sdtGroup->setStepNumber(ii);
     sdtGroup->setTimeStep(dt);
     refRes = time*time*0.5;
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result); ASSERT_FLOAT_EQ( result, refRes);
+
     time += dt;
 
     // only one of these "clear" calls is necessary. but test calling all to make sure nothing broken  
@@ -7634,16 +7636,16 @@ TEST ( Double_Parser_Integral_Test, sdt2)
     refRes = 3.0*std::sin(time);
 
     testExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_EQ(derivs.size(),0);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_EQ(derivs.size(),0);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_EQ(derivs.size(),0);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_EQ(derivs.size(),0);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_EQ(derivs.size(),0);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_EQ(derivs.size(),0);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -7688,14 +7690,14 @@ TEST ( Double_Parser_Integral_Test, sdt3)
     refRes = time*time*0.5;
 
     testExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -7742,16 +7744,16 @@ TEST ( Double_Parser_Integral_Test, sdt4)
     refRes = 2.0*time;
 
     testExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -7809,16 +7811,16 @@ TEST ( Double_Parser_Integral_Test, sdt5)
     else       { refDerivs[0] = 0.0; }
 
     testExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     copyExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     assignExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -7873,16 +7875,16 @@ TEST ( Double_Parser_Integral_Test, sdt6)
     refRes = time*time;
 
     testExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -7955,19 +7957,19 @@ TEST ( Double_Parser_Integral_Test, sdt7)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8046,19 +8048,19 @@ TEST ( Double_Parser_Integral_Test, sdt8)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
 
     time += dt;
@@ -8146,19 +8148,19 @@ TEST ( Double_Parser_Integral_Test, sdt9)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8247,20 +8249,19 @@ TEST ( Double_Parser_Integral_Test, sdt10)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
-
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8348,19 +8349,19 @@ TEST ( Double_Parser_Integral_Test, sdt11)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8418,19 +8419,19 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     }
 
     testExpression.evaluate(result,derivs);
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     copyExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     assignExpression.evaluate(result,derivs);   
-    EXPECT_FLOAT_EQ( result, refRes);
-    EXPECT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    EXPECT_FLOAT_EQ( derivs[1], refDerivs[1]);
+    ASSERT_FLOAT_EQ( result, refRes);
+    ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
+    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8475,9 +8476,9 @@ TEST ( Double_Parser_Integral_Test, sdt13)
     sdtGroup->setTimeStep(dt);
     refRes = 9.0*(0.5*time  + 0.25 * std::sin(2.0*time));
  
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8530,9 +8531,9 @@ TEST ( Double_Parser_Integral_Test, sdt14)
     sdtGroup->setTimeStep(dt);
     refRes = 9.0*(0.5*time  + 0.25 * std::sin(2.0*time));
  
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8628,13 +8629,13 @@ TEST ( Double_Parser_Integral_Test, sdt15)
     testExpression.evaluateFunction(result);   
     testExpression2.evaluateFunction(refRes);   
     testExpression3.evaluateFunction(refRes2);
-    EXPECT_EQ( result, refRes2);
+    ASSERT_EQ( result, refRes2);
 
     copyExpression.evaluateFunction(result);   
-    EXPECT_FLOAT_EQ( result, refRes2);
+    ASSERT_FLOAT_EQ( result, refRes2);
 
     assignExpression.evaluateFunction(result);   
-    EXPECT_FLOAT_EQ( result, refRes2);
+    ASSERT_FLOAT_EQ( result, refRes2);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8730,10 +8731,10 @@ TEST ( Double_Parser_Integral_Test, sdt16)
     testExpression2.evaluateFunction(refRes);   
     testExpression3.evaluateFunction(refRes2);
     
-    EXPECT_EQ( result, refRes2);
+    ASSERT_EQ( result, refRes2);
 
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes2);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes2);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8833,10 +8834,10 @@ TEST ( Double_Parser_Integral_Test, sdt17)
     testExpression2.evaluateFunction(refRes);   
     testExpression3.evaluateFunction(refRes2);
     
-    EXPECT_EQ( result, refRes2);
+    ASSERT_EQ( result, refRes2);
 
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes2);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes2);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes2);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -8927,9 +8928,9 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv)
     sdtGroup->setTimeStep(dt);
     refRes = time*time*0.5 + 3.0*std::sin(time);
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9018,9 +9019,9 @@ TEST ( Double_Parser_Integral_Test, sdt_100nest_no_deriv2)
 
     refRes = 2.0*(time*time*0.5 + 3.0*std::sin(time));
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9067,9 +9068,9 @@ TEST ( Double_Parser_Derivative_Test, ddt1)
     if (ii>0) {refRes = 1.0;}
     else  {refRes = 0.0;}
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9107,9 +9108,9 @@ TEST ( Double_Parser_Derivative_Test, ddt2)
     if (ii > 0) { refRes = 3.0*std::cos(time); }
     else { refRes = 0.0; }
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9160,8 +9161,8 @@ TEST ( Double_Parser_Derivative_Test, ddt3)
     {
       refDerivs[0] = 1.0/dt;
       refRes = 1.0;
-      EXPECT_FLOAT_EQ( result, refRes);
-      EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+      ASSERT_FLOAT_EQ( result, refRes);
+      ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
     }
 
     time += dt;
@@ -9211,8 +9212,8 @@ TEST ( Double_Parser_Derivative_Test, ddt4)
     {
       refDerivs[0] = 2.0/dt;
       refRes = 4.0;
-      EXPECT_FLOAT_EQ( result, refRes);
-      EXPECT_FLOAT_EQ( derivs[0], refDerivs[0] );
+      ASSERT_FLOAT_EQ( result, refRes);
+      ASSERT_FLOAT_EQ( derivs[0], refDerivs[0] );
     }
 
     time += dt;
@@ -9259,9 +9260,9 @@ TEST ( Double_Parser_Derivative_Test, ddt5)
     if (ii>0) {refRes = 1.0;}
     else { refRes = 0.0; }
 
-    testExpression.evaluateFunction(result);     EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);     EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9310,9 +9311,9 @@ TEST ( Double_Parser_Derivative_Test, ddt6)
     if (ii>0) {refRes = 2.0;}
     else { refRes = 0.0;}
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9366,9 +9367,9 @@ TEST ( Double_Parser_Derivative_Test, ddt7)
     if (ii>0) { refRes = 1.0 + 3.0; }
     else { refRes = 0.0; }
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
@@ -9432,9 +9433,9 @@ TEST ( Double_Parser_Derivative_Test, ddt8)
     if (ii>0) { refRes = 1.0 + 3.0; }
     else { refRes = 0.0; }
 
-    testExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    copyExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
-    assignExpression.evaluateFunction(result);   EXPECT_FLOAT_EQ( result, refRes);
+    testExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( result, refRes);
 
     time += dt;
 
