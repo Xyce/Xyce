@@ -234,6 +234,7 @@ public:
   bool updateDependentParameters(double temp_tmp);
   bool updateGlobalParameters(GlobalParameterMap &);
   bool updateDependentParameters();
+  void applyDepSolnLIDs();
 
   double setDependentParameter(Util::Param &, double *, ParameterType::ExprAccess);
   double setDependentParameter(Util::Param &, std::vector<double> *, int , ParameterType::ExprAccess);

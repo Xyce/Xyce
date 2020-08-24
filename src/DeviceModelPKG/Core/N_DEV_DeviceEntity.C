@@ -61,6 +61,7 @@ using std::tr1::unordered_map;
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_Expression.h>
 #include <N_UTL_FeatureTest.h>
+#include <deviceExpressionGroup.h>
 
 namespace Xyce {
 namespace Device {
@@ -832,6 +833,18 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.vectorIndex = -1;
   dependentParams_.push_back(dependentParam);
 
+  // needed for new expressionn
+  {
+  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
+    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
+  dependentParam.expr->setGroup( newGroup );
+  }
+
   double rval;
   dependentParam.expr->evaluateFunction (rval);
 
@@ -895,6 +908,18 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.resultU.resVec = res;
   dependentParam.vectorIndex = ind;
   dependentParams_.push_back(dependentParam);
+
+  // needed for new expressionn
+  {
+  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
+    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
+  dependentParam.expr->setGroup( newGroup );
+  }
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
@@ -1087,14 +1112,8 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
     // re-evaluated or not.  It also determined (in some cases) if
     // the new expression value was applied or not to the param.
     changed = true; 
-#if 1
     dpIter->expr->evaluateFunction (rval);
-#else
-    // this "efficiencyOn" is an attempt to 
-    // reproduce the "changed" behavior:
-    bool efficiencyOn=true;
-    dpIter->expr->evaluateFunction (rval,efficiencyOn);
-#endif
+
     if (dpIter->vectorIndex==-1)
       *(dpIter->resultU.result) = rval;
     else
@@ -1244,6 +1263,43 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   }
 
   return changed;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceEntity::applyDepSolnLIDs
+//
+// Purpose       : Informs expression attached to dependent parameters of the 
+//                 specific solution-vector LIDs that they will need to 
+//                 produce solution values needed to evaluate the expression.
+//                 This is needed for new expression library.
+//
+// Special Notes : It accomplishes this by creating a new "device group" for each
+//                 expression.
+//
+// Scope         : protected
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/22/2020
+//-----------------------------------------------------------------------------
+void DeviceEntity::applyDepSolnLIDs()
+{
+  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
+  std::vector<Depend>::iterator end = dependentParams_.end();
+  for (int ii=0 ; dpIter != end; ++dpIter, ++ii) 
+  { 
+    int lo = dpIter->lo_var;
+    int hi = dpIter->lo_var+dpIter->n_vars;
+
+    const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
+      Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+
+    Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+      Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+
+    devGroup->setSolutionLIDs ( expVarNames, expVarLIDs, lo, hi );
+
+    Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
+    dpIter->expr->setGroup( newGroup );
+  }
 }
 
 //-----------------------------------------------------------------------------

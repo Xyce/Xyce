@@ -43,7 +43,7 @@
 #include <map>
 #include <cmath>
 
-#include "newExpression.h"
+#include <newExpression.h>
 #include <N_ERH_Message.h>
 
 #if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
@@ -314,7 +314,9 @@ bool newExpression::lexAndParseExpression()
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+bool newExpression::attachFunctionNode(
+    const std::string & funcName, 
+    const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
   externalExpressions_.push_back(expPtr);
@@ -383,7 +385,10 @@ bool newExpression::attachFunctionNode(const std::string & funcName, const Teuch
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type)
+bool newExpression::attachParameterNode(
+    const std::string & paramName, 
+    const Teuchos::RCP<Xyce::Util::newExpression> expPtr, 
+    enumParamType type)
 {
   bool retval=true;
   externalExpressions_.push_back(expPtr);
@@ -553,7 +558,10 @@ void newExpression::clear ()
 // Creator       : Eric Keiter
 // Creation Date : 3/??/2020
 //-------------------------------------------------------------------------------
-bool newExpression::make_constant (std::string const & var, usedType const & val, enumParamType type)
+bool newExpression::make_constant (
+    std::string const & var, 
+    usedType const & val, 
+    enumParamType type)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
@@ -572,7 +580,9 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
   }
   else
   {
-    Xyce::dout() << "newExpression::make_constant  ERROR.  Could not find parameter " << tmpParName  
+    Xyce::dout() 
+      << "newExpression::make_constant  ERROR.  Could not find parameter " 
+      << tmpParName  
       << " in expression: " << expressionString_ <<std::endl;
   }
 
@@ -610,7 +620,9 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
   }
   else
   {
-    Xyce::dout() << "newExpression::make_var  ERROR.  Could not find parameter " << tmpParName <<std::endl;
+    Xyce::dout() 
+      << "newExpression::make_var  ERROR.  Could not find parameter " 
+      << tmpParName <<std::endl;
   }
 
   return retval;
@@ -647,10 +659,14 @@ void newExpression::setupDerivatives_ ()
 
       for (int ii=0;ii<voltOpVec_.size();ii++)
       {
-        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+        Teuchos::RCP<voltageOp<usedType> > voltOp 
+          = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-        if (nodes.size() == 1) // 2-node specification is now handled with expression tree.  So, nodes.size should always == 1
+        // 2-node specification is now handled with expression tree.  
+        // (see ExpressionParser.yxx)
+        // So, nodes.size should always == 1
+        if (nodes.size() == 1) 
         {
           std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
           std::unordered_map<std::string, int>::iterator mapIter;
@@ -660,13 +676,16 @@ void newExpression::setupDerivatives_ ()
         }
         else
         {
-          Xyce::dout() << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
+          Xyce::dout() 
+            << "ERROR. derivatives not correct for 2-node V(A,B) specification" 
+            <<std::endl;
         }
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
       {
-        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+        Teuchos::RCP<currentOp<usedType> > currOp 
+          = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
         std::string tmp = currOp->getCurrentDevice();
         Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
@@ -680,7 +699,8 @@ void newExpression::setupDerivatives_ ()
       }
 
       // Complication for params:
-      // Unlike voltages and currents, params can be assigned to each other, etc, and they can be *anything*.
+      // Unlike voltages and currents, params can be assigned to each 
+      // other, etc, and they can be *anything*.
       // So, for example if I have
       //
       //  .param a = {10*c+b}
@@ -697,11 +717,13 @@ void newExpression::setupDerivatives_ ()
       // that are set to simple numerical values.  That would mean
       // that for the above set of expressions, I only would do x and y.
       //
-      // Solution: only differentiate params that have their "setIsVar" boolean set to true.
+      // Solution: only differentiate params that have their "setIsVar" 
+      // boolean set to true.
       //
       for (int ii=0;ii<paramOpVec_.size();ii++)
       {
-        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        Teuchos::RCP<paramOp<usedType> > parOp 
+          = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
         if (parOp->getIsVar())
         {
           std::string tmp = parOp->getName();
@@ -1168,7 +1190,8 @@ void newExpression::checkIsConstant_()
     noVariableParams = true;
     for (int ii=0;ii<paramOpVec_.size();ii++)
     {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      Teuchos::RCP<paramOp<usedType> > parOp 
+        = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
       if ( (parOp->getIsVar()) ) { noVariableParams = false; }
     }
   }
@@ -1199,11 +1222,13 @@ void newExpression::checkIsConstant_()
 #if 0
   if (isConstant_)
   {
-    Xyce::dout() << "expression: " << expressionString_ << " is constant" << std::endl;
+    Xyce::dout() << "expression: " << expressionString_ 
+      << " is constant" << std::endl;
   }
   else
   {
-    Xyce::dout() << "expression: " << expressionString_ << " is constant" << std::endl;
+    Xyce::dout() << "expression: " << expressionString_ 
+      << " is constant" << std::endl;
   }
 #endif
 
@@ -1220,19 +1245,34 @@ void newExpression::checkIsConstant_()
 bool newExpression::getValuesFromGroup_()
 {
   bool noChange=true;
+#if 0
+  std::cout << "newExpression::getValuesFromGroup_() expression = " 
+    << expressionString_ << std::endl;
+#endif
 
   // get solution values we need from the group
   for (int ii=0;ii<voltOpVec_.size();ii++)
   {
-    Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+    Teuchos::RCP<voltageOp<usedType> > voltOp 
+      = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
     std::vector<std::string> & nodes = voltOp->getVoltageNodes();
     std::vector<usedType> & vals = voltOp->getVoltageVals();
     std::vector<usedType> oldvals = vals;
 
     for (int jj=0;jj<nodes.size();jj++)
     {
+#if 0
+      std::cout 
+        << "newExpression::getValuesFromGroup_() About to get: V("<<nodes[jj]<<")" 
+        << std::endl;
+#endif
       group_->getSolutionVal(nodes[jj], vals[jj]);
       if(vals[jj] != oldvals[jj]) noChange=false;
+#if 0
+      std::cout 
+        << "newExpression::getValuesFromGroup_() V("<<nodes[jj]<<") = " 
+        << vals[jj] <<std::endl;
+#endif
     }
   }
 
@@ -1616,7 +1656,9 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   }
   else
   {
-    Xyce::Report::UserError() << "Error.  Expression " << originalExpressionString_ << " was not successfully parsed." << std::endl;
+    Xyce::Report::UserError() << "Error.  Expression " 
+      << originalExpressionString_ 
+      << " was not successfully parsed." << std::endl;
   }
 
   // fix these properly for std::complex later.
@@ -1646,10 +1688,13 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     setupVariousAstArrays ();
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
-      Xyce::dout() << "ERROR.  Unresolved functions in expression " << originalExpressionString_ <<std::endl;
+      Xyce::dout() << "ERROR.  Unresolved functions in expression " 
+        << originalExpressionString_ <<std::endl;
+
       for(int ii=0;ii<unresolvedFuncOpVec_.size();++ii)
       {
-        Xyce::dout() << "unresolvedFuncOpVec_[" << ii << "] = " << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
+        Xyce::dout() << "unresolvedFuncOpVec_[" << ii << "] = " 
+          << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
       }
     }
 
@@ -1678,9 +1723,12 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
       result = astNodePtr_->val();
 
 #if 0
-      Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ <<std::endl;
+      Xyce::dout() 
+        << "newExpression::evaluateFunction. just evaluated expression tree for " 
+        << expressionString_ <<std::endl;
       Xyce::dout()<< " result = ";
-      Xyce::dout().width(20); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
+      Xyce::dout().width(20); Xyce::dout().precision(13); 
+      Xyce::dout().setf(std::ios::scientific);
       Xyce::dout() << result << std::endl;
 
       dumpParseTree(Xyce::dout());
@@ -1694,18 +1742,25 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     {
       result = savedResult_;
 #if 0
-      Xyce::dout() << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " << expressionString_ << " result = " << result << std::endl;
+      Xyce::dout() 
+        << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " 
+        << expressionString_ << " result = " << result << std::endl;
 #endif
     }
   }
   else
   {
-    Xyce::dout() << "Error.  Expression " << originalExpressionString_ << " is not parsed yet" << std::endl;
+    Xyce::dout() 
+      << "Error.  Expression " 
+      << originalExpressionString_ 
+      << " is not parsed yet" << std::endl;
     exit(0);
   }
 
 #if 0
-  Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << std::endl;
+  Xyce::dout() 
+    << "newExpression::evaluateFunction. just evaluated expression tree for " 
+    << expressionString_ << " result = " << result << std::endl;
 #endif
 
   return retVal;
@@ -1719,24 +1774,32 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 // Creator       : Eric Keiter
 // Creation Date : 4/23/2020
 //-------------------------------------------------------------------------------
-bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
+bool newExpression::getBreakPoints (
+    std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
 {
   if(isTimeDependent_)
   {
     int srcSize = srcAstNodeVec_.size();
-    for (int ii=0;ii< srcSize; ii++) { (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
+    for (int ii=0;ii< srcSize; ii++) 
+    { (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int stpSize = stpAstNodeVec_.size();
-    for (int ii=0;ii< stpSize; ii++) { (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
+    for (int ii=0;ii< stpSize; ii++) 
+    { (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int compSize = compAstNodeVec_.size();
-    for (int ii=0;ii< compSize; ii++) { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
+    for (int ii=0;ii< compSize; ii++) 
+    { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
+
 #if 0
     {
-      Xyce::dout() << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
+      Xyce::dout() << "newExpression::getBreakPoints. Expression " 
+        << expressionString_ << "  Number of breakpoints = " 
+        << breakPointTimes.size() <<std::endl;
       for (int ii=0;ii<breakPointTimes.size();ii++)
       {
-        Xyce::dout() << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
+        Xyce::dout() << "bp["<<ii<<"] = " 
+          << breakPointTimes[ii].value() <<std::endl;
       }
     }
 #endif
@@ -1795,7 +1858,9 @@ bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakP
 // Creator       : Eric Keiter, SNL
 // Creation Date : 2020
 //-------------------------------------------------------------------------------
-bool newExpression::replaceName ( const std::string & old_name, const std::string & new_name)
+bool newExpression::replaceName ( 
+    const std::string & old_name, 
+    const std::string & new_name)
 {
   setupVariousAstArrays ();
 

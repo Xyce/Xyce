@@ -187,6 +187,8 @@ void DeviceInstance::registerDepSolnLIDs(
     }
     expVarLIDs[i] = depSolnLIDVecRef[i][0];
   }
+
+  DeviceEntity::applyDepSolnLIDs(); // new for newExpression
 }
 
 //-----------------------------------------------------------------------------

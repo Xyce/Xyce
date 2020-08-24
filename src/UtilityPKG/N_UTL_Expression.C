@@ -336,9 +336,20 @@ bool Expression::make_var (std::string const & var, enumParamType type)
   else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
   else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
 #endif
-  bool retVal=false; 
-  retVal = newExpPtr_->make_var(var, type);
-  return retVal;
+  return newExpPtr_->make_var(var, type);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setGroup
+// Purpose       : 
+// Special Notes :
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/22/2020
+//-----------------------------------------------------------------------------
+void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
+{
+  newExpPtr_->setGroup(grp);
 }
 
 //-----------------------------------------------------------------------------

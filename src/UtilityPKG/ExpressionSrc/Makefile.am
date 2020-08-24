@@ -15,6 +15,7 @@ CLEANFILES= $(BUILT_SOURCES)
 libExpressionSrc_la_SOURCES = \
   expressionGroup.C \
   newExpression.C \
+  deviceExpressionGroup.C \
   mainXyceExpressionGroup.C \
   outputsXyceExpressionGroup.C \
   xyceExpressionGroup.C \
@@ -30,6 +31,8 @@ libExpressionSrc_la_SOURCES = \
 	astRandEnum.h \
   expressionGroup.h \
   newExpression.h \
+  deviceExpressionGroup.h \
+  deviceExpressionGroup.h \
   mainXyceExpressionGroup.h \
   outputsXyceExpressionGroup.h \
   xyceExpressionGroup.h  \

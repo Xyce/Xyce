@@ -35,8 +35,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef mainXyceExpressionGroup_H
-#define mainXyceExpressionGroup_H
+#ifndef deviceExpressionGroup_H
+#define deviceExpressionGroup_H
 #include <Xyce_config.h>
 
 #include<string>
@@ -56,6 +56,8 @@
 #include<newExpression.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
+#include <mainXyceExpressionGroup.h>
+#include <deviceExpressionGroup.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_IO_OutputMgr.h>
 
@@ -64,38 +66,9 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-// this assumes seed is generated externally
-// this uses functions from N_ANP_UQSupport
-class randomSamplesGenerator
-{
-  public:
-   randomSamplesGenerator(long seed=0):
-     randomSeed(seed),
-     mt(randomSeed),
-     uniformDistribution(0.0,1.0)
-  {};
-
-   double generateNormalSample(const double mean, const double stddev)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupNormal(prob,mean,stddev);
-   }
-
-   double generateUniformSample(const double min, const double max)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupUniform(prob, min, max);
-   }
-
-   long randomSeed;
-   std::mt19937 mt;
-   std::uniform_real_distribution<double> uniformDistribution;
-};
-
-static randomSamplesGenerator *theRandomSamplesGenerator=0;
 
 //-----------------------------------------------------------------------------
-// Class         : mainXyceExpressionGroup
+// Class         : deviceExpressionGroup
 //
 // Purpose       : This is the "main" group class for connecting the new 
 //                 expression library to Xyce
@@ -120,24 +93,20 @@ static randomSamplesGenerator *theRandomSamplesGenerator=0;
 //                 of the .func to the expression that is calling it.
 //
 // Creator       : Eric Keiter
-// Creation Date : 2/12/2020
+// Creation Date : 8/22/2020
 //-----------------------------------------------------------------------------
-class mainXyceExpressionGroup : public baseExpressionGroup
+class deviceExpressionGroup : public mainXyceExpressionGroup
 {
 friend class outputsXyceExpressionGroup;
-friend class deviceExpressionGroup;
 friend class ExpressionData;
 
 public:
+  deviceExpressionGroup ( const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> & mainGroup);
+  ~deviceExpressionGroup ();
 
-  mainXyceExpressionGroup ( 
-      N_PDS_Comm & comm, Topo::Topology & top,
-      Analysis::AnalysisManager &analysis_manager,
-      Device::DeviceMgr & device_manager,
-      IO::OutputMgr &output_manager
-      ) ;
-
-  ~mainXyceExpressionGroup ();
+  void setSolutionLIDs( 
+    const std::vector<std::string> & expVarNames, 
+    const std::vector<int> & expVarLIDs, int lo, int hi);
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
@@ -151,48 +120,9 @@ public:
   virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
-  virtual double getTimeStep ();
-  virtual double getTimeStepAlpha () { return alpha_; }
-  virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
-
-  virtual double getTime();
-  virtual double getTemp();
-  virtual double getVT  ();
-  virtual double getFreq();
-  virtual double getGmin();
-
-  virtual double getBpTol();
-  virtual double getStartingTimeStep();
-  virtual double getFinalTime();
-
-  virtual unsigned int getStepNumber ();
-
-  virtual bool getPhaseOutputUsesRadians();
-
-  virtual void getRandomOpValue (  Util::astRandTypes type, std::vector<double> args, double & value);
-
-  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
-
 private:
+  std::unordered_map<std::string,int> lidMap_;
 
-  void setupRandom_ ();
-
-  int getSolutionGID_(const std::string & nodeName);
-
-  N_PDS_Comm & comm_;
-  Topo::Topology & top_;
-
-  Analysis::AnalysisManager & analysisManager_;
-  Device::DeviceMgr & deviceManager_;
-
-  IO::AliasNodeMap aliasNodeMap_;
-
-  IO::OutputMgr &outputManager_;
-
-  double time_, temp_, VT_, freq_, gmin_;
-  double dt_, alpha_;
-  long randomSeed_;
-  bool randomSetup_;
 };
 
 }

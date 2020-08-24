@@ -188,18 +188,16 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
   retval = 0.0;
+  int tmpGID = -1;
 
-  int tmpGID = getSolutionGID_(nodeName);
+  tmpGID = getSolutionGID_(nodeName);
   if (tmpGID >= 0)
   {
     const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
-    if (nextSolVector)
-    {
-      retval = nextSolVector->getElementByGlobalIndex(tmpGID, 0);
-    }
-
+    if (nextSolVector) { retval = nextSolVector->getElementByGlobalIndex(tmpGID, 0); }
   }
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &retval, 1);
+
   return (tmpGID>=0);
 }
 
@@ -215,15 +213,13 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
 {
   double real_val=0.0;
   double imag_val=0.0;
+  int tmpGID = -1;
 
-  int tmpGID = getSolutionGID_(nodeName);
+  tmpGID = getSolutionGID_(nodeName);
   if (tmpGID >= 0)
   {
     const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
-    if (nextSolVector)
-    { 
-      real_val = nextSolVector->getElementByGlobalIndex(tmpGID, 0);
-    }
+    if (nextSolVector) { real_val = nextSolVector->getElementByGlobalIndex(tmpGID, 0); }
   }
 
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);

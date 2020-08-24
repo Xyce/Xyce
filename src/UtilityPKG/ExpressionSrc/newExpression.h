@@ -840,6 +840,8 @@ public:
 
   void setupVariousAstArrays ();
 
+  void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; }
+
 private:
   void setupDerivatives_ ();
   void addToVariousAstArrays_ (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
@@ -1013,7 +1015,6 @@ private:
   bool phaseOutputUsesRadians_;
 
   opVectorContainers<usedType> opVectors_;
-
 };
 
 }

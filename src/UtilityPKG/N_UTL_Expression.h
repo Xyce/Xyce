@@ -94,10 +94,12 @@ public:
 
   const std::vector<std::string> & getFunctionArgStringVec ();
 
-  // ERK some old expressionstuff.  Many of these need to be removed.
+  // ERK some old expressionstuff.  
   int get_type (std::string const & var);
   bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
   bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
+
+  void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
 
   // ERK new expression stuff.  These kind of replace "get_names"
   void getParams              (std::vector<std::string> & params) const;
