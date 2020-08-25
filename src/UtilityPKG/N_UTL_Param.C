@@ -47,6 +47,7 @@
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Param.h>
+#include <expressionGroup.h>
 
 namespace Xyce {
 namespace Util {
@@ -714,10 +715,12 @@ void Param::setTimeDependent( bool timeDependent )
     return;
 
   exp = getValue<std::string>();
-#if 0
-  // ERK.  This is broken!  It needs a group argument.  I don't have one at moment, so commenting out.
-  setVal(Expression(exp));
-#endif
+  // ERK.  This expression is allocated iwth the base group, which is easy 
+  // to create, but doesn't do anything.  But, this doesn't matter.  .param 
+  // and .global_param are not usually evaluated stand-alone, as they are 
+  // usually attached to other expressions. The expressions they are 
+  // attached to are the ones that need a meaningful group class.
+  setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), exp));
 }
 
 //----------------------------------------------------------------------------
@@ -897,10 +900,12 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, N
 
     case Util::EXPR:
       comm->unpack( pB, bsize, pos, &length, 1 );
-#if 0
-      // ERK.  This is broken!  It needs a group argument.
-      param.setVal(Util::Expression(std::string( (pB+pos), length )));
-#endif
+      // ERK.  This expression is allocated iwth the base group, which is easy 
+      // to create, but doesn't do anything.  But, this doesn't matter.  .param 
+      // and .global_param are not usually evaluated stand-alone, as they are 
+      // usually attached to other expressions. The expressions they are 
+      // attached to are the ones that need a meaningful group class.
+      param.setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), std::string( (pB+pos), length )));
       pos += length;
       break;
 
@@ -1007,7 +1012,6 @@ template<>
 void
 Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
 {
-
   int length;
   std::string tmp;
 
