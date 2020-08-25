@@ -1480,7 +1480,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
   {
     if (DEBUG_IO)
     {
-      Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
+      Xyce::dout() << "CircuitContext::resolveParameterThatIsAdotFunc parameter " << parameter.uTag()
                    << " has expression value " << std::endl;
     }
 
@@ -1552,7 +1552,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty, or this has a random operator such as AGAUSS." << std::endl;
+          Xyce::dout() << "CircuitContext::resolveParameterThatIsAdotFunc:  nodes, instances, leads, variables or specials not empty, or this has a random operator such as AGAUSS." << std::endl;
           if (!nodes.empty())
           {
             Xyce::dout() << " Nodes: " << std::endl;
@@ -1593,7 +1593,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
 
         if (DEBUG_IO)
         {
-          Xyce::dout() << "CircuitContext::resolveParameter: After all expression handling, get_expression returns "
+          Xyce::dout() << "CircuitContext::resolveParameterThatIsAdotFunc: After all expression handling, get_expression returns "
                        << expression.get_expression() << std::endl;
           Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
           Xyce::dout() << " and its value is ";
@@ -1627,7 +1627,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
 
     if (DEBUG_IO)
     {
-      Xyce::dout() << "CircuitContext::resolveParameter: right before returns "
+      Xyce::dout() << "CircuitContext::resolveParameterThatIsAdotFunc: right before returns "
                    << std::endl;
       Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
       Xyce::dout() << " and its value is ";
