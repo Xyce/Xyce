@@ -126,6 +126,7 @@ public:
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result, bool efficiencyOn=false);
 
+  void setupBreakPoints();
   bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
 
   const std::string & get_input (void) const;

@@ -647,22 +647,11 @@ void Region::setupJacStamp ( std::vector< std::vector<int> > & jacStamp,
     // reaction network with many species and very sparse matrix.
     for (int i=0; i<concentrationSize; ++i)
     {
-#if 0
-      jacStamp[baseReactionIndex+i].resize(concentrationSize+2);
-#else
       jacStamp[baseReactionIndex+i].resize(concentrationSize);
-#endif
       for (int j=0;j<concentrationSize; ++j)
       {
         jacStamp[baseReactionIndex+i][j]=baseReactionIndex+j;
       }
-
-#if 0
-      // This is why colDep must be of size 2. (one for e-, one for h+)
-      // add the colDep colummns:
-      jacStamp[baseReactionIndex+i][concentrationSize  ]=colDep[0];
-      jacStamp[baseReactionIndex+i][concentrationSize+1]=colDep[1];
-#endif
     }
   }
   firstReactant = baseReactionIndex;
@@ -815,16 +804,6 @@ void Region::registerJacLIDs
           AConcentrationEquConcentrationNodeOffsets[i][j]=
             jacLIDVec[map[baseReactionIndex+i]][map2[baseReactionIndex+i][j]];
         }
-
-#if 0
-        int bRI = baseReactionIndex;
-        AConcentrationEquAuxNodeOffsets[i].resize(2);
-        for (int j=0; j<2; ++j)
-        {
-          AConcentrationEquAuxNodeOffsets[i][j]=
-            jacLIDVec[map[bRI+i]][map2[bRI+i][rSize+j]];
-        }
-#endif
       }
     }
   }
@@ -851,14 +830,6 @@ void Region::setupPointers (Linear::Matrix & dfdx, Linear::Matrix & dqdx)
     dqdxConcEquConcVarPtrs.clear();
     dqdxConcEquConcVarPtrs.resize(rSize);
 
-#if 0
-    dfdxConcEquAuxVarPtrs.clear();
-    dfdxConcEquAuxVarPtrs.resize(rSize);
-
-    dqdxConcEquAuxVarPtrs.clear();
-    dqdxConcEquAuxVarPtrs.resize(rSize);
-#endif
-
     for (int i=0;i<rSize;++i)
     {
       dfdxConcEquConcVarPtrs[i].resize(rSize,0);
@@ -875,19 +846,6 @@ void Region::setupPointers (Linear::Matrix & dfdx, Linear::Matrix & dqdx)
         double * dqdxPtr = dqdx.returnRawEntryPointer (lidRow, lidCol);
         dqdxConcEquConcVarPtrs[i][j] = dqdxPtr;
       }
-
-#if 0
-      dfdxConcEquAuxVarPtrs[i].resize(2,0);
-      dqdxConcEquAuxVarPtrs[i].resize(2,0);
-      for (int j=0;j<2; ++j)
-      {
-        int lidRow = li_Concentrations[i];
-        int coloffset = AConcentrationEquAuxNodeOffsets[i][j];
-
-        dfdxConcEquAuxVarPtrs[i][j] = &(dfdx[lidRow][coloffset]);
-        dqdxConcEquAuxVarPtrs[i][j] = &(dqdx[lidRow][coloffset]);
-      }
-#endif
     }
   }
 }
@@ -905,28 +863,23 @@ bool Region::getDoNothingFlag ()
   return regData.doNothing;
 }
 
-#if 0
 //-----------------------------------------------------------------------------
-// Function      : Region::getBreakTime
-// Purpose       : Return next breakpoint time from reaction network
+// Function      : Region::setupBreakPoints
+// Purpose       : 
 // Special Notes :
-//
-//
 // Scope         : public
-// Creator       : Tom Russo
-// Creation Date : 8/4/06
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2020
 //-----------------------------------------------------------------------------
-double Region::getBreakTime()
+void Region::setupBreakPoints()
 {
-  return (theReactions.getBreakpointTime());
+  return theReactions.setupBreakPoints();
 }
-#else
+
 //-----------------------------------------------------------------------------
 // Function      : Region::getBreakPoints
 // Purpose       : 
 // Special Notes :
-//
-//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
@@ -935,7 +888,6 @@ bool Region::getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes)
 {
   return theReactions.getBreakPoints(breakPointTimes);
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Region::updateIntermediateVars
@@ -968,13 +920,7 @@ void Region::updateIntermediateVars
 
     // Now update the imposed time-dependent generation rates:
     double scalar= ((variablesScaledFlag)?(t0/C0):(1.0));
-#if 0
-    theReactions.setSimTime(time);
-#endif
     double step = solState.currTimeStep_;
-#if 0
-    theReactions.setSimDT(step);
-#endif
     theReactions.setSourceScaleFac(scalar);
 
     // Now compute ddt and jac for later use in the various loads

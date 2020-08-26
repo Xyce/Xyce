@@ -1303,6 +1303,21 @@ void DeviceEntity::applyDepSolnLIDs()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceEntity::setupParamBreakpoints
+// Purpose       :
+// Special Notes :
+// Scope         : protected
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2020
+//-----------------------------------------------------------------------------
+void DeviceEntity::setupParamBreakpoints()
+{
+  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
+  std::vector<Depend>::iterator end = dependentParams_.end();
+  for ( ; dpIter != end; ++dpIter) { dpIter->expr->setupBreakPoints(); }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceEntity::getParamBreakpoints
 // Purpose       : Add breakpoints caused by discontinuities in computed params
 // Special Notes :
@@ -1312,13 +1327,11 @@ void DeviceEntity::applyDepSolnLIDs()
 //-----------------------------------------------------------------------------
 bool DeviceEntity::getParamBreakpoints( std::vector<Util::BreakPoint> & breakPointTimes )
 {
-  double bTime;
-
   std::vector<Depend>::iterator dpIter = dependentParams_.begin();
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-    bTime = dpIter->expr->getBreakPoints(breakPointTimes);
+    dpIter->expr->getBreakPoints(breakPointTimes);
   }
 
   return true;

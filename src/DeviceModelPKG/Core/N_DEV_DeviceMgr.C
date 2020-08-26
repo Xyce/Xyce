@@ -871,11 +871,31 @@ void DeviceMgr::notify(const Analysis::StepEvent &event)
     }
   }
 
+  // Breakpoint management
+  InstanceVector::iterator iterI;
+  ModelVector::iterator iterM;
+  for (iterM = modelVector_.begin() ; iterM != modelVector_.end() ; ++iterM)
+  {
+    if (!(*iterM)->getDependentParams().empty()) { (*iterM)->setupParamBreakpoints(); }
+  }
+
+  for (iterI = instancePtrVec_.begin() ; iterI != instancePtrVec_.end() ; ++iterI)
+  {
+    if (!(*iterI)->getDependentParams().empty()) { (*iterI)->setupParamBreakpoints(); }
+  }
+
+  std::vector<Util::Expression>::iterator globalExp_i = globals_.global_expressions.begin();
+  std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
+  for (; globalExp_i != globalExp_end; ++globalExp_i)
+  {
+    globalExp_i->setupBreakPoints();
+  }
+
   InstanceVector::iterator iter = instancePtrVec_.begin();
   InstanceVector::iterator end = instancePtrVec_.end();
   for (; iter!= end; iter++)
   {
-    (*iter)->setupBreakpoints();
+    (*iter)->setupBreakPoints();
   }
 }
 
@@ -3313,11 +3333,18 @@ void DeviceMgr::setGlobalFlags()
 //-----------------------------------------------------------------------------
 void DeviceMgr::resetBreakPoints()
 {
+  std::vector<Util::Expression>::iterator globalExp_i = globals_.global_expressions.begin();
+  std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
+  for (; globalExp_i != globalExp_end; ++globalExp_i)
+  {
+    globalExp_i->setupBreakPoints();
+  }
+
   InstanceVector::iterator iter = instancePtrVec_.begin();
   InstanceVector::iterator end = instancePtrVec_.end();
   for (; iter!= end; iter++)
   {
-    (*iter)->setupBreakpoints();
+    (*iter)->setupBreakPoints();
   }
 }
 
@@ -3369,7 +3396,7 @@ bool DeviceMgr::getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes,
   std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
-    double bTime = globalExp_i->getBreakPoints(breakPointTimes);
+    globalExp_i->getBreakPoints(breakPointTimes);
   }
 
   if (!breakPointInstancesInitialized)

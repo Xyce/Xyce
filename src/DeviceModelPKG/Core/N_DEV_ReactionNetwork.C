@@ -924,6 +924,24 @@ void ReactionNetwork::addMasterSourceTerm(const std::string &speciesName)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ReactionNetwork::setupBreakPoints
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2020
+//-----------------------------------------------------------------------------
+void ReactionNetwork::setupBreakPoints()
+{
+  std::vector< std::pair<int,Util::Expression *> >::iterator iterSource=
+    theSourceTerms.begin();
+  std::vector< std::pair<int,Util::Expression *> >::iterator source_end=
+    theSourceTerms.end();
+  for (;iterSource != source_end; ++iterSource) { (iterSource->second)->setupBreakPoints(); }
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ReactionNetwork::getBreakPoints
 // Purpose       :
 // Special Notes :

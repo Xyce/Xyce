@@ -107,11 +107,8 @@ public:
   bool getDoNothingFlag ();
   inline const InstanceName &getName () { return name; }
 
-#if 0
-  double getBreakTime();
-#else
-bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
-#endif
+  void setupBreakPoints();
+  bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
 
   void setupJacStamp ( std::vector< std::vector<int> > & jacStamp, std::vector<int> & colDep, int & firstReactant, int & lastIndex );
 

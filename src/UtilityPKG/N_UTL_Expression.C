@@ -871,6 +871,19 @@ int Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setupBreakPoints
+// Purpose       : Returns next breakpoint time
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 08/25/2020
+//-----------------------------------------------------------------------------
+void Expression::setupBreakPoints()
+{
+  return newExpPtr_->setupBreakPoints();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getBreakPoints
 // Purpose       : Returns next breakpoint time
 // Special Notes :

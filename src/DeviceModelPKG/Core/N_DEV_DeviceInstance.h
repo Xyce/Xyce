@@ -138,7 +138,7 @@ public:
     return expVarGIDs;
   }
 
-  virtual void setupBreakpoints() {return;}
+  virtual void setupBreakPoints() {return;}
 
   virtual bool getInstanceBreakPoints (std::vector<Util::BreakPoint> &breakPointTimes);
 
