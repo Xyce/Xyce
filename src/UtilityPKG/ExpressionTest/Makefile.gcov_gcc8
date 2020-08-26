@@ -23,8 +23,8 @@ test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
 astUnitTest: astUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
 	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C ast.o N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
 
-astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
-	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
+astCopyConstUnitTest: astCopyConstUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../N_UTL_Interpolators.h N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C ast.o  N_UTL_BreakPoint.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o $(XYCELIBS)
 
 # expression lexer/parser
 ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h ../N_UTL_Interpolators.h
@@ -93,6 +93,21 @@ hello: hello.C
 
 clean:
 	rm -f astUnitTest parserUnitTest parserCopyUnitTest astCopyConstUnitTest *.o \
+		NetlistLexer.cxx NetlistParser.cxx stack.hh position.hh location.hh \
+		ExpressionLexer.cxx ExpressionParser.cxx ExpressionParser.hxx ExpressionParser.dot \
+		Test.C.gcov gtest-internal.h.gcov gtest-port.h.gcov gtest-printers.h.gcov \
+		gtest.h.gcov move.h.gcov tuple.gcov unique_ptr.h.gcov \
+		ExpressionLexer.gcno ExpressionParser.gcno N_UTL_BreakPoint.gcno N_UTL_ExtendedString.gcno \
+		N_UTL_NoCase.gcno Test.gcno astCopyConstUnitTest.gcno astUnitTest.gcno expressionGroup.gcno \
+		newExpression.gcno parserCopyUnitTest.gcno parserUnitTest.gcno \
+		ExpressionLexer.gcda N_UTL_ExtendedString.gcda expressionGroup.gcda parserUnitTest.gcda \
+		ExpressionParser.gcda N_UTL_NoCase.gcda newExpression.gcda astUnitTest.gcda \
+		*png hello hello.gcda hello.gcno Test Test.gcda Test.gcno *html gcov.css
+
+
+# this removes everything except the executables
+cleanup:
+	rm -f *.o \
 		NetlistLexer.cxx NetlistParser.cxx stack.hh position.hh location.hh \
 		ExpressionLexer.cxx ExpressionParser.cxx ExpressionParser.hxx ExpressionParser.dot \
 		Test.C.gcov gtest-internal.h.gcov gtest-port.h.gcov gtest-printers.h.gcov \
