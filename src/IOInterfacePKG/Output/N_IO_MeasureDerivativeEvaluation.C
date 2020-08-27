@@ -265,6 +265,7 @@ void DerivativeEvaluationBase::updateDC(
     // window when each one is found.
     if ( !calculationDone_ && !isInvalidDCsweepWindow(dcParamsVec[0].startVal, dcParamsVec[0].stopVal) )
     {
+      initialized_=true;
       if (atGiven_ && (numPointsFound_ > 1) && withinDCsweepFromToWindow(at_) )
       {
         // process AT qualifer. The AT value must be within the measurement window.
@@ -300,7 +301,6 @@ void DerivativeEvaluationBase::updateDC(
       }
     }
 
-    initialized_=true;
     updateMeasureState(dcSweepVal);
   }
 }

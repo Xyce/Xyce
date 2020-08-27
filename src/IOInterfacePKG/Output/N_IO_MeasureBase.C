@@ -1067,7 +1067,8 @@ bool Base::isInvalidFreqWindow(double fStart, double fStop)
 // Purpose       : returns true if the specified from_ and to_ values do NOT
 //                 form a valid measurement window, based on the sweep direction
 //                 (ascending or descending) and the start/end DC sweep values.
-// Special Notes :
+// Special Notes : This can only happen if both FROM and TO are given, and that
+//                 FROM-TO range does not overlap with the DC sweep range.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 08/06/2020
@@ -1076,17 +1077,20 @@ bool Base::isInvalidDCsweepWindow(double startSweepVal, double endSweepVal)
 {
   bool retVal =false;
 
-  // this if-else block could be collapsed into one if statement, but this is clearer.
-  if (dcSweepAscending_)
+  if (fromGiven_ && toGiven_)
   {
-    retVal = ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
-               (fromGiven_&& (from_ > endSweepVal)) || (toGiven_&& (to_ < startSweepVal)) );
-  }
-  else
-  {
-    // the descending case
-    retVal = ( (fromGiven_&& toGiven_ && (from_ < to_)) ||
-               (fromGiven_&& (from_ < endSweepVal)) || (toGiven_&& (to_ > startSweepVal)) );
+    // this if-else block could be collapsed into one if statement, but this is clearer.
+    if (dcSweepAscending_)
+    {
+      retVal = ( ((from_ > endSweepVal) && (to_ > endSweepVal)) ||
+                 ((from_ < startSweepVal) && (to_ < startSweepVal)) );
+    }
+    else
+    {
+      // the descending case
+      retVal = ( ((from_ < endSweepVal) && (to_ < endSweepVal)) ||
+                 ((from_ > startSweepVal) && (to_ > startSweepVal)) );
+    }
   }
 
   return retVal;
