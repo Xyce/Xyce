@@ -1733,9 +1733,10 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 
       dumpParseTree(Xyce::dout());
 #endif
-      // ERK: fix this failsafe properly for std::complex
-      if (isnan(std::real(result))) { result = 0.0; }
-      if (isinf(std::real(result))) { result = 1.0e+20; }
+
+      Util::fixNan(result);
+      Util::fixInf(result);
+
       savedResult_ = result;
     }
     else

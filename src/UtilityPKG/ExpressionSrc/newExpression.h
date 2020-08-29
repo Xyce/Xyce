@@ -61,6 +61,29 @@
 namespace Xyce {
 namespace Util {
 
+template <typename ScalarA>
+inline void fixNan(ScalarA & result) { if (isnan(std::real(result))) { result = 0.0; } }
+
+template <>
+inline void fixNan(std::complex<double> & result) 
+{ 
+  if (isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; } 
+  if (isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; } 
+}
+
+template <typename ScalarA>
+inline void fixInf(ScalarA & result) { if (isinf(std::real(result))) { bool neg = signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
+
+template <>
+inline void fixInf(std::complex<double> & result) 
+{ 
+  bool negReal = signbit(std::real(result));
+  bool negImag = signbit(std::imag(result));
+
+  if (isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;} 
+  if (isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;} 
+}
+
 //-----------------------------------------------------------------------------
 // Class         : newExpression
 // Purpose       :
