@@ -888,15 +888,6 @@ double outputsXyceExpressionGroup::getTimeStep ()
 //-------------------------------------------------------------------------------
 double outputsXyceExpressionGroup::getTime() 
 { 
-  // I would have preferred to use this but as the code is currently written it
-  // is not safe.  The earliest call I would need to make to getTime happens before 
-  // the stepErrorControl class has been allocated.  Unfortunately, the analysis
-  // manager accessor returns an invalid reference in that case, which I can't 
-  // really test for.
-  //
-  //const TimeIntg::StepErrorControl & secControl_ = (analysisManager_.getStepErrorControl());
-  //time_ = secControl_.nextTime;
-  //time_ = deviceManager_.getSolverState().currTime_;
   time_ = outputManager_.getCircuitTime();
   return time_;
 } 
@@ -939,7 +930,7 @@ double outputsXyceExpressionGroup::getVT  ()
 //-------------------------------------------------------------------------------
 double outputsXyceExpressionGroup::getFreq() 
 { 
-  freq_ = deviceManager_.getSolverState().currFreq_;
+  freq_ = outputManager_.getFrequency();
   return freq_;
 } 
 
