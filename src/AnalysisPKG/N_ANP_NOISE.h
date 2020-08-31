@@ -94,6 +94,11 @@ class NOISE: public AnalysisBase, public Util::ListenerAutoSubscribe<StepEvent>
     return tiaParams_;
   }
 
+  double getCurrentFreq()
+  {
+    return currentFreq_;
+  }
+
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
   bool setACLinSolOptions(const Util::OptionBlock &option_block);
