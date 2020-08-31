@@ -1128,6 +1128,7 @@ class paramOp: public astNode<ScalarT>
         << " id = " << this->id_ 
         << " node_id = " << paramNode_->getId()
         << std::endl;
+        paramNode_->output(os,indent+2);
     }
 
     virtual void compactOutput(std::ostream & os)
