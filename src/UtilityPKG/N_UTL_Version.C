@@ -177,7 +177,7 @@ std::string Version::getCapabilities()
 #endif
 
 #ifdef Xyce_NONFREE_MODELS
-  capabilities += "Non-GPL device models\n";
+  capabilities += "Non-Free device models\n";
 #endif
 
 #ifdef Xyce_MODSPEC_MODELS
@@ -185,7 +185,7 @@ std::string Version::getCapabilities()
 #endif
 
 #ifdef Xyce_USE_FFT
-  capabilities += "FFT";
+  capabilities += "FFT ";
 #ifdef Xyce_USE_INTEL_FFT
   capabilities += "(Intel FFT)\n";
 #else
@@ -261,36 +261,51 @@ std::string Version::getLicense()
 #ifdef Xyce_RAD_MODELS
   License += "\n EXPORT CONTROLLED SOFTWARE\n";
   License += "\n";
-  License += " Copyright 2002 National Technology & Engineering Solutions of Sandia,\n";
+  License += " Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
   License += " LLC (NTESS).  Under the terms of Contract DE-NA0003525 with NTESS,\n";
   License += " there is a non-exclusive license for use of this work by or on behalf\n";
   License += " of the U.S. Government.  Export of this data may require a license\n";
   License += " from the United States Government.\n";
+
+#elif defined Xyce_NONFREE_MODELS
+  License += "\n Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
+  License += " LLC (NTESS).  Under the terms of Contract DE-NA0003525 with NTESS,\n";
+  License += " there is a non-exclusive license for use of this work by or on behalf\n";
+  License += " of the U.S. Government.  Export of this data may require a license\n";
+  License += " from the United States Government.\n";
+  License += "\n";
+  License += " NOTICE:\n";
+  License += " For five (5) years from 6/17/2020, the United States Government is\n";
+  License += " granted for itself and others acting on its behalf a paid-up,\n";
+  License += " nonexclusive, irrevocable worldwide license in this data to reproduce,\n";
+  License += " prepare derivative works, and perform publicly and display publicly,\n";
+  License += " by or on behalf of the Government.  There is provision for the\n";
+  License += " possible extension of the term of this license.  Subsequent to that\n";
+  License += " period or any extension granted, the United States Government is\n";
+  License += " granted for itself and others acting on its behalf a paid-up,\n";
+  License += " nonexclusive, irrevocable worldwide license in this data to reproduce,\n";
+  License += " prepare derivative works, distribute copies to the public, perform\n";
+  License += " publicly and display publicly, and to permit others to do so.  The\n";
+  License += " specific term of the license can be identified by inquiry made to\n";
+  License += " National Technology and Engineering Solutions of Sandia, LLC or DOE.\n";
+  License += "\n";
+  License += " NEITHER THE UNITED STATES GOVERNMENT, NOR THE UNITED STATES DEPARTMENT\n";
+  License += " OF ENERGY, NOR NATIONAL TECHNOLOGY AND ENGINEERING SOLUTIONS OF\n";
+  License += " SANDIA, LLC, NOR ANY OF THEIR EMPLOYEES, MAKES ANY WARRANTY, EXPRESS\n";
+  License += " OR IMPLIED, OR ASSUMES ANY LEGAL RESPONSIBILITY FOR THE ACCURACY,\n";
+  License += " COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT, OR\n";
+  License += " PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT INFRINGE\n";
+  License += " PRIVATELY OWNED RIGHTS.\n";
+  License += "\n";
+  License += " Any licensee of \"XyceNF\" has the obligation and responsibility to abide\n";
+  License += " by the applicable export control laws, regulations, and general\n";
+  License += " prohibitions relating to the export of technical data.  Failure to\n";
+  License += " obtain an export control license or other authority from the\n";
+  License += " Government may result in criminal liability under U.S. laws.\n";
 #else
 
-#ifdef Xyce_NONFREE_MODELS
-  License += "\n THIS IS NOT AN OPEN SOURCE BINARY\n";
-  License += "\n";
-  License += " The EKV3 model is not an open source model.  It was developed by the\n";
-  License += " EKV Team of the Electronics Laboratory-TUC of the Technical University\n";
-  License += " of Crete.  TUC has granted Sandia National Laboratories a\n";
-  License += " non-exclusive, royalty-free license to use, copy, modify, implement and\n";
-  License += " distribute the EKV3 Model Code in the form of compiled, executable\n";
-  License += " code.  Sandia National Laboratories is not licensed to distribute this\n";
-  License += " code in source form.  Documentation of the EKV3 model is available on\n";
-  License += " the Xyce internal web site:\n";
-  License += " http://info.sandia.gov/xyce/\n";
-  License += "\n";
-  License += " More information about the EKV model (including contact information\n";
-  License += " for the EKV Model Team) is available at the EKV web site:\n";
-  License += " http://ekv.epfl.ch/.\n\n";
-  License += "\n";
-  License += " All components of this version of Xyce OTHER THAN the EKV3 model are\n";
-  License += " released under the GNU Public License.\n";
-#endif
-
   License +="\n Xyce(TM) Parallel Electrical Simulator\n";
-  License +=" Copyright 2002 National Technology & Engineering Solutions of Sandia,\n";
+  License +=" Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
   License +=" LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the\n";
   License +=" U.S. Government retains certain rights in this software.\n";
   License +="\n";
@@ -306,14 +321,6 @@ std::string Version::getLicense()
   License +="\n";
   License +=" You should have received a copy of the GNU General Public License\n";
   License +=" along with this program.  If not, see <http://www.gnu.org/licenses/>.\n";
-  License +="\n";
-  License +="\n";
-
-#ifdef Xyce_NONFREE_MODELS
-  License +="To obtain source code for components of Xyce EXCLUDING the EKV model,\n";
-  License +="see the Xyce web site, http://xyce.sandia.gov/.\n";
-#endif
-
 #endif
 
   return License;
@@ -323,7 +330,9 @@ std::string Version::getLicense()
 //-----------------------------------------------------------------------------
 // Function      : Version::getXyceName
 // Purpose       : Return a string with the copyrighted name of this build
-// Special Notes : "XyceRad" means it is the OUO/ECI version, "Xyce" for others
+// Special Notes : "XyceRad" means it is the OUO/ECI variant, "XyceNF" if it
+//                 includes the "non-free" models (but not the ECI models),
+//                 and "Xyce" for the open source variant
 // Scope         :
 // Creator       : Tom Russo
 // Creation Date : 6/10/2013
@@ -333,6 +342,8 @@ std::string Version::getXyceName()
   std::string XyceName="";
 #if defined(Xyce_RAD_MODELS) || defined(Xyce_ATHENA)
   XyceName="XyceRad";
+#elif defined Xyce_NONFREE_MODELS
+  XyceName="XyceNF";
 #else
   XyceName="Xyce";
 #endif
