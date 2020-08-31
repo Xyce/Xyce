@@ -60,4 +60,5 @@ libAnalysis_la_SOURCES = \
   N_ANP_SweepParam.h \
   N_ANP_SweepParamFreeFunctions.h \
   N_ANP_Transient.h \
-  N_ANP_UQSupport.h 
+  N_ANP_UQSupport.h \
+  N_ANP_UQ_fwd.h 

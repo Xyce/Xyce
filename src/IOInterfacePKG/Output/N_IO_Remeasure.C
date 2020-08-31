@@ -34,6 +34,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_OutputMgrAdapter.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_Remeasure.h>
 

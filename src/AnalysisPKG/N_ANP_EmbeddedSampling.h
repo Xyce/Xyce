@@ -44,7 +44,7 @@
 #include <N_TOP_fwd.h>
 #include <N_IO_fwd.h>
 
-#include <N_ANP_UQSupport.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 

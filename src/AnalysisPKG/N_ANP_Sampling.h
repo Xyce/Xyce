@@ -41,12 +41,18 @@
 #include <N_PDS_fwd.h>
 #include <N_TOP_fwd.h>
 
-#include <N_ANP_UQSupport.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 
 #include <N_UTL_ExpressionData.h>
 #include <N_UTL_MachDepParams.h>
+
+#if Xyce_STOKHOS_ENABLE
+// make sure linking against the correct trilinos!
+#include "Stokhos_Sacado.hpp"
+#include "Stokhos_Sacado_Kokkos.hpp"
+#endif
 
 namespace Xyce {
 namespace Analysis {

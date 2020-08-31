@@ -89,6 +89,8 @@
 #include <N_UTL_NoCase.h>
 #include <N_UTL_Version.h>
 
+#include <N_ANP_UQSupport.h>
+
 namespace Xyce {
 namespace IO {
 

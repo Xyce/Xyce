@@ -26,6 +26,7 @@
 
 #include <N_PDS_fwd.h>
 #include <N_IO_fwd.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_ANP_SweepParam.h>
 #include <N_ANP_SweepParamFreeFunctions.h>
 
@@ -42,8 +43,6 @@
 namespace Xyce {
 namespace Analysis {
 namespace UQ {
-
-enum SampleType {MC, LHS};
 
 //-----------------------------------------------------------------------------
 struct statisticalMoments

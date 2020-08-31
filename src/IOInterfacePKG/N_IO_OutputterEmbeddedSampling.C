@@ -44,6 +44,8 @@
 #include <N_IO_OutputterEmbeddedSamplingTecplot.h>
 #include <N_IO_OutputMgr.h>
 
+#include <N_ANP_UQSupport.h>
+
 namespace Xyce {
 namespace IO {
 namespace Outputter {

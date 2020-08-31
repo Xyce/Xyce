@@ -46,8 +46,8 @@
 #include <N_IO_OutputTypes.h>
 #include <N_LAS_fwd.h>
 #include <N_ANP_fwd.h>
+#include <N_ANP_UQ_fwd.h>
 
-#include <N_ANP_UQSupport.h>
 #include <N_UTL_NetlistLocation.h>
 #include <N_UTL_Op.h>
 #include <N_UTL_Param.h>
