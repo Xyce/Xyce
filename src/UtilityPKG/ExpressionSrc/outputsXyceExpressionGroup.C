@@ -142,7 +142,7 @@ bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, do
 //-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getSolutionVal
 // Purpose       : 
-// Special Notes : std::complex<double> precision version
+// Special Notes : std::complex<double> version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
@@ -222,7 +222,7 @@ bool outputsXyceExpressionGroup::getCurrentVal(
 //-------------------------------------------------------------------------------
 // Function      : outputsXyceExpressionGroup::getCurrentVal
 // Purpose       : retrieve the value of device current.  This can be a lead current or a Vsrc
-// Special Notes : double precision version
+// Special Notes : std::complex<double> version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/26/2020
@@ -233,9 +233,40 @@ bool outputsXyceExpressionGroup::getCurrentVal(
     std::complex<double> & retval )
 {
   bool success=true;
+
+#if 0
   double tmpval;
   getCurrentVal(deviceName, designator, tmpval);
   retval = std::complex<double>(tmpval,0.0);
+#else
+  ParamList paramList;
+  paramList.push_back(Param(designator,1));
+  paramList.push_back(Param(deviceName,0.0));
+  Op::OpList internalDeviceVarOps_;
+
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDeviceVarOps_));
+
+  // loop over expressionOps_ to get all the values.
+  //std::vector<double> variableValues;
+  std::vector<std::complex<double> > variableValues;
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_));
+  }
+
+  retval = 0.0;
+  if ( !(variableValues.empty()) )
+  {
+    retval = variableValues[0];
+    success=true;
+  }
+  else
+  {
+    success=false;
+  }
+#endif
+
   return success;
 }
 
