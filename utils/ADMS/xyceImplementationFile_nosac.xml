@@ -80,10 +80,9 @@
   <admst:variable name="numNodes" select="%(count(node[grounded='no']))"/>
 
   <!-- check for correctness of collapse constructions -->
-  <admst:variable name="collapseFailure" select="no"/>
   <admst:apply-templates   select="analog/code/item" match="recursiveFindContrib"/>
   <admst:if test="[$collapseFailure = 'yes']">
-    <admst:error format="Aborting due to collapse-related errors.\n"/>
+    <admst:fatal format="Aborting due to collapse-related errors.\n"/>
   </admst:if>
 
   <!-- First collect any voltage limiting information: -->
