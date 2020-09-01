@@ -72,13 +72,13 @@ inline void fixNan(std::complex<double> & result)
 }
 
 template <typename ScalarA>
-inline void fixInf(ScalarA & result) { if (isinf(std::real(result))) { bool neg = signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
+inline void fixInf(ScalarA & result) { if (isinf(std::real(result))) { bool neg = std::signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
 
 template <>
 inline void fixInf(std::complex<double> & result) 
 { 
-  bool negReal = signbit(std::real(result));
-  bool negImag = signbit(std::imag(result));
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
 
   if (isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;} 
   if (isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;} 
