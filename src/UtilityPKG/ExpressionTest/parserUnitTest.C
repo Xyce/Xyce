@@ -62,9 +62,9 @@
 // must be derived from the base expression group class.  To be useful, they
 // must implement some of the virtual functions of that class.
 //
-// The groups in this file were originally written "as needed" and thus are 
-// partially (or entirely) redundant with each other.  They were originally 
-// scattered throughout this file, near the various tests that used them,  
+// The groups in this file were originally written "as needed" and thus are
+// partially (or entirely) redundant with each other.  They were originally
+// scattered throughout this file, near the various tests that used them, 
 // but the file has been rearranged to have them at the top.  These groups
 // could probably be consolidated to have a smaller list.
 //-------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
     solnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0),
          VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0), ACC1val(0.0)
   {};
     ~solnExpressionGroup () {};
@@ -162,7 +162,7 @@ class solutionGroup : public Xyce::Util::baseExpressionGroup
     internalVars_[lowerName] = val;
   };
 
-  bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval ) 
+  bool getCurrentVal(const std::string & deviceName, const std::string & designator, double & retval )
   {
     return getSolutionVal(deviceName, retval);
   }
@@ -186,7 +186,7 @@ class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
     currSolnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0),
          VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
   {};
     ~currSolnExpressionGroup () {};
@@ -237,10 +237,10 @@ class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
       Xyce::Util::baseExpressionGroup() {};
     ~leadCurrentExpressionGroup () {};
 
-  bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval ) 
-  { 
+  bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval )
+  {
     bool retbool = true;
-    retval=0.0; 
+    retval=0.0;
     std::string des=designator;
     Xyce::Util::toUpper(des);
 
@@ -263,7 +263,7 @@ class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
     return retbool;
   }
 
-  bool setCurrentVal  ( const std::string & deviceName, const std::string & designator, double setval ) 
+  bool setCurrentVal  ( const std::string & deviceName, const std::string & designator, double setval )
   {
     std::string des=designator;
     Xyce::Util::toUpper(des);
@@ -341,8 +341,8 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
   void setONoise (double val) { onoise_ = val; };
   void setINoise (double val) { inoise_ = val; };
 
-  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
-  { 
+  virtual bool getDnoNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val)
+  {
     bool retval=true;
     std::string lowerName;
     if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
@@ -352,8 +352,8 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
     return retval;
   }
 
-  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val) 
-  { 
+  virtual bool getDniNoiseDeviceVar(const std::vector<std::string> & deviceNames, double & val)
+  {
     bool retval=true;
     std::string lowerName;
     if ( !(deviceNames.empty()) ) lowerName = deviceNames[0];
@@ -7315,13 +7315,17 @@ TEST ( Double_Parser_NestedFunc_Test, func_cir_newResolution2)
 //
 // Also, it would probably be good if we could automatically prune or 
 // shrink the tree.
+//
+// As of this writing (9/1/2020), this test is very slow. Reducing from 1000 to 200.
 //-------------------------------------------------------------------------------
-TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
+//TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
+TEST ( Double_Parser_NestedFunc_Test, 200nest_no_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
-  int numFuncs=1000;
+  //int numFuncs=1000;
+  int numFuncs=200;
 
   // this expression will use the .func f.
   std::string testExprFunctionString = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
@@ -7379,7 +7383,7 @@ TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
   double refresult = 10.0;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO3 ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
+  OUTPUT_MACRO3 ( Double_Parser_NestedFunc_Test, 200nest_no_deriv)
 }
 
 //-------------------------------------------------------------------------------
@@ -9868,6 +9872,57 @@ TEST ( Double_Parser_ErrorTest,  bad_user_defined_func )
 }
 
 //-------------------------------------------------------------------------------
+// This test is to make sure new expression library doesn't crash when you
+// attach an invalid function.  The invalid function is the udfA function, which
+// has a syntax error.
+//
+// This test does NOT compare against a test value.
+//
+// The test succeeds if the testExpression.evaluateFunction function can be
+// called without causing a seg fault.  It should also test to ensure that the
+// rhs expression triggers a syntax error, but I haven't figured out how to test
+// that yet.
+//
+// Good news: no segfault.
+// Bad news:  (as of 9/1/2020) no syntax error for extra paren at the end.
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_ErrorTest,  bad_user_defined_func2 )
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func udfA.
+  Xyce::Util::newExpression testExpression(std::string("udfA(10p,1u)/50"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // The correct function declaration would be: .func udfA(mu,sigma) {exp(mu/sigma)}
+  // But I am using an incorrect one:           .func udfA(mu,sigma) {exp(mu/sigma))} (extra paren)
+  // But I am using an incorrect one:           .func udfA(mu,sigma) {exp(mu/sigma} (missing paren)
+  std::string udfAName;
+  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression;
+  std::string lhs=std::string("udfA(mu,sigma)");
+  //std::string rhs=std::string("exp(mu/sigma))");
+  std::string rhs=std::string("exp(mu/sigma");
+  createFunc(lhs,rhs,testGroup, udfAName,udfAExpression);
+
+  testExpression.attachFunctionNode(udfAName, udfAExpression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  double result;
+  testExpression.evaluateFunction(result);
+  copyExpression.evaluateFunction(result);
+  assignExpression.evaluateFunction(result);
+  OUTPUT_MACRO(Double_Parser_ErrorTest,  bad_user_defined_func2)
+}
+
+//-------------------------------------------------------------------------------
 // From: SENS/improperObjFormat.cir
 //
 //  objfunc={{I(VM),V(3)*V(3)}
@@ -9891,7 +9946,7 @@ TEST ( Double_Parser_ErrorTest,  bad_obj_func)
   //Xyce::Util::newExpression copyExpression(testExpression);
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
- 
+
 #if 0
   testExpression.dumpParseTree(std::cout);
 #endif
@@ -9920,7 +9975,7 @@ TEST ( Double_Parser_inlineComp, equiv)
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
-  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2u"), baseGroup)); 
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2u"), baseGroup));
   wExpression->lexAndParseExpression();
   std::string wName="w";
 
@@ -9928,16 +9983,16 @@ TEST ( Double_Parser_inlineComp, equiv)
   e11.lexAndParseExpression();
   e11.attachParameterNode(wName,wExpression);
 
-  Xyce::Util::newExpression copy_e11(e11); 
-  Xyce::Util::newExpression assign_e11; 
-  assign_e11 = e11; 
+  Xyce::Util::newExpression copy_e11(e11);
+  Xyce::Util::newExpression assign_e11;
+  assign_e11 = e11;
 
   double result=0.0;
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e-9);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0e-9);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0e-9);
 
-  OUTPUT_MACRO2(Double_Parser_ternary_precedence, equiv, e11) 
+  OUTPUT_MACRO2(Double_Parser_ternary_precedence, equiv, e11)
 }
 
 //-------------------------------------------------------------------------------
@@ -9946,7 +10001,7 @@ TEST ( Double_Parser_inlineComp, notEquiv)
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
-  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2"), baseGroup)); 
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2"), baseGroup));
   wExpression->lexAndParseExpression();
   std::string wName="w";
 
@@ -9954,16 +10009,16 @@ TEST ( Double_Parser_inlineComp, notEquiv)
   e11.lexAndParseExpression();
   e11.attachParameterNode(wName,wExpression);
 
-  Xyce::Util::newExpression copy_e11(e11); 
-  Xyce::Util::newExpression assign_e11; 
-  assign_e11 = e11; 
+  Xyce::Util::newExpression copy_e11(e11);
+  Xyce::Util::newExpression assign_e11;
+  assign_e11 = e11;
 
   double result=0.0;
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0e9);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0e9);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0e9);
 
-  OUTPUT_MACRO2(Double_Parser_ternary_precedence, notEquiv, e11) 
+  OUTPUT_MACRO2(Double_Parser_ternary_precedence, notEquiv, e11)
 }
 
 
@@ -9988,7 +10043,7 @@ TEST ( Double_Parser_ErrorTest,  power_unsupported_devices)
   //Xyce::Util::newExpression copyExpression(testExpression);
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
- 
+
 #if 0
   testExpression.dumpParseTree(std::cout);
 #endif
@@ -10003,20 +10058,20 @@ TEST ( Double_Parser_ErrorTest,  power_unsupported_devices)
 
 //-------------------------------------------------------------------------------
 //
-// The point of this function is just to get thru the lex/parse phase w/o a 
+// The point of this function is just to get thru the lex/parse phase w/o a
 // syntax error.  So, I don't care about the result.
 //
-// The issue here (prompted by bug 28) is that the name "int" is used in that 
-// test as a node name.  And, that node name is initially processed as an 
-// expression.  The parser was interpretting "int" as the operator, when it 
+// The issue here (prompted by bug 28) is that the name "int" is used in that
+// test as a node name.  And, that node name is initially processed as an
+// expression.  The parser was interpretting "int" as the operator, when it
 // needed to be perceiving it as an unresolved string.
 //
-// Note to self: I changed the lexer and parser so that the "int" operator 
-// token (TOK_INT) now includes the left paren.  That way, if the left paren 
+// Note to self: I changed the lexer and parser so that the "int" operator
+// token (TOK_INT) now includes the left paren.  That way, if the left paren
 // is not present, it it tokenized as the generic TOK_WORD.  Given that the
 // Xyce parser is used in this way, to process node names that ultimately are
 // not really expressions, I should probably update a lot of the
-// operators in this manner to force them to include the left paren in their 
+// operators in this manner to force them to include the left paren in their
 // token.
 //
 //-------------------------------------------------------------------------------
@@ -10026,11 +10081,11 @@ TEST ( Double_Parsing_Syntax, bug28_1)
   Xyce::Util::newExpression testExpression(std::string("Int"), testGroup);
   testExpression.lexAndParseExpression();
   double result;
-  testExpression.evaluateFunction(result); 
+  testExpression.evaluateFunction(result);
 }
 
 #if 0
-// Similar to the above with "int", theoretically a user could attempt to 
+// Similar to the above with "int", theoretically a user could attempt to
 // use operator names as parameter names.  For example (below) sdt.
 //
 // Q:  Should I fix this for all operators that take an argument inside of parens?
@@ -10040,7 +10095,7 @@ TEST ( Double_Parsing_Syntax, bug28_2)
   Xyce::Util::newExpression testExpression(std::string("SDT"), testGroup);
   testExpression.lexAndParseExpression();
   double result;
-  testExpression.evaluateFunction(result); 
+  testExpression.evaluateFunction(result);
 }
 #endif
 
