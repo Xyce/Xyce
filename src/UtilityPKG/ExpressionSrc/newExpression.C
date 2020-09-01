@@ -318,52 +318,59 @@ bool newExpression::attachFunctionNode(
     const std::string & funcName, 
     const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
-  bool retval=true;
-  externalExpressions_.push_back(expPtr);
+  bool retval=false;
 
-  // should I use upper?
-  std::string funcNameUpper=funcName;
-  Xyce::Util::toUpper(funcNameUpper);
-
-  if (funcOpMap_.find(funcNameUpper) != funcOpMap_.end())
+  if ( !(Teuchos::is_null(expPtr)) )
   {
-    std::vector<Teuchos::RCP<astNode<usedType> > > & tmpVec = funcOpMap_[funcNameUpper];
-    for (int ii=0;ii<tmpVec.size();++ii)
+    externalExpressions_.push_back(expPtr);
+
+    // should I use upper?
+    std::string funcNameUpper=funcName;
+    Xyce::Util::toUpper(funcNameUpper);
+
+    if (funcOpMap_.find(funcNameUpper) != funcOpMap_.end())
     {
-      if ( !(Teuchos::is_null(tmpVec[ii])) )
+      std::vector<Teuchos::RCP<astNode<usedType> > > & tmpVec = funcOpMap_[funcNameUpper];
+      for (int ii=0;ii<tmpVec.size();++ii)
       {
-        tmpVec[ii]->setNode(expPtr->getAst());
-        Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
-        if ( !(Teuchos::is_null(castedFuncPtr)) )
+        if ( !(Teuchos::is_null(tmpVec[ii])) )
         {
-          castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() );
-
-          int size1 = castedFuncPtr->getFuncArgs().size();
-          int size2 = expPtr->getFunctionArgOpVec().size();
-          // getFunctionArgStringVec
-          if (size1 != size2)
+          if ( !(Teuchos::is_null( expPtr->getAst() )))
           {
-            std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
-            for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
+            tmpVec[ii]->setNode(expPtr->getAst());
+            Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
+            if ( !(Teuchos::is_null(castedFuncPtr)) )
             {
-              errMsg += expPtr->getFunctionArgStringVec()[ii];
-              if (size2 > 1 && ii < size2-1) { errMsg += ","; }
-            }
-            errMsg += ") in expression " + originalExpressionString_;
-            Xyce::Report::UserError() << errMsg;
-          }
+              castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() );
 
-          castedFuncPtr->setSdtArgs( expPtr->getLocalSdtOpVec() );
-          castedFuncPtr->setDdtArgs( expPtr->getLocalDdtOpVec() );
+              int size1 = castedFuncPtr->getFuncArgs().size();
+              int size2 = expPtr->getFunctionArgOpVec().size();
+              // getFunctionArgStringVec
+              if (size1 != size2)
+              {
+                std::string errMsg = "Wrong number of arguments for user defined function " + castedFuncPtr->getName() + "(";
+                for (int ii=0; ii<  expPtr->getFunctionArgStringVec().size();ii++)
+                {
+                  errMsg += expPtr->getFunctionArgStringVec()[ii];
+                  if (size2 > 1 && ii < size2-1) { errMsg += ","; }
+                }
+                errMsg += ") in expression " + originalExpressionString_;
+                Xyce::Report::UserError() << errMsg;
+              }
+
+              castedFuncPtr->setSdtArgs( expPtr->getLocalSdtOpVec() );
+              castedFuncPtr->setDdtArgs( expPtr->getLocalDdtOpVec() );
+              retval=true;
+            }
+          }
         }
-        else { retval=false; }
       }
-      else { retval=false; }
+      externalDependencies_ = true;
+      astArraysSetup_ = false;
     }
-    externalDependencies_ = true;
-    astArraysSetup_ = false;
+    else { retval=false; }
   }
-  else { retval=false; }
+
   return retval;
 }
 
@@ -390,23 +397,32 @@ bool newExpression::attachParameterNode(
     const Teuchos::RCP<Xyce::Util::newExpression> expPtr, 
     enumParamType type)
 {
-  bool retval=true;
-  externalExpressions_.push_back(expPtr);
+  bool retval=false;
 
-  std::string paramNameUpper=paramName;
-  Xyce::Util::toUpper(paramNameUpper);
-  std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
-  if ( nameIter != paramNameVec_.end() )
+  if ( !(Teuchos::is_null(expPtr)) )
   {
-    int index = std::distance(paramNameVec_.begin(),nameIter);
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
-    parOp->setNode(expPtr->getAst());
-    parOp->setIsAttached();
-    parOp->setParamType(type);
-    externalDependencies_ = true;
-    astArraysSetup_ = false;
+    externalExpressions_.push_back(expPtr);
+    std::string paramNameUpper=paramName;
+    Xyce::Util::toUpper(paramNameUpper);
+    std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
+    if ( nameIter != paramNameVec_.end() )
+    {
+      int index = std::distance(paramNameVec_.begin(),nameIter);
+      if(index < paramOpVec_.size())
+      {
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
+        if ( !(Teuchos::is_null( expPtr->getAst() )))
+        {
+          parOp->setNode(expPtr->getAst());
+          parOp->setIsAttached();
+          parOp->setParamType(type);
+          externalDependencies_ = true;
+          astArraysSetup_ = false;
+          retval=true;
+        }
+      }
+    }
   }
-  else { retval=false; }
   return retval;
 }
 
