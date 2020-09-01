@@ -65,10 +65,10 @@ template <typename ScalarA>
 inline void fixNan(ScalarA & result) { if (isnan(std::real(result))) { result = 0.0; } }
 
 template <>
-inline void fixNan(std::complex<double> & result) 
-{ 
-  if (isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; } 
-  if (isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; } 
+inline void fixNan(std::complex<double> & result)
+{
+  if (isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; }
+  if (isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; }
 }
 
 template <typename ScalarA>
@@ -80,8 +80,8 @@ inline void fixInf(std::complex<double> & result)
   bool negReal = std::signbit(std::real(result));
   bool negImag = std::signbit(std::imag(result));
 
-  if (isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;} 
-  if (isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;} 
+  if (isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
+  if (isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
 }
 
 //-----------------------------------------------------------------------------
@@ -723,7 +723,7 @@ public:
   std::vector<std::string> & getCurrentNameVec () { return currentNameVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
-    setupVariousAstArrays (); 
+    setupVariousAstArrays ();
     return currentOpNames_;
   };
 
@@ -737,11 +737,17 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getBsrcCurrentOpVec () { return bsrcCurrentOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getBsrcCurrentOpNames ()
   {
-    setupVariousAstArrays (); 
+    setupVariousAstArrays ();
     return bsrcCurrentOpNames_;
   }
 
-  void codeGen( std::ostream & os ) { astNodePtr_->codeGen(os); os << ";" <<std::endl; };
+  void codeGen( std::ostream & os )
+  {
+    if ( !(Teuchos::is_null(astNodePtr_)) )
+    {
+      astNodePtr_->codeGen(os); os << ";" <<std::endl;
+    }
+  };
 
   std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
@@ -774,9 +780,9 @@ public:
   // So if we have .func abc(x,y) {x+y+10}
   // At a certain point the prototype abc(x,y) will get parsed, and x,y are the prototype args.
   //
-  // The old Xyce source code uses an expression to parse abc(x,y) so I'm attempting to 
-  // do the same here. When doing this, it is necessary to keep the args in order, 
-  // which is why I can't rely on the getParamOpVec function (as the paramOpVec is in 
+  // The old Xyce source code uses an expression to parse abc(x,y) so I'm attempting to
+  // do the same here. When doing this, it is necessary to keep the args in order,
+  // which is why I can't rely on the getParamOpVec function (as the paramOpVec is in
   // the same order as the paramOpMap)
   void getFuncPrototypeArgStrings ( std::vector< std::string > & funcArgStrings )
   {
@@ -794,7 +800,7 @@ public:
   }
 
   // when parsing the function prototype, the function name is needed as well.
-  void getFuncPrototypeName ( std::string & prototypeName) 
+  void getFuncPrototypeName ( std::string & prototypeName)
   {
     if(!(funcOpVec_.empty()))
     {
@@ -807,7 +813,7 @@ public:
 
 
   // "expression" traversal functions, as opposed to AST traversals.
-  // Expression traverals make more sense for tracking specials (time, dt, temp, vt, freq, gmin), as each 
+  // Expression traverals make more sense for tracking specials (time, dt, temp, vt, freq, gmin), as each
   // expression object will have zero or one allocation of each special.
   // (which really should be 100% singletons, but for the time being are not)
   void getTimeNodes( std::vector<Teuchos::RCP<astNode<usedType> > > & timeVec)
@@ -898,7 +904,7 @@ private:
   std::vector<std::string> funcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > funcOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > funcOpMap_; 
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > funcOpMap_;
 
   std::vector<std::string> voltNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
@@ -967,7 +973,7 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > twoArgLimitOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > localTwoArgLimitOpVec_;
 
-  // master vector of nodes  
+  // master vector of nodes
   // This is only used for deleting the ast tree in the destructor
   std::vector< Teuchos::RCP<astNode<usedType> > * > masterAstNodeVec_;
 
