@@ -964,8 +964,8 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
     {
       Xyce::Report::UserWarning() << name_ << " failed. TO value <= 0";
     }
-    else if ( (riseGiven_ && actualRise_ < rise_) || (fallGiven_ && actualFall_ < fall_) ||
-              (crossGiven_ && actualCross_ < cross_))
+    else if ( (riseGiven_ && actualRise_ < abs(rise_)) || (fallGiven_ && actualFall_ < abs(fall_)) ||
+              (crossGiven_ && actualCross_ < abs(cross_)) )
     {
         Xyce::Report::UserWarning() << name_ << " failed. Measured Rise,Fall,Cross=(" << 
           actualRise_ << "," << actualFall_ << "," << actualCross_ << ")";

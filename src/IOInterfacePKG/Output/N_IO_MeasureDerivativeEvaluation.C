@@ -977,26 +977,23 @@ DerivativeEvaluationCont::DerivativeEvaluationCont(const Manager &measureMgr, co
   {
     contRise_=rise_;
     contRFC_=contRise_;
-    rise_=-1;
   }
   else if (fallGiven_)
   {
     contFall_=fall_;
     contRFC_=contFall_;
-    fall_=-1;
   }
   else if (crossGiven_)
   {
     contCross_=cross_;
     contRFC_=contCross_;
-    cross_=-1;
   }
   else
   {
     // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
-    contCross_=1;
+    cross_ = 0;
+    contCross_=cross_;
     contRFC_=contCross_;
-    cross_=-1;
     crossGiven_=true;
   }
 }
