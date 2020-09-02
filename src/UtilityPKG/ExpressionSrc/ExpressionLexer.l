@@ -322,7 +322,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(voltagenodedef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
 }
 
 <INITIAL>"VDB"    {
@@ -334,7 +334,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(voltagenodedef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
 }
 
  /* single node name by itself */
@@ -373,7 +373,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_CURRENT;
 } 
 
 
@@ -386,7 +386,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_CURRENT;
 } 
 
  /* single device name by itself */
@@ -406,7 +406,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(internaldevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR;
 }
 
 
@@ -419,7 +419,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(internaldevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR;
 }
 
   /* S-parameters */
@@ -432,7 +432,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(sparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
 <INITIAL>"SDB"    {
@@ -444,7 +444,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(sparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
  /* second index in a comma-separated list of two sparam indices */
@@ -474,7 +474,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(yparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
 <INITIAL>"YDB"    {
@@ -486,7 +486,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(yparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
  /* second index in a comma-separated list of two yparam indices */
@@ -516,7 +516,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(zparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
 <INITIAL>"ZDB"    {
@@ -528,7 +528,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(zparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
 
  /* second index in a comma-separated list of two zparam indices */
@@ -554,7 +554,7 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
-  return XyceExpression::ExpressionParser::token::TOK_INTERNAL_DEV_VAR;
+  return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR_DEV;
 }
 
 <INITIAL>"DNO"     {
@@ -566,7 +566,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(noisedevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_NOISE;
 }
 
  /* single device name by itself */
@@ -593,7 +593,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(noisedevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_NOISE;
 }
 
 <INITIAL>"ONOISE"     {
@@ -768,7 +768,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(polyvoltagenodedef); 
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
 }
 
  /* single node name by itself */
@@ -790,7 +790,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(polycurrentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
+  return XyceExpression::ExpressionParser::token::TOK_CURRENT;
 }
 
  /* single device name by itself */

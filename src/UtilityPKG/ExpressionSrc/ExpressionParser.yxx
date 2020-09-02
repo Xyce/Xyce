@@ -164,10 +164,15 @@ bool checkGroundNodeName(std::string & name)
 %token <sval> TOK_ONOISE "onoise"
 %token <sval> TOK_INOISE "inoise"
 %token <sval> TOK_POWER "power"
+%token <sval> TOK_VOLTAGE "voltage"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
+%token <sval> TOK_CURRENT "current"
 %token <sval> TOK_CURRENTDEV "currentdevice"
-%token <sval> TOK_INTERNAL_DEV_VAR "internal_device_variable"
+%token <sval> TOK_INTERNAL_VAR "internal_variable"
+%token <sval> TOK_INTERNAL_VAR_DEV "internal_variable_device"
+%token <sval> TOK_NOISE "noise"
 %token <sval> TOK_NOISE_DEV_VAR "noise_device_variable"
+%token <sval> TOK_RFPARAM "rfparam"
 %token <ival> TOK_RFPARAM_ARG "rf_param_arg"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
@@ -252,13 +257,18 @@ bool checkGroundNodeName(std::string & name)
 
 %destructor { delete $$; } TOK_WORD
 %destructor { delete $$; } TOK_LEAD
+%destructor { delete $$; } TOK_VOLTAGE
 %destructor { delete $$; } TOK_VOLTAGENODE
+%destructor { delete $$; } TOK_CURRENT
 %destructor { delete $$; } TOK_CURRENTDEV
-%destructor { delete $$; } TOK_INTERNAL_DEV_VAR
+%destructor { delete $$; } TOK_INTERNAL_VAR
+%destructor { delete $$; } TOK_INTERNAL_VAR_DEV
+%destructor { delete $$; } TOK_NOISE
 %destructor { delete $$; } TOK_NOISE_DEV_VAR
 %destructor { delete $$; } TOK_ONOISE
 %destructor { delete $$; } TOK_INOISE
 %destructor { delete $$; } TOK_POWER
+%destructor { delete $$; } TOK_RFPARAM
 %destructor { delete $$; } nonempty_voltagenodelist
 %destructor { delete $$; } nonempty_rfparam_arg_list
 %destructor { delete $$; } nonempty_noise_device_list
@@ -505,7 +515,7 @@ exp:
         delete $1;
         delete $3;
     }
-  | TOK_WORD nonempty_voltagenodelist
+  | TOK_VOLTAGE nonempty_voltagenodelist
     {
       std::vector<std::string> voltageNodes = *$2; 
       Teuchos::RCP<astNode<usedType> > * tmpPtr;
@@ -673,7 +683,7 @@ exp:
       delete $1;
       delete $2;
     }
-  | TOK_WORD TOK_CURRENTDEV
+  | TOK_CURRENT TOK_CURRENTDEV
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
 
@@ -788,7 +798,7 @@ exp:
         delete $2;
       }
     }
-  | TOK_WORD nonempty_rfparam_arg_list
+  | TOK_RFPARAM nonempty_rfparam_arg_list
     {
       std::string firstArg = (*$1);
       firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
@@ -897,7 +907,7 @@ exp:
       delete $1;
       delete $2;
     }
-  | TOK_WORD TOK_INTERNAL_DEV_VAR
+  | TOK_INTERNAL_VAR TOK_INTERNAL_VAR_DEV
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
 
@@ -963,7 +973,7 @@ exp:
       delete $1;
       delete $2;
     }
-  | TOK_WORD nonempty_noise_device_list
+  | TOK_NOISE nonempty_noise_device_list
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
       std::string firstArg = (*$1);
