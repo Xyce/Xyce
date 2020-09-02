@@ -632,51 +632,51 @@ LEAD I[SDGBEC1-9]
  /* built in functions */
 <INITIAL>"Ph"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
 <INITIAL>"R"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_REAL; }
-<INITIAL>"Re""("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
- /* <INITIAL>"Im"    { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */
-<INITIAL>"Img"   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
+<INITIAL>"Re"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
+ /* <INITIAL>"Im"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */
+<INITIAL>"Img"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
 
-<INITIAL>"max"   { return XyceExpression::ExpressionParser::token::TOK_MAX; }
-<INITIAL>"min"   { return XyceExpression::ExpressionParser::token::TOK_MIN; }
+<INITIAL>"max"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MAX; }
+<INITIAL>"min"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MIN; }
 
-<INITIAL>"exp"   { return XyceExpression::ExpressionParser::token::TOK_EXP; }
-<INITIAL>"log"   { return XyceExpression::ExpressionParser::token::TOK_LOG; }  /* Hspice version of ln. Xyce version of log=log10 */
+<INITIAL>"exp"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_EXP; }
+<INITIAL>"log"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_LOG; }  /* Hspice version of ln. Xyce version of log=log10 */
 
-<INITIAL>"sin"   { return XyceExpression::ExpressionParser::token::TOK_SIN; }
-<INITIAL>"cos"   { return XyceExpression::ExpressionParser::token::TOK_COS; }
+<INITIAL>"sin"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_SIN; }
+<INITIAL>"cos"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_COS; }
 <INITIAL>"M"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_MABS; }
-<INITIAL>"abs"   { return XyceExpression::ExpressionParser::token::TOK_ABS; }
-<INITIAL>"acos"  { return XyceExpression::ExpressionParser::token::TOK_ACOS; }
-<INITIAL>"acosh" { return XyceExpression::ExpressionParser::token::TOK_ACOSH; }
-<INITIAL>"asin"  { return XyceExpression::ExpressionParser::token::TOK_ASIN; }
-<INITIAL>"asinh" { return XyceExpression::ExpressionParser::token::TOK_ASINH; }
-<INITIAL>"arctan"  { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
-<INITIAL>"atan"  { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
-<INITIAL>"atan2"  { return XyceExpression::ExpressionParser::token::TOK_ATAN2; }
-<INITIAL>"atanh" { return XyceExpression::ExpressionParser::token::TOK_ATANH; }
-<INITIAL>"cosh"  { return XyceExpression::ExpressionParser::token::TOK_COSH; }
-<INITIAL>"ln"    { return XyceExpression::ExpressionParser::token::TOK_LN; }     /* Xyce version of ln */
-<INITIAL>"log10" { return XyceExpression::ExpressionParser::token::TOK_LOG10; }
-<INITIAL>"sinh"  { return XyceExpression::ExpressionParser::token::TOK_SINH; }
-<INITIAL>"tan"   { return XyceExpression::ExpressionParser::token::TOK_TAN; }
-<INITIAL>"tanh"  { return XyceExpression::ExpressionParser::token::TOK_TANH; }
+<INITIAL>"abs"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_ABS; }
+<INITIAL>"acos"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_ACOS; }
+<INITIAL>"acosh"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_ACOSH; }
+<INITIAL>"asin"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_ASIN; }
+<INITIAL>"asinh"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_ASINH; }
+<INITIAL>"arctan"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
+<INITIAL>"atan"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
+<INITIAL>"atan2"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_ATAN2; }
+<INITIAL>"atanh"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_ATANH; }
+<INITIAL>"cosh"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_COSH; }
+<INITIAL>"ln"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_LN; }     /* Xyce version of ln */
+<INITIAL>"log10"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_LOG10; }
+<INITIAL>"sinh"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_SINH; }
+<INITIAL>"tan"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_TAN; }
+<INITIAL>"tanh"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_TANH; }
 
-<INITIAL>"ceil"  { return XyceExpression::ExpressionParser::token::TOK_CEIL; }
-<INITIAL>"floor" { return XyceExpression::ExpressionParser::token::TOK_FLOOR; }
-<INITIAL>"limit" { return XyceExpression::ExpressionParser::token::TOK_LIMIT; }
+<INITIAL>"ceil"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_CEIL; }
+<INITIAL>"floor"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_FLOOR; }
+<INITIAL>"limit"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_LIMIT; }
 
-<INITIAL>"sdt"  { return XyceExpression::ExpressionParser::token::TOK_SDT; }
-<INITIAL>"ddt"  { return XyceExpression::ExpressionParser::token::TOK_DDT; }
-<INITIAL>"ddx"  { return XyceExpression::ExpressionParser::token::TOK_DDX; }
+<INITIAL>"sdt"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_SDT; }
+<INITIAL>"ddt"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_DDT; }
+<INITIAL>"ddx"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_DDX; }
 
-<INITIAL>"if"   { return XyceExpression::ExpressionParser::token::TOK_IF; }
+<INITIAL>"if"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_IF; }
 <INITIAL>"int"[ \t]*"(" { return XyceExpression::ExpressionParser::token::TOK_INT; }
 
-<INITIAL>"pwr"  {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
-<INITIAL>"pow"  {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
+<INITIAL>"pwr"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
+<INITIAL>"pow"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_POWFUNC; }
 <INITIAL>"**"   {return XyceExpression::ExpressionParser::token::TOK_POW; }
   /* <INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_POW; } */ /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
-<INITIAL>"pwrs" {return XyceExpression::ExpressionParser::token::TOK_POWSFUNC; }
+<INITIAL>"pwrs"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_POWSFUNC; }
 
 <INITIAL>"time" {return XyceExpression::ExpressionParser::token::TOK_TIME; }
 <INITIAL>"temp" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
@@ -688,19 +688,20 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"ctok" {return XyceExpression::ExpressionParser::token::TOK_C_TO_K; }
 
  /* random sampling related functions */
-<INITIAL>"rand"  {return XyceExpression::ExpressionParser::token::TOK_RAND; }
-<INITIAL>"unif"  {return XyceExpression::ExpressionParser::token::TOK_UNIF; }
-<INITIAL>"aunif"  {return XyceExpression::ExpressionParser::token::TOK_AUNIF; }
-<INITIAL>"agauss"  {return XyceExpression::ExpressionParser::token::TOK_AGAUSS; }
-<INITIAL>"gauss"  {return XyceExpression::ExpressionParser::token::TOK_GAUSS; }
+<INITIAL>"rand"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_RAND; }
+<INITIAL>"unif"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_UNIF; }
+<INITIAL>"aunif"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_AUNIF; }
+<INITIAL>"agauss"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_AGAUSS; }
+<INITIAL>"gauss"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_GAUSS; }
 
-<INITIAL>"sgn"   {return XyceExpression::ExpressionParser::token::TOK_SGN; }
-<INITIAL>"sign"  {return XyceExpression::ExpressionParser::token::TOK_SIGN; }
-<INITIAL>"stp"   {return XyceExpression::ExpressionParser::token::TOK_STP; }
-<INITIAL>"sqrt"  {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
-<INITIAL>"table" {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
-<INITIAL>"schedule" {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
-<INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
+<INITIAL>"sgn"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_SGN; }
+<INITIAL>"sign"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SIGN; }
+<INITIAL>"stp"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_STP; }
+<INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
+<INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
+<INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
+<INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
+<INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
 <INITIAL>"poly"  { return XyceExpression::ExpressionParser::token::TOK_BADPOLY; } 
 
@@ -816,15 +817,22 @@ LEAD I[SDGBEC1-9]
 
 
  /* a bunch of spice source functions.  Doing them the right way this time */
-<INITIAL>"spice_pulse" {return XyceExpression::ExpressionParser::token::TOK_SPICE_PULSE; }
-<INITIAL>"spice_sin" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SIN; }
-<INITIAL>"spice_exp" {return XyceExpression::ExpressionParser::token::TOK_SPICE_EXP; }
-<INITIAL>"spice_sffm" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SFFM; }
+<INITIAL>"spice_pulse"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_PULSE; }
+<INITIAL>"spice_sin"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SIN; }
+<INITIAL>"spice_exp"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_EXP; }
+<INITIAL>"spice_sffm"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SFFM; }
 
  /* letters */
 <INITIAL>{ID}+ { 
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD; 
+}
+
+ /* functions */
+<INITIAL>{ID}+[ \t]*"("  { 
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_FUNCTION; 
 }
 
  /* in order for # to be an allowed character in parameter and function names, this one-line comment rule had to go */

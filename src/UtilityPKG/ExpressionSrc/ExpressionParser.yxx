@@ -160,6 +160,7 @@ bool checkGroundNodeName(std::string & name)
 %token <dval> TOK_POLYCOEF "polycoef"
 %token <dval> TOK_NUM	"num"
 %token <sval> TOK_WORD "word"
+%token <sval> TOK_FUNCTION "function"
 %token <sval> TOK_LEAD "lead"
 %token <sval> TOK_ONOISE "onoise"
 %token <sval> TOK_INOISE "inoise"
@@ -220,6 +221,7 @@ bool checkGroundNodeName(std::string & name)
 %token TOK_SIGN	"sign"
 %token TOK_STP	"stp"
 %token TOK_TABLE	"table"
+%token TOK_TABLE2	"table2"
 %token TOK_SCHEDULE	"schedule"
 %token TOK_URAMP	"uramp"
 %token TOK_POLY	"poly"
@@ -256,6 +258,7 @@ bool checkGroundNodeName(std::string & name)
 %type  <dval>  paren_polycoef
 
 %destructor { delete $$; } TOK_WORD
+%destructor { delete $$; } TOK_FUNCTION
 %destructor { delete $$; } TOK_LEAD
 %destructor { delete $$; } TOK_VOLTAGE
 %destructor { delete $$; } TOK_VOLTAGENODE
@@ -438,15 +441,15 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-   | TOK_POWFUNC TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN 
+   | TOK_POWFUNC exp ',' exp TOK_RIGHTPAREN 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  (*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  (*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_POWSFUNC TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_POWSFUNC exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new pwrsOp<usedType>  (*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new pwrsOp<usedType>  (*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -476,23 +479,27 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SGN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_SGN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sgnOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sgnOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SIGN TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_SIGN exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new signOp<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new signOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_WORD TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_FUNCTION nonempty_arglist TOK_RIGHTPAREN
      {
-        Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(*$1,$3));
+        // remove whitespace from the function name
+        std::string functionName = (*$1);
+        functionName.erase(std::remove_if(functionName.begin(),functionName.end(), ::isspace), functionName.end());
+
+        Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,$2));
         newExp.getFuncOpVec().push_back(funcPtr);
-        newExp.getFuncNameVec().push_back(*$1);
+        newExp.getFuncNameVec().push_back(functionName);
 
         std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & funcOpMap 
           = newExp.getFuncOpMap();
@@ -500,20 +507,20 @@ exp:
         Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(funcPtr); // implicit cast
         newExp.getMasterNodeVec().push_back(tmpPtr2);
 
-        if (funcOpMap.find(*$1) == funcOpMap.end())
+        if (funcOpMap.find(functionName) == funcOpMap.end())
         {
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
           vec.push_back(*tmpPtr2);
-          funcOpMap[*$1] = vec;
+          funcOpMap[functionName] = vec;
         }
         else
         {
-          funcOpMap[*$1].push_back(*tmpPtr2);
+          funcOpMap[functionName].push_back(*tmpPtr2);
         }
 
         $$ = tmpPtr2;
         delete $1;
-        delete $3;
+        delete $2;
     }
   | TOK_VOLTAGE nonempty_voltagenodelist
     {
@@ -1021,15 +1028,15 @@ exp:
       delete inoisePtr;
     }
 
-  | TOK_MAX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_MAX  exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_MIN  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_MIN  exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new minOp<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new minOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1057,33 +1064,33 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_IMAG TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_IMAG exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SQRT TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_SQRT exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sqrtOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sqrtOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_EXP TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_EXP exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new expOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new expOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SIN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_SIN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sinOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sinOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_COS TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_COS exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new cosOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new cosOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1093,114 +1100,114 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ABS TOK_LEFTPAREN exp TOK_RIGHTPAREN 
+  | TOK_ABS exp TOK_RIGHTPAREN 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ACOS TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ACOS exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new acosOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new acosOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ACOSH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ACOSH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new acoshOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new acoshOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ASIN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ASIN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new asinOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new asinOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ASINH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ASINH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new asinhOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new asinhOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ATAN2 TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_ATAN2 exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atan2Op<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atan2Op<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ATAN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ATAN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ATANH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_ATANH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atanhOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atanhOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
 
-  | TOK_COSH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_COSH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new coshOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new coshOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_LN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_LN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new logOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new logOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_LOG TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_LOG exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr;
       if (Xyce::Util::useHspiceMath)
       {
-        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new logOp<usedType>(*$3));
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new logOp<usedType>(*$2));
       }
       else
       {
-        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$3));
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$2));
       }
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_LOG10 TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_LOG10 exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SINH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_SINH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sinhOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new sinhOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_TAN TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_TAN exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tanOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tanOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_TANH TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_TANH exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_CEIL TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_CEIL exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ceilOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ceilOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_FLOOR TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_FLOOR exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new floorOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new floorOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1210,30 +1217,30 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_LIMIT TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_LIMIT exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getTwoArgLimitOpVec ().push_back(*tmpPtr);
       newExp.getLocalTwoArgLimitOpVec ().push_back(*tmpPtr);
     }
-  | TOK_LIMIT TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_LIMIT exp ',' exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>(*$3,*$5,*$7));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>(*$2,*$4,*$6));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_STP TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_STP exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new stpOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new stpOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getStpNodeVec().push_back(*tmpPtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_URAMP TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_URAMP exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new urampOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new urampOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1246,56 +1253,7 @@ exp:
       delete $3;
       delete $4;
     }
-  | TOK_TABLE TOK_LEFTPAREN TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE '=' nonempty_arglist TOK_RIGHTPAREN
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$4,$7));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$4)->timeSpecialType() ) 
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-
-      delete $7;
-    }
-  | TOK_TABLE TOK_LEFTPAREN TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arglist TOK_RIGHTPAREN
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$4,$6));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$4)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $6;
-    }
-  | TOK_TABLE TOK_LEFTPAREN exp ',' nonempty_arglist TOK_RIGHTPAREN
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$3)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $5;
-    }
-  | TOK_TABLE TOK_LEFTPAREN exp ',' nonempty_arglist ',' TOK_RIGHTPAREN
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$3)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $5;
-    }
-  | TOK_TABLE TOK_LEFTPAREN exp ',' '=' nonempty_arglist TOK_RIGHTPAREN
+  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE '=' nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$6));
       $$ = tmpPtr;
@@ -1305,9 +1263,10 @@ exp:
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
+
       delete $6;
     }
-  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arg_pairs 
+  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
       $$ = tmpPtr;
@@ -1319,72 +1278,120 @@ exp:
       }
       delete $5;
     }
-  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE '=' nonempty_arg_pairs 
+  | TOK_TABLE exp ',' nonempty_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$6));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$3)->timeSpecialType() )
+      if ( (*$2)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $6;
+      delete $4;
     }
-  | TOK_TABLE TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE nonempty_arglist 
+  | TOK_TABLE exp ',' nonempty_arglist ',' TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$3,$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$3)->timeSpecialType() )
+      if ( (*$2)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(*tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $4;
+    }
+  | TOK_TABLE exp ',' '=' nonempty_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      if ( (*$2)->timeSpecialType() ) 
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
       delete $5;
     }
-  | TOK_SCHEDULE TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE nonempty_arg_pairs 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      if ( (*$2)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(*tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $4;
+    }
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE '=' nonempty_arg_pairs 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$5));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      if ( (*$2)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(*tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $5;
+    }
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE nonempty_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+      if ( (*$2)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(*tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $4;
+    }
+  | TOK_SCHEDULE nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($3, tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($2, tmpPtr2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
-      delete $3;
+      delete $2;
     }
-  | TOK_SDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_SDT exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
-      Teuchos::RCP<astNode<usedType> > * sdtPtr = new Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>(*$3, dtNode, timeNode));
+      Teuchos::RCP<astNode<usedType> > * sdtPtr = new Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>(*$2, dtNode, timeNode));
       $$ = sdtPtr;
       newExp.getMasterNodeVec().push_back(sdtPtr);
       newExp.getSdtOpVec().push_back(*sdtPtr);
       newExp.getLocalSdtOpVec().push_back(*sdtPtr);
       newExp.setTimeDependent(true);
     }
-  | TOK_DDT  TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_DDT  exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
-      Teuchos::RCP<astNode<usedType> > * ddtPtr = new Teuchos::RCP<astNode<usedType> >(new ddtOp<usedType>(*$3, dtNode, timeNode));
+      Teuchos::RCP<astNode<usedType> > * ddtPtr = new Teuchos::RCP<astNode<usedType> >(new ddtOp<usedType>(*$2, dtNode, timeNode));
       $$ = ddtPtr;
       newExp.getMasterNodeVec().push_back(ddtPtr);
       newExp.getDdtOpVec().push_back(*ddtPtr);
       newExp.getLocalDdtOpVec().push_back(*ddtPtr);
       newExp.setTimeDependent(true);
     }
-  | TOK_DDX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_DDX exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ddxOp<usedType>(*$3,*$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ddxOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_AGAUSS TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_AGAUSS exp ',' exp ',' exp TOK_RIGHTPAREN
     {
 
-      Teuchos::RCP<agaussOp<usedType> > * agaussPtr = new Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> (*$3,*$5,*$7));
+      Teuchos::RCP<agaussOp<usedType> > * agaussPtr = new Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> (*$2,*$4,*$6));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*agaussPtr);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1392,9 +1399,9 @@ exp:
       newExp.getLocalAgaussOpVec ().push_back(*agaussPtr);
       delete agaussPtr;
     }
-  | TOK_GAUSS TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_GAUSS exp ',' exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<gaussOp<usedType> > * gaussPtr = new Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>(*$3,*$5,*$7));
+      Teuchos::RCP<gaussOp<usedType> > * gaussPtr = new Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>(*$2,*$4,*$6));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*gaussPtr);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1402,9 +1409,9 @@ exp:
       newExp.getLocalGaussOpVec ().push_back(*gaussPtr);
       delete gaussPtr;
     }
-  | TOK_AUNIF TOK_LEFTPAREN exp ',' exp  TOK_RIGHTPAREN
+  | TOK_AUNIF exp ',' exp  TOK_RIGHTPAREN
     {
-      Teuchos::RCP<aunifOp<usedType> > * aunifPtr = new Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>(*$3,*$5));
+      Teuchos::RCP<aunifOp<usedType> > * aunifPtr = new Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>(*$2,*$4));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*aunifPtr);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1412,9 +1419,9 @@ exp:
       newExp.getLocalAunifOpVec ().push_back(*aunifPtr);
       delete aunifPtr;
     }
-  | TOK_UNIF TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
+  | TOK_UNIF exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<unifOp<usedType> > * unifPtr = new Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>(*$3,*$5));
+      Teuchos::RCP<unifOp<usedType> > * unifPtr = new Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>(*$2,*$4));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*unifPtr);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1422,7 +1429,7 @@ exp:
       newExp.getLocalUnifOpVec ().push_back(*unifPtr);
       delete unifPtr;
     }
-  | TOK_RAND TOK_LEFTPAREN TOK_RIGHTPAREN
+  | TOK_RAND TOK_RIGHTPAREN
     {
       Teuchos::RCP<randOp<usedType> > * randPtr = new Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*randPtr);
@@ -1435,47 +1442,47 @@ exp:
 
  /* SPICE time-dependent sources.  These have optional length argument lists */
  /* pulse( v1,v2,td,tr,tf,pw,per) */
-  | TOK_SPICE_PULSE TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_PULSE nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($3, tmpPtr2 ));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($2, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
-      delete $3;
+      delete $2;
     }
  /* sin (v0,va,frequency,td,theta,phase) */
-  | TOK_SPICE_SIN   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_SIN   nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($3, tmpPtr2 ));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($2, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
-      delete $3;
+      delete $2;
     }
  /* exp ( v1,v2,td1,tau1,td2,tau2) */
-  | TOK_SPICE_EXP   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_EXP   nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($3,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($2,tmpPtr2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
       newExp.setTimeDependent(true);
-      delete $3;
+      delete $2;
     }
  /* sffm (v0,va,fc,mdi,fs) */
-  | TOK_SPICE_SFFM   TOK_LEFTPAREN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_SFFM   nonempty_arglist TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>($3,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>($2,tmpPtr2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
-      delete $3;
+      delete $2;
     }
 
   | exp '?' exp ':' exp
@@ -1484,9 +1491,9 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_IF TOK_LEFTPAREN exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_IF exp ',' exp ',' exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>((*$3),(*$5),(*$7)));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>((*$2),(*$4),(*$6)));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
