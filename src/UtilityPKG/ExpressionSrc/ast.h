@@ -316,12 +316,18 @@ class astNode : public staticsContainer
 {
   public:
     astNode(): id_(0) { id_ = ++(this->nextID); };
-    virtual ~astNode() {};
 
     astNode( Teuchos::RCP<astNode<ScalarT> > &left ): leftAst_(left), id_(0) { id_ = ++(this->nextID); };
 
     astNode(Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       leftAst_(left),rightAst_(right) { id_ = ++(this->nextID); };
+
+
+    virtual ~astNode() = default;
+    astNode(const astNode&) = default;
+    astNode& operator=(const astNode&) = default;
+    astNode(astNode&&) = default;
+    astNode& operator=(astNode&&) = default;
 
     virtual void processSuccessfulTimeStep () 
     {
