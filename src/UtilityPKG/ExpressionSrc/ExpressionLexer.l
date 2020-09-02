@@ -278,11 +278,7 @@ LEAD I[SDGBEC1-9]
 ":" |
 "?" |
 "J" { return((YYText())[0]); }
-  /* |
-"{" |
-"}" |
-"(" |
-")"      */
+
 <INITIAL>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }
 <INITIAL>"(" { return XyceExpression::ExpressionParser::token::TOK_LEFTPAREN; }
 <INITIAL>"}" { return XyceExpression::ExpressionParser::token::TOK_RIGHTCURLYBRACE; }
@@ -700,6 +696,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 <INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
+<INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
 <INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
