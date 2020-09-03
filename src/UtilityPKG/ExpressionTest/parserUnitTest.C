@@ -3800,14 +3800,12 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 
       ifGroup->setTime(time);
       ifGroup->setSoln(std::string("v2"),v2);
-      e3.evaluateFunction(result[ii]);
-      copy_e3.evaluateFunction(copyResult[ii]);
-      assign_e3.evaluateFunction(assignResult[ii]);
       refRes[ii] = std::max(std::min(-v2,2.5),1.5);
+
+      e3.evaluateFunction(result[ii]);              ASSERT_EQ( result[ii], refRes[ii]);
+      copy_e3.evaluateFunction(copyResult[ii]);     ASSERT_EQ( copyResult[ii], refRes[ii]);
+      assign_e3.evaluateFunction(assignResult[ii]); ASSERT_EQ( assignResult[ii], refRes[ii]);
     }
-    EXPECT_EQ( result, refRes);
-    EXPECT_EQ( copyResult, refRes);
-    EXPECT_EQ( assignResult, refRes);
     OUTPUT_MACRO2(Double_Parser_ifstatement, ifmin_ifmax_func, e3)
   }
 }
@@ -3861,9 +3859,9 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
     assign_e3.evaluateFunction(assignResult);
     refRes = -v2*2*3;
 
-    EXPECT_EQ( result, refRes);
-    EXPECT_EQ( copyResult, refRes);
-    EXPECT_EQ( assignResult, refRes);
+    ASSERT_EQ( result, refRes);
+    ASSERT_EQ( copyResult, refRes);
+    ASSERT_EQ( assignResult, refRes);
     OUTPUT_MACRO2(Double_Parser_ifstatement, simple_nested_func, e3) 
   }
 }
@@ -3903,9 +3901,9 @@ TEST ( Double_Parser_ifstatement, min_max)
     assign_e4.evaluateFunction(assignResult[ii]);
     refRes[ii] = std::max(std::min(-v2,2.5),1.5);
   }
-  EXPECT_EQ( result, refRes);
-  EXPECT_EQ( copyResult, refRes);
-  EXPECT_EQ( assignResult, refRes);
+  ASSERT_EQ( result, refRes);
+  ASSERT_EQ( copyResult, refRes);
+  ASSERT_EQ( assignResult, refRes);
   OUTPUT_MACRO2(Double_Parser_ifstatement, min_max,e4) 
 }
 
@@ -3944,9 +3942,9 @@ TEST ( Double_Parser_ifstatement, limit)
     assign_e5.evaluateFunction(assignResult[ii]);
     refRes[ii] = std::max(std::min(-v2,2.5),1.5);
   }
-  EXPECT_EQ( result, refRes);
-  EXPECT_EQ( copyResult, refRes);
-  EXPECT_EQ( assignResult, refRes);
+  ASSERT_EQ( result, refRes);
+  ASSERT_EQ( copyResult, refRes);
+  ASSERT_EQ( assignResult, refRes);
   OUTPUT_MACRO2(Double_Parser_ifstatement,limit, e5) 
 }
 
