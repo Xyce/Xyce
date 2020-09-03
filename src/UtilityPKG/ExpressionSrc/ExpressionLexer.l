@@ -76,7 +76,7 @@ class ExpressionLexer;
 %s currentdevdef
 %s internaldevdef
 %s noisedevdef
-%s polydef
+   /* %s polydef */
 %s polyargs
 %s polyvoltagenodedef
 %s polycurrentdevdef
@@ -702,7 +702,7 @@ LEAD I[SDGBEC1-9]
 
 <INITIAL>"poly"  { return XyceExpression::ExpressionParser::token::TOK_BADPOLY; } 
 
-<INITIAL>"poly"[ \t]*"("    {
+ /*<INITIAL>"poly"[ \t]*"("    {
     BEGIN(polydef);
     return XyceExpression::ExpressionParser::token::TOK_POLY; 
   } 
@@ -713,7 +713,20 @@ LEAD I[SDGBEC1-9]
     lvalp->dval=Xyce::Util::Value(tmp);
     BEGIN(polyargs);
     return XyceExpression::ExpressionParser::token::TOK_POLYSIZE; 
-  }
+  } */
+
+<INITIAL>"poly"[ \t]*"("[ \t]*{DIGIT}+")" {
+    std::string tmp(YYText());
+    tmp.erase(std::remove_if(tmp.begin(),tmp.end(), ::isspace), tmp.end());
+    tmp.erase(tmp.length()-1);
+
+    std::size_t found = tmp.find_first_of("(");
+    if (found!=std::string::npos) { tmp.erase(tmp.begin(),tmp.begin()+found+1); }
+
+    lvalp->dval=Xyce::Util::Value(tmp);
+    BEGIN(polyargs);
+    return XyceExpression::ExpressionParser::token::TOK_POLYSIZE; 
+  } 
 
  /* numbers with suffixes */
 <polyargs>[-+]?{DIGIT}+{SUFFIX}?{UNIT}? {
@@ -766,7 +779,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(polyvoltagenodedef); 
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
+  return XyceExpression::ExpressionParser::token::TOK_POLY_VOLTAGE;
 }
 
  /* single node name by itself */
@@ -788,7 +801,7 @@ LEAD I[SDGBEC1-9]
   BEGIN(polycurrentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-  return XyceExpression::ExpressionParser::token::TOK_CURRENT;
+  return XyceExpression::ExpressionParser::token::TOK_POLY_CURRENT;
 }
 
  /* single device name by itself */
