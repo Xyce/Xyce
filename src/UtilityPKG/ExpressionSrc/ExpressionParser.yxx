@@ -249,6 +249,9 @@ bool checkGroundNodeName(std::string & name)
 // types for nonterminal operators
 %type  <astNodePtr>   exp
 %type  <astNodePtr>   expression
+%type  <astNodePtr>   table_threeOrFourArgs 
+%type  <astNodePtr>   table2_threeOrFourArgs 
+%type  <astNodePtr>   table3_threeOrFourArgs 
 %type  <nodeVecPtr>   nonempty_arglist
 %type  <nodeVecPtr>   nonempty_arg_pairs
 %type  <nodeVecPtr>   no_comma_arglist
@@ -1254,101 +1257,65 @@ exp:
       delete $3;
       delete $4;
     }
-   | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE '=' nonempty_arglist TOK_RIGHTPAREN 
+  | table3_threeOrFourArgs nonempty_arglist TOK_RIGHTPAREN 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$5)); 
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2)); 
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() ) 
+      if ( (*$1)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $5;
+      delete $2;
     }
-  | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE nonempty_arglist TOK_RIGHTPAREN 
+  | table_threeOrFourArgs nonempty_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4)); 
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
+      if ( (*$1)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $4;
+      delete $2;
     }
-  | TOK_TABLE exp ',' nonempty_arglist TOK_RIGHTPAREN
+  | table_threeOrFourArgs nonempty_arglist ',' TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
+      if ( (*$1)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $4;
+      delete $2;
     }
-  | TOK_TABLE exp ',' nonempty_arglist ',' TOK_RIGHTPAREN
+  | table2_threeOrFourArgs nonempty_arg_pairs 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
+      if ( (*$1)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $4;
+      delete $2;
     }
-  | TOK_TABLE exp ',' '=' nonempty_arglist TOK_RIGHTPAREN
+  | table2_threeOrFourArgs nonempty_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$5));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() ) 
+      if ( (*$1)->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $5;
-    }
-  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE nonempty_arg_pairs 
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $4;
-    }
-  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE '=' nonempty_arg_pairs 
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$5));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $5;
-    }
-  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE nonempty_arglist 
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2,$4));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$2)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(*tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $4;
+      delete $2;
     }
   | TOK_SCHEDULE nonempty_arglist TOK_RIGHTPAREN
     {
@@ -1642,6 +1609,34 @@ paren_polycoef: TOK_POLYCOEF
     {
        $$ = $2;
     }
+
+table_threeOrFourArgs: TOK_TABLE exp ','
+    {
+       $$ = $2;
+    }
+  | TOK_TABLE exp ',' '='
+    {
+       $$ = $2;
+    }
+
+table2_threeOrFourArgs: TOK_TABLE2 exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE '='
+    {
+       $$ = $2;
+    }
+
+table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE '='
+    {
+       $$ = $2;
+    }
+
 
 %%
 
