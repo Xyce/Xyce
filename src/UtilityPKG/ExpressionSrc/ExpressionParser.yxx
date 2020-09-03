@@ -84,6 +84,8 @@ class ExpressionLexer;
 {
   Teuchos::RCP<astNode<usedType> > * astNodePtr;
   std::vector< Teuchos::RCP<astNode<usedType> > > * nodeVecPtr;
+  std::pair< std::vector< Teuchos::RCP<astNode<usedType> > >, 
+             std::vector< Teuchos::RCP<astNode<usedType> > > > * pairOfNodeVecPtr;
 
   int ival;
   double dval;
@@ -250,16 +252,21 @@ bool checkGroundNodeName(std::string & name)
 %type  <astNodePtr>   exp
 %type  <astNodePtr>   expression
 %type  <astNodePtr>   table_threeOrFourArgs 
-%type  <astNodePtr>   table2_threeOrFourArgs 
+%type  <astNodePtr>   table2_threeOrFourArgs  
 %type  <astNodePtr>   table3_threeOrFourArgs 
-%type  <nodeVecPtr>   nonempty_arglist
-%type  <nodeVecPtr>   nonempty_arg_pairs
-%type  <nodeVecPtr>   no_comma_arglist
-%type  <nodeVecPtr>   no_comma_coeflist
+  /* %type  <nodeVecPtr>   nonempty_arglist */
+%type  <nodeVecPtr>   nonempty_func_arglist
+%type  <nodeVecPtr>   nonempty_func_arglist2
+%type  <nodeVecPtr>   two_or_more_arglist
+%type  <nodeVecPtr>   nonempty_arg_pairs 
+  /* %type  <pairOfNodeVecPtr>   poly_pair_args */
+  /* %type  <nodeVecPtr>   no_comma_arglist */
+  /* %type  <nodeVecPtr>   two_or_more_no_comma_arglist  */
+%type  <nodeVecPtr>   no_comma_coeflist 
 %type  <vecsval>  nonempty_voltagenodelist
 %type  <vecival>  nonempty_rfparam_arg_list
 %type  <vecsval>  nonempty_noise_device_list
-%type  <dval>  paren_polycoef
+%type  <dval>  paren_polycoef 
 
 %destructor { delete $$; } TOK_WORD
 %destructor { delete $$; } TOK_FUNCTION
@@ -285,9 +292,9 @@ bool checkGroundNodeName(std::string & name)
 %left   ','
 %right  '?' ':'
 %left  TOK_OR "||" TOK_AND "&&"
-%left  TOK_NOT "~"
+%left  TOK_NOT "~" 
   /* %left  TOK_XOR "^" */
-%left  TOK_CARET "^"
+%left TOK_CARET "^"
 %left  TOK_EQ	"==" TOK_NE	"!=" TOK_LE	"<=" TOK_LT	"<" TOK_GE	">=" TOK_GT	">"
 %left TOK_INVALID_OP
 %left   '-' '+'
@@ -465,12 +472,6 @@ exp:
     {
        $$ = $2;
     }
-  | '~' exp
-    {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new unaryNotOp<usedType>(*$2));
-      $$ = tmpPtr;
-      newExp.getMasterNodeVec().push_back(tmpPtr);
-    }
   | '-' exp  %prec NEG
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new unaryMinusOp<usedType>(*$2));
@@ -495,7 +496,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_FUNCTION nonempty_arglist TOK_RIGHTPAREN
+  | TOK_FUNCTION nonempty_func_arglist 
      {
         // remove whitespace from the function name
         std::string functionName = (*$1);
@@ -1248,16 +1249,21 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-   | TOK_POLY  TOK_POLYSIZE no_comma_arglist no_comma_coeflist
+   //| TOK_POLY  TOK_POLYSIZE no_comma_arglist no_comma_coeflist
+   //| TOK_POLY  TOK_POLYSIZE two_or_more_no_comma_arglist no_comma_coeflist
+   // this version (with nonempty_func_arglist) is there to get it to compile w/o conflicts. It won't work since it contains commas
+    | TOK_POLY  TOK_POLYSIZE nonempty_func_arglist no_comma_coeflist
+   //| TOK_POLY  TOK_POLYSIZE  poly_pair_args 
     {
-
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new polyOp<usedType>($2,$3,$4));
+      // if using poly_pair_args:
+      //Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new polyOp<usedType>($2, &($3->first),&($3->second)));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       delete $3;
       delete $4;
     }
-  | table3_threeOrFourArgs nonempty_arglist TOK_RIGHTPAREN 
+  | table3_threeOrFourArgs nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2)); 
       $$ = tmpPtr;
@@ -1269,7 +1275,7 @@ exp:
       }
       delete $2;
     }
-  | table_threeOrFourArgs nonempty_arglist TOK_RIGHTPAREN
+  | table_threeOrFourArgs nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
@@ -1281,7 +1287,8 @@ exp:
       }
       delete $2;
     }
-  | table_threeOrFourArgs nonempty_arglist ',' TOK_RIGHTPAREN
+  //| table_threeOrFourArgs nonempty_arglist ',' TOK_RIGHTPAREN
+  | table_threeOrFourArgs nonempty_func_arglist2
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
       $$ = tmpPtr;
@@ -1305,6 +1312,7 @@ exp:
       }
       delete $2;
     }
+  /*
   | table2_threeOrFourArgs nonempty_arglist 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
@@ -1317,7 +1325,8 @@ exp:
       }
       delete $2;
     }
-  | TOK_SCHEDULE nonempty_arglist TOK_RIGHTPAREN
+   */
+  | TOK_SCHEDULE nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($2, tmpPtr2));
@@ -1409,7 +1418,7 @@ exp:
 
  /* SPICE time-dependent sources.  These have optional length argument lists */
  /* pulse( v1,v2,td,tr,tf,pw,per) */
-  | TOK_SPICE_PULSE nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_PULSE nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($2, tmpPtr2 ));
@@ -1420,7 +1429,7 @@ exp:
       delete $2;
     }
  /* sin (v0,va,frequency,td,theta,phase) */
-  | TOK_SPICE_SIN nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_SIN nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($2, tmpPtr2 ));
@@ -1431,7 +1440,7 @@ exp:
       delete $2;
     }
  /* exp ( v1,v2,td1,tau1,td2,tau2) */
-  | TOK_SPICE_EXP nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_EXP nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($2,tmpPtr2));
@@ -1442,7 +1451,7 @@ exp:
       delete $2;
     }
  /* sffm (v0,va,fc,mdi,fs) */
-  | TOK_SPICE_SFFM nonempty_arglist TOK_RIGHTPAREN
+  | TOK_SPICE_SFFM nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>($2,tmpPtr2));
@@ -1569,22 +1578,63 @@ exp:
   ;
 
 nonempty_rfparam_arg_list: TOK_RFPARAM_ARG { $$ = new std::vector<int>; $$->push_back($1); }
-  | nonempty_rfparam_arg_list  TOK_RFPARAM_ARG  { $$->push_back($2); }
+  | nonempty_rfparam_arg_list  TOK_RFPARAM_ARG  { $1->push_back($2); $$=$1; }
 
 nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
-  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $$->push_back(*($2)); delete $2; }
+  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $1->push_back(*($2)); delete $2; $$ = $1; }
 
 nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
-  | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $$->push_back(*($2)); delete $2; }
+  | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $1->push_back(*($2)); delete $2; $$=$1; }
 
-nonempty_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1); }
-  | nonempty_arglist ','  exp { $$->push_back((*$3)); }
+  /*
+nonempty_arglist: exp  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
+   |  two_or_more_arglist  { $$=$1;  }
+   */
+
+nonempty_func_arglist: exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
+   |  two_or_more_arglist  TOK_RIGHTPAREN { $$=$1;  }
+
+nonempty_func_arglist2: exp ',' TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
+   |  two_or_more_arglist  ',' TOK_RIGHTPAREN { $$=$1;  }
+
+two_or_more_arglist: exp ',' exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1); $$->push_back((*$3)); }
+  | two_or_more_arglist ','  exp { $1->push_back((*$3)); $$=$1; }
 
 nonempty_arg_pairs: TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$2);  $$->push_back((*$4));  } 
-  | nonempty_arg_pairs TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$->push_back((*$3)); $$->push_back((*$5)); }
+  | nonempty_arg_pairs TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $1->push_back((*$3)); $1->push_back((*$5)); $$=$1; }
 
+
+  /*
+poly_pair_args: exp no_comma_coeflist 
+  {
+    std::vector< Teuchos::RCP<astNode<usedType> > > first(1,*$1);
+    $$ = new std::pair< std::vector< Teuchos::RCP<astNode<usedType> > >, 
+                        std::vector< Teuchos::RCP<astNode<usedType> > > >  
+                          (first, *$2);
+  }
+  | two_or_more_no_comma_arglist no_comma_coeflist
+  {
+    $$ = new std::pair< std::vector< Teuchos::RCP<astNode<usedType> > >, 
+                        std::vector< Teuchos::RCP<astNode<usedType> > > >  
+                          ( *$1, *$2);
+  }
+
+two_or_more_no_comma_arglist: exp exp         
+    { 
+      $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  
+      $$->push_back(*$2);
+    }
+  | two_or_more_no_comma_arglist  exp 
+    { 
+      $1->push_back((*$2)); 
+      $$=$1;
+    }
+    */
+
+  /*
 no_comma_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  }
   | no_comma_arglist  exp { $$->push_back((*$2)); }
+  */
 
 no_comma_coeflist:  paren_polycoef         { 
       Teuchos::RCP<astNode<usedType> > *tmpPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
@@ -1610,6 +1660,7 @@ paren_polycoef: TOK_POLYCOEF
        $$ = $2;
     }
 
+
 table_threeOrFourArgs: TOK_TABLE exp ','
     {
        $$ = $2;
@@ -1618,7 +1669,6 @@ table_threeOrFourArgs: TOK_TABLE exp ','
     {
        $$ = $2;
     }
-
 table2_threeOrFourArgs: TOK_TABLE2 exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
@@ -1627,7 +1677,6 @@ table2_threeOrFourArgs: TOK_TABLE2 exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
     }
-
 table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
