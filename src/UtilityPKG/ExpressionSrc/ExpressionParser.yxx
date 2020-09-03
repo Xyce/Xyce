@@ -87,6 +87,8 @@ class ExpressionLexer;
 
   std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > * polyPairPtr;
 
+  std::pair< Teuchos::RCP<astNode<usedType> > , std::vector< Teuchos::RCP<astNode<usedType> > > > * tablePairPtr;
+
   int ival;
   double dval;
   std::string *sval;
@@ -565,8 +567,8 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %type  <astNodePtr>   expression
 %type  <astNodePtr>   table_threeOrFourArgs 
 %type  <astNodePtr>   table2_threeOrFourArgs  
+%type  <tablePairPtr>   table2_with_nonempty_arglist
 %type  <astNodePtr>   table3_threeOrFourArgs 
-  /* %type  <nodeVecPtr>   nonempty_arglist */
 %type  <nodeVecPtr>   nonempty_func_arglist
 %type  <nodeVecPtr>   nonempty_func_arglist2
 %type  <nodeVecPtr>   two_or_more_arglist
@@ -1327,7 +1329,6 @@ exp:
       }
       delete $2;
     }
-  //| table_threeOrFourArgs nonempty_arglist ',' TOK_RIGHTPAREN
   | table_threeOrFourArgs nonempty_func_arglist2
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
@@ -1352,20 +1353,18 @@ exp:
       }
       delete $2;
     }
-  /*
-  | table2_threeOrFourArgs nonempty_arglist 
+  | table2_with_nonempty_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$1,$2));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1->first,&($1->second)));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      if ( (*$1)->timeSpecialType() )
+      if ( $1->first->timeSpecialType() )
       {
         newExp.getSrcNodeVec().push_back(*tmpPtr);
         newExp.setTimeDependent(true); 
       }
-      delete $2;
+      delete $1;
     }
-   */
   | TOK_SCHEDULE nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
@@ -1626,11 +1625,6 @@ nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::strin
 nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
   | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $1->push_back(*($2)); delete $2; $$=$1; }
 
-  /*
-nonempty_arglist: exp  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
-   |  two_or_more_arglist  { $$=$1;  }
-   */
-
 nonempty_func_arglist: exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
    |  two_or_more_arglist  TOK_RIGHTPAREN { $$=$1;  }
 
@@ -1687,6 +1681,18 @@ paren_polycoef: TOK_POLYCOEF
   | TOK_LEFTCURLYBRACE paren_polycoef TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
+    }
+
+
+
+table2_with_nonempty_arglist: table2_threeOrFourArgs exp
+    {
+      std::vector< Teuchos::RCP<astNode<usedType> > > first(1,*$2);
+      $$ = new std::pair< Teuchos::RCP<astNode<usedType> >, std::vector< Teuchos::RCP<astNode<usedType> > > >(*$1,first);
+    }
+    | table2_threeOrFourArgs two_or_more_arglist
+    { 
+      $$ = new std::pair< Teuchos::RCP<astNode<usedType> >, std::vector< Teuchos::RCP<astNode<usedType> > > >(*$1,*$2);
     }
 
 
