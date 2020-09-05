@@ -42,6 +42,9 @@
 #include <vector>
 #include <string>
 
+// trilinos includes
+#include <Teuchos_RCP.hpp>
+
 // ----------   Xyce Includes   ----------
 #include <N_DEV_fwd.h>
 #include <N_DEV_Param.h>

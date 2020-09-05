@@ -153,6 +153,7 @@ void ExpressionData::evaluate(
     outputsGroup->setOpData(op_data);
     expression_->processSuccessfulTimeStep();
     expression_->evaluateFunction(result);
+    expression_->clearOldResult();
   }
 
   return;
@@ -236,6 +237,7 @@ void ExpressionData::evaluate(
     outputsGroup->setOpData(op_data);
     expression_->processSuccessfulTimeStep();
     expression_->evaluateFunction(result);
+    expression_->clearOldResult();
   }
 
   return;
@@ -477,6 +479,7 @@ ExpressionData::setup(
     double result;
     Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
     expression_->evaluateFunction(result);
+    expression_->clearOldResult();
   }
 
   return state_;

@@ -61,6 +61,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
+#include <N_UTL_Expression.h>
 #include <N_PDS_PackTraits.h>
 
 #include <N_IO_fwd.h>

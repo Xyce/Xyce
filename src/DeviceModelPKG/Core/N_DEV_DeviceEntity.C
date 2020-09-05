@@ -847,6 +847,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
+  dependentParam.expr->clearOldResult();
 
   return rval;
 }
@@ -923,6 +924,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
+  dependentParam.expr->clearOldResult();
 
   return rval;
 }
@@ -1080,12 +1082,15 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateDependentParameters
 // Purpose       : Update values of parameters defined as expressions
-// Special Notes :
+//
+// Special Notes : Original version of this function performed a 
+//                 set_vars, and "changed" depended on everything.
+//
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 03/15/05
 //-----------------------------------------------------------------------------
-bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool changed)
+bool DeviceEntity::updateDependentParameters(bool changed)
 {
   std::vector<Depend>::iterator dpIter = dependentParams_.begin();
   std::vector<Depend>::iterator end = dependentParams_.end();
@@ -1093,34 +1098,39 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // ERK. Don't re-evaluate the dependent parameter expression unless you have to.
     // Also, don't re-evaluate if this parameter has been overridden by a setParam call.
     if ( !(dependentParamExcludeMap_.empty()) ) 
     {
       // check for a setParam call
-      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
+      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) 
+      { 
+        changed=true;  // is this necessary? check
+        continue; 
+      }
     }
 
     if ( !(dependentScaleParamExcludeMap_.empty()) ) 
     {
       // check for a scaleParam call
-      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
+      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) 
+      { 
+        changed=true;  // is this necessary?
+        continue; 
+      }
     }
 
-    // refine the "changed" variable later.  This was used with the 
-    // old expression library to determine if an expression should be 
-    // re-evaluated or not.  It also determined (in some cases) if
-    // the new expression value was applied or not to the param.
-    changed = true; 
-    dpIter->expr->evaluateFunction (rval);
+    if (dpIter->expr->evaluateFunction (rval)) { changed = true; } 
 
-    if (dpIter->vectorIndex==-1)
-      *(dpIter->resultU.result) = rval;
-    else
-      (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+    if (changed)
+    {
+      if (dpIter->vectorIndex==-1)
+        *(dpIter->resultU.result) = rval;
+      else
+        (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
 
-    if (dpIter->storeOriginal)
-      Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
+      if (dpIter->storeOriginal)
+        Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
+    }
   }
 
   return changed;
@@ -1154,22 +1164,9 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         {
           DevelFatal(*this).in("DeviceEntity::updateGlobalParameters") << "Failed to find global parameter " << *gp;
         }
-        // old expression did a "set_var" call here.
       }
 
-      // refine this "changed" variable later.  This was used with the 
-      // old expression library to determine if an expression should be 
-      // re-evaluated or not.  It also determined (in some cases) if
-      // the new expression value was applied or not to the param.
-      changed = true;
-#if 1
-      dpIter->expr->evaluateFunction (rval);
-#else
-      // this "efficiencyOn" is an attempt to 
-      // reproduce the "changed" behavior:
-      bool efficiencyOn=true;
-      dpIter->expr->evaluateFunction (rval,efficiencyOn);
-#endif
+      if (dpIter->expr->evaluateFunction (rval)) { changed = true; } 
     }
   }
 
@@ -1179,7 +1176,10 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateDependentParameters
 // Purpose       : Update values of parameters defined as expressions
-// Special Notes :
+//
+// Special Notes : In the original version of this function, "changed"
+//                 only depended on specials like time.
+//
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 11/18/04
@@ -1193,19 +1193,8 @@ bool DeviceEntity::updateDependentParameters()
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-    // refine this "changed" variable later.  This was used with the 
-    // old expression library to determine if an expression should be 
-    // re-evaluated or not.  It also determined (in some cases) if
-    // the new expression value was applied or not to the param.
-    changed = true; 
-#if 1
-    dpIter->expr->evaluateFunction (rval);
-#else
-    // this "efficiencyOn" is an attempt to 
-    // reproduce the "changed" behavior:
-    bool efficiencyOn=true;
-    dpIter->expr->evaluateFunction (rval,efficiencyOn);
-#endif
+    if (dpIter->expr->evaluateFunction (rval)) { changed = true; }
+
     if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
@@ -1223,7 +1212,10 @@ bool DeviceEntity::updateDependentParameters()
 // Function      : DeviceEntity::updateDependentParameters
 // Purpose       : Update values of parameters defined as expressions with a
 //                 specified temperature
-// Special Notes :
+//
+// Special Notes : In the original version of this function, "changed"
+//                 only depended on specials like time.
+//
 // Scope         : protected
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 01/11/06
@@ -1237,20 +1229,10 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-    if ( dpIter->expr->setTemperature(tempIn))
-    {
-      changed = true;
-    }
+    if (dpIter->expr->setTemperature(tempIn))  { changed = true; }
 
-    changed = true;
-#if 1
-    dpIter->expr->evaluateFunction (rval);
-#else
-    // this "efficiencyOn" is an attempt to 
-    // reproduce the "changed" behavior:
-    bool efficiencyOn=true;
-    dpIter->expr->evaluateFunction (rval,efficiencyOn);
-#endif
+    if (dpIter->expr->evaluateFunction (rval)) { changed = true; }
+
     if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
@@ -1259,7 +1241,6 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
     {
       (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
     }
-
   }
 
   return changed;

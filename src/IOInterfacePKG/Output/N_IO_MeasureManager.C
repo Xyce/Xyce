@@ -75,6 +75,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_NoCase.h>
 #include <N_UTL_OptionBlock.h>
+#include <N_UTL_Expression.h>
 
 #include <expressionGroup.h>
 

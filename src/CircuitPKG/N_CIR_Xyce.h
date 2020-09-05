@@ -58,6 +58,7 @@
 #include <N_UTL_ReportHandler.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_JSON.h>
+#include <mainXyceExpressionGroup.h>
 #include <N_DEV_ADC.h>
 #include <N_DEV_DAC.h>
 

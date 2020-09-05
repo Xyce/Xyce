@@ -624,9 +624,11 @@ public:
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
-  // these two functions return int error codes in the original expression library
-  int evaluate (usedType &result, std::vector< usedType > &derivs);
-  int evaluateFunction (usedType &result, bool efficiencyOn=false);
+  bool evaluate (usedType &result, std::vector< usedType > &derivs);
+  bool evaluateFunction (usedType &result, bool efficiencyOn=false);
+
+  // supporting "changed" boolean .... 
+  void clearOldResult()  { savedResult_ = 0.0; };
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 

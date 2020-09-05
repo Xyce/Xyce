@@ -47,11 +47,13 @@
 
 #include <N_UTL_fwd.h>
 #include <N_UTL_Pack.h>
-#include <N_UTL_Expression.h>
 #include <N_UTL_NoCase.h>
 
 namespace Xyce {
 namespace Util {
+
+class Expression;
+
 
 /** 
  * Parameter type enumeration.

@@ -1647,14 +1647,14 @@ bool newExpression::getValuesFromGroup_()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::evaluate
 // Purpose       : evaluates the expression, including derivatives
-// Special Notes :
+// Special Notes : returns "true" if expression has changed, false if not.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date :
 //-------------------------------------------------------------------------------
-int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
+bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 {
-  int retVal=0;
+  bool retVal=true;
   if (parsed_)
   {
     setupVariousAstArrays ();
@@ -1664,7 +1664,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
     dumpParseTree(Xyce::dout());
 #endif
-    int err1 = evaluateFunction (result);
+    retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
     for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
     for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
@@ -1691,14 +1691,14 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 //-------------------------------------------------------------------------------
 // Function      : newExpression::evaluateFunction
 // Purpose       : evaluates the expression without derivatives
-// Special Notes :
+// Special Notes : returns "true" if expression has changed, false if not.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date :
 //-------------------------------------------------------------------------------
-int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
+bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 {
-  int retVal=0;
+  bool retVal=true;
   if (parsed_)
   {
     setupVariousAstArrays ();
@@ -1737,26 +1737,33 @@ int newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     if (doTheEvaluation)
     {
       result = astNodePtr_->val();
+      Util::fixNan(result);
+      Util::fixInf(result);
+      retVal = (result != savedResult_);
 
 #if 0
-      Xyce::dout() 
-        << "newExpression::evaluateFunction. just evaluated expression tree for " 
-        << expressionString_ <<std::endl;
-      Xyce::dout()<< " result = ";
       Xyce::dout().width(20); Xyce::dout().precision(13); 
       Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << result << std::endl;
+
+      if (retVal)
+      {
+        Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = true" << std::endl;
+      }
+      else
+      {
+        Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = false" << std::endl;
+      }
 
       dumpParseTree(Xyce::dout());
 #endif
 
-      Util::fixNan(result);
-      Util::fixInf(result);
+
 
       savedResult_ = result;
     }
     else
     {
+      retVal = false;
       result = savedResult_;
 #if 0
       Xyce::dout() 

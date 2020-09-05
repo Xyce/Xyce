@@ -53,6 +53,7 @@
 #include <N_IO_ParsingHelpers.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_Expression.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 

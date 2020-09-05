@@ -54,7 +54,6 @@
 #include <N_DEV_Param.h>
 #include <N_DEV_bcData.h>
 #include <N_UTL_Interpolators.h>
-#include <N_UTL_Expression.h>
 
 namespace Xyce {
 namespace Device {

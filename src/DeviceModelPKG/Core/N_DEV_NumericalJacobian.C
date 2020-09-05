@@ -566,7 +566,7 @@ void NumericalJacobian::loadLocalDAEVectors (DeviceInstance & instance)
   const std::vector<int> & devStateLIDs = instance.getStaLIDVec();
   int numState = devStateLIDs.size();
 
-  instance.updateDependentParameters(nextSol); // this line necessary for expressions
+  instance.updateDependentParameters(false); // this line necessary for expressions
   instance.updatePrimaryState ();
 
   // Assume backward euler integration, so that the time integrator
@@ -603,7 +603,7 @@ void NumericalJacobian::loadLocalDAEVectorsIncludingB (DeviceInstance & instance
   const std::vector<int> & devStateLIDs = instance.getStaLIDVec();
   int numState = devStateLIDs.size();
 
-  instance.updateDependentParameters(nextSol); // this line necessary for expressions
+  instance.updateDependentParameters(false); // this line necessary for expressions
   instance.updatePrimaryState ();
 
   // Assume backward euler integration, so that the time integrator

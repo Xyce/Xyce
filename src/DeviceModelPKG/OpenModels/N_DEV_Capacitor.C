@@ -50,6 +50,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
 #include <N_UTL_Math.h>
+#include <N_UTL_Expression.h>
 
 namespace Xyce {
 namespace Device {
@@ -643,6 +644,45 @@ Instance::~Instance()
 }
 
 // Additional Declarations
+
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::isLinearDevice
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Instance::isLinearDevice() const
+{
+  if( loadLeadCurrent )
+  {
+    return false;
+  }
+
+  const std::vector<Depend> & depVec = const_cast<Xyce::Device::Capacitor::Instance*>(this)->getDependentParams();
+  if ( depVec.size() )
+  {
+    std::vector<Depend>::const_iterator d;
+    std::vector<Depend>::const_iterator begin=depVec.begin();
+    std::vector<Depend>::const_iterator end=depVec.end();
+
+    for (d=begin; d!=end; ++d)
+    {
+      int expNumVars = d->n_vars;
+      int expNumGlobal = d->global_params.size();
+      Util::Expression* expPtr = d->expr;
+
+      if (expNumVars > 0 || expPtr->isTimeDependent() || expNumGlobal > 0 )
+      {   
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs

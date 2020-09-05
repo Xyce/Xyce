@@ -231,7 +231,7 @@ public:
   void setupParamBreakpoints();
   bool getParamBreakpoints( std::vector<Util::BreakPoint> & );
 
-  bool updateDependentParameters(const Linear::Vector & vars,bool changed=false);
+  bool updateDependentParameters(bool changed);
   bool updateDependentParameters(double temp_tmp);
   bool updateGlobalParameters(GlobalParameterMap &);
   bool updateDependentParameters();

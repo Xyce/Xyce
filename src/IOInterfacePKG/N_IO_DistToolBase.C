@@ -53,6 +53,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
+#include <N_UTL_Expression.h>
 
 namespace Xyce {
 namespace IO {

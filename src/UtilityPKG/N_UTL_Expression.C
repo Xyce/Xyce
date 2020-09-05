@@ -787,9 +787,9 @@ std::string Expression::get_expression () const
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::complex<double> > & deriv_r)
+bool Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::complex<double> > & deriv_r)
 {
-  int retVal=0;
+  bool retVal=true;
 #ifdef USE_TYPE_DOUBLE
   double result;
   std::vector<double> derivs;
@@ -811,9 +811,9 @@ int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::compl
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficiencyOn )
+bool Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficiencyOn )
 {
-  int retVal=0; 
+  bool retVal=true; 
 #ifdef USE_TYPE_DOUBLE
   double result;
   retVal = newExpPtr_->evaluateFunction( result, efficiencyOn );
@@ -832,9 +832,9 @@ int Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficiency
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
+bool Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 {
-  int retVal=0;
+  bool retVal=true;
 #ifdef USE_TYPE_DOUBLE
   retVal = newExpPtr_->evaluate( exp_r, deriv_r );
 #else
@@ -857,9 +857,9 @@ int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
+bool Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
 {
-  int retVal=0; 
+  bool retVal=true; 
 #ifdef USE_TYPE_DOUBLE
   retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
 #else
@@ -868,6 +868,19 @@ int Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
   exp_r = std::real(result);
 #endif
   return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::clearOldResult
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 09/04/2020
+//-----------------------------------------------------------------------------
+void Expression::clearOldResult ()
+{
+  return newExpPtr_->clearOldResult();
 }
 
 //-----------------------------------------------------------------------------

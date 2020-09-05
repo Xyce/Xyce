@@ -53,6 +53,9 @@
 #include <string>
 #include <vector>
 
+// trilinos includes
+#include <Teuchos_RCP.hpp>
+
 #include <N_ANP_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_LAS_fwd.h>

@@ -540,7 +540,7 @@ private:
   bool updatePrimaryState_();
   bool updateSecondaryState_();
 
-  bool updateDependentParameters_();
+  void updateDependentParameters_();
 
   // Do the actual solve/calculation for the external devices
   void updateExternalDevices_();

@@ -75,6 +75,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Op.h>
 #include <N_UTL_OpBuilder.h>
+#include <N_UTL_Expression.h>
 
 #include <expressionGroup.h>
 
@@ -2804,11 +2805,8 @@ bool DeviceMgr::updateSecondaryState_()
 // Creator        : Dave Shirley
 // Creation Date  : 08/17/06
 //----------------------------------------------------------------------------
-bool DeviceMgr::updateDependentParameters_()
+void DeviceMgr::updateDependentParameters_()
 {
-  bool bsuccess = true;
-  Linear::Vector * solVectorPtr = externData_.nextSolVectorPtr;
-
   GlobalParameterMap & globalParamMap = globals_.global_params;
   std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
 
@@ -2833,14 +2831,11 @@ bool DeviceMgr::updateDependentParameters_()
     // to be called unneccessarily.
     //
     // But that will have to come later.
-    bool changed = true;
 
-    if (changed)
+    double val;
+    if (globalExprIter->evaluateFunction(val))
     {
-      double val;
-
       parameterChanged_ = true;
-      globalExprIter->evaluateFunction(val);
       globalParamMap[globals_.global_exp_names[pos]] = val;
     }
     ++pos;
@@ -2862,9 +2857,7 @@ bool DeviceMgr::updateDependentParameters_()
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
         bool tmpBool = (*iterM)->updateGlobalParameters(globalParamMap);
-        bsuccess = bsuccess && tmpBool;
-        tmpBool = (*iterM)->updateDependentParameters (*solVectorPtr,tmpBool);
-        bsuccess = bsuccess && tmpBool;
+        tmpBool = (*iterM)->updateDependentParameters (tmpBool);
         (*iterM)->processParams();
         (*iterM)->processInstanceParams();
       }
@@ -2880,9 +2873,7 @@ bool DeviceMgr::updateDependentParameters_()
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
         bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
-        bsuccess = bsuccess && tmpBool;
-        tmpBool = (*iter)->updateDependentParameters (*solVectorPtr,tmpBool);
-        bsuccess = bsuccess && tmpBool;
+        tmpBool = (*iter)->updateDependentParameters (tmpBool);
         (*iter)->processParams();
       }
     }
@@ -2899,11 +2890,9 @@ bool DeviceMgr::updateDependentParameters_()
       {
         bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
         changed = changed || tmpBool;
-        bsuccess = bsuccess && tmpBool;
       }
-      bool tmpBool = (*iter)->updateDependentParameters (*solVectorPtr);
+      bool tmpBool = (*iter)->updateDependentParameters (changed);
       changed = changed || tmpBool;
-      bsuccess = bsuccess && tmpBool;
       if (changed)
       {
         (*iter)->processParams();
@@ -2914,9 +2903,8 @@ bool DeviceMgr::updateDependentParameters_()
   timeParamsProcessed_ = solState_.currTime_;
   parameterChanged_ = false;
 
-  return bsuccess;
+  return;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::loadBVectorsforAC
@@ -4720,7 +4708,8 @@ bool setParameter(
         for ( ; it != end; ++it)
         {
           if ((*it)->updateGlobalParameters(global_parameter_map))
-          {
+          {// ERK.  why not call updateDependentParameters here?
+            (*it)->updateDependentParameters (true);
             (*it)->processParams();
             (*it)->processInstanceParams();
           }
@@ -5005,6 +4994,7 @@ void addGlobalParameter(
     Util::Expression &expression = globals.global_expressions.back();
     double val;
     expression.evaluateFunction(val);
+    expression.clearOldResult();
     globals.global_params[param.uTag()] = val;
   }
   else
