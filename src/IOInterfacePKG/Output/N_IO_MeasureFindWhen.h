@@ -185,6 +185,8 @@ public:
   std::ostream& printVerboseMeasureResult(std::ostream& os);
 
 private:
+  // This will be set to the value of whichever qualifer (RISE, FALL or CROSS) is being
+  //  used by the measure.
   int RFC_;
 };
 
@@ -196,7 +198,7 @@ private:
 //                 .MEASURE NOISE_CONT and .MEASURE TRAN_CONT.
 // Special Notes :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 08/03/20209
+// Creation Date : 08/03/2020
 //-------------------------------------------------------------------------
 class FindWhenCont : public FindWhenBase
 {

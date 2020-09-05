@@ -46,6 +46,7 @@
 <admst:variable name="initializeOnDeclare" select="yes"/>
 <admst:variable name="probeList"/>
 <admst:variable name="doSecondDerivs" select="no"/>
+<admst:variable name="collapseFailure" select="no"/>
 
   <!--
    =================================================================-

@@ -173,7 +173,7 @@ void FindWhenBase::updateTran(
        double targVal=updateTargVal();
 
       // The measure will succeed if the interpolated WHEN time is inside of the
-      // measurement window.
+      // measurement window, and the RISE/FALL/CROSS condition is then met.
       if (isWHENcondition(circuitTime, targVal))
       {
         double whenTime;
@@ -266,7 +266,7 @@ void FindWhenBase::updateDC(
         double targVal=updateTargVal();
 
         // The measure will succeed if the interpolated WHEN value is inside of the
-	// measurement window.
+	// measurement window, and the RISE/FALL/CROSS condition is then met.
         if (isWHENcondition(dcSweepVal, targVal))
         {
           double whenSweepVal;
@@ -333,11 +333,10 @@ void FindWhenBase::updateAC(
     }
     else if (type_ == "WHEN")
     {
-      {
         double targVal=updateTargVal();
 
-        // The measure will succeed if the interpolated WHEN time is inside of the
-	// measurement window.
+        // The measure will succeed if the interpolated WHEN frequency is inside of the
+	// measurement window, and the RISE/FALL/CROSS condition is then met.
         if (isWHENcondition(frequency, targVal))
         {
           double whenFreq;
@@ -352,7 +351,6 @@ void FindWhenBase::updateAC(
             if (withinRFCWindowForWhen())
 	      updateMeasureVars(frequency, targVal, whenFreq);
           }
-        }
       }
     }
   }
@@ -411,8 +409,8 @@ void FindWhenBase::updateNoise(
       {
         double targVal=updateTargVal();
 
-        // The measure will succeed if the interpolated WHEN time is inside of the
-	// measurement window.
+        // The measure will succeed if the interpolated WHEN frequency is inside of the
+	// measurement window, and the RISE/FALL/CROSS condition is then met.
         if (isWHENcondition(frequency, targVal))
         {
           double whenFreq;
@@ -440,7 +438,8 @@ void FindWhenBase::updateNoise(
 // Purpose       : Evaluates if the AT condition is true for all measure modes.
 // Special Notes : For AC and NOISE measures, the independent variable is
 //                 frequency.  For DC measures, it is the value of the first
-//                 variable in the DC sweep vector.
+//                 variable in the DC sweep vector.  For TRAN, it is circuit
+//                 time.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
@@ -538,7 +537,7 @@ void FindWhenBase::updateMeasureVars(const double currIndepVarVal, const double 
   }
 
   calculationDone_ = !measureLastRFC_;
-  // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
+  // resultFound_ is used to help control the descriptive output (to stdout) for a FIND-AT
   //  measure.  If it is false, the measure shows FAILED in stdout.
   resultFound_ = true;
 
@@ -713,7 +712,7 @@ void FindWhenBase::updateMeasureState(const double indepVarVal)
 //-----------------------------------------------------------------------------
 double FindWhenBase::updateTargVal()
 {
-    double targVal = 0.0;
+  double targVal = 0.0;
 
   if( outputValueTargetGiven_ )
   {
@@ -932,32 +931,36 @@ void FindWhen::updateCalculationInstant(double val)
 //-----------------------------------------------------------------------------
 std::ostream& FindWhen::printMeasureResult(std::ostream& os)
 {
-    basic_ios_all_saver<std::ostream::char_type> save(os);
-    os << std::scientific << std::setprecision(precision_);
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
 
-    // For non-negative RFC values, the calculationResultVec_ will be empty for a failed.
-    // meaure.  For negative RFC values, the calculationResultVec_ will have too
-    // few values for a failed measure.
-    if ( (atGiven_ && !resultFound_) || (calculationResultVec_.size() == 0) ||
-       ((RFC_ < 0) && (abs(RFC_) != calculationResultVec_.size())) )
+  if (atGiven_ && resultFound_)
+  {
+    os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+  else if (whenGiven_ && (((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((RFC_ < 0) && (calculationResultVec_.size() == abs(RFC_)))) )
+  {
+    // For non-negative RFC values, the calculationResultVec_ will be non-empty for a successful
+    // FIND-WHEN or WHEN meaure.  For negative RFC values, the calculationResultVec_ will
+    // have the correct number of values in it.
+    os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+  else
+  {
+    if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
-      if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
-      {
-        // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
-        // netlist and this is a failed measure.
-        os << name_ << " = FAILED" << std::endl;
-      }
-      else
-      {
-        os << name_ << " = " << this->getMeasureResult() << std::endl;
-      }
+      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+      // netlist and this is a failed measure.
+      os << name_ << " = FAILED" << std::endl;
     }
     else
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
     }
+  }
 
-    return os;
+  return os;
 }
 
 //-----------------------------------------------------------------------------
@@ -978,8 +981,8 @@ std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
   {
     os << name_ << " = " << this->getMeasureResult() << " for AT = " << at_;
   }
-  else if ( ((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
-            ((RFC_ < 0) && (calculationInstantVec_.size() == abs(RFC_))) )
+  else if (whenGiven_ && (((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((RFC_ < 0) && (calculationResultVec_.size() == abs(RFC_)))) )
   {
     // modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC or AC_CONT mode
     // and "<sweep variable> value" for DC or DC_CONT mode.
@@ -1027,26 +1030,23 @@ FindWhenCont::FindWhenCont(const Manager &measureMgr, const Util::OptionBlock & 
   {
     contRise_=rise_;
     contRFC_=contRise_;
-    rise_=-1;
   }
   else if (fallGiven_)
   {
     contFall_=fall_;
     contRFC_=contFall_;
-    fall_=-1;
   }
   else if (crossGiven_)
   {
     contCross_=cross_;
     contRFC_=contCross_;
-    cross_=-1;
   }
   else
   {
     //  // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
-    contCross_=1;
+    cross_=0;
+    contCross_=cross_;
     contRFC_=contCross_;
-    cross_=-1;
     crossGiven_=true;
   }
 }
@@ -1154,11 +1154,27 @@ std::ostream& FindWhenCont::printMeasureResult(std::ostream& os)
   basic_ios_all_saver<std::ostream::char_type> save(os);
   os << std::scientific << std::setprecision(precision_);
 
-  // For non-negative RFC values, the calculationResultVec_ will be empty for a failed.
-  // meaure.  For negative RFC values, the calculationResultVec_ will have too
-  // few values for a failed measure.
-  if ( (atGiven_ && !resultFound_) || (calculationResultVec_.size() == 0) ||
-       ((contRFC_ < 0) && (abs(contRFC_) != calculationResultVec_.size())) )
+  if (atGiven_ && resultFound_)
+  {
+    os << name_ << " = " << this->getMeasureResult() << std::endl;
+  }
+  else if (whenGiven_ && (((contRFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((contRFC_ < 0) && (calculationResultVec_.size() == abs(contRFC_)))) )
+  {
+    // For non-negative RFC values, the calculationResultVec_ will be non-empty for a successful
+    // FIND-WHEN or WHEN meaure.  For negative RFC values, the calculationResultVec_ will
+    // have the correct number of values in it.
+    if (contRFC_ >=0)
+    {
+      for (int i=0; i<calculationResultVec_.size(); i++)
+        os << name_ << " = " << calculationResultVec_[i] << std::endl;
+    }
+    else
+    {
+      os << name_ << " = " << calculationResultVec_[0] << std::endl;
+    }
+  }
+  else
   {
     if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
     {
@@ -1169,18 +1185,6 @@ std::ostream& FindWhenCont::printMeasureResult(std::ostream& os)
     else
     {
       os << name_ << " = " << this->getMeasureResult() << std::endl;
-    }
-  }
-  else
-  {
-    if (contRFC_ >=0)
-    {
-      for (int i=0; i<calculationResultVec_.size(); i++)
-        os << name_ << " = " << calculationResultVec_[i] << std::endl;
-    }
-    else
-    {
-      os << name_ << " = " << calculationResultVec_[0] << std::endl;
     }
   }
 
@@ -1205,8 +1209,8 @@ std::ostream& FindWhenCont::printVerboseMeasureResult(std::ostream& os)
   {
     os << name_ << " = " << this->getMeasureResult() << " for AT = " << at_ << std::endl;
   }
-  else if ( ((contRFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
-            ((contRFC_ < 0) && (calculationInstantVec_.size() == abs(contRFC_))) )
+  else if (whenGiven_ && (((contRFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((contRFC_ < 0) && (calculationResultVec_.size() == abs(contRFC_)))) )
   {
     // modeStr is "time" for TRAN mode, "freq" for AC mode and
     // "<sweep variable> value" for DC mode.
