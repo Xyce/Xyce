@@ -49,10 +49,10 @@ libExpressionSrc_la_SOURCES += $(BUILT_SOURCES)
 # yacc and bison interchangably, and we can't.
 
 ExpressionParser.cxx: $(srcdir)/ExpressionParser.yxx
-	$(BISON) --graph -o$@ $(srcdir)/ExpressionParser.yxx
+	$(BISON) -o$@ $(srcdir)/ExpressionParser.yxx
 
 ExpressionLexer.cxx: $(srcdir)/ExpressionLexer.l
-	$(LEX)  -i -+ --prefix=exp  -o$@ $(srcdir)/ExpressionLexer.l
+	$(LEX)  -i -+ --full  --prefix=exp  -o$@ $(srcdir)/ExpressionLexer.l
 
 ExpressionParser.hxx: ExpressionParser.cxx
 location.hh: ExpressionParser.cxx

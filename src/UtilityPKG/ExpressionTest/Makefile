@@ -26,7 +26,7 @@ astCopyConstUnitTest: astCopyConstUnitTest.C ast.o  ../ExpressionSrc/ast.h ../Ex
 
 # expression lexer/parser
 ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h ../N_UTL_Interpolators.h
-	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
+	$(FLEX) -i -+ --full --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
 
 ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/ExpressionType.h ../N_UTL_Interpolators.h
 	$(BISON) --graph -v -o$@ ../ExpressionSrc/ExpressionParser.yxx
