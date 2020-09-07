@@ -977,6 +977,33 @@ bool Expression::isTimeDependent() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::isFreqDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isFreqDependent() const
+{
+  return newExpPtr_->getFreqDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::isRandomDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isSolutionDependent() const
+{
+  return ( !(newExpPtr_->getVoltOpVec().empty()) || 
+           !(newExpPtr_->getCurrentOpVec().empty()) );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
 // Special Notes : This is only based on local dependence, from parsing.

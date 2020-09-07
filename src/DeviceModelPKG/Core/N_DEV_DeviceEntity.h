@@ -231,9 +231,13 @@ public:
   void setupParamBreakpoints();
   bool getParamBreakpoints( std::vector<Util::BreakPoint> & );
 
-  bool updateDependentParameters(bool changed);
+
+  bool updateGlobalAndDependentParameters (
+      bool globalParameterChanged,
+      bool timeChanged, 
+      bool freqChanged);
+
   bool updateDependentParameters(double temp_tmp);
-  bool updateGlobalParameters(GlobalParameterMap &);
   bool updateDependentParameters();
   void applyDepSolnLIDs();
 

@@ -557,9 +557,9 @@ private:
   bool                          sensFlag_;              ///< .SENS present in netlist
   bool                          isLinearSystem_;        ///< True if all devices in netlist have isLinearDevice() true
   bool                          firstDependent_;        ///< True until updateDependentParameters_ is called.
-  bool                          parameterChanged_;      ///< Only used locally in updateDependentParameters_, don't know if stateful of just a member for fun
   bool                          breakPointInstancesInitialized;
   double                        timeParamsProcessed_;   ///< Time updateDependentParameters was called
+  double                        freqParamsProcessed_;   ///< Time updateDependentParameters was called
 
   ExternData                    externData_;
   MatrixLoadData                matrixLoadData_;        ///< temporary jacobian load structures:

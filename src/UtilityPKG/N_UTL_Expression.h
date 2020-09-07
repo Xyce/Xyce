@@ -136,6 +136,8 @@ public:
   bool replace_name (const std::string & old_name, const std::string & new_name);  // this is for voltage names
 
   bool isTimeDependent() const;
+  bool isFreqDependent() const;
+  bool isSolutionDependent() const;
   bool isRandomDependent() const;
   void dumpParseTree();
 

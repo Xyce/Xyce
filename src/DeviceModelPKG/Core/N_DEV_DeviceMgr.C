@@ -157,9 +157,9 @@ DeviceMgr::DeviceMgr(
     sensFlag_(false),
     isLinearSystem_(true),
     firstDependent_(true),
-    parameterChanged_(false),
     breakPointInstancesInitialized(false),
     timeParamsProcessed_(0.0),
+    freqParamsProcessed_(0.0),
     externData_(),
     matrixLoadData_(),
     solState_(),
@@ -2810,8 +2810,15 @@ void DeviceMgr::updateDependentParameters_()
   GlobalParameterMap & globalParamMap = globals_.global_params;
   std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
 
+  bool timeChanged = false;
+  bool freqChanged = false;
+  bool globalParamChanged = false;
+
   if (timeParamsProcessed_ != solState_.currTime_)
-    parameterChanged_ = true;
+    timeChanged = true;
+
+  if (freqParamsProcessed_ != solState_.currFreq_)
+    freqChanged = true;
 
   // Update global params for new time and other global params
   int pos = 0;
@@ -2835,7 +2842,7 @@ void DeviceMgr::updateDependentParameters_()
     double val;
     if (globalExprIter->evaluateFunction(val))
     {
-      parameterChanged_ = true;
+      globalParamChanged = true;
       globalParamMap[globals_.global_exp_names[pos]] = val;
     }
     ++pos;
@@ -2856,8 +2863,7 @@ void DeviceMgr::updateDependentParameters_()
       if (!(*iterM)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
-        bool tmpBool = (*iterM)->updateGlobalParameters(globalParamMap);
-        tmpBool = (*iterM)->updateDependentParameters (tmpBool);
+        bool tmpBool = (*iterM)->updateGlobalAndDependentParameters(true,true,true);
         (*iterM)->processParams();
         (*iterM)->processInstanceParams();
       }
@@ -2872,8 +2878,7 @@ void DeviceMgr::updateDependentParameters_()
       if (!(*iter)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
-        bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
-        tmpBool = (*iter)->updateDependentParameters (tmpBool);
+        bool tmpBool = (*iter)->updateGlobalAndDependentParameters(true,true,true);
         (*iter)->processParams();
       }
     }
@@ -2886,13 +2891,8 @@ void DeviceMgr::updateDependentParameters_()
     for (iter=begin; iter!=end;++iter)
     {
       bool changed = false;
-      if (parameterChanged_)
-      {
-        bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
-        changed = changed || tmpBool;
-      }
-      bool tmpBool = (*iter)->updateDependentParameters (changed);
-      changed = changed || tmpBool;
+      changed = (*iter)->updateGlobalAndDependentParameters(globalParamChanged, timeChanged, freqChanged);
+
       if (changed)
       {
         (*iter)->processParams();
@@ -2901,7 +2901,6 @@ void DeviceMgr::updateDependentParameters_()
     }
   }
   timeParamsProcessed_ = solState_.currTime_;
-  parameterChanged_ = false;
 
   return;
 }
@@ -3773,20 +3772,6 @@ bool DeviceMgr::updateTemperature (double val)
   // variable is false.  This should be in Kelvin.
   devOptions_.temp.setVal(Ktemp);
 
-#if 0
-  // ERK:  double-check this.
-
-  // Update the global parameters, since some of them may depend on TEMP
-  // or VT.  Do this before updating the individual model or device parameters.
-  std::vector<Util::Expression> & ge = globals_.global_expressions;
-  for (std::vector<Util::Expression>::iterator g_i = ge.begin(), g_end = ge.end();
-       g_i != g_end; ++g_i)
-  {
-    Util::Expression &expression = *g_i;
-    expression.set_temp(Ktemp);
-  }
-#endif
-
   {
     // loop over the bsim3 models and delete the size dep params.
     ModelTypeModelVectorMap::const_iterator model_type_it = modelTypeModelVector_.find(MOSFET_B3::Traits::modelType());
@@ -4612,16 +4597,6 @@ bool getParamAndReduce(
   Util::Op::Operator *op = device_manager.getOp(comm, name);
   value = op ? (*op)(comm, Util::Op::OpData()).real() : 0.0;
 
-
-#if 0
-  std::string upperName = name;
-  Xyce::Util::toUpper(upperName);
-  if (upperName == std::string("ISRC1:ACMAG"))
-  {
-    std::cout << "getParamAndReduce 1.  name = " << name << "  value = " << value <<std::endl;
-  }
-#endif
-
   return op;
 }
 
@@ -4641,14 +4616,6 @@ double getParamAndReduce(
   double value = 0.0;
   bool found = getParamAndReduce(comm, device_manager, name, value);
 
-#if 0
-  std::string upperName = name;
-  Xyce::Util::toUpper(upperName);
-  if (upperName == std::string("ISRC1:ACMAG"))
-  {
-    std::cout << "getParamAndReduce 2.  name = " << name << "  value = " << value <<std::endl;
-  }
-#endif
   if (!found)
   {
     if (DEBUG_DEVICE)
@@ -4707,9 +4674,8 @@ bool setParameter(
         EntityVector::iterator end = dependent_entity_vector.end();
         for ( ; it != end; ++it)
         {
-          if ((*it)->updateGlobalParameters(global_parameter_map))
-          {// ERK.  why not call updateDependentParameters here?
-            (*it)->updateDependentParameters (true);
+          if ((*it)->updateGlobalAndDependentParameters(true,false,false))
+          {
             (*it)->processParams();
             (*it)->processInstanceParams();
           }
@@ -4867,7 +4833,7 @@ bool setParameterRandomExpressionTerms(
         EntityVector::iterator end = dependent_entity_vector.end();
         for ( ; it != end; ++it)
         {
-          if ((*it)->updateGlobalParameters(global_parameter_map))
+          if ((*it)->updateGlobalAndDependentParameters(true,false,false))
           {
             (*it)->processParams();
             (*it)->processInstanceParams();

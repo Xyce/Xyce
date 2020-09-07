@@ -628,7 +628,11 @@ public:
   bool evaluateFunction (usedType &result, bool efficiencyOn=false);
 
   // supporting "changed" boolean .... 
-  void clearOldResult()  { savedResult_ = 0.0; };
+  void clearOldResult()  
+  { 
+    savedResult_ = 0.0; 
+    evaluateFunctionCalledBefore_=false; 
+  };
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 

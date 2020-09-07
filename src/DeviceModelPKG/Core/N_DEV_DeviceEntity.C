@@ -1080,71 +1080,23 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceEntity::updateDependentParameters
-// Purpose       : Update values of parameters defined as expressions
+// Function      : DeviceEntity::updateGlobalAndDependentParameters
 //
-// Special Notes : Original version of this function performed a 
-//                 set_vars, and "changed" depended on everything.
+// Purpose       : Updates expressions, as needed, that depend on various things 
+//                 including global params, special variables like "TIME" and 
+//                 solution variables.   For expressions that are updated and
+//                 produce a different value, apply new value to the param(s)
+//                 that depend on that expression.
 //
-// Scope         : protected
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 03/15/05
-//-----------------------------------------------------------------------------
-bool DeviceEntity::updateDependentParameters(bool changed)
-{
-  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
-  std::vector<Depend>::iterator end = dependentParams_.end();
-  double rval(0.0);
-
-  for ( ; dpIter != end ; ++dpIter)
-  {
-    // Also, don't re-evaluate if this parameter has been overridden by a setParam call.
-    if ( !(dependentParamExcludeMap_.empty()) ) 
-    {
-      // check for a setParam call
-      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) 
-      { 
-        changed=true;  // is this necessary? check
-        continue; 
-      }
-    }
-
-    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
-    {
-      // check for a scaleParam call
-      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) 
-      { 
-        changed=true;  // is this necessary?
-        continue; 
-      }
-    }
-
-    if (dpIter->expr->evaluateFunction (rval)) { changed = true; } 
-
-    if (changed)
-    {
-      if (dpIter->vectorIndex==-1)
-        *(dpIter->resultU.result) = rval;
-      else
-        (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
-
-      if (dpIter->storeOriginal)
-        Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
-    }
-  }
-
-  return changed;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DeviceEntity::updateGlobalParameters
-// Purpose       : Update values of global parameters in expressions
 // Special Notes : 
 // Scope         : protected
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 11/17/05
+// Creator       : Eric Keiter, SNL
+// Creation Date : 9/6/2020
 //-----------------------------------------------------------------------------
-bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
+bool DeviceEntity::updateGlobalAndDependentParameters(
+    bool globalParameterChanged,
+    bool timeChanged,
+    bool freqChanged)
 {
   std::vector<Depend>::iterator dpIter = dependentParams_.begin();
   std::vector<Depend>::iterator end = dependentParams_.end();
@@ -1154,19 +1106,60 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    if (!dpIter->global_params.empty())
+    // Don't re-evaluate if this parameter has been overridden by a setParam call.
+    if ( !(dependentParamExcludeMap_.empty()) ) 
     {
-      std::vector<std::string>::iterator gp=dpIter->global_params.begin();
-      std::vector<std::string>::iterator gend=dpIter->global_params.end();
-      for ( ; gp != gend; ++gp)
-      {
-        if (global_map.find(*gp) == global_map.end())
-        {
-          DevelFatal(*this).in("DeviceEntity::updateGlobalParameters") << "Failed to find global parameter " << *gp;
-        }
+      // check for a setParam call
+      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
+    {
+      // check for a scaleParam call
+      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( (!(dpIter->global_params.empty()) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
+        // ERK: check if the time and freq booleans are reliable.
+           (dpIter->expr->isTimeDependent() && timeChanged) ||
+           (dpIter->expr->isFreqDependent() && freqChanged) ||
+           dpIter->expr->isSolutionDependent()  // can't easily know at this point if solution has changed. fix later?
+        ) 
+    { 
+      if (dpIter->expr->evaluateFunction (rval)) 
+      { 
+        changed = true; 
+
+        // apply the expression result to parameters, if it has changed.
+        if (dpIter->vectorIndex==-1)
+          *(dpIter->resultU.result) = rval;
+        else
+          (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+
+        if (dpIter->storeOriginal)
+          Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
       }
 
-      if (dpIter->expr->evaluateFunction (rval)) { changed = true; } 
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        std::cout << "just evaluated " << dpIter->expr->get_expression() << " val = " << rval;
+        if (changed==true) { std::cout << " changed=true"; }
+        else { std::cout << " changed=false"; }
+
+        if ( (!(dpIter->global_params.empty()) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        else { std::cout << " globalParDep=false"; }
+
+        if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
+        else { std::cout << " timeDep=false"; }
+
+        if ( (dpIter->expr->isFreqDependent() && freqChanged) ) { std::cout << " freqDep=true"; }
+        else { std::cout << " freqDep=false"; }
+
+        if ( (dpIter->expr->isSolutionDependent() ) ) { std::cout << " solutionDep=true"; }
+        else { std::cout << " solutionDep=false"; }
+
+        std::cout << std::endl;
+      }
     }
   }
 
