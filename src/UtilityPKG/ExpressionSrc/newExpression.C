@@ -238,6 +238,7 @@ bool newExpression::lexAndParseExpression()
 
   // set up names vectors for voltages, currents and leads, params.
   {
+#if 0 
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
@@ -254,6 +255,7 @@ bool newExpression::lexAndParseExpression()
       std::string tmp = currOp->getCurrentDevice();
       currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
+#endif
 
     for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
     {
@@ -974,22 +976,37 @@ void newExpression::setupVariousAstArrays()
       // but that were not updated during it. (these could easily be included in the 
       // traversal, so perhaps do that later)
       voltOpNames_.clear();
+      // needed by various functions such as "getVoltageNodes", "getEverything", etc.
+      voltNameVec_.clear();
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+
         for (int jj=0;jj<tmp.size();++jj)
         {
           voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
+          std::vector<std::string>::iterator nameIter = std::find(voltNameVec_.begin(),voltNameVec_.end(), tmp[jj] );
+          if ( nameIter == voltNameVec_.end() )
+          {
+            voltNameVec_.push_back( tmp[jj] );
+          }
         }
       }
 
       currentOpNames_.clear();
+      // needed by various functions such as "getDeviceCurrents", "getEverything", etc.
+      currentNameVec_.clear();
       for (int ii=0;ii<currentOpVec_.size();++ii)
       {
         Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
         std::string tmp = currOp->getCurrentDevice();
         currentOpNames_[tmp].push_back(currentOpVec_[ii]);
+        std::vector<std::string>::iterator nameIter = std::find(currentNameVec_.begin(),currentNameVec_.end(), tmp);
+        if ( nameIter == currentNameVec_.end() )
+        {
+          currentNameVec_.push_back( tmp );
+        }
       }
 
       leadCurrentOpNames_.clear();

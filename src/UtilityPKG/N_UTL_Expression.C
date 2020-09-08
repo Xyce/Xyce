@@ -422,10 +422,7 @@ void Expression::getParams (std::vector<std::string> & params) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getVoltageNodes
 // Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
-//
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -435,29 +432,14 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
   newExpPtr_->setupVariousAstArrays();
 
   nodes.clear();
-  for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
-  {
-    int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
-
-    for (int jj=0;jj<size;jj++)
-    {
-      std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-      std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
-      if (it == nodes.end())
-      {
-        nodes.push_back( tmpName );
-      }
-    }
-  }
+  std::vector<std::string> & voltNames = newExpPtr_->getVoltNameVec ();
+  if (!(voltNames.empty())) { nodes.insert(nodes.end(),voltNames.begin(), voltNames.end()); }
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::getDeviceCurrents
 // Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
-//
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -467,15 +449,8 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
   newExpPtr_->setupVariousAstArrays();
 
   devices.clear();
-  for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(devices.begin(), devices.end(), tmpName);
-    if (it == devices.end())
-    {
-      devices.push_back( tmpName );
-    }
-  }
+  std::vector<std::string> & currentNames = newExpPtr_->getCurrentNameVec ();
+  if (!(currentNames.empty())) { devices.insert(devices.end(),currentNames.begin(), currentNames.end()); }
 }
 
 //-----------------------------------------------------------------------------
@@ -546,7 +521,7 @@ void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) c
     }
   }
 
-  // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
+  // In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
@@ -739,27 +714,14 @@ void Expression::getEverything (
   nodes.clear(); devices.clear(); leads.clear(); variables.clear(); specials.clear();
 
   // voltage nodes
-  for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
-  {
-    int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
+  std::vector<std::string> & voltNames = newExpPtr_->getVoltNameVec ();
+  if (!(voltNames.empty())) { nodes.insert(nodes.end(),voltNames.begin(), voltNames.end()); }
 
-    for (int jj=0;jj<size;jj++)
-    {
-      std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-      std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
-      if (it == nodes.end()) { nodes.push_back( tmpName ); }
-    }
-  }
+  // solution current
+  std::vector<std::string> & currentNames = newExpPtr_->getCurrentNameVec ();
+  if (!(currentNames.empty())) { devices.insert(devices.end(),currentNames.begin(), currentNames.end()); }
 
-  // current devices:
-  for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(devices.begin(), devices.end(), tmpName);
-    if (it == devices.end()) { devices.push_back( tmpName ); }
-  }
-
-  // leads
+  // lead currents
   for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
@@ -767,7 +729,7 @@ void Expression::getEverything (
     if (it == leads.end()) { leads.push_back( tmpName ); }
   }
 
-  // more leads
+  // more lead currents
   for (int ii=0;ii<newExpPtr_->getBsrcCurrentOpVec().size();ii++)
   {
     std::string tmpName = newExpPtr_->getBsrcCurrentOpVec()[ii]->getName();
@@ -775,7 +737,7 @@ void Expression::getEverything (
     if (it == leads.end()) { leads.push_back( tmpName ); }
   }
 
-  // more, more leads:   In at least some cases, what is really being requested is 
+  // more, more lead currents:   In at least some cases, what is really being requested is 
   // branch calculations, which can be either lead currents or power.
   for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
@@ -784,7 +746,7 @@ void Expression::getEverything (
     if (it == leads.end()) { leads.push_back( tmpName ); }
   }
 
-  //variables:
+  //variables (global params):
   for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (newExpPtr_->getParamOpVec()[ii]);

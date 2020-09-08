@@ -684,6 +684,11 @@ public:
     return voltOpNames_;
   };
 
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLocalVoltOpNames ()
+  {
+    return voltOpNames_;
+  }
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getPowerOpVec() { return powerOpVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getInternalDevVarOpVec() { return internalDevVarOpVec_; }
 
@@ -730,6 +735,11 @@ public:
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
     setupVariousAstArrays ();
+    return currentOpNames_;
+  };
+
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLocalCurrentOpNames ()
+  {
     return currentOpNames_;
   };
 
