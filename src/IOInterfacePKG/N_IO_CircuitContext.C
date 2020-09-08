@@ -863,12 +863,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         if (parameter.getType() == Xyce::Util::EXPR)
         {
           std::vector<std::string> nodes, instances, leads, variables, specials;
-
-          parameter.getValue<Util::Expression>().getVoltageNodes(nodes);
-          parameter.getValue<Util::Expression>().getDeviceCurrents(instances);
-          parameter.getValue<Util::Expression>().getLeadCurrents(leads);
-          parameter.getValue<Util::Expression>().getVariables(variables); 
-          parameter.getValue<Util::Expression>().getSpecials(specials);
+          parameter.getValue<Util::Expression>().getEverything(nodes,instances,leads,variables,specials);
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
           {
@@ -1252,12 +1247,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
       std::vector<std::string> nodes, instances, leads, variables, specials; 
-
-      expression.getVoltageNodes(nodes);
-      expression.getDeviceCurrents(instances);
-      expression.getLeadCurrents(leads);
-      expression.getVariables(variables); 
-      expression.getSpecials(specials);      
+      expression.getEverything(nodes,instances,leads,variables,specials);
       bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1539,12 +1529,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
       std::vector<std::string> nodes, instances, leads, variables, specials;
-
-      expression.getVoltageNodes(nodes);
-      expression.getDeviceCurrents(instances);
-      expression.getLeadCurrents(leads);
-      expression.getVariables(variables); 
-      expression.getSpecials(specials);      
+      expression.getEverything(nodes,instances,leads,variables,specials);
       bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1681,7 +1666,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
   std::vector<std::string> strings;
   expression.getUnresolvedParams(strings); // ERK. check this
 
-  std::vector<std::string> saveForLaterStrings;
 
   if ( !(strings.empty()) )
   {
@@ -1768,10 +1752,10 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
           //                         << " as substitute for " << parameterName << " in expression " << expressionString;
-          enumParamType paramType=DOT_PARAM;
           std::vector<std::string> variables;
           expressionParameter.getValue<Util::Expression>().getVariables (variables);
 
+          enumParamType paramType=DOT_PARAM;
           if (variables.empty()) paramType=DOT_PARAM;
           else paramType=SUBCKT_ARG_PARAM;
 
@@ -1795,10 +1779,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 #endif
             expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
           }
-
-          // experiment
-          variables.clear();
-          expression.getVariables(variables);
         }
       }
       else
@@ -1927,7 +1907,6 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
       {
         unresolvedFunctions = true;
       }
-
     }
   }
 

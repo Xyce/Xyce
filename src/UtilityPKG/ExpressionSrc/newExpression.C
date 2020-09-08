@@ -293,6 +293,9 @@ bool newExpression::lexAndParseExpression()
     if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
   }
 
+  checkIsConstant_();
+  astArraysSetup_ = true;
+
   return parsed_;
 }
 
@@ -361,6 +364,8 @@ bool newExpression::attachFunctionNode(
               castedFuncPtr->setSdtArgs( expPtr->getLocalSdtOpVec() );
               castedFuncPtr->setDdtArgs( expPtr->getLocalDdtOpVec() );
               retval=true;
+
+              // remove from the unresolvedFunction container.  Currently this container isn't maintained or used.
             }
           }
         }
@@ -421,6 +426,9 @@ bool newExpression::attachParameterNode(
           retval=true;
         }
       }
+
+      // remove this from the unresolvedParams container.  Currently this container isn't maintained or used.
+
     }
   }
   return retval;
@@ -482,25 +490,25 @@ void newExpression::clear ()
 
   paramNameVec_.clear();
   paramOpVec_.clear();
-  unresolvedParamOpVec_.clear();
+  //unresolvedParamOpVec_.clear();
   paramOpNames_.clear();
 
   funcOpVec_.clear();
-  unresolvedFuncOpVec_.clear();
+  //unresolvedFuncOpVec_.clear();
   funcOpMap_.clear();
 
   voltNameVec_.clear();
   voltOpVec_.clear();
-  unresolvedVoltOpVec_.clear();
+  //unresolvedVoltOpVec_.clear();
   voltOpNames_.clear();
 
   currentNameVec_.clear();
   currentOpVec_.clear();
-  unresolvedCurrentOpVec_.clear();
+  //unresolvedCurrentOpVec_.clear();
   currentOpNames_.clear();
 
   leadCurrentOpVec_.clear();
-  unresolvedLeadCurrentOpVec_.clear();
+  //unresolvedLeadCurrentOpVec_.clear();
   leadCurrentOpNames_.clear();
 
   bsrcCurrentOpVec_.clear();
@@ -784,7 +792,7 @@ void newExpression::outputVariousAstArrays( std::ostream & os )
   else os << "externalDependencies_ = false" <<std::endl;
 
 NEW_EXP_OUTPUT_ARRAY(paramOpVec_)
-NEW_EXP_OUTPUT_ARRAY(unresolvedParamOpVec_)
+//NEW_EXP_OUTPUT_ARRAY(unresolvedParamOpVec_)
 NEW_EXP_OUTPUT_ARRAY(funcOpVec_)
 NEW_EXP_OUTPUT_ARRAY(voltOpVec_)
 NEW_EXP_OUTPUT_ARRAY(currentOpVec_)
@@ -824,7 +832,7 @@ void newExpression::outputVariousAstArraySizes( std::ostream & os )
   else os << "externalDependencies_ = false" <<std::endl;
 
 NEW_EXP_OUTPUT_ARRAY_SIZE(paramOpVec_)
-NEW_EXP_OUTPUT_ARRAY_SIZE(unresolvedParamOpVec_)
+//NEW_EXP_OUTPUT_ARRAY_SIZE(unresolvedParamOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(funcOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(voltOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(currentOpVec_)
@@ -1189,12 +1197,15 @@ void newExpression::addToVariousAstArrays_
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::checkIsConstant_
-// Purpose       :
-// Special Notes : This function is probably obsolete and should be replaced by 
-//                 a different approach in the "getValuesFromGroup" function.
+//
+// Purpose       : This function is used by the N_UTL_Param function 
+//                 "isExpressionConstant", which is used to determine if an 
+//                 expression can be turned into an immutable data type such as 
+//                 DBLE or INT.
+// Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter
-// Creation Date :
+// Creation Date : 2020
 //-------------------------------------------------------------------------------
 void newExpression::checkIsConstant_()
 {
@@ -1208,7 +1219,7 @@ void newExpression::checkIsConstant_()
     {
       Teuchos::RCP<paramOp<usedType> > parOp 
         = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if ( (parOp->getIsVar()) ) { noVariableParams = false; }
+      if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) { noVariableParams = false;  break;}
     }
   }
 
@@ -1219,8 +1230,8 @@ void newExpression::checkIsConstant_()
     !isFreqDependent_  &&
     !isGminDependent_  &&  // not relevant
     noVariableParams &&
-    (unresolvedParamOpVec_.empty()) &&
-    //(funcOpVec_.empty()) &&  // not relevant
+    //(unresolvedParamOpVec_.empty()) &&
+    //(funcOpVec_.empty()) &&  // not relevant but based on comments above consistent with num_vars in the old library.  Leaving it out is the right thing to do and doesn't appear to break anything.
     (voltOpVec_.empty()) &&
     (currentOpVec_.empty()) &&
     (leadCurrentOpVec_.empty()) &&
@@ -1229,7 +1240,13 @@ void newExpression::checkIsConstant_()
     (dnoNoiseDevVarOpVec_.empty()) &&
     (dniNoiseDevVarOpVec_.empty()) &&
     (oNoiseOpVec_.empty()) &&
-    (iNoiseOpVec_.empty())
+    (iNoiseOpVec_.empty()) &&
+    ( (localAgaussOpVec_.empty())  )  &&
+    ( (localGaussOpVec_.empty()) )  &&
+    ( (localAunifOpVec_.empty()) )  &&
+    ( (localUnifOpVec_.empty())  )  &&
+    ( (localRandOpVec_.empty())  )  &&
+    ( (localTwoArgLimitOpVec_.empty()) ) 
       )
     {
       isConstant_ = true;
@@ -1247,13 +1264,12 @@ void newExpression::checkIsConstant_()
       << " is constant" << std::endl;
   }
 #endif
-
 }
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
 // Purpose       :
-// Special Notes : This function should be used to set isConstant_.
+// Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date :
@@ -1702,6 +1718,7 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
   if (parsed_)
   {
     setupVariousAstArrays ();
+#if 0
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
       Xyce::dout() << "ERROR.  Unresolved functions in expression " 
@@ -1713,6 +1730,7 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
           << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
       }
     }
+#endif
 
 #if 0
     Xyce::dout() << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;

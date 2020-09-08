@@ -187,44 +187,14 @@ std::string Param::getImmutableValue<std::string>() const
 // Purpose       : This function checks if a expression has any dependencies 
 //                 that would render it unsuitable for being made into an 
 //                 immutable data type such as DBLE or INT.
-//
-// Special Notes : This should probably be refactored to be a function in 
-//                 N_UTL_Expression.C.  But right now I am in a hurry.
-//
+// Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter, SNL
 // Creation Date : 7/30/2020
 //-----------------------------------------------------------------------------
 bool isExpressionConstant(Expression & expression)
 {
-  //if (expression.num_vars() == 0) // this was the original conditional
-  // In the old expression library num_vars is defined as:
-  // num_vars = num_N_+
-  //            num_I_+
-  //            num_lead_+
-  //            num_string_+
-  //            num_special_+
-  //            num_var_+
-  //            num_func_+
-  //            num_node_computation_
-  //
-  // The code below attempts to reproduce this, with the additional 
-  // check for random operators.  Unfortunately, these calls are more
-  // expensive than the old "num_vars()" funciton call.
-  std::vector<std::string> nodes,instances,variables,specials,funcs;
-  expression.getVoltageNodes(nodes);
-  expression.getDeviceCurrents(instances);
-  expression.getVariables(variables); 
-  expression.getSpecials(specials);  
-  expression.getFunctions(funcs);
-  bool isRandomDependent= expression.isRandomDependent();
-
-  return  nodes.empty() && 
-          instances.empty() && 
-          variables.empty() && 
-          specials.empty() && 
-          funcs.empty() && 
-          !isRandomDependent;
+  return  expression.getIsConstant();
 }
 
 //-----------------------------------------------------------------------------

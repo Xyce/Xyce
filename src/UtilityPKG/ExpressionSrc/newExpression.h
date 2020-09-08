@@ -340,23 +340,23 @@ public:
     functionArgOpVec_ (right.functionArgOpVec_),
     paramNameVec_(right.paramNameVec_),
     paramOpVec_(right.paramOpVec_),
-    unresolvedParamOpVec_(right.unresolvedParamOpVec_),
+    //unresolvedParamOpVec_(right.unresolvedParamOpVec_),
     paramOpNames_(right.paramOpNames_),
     funcNameVec_(right.funcNameVec_),
     funcOpVec_(right.funcOpVec_),
-    unresolvedFuncOpVec_(right.unresolvedFuncOpVec_),
+    //unresolvedFuncOpVec_(right.unresolvedFuncOpVec_),
     voltNameVec_(right.voltNameVec_),
     voltOpVec_(right.voltOpVec_),
-    unresolvedVoltOpVec_(right.unresolvedVoltOpVec_),
+    //unresolvedVoltOpVec_(right.unresolvedVoltOpVec_),
     voltOpNames_(right.voltOpNames_),
 
     currentNameVec_(right.currentNameVec_),
     currentOpVec_(right.currentOpVec_),
-    unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
+    //unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
     currentOpNames_(right.currentOpNames_),
 
     leadCurrentOpVec_(right.leadCurrentOpVec_),
-    unresolvedLeadCurrentOpVec_(right.unresolvedLeadCurrentOpVec_),
+    //unresolvedLeadCurrentOpVec_(right.unresolvedLeadCurrentOpVec_),
     leadCurrentOpNames_(right.leadCurrentOpNames_),
 
     bsrcCurrentOpVec_(right.bsrcCurrentOpVec_),
@@ -470,23 +470,23 @@ public:
     functionArgOpVec_  = right.functionArgOpVec_;
     paramNameVec_ = right.paramNameVec_;
     paramOpVec_ = right.paramOpVec_;
-    unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
+    //unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
     paramOpNames_ = right.paramOpNames_;
     funcNameVec_ = right.funcNameVec_;
     funcOpVec_ = right.funcOpVec_;
-    unresolvedFuncOpVec_ = right.unresolvedFuncOpVec_;
+    //unresolvedFuncOpVec_ = right.unresolvedFuncOpVec_;
     voltNameVec_ = right.voltNameVec_;
     voltOpVec_ = right.voltOpVec_;
     voltOpNames_ = right.voltOpNames_;
-    unresolvedVoltOpVec_ = right.unresolvedVoltOpVec_;
+    //unresolvedVoltOpVec_ = right.unresolvedVoltOpVec_;
     currentNameVec_ = right.currentNameVec_;
     currentOpVec_ = right.currentOpVec_;
     currentOpNames_ = right.currentOpNames_;
-    unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
+    //unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
 
     leadCurrentOpVec_ = right.leadCurrentOpVec_;
     leadCurrentOpNames_ = right.leadCurrentOpNames_;
-    unresolvedLeadCurrentOpVec_ = right.unresolvedLeadCurrentOpVec_;
+    //unresolvedLeadCurrentOpVec_ = right.unresolvedLeadCurrentOpVec_;
 
     bsrcCurrentOpVec_ = right.bsrcCurrentOpVec_;
     bsrcCurrentOpNames_ = right.bsrcCurrentOpNames_;
@@ -660,7 +660,7 @@ public:
   const std::vector< Teuchos::RCP<astNode<usedType> > > & getFunctionArgOpVec() { return functionArgOpVec_; };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getParamOpVec () { return paramOpVec_; };
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedParamOpVector() {  return unresolvedParamOpVec_; };
+  //std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedParamOpVector() {  return unresolvedParamOpVec_; };
   std::vector<std::string> & getParamNameVec () { return paramNameVec_; };
 
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpNames ()
@@ -670,12 +670,12 @@ public:
   };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getFuncOpVec () { return funcOpVec_; };
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedFuncOpVec() { return unresolvedFuncOpVec_; };
+  //std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedFuncOpVec() { return unresolvedFuncOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getFuncOpMap () { return funcOpMap_; };
   std::vector< std::string > & getFuncNameVec () { return funcNameVec_; };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
+  //std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
   std::vector<std::string> & getVoltNameVec () { return voltNameVec_; };
 
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
@@ -725,7 +725,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getGminOpVec() { return gminOpVec_; }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
-  std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
+  //std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::vector<std::string> & getCurrentNameVec () { return currentNameVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
@@ -858,7 +858,11 @@ public:
     for (int ii=0;ii<externalExpressions_.size();ii++) { externalExpressions_[ii]->getGminNodes(gminVec); }
   }
 
-  bool getIsConstant() { return isConstant_; }
+  bool getIsConstant() 
+  { 
+    setupVariousAstArrays ();
+    return isConstant_; 
+  }
 
   void treatAsTempAndConvert();
 
@@ -904,26 +908,26 @@ private:
 
   std::vector<std::string> paramNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedParamOpVec_;
+  //std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedParamOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpNames_;
 
   std::vector<std::string> funcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > funcOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
+  //std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > funcOpMap_;
 
   std::vector<std::string> voltNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;
+  //std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpNames_;
 
   std::vector<std::string> currentNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
+  //std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > leadCurrentOpVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedLeadCurrentOpVec_;
+  //std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedLeadCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > bsrcCurrentOpVec_;

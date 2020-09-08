@@ -114,6 +114,14 @@ public:
   void getVariables           (std::vector<std::string> & variables) const;
   void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
 
+  void getEverything(
+        std::vector<std::string> & nodes,
+        std::vector<std::string> & devices,
+        std::vector<std::string> & leads,
+        std::vector<std::string> & variables,
+        std::vector<std::string> & specials
+      ) const;
+
   bool getIsConstant ();
 
   bool setTemperature   (const double & temp);
