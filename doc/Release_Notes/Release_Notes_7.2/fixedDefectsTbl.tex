@@ -106,6 +106,15 @@ supported DC measure types:
 \end{verbatim}
 \\ \hline
 
+\textbf{1304-SON}: Fix issues with FROM-TO qualifiers for DERIV-WHEN,
+FIND-WHEN and WHEN measures & These measure types could get the incorrect
+answer, for all measure modes, if the FROM or TO qualifiers
+were given.  The interpolated WHEN time was not being properly compared with
+specified the FROM-TO window.  Now, if the interpolated WHEN time is within
+the FROM-TO window then the measure value is valid.  If the interpolated
+time is outside of the FROM-TO window then the measure is "FAILED".
+\\ \hline
+
 \textbf{1303-SON}: Segfault in mixed signal interface &
 The Python method \texttt{getDeviceNames()}, and the underlying
 \texttt{xyce\_getDeviceNames()} method in the mixed signal interface,
