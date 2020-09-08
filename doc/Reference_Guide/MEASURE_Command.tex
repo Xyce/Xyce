@@ -156,6 +156,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE <AC|DC|NOISE> <result name> DERIV <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [MINVAL=<value>] [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE <AC|DC|NOISE> <result name> EQN <expression> 
@@ -174,6 +175,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE <AC|DC|NOISE> <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
@@ -202,6 +204,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 MEASURE <AC|DC|NOISE> <result name>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
@@ -270,9 +273,9 @@ The supported measure types and their definitions are:
     user-specified condition occurs (by using the {\tt WHEN}
     qualifier). If the {\tt WHEN} qualifier is used then the
     measurement window can be limited with the qualifiers {\tt FROM},
-    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
-    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
-    {\tt DC} and {\tt NOISE} measures. The {\tt MINVAL} qualifier is used as a
+    {\tt TO}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for all measure
+    modes.  In addition, the {\tt TD} qualifier is supported for
+    {\tt TRAN} measures. The {\tt MINVAL} qualifier is used as a
     comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE
     compatibility, {\tt DERIVATIVE} is an allowed synonym for {\tt
     DERIV}.
@@ -396,13 +399,13 @@ The supported measure types and their definitions are:
     is:\\ \texttt{TRIG V(node) FRAC\_MAX=0.1 TARG V(node)
     FRAC\_MAX=0.9}
 
-  \item[\tt WHEN] Returns the time when {\tt <variable>} reaches {\tt
-    <variable\(\sb{2}\)>} or the constant value, {\tt value}.  The
-    time over which the value is searched can be limited the qualifiers
-    {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
-    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt AC},
-    {\tt DC} and {\tt NOISE} measures. The qualifier {\tt MINVAL} acts as
-    a tolerance for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
+  \item[\tt WHEN] Returns the time (or frequency or DC sweep value) when
+    {\tt <variable>} reaches {\tt <variable\(\sb{2}\)>} or the constant
+    value, {\tt value}.  The measurement window can be limited with the
+    qualifiers {\tt FROM}, {\tt TO}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
+    for all measure modes.  In addition, the {\tt TD} qualifier is supported
+    for {\tt TRAN} measures. The qualifier {\tt MINVAL} acts as a
+    tolerance for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
     is specified, the comparison used is when {\tt <variable>} $=$
     {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
     {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt
