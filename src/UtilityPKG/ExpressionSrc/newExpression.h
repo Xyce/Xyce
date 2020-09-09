@@ -174,8 +174,6 @@ public:
     //
     Xyce::Util::toUpper(expressionString_);
 
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
-
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
@@ -222,8 +220,6 @@ public:
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
-
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
@@ -275,8 +271,6 @@ public:
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
-
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
@@ -427,7 +421,6 @@ public:
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
-    garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
     tempNodePtr_ = right.tempNodePtr_;
@@ -557,7 +550,6 @@ public:
     savedResult_ = right.savedResult_;
     phaseOutputUsesRadians_ = right.phaseOutputUsesRadians_;
 
-    garbageParamOpPtr_ = right.garbageParamOpPtr_;
     dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
     tempNodePtr_ = right.tempNodePtr_;
@@ -640,8 +632,6 @@ public:
   bool getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes );
 
   Teuchos::RCP<astNode<usedType> > & getAst() {return astNodePtr_;}
-
-  Teuchos::RCP<paramOp<usedType> > & getGarbageParam() {return garbageParamOpPtr_;}
 
   Teuchos::RCP<astNode<usedType> > getDtNode () { return dtNodePtr_; }
   Teuchos::RCP<astNode<usedType> > getTimeNode () { return timeNodePtr_; }
@@ -911,8 +901,6 @@ private:
 
   // function argument vectors.  Both strings and operators
   std::vector< std::string > functionArgStringVec_;
-
-  Teuchos::RCP<paramOp<usedType> > garbageParamOpPtr_; // convenient for unused params/args
 
   std::vector< Teuchos::RCP<astNode<usedType> > > functionArgOpVec_;
 

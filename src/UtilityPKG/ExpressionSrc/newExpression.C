@@ -219,8 +219,10 @@ bool newExpression::lexAndParseExpression()
     std::vector<std::string>::iterator paramIter;
     if (stringArgsSize>0)
     {
+      Teuchos::RCP<paramOp<usedType> > garbageParamOpPtr = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
+
       functionArgOpVec_.clear();
-      functionArgOpVec_.resize(stringArgsSize,(getGarbageParam()));
+      functionArgOpVec_.resize(stringArgsSize,(garbageParamOpPtr));
       for (int ii=0;ii<stringArgsSize;++ii)
       {
         paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), functionArgStringVec_[ii]);
@@ -238,25 +240,6 @@ bool newExpression::lexAndParseExpression()
 
   // set up names vectors for voltages, currents and leads, params.
   {
-#if 0 
-    for (int ii=0;ii<voltOpVec_.size();++ii)
-    {
-      Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-      std::vector<std::string> & tmp = voltOp->getVoltageNodes();
-      for (int jj=0;jj<tmp.size();++jj)
-      {
-        voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
-      }
-    }
-
-    for (int ii=0;ii<currentOpVec_.size();++ii)
-    {
-      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-      std::string tmp = currOp->getCurrentDevice();
-      currentOpNames_[tmp].push_back(currentOpVec_[ii]);
-    }
-#endif
-
     for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
     {
       Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
