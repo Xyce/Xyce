@@ -1961,6 +1961,7 @@ bool newExpression::replaceName (
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpNames_.find(new_name);
 
+
     if (iter != voltOpNames_.end())
     {
       std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
@@ -1984,6 +1985,9 @@ bool newExpression::replaceName (
 
       found=true;
     }
+
+    std::vector<std::string>::iterator voltNameIter = std::find(voltNameVec_.begin(), voltNameVec_.end(), old_name);
+    if (voltNameIter != voltNameVec_.end()) { *voltNameIter = new_name; }
   }
 
   if(!found)
@@ -2013,6 +2017,9 @@ bool newExpression::replaceName (
       currentOpNames_.erase(old_name);
       found=true;
     }
+
+    std::vector<std::string>::iterator currentNameIter = std::find(currentNameVec_.begin(), currentNameVec_.end(), old_name);
+    if (currentNameIter != currentNameVec_.end()) { *currentNameIter = new_name; }
   }
 
 #if 0
