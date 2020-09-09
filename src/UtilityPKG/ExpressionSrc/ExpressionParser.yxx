@@ -685,55 +685,55 @@ exp:
     }
   | TOK_TIME
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getTimeNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(timeNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
     }
   | TOK_TEMP
     {
-      Teuchos::RCP<astNode<usedType> > tmp =newExp.getTempNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > tempNode =newExp.getTempNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tempNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTempDependent(true);
     }
   | TOK_VT
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getVtNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > vtNode = newExp.getVtNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(vtNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setVTDependent(true);
     }
   | TOK_FREQ
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getFreqNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > freqNode = newExp.getFreqNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(freqNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setFreqDependent(true);
     }
   | TOK_GMIN
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getGminNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > gminNode = newExp.getGminNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(gminNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setGminDependent(true);
     }
   | TOK_PI
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getPiNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > piNode = newExp.getPiNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(piNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
   | TOK_C_TO_K
     {
-      Teuchos::RCP<astNode<usedType> > tmp = newExp.getCtoKNode ();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(tmp);
+      Teuchos::RCP<astNode<usedType> > CtoKNode = newExp.getCtoKNode ();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(CtoKNode);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -1377,8 +1377,8 @@ exp:
     */
   | TOK_SCHEDULE nonempty_func_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($2, tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>($2, timeNode));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
@@ -1469,8 +1469,8 @@ exp:
  /* pulse( v1,v2,td,tr,tf,pw,per) */
   | TOK_SPICE_PULSE nonempty_func_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($2, tmpPtr2 ));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>($2, timeNode ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
@@ -1480,8 +1480,8 @@ exp:
  /* sin (v0,va,frequency,td,theta,phase) */
   | TOK_SPICE_SIN nonempty_func_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($2, tmpPtr2 ));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>($2, timeNode ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
@@ -1491,8 +1491,8 @@ exp:
  /* exp ( v1,v2,td1,tau1,td2,tau2) */
   | TOK_SPICE_EXP nonempty_func_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($2,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>($2,timeNode));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getSrcNodeVec().push_back(*tmpPtr);
@@ -1502,8 +1502,8 @@ exp:
  /* sffm (v0,va,fc,mdi,fs) */
   | TOK_SPICE_SFFM nonempty_func_arglist 
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>($2,tmpPtr2));
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>($2,timeNode));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
