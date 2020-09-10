@@ -45,6 +45,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include <N_DEV_Algorithm.h>
 #include <N_DEV_CompositeParam.h>
