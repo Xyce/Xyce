@@ -139,6 +139,7 @@
 
 #include <N_DEV_DeviceSupport.h>
 #include <mainXyceExpressionGroup.h>
+#include <N_DEV_DeviceSupport.h>
 
 namespace Xyce {
 namespace Circuit {
