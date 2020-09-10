@@ -40,8 +40,6 @@
 #ifndef Xyce_N_DEV_Device_Support_h
 #define Xyce_N_DEV_Device_Support_h
 
-#include <Epetra_Util.h>
-
 #include <vector>
 
 // noise constants:
@@ -144,11 +142,7 @@ public:
   int getGainScaleBlockID(int numBlocks); // For homotopy
 
   double getRandomPerturbation();  // For homotopy
-  int SetSeed(unsigned int seedIn); // to set the random seed for getRandomPerturbation().
-
-protected:
-  // For block gainscale homotopy
-  Epetra_Util u;
+  int SetSeed(long seedIn); // to set the random seed for getRandomPerturbation().
 };
 
 } // namespace Device
