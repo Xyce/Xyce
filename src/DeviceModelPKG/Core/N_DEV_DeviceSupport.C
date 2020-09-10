@@ -40,9 +40,10 @@
 #include <Xyce_config.h>
 
 // ---------- Standard Includes ----------
-#include <N_UTL_Math.h>
+#include <algorithm>
 
 // ----------   Xyce Includes   ----------
+#include <N_UTL_Math.h>
 #include <N_DEV_DeviceSupport.h>
 #include <N_DEV_Const.h>
 #include <N_UTL_RandomNumbers.h>
