@@ -1005,8 +1005,7 @@ void newExpression::setupVariousAstArrays()
       // but that were not updated during it. (these could easily be included in the 
       // traversal, so perhaps do that later)
       voltOpMap_.clear();
-      // needed by various functions such as "getVoltageNodes", "getEverything", etc.
-      voltNameVec_.clear();
+      voltNameVec_.clear(); // needed by "getVoltageNodes"
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
@@ -1024,8 +1023,7 @@ void newExpression::setupVariousAstArrays()
       }
 
       currentOpMap_.clear();
-      // needed by various functions such as "getDeviceCurrents", "getEverything", etc.
-      currentNameVec_.clear();
+      currentNameVec_.clear(); // needed by "getDeviceCurrents"
       for (int ii=0;ii<currentOpVec_.size();++ii)
       {
         Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
@@ -1069,25 +1067,23 @@ void newExpression::setupVariousAstArrays()
       // could have duplicates in it, and make_var and make_const will break.
       //
       // 9/10/2020: Update.  The paramNameVec can indeed have duplicates in it.  But the 
-      // corresponding entries in the paramOpVec_ are also duplicates, apparently.  
+      // corresponding entries in the paramOpVec_ are usually duplicates as well.
       // So, just finding the first works OK, but it is wasteful.
+      //
+      // I believe this happening because the AST traversal  
+      // (in the function call astNodePtr_->getInterestingOps( opVectors_  ); above )
+      // makes no attempt to  avoid duplicates.  It just pushes them all back onto the paramOpVec
+      // as it traverses the tree.
       paramNameVec_.clear();
       paramOpMap_.clear();
-      for (int ii=0;ii<paramOpVec_.size();++ii)
-      {
-        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-        std::string tmp = parOp->getName();
-        paramOpMap_[tmp].push_back(paramOpVec_[ii]);
-
-        paramNameVec_.push_back(tmp);
-      }
-
-      // setup unresolvedParamNameVec_  and the globalParamNameVec_
       unresolvedParamNameVec_.clear();
       globalParamNameVec_.clear();
-      for (int ii=0;ii<paramOpVec_.size();ii++)
+      for (int ii=0;ii<paramOpVec_.size();++ii)
       {
         Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        std::string tmp = parPtr->getName();
+        paramOpMap_[tmp].push_back(paramOpVec_[ii]);
+        paramNameVec_.push_back(tmp);
 
         if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
         {

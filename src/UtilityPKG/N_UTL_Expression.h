@@ -108,7 +108,6 @@ public:
   void getDeviceCurrents      (std::vector<std::string> & devices) const;
   void getLeadCurrents        (std::vector<std::string> & leads) const;
   void getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const;
-  void getFunctions           (std::vector<std::string> & funcs) const;
   void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
   void getSpecials            (std::vector<std::string> & specials) const;
   void getVariables           (std::vector<std::string> & variables) const;
@@ -119,14 +118,6 @@ public:
   const std::vector<std::string> & getUnresolvedParams () const;
   const std::vector<std::string> & getUnresolvedFunctions () const;
   const std::vector<std::string> & getVariables() const;
-
-  void getEverything(
-        std::vector<std::string> & nodes,
-        std::vector<std::string> & devices,
-        std::vector<std::string> & leads,
-        std::vector<std::string> & variables,
-        std::vector<std::string> & specials
-      ) const;
 
   bool getIsConstant ();
 

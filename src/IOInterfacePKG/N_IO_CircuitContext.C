@@ -864,14 +864,9 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         {
           const std::vector<std::string> & nodes = parameter.getValue<Util::Expression>().getVoltageNodes();
           const std::vector<std::string> & instances = parameter.getValue<Util::Expression>().getDeviceCurrents();
-
-#if 0
-          std::vector<std::string> leads, variables, specials;
-          parameter.getValue<Util::Expression>().getVariables(variables);
-#else
           const std::vector<std::string> & variables = parameter.getValue<Util::Expression>().getVariables();
+
           std::vector<std::string> leads, specials;
-#endif
           parameter.getValue<Util::Expression>().getLeadCurrents(leads);
           parameter.getValue<Util::Expression>().getSpecials(specials);
 
@@ -969,14 +964,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         retryFunctions.push_back(asYetUnresolvedFunctions[i]);
         somethingLeftToDo=true;
-#if 0
-        Xyce::dout() << "pushing back " 
-          << asYetUnresolvedFunctions[i].functionName  << " " 
-          << asYetUnresolvedFunctions[i].functionNameAndArgs
-          << " = " 
-          << asYetUnresolvedFunctions[i].functionBody 
-          << " onto retryFunctions(1).  size = " << retryFunctions.size() <<std::endl;
-#endif
       }
       else
       {
@@ -1259,13 +1246,9 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       // allowed is "time" for time dependent parameters.
       const std::vector<std::string> & nodes = expression.getVoltageNodes();
       const std::vector<std::string> & instances = expression.getDeviceCurrents();
-#if 0
-      std::vector<std::string> leads, variables, specials;
-      expression.getVariables(variables);
-#else
       const std::vector<std::string> & variables = expression.getVariables();
+
       std::vector<std::string> leads, specials;
-#endif
       expression.getLeadCurrents(leads);
       expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
@@ -1452,14 +1435,6 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       Xyce::dout() << std::endl;
     }
 
-#if 0
-    if ( parameter.getType() == Xyce::Util::EXPR )
-    {
-      Util::Expression & expToBeDumped = parameter.getValue<Util::Expression>();
-      expToBeDumped.dumpParseTree();
-    }
-#endif
-
     return stringsResolved && functionsResolved;
 
   }
@@ -1549,14 +1524,9 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       // allowed is "time" for time dependent parameters.
       const std::vector<std::string> & nodes = expression.getVoltageNodes();
       const std::vector<std::string> & instances = expression.getDeviceCurrents();
-#if 0
-      std::vector<std::string> leads, variables, specials;
-      expression.getVariables(variables);
-#else
       const std::vector<std::string> & variables = expression.getVariables();
-      std::vector<std::string> leads, specials;
-#endif
 
+      std::vector<std::string> leads, specials;
       expression.getLeadCurrents(leads);
       expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
@@ -1783,12 +1753,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
           //                         << " as substitute for " << parameterName << " in expression " << expressionString;
-#if 0
-          std::vector<std::string> variables;
-          expressionParameter.getValue<Util::Expression>().getVariables (variables);
-#else
           const std::vector<std::string> & variables = expressionParameter.getValue<Util::Expression>().getVariables ();
-#endif
 
           enumParamType paramType=DOT_PARAM;
           if (variables.empty()) paramType=DOT_PARAM;
@@ -1796,22 +1761,10 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 
           if (paramType==DOT_PARAM)
           {
-#if 0
-            Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter as a dotParam: strings[i] = " << strings[i] << " tag = " 
-              << expressionParameter.tag() << " value = " 
-              << expressionParameter.getValue<Util::Expression>().get_expression() 
-              << std::endl;
-#endif
             expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
           }
           else
           {
-#if 0
-            Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter, but NOT as a dotParam (as a subcircuit param): strings[i] = " << strings[i] << " tag = " 
-              << expressionParameter.tag() << " value = " 
-              << expressionParameter.getValue<Util::Expression>().get_expression() 
-              << std::endl;
-#endif
             expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
           }
         }
@@ -1840,22 +1793,12 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           // and a better group is set up.
           if (expressionParameter.getType() == Xyce::Util::EXPR)
           {
-#if 0
-            Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter: " 
-              << expressionParameter.tag() << std::endl;
-#endif
-
             Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
             expression.attachParameterNode(strings[i], expToBeAttached);
           }
           else
           {
-#if 0
-            Xyce::dout() << "CircuitContext::resolveStrings. About to make_var this parameter: " 
-              << expressionParameter.tag() << std::endl;
-#endif
-
-            if (!expression.make_var(strings[i])) // ERK????
+            if (!expression.make_var(strings[i])) 
             {
               Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
             }

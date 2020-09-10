@@ -206,12 +206,6 @@ void Expression::attachFunctionNode (const std::string & funcName, const Express
 //-----------------------------------------------------------------------------
 void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type)
 {
-#if 0
-  Xyce::dout() << "attachParameterNode name = " << paramName << " which is ";
-  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
-#endif
   newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, type);
 }
 
@@ -289,14 +283,7 @@ int Expression::get_type ( const std::string & var )
 bool Expression::make_constant (const std::string & var, const double & val, enumParamType type)
 {
   newExpPtr_->setupVariousAstArrays();
-
-#if 0
-  Xyce::dout() << "make_constant name = " << var << " which is ";
-  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
-#endif
-  bool retVal=false; // ERK.  check this.
+  bool retVal=false; 
   retVal = newExpPtr_->make_constant (var,val, type);
   return retVal;
 }
@@ -330,12 +317,6 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 //-----------------------------------------------------------------------------
 bool Expression::make_var (std::string const & var, enumParamType type)
 { 
-#if 0
-  Xyce::dout() << "mak_var name = " << var << " which is ";
-  if (type==DOT_PARAM)               { Xyce::dout() << "a .param" <<std::endl; }
-  else if (type==DOT_GLOBAL_PARAM)   { Xyce::dout() << "a .global_param" <<std::endl; }
-  else if ( type== SUBCKT_ARG_PARAM} { Xyce::dout() << "a subcircuit parameter argument" <<std::endl; }
-#endif
   return newExpPtr_->make_var(var, type);
 }
 
@@ -363,36 +344,9 @@ void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
 void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
   newExpPtr_->setupVariousAstArrays();
-
-#if 0
-  newExpPtr_->dumpParseTree(Xyce::dout());
-#endif
-
   params.clear();
-#if 0
-  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
-  for (int ii=0;ii<paramOpVec.size();ii++)
-  {
-    Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
-
-    if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
-    {
-      std::string tmpName = paramOpVec[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
-      if (it == params.end())
-      {
-        params.push_back( tmpName );
-#if 0
-        Xyce::dout() << "newExpression::getUnresolvedParams for " << newExpPtr_->getExpressionString() 
-          << " pushing back " << tmpName << std::endl;
-#endif
-      }
-    }
-  }
-#else
   std::vector<std::string> & unresolvedParamNameVec = newExpPtr_->getUnresolvedParamNameVec();
   if (!(unresolvedParamNameVec.empty())) { params.insert(params.end(),unresolvedParamNameVec.begin(), unresolvedParamNameVec.end()); }
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -579,34 +533,6 @@ void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) c
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::getFunctions
-// Purpose       : 
-//
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 2020
-//-----------------------------------------------------------------------------
-void Expression::getFunctions (std::vector<std::string> & funcs) const
-{
-  newExpPtr_->setupVariousAstArrays();
-
-  funcs.clear();
-  for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
-    if (it == funcs.end())
-    {
-      funcs.push_back( tmpName );
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Expression::getUnresolvedFunctions
 // Purpose       : 
 // Special Notes : 
@@ -680,56 +606,8 @@ void Expression::getVariables (std::vector<std::string> & variables) const
   newExpPtr_->setupVariousAstArrays();
 
   variables.clear();
-#if 0
-  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
-  for (int ii=0;ii<paramOpVec.size();ii++)
-  {
-    Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
-
-    if (  parPtr->getParamType() == DOT_GLOBAL_PARAM ) 
-    {
-      std::string tmpName = paramOpVec[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
-      if (it == variables.end())
-      {
-        variables.push_back( tmpName );
-      }
-    }
-  }
-
-#if 1
-  std::vector<std::string> & globalParamNameVec = newExpPtr_->getGlobalParamNameVec();
-  if (globalParamNameVec.size() != variables.size())
-  {
-    std::cout << "Expression::getVariables problem!" <<std::endl;
-    std::cout << "variables.size = " << variables.size() <<  " globalParamNameVec.size() = " << globalParamNameVec.size() <<std::endl;
-
-    for (int ii=0;ii<variables.size();ii++)
-    {
-      std::cout << "variables["<<ii<<"] = " << variables[ii] <<std::endl;
-    }
-    for (int ii=0;ii<globalParamNameVec.size();ii++)
-    {
-      std::cout << "globalParamNameVec["<<ii<<"] = " << globalParamNameVec[ii] <<std::endl;
-    }
-
-    exit(0);
-  }
-#endif
-
-#else
   std::vector<std::string> & globalParamNameVec = newExpPtr_->getGlobalParamNameVec();
   if (!(globalParamNameVec.empty())) { variables.insert(variables.end(),globalParamNameVec.begin(), globalParamNameVec.end()); }
-#endif
-
-#if 0
-  if ( !(variables.empty()) )
-  {
-    Xyce::dout() << "Expression::getVariables call for " << newExpPtr_->getExpressionString() << std::endl;
-    for (int ii=0;ii<variables.size();ii++) { Xyce::dout() << variables[ii] << std::endl; }
-    newExpPtr_->dumpParseTree(Xyce::dout());
-  }
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -768,87 +646,6 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
       powerCalcs.push_back( tmpName );
     }
   }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getEverything
-// Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
-//
-//                 This is an attempt to squeeze out some extra performance.
-//                 In the IO package, there are several places in which 
-//                 these 5 vectors of strings are requested.  They were requested 
-//                 via 5 separate function calls, but that seemed wasteful.  This
-//                 function combines them.
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 2020
-//-----------------------------------------------------------------------------
-void Expression::getEverything (
-    std::vector<std::string> & nodes,
-    std::vector<std::string> & devices,
-    std::vector<std::string> & leads,
-    std::vector<std::string> & variables,
-    std::vector<std::string> & specials 
-    ) const
-{
-  newExpPtr_->setupVariousAstArrays();
-
-  nodes.clear(); devices.clear(); leads.clear(); variables.clear(); specials.clear();
-
-  // voltage nodes
-  std::vector<std::string> & voltNames = newExpPtr_->getVoltNameVec ();
-  if (!(voltNames.empty())) { nodes.insert(nodes.end(),voltNames.begin(), voltNames.end()); }
-
-  // solution current
-  std::vector<std::string> & currentNames = newExpPtr_->getCurrentNameVec ();
-  if (!(currentNames.empty())) { devices.insert(devices.end(),currentNames.begin(), currentNames.end()); }
-
-  // lead currents
-  for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end()) { leads.push_back( tmpName ); }
-  }
-
-  // more lead currents
-  for (int ii=0;ii<newExpPtr_->getBsrcCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getBsrcCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end()) { leads.push_back( tmpName ); }
-  }
-
-  // more, more lead currents:   In at least some cases, what is really being requested is 
-  // branch calculations, which can be either lead currents or power.
-  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end()) { leads.push_back( tmpName ); }
-  }
-
-  //variables (global params):
-  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
-  {
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (newExpPtr_->getParamOpVec()[ii]);
-    if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) 
-    {
-      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
-      if (it == variables.end()) { variables.push_back( tmpName ); }
-    }
-  }
-
-  // specials:
-  if (newExpPtr_->getTimeDependent()) { specials.push_back(std::string("TIME")); }
-  if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
-  if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
-  if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
 }
 
 //-----------------------------------------------------------------------------
