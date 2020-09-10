@@ -25,6 +25,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <cstring>
 
 using namespace std;
 
