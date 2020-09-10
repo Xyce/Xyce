@@ -2180,8 +2180,6 @@ bool DeviceBlock::setParameterValues()
   Device::Param parameter( "", "" );
   int numParameters = getNumberOfInstanceParameters();
   int i;
-  std::vector<std::string> strings;
-  std::vector<std::string> funcs;
 
   for ( i = 0; i < numParameters; ++i )
   {
@@ -2193,32 +2191,35 @@ bool DeviceBlock::setParameterValues()
         std::ostringstream msg;
         msg << "Parameter " << parameter.uTag() << " for device "
             << getInstanceName().getEncodedName() << " contains unrecognized symbol";
+
         if (parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression &e = parameter.getValue<Util::Expression>();
 
-          strings.clear();
-          funcs.clear();
-          e.getUnresolvedParams(strings);
-          e.getUnresolvedFunctions(funcs);
+          const std::vector<std::string> & strings = e.getUnresolvedParams();
+          const std::vector<std::string> & funcs = e.getUnresolvedFunctions();
           if (strings.size() + funcs.size() == 1)
             msg << ":";
           else if (strings.size() + funcs.size() > 1)
             msg << "s:";
-          for (std::vector<std::string>::iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
+          for (std::vector<std::string>::const_iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
             msg << " " << *s;
-          for (std::vector<std::string>::iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
+          for (std::vector<std::string>::const_iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
             msg << " " << *s << "()";
+
+          if (strings.size() + funcs.size() > 0)
+          {
+            Report::UserError().at(getNetlistFilename(), getLineNumber())
+              << msg.str();
+          }
         }
+#if 0
+        // ERK. commenting this out b/c it makes no sense
         else
         {
           msg << "(s): " + parameter.stringValue();
         }
-        if (strings.size() + funcs.size() > 0)
-        {
-          Report::UserError().at(getNetlistFilename(), getLineNumber())
-            << msg.str();
-        }
+#endif
       }
       setInstanceParameter( i, parameter );
     }

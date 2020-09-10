@@ -1782,9 +1782,8 @@ void CircuitBlock::updateAliasNodeMapHelper()
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
 
       // resolve variables in the function body
-     
-      std::vector<std::string> strings;
-      expression.getUnresolvedParams(strings); // ERK. check this
+    
+      const std::vector<std::string> & strings = expression.getUnresolvedParams();
       if ( !(strings.empty()) )
       //if ( expression.get_num(XEXP_STRING) > 0 )
       {

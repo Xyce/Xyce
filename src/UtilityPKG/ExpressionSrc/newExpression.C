@@ -244,14 +244,14 @@ bool newExpression::lexAndParseExpression()
     {
       Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
       std::string tmp = leadCurrOp->getLeadCurrentDevice();
-      leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
+      leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
     }
 
     for (int ii=0;ii<paramOpVec_.size();++ii)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
       std::string tmp = parOp->getName();
-      paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+      paramOpMap_[tmp].push_back(paramOpVec_[ii]);
     }
   }
 
@@ -277,6 +277,9 @@ bool newExpression::lexAndParseExpression()
     if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
     if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
   }
+
+  unresolvedParamNameVec_ = paramNameVec_;
+  unresolvedFuncNameVec_ = funcNameVec_;
 
   checkIsConstant_();
   astArraysSetup_ = true;
@@ -411,9 +414,6 @@ bool newExpression::attachParameterNode(
           retval=true;
         }
       }
-
-      // remove this from the unresolvedParams container.  Currently this container isn't maintained or used.
-
     }
   }
   return retval;
@@ -474,48 +474,46 @@ void newExpression::clear ()
   functionArgOpVec_.clear();
 
   paramNameVec_.clear();
+  unresolvedParamNameVec_.clear();
   paramOpVec_.clear();
-  //unresolvedParamOpVec_.clear();
-  paramOpNames_.clear();
+  paramOpMap_.clear();
 
+  funcNameVec_.clear();
+  unresolvedFuncNameVec_.clear();
   funcOpVec_.clear();
-  //unresolvedFuncOpVec_.clear();
   funcOpMap_.clear();
 
   voltNameVec_.clear();
   voltOpVec_.clear();
-  //unresolvedVoltOpVec_.clear();
-  voltOpNames_.clear();
+  voltOpMap_.clear();
 
   currentNameVec_.clear();
   currentOpVec_.clear();
-  //unresolvedCurrentOpVec_.clear();
-  currentOpNames_.clear();
+  currentOpMap_.clear();
 
   leadCurrentOpVec_.clear();
-  //unresolvedLeadCurrentOpVec_.clear();
-  leadCurrentOpNames_.clear();
+  leadCurrentOpMap_.clear();
 
   bsrcCurrentOpVec_.clear();
-  bsrcCurrentOpNames_.clear();
+  //bsrcCurrentOpMap_.clear();
 
   powerOpVec_.clear();
-  powerOpNames_.clear();
+  //powerOpMap_.clear();
 
   internalDevVarOpVec_.clear();
-  internalDevVarOpNames_.clear();
+  //internalDevVarOpMap_.clear();
 
   dnoNoiseDevVarOpVec_.clear();
-  dnoNoiseDevVarOpNames_.clear();
+  //dnoNoiseDevVarOpMap_.clear();
 
   dniNoiseDevVarOpVec_.clear();
-  dniNoiseDevVarOpNames_.clear();
+  //dniNoiseDevVarOpMap_.clear();
 
   oNoiseOpVec_.clear();
-  oNoiseOpNames_.clear();
+  //oNoiseOpMap_.clear();
 
   iNoiseOpVec_.clear();
-  iNoiseOpNames_.clear();
+  //iNoiseOpMap_.clear();
 
   sdtOpVec_.clear();
   ddtOpVec_.clear();
@@ -586,10 +584,35 @@ bool newExpression::make_constant (
     parOp->setIsConstant();
     parOp->setParamType(type);
     retval=true;
+
+    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpParName);
+    if (it != unresolvedParamNameVec_.end())
+    {
+      int index = std::distance(unresolvedParamNameVec_.begin(),it);
+      unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+    }
+
+    if (type == DOT_GLOBAL_PARAM)
+    {
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      if (it == globalParamNameVec_.end())
+      {
+        globalParamNameVec_.push_back(tmpParName);
+      }
+    }
+    else
+    {
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      if (it != globalParamNameVec_.end())
+      {
+        int index = std::distance(globalParamNameVec_.begin(),it);
+        globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+      }
+    }
   }
   else
   {
-    Xyce::dout() 
+    Xyce::Report::UserError() 
       << "newExpression::make_constant  ERROR.  Could not find parameter " 
       << tmpParName  
       << " in expression: " << expressionString_ <<std::endl;
@@ -626,6 +649,31 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
     parOp->setIsVar();
     parOp->setParamType(type);
     retval = true; // just means we found it
+
+    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpParName);
+    if (it != unresolvedParamNameVec_.end())
+    {
+      int index = std::distance(unresolvedParamNameVec_.begin(),it);
+      unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+    }
+
+    if (type == DOT_GLOBAL_PARAM)
+    {
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      if (it == globalParamNameVec_.end())
+      {
+        globalParamNameVec_.push_back(tmpParName);
+      }
+    }
+    else
+    {
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      if (it != globalParamNameVec_.end())
+      {
+        int index = std::distance(globalParamNameVec_.begin(),it);
+        globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+      }
+    }
   }
   else
   {
@@ -777,7 +825,6 @@ void newExpression::outputVariousAstArrays( std::ostream & os )
   else os << "externalDependencies_ = false" <<std::endl;
 
 NEW_EXP_OUTPUT_ARRAY(paramOpVec_)
-//NEW_EXP_OUTPUT_ARRAY(unresolvedParamOpVec_)
 NEW_EXP_OUTPUT_ARRAY(funcOpVec_)
 NEW_EXP_OUTPUT_ARRAY(voltOpVec_)
 NEW_EXP_OUTPUT_ARRAY(currentOpVec_)
@@ -817,7 +864,6 @@ void newExpression::outputVariousAstArraySizes( std::ostream & os )
   else os << "externalDependencies_ = false" <<std::endl;
 
 NEW_EXP_OUTPUT_ARRAY_SIZE(paramOpVec_)
-//NEW_EXP_OUTPUT_ARRAY_SIZE(unresolvedParamOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(funcOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(voltOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(currentOpVec_)
@@ -958,7 +1004,7 @@ void newExpression::setupVariousAstArrays()
       // populate some vectors that depend on the above AST traversal, 
       // but that were not updated during it. (these could easily be included in the 
       // traversal, so perhaps do that later)
-      voltOpNames_.clear();
+      voltOpMap_.clear();
       // needed by various functions such as "getVoltageNodes", "getEverything", etc.
       voltNameVec_.clear();
       for (int ii=0;ii<voltOpVec_.size();++ii)
@@ -968,7 +1014,7 @@ void newExpression::setupVariousAstArrays()
 
         for (int jj=0;jj<tmp.size();++jj)
         {
-          voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
+          voltOpMap_[tmp[jj]].push_back(voltOpVec_[ii]);
           std::vector<std::string>::iterator nameIter = std::find(voltNameVec_.begin(),voltNameVec_.end(), tmp[jj] );
           if ( nameIter == voltNameVec_.end() )
           {
@@ -977,14 +1023,14 @@ void newExpression::setupVariousAstArrays()
         }
       }
 
-      currentOpNames_.clear();
+      currentOpMap_.clear();
       // needed by various functions such as "getDeviceCurrents", "getEverything", etc.
       currentNameVec_.clear();
       for (int ii=0;ii<currentOpVec_.size();++ii)
       {
         Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
         std::string tmp = currOp->getCurrentDevice();
-        currentOpNames_[tmp].push_back(currentOpVec_[ii]);
+        currentOpMap_[tmp].push_back(currentOpVec_[ii]);
         std::vector<std::string>::iterator nameIter = std::find(currentNameVec_.begin(),currentNameVec_.end(), tmp);
         if ( nameIter == currentNameVec_.end() )
         {
@@ -992,12 +1038,12 @@ void newExpression::setupVariousAstArrays()
         }
       }
 
-      leadCurrentOpNames_.clear();
+      leadCurrentOpMap_.clear();
       for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
       {
         Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
         std::string tmp = leadCurrOp->getLeadCurrentDevice();
-        leadCurrentOpNames_[tmp].push_back(leadCurrentOpVec_[ii]);
+        leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
       }
 
       // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing, 
@@ -1021,15 +1067,64 @@ void newExpression::setupVariousAstArrays()
       // duplicates in the paramOpVec_ or in the parmaNameVec_.  But once external nodes are attached,
       // it isn't possible to enforce this anymore.  So, at that stage, the paramNameVec_ 
       // could have duplicates in it, and make_var and make_const will break.
+      //
+      // 9/10/2020: Update.  The paramNameVec can indeed have duplicates in it.  But the 
+      // corresponding entries in the paramOpVec_ are also duplicates, apparently.  
+      // So, just finding the first works OK, but it is wasteful.
       paramNameVec_.clear();
-      paramOpNames_.clear();
+      paramOpMap_.clear();
       for (int ii=0;ii<paramOpVec_.size();++ii)
       {
         Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
         std::string tmp = parOp->getName();
-        paramOpNames_[tmp].push_back(paramOpVec_[ii]);
+        paramOpMap_[tmp].push_back(paramOpVec_[ii]);
 
         paramNameVec_.push_back(tmp);
+      }
+
+      // setup unresolvedParamNameVec_  and the globalParamNameVec_
+      unresolvedParamNameVec_.clear();
+      globalParamNameVec_.clear();
+      for (int ii=0;ii<paramOpVec_.size();ii++)
+      {
+        Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec_[ii]);
+
+        if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
+        {
+          std::string tmpName = paramOpVec_[ii]->getName();
+          std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpName);
+          if (it == unresolvedParamNameVec_.end())
+          {
+            unresolvedParamNameVec_.push_back( tmpName );
+          }
+        }
+
+        if (  parPtr->getParamType() == DOT_GLOBAL_PARAM ) 
+        {
+          std::string tmpName = paramOpVec_[ii]->getName();
+          std::vector<std::string>::iterator it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpName);
+          if (it == globalParamNameVec_.end())
+          {
+            globalParamNameVec_.push_back( tmpName );
+          }
+        }
+      }
+
+      // setup unresolvedFuncNameVec_ 
+      unresolvedFuncNameVec_.clear();
+      for (int ii=0;ii<funcOpVec_.size();ii++)
+      {
+        Teuchos::RCP<funcOp<usedType> > funPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
+
+        if( !(funPtr->getNodeResolved()) || !(funPtr->getArgsResolved()) ) 
+        {
+          std::string tmpName = funcOpVec_[ii]->getName();
+          std::vector<std::string>::iterator it = std::find(unresolvedFuncNameVec_.begin(), unresolvedFuncNameVec_.end(), tmpName);
+          if (it == unresolvedFuncNameVec_.end())
+          {
+            unresolvedFuncNameVec_.push_back( tmpName );
+          }
+        }
       }
 
       // setup arrays that require traversal of expression objects (rather than AST nodes)
@@ -1140,36 +1235,36 @@ void newExpression::addToVariousAstArrays_
 
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::const_iterator newIter;
 
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newVoltNames = expPtr->getVoltOpNames();
-    for (newIter=newVoltNames.begin(); newIter != newVoltNames.end(); ++newIter)
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newVoltMap = expPtr->getVoltOpMap();
+    for (newIter=newVoltMap.begin(); newIter != newVoltMap.end(); ++newIter)
     {
       const std::string & tmp = newIter->first;
       const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      voltOpNames_[tmp].insert( voltOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+      voltOpMap_[tmp].insert( voltOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
     }
 
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newCurrentNames = expPtr->getCurrentOpNames();
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newCurrentNames = expPtr->getCurrentOpMap();
     for (newIter=newCurrentNames.begin(); newIter != newCurrentNames.end(); ++newIter)
     {
       const std::string & tmp = newIter->first;
       const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      currentOpNames_[tmp].insert( currentOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+      currentOpMap_[tmp].insert( currentOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
     }
 
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newLeadCurrentNames = expPtr->getLeadCurrentOpNames();
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newLeadCurrentNames = expPtr->getLeadCurrentOpMap();
     for (newIter=newLeadCurrentNames.begin(); newIter != newLeadCurrentNames.end(); ++newIter)
     {
       const std::string & tmp = newIter->first;
       const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      leadCurrentOpNames_[tmp].insert( leadCurrentOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+      leadCurrentOpMap_[tmp].insert( leadCurrentOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
     }
 
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newParamNames = expPtr->getParamOpNames();
-    for (newIter=newParamNames.begin(); newIter != newParamNames.end(); ++newIter)
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newParamMap = expPtr->getParamOpMap();
+    for (newIter=newParamMap.begin(); newIter != newParamMap.end(); ++newIter)
     {
       const std::string & tmp = newIter->first;
       const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      paramOpNames_[tmp].insert( paramOpNames_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
+      paramOpMap_[tmp].insert( paramOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
     }
 
     expPtr->getTimeNodes(timeOpVec_);
@@ -1941,11 +2036,11 @@ bool newExpression::replaceName (
 
   bool found=false;
   {
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpNames_.find(old_name);
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpNames_.find(new_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpMap_.find(old_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpMap_.find(new_name);
 
 
-    if (iter != voltOpNames_.end())
+    if (iter != voltOpMap_.end())
     {
       std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
       for(int ii=0;ii<astVec.size();++ii)
@@ -1955,16 +2050,16 @@ bool newExpression::replaceName (
         for(int jj=0;jj<nodes.size();++jj) { if(nodes[jj]==old_name) { nodes[jj] = new_name; } }
       }
 
-      if (checkNewName != voltOpNames_.end()) // "new" name already exists, so combine the vectors
+      if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors
       {
         std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
         astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
       }
       else
       {
-        voltOpNames_[new_name] = astVec;
+        voltOpMap_[new_name] = astVec;
       }
-      voltOpNames_.erase(old_name);
+      voltOpMap_.erase(old_name);
 
       found=true;
     }
@@ -1975,10 +2070,10 @@ bool newExpression::replaceName (
 
   if(!found)
   {
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currentOpNames_.find(old_name);
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = currentOpNames_.find(new_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currentOpMap_.find(old_name);
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = currentOpMap_.find(new_name);
 
-    if (iter != currentOpNames_.end())
+    if (iter != currentOpMap_.end())
     {
       std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
 
@@ -1988,16 +2083,16 @@ bool newExpression::replaceName (
         currOp->setCurrentDevice(new_name);
       }
 
-      if (checkNewName != currentOpNames_.end()) // "new" name already exists, so combine the vectors
+      if (checkNewName != currentOpMap_.end()) // "new" name already exists, so combine the vectors
       {
         std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
         astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
       }
       else
       {
-        currentOpNames_[new_name] = astVec;
+        currentOpMap_[new_name] = astVec;
       }
-      currentOpNames_.erase(old_name);
+      currentOpMap_.erase(old_name);
       found=true;
     }
 

@@ -965,8 +965,6 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
                                           Depend & dependentParam,
                                           ParameterType::ExprAccess depend)
 {
-  std::vector<std::string> instances, leads, names, variables;
-
   dependentParam.name = par.tag();
   ParameterMap::const_iterator p_i = getParameterMap().find(dependentParam.name);
   const Descriptor &param = *(*p_i).second;
@@ -991,30 +989,26 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     dependentParam.storeOriginal=false;
   }
 
-  names.clear();
-  leads.clear();
-  instances.clear();
-  variables.clear();
-
-  dependentParam.expr->getVoltageNodes(names);
-  dependentParam.expr->getLeadCurrentsExcludeBsrc(leads); // use this call, b/c Bsrc's also included in "instances" at this point; avoid redundancy
-  dependentParam.expr->getDeviceCurrents(instances);
+  const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
+  const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
+#if 0
+  std::vector<std::string> leads, names, variables;
   dependentParam.expr->getVariables(variables); 
-
-  //std::vector<std::string>::iterator s;
-  std::vector<std::string>::iterator iterS;
+#else
+  const std::vector<std::string> variables = dependentParam.expr->getVariables(); 
+  std::vector<std::string> leads, names;
+#endif
+  dependentParam.expr->getLeadCurrentsExcludeBsrc(leads); // use this call, b/c Bsrc's also included in "instances" at this point; avoid redundancy
 
   if (!(depend & ParameterType::SOLN_DEP))
   {
-    if (names.size() > 0 || instances.size() > 0)
+    if (nodes.size() > 0 || instances.size() > 0)
     {
       UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
     }
     if (depend & ParameterType::NO_DEP)
     {
-      // ERK
-      //if (dependentParam.expr->get_num(XEXP_SPECIAL) > 0)
       if (dependentParam.expr->isTimeDependent() )
       {
         UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
@@ -1022,6 +1016,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
     }
   }
+
+  names.insert( names.end(), nodes.begin(), nodes.end() );
 
   if (leads.size() > 0)
   {
@@ -1063,6 +1059,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.global_params.clear();
   if (!variables.empty())
   {
+    std::vector<std::string>::const_iterator iterS;
     for (iterS=variables.begin() ; iterS!=variables.end() ; ++iterS)
     {
       GlobalParameterMap::iterator global_param_it = globals_.global_params.find(*iterS);

@@ -182,7 +182,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
 
   std::vector<std::string> & voltNameVec = newExp.getVoltNameVec ();
   std::vector<Teuchos::RCP<astNode<usedType> > > & voltOpVec = newExp.getVoltOpVec();
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltOpNames = newExp.getLocalVoltOpNames();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltOpMap = newExp.getLocalVoltOpMap();
 
   if (voltageNodes.size() == 1)
   {
@@ -196,7 +196,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
         tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
         newExp.getVoltOpVec ().push_back(*voltPtr);
         voltNameVec.push_back( voltageNodes[0] );
-        voltOpNames[ voltageNodes[0] ].push_back(*voltPtr);
+        voltOpMap[ voltageNodes[0] ].push_back(*voltPtr);
         delete voltPtr;
       }
       else
@@ -235,7 +235,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
         tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*volt1Ptr);
         voltOpVec.push_back(*volt1Ptr);
         voltNameVec.push_back( voltageNodes[0] );
-        voltOpNames[ voltageNodes[0] ].push_back(*volt1Ptr);
+        voltOpMap[ voltageNodes[0] ].push_back(*volt1Ptr);
         delete volt1Ptr;
       }
       else
@@ -264,7 +264,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
         tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*volt2Ptr);
         voltOpVec.push_back(*volt2Ptr);
         voltNameVec.push_back( voltageNodes[1] );
-        voltOpNames[ voltageNodes[1] ].push_back(*volt2Ptr);
+        voltOpMap[ voltageNodes[1] ].push_back(*volt2Ptr);
         delete volt2Ptr;
       }
       else
@@ -382,7 +382,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
     // ensure that each current has a single, unique astNode allocated for it
     std::vector<std::string> & currentNameVec = newExp.getCurrentNameVec ();
     std::vector<Teuchos::RCP<astNode<usedType> > > & currentOpVec = newExp.getCurrentOpVec ();
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currentOpNames = newExp.getLocalCurrentOpNames ();
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currentOpMap = newExp.getLocalCurrentOpMap ();
     std::vector<std::string>::iterator nameIter = std::find(currentNameVec.begin(),currentNameVec.end(), originalDeviceName);
     if ( nameIter == currentNameVec.end() )
     {
@@ -396,7 +396,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
         newExp.getBsrcCurrentOpVec().push_back(*currentPtr);  // this object is necessary because Bsrc's can be either lead or solution var
       }
       currentNameVec.push_back( originalDeviceName );
-      currentOpNames[originalDeviceName].push_back(*currentPtr);
+      currentOpMap[originalDeviceName].push_back(*currentPtr);
       delete currentPtr;
     }
     else
@@ -826,7 +826,7 @@ exp:
 
         Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,$2));
         newExp.getFuncOpVec().push_back(funcPtr);
-        newExp.getFuncNameVec().push_back(functionName);
+        //newExp.getFuncNameVec().push_back(functionName);
 
         std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & funcOpMap 
           = newExp.getFuncOpMap();
@@ -839,6 +839,7 @@ exp:
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
           vec.push_back(*tmpPtr2);
           funcOpMap[functionName] = vec;
+          newExp.getFuncNameVec().push_back(functionName);
         }
         else
         {

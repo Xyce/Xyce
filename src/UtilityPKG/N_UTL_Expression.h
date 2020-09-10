@@ -114,6 +114,12 @@ public:
   void getVariables           (std::vector<std::string> & variables) const;
   void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
 
+  const std::vector<std::string> & getVoltageNodes () const;
+  const std::vector<std::string> & getDeviceCurrents () const;
+  const std::vector<std::string> & getUnresolvedParams () const;
+  const std::vector<std::string> & getUnresolvedFunctions () const;
+  const std::vector<std::string> & getVariables() const;
+
   void getEverything(
         std::vector<std::string> & nodes,
         std::vector<std::string> & devices,

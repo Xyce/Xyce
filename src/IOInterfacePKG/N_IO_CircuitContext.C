@@ -862,8 +862,18 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         if (parameter.getType() == Xyce::Util::EXPR)
         {
-          std::vector<std::string> nodes, instances, leads, variables, specials;
-          parameter.getValue<Util::Expression>().getEverything(nodes,instances,leads,variables,specials);
+          const std::vector<std::string> & nodes = parameter.getValue<Util::Expression>().getVoltageNodes();
+          const std::vector<std::string> & instances = parameter.getValue<Util::Expression>().getDeviceCurrents();
+
+#if 0
+          std::vector<std::string> leads, variables, specials;
+          parameter.getValue<Util::Expression>().getVariables(variables);
+#else
+          const std::vector<std::string> & variables = parameter.getValue<Util::Expression>().getVariables();
+          std::vector<std::string> leads, specials;
+#endif
+          parameter.getValue<Util::Expression>().getLeadCurrents(leads);
+          parameter.getValue<Util::Expression>().getSpecials(specials);
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
           {
@@ -874,7 +884,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (!nodes.empty())
             {
               message << std::endl << "node(s):";
-              for (std::vector<std::string>::iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
+              //for (std::vector<std::string>::iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
+              for (std::vector<std::string>::const_iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
               {
                 message << " " << *s_i;
               }
@@ -882,7 +893,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (!instances.empty())
             {
               message << std::endl << "instance(s): ";
-              for (std::vector<std::string>::iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
+              //for (std::vector<std::string>::iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
+              for (std::vector<std::string>::const_iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
               {
                 message << " " << *s_i;
               }
@@ -900,7 +912,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           if (!variables.empty())
           {
             // If variables are found, they must be previously defined global params
-            for (std::vector<std::string>::iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
+            //for (std::vector<std::string>::iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
+            for (std::vector<std::string>::const_iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             {
               if (findParameter(currentContextPtr_->resolvedGlobalParams_.begin(), currentContextPtr_->resolvedGlobalParams_.end(), *s_i) == NULL)
               {
@@ -1005,10 +1018,9 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       }
       else
       {
-        std::vector<std::string> strings;
 
         Util::Expression functionBodyExpression(expressionGroup_, functionParameter.stringValue());
-        functionBodyExpression.getUnresolvedParams(strings);
+        const std::vector<std::string> & strings = functionBodyExpression.getUnresolvedParams();
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
         {
           if (find(functionArgs.begin(), functionArgs.end(), *it) == functionArgs.end()
@@ -1223,8 +1235,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
 
     // resolve variables in the function body
     //if ( expression.get_num(XEXP_STRING) > 0 )
-    std::vector<std::string> strings;
-    expression.getUnresolvedParams(strings); // ERK. check this
+    const std::vector<std::string> & strings = expression.getUnresolvedParams();
     if ( !(strings.empty()) )
     {
       //resolveStrings(expression, exceptionStrings);
@@ -1246,8 +1257,17 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       // expression, in which case the parameter value should be
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
-      std::vector<std::string> nodes, instances, leads, variables, specials; 
-      expression.getEverything(nodes,instances,leads,variables,specials);
+      const std::vector<std::string> & nodes = expression.getVoltageNodes();
+      const std::vector<std::string> & instances = expression.getDeviceCurrents();
+#if 0
+      std::vector<std::string> leads, variables, specials;
+      expression.getVariables(variables);
+#else
+      const std::vector<std::string> & variables = expression.getVariables();
+      std::vector<std::string> leads, specials;
+#endif
+      expression.getLeadCurrents(leads);
+      expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1506,8 +1526,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
 
     // resolve variables in the function body
     //if ( expression.get_num(XEXP_STRING) > 0 )
-    std::vector<std::string> strings;
-    expression.getUnresolvedParams(strings); // ERK. check this
+    const std::vector<std::string> & strings = expression.getUnresolvedParams();
     if ( !(strings.empty()) )
     {
       resolveStrings(expression, funcArgs);
@@ -1528,8 +1547,18 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       // expression, in which case the parameter value should be
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
-      std::vector<std::string> nodes, instances, leads, variables, specials;
-      expression.getEverything(nodes,instances,leads,variables,specials);
+      const std::vector<std::string> & nodes = expression.getVoltageNodes();
+      const std::vector<std::string> & instances = expression.getDeviceCurrents();
+#if 0
+      std::vector<std::string> leads, variables, specials;
+      expression.getVariables(variables);
+#else
+      const std::vector<std::string> & variables = expression.getVariables();
+      std::vector<std::string> leads, specials;
+#endif
+
+      expression.getLeadCurrents(leads);
+      expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
 
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
@@ -1663,9 +1692,11 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
   // Strings in the expression must be previously resolved parameters
   // that appear in paramList else there is an error.
   bool unresolvedStrings = false;
-  std::vector<std::string> strings;
-  expression.getUnresolvedParams(strings); // ERK. check this
-
+  // Normally "strings" would be a reference.  But here it has to be a copy 
+  // because it loops over them and accesses them in the function below.
+  // If it is just a reference, then the vector keeps getting smaller each 
+  // time a param/string is resolved, and it results in memory access errors.
+  const std::vector<std::string> strings = expression.getUnresolvedParams(); 
 
   if ( !(strings.empty()) )
   {
@@ -1752,8 +1783,12 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
           //                         << " as substitute for " << parameterName << " in expression " << expressionString;
+#if 0
           std::vector<std::string> variables;
           expressionParameter.getValue<Util::Expression>().getVariables (variables);
+#else
+          const std::vector<std::string> & variables = expressionParameter.getValue<Util::Expression>().getVariables ();
+#endif
 
           enumParamType paramType=DOT_PARAM;
           if (variables.empty()) paramType=DOT_PARAM;

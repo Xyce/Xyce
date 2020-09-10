@@ -252,9 +252,9 @@ int Expression::get_type ( const std::string & var )
   std::string tmpName = var;
   Xyce::Util::toUpper(tmpName);
 
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & leadMap = newExpPtr_->getLeadCurrentOpNames ();
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpMap ();
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpMap ();
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & leadMap = newExpPtr_->getLeadCurrentOpMap ();
 
   if ( voltMap.find(tmpName) != voltMap.end() )
   {
@@ -355,9 +355,7 @@ void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
 //-----------------------------------------------------------------------------
 // Function      : Expression::getUnresolvedParams
 // Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/20/2020
@@ -371,6 +369,7 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 #endif
 
   params.clear();
+#if 0
   std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
   for (int ii=0;ii<paramOpVec.size();ii++)
   {
@@ -390,6 +389,24 @@ void Expression::getUnresolvedParams (std::vector<std::string> & params) const
       }
     }
   }
+#else
+  std::vector<std::string> & unresolvedParamNameVec = newExpPtr_->getUnresolvedParamNameVec();
+  if (!(unresolvedParamNameVec.empty())) { params.insert(params.end(),unresolvedParamNameVec.begin(), unresolvedParamNameVec.end()); }
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedParams
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 9/9/2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getUnresolvedParams () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getUnresolvedParamNameVec();
 }
 
 //-----------------------------------------------------------------------------
@@ -437,6 +454,20 @@ void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getVoltageNodes () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getVoltNameVec ();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getDeviceCurrents
 // Purpose       : 
 // Special Notes : 
@@ -451,6 +482,20 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
   devices.clear();
   std::vector<std::string> & currentNames = newExpPtr_->getCurrentNameVec ();
   if (!(currentNames.empty())) { devices.insert(devices.end(),currentNames.begin(), currentNames.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDeviceCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getDeviceCurrents () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getCurrentNameVec ();
 }
 
 //-----------------------------------------------------------------------------
@@ -564,9 +609,7 @@ void Expression::getFunctions (std::vector<std::string> & funcs) const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getUnresolvedFunctions
 // Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 6/23/2020
@@ -576,21 +619,22 @@ void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
   newExpPtr_->setupVariousAstArrays();
 
   funcs.clear();
-  std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = newExpPtr_->getFuncOpVec();
-  for (int ii=0;ii<funcOpVec.size();ii++)
-  {
-    Teuchos::RCP<funcOp<usedType> > funPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec[ii]);
+  std::vector<std::string> & unresolvedFuncNameVec = newExpPtr_->getUnresolvedFuncNameVec();
+  if (!(unresolvedFuncNameVec.empty())) { funcs.insert(funcs.end(),unresolvedFuncNameVec.begin(), unresolvedFuncNameVec.end()); }
+}
 
-    if( !(funPtr->getNodeResolved()) || !(funPtr->getArgsResolved()) ) 
-    {
-      std::string tmpName = funcOpVec[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
-      if (it == funcs.end())
-      {
-        funcs.push_back( tmpName );
-      }
-    }
-  }
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedFunctions
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 6/23/2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getUnresolvedFunctions () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getUnresolvedFuncNameVec();
 }
 
 //-----------------------------------------------------------------------------
@@ -636,12 +680,15 @@ void Expression::getVariables (std::vector<std::string> & variables) const
   newExpPtr_->setupVariousAstArrays();
 
   variables.clear();
-  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+#if 0
+  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
+  for (int ii=0;ii<paramOpVec.size();ii++)
   {
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (newExpPtr_->getParamOpVec()[ii]);
-    if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) 
+    Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
+
+    if (  parPtr->getParamType() == DOT_GLOBAL_PARAM ) 
     {
-      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+      std::string tmpName = paramOpVec[ii]->getName();
       std::vector<std::string>::iterator it = std::find(variables.begin(), variables.end(), tmpName);
       if (it == variables.end())
       {
@@ -649,6 +696,31 @@ void Expression::getVariables (std::vector<std::string> & variables) const
       }
     }
   }
+
+#if 1
+  std::vector<std::string> & globalParamNameVec = newExpPtr_->getGlobalParamNameVec();
+  if (globalParamNameVec.size() != variables.size())
+  {
+    std::cout << "Expression::getVariables problem!" <<std::endl;
+    std::cout << "variables.size = " << variables.size() <<  " globalParamNameVec.size() = " << globalParamNameVec.size() <<std::endl;
+
+    for (int ii=0;ii<variables.size();ii++)
+    {
+      std::cout << "variables["<<ii<<"] = " << variables[ii] <<std::endl;
+    }
+    for (int ii=0;ii<globalParamNameVec.size();ii++)
+    {
+      std::cout << "globalParamNameVec["<<ii<<"] = " << globalParamNameVec[ii] <<std::endl;
+    }
+
+    exit(0);
+  }
+#endif
+
+#else
+  std::vector<std::string> & globalParamNameVec = newExpPtr_->getGlobalParamNameVec();
+  if (!(globalParamNameVec.empty())) { variables.insert(variables.end(),globalParamNameVec.begin(), globalParamNameVec.end()); }
+#endif
 
 #if 0
   if ( !(variables.empty()) )
@@ -658,6 +730,20 @@ void Expression::getVariables (std::vector<std::string> & variables) const
     newExpPtr_->dumpParseTree(Xyce::dout());
   }
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVariables
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getVariables() const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getGlobalParamNameVec();
 }
 
 //-----------------------------------------------------------------------------

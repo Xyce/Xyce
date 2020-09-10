@@ -322,10 +322,8 @@ void setupObjectiveFunctions(
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), instances.begin(), instances.end());
 
     // now handle params and global params
-    std::vector<std::string> strings;
-    std::vector<std::string> params;
     std::vector<std::string> globalParams;
-    objVec[iobj]->expPtr->getUnresolvedParams(strings);
+    const std::vector<std::string> & strings = objVec[iobj]->expPtr->getUnresolvedParams();
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
     const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
