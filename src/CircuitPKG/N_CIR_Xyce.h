@@ -42,9 +42,6 @@
 #include <map>
 #include <vector>
 
-#include <Teuchos_RCP.hpp>
-using Teuchos::RCP;
-
 #include <N_ANP_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_ERH_fwd.h>
