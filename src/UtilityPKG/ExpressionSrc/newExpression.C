@@ -491,6 +491,8 @@ void newExpression::clear ()
   currentOpVec_.clear();
   currentOpMap_.clear();
 
+  leadCurrentNameVec_.clear();
+  leadCurrentExcludeBsrcNameVec_.clear();
   leadCurrentOpVec_.clear();
   leadCurrentOpMap_.clear();
 
@@ -1037,11 +1039,46 @@ void newExpression::setupVariousAstArrays()
       }
 
       leadCurrentOpMap_.clear();
+      leadCurrentNameVec_.clear();
+      leadCurrentExcludeBsrcNameVec_.clear();
       for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
       {
         Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
         std::string tmp = leadCurrOp->getLeadCurrentDevice();
         leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
+
+        std::string tmpName = leadCurrentOpVec_[ii]->getName();
+
+        std::vector<std::string>::iterator it = std::find(leadCurrentNameVec_.begin(), leadCurrentNameVec_.end(), tmpName);
+        if (it == leadCurrentNameVec_.end())
+        {
+          leadCurrentNameVec_.push_back( tmpName );
+          leadCurrentExcludeBsrcNameVec_.push_back( tmpName );
+        }
+      }
+
+      // Bsrc's are special.  Depending on where in Xyce we are, 
+      // they should sometimes be included in lead currents, and sometimes not.
+      for (int ii=0;ii<bsrcCurrentOpVec_.size();ii++)
+      {
+        std::string tmpName = bsrcCurrentOpVec_[ii]->getName();
+        std::vector<std::string>::iterator it = std::find(leadCurrentNameVec_.begin(), leadCurrentNameVec_.end(), tmpName);
+        if (it == leadCurrentNameVec_.end())
+        {
+          leadCurrentNameVec_.push_back( tmpName );
+        }
+      }
+
+      // In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
+      for (int ii=0;ii<powerOpVec_.size();ii++)
+      {
+        std::string tmpName = powerOpVec_[ii]->getName();
+        std::vector<std::string>::iterator it = std::find(leadCurrentNameVec_.begin(), leadCurrentNameVec_.end(), tmpName);
+        if (it == leadCurrentNameVec_.end())
+        {
+          leadCurrentNameVec_.push_back( tmpName );
+          leadCurrentExcludeBsrcNameVec_.push_back( tmpName );
+        }
       }
 
       // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing, 

@@ -394,6 +394,13 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
       { 
         (*currentPtr)->setBsrcFlag();
         newExp.getBsrcCurrentOpVec().push_back(*currentPtr);  // this object is necessary because Bsrc's can be either lead or solution var
+
+        std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+        std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), originalDeviceName);
+        if ( nameIter == leadCurrentNameVec.end() )
+        {
+          leadCurrentNameVec.push_back(originalDeviceName);
+        }
       }
       currentNameVec.push_back( originalDeviceName );
       currentOpMap[originalDeviceName].push_back(*currentPtr);
@@ -416,6 +423,15 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
     newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
     newExp.getMasterNodeVec().push_back(tmpPtr);
     delete leadCurrentPtr;
+
+    std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+    std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+    std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), originalDeviceName);
+    if ( nameIter == leadCurrentNameVec.end() )
+    {
+      leadCurrentNameVec.push_back(originalDeviceName);
+      leadCurrentExcludeBsrcNameVec.push_back(originalDeviceName);
+    }
   }
 
   {
@@ -826,7 +842,6 @@ exp:
 
         Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,$2));
         newExp.getFuncOpVec().push_back(funcPtr);
-        //newExp.getFuncNameVec().push_back(functionName);
 
         std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & funcOpMap 
           = newExp.getFuncOpMap();
@@ -967,6 +982,16 @@ exp:
       newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
       newExp.getMasterNodeVec().push_back(returnPtr);
       $$ = returnPtr;
+
+      std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+      std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      if ( nameIter == leadCurrentNameVec.end() )
+      {
+        leadCurrentNameVec.push_back(*$2);
+        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+      }
+
       delete leadCurrentPtr;
       delete $1;
       delete $2;
@@ -1104,6 +1129,16 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getPowerOpVec().push_back(*powerPtr);
+
+      std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+      std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      if ( nameIter == leadCurrentNameVec.end() )
+      {
+        leadCurrentNameVec.push_back(*$2);
+        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+      }
+
       delete $1;
       delete $2;
       delete powerPtr;

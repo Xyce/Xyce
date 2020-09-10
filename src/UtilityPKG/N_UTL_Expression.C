@@ -463,38 +463,23 @@ const std::vector<std::string> & Expression::getDeviceCurrents () const
 void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 {
   newExpPtr_->setupVariousAstArrays();
-
   leads.clear();
-  for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end())
-    {
-      leads.push_back( tmpName );
-    }
-  }
+  std::vector<std::string> & leadCurrentNameVec = newExpPtr_->getLeadCurrentNameVec ();
+  if (!(leadCurrentNameVec.empty())) { leads.insert(leads.end(),leadCurrentNameVec.begin(), leadCurrentNameVec.end()); }
+}
 
-  // experiment:
-  for (int ii=0;ii<newExpPtr_->getBsrcCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getBsrcCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end())
-    {
-      leads.push_back( tmpName );
-    }
-  }
-  // experiment:   In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
-  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end())
-    {
-      leads.push_back( tmpName );
-    }
-  }
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getLeadCurrents () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getLeadCurrentNameVec ();
 }
 
 //-----------------------------------------------------------------------------
@@ -508,28 +493,23 @@ void Expression::getLeadCurrents (std::vector<std::string> & leads) const
 void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const
 {
   newExpPtr_->setupVariousAstArrays(); 
-
   leads.clear();
-  for (int ii=0;ii<newExpPtr_->getLeadCurrentOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getLeadCurrentOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end())
-    {
-      leads.push_back( tmpName );
-    }
-  }
+  std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExpPtr_->getLeadCurrentExcludeBsrcNameVec ();
+  if (!(leadCurrentExcludeBsrcNameVec.empty())) { leads.insert(leads.end(),leadCurrentExcludeBsrcNameVec.begin(), leadCurrentExcludeBsrcNameVec.end()); }
+}
 
-  // In at least some cases, what is really being requested is branch calculations, which can be either lead currents or power.
-  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(leads.begin(), leads.end(), tmpName);
-    if (it == leads.end())
-    {
-      leads.push_back( tmpName );
-    }
-  }
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentsExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getLeadCurrentsExcludeBsrc () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getLeadCurrentExcludeBsrcNameVec ();
 }
 
 //-----------------------------------------------------------------------------

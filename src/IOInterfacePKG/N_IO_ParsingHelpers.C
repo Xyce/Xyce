@@ -721,16 +721,12 @@ bool extractParamData(
     {
       Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
 
-      std::vector<std::string> junk;
       std::string msg;
-      expPtr.getVoltageNodes(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getVoltageNodes().empty()) )
         msg = "Node Voltage";
-      expPtr.getDeviceCurrents(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getDeviceCurrents().empty()) )
         msg = "Device Current";
-      expPtr.getLeadCurrents(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getLeadCurrents().empty()) )
         msg = "Lead Current";
       if (msg != "")
       {
@@ -846,16 +842,12 @@ bool extractGlobalParamData(
     { 
       Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
       
-      std::vector<std::string> junk;
       std::string msg;
-      expPtr.getVoltageNodes(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getVoltageNodes().empty()) )
         msg = "Node Voltage";
-      expPtr.getDeviceCurrents(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getDeviceCurrents().empty()) )
         msg = "Device Current";
-      expPtr.getLeadCurrents(junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getLeadCurrents().empty()) )
         msg = "Lead Current";
       if (msg != "")
       { 

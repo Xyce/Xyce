@@ -118,6 +118,8 @@ public:
   const std::vector<std::string> & getUnresolvedParams () const;
   const std::vector<std::string> & getUnresolvedFunctions () const;
   const std::vector<std::string> & getVariables() const;
+  const std::vector<std::string> & getLeadCurrents        () const;
+  const std::vector<std::string> & getLeadCurrentsExcludeBsrc () const;
 
   bool getIsConstant ();
 

@@ -821,13 +821,9 @@ bool DistToolBase::instantiateDevice(
         Util::Expression &expression = givenParameter->getValue<Util::Expression>();
 
         std::vector<std::string> names;
-        std::vector<std::string> nodes;
-        std::vector<std::string> instances;
-        std::vector<std::string> leads;
-
-        expression.getVoltageNodes(nodes);
-        expression.getDeviceCurrents(instances);
-        expression.getLeadCurrents(leads);
+        const std::vector<std::string> & nodes = expression.getVoltageNodes();
+        const std::vector<std::string> & instances = expression.getDeviceCurrents();
+        const std::vector<std::string> & leads = expression.getLeadCurrents();
 
         if ( (!(nodes.empty())) || (!(instances.empty())) || (!(leads.empty())) )
         {

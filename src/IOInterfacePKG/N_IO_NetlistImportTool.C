@@ -1227,14 +1227,14 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
 
     if (Util::hasExpressionTag(*iterParam))
     {
-      std::vector<std::string> leads;
 
       // this is a do-nothing group
       Teuchos::RCP<Xyce::Util::baseExpressionGroup> exprGroup = 
         Teuchos::rcp(new Xyce::Util::baseExpressionGroup());
 
       Util::Expression exp(exprGroup, iterParam->tag());
-      exp.getLeadCurrents(leads);
+
+      const std::vector<std::string> & leads = exp.getLeadCurrents();
 
       // any lead currents found in this expression need to be communicated to the device manager.
       // Multi terminal devices have an extra designator on the name as in name{lead_name}
@@ -1244,24 +1244,6 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
         size_t leadDesignator = currLeadItr->find_first_of("{");
         devicesNeedingLeadCurrents.insert( currLeadItr->substr(0, leadDesignator));
       }
-     
-#if 0 
-      std::vector<std::string> nodalComps;
-      exp.getNodalComputation(nodalComps);
-      for (std::vector<std::string>::const_iterator currNCItr = nodalComps.begin(); currNCItr != nodalComps.end(); ++currNCItr)
-      {
-        // name should be in the form "P( device_name )" or similar.  Find the first 
-        // and last parens and assume the device name lies within it.
-        size_t firstParen = currNCItr->find_first_of("(");
-        size_t lastParen = currNCItr->find_last_of(")");
-        if( (firstParen != std::string::npos ) && (lastParen != std::string::npos) ) {
-          firstParen+=1;
-          lastParen-=2;
-          devicesNeedingLeadCurrents.insert( currNCItr->substr(firstParen, lastParen) );
-        }
-      }
-#endif
-      
     }
     else
     {

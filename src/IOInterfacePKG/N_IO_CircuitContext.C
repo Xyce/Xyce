@@ -865,9 +865,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           const std::vector<std::string> & nodes = parameter.getValue<Util::Expression>().getVoltageNodes();
           const std::vector<std::string> & instances = parameter.getValue<Util::Expression>().getDeviceCurrents();
           const std::vector<std::string> & variables = parameter.getValue<Util::Expression>().getVariables();
-
-          std::vector<std::string> leads, specials;
-          parameter.getValue<Util::Expression>().getLeadCurrents(leads);
+          const std::vector<std::string> & leads = parameter.getValue<Util::Expression>().getLeadCurrents();
+          std::vector<std::string> specials;
           parameter.getValue<Util::Expression>().getSpecials(specials);
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
@@ -879,7 +878,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (!nodes.empty())
             {
               message << std::endl << "node(s):";
-              //for (std::vector<std::string>::iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
               for (std::vector<std::string>::const_iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
               {
                 message << " " << *s_i;
@@ -888,7 +886,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (!instances.empty())
             {
               message << std::endl << "instance(s): ";
-              //for (std::vector<std::string>::iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
               for (std::vector<std::string>::const_iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
               {
                 message << " " << *s_i;
@@ -897,7 +894,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (!leads.empty())
             {
               message << std::endl << "lead(s): ";
-              for (std::vector<std::string>::iterator s_i=leads.begin() ; s_i!=leads.end() ; ++s_i)
+              //for (std::vector<std::string>::iterator s_i=leads.begin() ; s_i!=leads.end() ; ++s_i)
+              for (std::vector<std::string>::const_iterator s_i=leads.begin() ; s_i!=leads.end() ; ++s_i)
               {
                 message << " " << *s_i;
               }
@@ -1229,10 +1227,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       resolveStrings(expression);
     }
 
-    //if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
-    std::vector<std::string> leads;
-    expression.getLeadCurrents(leads); // ERK. check this
-    if ( !(leads.empty()) ) // ERK how does this make sense?
+    if ( !(expression.getLeadCurrents().empty()) ) // ERK how does this make sense?
     {
       parameter.setVal(expression);
       return false;
@@ -1247,9 +1242,8 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       const std::vector<std::string> & nodes = expression.getVoltageNodes();
       const std::vector<std::string> & instances = expression.getDeviceCurrents();
       const std::vector<std::string> & variables = expression.getVariables();
-
-      std::vector<std::string> leads, specials;
-      expression.getLeadCurrents(leads);
+      const std::vector<std::string> & leads = expression.getLeadCurrents();
+      std::vector<std::string> specials;
       expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
 
@@ -1507,10 +1501,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       resolveStrings(expression, funcArgs);
     }
 
-    //if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
-    std::vector<std::string> leads;
-    expression.getLeadCurrents(leads); // ERK. check this
-    if ( !(leads.empty()) ) // ERK how does this make sense?
+    if ( !(expression.getLeadCurrents().empty()) ) // ERK how does this make sense?
     {
       parameter.setVal(expression);
       return false;
@@ -1525,9 +1516,8 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
       const std::vector<std::string> & nodes = expression.getVoltageNodes();
       const std::vector<std::string> & instances = expression.getDeviceCurrents();
       const std::vector<std::string> & variables = expression.getVariables();
-
-      std::vector<std::string> leads, specials;
-      expression.getLeadCurrents(leads);
+      const std::vector<std::string> & leads = expression.getLeadCurrents();
+      std::vector<std::string> specials;
       expression.getSpecials(specials);
       bool isRandom = expression.isRandomDependent();
 

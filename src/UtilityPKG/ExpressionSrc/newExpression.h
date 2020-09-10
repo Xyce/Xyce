@@ -348,6 +348,8 @@ public:
     currentOpVec_(right.currentOpVec_),
     currentOpMap_(right.currentOpMap_),
 
+    leadCurrentNameVec_(right.leadCurrentNameVec_),
+    leadCurrentExcludeBsrcNameVec_(right.leadCurrentExcludeBsrcNameVec_),
     leadCurrentOpVec_(right.leadCurrentOpVec_),
     leadCurrentOpMap_(right.leadCurrentOpMap_),
 
@@ -472,6 +474,8 @@ public:
     currentOpVec_ = right.currentOpVec_;
     currentOpMap_ = right.currentOpMap_;
 
+    leadCurrentNameVec_ = right.leadCurrentNameVec_;
+    leadCurrentExcludeBsrcNameVec_ = right.leadCurrentExcludeBsrcNameVec_;
     leadCurrentOpVec_ = right.leadCurrentOpVec_;
     leadCurrentOpMap_ = right.leadCurrentOpMap_;
 
@@ -725,6 +729,8 @@ public:
     return currentOpMap_;
   };
 
+  std::vector<std::string> & getLeadCurrentNameVec () { return leadCurrentNameVec_; }
+  std::vector<std::string> & getLeadCurrentExcludeBsrcNameVec () { return leadCurrentExcludeBsrcNameVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getLeadCurrentOpVec () { return leadCurrentOpVec_; };
   const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLeadCurrentOpMap ()
   {
@@ -917,6 +923,8 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpMap_; // used by replaceName
 
+  std::vector<std::string> leadCurrentNameVec_;
+  std::vector<std::string> leadCurrentExcludeBsrcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > leadCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpMap_; // used by N_UTL_Expression::get_type
 

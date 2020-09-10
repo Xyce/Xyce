@@ -991,11 +991,9 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 
   const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
   const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
-  const std::vector<std::string> variables = dependentParam.expr->getVariables(); 
-
-  std::vector<std::string> leads, names;
-  dependentParam.expr->getLeadCurrentsExcludeBsrc(leads); // use this call, b/c Bsrc's also included in "instances" at this point; avoid redundancy
-
+  const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
+  const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
+  std::vector<std::string> names;
   if (!(depend & ParameterType::SOLN_DEP))
   {
     if (nodes.size() > 0 || instances.size() > 0)
