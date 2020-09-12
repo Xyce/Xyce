@@ -40,14 +40,19 @@
 #include <Xyce_config.h>
 
 // ---------- Standard Includes ----------
-#include <N_UTL_Math.h>
+#include <algorithm>
 
 // ----------   Xyce Includes   ----------
+#include <N_UTL_Math.h>
 #include <N_DEV_DeviceSupport.h>
 #include <N_DEV_Const.h>
+#include <N_UTL_RandomNumbers.h>
 
 namespace Xyce {
 namespace Device {
+
+// For block gainscale homotopy
+static Xyce::Util::RandomNumbers *theRandomGenerator=0;
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceSupport::lambertw
@@ -841,7 +846,10 @@ double DeviceSupport::contVgst
 //-----------------------------------------------------------------------------
 int DeviceSupport::getGainScaleBlockID(int numBlocks)
 {
-  double val = u.RandomDouble();
+  if (theRandomGenerator==0)
+    theRandomGenerator = new Xyce::Util::RandomNumbers(0,false);
+
+  double val = theRandomGenerator->uniformRandom();
 
   // get rid of negatives
   val = val * val;
@@ -869,7 +877,10 @@ int DeviceSupport::getGainScaleBlockID(int numBlocks)
 //-----------------------------------------------------------------------------
 double DeviceSupport::getRandomPerturbation()
 {
-  double val = u.RandomDouble();
+  if (theRandomGenerator==0)
+    theRandomGenerator = new Xyce::Util::RandomNumbers(0,false);
+
+  double val = theRandomGenerator->uniformRandom();
   val = val * val;
   val = sqrt(val);
   return val;
@@ -882,10 +893,12 @@ double DeviceSupport::getRandomPerturbation()
 // Creator       : Richard Schie, Electrical Systems Modeling
 // Creation Date : 10/01/12
 //-----------------------------------------------------------------------------
-int DeviceSupport::SetSeed(unsigned int seedIn)
+int DeviceSupport::SetSeed(long seedIn)
 {
-  int retVal = u.SetSeed( seedIn );
-  return retVal;
+  if (theRandomGenerator==0)
+    theRandomGenerator = new Xyce::Util::RandomNumbers(seedIn,false);
+  theRandomGenerator->seedRandom( seedIn, false );
+  return 0;
 }
 
 } // namespace Device

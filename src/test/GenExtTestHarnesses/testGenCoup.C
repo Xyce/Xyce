@@ -41,7 +41,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <Sacado_No_Kokkos.hpp>
 
 /// Implement a simple resistor
 ///
@@ -68,6 +67,7 @@ public:
                           std::vector<std::vector<double> > & dQdX)
   {
     int numVars=sV.size();
+    double G=1/R_;
 
     F.resize(numVars);
     Q.clear();
@@ -77,13 +77,12 @@ public:
     for (int i=0; i<numVars; i++)
       dFdX[i].resize(numVars);
 
-    std::vector<Sacado::Fad::DFad<double> > indepVars,Fcontribs;
+    std::vector<double > indepVars,Fcontribs;
     indepVars.resize(numVars);
     Fcontribs.resize(numVars);
     for (int i=0;i<numVars; i++)
     {
       indepVars[i]=sV[i];
-      indepVars[i].diff(i,numVars);
     }
 
     Fcontribs[0] = (indepVars[0]-indepVars[1])/R_;
@@ -94,10 +93,13 @@ public:
 
     for (int i=0; i<numVars; i++)
     {
-      F[i] = Fcontribs[i].val();
-      for (int j=0; j<numVars; j++)
-        dFdX[i][j] = Fcontribs[i].dx(j);
+      F[i] = Fcontribs[i];
     }
+    dFdX[0][0] = G;
+    dFdX[0][1] = -G;
+    dFdX[1][0] = -G;
+    dFdX[1][1] = G;
+
     return true;
   };
 
@@ -157,13 +159,12 @@ public:
     for (int i=0; i<numVars; i++)
       dFdX[i].resize(numVars);
 
-    std::vector<Sacado::Fad::DFad<double> > indepVars,Fcontribs;
+    std::vector<double> indepVars,Fcontribs;
     indepVars.resize(numVars);
     Fcontribs.resize(numVars);
     for (int i=0;i<numVars; i++)
     {
       indepVars[i]=sV[i];
-      indepVars[i].diff(i,numVars);
     }
 
     Fcontribs[0] = (indepVars[0]-indepVars[1])/R1_
@@ -176,10 +177,17 @@ public:
 
     for (int i=0; i<numVars; i++)
     {
-      F[i] = Fcontribs[i].val();
-      for (int j=0; j<numVars; j++)
-        dFdX[i][j] = Fcontribs[i].dx(j);
+      F[i] = Fcontribs[i];
     }
+    dFdX[0][0] = 1/R1_+1/R2_;
+    dFdX[0][1] = -1/R1_;
+    dFdX[0][2] = -1/R2_;
+    dFdX[1][0] = -1/R1_;
+    dFdX[1][1] = 1/R1_;
+    dFdX[1][2] = 0;
+    dFdX[2][0] = -1/R2_;
+    dFdX[2][1] = 0;
+    dFdX[2][2] = 1/R2_;
     return true;
   };
 
@@ -294,14 +302,13 @@ public:
       dQdX[i].resize(numVars);
     }
 
-    std::vector<Sacado::Fad::DFad<double> > indepVars,Fcontribs,Qcontribs;
+    std::vector<double> indepVars,Fcontribs,Qcontribs;
     indepVars.resize(numVars);
     Fcontribs.resize(numVars);
     Qcontribs.resize(numVars);
     for (int i=0;i<numVars; i++)
     {
       indepVars[i]=sV[i];
-      indepVars[i].diff(i,numVars);
       Fcontribs[i]=0;
       Qcontribs[i]=0;
     }
@@ -329,21 +336,48 @@ public:
 
     // Now the capacitor.  Current flowing from node 2 to node 1 is
     // just dQ/dt where Q=CV.
-    Sacado::Fad::DFad<double> capCharge
-      = C_*(indepVars[nodeInt]-indepVars[node2]);
+    double capCharge = C_*(indepVars[nodeInt]-indepVars[node2]);
     Qcontribs[nodeInt] = capCharge;
     Qcontribs[node2] = -capCharge;
 
     for (int i=0; i<numVars; i++)
     {
-      F[i] = Fcontribs[i].val();
-      Q[i] = Qcontribs[i].val();
-      for (int j=0; j<numVars; j++)
-      {
-        dFdX[i][j] = Fcontribs[i].dx(j);
-        dQdX[i][j] = Qcontribs[i].dx(j);
-      }
+      F[i] = Fcontribs[i];
+      Q[i] = Qcontribs[i];
     }
+    dFdX[node1][node1] = 0;
+    dFdX[node1][node2] = 0;
+    dFdX[node1][nodeInt] = 0;
+    dFdX[node1][branch] = 1;
+    dFdX[nodeInt][node1] = 0;
+    dFdX[nodeInt][node2] = 0;
+    dFdX[nodeInt][nodeInt] = 0;
+    dFdX[nodeInt][branch] = -1;
+    dFdX[branch][node1] = -1;
+    dFdX[branch][node2] = 0;
+    dFdX[branch][nodeInt] = 1;
+    dFdX[branch][branch] = R_;
+    dFdX[node2][node1] = 0;
+    dFdX[node2][node2] = 0;
+    dFdX[node2][nodeInt] = 0;
+    dFdX[node2][branch] = 0;
+
+    dQdX[node1][node1] = 0;
+    dQdX[node1][node2] = 0;
+    dQdX[node1][nodeInt] = 0;
+    dQdX[node1][branch] = 0;
+    dQdX[nodeInt][node1] = 0;
+    dQdX[nodeInt][node2] = -C_;
+    dQdX[nodeInt][nodeInt] = C_;
+    dQdX[nodeInt][branch] = 0;
+    dQdX[branch][node1] = 0;
+    dQdX[branch][node2] = 0;
+    dQdX[branch][nodeInt] = 0;
+    dQdX[branch][branch] = L_;
+    dQdX[node2][node1] = 0;
+    dQdX[node2][node2] = C_;
+    dQdX[node2][nodeInt] = -C_;
+    dQdX[node2][branch] = 0;
     return true;
   };
 
@@ -441,30 +475,41 @@ public:
       dFdX[i].resize(numVars);
     }
 
-    std::vector<Sacado::Fad::DFad<double> > indepVars,Fcontribs;
+    std::vector<double> indepVars,Fcontribs;
     indepVars.resize(numVars);
     Fcontribs.resize(numVars);
     for (int i=0;i<numVars; i++)
     {
       indepVars[i]=sV[i];
-      indepVars[i].diff(i,numVars);
       Fcontribs[i]=0;
     }
 
 
-    Sacado::Fad::DFad<double> current
+    double current
       = transConductance_*(indepVars[controlNodePos]-indepVars[controlNodeNeg]);
     Fcontribs[nodePos] = current;
     Fcontribs[nodeNeg] = -current;
 
     for (int i=0; i<numVars; i++)
     {
-      F[i] = Fcontribs[i].val();
-      for (int j=0; j<numVars; j++)
-      {
-        dFdX[i][j] = Fcontribs[i].dx(j);
-      }
+      F[i] = Fcontribs[i];
     }
+    dFdX[nodePos][nodePos] = 0;
+    dFdX[nodePos][nodeNeg] = 0;
+    dFdX[nodePos][controlNodePos] = transConductance_;
+    dFdX[nodePos][controlNodeNeg] = -transConductance_;
+    dFdX[nodeNeg][nodePos] = 0;
+    dFdX[nodeNeg][nodeNeg] = 0;
+    dFdX[nodeNeg][controlNodePos] = -transConductance_;
+    dFdX[nodeNeg][controlNodeNeg] = transConductance_;
+    dFdX[controlNodePos][nodePos] = 0.0;
+    dFdX[controlNodePos][nodeNeg] = 0.0;
+    dFdX[controlNodePos][controlNodePos] = 0.0;
+    dFdX[controlNodePos][controlNodeNeg] = 0.0;
+    dFdX[controlNodeNeg][nodePos] = 0.0;
+    dFdX[controlNodeNeg][nodeNeg] = 0.0;
+    dFdX[controlNodeNeg][controlNodePos] = 0.0;
+    dFdX[controlNodeNeg][controlNodeNeg] = 0.0;
     return true;
   };
   void processDoubleParams(std::vector<std::string> &pNames,
@@ -532,13 +577,12 @@ public:
     for (int i=0; i<numVars; i++)
       dQdX[i].resize(numVars);
 
-    std::vector<Sacado::Fad::DFad<double> > indepVars,Qcontribs;
+    std::vector<double> indepVars,Qcontribs;
     indepVars.resize(numVars);
     Qcontribs.resize(numVars);
     for (int i=0;i<numVars; i++)
     {
       indepVars[i]=sV[i];
-      indepVars[i].diff(i,numVars);
     }
 
     Qcontribs[0] = (indepVars[0]-indepVars[1])*C_;
@@ -549,10 +593,12 @@ public:
 
     for (int i=0; i<numVars; i++)
     {
-      Q[i] = Qcontribs[i].val();
-      for (int j=0; j<numVars; j++)
-        dQdX[i][j] = Qcontribs[i].dx(j);
+      Q[i] = Qcontribs[i];
     }
+    dQdX[0][0] = C_;
+    dQdX[0][1] = -C_;
+    dQdX[1][0] = -C_;
+    dQdX[1][1] = C_;
     return true;
   };
 

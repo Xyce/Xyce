@@ -137,6 +137,8 @@
 #include <N_UTL_Version.h>
 #include <N_UTL_BreakPoint.h>
 
+#include <N_DEV_DeviceSupport.h>
+
 namespace Xyce {
 namespace Circuit {
 
@@ -881,8 +883,10 @@ Simulator::RunStatus Simulator::initializeEarly(
     std::stringstream iss(commandLine_.getArgumentValue("-randseed"));
     iss >> theSeed;
     Xyce::Util::Expression::seedRandom((long)theSeed);
+    Xyce::Device::DeviceSupport theDeviceSupport;
+    theDeviceSupport.SetSeed((long)theSeed);
   }
-      
+
   Report::safeBarrier(comm_);
 
   // Start the global timer.

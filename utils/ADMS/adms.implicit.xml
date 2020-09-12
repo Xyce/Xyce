@@ -233,6 +233,20 @@
                 <admst:push into="$function/arguments[position(.)=$position]/probe" select="$function/@probe" onduplicate="ignore"/>
                 <admst:push into="$function/arguments[position(.)=$position]/variable" select="$function/@variable" onduplicate="ignore"/>
                 <admst:choose>
+                  <admst:when test="$function/arguments/dependency[.='linear' or .='nonlinear']">
+                    <admst:value-to select="$function/arguments[position(.)=$position]/dependency" string="nonlinear"/>
+                    <admst:value-to select="$function/arguments[position(.)=$position]/prototype/dependency" string="nonlinear"/>
+                  </admst:when>
+                  <admst:when test="$function/arguments/dependency[.='noprobe']">
+                    <admst:value-to select="$function/arguments[position(.)=$position]/dependency" string="noprobe"/>
+                    <admst:value-to select="$function/arguments[position(.)=$position]/prototype/dependency" string="noprobe"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:value-to select="$function/arguments[position(.)=$position]/dependency" string="constant"/>
+                    <admst:value-to select="$function/arguments[position(.)=$position]/prototype/dependency" string="constant"/>
+                  </admst:otherwise>
+                </admst:choose>
+                <admst:choose>
                   <admst:when test="[$globalpartitionning='initial_model']">
                     <admst:value-to select="$function/arguments[position(.)=$position]/setinmodel" string="yes"/>
                   </admst:when>

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 04 Aug 2020 16:58:05
+// Creation Date  : Thu, 10 Sep 2020 12:35:59
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -68,6 +68,15 @@ using std::tr1::unordered_map;
 #endif
 
 #include <algorithm>
+
+// Xyce_config.h contains a VERSION macro from autoconf, and some
+// Verilog-A models like to define a variable of that name.  This can be
+// a serious problem, and we don't need the VERSION macro.  Get rid of it.
+// This must happen *after* all includes of Xyce headers, each of which
+// includes Xyce_config.h!
+#ifdef VERSION
+#undef VERSION
+#endif
 
 namespace Xyce {
 namespace Device {

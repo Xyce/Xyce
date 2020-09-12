@@ -146,7 +146,7 @@ public:
   double        excessPhaseScalar1;
   double        excessPhaseScalar2;
 
-  unsigned int  randomSeed;                           ///< seed for random number generator used by some devices.
+  long  randomSeed;                           ///< seed for random number generator used by some devices.
   ///< note: each device gets its own random number generator so
   ///< it must initialize thing correctly. (See N_DEV_Synapse3 for an
   ///< example)

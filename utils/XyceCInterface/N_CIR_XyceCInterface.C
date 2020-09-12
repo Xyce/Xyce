@@ -35,6 +35,7 @@
 // ---------- Standard Includes ----------
 #include <iostream>
 #include <ctime>
+#include <cstring>
 
 // ----------   Xyce Includes   ----------
 #include <Xyce_config.h>

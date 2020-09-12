@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 10 Aug 2020 09:40:21
+// Creation Date  : Thu, 10 Sep 2020 12:35:59
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSDIODE_CMC_h
@@ -46,6 +46,16 @@
 #include <N_DEV_DeviceModel.h>
 #include <N_DEV_Diode.h>
 
+
+// Xyce_config.h contains a VERSION macro from autoconf, and some
+// Verilog-A models like to define a variable of that name.  This can be
+// a serious problem, and we don't need the VERSION macro.  Get rid of it.
+// This must happen *after* all the includes of Xyce headers, each of which
+// includes Xyce_config.h.  The implementation file must do this all again
+// because it includes more Xyce headers *after* including this one.
+#ifdef VERSION
+#undef VERSION
+#endif
 
 namespace Xyce {
 namespace Device {

@@ -41,9 +41,7 @@
 #include <N_UTL_Math.h>
 #include <time.h>
 
-#if 1
 #include<iostream>
-#endif
 
 #include <N_UTL_fwd.h>
 #include <N_UTL_RandomNumbers.h>
@@ -156,7 +154,7 @@ void RandomNumbers::seedRandom(long seed, bool output)
   {
     Xyce::lout() << "Seeding random number generator with " << ((unsigned long)seed) << std::endl;
   }
-  
+
 #ifdef HAVE_DRAND48
   srand48(seed);
 #else

@@ -367,21 +367,6 @@ bool Instance::updateIntermediateVars()
   double * lastSolVecPtr = extData.lastSolVectorRawPtr;
   double * stoVector = extData.nextStoVectorRawPtr;
 
-  // initialized random number generator if needed
-  if( !randInitialized )
-  {
-    if( getDeviceOptions().randomSeed != 0 )
-    {
-      devSupport.SetSeed( getDeviceOptions().randomSeed );
-    }
-    else
-    {
-      unsigned int aSeed = static_cast<unsigned int>(time( NULL ) ) ;
-      devSupport.SetSeed( aSeed );
-    }
-    randInitialized=true;
-  }
-
   // This check need to
   // Check for presynaptic spike start, set time to respond
   double vPre  = lastSolVecPtr[li_Prev];

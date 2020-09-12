@@ -38,6 +38,7 @@
 #include <Xyce_config.h>
 
 #include <iostream>
+#include <cstring>
 
 #include <N_CIR_Xyce.h>
 
