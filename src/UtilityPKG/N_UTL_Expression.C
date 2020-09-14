@@ -54,7 +54,7 @@
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
-#include <N_UTL_ExpressionInternals.h>
+#include <N_UTL_Interface_Enum_Types.h>
 
 namespace Xyce {
 namespace Util {
@@ -209,7 +209,6 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
   newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, type);
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Expression::getFunctionArgStringVec
 // Purpose       : 
@@ -231,45 +230,13 @@ const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 //                 function: CktNode_Dev::getDepSolnVars.  It only needs to 
 //                 detect 3 types:  XEXP_NODE, XEXP_INSTANCE and  XEXP_LEAD
 //
-//                 At the moment it does not detect XEXP_LEAD.  So, not done yet.
-//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 int Expression::get_type ( const std::string & var )
 {
-  newExpPtr_->setupVariousAstArrays();
-
-  int retVal=0; 
-
-  std::string tmpName = var;
-  Xyce::Util::toUpper(tmpName);
-
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpMap ();
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpMap ();
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & leadMap = newExpPtr_->getLeadCurrentOpMap ();
-
-  if ( voltMap.find(tmpName) != voltMap.end() )
-  {
-    retVal = XEXP_NODE;
-  }
-  else if ( currMap.find(tmpName) != currMap.end() )
-  {
-    retVal = XEXP_INSTANCE;
-  }
-  else if ( leadMap.find(tmpName) != leadMap.end() )
-  {
-    retVal = XEXP_LEAD;
-  }
-  else
-  {
-    newExpPtr_->dumpParseTree(Xyce::dout());
-    Xyce::dout() << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var 
-      << " in expression: " << newExpPtr_->getExpressionString()  <<std::endl;
-  }
-
-  return retVal;
+  return newExpPtr_->get_type(var);
 }
 
 //-----------------------------------------------------------------------------
@@ -282,10 +249,7 @@ int Expression::get_type ( const std::string & var )
 //-----------------------------------------------------------------------------
 bool Expression::make_constant (const std::string & var, const double & val, enumParamType type)
 {
-  newExpPtr_->setupVariousAstArrays();
-  bool retVal=false; 
-  retVal = newExpPtr_->make_constant (var,val, type);
-  return retVal;
+  return newExpPtr_->make_constant (var,val, type);
 }
 
 //-----------------------------------------------------------------------------
@@ -361,33 +325,6 @@ const std::vector<std::string> & Expression::getUnresolvedParams () const
 {
   newExpPtr_->setupVariousAstArrays();
   return newExpPtr_->getUnresolvedParamNameVec();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getParams
-// Purpose       : 
-// Special Notes : ERK: Fix this.  
-//                 It is figuring out a unique list every single time, by 
-//                 using "find"
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 2020
-//-----------------------------------------------------------------------------
-void Expression::getParams (std::vector<std::string> & params) const
-{
-  newExpPtr_->setupVariousAstArrays();
-
-  params.clear();
-  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
-  {
-    std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
-    std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
-    if (it == params.end())
-    {
-      params.push_back( tmpName );
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -972,13 +909,6 @@ void Expression::dumpParseTree()
 ///
 void Expression::seedRandom(long seed)
 {
-  //if(useNewExpressionLibrary_)
-  //{
-  //}
-  //else
-  {
-    //ExpressionInternals::seedRandom(seed);
-  }
 }
 
 //-----------------------------------------------------------------------------

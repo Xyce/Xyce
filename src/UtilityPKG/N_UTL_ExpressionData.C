@@ -388,9 +388,7 @@ ExpressionData::setup(
   }
 
   // resolve .param and .global_params
-  std::vector<std::string> params;
-  expression_->getParams(params);
-
+  const std::vector<std::string> params = expression_->getUnresolvedParams(); // params has to be a copy, not a reference!
   for (int ii=0;ii<params.size();ii++)
   {
     std::string varName = params[ii];

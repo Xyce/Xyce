@@ -678,11 +678,19 @@ exp:
         // using a std::vector for the names and a separate vector for the paramOps keeps them in order user specified.
         std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
         std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
-        std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
-        if ( nameIter == paramNameVec.end() )
+        std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & paramOpMap = newExp.getParamOpMap ();
+
+        //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
+        //if ( nameIter == paramNameVec.end() )
+        if ( paramOpMap.find( *$1 ) == paramOpMap.end() )
         {
           Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(*$1));
           paramOpVec.push_back(*tmpPtr);
+
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+          vec.push_back(*tmpPtr);
+          paramOpMap[*$1] = vec;
+
           paramNameVec.push_back(*$1);
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(*tmpPtr);
           newExp.getMasterNodeVec().push_back(tmpPtr2);
@@ -692,8 +700,10 @@ exp:
         }
         else
         {
-          int index = std::distance(paramNameVec.begin(),nameIter);
-          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
+          //int index = std::distance(paramNameVec.begin(),nameIter);
+          //Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
+
+          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpMap[*$1][0]);
           newExp.getMasterNodeVec().push_back(tmpPtr2);
           $$ = tmpPtr2;
         }

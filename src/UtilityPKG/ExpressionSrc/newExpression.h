@@ -52,6 +52,7 @@
 #include <N_UTL_BreakPoint.h>
 #include <expressionParamTypes.h>
 #include <N_UTL_HspiceBools.h>
+#include <N_UTL_Interface_Enum_Types.h>
 
 // new code includes:
 #include <ast.h>
@@ -340,6 +341,7 @@ public:
     funcNameVec_(right.funcNameVec_),
     unresolvedFuncNameVec_(right.unresolvedFuncNameVec_),
     funcOpVec_(right.funcOpVec_),
+    funcOpMap_(right.funcOpMap_),
     voltNameVec_(right.voltNameVec_),
     voltOpVec_(right.voltOpVec_),
     voltOpMap_(right.voltOpMap_),
@@ -467,6 +469,7 @@ public:
     paramOpMap_ = right.paramOpMap_;
     unresolvedFuncNameVec_ = right.unresolvedFuncNameVec_;
     funcOpVec_ = right.funcOpVec_;
+    funcOpMap_ = right.funcOpMap_;
     voltNameVec_ = right.voltNameVec_;
     voltOpVec_ = right.voltOpVec_;
     voltOpMap_ = right.voltOpMap_;
@@ -607,6 +610,8 @@ public:
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
+  int get_type ( const std::string & var );
+
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
   bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
@@ -651,7 +656,7 @@ public:
   std::vector<std::string> & getGlobalParamNameVec () { return globalParamNameVec_; };
   std::vector<std::string> & getUnresolvedParamNameVec () { return unresolvedParamNameVec_; };
 
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpMap ()
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpMap ()
   {
     setupVariousAstArrays ();
     return paramOpMap_;
@@ -907,8 +912,8 @@ private:
   std::vector<std::string> paramNameVec_;
   std::vector<std::string> globalParamNameVec_;
   std::vector<std::string> unresolvedParamNameVec_;
-  std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpMap_; // setup but not used.  Probably should be used.
+  std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_; // mainly used for .func argument setup
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpMap_; // used by make_const, make_var and attachParamNode
 
   std::vector<std::string> funcNameVec_;
   std::vector<std::string> unresolvedFuncNameVec_;
@@ -917,37 +922,30 @@ private:
 
   std::vector<std::string> voltNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpMap_; // used by replaceName
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpMap_; // used by replaceName, get_type
 
   std::vector<std::string> currentNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpMap_; // used by replaceName
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpMap_; // used by replaceName, get_type
 
   std::vector<std::string> leadCurrentNameVec_;
   std::vector<std::string> leadCurrentExcludeBsrcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > leadCurrentOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpMap_; // used by N_UTL_Expression::get_type
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpMap_; // used by get_type ONLY.
 
   std::vector<Teuchos::RCP<astNode<usedType> > > bsrcCurrentOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > bsrcCurrentOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > powerOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > powerOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > internalDevVarOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > internalDevVarOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > dnoNoiseDevVarOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dnoNoiseDevVarOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > dniNoiseDevVarOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > dniNoiseDevVarOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > oNoiseOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > oNoiseOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > iNoiseOpVec_;
-  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > iNoiseOpMap_; // not used? or setup
 
   std::vector<Teuchos::RCP<astNode<usedType> > > sdtOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > localSdtOpVec_;

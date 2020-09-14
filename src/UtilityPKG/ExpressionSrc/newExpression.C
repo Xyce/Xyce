@@ -232,6 +232,7 @@ bool newExpression::lexAndParseExpression()
           functionArgOpVec_[ii] = paramOpVec_[index];
           paramNameVec_.erase(paramNameVec_.begin()+index);
           paramOpVec_.erase(paramOpVec_.begin()+index);
+          paramOpMap_.erase( functionArgStringVec_[ii] );
           functionArgOpVec_[ii]->setFunctionArgType();
         }
       }
@@ -247,12 +248,14 @@ bool newExpression::lexAndParseExpression()
       leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
     }
 
+#if 0
     for (int ii=0;ii<paramOpVec_.size();++ii)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
       std::string tmp = parOp->getName();
       paramOpMap_[tmp].push_back(paramOpVec_[ii]);
     }
+#endif
   }
 
   // if dependent on a special, add relevant specials node to the relevant specials vector
@@ -306,7 +309,7 @@ bool newExpression::lexAndParseExpression()
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
 bool newExpression::attachFunctionNode(
-    const std::string & funcName, 
+    const std::string & funcName,
     const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=false;
@@ -386,8 +389,8 @@ bool newExpression::attachFunctionNode(
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
 bool newExpression::attachParameterNode(
-    const std::string & paramName, 
-    const Teuchos::RCP<Xyce::Util::newExpression> expPtr, 
+    const std::string & paramName,
+    const Teuchos::RCP<Xyce::Util::newExpression> expPtr,
     enumParamType type)
 {
   bool retval=false;
@@ -397,13 +400,14 @@ bool newExpression::attachParameterNode(
     externalExpressions_.push_back(expPtr);
     std::string paramNameUpper=paramName;
     Xyce::Util::toUpper(paramNameUpper);
-    std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
-    if ( nameIter != paramNameVec_.end() )
+    if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
     {
-      int index = std::distance(paramNameVec_.begin(),nameIter);
-      if(index < paramOpVec_.size())
+      std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+      int size = nodeVec.size();
+      for (int ii=0;ii<size;ii++)
       {
-        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
+        Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
         if ( !(Teuchos::is_null( expPtr->getAst() )))
         {
           parOp->setNode(expPtr->getAst());
@@ -426,7 +430,7 @@ bool newExpression::attachParameterNode(
 //                 and puts the class in the state that it should be in
 //                 prior to calling the function lexAndParseExpression
 //
-// Special Notes : This function is hard to maintain reliably. Unfortunately, I 
+// Special Notes : This function is hard to maintain reliably. Unfortunately, I
 //                 can't (yet?) remove it
 //
 // Scope         :
@@ -497,25 +501,18 @@ void newExpression::clear ()
   leadCurrentOpMap_.clear();
 
   bsrcCurrentOpVec_.clear();
-  //bsrcCurrentOpMap_.clear();
 
   powerOpVec_.clear();
-  //powerOpMap_.clear();
 
   internalDevVarOpVec_.clear();
-  //internalDevVarOpMap_.clear();
 
   dnoNoiseDevVarOpVec_.clear();
-  //dnoNoiseDevVarOpMap_.clear();
 
   dniNoiseDevVarOpVec_.clear();
-  //dniNoiseDevVarOpMap_.clear();
 
   oNoiseOpVec_.clear();
-  //oNoiseOpMap_.clear();
 
   iNoiseOpVec_.clear();
-  //iNoiseOpMap_.clear();
 
   sdtOpVec_.clear();
   ddtOpVec_.clear();
@@ -535,7 +532,7 @@ void newExpression::clear ()
   localRandOpVec_.clear();
   twoArgLimitOpVec_.clear();
   localTwoArgLimitOpVec_.clear();
- 
+
   srcAstNodeVec_.clear();
   stpAstNodeVec_.clear();
   compAstNodeVec_.clear();
@@ -555,39 +552,83 @@ void newExpression::clear ()
   return;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Expression::get_type
+// Purpose       : Finds the type of an input quantity name
+//
+// Special Notes : This is only called from N_TOP_CktNode_Dev.C, in the
+//                 function: CktNode_Dev::getDepSolnVars.  It only needs to
+//                 detect 3 types:  XEXP_NODE, XEXP_INSTANCE and  XEXP_LEAD
+//
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/17/08
+//-----------------------------------------------------------------------------
+int newExpression::get_type ( const std::string & var )
+{
+  setupVariousAstArrays();
+  int retVal=0;
+  std::string tmpName = var;
+  Xyce::Util::toUpper(tmpName);
+
+  if ( voltOpMap_.find(tmpName) != voltOpMap_.end() )
+  {
+    retVal = XEXP_NODE;
+  }
+  else if ( currentOpMap_.find(tmpName) != currentOpMap_.end() )
+  {
+    retVal = XEXP_INSTANCE;
+  }
+  else if ( leadCurrentOpMap_.find(tmpName) != leadCurrentOpMap_.end() )
+  {
+    retVal = XEXP_LEAD;
+  }
+  else
+  {
+    //dumpParseTree(Xyce::dout());
+    Xyce::Report::UserError()
+      << "Error. Xyce::Util::newExpression::get_type.  Cannot find type for " << var
+      << " in expression: " << getExpressionString()  <<std::endl;
+  }
+
+  return retVal;
+}
+
 //-------------------------------------------------------------------------------
 // Function      : newExpression::make_constant
 //
-// Purpose       : This was originally needed for the old API, but it is useful
-//                 for the new expression library as well.   It applies a
-//                 specified value to a specified parameter.
-//
+// Purpose       : This function applies a specified value to a specified
+//                 parameter, and also sets the "constant" boolean to true.
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/??/2020
 //-------------------------------------------------------------------------------
 bool newExpression::make_constant (
-    std::string const & var, 
-    usedType const & val, 
+    std::string const & var,
+    usedType const & val,
     enumParamType type)
 {
-  std::string tmpParName = var;
-  Xyce::Util::toUpper(tmpParName);
+  setupVariousAstArrays();
+  std::string paramNameUpper = var;
+  Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
 
-  std::vector<std::string>::iterator paramIter;
-  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
-  if (paramIter != paramNameVec_.end()) // found it
+  if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
   {
-    int index = std::distance(paramNameVec_.begin(),paramIter);
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
-    parOp->setValue(val);
-    parOp->setIsConstant();
-    parOp->setParamType(type);
+    std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+    int size = nodeVec.size();
+    for (int ii=0;ii<size;ii++)
+    {
+      Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
+      parOp->setValue(val);
+      parOp->setIsConstant();
+      parOp->setParamType(type);
+    }
     retval=true;
 
-    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpParName);
+    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
     if (it != unresolvedParamNameVec_.end())
     {
       int index = std::distance(unresolvedParamNameVec_.begin(),it);
@@ -596,27 +637,28 @@ bool newExpression::make_constant (
 
     if (type == DOT_GLOBAL_PARAM)
     {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
       if (it == globalParamNameVec_.end())
       {
-        globalParamNameVec_.push_back(tmpParName);
+        globalParamNameVec_.push_back(paramNameUpper);
       }
     }
     else
     {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
       if (it != globalParamNameVec_.end())
       {
         int index = std::distance(globalParamNameVec_.begin(),it);
         globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
       }
     }
+    checkIsConstant_();
   }
   else
   {
-    Xyce::Report::UserError() 
-      << "newExpression::make_constant  ERROR.  Could not find parameter " 
-      << tmpParName  
+    Xyce::Report::UserError()
+      << "newExpression::make_constant  ERROR.  Could not find parameter "
+      << paramNameUpper
       << " in expression: " << expressionString_ <<std::endl;
   }
 
@@ -637,22 +679,25 @@ bool newExpression::make_constant (
 //-------------------------------------------------------------------------------
 bool newExpression::make_var (std::string const & var, enumParamType type)
 {
-  std::string tmpParName = var;
-  Xyce::Util::toUpper(tmpParName);
+  std::string paramNameUpper = var;
+  Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
 
-  std::vector<std::string>::iterator paramIter;
-  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
-  if (paramIter != paramNameVec_.end()) // found it
+  if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
   {
-    int index = std::distance(paramNameVec_.begin(),paramIter);
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
-    parOp->unsetValue(); // just to be safe "unset" the value
-    parOp->setIsVar();
-    parOp->setParamType(type);
-    retval = true; // just means we found it
+    std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+    int size = nodeVec.size();
+    for (int ii=0;ii<size;ii++)
+    {
+      Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
+      parOp->unsetValue(); // just to be safe "unset" the value
+      parOp->setIsVar();
+      parOp->setParamType(type);
+    }
+    retval = true;
 
-    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpParName);
+    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
     if (it != unresolvedParamNameVec_.end())
     {
       int index = std::distance(unresolvedParamNameVec_.begin(),it);
@@ -661,27 +706,28 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
 
     if (type == DOT_GLOBAL_PARAM)
     {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
       if (it == globalParamNameVec_.end())
       {
-        globalParamNameVec_.push_back(tmpParName);
+        globalParamNameVec_.push_back(paramNameUpper);
       }
     }
     else
     {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpParName);
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
       if (it != globalParamNameVec_.end())
       {
         int index = std::distance(globalParamNameVec_.begin(),it);
         globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
       }
     }
+    checkIsConstant_();
   }
   else
   {
-    Xyce::dout() 
-      << "newExpression::make_var  ERROR.  Could not find parameter " 
-      << tmpParName <<std::endl;
+    Xyce::dout()
+      << "newExpression::make_var  ERROR.  Could not find parameter "
+      << paramNameUpper <<std::endl;
   }
 
   return retval;
@@ -703,8 +749,8 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
 //-------------------------------------------------------------------------------
 void newExpression::setupDerivatives_ ()
 {
-  if (!derivsSetup_) 
-  { 
+  if (!derivsSetup_)
+  {
     // figure out the derivative indices
     // This assumes we need derivatives with respect to all
     // voltages and currents.
@@ -718,14 +764,14 @@ void newExpression::setupDerivatives_ ()
 
       for (int ii=0;ii<voltOpVec_.size();ii++)
       {
-        Teuchos::RCP<voltageOp<usedType> > voltOp 
+        Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-        // 2-node specification is now handled with expression tree.  
+        // 2-node specification is now handled with expression tree.
         // (see ExpressionParser.yxx)
         // So, nodes.size should always == 1
-        if (nodes.size() == 1) 
+        if (nodes.size() == 1)
         {
           std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
           std::unordered_map<std::string, int>::iterator mapIter;
@@ -735,15 +781,15 @@ void newExpression::setupDerivatives_ ()
         }
         else
         {
-          Xyce::dout() 
-            << "ERROR. derivatives not correct for 2-node V(A,B) specification" 
+          Xyce::dout()
+            << "ERROR. derivatives not correct for 2-node V(A,B) specification"
             <<std::endl;
         }
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
       {
-        Teuchos::RCP<currentOp<usedType> > currOp 
+        Teuchos::RCP<currentOp<usedType> > currOp
           = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
         std::string tmp = currOp->getCurrentDevice();
         Xyce::Util::toUpper(tmp);
@@ -758,7 +804,7 @@ void newExpression::setupDerivatives_ ()
       }
 
       // Complication for params:
-      // Unlike voltages and currents, params can be assigned to each 
+      // Unlike voltages and currents, params can be assigned to each
       // other, etc, and they can be *anything*.
       // So, for example if I have
       //
@@ -776,12 +822,12 @@ void newExpression::setupDerivatives_ ()
       // that are set to simple numerical values.  That would mean
       // that for the above set of expressions, I only would do x and y.
       //
-      // Solution: only differentiate params that have their "setIsVar" 
+      // Solution: only differentiate params that have their "setIsVar"
       // boolean set to true.
       //
       for (int ii=0;ii<paramOpVec_.size();ii++)
       {
-        Teuchos::RCP<paramOp<usedType> > parOp 
+        Teuchos::RCP<paramOp<usedType> > parOp
           = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
         if (parOp->getIsVar())
         {
@@ -888,14 +934,14 @@ NEW_EXP_OUTPUT_ARRAY_SIZE(dtOpVec_)
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setupVariousAstArrays
 //
-// Purpose       : This function builds up lists of all the relevant data 
-//                 structures required to understand the external depedencies of 
+// Purpose       : This function builds up lists of all the relevant data
+//                 structures required to understand the external depedencies of
 //                 this expression.
 //
 //                 It is only necessary to call it when the expression has external
-//                 dependencies.  The reason is that during parsing, all the 
+//                 dependencies.  The reason is that during parsing, all the
 //                 information that can be determined during parsing is added to
-//                 these data structures.  External dependencies, however, 
+//                 these data structures.  External dependencies, however,
 //                 cannot be fully evaluated during the parse phase.
 //
 //                 Ideally, however, the data structutes below should be added to
@@ -904,14 +950,14 @@ NEW_EXP_OUTPUT_ARRAY_SIZE(dtOpVec_)
 //                   newExpression::attachFunctionNode
 //                   newExpression::attachParameterNode
 //
-// Special Notes : 
+// Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
 // Creation Date : 12/26/2019
 //-------------------------------------------------------------------------------
 void newExpression::setupVariousAstArrays()
 {
-  if (!astArraysSetup_) 
+  if (!astArraysSetup_)
   {
 #if 0
     Xyce::dout() << "Array sizes BEFORE update:" <<std::endl;
@@ -1003,8 +1049,8 @@ void newExpression::setupVariousAstArrays()
         if (opVectors_.isGminDependent) isGminDependent_ = true;
       }
 
-      // populate some vectors that depend on the above AST traversal, 
-      // but that were not updated during it. (these could easily be included in the 
+      // populate some vectors that depend on the above AST traversal,
+      // but that were not updated during it. (these could easily be included in the
       // traversal, so perhaps do that later)
       voltOpMap_.clear();
       voltNameVec_.clear(); // needed by "getVoltageNodes"
@@ -1057,7 +1103,7 @@ void newExpression::setupVariousAstArrays()
         }
       }
 
-      // Bsrc's are special.  Depending on where in Xyce we are, 
+      // Bsrc's are special.  Depending on where in Xyce we are,
       // they should sometimes be included in lead currents, and sometimes not.
       for (int ii=0;ii<bsrcCurrentOpVec_.size();ii++)
       {
@@ -1081,33 +1127,33 @@ void newExpression::setupVariousAstArrays()
         }
       }
 
-      // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing, 
-      // but I was wrong.  It needs updating here, because it is used by functions such as 
+      // 8/6/2020.  ERK.  I originally thought that paramNameVec_ wasn't used after parsing,
+      // but I was wrong.  It needs updating here, because it is used by functions such as
       // make_const and make_var.  (those functions *should* use the map, instead)
       //
-      // A vector is needed during parsing, b/c I need to keep the params in their 
-      // original order for some purposes. (I tried a map during parsing and it broke 
+      // A vector is needed during parsing, b/c I need to keep the params in their
+      // original order for some purposes. (I tried a map during parsing and it broke
       // some things, b/c maps change the order)
       //
       // But, once those issues are over with, a map should be better.  So, make_const and make_var
-      // really should use the map instead.  Then once that happens, it won't be necessary to 
+      // really should use the map instead.  Then once that happens, it won't be necessary to
       // update paramNameVec here.  But for now, to make those functions work properly, it is
       // what it is.
       //
       // Note, it just occured to me(8/7/2020):  the paramNameVec usage in make_var and make_const will
-      // find the first occurance of a particular parameter.  If there are duplicates, it won't 
+      // find the first occurance of a particular parameter.  If there are duplicates, it won't
       // find the others.  With the map object, it wouldn't have this problem.
       //
-      // During parsing, there is code in the parser to ensure that there aren't any 
+      // During parsing, there is code in the parser to ensure that there aren't any
       // duplicates in the paramOpVec_ or in the parmaNameVec_.  But once external nodes are attached,
-      // it isn't possible to enforce this anymore.  So, at that stage, the paramNameVec_ 
+      // it isn't possible to enforce this anymore.  So, at that stage, the paramNameVec_
       // could have duplicates in it, and make_var and make_const will break.
       //
-      // 9/10/2020: Update.  The paramNameVec can indeed have duplicates in it.  But the 
+      // 9/10/2020: Update.  The paramNameVec can indeed have duplicates in it.  But the
       // corresponding entries in the paramOpVec_ are usually duplicates as well.
       // So, just finding the first works OK, but it is wasteful.
       //
-      // I believe this happening because the AST traversal  
+      // I believe this happening because the AST traversal
       // (in the function call astNodePtr_->getInterestingOps( opVectors_  ); above )
       // makes no attempt to  avoid duplicates.  It just pushes them all back onto the paramOpVec
       // as it traverses the tree.
@@ -1115,14 +1161,39 @@ void newExpression::setupVariousAstArrays()
       paramOpMap_.clear();
       unresolvedParamNameVec_.clear();
       globalParamNameVec_.clear();
+
+      std::unordered_map<std::string,std::vector<unsigned long int> > paramIDMap;
+
       for (int ii=0;ii<paramOpVec_.size();++ii)
       {
         Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec_[ii]);
         std::string tmp = parPtr->getName();
-        paramOpMap_[tmp].push_back(paramOpVec_[ii]);
+
+        if (paramOpMap_.find(tmp) == paramOpMap_.end())
+        {
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
+          vec.push_back(paramOpVec_[ii]);
+          paramOpMap_[tmp] = vec;
+
+          std::vector<unsigned long int> IDvec;
+          IDvec.push_back(parPtr->getId());
+          paramIDMap[tmp] = IDvec;
+        }
+        else
+        {
+          unsigned long int id = parPtr->getId();
+          std::vector<unsigned long int> & IDvec = paramIDMap[tmp];
+          std::vector<unsigned long int>::iterator idIter = std::find(IDvec.begin(),IDvec.end(),id) ;
+          if ( idIter == IDvec.end() )
+          {
+            paramOpMap_[tmp].push_back(paramOpVec_[ii]);
+            IDvec.push_back(id);
+          }
+        }
+
         paramNameVec_.push_back(tmp);
 
-        if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
+        if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) )
         {
           std::string tmpName = paramOpVec_[ii]->getName();
           std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpName);
@@ -1132,7 +1203,7 @@ void newExpression::setupVariousAstArrays()
           }
         }
 
-        if (  parPtr->getParamType() == DOT_GLOBAL_PARAM ) 
+        if (  parPtr->getParamType() == DOT_GLOBAL_PARAM )
         {
           std::string tmpName = paramOpVec_[ii]->getName();
           std::vector<std::string>::iterator it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), tmpName);
@@ -1143,13 +1214,13 @@ void newExpression::setupVariousAstArrays()
         }
       }
 
-      // setup unresolvedFuncNameVec_ 
+      // setup unresolvedFuncNameVec_
       unresolvedFuncNameVec_.clear();
       for (int ii=0;ii<funcOpVec_.size();ii++)
       {
         Teuchos::RCP<funcOp<usedType> > funPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
 
-        if( !(funPtr->getNodeResolved()) || !(funPtr->getArgsResolved()) ) 
+        if( !(funPtr->getNodeResolved()) || !(funPtr->getArgsResolved()) )
         {
           std::string tmpName = funcOpVec_[ii]->getName();
           std::vector<std::string>::iterator it = std::find(unresolvedFuncNameVec_.begin(), unresolvedFuncNameVec_.end(), tmpName);
@@ -1198,7 +1269,7 @@ void newExpression::setupVariousAstArrays()
 
 #define NEW_EXP_ADD_TO_VEC1(VEC1,VEC2) \
   if ( !(VEC2.empty()) )  { VEC1.insert( VEC1.end(), VEC2.begin(), VEC2.end() ); }
-  
+
 #define NEW_EXP_ADD_TO_VEC2(VEC1,VEC2) \
   if ( !(VEC2.empty()) ) { for (int ii=0;ii<VEC2.size();ii++) { VEC1.push_back(VEC2[ii]); } }
 
@@ -1212,34 +1283,34 @@ void newExpression::setupVariousAstArrays()
 //                 to be updated.
 //
 //                 setupVariousAstArrays_ builds up various bookeeping containers
-//                 by traversing the AST tree, and conditionally pushing back 
-//                 onto those containers.   
+//                 by traversing the AST tree, and conditionally pushing back
+//                 onto those containers.
 //
 //                 This function instead grabs the containers from the new "attach"
 //                 expression, and then adds to the existing ones via std::insert
 //                 commands.
 //
-//                 I thought that this method (using std::insert, and not traversing 
+//                 I thought that this method (using std::insert, and not traversing
 //                 the tree) would be faster.  In practice it is much slower.   For small
-//                 expressions and trees, either works fine.  But for really large 
+//                 expressions and trees, either works fine.  But for really large
 //                 objects, using this method is around 10x slower.  That surprised me,
 //                 and possibly I'm missing something.  But as it is so much slower,
 //                 this function is not called.
 //
-//                 Back when it was called, it was called at the bottom of the 
+//                 Back when it was called, it was called at the bottom of the
 //                 functions "attachParameterNode" and "attachFunctionNode"
 //
 //                 So, this function is probably obsolete, but I haven't deleted it
-//                 yet b/c it is mysterious to me why it is so much slower.  Part 
+//                 yet b/c it is mysterious to me why it is so much slower.  Part
 //                 of me thinks it should still be faster, if only I can figure
 //                 out the issue.
 //
-// Special Notes : 
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 7/23/2020
 //-------------------------------------------------------------------------------
-void newExpression::addToVariousAstArrays_ 
+void newExpression::addToVariousAstArrays_
    (const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   if( !(Teuchos::is_null(expPtr)) )
@@ -1326,11 +1397,11 @@ void newExpression::addToVariousAstArrays_
 //-------------------------------------------------------------------------------
 // Function      : newExpression::checkIsConstant_
 //
-// Purpose       : This function is used by the N_UTL_Param function 
-//                 "isExpressionConstant", which is used to determine if an 
-//                 expression can be turned into an immutable data type such as 
+// Purpose       : This function is used by the N_UTL_Param function
+//                 "isExpressionConstant", which is used to determine if an
+//                 expression can be turned into an immutable data type such as
 //                 DBLE or INT.
-// Special Notes : 
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 2020
@@ -1338,16 +1409,24 @@ void newExpression::addToVariousAstArrays_
 void newExpression::checkIsConstant_()
 {
   // check if this is expression is a constant
+  if ( !(unresolvedParamNameVec_.empty()) )
+  {
+    isConstant_=false;
+    return;
+  }
 
   bool noVariableParams = paramOpVec_.empty();
   if (!noVariableParams)
   {
-    noVariableParams = true;
-    for (int ii=0;ii<paramOpVec_.size();ii++)
+    if ( (unresolvedParamNameVec_.empty()) ) // only do this check if everything is resolved. Otherwise it is a pointless check
     {
-      Teuchos::RCP<paramOp<usedType> > parOp 
-        = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) { noVariableParams = false;  break;}
+      noVariableParams = true;
+      for (int ii=0;ii<paramOpVec_.size();ii++)
+      {
+        Teuchos::RCP<paramOp<usedType> > parOp
+          = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+        if (  parOp->getParamType() == DOT_GLOBAL_PARAM ) { noVariableParams = false;  break;}
+      }
     }
   }
 
@@ -1358,7 +1437,6 @@ void newExpression::checkIsConstant_()
     !isFreqDependent_  &&
     !isGminDependent_  &&  // not relevant
     noVariableParams &&
-    //(unresolvedParamOpVec_.empty()) &&
     //(funcOpVec_.empty()) &&  // not relevant but based on comments above consistent with num_vars in the old library.  Leaving it out is the right thing to do and doesn't appear to break anything.
     (voltOpVec_.empty()) &&
     (currentOpVec_.empty()) &&
@@ -1374,21 +1452,25 @@ void newExpression::checkIsConstant_()
     ( (localAunifOpVec_.empty()) )  &&
     ( (localUnifOpVec_.empty())  )  &&
     ( (localRandOpVec_.empty())  )  &&
-    ( (localTwoArgLimitOpVec_.empty()) ) 
+    ( (localTwoArgLimitOpVec_.empty()) )
       )
     {
       isConstant_ = true;
     }
+  else
+  {
+      isConstant_ = false;
+  }
 
 #if 0
   if (isConstant_)
   {
-    Xyce::dout() << "expression: " << expressionString_ 
+    Xyce::dout() << "expression: " << expressionString_
       << " is constant" << std::endl;
   }
   else
   {
-    Xyce::dout() << "expression: " << expressionString_ 
+    Xyce::dout() << "expression: " << expressionString_
       << " is constant" << std::endl;
   }
 #endif
@@ -1397,7 +1479,7 @@ void newExpression::checkIsConstant_()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::getValuesFromGroup_
 // Purpose       :
-// Special Notes : 
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date :
@@ -1406,14 +1488,14 @@ bool newExpression::getValuesFromGroup_()
 {
   bool noChange=true;
 #if 0
-  std::cout << "newExpression::getValuesFromGroup_() expression = " 
+  std::cout << "newExpression::getValuesFromGroup_() expression = "
     << expressionString_ << std::endl;
 #endif
 
   // get solution values we need from the group
   for (int ii=0;ii<voltOpVec_.size();ii++)
   {
-    Teuchos::RCP<voltageOp<usedType> > voltOp 
+    Teuchos::RCP<voltageOp<usedType> > voltOp
       = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
     std::vector<std::string> & nodes = voltOp->getVoltageNodes();
     std::vector<usedType> & vals = voltOp->getVoltageVals();
@@ -1422,15 +1504,15 @@ bool newExpression::getValuesFromGroup_()
     for (int jj=0;jj<nodes.size();jj++)
     {
 #if 0
-      std::cout 
-        << "newExpression::getValuesFromGroup_() About to get: V("<<nodes[jj]<<")" 
+      std::cout
+        << "newExpression::getValuesFromGroup_() About to get: V("<<nodes[jj]<<")"
         << std::endl;
 #endif
       group_->getSolutionVal(nodes[jj], vals[jj]);
       if(vals[jj] != oldvals[jj]) noChange=false;
 #if 0
-      std::cout 
-        << "newExpression::getValuesFromGroup_() V("<<nodes[jj]<<") = " 
+      std::cout
+        << "newExpression::getValuesFromGroup_() V("<<nodes[jj]<<") = "
         << vals[jj] <<std::endl;
 #endif
     }
@@ -1610,7 +1692,7 @@ bool newExpression::getValuesFromGroup_()
 
     if(oldtemp != newtemp)
     {
-      for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(newtemp); } 
+      for (int ii=0;ii<tempOpVec_.size();ii++) { tempOpVec_[ii]->setValue(newtemp); }
       noChange = false;
     }
   }
@@ -1692,12 +1774,12 @@ bool newExpression::getValuesFromGroup_()
   }
 
   // deal with random number operators.  This is a work in progress.
- 
+
   // The following currently only work for the non-sampling case.
   if (Xyce::Util::enableRandomExpression)
   {
-    for (int ii=0;ii<agaussOpVec_.size();ii++) 
-    { 
+    for (int ii=0;ii<agaussOpVec_.size();ii++)
+    {
       Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
       if ( !(agOp->getSetValueCalledBefore()) ) // key line for the non-sampling case; can only be updated 1x
       {
@@ -1712,8 +1794,8 @@ bool newExpression::getValuesFromGroup_()
       }
     }
 
-    for (int ii=0;ii<gaussOpVec_.size();ii++) 
-    { 
+    for (int ii=0;ii<gaussOpVec_.size();ii++)
+    {
       Teuchos::RCP<gaussOp<usedType> > gaOp = Teuchos::rcp_static_cast<gaussOp<usedType> > (gaussOpVec_[ii]);
       if ( !(gaOp->getSetValueCalledBefore()) )
       {
@@ -1728,8 +1810,8 @@ bool newExpression::getValuesFromGroup_()
       }
     }
 
-    for (int ii=0;ii<aunifOpVec_.size();ii++) 
-    { 
+    for (int ii=0;ii<aunifOpVec_.size();ii++)
+    {
       Teuchos::RCP<aunifOp<usedType> > auOp = Teuchos::rcp_static_cast<aunifOp<usedType> > (aunifOpVec_[ii]);
       if ( !(auOp->getSetValueCalledBefore()) )
       {
@@ -1744,8 +1826,8 @@ bool newExpression::getValuesFromGroup_()
       }
     }
 
-    for (int ii=0;ii<unifOpVec_.size();ii++) 
-    { 
+    for (int ii=0;ii<unifOpVec_.size();ii++)
+    {
       Teuchos::RCP<unifOp<usedType> > unOp = Teuchos::rcp_static_cast<unifOp<usedType> > (unifOpVec_[ii]);
       if ( !(unOp->getSetValueCalledBefore()) )
       {
@@ -1759,9 +1841,9 @@ bool newExpression::getValuesFromGroup_()
         unOp->setValue(val);
       }
     }
-     
-    for (int ii=0;ii<randOpVec_.size();ii++) 
-    { 
+
+    for (int ii=0;ii<randOpVec_.size();ii++)
+    {
       Teuchos::RCP<randOp<usedType> > raOp = Teuchos::rcp_static_cast<randOp<usedType> > (randOpVec_[ii]);
       if ( !(raOp->getSetValueCalledBefore()) )
       {
@@ -1775,8 +1857,8 @@ bool newExpression::getValuesFromGroup_()
   }
 
 #if 0
-  for (int ii=0;ii<twoArgLimitOpVec_.size();ii++) 
-  { 
+  for (int ii=0;ii<twoArgLimitOpVec_.size();ii++)
+  {
     Teuchos::RCP<twoArgLimitOp<usedType> > talOp = Teuchos::rcp_static_cast<twoArgLimitOp<usedType> > (twoArgLimitOpVec_[ii]);
   }
 #endif
@@ -1816,8 +1898,8 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   }
   else
   {
-    Xyce::Report::UserError() << "Error.  Expression " 
-      << originalExpressionString_ 
+    Xyce::Report::UserError() << "Error.  Expression "
+      << originalExpressionString_
       << " was not successfully parsed." << std::endl;
   }
 
@@ -1849,12 +1931,12 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 #if 0
     if ( !(unresolvedFuncOpVec_.empty()) )
     {
-      Xyce::dout() << "ERROR.  Unresolved functions in expression " 
+      Xyce::dout() << "ERROR.  Unresolved functions in expression "
         << originalExpressionString_ <<std::endl;
 
       for(int ii=0;ii<unresolvedFuncOpVec_.size();++ii)
       {
-        Xyce::dout() << "unresolvedFuncOpVec_[" << ii << "] = " 
+        Xyce::dout() << "unresolvedFuncOpVec_[" << ii << "] = "
           << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
       }
     }
@@ -1888,7 +1970,7 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
       retVal = (result != savedResult_);
 
 #if 0
-      Xyce::dout().width(20); Xyce::dout().precision(13); 
+      Xyce::dout().width(20); Xyce::dout().precision(13);
       Xyce::dout().setf(std::ios::scientific);
 
       if (retVal)
@@ -1912,24 +1994,24 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
       retVal = false;
       result = savedResult_;
 #if 0
-      Xyce::dout() 
-        << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for " 
+      Xyce::dout()
+        << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for "
         << expressionString_ << " result = " << result << std::endl;
 #endif
     }
   }
   else
   {
-    Xyce::dout() 
-      << "Error.  Expression " 
-      << originalExpressionString_ 
+    Xyce::dout()
+      << "Error.  Expression "
+      << originalExpressionString_
       << " is not parsed yet" << std::endl;
     exit(0);
   }
 
 #if 0
-  Xyce::dout() 
-    << "newExpression::evaluateFunction. just evaluated expression tree for " 
+  Xyce::dout()
+    << "newExpression::evaluateFunction. just evaluated expression tree for "
     << expressionString_ << " result = " << result << std::endl;
 #endif
 
@@ -1983,25 +2065,25 @@ bool newExpression::getBreakPoints (
   if(isTimeDependent_)
   {
     int srcSize = srcAstNodeVec_.size();
-    for (int ii=0;ii< srcSize; ii++) 
+    for (int ii=0;ii< srcSize; ii++)
     { (srcAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int stpSize = stpAstNodeVec_.size();
-    for (int ii=0;ii< stpSize; ii++) 
+    for (int ii=0;ii< stpSize; ii++)
     { (stpAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
     int compSize = compAstNodeVec_.size();
-    for (int ii=0;ii< compSize; ii++) 
+    for (int ii=0;ii< compSize; ii++)
     { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
 #if 0
     {
-      Xyce::dout() << "newExpression::getBreakPoints. Expression " 
-        << expressionString_ << "  Number of breakpoints = " 
+      Xyce::dout() << "newExpression::getBreakPoints. Expression "
+        << expressionString_ << "  Number of breakpoints = "
         << breakPointTimes.size() <<std::endl;
       for (int ii=0;ii<breakPointTimes.size();ii++)
       {
-        Xyce::dout() << "bp["<<ii<<"] = " 
+        Xyce::dout() << "bp["<<ii<<"] = "
           << breakPointTimes[ii].value() <<std::endl;
       }
     }
@@ -2029,9 +2111,9 @@ bool newExpression::getBreakPoints (
 //                 so they can be fully resolved.
 //
 //                 The function DistToolBase::instantiateDevice calls this
-//                 function to handle subcircuit argument nodes.  This 
+//                 function to handle subcircuit argument nodes.  This
 //                 requires a 2-pass procedure to avoid conflicts.  A test
-//                 case where this is important is the bug 1806 test.  In 
+//                 case where this is important is the bug 1806 test.  In
 //                 the circuit bug_1806_2.cir, you have the following:
 //
 //                 .param upgefukt=1.5
@@ -2044,15 +2126,15 @@ bool newExpression::getBreakPoints (
 //
 //                 The parsed expression has the nodes m,n,o and p.
 //
-//                 But, these are names that are local to the subcircuit.  The 
+//                 But, these are names that are local to the subcircuit.  The
 //                 names  passed into the subcircuit are different.  More than
-//                 one of them (which originally had different names) become 
-//                 ground.  Also, the "internal" "node a" and the "external" 
+//                 one of them (which originally had different names) become
+//                 ground.  Also, the "internal" "node a" and the "external"
 //                 "node a" are different.
 //
-//                 To avoid conflicts, the node names are initially changed 
+//                 To avoid conflicts, the node names are initially changed
 //                 with a semicolon prefix.  This is normally an invalid character,
-//                 so a node named ";0" would never have come from the parser.  It 
+//                 so a node named ";0" would never have come from the parser.  It
 //                 can only have come from this procedure.  This is the first
 //                 pass.  The second pass basically removes all the semicolons.
 //
@@ -2061,8 +2143,8 @@ bool newExpression::getBreakPoints (
 // Creator       : Eric Keiter, SNL
 // Creation Date : 2020
 //-------------------------------------------------------------------------------
-bool newExpression::replaceName ( 
-    const std::string & old_name, 
+bool newExpression::replaceName (
+    const std::string & old_name,
     const std::string & new_name)
 {
   setupVariousAstArrays ();
@@ -2208,18 +2290,18 @@ void newExpression::treatAsTempAndConvert()
 //                 ERK.  Correction, it isn't quite true.    Currently (7/25/2020)
 //                 this function gets called thru at least two pathways.
 //
-//                 One is via the DeviceMgr::updateTemperature function.   The 
-//                 other is via the DeviceEntity::updateDependentParameters 
+//                 One is via the DeviceMgr::updateTemperature function.   The
+//                 other is via the DeviceEntity::updateDependentParameters
 //                 function, but only the one that has "temp" as a function argument.
 //                 That special version of "DeviceEntity::updateDependentParameters"
-//                 seems to only be called from the thermal resistor.  
+//                 seems to only be called from the thermal resistor.
 //
 //                 But the "updateTemperature" function is called from other places,
 //                 probably whenever .STEP is invoked on TEMP.  I think.  I haven't
 //                 tracked this down yet.
 //
-//                 Both of these pathways are used by the 
-//                 "MULTIPLICITY/thermal_resistor.cir" test case, which uses 
+//                 Both of these pathways are used by the
+//                 "MULTIPLICITY/thermal_resistor.cir" test case, which uses
 //                 a thermal resistor, and also performs a .STEP over temperature.
 //
 // Scope         :
@@ -2258,25 +2340,25 @@ void newExpression::processSuccessfulTimeStep ()
   // this is a kludge, to test an idea.
   // Two things that I don't like about it, but were convenient for now:
   // (1) using static data in the ast classes.
-  // (2) relying on "evaluateFunction" to process succesful time steps. 
+  // (2) relying on "evaluateFunction" to process succesful time steps.
   //     (i.e. rotate appropriate state data for SDT and DDT, but just once)
   //
   // The nice thing about both of these is that they allowed me to not
   // have to hack every AST class.  The evaluateFunction call will traverse
-  // the AST tree via the val() call.  So, I didn't have to add another 
-  // set of traversal functions.  I just had to hack in some conditional 
-  // code into the sdtOp and ddtOp val() functions.  The drawback is that 
+  // the AST tree via the val() call.  So, I didn't have to add another
+  // set of traversal functions.  I just had to hack in some conditional
+  // code into the sdtOp and ddtOp val() functions.  The drawback is that
   // it involves unncessary computational cost, etc.
   //
-  // The static data is for similar reasons.  I didn't feel like 
-  // doing the work (and all the typing) to do the same thing in a 
+  // The static data is for similar reasons.  I didn't feel like
+  // doing the work (and all the typing) to do the same thing in a
   // non-static way.
   //
   // Here is what I would like to do, but haven't done yet:
-  // (1) set up a new traversal function that will create a container of AST 
+  // (1) set up a new traversal function that will create a container of AST
   // nodes, which only contains nodes requiring state management.
-  // (2) then, after calling that new traversal function once, to set up 
-  // that container, use that container to do the state management required 
+  // (2) then, after calling that new traversal function once, to set up
+  // that container, use that container to do the state management required
   // at the end of each successful timem step.
   //
   if( !(sdtOpVec_.empty())  ||  !(ddtOpVec_.empty()) )

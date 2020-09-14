@@ -102,7 +102,6 @@ public:
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
 
   // ERK new expression stuff.  These kind of replace "get_names"
-  void getParams              (std::vector<std::string> & params) const;
   void getUnresolvedParams    (std::vector<std::string> & params) const;
   void getVoltageNodes        (std::vector<std::string> & nodes) const;
   void getDeviceCurrents      (std::vector<std::string> & devices) const;
