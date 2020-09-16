@@ -1229,7 +1229,7 @@ AST_GET_TIME_OPS(paramNode_)
     bool getIsAttached() { return isAttached_; }
 
     // the param type can be .param, .global_param or a subcircuit argument
-    // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUCKT_ARG_PARAM}
+    // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUBCKT_ARG_PARAM}
     void setParamType(enumParamType type) { paramType_ = type; }
     void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }
     enumParamType getParamType() { return paramType_; }
