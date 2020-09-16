@@ -239,25 +239,6 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
-  // set up names vectors for voltages, currents and leads, params.
-  {
-    for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
-    {
-      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
-      std::string tmp = leadCurrOp->getLeadCurrentDevice();
-      leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
-    }
-
-#if 0
-    for (int ii=0;ii<paramOpVec_.size();++ii)
-    {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      std::string tmp = parOp->getName();
-      paramOpMap_[tmp].push_back(paramOpVec_[ii]);
-    }
-#endif
-  }
-
   // if dependent on a special, add relevant specials node to the relevant specials vector
   if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
   {
@@ -498,7 +479,6 @@ void newExpression::clear ()
   leadCurrentNameVec_.clear();
   leadCurrentExcludeBsrcNameVec_.clear();
   leadCurrentOpVec_.clear();
-  leadCurrentOpMap_.clear();
 
   bsrcCurrentOpVec_.clear();
 
@@ -550,48 +530,6 @@ void newExpression::clear ()
   derivNodeIndexMap_.clear();
 
   return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_type
-// Purpose       : Finds the type of an input quantity name
-//
-// Special Notes : This is only called from N_TOP_CktNode_Dev.C, in the
-//                 function: CktNode_Dev::getDepSolnVars.  It only needs to
-//                 detect 3 types:  XEXP_NODE, XEXP_INSTANCE and  XEXP_LEAD
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int newExpression::get_type ( const std::string & var )
-{
-  setupVariousAstArrays();
-  int retVal=0;
-  std::string tmpName = var;
-  Xyce::Util::toUpper(tmpName);
-
-  if ( voltOpMap_.find(tmpName) != voltOpMap_.end() )
-  {
-    retVal = XEXP_NODE;
-  }
-  else if ( currentOpMap_.find(tmpName) != currentOpMap_.end() )
-  {
-    retVal = XEXP_INSTANCE;
-  }
-  else if ( leadCurrentOpMap_.find(tmpName) != leadCurrentOpMap_.end() )
-  {
-    retVal = XEXP_LEAD;
-  }
-  else
-  {
-    //dumpParseTree(Xyce::dout());
-    Xyce::Report::UserError()
-      << "Error. Xyce::Util::newExpression::get_type.  Cannot find type for " << var
-      << " in expression: " << getExpressionString()  <<std::endl;
-  }
-
-  return retVal;
 }
 
 //-------------------------------------------------------------------------------
@@ -1061,11 +999,16 @@ void newExpression::setupVariousAstArrays()
 
         for (int jj=0;jj<tmp.size();++jj)
         {
-          voltOpMap_[tmp[jj]].push_back(voltOpVec_[ii]);
-          std::vector<std::string>::iterator nameIter = std::find(voltNameVec_.begin(),voltNameVec_.end(), tmp[jj] );
-          if ( nameIter == voltNameVec_.end() )
+          if ( voltOpMap_.find(tmp[jj]) == voltOpMap_.end() )
           {
+            std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+            vec.push_back(voltOpVec_[ii]);
+            voltOpMap_[tmp[jj]] = vec;
             voltNameVec_.push_back( tmp[jj] );
+          }
+          else
+          {
+            voltOpMap_[tmp[jj]].push_back(voltOpVec_[ii]);
           }
         }
       }
@@ -1076,22 +1019,26 @@ void newExpression::setupVariousAstArrays()
       {
         Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
         std::string tmp = currOp->getCurrentDevice();
-        currentOpMap_[tmp].push_back(currentOpVec_[ii]);
-        std::vector<std::string>::iterator nameIter = std::find(currentNameVec_.begin(),currentNameVec_.end(), tmp);
-        if ( nameIter == currentNameVec_.end() )
+
+        if ( currentOpMap_.find(tmp) == currentOpMap_.end() )
         {
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+          vec.push_back(currentOpVec_[ii]);
+          currentOpMap_[tmp] = vec;
           currentNameVec_.push_back( tmp );
+        }
+        else
+        {
+          currentOpMap_[tmp].push_back(currentOpVec_[ii]);
         }
       }
 
-      leadCurrentOpMap_.clear();
       leadCurrentNameVec_.clear();
       leadCurrentExcludeBsrcNameVec_.clear();
       for (int ii=0;ii<leadCurrentOpVec_.size();++ii)
       {
         Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
         std::string tmp = leadCurrOp->getLeadCurrentDevice();
-        leadCurrentOpMap_[tmp].push_back(leadCurrentOpVec_[ii]);
 
         std::string tmpName = leadCurrentOpVec_[ii]->getName();
 
@@ -1171,7 +1118,7 @@ void newExpression::setupVariousAstArrays()
 
         if (paramOpMap_.find(tmp) == paramOpMap_.end())
         {
-          std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
           vec.push_back(paramOpVec_[ii]);
           paramOpMap_[tmp] = vec;
 
@@ -1272,127 +1219,6 @@ void newExpression::setupVariousAstArrays()
 
 #define NEW_EXP_ADD_TO_VEC2(VEC1,VEC2) \
   if ( !(VEC2.empty()) ) { for (int ii=0;ii<VEC2.size();ii++) { VEC1.push_back(VEC2[ii]); } }
-
-//-------------------------------------------------------------------------------
-// Function      : newExpression::addToVariousAstArrays_
-//
-// Purpose       : This function is an alternative to setupVariousAstArrays_.
-//
-//                 Whenever the AST tree is expanded by attaching new nodes to
-//                 it, the various book keeping containers are incomplete and need
-//                 to be updated.
-//
-//                 setupVariousAstArrays_ builds up various bookeeping containers
-//                 by traversing the AST tree, and conditionally pushing back
-//                 onto those containers.
-//
-//                 This function instead grabs the containers from the new "attach"
-//                 expression, and then adds to the existing ones via std::insert
-//                 commands.
-//
-//                 I thought that this method (using std::insert, and not traversing
-//                 the tree) would be faster.  In practice it is much slower.   For small
-//                 expressions and trees, either works fine.  But for really large
-//                 objects, using this method is around 10x slower.  That surprised me,
-//                 and possibly I'm missing something.  But as it is so much slower,
-//                 this function is not called.
-//
-//                 Back when it was called, it was called at the bottom of the
-//                 functions "attachParameterNode" and "attachFunctionNode"
-//
-//                 So, this function is probably obsolete, but I haven't deleted it
-//                 yet b/c it is mysterious to me why it is so much slower.  Part
-//                 of me thinks it should still be faster, if only I can figure
-//                 out the issue.
-//
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 7/23/2020
-//-------------------------------------------------------------------------------
-void newExpression::addToVariousAstArrays_
-   (const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
-{
-  if( !(Teuchos::is_null(expPtr)) )
-  {
-    NEW_EXP_ADD_TO_VEC1(paramOpVec_, expPtr->getParamOpVec ());
-    NEW_EXP_ADD_TO_VEC1(funcOpVec_, expPtr->getFuncOpVec ());
-    NEW_EXP_ADD_TO_VEC1(voltOpVec_, expPtr->getVoltOpVec ());
-    NEW_EXP_ADD_TO_VEC1(currentOpVec_, expPtr->getCurrentOpVec ());
-    NEW_EXP_ADD_TO_VEC1(leadCurrentOpVec_, expPtr->getLeadCurrentOpVec ());
-    NEW_EXP_ADD_TO_VEC1(bsrcCurrentOpVec_, expPtr->getBsrcCurrentOpVec ());
-    NEW_EXP_ADD_TO_VEC1(powerOpVec_, expPtr->getPowerOpVec ());
-    NEW_EXP_ADD_TO_VEC1(internalDevVarOpVec_, expPtr->getInternalDevVarOpVec ());
-    NEW_EXP_ADD_TO_VEC1(dnoNoiseDevVarOpVec_, expPtr->getDnoNoiseDevVarOpVec ());
-    NEW_EXP_ADD_TO_VEC1(dniNoiseDevVarOpVec_, expPtr->getDniNoiseDevVarOpVec ());
-    NEW_EXP_ADD_TO_VEC1(oNoiseOpVec_, expPtr->getONoiseOpVec ());
-    NEW_EXP_ADD_TO_VEC1(iNoiseOpVec_, expPtr->getINoiseOpVec ());
-    NEW_EXP_ADD_TO_VEC1(sdtOpVec_, expPtr->getSdtOpVec ());
-    NEW_EXP_ADD_TO_VEC1(ddtOpVec_, expPtr->getDdtOpVec ());
-    NEW_EXP_ADD_TO_VEC1(srcAstNodeVec_, expPtr->getSrcNodeVec ());
-    NEW_EXP_ADD_TO_VEC1(stpAstNodeVec_, expPtr->getStpNodeVec ());
-    NEW_EXP_ADD_TO_VEC1(compAstNodeVec_, expPtr->getCompNodeVec ());
-    NEW_EXP_ADD_TO_VEC1(phaseOpVec_, expPtr->getPhaseOpVec ());
-    NEW_EXP_ADD_TO_VEC1(sparamOpVec_, expPtr->getSparamOpVec ());
-    NEW_EXP_ADD_TO_VEC1(yparamOpVec_, expPtr->getYparamOpVec ());
-    NEW_EXP_ADD_TO_VEC1(zparamOpVec_, expPtr->getZparamOpVec ());
-
-    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::const_iterator newIter;
-
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newVoltMap = expPtr->getVoltOpMap();
-    for (newIter=newVoltMap.begin(); newIter != newVoltMap.end(); ++newIter)
-    {
-      const std::string & tmp = newIter->first;
-      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      voltOpMap_[tmp].insert( voltOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
-    }
-
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newCurrentNames = expPtr->getCurrentOpMap();
-    for (newIter=newCurrentNames.begin(); newIter != newCurrentNames.end(); ++newIter)
-    {
-      const std::string & tmp = newIter->first;
-      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      currentOpMap_[tmp].insert( currentOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
-    }
-
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newLeadCurrentNames = expPtr->getLeadCurrentOpMap();
-    for (newIter=newLeadCurrentNames.begin(); newIter != newLeadCurrentNames.end(); ++newIter)
-    {
-      const std::string & tmp = newIter->first;
-      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      leadCurrentOpMap_[tmp].insert( leadCurrentOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
-    }
-
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & newParamMap = expPtr->getParamOpMap();
-    for (newIter=newParamMap.begin(); newIter != newParamMap.end(); ++newIter)
-    {
-      const std::string & tmp = newIter->first;
-      const std::vector<Teuchos::RCP<astNode<usedType> > > & newAstOpVec = newIter->second;
-      paramOpMap_[tmp].insert( paramOpMap_[tmp].end(), newAstOpVec.begin(), newAstOpVec.end());
-    }
-
-    expPtr->getTimeNodes(timeOpVec_);
-    expPtr->getDtNodes(dtOpVec_);
-    expPtr->getTempNodes(tempOpVec_);
-    expPtr->getVtNodes(vtOpVec_);
-    expPtr->getFreqNodes(freqOpVec_);
-    expPtr->getGminNodes(gminOpVec_);
-  }
-
-  isTimeDependent_ = !( timeOpVec_.empty() && dtOpVec_.empty() );
-  isTempDependent_ = !(tempOpVec_.empty());
-  isVTDependent_   = !(vtOpVec_.empty());
-  isFreqDependent_ = !(freqOpVec_.empty());
-  isGminDependent_ = !(gminOpVec_.empty());
-
-
-  if ( !(Teuchos::is_null(group_)) )
-  {
-    if  ( !(sparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("S")); }
-    if  ( !(yparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Y")); }
-    if  ( !(zparamOpVec_.empty()) ) { group_->setRFParamsRequested(std::string("Z")); }
-  }
-}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::checkIsConstant_
@@ -2154,7 +1980,6 @@ bool newExpression::replaceName (
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpMap_.find(old_name);
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpMap_.find(new_name);
 
-
     if (iter != voltOpMap_.end())
     {
       std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
@@ -2170,7 +1995,7 @@ bool newExpression::replaceName (
         std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
         astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
       }
-      else
+      else // "new" name does not exist
       {
         voltOpMap_[new_name] = astVec;
       }

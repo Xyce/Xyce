@@ -326,6 +326,7 @@ private:
 protected:
   std::vector<int>            expVarGIDs;
   std::vector<int>            expVarLIDs;
+  std::vector<int>            expVarTypes;
   std::vector<std::string>    expVarNames;
   std::vector<double>         expVarVals;
   std::vector<double>         eVarVals;

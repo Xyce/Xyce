@@ -189,20 +189,21 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
     if ( !checkGroundNodeName(voltageNodes[0]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
-      std::vector<std::string>::iterator nameIter = std::find(voltNameVec.begin(),voltNameVec.end(), voltageNodes[0] );
-      if ( nameIter == voltNameVec.end() )
+      if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
       {
         Teuchos::RCP<voltageOp<usedType> > * voltPtr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes));
         tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
         newExp.getVoltOpVec ().push_back(*voltPtr);
         voltNameVec.push_back( voltageNodes[0] );
-        voltOpMap[ voltageNodes[0] ].push_back(*voltPtr);
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(*voltPtr);
+        voltOpMap[ voltageNodes[0] ] = vec;
         delete voltPtr;
       }
       else
       {
-        int index = std::distance(voltNameVec.begin(),nameIter);
-        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpVec[index]);
+        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[0]][0]);
         tmpPtr = tmpPtr2;
       }
     }
@@ -226,8 +227,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
     if ( !checkGroundNodeName( voltageNodes[0]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
-      std::vector<std::string>::iterator nameIter = std::find(voltNameVec.begin(),voltNameVec.end(), voltageNodes[0] );
-      if ( nameIter == voltNameVec.end() )
+      if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
       {
         std::vector<std::string> nodes1;
         nodes1.push_back(voltageNodes[0]);
@@ -235,13 +235,15 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
         tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*volt1Ptr);
         voltOpVec.push_back(*volt1Ptr);
         voltNameVec.push_back( voltageNodes[0] );
-        voltOpMap[ voltageNodes[0] ].push_back(*volt1Ptr);
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(*volt1Ptr);
+        voltOpMap[ voltageNodes[0] ] = vec;
         delete volt1Ptr;
       }
       else
       {
-        int index = std::distance(voltNameVec.begin(),nameIter);
-        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpVec[index]);
+        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[0]][0]);
         tmp1Ptr = tmpPtr2;
       }
     }
@@ -255,8 +257,7 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
     if ( !checkGroundNodeName( voltageNodes[1]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
-      std::vector<std::string>::iterator nameIter = std::find(voltNameVec.begin(),voltNameVec.end(), voltageNodes[1] );
-      if ( nameIter == voltNameVec.end() )
+      if ( voltOpMap.find( voltageNodes[1] ) == voltOpMap.end() )
       {
         std::vector<std::string> nodes2;
         nodes2.push_back(voltageNodes[1]);
@@ -264,13 +265,15 @@ Teuchos::RCP<astNode<usedType> > * createVoltageOp(
         tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*volt2Ptr);
         voltOpVec.push_back(*volt2Ptr);
         voltNameVec.push_back( voltageNodes[1] );
-        voltOpMap[ voltageNodes[1] ].push_back(*volt2Ptr);
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(*volt2Ptr);
+        voltOpMap[ voltageNodes[1] ] = vec;
         delete volt2Ptr;
       }
       else
       {
-        int index = std::distance(voltNameVec.begin(),nameIter);
-        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpVec[index]);
+        Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[1]][0]);
         tmp2Ptr = tmpPtr2;
       }
     }
@@ -383,8 +386,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
     std::vector<std::string> & currentNameVec = newExp.getCurrentNameVec ();
     std::vector<Teuchos::RCP<astNode<usedType> > > & currentOpVec = newExp.getCurrentOpVec ();
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currentOpMap = newExp.getLocalCurrentOpMap ();
-    std::vector<std::string>::iterator nameIter = std::find(currentNameVec.begin(),currentNameVec.end(), originalDeviceName);
-    if ( nameIter == currentNameVec.end() )
+    if ( currentOpMap.find(originalDeviceName) == currentOpMap.end() )
     {
       Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(originalDeviceName));
       tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
@@ -403,13 +405,15 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
         }
       }
       currentNameVec.push_back( originalDeviceName );
-      currentOpMap[originalDeviceName].push_back(*currentPtr);
+
+      std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+      vec.push_back(*currentPtr);
+      currentOpMap[originalDeviceName] = vec;
       delete currentPtr;
     }
     else
     {
-      int index = std::distance(currentNameVec.begin(),nameIter);
-      Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(currentOpVec[index]);
+      Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(currentOpMap[ originalDeviceName  ][0]);
       newExp.getMasterNodeVec().push_back(tmpPtr2);
       tmpPtr = tmpPtr2;
     }

@@ -54,7 +54,6 @@
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
-#include <N_UTL_Interface_Enum_Types.h>
 
 namespace Xyce {
 namespace Util {
@@ -220,23 +219,6 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
 const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 {
   return newExpPtr_->getFunctionArgStringVec();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_type
-// Purpose       : Finds the type of an input quantity name
-//
-// Special Notes : This is only called from N_TOP_CktNode_Dev.C, in the 
-//                 function: CktNode_Dev::getDepSolnVars.  It only needs to 
-//                 detect 3 types:  XEXP_NODE, XEXP_INSTANCE and  XEXP_LEAD
-//
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::get_type ( const std::string & var )
-{
-  return newExpPtr_->get_type(var);
 }
 
 //-----------------------------------------------------------------------------

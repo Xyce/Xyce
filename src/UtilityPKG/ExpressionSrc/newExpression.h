@@ -63,17 +63,17 @@ namespace Xyce {
 namespace Util {
 
 template <typename ScalarA>
-inline void fixNan(ScalarA & result) { if (isnan(std::real(result))) { result = 0.0; } }
+inline void fixNan(ScalarA & result) { if (std::isnan(std::real(result))) { result = 0.0; } }
 
 template <>
 inline void fixNan(std::complex<double> & result)
 {
-  if (isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; }
-  if (isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; }
+  if (std::isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; }
+  if (std::isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; }
 }
 
 template <typename ScalarA>
-inline void fixInf(ScalarA & result) { if (isinf(std::real(result))) { bool neg = std::signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
+inline void fixInf(ScalarA & result) { if (std::isinf(std::real(result))) { bool neg = std::signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
 
 template <>
 inline void fixInf(std::complex<double> & result) 
@@ -81,8 +81,8 @@ inline void fixInf(std::complex<double> & result)
   bool negReal = std::signbit(std::real(result));
   bool negImag = std::signbit(std::imag(result));
 
-  if (isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
-  if (isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
+  if (std::isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
+  if (std::isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
 }
 
 //-----------------------------------------------------------------------------
@@ -353,10 +353,8 @@ public:
     leadCurrentNameVec_(right.leadCurrentNameVec_),
     leadCurrentExcludeBsrcNameVec_(right.leadCurrentExcludeBsrcNameVec_),
     leadCurrentOpVec_(right.leadCurrentOpVec_),
-    leadCurrentOpMap_(right.leadCurrentOpMap_),
 
     bsrcCurrentOpVec_(right.bsrcCurrentOpVec_),
-    //bsrcCurrentOpMap_(right.bsrcCurrentOpMap_),
 
     powerOpVec_(right.powerOpVec_),
     internalDevVarOpVec_(right.internalDevVarOpVec_),
@@ -480,10 +478,8 @@ public:
     leadCurrentNameVec_ = right.leadCurrentNameVec_;
     leadCurrentExcludeBsrcNameVec_ = right.leadCurrentExcludeBsrcNameVec_;
     leadCurrentOpVec_ = right.leadCurrentOpVec_;
-    leadCurrentOpMap_ = right.leadCurrentOpMap_;
 
     bsrcCurrentOpVec_ = right.bsrcCurrentOpVec_;
-    //bsrcCurrentOpMap_ = right.bsrcCurrentOpMap_;
 
     powerOpVec_ = right.powerOpVec_;
     internalDevVarOpVec_ = right.internalDevVarOpVec_;
@@ -610,8 +606,6 @@ public:
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
-  int get_type ( const std::string & var );
-
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
   bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
@@ -737,20 +731,8 @@ public:
   std::vector<std::string> & getLeadCurrentNameVec () { return leadCurrentNameVec_; }
   std::vector<std::string> & getLeadCurrentExcludeBsrcNameVec () { return leadCurrentExcludeBsrcNameVec_; }
   std::vector<Teuchos::RCP<astNode<usedType> > > & getLeadCurrentOpVec () { return leadCurrentOpVec_; };
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getLeadCurrentOpMap ()
-  {
-    setupVariousAstArrays ();
-    return leadCurrentOpMap_;
-  }
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getBsrcCurrentOpVec () { return bsrcCurrentOpVec_; };
-#if 0
-  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getBsrcCurrentOpMap ()
-  {
-    setupVariousAstArrays ();
-    return bsrcCurrentOpMap_;
-  }
-#endif
 
   void codeGen( std::ostream & os )
   {
@@ -889,7 +871,6 @@ public:
 
 private:
   void setupDerivatives_ ();
-  void addToVariousAstArrays_ (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   void checkIsConstant_();
   bool getValuesFromGroup_();
 
@@ -922,16 +903,15 @@ private:
 
   std::vector<std::string> voltNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpMap_; // used by replaceName, get_type
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpMap_; // used by replaceName
 
   std::vector<std::string> currentNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpMap_; // used by replaceName, get_type
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpMap_; // used by replaceName
 
   std::vector<std::string> leadCurrentNameVec_;
   std::vector<std::string> leadCurrentExcludeBsrcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > leadCurrentOpVec_;
-  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > leadCurrentOpMap_; // used by get_type ONLY.
 
   std::vector<Teuchos::RCP<astNode<usedType> > > bsrcCurrentOpVec_;
 

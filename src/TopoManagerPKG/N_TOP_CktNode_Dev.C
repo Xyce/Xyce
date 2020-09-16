@@ -295,35 +295,26 @@ void CktNode_Dev::registerDepLIDswithDev(
 //-----------------------------------------------------------------------------
 void CktNode_Dev::getDepSolnVars(std::vector<NodeID> & dsVars )
 {
-  // Get dependent solution variables from the device and the Depend structure to determine which node type to look for in the graph.
+  // Get dependent solution variables and types from the device to determine which node type to use in the graph.
   dsVars.clear();
-
   const std::vector<std::string> &solution_variables = deviceInstance_->getDepSolnVars();
-  for (std::vector<std::string>::const_iterator it_sV = solution_variables.begin(), it_sV_end = solution_variables.end(); it_sV != it_sV_end; ++it_sV )
+  const std::vector<int> &solution_types = deviceInstance_->getDepSolnTypes ();
+  for (int ii=0;ii<solution_variables.size();ii++)
   {
-    bool found = false;
-    const std::vector<Device::Depend> &depParams = deviceInstance_->getDependentParams();
-    for (std::vector<Device::Depend>::const_iterator it_sdV = depParams.begin(), it_sdV_end = depParams.end(); it_sdV != it_sdV_end; ++it_sdV )
+    int type = solution_types[ii];
+    if (type == XEXP_NODE)
     {
-      int type = (it_sdV->expr)->get_type( *it_sV );
-      if (type == XEXP_NODE)
-      {
-        dsVars.push_back( NodeID( *it_sV, _VNODE ) );
-        found = true;
-        break;
-      }
-      if (type == XEXP_INSTANCE || type == XEXP_LEAD)
-      {
-        dsVars.push_back( NodeID( *it_sV, _DNODE ) );
-        found = true;
-        break;
-      }
+      dsVars.push_back( NodeID( solution_variables[ii], _VNODE ) ); 
+    }
+    else if (type == XEXP_INSTANCE || type == XEXP_LEAD)
+    {
+      dsVars.push_back( NodeID( solution_variables[ii], _DNODE ) ); 
     }
     // Punt if the node has not been found, hope that the graph only
     // has one node associated with this name.
-    if (!found)
+    else
     {
-      dsVars.push_back(NodeID( *it_sV, -1 ));
+      dsVars.push_back(NodeID( solution_variables[ii], -1 ));
     }
   }
 }

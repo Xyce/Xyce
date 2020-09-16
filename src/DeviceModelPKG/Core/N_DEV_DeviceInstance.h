@@ -118,6 +118,7 @@ public:
   {}
 
   virtual const std::vector<std::string> & getDepSolnVars();
+  virtual const std::vector<int> & getDepSolnTypes();
   virtual void registerDepSolnGIDs( const std::vector< IdVector > & varList );
 
   virtual void registerDepSolnLIDs(const std::vector< IdVector > & depSolnLIDVecRef);

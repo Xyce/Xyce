@@ -62,6 +62,7 @@ using std::tr1::unordered_map;
 #include <N_UTL_Expression.h>
 #include <N_UTL_FeatureTest.h>
 #include <deviceExpressionGroup.h>
+#include <N_UTL_Interface_Enum_Types.h>
 
 namespace Xyce {
 namespace Device {
@@ -1012,6 +1013,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   names.insert( names.end(), nodes.begin(), nodes.end() );
+  std::vector<int> types(nodes.size(), XEXP_NODE);
 
   if (leads.size() > 0)
   {
@@ -1032,9 +1034,14 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
     }
     names.insert( names.end(), leads.begin(), leads.end() );
+
+    int oldSize=types.size();
+    types.resize(oldSize+leads.size(), XEXP_LEAD);
   }
 
   names.insert( names.end(), instances.begin(), instances.end() );
+  int oldSize=types.size();
+  types.resize(oldSize+instances.size(), XEXP_INSTANCE);
 
   dependentParam.lo_var = expVarNames.size();
   dependentParam.n_vars = names.size();
@@ -1044,11 +1051,24 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   expVarLIDs.resize(expVarLen);
   expVarVals.resize(expVarLen);
 
+#if 0
+  // ERK.  Does this "variables" insert matter at all?  
+  // names is a local variable, and it doesn't look like this 
+  // part of the array (the part that goes beyond n_vars) is ever 
+  // accessed after this.
   if (!variables.empty())
-    names.insert( names.end(), variables.begin(), variables.end() );
+  {
+    names.insert( names.end(), variables.begin(), variables.end() ); 
+    int oldSize=types.size();
+    types.resize(oldSize+variables.size(), XEXP_VARIABLE);
+  }
+#endif
 
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
+  {
     expVarNames.push_back(names[i]);
+    expVarTypes.push_back(types[i]);
+  }
 
   dependentParam.global_params.clear();
   if (!variables.empty())
