@@ -289,8 +289,10 @@ via the \texttt{.PRINT NOISE} line for devices that support stationary noise.
   \texttt{X1:V3}) inside the subcircuit.
 
 \item Wildcards are partially supported on \texttt{.PRINT}
-  lines. \texttt{V(*)} will print all of the node voltages in the
-  circuit.  \texttt{I(*)} will print all of the currents that are
+  lines. \texttt{V(*)} will print all of the node voltages in
+  the circuit for all analysis modes.  The \texttt{P(*)} and
+  \texttt{W(*)} wildcards are supported for TRAN and DC analyses.
+  \texttt{I(*)} will print all of the currents that are
   solution variables, which generally means those associated with
   voltage sources and inductors that are not coupled through a mutual
   inductance device.  Most other devices that have lead currents
