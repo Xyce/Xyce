@@ -236,27 +236,8 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::make_var
-//
 // Purpose       : Convert a 'string' placeholder into a variable
-//
-// Special Notes : I set up the new expression library to compute derivatives 
-//                 with respect to any voltage nodes and also any source 
-//                 currents present in the expression.  I did not set up the new
-//                 expression library to compute derivatives w.r.t. parameters.
-//                 This seemed like a fraught exercise, as params and 
-//                 global_params were often just proxies for other, complicated 
-//                 expressions.  Why differentiate them? why not differentiation 
-//                 something more atomistic?
-//
-//                 But there was a solution.  The old expresison library also 
-//                 only assumed you wanted voltages and currents differentiated.  
-//                 There is a "make_var" function, which allows you to tag 
-//                 certain variables as needing differentiation.  This is useful
-//                 for Xyce::Util::newExpression as well, for obvious reasons.
-//
-//                 For the reasons given above, make_var can only operate on
-//                 paramOp classes.
-//
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08

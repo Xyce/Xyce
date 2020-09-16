@@ -610,7 +610,74 @@ bool newExpression::make_constant (
 //                 a specified parameter. In the old API, this means two things:
 //                   (1) it is a global parameter rather than a regular parameter.
 //                   (2) it should have derivatives computed.
-// Special Notes :
+//
+//                 In the new code, it doesn't mean that. See special notes.
+//
+// Special Notes : As the code is currently written, this function doesn't
+//                 serve a legitimate purpose.  Once I can figure out a way to
+//                 safely remove it, I plan to do that.  It is currently used,
+//                 so I can't just rip it out; some code will need refactoring.
+//
+//                 Very few applications in the code require derivatives to be
+//                 computed, and generally make_var parameters don't actually
+//                 need derivatives associated with them.    So, the (2) purpose,
+//                 above, is a bad idea.  It overloads the purpose of make_var
+//                 in a silly way.  But that isn't the worst part.
+//
+//                 make_var is called in the N_IO_CircuitContext class.  It
+//                 is also called from sensitivities, but in exactly the same
+//                 pattern as the circuit constext.   So, it is really only needed
+//                 in one scenario - parameter is not found during parsing, but
+//                 is (hopefully) still a valid parameter.
+//
+//                 make_var is only called when an unresolved parameter in the
+//                 expression cannot be resolved.  ie, Xyce cannot find a .param
+//                 or a .global_param of that name.  So, it doesn't attach
+//                 anything.  (if it found one of these parameters, it would attach
+//                 it)
+//
+//                 If a parameter has a make_var called on it, that means that
+//                 it is very similar to a parameter which has make_const.  Both
+//                 are "unattached", and just have values assigned to them.
+//                 Generally, make_const can be either a .param or a .global_param,
+//                 but a make_var has to be a .global_param.
+//
+//                 when make_const is called, a value is passed in, and the parameter
+//                 henceforth has that value.
+//
+//                 when make_var is called, no value is passed in.
+//
+//                 In the group classes, this funciton is called for any parameter
+//                 which has been designated by make_var:
+//
+//                    group_->getGlobalParameterVal(parOp->getName(),val)
+//
+//                 But here is the mystery.  For "getGlobalParameterVal" to work, it is
+//                 necessary that the parameter be "findable" by the group. ie, it must
+//                 exist.
+//
+//                 In the Xyce groups that implement this function (main, device
+//                 and outputs groups), they all query the device manager for the value
+//                 of a global parameter.  So, more confirmation that the "make_var"
+//                 parameter exists, and was specified as a global parameter.
+//
+//                 So, if it exists and was specified as a global parameter, it should have
+//                 simply been attached.  The make_var call should not have been necessary.
+//
+//                 UPDATE:  the reason that make_var is necessary at all is that
+//                 the "attach" function calls (attachParameter and attachFunction)
+//                 only search thru the lists of resolved parameters, global parameters
+//                 and functions.  They do NOT search the unresolved ones.  It seems
+//                 to me that there is no reason to do this with the new expression
+//                 library.  Just attach what you find.   It doesn't matter if it gets
+//                 resolved before or after the attachment.  This makes me wonder
+//                 how many of these things that could get attached never get
+//                 attached, and how much time is wasted on the getGlobalParameterVal
+//                 calls.
+//
+//                 This might make the "changed" logic more tricky, if I make
+//                 this change, but that should be OK.
+//
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : ??
@@ -1381,6 +1448,21 @@ bool newExpression::getValuesFromGroup_()
     if (val != oldval) noChange=false;
   }
 
+  // ERK: I plan to refactor the code to get rid of the "make_var" function.
+  // Once I've done that, then this block of code for paramOps can probably be deleted.
+  // This loop only sets values for parameters that have been tagged as "isVar" via the
+  // "make_var" function call.  That function is a holdover from the old expression
+  // library.
+  //
+  // The parser is set up  so that it can only resolve params in an expression that have
+  // been previously "resolved".  If an expression contains an unresolvable parameters
+  // (and it is only unresolvable because of the order of operations in the parser) then
+  // it gets the "make_var" treatment.
+  //
+  // For the old expression library this was necessary, b/c if a parameter hasn't been
+  // processed yet, then you can't use it as a string substitution.  But the new
+  // expression library doesn't have this problem.  It just needs to attach the parameter
+  // node.  So, if the parameter exists, resolved or not, it is attachable.
   for (int ii=0;ii<paramOpVec_.size();++ii)
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
@@ -1389,8 +1471,27 @@ bool newExpression::getValuesFromGroup_()
     {
       usedType val;
       usedType oldval = parOp->getValue();
-      group_->getGlobalParameterVal(parOp->getName(),val); // ERK: this function name is misleading, as it retrieves stuff that isn't necessarily a global param.  Fix.
+      group_->getGlobalParameterVal(parOp->getName(),val);
       parOp->setValue(val);
+
+#if 0
+      std::cout << " getting a parameter value from the group! for expression =  " << expressionString_
+        << " param = " << parOp->getName() << " value = " << val;
+
+      std::cout << " type = ";
+      if (parOp->getParamType() == DOT_GLOBAL_PARAM) { std::cout << "DOT_GLOBAL_PARAM"; }
+      else if (parOp->getParamType() == DOT_PARAM) { std::cout << "DOT_PARAM"; }
+      else if (parOp->getParamType() == SUBCKT_ARG_PARAM) { std::cout << "SUBCKT_ARG_PARAM"; }
+      else { std::cout << " unknown type "; }
+
+      std::cout << " isVar = ";
+      if (parOp->getIsVar()) { std::cout << " true"; }
+      else { std::cout << "false"; }
+
+      std::cout << " class ID = " << parOp->getId() << std::endl;
+      //parOp->output(std::cout);
+      dumpParseTree(std::cout);
+#endif
 
       if (val != oldval) noChange=false;
     }
