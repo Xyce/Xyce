@@ -1153,7 +1153,18 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
 
       if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
       {
-        std::cout << "just evaluated " << dpIter->expr->get_expression() << " val = " << rval;
+        const std::string & expr = dpIter->expr->get_expression();
+
+        if (expr.size() <= 100)
+        {
+          std::cout << "just evaluated " << dpIter->expr->get_expression() << " val = " << rval;
+        }
+        else
+        {
+          std::string shortExpr (expr,0,100);
+          std::cout << "just evaluated " << shortExpr << " ... " << " val = " << rval;
+        }
+
         if (changed==true) { std::cout << " changed=true"; }
         else { std::cout << " changed=false"; }
 
