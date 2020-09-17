@@ -3347,8 +3347,7 @@ class tableOp : public astNode<ScalarT>
     // functions:
     tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
       astNode<ScalarT>(), tableArgs_(*args),
-      allNumVal_(true), input_(input),
-      preComputedBreakpointsDone_(false)
+      allNumVal_(true), input_(input)
       {
         int size = tableArgs_.size();
         if (size % 2)
@@ -3604,23 +3603,31 @@ class tableOp : public astNode<ScalarT>
       os << "TABLE";
     }
 
-
-    virtual void setupBreakPoints() { preComputedBreakpointsDone_ = false; }
-
+    virtual void setupBreakPoints() {};
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
      if ( input_->timeSpecialType() )
      {
-       if (!preComputedBreakpointsDone_) // make sure this only happens once
+       ScalarT time = std::real(this->input_->val());
+       size_t size = ta_.size();
+       size_t index = yInterpolator_.binarySearch (ta_, time, 0, size - 1);
+
+       if ( std::real(ta_[index]) < std::real(time))
        {
-         double time = std::real(this->input_->val());
-         int size = tableArgs_.size();
-         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+         int tmp=index;
+         while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+         index = tmp;
+       }
+
+       if (index < size)
+       {
+         size_t max = index+1;
+         if ( max  > size ) { max = size; }
+         int ii=index;
+         for( ;ii<max;ii++)
          {
-           double bpTime =  std::real( (tableArgs_)[ii]->val() );
-           breakPointTimes.push_back( bpTime );
+           breakPointTimes.push_back( std::real(ta_[ii]) );
          }
-         preComputedBreakpointsDone_ = true;
        }
       }
       return true;
@@ -3753,7 +3760,6 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice
 
     Teuchos::RCP<astNode<ScalarT> > input_;
-    bool preComputedBreakpointsDone_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3768,13 +3774,12 @@ class interpolatorOp : public astNode<ScalarT>
     // functions:
     interpolatorOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
       astNode<ScalarT>(), tableArgs_(*args),
-      allNumVal_(true), input_(input),
-      preComputedBreakpointsDone_(false)
+      allNumVal_(true), input_(input)
       {
         int size = tableArgs_.size();
         if (size % 2)
         {
-          std::vector<std::string> errStr(1,std::string("AST node (table) needs an even number of arguments")); yyerror(errStr);
+          std::vector<std::string> errStr(1,std::string("AST node (spline) needs an even number of arguments")); yyerror(errStr);
         }
         else
         {
@@ -3799,7 +3804,7 @@ class interpolatorOp : public astNode<ScalarT>
         allNumVal_=true; int size = xvals.size(); int size2=yvals.size();
         if (size != size2)
         {
-          std::vector<std::string> errStr(1,std::string("AST node (table) needs x and y vectors to be the same size.")); yyerror(errStr);
+          std::vector<std::string> errStr(1,std::string("AST node (spline) needs x and y vectors to be the same size.")); yyerror(errStr);
         }
         ta_.resize(size); ya_.resize(size); 
 
@@ -3904,26 +3909,35 @@ class interpolatorOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       // fix this
-      os << "TABLE";
+      os << "SPLINE";
     }
-
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
      if ( input_->timeSpecialType() )
      {
-       if (!preComputedBreakpointsDone_) // make sure this only happens once
+       ScalarT time = std::real(this->input_->val());
+       size_t size = ta_.size();
+       size_t index = yInterpolator_.binarySearch (ta_, time, 0, size - 1);
+
+       if ( std::real(ta_[index]) < std::real(time))
        {
-         double time = std::real(this->input_->val());
-         int size = tableArgs_.size();
-         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
-         {
-           double bpTime =  std::real( (tableArgs_)[ii]->val() );
-           breakPointTimes.push_back( bpTime );
-         }
-         preComputedBreakpointsDone_ = true;
+         int tmp=index;
+         while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+         index = tmp;
        }
-      }
+
+       if (index < size)
+       {
+         size_t max = index+1;
+         if ( max  > size ) { max = size; }
+         int ii=index;
+         for( ;ii<max;ii++)
+         {
+           breakPointTimes.push_back( std::real(ta_[ii]) );
+         }
+       }
+     }
       return true;
     }
 
@@ -4056,7 +4070,6 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     //Xyce::Util::barycentricLagrange<ScalarT> yInterpolator_;
 
     Teuchos::RCP<astNode<ScalarT> > input_;
-    bool preComputedBreakpointsDone_;
 };
 
 //-------------------------------------------------------------------------------
