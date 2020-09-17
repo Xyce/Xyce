@@ -2858,7 +2858,7 @@ void removeStarVariables(
         }
         else if (devType == 'Q')
 	{
-          // one list for IB(*) IC(*) IE(*) for BJTs
+          // one list for IB(*) IC(*) IE(*) IS(*) for BJTs
           iBJT_list.insert(tmpStr);
           addIt=false;
         }
@@ -2868,7 +2868,7 @@ void removeStarVariables(
           iFET_list.insert(tmpStr);
           addIt=false;
 
-          // only MOSFETs support IB(*)
+          // only MOSFETs support IB(*) and IE(*)
           if (devType == 'M')
             iMOSFET_list.insert(tmpStr);
         }
