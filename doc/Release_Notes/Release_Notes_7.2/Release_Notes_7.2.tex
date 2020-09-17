@@ -100,6 +100,11 @@ please visit the \XyceTM{} web page at
     listing of the noise source names for each device in a netlist.
   \item The P(*) and W(*) wildcards are now supported on .PRINT lines
     for TRAN and DC analysis modes.
+  \item The I(*) wildcard is now supported on .PRINT lines for lead
+    currents, for most Xyce devices, for TRAN and DC analysis modes.
+    However, for multi-terminal devices, such as J, M, Q and Z,
+    explict lead current designators (e.g, IC(*) for Q devices) must
+    be used instead.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
