@@ -3137,12 +3137,14 @@ void removeStarVariables(
 
   Util::ParamList iStarList;   // I(*) for two terminal devices
   Util::ParamList iBStarBJTList;  // IB (base) for BJTs
-  Util::ParamList iCStarList;     // other BJT lead currents
-  Util::ParamList iEStarList;
-  Util::ParamList iBStarMOSFETList; // IB (bulk) for MOSFETs
+  Util::ParamList iCStarList;     // other BJT lead current
+  Util::ParamList iEStarBJTList;  // IB (emitter) for BJTs
+  Util::ParamList iBStarMOSFETList; // IB (body) for MOSFETs
+  Util::ParamList iEStarMOSFETList; // IE (bulk) for SOI MOSFETS
   Util::ParamList iDStarList;       // other lead currents for JFET, MESFET and MOSFETs
   Util::ParamList iGStarList;
-  Util::ParamList iSStarList;
+  Util::ParamList iSStarFETList;  // IS (source) for FETs
+  Util::ParamList iSStarBJTList;  // IS (substrate) for BJTs
 
   Util::ParamList pStarList;  // power
   Util::ParamList wStarList;
@@ -3192,13 +3194,21 @@ void removeStarVariables(
       else if ((*itI) == "IC")
         makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iCStarList));
       else if ((*itI) == "IE")
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarList));
+      {
+        // IE(*) is valid for both BJT and SOI MOSFETs
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarBJTList));
+        makeParamList((*itI), iMOSFET_all.begin(), iMOSFET_all.end(), std::back_inserter(iEStarMOSFETList));
+      }
       else if ((*itI) == "ID")
         makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iDStarList));
       else if ((*itI) == "IG")
         makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iGStarList));
       else if ((*itI) == "IS")
-        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarList));
+      {
+        // IS(*) is valid for both BJT and all FETs
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iSStarBJTList));
+        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarFETList));
+      }
       else
         makeParamList((*itI), i2T_all.begin(), i2T_all.end(), std::back_inserter(iStarList));
     }
@@ -3226,10 +3236,12 @@ void removeStarVariables(
   variable_list.splice(iStarPosition, iStarList);
   variable_list.splice(iStarPosition, iBStarBJTList);
   variable_list.splice(iStarPosition, iCStarList);
-  variable_list.splice(iStarPosition, iEStarList);
+  variable_list.splice(iStarPosition, iEStarBJTList);
+  variable_list.splice(iStarPosition, iSStarBJTList);
   variable_list.splice(iStarPosition, iDStarList);
   variable_list.splice(iStarPosition, iGStarList);
-  variable_list.splice(iStarPosition, iSStarList);
+  variable_list.splice(iStarPosition, iSStarFETList);
+  variable_list.splice(iStarPosition, iEStarMOSFETList);
   variable_list.splice(iStarPosition, iBStarMOSFETList);
   variable_list.splice(pStarPosition, pStarList);
   variable_list.splice(wStarPosition, wStarList);
