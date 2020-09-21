@@ -37,6 +37,7 @@
 #include <Teuchos_RCP.hpp>
 
 #include "location.hh"
+#include "position.hh"
 #include <N_ERH_Message.h>
 #include "ExpressionType.h"
 #include "ast.h"
@@ -59,7 +60,6 @@ class ExpressionLexer;
 %defines
 
 %name-prefix="XyceExpression"
-%require "3.2"
 
 // ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
 // I needed to use RCP's because expressions in Xyce get copied all
