@@ -3621,7 +3621,7 @@ class tableOp : public astNode<ScalarT>
 
        if (index < size)
        {
-         size_t max = index+1;
+         size_t max = index+5;
          if ( max  > size ) { max = size; }
          int ii=index;
          for( ;ii<max;ii++)
