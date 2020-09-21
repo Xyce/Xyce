@@ -2695,13 +2695,21 @@ void removeStarVariables(
       }
       else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I') )
       {
-        iStarFound = true;
-        iStarPosition = it;
-        --iStarPosition;
+        if (varType.find_first_of("0123456789") != std::string::npos)
+	{
+          // I1(*) and I2(*) wildcards (e.g., for the T-device) are not supported yet
+          Report::UserWarning() << ".PRINT wildcards not supported for " << varType << "(*)"<< std::endl;
+        }
+        else
+	{
+          iStarFound = true;
+          iStarPosition = it;
+          --iStarPosition;
 
-        // Keep a vector of the types of I-star requests.
-        // Examples are I(*),  IR(*), II(*) and IB(*).
-        iOpsRequested.push_back((*it).tag());
+          // Keep a vector of the types of I-star requests.
+          // Examples are I(*), IR(*), II(*) and IB(*).
+          iOpsRequested.push_back((*it).tag());
+        }
       }
       else if (varType == "P")
       {
@@ -2851,7 +2859,8 @@ void removeStarVariables(
           std::string basename=tmpStr.substr(i);
           if (startswith_nocase(basename,"YMIL")
               || startswith_nocase(basename,"YMIN")
-              || startswith_nocase(basename,"YGENEXT"))
+              || startswith_nocase(basename,"YGENEXT")
+              || startswith_nocase(basename,"YPG"))
           {
             addIt=false;
           }
@@ -2871,6 +2880,12 @@ void removeStarVariables(
           // only MOSFETs support IB(*) and IE(*)
           if (devType == 'M')
             iMOSFET_list.insert(tmpStr);
+        }
+        else if (devType == 'O' || devType == 'T')
+	{
+          // lead current wildcards of the form I1(*) and I2(*) are not
+          // supported yet.  So, omit the O and T devices.
+          addIt=false;
         }
 
         // i_list contains names of two-terminal devices with branch
@@ -2908,10 +2923,17 @@ void removeStarVariables(
           i=((i == std::string::npos)?0:i+1);
           std::string basename=tmpStr.substr(i);
           if (startswith_nocase(basename,"YMIL")
-              || startswith_nocase(basename,"YMIN"))
+              || startswith_nocase(basename,"YMIN")
+              || startswith_nocase(basename,"YGENEXT")
+              || startswith_nocase(basename,"YPG"))
           {
             addIt=false;
           }
+        }
+        else if (devType == 'O')
+        {
+          // other devices for which P() is not supported
+          addIt=false;
         }
 
         // There will be multiple entries in branch_vars for each multi-terminal
