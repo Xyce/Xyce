@@ -46,8 +46,8 @@ if( Xyce_REACTION_PARSER )
 
     include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
 endif()
-BISON_TARGET( XyceExpressionParser "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx" COMPILE_FLAGS "--graph -l")
-FLEX_TARGET( XyceExpressionLexer "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --prefix=exp")
+BISON_TARGET( XyceExpressionParser "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
+FLEX_TARGET( XyceExpressionLexer "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --full --prefix=exp")
 ADD_FLEX_BISON_DEPENDENCY( XyceExpressionLexer XyceExpressionParser  )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 
