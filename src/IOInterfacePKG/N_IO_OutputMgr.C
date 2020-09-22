@@ -2738,23 +2738,31 @@ void removeStarVariables(
       // the netlist.
       Util::ParamList::iterator prevIt = it;
       --prevIt;
-      if ((*prevIt).tag() == "V")
+      const std::string &varType = (*prevIt).tag();
+
+      if (varType == "V" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'V'))
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the V tag
         --prevIt; // rewind to before the V tag
-        vWildCardPosition = prevIt;
-        vWildCards.push_back(make_pair(prevIt,wildCardStr));
+        if (varType.size() == 1)
+	{
+          vWildCardPosition = prevIt;
+          vWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
       }
-      else if ((*prevIt).tag() == "I")
+      else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I'))
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the I tag
         --prevIt; // rewind to before the I tag
-        iWildCardPosition = prevIt;
-        iWildCards.push_back(make_pair(prevIt,wildCardStr));
+        if (varType.size() == 1)
+	{
+          iWildCardPosition = prevIt;
+          iWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
       }
-      else if ((*prevIt).tag() == "P")
+      else if (varType == "P")
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the P tag
@@ -2762,7 +2770,7 @@ void removeStarVariables(
         pWildCardPosition = prevIt;
         pWildCards.push_back(make_pair(prevIt,wildCardStr));
       }
-      else if ((*prevIt).tag() == "W")
+      else if (varType == "W")
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the P tag
