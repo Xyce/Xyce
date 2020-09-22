@@ -2,6 +2,9 @@
 set ( Expression_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/expressionGroup.C
   ${CMAKE_CURRENT_SOURCE_DIR}/newExpression.C
+  ${CMAKE_CURRENT_SOURCE_DIR}/deviceExpressionGroup.C
+  ${CMAKE_CURRENT_SOURCE_DIR}/mainXyceExpressionGroup.C
+  ${CMAKE_CURRENT_SOURCE_DIR}/outputsXyceExpressionGroup.C
   ${CMAKE_CURRENT_SOURCE_DIR}/xyceExpressionGroup.C)
 
 set ( XYCE_SOURCES ${XYCE_SOURCES} ${Expression_SOURCES} PARENT_SCOPE)
