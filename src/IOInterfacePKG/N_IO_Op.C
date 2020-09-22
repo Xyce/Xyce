@@ -50,6 +50,7 @@
 #include <N_PDS_Serial.h>
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_Marshal.h>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace IO {
