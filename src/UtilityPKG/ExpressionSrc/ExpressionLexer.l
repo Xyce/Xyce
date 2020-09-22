@@ -252,7 +252,21 @@ LEAD I[SDGBEC1-9]
 
  /* variants on voltage node ops */
 
-<INITIAL>{VOP}    {
+<INITIAL>{VOP}    |
+<INITIAL>"VDB"    |
+<INITIAL>{LEAD}   |
+<INITIAL>{IOP}    |
+<INITIAL>"IDB"    |
+<INITIAL>{NOP}    |
+<INITIAL>"NDB"    |
+<INITIAL>{SOP}    |
+<INITIAL>"SDB"    |
+<INITIAL>{YOP}    |
+<INITIAL>"YDB"    |
+<INITIAL>{ZOP}    |
+<INITIAL>"ZDB"    |
+<INITIAL>"DNO"    |
+<INITIAL>"DNI"    {
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
@@ -262,11 +276,6 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
-}
-
-<INITIAL>"VDB"    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
 <INITIAL>"VDB"[ \t]*"("     {
@@ -291,21 +300,11 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
 
-<INITIAL>{LEAD}     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>{LEAD}[ \t]*"("    {
   BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_LEAD;
-} 
-
-<INITIAL>{IOP}     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 } 
 
 <INITIAL>{IOP}[ \t]*"("    {
@@ -315,11 +314,6 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_CURRENT;
 } 
 
-
-<INITIAL>"IDB"     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-} 
 
 <INITIAL>"IDB"[ \t]*"("    {
   BEGIN(currentdevdef);
@@ -336,11 +330,6 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
 }
 
-<INITIAL>{NOP}     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>{NOP}[ \t]*"("    {
   BEGIN(internaldevdef);
   lvalp->sval=new std::string(YYText());
@@ -348,11 +337,6 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR;
 }
 
-
-<INITIAL>"NDB"     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
 
 <INITIAL>"NDB"[ \t]*"("    {
   BEGIN(internaldevdef);
@@ -362,21 +346,11 @@ LEAD I[SDGBEC1-9]
 }
 
   /* S-parameters */
-<INITIAL>{SOP}    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>{SOP}[ \t]*"("     {
   BEGIN(sparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
-}
-
-<INITIAL>"SDB"    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
 <INITIAL>"SDB"[ \t]*"("     {
@@ -404,21 +378,11 @@ LEAD I[SDGBEC1-9]
 }
 
   /* Y-parameters */
-<INITIAL>{YOP}    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>{YOP}[ \t]*"("     {
   BEGIN(yparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
-}
-
-<INITIAL>"YDB"    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
 <INITIAL>"YDB"[ \t]*"("     {
@@ -446,21 +410,11 @@ LEAD I[SDGBEC1-9]
 }
 
   /* Z-parameters */
-<INITIAL>{ZOP}    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>{ZOP}[ \t]*"("     {
   BEGIN(zparamdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
-}
-
-<INITIAL>"ZDB"    {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
 <INITIAL>"ZDB"[ \t]*"("     {
@@ -496,11 +450,6 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR_DEV;
 }
 
-<INITIAL>"DNO"     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
 <INITIAL>"DNO"[ \t]*"("    {
   BEGIN(noisedevdef);
   lvalp->sval=new std::string(YYText());
@@ -521,11 +470,6 @@ LEAD I[SDGBEC1-9]
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
   return XyceExpression::ExpressionParser::token::TOK_NOISE_DEV_VAR;
-}
-
-<INITIAL>"DNI"     {
-  lvalp->sval=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
 <INITIAL>"DNI"[ \t]*"("    {
