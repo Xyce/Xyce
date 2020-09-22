@@ -600,7 +600,9 @@ Base::makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::withinTimeWindow
 // Purpose       : Checks if current time is within TD and FROM/TO windows.
-// Special Notes : 
+// Special Notes : The minval_ tolerance is used as a fudge factor because of
+//                 numerical errors if the TD, FROM or TO qualifiers are
+//                 expressions.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/8/2014
@@ -608,7 +610,8 @@ Base::makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_
 bool Base::withinTimeWindow( double time )
 {
   bool retVal = true;
-  if ( ( tdGiven_ && (time < td_)) || (fromGiven_ && (time < from_ )) || (toGiven_ && (time > to_)) )
+  if ( (tdGiven_ && (time < td_*(1-minval_))) || (fromGiven_ && (time < from_*(1-minval_))) ||
+       (toGiven_ && (time > to_*(1+minval_))) )
   {
     retVal = false;
   }
@@ -618,7 +621,7 @@ bool Base::withinTimeWindow( double time )
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::withinFreqWindow
 // Purpose       : Checks if current frequency is within FROM/TO windows.
-// Special Notes : The minVal_ tolerance is used as a fudge factor on the TO
+// Special Notes : The minval_ tolerance is used as a fudge factor on the TO
 //                 window because of numerical errors in the sweep values
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
