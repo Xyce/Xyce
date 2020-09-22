@@ -1005,6 +1005,17 @@ TEST ( Double_Parser_Test, singleParam_E)
   EXPECT_DOUBLE_EQ( result, 0.0);
 }
 
+TEST ( Double_Parser_Test, singleParam_J)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("J"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 0.0);
+}
+
+
 // binary operators
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAdd, "1.0+2.0", (1.0+2.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryMinus, "1.0-2.0", (1.0-2.0) )
