@@ -1,5 +1,6 @@
 # class source list
 set ( Expression_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast.C
   ${CMAKE_CURRENT_SOURCE_DIR}/expressionGroup.C
   ${CMAKE_CURRENT_SOURCE_DIR}/newExpression.C
   ${CMAKE_CURRENT_SOURCE_DIR}/deviceExpressionGroup.C

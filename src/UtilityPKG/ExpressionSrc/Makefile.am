@@ -13,6 +13,7 @@ BUILT_SOURCES= ExpressionParser.cxx \
 CLEANFILES= $(BUILT_SOURCES)
 
 libExpressionSrc_la_SOURCES = \
+  ast.C \
   expressionGroup.C \
   newExpression.C \
   deviceExpressionGroup.C \
@@ -22,7 +23,6 @@ libExpressionSrc_la_SOURCES = \
   ExpressionLexer.h \
   ExpressionType.h \
   ast.h \
-  ast.C \
   ast_spice_src.h \
   astbinary.h \
   astcomp.h \
