@@ -3010,7 +3010,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -3018,7 +3018,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -3027,14 +3027,22 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'M' || devType == 'J' || devType == 'O' ||
+                   devType == 'Q' || devType == 'T' || devType == 'Z')
+	  {
+            // multi-terminal devices are now supported yet.
+            addDevice = false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
           // Use tmpStr here since it is "Xyce Format".
           if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
@@ -3063,7 +3071,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -3071,7 +3079,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -3080,16 +3088,23 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'O')
+          {
+            // other devices for which P() is not supported
+            addDevice=false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
-          // search through the node names to see if any of them match the
+          // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
           if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
 	    pWildCard_list.push_back(tmpStr);
@@ -3117,7 +3132,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -3125,7 +3140,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -3134,14 +3149,21 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'O')
+          {
+            // other devices for which P() is not supported
+            addDevice=false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
