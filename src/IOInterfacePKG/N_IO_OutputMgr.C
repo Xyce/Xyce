@@ -2814,8 +2814,8 @@ void removeStarVariables(
   // different requests
   std::vector<std::string> vWildCard_list;
   std::vector<std::string> iWildCard_list;
-  std::vector<std::string> pWildCard_list;
-  std::vector<std::string> wWildCard_list;
+  unordered_set<std::string> pWildCard_list;
+  unordered_set<std::string> wWildCard_list;
 
   // V(*) requests
   if (vStarFound)
@@ -3107,7 +3107,7 @@ void removeStarVariables(
           // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
           if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
-	    pWildCard_list.push_back(tmpStr);
+	    pWildCard_list.insert(tmpStr);
         }
       }
     }
@@ -3168,7 +3168,7 @@ void removeStarVariables(
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
           if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
-	    wWildCard_list.push_back(tmpStr);
+	    wWildCard_list.insert(tmpStr);
         }
       }
     }
