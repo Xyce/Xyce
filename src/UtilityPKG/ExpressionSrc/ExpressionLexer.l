@@ -96,10 +96,10 @@ class ExpressionLexer;
  /* Other simulators use other delimiters for subcircuit names, so might */
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
-ID [a-zA-Z_`@#][a-zA-Z0-9_:`@#]*
+ID [a-zA-Z_`@#][a-zA-Z0-9_:`@#\.]*
 
  /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
-DEV [a-zA-Z][a-zA-Z0-9_:!`@#\+\-]*
+DEV [a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*
 
  /* to support bug 1034, the NODE needs to recognize a lot of weird characters: */
  /* from bug 1034: */
@@ -655,8 +655,8 @@ LEAD I[SDGBEC1-9]
 (\n+|(\r\n)+|\r+)          { llocp->lines(YYLeng()); }
 
 .  { 
-    //std::string errStr ("Unrecognized character: " + std::string(YYText())) ; yyerror(errStr);
-    std::cout << "Unrecognized character: " <<  YYText() << " in expression " << expressionString << std::endl; 
-    }
+    std::vector<std::string> errStr(1,std::string("Unrecognized character: " + std::string(YYText()) + " in expression " + expressionString )) ; 
+    yyerror(errStr);
+   }
 
 %%

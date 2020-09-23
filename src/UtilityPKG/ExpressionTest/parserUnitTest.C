@@ -1015,6 +1015,18 @@ TEST ( Double_Parser_Test, singleParam_J)
   EXPECT_DOUBLE_EQ( result, 0.0);
 }
 
+// this test is to ensure that a parameter name can include a period "."
+//INVALIDLINES.S2P
+TEST ( Double_Parser_Test, singleParam_INVALIDLINES_dot_S2PJ)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("INVALIDLINES.S2P"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 0.0);
+}
+
 
 // binary operators
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAdd, "1.0+2.0", (1.0+2.0) )
