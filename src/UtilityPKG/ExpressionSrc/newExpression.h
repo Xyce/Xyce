@@ -63,13 +63,15 @@ namespace Xyce {
 namespace Util {
 
 template <typename ScalarA>
-inline void fixNan(ScalarA & result) { if (std::isnan(std::real(result))) { result = 0.0; } }
+inline void fixNan(ScalarA & result) { if (std::isnan(std::real(result))) { result = 1.0e+50; } }
 
 template <>
 inline void fixNan(std::complex<double> & result)
 {
-  if (std::isnan(std::real(result))) { std::complex<double> tmp = std::complex<double>(0.0,result.imag()); result = tmp; }
-  if (std::isnan(std::imag(result))) { std::complex<double> tmp = std::complex<double>(result.real(),0.0); result = tmp; }
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
+  if (std::isnan(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
+  if (std::isnan(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
 }
 
 template <typename ScalarA>
