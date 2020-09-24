@@ -26,8 +26,9 @@
 
 #include <N_PDS_fwd.h>
 #include <N_IO_fwd.h>
-#include <N_ANP_AnalysisBase.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 
 #include <N_UTL_ExpressionData.h>
 #include <N_UTL_MachDepParams.h>
@@ -42,8 +43,6 @@
 namespace Xyce {
 namespace Analysis {
 namespace UQ {
-
-enum SampleType {MC, LHS};
 
 //-----------------------------------------------------------------------------
 struct statisticalMoments
@@ -226,6 +225,15 @@ void checkParameterList(
     std::vector<SweepParam>::iterator end);
 
 bool updateSamplingParams(
+    Loader::Loader &loader, 
+    int sample, 
+    std::vector<SweepParam>::iterator begin, 
+    std::vector<SweepParam>::iterator end, 
+    const std::vector<double> & Y,
+    int numSamples,
+    bool overrideOriginal);
+
+bool updateExpressionSamplingTerms(
     Loader::Loader &loader, 
     int sample, 
     std::vector<SweepParam>::iterator begin, 

@@ -977,7 +977,7 @@ dnl This makes @Xyce_INCS@ be replaced with the full string of -I's needed
 dnl for all packages to compile without problem.
 dnl It is used by setting "INCLUDES = @Xyce_INCS@" in the Makefile.am for
 dnl a package.
-default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
+default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/UtilityPKG/ExpressionSrc -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
 if test "x$RAD_MODELS" = "xyes"; then
   default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/SandiaModels"
 fi
@@ -1177,6 +1177,7 @@ AC_CONFIG_FILES([Makefile
  src/TimeIntegrationPKG/Makefile 
  src/TopoManagerPKG/Makefile 
  src/UtilityPKG/Makefile 
+ src/UtilityPKG/ExpressionSrc/Makefile 
  src/MultiTimePDEPKG/Makefile 
  utils/Makefile
  utils/XyceCInterface/Makefile 

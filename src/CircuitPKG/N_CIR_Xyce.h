@@ -58,6 +58,7 @@
 #include <N_UTL_ReportHandler.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_JSON.h>
+#include <mainXyceExpressionGroup.h>
 #include <N_DEV_ADC.h>
 #include <N_DEV_DAC.h>
 
@@ -365,6 +366,8 @@ class Simulator
   Util::JSON                            auditJSON_;                     ///< Audit JSON structure
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
+
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_;
 
   IO::CmdParse                          commandLine_;
   IO::HangingResistor                   hangingResistor_;

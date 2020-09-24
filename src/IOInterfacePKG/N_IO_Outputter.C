@@ -43,6 +43,7 @@
 
 #include <N_IO_Outputter.h>
 #include <N_ANP_fwd.h>
+#include <N_ANP_UQSupport.h>
 
 #include <N_UTL_Demangle.h>
 #include <N_UTL_NetlistLocation.h>

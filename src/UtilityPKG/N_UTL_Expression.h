@@ -42,13 +42,26 @@
 #include <iosfwd>
 
 #include <N_UTL_fwd.h>
-#include <N_UTL_Interface_Enum_Types.h>
-#include <N_UTL_ExpressionSymbolTable.h>
+#include <expressionParamTypes.h>
+
+#include <N_UTL_NoCase.h>
+#include <N_UTL_BreakPoint.h>
+
+#include <Teuchos_RCP.hpp>
+
+#include <N_ANP_SweepParam.h>
 
 namespace Xyce {
 namespace Util {
 
+
+class Param;
+typedef unordered_map<std::string, Param, Xyce::HashNoCase, Xyce::EqualNoCase> ParamMap;
+
+class mainXyceExpressionGroup;
+class newExpression;
 class ExpressionInternals;
+class baseExpressionGroup;
 
 //-----------------------------------------------------------------------------
 // Class         : Expression
@@ -59,64 +72,104 @@ class ExpressionInternals;
 //-----------------------------------------------------------------------------
 class Expression
 {
+  friend mainXyceExpressionGroup;
 
 public:
+  Expression (
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
+      std::string const & exp = std::string(), 
+      const std::vector<std::string> & functionArgStringVec = std::vector<std::string>());
 
-  Expression (std::string const & exp = std::string());
   Expression (const Expression &);
-  //  Expression& operator=(const Expression& right) ;  ///< Should never have copy constructor without this too?!?
+  Expression& operator=(const Expression& right) ; 
   ~Expression (void);
 
   bool parsed() const;
-    
-  bool set (std::string const & exp);
-  void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
-  void get_names (int const & type, std::vector< std::string > & names) const;
-  int get_type (std::string const & var);
-  bool make_constant (std::string const & var, double const & val);
-  bool make_var (std::string const & var);
 
-  int differentiate();
+  int getFuncSize();
+  void getFuncNames (std::vector<std::string> & funcNames);
+  void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
+  void attachFunctionNode (const std::string & funcName, const Expression & exp); 
+  void attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type=DOT_GLOBAL_PARAM); 
 
-  bool set_var (const std::string &, const double &);
-  bool set_vars (const std::vector< double > &);
+  const std::vector<std::string> & getFunctionArgStringVec ();
+
+  // ERK some old expressionstuff.  
+  bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
+  bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
+
+  void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
+
+  // ERK new expression stuff.  These kind of replace "get_names"
+  void getUnresolvedParams    (std::vector<std::string> & params) const;
+  void getVoltageNodes        (std::vector<std::string> & nodes) const;
+  void getDeviceCurrents      (std::vector<std::string> & devices) const;
+  void getLeadCurrents        (std::vector<std::string> & leads) const;
+  void getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const;
+  void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
+  void getSpecials            (std::vector<std::string> & specials) const;
+  void getVariables           (std::vector<std::string> & variables) const;
+  void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
+
+  const std::vector<std::string> & getVoltageNodes () const;
+  const std::vector<std::string> & getDeviceCurrents () const;
+  const std::vector<std::string> & getUnresolvedParams () const;
+  const std::vector<std::string> & getUnresolvedFunctions () const;
+  const std::vector<std::string> & getVariables() const;
+  const std::vector<std::string> & getLeadCurrents        () const;
+  const std::vector<std::string> & getLeadCurrentsExcludeBsrc () const;
+
+  bool getIsConstant ();
+
+  bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;
-  std::string get_derivative(std::string const & var);
-  int get_num(int const & type);
 
-  int evaluate (double &result, std::vector< double > &derivs, std::vector< double > &vals);
-  int evaluateFunction (double &result, std::vector< double > &vals);
+  bool evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
+  bool evaluateFunction (std::complex<double> &result, bool efficiencyOn=false);
 
-  int evaluate (double &result, std::vector< double > &derivs);
-  int evaluateFunction (double &result);
+  bool evaluate (double &result, std::vector< double > &derivs);
+  bool evaluateFunction (double &result, bool efficiencyOn=false);
 
-  bool set_sim_time (double time);
-  bool set_sim_dt (double dt);
-  bool set_temp (double const & temp);
-  bool set_sim_freq (double dt);
-  void set_accepted_time (double const time);
-  double get_break_time (void);
-  double get_break_time_i (void);
-  const std::string & get_input (void);
-  int order_names (std::vector< std::string > const & new_names);
-  int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
-  bool replace_name (const std::string & old_name, const std::string & new_name);
-  int replace_var(std::string const & var_name, const Expression & subexpr);
-  int replace_var(const std::string & var_name, Op::Operator *op);
-  int getNumDdt();
-  void getDdtVals (std::vector<double> &);
-  void setDdtDerivs (std::vector<double> &);
-  int num_vars() const;
+  void clearOldResult ();
+
+  void setupBreakPoints();
+  bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
+
+  const std::string & get_input (void) const;
+
+  bool replace_name (const std::string & old_name, const std::string & new_name);  // this is for voltage names
+
   bool isTimeDependent() const;
+  bool isFreqDependent() const;
+  bool isSolutionDependent() const;
   bool isRandomDependent() const;
   void dumpParseTree();
 
   static void seedRandom(long seed);
+
+  void treatAsTempAndConvert();
+
+  static void clearProcessSuccessfulTimeStepMap ();
+  void processSuccessfulTimeStep ();
+
+  // ddt information.  This is for Bsrc support of ddt.
+  int getNumDdt();
+  void getDdtVals (std::vector<double> & vals);
+  void setDdtDerivs (std::vector<double> & vals);
+
+  // random operator information
+  void getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+
 private:
 
-  ExpressionInternals *expPtr_;
-
+  Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
 };
 
 } // namespace Util

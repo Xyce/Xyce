@@ -110,6 +110,7 @@ OutputResults::~OutputResults()
 // Creation Date : 08/29/04
 //-----------------------------------------------------------------------------
 bool OutputResults::addResultParams(
+  const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup_,
   const Util::OptionBlock &     option_block)
 {
 // first check to see that there is only 1 PARAM set.  They need to be in
@@ -143,14 +144,13 @@ bool OutputResults::addResultParams(
     }
     else
     {
-      expDataPtr = new Util::ExpressionData(expParam.stringValue());
+      expDataPtr = new Util::ExpressionData(exprGroup_,expParam.stringValue());
       resultVector_.push_back(expDataPtr);
     }
   }
 
   return true;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : OutputResults::setup
@@ -255,8 +255,8 @@ void OutputResults::output(
     double result = 0.0;
     if (expression_data.parsed()) 
     {
-      result = expression_data.evaluate(comm, circuit_time, circuit_dt, 
-          &solution_vector, &state_vector, &store_vector);
+      Util::Op::OpData opDataTmp(0, &solution_vector, 0, &state_vector, &store_vector, 0);
+      expression_data.evaluate(comm, circuit_time, circuit_dt, opDataTmp, result);
     }
 
     if (Parallel::rank(comm) == 0)
@@ -397,7 +397,7 @@ public:
     for (std::vector<Util::OptionBlock>::const_iterator it = resultsOptionBlocks_.begin(), 
         end = resultsOptionBlocks_.end(); it != end; ++it)
     {
-      results->addResultParams(*it);
+      results->addResultParams( analysisManager_.getExpressionGroup(), *it);
     }
 
     return results;

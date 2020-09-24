@@ -232,8 +232,14 @@ public:
   // Virtual function for setting a single parameter value.
   virtual bool setParam(std::string & name, double val, bool overrideOriginal = false) = 0; 
 
+  virtual bool setParamRandomExpressionTerms(
+      std::string & name, std::string & opName, int opIndex,
+      double val, bool overrideOriginal = false) { return true; };
+
   // Virtual function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const = 0; 
+
+  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams) {};
 
   // Virtual method which is called to update the sources.
   virtual bool updateSources()
@@ -347,6 +353,9 @@ public:
   // voltage limiter toggle functions
   virtual bool getVoltageLimiterStatus() = 0;
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus) = 0;
+
+  virtual void updateDependentParams () { return; }
+  virtual void resetScaledParams() { return; }
 };
 
 } // namespace Loader

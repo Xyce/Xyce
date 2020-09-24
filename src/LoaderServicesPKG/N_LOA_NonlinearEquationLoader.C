@@ -851,5 +851,32 @@ void NonlinearEquationLoader::setVoltageLimiterStatus(bool voltageLimterStatus)
   return deviceManager_.setVoltageLimiterStatus(voltageLimterStatus);
 }
 
+//---------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::updateDependentParams () 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/11/2020
+//---------------------------------------------------------------------------
+void NonlinearEquationLoader::updateDependentParams () 
+{
+  return deviceManager_.updateDependentParams ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::resetScaledParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/11/2020
+//-----------------------------------------------------------------------------
+void NonlinearEquationLoader::resetScaledParams()
+{
+  return deviceManager_.resetScaledParams();
+}
+
+
 } // namespace Loader
 } // namespace Xyce

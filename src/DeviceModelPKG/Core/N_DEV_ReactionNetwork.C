@@ -52,6 +52,9 @@
 #include <N_DEV_ReactionNetwork.h>
 #include <N_DEV_MaterialLayer.h>
 
+#include <N_DEV_SolverState.h>
+
+#include <N_UTL_BreakPoint.h>
 
 #ifdef Xyce_REACTION_PARSER
 // Grrrr.  Stupid bison 2.4 stopped putting the pre-prologue into the header.
@@ -102,13 +105,16 @@ namespace Device {
 // Creator       : Tom Russo, SNL, Electrical and Microsystems Modeling
 // Creation Date : 03/20/06
 //-----------------------------------------------------------------------------
-ReactionNetwork::ReactionNetwork(const std::string &name)
+ReactionNetwork::ReactionNetwork(
+    const SolverState & solver_state,
+    const std::string &name)
   : myName(name),
     sourceScaleFac(1.0),
     C0(1.0),
     t0(1.0),
     x0(1.0),
-    applySources(true)
+    applySources(true), 
+    solState_(solver_state)
 {
   theReactions.reserve(10); // try to cut down on copies
 }
@@ -141,7 +147,8 @@ ReactionNetwork::ReactionNetwork(
     t0(right.t0),
     x0(right.x0),
     material(right.material),
-    applySources(right.applySources)
+    applySources(right.applySources),
+    solState_(right.solState_)
 {
 
   // Can't just copy the vector of source terms, coz those are pointers.
@@ -870,7 +877,7 @@ void ReactionNetwork::addSourceTerm(const std::string &speciesName, const std::s
     int speciesNum=getSpeciesNum(speciesName);
     if (speciesNum >= 0) // the species exists
     {
-      Util::Expression *foo= new Util::Expression(expressionStr);
+      Util::Expression *foo= new Util::Expression(solState_.expressionGroup_,expressionStr);
       theSourceTerms.push_back( std::pair<int,Util::Expression *>(speciesNum, foo));
     }
   }
@@ -917,59 +924,33 @@ void ReactionNetwork::addMasterSourceTerm(const std::string &speciesName)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ReactionNetwork::setSimTime
-// Purpose       : set internal "time" variable for all source terms
-// Special Notes :
-// Scope         : public
-// Creator       : Tom Russo, SNL, Electrical and Microsystems Modeling
-// Creation Date : 08/04/06
-//-----------------------------------------------------------------------------
-void ReactionNetwork::setSimTime(double time)
-{
-  std::vector< std::pair<int,Util::Expression *> >::iterator iterSource=
-    theSourceTerms.begin();
-  std::vector< std::pair<int,Util::Expression *> >::iterator source_end=
-    theSourceTerms.end();
-
-  for (;iterSource != source_end; ++iterSource)
-  {
-    (iterSource->second)->set_sim_time(time);
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ReactionNetwork::setSimDT
-// Purpose       : set internal "time" variable for all source terms
+// Function      : ReactionNetwork::setupBreakPoints
+// Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
-// Creation Date : 12/18/2017
+// Creation Date : 8/25/2020
 //-----------------------------------------------------------------------------
-void ReactionNetwork::setSimDT(double step)
+void ReactionNetwork::setupBreakPoints()
 {
   std::vector< std::pair<int,Util::Expression *> >::iterator iterSource=
     theSourceTerms.begin();
   std::vector< std::pair<int,Util::Expression *> >::iterator source_end=
     theSourceTerms.end();
-
-  for (;iterSource != source_end; ++iterSource)
-  {
-    (iterSource->second)->set_sim_dt(step);
-  }
+  for (;iterSource != source_end; ++iterSource) { (iterSource->second)->setupBreakPoints(); }
+  return;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ReactionNetwork::getBreakpointTime
-// Purpose       : return the next time at which any source will have a
-//                 breakpoint
+// Function      : ReactionNetwork::getBreakPoints
+// Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Tom Russo, SNL, Electrical and Microsystems Modeling
-// Creation Date : 03/20/06
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
 //-----------------------------------------------------------------------------
-double ReactionNetwork::getBreakpointTime()
+bool ReactionNetwork::getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes)
 {
-  double breaktime=0, btime;
   std::vector< std::pair<int,Util::Expression *> >::iterator iterSource=
     theSourceTerms.begin();
   std::vector< std::pair<int,Util::Expression *> >::iterator source_end=
@@ -977,22 +958,9 @@ double ReactionNetwork::getBreakpointTime()
 
   for (;iterSource != source_end; ++iterSource)
   {
-    btime=(iterSource->second)->get_break_time();
-    // pick smallest break time of all sources.
-    if (breaktime>0)
-    {
-      if (btime<breaktime)
-      {
-        breaktime=btime;
-      }
-    }
-    else
-    {
-      breaktime=btime;
-    }
+    (iterSource->second)->getBreakPoints(breakPointTimes);
   }
-
-  return (breaktime);
+  return true;
 }
 
 //-----------------------------------------------------------------------------

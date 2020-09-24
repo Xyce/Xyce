@@ -63,7 +63,7 @@ class DopeInfo : public CompositeParam
 public:
   static ParametricData<DopeInfo> &getParametricData();
 
-  DopeInfo();
+  DopeInfo(const Xyce::Device::SolverState & ss);
   bool processParam(Param & ndParam, std::string & param, DevicePDEInstance & di);
   void processParams();
 
@@ -140,6 +140,8 @@ public:
   std::vector<double> dopeVec;
   std::vector<double> interpolatedDopeVec;
   Util::akima<double> dopeInterpolator;
+
+  const Xyce::Device::SolverState & solState_;
 };
 
 // inline functions

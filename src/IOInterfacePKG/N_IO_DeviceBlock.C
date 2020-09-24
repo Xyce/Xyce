@@ -172,6 +172,41 @@ void DeviceBlock::print()
       Xyce::dout() << "    " << getInstanceParameter(k).uTag();
       Xyce::dout() << "    " << getInstanceParameter(k).stringValue();
 
+#if 1
+      switch (getInstanceParameter(k).getType()) 
+      {
+        case Xyce::Util::STR:
+          Xyce::dout() << " " <<"STR";
+          break;
+        case Xyce::Util::DBLE:
+          Xyce::dout() << " " <<"DBLE";
+          break;
+        case Xyce::Util::EXPR:
+          Xyce::dout() << " " <<"EXPR";
+          break;
+        case Xyce::Util::BOOL:
+          Xyce::dout() << " " <<"BOOL";
+          break;
+        case Xyce::Util::STR_VEC:
+          Xyce::dout() << " " <<"STR_VEC"; 
+          break;
+        case Xyce::Util::INT_VEC:
+          Xyce::dout() << " "  <<"INT_VEC";
+          break;
+        case Xyce::Util::DBLE_VEC:
+          Xyce::dout() << " " <<"DBLE_VEC"; 
+          break;
+        case Xyce::Util::DBLE_VEC_IND:
+          Xyce::dout() << " " <<"DBLE_VEC_IND"; 
+          break;
+        case Xyce::Util::COMPOSITE:
+          Xyce::dout() << " " <<"COMPOSITE";
+          break;
+        default:
+          Xyce::dout() << " " <<" is default (whatever that is): ";
+      }
+#endif
+
       if ( getInstanceParameter(k).given() )
       {
          Xyce::dout() << "    given";
@@ -2145,8 +2180,6 @@ bool DeviceBlock::setParameterValues()
   Device::Param parameter( "", "" );
   int numParameters = getNumberOfInstanceParameters();
   int i;
-  std::vector<std::string> strings;
-  std::vector<std::string> funcs;
 
   for ( i = 0; i < numParameters; ++i )
   {
@@ -2158,32 +2191,35 @@ bool DeviceBlock::setParameterValues()
         std::ostringstream msg;
         msg << "Parameter " << parameter.uTag() << " for device "
             << getInstanceName().getEncodedName() << " contains unrecognized symbol";
+
         if (parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression &e = parameter.getValue<Util::Expression>();
 
-          strings.clear();
-          funcs.clear();
-          e.get_names(XEXP_STRING, strings);
-          e.get_names(XEXP_FUNCTION, funcs);
+          const std::vector<std::string> & strings = e.getUnresolvedParams();
+          const std::vector<std::string> & funcs = e.getUnresolvedFunctions();
           if (strings.size() + funcs.size() == 1)
             msg << ":";
           else if (strings.size() + funcs.size() > 1)
             msg << "s:";
-          for (std::vector<std::string>::iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
+          for (std::vector<std::string>::const_iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
             msg << " " << *s;
-          for (std::vector<std::string>::iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
+          for (std::vector<std::string>::const_iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
             msg << " " << *s << "()";
+
+          if (strings.size() + funcs.size() > 0)
+          {
+            Report::UserError().at(getNetlistFilename(), getLineNumber())
+              << msg.str();
+          }
         }
+#if 0
+        // ERK. commenting this out b/c it makes no sense
         else
         {
           msg << "(s): " + parameter.stringValue();
         }
-        if (strings.size() + funcs.size() > 0)
-        {
-          Report::UserError().at(getNetlistFilename(), getLineNumber())
-            << msg.str();
-        }
+#endif
       }
       setInstanceParameter( i, parameter );
     }

@@ -35,7 +35,7 @@ C1 2 4 cmod C=0.47u
 * TYPE: DIODE
 * SUBTYPE: RECTIFIER
 .MODEL D1N3940 D(
-+ level=2002
++ level=1002002
 + IS = 4E-10
 + N = 1.48
 + CJO = 1.95E-11

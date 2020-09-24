@@ -69,6 +69,8 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Nonlinear {
 
@@ -383,6 +385,20 @@ bool NonLinearSolver::registerInitialConditionsManager(IO::InitialConditionsMana
 {
   initialConditionsManager_ = ptr;
   return (initialConditionsManager_ != 0);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::registerExpressionGroup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/2/2020
+//-----------------------------------------------------------------------------
+bool NonLinearSolver::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+  return ( !(Teuchos::is_null(expressionGroup_)) );
 }
 
 //-----------------------------------------------------------------------------

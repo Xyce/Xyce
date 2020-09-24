@@ -1209,7 +1209,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "GNDCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1265,7 +1265,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PWRCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1321,9 +1321,9 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLDOWNTBL" );
-                  tbl_param.setVal( Util::Expression(expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
                   tbl_param.setGiven( true );
-		  IB.params.push_back(tbl_param);
+                  IB.params.push_back(tbl_param);
 
                   tableEnd = true;
 	        }
@@ -1377,7 +1377,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLUPTBL" );
-                  tbl_param.setVal( Util::Expression(expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 

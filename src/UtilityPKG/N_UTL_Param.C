@@ -47,6 +47,7 @@
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Param.h>
+#include <expressionGroup.h>
 
 namespace Xyce {
 namespace Util {
@@ -181,6 +182,22 @@ std::string Param::getImmutableValue<std::string>() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : isExpressionConstant
+//
+// Purpose       : This function checks if a expression has any dependencies 
+//                 that would render it unsuitable for being made into an 
+//                 immutable data type such as DBLE or INT.
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 7/30/2020
+//-----------------------------------------------------------------------------
+bool isExpressionConstant(Expression & expression)
+{
+  return  expression.getIsConstant();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Param::getImmutableValue<double>
 // Purpose       :
 // Special Notes :
@@ -231,7 +248,8 @@ double Param::getImmutableValue<double>() const
       // Only if this param expression is truely constant can it be converted to a double
       // else it is a fatal error, in the parser most likely
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
-      if (expression.num_vars() == 0)
+
+      if ( isExpressionConstant(expression) )
       {
         expression.evaluateFunction(val);
       }
@@ -306,8 +324,8 @@ int Param::getImmutableValue<int>() const
     {
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-      if (expression.num_vars() == 0)
-      {
+      if ( isExpressionConstant(expression) )
+      { 
         expression.evaluateFunction(dVal);
         val = dVal;
       }
@@ -380,8 +398,8 @@ long Param::getImmutableValue<long>() const
     {
       Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-      if (expression.num_vars() == 0)
-      {
+      if ( isExpressionConstant(expression) )
+      {  
         expression.evaluateFunction (dVal);
         val = dVal;
       }
@@ -443,8 +461,8 @@ bool Param::getImmutableValue<bool>() const
   {
     Expression &expression = const_cast<Expression &>(getValue<Expression>());
 
-    if (expression.num_vars() == 0)
-    {
+    if ( isExpressionConstant(expression) )
+    {      
       double dVal;
       expression.evaluateFunction (dVal);
       rVal = (dVal != 0);
@@ -665,8 +683,14 @@ void Param::setTimeDependent( bool timeDependent )
   }
   if (!timeDependent)
     return;
+
   exp = getValue<std::string>();
-  setVal(Expression(exp));
+  // ERK.  This expression is allocated iwth the base group, which is easy 
+  // to create, but doesn't do anything.  But, this doesn't matter.  .param 
+  // and .global_param are not usually evaluated stand-alone, as they are 
+  // usually attached to other expressions. The expressions they are 
+  // attached to are the ones that need a meaningful group class.
+  setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), exp));
 }
 
 //----------------------------------------------------------------------------
@@ -846,7 +870,12 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, N
 
     case Util::EXPR:
       comm->unpack( pB, bsize, pos, &length, 1 );
-      param.setVal(Util::Expression(std::string( (pB+pos), length )));
+      // ERK.  This expression is allocated iwth the base group, which is easy 
+      // to create, but doesn't do anything.  But, this doesn't matter.  .param 
+      // and .global_param are not usually evaluated stand-alone, as they are 
+      // usually attached to other expressions. The expressions they are 
+      // attached to are the ones that need a meaningful group class.
+      param.setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), std::string( (pB+pos), length )));
       pos += length;
       break;
 
@@ -953,7 +982,6 @@ template<>
 void
 Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
 {
-
   int length;
   std::string tmp;
 

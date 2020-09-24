@@ -1676,6 +1676,8 @@ N_MPDE_Manager::runTransientIC(
 
   transientNeedsToLoadInitialConditionsAndInitializeProblem_ = false;
 
+  analysisManager_.popActiveAnalysis();
+
   return returnValue;
 }
 

@@ -90,7 +90,9 @@ public:
   void addSource(std::string speciesName, Util::Expression *expr);
   void addMasterSource(std::string speciesName);
   inline void setMasterSourceValue(double msv) {theReactions.setMasterSourceValue(msv);};
+#if 0
   inline void setSimTime(double time) {  theReactions.setSimTime(time);};
+#endif
 
   bool reactantExist(std::string reactantname)
   {
@@ -105,7 +107,8 @@ public:
   bool getDoNothingFlag ();
   inline const InstanceName &getName () { return name; }
 
-  double getBreakTime();
+  void setupBreakPoints();
+  bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
 
   void setupJacStamp ( std::vector< std::vector<int> > & jacStamp, std::vector<int> & colDep, int & firstReactant, int & lastIndex );
 

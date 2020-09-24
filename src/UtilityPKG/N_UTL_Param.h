@@ -47,11 +47,13 @@
 
 #include <N_UTL_fwd.h>
 #include <N_UTL_Pack.h>
-#include <N_UTL_Expression.h>
 #include <N_UTL_NoCase.h>
 
 namespace Xyce {
 namespace Util {
+
+class Expression;
+
 
 /** 
  * Parameter type enumeration.
@@ -550,7 +552,7 @@ inline void setParam(Param &param, const std::string &tag, const T &t)
 
 //-----------------------------------------------------------------------------
 // Function      : hasExpressionTag
-// Purpose       : Determine if the Param value is an expression.
+// Purpose       : Determine if the Param tag is an expression.
 // Special Notes : This checks the tag.
 // Scope         :
 // Creator       : Eric Keiter, SNL, Computational Sciences

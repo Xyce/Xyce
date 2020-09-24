@@ -142,15 +142,11 @@ void DeviceInstance::enableLeadCurrentCalc()
   }
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : N_DEV_DeviceInstance::getDepSolnVars
-//
 // Purpose       : Topology uses this method to check for late dependencies
 //                 due to such things as Expressions in the B-src.
-//
-// Special Notes : Returns empty list for devices that use this base method
-//
+// Special Notes : 
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/05/01
@@ -158,6 +154,20 @@ void DeviceInstance::enableLeadCurrentCalc()
 const std::vector<std::string> & DeviceInstance::getDepSolnVars()
 {
   return expVarNames;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : N_DEV_DeviceInstance::getDepSolnTypes
+// Purpose       : Topology uses this method to check for late dependencies
+//                 due to such things as Expressions in the B-src.
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/15/20
+//-----------------------------------------------------------------------------
+const std::vector<int> & DeviceInstance::getDepSolnTypes()
+{
+  return expVarTypes;
 }
 
 //-----------------------------------------------------------------------------
@@ -187,6 +197,8 @@ void DeviceInstance::registerDepSolnLIDs(
     }
     expVarLIDs[i] = depSolnLIDVecRef[i][0];
   }
+
+  DeviceEntity::applyDepSolnLIDs(); // new for newExpression
 }
 
 //-----------------------------------------------------------------------------

@@ -45,6 +45,8 @@
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Expression.h>
 
+#include <N_DEV_SolverState.h>
+
 namespace Xyce {
 namespace Device {
 
@@ -118,7 +120,7 @@ ParametricData<DopeInfo> &DopeInfo::getParametricData() {
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/07/05
 // ----------------------------------------------------------------------------
-DopeInfo::DopeInfo ()
+DopeInfo::DopeInfo (const Xyce::Device::SolverState & ss)
   : CompositeParam (getParametricData()),
     name("reg0"),
     type("ntype"),
@@ -144,7 +146,8 @@ DopeInfo::DopeInfo ()
     Nmax_chop(1.0e+99),
     Nmax_chopGiven(false),
     flatX(0),
-    flatY(0)
+    flatY(0),
+    solState_(ss)
 {}
 
 // ----------------------------------------------------------------------------
@@ -342,14 +345,17 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr;
-      expr.set(exprString);
+      Util::Expression expr(solState_.expressionGroup_,exprString);
+      //expr.set(exprString);
 
       for (i=0;i<NX;++i)
       {
         double dopeValue(0.0);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         expr.set_var(std::string("#X"), xVec[i]);
+#endif
         expr.evaluateFunction (dopeValue);
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;
@@ -902,10 +908,6 @@ void DopeInfo::readDopingFile(
   }
 }
 
-
-
-
-
 // ----------------------------------------------------------------------------
 // Function      : DopeInfo::setupInfo
 // Purpose       :
@@ -1075,14 +1077,17 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr;
-      expr.set(exprString);
+      Util::Expression expr(solState_.expressionGroup_,exprString);
+      //expr.set(exprString);
 
       for (i=0;i<NX;++i)
       {
         double dopeValue(0.0);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         expr.set_var(std::string("#X"), xVec[i]);
+#endif
         expr.evaluateFunction (dopeValue);
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;
@@ -1152,7 +1157,6 @@ void DopeInfo::setupInfo(
                         << "  for region: "
                         << name;
   }
-
 }
 
 } // namespace Device

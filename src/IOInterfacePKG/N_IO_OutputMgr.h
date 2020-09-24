@@ -59,6 +59,7 @@ using std::tr1::unordered_map;
 #endif
 
 #include <N_ANP_fwd.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_UTL_fwd.h>
@@ -70,7 +71,6 @@ using std::tr1::unordered_map;
 #include <N_IO_OutputTypes.h>
 
 #include <N_ANP_SweepParam.h>
-#include <N_ANP_UQSupport.h>
 #include <N_IO_InitialConditions.h>
 #include <N_IO_Outputter.h>
 

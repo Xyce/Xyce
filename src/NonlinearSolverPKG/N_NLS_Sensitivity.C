@@ -51,6 +51,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_OutputMgr.h>
+#include <N_IO_CmdParse.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Problem.h>
@@ -77,6 +78,9 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_SaveIOSState.h>
+
+#include <expressionGroup.h>
+#include <newExpression.h>
 
 // ----------   Static Declarations ----------
 
@@ -149,20 +153,12 @@ bool evaluateObjFuncs (
     }
   }
 
-  // set the sim times, dt's 
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->expPtr->set_sim_time(sec.nextTime);
-    objVec[iobj]->expPtr->set_sim_dt(sec.currentTimeStep);
-  }
-
   //get expression value and partial derivatives
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
     objVec[iobj]->expPtr->evaluate( 
         objVec[iobj]->expVal, 
-        objVec[iobj]->expVarDerivs, 
-        objVec[iobj]->expVarVals );
+        objVec[iobj]->expVarDerivs); 
 
     objVec[iobj]->objFuncEval = objVec[iobj]->expVal;
     objVec[iobj]->dOdXVectorPtr->putScalar(0.0);
@@ -173,7 +169,9 @@ bool evaluateObjFuncs (
 
       if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
       {
-        Xyce::dout() << "i="<<i<<"  gid = " << tmpGID << "  dodx = "<< tmpDODX << std::endl;
+        Xyce::dout() 
+          <<  objVec[iobj]->expVarNames[i] << "  "
+          << "i="<<i<<"  gid = " << tmpGID << "  dodx = "<< tmpDODX << std::endl;
       }
 
       if (tmpGID >= 0)
@@ -208,16 +206,22 @@ bool evaluateObjFuncs (
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 03/25/2019
 //-----------------------------------------------------------------------------
-void setupObjectiveFunctions
-  (std::vector<objectiveFunctionData*> & objVec,
-   IO::OutputMgr & output_manager,
+void setupObjectiveFunctions(
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
+  std::vector<objectiveFunctionData*> & objVec,
+  IO::OutputMgr & output_manager,
   Linear::System & lasSys,
+  const IO::CmdParse &cp,
   bool checkTimeDeriv
   )
 {
+
+  Xyce::ExtendedString exprType = cp.getArgumentValue( "-expression" );
+  exprType.toUpper();
+
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
-    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString);
+    objVec[iobj]->expPtr = new Util::Expression(exprGroup, objVec[iobj]->objFuncString);
 
     if (!(objVec[iobj]->expPtr->parsed()))
     {
@@ -229,12 +233,14 @@ void setupObjectiveFunctions
     // resolve user-defined functions first
     {
     std::vector<std::string> global_function_names;
-    objVec[iobj]->expPtr->get_names(XEXP_FUNCTION, global_function_names);
+    objVec[iobj]->expPtr->getFuncNames(global_function_names);
+ 
     std::vector<std::string>::iterator it = global_function_names.begin();
     std::vector<std::string>::iterator end = global_function_names.end();
+    const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
+
     for ( ; it != end; ++it)
     {
-      const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
       Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
 
       if (paramMapIter == context_function_map.end())
@@ -248,29 +254,41 @@ void setupObjectiveFunctions
 
       std::string functionPrototype(functionParameter.tag());
       std::string functionBody(functionParameter.stringValue());
+      Util::Expression prototypeExression(exprGroup, functionPrototype);
+      std::vector<std::string> arguments = prototypeExression.getFunctionArgStringVec ();
 
-      // The function prototype is defined here as a string whose
-      // value is the  function name together with its parenthese
-      // enclosed comma separated argument list. To resolve a
-      // function, create an expression from the function prototype
-      // and get its ordered list of arguments via get_names, then
-      // create an expression from the function definition and
-      // order its names from that list. Finally, replace the
-      // function in the expression to be resolved.
-      Util::Expression prototypeExression(functionPrototype);
-      std::vector<std::string> arguments;
-      prototypeExression.get_names(XEXP_STRING, arguments);
-      Util::Expression functionExpression(functionBody);
-      functionExpression.order_names(arguments);
-
-      if (objVec[iobj]->expPtr->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)
+      // in the parameter we found, pull out the RHS expression and attach
+      if(functionParameter.getType() == Xyce::Util::EXPR)
       {
-        Report::UserError0() << "Wrong number of arguments for user defined function " 
-          << functionPrototype << " in expression " << objVec[iobj]->expPtr->get_expression();
+        Util::Expression & expToBeAttached 
+          = const_cast<Util::Expression &> (functionParameter.getValue<Util::Expression>());
+
+        // attach the node
+        objVec[iobj]->expPtr->attachFunctionNode(*it, expToBeAttached);
+      }
+      else
+      {
+        std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
+
+        switch (functionParameter.getType()) 
+        {
+          case Xyce::Util::STR:
+            std::cout <<"It is STR type: " <<  functionParameter.stringValue();
+            break;
+          case Xyce::Util::DBLE:
+            std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+            break;
+          case Xyce::Util::EXPR:
+            std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+            break;
+          default:
+            std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
+        }
       }
     }
     }
 
+#if 0
     objVec[iobj]->numDdt = objVec[iobj]->expPtr->getNumDdt();
     if ( checkTimeDeriv )
     {
@@ -279,15 +297,16 @@ void setupObjectiveFunctions
         Report::DevelFatal() <<  "Objective function contains a time derivative, which cannot be processed.";
       }
     }
+#endif
 
     // setup the names:
     objVec[iobj]->expVarNames.clear();
 
     std::vector<std::string> nodes;
-    objVec[iobj]->expPtr->get_names(XEXP_NODE, nodes);
     std::vector<std::string> instances;
-    objVec[iobj]->expPtr->get_names(XEXP_INSTANCE, instances);
 
+    objVec[iobj]->expPtr->getVoltageNodes(nodes);
+    objVec[iobj]->expPtr->getDeviceCurrents(instances);
 
     // Make the current (instance) strings all upper case.
     // The topology directory apparently requires this.
@@ -303,10 +322,8 @@ void setupObjectiveFunctions
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), instances.begin(), instances.end());
 
     // now handle params and global params
-    std::vector<std::string> strings;
-    std::vector<std::string> params;
     std::vector<std::string> globalParams;
-    objVec[iobj]->expPtr->get_names(XEXP_STRING, strings);
+    const std::vector<std::string> & strings = objVec[iobj]->expPtr->getUnresolvedParams();
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
     const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
@@ -321,30 +338,46 @@ void setupObjectiveFunctions
         if ( replacement_param.getType() == Xyce::Util::STR ||
              replacement_param.getType() == Xyce::Util::DBLE )
         {
-          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()))
+          enumParamType paramType=DOT_PARAM;
+          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()),paramType)
           {
             Report::UserWarning0() << "Problem converting parameter " << strings[istring] << " to its value.";
           }
         }
         else if (replacement_param.getType() == Xyce::Util::EXPR)
         {
-          std::string expressionString=objVec[iobj]->expPtr->get_expression();
+#if 0
           if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
           {
+            std::string expressionString=objVec[iobj]->expPtr->get_expression();
             Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
                                    << " as substitute for " << strings[istring] << " in expression " << expressionString;
           }
+#else
+          enumParamType paramType=DOT_PARAM;
+          objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),paramType);
+#endif
         }
       }
       else
       {
+        // if this string is found in the global parameter map, then attach it to the expression
         param_it = context_global_param_map.find(strings[istring]);
         if (param_it != context_global_param_map.end())
         {
           globalParams.push_back(strings[istring]);
-          if (!objVec[iobj]->expPtr->make_var(strings[istring]))
+
+          if(param_it->second.getType() == Xyce::Util::EXPR)
           {
-            Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
+            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+            objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+          }
+          else
+          {
+            if (!objVec[iobj]->expPtr->make_var(strings[istring]))
+            {
+              Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
+            }
           }
         }
         else
@@ -356,13 +389,6 @@ void setupObjectiveFunctions
     }
 
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), globalParams.begin(), globalParams.end());
-
-    // Order the names in the expression so that it agrees with the order
-    // in expVarNames.
-    if ( !(objVec[iobj]->expVarNames.empty()) )
-    {
-      objVec[iobj]->expPtr->order_names( objVec[iobj]->expVarNames );
-    }
 
     objVec[iobj]->numExpVars = objVec[iobj]->expVarNames.size();
 
@@ -399,6 +425,13 @@ void setupObjectiveFuncGIDs (
   bool foundLocal2(false);
   bool foundLocal3(false);
   bool foundAliasNodeLocal(false);
+
+
+  // ERK. this code is pretty silly, in at least one respect.  We already know (or could know) 
+  // what type of variable each member of the expVarNames is.  This was figured out already in the 
+  // setupObjectiveFunctions function, as we pulled "nodes" and "instances" and "strings" out of 
+  // the expression and did specific things based on what they were.
+
 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
@@ -468,7 +501,7 @@ void setupObjectiveFuncGIDs (
 
       if (!found && !found2 && !found3 && !foundAliasNode)
       {
-        Report::UserFatal() << "objective function variable not found!";
+        Report::UserFatal() << "objective function variable not found!  Cannot find " << objVec[iobj]->expVarNames[i] ;
       }
 
       if (found || found2 || foundAliasNode)
@@ -1203,7 +1236,7 @@ bool Sensitivity::calcObjFuncTimeDerivs ()
     }
 
     bool checkTimeDeriv=false;
-    setupObjectiveFunctions(objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, checkTimeDeriv);
+    setupObjectiveFunctions(expressionGroup_, objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_, checkTimeDeriv);
     timeDerivsSetup_ = true;
   }
 
@@ -1652,7 +1685,7 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   // up early in the simulation.
   if (objFuncGiven_)
   {
-    setupObjectiveFunctions(objFuncDataVec_, *outMgrPtr_, *lasSysPtr_);
+    setupObjectiveFunctions(expressionGroup_, objFuncDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_);
   }
 
   if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))

@@ -57,6 +57,8 @@
 
 #include <N_UTL_Param.h>
 
+#include <astRandEnum.h>
+
 namespace Xyce {
 namespace Analysis {
 
@@ -81,6 +83,8 @@ public:
   // Default constructor
   SweepParam () : 
    name(""),
+   opName(""),
+   baseName(""),
    type("LIN"),
    startVal(0.0),
    stopVal(0.0),
@@ -104,6 +108,8 @@ public:
    outerStepNumber(0),
    valList(0),
    dataSetName(""),
+   astOpIndex(-1),
+   astType(Util::AST_AGAUSS),
    sweepResetFlag_(false),
    lastLocalStepNumber_(-1)
    {}
@@ -116,6 +122,8 @@ public:
   bool getSweepResetFlag() {return sweepResetFlag_;}
 
   std::string name;
+  std::string opName; // only used with expression-based operators
+  std::string baseName; // only used with expression-based operators
   std::string type;
 
   double startVal;
@@ -150,6 +158,9 @@ public:
 
   std::string dataSetName;
 
+  int astOpIndex;
+  enum Util::astRandTypes astType;
+
  private:
   bool sweepResetFlag_;
   int lastLocalStepNumber_;
@@ -176,44 +187,6 @@ typedef std::vector<SweepParam> SweepVector;
 /// @return 
 ///
 std::ostream & operator<<(std::ostream & os, const SweepParam & sp);
-
-
-//-----------------------------------------------------------------------------
-// Function      : parseSweepParams
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Wed Oct  1 09:19:28 2014
-//-----------------------------------------------------------------------------
-///
-/// Populate the sweep params from the parameter list.
-///
-/// @invariant
-///
-/// @param sweep_param  sweep parameters objec t populate
-/// @param first        begin iterator of the parameter list
-/// @param last         end iterator of the parameter list
-///
-SweepParam parseSweepParams(Util::ParamList::const_iterator first, Util::ParamList::const_iterator last);
-
-bool updateSweepParams(int step_count, std::vector<SweepParam>::iterator begin, std::vector<SweepParam>::iterator end);
-bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<SweepParam>::iterator begin, std::vector<SweepParam>::iterator end, bool overrideOriginal);
-int setupSweepLoop(Parallel::Machine comm, Loader::Loader &loader, std::vector<SweepParam>::iterator begin, std::vector<SweepParam>::iterator end);
-int setSweepLoopVals(std::vector<SweepParam>::iterator begin, std::vector<SweepParam>::iterator end);
-
-bool processDataStatements(
-    const Util::OptionBlock & paramsBlock,
-    std::map< std::string, std::vector<std::string> > & dataNamesMap,
-    std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap);
-
-bool convertData(
-    SweepVector & stepSweepVector,
-    const std::map< std::string, std::vector<std::string> > & dataNamesMap,
-    const std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap
-    );
-
-bool isDataSpecified(const Util::OptionBlock & paramsBlock);
 
 } // namespace Analysis
 } // namespace Xyce

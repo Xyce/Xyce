@@ -48,6 +48,7 @@
 #include <N_IO_OutputROM.h>
 #include <N_IO_RestartMgr.h>
 #include <N_DEV_Op.h>
+#include <N_ANP_UQSupport.h>
 
 namespace Xyce {
 namespace Analysis {

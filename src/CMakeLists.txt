@@ -46,12 +46,17 @@ if( Xyce_REACTION_PARSER )
 
     include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
 endif()
+BISON_TARGET( XyceExpressionParser "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
+FLEX_TARGET( XyceExpressionLexer "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --full --prefix=exp")
+ADD_FLEX_BISON_DEPENDENCY( XyceExpressionLexer XyceExpressionParser  )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+
 #End bison and Flex non-sense. 
 
 # ---- This is the declaration and linking of the desired
 # artifacts ----------------
 
-add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
+add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
 target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})

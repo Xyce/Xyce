@@ -32,6 +32,7 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ERH_Message.h>
 #include <N_LOA_Loader.h>
 #include <N_LOA_NonlinearEquationLoader.h>

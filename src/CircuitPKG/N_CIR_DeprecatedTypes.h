@@ -125,7 +125,6 @@ typedef Xyce::IO::Measure::OffTime N_IO_MeasureOffTime;
 typedef Xyce::IO::Measure::OnTime N_IO_MeasureOnTime;
 typedef Xyce::IO::Measure::PeakToPeak N_IO_MeasurePeakToPeak;
 typedef Xyce::IO::Measure::RMS N_IO_MeasureRMS;
-typedef Xyce::IO::Measure::RelativeError N_IO_MeasureRelativeError;
 typedef Xyce::IO::Measure::RiseFallDelay N_IO_MeasureRiseFallDelay;
 typedef Xyce::IO::CircuitBlock N_IO_CircuitBlock;
 typedef Xyce::IO::CircuitContext N_IO_CircuitContext;

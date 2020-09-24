@@ -45,6 +45,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_ExpressionInternals.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace IO {

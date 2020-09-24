@@ -46,6 +46,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_ANP_NoiseData.h>
+#include <N_UTL_Expression.h>
 
 namespace Xyce {
 namespace Device {

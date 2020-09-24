@@ -274,7 +274,12 @@ void MembraneUserDefined::loadDAEQVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     qEqsExpRCP_[i]->evaluateFunction( resultValue, qEqsEqusVarValues_[i] );
+#else
+    qEqsExpRCP_[i]->evaluateFunction( resultValue);
+#endif
 
     // add it to the Q vector
     // cew not sure about my change here; do we know that vars are in order?
@@ -327,7 +332,12 @@ void MembraneUserDefined::loadDAEFVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     currentEqusExpRCP_[i]->evaluateFunction( resultValue, currentEqusVarValues_[i] );
+#else
+    currentEqusExpRCP_[i]->evaluateFunction( resultValue );
+#endif
     Xyce::dout() << "Segment " << segmentNumber << " current equ F = " << resultValue << std::endl;
 
     // add it to the F vector
@@ -349,7 +359,12 @@ void MembraneUserDefined::loadDAEFVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_[i]->evaluateFunction( resultValue, fEqsEqusVarValues_[i] );
+#else
+    fEqsExpRCP_[i]->evaluateFunction( resultValue );
+#endif
 
     // add it to the F vector
     //int lidIndexVectorIndex = index + numCurrentExp + i;
@@ -412,7 +427,12 @@ void MembraneUserDefined::loadDAEdQdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     qEqsExpRCP_[i]->evaluate( resultValue, derivValues, qEqsEqusVarValues_[i] );
+#else
+    qEqsExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
     Xyce::dout() << "expression result:  " << resultValue << std::endl;
 
     // add it to the dQdx matrix
@@ -479,7 +499,12 @@ void MembraneUserDefined::loadDAEdFdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     currentEqusExpRCP_[i]->evaluate( resultValue, derivValues, currentEqusVarValues_[i] );
+#else
+    currentEqusExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
 
     // now we have the derivValues[] but the order is determined by currentEqusVarNames_.  We
     // need to convert variable names to the appropriate indices into jacobianOffsets
@@ -513,7 +538,12 @@ void MembraneUserDefined::loadDAEdFdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_[i]->evaluate( resultValue, derivValues, fEqsEqusVarValues_[i] );
+#else
+    fEqsExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
 
     // add it to the F vector
     for( int j=0; j<numvars; j++)	// this loops through variables AS THEY APPEAR in F eqn i
@@ -546,7 +576,7 @@ void MembraneUserDefined::convertStringsToExpression( std::vector< std::string >
   for( int i=0; i<numStrings; i++ )
   {
     //Xyce::dout() << "Making expression from :" << stringInput.at(i) << std::endl;
-    expRCPOut.push_back( rcp( new Util::Expression( stringInput.at(i) ) ) );
+    expRCPOut.push_back( rcp( new Util::Expression( solState.expressionGroup_, stringInput.at(i) ) ) );
     /*
     int type=0;
     std::vector<string> names;
@@ -579,8 +609,14 @@ void MembraneUserDefined::consolidateExpressions()
   for( int i=0; i<numParams; i+=2)
   {
     std::vector<std::string> names;
+#if 0
     int type=0;
     extraParametersExpRCP_.at(i)->get_names(type, names);
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //extraParametersExpRCP_.at(i)->
+#endif
     if( names.size() > 1 )
     {
       Xyce::dout() << "Warning MembraneUserDefined::consolidateExpressions() parameter name vec longer than expected." << names.size() << std::endl;
@@ -596,11 +632,19 @@ void MembraneUserDefined::consolidateExpressions()
   for( int i=0; i<numFuncs; i+=2 )
   {
     std::vector<std::string> names;
+#if 0
     int type=0;
     extraFunctionsExpRCP_.at(i)->get_names(type, names);
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //extraFunctionsExpRCP_.at(i)->get
+#endif
     funcNames_.push_back(names[0]);
     funcExpRCP_.push_back(extraFunctionsExpRCP_.at(i+1));
+#if 0
     funcNumArgs_.push_back( extraFunctionsExpRCP_.at(i+1)->num_vars() );
+#endif
   }
 
   // substitute parameters into current expression, extra equations and functions
@@ -643,8 +687,14 @@ void MembraneUserDefined::consolidateExpressions()
     double fval=0, qval=0;
     std::vector<double> fargs, qargs;
     fargs.push_back(0.2); fargs.push_back(-0.015);  qargs.push_back(0.2);
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_.at(i)->evaluateFunction(fval, fargs);
     qEqsExpRCP_.at(i)->evaluateFunction(qval, qargs);
+#else
+    fEqsExpRCP_.at(i)->evaluateFunction(fval);
+    qEqsExpRCP_.at(i)->evaluateFunction(qval);
+#endif
     Xyce::dout() << "F(V=-0.015,n/m/h=0.2) = " << fval << " Q(V=-0.015,n/m/h=0.2) = " << qval << std::endl;
   }
 
@@ -692,7 +742,13 @@ void MembraneUserDefined::substituteFunctions( std::vector<RCP<Util::Expression>
     int numExp = expRCP_.size();
     for( int j=0; j<numExp; j++ )
     {
-      expRCP_.at(j)->replace_func(funcNames_[i], *funcExpRCP_[i], funcNumArgs_[i]);
+      //expRCP_.at(j)->replace_func(funcNames_[i], *funcExpRCP_[i], funcNumArgs_[i]);
+      //
+      // ERK.  This is a neccessary but not sufficient change for the new expression library.
+      //
+      // replace_func is for the old expresison library, and it just does a string replacement.
+      //
+      expRCP_.at(j)->attachFunctionNode(funcNames_[i], *funcExpRCP_[i]);
     }
   }
 }
@@ -719,7 +775,13 @@ void MembraneUserDefined::makeSymbolSet()
   for( int i=0; i<numIndependentVars; i++ )
   {
     std::vector<std::string> expNames;
+#if 0
     indepVarsExpRCP_.at(i)->get_names( type, expNames );
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //indepVarsExpRCP_.at(i)->get
+#endif
     int numExpNames=expNames.size();
     for( int j=0; j<numExpNames; j++ )					// cew ? isn't there just one name per independent var?
     {
@@ -797,7 +859,14 @@ void MembraneUserDefined::convertSymbolsToVars( std::vector<RCP<Util::Expression
   {
     // get the remaining symbol names in the expression
     std::vector<std::string> expNamesTmp;
+#if 0
     expRCP.at(i)->get_names( type, expNamesTmp );
+#else
+    // ERK. not clear what type of param is needed.  type=0 implies "give me everything".
+    // whatever it is, it needs to be handled via group anyway.
+    //expRCP.at(i)->get
+#endif
+
     int numExpNames=expNamesTmp.size();
     for( int j=0; j<numExpNames; j++ )
     {

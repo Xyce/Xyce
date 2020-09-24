@@ -51,6 +51,9 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_ExpressionSymbolTable.h>
 
+#include <mainXyceExpressionGroup.h>
+#include <outputsXyceExpressionGroup.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -63,12 +66,27 @@ namespace Util {
 // Creation Date : 08/09/04
 //-----------------------------------------------------------------------------
 ExpressionData::ExpressionData (
-  const std::string &   expression)
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+      const std::string &   expression)
   : expression_(0),
     expressionString_(expression),
     state_(NOT_SETUP),
     sensitivitiesPossible_(true)
-{}
+{
+
+  Teuchos::RCP<mainXyceExpressionGroup> mainGroup = Teuchos::rcp_dynamic_cast<mainXyceExpressionGroup>(group);
+
+  Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = 
+    Teuchos::rcp(new outputsXyceExpressionGroup(
+      mainGroup->comm_,
+      mainGroup->top_,
+      mainGroup->analysisManager_,
+      mainGroup->deviceManager_,
+      mainGroup->outputManager_
+        ) );
+
+  expressionGroup_ = outputsGroup;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::~ExpressionData
@@ -106,70 +124,15 @@ bool ExpressionData::parsed() const
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 08/09/04
-//-----------------------------------------------------------------------------
-double ExpressionData::evaluate(
-  Parallel::Machine     comm,
-  double                current_circuit_time,
-  double                current_circuit_dt,
-  const Linear::Vector *  solnVecPtr,
-  const Linear::Vector *  stateVecPtr,
-  const Linear::Vector *  stoVecPtr,
-  const Linear::Vector *  solnVecImagPtr) const
-{
-  if (state_ == NOT_SETUP)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
-  }
-  else if (state_ == PARSE_FAILED)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
-  }
-  else if (state_ == UNRESOLVED_SYMBOL)
-  {
-    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
-  }
-
-  double value = 0.0;
-
-  if (solnVecPtr)
-  {
-    // loop over expressionOps_ to get all the values.
-    variableValues_.clear();
-    for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-    {
-      Util::Op::OpData opDataTmp(0, solnVecPtr, solnVecImagPtr, stateVecPtr, stoVecPtr, 0);
-
-      variableValues_.push_back( Util::Op::getValue(comm, *(*it), opDataTmp).real());
-    }
-
-    if (expression_)
-    {
-      // support SDT and DDT, among other things.
-      expression_->set_sim_time(current_circuit_time);
-      expression_->set_sim_dt(current_circuit_dt);
-
-      // now get expression value (don't need derivs)
-      expression_->evaluateFunction(value, variableValues_);
-    }
-  }
-
-  return value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ExpressionData::evaluate
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 02/16/2015
 //-----------------------------------------------------------------------------
-double ExpressionData::evaluate(
+void ExpressionData::evaluate(
   Parallel::Machine             comm,
   double                        current_circuit_time,
   double                        current_circuit_dt,
-  const Util::Op::OpData &      op_data) const
+  const Util::Op::OpData &      op_data,
+  double                        &result
+  ) const
 {
   if (state_ == NOT_SETUP)
   {
@@ -182,28 +145,18 @@ double ExpressionData::evaluate(
   else if (state_ == UNRESOLVED_SYMBOL)
   {
     Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
-  }
-
-  double value = 0.0;
-
-  // loop over expressionOps_ to get all the values.
-  variableValues_.clear();
-  for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-  {
-    variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
   }
 
   if (expression_)
   {
-    // support SDT and DDT, among other things.
-    expression_->set_sim_time(current_circuit_time);
-    expression_->set_sim_dt(current_circuit_dt);
-
-    // now get expression value (don't need derivs)
-    expression_->evaluateFunction(value, variableValues_);
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluateFunction(result);
+    expression_->clearOldResult();
   }
 
-  return value;
+  return;
 }
 
 
@@ -237,36 +190,100 @@ void ExpressionData::evaluate(
     Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
   }
 
-  // loop over expressionOps_ to get all the values.
-  variableValues_.clear();
-  for (Util::Op::OpList::const_iterator it = expressionOps_.begin(); it != expressionOps_.end(); ++it)
-  {
-    variableValues_.push_back( Util::Op::getValue(comm, *(*it), op_data).real());
-  }
-
   if (expression_)
   {
-    // support SDT and DDT, among other things.
-    expression_->set_sim_time(current_circuit_time);
-    expression_->set_sim_dt(current_circuit_dt);
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
 
-    // now get expression value (don't need derivs)
-    expression_->evaluate( result, derivs, variableValues_);
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluate( result, derivs);
   }
 
   return;
 }
 
 //-----------------------------------------------------------------------------
-// Namespace     : Unnamed
-// Purpose       : file-local scoped methods and data
-// Special Notes : just the declaration, definition at end of file
-// Creator       : Tom Russo, SNL
-// Creation Date : 11/27/2013
+// Function      : ExpressionData::evaluate
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 02/16/2015
 //-----------------------------------------------------------------------------
-namespace {
-void convertNodalComputation(std::string &nodalComputation, ParamList &paramList);
-} // namespace (unnamed)
+void ExpressionData::evaluate(
+  Parallel::Machine             comm,
+  double                        current_circuit_time,
+  double                        current_circuit_dt,
+  const Util::Op::OpData &      op_data,
+  std::complex<double>          &result
+  ) const
+{
+  if (state_ == NOT_SETUP)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
+  }
+  else if (state_ == PARSE_FAILED)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
+  }
+  else if (state_ == UNRESOLVED_SYMBOL)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
+  }
+
+  if (expression_)
+  {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluateFunction(result);
+    expression_->clearOldResult();
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionData::evaluate
+// Purpose       : Evaluate result and derivatives
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/25/2018
+//-----------------------------------------------------------------------------
+void ExpressionData::evaluate(
+  Parallel::Machine             comm,
+  double                        current_circuit_time,
+  double                        current_circuit_dt,
+  const Util::Op::OpData &      op_data,
+  std::complex<double> &result, 
+  std::vector< std::complex<double> > &derivs 
+  ) const
+{
+  if (state_ == NOT_SETUP)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Must call setup() prior to evaluate()";
+  }
+  else if (state_ == PARSE_FAILED)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Expression parse failed";
+  }
+  else if (state_ == UNRESOLVED_SYMBOL)
+  {
+    Report::DevelFatal().in("ExpressionData::evaluate") << "Unresolved symbols in expression";
+  }
+
+  if (expression_)
+  {
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    outputsGroup->setOpData(op_data);
+
+    expression_->processSuccessfulTimeStep();
+    expression_->evaluate( result, derivs);
+  }
+
+  return;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::setup
@@ -295,7 +312,7 @@ ExpressionData::setup(
   // allocate expression pointer if we need to
   if( expression_ == NULL )
   {
-    expression_ = new Expression(expressionString_);
+    expression_ = new Expression(expressionGroup_, expressionString_);
   }
 
   if (!expression_->parsed())
@@ -306,172 +323,128 @@ ExpressionData::setup(
 
   // resolve user-defined functions
   {
-  std::vector<std::string> global_function_names;
-  expression_->get_names(XEXP_FUNCTION, global_function_names);
-  std::vector<std::string>::iterator it = global_function_names.begin();
-  std::vector<std::string>::iterator end = global_function_names.end();
-  for ( ; it != end; ++it)
-  {
-    Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
+    std::vector<std::string> global_function_names;
+    expression_->getFuncNames(global_function_names);
+ 
+    std::vector<std::string>::iterator it = global_function_names.begin();
+    std::vector<std::string>::iterator end = global_function_names.end();
 
-    if (paramMapIter == context_function_map.end())
+    for ( ; it != end; ++it)
     {
-      Report::UserError0() << "Cannot find global function definition for " << *it 
-        << " in expression " << expression_->get_expression();
-      break;
-    }
+      Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
 
-    const Util::Param &functionParameter = (*paramMapIter).second;
-
-    std::string functionPrototype(functionParameter.tag());
-    std::string functionBody(functionParameter.stringValue());
-
-    // The function prototype is defined here as a string whose
-    // value is the  function name together with its parenthese
-    // enclosed comma separated argument list. To resolve a
-    // function, create an expression from the function prototype
-    // and get its ordered list of arguments via get_names, then
-    // create an expression from the function definition and
-    // order its names from that list. Finally, replace the
-    // function in the expression to be resolved.
-    Util::Expression prototypeExression(functionPrototype);
-    std::vector<std::string> arguments;
-    prototypeExression.get_names(XEXP_STRING, arguments);
-    Util::Expression functionExpression(functionBody);
-    functionExpression.order_names(arguments);
-
-    if (expression_->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)
-    {
-      Report::UserError0() << "Wrong number of arguments for user defined function " 
-        << functionPrototype << " in expression " << expression_->get_expression();
-    }
-  }
-  }
-
-  // this varNames vec is a list of string representations of all of
-  // the vars in the expression.  
-  ParamList param_list;
-
-  // query the expression object for all of its dependent vars.
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry> theSymbolTable;
-  
-  expression_->getSymbolTable(theSymbolTable);
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry>::iterator it = theSymbolTable.begin();
-  std::vector<Xyce::Util::ExpressionSymbolTableEntry>::iterator end = theSymbolTable.end(); 
-
-  for ( ; it != end; ++it)
-  {
-    std::string varName = it->name;
-    int varType = it->type;
-    char varLeadDesignator = it->leadDesignator;
-    
-    // based on the type of variable, create the needed Param
-    // objects for setParmContextType_ to work.
-
-    switch (varType)
-    {
-      case XEXP_NODAL_COMPUTATION: // this covers things like P(Res)
-        // deconstruct the string and turn it into params, push back into
-        // param_list
-        sensitivitiesPossible_=false; 
-        convertNodalComputation(varName, param_list);
-        break;
-
-      case XEXP_NODE: // traditional voltage nodes  Even drops (like V(1,2)) handled here
-        param_list.push_back(Param( "V" , 1 ));
-        param_list.push_back(Param( varName , 0.0 ));
-        break;
-
-      case XEXP_INSTANCE:
+      if (paramMapIter == context_function_map.end())
       {
-        std::string currentName("I");
-        if( (varLeadDesignator != 0) && (varLeadDesignator!=' ') )
-        {
-          currentName = currentName + varLeadDesignator;
-        }
-        param_list.push_back( Param( currentName , 1 ) );
-        param_list.push_back( Param( varName , 0.0 ) );
-      } 
-      break;
-
-      case XEXP_LEAD:
-      {
-        sensitivitiesPossible_=false;// only difference with XEXP_INSTANCE
-
-        std::string currentName("I");
-        if( (varLeadDesignator != 0) && (varLeadDesignator!=' ') )
-        {
-          currentName = currentName + varLeadDesignator;
-        }
-        param_list.push_back( Param( currentName , 1 ) );
-        param_list.push_back( Param( varName , 0.0 ) );
+        Report::UserError0() << "Cannot find global function definition for " << *it 
+          << " in expression " << expression_->get_expression();
+        break;
       }
-      break;
 
-      case XEXP_SPECIAL:
-        sensitivitiesPossible_=false;
-        param_list.push_back( Param( varName , 0.0 ) );
-        break;
+      const Util::Param &functionParameter = (*paramMapIter).second;
 
-      case XEXP_STRING:
+      std::string functionPrototype(functionParameter.tag());
+      std::string functionBody(functionParameter.stringValue());
+
+      // The function prototype is defined here as a string whose
+      // value is the  function name together with its parenthese
+      // enclosed comma separated argument list. To resolve a
+      // function, create an expression from the function prototype
+      // and get its ordered list of arguments via get_names, then
+      // create an expression from the function definition and
+      // order its names from that list. Finally, replace the
+      // function in the expression to be resolved.
+      Util::Expression prototypeExression(expressionGroup_, functionPrototype);
+      std::vector<std::string> arguments = prototypeExression.getFunctionArgStringVec ();
+
+      // in the parameter we found, pull out the RHS expression and attach
+      if(functionParameter.getType() == Xyce::Util::EXPR)
       {
-        Util::ParamMap::const_iterator param_it = context_param_map.find(varName);
-        if (param_it != context_param_map.end())
-        {
-          const Util::Param &replacement_param = (*param_it).second;
+        Util::Expression & expToBeAttached 
+          = const_cast<Util::Expression &> (functionParameter.getValue<Util::Expression>());
 
-          if ( replacement_param.getType() == Xyce::Util::STR ||
-               replacement_param.getType() == Xyce::Util::DBLE )
-          {
-            if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>()))
-            {
-              Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
-            }
-          }
-          else if (replacement_param.getType() == Xyce::Util::EXPR)
-          {
-            std::string expressionString=expression_->get_expression();
-            if (expression_->replace_var(varName, replacement_param.getValue<Util::Expression>()) != 0)
-            {
-              Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-                                     << " as substitute for " << varName << " in expression " << expressionString;
-            }
-          }
+        // attach the node
+        expression_->attachFunctionNode(*it, expToBeAttached);
+      }
+      else
+      {
+        Xyce::dout()  << "ExpressionData::setup.  functionParameter is not EXPR type!!!" <<std::endl;
+
+        switch (functionParameter.getType()) 
+        {
+          case Xyce::Util::STR:
+            Xyce::dout()  <<"It is STR type: " <<  functionParameter.stringValue();
+            break;
+          case Xyce::Util::DBLE:
+            Xyce::dout()  <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+            break;
+          case Xyce::Util::EXPR:
+            Xyce::dout()  <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+            break;
+          default:
+            Xyce::dout()  <<"It is default type (whatever that is): " << functionParameter.stringValue();
+        }
+      }
+    }
+  }
+
+  // resolve .param and .global_params
+  const std::vector<std::string> params = expression_->getUnresolvedParams(); // params has to be a copy, not a reference!
+  for (int ii=0;ii<params.size();ii++)
+  {
+    std::string varName = params[ii];
+    Util::ParamMap::const_iterator param_it = context_param_map.find(varName);
+
+    if (param_it != context_param_map.end())
+    {
+      const Util::Param &replacement_param = (*param_it).second;
+
+      if ( replacement_param.getType() == Xyce::Util::STR ||
+           replacement_param.getType() == Xyce::Util::DBLE )
+      {
+        enumParamType paramType=DOT_PARAM;
+        if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),paramType)  )
+        {
+          Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
+        }
+      }
+      else if (replacement_param.getType() == Xyce::Util::EXPR)
+      {
+        // ERK.  Need to add error messaging to the "attachParameterNode" function to (if need be) output this:
+        //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
+        //                       << " as substitute for " << varName << " in expression " << expressionString;
+        //
+        enumParamType paramType=DOT_PARAM;
+        expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), paramType);
+      }
+    }
+    else
+    {
+      // this block of code will check if the current string is in the global parameter map.
+      // If it is, then it will call the "make_var" function for this string.
+      // In the old expression library, this marks the string as being something that the 
+      // calling code will need to set.  It does not do anything else.
+      // Later, the string will be added to the globalParams container, and also the 
+      // expVarNames vector.
+      param_it = context_global_param_map.find(varName);
+      if (param_it != context_global_param_map.end())
+      {
+        if(param_it->second.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+          expression_->attachParameterNode(varName, expToBeAttached);
         }
         else
         {
-          param_it = context_global_param_map.find(varName);
-          if (param_it != context_global_param_map.end())
+          if (!expression_->make_var(varName))
           {
-            if (!expression_->make_var(varName))
-            {
-              Report::UserWarning0() << "Problem setting global parameter " << varName;
-            }
-            param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) );
-          }
-          else
-          {
-            param_list.push_back( Param( varName , 0.0 ) );
+            Report::UserWarning0() << "Problem setting global parameter " << varName;
           }
         }
       }
-      break;
-
-      case XEXP_VARIABLE:
+      else
       {
-        sensitivitiesPossible_=false;
-        // this case is a global param that must be resolved at each use because
-        // it can change during a simulation
-        param_list.push_back( Param( "GLOBAL_PARAMETER" , varName ) );
-      }
-      break;
-
-      default:
-      {
-        Report::UserError0() << "Can't find context for expression variable " << varName << " in expression "
-                               << expressionString_ << std::endl
-                               << "Please check to ensure this parameter is correct and set in your netlist.";
-        ++unresolved_symbol_count;
+        Report::UserWarning0() << "This field: " << varName 
+          << " from the expression " << expression_->get_expression() << " is not resolvable";
       }
     }
   }
@@ -486,42 +459,26 @@ ExpressionData::setup(
 
   state_ = READY;
 
-#if 0
+  // Check ops now.
+  //
+  // ERK.  The old expression library allocated all the necessary ops in this function, and 
+  // those allocations provided early error checking to see if the expression included any
+  // invalid ops.
+  //
+  // The new expression library provides values to the expression using the group object.
+  // So, all Ops needed by the expression are allocated and evaluated by the group.
+  //
+  // Currently, the outputs group allocates those Ops as it needs them, so the easiest 
+  // way to force them to be allocated at this stage is to simply evaluate the expression.
+  // The result of that evaluation is discarded.
+  //
+  if (expression_)
   {
-  ParamList::iterator first = param_list.begin();
-  ParamList::iterator theEnd = param_list.end();
-  ParamList::iterator iter;
-  int i=0;
-  for (iter=first;iter!=theEnd;iter++,i++)
-  {
-    std::cout << "param_list " << i << " " << *iter;
+    double result;
+    Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = Teuchos::rcp_dynamic_cast<outputsXyceExpressionGroup>(expressionGroup_);
+    expression_->evaluateFunction(result);
+    expression_->clearOldResult();
   }
-  }
-#endif
-
-  Util::Op::makeOps(comm, op_builder_manager, NetlistLocation(), param_list.begin(), param_list.end(), std::back_inserter(expressionOps_));
-
-#if 0
-  {
-  // recall that: typedef std::vector<Operator *> OpList;  So NOT a LIST!!!  arg
-  Util::Op::OpList::iterator first = expressionOps_.begin();
-  Util::Op::OpList::iterator theEnd = expressionOps_.end();
-  Util::Op::OpList::iterator iter;
-  int i=0;
-  for (iter=first;iter!=theEnd;iter++,i++)
-  {
-    Op::Operator * opPtr = (*iter);
-    Op::Operator & opRef = *opPtr;
-    const std::vector<std::string> & args = opRef.getArgs();
-    std::cout << "expressionOps_ " << i << "  " << opRef.getName();
-    for (int j=0;j<args.size();j++)
-    {
-      std::cout << "   " << args[j];
-    }
-    std::cout << std::endl;
-  }
-  }
-#endif
 
   return state_;
 }
@@ -543,67 +500,5 @@ void ExpressionData::getExpressionArgs(std::vector<std::string> & args)
   }
 }
 
-//-----------------------------------------------------------------------------
-// Namespace     : Unnamed
-// Purpose       : file-local scoped methods and data
-// Special Notes :
-// Creator       : Tom Russo, SNL
-// Creation Date : 11/27/2013
-//-----------------------------------------------------------------------------
-namespace {
-
-//-----------------------------------------------------------------------------
-// Function      : convertNodalComputation
-// Purpose       : given a nodal expression string (e.g. "VM(A,B)"),
-//                 construct the set of Params that makeOps would expect for
-//                 it
-// Special Notes :
-//
-// Scope         : file-local
-// Creator       : Tom Russo
-// Creation Date : 11/27/2013
-//-----------------------------------------------------------------------------
-void convertNodalComputation(
-  std::string &         nodalComputation,
-  ParamList &           paramList)
-{
-  ParamList tempParamList;
-
-  std::size_t firstParen = nodalComputation.find_first_of("(");
-  std::size_t lastParen = nodalComputation.find_first_of("(");
-  // the length of the name of the param is actually equal to the position
-  // of the first paren
-  std::string compName=nodalComputation.substr(0,firstParen);
-  std::string args=nodalComputation.substr(firstParen+1,nodalComputation.length()-compName.length()-2);
-
-  if (DEBUG_EXPRESSION)
-    Xyce::dout() << "Processing nodalComputation : " << nodalComputation << Util::push<< std::endl
-                 << "name of computation: " << compName << std::endl
-                 << "args: " << args << Util::push << std::endl;
-
-  std::size_t firstComma=args.find_first_of(",");
-  while (firstComma != std::string::npos)
-  {
-    std::string arg = args.substr(0,firstComma);
-    std::size_t argsLength = args.length();
-    args = args.substr(firstComma+1,argsLength-arg.length()-1);
-    firstComma = args.find_first_of(",");
-    tempParamList.push_back(Param(arg,0.0));
-    if (DEBUG_EXPRESSION)
-      Xyce::dout() << "arg " << arg << std::endl;
-  }
-
-  tempParamList.push_back(Param(args, 0.0));
-
-  if (DEBUG_EXPRESSION)
-    Xyce::dout() << "Remaining arg " << args << std::endl
-                 << "There were " << tempParamList.size() << " args." << Util::pop << std::endl
-                 << Util::pop << std::endl;
-
-  paramList.push_back(Param(compName, static_cast<int>(tempParamList.size())));
-  std::copy (tempParamList.begin(), tempParamList.end(), std::back_inserter(paramList));
-}
-
-} // namespace (unnammed)
 } // namespace Util
 } // namespace Xyce

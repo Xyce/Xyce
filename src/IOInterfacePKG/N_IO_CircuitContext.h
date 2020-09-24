@@ -42,6 +42,9 @@
 #include <vector>
 #include <string>
 
+// trilinos includes
+#include <Teuchos_RCP.hpp>
+
 // ----------   Xyce Includes   ----------
 #include <N_DEV_fwd.h>
 #include <N_DEV_Param.h>
@@ -104,6 +107,7 @@ public:
 
   // Constructors.
   CircuitContext(
+    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
     Util::Op::BuilderManager &          op_builder_manager,
     std::list<CircuitContext*> &        context_list,
     CircuitContext *&                   current_circuit_context);
@@ -213,10 +217,11 @@ public:
   void restorePreviousContext() const;
   bool globalNode (const std::string &nodeName) const;
 
-  // If the input paramter has an expression value, replace replace the
-  // parameters and functions in the expression with their actual values.
-  bool resolveParameter(Util::Param& parameter,
-                        std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+  // ERK. new version, with no exceptions strings (i.e. function arguments)
+  bool resolveParameter(Util::Param& parameter) const;
+
+  // ERK. new function for new expression.
+  bool resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs) const; 
 
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved
@@ -435,6 +440,8 @@ private:
   Util::UParamList resolvedParams_;
   Util::ParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 //----------------------------------------------------------------------------

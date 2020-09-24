@@ -150,7 +150,7 @@ bool Instance::processDopingParams (Param & ndParam, std::string param)
 
     if ( dopeInfoMap.find(regionName) == dopeInfoMap.end() )
     {
-      dopeInfoMap[regionName] = new DopeInfo();
+      dopeInfoMap[regionName] = new DopeInfo(getSolverState());
       dopeInfoMap[regionName]->name = regionName;
     }
 

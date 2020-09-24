@@ -1,0 +1,20 @@
+#!/bin/sh
+
+make -f Makefile.cmplx.gcov_gcc8 clean
+make -f Makefile.cmplx.gcov_gcc8 
+
+./complexParserUnitTest
+
+# Note:  lcov version 1.13 is busted!  Use 1.14 if possible.
+
+rm -rf newExpressionLibraryComplex.info
+/Users/erkeite/LCOV/INSTALL/bin/lcov -t "newExpressionLibComplex" --directory . -c -o newExpressionLibraryComplex.info
+
+/Users/erkeite/LCOV/INSTALL/bin/lcov --remove newExpressionLibraryComplex.info "/Library/*" "/opt/local/include/FlexLexer.h" "/Users/erkeite/XYCE/Xyce_Lib/*" "/Users/erkeite/GTEST/*" -o newExpressionLibraryComplex.info
+
+/Users/erkeite/LCOV/INSTALL/bin/genhtml -o . -t "newExpressionLibComplex coverage" --num-spaces 2 newExpressionLibraryComplex.info
+open index.html
+
+
+
+

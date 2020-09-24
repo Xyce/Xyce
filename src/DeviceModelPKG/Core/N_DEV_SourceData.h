@@ -104,7 +104,7 @@ public:
 
   virtual bool updateSource() = 0;
 
-  virtual void setupBreakpoints() {return;}
+  virtual void setupBreakPoints() {return;}
   virtual bool getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes)
   { return true; }
 
@@ -115,13 +115,6 @@ public:
   virtual double period() { return 0.0; }
 
   double returnSource ();
-
-#if 0
-  bool getResetFlag ()
-  {
-    return resetFlag_;
-  }
-#endif
 
   std::string getSourceTypeName ();
 
@@ -154,8 +147,6 @@ protected:
   double SourceValue;
 
   bool initializeFlag_;
-
-  bool resetFlag_;
 
   const SolverState & solState_;
   const DeviceOptions & devOptions_;
@@ -408,7 +399,7 @@ private:
 
 public:
   virtual bool updateSource() /* override */ ;
-  virtual void setupBreakpoints() { preComputedBreakpointsDone = false; }
+  virtual void setupBreakPoints() { preComputedBreakpointsDone = false; }
   bool getBreakPoints( std::vector<Util::BreakPoint> & breakPointTimes);
   void printOutParams ();
 

@@ -118,6 +118,7 @@ public:
   {}
 
   virtual const std::vector<std::string> & getDepSolnVars();
+  virtual const std::vector<int> & getDepSolnTypes();
   virtual void registerDepSolnGIDs( const std::vector< IdVector > & varList );
 
   virtual void registerDepSolnLIDs(const std::vector< IdVector > & depSolnLIDVecRef);
@@ -138,18 +139,14 @@ public:
     return expVarGIDs;
   }
 
-  virtual void setupBreakpoints() {return;}
+  virtual void setupBreakPoints() {return;}
 
   virtual bool getInstanceBreakPoints (std::vector<Util::BreakPoint> &breakPointTimes);
 
   virtual bool updateSource ();
 
   virtual bool processParams ();
-
-  virtual bool processInstanceParams () 
-  {
-    return true;
-  }
+  virtual bool processInstanceParams () { return true; }
 
   virtual bool updateTemperature(const double & temp_tmp);
 

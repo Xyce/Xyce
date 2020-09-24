@@ -53,6 +53,9 @@
 #include <string>
 #include <vector>
 
+// trilinos includes
+#include <Teuchos_RCP.hpp>
+
 #include <N_ANP_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_LAS_fwd.h>
@@ -62,12 +65,17 @@
 namespace Xyce {
 namespace Util {
 
+class baseExpressionGroup;
+
 class ExpressionData
 {
 public:
   enum State {NOT_SETUP, PARSE_FAILED, UNRESOLVED_SYMBOL, READY};
 
-  ExpressionData (const std::string &expression);
+  ExpressionData (
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+      const std::string &expression);
+
   ~ExpressionData();
 
   const std::string &getExpression() const 
@@ -88,21 +96,13 @@ public:
     const Util::ParamMap &              context_param_map,
     const Util::ParamMap &              context_global_param_map);
 
-  double evaluate(
-    Parallel::Machine           comm,
-    double                      current_circuit_time,
-    double                      current_circuit_dt,
-    const Linear::Vector *      solnVecPtr,
-    const Linear::Vector *      stateVecPtr,
-    const Linear::Vector *      stoVecPtr,
-    const Linear::Vector *      solnVecImagPtr = 0) const;
-
-  double evaluate(
+  void evaluate(
       Parallel::Machine comm, 
       double current_circuit_time, 
       double current_circuit_dt, 
-      const Util::Op::OpData & opData) const;
-
+      const Util::Op::OpData & opData,
+      double &result
+      ) const;
 
   void evaluate(
       Parallel::Machine comm, 
@@ -113,6 +113,24 @@ public:
       std::vector< double > &derivs 
       ) const;
 
+  // complex versions
+  void evaluate(
+      Parallel::Machine comm, 
+      double current_circuit_time, 
+      double current_circuit_dt, 
+      const Util::Op::OpData & opData,
+      std::complex<double>  &result
+      ) const;
+
+  void evaluate(
+      Parallel::Machine comm, 
+      double current_circuit_time, 
+      double current_circuit_dt, 
+      const Util::Op::OpData & opData,
+      std::complex<double> &result, 
+      std::vector< std::complex<double> > &derivs 
+      ) const;
+
 private:
   Expression *                  expression_;                    ///< Compiled Expression
   std::string                   expressionString_;              ///< Original expression string
@@ -120,6 +138,8 @@ private:
   Op::OpList                    expressionOps_;                 ///< Ops to compute variables
   mutable std::vector<double>   variableValues_;                ///< Cache of computed variables
   bool                          sensitivitiesPossible_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 } // namespace Util

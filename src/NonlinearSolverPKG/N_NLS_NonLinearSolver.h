@@ -61,6 +61,7 @@ using Teuchos::rcp;
 #include <N_UTL_Stats.h>
 
 #include <N_LAS_Operator.h>
+#include <expressionGroup.h>
 
 // ---------- Using Declarations ----------
 using Teuchos::RCP;
@@ -134,6 +135,8 @@ public:
 
   virtual bool registerOutputMgr (IO::OutputMgr * outPtr);
   virtual bool registerInitialConditionsManager(IO::InitialConditionsManager * ptr);
+
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   virtual bool initializeAll();
 
@@ -260,6 +263,8 @@ private:
                                                     // depending on the mode.  It is only used in setting up output file
                                                     // names.
   bool matrixFreeFlag_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 //---------------------------------------------------------------------------

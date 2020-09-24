@@ -39,6 +39,7 @@
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ANP_EmbeddedSampling.h>
 #include <N_ANP_StepEvent.h>
 #include <N_ANP_UQSupport.h>
@@ -631,7 +632,9 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
   {
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
-      outFuncDataVec_[iout]->expDataPtr = new Util::ExpressionData(outFuncDataVec_[iout]->outFuncString);
+      outFuncDataVec_[iout]->expDataPtr = new Util::ExpressionData(
+          analysisManager_.getExpressionGroup(),
+          outFuncDataVec_[iout]->outFuncString);
     }
   }
   else if (measuresGiven_)
@@ -1314,10 +1317,9 @@ void EmbeddedSampling::computeEnsembleOutputs()
       for (int iout=0;iout<outFuncDataVec_.size();++iout)
       {
         UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-
-        double val = outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, 
-              nextSolutionPtr_, nextStatePtr_, nextStorePtr_ );
-
+        Util::Op::OpData opDataTmp(0, nextSolutionPtr_, 0, nextStatePtr_, nextStorePtr_, 0);
+        double val = 0.0;
+        outFunc.expDataPtr->evaluate(comm, circuit_time, circuit_dt, opDataTmp, val);
         outFunc.sampleOutputs.push_back(val);
       }
     }

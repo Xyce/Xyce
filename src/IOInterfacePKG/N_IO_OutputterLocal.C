@@ -358,6 +358,32 @@ createOps(
       *inserter++ = new RFparamsRealOp("Re(" + RFparamsName + ")", type, index1, index2);
       *inserter++ = new RFparamsImaginaryOp("Im(" + RFparamsName + ")", type, index1, index2);
     }
+#if 0
+    // Not sure if this is good idea.    This was added as a candidate fix for
+    // bug 1032 on the SON, entitled "The V(a,b) operator may not print out 
+    // correctly when used in expressions for .AC analyses".  But having added
+    // it and played with it, I now think it is not a good choice.
+    //
+    // The problem with the below implementation is that it applies the Re and Im 
+    // prefixes unconditionally to an expression-based output.  Some expressions 
+    // will clearly have both real and imaginary components and some never will.
+    //
+    // For example, one would never need Im(ONOISE), as ONOISE is always real-valued.
+    //
+    // The new expression library gives you the power to request these things. It would
+    // allow .print  AC {Re(V(A))} {Img(V(A))}
+    //
+    else if (expandComplexTypes && (*it)->id() == Util::Op::identifier<ExpressionOp>())
+    {
+      const ExpressionOp *op = dynamic_cast<const ExpressionOp *>(*it);
+      if (op)
+      {
+        *inserter++ = new ExpressionRealOp( *op );
+        *inserter++ = new ExpressionImaginaryOp( *op );
+        delete *it;
+      }
+    }
+#endif
     else
       *inserter++ = *it;
   }

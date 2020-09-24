@@ -305,7 +305,9 @@ bool Transient::setAnalysisParams(
     // set-up expression object for getting a user specified, time dependent max time step value
     delete maxTimeStepExpression_;
 
-    maxTimeStepExpression_ = new Util::ExpressionData(maxTimeStepExpressionString_);
+    maxTimeStepExpression_ = new Util::ExpressionData(
+          analysisManager_.getExpressionGroup(),
+        maxTimeStepExpressionString_);
   }
 
   // historySize_ should can be set from the .options timeint line.  Use default in tiaParams
@@ -952,12 +954,18 @@ bool Transient::doInit()
                                       outputManagerAdapter_.getOutputManager().getMainContextFunctionMap(),
                                       outputManagerAdapter_.getOutputManager().getMainContextParamMap(),
                                       outputManagerAdapter_.getOutputManager().getMainContextGlobalParamMap()) == Util::ExpressionData::READY)
-      suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_,
-                                                          outputManagerAdapter_.getOutputManager().getCircuitTime(),
-                                                          outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-                                                          analysisManager_.getDataStore()->currSolutionPtr,
-                                                          analysisManager_.getDataStore()->currStatePtr,
-                                                          analysisManager_.getDataStore()->currStorePtr);
+    {
+        Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                      analysisManager_.getDataStore()->currStatePtr,
+                                      analysisManager_.getDataStore()->currStorePtr, 0);
+
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
+            outputManagerAdapter_.getOutputManager().getCircuitTime(),
+            outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
+            //opDataTmp);
+            opDataTmp, suggestedMaxTime);
+    }
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();
@@ -1046,12 +1054,16 @@ bool Transient::doTranOP ()
       double suggestedMaxTime=0.0;
       if (maxTimeStepExpression_)
       {
-        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                      analysisManager_.getDataStore()->currStatePtr,
+                                      analysisManager_.getDataStore()->currStorePtr, 0);
+
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            analysisManager_.getDataStore()->currSolutionPtr, 
-            analysisManager_.getDataStore()->currStatePtr, 
-            analysisManager_.getDataStore()->currStorePtr);
+            //opDataTmp);
+            opDataTmp, suggestedMaxTime);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1169,12 +1181,15 @@ bool Transient::doLoopProcess()
       double suggestedMaxTime=0.0;
       if (maxTimeStepExpression_)
       {
-        suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+      Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                    analysisManager_.getDataStore()->currStatePtr,
+                                    analysisManager_.getDataStore()->currStorePtr, 0);
+
+        //suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+        maxTimeStepExpression_->evaluate(comm_, 
             outputManagerAdapter_.getOutputManager().getCircuitTime(),
             outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-            analysisManager_.getDataStore()->currSolutionPtr, 
-            analysisManager_.getDataStore()->currStatePtr, 
-            analysisManager_.getDataStore()->currStorePtr);
+            opDataTmp, suggestedMaxTime);
       }
       analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
       analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1418,12 +1433,16 @@ void Transient::preMixedSignalStepDetails(
     double suggestedMaxTime=0.0;
     if (maxTimeStepExpression_)
     {
-      suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+      Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                    analysisManager_.getDataStore()->currStatePtr,
+                                    analysisManager_.getDataStore()->currStorePtr, 0);
+
+     // suggestedMaxTime = maxTimeStepExpression_->evaluate(comm_, 
+      maxTimeStepExpression_->evaluate(comm_, 
           outputManagerAdapter_.getOutputManager().getCircuitTime(),
           outputManagerAdapter_.getOutputManager().getCircuitTimeStep(),
-          analysisManager_.getDataStore()->currSolutionPtr, 
-          analysisManager_.getDataStore()->currStatePtr, 
-          analysisManager_.getDataStore()->currStorePtr);
+          //opDataTmp);
+          opDataTmp,suggestedMaxTime);
     }
     analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
     analysisManager_.getWorkingIntegrationMethod().initialize(tiaParams_);
@@ -1616,10 +1635,27 @@ bool Transient::processSuccessfulDCOP()
   // needs to happen before dcopFlag_ is set to false.
   loader_.acceptStep();
 
+#if 0
+  // ERK.  with the new expression library, this call shouldn't be necessary.   
+  // This call to "set_accepted_time" can be performed on a random expression 
+  // like this b/c it operates on static data.  Therefore, it affects all 
+  // expressions.
+  //
+  // The new expression library will use a singleton "mainXyceExpressionGroup" 
+  // class to get its information from Xyce.  The correct thing to do will be to
+  // call a "set accepted time" (or equivalent) on that group.
+  //
+  // But in reality, that group will probably just have access to the 
+  // stepErrorControl class directly, so it can just pull the "nextTime" value.
+  //
+  // So, then, no need for this.
+  //
+  // ERK: Old way.
   // communicate to the expression library that a new step has been accepted.
   // Like with the device notification, needs to happen before anything is updated.
   Util::Expression expr(std::string("0"));
   expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
+#endif
 
   // Reset some settings (to switch from DCOP to transient, if not the
   // first step of a "double" DCOP.
@@ -1743,7 +1779,7 @@ bool Transient::doProcessSuccessfulStep()
 
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
-    dout() << "  Transient::processSuccessfulStep()" << std::endl
+    dout() << "  Transient::doProcessSuccessfulStep()" << std::endl
            << "Newton step succeeded:" << std::endl
            << "nextSolutionPtr: " << std::endl;
 
@@ -1767,10 +1803,28 @@ bool Transient::doProcessSuccessfulStep()
   // solution so it can save history.
   loader_.acceptStep();
 
+#if 0
+  // ERK.  with the new expression library, this call shouldn't be necessary.   
+  // This call to "set_accepted_time" can be performed on a random expression 
+  // like this b/c it operates on static data.  Therefore, it affects all 
+  // expressions.
+  //
+  // The new expression library will use a singleton "mainXyceExpressionGroup" 
+  // class to get its information from Xyce.  The correct thing to do will be to
+  // call a "set accepted time" (or equivalent) on that group.
+  //
+  // But in reality, that group will probably just have access to the 
+  // stepErrorControl class directly, so it can just pull the "nextTime" value.
+  //
+  // So, then, no need for this.
+  //
+  // ERK: Old way.
+
   // communicate to the expression library that a new step has been accepted.
   // Like with the device notification, needs to happen before anything is updated.
   Util::Expression expr(std::string("0"));
   expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
+#endif
 
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the
@@ -1781,13 +1835,17 @@ bool Transient::doProcessSuccessfulStep()
   double suggestedMaxTime = 0.0;
   if (maxTimeStepExpression_)
   {
-    suggestedMaxTime = maxTimeStepExpression_->evaluate(
+    Util::Op::OpData opDataTmp(0, analysisManager_.getDataStore()->currSolutionPtr, 0,
+                                  analysisManager_.getDataStore()->currStatePtr,
+                                  analysisManager_.getDataStore()->currStorePtr, 0);
+
+    //suggestedMaxTime = maxTimeStepExpression_->evaluate(
+    maxTimeStepExpression_->evaluate(
         comm_, 
         outputManagerAdapter_.getOutputManager().getCircuitTime(), 
         outputManagerAdapter_.getOutputManager().getCircuitTimeStep(), 
-        analysisManager_.getDataStore()->currSolutionPtr, 
-        analysisManager_.getDataStore()->currStatePtr, 
-        analysisManager_.getDataStore()->currStorePtr);
+        //opDataTmp);
+        opDataTmp, suggestedMaxTime);
   }
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();

@@ -609,7 +609,7 @@ Instance::constructComposite(const std::string & compositeName, const std::strin
 {
   if (compositeName == "DOPINGPROFILES" || compositeName == "REGION")
   {
-    DopeInfo *n = new DopeInfo();
+    DopeInfo *n = new DopeInfo(getSolverState());
     dopeInfoMap[paramName] = n;
     return static_cast<CompositeParam *> (n);
   }

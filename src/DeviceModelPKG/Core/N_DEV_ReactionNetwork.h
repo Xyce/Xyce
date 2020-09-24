@@ -68,7 +68,10 @@ class ReactionNetwork
 {
 public:
 
-  ReactionNetwork(const std::string &name = "NoName");
+  ReactionNetwork(
+      const SolverState & solver_state,
+      const std::string &name = "NoName");
+
   ReactionNetwork(const ReactionNetwork & right);
   virtual ~ReactionNetwork();
 
@@ -134,9 +137,8 @@ public:
   std::pair<std::string,double> getInitialCondition(int i);
   int getNumInitialConditions();
 
-  void setSimTime(double time);
-  void setSimDT(double step);
-  double getBreakpointTime();
+  void setupBreakPoints();
+  bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
   inline void setSourceScaleFac(double scf) {sourceScaleFac=scf;};
   inline void setMasterSourceValue(double msv) {masterSourceValue=msv;};
 
@@ -239,6 +241,8 @@ private:
   bool variableRateCoeffs;
 
   bool applySources;
+
+  const SolverState & solState_;
 };
 
 //-----------------------------------------------------------------------------

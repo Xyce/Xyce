@@ -36,8 +36,19 @@
 
 #include <Sacado_No_Kokkos.hpp>
 
+#include <complex>
+
 namespace Xyce {
 namespace Util {
+
+template <typename ScalarA, typename ScalarB>
+inline bool greaterThan(ScalarA & left, ScalarB & right) { return (left > right); }
+
+template <>
+inline bool greaterThan(std::complex<double> & left, std::complex<double> & right) { return (std::real(left) > std::real(right)); }
+
+template <>
+inline bool greaterThan(const std::complex<double> & left, const std::complex<double> & right) { return (std::real(left) > std::real(right)); }
 
 //-----------------------------------------------------------------------------
 // Class         : interpolator base class
@@ -108,7 +119,8 @@ interpolator<ScalarT>::binarySearch(
   {
     //size_t i = (ihi + ilo)/2;
     size_t i = (ihi + ilo) >> 1;
-    if(xa[i] > x)
+
+    if(greaterThan(xa[i],x))
     {
       ihi = i;
     }
@@ -287,8 +299,8 @@ void akima<ScalarT>::init (
   std::vector<ScalarT> t(size,0.0);
   for (i = 0; i < size; i++)
   {
-    const ScalarT dm32 = std::fabs(m[i + 3] - m[i + 2]);
-    const ScalarT dm10 = std::fabs(m[i + 1] - m[i]);
+    const ScalarT dm32 = std::abs(m[i + 3] - m[i + 2]);
+    const ScalarT dm10 = std::abs(m[i + 1] - m[i]);
 
     if ((dm32+dm10) == 0.0)
     {
@@ -591,7 +603,7 @@ void wodicka<ScalarT>::init (
     // Wodicka variation, as documented in the book, "Numerical Algorithms in C" 
 
     // this is the denominator of eq.(1) in original Akima 1970 paper
-    const ScalarT denom = std::fabs(m[i + 3] - m[i+2]) + std::fabs(m[i + 1] - m[i]);
+    const ScalarT denom = std::abs(m[i + 3] - m[i+2]) + std::abs(m[i + 1] - m[i]);
     if (denom == 0.0)
     {
       // if the denominator of eq.(1) is zero, then this is a special case
@@ -601,8 +613,8 @@ void wodicka<ScalarT>::init (
     }
     else
     {
-      const ScalarT denom_next = std::fabs(m[i + 4] - m[i + 3]) + std::fabs(m[i+2] - m[i + 1]);
-      const ScalarT alpha_i = std::fabs(m[i + 1] - m[i]) / denom;
+      const ScalarT denom_next = std::abs(m[i + 4] - m[i + 3]) + std::abs(m[i+2] - m[i + 1]);
+      const ScalarT alpha_i = std::abs(m[i + 1] - m[i]) / denom;
         
       t1 = (1.0 - alpha_i) * m[i + 1] + alpha_i * m[i+2];
 
@@ -612,7 +624,7 @@ void wodicka<ScalarT>::init (
       }
       else
       {
-        ScalarT alpha_ip1 = std::fabs(m[i+2] - m[i + 1]) / denom_next;
+        ScalarT alpha_ip1 = std::abs(m[i+2] - m[i + 1]) / denom_next;
         t2 = (1.0 - alpha_ip1) * m[i+2] + alpha_ip1 * m[i + 3];
       }
       
@@ -786,12 +798,7 @@ public:
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & x, ScalarT & ypp) const;
 
-#if 0
-  // not implemented
-  void evalInteg (
-     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
-     const ScalarT & a, const ScalarT & b, ScalarT & result) {} const;
-#endif
+  // evalInteg is not implemented
 
 public:
   std::vector<ScalarT> y2;
@@ -867,7 +874,7 @@ void cubicSpline<ScalarT>::eval(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x_position) khi=k;
+    if(greaterThan(xa[k],x_position)) khi=k;
     else klo=k;
   }  
   h = xa[khi] - xa[klo];
@@ -939,7 +946,7 @@ void cubicSpline<ScalarT>::evalDeriv(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x_position) khi=k;
+    if (greaterThan(xa[k], x_position)) khi=k;
     else klo=k;
   }
   h = xa[khi] - xa[klo];
@@ -964,7 +971,7 @@ void cubicSpline<ScalarT>::evalDeriv(
     b = (x_position - xa[klo])/h;
 
     // derivative:  (formula 3.3.5 from numerical recipies in C)
-    dydx_spline =  (ya[khi]-ya[klo])/h - ((3*a*a-1)*y2[klo] - (3*b*b-1)*y2[khi])*h/6.0;
+    dydx_spline =  (ya[khi]-ya[klo])/h - ((3.0*a*a-1.0)*y2[klo] - (3.0*b*b-1.0)*y2[khi])*h/6.0;
   }
 }
 
@@ -991,7 +998,7 @@ void cubicSpline<ScalarT>::evalDeriv2(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x_position) 
+    if (greaterThan(xa[k], x_position))
     {
       khi=k;
     }
@@ -1083,7 +1090,8 @@ void linear<ScalarT>::eval(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x) 
+
+    if(greaterThan(xa[k],x))
     {
       khi=k;
     }
@@ -1136,7 +1144,8 @@ void linear<ScalarT>::evalDeriv(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x) 
+
+    if(greaterThan(xa[k],x))
     {
       khi=k;
     }
@@ -1264,12 +1273,7 @@ public:
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & x, ScalarT & ypp) const;
 
-#if 0
-  // not implemented
-  void evalInteg (
-     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
-     const ScalarT & a, const ScalarT & b, ScalarT & result) const;
-#endif
+  // evalInteg not implemented
 
 public:
   std::vector<ScalarT> b;
@@ -1439,15 +1443,7 @@ public:
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & x, ScalarT & dydx) const;
 
-#if 0 // not implemented:
-  void evalDeriv2 (
-     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
-     const ScalarT & x, ScalarT & ypp) const;
-
-  void evalInteg (
-     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
-     const ScalarT & a, const ScalarT & b, ScalarT & result) const;
-#endif
+  // evalDeriv2 and evalInteg not implemented
 
 public:
   std::vector<ScalarT>  w;
@@ -1481,7 +1477,7 @@ void barycentricLagrange<ScalarT>::init (
       }
     }
 
-    w[j] = 1/w[j];
+    w[j] = 1.0/w[j];
   }
 }
 

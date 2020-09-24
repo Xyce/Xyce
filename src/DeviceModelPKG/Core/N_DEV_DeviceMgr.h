@@ -73,6 +73,8 @@ using std::tr1::unordered_map;
 #include <N_UTL_Listener.h>
 #include <N_UTL_Op.h>
 
+class SweepParam;
+
 namespace Xyce {
 namespace Device {
 
@@ -121,6 +123,8 @@ public:
   void notify(const Analysis::StepEvent &event);
 
   bool registerAnalysisManager(Analysis::AnalysisManager *analysis_manager);
+
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   bool registerNonlinearSolver (Nonlinear::Manager * tmp_nlsMgrPtr)
   {
@@ -235,6 +239,12 @@ public:
 //
   bool setParam(const std::string & name, double val, bool overrideOriginal = false);
 
+  bool setParamRandomExpressionTerms(
+      const std::string & name, 
+      const std::string & opName, 
+      int opIndex,
+      double val, bool overrideOriginal = false);
+
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }
   bool getSeparateLoadFlag ()          { return devOptions_.separateLoad; }
 
@@ -264,6 +274,11 @@ public:
     return solState_;
   }
 
+  const ExternData &getExternData() const
+  {
+    return externData_;
+  }
+
   const ArtificialParameterMap &getArtificialParameterMap() const
   {
     return artificialParameterMap_;
@@ -277,6 +292,11 @@ public:
   bool getVoltageLimiterFlag()
   {
     return devOptions_.voltageLimiterFlag;
+  }
+
+  double getGmin()
+  {
+    return devOptions_.gmin;
   }
 
   // setup initial conditions on devices
@@ -505,6 +525,11 @@ public:
 // private:
 //   bool getParamNoReduce(const std::string &name, double &value) const;
 
+  void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
+
+  void updateDependentParams();
+  void resetScaledParams();
+
 private:
   Device &getDeviceByModelType(const EntityTypeId model_type);
 
@@ -515,7 +540,7 @@ private:
   bool updatePrimaryState_();
   bool updateSecondaryState_();
 
-  bool updateDependentParameters_();
+  void updateDependentParameters_();
 
   // Do the actual solve/calculation for the external devices
   void updateExternalDevices_();
@@ -532,9 +557,9 @@ private:
   bool                          sensFlag_;              ///< .SENS present in netlist
   bool                          isLinearSystem_;        ///< True if all devices in netlist have isLinearDevice() true
   bool                          firstDependent_;        ///< True until updateDependentParameters_ is called.
-  bool                          parameterChanged_;      ///< Only used locally in updateDependentParameters_, don't know if stateful of just a member for fun
   bool                          breakPointInstancesInitialized;
   double                        timeParamsProcessed_;   ///< Time updateDependentParameters was called
+  double                        freqParamsProcessed_;   ///< Time updateDependentParameters was called
 
   ExternData                    externData_;
   MatrixLoadData                matrixLoadData_;        ///< temporary jacobian load structures:
@@ -544,6 +569,8 @@ private:
   bool                          externalStateFlag_;
 
   Analysis::AnalysisManager *   analysisManager_;       ///< To search for non-device parameters.  This needs to be removed
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
+
   // IO::Measure::Manager *        measureManager_;        ///< To search for non-device parameters.  This needs to be removed
   ArtificialParameterMap        artificialParameterMap_; ///< Specially named parameters.  This needs to be removed
   PassthroughParameterSet       passthroughParameterSet_;  ///< Parameters to pass through to external devices when set
@@ -613,6 +640,8 @@ private:
   // used to enable lead-current calcuations for all devices.  This is set, during
   // netlist importation, when I(*), P(*) or W(*) appears on any .PRINT line.
   bool                          iStarRequested_;
+
+  bool                          expressionBasedSamplingEnabled_;
 };
 
 //-----------------------------------------------------------------------------
