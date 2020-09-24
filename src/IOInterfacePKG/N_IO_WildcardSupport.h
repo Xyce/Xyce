@@ -43,7 +43,8 @@ namespace IO {
 bool isWildCardMatch(
   const std::string& name,
   const std::vector<std::string>& nameSubStrings,
-  int firstStarPos);
+  int firstStarPos,
+  bool trailingStar);
 
 bool splitWildCardString(
   const std::string& name,

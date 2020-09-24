@@ -2970,6 +2970,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -2981,7 +2982,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itEN = external_nodes.begin();
       for ( ; itEN!=external_nodes.end(); ++itEN)
       {
-        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos))
+        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos, trailingStar))
         {
           ExtendedString tmpStr((*itEN).first);
           tmpStr.toUpper();
@@ -3001,6 +3002,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -3045,7 +3047,7 @@ void removeStarVariables(
         if (addDevice)
 	{
           // Use tmpStr here since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
             iWildCard_list.push_back(tmpStr);
         }
       }
@@ -3062,6 +3064,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -3106,7 +3109,7 @@ void removeStarVariables(
 	{
           // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
 	    pWildCard_list.insert(tmpStr);
         }
       }
@@ -3123,6 +3126,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -3167,7 +3171,7 @@ void removeStarVariables(
 	{
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
 	    wWildCard_list.insert(tmpStr);
         }
       }
