@@ -42,6 +42,8 @@
 #include <map>
 #include <vector>
 
+#include <Teuchos_RCP.hpp>
+
 #include <N_ANP_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_ERH_fwd.h>
@@ -58,13 +60,17 @@
 #include <N_UTL_ReportHandler.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_JSON.h>
-#include <mainXyceExpressionGroup.h>
 #include <N_DEV_ADC.h>
 #include <N_DEV_DAC.h>
 
 #include <N_IO_CmdParse.h>
 
 namespace Xyce {
+
+namespace Util {
+class mainXyceExpressionGroup;
+}
+
 namespace Circuit {
 
 //-----------------------------------------------------------------------------
