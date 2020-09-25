@@ -36,7 +36,6 @@ set ( Utility_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_Diagnostic.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_Expression.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_ExpressionData.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_ExpressionInternals.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_APFT.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_FFTInterface.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_LogStream.C

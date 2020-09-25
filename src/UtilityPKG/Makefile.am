@@ -39,7 +39,6 @@ libUtility_la_SOURCES = \
   N_UTL_NoCase.C \
   N_UTL_Expression.C \
   N_UTL_ExpressionData.C \
-  N_UTL_ExpressionInternals.C \
   N_UTL_APFT.C \
   N_UTL_FFTInterface.C \
   N_UTL_LogStream.C \
@@ -83,7 +82,6 @@ libUtility_la_SOURCES = \
   N_UTL_Interpolators.h \
   N_UTL_ExpressionSymbolTable.h \
   N_UTL_Expression.h \
-  N_UTL_ExpressionInternals.h \
   N_UTL_ExpressionData.h \
   N_UTL_FFTInterface.hpp \
   N_UTL_RandomNumbers.h \
