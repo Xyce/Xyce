@@ -54,7 +54,6 @@
 
 #include <N_UTL_Op.h>
 
-#include<newExpression.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
 #include <N_UTL_ExtendedString.h>
