@@ -127,6 +127,11 @@ bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, do
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
 
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    delete *it;
+  }
+
   retval = 0.0;
   if ( !(variableValues.empty()) )
   {
@@ -167,6 +172,11 @@ bool outputsXyceExpressionGroup::getSolutionVal(const std::string & nodeName, st
     variableValues.push_back( val );
   }
 
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    delete *it;
+  }
+
   retval = 0.0;
   if ( !(variableValues.empty()) )
   {
@@ -205,6 +215,11 @@ bool outputsXyceExpressionGroup::getCurrentVal(
   for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+  }
+
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    delete *it;
   }
 
   retval = 0.0;
@@ -253,6 +268,11 @@ bool outputsXyceExpressionGroup::getCurrentVal(
   for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
   {
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_));
+  }
+
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    delete *it;
   }
 
   retval = 0.0;
@@ -358,6 +378,11 @@ bool outputsXyceExpressionGroup::getInternalDeviceVar (const std::string & devic
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
 
+  for (Util::Op::OpList::const_iterator it = internalDeviceVarOps_.begin(); it != internalDeviceVarOps_.end(); ++it)
+  {
+    delete *it;
+  }
+
   retval = 0.0;
   if ( !(variableValues.empty()) )
   {
@@ -420,6 +445,11 @@ bool outputsXyceExpressionGroup::getDnoNoiseDeviceVar(const std::vector<std::str
     for (Util::Op::OpList::const_iterator it = dnoOps_.begin(); it != dnoOps_.end(); ++it)
     {
       variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    for (Util::Op::OpList::const_iterator it = dnoOps_.begin(); it != dnoOps_.end(); ++it)
+    {
+      delete *it;
     }
 
     retval = 0.0;
@@ -487,6 +517,11 @@ bool outputsXyceExpressionGroup::getDniNoiseDeviceVar(const std::vector<std::str
       variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
     }
 
+    for (Util::Op::OpList::const_iterator it = dniOps_.begin(); it != dniOps_.end(); ++it)
+    {
+      delete *it;
+    }
+
     retval = 0.0;
     if ( !(variableValues.empty()) )
     {
@@ -548,6 +583,11 @@ bool outputsXyceExpressionGroup::getONoise(double & retval)
     for (Util::Op::OpList::const_iterator it = onoiseVarOps_.begin(); it != onoiseVarOps_.end(); ++it)
     {
       variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
+    }
+
+    for (Util::Op::OpList::const_iterator it = onoiseVarOps_.begin(); it != onoiseVarOps_.end(); ++it)
+    {
+      delete *it;
     }
 
     retval = 0.0;
@@ -613,6 +653,11 @@ bool outputsXyceExpressionGroup::getINoise(double & retval)
       variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
     }
 
+    for (Util::Op::OpList::const_iterator it = inoiseVarOps_.begin(); it != inoiseVarOps_.end(); ++it)
+    {
+      delete *it;
+    }
+
     retval = 0.0;
     if ( !(variableValues.empty()) )
     {
@@ -672,6 +717,12 @@ bool outputsXyceExpressionGroup::getPower(const std::string & tag, const std::st
   {
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_).real());
   }
+
+  for (Util::Op::OpList::const_iterator it = powerOps_.begin(); it != powerOps_.end(); ++it)
+  {
+    delete *it;
+  }
+
 
   retval = 0.0;
   if ( !(variableValues.empty()) )
@@ -741,6 +792,11 @@ bool outputsXyceExpressionGroup::getSparam (const std::vector<int> & args, std::
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
   }
 
+  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  {
+    delete *it;
+  }
+
   retval = 0.0;
   if ( !(variableValues.empty()) )
   {
@@ -783,16 +839,21 @@ bool outputsXyceExpressionGroup::getYparam (const std::vector<int> & args, std::
 
   paramList.push_back(Param(std::string("Y"),static_cast<int>(args.size())));
   for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
-  Op::OpList sparamOps_;
+  Op::OpList yparamOps_;
 
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
-  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(yparamOps_));
 
   // loop over expressionOps_ to get all the values.
   std::vector<std::complex<double> > variableValues;
-  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  for (Util::Op::OpList::const_iterator it = yparamOps_.begin(); it != yparamOps_.end(); ++it)
   {
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
+  }
+
+  for (Util::Op::OpList::const_iterator it = yparamOps_.begin(); it != yparamOps_.end(); ++it)
+  {
+    delete *it;
   }
 
   retval = 0.0;
@@ -837,16 +898,21 @@ bool outputsXyceExpressionGroup::getZparam (const std::vector<int> & args, std::
 
   paramList.push_back(Param(std::string("Z"),static_cast<int>(args.size())));
   for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
-  Op::OpList sparamOps_;
+  Op::OpList zparamOps_;
 
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
-  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+  Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(zparamOps_));
 
   // loop over expressionOps_ to get all the values.
   std::vector<std::complex<double> > variableValues;
-  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it)
+  for (Util::Op::OpList::const_iterator it = zparamOps_.begin(); it != zparamOps_.end(); ++it)
   {
     variableValues.push_back( Util::Op::getValue(comm_.comm(), *(*it), opData_) );
+  }
+
+  for (Util::Op::OpList::const_iterator it = zparamOps_.begin(); it != zparamOps_.end(); ++it)
+  {
+    delete *it;
   }
 
   retval = 0.0;
