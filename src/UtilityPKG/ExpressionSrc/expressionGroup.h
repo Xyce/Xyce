@@ -38,6 +38,7 @@
 #ifndef expressionGroup_H
 #define expressionGroup_H
 
+#include<vector>
 #include<string>
 #include<complex>
 
