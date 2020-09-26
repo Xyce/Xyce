@@ -42,8 +42,6 @@
 #include <map>
 #include <vector>
 
-#include <Teuchos_RCP.hpp>
-
 #include <N_ANP_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_ERH_fwd.h>
@@ -66,10 +64,6 @@
 #include <N_IO_CmdParse.h>
 
 namespace Xyce {
-
-namespace Util {
-class mainXyceExpressionGroup;
-}
 
 namespace Circuit {
 
@@ -372,8 +366,6 @@ class Simulator
   Util::JSON                            auditJSON_;                     ///< Audit JSON structure
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
-
-  Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_;
 
   IO::CmdParse                          commandLine_;
   IO::HangingResistor                   hangingResistor_;

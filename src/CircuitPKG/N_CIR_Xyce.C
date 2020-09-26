@@ -466,15 +466,12 @@ bool Simulator::doRegistrations_()
   bs1 = Nonlinear::registerPkgOptionsMgr(*nonlinearManager_, *optionsManager_ ); bsuccess = bsuccess && bs1;
 
   // Device Manager registrations
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
   bs1 = deviceManager_->registerNonlinearSolver(nonlinearManager_); bsuccess = bsuccess && bs1;
   bs1 = deviceManager_->registerAnalysisManager(analysisManager_);  bsuccess = bsuccess && bs1;
-  // bs1 = deviceManager_->registerMeasureMgr(measureManager_);       bsuccess = bsuccess && bs1;
 
   // Analysis manager registrations:
   bs1 = analysisManager_->registerParallelServices(parallelManager_); bsuccess = bsuccess && bs1;
   bs1 = analysisManager_->registerElapsedTimer(ElapsedTimerPtr_); bsuccess = bsuccess && bs1;
-  //bs1 = analysisManager_->registerExpressionGroup(baseGroupCast);    bsuccess = bsuccess && bs1;
 
   // Linear Solver registrations:
   bs1 = linearSystem_->registerPDSManager(parallelManager_);    bsuccess = bsuccess && bs1;
@@ -913,7 +910,7 @@ Simulator::RunStatus Simulator::initializeEarly(
 
 
   // ERK.  Allocate up the main expression group
-  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
     *parallelManager_->getPDSComm(),
     *topology_, *analysisManager_, *deviceManager_, *outputManager_));
 
