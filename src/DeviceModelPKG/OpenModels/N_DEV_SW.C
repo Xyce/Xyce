@@ -218,11 +218,6 @@ Instance::Instance(
       expBaseVar = d->lo_var;
       Exp_ptr = d->expr;
 
-      expNumDdt = Exp_ptr->getNumDdt();
-      ddtVals.resize(expNumDdt);
-      li_ddt.resize(expNumDdt);
-      numStateVars += expNumDdt;
-
       jacStamp[0].resize(2+expNumVars);
       jacStamp[1].resize(2+expNumVars);
       for( int i = 0; i < expNumVars; ++i )
@@ -296,10 +291,6 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
   // copy over the global ID lists:
   staLIDVec = staLIDVecRef;
   li_switch_state = staLIDVec[0];
-  for (int i=0 ; i<expNumDdt ; ++i)
-  {
-    li_ddt[i] = staLIDVecRef[i+1];
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -450,19 +441,6 @@ bool Instance::updateSecondaryState ()
 
   double * solVec = extData.nextSolVectorRawPtr;
 
-  // Get time derivatives from time integrator, and evaluate expression to get
-  // derivatives with respect to independent quantities
-
-  if (expNumDdt > 0)
-  {
-    double * staDerivVec = extData.nextStaDerivVectorRawPtr;
-
-    for (i=0 ; i<expNumDdt ; ++i)
-    {
-      ddtVals[i] = staDerivVec[li_ddt[i]];
-    }
-    Exp_ptr->setDdtDerivs(ddtVals);
-  }
   // Evaluate Expression with corrected time derivative values
 
   Exp_ptr->evaluate( expVal, expVarDerivs );
@@ -540,18 +518,6 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 //-----------------------------------------------------------------------------
 bool Instance::updateIntermediateVars ()
 {
-  // Get values of the arguments for ddt() calls in expression so that the derivatives
-  // can be determined by the time integration class
-  if (expNumDdt > 0)
-  {
-    double * staVec = extData.nextStaVectorRawPtr;
-
-    Exp_ptr->getDdtVals (ddtVals);
-    for (int i=0 ; i<expNumDdt ; ++i)
-    {
-      staVec[li_ddt[i]] = ddtVals[i];
-    }
-  }
 
   return true;
 }
@@ -857,17 +823,6 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
     double control;
     double * solVec = si.extData.nextSolVectorRawPtr;
 
-    // Get time derivatives from time integrator, and evaluate expression to get
-    // derivatives with respect to independent quantities
-
-    if (si.expNumDdt > 0)
-    {
-      for (int i=0 ; i<si.expNumDdt ; ++i)
-      {
-        si.ddtVals[i] = staDerivVec[si.li_ddt[i]];
-      }
-      si.Exp_ptr->setDdtDerivs(si.ddtVals);
-    }
     // Evaluate Expression with corrected time derivative values
 
     si.Exp_ptr->evaluate( si.expVal, si.expVarDerivs );

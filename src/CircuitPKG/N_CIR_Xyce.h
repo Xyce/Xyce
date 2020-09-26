@@ -64,6 +64,7 @@
 #include <N_IO_CmdParse.h>
 
 namespace Xyce {
+
 namespace Circuit {
 
 //-----------------------------------------------------------------------------

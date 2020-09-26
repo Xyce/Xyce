@@ -698,7 +698,12 @@ bool Instance::updateTemperature ( const double & temp_tmp)
 
   if (tempModelEnabled)
   {
-    updateDependentParameters(temp_tmp);
+    // ERK; this conditional is necessary with new expression.  The thermal model doesn't
+    // make sense for anything other than transient.
+    if( !(getSolverState().tranopFlag) && !(getSolverState().dcopFlag) )
+    {
+      updateDependentParameters(temp_tmp);
+    }
     R = resistivity * length / area;
     // Apply the multiplicityFactor factor M (from the instance line).
     factor = 1/multiplicityFactor;
@@ -747,7 +752,6 @@ bool Instance::updateTemperature ( const double & temp_tmp)
     G = 1.0/(R * factor);
   else
     G = 0.0;
-
 
   return true;
 }

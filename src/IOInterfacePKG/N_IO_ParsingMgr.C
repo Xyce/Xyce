@@ -44,7 +44,7 @@
 #include <N_IO_ParsingMgr.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_UTL_ExtendedString.h>
-#include <N_UTL_ExpressionInternals.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace IO {
@@ -116,17 +116,6 @@ ParsingMgr::ParsingMgr(
   Xyce::Util::useHspiceUnits = useHspiceUnits_;
   Xyce::Util::useHspiceMath = useHspiceMath_;
   Xyce::Util::enableRandomExpression = enableRandomExpression_;
-
-  // Substitute the HSPICE logarithm functions for the Xyce ones in
-  // ExpressionInternals.  The op structure in ExpressionInternals
-  // contains the "reverse mapping" of expression tokens (e.g., EXPR_OR
-  // and EXPR_AND) to their strings (e.g., | and & for "Xyce math" and ||
-  // and && for "HSPICE math"
-  if (useHspiceMath_)
-  {
-    Util::updateExpFuncArray();
-    Util::updateExpOpsArray();
-  }
 }
 
 //-----------------------------------------------------------------------------

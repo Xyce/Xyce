@@ -168,6 +168,12 @@ struct OpData
     RFparams_(0)
   {}
 
+#if 1
+  // ERK.  code compiles without this, so maybe not needed.
+  //
+  // For the new outputsXyceExpressionGroup, it will probably be necessary for this class to be copied.  
+  // However, looking it over, it looks like a bitwise copy will be OK.
+  //
   OpData(const OpData &op_data)
   : currentIndex_(op_data.currentIndex_),
     realSolutionVector_(op_data.realSolutionVector_),
@@ -189,6 +195,32 @@ struct OpData
     noiseDataVec_(op_data.noiseDataVec_),
     RFparams_(op_data.RFparams_)
   {}
+
+  OpData & operator=(const OpData &op_data)
+  { 
+    currentIndex_ = op_data.currentIndex_;
+    realSolutionVector_ = op_data.realSolutionVector_;
+    imaginarySolutionVector_ = op_data.imaginarySolutionVector_;
+    stateVector_ = op_data.stateVector_;
+    realStoreVector_ = op_data.realStoreVector_;
+    imaginaryStoreVector_ = op_data.imaginaryStoreVector_;
+    realLeadCurrentVector_ = op_data.realLeadCurrentVector_;
+    imaginaryLeadCurrentVector_ = op_data.imaginaryLeadCurrentVector_;
+    realLeadCurrentDeltaVVector_ = op_data.realLeadCurrentDeltaVVector_;
+    imaginaryLeadCurrentDeltaVVector_ = op_data.imaginaryLeadCurrentDeltaVVector_;
+    objectiveVector_ = op_data.objectiveVector_;
+    dOdpDirectVector_ = op_data.dOdpDirectVector_;
+    dOdpDirectScaledVector_ = op_data.dOdpDirectScaledVector_;
+    dOdpAdjointVector_ = op_data.dOdpAdjointVector_;
+    dOdpAdjointScaledVector_ = op_data.dOdpAdjointScaledVector_;
+    onoise_ = op_data.onoise_;
+    inoise_ = op_data.inoise_;
+    noiseDataVec_ = op_data.noiseDataVec_;
+    RFparams_ = op_data.RFparams_;
+
+    return *this;
+  };
+#endif
 
   OpData(
     int                                 current_index,
@@ -249,8 +281,8 @@ struct OpData
   const std::vector<double> *   dOdpAdjointVector_;
   const std::vector<double> *   dOdpAdjointScaledVector_;
 
-  const double                  onoise_;
-  const double                  inoise_;
+  double                  onoise_;
+  double                  inoise_;
   const std::vector<Xyce::Analysis::NoiseData*> * noiseDataVec_;
 
   const RFparamsData * RFparams_;

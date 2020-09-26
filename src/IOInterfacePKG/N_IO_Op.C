@@ -50,6 +50,7 @@
 #include <N_PDS_Serial.h>
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_Marshal.h>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace IO {
@@ -1526,7 +1527,6 @@ complex StoreImaginaryOp::eval(complex result)
   return result.imag();
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : StoreMagnitudeOp::get
 // Purpose       : get the magnitude of a store vector element
@@ -1806,11 +1806,17 @@ complex MeasureOp::get(const MeasureOp &op, const Util::Op::OpData &op_data)
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-ExpressionOp::ExpressionOp(const std::string &name, const std::string &expression, Parallel::Machine comm, const OutputMgr &output_manager)
+ExpressionOp::ExpressionOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager)
   : Base(name),
-    expressionData_(expression),
+    expressionData_(grp, expression),
     comm_(comm),
-    outputMgr_(output_manager)
+    outputMgr_(output_manager),
+    grp_(grp)
 {
   init(comm, output_manager.getOpBuilderManager(), output_manager);
 }
@@ -1846,13 +1852,214 @@ void ExpressionOp::init(
 //-----------------------------------------------------------------------------
 complex ExpressionOp::get(const ExpressionOp &op, const Util::Op::OpData &op_data)
 {
+#if 0
   complex result(op.expressionData_.evaluate(op.comm_, 
         op.outputMgr_.getCircuitTime(), 
         op.outputMgr_.getCircuitTimeStep(), 
         op_data), 0.0);
+#else
+  complex result(0.0,0.0);
+  op.expressionData_.evaluate(op.comm_, 
+        op.outputMgr_.getCircuitTime(), 
+        op.outputMgr_.getCircuitTimeStep(), 
+        op_data,result);
+#endif
   return result;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp::ExpressionRealOp
+// Purpose       : Constructor for expression Op
+// Special Notes : Takes string as second argument.  expressionData_
+//                 constructor will process the string into an expression
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+ExpressionRealOp::ExpressionRealOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager)
+  : Base(name),
+    expressionData_(grp, expression),
+    comm_(comm),
+    outputMgr_(output_manager),
+    grp_(grp)
+{
+  init(comm, output_manager.getOpBuilderManager(), output_manager);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp::ExpressionRealOp
+// Purpose       : Constructor for expression Op
+// Special Notes : 
+//                 
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+ExpressionRealOp::ExpressionRealOp( const ExpressionOp & op )
+  : Base(std::string("Re(" + op.getName() + ")")),
+    expressionData_(op.grp_, op.expressionData_.getExpression()),
+    comm_(op.comm_),
+    outputMgr_(op.outputMgr_),
+    grp_(op.grp_)
+{
+  init(comm_, outputMgr_.getOpBuilderManager(), outputMgr_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp::init
+// Purpose       : initialize an expression
+// Special Notes : runs the ExpressionData::setup method to resolve
+//                 symbols
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+void ExpressionRealOp::init(
+  Parallel::Machine                     comm,
+  const Util::Op::BuilderManager &      op_builder_manager,
+  const IO::OutputMgr &                 output_manager)
+{
+  expressionData_.setup(comm,
+                        op_builder_manager,
+                        output_manager.getMainContextFunctionMap(),
+                        output_manager.getMainContextParamMap(),
+                        output_manager.getMainContextGlobalParamMap());
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp::get
+// Purpose       : evaluate an expression
+// Special Notes :
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex ExpressionRealOp::get(const ExpressionRealOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0,0.0);
+  op.expressionData_.evaluate(op.comm_, 
+        op.outputMgr_.getCircuitTime(), 
+        op.outputMgr_.getCircuitTimeStep(), 
+        op_data,result);
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp::eval
+// Purpose       : take the real part of a solution vector element
+// Special Notes : Actually just returns the real part of a given complex
+//                 value.  It does NOT access the solution vector itself.
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+complex ExpressionRealOp::eval(complex result)
+{
+  return result.real();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp::ExpressionImaginaryOp
+// Purpose       : Constructor for expression Op
+// Special Notes : Takes string as second argument.  expressionData_
+//                 constructor will process the string into an expression
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+ExpressionImaginaryOp::ExpressionImaginaryOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager)
+  : Base(name),
+    expressionData_(grp, expression),
+    comm_(comm),
+    outputMgr_(output_manager),
+    grp_(grp)
+{
+  init(comm, output_manager.getOpBuilderManager(), output_manager);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp::ExpressionImaginaryOp
+// Purpose       : Constructor for expression Op
+// Special Notes : 
+//                 
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+ExpressionImaginaryOp::ExpressionImaginaryOp( const ExpressionOp & op )
+  : Base(std::string("Im(" + op.getName() + ")")),
+    expressionData_(op.grp_, op.expressionData_.getExpression()),
+    comm_(op.comm_),
+    outputMgr_(op.outputMgr_),
+    grp_(op.grp_)
+{
+  init(comm_, outputMgr_.getOpBuilderManager(), outputMgr_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp::init
+// Purpose       : initialize an expression
+// Special Notes : runs the ExpressionData::setup method to resolve
+//                 symbols
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+void ExpressionImaginaryOp::init(
+  Parallel::Machine                     comm,
+  const Util::Op::BuilderManager &      op_builder_manager,
+  const IO::OutputMgr &                 output_manager)
+{
+  expressionData_.setup(comm,
+                        op_builder_manager,
+                        output_manager.getMainContextFunctionMap(),
+                        output_manager.getMainContextParamMap(),
+                        output_manager.getMainContextGlobalParamMap());
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp::get
+// Purpose       : evaluate an expression
+// Special Notes :
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex ExpressionImaginaryOp::get(const ExpressionImaginaryOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0,0.0);
+  op.expressionData_.evaluate(op.comm_, 
+        op.outputMgr_.getCircuitTime(), 
+        op.outputMgr_.getCircuitTimeStep(), 
+        op_data,result);
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp::eval
+// Purpose       : take the imaginary part of a complex number
+// Special Notes : It does NOT access access the store vector itself.  
+//                 Must "get" the value first, with the get function.
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+complex ExpressionImaginaryOp::eval(complex result)
+{
+  return result.imag();
+}
 
 //-----------------------------------------------------------------------------
 // Function      : BranchDataCurrentRealOp::get

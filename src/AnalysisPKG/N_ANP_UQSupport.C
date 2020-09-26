@@ -25,11 +25,8 @@
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_ANP_UQSupport.h>
-#include <N_ANP_StepEvent.h>
 #include <N_LOA_CktLoader.h>
-#include <N_UTL_FeatureTest.h>
 #include <N_IO_CmdParse.h>
-#include <N_NLS_SensitivityResiduals.h>
 
 #include <N_PDS_Serial.h>
 #include <N_PDS_MPI.h>
@@ -57,6 +54,29 @@
 namespace Xyce {
 namespace Analysis {
 namespace UQ {
+
+//-----------------------------------------------------------------------------
+// Function      : getSetParamName
+// Purpose       : This function strips curly braces off the parameter name.
+// Special Notes :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/8/2018
+//-----------------------------------------------------------------------------
+inline void getSetParamName(const std::string & origName, std::string & newName)
+{
+  int size=origName.size(); 
+  newName = origName;
+  if (size > 2) 
+  { 
+    if (origName[0] == '{' && origName[size-1] == '}') 
+    {
+      newName.resize(size-2); // copy only works into properly allocated objects
+      std::string::const_iterator iter0=origName.begin(); iter0++; 
+      std::string::const_iterator iter1=origName.end(); iter1--;
+      std::copy(iter0,iter1,newName.begin());
+    } 
+  }
+}
 
 //-------------------------------------------------------------------------------
 // Function      : computeStats
@@ -1212,8 +1232,61 @@ bool updateSamplingParams(
   {
     (*it).currentVal = Y[numSamples * ip + sample];
     std::string setParamName;
-    Xyce::Nonlinear::getSetParamName( (*it).name, setParamName);
+    getSetParamName( (*it).name, setParamName); // strips off the curly braces
     loader.setParam(setParamName, (*it).currentVal, overrideOriginal);
+  }
+
+  return reset;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : updateExpressionSamplingParams
+//
+// Purpose       : This is to update terms inside of expressions such as 
+//                 AGAUSS, GAUSS, etc.
+//
+// Special Notes : An expression can have more than one random operator in it.
+//                 An expression will often have more than just the random 
+//                 operator.  For example, this should work:
+//
+//                 par1 = {mag*agauss(0.5,0.05,1)+rand()}
+//
+//                 In the above expression, the parameter is "par1", and 
+//                 there are two random operator terms.  One is agauss 
+//                 and the other is rand.  To handle this properly, each
+//                 operator will get a separate "set" call to the loader 
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL, 
+// Creation Date : 7/30/2020
+//-----------------------------------------------------------------------------
+bool updateExpressionSamplingTerms(
+    Loader::Loader &loader, 
+    int sample, 
+    std::vector<SweepParam>::iterator begin, 
+    std::vector<SweepParam>::iterator end, 
+    const std::vector<double> & Y,
+    int numSamples,
+    bool overrideOriginal)
+{
+  bool reset = false;
+
+  // set parameter(s)
+  int ip=0;
+  for (std::vector<SweepParam>::iterator it = begin; it != end; ++it,++ip)
+  {
+    (*it).currentVal = Y[numSamples * ip + sample];
+
+    std::string setParamName;
+    getSetParamName( (*it).name, setParamName); // strips off the curly braces
+
+    loader.setParamRandomExpressionTerms(
+        setParamName, 
+        (*it).opName,
+        (*it).astOpIndex,
+        (*it).currentVal, 
+        overrideOriginal);
+
   }
 
   return reset;

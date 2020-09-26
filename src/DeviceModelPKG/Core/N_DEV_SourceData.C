@@ -182,7 +182,6 @@ SourceData::SourceData(const SolverState & ss1,
   time(0.0),
   SourceValue(0.0),
   initializeFlag_(false),
-  resetFlag_(true),
   solState_(ss1),
   devOptions_(do1),
   fastTimeScaleFlag_(false),
@@ -443,7 +442,6 @@ bool SinData::updateSource()
       exp( -(time*THETA));
   }
 
-  resetFlag_ = false;
   return bsuccess;
 }
 
@@ -663,8 +661,6 @@ bool ExpData::updateSource()
     SourceValue = V1 + (V2-V1)*(1-exp(-(time-TD1)/TAU1)) +
       (V1-V2)*(1-exp(-(time-TD2)/TAU2)) ;
   }
-
-  resetFlag_ = false;
 
   return bsuccess;
 }
@@ -940,8 +936,6 @@ bool PulseData::updateSource()
   {
     Xyce::dout() << "  SourceValue = " << SourceValue << std::endl;
   }
-
-  resetFlag_ = false;
 
   return bsuccess;
 }
@@ -1363,8 +1357,6 @@ bool PWLinData::updateSource()
     SourceValue = 0.0;
   }
 
-  resetFlag_ = false;
-
   return bsuccess;
 }
 
@@ -1707,8 +1699,6 @@ bool PatData::updateSource()
       Xyce::dout() << Xyce::section_divider << std::endl;
     }
   }
-
-  resetFlag_ = false;
 
   return bsuccess;
 }
@@ -2079,8 +2069,6 @@ bool SFFMData::updateSource()
   SourceValue = V0 + VA * sin((2 * mpi * FC * time) +
       MDI * sin (2 * mpi * FS * time));
 
-  resetFlag_ = false;
-
   return bsuccess;
 }
 
@@ -2236,8 +2224,6 @@ bool ACData::updateSource()
     Xyce::dout() << "  SourceValue = " << SourceValue << std::endl;
   }
 
-  resetFlag_ = false;
-
   return bsuccess;
 }
 
@@ -2364,8 +2350,6 @@ bool ConstData::updateSource()
   if (!initializeFlag_) bsuccess = initializeSource ();
 
   SourceValue = V0;
-
-  resetFlag_ = false;
 
   return bsuccess;
 }

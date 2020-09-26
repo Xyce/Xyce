@@ -78,6 +78,8 @@
 
 #include <N_PDS_Comm.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Analysis {
 
@@ -196,7 +198,6 @@ AnalysisManager::AnalysisManager(
     nonlinearEquationLoader_(0),
     parallelManager_(0),
     dataStore_(0),
-    activeOutput_(0),
     analysisMode_(ANP_MODE_TRANSIENT),
     twoLevelMode_(TWO_LEVEL_MODE_TRANSIENT_DCOP),
     resumeSimulation_(false),
@@ -930,9 +931,8 @@ double AnalysisManager::getPauseTime() const
 // Creator       :
 // Creation Date : 12/16/2010
 //-----------------------------------------------------------------------------
-int AnalysisManager::getStepNumber() const
+unsigned int AnalysisManager::getStepNumber() const
 {
-
   if (!currentAnalysisStack_.empty()){
     return currentAnalysisStack_.back()->getStepNumber();
   }
@@ -1199,7 +1199,6 @@ int AnalysisManager::getDoubleDCOPStep() const
 bool AnalysisManager::updateDerivs()
 {
   workingIntgMethod_->obtainCorrectorDeriv();
-
   return true;
 }
 
@@ -1214,8 +1213,21 @@ bool AnalysisManager::updateDerivs()
 bool AnalysisManager::registerElapsedTimer(Util::Timer * et)
 {
   elapsedTimerPtr_ = et;
-
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::registerExpressionGroup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 04/19/2020
+//-----------------------------------------------------------------------------
+bool AnalysisManager::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+  return (!(Teuchos::is_null(expressionGroup_)));
 }
 
 //-----------------------------------------------------------------------------

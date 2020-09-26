@@ -1,6 +1,8 @@
 
 AM_CPPFLAGS = @Xyce_INCS@ -DXYCEBUILDTIMESTAMP=\"`$(top_srcdir)/utils/XyceDatestamp.sh $(top_srcdir)`\"
 
+SUBDIRS = ExpressionSrc
+
 noinst_LTLIBRARIES = libUtility.la
 
 if BUILD_INTEL_FFT_SUPPORT
@@ -37,7 +39,6 @@ libUtility_la_SOURCES = \
   N_UTL_NoCase.C \
   N_UTL_Expression.C \
   N_UTL_ExpressionData.C \
-  N_UTL_ExpressionInternals.C \
   N_UTL_APFT.C \
   N_UTL_FFTInterface.C \
   N_UTL_LogStream.C \
@@ -81,7 +82,6 @@ libUtility_la_SOURCES = \
   N_UTL_Interpolators.h \
   N_UTL_ExpressionSymbolTable.h \
   N_UTL_Expression.h \
-  N_UTL_ExpressionInternals.h \
   N_UTL_ExpressionData.h \
   N_UTL_FFTInterface.hpp \
   N_UTL_RandomNumbers.h \
@@ -139,7 +139,8 @@ libUtility_la_SOURCES = \
   N_UTL_Algorithm.h \
   N_UTL_CheckIfValidFile.h \
   N_UTL_Math.h \
-  N_UTL_MathSpecialFunctions.h 
+  N_UTL_MathSpecialFunctions.h  \
+	N_UTL_HspiceBools.h 
 
 BUILT_SOURCES = timestamp-generator
 

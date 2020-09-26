@@ -89,6 +89,8 @@
 #include <N_UTL_NoCase.h>
 #include <N_UTL_Version.h>
 
+#include <N_ANP_UQSupport.h>
+
 namespace Xyce {
 namespace IO {
 
@@ -2695,13 +2697,21 @@ void removeStarVariables(
       }
       else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I') )
       {
-        iStarFound = true;
-        iStarPosition = it;
-        --iStarPosition;
+        if (varType.find_first_of("0123456789") != std::string::npos)
+	{
+          // I1(*) and I2(*) wildcards (e.g., for the T-device) are not supported yet
+          Report::UserWarning() << ".PRINT wildcards not supported for " << varType << "(*)"<< std::endl;
+        }
+        else
+	{
+          iStarFound = true;
+          iStarPosition = it;
+          --iStarPosition;
 
-        // Keep a vector of the types of I-star requests.
-        // Examples are I(*),  IR(*), II(*) and IB(*).
-        iOpsRequested.push_back((*it).tag());
+          // Keep a vector of the types of I-star requests.
+          // Examples are I(*), IR(*), II(*) and IB(*).
+          iOpsRequested.push_back((*it).tag());
+        }
       }
       else if (varType == "P")
       {
@@ -2730,23 +2740,31 @@ void removeStarVariables(
       // the netlist.
       Util::ParamList::iterator prevIt = it;
       --prevIt;
-      if ((*prevIt).tag() == "V")
+      const std::string &varType = (*prevIt).tag();
+
+      if (varType == "V" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'V'))
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the V tag
         --prevIt; // rewind to before the V tag
-        vWildCardPosition = prevIt;
-        vWildCards.push_back(make_pair(prevIt,wildCardStr));
+        if (varType.size() == 1)
+	{
+          vWildCardPosition = prevIt;
+          vWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
       }
-      else if ((*prevIt).tag() == "I")
+      else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I'))
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the I tag
         --prevIt; // rewind to before the I tag
-        iWildCardPosition = prevIt;
-        iWildCards.push_back(make_pair(prevIt,wildCardStr));
+        if (varType.size() == 1)
+	{
+          iWildCardPosition = prevIt;
+          iWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
       }
-      else if ((*prevIt).tag() == "P")
+      else if (varType == "P")
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the P tag
@@ -2754,7 +2772,7 @@ void removeStarVariables(
         pWildCardPosition = prevIt;
         pWildCards.push_back(make_pair(prevIt,wildCardStr));
       }
-      else if ((*prevIt).tag() == "W")
+      else if (varType == "W")
       {
         std::string wildCardStr((*it).tag());
         --it; // rewind to the P tag
@@ -2798,8 +2816,8 @@ void removeStarVariables(
   // different requests
   std::vector<std::string> vWildCard_list;
   std::vector<std::string> iWildCard_list;
-  std::vector<std::string> pWildCard_list;
-  std::vector<std::string> wWildCard_list;
+  unordered_set<std::string> pWildCard_list;
+  unordered_set<std::string> wWildCard_list;
 
   // V(*) requests
   if (vStarFound)
@@ -2851,14 +2869,15 @@ void removeStarVariables(
           std::string basename=tmpStr.substr(i);
           if (startswith_nocase(basename,"YMIL")
               || startswith_nocase(basename,"YMIN")
-              || startswith_nocase(basename,"YGENEXT"))
+              || startswith_nocase(basename,"YGENEXT")
+              || startswith_nocase(basename,"YPG"))
           {
             addIt=false;
           }
         }
         else if (devType == 'Q')
 	{
-          // one list for IB(*) IC(*) IE(*) for BJTs
+          // one list for IB(*) IC(*) IE(*) IS(*) for BJTs
           iBJT_list.insert(tmpStr);
           addIt=false;
         }
@@ -2868,9 +2887,15 @@ void removeStarVariables(
           iFET_list.insert(tmpStr);
           addIt=false;
 
-          // only MOSFETs support IB(*)
+          // only MOSFETs support IB(*) and IE(*)
           if (devType == 'M')
             iMOSFET_list.insert(tmpStr);
+        }
+        else if (devType == 'O' || devType == 'T')
+	{
+          // lead current wildcards of the form I1(*) and I2(*) are not
+          // supported yet.  So, omit the O and T devices.
+          addIt=false;
         }
 
         // i_list contains names of two-terminal devices with branch
@@ -2908,10 +2933,17 @@ void removeStarVariables(
           i=((i == std::string::npos)?0:i+1);
           std::string basename=tmpStr.substr(i);
           if (startswith_nocase(basename,"YMIL")
-              || startswith_nocase(basename,"YMIN"))
+              || startswith_nocase(basename,"YMIN")
+              || startswith_nocase(basename,"YGENEXT")
+              || startswith_nocase(basename,"YPG"))
           {
             addIt=false;
           }
+        }
+        else if (devType == 'O')
+        {
+          // other devices for which P() is not supported
+          addIt=false;
         }
 
         // There will be multiple entries in branch_vars for each multi-terminal
@@ -2940,6 +2972,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -2951,7 +2984,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itEN = external_nodes.begin();
       for ( ; itEN!=external_nodes.end(); ++itEN)
       {
-        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos))
+        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos, trailingStar))
         {
           ExtendedString tmpStr((*itEN).first);
           tmpStr.toUpper();
@@ -2971,6 +3004,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -2980,7 +3014,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -2988,7 +3022,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -2997,17 +3031,25 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'M' || devType == 'J' || devType == 'O' ||
+                   devType == 'Q' || devType == 'T' || devType == 'Z')
+	  {
+            // multi-terminal devices are now supported yet.
+            addDevice = false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
           // Use tmpStr here since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
             iWildCard_list.push_back(tmpStr);
         }
       }
@@ -3024,6 +3066,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -3033,7 +3076,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -3041,7 +3084,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -3050,19 +3093,26 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'O')
+          {
+            // other devices for which P() is not supported
+            addDevice=false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
-          // search through the node names to see if any of them match the
+          // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
-	    pWildCard_list.push_back(tmpStr);
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+	    pWildCard_list.insert(tmpStr);
         }
       }
     }
@@ -3078,6 +3128,7 @@ void removeStarVariables(
       std::string name((*itWC).second);
       // determine where the first * is.
       std::size_t firstStarPos = name.find_first_of("*");
+      bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
       // Pull out the non-* fragments of name into nameSubStrings.
       std::vector<std::string> nameSubStrings;
@@ -3087,7 +3138,7 @@ void removeStarVariables(
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
-        bool branchCurrentNode=false;
+        bool addDevice=false;
         ExtendedString tmpStr((*itBV).first);
         tmpStr.toUpper();
 
@@ -3095,7 +3146,7 @@ void removeStarVariables(
         size_t pos = tmpStr.rfind("BRANCH");
         if (pos != std::string::npos)
         {
-          branchCurrentNode=true;
+          addDevice=true;
           tmpStr = tmpStr.substr(0, pos - 1);
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
@@ -3104,19 +3155,26 @@ void removeStarVariables(
             i=((i == std::string::npos)?0:i+1);
             std::string basename=tmpStr.substr(i);
             if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN"))
+                || startswith_nocase(basename,"YMIN")
+                || startswith_nocase(basename,"YGENEXT")
+                || startswith_nocase(basename,"YPG"))
             {
-              branchCurrentNode=false;
+              addDevice=false;
             }
+          }
+          else if (devType == 'O')
+          {
+            // other devices for which P() is not supported
+            addDevice=false;
           }
         }
 
-        if (branchCurrentNode)
+        if (addDevice)
 	{
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
-	    wWildCard_list.push_back(tmpStr);
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+	    wWildCard_list.insert(tmpStr);
         }
       }
     }
@@ -3137,12 +3195,14 @@ void removeStarVariables(
 
   Util::ParamList iStarList;   // I(*) for two terminal devices
   Util::ParamList iBStarBJTList;  // IB (base) for BJTs
-  Util::ParamList iCStarList;     // other BJT lead currents
-  Util::ParamList iEStarList;
-  Util::ParamList iBStarMOSFETList; // IB (bulk) for MOSFETs
+  Util::ParamList iCStarList;     // other BJT lead current
+  Util::ParamList iEStarBJTList;  // IB (emitter) for BJTs
+  Util::ParamList iBStarMOSFETList; // IB (body) for MOSFETs
+  Util::ParamList iEStarMOSFETList; // IE (bulk) for SOI MOSFETS
   Util::ParamList iDStarList;       // other lead currents for JFET, MESFET and MOSFETs
   Util::ParamList iGStarList;
-  Util::ParamList iSStarList;
+  Util::ParamList iSStarFETList;  // IS (source) for FETs
+  Util::ParamList iSStarBJTList;  // IS (substrate) for BJTs
 
   Util::ParamList pStarList;  // power
   Util::ParamList wStarList;
@@ -3192,13 +3252,21 @@ void removeStarVariables(
       else if ((*itI) == "IC")
         makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iCStarList));
       else if ((*itI) == "IE")
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarList));
+      {
+        // IE(*) is valid for both BJT and SOI MOSFETs
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarBJTList));
+        makeParamList((*itI), iMOSFET_all.begin(), iMOSFET_all.end(), std::back_inserter(iEStarMOSFETList));
+      }
       else if ((*itI) == "ID")
         makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iDStarList));
       else if ((*itI) == "IG")
         makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iGStarList));
       else if ((*itI) == "IS")
-        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarList));
+      {
+        // IS(*) is valid for both BJT and all FETs
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iSStarBJTList));
+        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarFETList));
+      }
       else
         makeParamList((*itI), i2T_all.begin(), i2T_all.end(), std::back_inserter(iStarList));
     }
@@ -3226,10 +3294,12 @@ void removeStarVariables(
   variable_list.splice(iStarPosition, iStarList);
   variable_list.splice(iStarPosition, iBStarBJTList);
   variable_list.splice(iStarPosition, iCStarList);
-  variable_list.splice(iStarPosition, iEStarList);
+  variable_list.splice(iStarPosition, iEStarBJTList);
+  variable_list.splice(iStarPosition, iSStarBJTList);
   variable_list.splice(iStarPosition, iDStarList);
   variable_list.splice(iStarPosition, iGStarList);
-  variable_list.splice(iStarPosition, iSStarList);
+  variable_list.splice(iStarPosition, iSStarFETList);
+  variable_list.splice(iStarPosition, iEStarMOSFETList);
   variable_list.splice(iStarPosition, iBStarMOSFETList);
   variable_list.splice(pStarPosition, pStarList);
   variable_list.splice(wStarPosition, wStarList);

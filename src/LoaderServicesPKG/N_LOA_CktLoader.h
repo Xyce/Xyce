@@ -183,8 +183,14 @@ public:
   // Function for setting a single parameter value.
   bool setParam(std::string & name, double val, bool overrideOriginal=false);
 
+  virtual bool setParamRandomExpressionTerms(
+      std::string & name, std::string & opName, int opIndex,
+      double val, bool overrideOriginal = false);
+
   // Function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const;
+
+  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
 
   // Method which is called to update the sources.
   bool updateSources();
@@ -298,6 +304,9 @@ public:
   // voltage limiter toggle functions
   virtual bool getVoltageLimiterStatus();
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
+
+  virtual void updateDependentParams ();
+  virtual void resetScaledParams();
 
 public:
   Device::DeviceMgr &   deviceManager_;         ///< Device manager

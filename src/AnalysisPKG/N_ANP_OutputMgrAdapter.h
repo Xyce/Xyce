@@ -40,6 +40,7 @@
 #include <Teuchos_SerialDenseMatrix.hpp>
 
 #include <N_ANP_fwd.h>
+#include <N_ANP_UQ_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_LAS_fwd.h>
@@ -49,7 +50,6 @@
 
 #include <N_UTL_Listener.h>
 #include <N_ANP_StepEvent.h>
-#include <N_ANP_UQSupport.h>
 #include <N_LAS_BlockVector.h>
 #include <N_IO_OutputMgr.h>
 #include <N_UTL_Op.h>

@@ -220,8 +220,7 @@ const std::vector<int> & CktNode_Dev::leadConnect() const
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/18/02
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerLIDswithDev(
+void CktNode_Dev::registerLIDswithDev(
   const std::vector<int> &      intLIDVec,
   const std::vector<int> &      extLIDVec )
 {
@@ -251,8 +250,7 @@ CktNode_Dev::registerStateLIDswithDev(
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerStoreLIDswithDev(
+void CktNode_Dev::registerStoreLIDswithDev(
   const std::vector<int> &      storeLIDVec)
 {
   deviceInstance_->registerStoreLIDs( storeLIDVec );
@@ -266,8 +264,7 @@ CktNode_Dev::registerStoreLIDswithDev(
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerLeadCurrentLIDswithDev(
+void CktNode_Dev::registerLeadCurrentLIDswithDev(
   const std::vector<int> &      leadCurrentLIDVec)
 {
   deviceInstance_->registerBranchDataLIDs( leadCurrentLIDVec );
@@ -282,9 +279,8 @@ CktNode_Dev::registerLeadCurrentLIDswithDev(
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/21/02
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerDepLIDswithDev(
-  const std::vector< std::vector<int> > &       depLIDVec )
+void CktNode_Dev::registerDepLIDswithDev(
+    const std::vector< std::vector<int> > & depLIDVec)
 {
   deviceInstance_->registerDepSolnLIDs( depLIDVec );
 }
@@ -297,39 +293,28 @@ CktNode_Dev::registerDepLIDswithDev(
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 5/05/01
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::getDepSolnVars(
-  std::vector<NodeID> &         dsVars )
+void CktNode_Dev::getDepSolnVars(std::vector<NodeID> & dsVars )
 {
-  // Get dependent solution variables from the device and the Depend structure to determine which node type to look for in the graph.
+  // Get dependent solution variables and types from the device to determine which node type to use in the graph.
   dsVars.clear();
-
   const std::vector<std::string> &solution_variables = deviceInstance_->getDepSolnVars();
-  for (std::vector<std::string>::const_iterator it_sV = solution_variables.begin(), it_sV_end = solution_variables.end(); it_sV != it_sV_end; ++it_sV )
+  const std::vector<int> &solution_types = deviceInstance_->getDepSolnTypes ();
+  for (int ii=0;ii<solution_variables.size();ii++)
   {
-    bool found = false;
-    const std::vector<Device::Depend> &depParams = deviceInstance_->getDependentParams();
-    for (std::vector<Device::Depend>::const_iterator it_sdV = depParams.begin(), it_sdV_end = depParams.end(); it_sdV != it_sdV_end; ++it_sdV )
+    int type = solution_types[ii];
+    if (type == XEXP_NODE)
     {
-      int type = (it_sdV->expr)->get_type( *it_sV );
-      if (type == XEXP_NODE)
-      {
-        dsVars.push_back( NodeID( *it_sV, _VNODE ) );
-        found = true;
-        break;
-      }
-      if (type == XEXP_INSTANCE || type == XEXP_LEAD)
-      {
-        dsVars.push_back( NodeID( *it_sV, _DNODE ) );
-        found = true;
-        break;
-      }
+      dsVars.push_back( NodeID( solution_variables[ii], _VNODE ) ); 
+    }
+    else if (type == XEXP_INSTANCE || type == XEXP_LEAD)
+    {
+      dsVars.push_back( NodeID( solution_variables[ii], _DNODE ) ); 
     }
     // Punt if the node has not been found, hope that the graph only
     // has one node associated with this name.
-    if (!found)
+    else
     {
-      dsVars.push_back(NodeID( *it_sV, -1 ));
+      dsVars.push_back(NodeID( solution_variables[ii], -1 ));
     }
   }
 }

@@ -32,6 +32,17 @@
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+\textbf{Gitlab-ex 56}: Xyce header files unnecessarily include Trilinos header files&
+Xyce provides an API for coupling circuit simulation to external
+programs. The headers and shared libraries installed by ``make
+install'' should be sufficient to provide access to this feature, but
+some Xyce header files unnecessarily included Trilinos header files.
+This meant that users of Xyce shared libraries also needed to have
+access to complete sets of installed Trilinos headers.  The header
+files needed to access the coupling API have been cleaned up and are
+now sufficiently self-contained to allow coupling of Xyce to an
+external code without the need for Trilinos headers or
+libraries.  Trilinos is still required to build Xyce itself. \\ \hline
 \textbf{Gitlab-ex 54}: Xyce/ADMS incorrectly sets ``dependency'' and ``OPdependent'' for analog function output variables &
 The internal ADMS data tree has an element called ``dependency'' that
 may be ``constant'', ``noprobe'', ``linear'', or ``nonlinear''.  This

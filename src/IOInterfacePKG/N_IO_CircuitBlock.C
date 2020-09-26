@@ -61,9 +61,12 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
+#include <N_UTL_Expression.h>
 #include <N_PDS_PackTraits.h>
 
 #include <N_IO_fwd.h>
+
+#include <expressionGroup.h>
 
 namespace Xyce {
 namespace IO {
@@ -1764,10 +1767,10 @@ void CircuitBlock::updateAliasNodeMapHelper()
     // Turn the string in expStrings into an expression, and parse it
     std::string expressionString;
     expressionString = (*it).substr(1, (*it).size()-2);
-    Util::Expression expression(expressionString);
+    Util::Expression expression(expressionGroup_,expressionString);
 
     if (expression.parsed())
-    {     
+    {
       // Resolve the strings in the expression. Unresolved strings
       // may be parameters defined in a .PARAM statement or global
       // parameters defined in .GLOBAL_PARAM statement or may
@@ -1779,7 +1782,10 @@ void CircuitBlock::updateAliasNodeMapHelper()
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
 
       // resolve variables in the function body
-      if ( expression.get_num(XEXP_STRING) > 0 )
+    
+      const std::vector<std::string> & strings = expression.getUnresolvedParams();
+      if ( !(strings.empty()) )
+      //if ( expression.get_num(XEXP_STRING) > 0 )
       {
         circuitContext_.resolveStrings(expression, exceptionStrings);
       }
@@ -1789,12 +1795,12 @@ void CircuitBlock::updateAliasNodeMapHelper()
         // Check the expression for nodes, and add any that start with X (which are 
         // subcircuit interface node names) to aliasNodeMapHelper_
         std::vector<std::string> nodes;
-        expression.get_names(XEXP_NODE, nodes);
+        expression.getVoltageNodes(nodes);
         for (std::vector<std::string>::iterator node_it = nodes.begin(), end = nodes.end(); node_it != end; ++node_it)
         {
           if ((*node_it)[0] == 'X')
              aliasNodeMapHelper_.insert((*node_it));
-	}
+        }
       }
     }
 

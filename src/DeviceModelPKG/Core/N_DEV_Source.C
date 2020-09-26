@@ -129,35 +129,15 @@ double SourceInstance::period() const
   return per;
 }
 
-#if 0
 //-----------------------------------------------------------------------------
-// Function      : SourceInstance::getResetFlag
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 07/30/04
-//-----------------------------------------------------------------------------
-bool SourceInstance::getResetFlag() const
-{
-  if (tranSourceData_ != 0)
-  {
-    tranSourceData_->getResetFlag();
-  }
-  return true;
-}
-#endif
-
-
-//-----------------------------------------------------------------------------
-// Function      : SourceInstance::setupBreakpoints
+// Function      : SourceInstance::setupBreakPoints
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 04/16/2019
 //-----------------------------------------------------------------------------
-void SourceInstance::setupBreakpoints()
+void SourceInstance::setupBreakPoints()
 {
   bool fast_source_flag = false;
 
@@ -168,7 +148,7 @@ void SourceInstance::setupBreakpoints()
 
   if (!fast_source_flag && tranSourceData_ != 0)
   {
-    tranSourceData_->setupBreakpoints();
+    tranSourceData_->setupBreakPoints();
   }
   
   return;

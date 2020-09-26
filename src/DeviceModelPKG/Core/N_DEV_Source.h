@@ -70,13 +70,10 @@ private:
 public:
   void setFastSourceFlag(bool value);
   bool getFastSourceFlag() const;
-#if 0
-  bool getResetFlag() const;
-#endif
 
   double period() const;
 
-  virtual void setupBreakpoints();
+  virtual void setupBreakPoints();
   virtual bool getInstanceBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
   virtual bool updateSource();
 

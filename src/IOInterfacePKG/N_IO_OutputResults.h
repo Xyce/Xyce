@@ -70,7 +70,9 @@ private:
   OutputResults &operator=(const OutputResults &);
 
 public:
-  bool addResultParams(const Util::OptionBlock &option_block);
+  bool addResultParams(
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup_,
+      const Util::OptionBlock &option_block);
 
   void setup(Parallel::Machine comm, OutputMgr &output_manager);
 

@@ -53,6 +53,7 @@
 #include <N_IO_ParsingHelpers.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_Expression.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 
@@ -718,18 +719,14 @@ bool extractParamData(
 
     if (parsed_line[linePosition].string_[0] == '{')
     {
-      Util::Expression expPtr(parsed_line[linePosition].string_);
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
 
-      std::vector<std::string> junk;
       std::string msg;
-      expPtr.get_names(XEXP_NODE, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getVoltageNodes().empty()) )
         msg = "Node Voltage";
-      expPtr.get_names(XEXP_INSTANCE, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getDeviceCurrents().empty()) )
         msg = "Device Current";
-      expPtr.get_names(XEXP_LEAD, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getLeadCurrents().empty()) )
         msg = "Lead Current";
       if (msg != "")
       {
@@ -843,18 +840,14 @@ bool extractGlobalParamData(
 
     if (parsed_line[linePosition].string_[0] == '{')
     { 
-      Util::Expression expPtr(parsed_line[linePosition].string_);
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
       
-      std::vector<std::string> junk;
       std::string msg;
-      expPtr.get_names(XEXP_NODE, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getVoltageNodes().empty()) )
         msg = "Node Voltage";
-      expPtr.get_names(XEXP_INSTANCE, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getDeviceCurrents().empty()) )
         msg = "Device Current";
-      expPtr.get_names(XEXP_LEAD, junk);
-      if (junk.size() > 0)
+      if (!(expPtr.getLeadCurrents().empty()) )
         msg = "Lead Current";
       if (msg != "")
       { 

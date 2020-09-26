@@ -41,6 +41,18 @@
 %
 %
 
+\textbf{Gitlab issue 60} Xyce/ADMS omits derivative code for output arguments of analog functions if return value derivatives are not needed &
+Verilog-A permits analog functions (user defined functions) to have arguments that can be used to return values in addition to the return value of the function.  These output arguments have their values calculated as a ``side effect'' of the function call.  Due to a difficulty with bookkeeping, if the return value of the function is neither used in sources nor ddx() calls, Xyce/ADMS will not emit any code that calls the function in such a way that the derivatives of the output arguments would be computed.  This can lead to incorrect results if the output arguments are later used in any way where their derivatives are required (e.g. on the right-hand side of non-noise contributions, or as the argument to be differentiated in a ddx() call).
+
+\textbf{\textit{Workaround}}:
+Either do not write analog functions with output arguments (thereby
+never having side-effects, a best practice), or make sure that the
+return value of the function is always used in a manner such that its
+derivatives will be required (use in non-noise contributions or to as
+the argument to be differentiated by ddx().
+
+\\ \hline
+
 \textbf{Gitlab issue 28} Limitations on allowed parameter names is not fully documented &
 The exact limitations on allowed parameter names is not clear in the
 documentation, nor is any exhaustive list available.  Single-character

@@ -119,8 +119,8 @@ public:
   virtual ~DeviceEntity();
 
   virtual bool processParams() = 0;
-
   virtual bool processInstanceParams() = 0;
+  virtual void processSuccessfulTimeStep();
 
   virtual CompositeParam *constructComposite(const std::string &composite_name, const std::string &param_name) 
   {
@@ -228,12 +228,18 @@ public:
   bool setParam(const std::string & paramName, double val, bool overrideOriginal=false);
   bool getParam(const std::string & paramName, double & result) const;
   bool findParam(const std::string &param_name) const;
+  void setupParamBreakpoints();
   bool getParamBreakpoints( std::vector<Util::BreakPoint> & );
 
-  bool updateDependentParameters(const Linear::Vector & vars,bool changed=false);
+
+  bool updateGlobalAndDependentParameters (
+      bool globalParameterChanged,
+      bool timeChanged, 
+      bool freqChanged);
+
   bool updateDependentParameters(double temp_tmp);
-  bool updateGlobalParameters(GlobalParameterMap &);
   bool updateDependentParameters();
+  void applyDepSolnLIDs();
 
   double setDependentParameter(Util::Param &, double *, ParameterType::ExprAccess);
   double setDependentParameter(Util::Param &, std::vector<double> *, int , ParameterType::ExprAccess);
@@ -294,6 +300,11 @@ public:
     return parametricData_.getMap();
   }
 
+  void resetScaledParams()
+  {
+    dependentScaleParamExcludeMap_.clear();
+  }
+
 private:
   void escape(std::string &) const;
   void checkDepend(ParameterType::ExprAccess &);
@@ -309,9 +320,13 @@ private:
   const DeviceOptions &       devOptions_;
   std::vector<Depend>         dependentParams_;
 
+  std::unordered_map <std::string, int> dependentParamExcludeMap_;
+  std::unordered_map <std::string, int> dependentScaleParamExcludeMap_;
+
 protected:
   std::vector<int>            expVarGIDs;
   std::vector<int>            expVarLIDs;
+  std::vector<int>            expVarTypes;
   std::vector<std::string>    expVarNames;
   std::vector<double>         expVarVals;
   std::vector<double>         eVarVals;

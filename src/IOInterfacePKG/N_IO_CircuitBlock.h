@@ -48,6 +48,7 @@
 
 #include <N_IO_fwd.h>
 #include <N_TOP_fwd.h>
+#include <N_UTL_fwd.h>
 
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_ParameterBlock.h>
@@ -295,6 +296,8 @@ public:
     return levelSet_;
   }
   
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup() { return expressionGroup_; }
+
 public:
 
   // Lookup table for initial conditions
@@ -378,6 +381,8 @@ private:
 
   Topo::Topology &              topology_;
   Device::DeviceMgr  &          deviceManager_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 
   //This function preprocesses the netlist file to provide the user the
   //option of removing "redundant" devices (devices where all the nodes are

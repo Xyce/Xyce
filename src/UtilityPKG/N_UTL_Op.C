@@ -240,10 +240,16 @@ void makeOps(
 
   for (ParamList::const_iterator it = begin; it != end; ++it)
   {
+#if 0
+    std::cout << "About to build " << (*it).tag() <<std::endl;
+#endif
     Operator *new_op = op_builder_manager.createOp(it);
 
     if (!new_op)
     {
+#if 0
+      std::cout << "building an undefined Op for " << (*it).tag() <<std::endl;
+#endif
       std::string param_tag = (*it).tag();
       std::vector<std::string> args;
       std::string name;
@@ -253,6 +259,19 @@ void makeOps(
       new_op->addArgs(args.begin(), args.end());
     }
 
+#if 0
+    std::cout << "the new_op id is: " << new_op->id();
+    std::cout << " which is ";
+    if (new_op->id() == identifier<UndefinedOp>())
+    {
+      std::cout << "undefined" <<std::endl;
+    }
+    else
+    {
+      std::cout << "  defined" <<std::endl;
+    }
+    std::cout <<std::endl;
+#endif
     ops.push_back(new_op);
   }
 
@@ -269,6 +288,9 @@ void makeOps(
   std::vector<Identifier>::const_iterator op_identifier_it = op_identifier.begin();
   for (std::vector<Operator *>::iterator it = ops.begin(); it != ops.end(); ++it, ++op_identifier_it)
   {
+#if 0
+    std::cout << "checking this Op :  name = " << (*it)->getName() <<std::endl;
+#endif
     if ((*op_identifier_it) == 0) // Defined inconsistently
     {
       Report::UserError().at(netlist_location) << "Function or variable is defined differently on different processors";

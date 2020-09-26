@@ -59,9 +59,12 @@
 #include <N_IO_WildcardSupport.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Marshal.h>
+#include <N_UTL_Expression.h>
 
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
+
+#include <expressionGroup.h>
 
 namespace Xyce {
 
@@ -277,14 +280,16 @@ bool registerPkgOptionsMgr(NetlistImportTool &netlist_import_tool, PkgOptionsMgr
 //-------------------------------------------------------------------------
 NetlistImportTool::NetlistImportTool(
   Util::Op::BuilderManager &    op_builder_manager,
-  const ParsingMgr &            parsing_manager)
+  const ParsingMgr &            parsing_manager,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
   : parsing_manager(parsing_manager),
     mainCircuitBlock_(NULL),
     distributionTool_(NULL),
     currentContextPtr_(NULL),
     metadata_(),
-    circuitContext_(op_builder_manager, contextList_, currentContextPtr_),
-    useMOR_(false)
+    circuitContext_(group, op_builder_manager, contextList_, currentContextPtr_),
+    useMOR_(false),
+    expressionGroup_(group)
 {}
 
 //-------------------------------------------------------------------------
@@ -697,11 +702,11 @@ void printLineDiagnostics(
           // check if there is an underlying expression object with the parameter
           if (parameter.getType() == Util::EXPR)
           {
-            parameter.getValue<Util::Expression>().get_names(XEXP_NODE, nodes);
-            parameter.getValue<Util::Expression>().get_names(XEXP_INSTANCE, instances);
-            parameter.getValue<Util::Expression>().get_names(XEXP_LEAD, leads);
-            parameter.getValue<Util::Expression>().get_names(XEXP_STRING, strings);
-            parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, special);  // special returns vars like TIME
+            parameter.getValue<Util::Expression>().getVoltageNodes(nodes);
+            parameter.getValue<Util::Expression>().getDeviceCurrents(instances);
+            parameter.getValue<Util::Expression>().getLeadCurrents(leads);
+            parameter.getValue<Util::Expression>().getUnresolvedParams(strings);
+            parameter.getValue<Util::Expression>().getSpecials(special);
           }
           else if ( ((parameter.getType()) == Util::DBLE) || ((parameter.getType()) == Util::INT) )
           {
@@ -1222,11 +1227,14 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
 
     if (Util::hasExpressionTag(*iterParam))
     {
-      std::vector<std::string> leads;
 
-      Util::Expression exp;
-      exp.set(iterParam->tag());
-      exp.get_names(XEXP_LEAD, leads);
+      // this is a do-nothing group
+      Teuchos::RCP<Xyce::Util::baseExpressionGroup> exprGroup = 
+        Teuchos::rcp(new Xyce::Util::baseExpressionGroup());
+
+      Util::Expression exp(exprGroup, iterParam->tag());
+
+      const std::vector<std::string> & leads = exp.getLeadCurrents();
 
       // any lead currents found in this expression need to be communicated to the device manager.
       // Multi terminal devices have an extra designator on the name as in name{lead_name}
@@ -1236,22 +1244,6 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
         size_t leadDesignator = currLeadItr->find_first_of("{");
         devicesNeedingLeadCurrents.insert( currLeadItr->substr(0, leadDesignator));
       }
-      
-      std::vector<std::string> nodalComps;
-      exp.get_names(XEXP_NODAL_COMPUTATION, nodalComps);
-      for (std::vector<std::string>::const_iterator currNCItr = nodalComps.begin(); currNCItr != nodalComps.end(); ++currNCItr)
-      {
-        // name should be in the form "P( device_name )" or similar.  Find the first 
-        // and last parens and assume the device name lies within it.
-        size_t firstParen = currNCItr->find_first_of("(");
-        size_t lastParen = currNCItr->find_last_of(")");
-        if( (firstParen != std::string::npos ) && (lastParen != std::string::npos) ) {
-          firstParen+=1;
-          lastParen-=2;
-          devicesNeedingLeadCurrents.insert( currNCItr->substr(firstParen, lastParen) );
-        }
-      }
-      
     }
     else
     {

@@ -138,6 +138,8 @@
 #include <N_UTL_BreakPoint.h>
 
 #include <N_DEV_DeviceSupport.h>
+#include <mainXyceExpressionGroup.h>
+#include <N_DEV_DeviceSupport.h>
 
 namespace Xyce {
 namespace Circuit {
@@ -466,7 +468,6 @@ bool Simulator::doRegistrations_()
   // Device Manager registrations
   bs1 = deviceManager_->registerNonlinearSolver(nonlinearManager_); bsuccess = bsuccess && bs1;
   bs1 = deviceManager_->registerAnalysisManager(analysisManager_);  bsuccess = bsuccess && bs1;
-  // bs1 = deviceManager_->registerMeasureMgr(measureManager_);       bsuccess = bsuccess && bs1;
 
   // Analysis manager registrations:
   bs1 = analysisManager_->registerParallelServices(parallelManager_); bsuccess = bsuccess && bs1;
@@ -906,9 +907,22 @@ Simulator::RunStatus Simulator::initializeEarly(
   if (DEBUG_CIRCUIT)
     dout() << "Registration was successful" << std::endl;
 
-  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_);
 
+
+  // ERK.  Allocate up the main expression group
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
+    *parallelManager_->getPDSComm(),
+    *topology_, *analysisManager_, *deviceManager_, *outputManager_));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
+  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);
   IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
+
+  // ERK. these could be in "doRegistrations" but the mainXyceGroup must be allocated after netlist_import_tool, which happens after ...
+  bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast);
+  bool bs2=analysisManager_->registerExpressionGroup(baseGroupCast);
+  bool bs3=measureManager_->registerExpressionGroup(baseGroupCast);
+  bool bs4=nonlinearManager_->registerExpressionGroup(baseGroupCast);
 
   runState_ = PARSE_NETLIST;
   Xyce::lout() << "***** Reading and parsing netlist..." << std::endl;
@@ -955,6 +969,7 @@ Simulator::RunStatus Simulator::initializeEarly(
       return DONE;
     }
 
+    mainExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());

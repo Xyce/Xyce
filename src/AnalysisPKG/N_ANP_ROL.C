@@ -34,6 +34,7 @@
 
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
 #include <N_IO_InitialConditions.h>

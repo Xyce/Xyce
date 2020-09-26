@@ -42,6 +42,9 @@
 #include <set>
 #include <vector>
 
+// trilinos includes
+#include <Teuchos_RCP.hpp>
+
 #include <N_ANP_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_IO_fwd.h>
@@ -235,7 +238,7 @@ public:
   int getDoubleDCOPStep() const;
 
   // Gets/sets the step number.
-  int getStepNumber() const;
+  unsigned int getStepNumber() const;
   int getTranStepNumber();
 
   void setStepNumber(int step);
@@ -292,6 +295,9 @@ public:
 
   // Registers the elapsed time timer
   bool registerElapsedTimer(Util::Timer *);
+
+  // Register the expression group
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   // Writes-out the restart data.
   bool dumpRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack);
@@ -526,6 +532,10 @@ public:
 
   void setRFParamsRequested(const std::string & type);
 
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup()
+  {
+    return expressionGroup_;
+  }
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object
@@ -539,7 +549,6 @@ private:
 
   Parallel::Manager *                   parallelManager_;               ///< Pointer to the parallel services manager
   TimeIntg::DataStore *                 dataStore_;                     ///< Data store object
-  IO::ActiveOutput *                    activeOutput_;
 
 
   Mode                  analysisMode_;
@@ -559,6 +568,8 @@ private:
 
   Util::Timer           xyceTranTimerPtr_;              /// Xyce timing utility for timing the transient simulation CPU time.
   Util::Timer *         elapsedTimerPtr_;               /// Xyce timing utility for timing elapsed run time
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; /// expression group, required for all expressions
 
   double                solverStartTime_;
 

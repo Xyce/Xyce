@@ -48,6 +48,8 @@
 #include <N_UTL_fwd.h>
 #include <N_DEV_fwd.h>
 
+#include <N_ANP_SweepParam.h>
+
 #include <N_DEV_Algorithm.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternDevice.h>
@@ -121,6 +123,31 @@ bool CktLoader::setParam(
   delete filtered_lindFdxMatrixPtr_; filtered_lindFdxMatrixPtr_=0;
 
   return deviceManager_.setParam(name, val, overrideOriginal);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CktLoader::setParamRandomExpressionTerms
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool CktLoader::setParamRandomExpressionTerms(
+  std::string &   name,
+  std::string &   opName,
+  int             opIndex,
+  double                val,
+  bool overrideOriginal) 
+{
+  // Delete the current linear matrices, just in case the parameter affects
+  // any linear devices and their Jacobian entries.
+  delete lindQdxMatrixPtr_; lindQdxMatrixPtr_=0;
+  delete lindFdxMatrixPtr_; lindFdxMatrixPtr_=0;
+  delete filtered_lindQdxMatrixPtr_; filtered_lindQdxMatrixPtr_=0;
+  delete filtered_lindFdxMatrixPtr_; filtered_lindFdxMatrixPtr_=0;
+
+  return deviceManager_.setParamRandomExpressionTerms(name, opName, opIndex, val, overrideOriginal);
 }
 
 //-----------------------------------------------------------------------------
@@ -331,6 +358,19 @@ double CktLoader::getParamAndReduce(
   const std::string &   name) const
 {
   return Device::getParamAndReduce(comm, deviceManager_, name);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CktLoader::getRandomParams
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void CktLoader::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+{
+  return deviceManager_.getRandomParams(SamplingParams);
 }
 
 //-----------------------------------------------------------------------------
@@ -1424,6 +1464,32 @@ bool CktLoader::getVoltageLimiterStatus()
 void CktLoader::setVoltageLimiterStatus(bool voltageLimterStatus)
 {
   return deviceManager_.setVoltageLimiterStatus(voltageLimterStatus);
+}
+
+//---------------------------------------------------------------------------
+// Function      : CktLoader::updateDependentParams () 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/11/2020
+//---------------------------------------------------------------------------
+void CktLoader::updateDependentParams () 
+{
+  return deviceManager_.updateDependentParams ();
+}
+
+//---------------------------------------------------------------------------
+// Function      : CktLoader::resetScaledParams() 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/11/2020
+//---------------------------------------------------------------------------
+void CktLoader::resetScaledParams() 
+{
+  return deviceManager_.resetScaledParams();
 }
 
 } // namespace Loader

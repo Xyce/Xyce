@@ -45,11 +45,15 @@
 #include <iterator>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 #include <sstream> 
 // ----------   Xyce Includes   ----------
 #include <N_UTL_Expression.h>
-#include <N_UTL_ExpressionInternals.h>
+
+#include <newExpression.h>
+#include <xyceExpressionGroup.h>
+#include <mainXyceExpressionGroup.h>
 
 namespace Xyce {
 namespace Util {
@@ -62,11 +66,22 @@ namespace Util {
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-
-Expression::Expression( const std::string & exp )
-  :expPtr_(NULL)
+Expression::Expression( 
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
+    const std::string & exp, 
+    const std::vector<std::string> & functionArgStringVec)
+  :
+   newExpPtr_(NULL),
+   grp_(baseGrp_)
 {
-  expPtr_ = new ExpressionInternals(exp);
+  newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(exp,grp_) );
+
+  if (!(functionArgStringVec.empty()))
+  {
+    newExpPtr_->setFunctionArgStringVec(functionArgStringVec);
+  }
+
+  newExpPtr_->lexAndParseExpression();
 }
 
 //-----------------------------------------------------------------------------
@@ -78,12 +93,28 @@ Expression::Expression( const std::string & exp )
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 Expression::Expression( const Expression & right)
-  :expPtr_(NULL)
+  :
+   newExpPtr_(right.newExpPtr_),
+   grp_(right.grp_)
 {
-  expPtr_ = new ExpressionInternals( *(right.expPtr_));
   return;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Expression::operator=
+// Purpose       : assignment operator
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 1/7/2019
+//-----------------------------------------------------------------------------
+Expression& Expression::operator=(const Expression& right) 
+{
+  grp_ = right.grp_;
+  newExpPtr_ = right.newExpPtr_;
+  //if (*(newExpPtr_->parsed())) newExpPtr_->lexAndParseExpression();
+  return *this;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::~Expression
@@ -95,80 +126,99 @@ Expression::Expression( const Expression & right)
 //-----------------------------------------------------------------------------
 Expression::~Expression ()
 {
-  delete expPtr_;
   return;
 }
 
-bool
-Expression::parsed() const {
-  return expPtr_->parsed();
-}
-
-
 //-----------------------------------------------------------------------------
-// Function      : Expression::set
-// Purpose       : Set the value of the expression to a string
+// Function      : Expression::parsed
+// Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 
 //-----------------------------------------------------------------------------
-bool Expression::set ( const std::string & exp )
+bool Expression::parsed() const 
 {
-  bool retVal = false; 
-  {
-    retVal = expPtr_->set (exp);
-  }
-  return retVal;
+  return newExpPtr_->parsed();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::getSymbolTable
-// Purpose       : Returns the symbol table
-// Special Notes :
-// Scope         :
-// Creator       : Tom Russo, SNL
-// Creation Date : 08/19/2016
-//-----------------------------------------------------------------------------
-void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theSymbolTable ) const
-{ 
-  {
-    expPtr_->getSymbolTable(theSymbolTable);
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_names
-// Purpose       : Returns the names of input quantities by type
+// Function      : Expression::getFuncSize
+// Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 4/9/2020
 //-----------------------------------------------------------------------------
-void Expression::get_names(int const & type, std::vector<std::string> & names ) const
-{ 
-  {
-    expPtr_->get_names(type,names);
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_type
-// Purpose       : Finds the type of an input quantity name
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::get_type ( const std::string & var )
+int Expression::getFuncSize()
 {
-  int retVal=0; 
-  {
-    retVal = expPtr_->get_type (var);
-  }
-  return retVal;
+  return newExpPtr_->getFuncOpVec().size();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFuncNames
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::getFuncNames (std::vector<std::string> & funcNames)
+{
+  funcNames = newExpPtr_-> getFuncNameVec ();
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFuncPrototypeArgStrings
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::getFuncPrototypeArgStrings(std::vector<std::string> & arguments)
+{
+  newExpPtr_->getFuncPrototypeArgStrings(arguments);
+} 
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::attachFunctionNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::attachFunctionNode (const std::string & funcName, const Expression & exp)
+{
+  newExpPtr_->attachFunctionNode(funcName,exp.newExpPtr_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::attachParameterNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type)
+{
+  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_, type);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFunctionArgStringVec
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getFunctionArgStringVec ()
+{
+  return newExpPtr_->getFunctionArgStringVec();
 }
 
 //-----------------------------------------------------------------------------
@@ -179,169 +229,417 @@ int Expression::get_type ( const std::string & var )
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_constant (const std::string & var, const double & val)
+bool Expression::make_constant (const std::string & var, const double & val, enumParamType type)
 {
-  bool retVal=false; 
-  {
-    retVal = expPtr_->make_constant (var,val);
-  }
-  return retVal;
+  return newExpPtr_->make_constant (var,val, type);
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::make_var
 // Purpose       : Convert a 'string' placeholder into a variable
-// Special Notes :
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_var (std::string const & var)
-{
-  bool retVal=false; 
-  {
-    retVal = expPtr_->make_var(var);
-  }
-  return retVal;
+bool Expression::make_var (std::string const & var, enumParamType type)
+{ 
+  return newExpPtr_->make_var(var, type);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::differentiate
-// Purpose       : Form the analytic derivative trees for all variables
+// Function      : Expression::setGroup
+// Purpose       : 
 // Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/22/2020
 //-----------------------------------------------------------------------------
-int Expression::differentiate ()
+void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
 {
-  int retVal=0; 
-  {
-    retVal = expPtr_->differentiate ();
-  }
-  return retVal;
+  newExpPtr_->setGroup(grp);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::set_var
-// Purpose       : Sets the value of an input quantity
-// Special Notes :
+// Function      : Expression::getUnresolvedParams
+// Purpose       : 
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 4/20/2020
 //-----------------------------------------------------------------------------
-bool Expression::set_var ( const std::string & var,
-                                 const double & val)
+void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
-  bool retVal=false; 
-  {
-    retVal = expPtr_->set_var (var, val);
-  }
-  return retVal;
+  newExpPtr_->setupVariousAstArrays();
+  params.clear();
+  std::vector<std::string> & unresolvedParamNameVec = newExpPtr_->getUnresolvedParamNameVec();
+  if (!(unresolvedParamNameVec.empty())) { params.insert(params.end(),unresolvedParamNameVec.begin(), unresolvedParamNameVec.end()); }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::set_vars
-// Purpose       : Sets the values of all input quantities
-// Special Notes :
+// Function      : Expression::getUnresolvedParams
+// Purpose       : 
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 9/9/2020
 //-----------------------------------------------------------------------------
-bool Expression::set_vars ( const std::vector<double> & vals )
+const std::vector<std::string> & Expression::getUnresolvedParams () const
 {
-  bool retVal=false; 
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getUnresolvedParamNameVec();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  nodes.clear();
+  std::vector<std::string> & voltNames = newExpPtr_->getVoltNameVec ();
+  if (!(voltNames.empty())) { nodes.insert(nodes.end(),voltNames.begin(), voltNames.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getVoltageNodes () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getVoltNameVec ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDeviceCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  devices.clear();
+  std::vector<std::string> & currentNames = newExpPtr_->getCurrentNameVec ();
+  if (!(currentNames.empty())) { devices.insert(devices.end(),currentNames.begin(), currentNames.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDeviceCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getDeviceCurrents () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getCurrentNameVec ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getLeadCurrents (std::vector<std::string> & leads) const
+{
+  newExpPtr_->setupVariousAstArrays();
+  leads.clear();
+  std::vector<std::string> & leadCurrentNameVec = newExpPtr_->getLeadCurrentNameVec ();
+  if (!(leadCurrentNameVec.empty())) { leads.insert(leads.end(),leadCurrentNameVec.begin(), leadCurrentNameVec.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrents
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getLeadCurrents () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getLeadCurrentNameVec ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentsExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const
+{
+  newExpPtr_->setupVariousAstArrays(); 
+  leads.clear();
+  std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExpPtr_->getLeadCurrentExcludeBsrcNameVec ();
+  if (!(leadCurrentExcludeBsrcNameVec.empty())) { leads.insert(leads.end(),leadCurrentExcludeBsrcNameVec.begin(), leadCurrentExcludeBsrcNameVec.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentsExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getLeadCurrentsExcludeBsrc () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getLeadCurrentExcludeBsrcNameVec ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedFunctions
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 6/23/2020
+//-----------------------------------------------------------------------------
+void Expression::getUnresolvedFunctions (std::vector<std::string> & funcs) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  funcs.clear();
+  std::vector<std::string> & unresolvedFuncNameVec = newExpPtr_->getUnresolvedFuncNameVec();
+  if (!(unresolvedFuncNameVec.empty())) { funcs.insert(funcs.end(),unresolvedFuncNameVec.begin(), unresolvedFuncNameVec.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedFunctions
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 6/23/2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getUnresolvedFunctions () const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getUnresolvedFuncNameVec();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getSpecials
+// Purpose       : 
+// Special Notes : does this need to catch GMIN as well?
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getSpecials (std::vector<std::string> & specials) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  specials.clear();
+  if (newExpPtr_->getTimeDependent()) { specials.push_back(std::string("TIME")); }
+  if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
+  if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
+  if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVariables
+//
+// Purpose       : This function returns the names of parameters in the expression 
+//                 which have an ongoing external dependency.    This basically 
+//                 means .global_params, and not .params in Xyce. 
+//
+//                 The param class has several booleans in it, that pertain to 
+//                 different aspects of external resolution.  But, most of them 
+//                 are unrelated to whether or not they were originally a .param 
+//                 or a .global_param.  So, I created another boolean to indicate 
+//                 when or not a parameter is a .param.  If it is, then it can't 
+//                 be a "variable".  If it is not, then it is considered a "variable".
+//
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getVariables (std::vector<std::string> & variables) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  variables.clear();
+  std::vector<std::string> & globalParamNameVec = newExpPtr_->getGlobalParamNameVec();
+  if (!(globalParamNameVec.empty())) { variables.insert(variables.end(),globalParamNameVec.begin(), globalParamNameVec.end()); }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVariables
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getVariables() const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getGlobalParamNameVec();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getPowerCalcs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) const
+{
+  newExpPtr_->setupVariousAstArrays();
+
+  powerCalcs.clear();
+  for (int ii=0;ii<newExpPtr_->getPowerOpVec().size();ii++)
   {
-    retVal = expPtr_->set_vars ( vals );
+    std::string tmpName = newExpPtr_->getPowerOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(powerCalcs.begin(), powerCalcs.end(), tmpName);
+    if (it == powerCalcs.end())
+    {
+      powerCalcs.push_back( tmpName );
+    }
   }
-  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getIsConstant
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getIsConstant ()
+{
+  return newExpPtr_->getIsConstant();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setTemperature
+// Purpose       :
+// Special Notes : This is ONLY called when you want to override the
+//                 'circuit' temperature.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/19/2020
+//-----------------------------------------------------------------------------
+bool Expression::setTemperature   (const double & temp)
+{
+  return newExpPtr_->setTemperature(temp);
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
-// Purpose       : Returns a string of the expression
-// Special Notes :
+// Purpose       : Returns a string of the expression, post replacements
+//
+//                 This is primarily used as a diagnostic.  
+//
+// Special Notes : In the old expression library, the returned string was 
+//                 potentially modified, as part of its process for resolving
+//                 functions and parameters.  So it wasn't necessarily the same
+//                 string as was originally passed into the expression library.
+//
+//                 In the new expression library that is not the case.  In the
+//                 new expression library functions and parameters are not 
+//                 resolved via string substitution.  They are resolved by 
+//                 attaching nodes to the AST.  So nowadays, this function
+//                 returns 100% the same thing as the function "get_input".
+//
+//                 There maybe a few use cases where this would be useful 
+//                 in the newExpression library.  Adding a feature to it where
+//                 it created a new expression string from the AST would not 
+//                 be too hard; it would be akin to what is already done for 
+//                 dumping the expression tree but in a more compact form.
+//
+//                 One use case where it would still be useful would be for 
+//                 params that are *not* attached (like const params), 
+//                 and also for node aliases. 
+//
+//                 But setting this up is not a high priority at the moment.
+//
+//                 The function should probably have a more descriptive name.
+//                 From the name alone, it was hard for me to understand the
+//                 difference between this and get_input. (which is part of why
+//                 they are for now equivalent)
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 
 //-----------------------------------------------------------------------------
 std::string Expression::get_expression () const
 {
-  std::string retVal; 
-  {
-    retVal = expPtr_->get_expression ();
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_derivative
-// Purpose       : Returns a string of a derivative
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-std::string Expression::get_derivative ( std::string const & var )
-{
-  std::string retVal; 
-  {
-    retVal = expPtr_->get_derivative ( var );
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_num
-// Purpose       : Returns the number of input quantities of a requested type
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::get_num(int const & type)
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->get_num(type);
-  }
-  return retVal;
+  return newExpPtr_->getExpressionString();
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluate
-// Purpose       : Evaluate expression and derivatives using provided input values
-// Special Notes :
-// Scope         :
+// Purpose       : Evaluate expression and derivatives using stored input values
+// Special Notes : 
+// Scope         : private
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluate ( double & exp_r,
-                                 std::vector<double> & deriv_r,
-                                 std::vector<double> & vals )
+bool Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::complex<double> > & deriv_r)
 {
-  int retVal=0; 
-  {
-    retVal = expPtr_->evaluate ( exp_r, deriv_r, vals );
-  }
+  bool retVal=true;
+#ifdef USE_TYPE_DOUBLE
+  double result;
+  std::vector<double> derivs;
+  retVal = newExpPtr_->evaluate( result, derivs );
+  exp_r = std::complex<double>(result,0.0);
+  deriv_r.resize(derivs.size(),0.0);
+  for(int ii=0;ii<derivs.size();ii++) { deriv_r[ii] = std::complex<double>(derivs[ii],0.0); } // could use a lambda here
+#else
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+#endif
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluateFunction
-// Purpose       : Evaluate expression using provided input values.  
-// Special Notes : This is for cases in which the user does not need 
-//                 the derivatives.
+// Purpose       : 
+// Special Notes :
 // Scope         :
-// Creator       : Eric Keiter, SNL
-// Creation Date : 04/14/08
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
+bool Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficiencyOn )
 {
-  int retVal=0;
-  {
-    retVal = expPtr_->evaluateFunction ( exp_r, vals );
-  }
+  bool retVal=true; 
+#ifdef USE_TYPE_DOUBLE
+  double result;
+  retVal = newExpPtr_->evaluateFunction( result, efficiencyOn );
+  exp_r = std::complex<double>(result,0.0);
+#else
+  retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
+#endif
   return retVal;
 }
 
@@ -353,13 +651,20 @@ int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluate ( double & exp_r,
-                                 std::vector<double> & deriv_r)
+bool Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 {
-  int retVal=0;
-  {
-    retVal = expPtr_->evaluate ( exp_r, deriv_r);
-  }
+  bool retVal=true;
+#ifdef USE_TYPE_DOUBLE
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+#else
+  std::complex<double> result;
+  std::vector<std::complex<double> > derivs;
+  retVal = newExpPtr_->evaluate( result, derivs );
+
+  exp_r = std::real(result);
+  deriv_r.resize(derivs.size(),0.0);
+  for(int ii=0;ii<derivs.size();ii++) {  deriv_r[ii] = std::real(derivs[ii]); } // could use a lambda here
+#endif
   return retVal;
 }
 
@@ -371,120 +676,56 @@ int Expression::evaluate ( double & exp_r,
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( double & exp_r )
+bool Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
 {
-  int retVal=0; 
-  {
-    retVal = expPtr_->evaluateFunction ( exp_r );
-  }
+  bool retVal=true; 
+#ifdef USE_TYPE_DOUBLE
+  retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
+#else
+  std::complex<double> result;
+  retVal = newExpPtr_->evaluateFunction ( result, efficiencyOn );
+  exp_r = std::real(result);
+#endif
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_time
-// Purpose       : Set 'time' special variable in expression
+// Function      : Expression::clearOldResult
+// Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 09/04/2020
 //-----------------------------------------------------------------------------
-bool Expression::set_sim_time(double time)
+void Expression::clearOldResult ()
 {
-  return expPtr_->set_sim_time(time);
+  return newExpPtr_->clearOldResult();
 }
 
-
 //-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_dt
-// Purpose       : Set time step special variable (dt) in expression
+// Function      : Expression::setupBreakPoints
+// Purpose       : Returns next breakpoint time
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 12/18/2017
+// Creation Date : 08/25/2020
 //-----------------------------------------------------------------------------
-bool Expression::set_sim_dt(double dt)
+void Expression::setupBreakPoints()
 {
-  return expPtr_->set_sim_dt(dt);
+  return newExpPtr_->setupBreakPoints();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::set_temp
-// Purpose       : Set 'temp' special variable in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set_temp(double const & tempIn)
-{
-  bool retVal=false;
-  {
-    retVal = expPtr_->set_temp(tempIn);
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_sim_freq
-// Purpose       : Set time step special variable (freq) in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 12/18/2017
-//-----------------------------------------------------------------------------
-bool Expression::set_sim_freq(double freq)
-{
-  return expPtr_->set_sim_freq(freq);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_accepted_time
-// Purpose       : Set accepted time for converged soltion
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::set_accepted_time(double const time)
-{ 
-  {
-    expPtr_->set_accepted_time(time);
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_break_time
+// Function      : Expression::getBreakPoints
 // Purpose       : Returns next breakpoint time
 // Special Notes :
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-double Expression::get_break_time()
+bool Expression::getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes)
 {
-  double retVal=0.0; 
-  {
-    retVal = expPtr_->get_break_time();
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_break_time_i
-// Purpose       : Returns next breakpoint time
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-double Expression::get_break_time_i()
-{
-  double retVal=0.0; 
-  {
-    retVal = expPtr_->get_break_time_i();
-  }
-  return retVal;
+  return newExpPtr_->getBreakPoints(breakPointTimes);
 }
 
 //-----------------------------------------------------------------------------
@@ -495,215 +736,110 @@ double Expression::get_break_time_i()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-const std::string & Expression::get_input ()
+const std::string & Expression::get_input () const
 {
-  return expPtr_->get_input ();
+  return newExpPtr_->getExpressionString();
 }
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::order_names
-// Purpose       : Put input quantity names in a particular order (used for
-//                 replace_func which requires identical ordering for expression
-//                 and user defined function
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::order_names(std::vector<std::string> const & new_names)
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->order_names(new_names);
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_func
-// Purpose       : Replace user defined function with its definition in expression
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::replace_func (std::string const & func_name,
-                                   Expression & func_def,
-                                   int numArgs)
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->replace_func (func_name, *(func_def.expPtr_), numArgs);
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_var
-// Purpose       : Replace a variable usage with a parsed sub-expression
-// Special Notes : This is used for subcircuit parameters that cannot be
-//                 fully resolved to a constant because they have global
-//                 parameter usage.
-// Scope         :
-// Creator       : Thomas Russo, SNL
-// Creation Date : 08/10/2010
-//-----------------------------------------------------------------------------
-int
-Expression::replace_var(
-  const std::string &   var_name,
-  const Expression &    subexpr)
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->replace_var (var_name, *(subexpr.expPtr_));
-  }
-  return retVal;
-}
-//-----------------------------------------------------------------------------
-// Function      : Expression::replace_var
-// Purpose       : Replace a variable usage with a parsed sub-expression
-// Special Notes : This is used for subcircuit parameters that cannot be
-//                 fully resolved to a constant because they have global
-//                 parameter usage.
-// Scope         :
-// Creator       : Thomas Russo, SNL
-// Creation Date : 08/10/2010
-//-----------------------------------------------------------------------------
-int Expression::replace_var (std::string const & var_name,
-                             Op::Operator *op )
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->replace_var (var_name, op);
-  }
-  return retVal;
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_name
 // Purpose       : Change the name of an input quantity
-// Special Notes :
+//
+// Special Notes : ERK.  This called from the N_IO_DistToolBase.C file/class
+//                 in the function DistToolBase::instantiateDevice.
+//
+//                 "Input quantity" in this case means voltage nodes (XEXP_NODE), 
+//                 device instances (XEXP_INSTANCE), and lead currents (XEXP_LEAD).
+//
+//                 Sometimes, they are specified in expressions without their 
+//                 names being fully resolved.  ie, the expression is inside of 
+//                 a subcircuit, and thus implicitly assumes the full prefix.
+//
+//                 So, this function adds the full prefix to these names, 
+//                 so they can be fully resolved.
+//
+//                 The function DistToolBase::instantiateDevice calls this 
+//                 function twice for some reason that I don't (yet) understand.
+//                 It seems to require 2 passes to properly update the name. ie,
+//                 "name" -> "; name" -> "prefix:name".
+//  
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 bool Expression::replace_name ( const std::string & old_name,
-                                      const std::string & new_name)
+                                const std::string & new_name)
 {
-  bool retVal=false; 
-  {
-    retVal = expPtr_->replace_name ( old_name, new_name);
-  }
-  return retVal;
+  return newExpPtr_->replaceName( old_name, new_name );
 }
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getNumDdt
-// Purpose       : Return the number of ddt() calls in the expression
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::getNumDdt ()
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_-> getNumDdt ();
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::getDdtVals
-// Purpose       : Return the most recent arguments of ddt() in the expression
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::getDdtVals ( std::vector<double> & vals )
-{ 
-  {
-    expPtr_-> getDdtVals ( vals );
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::setDdtDerivs
-// Purpose       : Set the evaluated value of the ddt functions
-// Special Notes : This is normally done with derivative values from the
-//                 time integration package
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-void Expression::setDdtDerivs ( std::vector<double> & vals )
-{ 
-  {
-    expPtr_->setDdtDerivs ( vals );
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::num_vars
-// Purpose       : 
-// Special Notes : 
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::num_vars() const
-{
-  int retVal=0; 
-  {
-    retVal = expPtr_->num_vars();
-  }
-  return retVal;
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::isTimeDependent
-// Purpose       : Return true if expression is either explicitly or implicitly
+// Purpose       : Return true if expression is either explicitly OR implicitly
 //                 time dependent
-// Special Notes : The ExpressionInternals::isTimeDependent method only returns
-//                 true if the expression is implicitly time dependent.
-//
-//                 It is impossible at this time for indirect time dependence
-//                 through global_params to be detected through this method.
-//
+// Special Notes : 
 // Scope         :
-// Creator       : Richard Schiek, SNL
+// Creator       : 
 // Creation Date : 10/07/2013
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
-  bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
-  bool explicitTimeDep = false;
-  std::vector<std::string> specials;
-  expPtr_->get_names(XEXP_SPECIAL, specials);
-  if (!specials.empty())
-  {
-    explicitTimeDep=(std::find(specials.begin(), specials.end(), "TIME") != specials.end());
-  }
-  return (implicitTimeDep || explicitTimeDep);
+  // ERK. This is important so that (for example) capacitors with expression 
+  // dependent capacitance aren't calling updateTemperature over and over 
+  // again.   If they think an expression dependent parameter is time 
+  // dependent, then they are obligated to keep re-evaluating it.
+  // So, this needs to give the right answer.
+  bool explicitTimeDep = newExpPtr_->getTimeDependent();
+  bool sdtDep = !(newExpPtr_->getSdtOpVec().empty());
+  bool ddtDep = !(newExpPtr_->getDdtOpVec().empty());
+  return (explicitTimeDep || sdtDep || ddtDep);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::isFreqDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isFreqDependent() const
+{
+  return newExpPtr_->getFreqDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::isSolutionDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isSolutionDependent() const
+{
+  return ( !(newExpPtr_->getVoltOpVec().empty()) || 
+           !(newExpPtr_->getCurrentOpVec().empty()) );
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
-// Special Notes : 
+// Special Notes : This is only based on local dependence, from parsing.
 // Scope         :
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
-  return ( expPtr_->isRandomDepedent() );
+  if ( !(newExpPtr_->getLocalAgaussOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalGaussOpVec().empty()) ) { return true; }
+  if ( !(newExpPtr_->getLocalAunifOpVec().empty()) ) { return true; }
+  if ( !(newExpPtr_->getLocalUnifOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalRandOpVec().empty())  ) { return true; }
+  if ( !(newExpPtr_->getLocalTwoArgLimitOpVec().empty()) ) { return true; }
+
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -716,13 +852,15 @@ bool Expression::isRandomDependent() const
 //-----------------------------------------------------------------------------
 void Expression::dumpParseTree()
 {
-  expPtr_->dumpParseTree();
+  newExpPtr_->dumpParseTree(Xyce::dout());
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ExpressionInternals::seedRandom
+// Function      : Expression::seedRandom
 // Purpose       : Public method to initialize random number generator
 //                 used by rand(), gauss() and agauss() functions.
+// Special Notes : 
+// Scope         :
 // Creator       : Tom Russo
 // Creation Date : 03/28/17
 //-----------------------------------------------------------------------------
@@ -734,8 +872,275 @@ void Expression::dumpParseTree()
 ///
 void Expression::seedRandom(long seed)
 {
-  ExpressionInternals::seedRandom(seed);
 }
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::treatAsTempAndConvert
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::treatAsTempAndConvert()
+{
+  newExpPtr_->treatAsTempAndConvert();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::clearProcessSuccessfulTimeStepMap
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::clearProcessSuccessfulTimeStepMap ()
+{
+  newExpression::clearProcessSuccessfulTimeStepMap ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::processSuccessfulTimeStep
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::processSuccessfulTimeStep ()
+{
+  newExpPtr_->processSuccessfulTimeStep ();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getNumDdt
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+int Expression::getNumDdt()
+{
+  return newExpPtr_->getNumDdt();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDdtVals
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getDdtVals (std::vector<double> & vals)
+{
+  return newExpPtr_->getDdtVals(vals);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setDdtDerivs
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setDdtDerivs (std::vector<double> & vals)
+{
+  return newExpPtr_->setDdtDerivs(vals);
+}
+
+// random operator information
+//-----------------------------------------------------------------------------
+// Function      : Expression::getAgaussData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAgauss = newExpPtr_->getLocalAgaussOpVec();
+  for (int ii=0;ii<localAgauss.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (localAgauss[ii]);
+
+    usedType mu    = agOp->getMu();
+    usedType alpha = agOp->getAlpha();
+    usedType n     = agOp->getN();
+
+    sampling_param.opName     = "AGAUSS";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_AGAUSS;
+    sampling_param.type       = "NORMAL";
+    sampling_param.mean       = std::real(mu);
+    sampling_param.stdDev     = std::real(alpha)/std::real(n);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getGaussData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localGauss = newExpPtr_->getLocalGaussOpVec();
+  for (int ii=0;ii<localGauss.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<gaussOp<usedType> > gaOp = Teuchos::rcp_static_cast<gaussOp<usedType> > (localGauss[ii]);
+
+    usedType mu        = gaOp->getMu();
+    usedType rel_alpha = gaOp->getAlpha();
+    usedType n         = gaOp->getN();
+    usedType alpha     = rel_alpha*mu;
+
+    sampling_param.opName     = "GAUSS";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_GAUSS;
+    sampling_param.type       = "NORMAL";
+    sampling_param.mean       = std::real(mu);
+    sampling_param.stdDev     = std::real(alpha)/std::real(n);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getAunifData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAunif = newExpPtr_->getLocalAunifOpVec();
+  for (int ii=0;ii<localAunif.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<aunifOp<usedType> > auOp = Teuchos::rcp_static_cast<aunifOp<usedType> > (localAunif[ii]);
+
+    usedType mu    = auOp->getMu();
+    usedType alpha = auOp->getAlpha();
+
+    sampling_param.opName     = "AUNIF";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_AUNIF;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = std::real(mu)-std::real(alpha);
+    sampling_param.stopVal  = std::real(mu)+std::real(alpha);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getUnifData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localUnif = newExpPtr_->getLocalUnifOpVec();
+  for (int ii=0;ii<localUnif.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<unifOp<usedType> > unOp = Teuchos::rcp_static_cast<unifOp<usedType> > (localUnif[ii]);
+
+    usedType mu        = unOp->getMu();
+    usedType rel_alpha = unOp->getAlpha();
+    usedType alpha     = rel_alpha*mu;
+
+    sampling_param.opName     = "UNIF";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_UNIF;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = std::real(mu)-std::real(alpha);
+    sampling_param.stopVal  = std::real(mu)+std::real(alpha);
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getRandData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localRand = newExpPtr_->getLocalRandOpVec();
+  for (int ii=0;ii<localRand.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<randOp<usedType> > auOp = Teuchos::rcp_static_cast<randOp<usedType> > (localRand[ii]);
+
+    sampling_param.opName     = "RAND";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_RAND;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = 0.0;
+    sampling_param.stopVal  = 1.0;
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLimitData
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVec)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localTwoArgLimit = newExpPtr_->getLocalTwoArgLimitOpVec();
+  for (int ii=0;ii<localTwoArgLimit.size();ii++)
+  {
+    Xyce::Analysis::SweepParam sampling_param;
+
+    Teuchos::RCP<twoArgLimitOp<usedType> > auOp = Teuchos::rcp_static_cast<twoArgLimitOp<usedType> > (localTwoArgLimit[ii]);
+
+    sampling_param.opName     = "LIMIT";
+    sampling_param.astOpIndex = ii;
+    sampling_param.astType    = Util::AST_LIMIT;
+    sampling_param.type       = "UNIFORM";
+
+    sampling_param.startVal = 0.0;
+    sampling_param.stopVal  = 1.0;
+
+    sampleVec.push_back(sampling_param);
+  }
+}
+
 
 } // namespace Util
 } // namespace Xyce

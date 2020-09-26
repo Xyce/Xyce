@@ -33,6 +33,7 @@
 #include <iostream>
 
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_ANP_AnalysisManager.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_LOA_CktLoader.h>
@@ -203,14 +204,14 @@ operator<<(std::ostream & os, const SweepParam & sp)
 // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
 // Creation Date : Wed Oct  1 09:19:28 2014
 //-----------------------------------------------------------------------------
-SweepParam parseSweepParams(Util::ParamList::const_iterator first, Util::ParamList::const_iterator last)
+SweepParam parseSweepParams(Xyce::Util::ParamList::const_iterator first, Xyce::Util::ParamList::const_iterator last)
 {
   if (DEBUG_ANALYSIS)
   {
     Xyce::dout() << std::endl << section_divider << std::endl
                  << "parseSweepParam" << std::endl;
 
-    for (Util::ParamList::const_iterator it = first, end = last; it != end; ++it)
+    for (Xyce::Util::ParamList::const_iterator it = first, end = last; it != end; ++it)
     {
       Xyce::dout() << (*it).uTag() << "\t";
       if ((*it).uTag() == "PARAM" || 
@@ -229,8 +230,8 @@ SweepParam parseSweepParams(Util::ParamList::const_iterator first, Util::ParamLi
 
   SweepParam sweep_param;
   
-  Util::ParamList::const_iterator it_param = last;
-  for (Util::ParamList::const_iterator it = first, end = last; it != end; ++it)
+  Xyce::Util::ParamList::const_iterator it_param = last;
+  for (Xyce::Util::ParamList::const_iterator it = first, end = last; it != end; ++it)
   {
     if ((*it).uTag() == "TYPE")
     {
@@ -244,7 +245,7 @@ SweepParam parseSweepParams(Util::ParamList::const_iterator first, Util::ParamLi
     else if ((*it).uTag() == "DATASET")
     {
       sweep_param.dataSetName = (*it).stringValue();
-      Util::toUpper( sweep_param.dataSetName );
+      Xyce::Util::toUpper( sweep_param.dataSetName );
     }
   }
 
@@ -264,14 +265,14 @@ SweepParam parseSweepParams(Util::ParamList::const_iterator first, Util::ParamLi
     }
     else if (sweep_param.type == "LIST")
     {
-      for (Util::ParamList::const_iterator it = ++it_param, end = last; it != end; ++it)
+      for (Xyce::Util::ParamList::const_iterator it = ++it_param, end = last; it != end; ++it)
       {
         sweep_param.valList.push_back((*it).getImmutableValue<double>());
       }
     }
     else if (sweep_param.type == "TABLE")
     {
-      for (Util::ParamList::const_iterator it = ++it_param, end = last; it != end; ++it)
+      for (Xyce::Util::ParamList::const_iterator it = ++it_param, end = last; it != end; ++it)
       {
         sweep_param.valList.push_back((*it).getImmutableValue<double>());
       }
@@ -368,7 +369,7 @@ int setSweepLoopVals(std::vector<SweepParam>::iterator begin, std::vector<SweepP
       // of pstop by taking one more step, that must mean we undercounted
       // due to roundoff in the division --- if we hadn't undercounted, we'd
       // exceed pstop by (nearly) a full pstep.
-      if ( fabs(pstop-(pstart+(pcount+1.0)*pstep)) < 2.0*Util::MachineDependentParams::MachinePrecision())
+      if ( fabs(pstop-(pstart+(pcount+1.0)*pstep)) < 2.0*Xyce::Util::MachineDependentParams::MachinePrecision())
       {
         pcount += 1.0;
       }
@@ -414,7 +415,7 @@ int setSweepLoopVals(std::vector<SweepParam>::iterator begin, std::vector<SweepP
       // pstop.  Only throw a warning if pstart exceeds pstop by more than
       // machine precision.  The case where they're equal should already
       // have been handled by the formula for pcount.
-      if (pstart > pstop + 2.0*Util::MachineDependentParams::MachinePrecision())
+      if (pstart > pstop + 2.0*Xyce::Util::MachineDependentParams::MachinePrecision())
       {
         pcount=1;
         sweep_param.maxStep = 1;
@@ -446,7 +447,7 @@ int setSweepLoopVals(std::vector<SweepParam>::iterator begin, std::vector<SweepP
       // pstop.  Only throw a warning if pstart exceeds pstop by more than
       // machine precision.  The case where they're equal should already
       // have been handled by the formula for pcount.
-      if (pstart > pstop + 2.0*Util::MachineDependentParams::MachinePrecision())
+      if (pstart > pstop + 2.0*Xyce::Util::MachineDependentParams::MachinePrecision())
       {
         pcount=1;
         sweep_param.maxStep = 1;
@@ -563,6 +564,9 @@ bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<Sweep
     }
   }
 
+  // ERK. this call is necessary to ensure sweeps and homotopy play well together.
+  loader.updateDependentParams();
+
   return reset;
 }
 
@@ -575,7 +579,7 @@ bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<Sweep
 // Creation Date : 9/5/18
 //-----------------------------------------------------------------------------
 bool processDataStatements(
-    const Util::OptionBlock & paramsBlock,
+    const Xyce::Util::OptionBlock & paramsBlock,
     std::map< std::string, std::vector<std::string> > & dataNamesMap,
     std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap
     )
@@ -590,13 +594,13 @@ bool processDataStatements(
    std::vector< std::string > params;
    std::vector<double> compressedRowData;
 
-   Util::ParamList::const_iterator iter = paramsBlock.begin();
-   Util::ParamList::const_iterator end  = paramsBlock.end();
+   Xyce::Util::ParamList::const_iterator iter = paramsBlock.begin();
+   Xyce::Util::ParamList::const_iterator end  = paramsBlock.end();
 
    for(;iter!=end;++iter) 
    { 
      std::string tag = iter->tag();
-     Util::toUpper(tag);
+     Xyce::Util::toUpper(tag);
      if (tag=="PARAM")
      {
        params.push_back(iter->stringValue());
@@ -733,14 +737,14 @@ bool convertData(
 // Creator       : Pete Sholander, SNL
 // Creation Date : 6/6/19
 //-----------------------------------------------------------------------------
-bool isDataSpecified(const Util::OptionBlock & paramsBlock)
+bool isDataSpecified(const Xyce::Util::OptionBlock & paramsBlock)
 {
-  for (Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
+  for (Xyce::Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
   {
     std::string tag = (*it).uTag();
     std::string val = (*it).stringValue();
-    Util::toUpper(tag);
-    Util::toUpper(val);
+    Xyce::Util::toUpper(tag);
+    Xyce::Util::toUpper(val);
     if (tag == "TYPE" && val == "DATA")
     {
       return true;

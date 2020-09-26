@@ -1650,11 +1650,15 @@ public:
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-
 class ExpressionOp : public Util::Op::Op<ExpressionOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
 {
 public:
-  ExpressionOp(const std::string &name, const std::string &expression, Parallel::Machine comm, const OutputMgr &output_manager);
+  ExpressionOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager);
 
   virtual ~ExpressionOp()
   {}
@@ -1666,7 +1670,79 @@ public:
   mutable Util::ExpressionData          expressionData_;
   Parallel::Machine                     comm_;
   const OutputMgr &                     outputMgr_;
+
+  const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp_; 
 };
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionRealOp
+// Purpose       : Class for constructing and initalizing an expression
+//               : operator, and then getting values from that operator.
+// Special Notes : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/25/2020
+//-----------------------------------------------------------------------------
+class ExpressionRealOp : public Util::Op::Op<ExpressionRealOp, Util::Op::ReduceNone>
+{
+public:
+  ExpressionRealOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager);
+
+  ExpressionRealOp( const ExpressionOp & op );
+
+  virtual ~ExpressionRealOp()
+  {}
+
+  void init(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager, const IO::OutputMgr &output_manager);
+
+  static complex get(const ExpressionRealOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  mutable Util::ExpressionData          expressionData_;
+  Parallel::Machine                     comm_;
+  const OutputMgr &                     outputMgr_;
+  const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp_; 
+};
+
+//-----------------------------------------------------------------------------
+// Function      : ExpressionImaginaryOp
+// Purpose       : Class for constructing and initalizing an expression
+//               : operator, and then getting values from that operator.
+// Special Notes : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/25/2020
+//-----------------------------------------------------------------------------
+class ExpressionImaginaryOp : public Util::Op::Op<ExpressionImaginaryOp, Util::Op::ReduceNone>
+{
+public:
+  ExpressionImaginaryOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager);
+
+  ExpressionImaginaryOp( const ExpressionOp & op);
+
+  virtual ~ExpressionImaginaryOp()
+  {}
+
+  void init(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager, const IO::OutputMgr &output_manager);
+
+  static complex get(const ExpressionImaginaryOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  mutable Util::ExpressionData          expressionData_;
+  Parallel::Machine                     comm_;
+  const OutputMgr &                     outputMgr_;
+  const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp_; 
+};
+
+
 
 } // namespace IO
 } // namespace Xyce

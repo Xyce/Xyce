@@ -122,35 +122,7 @@ private:
   Instance &operator=(const Instance &);
 
 public:
-  bool isLinearDevice() const
-  {
-    if( loadLeadCurrent )
-    {
-      return false;
-    }
-
-    const std::vector<Depend> & depVec = const_cast<Xyce::Device::Inductor::Instance*>(this)->getDependentParams();
-    if ( depVec.size() )
-    {
-      std::vector<Depend>::const_iterator d;
-      std::vector<Depend>::const_iterator begin=depVec.begin();
-      std::vector<Depend>::const_iterator end=depVec.end();
-
-      for (d=begin; d!=end; ++d)
-      {
-        int expNumVars = d->n_vars;
-        int expNumGlobal = d->global_params.size();
-        Util::Expression* expPtr = d->expr;
-
-        if (expNumVars > 0 || expPtr->isTimeDependent() || expNumGlobal > 0 )
-        { 
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
+  bool isLinearDevice() const;
 
   void registerLIDs( const std::vector<int> & intLIDVecRef,
                      const std::vector<int> & extLIDVecRef );

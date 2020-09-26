@@ -67,10 +67,22 @@ bool splitWildCardString(const std::string& name, std::vector<std::string>& name
 //-----------------------------------------------------------------------------
 bool isWildCardMatch(const std::string& name,
                      const std::vector<std::string>& nameSubStrings,
-                     int firstStarPos)
+                     int firstStarPos,
+                     bool trailingStar)
 {
   // default is no match
   bool ret = false;
+
+  // For the case where the wildcard ends with a specific string, rather
+  // than a * character, there must be an exact match to that specific
+  // string at the end of the name string.
+  if (!trailingStar && (nameSubStrings.size() != 0))
+  {
+    std::string lastSubString = nameSubStrings[nameSubStrings.size()-1];
+    if ( (name.size() < lastSubString.size()) ||
+         (name.substr(name.size()-lastSubString.size(), lastSubString.size()) != lastSubString) )
+      return false;
+  }
 
   int numMatch=0;
   int i = 0;
@@ -127,6 +139,7 @@ bool findWildCardMatch(const std::string &name, const unordered_set<std::string>
 
   // determine where the first * is.
   std::size_t firstStarPos = name.find_first_of("*");
+  bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
   if ((name.size() == 1) || (firstStarPos == std::string::npos))
   {
@@ -143,7 +156,7 @@ bool findWildCardMatch(const std::string &name, const unordered_set<std::string>
     unordered_set<std::string>::const_iterator it;
     for (it=input_set.begin(); it!=input_set.end(); ++it)
     {
-      if (isWildCardMatch((*it), nameSubStrings, firstStarPos))
+      if (isWildCardMatch((*it), nameSubStrings, firstStarPos, trailingStar))
         return true;
     }
 
@@ -169,6 +182,7 @@ bool findAllWildCardMatches(
 {
   // determine where the first * is.
   std::size_t firstStarPos = name.find_first_of("*");
+  bool trailingStar = (name.find_last_of("*") == name.size()-1);
 
   if ( !((name.size() == 1) || (firstStarPos == std::string::npos)) )
   {
@@ -181,7 +195,7 @@ bool findAllWildCardMatches(
     unordered_set<std::string>::const_iterator it;
     for (it=input_set.begin(); it!=input_set.end(); ++it)
     {
-      if (isWildCardMatch((*it), nameSubStrings, firstStarPos))
+      if (isWildCardMatch((*it), nameSubStrings, firstStarPos, trailingStar))
         matches.push_back(*it);
     }
   }

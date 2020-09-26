@@ -381,6 +381,8 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       
       isuccess=sourceSteppingSolve ( paramsPtr );
       paramsPtr->setNoxSolverType(saveSolverType);
+
+      nonlinearEquationLoader_->resetScaledParams();
     }
   }
     return isuccess;
@@ -1619,12 +1621,15 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   {
     groupPtr_->computeF();
   }
+  nonlinearEquationLoader_->resetScaledParams();
 
   // Do the continuation run
   resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
   LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
 
   groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
+
+  nonlinearEquationLoader_->resetScaledParams();
 
   // Kick out if continuation failed
   if (locaStatus != LOCA::Abstract::Iterator::Finished)

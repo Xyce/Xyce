@@ -116,7 +116,7 @@ public:
     return tranStepNumber;
   }
 
-  virtual int getStepNumber()
+  virtual unsigned int getStepNumber()
   {
     return stepNumber;
   }
