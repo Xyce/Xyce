@@ -622,7 +622,8 @@ bool Base::withinTimeWindow( double time )
 // Function      : MeasureBase::withinFreqWindow
 // Purpose       : Checks if current frequency is within FROM/TO windows.
 // Special Notes : The minval_ tolerance is used as a fudge factor on the TO
-//                 window because of numerical errors in the sweep values
+//                 window because of numerical errors in the sweep values, or
+//                 if the FROM or TO qualifiers are expressions.
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2019
@@ -630,7 +631,7 @@ bool Base::withinTimeWindow( double time )
 bool Base::withinFreqWindow( double freq )
 {
   bool retVal = true;
-  if ( (fromGiven_ && (freq < from_ )) || (toGiven_ && (freq > (1+minval_)*to_)) )
+  if ( (fromGiven_ && (freq < from_*(1-minval_))) || (toGiven_ && (freq > (1+minval_)*to_)) )
   {
     retVal = false;
   }
@@ -640,7 +641,9 @@ bool Base::withinFreqWindow( double freq )
 //-----------------------------------------------------------------------------
 // Function      : MeasureBase::withinDCsweepFromToWindow
 // Purpose       : Checks if the current value of the DC Sweep variable is
-//                 within measurement window
+//                 within measurement window.  The minval_ tolerance is used as
+//                 a fudge factor because of numerical errors if the FROM or TO
+//                 qualifiers are expressions.
 // Special Notes : Used just for DC mode, since the first sweep variable (on a .DC
 //                 line) can be either monotonically increasing or monotonically 
 //                 decreasing.
@@ -655,16 +658,20 @@ bool Base::withinDCsweepFromToWindow(double sweepValue)
 
   if (fromGiven_ && toGiven_)
   {
-    if( to_ >= from_ )
+    if ( (fabs(sweepValue - to_) < fabs(to_*minval_)) || (fabs(sweepValue - from_) < fabs(from_*minval_)) )
     {
-      if ( (sweepValue < from_ ) || (sweepValue > to_) )
+      return true;
+    }
+    else if( to_ >= from_ )
+    {
+      if ( (sweepValue < from_) || (sweepValue > to_) )
       {
         retVal = false;
       }
     }
     else
     {
-      if( (sweepValue > from_ ) || (sweepValue < to_) )
+      if( (sweepValue > from_) || (sweepValue < to_) )
       {
         retVal = false;
       }
@@ -672,15 +679,27 @@ bool Base::withinDCsweepFromToWindow(double sweepValue)
   }
   else if (toGiven_)
   {
-    // handle both ascending and descending sweeps
-    if ( (dcSweepAscending_ && (sweepValue > to_)) || (!dcSweepAscending_ && (sweepValue < to_)) )
+    if (fabs(sweepValue - to_) < fabs(to_*minval_))
+    {
+      return true;
+    }
+    else if ( (dcSweepAscending_ && (sweepValue > to_)) || (!dcSweepAscending_ && (sweepValue < to_)) )
+    {
+      // handle both ascending and descending sweeps
       retVal = false;
+    }
   }
   else if (fromGiven_)
   {
-    // handle both ascending and descending sweeps
-    if ( (dcSweepAscending_ && (sweepValue < from_)) || (!dcSweepAscending_ && (sweepValue > from_)) )
+    if (fabs(sweepValue - from_) < fabs(from_*minval_))
+    {
+      return true;
+    }
+    else if ( (dcSweepAscending_ && (sweepValue < from_)) || (!dcSweepAscending_ && (sweepValue > from_)) )
+    {
+      // handle both ascending and descending sweeps
       retVal = false;
+    }
   }
 
   return retVal;
