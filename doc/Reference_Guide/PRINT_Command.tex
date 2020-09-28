@@ -464,6 +464,29 @@ analysis modes.  The \texttt{VR(*)}, \texttt{VI(*)}, \texttt{VP(*)},
 \texttt{IP(*)}, \texttt{IM(*)} and \texttt{IDB(*)} wildcards are also
 supported for these two analysis modes.
 
+There is also limited support for the * character (meaning ``zero or more
+characters'') in more complex wildcards, where the * characters can be in
+any positions in the wildcard specification.  For example, \texttt{V(X1*)}
+should output the voltage at all nodes in subcircuit X1 for all analysis
+modes.  At present, wildcards such as \texttt{VR(X1*)}, \texttt{VI(X1*)},
+\texttt{VP(X1*)}, \texttt{VM(X1*)} and \texttt{VDB(X1*)} are not supported.
+
+Similarly, \texttt{P(X1*)} or \texttt{W(X1*)} should output the
+power for all devices, that support power calculations, in subcircuit X1
+for all analysis modes.  Devices that don't support power calculations
+should be silently omitted.
+
+There is less support for more complex wildcards for the I()
+operator.  In particular, I(X1*) will only include the two-terminal
+devices.  The J, M, Q and Z devices will be silently ignored,
+which is the correct behavior since I(Q1) is a parsing error in Xyce.
+For DC and TRAN, that wildcard should include both branch and lead
+currents.  For AC and NOISE, it will only include branch currents. At
+present, wildcards such as \texttt{IR(X1*)}, \texttt{II(X1*)},
+\texttt{IP(X1*)}, \texttt{IM(X1*)}, \texttt{IDB(X1*)}, \texttt{IB(X1*)},
+\texttt{IC(*)}, \texttt{ID(X1*)}, \texttt{IE(X1*)} \texttt{IG(X1*)} and
+\texttt{IS(X1*)} are not supported.
+
 \subsubsection{Device Parameters and Internal Variables}
 \label{Print_Device_Info}
 \index{\texttt{.PRINT}!Device Parameters and Internal Variables}
