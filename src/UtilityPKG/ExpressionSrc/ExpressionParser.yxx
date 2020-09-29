@@ -59,7 +59,7 @@ class ExpressionLexer;
 %locations
 %defines
 
-%name-prefix="XyceExpression"
+%define api.prefix {XyceExpression}
 
 // ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
 // I needed to use RCP's because expressions in Xyce get copied all
