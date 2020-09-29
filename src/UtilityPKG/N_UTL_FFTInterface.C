@@ -41,9 +41,6 @@
 //-------------------------------------------------------------------------
 
 #include <N_UTL_FFTInterface.hpp>
-#include <N_LAS_BlockVector.h>
-#include <N_LAS_MultiVector.h>
-#include <N_LAS_Vector.h>
 
 #include <iostream>
 #include <vector>

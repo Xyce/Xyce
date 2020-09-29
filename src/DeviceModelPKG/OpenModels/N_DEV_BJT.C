@@ -50,7 +50,6 @@
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_LAS_Matrix.h>
-#include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Math.h>
