@@ -44,10 +44,7 @@ class ExpressionLexer;
 }}
 // now we can include this without errors from bison 2.4
 #include "ExpressionParser.hxx"
-// BLEAH!   This is here DUPLICATED from ExpressionParser.yxx
-// because of STUPID choice in Bison 2.3 to put the post-prologue into the
-// .cxx file instead of the .hxx file that Bison 2.1 used to put it in.
-//#undef yyFlexLexer
+
 /* CAREFUL watch continuations! */
 #undef YY_DECL
 #define YY_DECL \
