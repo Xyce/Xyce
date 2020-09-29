@@ -36,31 +36,19 @@
 #include <newExpression.h>
 #include <N_UTL_ExtendedString.h>
 
-// these here because Bison 2.4 no longer puts the pre-prologue into the
-// header file... grrrr.
 namespace Xyce {
 namespace Util {
 class ExpressionLexer;
 }}
-// now we can include this without errors from bison 2.4
 #include "ExpressionParser.hxx"
 
-/* CAREFUL watch continuations! */
 #undef YY_DECL
 #define YY_DECL \
   int Xyce::Util::ExpressionLexer::getToken(XyceExpression::ExpressionParser::semantic_type *lvalp, \
                                             XyceExpression::location *llocp)
 
-  // YECH!  Work around very stupid way that multiple parsers/lexers are
-  // handled.
-  // Bison's "%name-prefix" is implemented as a #define yylex "prefix"lex
-  // which BREAKS flex's C++ lexer: it contains a method "yylex" in the
-  // yyFlexLexer class.  Unless we do this kludge, that method gets renamed
-  // with the define as well, and the result is a broken set of classes
 #undef yylex
 #include "ExpressionLexer.h"
-  // undo that kludge.  Note that because of this stupidity, if the
-  // "%name-prefix" is changed, this line needs to be changed, too.
 #define yylex XyceExpressionlex
 
 

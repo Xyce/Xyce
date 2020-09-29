@@ -51,6 +51,7 @@ class ExpressionLexer;
 %}
 
 %skeleton "lalr1.cc"
+%require  "3.0.4"
 %parse-param {Xyce::Util::ExpressionLexer *theLexer}
 %parse-param {Xyce::Util::newExpression & newExp}
 %lex-param {Xyce::Util::ExpressionLexer *theLexer}
@@ -97,17 +98,9 @@ class ExpressionLexer;
 };
 
 %{
-  // YECH!  Work around very stupid way that multiple parsers/lexers are
-  // handled.
-  // Bison's "%name-prefix" is implemented as a #define yylex "prefix"lex
-  // which BREAKS flex's C++ lexer: it contains a method "yylex" in the
-  // yyFlexLexer class.  Unless we do this kludge, that method gets renamed
-  // with the define as well, and the result is a broken set of classes
 #undef yylex
 #include <FlexLexer.h>
 #include "ExpressionLexer.h"
-  // undo that kludge.  Note that because of this stupidity, if the
-  // "%name-prefix" is changed, this line needs to be changed, too.
 #define yylex XyceExpressionlex
 
 int XyceExpressionlex(
