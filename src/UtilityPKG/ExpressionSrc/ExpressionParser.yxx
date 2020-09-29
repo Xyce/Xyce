@@ -456,23 +456,23 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token <double> TOK_POLYCOEF "polycoef"
 %token <double> TOK_NUM	"num"
 %token <double> TOK_IMAG_NUM	"imag_num"
-%token <std::string *> TOK_WORD "word"
-%token <std::string *> TOK_FUNCTION "function"
-%token <std::string *> TOK_LEAD "lead"
-%token <std::string *> TOK_ONOISE "onoise"
-%token <std::string *> TOK_INOISE "inoise"
-%token <std::string *> TOK_POWER "power"
-%token <std::string *> TOK_VOLTAGE "voltage"
-%token <std::string *> TOK_VOLTAGENODE "voltagenode"
-%token <std::string *> TOK_POLY_VOLTAGE "poly_voltage"
-%token <std::string *> TOK_CURRENT "current"
-%token <std::string *> TOK_CURRENTDEV "currentdevice"
-%token <std::string *> TOK_POLY_CURRENT "poly_current"
-%token <std::string *> TOK_INTERNAL_VAR "internal_variable"
-%token <std::string *> TOK_INTERNAL_VAR_DEV "internal_variable_device"
-%token <std::string *> TOK_NOISE "noise"
-%token <std::string *> TOK_NOISE_DEV_VAR "noise_device_variable"
-%token <std::string *> TOK_RFPARAM "rfparam"
+%token <std::string> TOK_WORD "word"
+%token <std::string> TOK_FUNCTION "function"
+%token <std::string> TOK_LEAD "lead"
+%token <std::string> TOK_ONOISE "onoise"
+%token <std::string> TOK_INOISE "inoise"
+%token <std::string> TOK_POWER "power"
+%token <std::string> TOK_VOLTAGE "voltage"
+%token <std::string> TOK_VOLTAGENODE "voltagenode"
+%token <std::string> TOK_POLY_VOLTAGE "poly_voltage"
+%token <std::string> TOK_CURRENT "current"
+%token <std::string> TOK_CURRENTDEV "currentdevice"
+%token <std::string> TOK_POLY_CURRENT "poly_current"
+%token <std::string> TOK_INTERNAL_VAR "internal_variable"
+%token <std::string> TOK_INTERNAL_VAR_DEV "internal_variable_device"
+%token <std::string> TOK_NOISE "noise"
+%token <std::string> TOK_NOISE_DEV_VAR "noise_device_variable"
+%token <std::string> TOK_RFPARAM "rfparam"
 %token <int> TOK_RFPARAM_ARG "rf_param_arg"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
@@ -622,16 +622,16 @@ exp:
 
         //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
         //if ( nameIter == paramNameVec.end() )
-        if ( paramOpMap.find( *$1 ) == paramOpMap.end() )
+        if ( paramOpMap.find( $1 ) == paramOpMap.end() )
         {
-          Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(*$1));
+          Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>($1));
           paramOpVec.push_back(*tmpPtr);
 
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;
           vec.push_back(*tmpPtr);
-          paramOpMap[*$1] = vec;
+          paramOpMap[$1] = vec;
 
-          paramNameVec.push_back(*$1);
+          paramNameVec.push_back($1);
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(*tmpPtr);
           newExp.getMasterNodeVec().push_back(tmpPtr2);
 
@@ -643,11 +643,10 @@ exp:
           //int index = std::distance(paramNameVec.begin(),nameIter);
           //Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
 
-          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpMap[*$1][0]);
+          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpMap[$1][0]);
           newExp.getMasterNodeVec().push_back(tmpPtr2);
           $$ = tmpPtr2;
         }
-        delete $1;
     }
   | TOK_TIME
     {
@@ -787,7 +786,7 @@ exp:
   | TOK_FUNCTION nonempty_func_arglist 
      {
         // remove whitespace from the function name
-        std::string functionName = (*$1);
+        std::string functionName = ($1);
         functionName.erase(std::remove_if(functionName.begin(),functionName.end(), ::isspace), functionName.end());
 
         Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,$2));
@@ -812,24 +811,20 @@ exp:
         }
 
         $$ = tmpPtr2;
-        delete $1;
         delete $2;
     }
   | TOK_VOLTAGE nonempty_voltagenodelist
     {
-      $$ = createVoltageOp(newExp,*$1,*$2);
-      delete $1;
+      $$ = createVoltageOp(newExp,$1,*$2);
       delete $2;
     }
   | TOK_CURRENT TOK_CURRENTDEV
     {
-      $$ = createCurrentOp(newExp,*$1,*$2);
-      delete $1;
-      delete $2;
+      $$ = createCurrentOp(newExp,$1,$2);
     }
   | TOK_RFPARAM nonempty_rfparam_arg_list
     {
-      std::string firstArg = (*$1);
+      std::string firstArg = ($1);
       firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
 
       std::vector<int> sparamIndices = *$2; 
@@ -922,12 +917,11 @@ exp:
       }
 
       $$ = returnPtr;
-      delete $1;
       delete $2;
     }
   | TOK_LEAD TOK_CURRENTDEV
     {
-      Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
+      Teuchos::RCP<leadCurrentOp<usedType> > * leadCurrentPtr = new Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>($1,$2));
       Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(*leadCurrentPtr);
       newExp.getLeadCurrentOpVec().push_back(*leadCurrentPtr);
       newExp.getMasterNodeVec().push_back(returnPtr);
@@ -935,28 +929,26 @@ exp:
 
       std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
       std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
-      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), $2);
       if ( nameIter == leadCurrentNameVec.end() )
       {
-        leadCurrentNameVec.push_back(*$2);
-        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+        leadCurrentNameVec.push_back($2);
+        leadCurrentExcludeBsrcNameVec.push_back($2);
       }
 
       delete leadCurrentPtr;
-      delete $1;
-      delete $2;
     }
   | TOK_INTERNAL_VAR TOK_INTERNAL_VAR_DEV
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
 
-      Teuchos::RCP<internalDevVarOp<usedType> > * internalDevVarPtr = new Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(*$2));
+      Teuchos::RCP<internalDevVarOp<usedType> > * internalDevVarPtr = new Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>($2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*internalDevVarPtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getInternalDevVarOpVec().push_back(*internalDevVarPtr);
 
       // adjust for complex number variants
-      std::string firstArg = (*$1);
+      std::string firstArg = ($1);
       firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
       if (firstArg.size() == 1)
       {
@@ -1009,13 +1001,11 @@ exp:
 
       $$ = returnPtr;
       delete internalDevVarPtr;
-      delete $1;
-      delete $2;
     }
   | TOK_NOISE nonempty_noise_device_list
     {
       Teuchos::RCP<astNode<usedType> > * returnPtr;
-      std::string firstArg = (*$1);
+      std::string firstArg = ($1);
       firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
 
       if ( firstArg == std::string("DNO") )
@@ -1036,7 +1026,6 @@ exp:
       }
 
       $$ = returnPtr;
-      delete $1;
       delete $2;
     }
   | TOK_ONOISE
@@ -1046,7 +1035,6 @@ exp:
       newExp.getONoiseOpVec().push_back(*onoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
-      delete $1;
       delete onoisePtr;
     }
   | TOK_INOISE
@@ -1056,7 +1044,6 @@ exp:
       newExp.getINoiseOpVec().push_back(*inoisePtr);
       newExp.getMasterNodeVec().push_back(tmpPtr);
       $$ = tmpPtr;
-      delete $1;
       delete inoisePtr;
     }
 
@@ -1074,7 +1061,7 @@ exp:
     }
   | TOK_POWER TOK_CURRENTDEV
     {
-      Teuchos::RCP<powerOp<usedType> > * powerPtr = new Teuchos::RCP<powerOp<usedType> >(new powerOp<usedType>(*$1,*$2));
+      Teuchos::RCP<powerOp<usedType> > * powerPtr = new Teuchos::RCP<powerOp<usedType> >(new powerOp<usedType>($1,$2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*powerPtr);
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -1082,15 +1069,13 @@ exp:
 
       std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
       std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
-      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), $2);
       if ( nameIter == leadCurrentNameVec.end() )
       {
-        leadCurrentNameVec.push_back(*$2);
-        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+        leadCurrentNameVec.push_back($2);
+        leadCurrentExcludeBsrcNameVec.push_back($2);
       }
 
-      delete $1;
-      delete $2;
       delete powerPtr;
     }
   | TOK_PHASE exp TOK_RIGHTPAREN
@@ -1616,11 +1601,11 @@ exp:
 nonempty_rfparam_arg_list: TOK_RFPARAM_ARG { $$ = new std::vector<int>; $$->push_back($1); }
   | nonempty_rfparam_arg_list  TOK_RFPARAM_ARG  { $1->push_back($2); $$=$1; }
 
-nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
-  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $1->push_back(*($2)); delete $2; $$ = $1; }
+nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string >; $$->push_back($1); }
+  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $1->push_back($2); $$ = $1; }
 
-nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back(*($1)); delete $1; }
-  | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $1->push_back(*($2)); delete $2; $$=$1; }
+nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >; $$->push_back($1); }
+  | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $1->push_back($2); $$=$1; }
 
 nonempty_func_arglist: exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
    |  two_or_more_arglist  TOK_RIGHTPAREN { $$=$1;  }
@@ -1645,15 +1630,12 @@ polypair: TOK_POLYSIZE  polyarg
 
 polyarg: TOK_POLY_VOLTAGE nonempty_voltagenodelist
     {
-      $$ = createVoltageOp(newExp,*$1,*$2);
-      delete $1;
+      $$ = createVoltageOp(newExp,$1,*$2);
       delete $2;
     }
   | TOK_POLY_CURRENT TOK_CURRENTDEV
     {
-      $$ = createCurrentOp(newExp,*$1,*$2);
-      delete $1;
-      delete $2;
+      $$ = createCurrentOp(newExp,$1,$2);
     }
 
 poly_coeflist:  paren_polycoef         { 
