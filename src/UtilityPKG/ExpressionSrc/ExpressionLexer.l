@@ -196,16 +196,19 @@ LEAD I[SDGBEC1-9]
 
  /* ----------------------------------------------------------*/
  /* single character ops */
-<INITIAL>"+" |
-"-" |
-"*" |
-"/" |
-"=" |
-"%" |
-"," |
-";" |
-":" |
-"?" { return((YYText())[0]); }
+
+  /* In newer versions of Bison (3.5 and later) it is advantageous to not have literals */
+<INITIAL>"-" { return XyceExpression::ExpressionParser::token::TOK_MINUS; }
+<INITIAL>"+" { return XyceExpression::ExpressionParser::token::TOK_PLUS; }
+<INITIAL>"*" { return XyceExpression::ExpressionParser::token::TOK_MULTIPLY; }
+<INITIAL>"/" { return XyceExpression::ExpressionParser::token::TOK_DIVIDE; }
+<INITIAL>"=" { return XyceExpression::ExpressionParser::token::TOK_EQUALS; }
+<INITIAL>"%" { return XyceExpression::ExpressionParser::token::TOK_MOD; }
+<INITIAL>"," { return XyceExpression::ExpressionParser::token::TOK_COMMA; }
+<INITIAL>";" { return XyceExpression::ExpressionParser::token::TOK_SEMICOLON; }
+<INITIAL>":" { return XyceExpression::ExpressionParser::token::TOK_COLON; }
+<INITIAL>"?" { return XyceExpression::ExpressionParser::token::TOK_QUESTION_MARK; }
+
 
 <INITIAL>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }
 <INITIAL>"(" { return XyceExpression::ExpressionParser::token::TOK_LEFTPAREN; }

@@ -20,8 +20,25 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 */
+%skeleton "lalr1.cc"
+%require  "3.0.4"
+%parse-param {Xyce::Util::ExpressionLexer *theLexer}
+%parse-param {Xyce::Util::newExpression & newExp}
+%lex-param {Xyce::Util::ExpressionLexer *theLexer}
 
-%{
+// This feature throws off "deprecated" warnings in more recent version so of Bison.
+// Starting in Bison 3.3, the proper way to define the class name is:  %define api.parser.class {ExpressionParser}
+%define parser_class_name "ExpressionParser"
+%locations
+%defines
+
+%define api.prefix {XyceExpression}
+
+// This feature was introduced in Bison 3.5.  It disallows character literals like '+', and makes the parser more efficient.
+// ERK: this does not appear to make a huge performance difference.
+// %define api.token.raw
+
+%code top {
 
 #include <iostream>
 #include <sstream>
@@ -48,19 +65,7 @@ namespace Util {
 class ExpressionLexer;
 }}
 
-%}
-
-%skeleton "lalr1.cc"
-%require  "3.0.4"
-%parse-param {Xyce::Util::ExpressionLexer *theLexer}
-%parse-param {Xyce::Util::newExpression & newExp}
-%lex-param {Xyce::Util::ExpressionLexer *theLexer}
-
-%define parser_class_name "ExpressionParser"
-%locations
-%defines
-
-%define api.prefix {XyceExpression}
+}
 
 // ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
 // I needed to use RCP's because expressions in Xyce get copied all
@@ -88,8 +93,6 @@ class ExpressionLexer;
 
   std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > * polyPairPtr;
 
-  std::pair< Teuchos::RCP<astNode<usedType> > , std::vector< Teuchos::RCP<astNode<usedType> > > > * tablePairPtr;
-
   int ival;
   double dval;
   std::string *sval;
@@ -97,7 +100,7 @@ class ExpressionLexer;
   std::vector<int> *vecival;
 };
 
-%{
+%code {
 #undef yylex
 #include <FlexLexer.h>
 #include "ExpressionLexer.h"
@@ -466,7 +469,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
   }
 }
 
-%}
+}
 
 // value tokens from the lexer (ExpressionLexer.l)
 %token <dval> TOK_POLYSIZE	"polysize"
@@ -519,6 +522,8 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token TOK_TAN	"tan"
 %token TOK_TANH	"tanh"
 %token TOK_IF "if"
+%token TOK_EQUALS "equals"
+%token TOK_SEMICOLON "semicolon"
 
 %token TOK_AUNIF	"aunif"
 %token TOK_UNIF	"unif"
@@ -567,7 +572,6 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %type  <astNodePtr>   expression
 %type  <astNodePtr>   table_threeOrFourArgs 
 %type  <astNodePtr>   table2_threeOrFourArgs  
-  /* %type  <tablePairPtr>   table2_with_nonempty_arglist */
 %type  <astNodePtr>   table3_threeOrFourArgs 
 %type  <nodeVecPtr>   nonempty_func_arglist
 %type  <nodeVecPtr>   nonempty_func_arglist2
@@ -605,17 +609,17 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 
 
 // Operator Precedence tokens
-%left   ','
-%right  '?' ':'
+%left   TOK_COMMA ","
+%right  TOK_QUESTION_MARK "?"  TOK_COLON ":"
 %left  TOK_OR "||" TOK_AND "&&"
 %left  TOK_NOT "~" 
   /* %left  TOK_XOR "^" */
 %left TOK_CARET "^"
 %left  TOK_EQ	"==" TOK_NE	"!=" TOK_LE	"<=" TOK_LT	"<" TOK_GE	">=" TOK_GT	">"
 %left TOK_INVALID_OP
-%left   '-' '+'
-%left   '%'
-%left   '*' '/'
+%left   TOK_MINUS "-" TOK_PLUS "+"
+%left   TOK_MOD "%"
+%left   TOK_MULTIPLY "*" TOK_DIVIDE "/"
 %left   NEG  /* unary minus */
 %right   TOK_POW  TOK_POWFUNC  /* exponentiation */
 
@@ -741,31 +745,31 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp '+' exp
+  | exp TOK_PLUS exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp '-' exp
+  | exp TOK_MINUS exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  (*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp '*' exp
+  | exp TOK_MULTIPLY exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp '/' exp
+  | exp TOK_DIVIDE exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryDivOp<usedType>  (*$1,*$3));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | exp '%' exp
+  | exp TOK_MOD exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryModOp<usedType>  (*$1,*$3));
       $$ = tmpPtr;
@@ -778,13 +782,13 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-   | TOK_POWFUNC exp ',' exp TOK_RIGHTPAREN 
+   | TOK_POWFUNC exp TOK_COMMA exp TOK_RIGHTPAREN 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  (*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_POWSFUNC exp ',' exp TOK_RIGHTPAREN
+  | TOK_POWSFUNC exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new pwrsOp<usedType>  (*$2,*$4));
       $$ = tmpPtr;
@@ -798,13 +802,13 @@ exp:
     {
        $$ = $2;
     }
-  | '-' exp  %prec NEG
+  | TOK_MINUS exp  %prec NEG
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new unaryMinusOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | '+' exp 
+  | TOK_PLUS exp 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new unaryPlusOp<usedType>(*$2));
       $$ = tmpPtr;
@@ -816,7 +820,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_SIGN exp ',' exp TOK_RIGHTPAREN
+  | TOK_SIGN exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new signOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
@@ -1098,13 +1102,13 @@ exp:
       delete inoisePtr;
     }
 
-  | TOK_MAX  exp ',' exp TOK_RIGHTPAREN
+  | TOK_MAX  exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_MIN  exp ',' exp TOK_RIGHTPAREN
+  | TOK_MIN  exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new minOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
@@ -1210,7 +1214,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ATAN2 exp ',' exp TOK_RIGHTPAREN
+  | TOK_ATAN2 exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atan2Op<usedType>(*$2,*$4));
       $$ = tmpPtr;
@@ -1297,7 +1301,7 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_LIMIT exp ',' exp TOK_RIGHTPAREN
+  | TOK_LIMIT exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
@@ -1305,7 +1309,7 @@ exp:
       newExp.getTwoArgLimitOpVec ().push_back(*tmpPtr);
       newExp.getLocalTwoArgLimitOpVec ().push_back(*tmpPtr);
     }
-  | TOK_LIMIT exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_LIMIT exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>(*$2,*$4,*$6));
       $$ = tmpPtr;
@@ -1431,13 +1435,13 @@ exp:
       newExp.getLocalDdtOpVec().push_back(*ddtPtr);
       newExp.setTimeDependent(true);
     }
-  | TOK_DDX exp ',' exp TOK_RIGHTPAREN
+  | TOK_DDX exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ddxOp<usedType>(*$2,*$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_AGAUSS exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_AGAUSS exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
     {
 
       Teuchos::RCP<agaussOp<usedType> > * agaussPtr = new Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> (*$2,*$4,*$6));
@@ -1448,7 +1452,7 @@ exp:
       newExp.getLocalAgaussOpVec ().push_back(*agaussPtr);
       delete agaussPtr;
     }
-  | TOK_GAUSS exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_GAUSS exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<gaussOp<usedType> > * gaussPtr = new Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>(*$2,*$4,*$6));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*gaussPtr);
@@ -1458,7 +1462,7 @@ exp:
       newExp.getLocalGaussOpVec ().push_back(*gaussPtr);
       delete gaussPtr;
     }
-  | TOK_AUNIF exp ',' exp  TOK_RIGHTPAREN
+  | TOK_AUNIF exp TOK_COMMA exp  TOK_RIGHTPAREN
     {
       Teuchos::RCP<aunifOp<usedType> > * aunifPtr = new Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>(*$2,*$4));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*aunifPtr);
@@ -1468,7 +1472,7 @@ exp:
       newExp.getLocalAunifOpVec ().push_back(*aunifPtr);
       delete aunifPtr;
     }
-  | TOK_UNIF exp ',' exp TOK_RIGHTPAREN
+  | TOK_UNIF exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<unifOp<usedType> > * unifPtr = new Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>(*$2,*$4));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*unifPtr);
@@ -1534,13 +1538,13 @@ exp:
       delete $2;
     }
 
-  | exp '?' exp ':' exp
+  | exp TOK_QUESTION_MARK exp TOK_COLON exp
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>((*$1),(*$3),(*$5)));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_IF exp ',' exp ',' exp TOK_RIGHTPAREN
+  | TOK_IF exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>((*$2),(*$4),(*$6)));
       $$ = tmpPtr;
@@ -1663,14 +1667,14 @@ nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string >;
 nonempty_func_arglist: exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
    |  two_or_more_arglist  TOK_RIGHTPAREN { $$=$1;  }
 
-nonempty_func_arglist2: exp ',' TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
-   |  two_or_more_arglist  ',' TOK_RIGHTPAREN { $$=$1;  }
+nonempty_func_arglist2: exp TOK_COMMA TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);   }
+   |  two_or_more_arglist  TOK_COMMA TOK_RIGHTPAREN { $$=$1;  }
 
-two_or_more_arglist: exp ',' exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1); $$->push_back((*$3)); }
-  | two_or_more_arglist ','  exp { $1->push_back((*$3)); $$=$1; }
+two_or_more_arglist: exp TOK_COMMA exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1); $$->push_back((*$3)); }
+  | two_or_more_arglist TOK_COMMA  exp { $1->push_back((*$3)); $$=$1; }
 
-nonempty_arg_pairs: TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$2);  $$->push_back((*$4));  } 
-  | nonempty_arg_pairs TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN  { $1->push_back((*$3)); $1->push_back((*$5)); $$=$1; }
+nonempty_arg_pairs: TOK_LEFTPAREN exp TOK_COMMA exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$2);  $$->push_back((*$4));  } 
+  | nonempty_arg_pairs TOK_LEFTPAREN exp TOK_COMMA exp TOK_RIGHTPAREN  { $1->push_back((*$3)); $1->push_back((*$5)); $$=$1; }
 
 
 polypair: TOK_POLYSIZE  polyarg 
@@ -1735,11 +1739,11 @@ table2_with_nonempty_arglist: table2_threeOrFourArgs exp
     */
 
 
-table_threeOrFourArgs: TOK_TABLE exp ','
+table_threeOrFourArgs: TOK_TABLE exp TOK_COMMA
     {
        $$ = $2;
     }
-  | TOK_TABLE exp ',' '='
+  | TOK_TABLE exp TOK_COMMA TOK_EQUALS
     {
        $$ = $2;
     }
@@ -1747,7 +1751,7 @@ table2_threeOrFourArgs: TOK_TABLE2 exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
     }
-  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE '='
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
     {
        $$ = $2;
     }
@@ -1755,7 +1759,7 @@ table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
     }
-  | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE '='
+  | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
     {
        $$ = $2;
     }
