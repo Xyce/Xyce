@@ -71,41 +71,6 @@ class ExpressionLexer;
 
 }
 
-/*
-// ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
-// I needed to use RCP's because expressions in Xyce get copied all
-// over the place, and rather than create copy constructors for the
-// entire AST tree, it is much easier to just copy
-// over the RCP (kind of like a what happens in a move constructor).
-//
-// The pointers are used b/c the union below only supports basic data
-// types like int, double, etc.  And pointers.
-//
-// However, it turns out that the C++ version of Bison has something called
-// Variants.  They are documented for Bison 3.5 here:
-//
-//  http://www.gnu.org/software/bison/manual/bison.html#C_002b_002b-Variants
-//
-// I had not realized that when I wrote the code, below.  Variants
-// are an alternative to the union, and permit other sorts of data types
-// include STL, etc.  So I probably could have used RCP's without 
-// having to use pointers to them.  This could be a future refactor.
-
-%union
-{
-  Teuchos::RCP<astNode<usedType> > * astNodePtr;
-  std::vector< Teuchos::RCP<astNode<usedType> > > * nodeVecPtr;
-
-  std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > * polyPairPtr;
-
-  int ival;
-  double dval;
-  std::string *sval;
-  std::vector<std::string> *vecsval;
-  std::vector<int> *vecival;
-};
-*/
-
 %code {
 #undef yylex
 #include <FlexLexer.h>
@@ -487,30 +452,6 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 }
 
 // value tokens from the lexer (ExpressionLexer.l)
-/*
-%token <dval> TOK_POLYSIZE	"polysize"
-%token <dval> TOK_POLYCOEF "polycoef"
-%token <dval> TOK_NUM	"num"
-%token <dval> TOK_IMAG_NUM	"imag_num"
-%token <sval> TOK_WORD "word"
-%token <sval> TOK_FUNCTION "function"
-%token <sval> TOK_LEAD "lead"
-%token <sval> TOK_ONOISE "onoise"
-%token <sval> TOK_INOISE "inoise"
-%token <sval> TOK_POWER "power"
-%token <sval> TOK_VOLTAGE "voltage"
-%token <sval> TOK_VOLTAGENODE "voltagenode"
-%token <sval> TOK_POLY_VOLTAGE "poly_voltage"
-%token <sval> TOK_CURRENT "current"
-%token <sval> TOK_CURRENTDEV "currentdevice"
-%token <sval> TOK_POLY_CURRENT "poly_current"
-%token <sval> TOK_INTERNAL_VAR "internal_variable"
-%token <sval> TOK_INTERNAL_VAR_DEV "internal_variable_device"
-%token <sval> TOK_NOISE "noise"
-%token <sval> TOK_NOISE_DEV_VAR "noise_device_variable"
-%token <sval> TOK_RFPARAM "rfparam"
-%token <ival> TOK_RFPARAM_ARG "rf_param_arg"
-*/
 %token <double> TOK_POLYSIZE	"polysize"
 %token <double> TOK_POLYCOEF "polycoef"
 %token <double> TOK_NUM	"num"
@@ -533,8 +474,6 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token <std::string *> TOK_NOISE_DEV_VAR "noise_device_variable"
 %token <std::string *> TOK_RFPARAM "rfparam"
 %token <int> TOK_RFPARAM_ARG "rf_param_arg"
-
-
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -609,25 +548,6 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token TOK_LEFTCURLYBRACE  "leftcurlybrace"
 
 // types for nonterminal operators
-/*
-%type  <astNodePtr>   exp
-%type  <astNodePtr>   expression
-%type  <astNodePtr>   table_threeOrFourArgs 
-%type  <astNodePtr>   table2_threeOrFourArgs  
-%type  <astNodePtr>   table3_threeOrFourArgs 
-%type  <nodeVecPtr>   nonempty_func_arglist
-%type  <nodeVecPtr>   nonempty_func_arglist2
-%type  <nodeVecPtr>   two_or_more_arglist
-%type  <nodeVecPtr>   nonempty_arg_pairs 
-%type  <nodeVecPtr>   poly_coeflist 
-%type  <vecsval>  nonempty_voltagenodelist
-%type  <vecival>  nonempty_rfparam_arg_list
-%type  <vecsval>  nonempty_noise_device_list
-
-%type  <astNodePtr>   polyarg
-%type  <polyPairPtr>   polypair
-%type  <dval>  paren_polycoef 
-*/
 %type  <Teuchos::RCP<astNode<usedType> > *>   exp
 %type  <Teuchos::RCP<astNode<usedType> > *>   expression
 %type  <Teuchos::RCP<astNode<usedType> > *>   table_threeOrFourArgs 
