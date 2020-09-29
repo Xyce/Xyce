@@ -566,26 +566,27 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %type  <std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > *>   polypair
 %type  <double>  paren_polycoef 
 
-%destructor { delete $$; } TOK_WORD
-%destructor { delete $$; } TOK_FUNCTION
-%destructor { delete $$; } TOK_LEAD
-%destructor { delete $$; } TOK_VOLTAGE
-%destructor { delete $$; } TOK_VOLTAGENODE
-%destructor { delete $$; } TOK_POLY_VOLTAGE
-%destructor { delete $$; } TOK_CURRENT
-%destructor { delete $$; } TOK_CURRENTDEV
-%destructor { delete $$; } TOK_POLY_CURRENT
-%destructor { delete $$; } TOK_INTERNAL_VAR
-%destructor { delete $$; } TOK_INTERNAL_VAR_DEV
-%destructor { delete $$; } TOK_NOISE
-%destructor { delete $$; } TOK_NOISE_DEV_VAR
-%destructor { delete $$; } TOK_ONOISE
-%destructor { delete $$; } TOK_INOISE
-%destructor { delete $$; } TOK_POWER
-%destructor { delete $$; } TOK_RFPARAM
-%destructor { delete $$; } nonempty_voltagenodelist
-%destructor { delete $$; } nonempty_rfparam_arg_list
-%destructor { delete $$; } nonempty_noise_device_list
+// most of these will/should go ....
+//%destructor { delete $$; } TOK_WORD
+//%destructor { delete $$; } TOK_FUNCTION
+//%destructor { delete $$; } TOK_LEAD
+//%destructor { delete $$; } TOK_VOLTAGE
+//%destructor { delete $$; } TOK_VOLTAGENODE
+//%destructor { delete $$; } TOK_POLY_VOLTAGE
+//%destructor { delete $$; } TOK_CURRENT
+//%destructor { delete $$; } TOK_CURRENTDEV
+//%destructor { delete $$; } TOK_POLY_CURRENT
+//%destructor { delete $$; } TOK_INTERNAL_VAR
+//%destructor { delete $$; } TOK_INTERNAL_VAR_DEV
+//%destructor { delete $$; } TOK_NOISE
+//%destructor { delete $$; } TOK_NOISE_DEV_VAR
+//%destructor { delete $$; } TOK_ONOISE
+//%destructor { delete $$; } TOK_INOISE
+//%destructor { delete $$; } TOK_POWER
+//%destructor { delete $$; } TOK_RFPARAM
+//%destructor { delete $$; } nonempty_voltagenodelist
+//%destructor { delete $$; } nonempty_rfparam_arg_list
+//%destructor { delete $$; } nonempty_noise_device_list
 
 
 // Operator Precedence tokens
@@ -1685,7 +1686,8 @@ poly_coeflist:  paren_polycoef         {
     }
   |  poly_coeflist  paren_polycoef{ 
       Teuchos::RCP<astNode<usedType> > *tmpPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>($2));
-      $$->push_back((*tmpPtr)); 
+      $1->push_back((*tmpPtr)); 
+      $$=$1;
       newExp.getMasterNodeVec().push_back(tmpPtr);
      }
 
