@@ -2732,7 +2732,8 @@ void removeStarVariables(
       // remove the *
       it = variable_list.erase(it);
     }
-    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && ((*it).tag().find("*") != std::string::npos) )
+    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && (((*it).tag().find("*") != std::string::npos) ||
+							     ((*it).tag().find("?") != std::string::npos)) )
     {
       // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*) W(X1*).  Assume that,
       // for example, V(1*) is a request for all nodes that start with '1'.  It is
@@ -2969,27 +2970,15 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = vWildCards.begin();
     for ( ; itWC != vWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
       // search through the node names to see if any of them match the
       // wild card pattern
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itEN = external_nodes.begin();
       for ( ; itEN!=external_nodes.end(); ++itEN)
       {
-        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos, trailingStar))
-        {
-          ExtendedString tmpStr((*itEN).first);
-          tmpStr.toUpper();
+        ExtendedString tmpStr((*itEN).first);
+        tmpStr.toUpper();
+        if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
           vWildCard_list.push_back(tmpStr);
-        }
       }
     }
     ++vWildCardPosition;
@@ -3001,16 +2990,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = iWildCards.begin();
     for ( ; itWC != iWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3049,7 +3028,7 @@ void removeStarVariables(
         if (addDevice)
 	{
           // Use tmpStr here since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
             iWildCard_list.push_back(tmpStr);
         }
       }
@@ -3063,16 +3042,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = pWildCards.begin();
     for ( ; itWC != pWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3111,7 +3080,7 @@ void removeStarVariables(
 	{
           // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
 	    pWildCard_list.insert(tmpStr);
         }
       }
@@ -3125,16 +3094,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = wWildCards.begin();
     for ( ; itWC != wWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3173,7 +3132,7 @@ void removeStarVariables(
 	{
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
 	    wWildCard_list.insert(tmpStr);
         }
       }

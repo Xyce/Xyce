@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2019 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -23,140 +23,118 @@
 #include <Xyce_config.h>
 
 #include <N_IO_WildcardSupport.h>
+#include <N_ERH_ErrorMgr.h>
 
 namespace Xyce{
 namespace IO {
 
 //-----------------------------------------------------------------------------
-// Function      : IO:splitWildCardString
-// Purpose       : Pull out the non-* fragments of name into nameSubStrings
-// Special Notes :
+// Function      : IO:makeRegexFromString
+// Purpose       : Convert a string (e.g, for a node name or device name) into
+//                 a C++11 std:regex object
+// Special Notes : This allows us to control what types of regex's are supported
+//                 in Xyce.  Only the * and ? characters are supported.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 10/01/2019
+// Creation Date : 10/07/2020
 //-----------------------------------------------------------------------------
-bool splitWildCardString(const std::string& name, std::vector<std::string>& nameSubStrings)
+std::regex makeRegexFromString(const std::string &str)
 {
-  // default is success
-  bool ret = true;
+  // These character are "special" to the std::regex class.  They need to be
+  // escaped if they exist in str, as does the \ character.
+  std::string specialChars="^$.+()[]{}|";
 
-  // The stringstream ss recursively extracts each "word" from tempName, where the
-  // "words" in tempName have been delimited by spaces.
-  std::string tempName(name);
-  std::replace(tempName.begin(), tempName.end(), '*', ' ');  // replace '*' by ' '
-  std::stringstream ss(tempName);
-  std::string temp;
-  while (ss >> temp)
-    nameSubStrings.push_back(temp);
+  std::string tmpStr(str);
 
-  if (nameSubStrings.size() == 0)
-    ret = false;
+  if ( (tmpStr.find("*") == std::string::npos) && (tmpStr.find("?") == std::string::npos) )
+  {
+    Report::DevelFatal().in("makeRegexFromString") <<
+      "Xyce wildcard specification must contain at least one * or ? character";
+  }
 
-  return ret;
+  // escape the \ characters first
+  replaceAll(tmpStr, '\\', "\\\\");
+
+  // escape the other special characters
+  for (int i=0; i<specialChars.size(); i++)
+  {
+    std::string escString = "\\";
+    escString.push_back(specialChars[i]);
+    replaceAll(tmpStr, specialChars[i], escString);
+  }
+
+  // turn * and ? into the correct string for std::regex
+  replaceAll(tmpStr, '*', "(.*)");
+  replaceAll(tmpStr, '?', "(.{1})");
+  
+  // make regex object
+  std::regex e;
+  try
+  {
+    e.assign(tmpStr);
+  }
+  catch (std::regex_error& regexErr)
+  {
+    Report::DevelFatal().in("makeRegexFromString") <<
+      "Error converting .PRINT wildcard specification " << str << " into std::regex object";
+  }
+
+  return e;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : IO:isWildCardMatch
-// Purpose       : Is name a wild-card match for the substrings that
-//                 were previouly extracted with splitWildCardString()
-// Special Notes : This implements something akin to globbing (but just for
-//                 the * character) rather than a regex.
+// Function      : IO:replaceAll
+// Purpose       : Used to replace all instances of a character in a string
+//                 within a different string.
+// Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 10/01/2019
+// Creation Date : 10/07/2020
 //-----------------------------------------------------------------------------
-bool isWildCardMatch(const std::string& name,
-                     const std::vector<std::string>& nameSubStrings,
-                     int firstStarPos,
-                     bool trailingStar)
+void replaceAll(std::string& str, const char charToFind, const std::string& repStr)
 {
-  // default is no match
-  bool ret = false;
-
-  // For the case where the wildcard ends with a specific string, rather
-  // than a * character, there must be an exact match to that specific
-  // string at the end of the name string.
-  if (!trailingStar && (nameSubStrings.size() != 0))
+  size_t pos = str.find(charToFind);
+  while( pos != std::string::npos)
   {
-    std::string lastSubString = nameSubStrings[nameSubStrings.size()-1];
-    if ( (name.size() < lastSubString.size()) ||
-         (name.substr(name.size()-lastSubString.size(), lastSubString.size()) != lastSubString) )
-      return false;
+    str.replace(pos, 1, repStr);
+    pos = str.find(charToFind, pos+repStr.size());
   }
 
-  int numMatch=0;
-  int i = 0;
-  // position in node_name (*it) where the current match begins
-  std::size_t matchStart=0;
-  // position in node_name where the test for the current match should begin
-  std::size_t pos=0;
-  std::vector<std::string>::const_iterator nss_it;
-  for (nss_it=nameSubStrings.begin(); nss_it!=nameSubStrings.end(); ++nss_it, ++i)
-  {
-    if ((i==0) && (firstStarPos!=0))
-    {
-      // If the first * is not the first character in name then the beginning of
-      // the node_name must be an exact match for the first element in nameSubStrings.
-      if (name.substr(0,(*nss_it).size()) == (*nss_it))
-        ++numMatch;
-    }
-    else
-    {
-      // the "normal case" is that the element of nameSubStrings, being tested now,
-      // has to find a match somewhere (starting at offset pos) in node_name,
-      matchStart = name.substr(pos).find(*nss_it);
-      if (matchStart != std::string::npos)
-        ++numMatch;
-    }
-    if (numMatch != (i+1))
-      break;
-
-    // update pos to be the next character after where the matching
-    // string (in node_name) ends
-    pos = matchStart+(*nss_it).size();
-    if (pos >= name.size())
-      break;
-  }
-
-  if (numMatch == nameSubStrings.size())
-    ret = true;
-
-  return ret;
+  return;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : IO:findWildCardMatch
 // Purpose       : Is there at least one wild-card match for name in input_set
-// Special Notes : This implements something akin to globbing (but just for
-//                 the * character) rather than a regex.
+// Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/01/2019
 //-----------------------------------------------------------------------------
-bool findWildCardMatch(const std::string &name, const unordered_set<std::string> &input_set)
+bool findWildCardMatch(
+  const std::string &name,
+  const unordered_set<std::string> &input_set)
 {
   bool ret = true;
 
-  // determine where the first * is.
-  std::size_t firstStarPos = name.find_first_of("*");
-  bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-  if ((name.size() == 1) || (firstStarPos == std::string::npos))
+  if ( ((name.size() == 1) && (name!="?")) || ((name.find_first_of("*") == std::string::npos) &&
+			      (name.find_first_of("?") == std::string::npos)) )
   {
+    // The single character ? is a wildcard, as is any multi-character string that has * or ?
+    // in it.  So, return false if the string cannot be a valid wildcard in order to save the
+    // cost of the regex_match() calls.
     ret = false;
   }
   else
   {
-    // Pull out the non-* fragments of name into nameSubStrings.
-    std::vector<std::string> nameSubStrings;
-    if (!splitWildCardString(name, nameSubStrings)) return false;
+    std::regex e = makeRegexFromString(name);
 
     // search through the names in input_set to see if any of them match
-    // the wild card pattern
+    // the regex
     unordered_set<std::string>::const_iterator it;
     for (it=input_set.begin(); it!=input_set.end(); ++it)
     {
-      if (isWildCardMatch((*it), nameSubStrings, firstStarPos, trailingStar))
+      if (std::regex_match((*it), e))
         return true;
     }
 
@@ -168,7 +146,7 @@ bool findWildCardMatch(const std::string &name, const unordered_set<std::string>
 }
 
 //-----------------------------------------------------------------------------
-// Function      : IO:findAllWildCardMatches
+// Function      : IO:findAllWildCardMatch
 // Purpose       : Find all wild-card matches for name in input_set
 // Special Notes :
 // Scope         : public
@@ -180,22 +158,17 @@ bool findAllWildCardMatches(
   const unordered_set<std::string> &input_set,
   std::vector<std::string> &matches)
 {
-  // determine where the first * is.
-  std::size_t firstStarPos = name.find_first_of("*");
-  bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-  if ( !((name.size() == 1) || (firstStarPos == std::string::npos)) )
+  if ( !((name.size() == 1) || ((name.find_first_of("*") == std::string::npos) &&
+                                (name.find_first_of("?") == std::string::npos))) )
   {
-    // Pull out the non-* fragments of name into nameSubStrings.
-    std::vector<std::string> nameSubStrings;
-    if (!splitWildCardString(name, nameSubStrings)) return false;
+    std::regex e = makeRegexFromString(name);
 
-    // search through the node names to see if any of them match the
-    // wild card pattern
+    // search through the names in input_set to see if any of them match
+    // the wild card pattern
     unordered_set<std::string>::const_iterator it;
     for (it=input_set.begin(); it!=input_set.end(); ++it)
     {
-      if (isWildCardMatch((*it), nameSubStrings, firstStarPos, trailingStar))
+      if (std::regex_match((*it), e))
         matches.push_back(*it);
     }
   }

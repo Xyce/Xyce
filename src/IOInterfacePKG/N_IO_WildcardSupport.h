@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2019 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -23,9 +23,9 @@
 //-------------------------------------------------------------------------
 //
 // Purpose        : Utilities related to handling wildcard syntaxes on
-//                  .PRINT lines.  These functions are stop-gaps until
-//                  Xyce can properly use the regex libraries supported by
-//                  C++ 11.
+//                  .PRINT lines.  These functions are mostly wrappers to
+//                  the regex libraries supported by C++ 11.  At present
+//                  only the star (*) character is supported for .PRINT.
 // Special Notes  :
 // Creator        : Pete Sholander, SNL
 // Creation Date  : 2019/10/01
@@ -35,20 +35,16 @@
 #ifndef Xyce_N_IO_WildcardSupport_h
 #define Xyce_N_IO_WildcardSupport_h
 
+#include <regex>
+
 #include <N_IO_fwd.h>
 
 namespace Xyce {
 namespace IO {
 
-bool isWildCardMatch(
-  const std::string& name,
-  const std::vector<std::string>& nameSubStrings,
-  int firstStarPos,
-  bool trailingStar);
+std::regex makeRegexFromString(const std::string &str);
 
-bool splitWildCardString(
-  const std::string& name,
-  std::vector<std::string>& nameSubStrings);
+void replaceAll(std::string& str, const char charToFind, const std::string& repStr);
 
 bool findWildCardMatch(
   const std::string &name,
