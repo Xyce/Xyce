@@ -421,21 +421,21 @@ bool newExpression::attachParameterNode(
 void newExpression::clear ()
 {
   // copied from destructor
-  if (astNodePtrPtr_)
-  {
-    delete astNodePtrPtr_;
-  }
-  if ( tableNodePtrPtr_ )
-  {
-    delete tableNodePtrPtr_;
-  }
+  //if (astNodePtrPtr_)
+  //{
+    //delete astNodePtrPtr_;
+  //}
+  //if ( tableNodePtrPtr_ )
+  //{
+    //delete tableNodePtrPtr_;
+  //}
 
   // vectors of pointers to RCPs of AST nodes; use constructors
-  for (int ii=0;ii<masterAstNodeVec_.size();ii++)
-  {
-    delete masterAstNodeVec_[ii];
-  }
-  masterAstNodeVec_.clear();
+  //for (int ii=0;ii<masterAstNodeVec_.size();ii++)
+  //{
+    //delete masterAstNodeVec_[ii];
+  //}
+  //masterAstNodeVec_.clear();
 
   expressionString_ = std::string("");
   originalExpressionString_ = std::string("");
@@ -2199,9 +2199,9 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
 void newExpression::treatAsTempAndConvert()
 {
   Teuchos::RCP<astNode<usedType> > CtoK = getCtoKNode ();
-  Teuchos::RCP<astNode<usedType> > * newTopPtr = new Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (astNodePtr_, CtoK));
-  getMasterNodeVec().push_back(newTopPtr);
-  setAstPtr(*newTopPtr);
+  Teuchos::RCP<astNode<usedType> > newTopPtr = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (astNodePtr_, CtoK));
+  //getMasterNodeVec().push_back(newTopPtr);
+  setAstPtr(newTopPtr);
 }
 
 //-------------------------------------------------------------------------------

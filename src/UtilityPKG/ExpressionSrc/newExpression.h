@@ -101,8 +101,8 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    astNodePtrPtr_(NULL),
-    tableNodePtrPtr_(NULL),
+    //astNodePtrPtr_(NULL),
+    //tableNodePtrPtr_(NULL),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -136,8 +136,8 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    astNodePtrPtr_(NULL),
-    tableNodePtrPtr_(NULL),
+    //astNodePtrPtr_(NULL),
+    //tableNodePtrPtr_(NULL),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -197,8 +197,8 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    astNodePtrPtr_(NULL),
-    tableNodePtrPtr_(NULL),
+    //astNodePtrPtr_(NULL),
+    //tableNodePtrPtr_(NULL),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -233,9 +233,14 @@ public:
     CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
     Teuchos::RCP<astNode<usedType> > time_base = timeNodePtr_;
+#if 0
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (time_base, xvals, yvals));
     astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*tableNodePtrPtr_);
     setAstPtr(*astNodePtrPtr_);
+#else
+    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (time_base, xvals, yvals));
+    astNodePtr_ = Teuchos::RCP<astNode<usedType> >(tableNodePtr_);
+#endif
   };
 
   // another "big table" constructor
@@ -248,8 +253,8 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    astNodePtrPtr_(NULL),
-    tableNodePtrPtr_(NULL),
+    //astNodePtrPtr_(NULL),
+    //tableNodePtrPtr_(NULL),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -283,9 +288,14 @@ public:
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
     CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
+#if 0
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
     astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*tableNodePtrPtr_);
     setAstPtr(*astNodePtrPtr_);
+#else
+    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
+    astNodePtr_ = Teuchos::RCP<astNode<usedType> >(tableNodePtr_);
+#endif
 
     if( !(Teuchos::is_null(left)) )
     {
@@ -331,8 +341,8 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
-    astNodePtrPtr_(NULL),
-    tableNodePtrPtr_(NULL),
+    //astNodePtrPtr_(NULL),
+    //tableNodePtrPtr_(NULL),
     functionArgStringVec_(right.functionArgStringVec_),
     functionArgOpVec_ (right.functionArgOpVec_),
     paramNameVec_(right.paramNameVec_),
@@ -432,20 +442,20 @@ public:
     astNodePtr_ = right.astNodePtr_; // copy over the whole tree
 
     // pointers to RCP's. use constructors
-    if (right.astNodePtrPtr_)
-    {
-      astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*(right.astNodePtrPtr_));
-    }
-    if (right.tableNodePtrPtr_)
-    {
-      tableNodePtrPtr_ = new Teuchos::RCP< tableOp<usedType> >(*(right.tableNodePtrPtr_));
-    }
+    //if (right.astNodePtrPtr_)
+    //{
+      //astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*(right.astNodePtrPtr_));
+    //}
+    //if (right.tableNodePtrPtr_)
+    //{
+      //tableNodePtrPtr_ = new Teuchos::RCP< tableOp<usedType> >(*(right.tableNodePtrPtr_));
+    //}
 
     // vectors of pointers to RCPs of AST nodes; use constructors
-    for (int ii=0;ii<right.masterAstNodeVec_.size();ii++)
-    {
-      masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
-    }
+    //for (int ii=0;ii<right.masterAstNodeVec_.size();ii++)
+    //{
+      //masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
+    //}
   };
 
   // assignment operator
@@ -458,8 +468,8 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
-    astNodePtrPtr_ = NULL;
-    tableNodePtrPtr_ = NULL;
+    //astNodePtrPtr_ = NULL;
+    //tableNodePtrPtr_ = NULL;
     functionArgStringVec_ = right.functionArgStringVec_;
     functionArgOpVec_  = right.functionArgOpVec_;
     paramNameVec_ = right.paramNameVec_;
@@ -558,20 +568,20 @@ public:
     astNodePtr_ = right.astNodePtr_; // copy over the whole tree
 
     // pointers to RCP's. use constructors
-    if (right.astNodePtrPtr_)
-    {
-      astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*(right.astNodePtrPtr_));
-    }
-    if (right.tableNodePtrPtr_)
-    {
-      tableNodePtrPtr_ = new Teuchos::RCP< tableOp<usedType> >(*(right.tableNodePtrPtr_));
-    }
+    //if (right.astNodePtrPtr_)
+    //{
+      //astNodePtrPtr_ = new Teuchos::RCP<astNode<usedType> >(*(right.astNodePtrPtr_));
+    //}
+    //if (right.tableNodePtrPtr_)
+    //{
+      //tableNodePtrPtr_ = new Teuchos::RCP< tableOp<usedType> >(*(right.tableNodePtrPtr_));
+    //}
 
     // vectors of pointers to RCPs of AST nodes; use constructors
-    for (int ii=0;ii<right.masterAstNodeVec_.size();ii++)
-    {
-      masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
-    }
+    //for (int ii=0;ii<right.masterAstNodeVec_.size();ii++)
+    //{
+      //masterAstNodeVec_.push_back( new Teuchos::RCP<astNode<usedType> >(*(right.masterAstNodeVec_[ii])) );
+    //}
 
     return *this;
   };
@@ -580,21 +590,21 @@ public:
   ~newExpression ()
   {
     // pointers to RCP's. use constructors
-    if (astNodePtrPtr_)
-    {
-      delete astNodePtrPtr_;
-    }
-    if ( tableNodePtrPtr_ )
-    {
-      delete tableNodePtrPtr_;
-    }
+    //if (astNodePtrPtr_)
+    //{
+      //delete astNodePtrPtr_;
+    //}
+    //if ( tableNodePtrPtr_ )
+    //{
+      //delete tableNodePtrPtr_;
+    //}
 
     // vectors of pointers to RCPs of AST nodes; use constructors
-    for (int ii=0;ii<masterAstNodeVec_.size();ii++)
-    {
-      delete masterAstNodeVec_[ii];
-    }
-    masterAstNodeVec_.clear();
+    //for (int ii=0;ii<masterAstNodeVec_.size();ii++)
+    //{
+      //delete masterAstNodeVec_[ii];
+    //}
+    //masterAstNodeVec_.clear();
   };
 
   bool lexAndParseExpression();
@@ -744,7 +754,7 @@ public:
     }
   };
 
-  std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
+  //std::vector< Teuchos::RCP<astNode<usedType> > * > & getMasterNodeVec() { return masterAstNodeVec_; }
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getStpNodeVec() { return stpAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
@@ -884,8 +894,8 @@ private:
   bool astArraysSetup_;
 
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
-  Teuchos::RCP<astNode<usedType> > * astNodePtrPtr_;
-  Teuchos::RCP<tableOp<usedType> > * tableNodePtrPtr_;
+  //Teuchos::RCP<astNode<usedType> > * astNodePtrPtr_;
+  //Teuchos::RCP<tableOp<usedType> > * tableNodePtrPtr_;
 
   // function argument vectors.  Both strings and operators
   std::vector< std::string > functionArgStringVec_;
@@ -963,7 +973,7 @@ private:
 
   // master vector of nodes
   // This is only used for deleting the ast tree in the destructor
-  std::vector< Teuchos::RCP<astNode<usedType> > * > masterAstNodeVec_;
+  //std::vector< Teuchos::RCP<astNode<usedType> > * > masterAstNodeVec_;
 
   // time integration related variables
   double bpTol_;
