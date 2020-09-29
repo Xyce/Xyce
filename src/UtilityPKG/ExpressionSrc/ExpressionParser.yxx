@@ -31,8 +31,12 @@
 %define parser_class_name "ExpressionParser"
 %locations
 %defines
-
 %define api.prefix {XyceExpression}
+
+// Variants is an experiment.  the api.token.constructor can go along with it
+%define api.value.type variant
+// the api.token.constructor changes the number of arguments to yylex from 3 to 1.  So for now, don't do it?
+//%define api.token.constructor
 
 // This feature was introduced in Bison 3.5.  It disallows character literals like '+', and makes the parser more efficient.
 // ERK: this does not appear to make a huge performance difference.
@@ -67,6 +71,7 @@ class ExpressionLexer;
 
 }
 
+/*
 // ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
 // I needed to use RCP's because expressions in Xyce get copied all
 // over the place, and rather than create copy constructors for the
@@ -99,6 +104,7 @@ class ExpressionLexer;
   std::vector<std::string> *vecsval;
   std::vector<int> *vecival;
 };
+*/
 
 %code {
 #undef yylex
@@ -110,8 +116,17 @@ int XyceExpressionlex(
     XyceExpression::ExpressionParser::semantic_type *lvalp, 
     XyceExpression::location *locp,
     Xyce::Util::ExpressionLexer *theLexer);
+}
 
 
+//-------------------------------------------------------------------------
+// This code block contains functions called directly from the various 
+// actions associated with rules, below.  These are not required by the 
+// Bison structure in the way that things like "#define yylex" are 
+// required.  So, where it appears in the file is probably less 
+// restrictive and should be in its own separate block.
+//-------------------------------------------------------------------------
+%code {
 //-------------------------------------------------------------------------
 // Function      : checkGroundName
 // Purpose       : checks if the name of a voltage node is a synonym for ground
@@ -472,6 +487,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 }
 
 // value tokens from the lexer (ExpressionLexer.l)
+/*
 %token <dval> TOK_POLYSIZE	"polysize"
 %token <dval> TOK_POLYCOEF "polycoef"
 %token <dval> TOK_NUM	"num"
@@ -494,6 +510,31 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token <sval> TOK_NOISE_DEV_VAR "noise_device_variable"
 %token <sval> TOK_RFPARAM "rfparam"
 %token <ival> TOK_RFPARAM_ARG "rf_param_arg"
+*/
+%token <double> TOK_POLYSIZE	"polysize"
+%token <double> TOK_POLYCOEF "polycoef"
+%token <double> TOK_NUM	"num"
+%token <double> TOK_IMAG_NUM	"imag_num"
+%token <std::string *> TOK_WORD "word"
+%token <std::string *> TOK_FUNCTION "function"
+%token <std::string *> TOK_LEAD "lead"
+%token <std::string *> TOK_ONOISE "onoise"
+%token <std::string *> TOK_INOISE "inoise"
+%token <std::string *> TOK_POWER "power"
+%token <std::string *> TOK_VOLTAGE "voltage"
+%token <std::string *> TOK_VOLTAGENODE "voltagenode"
+%token <std::string *> TOK_POLY_VOLTAGE "poly_voltage"
+%token <std::string *> TOK_CURRENT "current"
+%token <std::string *> TOK_CURRENTDEV "currentdevice"
+%token <std::string *> TOK_POLY_CURRENT "poly_current"
+%token <std::string *> TOK_INTERNAL_VAR "internal_variable"
+%token <std::string *> TOK_INTERNAL_VAR_DEV "internal_variable_device"
+%token <std::string *> TOK_NOISE "noise"
+%token <std::string *> TOK_NOISE_DEV_VAR "noise_device_variable"
+%token <std::string *> TOK_RFPARAM "rfparam"
+%token <int> TOK_RFPARAM_ARG "rf_param_arg"
+
+
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -568,6 +609,7 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %token TOK_LEFTCURLYBRACE  "leftcurlybrace"
 
 // types for nonterminal operators
+/*
 %type  <astNodePtr>   exp
 %type  <astNodePtr>   expression
 %type  <astNodePtr>   table_threeOrFourArgs 
@@ -585,6 +627,24 @@ Teuchos::RCP<astNode<usedType> > * createCurrentOp(
 %type  <astNodePtr>   polyarg
 %type  <polyPairPtr>   polypair
 %type  <dval>  paren_polycoef 
+*/
+%type  <Teuchos::RCP<astNode<usedType> > *>   exp
+%type  <Teuchos::RCP<astNode<usedType> > *>   expression
+%type  <Teuchos::RCP<astNode<usedType> > *>   table_threeOrFourArgs 
+%type  <Teuchos::RCP<astNode<usedType> > *>   table2_threeOrFourArgs  
+%type  <Teuchos::RCP<astNode<usedType> > *>   table3_threeOrFourArgs 
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist2
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   two_or_more_arglist
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_arg_pairs 
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   poly_coeflist 
+%type  <std::vector<std::string> *>  nonempty_voltagenodelist
+%type  <std::vector<int> *>  nonempty_rfparam_arg_list
+%type  <std::vector<std::string> *>  nonempty_noise_device_list
+
+%type  <Teuchos::RCP<astNode<usedType> > *>   polyarg
+%type  <std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > *>   polypair
+%type  <double>  paren_polycoef 
 
 %destructor { delete $$; } TOK_WORD
 %destructor { delete $$; } TOK_FUNCTION
