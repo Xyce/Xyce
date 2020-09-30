@@ -397,12 +397,6 @@ enhancement_spec: enhancement "bourgoin_corbett" '(' SPECIE ',' RXN_FLOAT ',' RX
           ;
 
 enhancement: SPECIE ';'
-        { 
-/*
-THIS ISN'T NECESSARY FOR BOURGOIN CORBETT ENHANCED DIFFUSION, BUT I'M LEAVING A 
-PLACEHOLDER FOR ENHANCEMENTS THAT MAY BE ADDED LATER.  --LCM
-*/
-        }
         | IDENTIFIER ';'
         {
           error(@1, std::string("Invalid specie \"")+*$1+"\"");
