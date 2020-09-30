@@ -40,6 +40,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_LAFactory.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
 #include <N_PDS_ParMap.h>

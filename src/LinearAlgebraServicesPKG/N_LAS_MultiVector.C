@@ -48,6 +48,7 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 #include <N_PDS_ParMap.h>
 #include <N_UTL_FeatureTest.h>
 

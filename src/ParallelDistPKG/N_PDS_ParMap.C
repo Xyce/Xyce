@@ -45,6 +45,7 @@
 
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_ERH_Message.h>
 
@@ -78,11 +79,12 @@ N_PDS_ParMap::N_PDS_ParMap(
   int nGE = std::max( -1, numGlobalEntities );
   int nLE = std::max( 0, numLocalEntities );
   // Call the Petra constructor for the true Petra map.
+  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &pdsComm_ );
   petraMap_ = new Epetra_Map( nGE,
                               nLE,
                               mArray,
                               index_base,
-                              *pdsComm_.petraComm());
+                              *petraComm );
 
   if (DEBUG_PARALLEL)
     std::cout << "New Petra Map: " << numGlobalEntities << " " << numLocalEntities << std::endl
@@ -107,10 +109,11 @@ N_PDS_ParMap::N_PDS_ParMap(
     pdsComm_(aComm)
 {
   // Call the Petra constructor for the true Petra map.
+  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &pdsComm_ );
   petraMap_ = new Epetra_Map( numGlobalEntities,
                               numLocalEntities,
                               index_base,
-                              *pdsComm_.petraComm());
+                              *petraComm );
 
   if (DEBUG_PARALLEL)
     std::cout << "New Petra Map: " << numGlobalEntities << " " << numLocalEntities << std::endl

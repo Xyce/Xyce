@@ -68,8 +68,6 @@
 
 #include <N_ERH_ErrorMgr.h>
 
-#include <N_PDS_SerialComm.h>
-
 #include <Teuchos_RCP.hpp>
 #include <Epetra_LinearProblem.h>
 #include <Epetra_CrsMatrix.h>

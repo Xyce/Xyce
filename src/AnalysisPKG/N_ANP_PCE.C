@@ -64,6 +64,7 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_Manager.h>
 #include <N_PDS_Serial.h>
+#include <N_PDS_EpetraHelpers.h>
 
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_DataStore.h>
@@ -1015,6 +1016,8 @@ void PCE::setupStokhosObjects ()
   UQ::setupPCEQuadPoints ( basis, quadMethod, expnMethod, samplingVector_, covMatrix_, meanVec_, X_, Y_);
   numQuadPoints_ = quadMethod->size();
 
+  Epetra_Comm* petraComm = Parallel::getEpetraComm( analysisManager_.getPDSManager()->getPDSComm() );
+
   if (outputStochasticMatrix_)
   {
     // this is to give a nice SPY plot of the stochastic block matrix structure
@@ -1022,11 +1025,10 @@ void PCE::setupStokhosObjects ()
     Stokhos::sparse3Tensor2MatrixMarket(
         *basis, 
         *Cijk, 
-       *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()),file);
+        *petraComm, file);
   }
 
-  pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk,
-     *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()) ) ) );
+  pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk, *petraComm ) ) );
 
   numBlockRows_ = pceGraph->epetraObj()->NumMyRows();
 

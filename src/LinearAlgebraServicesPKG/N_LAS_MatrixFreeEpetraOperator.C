@@ -46,6 +46,7 @@
 #include <N_LAS_MatrixFreeEpetraOperator.h>
 
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 #include <N_LAS_Vector.h>
 
 namespace Xyce {
@@ -287,7 +288,7 @@ const Epetra_Comm & MatrixFreeEpetraOperator::Comm() const
     Report::DevelFatal0().in("MatrixFreeEpetraOperator::Comm")
       << "I'm not initialized!";
   }
-  return(*(solutionMap_->pdsComm()).petraComm());
+  return(*Parallel::getEpetraComm(&solutionMap_->pdsComm()));
 }
 
 //-----------------------------------------------------------------------------

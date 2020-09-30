@@ -50,7 +50,7 @@
 #endif
 // ----------   Xyce Includes   ----------
 
-#include <N_PDS_MPIComm.h>
+#include <N_PDS_EpetraMPIComm.h>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_UTL_FeatureTest.h>
@@ -60,15 +60,15 @@ using Xyce::DEBUG_PARALLEL;
 // ----------  Other Includes   ----------
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::N_PDS_MPIComm
+// Function      : N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_MPIComm::N_PDS_MPIComm( int iargs,
-                              char * cargs[] )
+N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm( int iargs,
+                                          char * cargs[] )
   :
   petraCommOwned_(true),
   petraComm_(0)
@@ -85,14 +85,14 @@ N_PDS_MPIComm::N_PDS_MPIComm( int iargs,
 
 #ifdef Xyce_PARALLEL_MPI
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::N_PDS_MPIComm
+// Function      : N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 03/16/06
 //-----------------------------------------------------------------------------
-N_PDS_MPIComm::N_PDS_MPIComm( MPI_Comm comm )
+N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm( MPI_Comm comm )
   :
   petraCommOwned_(true),
   mpiCommOwned_(false)
@@ -105,14 +105,14 @@ N_PDS_MPIComm::N_PDS_MPIComm( MPI_Comm comm )
 #endif
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::N_PDS_MPIComm
+// Function      : N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm
 // Purpose       : Copy constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_MPIComm::N_PDS_MPIComm(const N_PDS_MPIComm &right)
+N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm(const N_PDS_EpetraMPIComm &right)
   :
   isSerial_(right.isSerial_) ,
   petraCommOwned_(false),
@@ -125,7 +125,7 @@ N_PDS_MPIComm::N_PDS_MPIComm(const N_PDS_MPIComm &right)
 {
 }
 
-Xyce::Parallel::Machine N_PDS_MPIComm::comm() const 
+Xyce::Parallel::Machine N_PDS_EpetraMPIComm::comm() const 
 {
 #ifdef Xyce_PARALLEL_MPI
       return mpiComm_;
@@ -135,14 +135,14 @@ Xyce::Parallel::Machine N_PDS_MPIComm::comm() const
 }
     
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::operator=
+// Function      : N_PDS_EpetraMPIComm::operator=
 // Purpose       : Assignment operator.
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_MPIComm & N_PDS_MPIComm::operator=(const N_PDS_MPIComm &right)
+N_PDS_EpetraMPIComm & N_PDS_EpetraMPIComm::operator=(const N_PDS_EpetraMPIComm &right)
 {
   if (this != &right)
   {
@@ -158,14 +158,14 @@ N_PDS_MPIComm & N_PDS_MPIComm::operator=(const N_PDS_MPIComm &right)
   return *this;
 }
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::~N_PDS_MPIComm
+// Function      : N_PDS_EpetraMPIComm::~N_PDS_EpetraMPIComm
 // Purpose       : Destructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoeksta, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_MPIComm::~N_PDS_MPIComm()
+N_PDS_EpetraMPIComm::~N_PDS_EpetraMPIComm()
 {
   if( petraCommOwned_ )
     if( petraComm_ ) delete petraComm_;
@@ -177,54 +177,54 @@ N_PDS_MPIComm::~N_PDS_MPIComm()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::numProc
+// Function      : N_PDS_EpetraMPIComm::numProc
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_MPIComm::numProc() const
+int N_PDS_EpetraMPIComm::numProc() const
 {
   int size = 1;
 #ifdef Xyce_PARALLEL_MPI
   // Get the machine size.
   if (MPI_SUCCESS != MPI_Comm_size(mpiComm_, &size) )
-    Xyce::Report::DevelFatal0().in("N_PDS_MPIComm::numProc")
+    Xyce::Report::DevelFatal0().in("N_PDS_EpetraMPIComm::numProc")
       << "MPI_Comm_size failed.";
 #endif
   return size;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::procID
+// Function      : N_PDS_EpetraMPIComm::procID
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_MPIComm::procID() const
+int N_PDS_EpetraMPIComm::procID() const
 {
   int id = 0;
 #ifdef Xyce_PARALLEL_MPI
   // Get the machine size.
   if (MPI_SUCCESS != MPI_Comm_rank(mpiComm_, &id) )
-    Xyce::Report::DevelFatal0().in("N_PDS_MPIComm::procID")
+    Xyce::Report::DevelFatal0().in("N_PDS_EpetraMPIComm::procID")
       << "MPI_Comm_rank failed.";
 #endif
   return id;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::scanSum
+// Function      : N_PDS_EpetraMPIComm::scanSum
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::scanSum( const double * vals, double * sums,
+bool N_PDS_EpetraMPIComm::scanSum( const double * vals, double * sums,
 		const int & count ) const
 {
   return ( petraComm_->ScanSum( const_cast<double *> (vals), sums,
@@ -239,7 +239,7 @@ bool N_PDS_MPIComm::scanSum( const double * vals, double * sums,
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::sumAll( const double * vals, double * sums,
+bool N_PDS_EpetraMPIComm::sumAll( const double * vals, double * sums,
 		const int & count ) const
 {
   return ( petraComm_->SumAll( const_cast<double *> (vals), sums,
@@ -247,14 +247,14 @@ bool N_PDS_MPIComm::sumAll( const double * vals, double * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::maxAll
+// Function      : N_PDS_EpetraMPIComm::maxAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::maxAll( const double * vals, double * maxs,
+bool N_PDS_EpetraMPIComm::maxAll( const double * vals, double * maxs,
 		const int & count ) const
 {
   return ( petraComm_->MaxAll( const_cast<double *> (vals), maxs,
@@ -262,14 +262,14 @@ bool N_PDS_MPIComm::maxAll( const double * vals, double * maxs,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::minAll
+// Function      : N_PDS_EpetraMPIComm::minAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 08/30/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::minAll( const double * vals, double * mins,
+bool N_PDS_EpetraMPIComm::minAll( const double * vals, double * mins,
 		const int & count ) const
 {
   return ( petraComm_->MinAll( const_cast<double *> (vals), mins,
@@ -277,14 +277,14 @@ bool N_PDS_MPIComm::minAll( const double * vals, double * mins,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::scanSum
+// Function      : N_PDS_EpetraMPIComm::scanSum
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::scanSum( const int * vals, int * sums,
+bool N_PDS_EpetraMPIComm::scanSum( const int * vals, int * sums,
 		const int & count ) const
 {
   return ( petraComm_->ScanSum( const_cast<int *> (vals), sums,
@@ -299,7 +299,7 @@ bool N_PDS_MPIComm::scanSum( const int * vals, int * sums,
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::sumAll( const int * vals, int * sums,
+bool N_PDS_EpetraMPIComm::sumAll( const int * vals, int * sums,
 		const int & count ) const
 {
   return ( petraComm_->SumAll( const_cast<int *> (vals), sums,
@@ -307,14 +307,14 @@ bool N_PDS_MPIComm::sumAll( const int * vals, int * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::maxAll
+// Function      : N_PDS_EpetraMPIComm::maxAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::maxAll( const int * vals, int * maxs,
+bool N_PDS_EpetraMPIComm::maxAll( const int * vals, int * maxs,
 		const int & count ) const
 {
   return ( petraComm_->MaxAll( const_cast<int *> (vals), maxs,
@@ -322,14 +322,14 @@ bool N_PDS_MPIComm::maxAll( const int * vals, int * maxs,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::minAll
+// Function      : N_PDS_EpetraMPIComm::minAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::minAll( const int * vals, int * mins,
+bool N_PDS_EpetraMPIComm::minAll( const int * vals, int * mins,
 		const int & count ) const
 {
   return ( petraComm_->MinAll( const_cast<int *> (vals), mins,
@@ -337,14 +337,14 @@ bool N_PDS_MPIComm::minAll( const int * vals, int * mins,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::bcast
+// Function      : N_PDS_EpetraMPIComm::bcast
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::bcast( int * val, const int & count, const int & root )
+bool N_PDS_EpetraMPIComm::bcast( int * val, const int & count, const int & root )
 									const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -357,14 +357,14 @@ bool N_PDS_MPIComm::bcast( int * val, const int & count, const int & root )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::bcast
+// Function      : N_PDS_EpetraMPIComm::bcast
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::bcast( char * val, const int & count, const int & root )
+bool N_PDS_EpetraMPIComm::bcast( char * val, const int & count, const int & root )
 									const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -377,14 +377,14 @@ bool N_PDS_MPIComm::bcast( char * val, const int & count, const int & root )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::bcast
+// Function      : N_PDS_EpetraMPIComm::bcast
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::bcast( double * val, const int & count, const int & root )
+bool N_PDS_EpetraMPIComm::bcast( double * val, const int & count, const int & root )
 									const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -397,14 +397,14 @@ bool N_PDS_MPIComm::bcast( double * val, const int & count, const int & root )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::send
+// Function      : N_PDS_EpetraMPIComm::send
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::send( const int * val, const int & count, const int & dest)
+bool N_PDS_EpetraMPIComm::send( const int * val, const int & count, const int & dest)
 									const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -417,14 +417,14 @@ bool N_PDS_MPIComm::send( const int * val, const int & count, const int & dest)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::send
+// Function      : N_PDS_EpetraMPIComm::send
 // Purpose       : LNGs 
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::send( const long * val, const int & count, const int & dest)
+bool N_PDS_EpetraMPIComm::send( const long * val, const int & count, const int & dest)
                                                                         const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -437,14 +437,14 @@ bool N_PDS_MPIComm::send( const long * val, const int & count, const int & dest)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::send
+// Function      : N_PDS_EpetraMPIComm::send
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::send( const char * val, const int & count, const int & dest)
+bool N_PDS_EpetraMPIComm::send( const char * val, const int & count, const int & dest)
 									const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -457,14 +457,14 @@ bool N_PDS_MPIComm::send( const char * val, const int & count, const int & dest)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::send
+// Function      : N_PDS_EpetraMPIComm::send
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::send( const double * val, const int & count, const int & dest)									const
+bool N_PDS_EpetraMPIComm::send( const double * val, const int & count, const int & dest)									const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Send( const_cast<double *> (val), const_cast<int &> (count), MPI_DOUBLE,
@@ -476,14 +476,14 @@ bool N_PDS_MPIComm::send( const double * val, const int & count, const int & des
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::recv
+// Function      : N_PDS_EpetraMPIComm::recv
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::recv( int * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::recv( int * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Recv( val, const_cast<int &> (count), MPI_INT, const_cast<int &> (src),
@@ -495,14 +495,14 @@ bool N_PDS_MPIComm::recv( int * val, const int & count, const int & src ) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::recv
+// Function      : N_PDS_EpetraMPIComm::recv
 // Purpose       : LNGs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::recv( long * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::recv( long * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Recv( val, const_cast<int &> (count), MPI_LONG, const_cast<int &> (src),
@@ -514,14 +514,14 @@ bool N_PDS_MPIComm::recv( long * val, const int & count, const int & src ) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::recv
+// Function      : N_PDS_EpetraMPIComm::recv
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::recv( char * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::recv( char * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Recv( val, const_cast<int &> (count), MPI_CHAR, const_cast<int &> (src),
@@ -533,14 +533,14 @@ bool N_PDS_MPIComm::recv( char * val, const int & count, const int & src ) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::recv
+// Function      : N_PDS_EpetraMPIComm::recv
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::recv( double * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::recv( double * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Recv( val, const_cast<int &> (count), MPI_DOUBLE, const_cast<int &> (src),
@@ -552,14 +552,14 @@ bool N_PDS_MPIComm::recv( double * val, const int & count, const int & src ) con
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::rSend
+// Function      : N_PDS_EpetraMPIComm::rSend
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::rSend( const int * val, const int & count, const int & dest) const
+bool N_PDS_EpetraMPIComm::rSend( const int * val, const int & count, const int & dest) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Rsend( const_cast<int *> (val), const_cast<int &> (count), MPI_INT,
@@ -571,14 +571,14 @@ bool N_PDS_MPIComm::rSend( const int * val, const int & count, const int & dest)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::rSend
+// Function      : N_PDS_EpetraMPIComm::rSend
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::rSend( const char * val, const int & count, const int & dest) const
+bool N_PDS_EpetraMPIComm::rSend( const char * val, const int & count, const int & dest) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Rsend( const_cast<char *> (val), const_cast<int &> (count), MPI_CHAR,
@@ -590,14 +590,14 @@ bool N_PDS_MPIComm::rSend( const char * val, const int & count, const int & dest
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::rSend
+// Function      : N_PDS_EpetraMPIComm::rSend
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::rSend( const double * val, const int & count, const int & dest) const
+bool N_PDS_EpetraMPIComm::rSend( const double * val, const int & count, const int & dest) const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Rsend( const_cast<double *> (val), const_cast<int &> (count), MPI_DOUBLE,
@@ -609,14 +609,14 @@ bool N_PDS_MPIComm::rSend( const double * val, const int & count, const int & de
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::iRecv
+// Function      : N_PDS_EpetraMPIComm::iRecv
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::iRecv( int * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::iRecv( int * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   request_.push_front( MPI_Request() );
@@ -629,14 +629,14 @@ bool N_PDS_MPIComm::iRecv( int * val, const int & count, const int & src ) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::iRecv
+// Function      : N_PDS_EpetraMPIComm::iRecv
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::iRecv( char * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::iRecv( char * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   request_.push_front( MPI_Request() );
@@ -649,14 +649,14 @@ bool N_PDS_MPIComm::iRecv( char * val, const int & count, const int & src ) cons
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::iRecv
+// Function      : N_PDS_EpetraMPIComm::iRecv
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::iRecv( double * val, const int & count, const int & src ) const
+bool N_PDS_EpetraMPIComm::iRecv( double * val, const int & count, const int & src ) const
 {
 #ifdef Xyce_PARALLEL_MPI
   request_.push_front( MPI_Request() );
@@ -669,14 +669,14 @@ bool N_PDS_MPIComm::iRecv( double * val, const int & count, const int & src ) co
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::waitAll
+// Function      : N_PDS_EpetraMPIComm::waitAll
 // Purpose       : 
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::waitAll()
+bool N_PDS_EpetraMPIComm::waitAll()
 {
 #ifdef Xyce_PARALLEL_MPI
   std::list<MPI_Request>::iterator r=request_.begin();
@@ -695,14 +695,14 @@ bool N_PDS_MPIComm::waitAll()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::pack
+// Function      : N_PDS_EpetraMPIComm::pack
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::pack( const int * val, const int count, char * buf,
+bool N_PDS_EpetraMPIComm::pack( const int * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -735,14 +735,14 @@ bool N_PDS_MPIComm::pack( const int * val, const int count, char * buf,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::pack
+// Function      : N_PDS_EpetraMPIComm::pack
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::pack( const char * val, const int count, char * buf,
+bool N_PDS_EpetraMPIComm::pack( const char * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -778,14 +778,14 @@ bool N_PDS_MPIComm::pack( const char * val, const int count, char * buf,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::pack
+// Function      : N_PDS_EpetraMPIComm::pack
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::pack( const double * val, const int count, char * buf,
+bool N_PDS_EpetraMPIComm::pack( const double * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -818,14 +818,14 @@ bool N_PDS_MPIComm::pack( const double * val, const int count, char * buf,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::pack
+// Function      : N_PDS_EpetraMPIComm::pack
 // Purpose       : LNGs
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 06/26/2013
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::pack( const long * val, const int count, char * buf,
+bool N_PDS_EpetraMPIComm::pack( const long * val, const int count, char * buf,
                 const int size, int & pos ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -858,14 +858,14 @@ bool N_PDS_MPIComm::pack( const long * val, const int count, char * buf,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::unpack
+// Function      : N_PDS_EpetraMPIComm::unpack
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
+bool N_PDS_EpetraMPIComm::unpack( const char * buf, const int size, int & pos,
 		int * val, const int count ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -879,14 +879,14 @@ bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
 
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::unpack
+// Function      : N_PDS_EpetraMPIComm::unpack
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
+bool N_PDS_EpetraMPIComm::unpack( const char * buf, const int size, int & pos,
 		char * val, const int count ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -899,14 +899,14 @@ bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::unpack
+// Function      : N_PDS_EpetraMPIComm::unpack
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
+bool N_PDS_EpetraMPIComm::unpack( const char * buf, const int size, int & pos,
 		double * val, const int count ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -919,14 +919,14 @@ bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::unpack
+// Function      : N_PDS_EpetraMPIComm::unpack
 // Purpose       : LNGs
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 06/26/2013
 //-----------------------------------------------------------------------------
-bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
+bool N_PDS_EpetraMPIComm::unpack( const char * buf, const int size, int & pos,
                 long * val, const int count ) const
 {
 #ifdef Xyce_PARALLEL_MPI
@@ -939,14 +939,14 @@ bool N_PDS_MPIComm::unpack( const char * buf, const int size, int & pos,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::barrier
+// Function      : N_PDS_EpetraMPIComm::barrier
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-void N_PDS_MPIComm::barrier() const
+void N_PDS_EpetraMPIComm::barrier() const
 {
 #ifdef Xyce_PARALLEL_MPI
   MPI_Barrier(mpiComm_);
@@ -955,14 +955,14 @@ void N_PDS_MPIComm::barrier() const
 
 #ifdef Xyce_PARALLEL_MPI
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_MPIComm::createMPIComm
+// Function      : N_PDS_EpetraMPIComm::createMPIComm
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 05/01/2018
 //-----------------------------------------------------------------------------
-void N_PDS_MPIComm::createMPIComm( int iargs, char * cargs[] )
+void N_PDS_EpetraMPIComm::createMPIComm( int iargs, char * cargs[] )
 {
   // Set the MPI Communicator
   mpiCommOwned_ = true;  
@@ -990,8 +990,8 @@ void N_PDS_MPIComm::createMPIComm( int iargs, char * cargs[] )
   if ( !initialized )
   {
     if ( MPI_SUCCESS != MPI_Init( &iargs, &cargs ) )
-      Xyce::Report::DevelFatal().in("N_PDS_MPIComm::N_PDS_MPIComm")
-        << "N_PDS_MPIComm::initMPI - MPI_Init failed.";
+      Xyce::Report::DevelFatal().in("N_PDS_EpetraMPIComm::N_PDS_EpetraMPIComm")
+        << "N_PDS_EpetraMPIComm::initMPI - MPI_Init failed.";
   }
   else
   {
@@ -1056,8 +1056,8 @@ void N_PDS_MPIComm::createMPIComm( int iargs, char * cargs[] )
       // split mpi communicator
       int processID = procID();
       MPI_Comm myNewMpiComm;
-      Xyce::dout() << "N_PDS_MPIComm on procID, " << processID << ", procPerProblem = " << procPerProblem << std::endl; 
-        const std::string errorMsgForSplit( "N_PDS_MPIComm::initMPI - MPI_Comm_split failed.");
+      Xyce::dout() << "N_PDS_EpetraMPIComm on procID, " << processID << ", procPerProblem = " << procPerProblem << std::endl; 
+        const std::string errorMsgForSplit( "N_PDS_EpetraMPIComm::initMPI - MPI_Comm_split failed.");
         if( MPI_SUCCESS != MPI_Comm_split( MPI_COMM_WORLD, processID, procPerProblem, &myNewMpiComm ) )
           Xyce::Report::DevelFatal() << errorMsgForSplit;
         mpiComm_ = myNewMpiComm;
