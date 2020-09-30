@@ -98,6 +98,14 @@ handling of global parameters, and the only workaround had been to
 avoid such parameter names.  This workaround is no longer
 necessary. \\ \hline
 
+\textbf{1318-SON}: Allow for numerical roundoff when FROM, TO or TD
+are expressions on .MEASURE lines & \Xyce{} could give the incorrect
+answer when the \texttt{FROM}, \texttt{TO} or \texttt{TD} qualifiers
+on a .MEASURE line were expressions.  This was caused by small
+numerical-roundoff errors in the calculation of the expression
+values.
+\\ \hline
+
 \textbf{1310-SON}: Improve FROM and TO info printed to stdout for AC,
 DC and Noise measures & The information printed to stdout for the
 start and end points of the measurement window, for AC, DC and NOISE
