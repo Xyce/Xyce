@@ -51,19 +51,19 @@ template <typename ScalarT>
 class spicePulseOp : public astNode<ScalarT>
 {
   public:
-    spicePulseOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+    spicePulseOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
       astNode<ScalarT>(), 
       time_(time), 
       v1Given_(false), v2Given_(false), tdGiven_(false),
       trGiven_(false), tfGiven_(false), pwGiven_(false), perGiven_(false),
       bpTol_(0.0), startingTimeStep_(0.0), finalTime_(0.0)
   {
-    if (args->size() < 1)
+    if (args.size() < 1)
     {
       std::vector<std::string> errStr(1,std::string("AST node (spice_pulse) needs at least 1 argument.  V1 is required for the PULSE source function.")); yyerror(errStr);
     }
 
-    if (args->size() > 7)
+    if (args.size() > 7)
     {
       std::vector<std::string> errStr(1,std::string("AST node (spice_pulse) has too many arguments")); yyerror(errStr);
     }
@@ -81,13 +81,13 @@ class spicePulseOp : public astNode<ScalarT>
     //
     // At the time of construction, I don't think I have these values yet, so set in the val function.
     //
-    if (args->size() >= 1) { v1_ = (*args)[0]; v1Given_=true; } else { v1_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 2) { v2_ = (*args)[1]; v2Given_=true; } else { v2_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 3) { td_ = (*args)[2]; tdGiven_=true; } else { td_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 4) { tr_ = (*args)[3]; trGiven_=true; } else { tr_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 5) { tf_ = (*args)[4]; tfGiven_=true; } else { tf_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 6) { pw_ = (*args)[5]; pwGiven_=true; } else { pw_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args->size() >= 7) { per_ = (*args)[6]; perGiven_=true; } else { per_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 1) { v1_ = args[0]; v1Given_=true; } else { v1_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 2) { v2_ = args[1]; v2Given_=true; } else { v2_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 3) { td_ = args[2]; tdGiven_=true; } else { td_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 4) { tr_ = args[3]; trGiven_=true; } else { tr_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 5) { tf_ = args[4]; tfGiven_=true; } else { tf_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 6) { pw_ = args[5]; pwGiven_=true; } else { pw_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    if (args.size() >= 7) { per_ = args[6]; perGiven_=true; } else { per_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
   };
 
     virtual ScalarT val()
@@ -320,28 +320,28 @@ template <typename ScalarT>
 class spiceSinOp : public astNode<ScalarT>
 {
   public:
-    spiceSinOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+    spiceSinOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
       astNode<ScalarT>(), 
       time_(time),
       v0Given_(false), vaGiven_(false), freqGiven_(false), tdGiven_(false), thetaGiven_(false), phaseGiven_(false),
       finalTime_(0.0)
     {
-      if (args->size() < 3)
+      if (args.size() < 3)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sin) needs at least 3 argument.  V0, VA and FREQ are required for the SIN source function.")); yyerror(errStr);
       }
 
-      if (args->size() > 6)
+      if (args.size() > 6)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sin) has too many arguments")); yyerror(errStr);
       } 
     
-      if (args->size() >= 1) { v0_    = (*args)[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 2) { va_    = (*args)[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 3) { freq_  = (*args)[2]; freqGiven_=true;  } else { freq_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 4) { td_    = (*args)[3]; tdGiven_=true;    } else { td_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 5) { theta_ = (*args)[4]; thetaGiven_=true; } else { theta_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 6) { phase_ = (*args)[5]; phaseGiven_=true; } else { phase_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { freq_  = args[2]; freqGiven_=true;  } else { freq_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { td_    = args[3]; tdGiven_=true;    } else { td_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { theta_ = args[4]; thetaGiven_=true; } else { theta_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 6) { phase_ = args[5]; phaseGiven_=true; } else { phase_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
@@ -481,28 +481,28 @@ template <typename ScalarT>
 class spiceExpOp : public astNode<ScalarT>
 {
   public:
-    spiceExpOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+    spiceExpOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
       astNode<ScalarT>(), 
       time_(time),
       v1Given_(false), v2Given_(false), td1Given_(false), tau1Given_(false), td2Given_(false), tau2Given_(false),
       startingTimeStep_(0.0)
     {
-      if (args->size() < 2)
+      if (args.size() < 2)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_exp) needs at least 2 argument.  V1 and V2 are required for the EXP source function.")); yyerror(errStr);
       }
 
-      if (args->size() > 6)
+      if (args.size() > 6)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_exp) has too many arguments")); yyerror(errStr);
       } 
     
-      if (args->size() >= 1) { v1_    = (*args)[0]; v1Given_=true;    } else { v1_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 2) { v2_    = (*args)[1]; v2Given_=true;    } else { v2_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 3) { td1_   = (*args)[2]; td1Given_=true;   } else { td1_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 4) { tau1_  = (*args)[3]; tau1Given_=true;  } else { tau1_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 5) { td2_   = (*args)[4]; td2Given_=true;   } else { td2_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 6) { tau2_  = (*args)[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); } 
+      if (args.size() >= 1) { v1_    = args[0]; v1Given_=true;    } else { v1_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { v2_    = args[1]; v2Given_=true;    } else { v2_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { td1_   = args[2]; td1Given_=true;   } else { td1_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { tau1_  = args[3]; tau1Given_=true;  } else { tau1_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { td2_   = args[4]; td2Given_=true;   } else { td2_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 6) { tau2_  = args[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); } 
     };
 
     virtual ScalarT val()
@@ -663,27 +663,27 @@ template <typename ScalarT>
 class spiceSffmOp : public astNode<ScalarT>
 {
   public:
-    spiceSffmOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > * args, Teuchos::RCP<astNode<ScalarT> > &time):
+    spiceSffmOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
       astNode<ScalarT>(), 
       time_(time),
       v0Given_(false), vaGiven_(false), fcGiven_(false), mdiGiven_(false), fsGiven_(false),
       finalTime_(0.0)
     {
-      if (args->size() < 2)
+      if (args.size() < 2)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) needs at least 2 argument.  V0 and VA are required for the SFFM source function.")); yyerror(errStr);
       }
 
-      if (args->size() > 5)
+      if (args.size() > 5)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) has too many arguments")); yyerror(errStr);
       } 
     
-      if (args->size() >= 1) { v0_    = (*args)[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 2) { va_    = (*args)[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 3) { fc_    = (*args)[2]; fcGiven_=true;    } else { fc_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 4) { mdi_   = (*args)[3]; mdiGiven_=true;   } else { mdi_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args->size() >= 5) { fs_    = (*args)[4]; fsGiven_=true;    } else { fs_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { fc_    = args[2]; fcGiven_=true;    } else { fc_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { mdi_   = args[3]; mdiGiven_=true;   } else { mdi_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { fs_    = args[4]; fsGiven_=true;    } else { fs_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
