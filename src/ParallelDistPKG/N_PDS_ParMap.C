@@ -203,19 +203,6 @@ int N_PDS_ParMap::maxGlobalEntity() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_ParMap::petraBlockMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/27/01
-//-----------------------------------------------------------------------------
-Epetra_BlockMap * N_PDS_ParMap::petraBlockMap()
-{
-  return dynamic_cast<Epetra_BlockMap*>(petraMap_);
-}
-
-//-----------------------------------------------------------------------------
 // Function      : N_PDS_ParMap::globalToLocalIndex
 // Purpose       : dereference Global to Local Index
 // Special Notes :

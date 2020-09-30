@@ -102,7 +102,7 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
   }
 
   // Create a new Petra MultiVector and set the pointer.
-  aMultiVector_ = new Epetra_MultiVector( *map.petraBlockMap(), numVectors );
+  aMultiVector_ = new Epetra_MultiVector( *dynamic_cast<Epetra_BlockMap*>(map.petraMap()), numVectors );
 
   oMultiVector_ = aMultiVector_;
 }
@@ -133,18 +133,19 @@ MultiVector::MultiVector(
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
-  oMultiVector_ = new Epetra_MultiVector(*ol_map.petraBlockMap(), numVectors);
+  oMultiVector_ = new Epetra_MultiVector(*dynamic_cast<Epetra_BlockMap*>(ol_map.petraMap()), numVectors);
 
   viewTransform_ = new EpetraExt::MultiVector_View(
-    *overlapMap_->petraBlockMap(), *parallelMap_->petraBlockMap());
+    *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()), *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()));
   aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
   if (map.pdsComm().numProc() > 1)
   {
-    exporter_ = new Epetra_Export( *overlapMap_->petraBlockMap(),
-                                   *parallelMap_->petraBlockMap() );
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
   }
 
-  importer_ = new Epetra_Import( *overlapMap_->petraBlockMap(), *parallelMap_->petraBlockMap() );
+  importer_ = new Epetra_Import( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()), 
+                                 *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -170,16 +171,16 @@ MultiVector::MultiVector( const MultiVector & right )
     aMultiVector_ = oMultiVector_;
   else
   {
-    viewTransform_ = new EpetraExt::MultiVector_View( *overlapMap_->petraBlockMap(),
-                                                      *parallelMap_->petraBlockMap() );
+    viewTransform_ = new EpetraExt::MultiVector_View( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
+                                                      *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
   }
 
   // Generate new exporter instead of using copy constructor, there is an issue with Epetra_MpiDistributor
   if( right.exporter_ ) 
   {
-    exporter_ = new Epetra_Export( *overlapMap_->petraBlockMap(),
-                                   *parallelMap_->petraBlockMap() );
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
   }
   if( right.importer_ ) importer_ = new Epetra_Import( *right.importer_ );
 }

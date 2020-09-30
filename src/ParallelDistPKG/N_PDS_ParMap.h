@@ -122,8 +122,6 @@ public:
   Epetra_Map * petraMap() { return petraMap_; }
   const Epetra_Map * petraMap() const { return petraMap_; }
 
-  Epetra_BlockMap * petraBlockMap();
-
   // dereference global index to get local index
   int globalToLocalIndex(int global_index) const;
 

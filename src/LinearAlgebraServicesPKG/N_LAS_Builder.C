@@ -415,9 +415,12 @@ bool Builder::generateGraphs()
 
   int numLocalRows_Overlap = rcData.size();
 
-  Epetra_BlockMap & overlapGndMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND )->petraBlockMap());
-  Epetra_BlockMap & overlapMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP )->petraBlockMap());
-  Epetra_BlockMap & localMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION )->petraBlockMap());
+  Epetra_BlockMap & overlapGndMap = 
+    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND )->petraMap());
+  Epetra_BlockMap & overlapMap = 
+    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP )->petraMap());
+  Epetra_BlockMap & localMap = 
+    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION )->petraMap());
 
   Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
 

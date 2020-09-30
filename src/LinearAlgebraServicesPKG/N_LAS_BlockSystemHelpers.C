@@ -464,7 +464,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   }
  
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *(blockMap.petraBlockMap()), 0 ));
+  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *dynamic_cast<Epetra_BlockMap*>(blockMap.petraMap()), 0 ));
   
   std::vector<int> indices(maxIndices);
   int shift=0, index=0, baseRow=0, blockRow=0, numIndices=0;

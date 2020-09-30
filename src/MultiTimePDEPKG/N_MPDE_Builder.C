@@ -320,7 +320,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
 
   //Construct MPDE dFdX Graph
   Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
-                                                           *(MPDEMap_->petraBlockMap()),
+                                                           *dynamic_cast<Epetra_BlockMap*>(MPDEMap_->petraMap()),
                                                            0 );
 
   int MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();
