@@ -28,15 +28,14 @@
 
 // This feature throws off "deprecated" warnings in more recent version so of Bison.
 // Starting in Bison 3.3, the proper way to define the class name is:  %define api.parser.class {ExpressionParser}
+// For Xyce, the minimum version of Bison is 3.0.4, so we have to live with this warning.
 %define parser_class_name "ExpressionParser"
 %locations
 %defines
 %define api.prefix {XyceExpression}
 
-// Variants is an experiment.  the api.token.constructor can go along with it
+// Variants is an experiment.  the api.token.constructor can go along with it, but not doing that for now.
 %define api.value.type variant
-// the api.token.constructor changes the number of arguments to yylex from 3 to 1.  So for now, don't do it?
-//%define api.token.constructor
 
 // This feature was introduced in Bison 3.5.  It disallows character literals like '+', and makes the parser more efficient.
 // ERK: this does not appear to make a huge performance difference.
