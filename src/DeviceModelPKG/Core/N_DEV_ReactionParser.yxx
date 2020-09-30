@@ -56,7 +56,7 @@ class ReactionLexer;
 %locations
 %defines
 
-%name-prefix="XyceDevice"
+%define api.prefix {XyceDevice}
 
 %union
 {
