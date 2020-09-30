@@ -183,7 +183,8 @@ void copyFromBlockVectors( std::vector<Teuchos::RCP<BlockVector> >& blockVectors
   {
     for (int i=0 ; i<blockVecLength ; ++i)
     {
-      Teuchos::RCP<Vector> mvCol = outputMultiVector.getNonConstVectorView(j*blockVecLength+i);
+      Teuchos::RCP<Vector> mvCol = 
+        Teuchos::rcp( outputMultiVector.getNonConstVectorView(j*blockVecLength+i) );
 
       // Copy over the vector and then import any off-processor contributions.
       *(mvCol) = blockVectors[j]->block(i);

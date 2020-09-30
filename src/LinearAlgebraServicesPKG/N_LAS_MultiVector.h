@@ -50,10 +50,6 @@
 
 #include <Epetra_MultiVector.h>
 
-#include <Teuchos_RCP.hpp>
-using Teuchos::RCP;
-using Teuchos::rcp;
-
 // --------  Forward Declarations --------
 
 class N_PDS_ParMap;
@@ -69,6 +65,10 @@ namespace EpetraExt {
  class MultiVector_View;
 
 }
+
+#include <Teuchos_RCP.hpp>
+using Teuchos::RCP;
+using Teuchos::rcp;
 
 namespace Xyce {
 namespace Linear {
@@ -205,8 +205,8 @@ public:
   }
 
   // Vector access function
-  RCP<const Vector> getVectorView(int index) const;
-  RCP<Vector> getNonConstVectorView(int index);
+  const Vector* getVectorView(int index) const;
+  Vector* getNonConstVectorView(int index);
 
   // Get the global (across all processors) length of the multi-vector
   int globalLength() const;

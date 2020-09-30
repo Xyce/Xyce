@@ -757,7 +757,7 @@ void PCEDirectSolver::formPCEJacobian()
     }
     else
     {
-      B_j = B->getNonConstVectorView( j );
+      B_j = Teuchos::rcp( B->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )
@@ -886,7 +886,7 @@ int PCEDirectSolver::solve()
     }
     else
     {
-      X_j = X->getNonConstVectorView( j );
+      X_j = Teuchos::rcp( X->getNonConstVectorView( j ) );
     } 
 
     if ( myProc == 0 )
@@ -1083,7 +1083,7 @@ void PCEDirectSolver::printPCEResidual( const std::string& fileName )
     }
     else
     {
-      B_j = B->getNonConstVectorView( j );
+      B_j = Teuchos::rcp( B->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )
@@ -1146,7 +1146,7 @@ void PCEDirectSolver::printPCESolution( const std::string& fileName )
     }
     else
     {
-      X_j = X->getNonConstVectorView( j );
+      X_j = Teuchos::rcp( X->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )

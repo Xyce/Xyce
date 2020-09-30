@@ -992,7 +992,9 @@ int NonLinearSolver::apply(
   bool status = true;
   for (int i=0 ; i<X.numVectors() ; ++i)
   {
-    bool localStatus = nc_this->applyJacobian(*X.getVectorView(i), *Y.getNonConstVectorView(i));
+    Teuchos::RCP<const Linear::Vector> X_i = Teuchos::rcp( X.getVectorView(i) );
+    Teuchos::RCP<Linear::Vector> Y_i = Teuchos::rcp( Y.getNonConstVectorView(i) );
+    bool localStatus = nc_this->applyJacobian(*X_i, *Y_i);
     status = status && localStatus;
   }
 

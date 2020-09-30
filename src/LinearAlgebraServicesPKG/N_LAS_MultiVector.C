@@ -805,10 +805,10 @@ void MultiVector::reciprocal(const MultiVector & A)
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-RCP<const Vector> MultiVector::getVectorView(int index) const
+const Vector* MultiVector::getVectorView(int index) const
 {
-  RCP<const Vector> vec = rcp(new Vector((*oMultiVector_)(index),
-                                         aMultiVector_->Map(),false), true);
+  const Vector* vec = new Vector((*oMultiVector_)(index),
+                                  aMultiVector_->Map(),false);
   return vec;
 }
 
@@ -820,38 +820,12 @@ RCP<const Vector> MultiVector::getVectorView(int index) const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-RCP<Vector> MultiVector::getNonConstVectorView(int index)
+Vector* MultiVector::getNonConstVectorView(int index)
 {
-  RCP<Vector> vec = rcp(new Vector((*oMultiVector_)(index),
-                                   aMultiVector_->Map(),false), true);
+  Vector* vec = new Vector((*oMultiVector_)(index),
+                            aMultiVector_->Map(),false);
   return vec;
 }
-
-// //-----------------------------------------------------------------------------
-// // Function      : MultiVector::operator []
-// // Purpose       : "[]" operator for MultiVector.
-// // Special Notes :
-// // Scope         : Public
-// // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// // Creation Date : 05/23/00
-// //-----------------------------------------------------------------------------
-// double *& MultiVector::operator[](int index)
-// {
-//   return (*oMultiVector_)[index];
-// }
-
-// //-----------------------------------------------------------------------------
-// // Function      : MultiVector::operator []
-// // Purpose       : "[]" operator for MultiVector.
-// // Special Notes : This version returns a "const double".
-// // Scope         : Public
-// // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// // Creation Date : 05/23/00
-// //-----------------------------------------------------------------------------
-// const double *& MultiVector::operator[](int index) const
-// {
-//   return const_cast <const double *&> ((*oMultiVector_)[index]);
-// }
 
 //-----------------------------------------------------------------------------
 // Function      : MultiVector::fillComplete

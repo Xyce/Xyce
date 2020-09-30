@@ -511,7 +511,8 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
     }
 
     // Assign the correction back to col of Y. 
-    Y.getNonConstVectorView( col )->update( 1.0, *bYf, 0.0 );
+    Teuchos::RCP<Vector> Y_col = Teuchos::rcp( Y.getNonConstVectorView( col ) );
+    Y_col->update( 1.0, *bYf, 0.0 );
   }
 
   return 0;

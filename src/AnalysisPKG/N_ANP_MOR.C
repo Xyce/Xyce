@@ -1440,7 +1440,7 @@ bool MOR::solveRedLinearSystem_()
     {
       // Set the B vector for this port.
       ref_redBPtr_->putScalar( 0.0 );
-      (ref_redBPtr_->block( 0 )) = *(redBmv.getVectorView( j ));
+      (ref_redBPtr_->block( 0 )) = Linear::Vector( (tmp_redB)(j), tmp_redB.Map(), false );
 
       linearStatus = blockRedSolver_->Solve();
       if (linearStatus != 0)
@@ -1452,9 +1452,11 @@ bool MOR::solveRedLinearSystem_()
       // Compute transfer function entries for all I/O
       for (int i=0; i < numPorts_; ++i)
       {
+         RCP<const Linear::Vector> redLmv_i = rcp( redLmv.getVectorView( i ) );
+
          // L is probably not B in this case, so explicitly multiply to compute transfer function entries.
-         double realPart = ( redLmv.getVectorView( i ) )->dotProduct( ref_redXPtr_->block( 0 ) );
-         double imagPart = ( redLmv.getVectorView( i ) )->dotProduct( ref_redXPtr_->block( 1 ) );
+         double realPart = redLmv_i->dotProduct( ref_redXPtr_->block( 0 ) );
+         double imagPart = redLmv_i->dotProduct( ref_redXPtr_->block( 1 ) );
 
          redH_(i,j) = std::complex<double>(realPart, imagPart);
       }
