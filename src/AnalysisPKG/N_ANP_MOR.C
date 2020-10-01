@@ -1775,7 +1775,7 @@ bool MOR::sparsifyRedSystem_()
   // Generate Epetra_Map that puts all the values of the reduced system on one processor.
   N_PDS_Manager &pdsManager = *analysisManager_.getPDSManager();
   N_PDS_ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
-  if (BaseMap.petraMap()->Comm().MyPID() == 0)
+  if (BaseMap.pdsComm().procID() == 0)
     redMapPtr_ = Teuchos::rcp( new Epetra_Map( k, k, 0, BaseMap.petraMap()->Comm() ) );
   else
     redMapPtr_ = Teuchos::rcp( new Epetra_Map( k, 0, 0, BaseMap.petraMap()->Comm() ) );
@@ -1784,7 +1784,7 @@ bool MOR::sparsifyRedSystem_()
   Epetra_CrsMatrix* tmpRedC = new Epetra_CrsMatrix( Copy, *redMapPtr_, 2 );
 
   // Let processor 0 insert entries into tmpRedG and tmpRedC
-  if (BaseMap.petraMap()->Comm().MyPID() == 0)
+  if (BaseMap.pdsComm().procID() == 0)
   {
     std::vector<int> index(2);
     std::vector<double> val(2);

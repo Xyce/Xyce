@@ -227,3 +227,17 @@ int N_PDS_ParMap::localToGlobalIndex(int local_index) const
 {
   return petraMap_->GID(local_index);
 }
+
+//-----------------------------------------------------------------------------
+// Function      : N_PDS_ParMap::print
+// Purpose       : print map
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist 
+// Creation Date : 09/30/20
+//-----------------------------------------------------------------------------
+void N_PDS_ParMap::print(std::ostream &os) const
+{
+  petraMap_->Print(os);
+}
+

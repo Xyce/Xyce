@@ -42,7 +42,7 @@
 // ---------- Standard Includes ----------
 
 #include <vector>
-#include <map>
+#include <ostream>
 
 // ----------   Xyce Includes   ----------
 
@@ -110,7 +110,6 @@ public:
   int indexBase() const;
 
   // Maximum globally-numbered identifier.
-  // This is used predominately for block linear algebra.
   int maxGlobalEntity() const;
 
   // Comm object
@@ -127,6 +126,8 @@ public:
 
   // dereference local index to get global index
   int localToGlobalIndex(int local_index) const;
+
+  void print(std::ostream &os) const;
 
 private:
 

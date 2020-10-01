@@ -674,11 +674,11 @@ bool Builder::setupSeparatedLSObjects()
   if (DEBUG_LINEAR)
   {
     Xyce::dout() << "Linear Solution Map:" << std::endl;
-    linSolnMap->petraMap()->Print(std::cout);
+    linSolnMap->print(std::cout);
     EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *linSolnMap->petraMap() );
 
     Xyce::dout() << "Nonlinear Solution Map:" << std::endl;
-    nonlinSolnMap->petraMap()->Print(std::cout);
+    nonlinSolnMap->print(std::cout);
     EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *nonlinSolnMap->petraMap() );
 
     // Construct graphs from linear and nonlinear data.

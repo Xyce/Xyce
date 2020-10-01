@@ -157,7 +157,7 @@ OutputMgr::updateHDF5Output(
     for (NodeNameMap::const_iterator nameIter = getSolutionNodeMap().begin(), nameEnd = getSolutionNodeMap().end(); nameIter != nameEnd ; ++nameIter, index++)
     {
       strncpy(nodeNameArray[index], (*nameIter).first.c_str(), globalMaxNodeNameLength);
-      nodeGIDArray[index] = solnVecPtr.pmap()->petraMap()->GID((*nameIter).second);
+      nodeGIDArray[index] = solnVecPtr.pmap()->localToGlobalIndex((*nameIter).second);
     }
 
     // make the group for writing
@@ -289,8 +289,7 @@ OutputMgr::updateHDF5Output(
 
     // set up hyperslab to define the relationship between memspace and filespace.
     hid_t dependentVarFilespace = H5Dget_space(dependentVarDataSet);
-    hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->GID(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
-    //hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->IndexBase()};
+    hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->localToGlobalIndex(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
     hsize_t solVecStride[2] = {1, 1};
     hsize_t solVecCount[2] = {1, solnVecPtr.localLength()};
     hsize_t solVecBlock[2] = {1, 1};
@@ -384,8 +383,7 @@ OutputMgr::updateHDF5Output(
     hid_t dependentFileSpace = H5Dget_space(dependentVarDataSet);
 
     // set up hyperslab to define the relationship between memspace and filespace.
-    hsize_t solVecStart[2] = {hdf5IndexValue_, solnVecPtr.pmap()->petraMap()->GID(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
-    //hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->IndexBase()};
+    hsize_t solVecStart[2] = {hdf5IndexValue_, solnVecPtr.pmap()->localToGlobalIndex(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
     hsize_t solVecStride[2] = {1, 1};
     hsize_t solVecCount[2] = {1, solnVecPtr.localLength()};
     hsize_t solVecBlock[2] = {1, 1};

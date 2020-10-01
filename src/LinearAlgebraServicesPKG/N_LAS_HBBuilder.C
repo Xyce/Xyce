@@ -306,9 +306,9 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   BaseMap_ = BaseMap;
   oBaseMap_ = oBaseMap;
   //Xyce::dout() << "BaseMap" << std::endl;
-  //BaseMap->petraMap()->Print(std::cout);
+  //BaseMap->print(std::cout);
   //Xyce::dout() << "oBaseMap" << std::endl;
-  //oBaseMap->petraMap()->Print(std::cout);
+  //oBaseMap->print(std::cout);
 
   //Determine block offset
   offset_ = generateOffset( *BaseMap );
@@ -332,9 +332,9 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   oHBMap_ = blockMaps[1];
   
   //Xyce::dout() << "HBMap_" << std::endl;
-  //HBMap_->petraMap()->Print(std::cout);
+  //HBMap_->print(std::cout);
   //Xyce::dout() << "oHBMap_" << std::endl;
-  //oHBMap_->petraMap()->Print(std::cout); 
+  //oHBMap_->print(std::cout); 
 
   int indexBase = oBaseMap_->indexBase();
 
