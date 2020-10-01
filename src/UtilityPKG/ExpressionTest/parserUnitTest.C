@@ -22,7 +22,8 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Parser level unit tests for the expression library,
+//                  double data type version.
 //
 // Special Notes  :
 //
