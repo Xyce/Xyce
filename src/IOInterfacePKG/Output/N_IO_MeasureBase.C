@@ -658,7 +658,7 @@ bool Base::withinDCsweepFromToWindow(double sweepValue)
 
   if (fromGiven_ && toGiven_)
   {
-    if ( (fabs(sweepValue - to_) < fabs(to_*minval_)) || (fabs(sweepValue - from_) < fabs(from_*minval_)) )
+    if (isWithinNumTol(sweepValue,to_) || isWithinNumTol(sweepValue,from_))
     {
       return true;
     }
@@ -1052,8 +1052,22 @@ std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MeasureBase::isWithinNumTol
+// Purpose       : Test for equality, while accounting for numerical roundoff
+//                 errors when val1 and/or val2 are derived from expressions.
+// Special Notes : 
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 10/1/2020
+//-----------------------------------------------------------------------------
+bool Base::isWithinNumTol(const double val1, const double val2)
+{
+  return (fabs(val1 - val2) < fabs(val2*minval_));
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MeasureBase::isInvalidTimeWindow
-// Purpose       : returns true if the specified from_ and to_ values do NOT
+// Purpose       : returns true if the specified from_, td_ and to_ values do NOT
 //                 form a valid measurement window, based on the start/stop
 //                 simulation times.
 // Special Notes : Assumes that all transient simulations start at t=0
@@ -1063,8 +1077,9 @@ std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 //-----------------------------------------------------------------------------
 bool Base::isInvalidTimeWindow(double endSimTime)
 {
-  return ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
-           (fromGiven_&& (from_ > endSimTime)) || (toGiven_&& (to_ < 0.0)) );
+  return ( (fromGiven_&& toGiven_ && (from_ > to_)) || (tdGiven_&& toGiven_ && (td_ > to_)) ||
+           (fromGiven_&& (from_ > endSimTime)) || (toGiven_&& (to_ < 0.0)) ||
+           (tdGiven_&& (td_ > endSimTime)) );
 }
 
 //-----------------------------------------------------------------------------
