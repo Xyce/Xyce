@@ -1448,6 +1448,19 @@ bool newExpression::getValuesFromGroup_()
   // processed yet, then you can't use it as a string substitution.  But the new
   // expression library doesn't have this problem.  It just needs to attach the parameter
   // node.  So, if the parameter exists, resolved or not, it is attachable.
+  //
+  // ERK. 10/2/2020 - my initial explanation for why "make_var" exists isn't correct.
+  //
+  // parameters get set via "make_var" when they are parameters that are not 
+  // expression-typed parameters.  A parameter specified as .global_param fred=4.0 
+  // will not be considered as an expression-valued param, but a param specified 
+  // as .global_param barney={5*fred} will be considered an expression-valued param.
+  //
+  // I came up with the above explanation (resolved vs. unresolved) 
+  // because I got confused about some nested if-statements in the circuit context class.
+  //
+  // So, possibly we don't want to get rid of "make_var".  Or possibly we still do, but
+  // one of the imagined benefits (more efficient parsing) probably isn't true.
   for (int ii=0;ii<paramOpVec_.size();++ii)
   {
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
