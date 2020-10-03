@@ -261,7 +261,7 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp )
 
   // test initial value(v1)
   time_op2->setValue(time);
-  spicePulseOp<double> pulse( &sourceArgs, time_op);
+  spicePulseOp<double> pulse( sourceArgs, time_op);
   EXPECT_EQ(pulse.val(), v1);
 
   // test post-rise value(v2)
@@ -301,7 +301,7 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp_breakPoints )
 
   // test initial value(v1)
   time_op2->setValue(time);
-  spicePulseOp<double> pulse( &sourceArgs, time_op);
+  spicePulseOp<double> pulse( sourceArgs, time_op);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   bool ret = pulse.getBreakPoints(breakPointTimes);
@@ -342,7 +342,7 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSinOp )
 
   // test the DCOP value , which should be: DCOPValue = V0 + VA * sin (2.0*mpi*(PHASE/360));
   time_op2->setValue(time);
-  spiceSinOp<double> sinOp (&sourceArgs, time_op);
+  spiceSinOp<double> sinOp (sourceArgs, time_op);
 
   double DCOPValue = v0 + va * std::sin (2.0*M_PI*(phase/360));
   EXPECT_EQ(sinOp.val(), DCOPValue);
@@ -376,7 +376,7 @@ TEST ( Double_Ast_Spice_Src_Test, spiceExpOp )
 
   // test time <= td1, which should be v1
   time_op2->setValue(time);
-  spiceExpOp<double> expOp ( &sourceArgs, time_op );
+  spiceExpOp<double> expOp ( sourceArgs, time_op );
   EXPECT_EQ(expOp.val(), v1);
 
   // test td1 < time <= td2, which should be 
@@ -415,7 +415,7 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSffmOp )
   RCP<specialsOp<double> > time_op2 = 
     rcp_static_cast<specialsOp<double> > (time_op);
   
-  spiceSffmOp<double> sffmOp ( &sourceArgs, time_op );
+  spiceSffmOp<double> sffmOp ( sourceArgs, time_op );
 
   // test, which should be    
   // value = v0 + va * sin((2 * mpi * fc * time) + mdi * sin (2 * mpi * fs * time));
@@ -874,7 +874,7 @@ TEST ( Double_Ast_Func_Test, test1)
   RCP<astNode<double> > arg1 = rcp(new numval<double> (5.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (6.0));
   std::vector<Teuchos::RCP<astNode<double> > > args = { arg1, arg2};
-  RCP<funcOp<double> > function2 = rcp(new funcOp<double> (name, &args));
+  RCP<funcOp<double> > function2 = rcp(new funcOp<double> (name, args));
 
   function2->setNode(function1);
   function2->setFuncArgs(dummyBaseArgs); // this does work
@@ -898,7 +898,7 @@ TEST ( Complex_Ast_Func_Test, test1)
   RCP<astNode<std::complex<double> > > arg1 = rcp(new numval<std::complex<double> >(std::complex<double>(5.0,2.0)));
   RCP<astNode<std::complex<double> > > arg2 = rcp(new numval<std::complex<double> >(std::complex<double>(6.0,7.0)));
   std::vector<Teuchos::RCP<astNode<std::complex<double> > > > args = { arg1, arg2 };
-  RCP<funcOp<std::complex<double> > > function2 = rcp(new funcOp<std::complex<double> > (name, &args));
+  RCP<funcOp<std::complex<double> > > function2 = rcp(new funcOp<std::complex<double> > (name, args));
 
   function2->setNode(function1);
   function2->setFuncArgs(dummyBaseArgs);
@@ -921,7 +921,7 @@ TEST ( Double_Ast_Func_Test, test2)
   RCP<astNode<double> > arg1 = rcp(new numval<double> (5.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (6.0));
   std::vector<Teuchos::RCP<astNode<double> > > args = { arg1,arg2 };
-  RCP<astNode<double> > f1call = rcp(new funcOp<double> (name, &args));
+  RCP<astNode<double> > f1call = rcp(new funcOp<double> (name, args));
   f1call->setNode(f1);
   f1call->setFuncArgs(dummyBaseArgs);
 
@@ -939,7 +939,7 @@ TEST ( Double_Ast_Func_Test, test2)
   RCP<astNode<double> > argFinal1 = rcp(new numval<double> (3.0));
   RCP<astNode<double> > argFinal2 = rcp(new numval<double> (2.0));
   std::vector<Teuchos::RCP<astNode<double> > > argsFinal = { argFinal1, argFinal2 };
-  RCP<funcOp<double> > function2 = rcp(new funcOp<double> (name2, &argsFinal));
+  RCP<funcOp<double> > function2 = rcp(new funcOp<double> (name2, argsFinal));
 
   function2->setNode(f2);
   function2->setFuncArgs(dummyBaseArgs2);
@@ -962,7 +962,7 @@ TEST ( Complex_Ast_Func_Test, test2)
   RCP<astNode<std::complex<double> > > arg1 = rcp(new numval<std::complex<double> > (std::complex<double> (5.0,2.0)));
   RCP<astNode<std::complex<double> > > arg2 = rcp(new numval<std::complex<double> > (std::complex<double> (6.0,7.0)));
   std::vector<Teuchos::RCP<astNode<std::complex<double> > > > args = { arg1, arg2 };
-  RCP<astNode<std::complex<double> > > f1call = rcp(new funcOp<std::complex<double> > (name, &args));
+  RCP<astNode<std::complex<double> > > f1call = rcp(new funcOp<std::complex<double> > (name, args));
   f1call->setNode(f1);
   f1call->setFuncArgs(dummyBaseArgs);
 
@@ -980,7 +980,7 @@ TEST ( Complex_Ast_Func_Test, test2)
   RCP<astNode<std::complex<double> > > argFinal1 = rcp(new numval<std::complex<double> > (std::complex<double> (3.0,1.0)));
   RCP<astNode<std::complex<double> > > argFinal2 = rcp(new numval<std::complex<double> > (std::complex<double> (2.0,4.0)));
   std::vector<Teuchos::RCP<astNode<std::complex<double> > > > argsFinal = { argFinal1, argFinal2 };
-  RCP<funcOp<std::complex<double> > > function2 = rcp(new funcOp<std::complex<double> > (name2, &argsFinal));
+  RCP<funcOp<std::complex<double> > > function2 = rcp(new funcOp<std::complex<double> > (name2, argsFinal));
 
   function2->setNode(f2);
   function2->setFuncArgs(dummyBaseArgs2);
@@ -1213,7 +1213,7 @@ TEST ( Double_Ast_table_Test, break1)
   args.push_back( rcp(new numval<double>(1)));
   args.push_back( rcp(new numval<double>(1)));
 
-  RCP<astNode<double> > table = rcp(new tableOp<double> (time_op, &args));
+  RCP<astNode<double> > table = rcp(new tableOp<double> (time_op, args));
 
   std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
   std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
@@ -1268,7 +1268,7 @@ TEST ( Double_Ast_table_Test, array2)
   RCP<astNode<double> > phase_op = rcp(new numval<double> (phase));
   std::vector< RCP<astNode<double> > > sourceArgs = { v0_op, va_op, freq_op, td1_op, theta_op, phase_op };
   time_op->setValue(time);
-  RCP<astNode<double> > V1op = rcp(new spiceSinOp<double>( &sourceArgs, time_op ));
+  RCP<astNode<double> > V1op = rcp(new spiceSinOp<double>( sourceArgs, time_op ));
 
 // v2 which is a pulse source that goes between 0 and 1.  PW is short
 // v1=0, v2=1, td=0, tr=0.5us, tf=0.5us, pw=2us, per=20us
@@ -1283,7 +1283,7 @@ TEST ( Double_Ast_table_Test, array2)
 
   sourceArgs = { v1_op, v2_op, td2_op, tr_op, tf_op, pw_op, per_op };
 
-  RCP<astNode<double> > V2op = rcp(new spicePulseOp<double> ( &sourceArgs, time_op));
+  RCP<astNode<double> > V2op = rcp(new spicePulseOp<double> ( sourceArgs, time_op));
 
   // Set up v2 * (v1+30)/60 = leftArgExpr
   // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled 
@@ -1363,7 +1363,7 @@ TEST ( Double_Ast_table_Test, array2)
     RCP_NV(1.0000000), RCP_NV(31)
   };
 
-  RCP<astNode<double> > tableFromParser = rcp(new tableOp<double> (leftArgExpr,  &args));
+  RCP<astNode<double> > tableFromParser = rcp(new tableOp<double> (leftArgExpr,  args));
   RCP<astNode<double> > tableFromParserCopy = tableFromParser;
 
   // set up the "pure array" table

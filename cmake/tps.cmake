@@ -330,8 +330,8 @@ endif ()
 # Find flex and Bison
 message(STATUS "Looking for flex and Bison")
 find_package(FLEX)
-find_package(BISON 2.4)
-# The 2.4 specifies the minimum version.  That is ok at the moment, as Bison
+find_package(BISON 3.0.4)
+# The 3.0.4 specifies the minimum version.  That is ok at the moment, as Bison
 # has been functional for many versions (through 3.6 at the time of this
 # writing).  Historically, though, new versions have had backward
 # incompatibility issues.  If that occurs again, the BISON_VERSION variable

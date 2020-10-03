@@ -22,7 +22,8 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Parser level unit tests for the expression library,
+//                  double data type version.
 //
 // Special Notes  :
 //
@@ -1082,6 +1083,10 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, uramp2, "uramp(-11.2423)", 0)
 
 // std library functions
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sqrt,  "sqrt(4.0)",  std::sqrt(4.0))
+
+// this must return 1e50. sqrt of a negative real number isn't valid and 1e50 is the failsafe
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sqrtNeg,  "sqrt(-4.0)",  1e50)
+
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, exp,   "exp(0.5)", std::exp(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, abs,   "abs(-0.5)", std::abs(-0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sin,   "sin(0.5)", std::sin(0.5))
@@ -1096,7 +1101,11 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std::
 //PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, ln,   "ln(0.5)", std::log(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(0.5))
+
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(0.5))
+// must be compared to 1e50 b/c log10 of a real negative number (not complex) isn't valid; 1e50 is the failsafe
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log10neg, "log10(-0.5)", 1e+50)
+
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, tan,   "tan(0.5)", std::tan(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, tanh,  "tanh(0.5)", std::tanh(0.5))

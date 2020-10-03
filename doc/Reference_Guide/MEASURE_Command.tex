@@ -505,7 +505,12 @@ missing the test condition in a transient run.  The descriptions of those
 seven measures detail how {\tt MINVAL} is used by each measure.  For the
 {\tt ERR1} and {\tt ERR2} measures, if the absolute value of
 {\tt <variable\(\sb{1}\)>} is less than {\tt MINVAL}, then {\tt MINVAL} replaces
-the value of the denominator of the {\tt ERR1} or {\tt ERR2} expression.
+the value of the denominator of the {\tt ERR1} or {\tt ERR2} expression. For
+all measure types, that support the {\tt FROM}, {\tt TO} and/or {\tt TD}
+qualifiers, {\tt MINVAL} also functions as a relative tolerance for the
+comparison of the simulation time (or sweep value) to the bounds of the
+measurement window. This allows for numerical-roundoff errors if the
+{\tt FROM}, {\tt TO} and/or {\tt TD} qualifiers are expressions.
 
 \argument{YMIN=value}
 

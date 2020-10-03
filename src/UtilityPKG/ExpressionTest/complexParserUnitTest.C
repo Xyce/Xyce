@@ -22,7 +22,8 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Parser level unit tests for the expression library,
+//                  std::complex<double> data type version.
 //
 // Special Notes  :
 //
@@ -490,16 +491,37 @@ TEST ( NAME, SUBNAME ) \
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() ); \
   Xyce::Util::newExpression testExpression(std::string(STREXP), testGroup); \
   testExpression.lexAndParseExpression(); \
-  std::complex<double> result(0.0); \
+  std::complex<double> result(0.0,0.0); \
   testExpression.evaluateFunction(result); \
-  EXPECT_EQ( (result-(CPPEXP)), 0.0); \
+  EXPECT_EQ( (result-(CPPEXP)), std::complex<double>(0.0,0.0)); \
   Xyce::Util::newExpression copyExpression(testExpression); \
   copyExpression.evaluateFunction(result); \
-  EXPECT_EQ( (result-(CPPEXP)), 0.0); \
+  EXPECT_EQ( (result-(CPPEXP)), std::complex<double>(0.0,0.0)); \
   Xyce::Util::newExpression assignExpression; \
   assignExpression = testExpression; \
   assignExpression.evaluateFunction(result); \
-  EXPECT_EQ( (result-(CPPEXP)), 0.0); \
+  EXPECT_EQ( (result-(CPPEXP)), std::complex<double>(0.0,0.0)); \
+}
+
+#define PARSER_SIMPLE_TEST_MACRO2(NAME,SUBNAME,STREXP, CPPEXP) \
+TEST ( NAME, SUBNAME ) \
+{ \
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() ); \
+  Xyce::Util::newExpression testExpression(std::string(STREXP), testGroup); \
+  testExpression.lexAndParseExpression(); \
+  std::complex<double> result(0.0,0.0); \
+  testExpression.evaluateFunction(result); \
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(CPPEXP)); \
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(CPPEXP)); \
+  Xyce::Util::newExpression copyExpression(testExpression); \
+  copyExpression.evaluateFunction(result); \
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(CPPEXP)); \
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(CPPEXP)); \
+  Xyce::Util::newExpression assignExpression; \
+  assignExpression = testExpression; \
+  assignExpression.evaluateFunction(result); \
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(CPPEXP)); \
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(CPPEXP)); \
 }
 
 //-------------------------------------------------------------------------------
@@ -754,7 +776,11 @@ PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence6, "1.0/(4.0*10.0)", (
 
 
 // std library functions
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sqrt,  "sqrt(4.0+3.0J)",  std::sqrt(std::complex<double>(4.0,3.0)))
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test,sqrt,"sqrt(4.0+3.0J)",  std::sqrt(std::complex<double>(4.0,3.0)))
+
+// necessary to use std::abs here b/c this test often produces opposite sign (even though both call std::sqrt)
+PARSER_SIMPLE_TEST_MACRO2(Complex_Parser_UnaryFunc_Test,sqrtNeg, "abs(sqrt(-4.0))", std::abs(std::sqrt(std::complex<double>(-4.0,0.0))))
+
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, exp,   "exp(0.5)", std::exp(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abs,   "abs(-0.5)", std::abs(std::complex<double>(-0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sin,   "sin(0.5)", std::sin(std::complex<double>(0.5,0.0)))
@@ -769,6 +795,10 @@ PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std:
 //PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(std::complex<double>(0.5,0.0)))
+
+// use abs b/c this often returns opposite sign
+PARSER_SIMPLE_TEST_MACRO2(Complex_Parser_UnaryFunc_Test, log10neg, "abs(log10(-0.5))", std::abs(std::log10(std::complex<double>(-0.5,0.0))))
+
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tan,   "tan(0.5)", std::tan(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tanh,  "tanh(0.5)", std::tanh(std::complex<double>(0.5,0.0)))
@@ -4963,12 +4993,12 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution2)
 // Also, it would probably be good if we could automatically prune or 
 // shrink the tree.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedFunc_Test, 1000nest_no_deriv)
+TEST ( Complex_Parser_NestedFunc_Test, 200nest_no_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
-  int numFuncs=1000;
+  int numFuncs=200;
 
   // this expression will use the .func f.
   std::string testExprFunctionString = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
@@ -5026,7 +5056,7 @@ TEST ( Complex_Parser_NestedFunc_Test, 1000nest_no_deriv)
   std::complex<double>  refresult = 10.0;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO3 ( Complex_Parser_NestedFunc_Test, 1000nest_no_deriv)
+  OUTPUT_MACRO3 ( Complex_Parser_NestedFunc_Test, 200nest_no_deriv)
 }
 
 //-------------------------------------------------------------------------------

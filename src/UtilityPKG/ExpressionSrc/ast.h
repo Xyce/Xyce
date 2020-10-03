@@ -2044,10 +2044,10 @@ class funcOp: public astNode<ScalarT>
 {
   public:
     // functions:
-    funcOp ( std::string name, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
+    funcOp ( std::string name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
       astNode<ScalarT>(),
       funcName_(name),
-      funcArgs_(*args),
+      funcArgs_(args),
       nodeResolved_(false),
       argsResolved_(false),
       sdtNodesResolved_(false),
@@ -3088,8 +3088,8 @@ class polyOp : public astNode<ScalarT>
   public:
     // functions:
     polyOp (ScalarT numvars, 
-        std::vector<Teuchos::RCP<astNode<ScalarT> > > * vars,
-        std::vector<Teuchos::RCP<astNode<ScalarT> > > * coefs 
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & vars,
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & coefs 
         ):
       astNode<ScalarT>(), allNumVal_(true), sizeOfVars_(static_cast<int>(std::real(numvars)))
       {
@@ -3105,15 +3105,15 @@ class polyOp : public astNode<ScalarT>
           yyerror(errStr);
         }
 
-        for (int ii=0;ii<vars->size();++ii) 
+        for (int ii=0;ii<vars.size();++ii) 
         { 
-          polyVars_.push_back((*vars)[ii]); 
+          polyVars_.push_back(vars[ii]); 
         }
 
-        for (int ii=0;ii<coefs->size();++ii)
+        for (int ii=0;ii<coefs.size();++ii)
         {
-          polyCoefs_.push_back((*coefs)[ii]);
-          if (  !( (*coefs)[ii]->numvalType() ) ) { allNumVal_ = false; }
+          polyCoefs_.push_back(coefs[ii]);
+          if (  !( coefs[ii]->numvalType() ) ) { allNumVal_ = false; }
         }
 
         if (!allNumVal_)
@@ -3345,8 +3345,8 @@ class tableOp : public astNode<ScalarT>
   public:
     //-------------------------------------------------------------------------------
     // functions:
-    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
-      astNode<ScalarT>(), tableArgs_(*args),
+    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(), tableArgs_(args),
       allNumVal_(true), input_(input)
       {
         int size = tableArgs_.size();
@@ -4082,9 +4082,9 @@ class scheduleOp : public astNode<ScalarT>
   public:
     // functions:
     scheduleOp (
-        std::vector<Teuchos::RCP<astNode<ScalarT> > > * args,
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & args,
         Teuchos::RCP<astNode<ScalarT> > &time
-        ): astNode<ScalarT>(), time_(time), tableArgs_(*args), allNumVal_(true)
+        ): astNode<ScalarT>(), time_(time), tableArgs_(args), allNumVal_(true)
       {
         int size = tableArgs_.size();
         if (size % 2)

@@ -186,6 +186,7 @@ public:
 
     std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
 
+    bool isWithinNumTol(const double val1, const double val2);
     bool isInvalidTimeWindow(double endSimTime);
     bool isInvalidFreqWindow(double fStart, double fStop);
     bool isInvalidDCsweepWindow(double startSweepVal, double endSweepVal);

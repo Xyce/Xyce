@@ -184,6 +184,14 @@ std::string Version::getCapabilities()
   capabilities += "ModSpec enabled\n";
 #endif
 
+#ifdef Xyce_ADMS_MODELS
+  capabilities += "Verilog-A derived (ADMS) models\n";
+#endif
+
+#ifdef Xyce_ADMS_SENSITIVITIES
+  capabilities += "Analytic sensitivities in ADMS models\n";
+#endif
+
 #ifdef Xyce_USE_FFT
   capabilities += "FFT ";
 #ifdef Xyce_USE_INTEL_FFT

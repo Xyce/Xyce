@@ -55,7 +55,6 @@
 #include <N_DEV_SpecieSource.h>
 
 #include <N_LAS_Matrix.h>
-#include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
 
 #include <N_DEV_RxnSet.h>
