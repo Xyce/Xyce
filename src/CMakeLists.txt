@@ -1,6 +1,11 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
+if(DEFINED ENV{MKLROOT})
+  set(BLA_VENDOR Intel10_64ilp_seq)
+endif()
+find_package(LAPACK 3.5.0)
+find_package(BLAS 3.5.0)
 
 set( XYCE_SOURCES "Xyce.C")
 set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
@@ -67,7 +72,7 @@ add_subdirectory(test)
 target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
 # In the case where CURL has been built with CMake, then we have NOT
 # gotten CURL_LIBRARIES or CURL_INCLUDE_DIRS set, we have instead gotten
@@ -78,7 +83,23 @@ endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(Xyce XyceStatic) 
+target_link_libraries(Xyce XyceStatic)
+
+if(WIN32)
+  if(DEFINED ENV{MKLROOT})
+
+    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      set( POINTER_SIZE  "64" )
+    else()
+      set( POINTER_SIZE "32" )
+    endif()
+    add_custom_command(
+      TARGET Xyce POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $ENV{MKLROOT}/../redist/intel${POINTER_SIZE}/mkl/mkl_sequential.dll
+              ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+endif()
 
 
 # ---- And the installation of them. ----------------
