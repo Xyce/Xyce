@@ -468,6 +468,7 @@ bool AC::setAnalysisParams(
     return true;
   }
 
+  bool retval = true;
   // -- original code ---
   for (Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
   {
@@ -478,6 +479,12 @@ bool AC::setAnalysisParams(
     else if ((*it).uTag() == "NP")
     {
       np_ = (*it).getImmutableValue<double>();
+      ExtendedString npStr((*it).stringValue());
+      if ( !npStr.isInt() )
+      {
+        Report::UserError0() << "Points Value parameter on .AC line must be an integer";
+        retval = false;
+      }
     }
     else if ((*it).uTag() == "FSTART")
     {
@@ -501,25 +508,24 @@ bool AC::setAnalysisParams(
   }
 
   // error checking of parameters
-  if ( np_ < 0 )
+  if ( np_ < 1 )
   {
-    Report::UserError0() << "Points Value parameter on .AC line must be non-negative";
-    return false;
+    Report::UserError0() << "Points Value parameter on .AC line must be >= 1";
+    retval = false;
   }
   if ( (fStart_ <=0 || fStop_ <= 0)  && (type_ == "DEC" || type_ == "OCT") )
   {
     Report::UserError0() << "Illegal values for start or end frequencies on .AC line. " <<
        "Both values must be > 0";
-    return false;
+    retval = false;
   }
   if ( fStop_ < fStart_ )
   {
     Report::UserError0() << "End frequency must not be less than start frequency on .AC line";
-    return false;
+    retval = false;
   }
 
-
-  return true;
+  return retval;
 }
 
 //-----------------------------------------------------------------------------
