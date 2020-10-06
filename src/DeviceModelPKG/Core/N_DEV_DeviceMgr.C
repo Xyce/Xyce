@@ -132,6 +132,7 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
+  enum Util::astRandTypes astType,
   double                        value,
   bool                          override_original);
 
@@ -1943,11 +1944,12 @@ bool DeviceMgr::setParam(
 //-----------------------------------------------------------------------------
 bool DeviceMgr::setParamRandomExpressionTerms(
   const std::string &   name, const std::string &   opName, int opIndex,
+  enum Util::astRandTypes astType,
   double                val,
   bool                  overrideOriginal)
 {
   return setParameterRandomExpressionTerms(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
-      dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, opName, opIndex, val, overrideOriginal);
+      dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, opName, opIndex, astType, val, overrideOriginal);
   return true;
 }
 
@@ -2061,7 +2063,12 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       if (!(*(modelVector_[ii])).getDependentParams().empty())
       {
         const std::vector<Depend> & depVec = (*(modelVector_[ii])).getDependentParams();
-        for (int jj=0;jj<depVec.size();jj++) { populateSweepParam( *(depVec[jj].expr), depVec[jj].name, SamplingParams ); }
+        std::string entityName = (*(modelVector_[ii])).getName();
+        for (int jj=0;jj<depVec.size();jj++) 
+        {
+          std::string fullName = entityName + ":" + depVec[jj].name;
+          populateSweepParam( *(depVec[jj].expr), fullName, SamplingParams ); 
+        }
       }
     }
 
@@ -2071,7 +2078,13 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       if (!(*(instancePtrVec_[ii])).getDependentParams().empty())
       {
         const std::vector<Depend> & depVec = (*(instancePtrVec_[ii])).getDependentParams();
-        for (int jj=0;jj<depVec.size();jj++) { populateSweepParam( *(depVec[jj].expr), depVec[jj].name, SamplingParams ); }
+        const InstanceName & instName = (*(instancePtrVec_[ii])).getName();
+        const std::string entityName = instName.getEncodedName(); // ERK. Check this!
+        for (int jj=0;jj<depVec.size();jj++) 
+        { 
+          std::string fullName = entityName + ":" + depVec[jj].name;
+          populateSweepParam( *(depVec[jj].expr), fullName, SamplingParams ); 
+        }
       }
     }
   }
@@ -2863,7 +2876,8 @@ void DeviceMgr::updateDependentParameters_()
       if (!(*iterM)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
-        bool tmpBool = (*iterM)->updateGlobalAndDependentParameters(true,true,true);
+        bool globalParamChangedLocal=true, timeChangedLocal=true, freqChangedLocal=true; // local to this if-stement
+        bool tmpBool = (*iterM)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal);
         (*iterM)->processParams();
         (*iterM)->processInstanceParams();
       }
@@ -2878,7 +2892,8 @@ void DeviceMgr::updateDependentParameters_()
       if (!(*iter)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
-        bool tmpBool = (*iter)->updateGlobalAndDependentParameters(true,true,true);
+        bool globalParamChangedLocal=true, timeChangedLocal=true, freqChangedLocal=true; // local to this if-stement
+        bool tmpBool = (*iter)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal);
         (*iter)->processParams();
       }
     }
@@ -4648,7 +4663,7 @@ bool setParameter(
   PassthroughParameterSet &     passthrough_parameter_map,
   Globals &                     globals,               ///< global variables
   DeviceMgr &                   device_manager,
-  EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
+  EntityVector &                dependent_entity_vector, // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
   const std::string &           name,
   double                        value,
@@ -4674,7 +4689,10 @@ bool setParameter(
         EntityVector::iterator end = dependent_entity_vector.end();
         for ( ; it != end; ++it)
         {
-          if ((*it)->updateGlobalAndDependentParameters(true,false,false))
+          bool globalParamChangedLocal=true;
+          bool timeChangedLocal=false;
+          bool freqChangedLocal=false;
+          if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
           {
             (*it)->processParams();
             (*it)->processInstanceParams();
@@ -4793,6 +4811,7 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
+  enum Util::astRandTypes astType,
   double                        value,
   bool                          override_original)
 {
@@ -4822,7 +4841,30 @@ bool setParameterRandomExpressionTerms(
 
       Util::Expression &expression = global_expressions[globalIndex];
 
-
+      // set value .  The variable "value" was determined in one of the UQ classes.  
+      // It represents the value of a particular operator within the expression.  
+      // Use the opIndex to identify exactly which operator receives this value.
+      switch(astType)
+      {
+        case Util::AST_AGAUSS:
+          expression.setAgaussValue(opIndex,value);
+          break;
+        case Util::AST_GAUSS:
+          expression.setGaussValue(opIndex,value);
+          break;
+        case Util::AST_AUNIF:
+          expression.setAunifValue(opIndex,value);
+          break;
+        case Util::AST_UNIF:
+          expression.setUnifValue(opIndex,value);
+          break;
+        case Util::AST_RAND:
+          expression.setRandValue(opIndex,value);
+          break;
+        case Util::AST_LIMIT:
+          expression.setLimitValue(opIndex,value);
+          break;
+      }
       double paramValue=0.0;
       expression.evaluateFunction(paramValue);
 
@@ -4833,7 +4875,10 @@ bool setParameterRandomExpressionTerms(
         EntityVector::iterator end = dependent_entity_vector.end();
         for ( ; it != end; ++it)
         {
-          if ((*it)->updateGlobalAndDependentParameters(true,false,false))
+          bool globalParamChangedLocal=true;
+          bool timeChangedLocal=false;
+          bool freqChangedLocal=false;
+          if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
           {
             (*it)->processParams();
             (*it)->processInstanceParams();
@@ -4904,7 +4949,7 @@ bool setParameterRandomExpressionTerms(
         //if (DEBUG_DEVICE)
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
-          Report::DevelWarning() << "DeviceMgr::setParam.  Unable to find parameter " << name;
+          Report::DevelWarning() << "DeviceMgr.C:  setParameterRandomExpressionTerms.  Unable to find parameter " << name;
         }
         else
         {

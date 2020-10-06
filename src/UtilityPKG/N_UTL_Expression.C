@@ -986,6 +986,40 @@ void Expression::getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleV
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setAgaussValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setAgaussValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAgauss = newExpPtr_->getLocalAgaussOpVec();
+  if (index < localAgauss.size() && index >= 0)
+  {
+    localAgauss[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setAgaussValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setAgaussValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAgauss = newExpPtr_->getLocalAgaussOpVec();
+  if (index < localAgauss.size() && index >= 0)
+  {
+    localAgauss[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getGaussData
 // Purpose       : 
 // Special Notes : 
@@ -1019,6 +1053,40 @@ void Expression::getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setGaussValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setGaussValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localGauss = newExpPtr_->getLocalGaussOpVec();
+  if (index < localGauss.size() && index >= 0)
+  {
+    localGauss[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setGaussValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setGaussValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localGauss = newExpPtr_->getLocalGaussOpVec();
+  if (index < localGauss.size() && index >= 0)
+  {
+    localGauss[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getAunifData
 // Purpose       : 
 // Special Notes : 
@@ -1047,6 +1115,40 @@ void Expression::getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
     sampling_param.stopVal  = std::real(mu)+std::real(alpha);
 
     sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setAunifValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setAunifValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAunif = newExpPtr_->getLocalAunifOpVec();
+  if (index < localAunif.size() && index >= 0)
+  {
+    localAunif[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setAunifValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setAunifValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localAunif = newExpPtr_->getLocalAunifOpVec();
+  if (index < localAunif.size() && index >= 0)
+  {
+    localAunif[index]->setValue(value);
   }
 }
 
@@ -1084,6 +1186,40 @@ void Expression::getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setUnifValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setUnifValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localUnif = newExpPtr_->getLocalUnifOpVec();
+  if (index < localUnif.size() && index >= 0)
+  {
+    localUnif[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setUnifValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setUnifValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localUnif = newExpPtr_->getLocalUnifOpVec();
+  if (index < localUnif.size() && index >= 0)
+  {
+    localUnif[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getRandData
 // Purpose       : 
 // Special Notes : 
@@ -1109,6 +1245,40 @@ void Expression::getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec
     sampling_param.stopVal  = 1.0;
 
     sampleVec.push_back(sampling_param);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setRandValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setRandValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localRand = newExpPtr_->getLocalRandOpVec();
+  if (index < localRand.size() && index >= 0)
+  {
+    localRand[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setRandValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setRandValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localRand = newExpPtr_->getLocalRandOpVec();
+  if (index < localRand.size() && index >= 0)
+  {
+    localRand[index]->setValue(value);
   }
 }
 
@@ -1141,6 +1311,39 @@ void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Expression::setLimitValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setLimitValue(int index, double value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localTwoArgLimit = newExpPtr_->getLocalTwoArgLimitOpVec();
+  if (index < localTwoArgLimit.size() && index >= 0)
+  {
+    localTwoArgLimit[index]->setValue(value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setLimitValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void Expression::setLimitValue(int index, std::complex<double> value)
+{
+  std::vector<Teuchos::RCP<astNode<usedType> > > & localTwoArgLimit = newExpPtr_->getLocalTwoArgLimitOpVec();
+  if (index < localTwoArgLimit.size() && index >= 0)
+  {
+    localTwoArgLimit[index]->setValue(value);
+  }
+}
 
 } // namespace Util
 } // namespace Xyce

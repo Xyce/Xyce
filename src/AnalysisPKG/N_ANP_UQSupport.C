@@ -1284,6 +1284,7 @@ bool updateExpressionSamplingTerms(
         setParamName, 
         (*it).opName,
         (*it).astOpIndex,
+        (*it).astType,
         (*it).currentVal, 
         overrideOriginal);
 
