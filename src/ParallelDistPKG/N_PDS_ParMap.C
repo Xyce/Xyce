@@ -189,6 +189,33 @@ int N_PDS_ParMap::indexBase() const
   return petraMap_->IndexBase();
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : N_PDS_ParMap::minMyGlobalEntity
+// Purpose       : Minimum globally-numbered identifier on this processor
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/27/01
+//-----------------------------------------------------------------------------
+int N_PDS_ParMap::minMyGlobalEntity() const
+{
+  return petraMap_->MinMyGID();
+}
+ 
+//-----------------------------------------------------------------------------
+// Function      : N_PDS_ParMap::maxMyGlobalEntity
+// Purpose       : Maximum globally-numbered identifier on this processor
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/27/01
+//-----------------------------------------------------------------------------
+int N_PDS_ParMap::maxMyGlobalEntity() const
+{
+  return petraMap_->MaxMyGID();
+}
+
 //-----------------------------------------------------------------------------
 // Function      : N_PDS_ParMap::maxGlobalEntity
 // Purpose       :

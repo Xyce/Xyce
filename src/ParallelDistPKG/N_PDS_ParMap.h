@@ -109,6 +109,12 @@ public:
   // Indexing base (0 or 1) used for the maps.
   int indexBase() const;
 
+  // Minimum globally-numbered identifier on this processor.
+  int minMyGlobalEntity() const;
+
+  // Maximum globally-numbered identifier on this processor.
+  int maxMyGlobalEntity() const;
+
   // Maximum globally-numbered identifier.
   int maxGlobalEntity() const;
 
