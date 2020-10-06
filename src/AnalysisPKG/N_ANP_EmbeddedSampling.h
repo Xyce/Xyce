@@ -276,6 +276,8 @@ private:
   Linear::Vector * nextStorePtr_;
  
   bool resetForStepCalledBefore_;
+
+  bool useExpressionSamples_;
 };
 
 bool registerEmbeddedSamplingFactory(FactoryBlock &factory_block);
