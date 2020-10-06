@@ -276,7 +276,6 @@ private:
   Linear::Vector * nextStorePtr_;
  
   bool resetForStepCalledBefore_;
-
   bool useExpressionSamples_;
 };
 

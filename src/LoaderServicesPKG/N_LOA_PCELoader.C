@@ -89,7 +89,8 @@ PCELoader::PCELoader(
   Analysis::SweepVector & samplingVector,
   const std::vector<double> & Y,
   const Xyce::IO::CmdParse & cp,
-  int voltLimAlg
+  int voltLimAlg,
+  bool useExprSamples
   )
   : CktLoader(device_manager, builder),
     deviceManager_(device_manager),
@@ -100,7 +101,8 @@ PCELoader::PCELoader(
     Y_(Y),
     commandLine_(cp),
     voltLimAlgorithm_(voltLimAlg),
-    allDevicesAllQuadPointsConverged_(true)
+    allDevicesAllQuadPointsConverged_(true),
+    useExpressionSamples_(useExprSamples)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -489,8 +491,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
-    bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
+    bool reset = false;
+
+    if (useExpressionSamples_)
+    {
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
+    }
+    else
+    {
+      reset = Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
+    }
 
     if (DEBUG_PCE)
     {

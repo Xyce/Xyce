@@ -2027,7 +2027,6 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("EMBEDDEDSAMPLING");
 
     parameters.insert(Util::ParamMap::value_type("USEEXPR", Util::Param("USEEXPR", true)));
-
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("MEANS", Util::Param("MEANS", "VECTOR")));
