@@ -32,8 +32,9 @@
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+
 \textbf{Gitlab-ex 56}: Xyce header files unnecessarily include Trilinos header files&
-Xyce provides an API for coupling circuit simulation to external
+\Xyce{} provides an API for coupling circuit simulation to external
 programs. The headers and shared libraries installed by ``make
 install'' should be sufficient to provide access to this feature, but
 some Xyce header files unnecessarily included Trilinos header files.
@@ -42,7 +43,10 @@ access to complete sets of installed Trilinos headers.  The header
 files needed to access the coupling API have been cleaned up and are
 now sufficiently self-contained to allow coupling of Xyce to an
 external code without the need for Trilinos headers or
-libraries.  Trilinos is still required to build Xyce itself. \\ \hline
+libraries.  Trilinos is still required to build Xyce itself, and
+is still needed to build shared library plugins from Verilog-A models.
+\\ \hline
+
 \textbf{Gitlab-ex 54}: Xyce/ADMS incorrectly sets ``dependency'' and ``OPdependent'' for analog function output variables &
 The internal ADMS data tree has an element called ``dependency'' that
 may be ``constant'', ``noprobe'', ``linear'', or ``nonlinear''.  This
@@ -51,6 +55,7 @@ element was being incorrectly set for analog function output variables
 those elements for anything important, so the incorrect setting had no
 impact on generated C++ code.  The incorrect setting could have had
 impact on future development of the Xyce/ADMS back-end.  \\ \hline
+
 \textbf{Gitlab-ex 50}: Xyce/ADMS mishandles potential contributions in presence of flow contributions &
 When Xyce/ADMS processed a module that contained both flow and
 potential contributions between the same two nodes, it was generating
@@ -74,12 +79,22 @@ in non-noise contributions (a usage that is strongly discouraged and
 not present in any common models).  This unnecessary code was often as
 large or larger than the required code, and resulted in extraordinary
 compilation times and compiler memory use. \\ \hline
+
 \textbf{Gitlab-ex 40}: Xyce/ADMS incorrectly omitting variable declaration in obscure use cases &
 As a result of a design flaw that has been fixed in this release,
 previous versions of Xyce/ADMS would incorrectly omit the declaration
 of a module-scoped variable if the only use of that variable was in a
 lower-level block and an earlier block had a local variable of the
 same name. \\ \hline
+
+\textbf{Gitlab-ex 33}: Lossless transmission line unnecessarily sets maximum time step &
+The \Xyce{} lossless transmission line was implemented in a manner
+that restricted the time integrator's time step to never
+be longer than the transmission line's delay.  This had been done to
+avoid applying extrapolation to the device history.  This restriction
+severely impacted run time whenever a circuit included very short
+delay lines.  This unnecessary restriction has been removed.  \\ \hline
+
 \textbf{Gitlab-ex 24, 390-SON}: Xyce/ADMS does not support \$port\_connected &
 The Verilog-A construct ``\$port\_connected'' tests whether an
 optional node has been specified on the instance line of a device.
@@ -87,6 +102,7 @@ Using this construct anywhere in a Verilog-A model implicitly
 designates the named node as optional.  Xyce/ADMS now supports this
 construct in a limited sense.  See the Xyce/ADMS users guide for
 details. \\ \hline
+
 \textbf{812-SON}: Incorrect response when N or V is used as a global param name &
 Use of a \texttt{.GLOBAL\_PARAM} statement to define a parameter which
 had a name identical to a valid print line accessor function
