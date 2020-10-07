@@ -97,6 +97,14 @@ if ( CMAKE_HOST_WIN32 )
 	    COMPONENT Runtime)
   endif ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
 
+
+  # For native Windows builds we also need these two MS Visual Studio DLLs
+  if ( EXISTS "C:/Windows/system32/msvcp100.dll"  AND EXISTS "C:/Windows/system32/msvcr100.dll")
+    install ( FILES "C:/Windows/system32/msvcp100.dll" "C:/Windows/system32/msvcr100.dll"
+	    DESTINATION bin
+	    COMPONENT Runtime)
+  endif ( EXISTS "C:/Windows/system32/msvcp100.dll"  AND EXISTS "C:/Windows/system32/msvcr100.dll")
+
   # registry settings
   set ( CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${Xyce_INSTALL_NAME}" )
 
