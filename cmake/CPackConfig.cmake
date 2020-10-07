@@ -69,7 +69,7 @@ if ( CMAKE_HOST_WIN32 )
   set ( CPACK_NSIS_HELP_LINK "http:\\\\\\\\xyce.sandia.gov\\\\contact_us.html" )
   set ( CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\xyce.sandia.gov")
   set ( CPACK_NSIS_CONTACT "xyce-support@sandia.gov" )
-  set ( CPACK_NSIS_MODIFY_PATH ON )
+  set ( CPACK_NSIS_MODIFY_PATH OFF )
   
   # there is probably a better way to do this with 
   # file(GET_RUNTIME_DEPENDENCIES...)
@@ -98,12 +98,9 @@ if ( CMAKE_HOST_WIN32 )
   endif ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
 
 
-  # For native Windows builds we also need these two MS Visual Studio DLLs
-  if ( EXISTS "C:/Windows/system32/msvcp100.dll"  AND EXISTS "C:/Windows/system32/msvcr100.dll")
-    install ( FILES "C:/Windows/system32/msvcp100.dll" "C:/Windows/system32/msvcr100.dll"
-	    DESTINATION bin
-	    COMPONENT Runtime)
-  endif ( EXISTS "C:/Windows/system32/msvcp100.dll"  AND EXISTS "C:/Windows/system32/msvcr100.dll")
+  # For native Windows builds we also need assorted MS Visual Studio DLLs
+  # This thing apparently takes care of it:
+  include(InstallRequiredSystemLibraries)
 
   # registry settings
   set ( CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${Xyce_INSTALL_NAME}" )
