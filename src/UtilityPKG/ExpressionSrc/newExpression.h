@@ -313,7 +313,6 @@ public:
   };
 
   // copy constructor - this may need work
-  // This is necessary b/c of things like the masterAstNodeVec_ object, which uses raw pointers
   newExpression (const newExpression & right) :
     group_(right.group_),
     expressionString_(right.expressionString_),
@@ -421,7 +420,6 @@ public:
   };
 
   // assignment operator
-  // This is necessary b/c of things like the masterAstNodeVec_ object, which uses raw pointers
   newExpression & operator =(const newExpression & right)
   {
     group_ = right.group_;
