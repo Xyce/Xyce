@@ -165,6 +165,12 @@ would segfault if invoked for some model groups (e.g, D, L and M) when
 there were no devices from that model group in the \Xyce{} netlist.
 \\ \hline
 
+\textbf{1176-SON}: Expression tables have an efficiency bottleneck when tables are large &
+When a really large table (thousands of points) was used to specify a Bsrc 
+via the expression library, there was a bottleneck which caused really slow execution.
+\\ \hline
+
+
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
 \end{longtable}
