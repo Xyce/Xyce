@@ -532,6 +532,9 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %type  <std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > *>   polypair
 %type  <double>  paren_polycoef 
 
+%destructor { delete $$; } TOK_VOLTAGENODE
+%destructor { delete $$; } TOK_NOISE_DEV_VAR
+
 // Operator Precedence tokens
 %left   TOK_COMMA ","
 %right  TOK_QUESTION_MARK "?"  TOK_COLON ":"
