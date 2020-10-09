@@ -55,8 +55,7 @@ class agaussOp : public astNode<ScalarT>
       alpha_(yAst),
       n_(nAst_),
       value_(0.0),
-      setValueCalledBefore_(false),
-      theSeed_(0)
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -102,8 +101,6 @@ class agaussOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    void setTheSeed (long seed) { theSeed_ = seed; }
-
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -153,7 +150,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 
     ScalarT value_;
     bool setValueCalledBefore_;
-    long theSeed_;
 };
 
 //-------------------------------------------------------------------------------
@@ -173,8 +169,7 @@ class gaussOp : public astNode<ScalarT>
       alpha_(yAst),
       n_(nAst_),
       value_(0.0),
-      setValueCalledBefore_(false),
-      theSeed_(0)
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -220,8 +215,6 @@ class gaussOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    void setTheSeed (long seed) { theSeed_ = seed; }
-
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_)
@@ -271,7 +264,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 
     ScalarT value_;
     bool setValueCalledBefore_;
-    long theSeed_;
 };
 
 //-------------------------------------------------------------------------------
@@ -289,8 +281,7 @@ class aunifOp : public astNode<ScalarT>
       mu_(xAst),
       alpha_(yAst),
       value_(0.0),
-      setValueCalledBefore_(false),
-      theSeed_(0)
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -333,8 +324,6 @@ class aunifOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    void setTheSeed (long seed) { theSeed_ = seed; }
-
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
@@ -382,7 +371,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 
     ScalarT value_;
     bool setValueCalledBefore_;
-    long theSeed_;
 };
 
 //-------------------------------------------------------------------------------
@@ -400,8 +388,7 @@ class unifOp : public astNode<ScalarT>
       mu_(xAst),
       alpha_(yAst),
       value_(0.0),
-      setValueCalledBefore_(false),
-      theSeed_(0)
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -444,8 +431,6 @@ class unifOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    void setTheSeed (long seed) { theSeed_ = seed; }
-
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
@@ -493,7 +478,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 
     ScalarT value_;
     bool setValueCalledBefore_;
-    long theSeed_;
 };
 
 //-------------------------------------------------------------------------------
@@ -504,8 +488,7 @@ class randOp : public astNode<ScalarT>
   public:
     randOp (): astNode<ScalarT>(),
       value_(0.0),
-      setValueCalledBefore_(false),
-      theSeed_(0)
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = 0.5;
@@ -539,12 +522,9 @@ class randOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    void setTheSeed (long seed) { theSeed_ = seed; }
-
   private:
     ScalarT value_;
     bool setValueCalledBefore_;
-    long theSeed_;
 };
 
 //-------------------------------------------------------------------------------
@@ -557,8 +537,7 @@ class twoArgLimitOp : public astNode<ScalarT>
   public:
     twoArgLimitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
       astNode<ScalarT>(xAst,yAst),
-      value_(0.0),
-      theSeed_(0)
+      value_(0.0)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
@@ -600,8 +579,6 @@ class twoArgLimitOp : public astNode<ScalarT>
 
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; }
-
-    void setTheSeed (long seed) { theSeed_ = seed; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -645,7 +622,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 
   private:
     ScalarT value_;
-    long theSeed_;
 };
 
 #endif
