@@ -160,11 +160,28 @@ public:
 
   // random operator information
   void getAgaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setAgaussValue(int index, double value);
+  void setAgaussValue(int index, std::complex<double> value);
+
   void getGaussData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setGaussValue(int index, double value);
+  void setGaussValue(int index, std::complex<double> value);
+
   void getAunifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setAunifValue(int index, double value);
+  void setAunifValue(int index, std::complex<double> value);
+
   void getUnifData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setUnifValue(int index, double value);
+  void setUnifValue(int index, std::complex<double> value);
+
   void getRandData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setRandValue(int index, double value);
+  void setRandValue(int index, std::complex<double> value);
+
   void getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVec);
+  void setLimitValue(int index, double value);
+  void setLimitValue(int index, std::complex<double> value);
 
 private:
 

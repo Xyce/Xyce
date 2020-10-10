@@ -120,7 +120,7 @@ public:
   void acceptStep();
 
   double getMaxTimeStepSize();
-  virtual bool maxTimeStepSupported () {return true;};
+  virtual bool maxTimeStepSupported () {return false;};
 
   DeviceState * getInternalState();
   bool setInternalState( const DeviceState & state );

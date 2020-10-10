@@ -261,7 +261,15 @@ SweepParam parseSweepParams(Xyce::Util::ParamList::const_iterator first, Xyce::U
     {
       sweep_param.startVal = (*++it_param).getImmutableValue<double>();
       sweep_param.stopVal  = (*++it_param).getImmutableValue<double>();
-      sweep_param.numSteps = (*++it_param).getImmutableValue<int>();
+
+      ExtendedString numStepsStr((*++it_param).stringValue());
+      sweep_param.numSteps = (*it_param).getImmutableValue<int>();
+
+      // Error checking
+      if ( !numStepsStr.isInt() )
+        Report::UserError() << "Points parameter on .DC or .STEP line must be an integer";
+      if ( sweep_param.numSteps < 1 )
+        Report::UserError() << "Points parameter on .DC or .STEP line must be >= 1";
     }
     else if (sweep_param.type == "LIST")
     {

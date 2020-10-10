@@ -281,6 +281,7 @@ private:
   Linear::Vector * nextStorePtr_;
  
   bool resetForStepCalledBefore_;
+  bool useExpressionSamples_;
 };
 
 bool registerPCEFactory(FactoryBlock &factory_block);

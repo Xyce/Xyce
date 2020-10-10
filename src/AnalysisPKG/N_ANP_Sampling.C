@@ -797,7 +797,8 @@ bool Sampling::doLoopProcess()
     if (useExpressionSamples_)
     {
       reset = UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
-    }else
+    }
+    else
     {
       reset = UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
     }

@@ -73,6 +73,8 @@ using std::tr1::unordered_map;
 #include <N_UTL_Listener.h>
 #include <N_UTL_Op.h>
 
+#include <astRandEnum.h>
+
 class SweepParam;
 
 namespace Xyce {
@@ -243,6 +245,7 @@ public:
       const std::string & name, 
       const std::string & opName, 
       int opIndex,
+      enum Util::astRandTypes astType,
       double val, bool overrideOriginal = false);
 
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }

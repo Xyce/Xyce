@@ -82,7 +82,8 @@ ESLoader::ESLoader(
   Linear::Builder &                   builder,
   int numSamples,
   Analysis::SweepVector & samplingVector,
-  const std::vector<double> & Y
+  const std::vector<double> & Y,
+  bool useExprSamples
   )
   : CktLoader(device_manager, builder),
     deviceManager_(device_manager),
@@ -90,7 +91,8 @@ ESLoader::ESLoader(
     numSamples_(numSamples),
     samplingVector_(samplingVector),
     Y_(Y),
-    allDevicesAllBlocksConverged_(true)
+    allDevicesAllBlocksConverged_(true),
+    useExpressionSamples_(useExprSamples)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -196,8 +198,15 @@ bool ESLoader::loadDAEMatrices( Linear::Vector * X,
   {
 
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
-    bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    bool reset = false;
+    if (useExpressionSamples_)
+    {
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }
+    else
+    {
+      reset = Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }
 
     if (DEBUG_ES)
     {
@@ -356,8 +365,15 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   for( int i = 0; i < BlockCount; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
-    bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    bool reset = false;
+    if (useExpressionSamples_)
+    {
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }
+    else
+    {
+      reset = Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+    }
 
     if (DEBUG_ES)
     {

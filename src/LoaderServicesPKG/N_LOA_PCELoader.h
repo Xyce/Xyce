@@ -84,7 +84,8 @@ public:
     Analysis::SweepVector & samplingVector,
     const std::vector<double> & Y,
     const Xyce::IO::CmdParse & commandLine,
-    int voltLimAlg
+    int voltLimAlg,
+    bool useExprSamples
     ); 
 
   ~PCELoader()
@@ -310,6 +311,7 @@ private:
   const Xyce::IO::CmdParse & commandLine_;
   int voltLimAlgorithm_;
   bool allDevicesAllQuadPointsConverged_;
+  bool useExpressionSamples_;
 };
 
 } // namespace Loader

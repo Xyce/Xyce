@@ -185,6 +185,7 @@ public:
 
   virtual bool setParamRandomExpressionTerms(
       std::string & name, std::string & opName, int opIndex,
+      enum Util::astRandTypes astType,
       double val, bool overrideOriginal = false);
 
   // Function for getting a single parameter value.

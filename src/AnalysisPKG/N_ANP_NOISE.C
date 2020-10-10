@@ -409,6 +409,8 @@ void NOISE::notify(const StepEvent &event)
 //-----------------------------------------------------------------------------
 bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 {
+  bool retval=true;
+
   // Check for DATA first.  If DATA is present, then use the sweep functions,
   // rather than the NOISE specific built-in ones.  This also supports the case
   // of having multiple .NOISE lines in the netlist, wherein only the last .NOISE
@@ -453,6 +455,12 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     else if ((*it).uTag() == "NP")
     {
       np_ = (*it).getImmutableValue<double>();
+      ExtendedString npStr((*it).stringValue());
+      if ( !npStr.isInt() )
+      {
+        Report::UserError0() << "Points Value parameter on .NOISE line must be an integer";
+        retval = false;
+      }
     }
     else if ((*it).uTag() == "FSTART")
     {
@@ -469,7 +477,7 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
   }
 
   // exit from here if DATA=<name> is used on the .NOISE line
-  if (dataSpecification_) return true;
+  if (dataSpecification_) return retval;
 
   // debug output, when DATA=<name> is not used
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
@@ -496,24 +504,24 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
   }
 
   // error checking of parameters, when DATA=<name> is not used
-  if ( np_ < 0 )
+  if ( np_ < 1 )
   {
-    Report::UserError0() << "Points Value parameter on .NOISE line must be non-negative";
-    return false;
+    Report::UserError0() << "Points Value parameter on .NOISE line must be >= 1";
+    retval = false;
   }
   if ( (fStart_ <=0) || (fStop_ <= 0) )
   {
     Report::UserError0() << "Illegal values for start or end frequencies on .NOISE line. " <<
        "Both values must be > 0";
-    return false;
+    retval = false;
   }
   if ( fStop_ < fStart_ )
   {
     Report::UserError0() << "End frequency must not be less than start frequency on .NOISE line";
-    return false;
+    retval = false;
   }
 
-  return true;
+  return retval;
 }
 
 //-----------------------------------------------------------------------------

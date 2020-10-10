@@ -965,11 +965,10 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
   // sanity clause (you canna foola me, I know they're ain'ta no sanity
   // clause!)
   //  if (t < first->t || t > last->t)
-  if (t - first->t < -Util::MachineDependentParams::MachinePrecision()
-      || t - last->t > Util::MachineDependentParams::MachinePrecision() )
+  if (t - first->t < -Util::MachineDependentParams::MachinePrecision())
   {
     UserError(*this) << "Cannot interpolate to a time (" << t << ") prior to oldest("
-                     << first->t << ") or after newest(" << last->t << ") in history";
+                     << first->t << ") in history";
     return;
   }
 
@@ -996,7 +995,17 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
     LessThan<History,double> lessFunct;
     it1 = lower_bound(history.begin(),history.end(),t,lessFunct);
 
-    // Now it1 points to the first element with time > t
+    if (it1 == history.end())
+    {
+      // If there IS no element of history later than t, then we are not
+      // interpolating, we're extrapolating.  But we're going to roll with
+      // it.  Just use the last element of the history as the latest point
+      // instead.
+      --it1;
+    }
+
+    // Now it1 points to the first element with time > t (or last element of
+    // list if extrapolating)
     t3 = it1->t;
     v13 = it1->v1;
     v23 = it1->v2;

@@ -51,8 +51,22 @@ improve the performance of the \texttt{RISE}, \texttt{FALL} and
 \texttt{CROSS} qualifiers for \texttt{MAX}, \texttt{MIN} and \texttt{PP}
 measures, and the performance of the \Xyce{}-specific \texttt{FRAC\_MAX}
 qualifier for \texttt{TRIG} and \texttt{TARG} measures.  It was not
-particularly useful for \texttt{WHEN} measures.  This change simplified
-the addition of ``continuous measures''.
+particularly useful for \texttt{WHEN} measures.
 \\ \hline
+
+The Points Value parameter on .AC and .NOISE lines must now be an integer
+greater than or equal to 1 & Previously, the Point Value could be
+non-integer on \texttt{.AC} and \texttt{.NOISE} lines, but had to be
+non-negative.  This change affects \texttt{DEC} and \texttt{OCT} sweeps,
+and prevents \Xyce{} from picking a non-intuitive set of sweep values.
+\\ \hline
+
+The Points parameter on .DC and .STEP lines must now be an integer
+& Previously, the Point parameter had no constraints for these
+two types of netlist commands.  This change affects \texttt{DEC} and
+\texttt{OCT} sweeps, and prevents \Xyce{} from picking a non-intuitive
+set of sweep values.
+\\ \hline
+
 \end{longtable}
 }

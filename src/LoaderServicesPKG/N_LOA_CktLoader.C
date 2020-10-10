@@ -137,6 +137,7 @@ bool CktLoader::setParamRandomExpressionTerms(
   std::string &   name,
   std::string &   opName,
   int             opIndex,
+  enum Util::astRandTypes astType,
   double                val,
   bool overrideOriginal) 
 {
@@ -147,7 +148,7 @@ bool CktLoader::setParamRandomExpressionTerms(
   delete filtered_lindQdxMatrixPtr_; filtered_lindQdxMatrixPtr_=0;
   delete filtered_lindFdxMatrixPtr_; filtered_lindFdxMatrixPtr_=0;
 
-  return deviceManager_.setParamRandomExpressionTerms(name, opName, opIndex, val, overrideOriginal);
+  return deviceManager_.setParamRandomExpressionTerms(name, opName, opIndex, astType, val, overrideOriginal);
 }
 
 //-----------------------------------------------------------------------------

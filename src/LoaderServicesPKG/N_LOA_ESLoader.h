@@ -71,7 +71,8 @@ public:
     Linear::Builder &                   builder,
     int numSamples, 
     Analysis::SweepVector & samplingVector,
-    const std::vector<double> & Y); 
+    const std::vector<double> & Y,
+    bool useExprSamples);
 
   ~ESLoader()
   {}
@@ -231,6 +232,7 @@ private:
   const std::vector<double> & Y_; 
 
   bool allDevicesAllBlocksConverged_;
+  bool useExpressionSamples_;
 };
 
 } // namespace Loader
