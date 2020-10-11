@@ -123,13 +123,8 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 
   bool foundLocal = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_VNODE), svGIDList1, dummyList, type1);
   int found = static_cast<int>(foundLocal);
-#if 1
-  std::cout << "1: mainXyceExpressionGroup::getSolutionGID_  nodeName = " << nodeName << " found = " << found <<std::endl;
-#endif
+
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found, 1);
-#if 1
-  std::cout << "2: mainXyceExpressionGroup::getSolutionGID_  nodeName = " << nodeName << " found = " << found <<std::endl;
-#endif
 
   // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
   bool foundLocal2 = false;
@@ -138,13 +133,7 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
     foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
   }
   int found2 = static_cast<int>(foundLocal2);
-#if 1
-  std::cout << "3: mainXyceExpressionGroup::getSolutionGID_  nodeName = " << nodeName << " found2 = " << found2 <<std::endl;
-#endif
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1);
-#if 1
-  std::cout << "4: mainXyceExpressionGroup::getSolutionGID_  nodeName = " << nodeName << " found2 = " << found2 <<std::endl;
-#endif
 
   // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
   // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
