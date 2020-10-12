@@ -54,13 +54,13 @@ static int runXyceWithDAC_calltf(char*user_data)
       ADCnames = (char **) malloc( numADCnames * sizeof(char*));
       for (i = 0; i < numADCnames; i++)
       {
-        ADCnames[i] = (char *) malloc( maxADCnameLength*sizeof(char) );
+        ADCnames[i] = (char *) malloc( (maxADCnameLength+1)*sizeof(char) );
       }
 
       DACnames = (char **) malloc( numDACnames*sizeof(char*) );
       for (i = 0; i < numDACnames; i++)
       {
-        DACnames[i] = (char *) malloc( maxDACnameLength*sizeof(char) );
+        DACnames[i] = (char *) malloc( (maxDACnameLength+1)*sizeof(char) );
       }
 
       xyce_getDeviceNames(p, (char *)"YADC", numADCnamesPtr, ADCnames);
