@@ -282,10 +282,10 @@ Table \ref{tab:klu:options} lists solver parameters and their default values for
 \hline
 Option & Description & Default Value \\
 \hline
-{\tt KLU\_REPIVOT}         & Recompute pivot order each solve & 1 (true) \\
-{\tt OUTPUT\_LS}           & Write out linear systems solved by KLU to file every \# solves & 0 (false)\\
-{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
-{\tt OUTPUT\_FAILED\_LS}   & Write out linear systems KLU failed to solve to file & 0 (false) \\
+{\tt KLU\_repivot}         & Recompute pivot order each solve & 1 (true) \\
+{\tt output\_ls}           & Write out linear systems solved by KLU to file every \# solves & 0 (no output)\\
+{\tt output\_base\_ls}     & Write out linear systems before any transformations to file every \# solves & 0 (no output)\\
+{\tt output\_failed\_ls}   & Write out linear systems KLU failed to solve to file & 0 (no output) \\
 \hline
 \end{tabular}
 \end{center}
@@ -324,8 +324,8 @@ Option & Description & Default Value \\
 {\tt AZ\_max\_iter}        & Maximum allowed iterations & 200 \\
 {\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-9 \\
 {\tt AZ\_kspace}           & Krylov subspace size & 50 \\
-{\tt OUTPUT\_LS}           & Write out linear systems solved by AztecOO to file every \# solves & 0 (false)\\
-{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+{\tt output\_ls}           & Write out linear systems solved by AztecOO to file every \# solves & 0 (no output)\\
+{\tt output\_base\_ls}     & Write out linear systems before any transformations to file every \# solves & 0 (no output)\\
 \hline
 \end{tabular}
 \end{center}
@@ -403,8 +403,8 @@ Option & Description & Default Value \\
 {\tt AZ\_max\_iter}        & Maximum allowed iterations & 200 \\
 {\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-9 \\
 {\tt AZ\_kspace}           & Krylov subspace size & 50 \\
-{\tt OUTPUT\_LS}           & Write out linear systems solved by Belos to file every \# solves & 0 (false)\\
-{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+{\tt output\_ls}           & Write out linear systems solved by Belos to file every \# solves & 0 (no output)\\
+{\tt output\_base\_ls}     & Write out linear systems before any transformations to file every \# solves & 0 (no output)\\
 \hline
 \end{tabular}
 \end{center}
@@ -430,7 +430,7 @@ AM^{-1}y=b,
 If $M=A$, then the solution to the linear system is found in one iteration.
 In practice, $M$ is a good approximation to $A$, then it will take few iterations
 to compute the solution of the linear system to the requested accuracy.
-By default, \Xyce{} uses a non-overlapped additive Schwartz preconditioner with 
+By default, \Xyce{} uses a non-overlapped additive Schwarz preconditioner with 
 an incomplete LU factorization on each subdomain~\cite{Saad:2003:IMSLS}.  
 The parameters of the incomplete LU factorization are found in Table~\ref{tab:prec_options}.  
 This is a simple preconditioner that always works, but is not always the most effective, 
@@ -457,8 +457,9 @@ Option & Description & Default Value \\
 {\tt AZ\_overlap}          & ILU subdomain overlap & 0 \\
 {\tt AZ\_athresh}          & ILU absolute threshold & 0.0001 \\
 {\tt AZ\_rthresh}          & ILU relative threshold & 1.0001 \\
-{\tt USE\_IFPACK\_FACTORY} & Additive Schwarz w/ KLU subdomain solve & 0 (false) \\ 
-{\tt USE\_AZTEC\_PRECOND} & Use native ILU from AztecOO package & 0 (false) \\
+{\tt use\_aztec\_precond}  & Use native ILU from AztecOO package & 0 (false) \\
+{\tt use\_ifpack\_factory} & Use Ifpack factory to create preconditioner & 0 (false) \\
+{\tt ifpack\_type}         & Control which preconditioner Ifpack factory creates (ILU, ILUT, Amesos) & Amesos \\
 \hline
 \end{tabular}
 \end{center}
@@ -472,7 +473,7 @@ effective is the use of a sparse direct solver on each subdomain, instead of an 
 This preconditioner will fail if there is a singular subdomain matrix because the KLU solver on that subdomain will fail.
 If numerical difficulties are not encountered during the simulation, this preconditioner is superior to inexact factorizations.
 A more advanced preconditioner that has been effective for certain types of circuits uses the block triangular form (BTF)
-permutation of the original matrix before generating the additive Schwartz preconditioner.  This preconditioner, which
+permutation of the original matrix before generating the additive Schwarz preconditioner.  This preconditioner, which
 is published in ~\cite{ICCAD09_precond}, will be presented in Section~\ref{BTF_Precond}.
 
 
@@ -512,8 +513,8 @@ Option & Description & Default Value \\
 {\tt AZ\_max\_iter}        & Maximum allowed iterations & 30 \\
 {\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-12 \\
 {\tt ShyLU\_rthresh}       & Relative dropping threshold for Schur complement preconditioner & 1.0e-3 \\ 
-{\tt OUTPUT\_LS}           & Write out linear systems solved by ShyLU to file every \# solves & 0 (false)\\
-{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+{\tt output\_ls}           & Write out linear systems solved by ShyLU to file every \# solves & 0 (no output)\\
+{\tt output\_base\_ls}     & Write out linear systems before any transformations to file every \# solves & 0 (no output)\\
 \hline
 \end{tabular}
 \end{center}
@@ -550,7 +551,7 @@ to the `\texttt{.OPTIONS LINSOL}' control line in the netlist.
 For parallel builds of \Xyce{}, AMD ordering is enabled by default whenever iterative solvers
 are used.  In parallel, the AMD ordering is performed only on the local graph for
 each processor, not the global graph.  This is to reduce the fill-in for the incomplete
-LU factorization used by the additive Schwartz preconditioner, see Section~\ref{Preconditioning_Options}.
+LU factorization used by the additive Schwarz preconditioner, see Section~\ref{Preconditioning_Options}.
 
 \subsection{Partitioning the Linear System}
 \label{Partitioning_Linear_System}
@@ -612,7 +613,7 @@ See the \textbf{Zoltan User Guide}~\cite{zoltan:user} for more details.
 The block triangular form (BTF) permutation is often useful for direct and iterative
 solvers, enabling a more efficient computation of the linear system solution.
 In particular, the BTF permutation has shown promise when it is combined with
-an additive Schwartz preconditioner (see Section~\ref{Preconditioning_Options}) in the simulation of
+an additive Schwarz preconditioner (see Section~\ref{Preconditioning_Options}) in the simulation of
 circuits with unidirectional flow.  
 
 The global BTF transformation computes the permutation of the linear system to
