@@ -371,8 +371,24 @@ bool Instance::updateTVVEC (
 
   itVec = TVVEC.begin();
   itVec_end = TVVEC.end();
-  for( ; itVec != itVec_end; ++itVec )
-    tv[(*itVec).first] = (*itVec).second;
+
+  if (!TVVEC.empty())
+  {
+    for( ; itVec != itVec_end; ++itVec )
+      tv[(*itVec).first] = (*itVec).second;
+  }
+  else if (!newPairsIn.empty())
+  {
+    // This bootstraps the processing if TVVEC is empty (e.g., on the first call to this function)
+    for ( const_itVec = newPairsIn.begin() ; const_itVec != newPairsIn.end() ; ++const_itVec )
+    {
+      if ((*const_itVec).first >= getSolverState().acceptedTime_)
+      {
+        tv[(*const_itVec).first] = (*const_itVec).second;
+        break;
+      }
+    }
+  }
 
   if (!newPairsIn.empty())
   {
@@ -422,6 +438,7 @@ bool Instance::updateTVVEC (
     }
     tv[getSolverState().acceptedTime_] = voltage_;
   }
+
   tv_i = lower_bound(tv.begin(), tv.end(), std::pair<const double, double>(getSolverState().acceptedTime_,0));
   if (tv_i != tv.begin())
     --tv_i;
