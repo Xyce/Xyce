@@ -245,7 +245,8 @@ public:
       const std::string & name, 
       const std::string & opName, 
       int opIndex,
-      enum Util::astRandTypes astType,
+      //enum Util::astRandTypes astType,
+      int astType,
       double val, bool overrideOriginal = false);
 
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }
@@ -528,7 +529,8 @@ public:
 // private:
 //   bool getParamNoReduce(const std::string &name, double &value) const;
 
-  void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
+  void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+   Parallel::Communicator & parallel_comm);
 
   void updateDependentParams();
   void resetScaledParams();

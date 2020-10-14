@@ -43,7 +43,7 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_OptionBlock.h>
-
+#include <N_PDS_Comm.h>
 
 namespace Xyce {
 namespace Analysis {
@@ -193,8 +193,6 @@ operator<<(std::ostream & os, const SweepParam & sp)
      << std::endl;
   return os;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Function      : parseSweepParam
@@ -763,5 +761,578 @@ bool isDataSpecified(const Xyce::Util::OptionBlock & paramsBlock)
 }
 
 } // namespace Analysis
+
+//-----------------------------------------------------------------------------
+// Function      : SweepParam::packedByteCount
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2020
+//-----------------------------------------------------------------------------
+template<>
+int
+Pack<Analysis::SweepParam>::packedByteCount(const Analysis::SweepParam &param)
+{
+  int byteCount = 0;
+
+  //std::string name;
+  byteCount += param.name.length() + sizeof(int); 
+  //std::string opName;
+  byteCount += param.opName.length() + sizeof(int); 
+  //std::string baseName; 
+  byteCount += param.baseName.length() + sizeof(int); 
+  //std::string type;
+  byteCount += param.type.length() + sizeof(int); 
+
+  //double startVal;
+  byteCount += sizeof(double);
+  //double stopVal;
+  byteCount += sizeof(double);
+  //double stepVal;
+  byteCount += sizeof(double);
+  //double stepMult;
+  byteCount += sizeof(double);
+
+  // for normal distribution
+  //double mean;
+  byteCount += sizeof(double);
+  //double stdDev;
+  byteCount += sizeof(double);
+
+  // for gamma distribution
+  //double alpha;
+  byteCount += sizeof(double);
+  //double beta;
+  byteCount += sizeof(double);
+
+  //double upper_bound;
+  byteCount += sizeof(double);
+  //double lower_bound;
+  byteCount += sizeof(double);
+
+  //bool upper_boundGiven;
+  byteCount += sizeof(int);
+  //bool lower_boundGiven;
+  byteCount += sizeof(int);
+
+  //double currentVal;
+  byteCount += sizeof(double);
+
+  //int numSteps;
+  byteCount += sizeof(int);
+
+  //int count;
+  byteCount += sizeof(int);
+  //int maxStep;
+  byteCount += sizeof(int);
+  //int interval;
+  byteCount += sizeof(int);
+
+  //int outerStepNumber;
+  byteCount += sizeof(int);
+
+  //std::vector<double> valList;
+  byteCount += sizeof(double) * param.valList.size();
+
+  //std::string dataSetName;
+  byteCount += param.dataSetName.length() + sizeof(int); 
+
+  //int astOpIndex;
+  byteCount += sizeof(int);
+  //enum Util::astRandTypes astType;
+  byteCount += sizeof(int);
+
+  //bool sweepResetFlag_;
+  byteCount += sizeof(int);
+  //int lastLocalStepNumber_;
+  byteCount += sizeof(int);
+
+  return byteCount;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SweepParam::pack
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2020
+//-----------------------------------------------------------------------------
+template<>
+void
+Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
+{
+  int length;
+  std::string tmp;
+#if 0
+  //pack tag
+  length = param.tag_.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.tag_.c_str(), length, buf, bsize, pos );
+
+  //pack type
+  int enum_type = param.data_->enumType();
+
+  comm->pack( &enum_type, 1, buf, bsize, pos );
+
+  //pack value
+  switch( param.data_->enumType() )
+  {
+    case -1:
+      break;
+
+    case Util::STR:
+      length = param.getValue<std::string>().length();
+      comm->pack( &length, 1, buf, bsize, pos );
+      comm->pack( param.getValue<std::string>().c_str(), length, buf, bsize, pos );
+      break;
+
+    case Util::DBLE:
+      comm->pack( &(param.getValue<double>()), 1, buf, bsize, pos );
+      break;
+
+    case Util::INT:
+      comm->pack( &(param.getValue<int>()), 1, buf, bsize, pos );
+      break;
+
+    case Util::BOOL:
+    {
+      int i;
+      if (param.getValue<bool>())
+        i = 1;
+      else
+        i = 0;
+      comm->pack( &i, 1, buf, bsize, pos );
+    }
+      break;
+
+    case Util::LNG:
+      comm->pack( &(param.getValue<long>()), 1, buf, bsize, pos );
+      break;
+
+    case Util::EXPR:
+      tmp = param.getValue<Util::Expression>().get_expression();
+      length = tmp.length();
+      comm->pack( &length, 1, buf, bsize, pos );
+      comm->pack( tmp.c_str(), length, buf, bsize, pos );
+      break;
+
+    case Util::STR_VEC:
+    {
+      const std::vector<std::string> &string_vector = param.getValue<std::vector<std::string> >();
+      length = (int) string_vector.size();
+      comm->pack( &length, 1, buf, bsize, pos );
+      for (int i=0; i < (int) string_vector.size(); i++)
+      {
+        length = string_vector[i].length();
+        comm->pack( &length, 1, buf, bsize, pos );
+        comm->pack( string_vector[i].c_str(), length, buf, bsize, pos );
+      }
+    }
+
+      break;
+
+    case Util::DBLE_VEC:
+    {
+      const std::vector<double> &double_vector = param.getValue<std::vector<double> >();
+      length = (int) double_vector.size();
+      comm->pack( &length, 1, buf, bsize, pos );
+      comm->pack( &double_vector[0], length, buf, bsize, pos );
+    }
+
+      break;
+
+    default:   Report::DevelFatal() << "SweepParam::pack: unknown type " << param.data_->enumType();
+  }
+#else
+  //pack name
+  length = param.name.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.name.c_str(), length, buf, bsize, pos );
+
+  //pack opName
+  length = param.opName.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.opName.c_str(), length, buf, bsize, pos );
+
+  //pack baseName
+  length = param.baseName.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.baseName.c_str(), length, buf, bsize, pos );
+
+  //pack type
+  length = param.type.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.type.c_str(), length, buf, bsize, pos );
+
+  // pack startVal
+  comm->pack( &(param.startVal), 1, buf, bsize, pos );
+  // pack stopVal
+  comm->pack( &(param.stopVal), 1, buf, bsize, pos );
+  // pack stepVal
+  comm->pack( &(param.stepVal), 1, buf, bsize, pos );
+  // pack stepMult
+  comm->pack( &(param.stepMult), 1, buf, bsize, pos );
+  // pack mean
+  comm->pack( &(param.mean), 1, buf, bsize, pos );
+  // pack stdDev
+  comm->pack( &(param.stdDev), 1, buf, bsize, pos );
+  // pack alpha
+  comm->pack( &(param.alpha), 1, buf, bsize, pos );
+  // pack beta
+  comm->pack( &(param.beta), 1, buf, bsize, pos );
+  // pack upper_bound
+  comm->pack( &(param.upper_bound), 1, buf, bsize, pos );
+  // pack lower_bound
+  comm->pack( &(param.lower_bound), 1, buf, bsize, pos );
+
+  // pack upper_boundGiven
+  {
+    int i;
+    if (param.upper_boundGiven){ i = 1; }
+    else { i = 0; }
+    comm->pack( &i, 1, buf, bsize, pos );
+  }
+
+  // pack lower_boundGiven
+  {
+    int i;
+    if (param.lower_boundGiven) { i = 1; }
+    else { i = 0; }
+    comm->pack( &i, 1, buf, bsize, pos );
+  }
+
+  // pack currentVal
+  comm->pack( &(param.currentVal), 1, buf, bsize, pos );
+
+  // pack numSteps
+  comm->pack( &(param.numSteps), 1, buf, bsize, pos );
+  // pack count
+  comm->pack( &(param.count), 1, buf, bsize, pos );
+  // pack maxStep
+  comm->pack( &(param.maxStep), 1, buf, bsize, pos );
+  // pack interval
+  comm->pack( &(param.interval), 1, buf, bsize, pos );
+  // pack outerStepNumber
+  comm->pack( &(param.outerStepNumber), 1, buf, bsize, pos );
+
+  // pack valList
+  {
+    const std::vector<double> &double_vector = param.valList;
+    length = (int) double_vector.size();
+    comm->pack( &length, 1, buf, bsize, pos );
+    comm->pack( &double_vector[0], length, buf, bsize, pos );
+  }
+
+  //pack dataSetName
+  length = param.dataSetName.length();
+  comm->pack( &length, 1, buf, bsize, pos );
+  comm->pack( param.dataSetName.c_str(), length, buf, bsize, pos );
+
+  // pack astOpIndex
+  comm->pack( &(param.astOpIndex), 1, buf, bsize, pos );
+
+  // pack astType
+  {
+    int i = static_cast<int> (param.astType);
+    comm->pack( &i, 1, buf, bsize, pos );
+  }
+
+  // pack sweepResetFlag_
+  {
+    int i;
+    if (param.sweepResetFlag_){ i = 1;}
+    else{ i = 0;}
+    comm->pack( &i, 1, buf, bsize, pos );
+  }
+
+  // pack lastLocalStepNumber_
+  comm->pack( &(param.lastLocalStepNumber_), 1, buf, bsize, pos );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SweepParam::unpack
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2020
+//-----------------------------------------------------------------------------
+template<>
+void
+Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int bsize, int & pos, N_PDS_Comm * comm )
+{
+  int length = 0;
+  int vector_size = 0;
+
+#if 0
+  //unpack tag
+  comm->unpack( pB, bsize, pos, &length, 1 );
+
+  param.tag_ = std::string( (pB+pos), length );
+  pos += length;
+
+  //unpack type
+  int enum_type = -1;
+  comm->unpack( pB, bsize, pos, &enum_type, 1 );
+
+  switch (enum_type)
+  {
+    case -1:
+      break;
+
+    case Util::STR:
+      comm->unpack( pB, bsize, pos, &length, 1 );
+      param.setVal(std::string( (pB+pos), length ));
+      pos += length;
+      break;
+
+    case Util::DBLE: 
+    {
+      double d = 0.0;
+      
+      comm->unpack( pB, bsize, pos, &d, 1 );
+      param.setVal(d);
+    }
+    break;
+
+    case Util::INT: 
+    {
+      int i = 0;
+      comm->unpack( pB, bsize, pos, &i, 1 );
+      param.setVal(i);
+    }
+    break;
+
+    case Util::BOOL:
+    {
+      int i = 0;
+      comm->unpack( pB, bsize, pos, &i, 1 );
+      if (i == 0)
+        param.setVal(false);
+      else
+        param.setVal(true);
+    }
+    break;
+
+    case Util::LNG:
+    {
+      long l = 0;
+      comm->unpack( pB, bsize, pos, &l, 1 );
+      param.setVal(l);
+    }
+    break;
+
+    case Util::EXPR:
+      comm->unpack( pB, bsize, pos, &length, 1 );
+      // ERK.  This expression is allocated iwth the base group, which is easy 
+      // to create, but doesn't do anything.  But, this doesn't matter.  .param 
+      // and .global_param are not usually evaluated stand-alone, as they are 
+      // usually attached to other expressions. The expressions they are 
+      // attached to are the ones that need a meaningful group class.
+      param.setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), std::string( (pB+pos), length )));
+      pos += length;
+      break;
+
+    case Util::STR_VEC:
+    {
+
+      comm->unpack( pB, bsize, pos, &vector_size, 1 );
+      param.setVal(std::vector<std::string>());
+      std::vector<std::string> &x = param.getValue<std::vector<std::string> >();
+      x.reserve(vector_size);
+
+      for (int i=0; i< vector_size; i++)
+      {
+        comm->unpack( pB, bsize, pos, &length, 1 );
+        x.push_back(std::string( (pB+pos), length ));
+        pos += length;
+      }
+    }
+
+    break;
+
+    case Util::DBLE_VEC:
+    {
+      comm->unpack( pB, bsize, pos, &vector_size, 1 );
+      param.setVal(std::vector<double>());
+      std::vector<double> &x = param.getValue<std::vector<double> >();
+      x.resize(vector_size, 0.0);
+      comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
+    }
+
+    break;
+
+    default:
+      Report::UserFatal() << "SweepParam::unpack: unknown type";
+
+  }
+#else
+
+  //unpack name 
+  comm->unpack( pB, bsize, pos, &length, 1 );
+  param.name = std::string( (pB+pos), length );
+  pos += length;
+
+  //unpack opName 
+  comm->unpack( pB, bsize, pos, &length, 1 );
+  param.opName = std::string( (pB+pos), length );
+  pos += length;
+
+  //unpack baseName 
+  comm->unpack( pB, bsize, pos, &length, 1 );
+  param.baseName = std::string( (pB+pos), length );
+  pos += length;
+
+  //unpack type 
+  comm->unpack( pB, bsize, pos, &length, 1 );
+  param.type = std::string( (pB+pos), length );
+  pos += length;
+
+  // unpack startVal
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.startVal = d;
+  }
+  // unpack stopVal
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.stopVal = d;
+  }
+  // unpack stepVal
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.stepVal = d;
+  }
+  // unpack stepMult
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.stepMult = d;
+  }
+  // unpack mean
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.mean = d;
+  }
+  // unpack stdDev
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.stdDev = d;
+  }
+  // unpack alpha
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.alpha = d;
+  }
+  // unpack upper_bound
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.upper_bound = d;
+  }
+  // unpack lower_bound
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.lower_bound = d;
+  }
+  // unpack upper_boundGiven
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    if (i == 0) { param.upper_boundGiven = false; }
+    else { param.upper_boundGiven = true; }
+  }
+  // unpack lower_boundGiven
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    if (i == 0) { param.lower_boundGiven = false; }
+    else { param.lower_boundGiven = true; }
+  }
+  // unpack currentVal
+  {
+    double d = 0.0;
+    comm->unpack( pB, bsize, pos, &d, 1 );
+    param.currentVal = d;
+  }
+  // unpack numSteps
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.numSteps = i;
+  }
+  // unpack count
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.count = i;
+  }
+  // unpack maxStep
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.maxStep = i;
+  }
+  // unpack interval
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.interval = i;
+  }
+  // unpack outerStepNumber
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.outerStepNumber = i;
+  }
+  // unpack valList
+  {
+    comm->unpack( pB, bsize, pos, &vector_size, 1 );
+    std::vector<double> &x = param.valList;
+    x.resize(vector_size, 0.0);
+    comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
+  }
+  //unpack dataSetName 
+  comm->unpack( pB, bsize, pos, &length, 1 );
+  param.dataSetName = std::string( (pB+pos), length );
+  pos += length;
+  // unpack astOpIndex
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.astOpIndex = i;
+  }
+  // unpack astType
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.astType = i;
+  }
+  // unpack sweepResetFlag_
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    if (i == 0) { param.sweepResetFlag_ = false; }
+    else { param.sweepResetFlag_ = true; }
+  }
+  // unpack lastLocalStepNumber_
+  {
+    int i = 0;
+    comm->unpack( pB, bsize, pos, &i, 1 );
+    param.lastLocalStepNumber_ = i;
+  }
+#endif
+}
+
 } // namespace Xyce
 

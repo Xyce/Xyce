@@ -280,8 +280,12 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 
   if (useExpressionSamples_)
   {
+    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+    N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
+
     SweepVector exprSamplingVector_;
-    loader_.getRandomParams(exprSamplingVector_);
+    loader_.getRandomParams(exprSamplingVector_, pdsComm);
+
     samplingVector_.insert
       (samplingVector_.end(), exprSamplingVector_.begin(), exprSamplingVector_.end());
   }
@@ -612,6 +616,13 @@ bool Sampling::doInit()
   }
 
   // check that all the specified params exist
+#if 0
+  std::cout << "Sampling::doInit.  Size of samplingVector = " << samplingVector_.size() <<std::endl;
+  for (int ii=0;ii<samplingVector_.size();ii++)
+  {
+    std::cout << "samplingVector_["<<ii<<"].name = " << samplingVector_[ii].name << std::endl;
+  }
+#endif
   UQ::checkParameterList(
       analysisManager_.getComm(), 
       loader_, 

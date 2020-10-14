@@ -137,7 +137,8 @@ bool CktLoader::setParamRandomExpressionTerms(
   std::string &   name,
   std::string &   opName,
   int             opIndex,
-  enum Util::astRandTypes astType,
+  //enum Util::astRandTypes astType,
+  int astType,
   double                val,
   bool overrideOriginal) 
 {
@@ -369,9 +370,9 @@ double CktLoader::getParamAndReduce(
 // Creator       : 
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void CktLoader::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+void CktLoader::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams, Parallel::Communicator & parallel_comm)
 {
-  return deviceManager_.getRandomParams(SamplingParams);
+  return deviceManager_.getRandomParams(SamplingParams,parallel_comm);
 }
 
 //-----------------------------------------------------------------------------

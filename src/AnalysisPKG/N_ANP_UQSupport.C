@@ -1308,7 +1308,8 @@ bool updateExpressionSamplingTerms(
 //-----------------------------------------------------------------------------
 long getTheSeed(
     Parallel::Machine comm, 
-    const Xyce::IO::CmdParse & commandLine, int userSeed, bool userSeedGiven)
+    const Xyce::IO::CmdParse & commandLine, int userSeed, bool userSeedGiven,
+    bool output)
 {
 #if __cplusplus>=201103L
   std::random_device rd;
@@ -1365,7 +1366,10 @@ long getTheSeed(
   }
 
 #if __cplusplus>=201103L
-  Xyce::lout() << "Seeding random number generator with " << ((unsigned long)theSeed) << std::endl;
+  if (output)
+  {
+    Xyce::lout() << "Seeding random number generator with " << ((unsigned long)theSeed) << std::endl;
+  }
 #endif
 
   return theSeed;

@@ -1698,9 +1698,11 @@ bool newExpression::getValuesFromGroup_()
     phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
   }
 
-  // deal with random number operators.  This is a work in progress.
-
-  // The following currently only work for the non-sampling case.
+  // Get values for random number operators.    Only do this 1x.
+  // The following is for the non-sampling case, which is an arguably
+  // obsolete way of using the expression random operators.  It dates back
+  // to the old expression library and a period of time when Xyce didn't
+  // have any built-in UQ methods.
   if (Xyce::Util::enableRandomExpression)
   {
     for (int ii=0;ii<agaussOpVec_.size();ii++)

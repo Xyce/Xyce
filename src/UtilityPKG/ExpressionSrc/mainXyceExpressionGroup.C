@@ -44,6 +44,8 @@
 #include <ast.h>
 #include <newExpression.h>
 
+#include <N_IO_CmdParse.h>
+
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TOP_Topology.h>
@@ -433,6 +435,10 @@ bool mainXyceExpressionGroup::getPhaseOutputUsesRadians()
 //                 This is written to generate the random numbers directly in
 //                 the group.
 //
+//                 This is needed to support older, arguably obsolete 
+//                 behavior for random operators.  It should be phased out at
+//                 some point. 
+//
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 8/3/2020 
@@ -442,10 +448,10 @@ void mainXyceExpressionGroup::getRandomOpValue (
     std::vector<double> args, 
     double & value) 
 {
-  if (!randomSetup_)
+  if (Xyce::Util::enableRandomExpression)
   {
+    randomSetup_ = true;
     setupRandom_();
-    randomSetup_  = true;
   }
 
   if (type==Util::AST_AGAUSS)
@@ -547,7 +553,14 @@ void mainXyceExpressionGroup::getRandomOpValue (
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::setupRandom_
 // Purpose       : provide a value for a single random operator
-// Special Notes :
+//
+// Special Notes : This is needed to maintain backward compatibility with the
+//                 older, arguably obsolete behavior for random expression 
+//                 operators.   The old expression library was set up to return 
+//                 random numbers for the various random operators, but was 
+//                 not connected to SAMPLING or any other UQ method.  Any 
+//                 "Sampling" was performed by a calling program.
+//
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 8/3/2020 
@@ -556,9 +569,22 @@ void mainXyceExpressionGroup::setupRandom_ ()
 {
   if (theRandomSamplesGenerator == 0) 
   { 
-    bool userSeedGiven=false;
-    long userSeed=0;
-    randomSeed_ = Analysis::UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed, userSeedGiven);
+    if (randomSeed_==0)
+    {
+      if (analysisManager_.getCommandLine().argExists("-randseed"))
+      {
+        unsigned long cmdSeed;
+        std::stringstream iss(analysisManager_.getCommandLine().getArgumentValue("-randseed"));
+        iss >> cmdSeed;
+        randomSeed_ = (long)cmdSeed;
+      }
+      else
+      {
+        randomSeed_=time(NULL);
+      }
+    }
+
+    Xyce::lout() << "Seeding random number generator with " << ((unsigned long)randomSeed_) << std::endl;
 
     theRandomSamplesGenerator = new randomSamplesGenerator(randomSeed_); 
   }

@@ -55,6 +55,7 @@
 #include <N_PDS_fwd.h>
 #include <N_UTL_fwd.h>
 
+#include <N_UTL_Pack.h>
 #include <N_UTL_Param.h>
 
 #include <astRandEnum.h>
@@ -79,6 +80,8 @@ namespace Analysis {
 //-----------------------------------------------------------------------------
 class SweepParam
 {
+  friend class Pack<SweepParam>;
+
 public:
   // Default constructor
   SweepParam () : 
@@ -159,7 +162,8 @@ public:
   std::string dataSetName;
 
   int astOpIndex;
-  enum Util::astRandTypes astType;
+  //enum Util::astRandTypes astType;
+  int astType;
 
  private:
   bool sweepResetFlag_;
@@ -176,16 +180,6 @@ typedef std::vector<SweepParam> SweepVector;
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 7/02/03
 //-----------------------------------------------------------------------------
-///
-/// 
-///
-/// @invariant
-///
-/// @param os 
-/// @param sp 
-///
-/// @return 
-///
 std::ostream & operator<<(std::ostream & os, const SweepParam & sp);
 
 } // namespace Analysis

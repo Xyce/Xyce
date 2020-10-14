@@ -132,7 +132,8 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
-  enum Util::astRandTypes astType,
+  //enum Util::astRandTypes astType,
+  int astType,
   double                        value,
   bool                          override_original);
 
@@ -1944,7 +1945,8 @@ bool DeviceMgr::setParam(
 //-----------------------------------------------------------------------------
 bool DeviceMgr::setParamRandomExpressionTerms(
   const std::string &   name, const std::string &   opName, int opIndex,
-  enum Util::astRandTypes astType,
+  //enum Util::astRandTypes astType,
+  int astType,
   double                val,
   bool                  overrideOriginal)
 {
@@ -2043,12 +2045,16 @@ void populateSweepParam (
 // Creator       : Eric Keiter, SNL
 // Creation Date : 07/28/2020
 //-----------------------------------------------------------------------------
-void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+   Parallel::Communicator & parallel_comm)
 {
   std::vector<Util::Expression> & global_expressions  = globals_.global_expressions;
   std::vector<std::string> & global_exp_names = globals_.global_exp_names;
 
-  // get random expressions from global parameters first
+  // get random expressions from global parameters first.
+  // ERK Q: in parallel, is the order of global params preserved?  This global param 
+  // part works in parallel when there is a single parameter.
+  // If the order is preserved, then nothing extra has to be done for parallel.
   for (int ii=0;ii<global_expressions.size();ii++)
   {
     populateSweepParam(global_expressions[ii], global_exp_names[ii], SamplingParams );
@@ -2056,7 +2062,12 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 
   // now do device params.  When this function is called, 
   // the "dependentPtrVec_" hasn't been set up yet, so it can't be used.
+  //
+  // This part currently doensn't work in parallel.   It is just considering local
+  // params, which means that each proc will have a different list.
   {
+    std::vector<Xyce::Analysis::SweepParam>  deviceSamplingParams;
+
     // models
     for (int ii=0;ii<modelVector_.size();ii++)
     {
@@ -2067,7 +2078,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         for (int jj=0;jj<depVec.size();jj++) 
         {
           std::string fullName = entityName + ":" + depVec[jj].name;
-          populateSweepParam( *(depVec[jj].expr), fullName, SamplingParams ); 
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams ); 
         }
       }
     }
@@ -2083,10 +2094,70 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         for (int jj=0;jj<depVec.size();jj++) 
         { 
           std::string fullName = entityName + ":" + depVec[jj].name;
-          populateSweepParam( *(depVec[jj].expr), fullName, SamplingParams ); 
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams ); 
         }
       }
     }
+
+    // if parallel, get a combined vector of random params from all processors.
+    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    {
+      int procID = parallel_comm.procID();
+      int numProc = parallel_comm.numProc();
+      int numDevParam = deviceSamplingParams.size();
+      int numDevParamTotal = 0;
+      parallel_comm.sumAll(&numDevParam, &numDevParamTotal, 1);
+
+      if (numDevParamTotal > 0)
+      {
+        std::vector<Xyce::Analysis::SweepParam> orig_deviceSamplingParams = deviceSamplingParams;
+
+        deviceSamplingParams.resize(numDevParamTotal);
+
+        int loc=0;
+        for (int proc=0; proc<numProc; ++proc)
+        {
+          int cnt = 0;
+          if (proc == procID) { cnt = numDevParam; }
+          parallel_comm.bcast(&cnt, 1, proc);
+
+          for (int i = 0; i < cnt; ++i)
+          {
+            if (proc == procID)
+            {
+              Xyce::Analysis::SweepParam & tmpSweepParam = deviceSamplingParams[loc];
+              int size = Xyce::packedByteCount(tmpSweepParam);
+              int bufSize = size + 100;
+              char *buf = new char[bufSize];
+              parallel_comm.bcast(&size, 1, proc);
+              int pos = 0;
+              Xyce::pack(tmpSweepParam, buf, bufSize, pos, &parallel_comm);
+              parallel_comm.bcast(buf, size, proc);
+              deviceSamplingParams[loc] = orig_deviceSamplingParams[i];
+              delete[] buf;
+            }
+            else
+            {
+              int size = 0;
+              parallel_comm.bcast(&size, 1, proc);
+              int bufSize = size + 100;
+              char *buf = new char[bufSize];
+              parallel_comm.bcast(buf, size, proc);
+              int pos = 0;
+              Xyce::Analysis::SweepParam tmpSweepParam;
+              Xyce::unpack(tmpSweepParam, buf, bufSize, pos, &parallel_comm);
+              deviceSamplingParams[loc] = tmpSweepParam;
+              delete[] buf;
+            }
+            ++loc;
+          }
+        }
+      }
+    }
+
+    // now insert the model/instance parameters into the vector.
+    SamplingParams.insert
+      (SamplingParams.end(), deviceSamplingParams.begin(), deviceSamplingParams.end());
   }
 
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
@@ -4811,7 +4882,8 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
-  enum Util::astRandTypes astType,
+  //enum Util::astRandTypes astType,
+  int astType,
   double                        value,
   bool                          override_original)
 {
@@ -4899,6 +4971,12 @@ bool setParameterRandomExpressionTerms(
     }
     else
     {
+
+      // ERK.  This needs to be update/fixed.  Using a setDefaultParam or setParam, below is incorrect.
+      //
+      // The correct thing to do is pull out the expression, and then do a setAgauss, setAunif, or whichever
+      // is appropriate.
+
       // If not artificial, then search for the appropriate natural param(s).
       DeviceEntity * device_entity = device_manager.getDeviceEntity(name);
 

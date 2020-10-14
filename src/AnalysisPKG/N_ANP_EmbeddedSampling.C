@@ -408,8 +408,11 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 
   if (useExpressionSamples_)
   {
+    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+    N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
+
     SweepVector exprSamplingVector_;
-    loader_.getRandomParams(exprSamplingVector_);
+    loader_.getRandomParams(exprSamplingVector_, pdsComm);
     samplingVector_.insert
       (samplingVector_.end(), exprSamplingVector_.begin(), exprSamplingVector_.end());
   }
