@@ -244,9 +244,7 @@ public:
   bool setParamRandomExpressionTerms(
       const std::string & name, 
       const std::string & opName, 
-      int opIndex,
-      //enum Util::astRandTypes astType,
-      int astType,
+      int opIndex, int astType,
       double val, bool overrideOriginal = false);
 
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }

@@ -162,7 +162,6 @@ public:
   std::string dataSetName;
 
   int astOpIndex;
-  //enum Util::astRandTypes astType;
   int astType;
 
  private:

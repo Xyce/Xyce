@@ -132,7 +132,6 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
-  //enum Util::astRandTypes astType,
   int astType,
   double                        value,
   bool                          override_original);
@@ -1944,9 +1943,7 @@ bool DeviceMgr::setParam(
 // Creation Date : 7/30/2020
 //-----------------------------------------------------------------------------
 bool DeviceMgr::setParamRandomExpressionTerms(
-  const std::string &   name, const std::string &   opName, int opIndex,
-  //enum Util::astRandTypes astType,
-  int astType,
+  const std::string &   name, const std::string &   opName, int opIndex, int astType,
   double                val,
   bool                  overrideOriginal)
 {
@@ -4882,7 +4879,6 @@ bool setParameterRandomExpressionTerms(
   const std::string &           name,
   const std::string &           opName,
   int opIndex,
-  //enum Util::astRandTypes astType,
   int astType,
   double                        value,
   bool                          override_original)
@@ -4985,30 +4981,7 @@ bool setParameterRandomExpressionTerms(
       {
         bool found;
         std::string paramName = Util::paramNameFromFullParamName(name);
-        if (paramName == "")
-        {
-          //if (DEBUG_DEVICE)
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-            Xyce::dout() << " in DeviceMgr setParam, setting default parameter to " << value ;
-            if (override_original)
-            {
-              Xyce::dout()  << " overriding original";
-            }
-            Xyce::dout() << std::endl;
-          }
-          found = device_entity->setDefaultParam(value, override_original);
-        }
-        else
-        {
-          //if (DEBUG_DEVICE)
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-            Xyce::dout() << " in DeviceMgr setParam, setting parameter "<< paramName 
-              << " to " << value << std::endl;
-          }
-          found = device_entity->setParam(paramName, value);
-        }
+        found = device_entity->setParameterRandomExpressionTerms(paramName,opIndex,astType,value,override_original);
 
         if (found)
         {

@@ -185,7 +185,6 @@ public:
 
   virtual bool setParamRandomExpressionTerms(
       std::string & name, std::string & opName, int opIndex,
-      //enum Util::astRandTypes astType,
       int astType,
       double val, bool overrideOriginal = false);
 

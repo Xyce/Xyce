@@ -834,7 +834,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.vectorIndex = -1;
   dependentParams_.push_back(dependentParam);
 
-  // needed for new expressionn
+  // needed for new expression
   {
   const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
     Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
@@ -1091,6 +1091,71 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceEntity::setParameterRandomExpressionTerms
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/14/2020
+//-----------------------------------------------------------------------------
+bool DeviceEntity::setParameterRandomExpressionTerms(
+    const std::string & paramName,
+    int opIndex,
+    int astType,
+    double value,
+    bool override_original)
+{
+
+  std::string tmpName = paramName;
+  if (paramName == "")
+  {
+    if (defaultParamName_.empty())
+    {
+      DevelFatal(*this).in("DeviceEntity::setParameterRandomExpressionTerms") << "Device does not have a default parameter";
+    }
+    tmpName = defaultParamName_;
+  }
+
+
+  std::vector<Depend>::iterator dpIter = std::find_if(
+      dependentParams_.begin(), dependentParams_.end(), MatchDependName(tmpName));
+
+  bool found = (dpIter != dependentParams_.end());
+
+  if (found)
+  {
+    Util::Expression &expression = *(dpIter->expr);
+
+    switch(astType)
+    {
+      case Util::AST_AGAUSS:
+        expression.setAgaussValue(opIndex,value);
+        break;
+      case Util::AST_GAUSS:
+        expression.setGaussValue(opIndex,value);
+        break;
+      case Util::AST_AUNIF:
+        expression.setAunifValue(opIndex,value);
+        break;
+      case Util::AST_UNIF:
+        expression.setUnifValue(opIndex,value);
+        break;
+      case Util::AST_RAND:
+        expression.setRandValue(opIndex,value);
+        break;
+      case Util::AST_LIMIT:
+        expression.setLimitValue(opIndex,value);
+        break;
+    }
+    double paramValue=0.0;
+    expression.evaluateFunction(paramValue);
+    setParam(tmpName,paramValue,override_original);
+  }
+
+  return found;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateGlobalAndDependentParameters
 //
 // Purpose       : Updates expressions, as needed, that depend on various things 
@@ -1100,7 +1165,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 //                 that depend on that expression.
 //
 // Special Notes : 
-// Scope         : protected
+// Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 9/6/2020
 //-----------------------------------------------------------------------------
