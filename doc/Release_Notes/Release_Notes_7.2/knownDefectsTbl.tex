@@ -282,11 +282,6 @@ not replace ground synonyms if they appear in B source expressions.
 \texttt{GROUND}, etc.) in expressions.  Use a literal ``0'' when
 referring to the ground node in expressions.\\ \hline
 
-\textbf{794-SON}: Bug in TABLE Form of \Xyce{} Controlled Sources & In some case, a \Xyce{}
-netlist that contains a controlled source that uses the TABLE form will get
-the correct answer at first.  However, it may then "stall" (e.g, keep
-taking really small time-steps) and never complete the simulation run.
-
 \textbf{\textit{Workaround}}: In some cases, the TABLE specification for the controlled
 source can be replaced with a Piecewise Linear (PWL) source that uses
 nested IF statements. \\ \hline
