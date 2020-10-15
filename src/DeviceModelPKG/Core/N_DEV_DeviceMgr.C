@@ -4889,15 +4889,6 @@ bool setParameterRandomExpressionTerms(
   std::vector<Util::Expression> & global_expressions = globals.global_expressions;
   std::vector<std::string> & global_exp_names = globals.global_exp_names;
 
-#if 0
-  // artificial params probabaly can't work for AGAUSS, etc.
-  ArtificialParameterMap::iterator artificial_param_it = artificial_parameter_map.find(name);
-  if (artificial_param_it != artificial_parameter_map.end())
-  {
-    (*artificial_param_it).second->setValue(device_manager, value);
-  }
-  else
-#endif
   {
     GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
 
@@ -5011,7 +5002,10 @@ bool setParameterRandomExpressionTerms(
   }
 
 #if 0
-  // ERK. Check this later.
+  // ERK. This will need to be set up later.  Currently, the random operators 
+  // cannot be applied thru the extern device interface.  This code below is just
+  // copied from the original setParameter function, and won't work correctly
+  // for this use case.  Leaving in place as a reminder.
 
   // Certain parameters should be passed through to the inner solve,
   // if there is an inner circuit problem.  The names of parameters
