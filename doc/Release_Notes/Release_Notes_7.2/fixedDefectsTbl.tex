@@ -182,6 +182,12 @@ TABLE form would get the correct answer at first.  However, it may then "stall"
 (e.g, keep taking really small time-steps) and never complete the simulation run.
 \\ \hline
 
+\textbf{1222-SON}: Near-infinite loop in expression library, uncovered by modern PDK files  & 
+Some modern process design kits (PDKs) contain very complex use of expressions, 
+involving many nested function calls.  In some cases, this was not parsable with
+the old \Xyce{} expression library.
+\\ \hline
+
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
 \end{longtable}
