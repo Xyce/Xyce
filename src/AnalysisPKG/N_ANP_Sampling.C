@@ -965,7 +965,11 @@ void Sampling::completeEnsembleOutputs()
   {
 #if Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
-    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    long theSeed=0;
+    if (resamplePCE_)
+    {
+      theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    }
 #endif
 
     Parallel::Machine comm = analysisManager_.getComm();
@@ -1120,7 +1124,11 @@ void Sampling::completeEnsembleOutputs()
   {
 #if Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
-    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    long theSeed=0;
+    if (resamplePCE_)
+    {
+      theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    }
 #endif
 
     Parallel::Machine comm = analysisManager_.getComm();
