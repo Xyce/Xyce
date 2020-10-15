@@ -449,6 +449,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_REAL	"real"
 %token TOK_IMAG	"imag"
 %token TOK_EXP	"exp"
+%token TOK_EXP_CONST	"exp_const"
 %token TOK_SIN	"sin"
 %token TOK_COS	"cos"
 %token TOK_MABS	"m"
@@ -1022,6 +1023,12 @@ exp:
   | TOK_EXP exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>($2));
+      $$ = tmpPtr;
+    }
+  | TOK_EXP_CONST
+    {
+      Teuchos::RCP<astNode<usedType> > onePtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(1.0));
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>(onePtr));
       $$ = tmpPtr;
     }
   | TOK_SIN exp TOK_RIGHTPAREN
