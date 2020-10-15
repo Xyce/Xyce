@@ -61,6 +61,29 @@ or \texttt{.global\_param} names, but there may be other undocumented
 limitations.  These invalid parameter names will generally cause Xyce
 to exit with an appropriate error message.  \\ \hline
 
+\textbf{1309-SON}: Incorrect results for AVG, INTEG, RMS measures when FROM
+and/or TO values are not equal to a time-step or sweep value & The \texttt{AVG},
+\texttt{INTEG} and \texttt{RMS} measures can return an incorrect value if
+the \texttt{FROM} or \texttt{TO} qualifiers are given on the measure line
+and those values are not equal to an accepted time-step value, or one of
+the specified AC, DC or NOISE sweep values.  A simple example for AC measures
+is:
+\begin{verbatim}
+.AC DEC 5 100Hz 1e6
+.MEASURE AC avg1  AVG VR(B) FROM=70e3
+\end{verbatim}
+The answer will be correct if \texttt{FROM}=100e3, which is a requested
+AC sweep value. It will be incorrect for \texttt{FROM}=70e3.
+
+\textbf{\textit{Workaround}}:
+A workaround is less obvious for TRAN measures.  However, this \texttt{.OPTIONS}
+line can be used to force Xyce to take a time-step at the requested \texttt{FROM}
+and/or \texttt{TO} values:
+\begin{verbatim}
+.OPTIONS TIMEINT BREAKPOINTS=<fromValue>, <toValue>
+\end{verbatim}
+\\ \hline
+
 \textbf{1262-SON}: Duplicate L device definitions are not a parsing error
 when one of the duplicate L devices is part of a K device &
 As an example, this netlist will not produce a parsing error.  Instead,
