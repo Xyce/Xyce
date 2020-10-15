@@ -418,6 +418,9 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     loader_.getRandomParams(exprSamplingVector_, pdsComm);
     samplingVector_.insert
       (samplingVector_.end(), exprSamplingVector_.begin(), exprSamplingVector_.end());
+
+    paramNameVec_.resize(samplingVector_.size());
+    for (int ii=0;ii<samplingVector_.size();ii++) { paramNameVec_[ii] = samplingVector_[ii].name; }
   }
   else
   {
