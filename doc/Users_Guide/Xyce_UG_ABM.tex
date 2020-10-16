@@ -117,9 +117,11 @@ name. \Xyce{} recognizes the following constructs in ABM expressions:
 \item \texttt{V(<node name>)}
 \item \texttt{V(<node name>,<node name>)} (the voltage difference between the first and second nodes)
 \item \texttt{I(<voltage source name>)}
-\item Reserved simulator variables, such as \texttt{TIME} and \texttt{FREQ}
+\item Reserved simulator variables, such as \texttt{TIME}, \texttt{TEMP}, \texttt{VT}, \texttt{FREQ} and \texttt{GMIN}
 \item The constants, \texttt{PI} and \texttt{EXP}, which equal $\pi$ and $e$, respectively.
-\item Lookup tables
+\item Lookup tables, which may be a function of time and other inputs
+\item User-defined functions via \texttt{.func}
+\item User-defined \texttt{.param} and \texttt{.global\_param} parameters.
 \end{XyceItemize}
 
 In a hierarchical circuit (a circuit with possibly nested levels of

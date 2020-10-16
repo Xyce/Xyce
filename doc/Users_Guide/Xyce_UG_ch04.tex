@@ -255,10 +255,9 @@ For using a parameter in a circuit, one must:
 \item \verb+GMIN+
 \end{XyceItemize}
 
-\texttt{Time}, \texttt{TEMP}, \texttt{Vt} and \texttt{GMIN} are
+\texttt{Time}, \texttt{TEMP}, \texttt{Vt}, \texttt{FREQ} and \texttt{GMIN} are
 reserved and defined as ``special variables'', and may be used in
-B source expressions.  The use of the \texttt{FREQ} special variable
-in B source expressions is not supported.
+B source expressions.   Their values are set by the simulator.
 
 \subsubsection{Example:  Declaring a parameter}
 \index{Example!declaring parameters}
@@ -298,16 +297,6 @@ NOTE:	Ensure the value being replaced remains accessible within the current hier
 \subsubsection{Limitations on parameter definitions}
 
 As chapter~\ref{Behavioral_Modeling} describes, there is considerable flexibility in the use of parameters. They can be set to expressions containing other parameters, and can be passed down the hierarchy into subcircuits. Fundamentally, however, parameters are constants evaluated at the beginning of a run; therefore, all terms in the expression defining the parameter must be constants known at the beginning of the run. It is not legal to use time-dependent or frequency-dependent expressions in parameter declarations (either by including voltage nodes or currents, or by including references to the special variables \texttt{TIME} or \texttt{FREQ}).
-
-Parameters defined within a given scope can be used in any expression within that scope. The only limitation on ordering is for the use of a parameter in an expression that defines the value of another parameter. In that case, all parameters used in the expression must be defined before being used to define another parameter. So, in the following example:
-
-  \begin{vquote}
-R1  1  0  \{B+C\} ; OK because the expression is not used to define a param
-.PARAM A=3
-.PARAM B=\{A+1\}  ; OK because A is defined above
-.PARAM D=\{C+2\}  ; Illegal because C is not yet known
-.PARAM C=2
-\end{vquote}
 
 \subsection{Global Parameters}
 \index{netlist!global parameterss}
