@@ -443,8 +443,19 @@ ExpressionData::setup(
       }
       else
       {
-        Report::UserWarning0() << "This field: " << varName 
-          << " from the expression " << expression_->get_expression() << " is not resolvable";
+        // disabling this warning because it is sometimes wrong.  If I have {R1:R} on the .print line, and R1 
+        // does exist in the circuit, then it *is* resolvable.  But, this function will not correctly figure
+        // that out, because in this function it only checks if it is a .param or a .global_param.   The 
+        // expression library doesn't know enough yet to exclude R1:R from the "unresolved params" vector.
+        // But it will print just fine, once the simulation is up and running, because the outputs group
+        // is able to find it correctly.
+        //
+        // Also, if R1:R isn't legitimately resolvable (i.e. R1 isn't present 
+        // in the circuit), then the ouptuts group will complain about it later and 
+        // issue a fatal error.  So, this warning isn't necessary, and is sometimes wrong.
+        //
+        //Report::UserWarning0() << "This field: " << varName 
+          //<< " from the expression " << expression_->get_expression() << " is not resolvable";
       }
     }
   }
