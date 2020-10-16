@@ -2030,6 +2030,30 @@ void populateSweepParam (
   GET_RANDOM_OP_DATA(getLimitData,Limit)
 }
 
+struct SweepParam_lesser
+{
+  bool operator ()(Xyce::Analysis::SweepParam const& a, Xyce::Analysis::SweepParam const& b) const 
+  {
+    return (a.name < b.name);
+  }
+};
+
+struct SweepParam_greater
+{
+  bool operator ()(Xyce::Analysis::SweepParam const& a, Xyce::Analysis::SweepParam const& b) const 
+  {
+    return (a.name > b.name);
+  }
+};
+
+struct SweepParam_equal
+{
+  bool operator ()(Xyce::Analysis::SweepParam const& a, Xyce::Analysis::SweepParam const& b) const 
+  {
+    return (a.name == b.name);
+  }
+};
+
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getRandomParams
 //
@@ -2057,13 +2081,10 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
     populateSweepParam(global_expressions[ii], global_exp_names[ii], SamplingParams );
   }
 
-  // now do device params.  When this function is called, 
-  // the "dependentPtrVec_" hasn't been set up yet, so it can't be used.
-  //
-  // This part currently doensn't work in parallel.   It is just considering local
-  // params, which means that each proc will have a different list.
+  // now do device params
   {
     std::vector<Xyce::Analysis::SweepParam>  deviceSamplingParams;
+    std::vector<Xyce::Analysis::SweepParam>  deviceModelSamplingParams;
 
     // models
     for (int ii=0;ii<modelVector_.size();ii++)
@@ -2075,9 +2096,91 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         for (int jj=0;jj<depVec.size();jj++) 
         {
           std::string fullName = entityName + ":" + depVec[jj].name;
-          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams ); 
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams ); 
         }
       }
+    }
+
+    // this sort appears to matter for the latch_embedded_nisp_norm.cir when running in parallel.
+    std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
+
+    //
+    // if parallel, get a combined vector of random model params from all processors.
+    // ERK Note: this parallel reduction may be unneccessary.  As of this writing,
+    // I am not 100% sure what the distribution strategy is for device models.
+    //
+    // So, I am writing this assuming that 
+    //   (1) models are not global, 
+    //   (2) the same model may appear on 2 or more processors
+    //
+    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    {
+      int procID = parallel_comm.procID();
+      int numProc = parallel_comm.numProc();
+      int numDevParam = deviceModelSamplingParams.size();
+      int numDevParamTotal = 0;
+      parallel_comm.sumAll(&numDevParam, &numDevParamTotal, 1);
+
+      std::vector<Xyce::Analysis::SweepParam> externalDeviceSamplingParams;
+      if (numDevParamTotal > 0)
+      {
+        // Count the bytes for packing
+        int byteCount = 0;
+
+        // First count the size of the local vector
+        byteCount += sizeof(int);
+
+        // Now count all the SweepParams in the vector
+        for (int ii=0;ii<deviceModelSamplingParams.size();ii++)
+        {
+          byteCount += Xyce::packedByteCount(deviceModelSamplingParams[ii]);
+        }
+
+        for (int proc=0; proc<numProc; ++proc)
+        {
+          parallel_comm.barrier();
+
+          // Broadcast the buffer size for this processor.
+          int bsize=0;
+          if (proc == procID) { bsize = byteCount+100; }
+          parallel_comm.bcast( &bsize, 1, proc );
+
+          // Create buffer.
+          int pos = 0;
+          char * paramBuffer = new char[bsize];
+
+          if (proc == procID) 
+          {
+            parallel_comm.pack( &numDevParam, 1, paramBuffer, bsize, pos );
+            for (int ii=0;ii<deviceModelSamplingParams.size();ii++)
+            {
+              Xyce::pack(deviceModelSamplingParams[ii], paramBuffer, bsize, pos, &parallel_comm);
+            }
+            parallel_comm.bcast( paramBuffer, bsize, proc );
+          }
+          else 
+          {
+            parallel_comm.bcast( paramBuffer, bsize, proc );
+            int devParams = 0;
+            parallel_comm.unpack( paramBuffer, bsize, pos, &devParams, 1 );
+            Xyce::Analysis::SweepParam tmpSweepParam;
+            for (int i=0; i<devParams; ++i) 
+            {
+              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm); 
+              externalDeviceSamplingParams.push_back( tmpSweepParam );
+            }
+          }
+          delete [] paramBuffer;
+        }
+      }
+
+      deviceModelSamplingParams.insert
+        (deviceModelSamplingParams.end(), externalDeviceSamplingParams.begin(), externalDeviceSamplingParams.end());
+
+      // sort the new vector and then eliminate duplicates.
+      std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
+      std::vector<Xyce::Analysis::SweepParam>::iterator it = std::unique(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_equal());
+      deviceModelSamplingParams.resize( std::distance (deviceModelSamplingParams.begin(), it ));
     }
 
     // instances
@@ -2096,7 +2199,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
     }
 
-    // if parallel, get a combined vector of random params from all processors.
+    // if parallel, get a combined vector of random instance params from all processors.
     if (Parallel::is_parallel_run(parallel_comm.comm()))
     {
       int procID = parallel_comm.procID();
@@ -2105,54 +2208,70 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       int numDevParamTotal = 0;
       parallel_comm.sumAll(&numDevParam, &numDevParamTotal, 1);
 
+      std::vector<Xyce::Analysis::SweepParam> externalDeviceSamplingParams;
       if (numDevParamTotal > 0)
       {
-        std::vector<Xyce::Analysis::SweepParam> orig_deviceSamplingParams = deviceSamplingParams;
+        // Count the bytes for packing
+        int byteCount = 0;
 
-        deviceSamplingParams.resize(numDevParamTotal);
+        // First count the size of the local vector
+        byteCount += sizeof(int);
 
-        int loc=0;
+        // Now count all the SweepParams in the vector
+        for (int ii=0;ii<deviceSamplingParams.size();ii++)
+        {
+          byteCount += Xyce::packedByteCount(deviceSamplingParams[ii]);
+        }
+
         for (int proc=0; proc<numProc; ++proc)
         {
-          int cnt = 0;
-          if (proc == procID) { cnt = numDevParam; }
-          parallel_comm.bcast(&cnt, 1, proc);
+          parallel_comm.barrier();
 
-          for (int i = 0; i < cnt; ++i)
+          // Broadcast the buffer size for this processor.
+          int bsize=0;
+          if (proc == procID) { bsize = byteCount+100; }
+          parallel_comm.bcast( &bsize, 1, proc );
+
+          // Create buffer.
+          int pos = 0;
+          char * paramBuffer = new char[bsize];
+
+          if (proc == procID) 
           {
-            if (proc == procID)
+            parallel_comm.pack( &numDevParam, 1, paramBuffer, bsize, pos );
+            for (int ii=0;ii<deviceSamplingParams.size();ii++)
             {
-              Xyce::Analysis::SweepParam & tmpSweepParam = deviceSamplingParams[loc];
-              int size = Xyce::packedByteCount(tmpSweepParam);
-              int bufSize = size + 100;
-              char *buf = new char[bufSize];
-              parallel_comm.bcast(&size, 1, proc);
-              int pos = 0;
-              Xyce::pack(tmpSweepParam, buf, bufSize, pos, &parallel_comm);
-              parallel_comm.bcast(buf, size, proc);
-              deviceSamplingParams[loc] = orig_deviceSamplingParams[i];
-              delete[] buf;
+              Xyce::pack(deviceSamplingParams[ii], paramBuffer, bsize, pos, &parallel_comm);
             }
-            else
-            {
-              int size = 0;
-              parallel_comm.bcast(&size, 1, proc);
-              int bufSize = size + 100;
-              char *buf = new char[bufSize];
-              parallel_comm.bcast(buf, size, proc);
-              int pos = 0;
-              Xyce::Analysis::SweepParam tmpSweepParam;
-              Xyce::unpack(tmpSweepParam, buf, bufSize, pos, &parallel_comm);
-              deviceSamplingParams[loc] = tmpSweepParam;
-              delete[] buf;
-            }
-            ++loc;
+            parallel_comm.bcast( paramBuffer, bsize, proc );
           }
+          else 
+          {
+            parallel_comm.bcast( paramBuffer, bsize, proc );
+            int devParams = 0;
+            parallel_comm.unpack( paramBuffer, bsize, pos, &devParams, 1 );
+            Xyce::Analysis::SweepParam tmpSweepParam;
+            for (int i=0; i<devParams; ++i) 
+            {
+              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm); 
+              externalDeviceSamplingParams.push_back( tmpSweepParam );
+            }
+          }
+          delete [] paramBuffer;
         }
       }
+
+      deviceSamplingParams.insert
+        (deviceSamplingParams.end(), externalDeviceSamplingParams.begin(), externalDeviceSamplingParams.end());
+
+      // sort the new vector, so they match on each proc.
+      std::sort(deviceSamplingParams.begin(), deviceSamplingParams.end(), SweepParam_greater());
     }
 
-    // now insert the model/instance parameters into the vector.
+    // now insert the model/instance parameters into the master vector.
+    SamplingParams.insert
+      (SamplingParams.end(), deviceModelSamplingParams.begin(), deviceModelSamplingParams.end());
+
     SamplingParams.insert
       (SamplingParams.end(), deviceSamplingParams.begin(), deviceSamplingParams.end());
   }
