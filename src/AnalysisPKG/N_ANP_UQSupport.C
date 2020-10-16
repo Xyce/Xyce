@@ -869,7 +869,8 @@ void setupLHSSampleValues(
       else
       {
         Xyce::Report::DevelFatal0().in(" setupLHSSampleValues - ") << 
-         sp.type << "is an unsupported distribution for LHS.";
+          sp.name << " uses " << 
+         sp.type << " which is an unsupported distribution for LHS.";
       }
 
       X[numSamples * ip + is] = finalVal;
