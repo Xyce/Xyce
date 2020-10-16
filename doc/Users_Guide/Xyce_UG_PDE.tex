@@ -516,54 +516,7 @@ Table~\ref{flatxy_table} lists conventions for ``flat'' parameters.
 
 \LTXtable{\textwidth}{flattbl}
 
-\newpage
-\subsubsection{Specifying doping profiles using expressions}
-The \Xyce{} expression library can be used to specify doping profiles.  An example of this is given in 
-figures~\ref{One_D_Doping_Electrode_Expression}.  In the example, the same \texttt{region} specification is 
-used to specify doping regions.  However, unlike the previous example, each species is assigned an user-defined 
-expression to define the profile as a function of depth.  This capability is only available for 
-one dimensional devices.
-\begin{figure}
-  \begin{centering}
-    \shadowbox{
-      \begin{minipage}{0.8\textwidth}
-        \begin{vquote}
-\color[gray]{0.5}Expression doping example\color{black}
-.param xs=1.0e+4\color{blue}; distance scalar\color{black}
-.param A\_B=19.574867\color{blue};boron params\color{black}
-.param x0\_B=-0.228
-.param w\_B=0.152
-.param A\_SB=18.61832\color{blue};antimony params\color{black}
-.param x0\_SB=3.694
-.param w\_SB=0.542
-.param A\_AS=20.11501\color{blue};arsenic params\color{black}
-.param x0\_AS=0.061
-.param w\_AS=0.038
-.Func ifmax (a,b) \{if(a>b, a, b)]\}
-.Func FB(X)\{(10**A\_B)*exp(-((((X*xs)-x0\_B)/(2*w\_B))**2))\}
-.Func FSB(X)\{(10**A\_SB)*exp(-((((X*xs)-x0\_SB)/(2*w\_SB))**2))\}
-.Func FAS(X)\{(10**A\_AS)
-+ *exp(-(((ifmax((X*xs)-x0\_AS,0))/(2*w\_AS))**2))\}
-\color[gray]{0.5}V1 0 1 1.0
-ypde diode  1 0 pdediode l=3.3e-5 nx=201 area=1.0 
-\color{red}+ region={name       =          reg1,  reg2
-+         function   =    expression,  expression
-+         type       =         ptype,  ntype
-+         expression =  \{FB(#x)\}, \{FAS(#x) + FSB(#x)\}
-+         species    =            BM,  ASP }\color[gray]{0.5}
-.MODEL pdediode  ZOD  level=1
-.dc V1 1.0 1.0 1.0
-.print dc v(1) {log10(abs(I(V1)))}
-\end{vquote}
-\end{minipage}
-}
-\caption{One-dimensional example, with expression-based doping.  
-    Each of the functions 
-    (FB, FAS and FSB) correspond to a different dopant, and are functions of depth.  The red text 
-    shows where these three functions are used to specify doping profiles.
-\label{One_D_Doping_Electrode_Expression}}
-\end{centering}
-\end{figure}
+%\include{expressionDoping}
 
 \newpage
 \subsection{Default Doping Profiles}
