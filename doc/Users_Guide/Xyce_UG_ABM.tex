@@ -117,12 +117,10 @@ name. \Xyce{} recognizes the following constructs in ABM expressions:
 \item \texttt{V(<node name>)}
 \item \texttt{V(<node name>,<node name>)} (the voltage difference between the first and second nodes)
 \item \texttt{I(<voltage source name>)}
-\item The variable, \texttt{TIME}
+\item Reserved simulator variables, such as \texttt{TIME} and \texttt{FREQ}
 \item The constants, \texttt{PI} and \texttt{EXP}, which equal $\pi$ and $e$, respectively.
 \item Lookup tables
 \end{XyceItemize}
-
-The use of the variable \texttt{FREQ} is not supported in ABM expressions.
 
 In a hierarchical circuit (a circuit with possibly nested levels of
 subcircuits), voltage source names in an ABM expression must be the
