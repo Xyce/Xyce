@@ -1155,7 +1155,8 @@ C1 1 0 2e-6
 .AC data=table
 
 \color{blue}* AC file output\color{black}
-.print ac \{mag\} \{phase\} \{Isrc:acmag\} \{Isrc:acphase\} \{r1:r\} v(1)
+.print ac \{mag\} \{phase\} \{Isrc:acmag\} \{Isrc:acphase\} 
++ \{r1:r\} v(1)
 
 .end
 \end{vquote}
@@ -1247,13 +1248,13 @@ Some examples are as follows:
 \Example{\\ 
 \texttt{.print AC V(3) }\\
 \texttt{.print AC VI(15)}\\
-\texttt{.print AC VP(OUTPUT)}
+\texttt{.print AC VP(OUTPUT)} \\
+\texttt{.print AC \{Re(V(OUTPUT))\} } \\
+\texttt{.print AC \{Img(V(OUTPUT))\} }
 }
 
-As a note, the \Xyce{} expression library was not written to work with
-complex quantities. If AC voltages are used in expressions then the
-expression library uses only the real part.  See the \Xyce{} Reference
-Guide\ReferenceGuide{} for more details.
+As shown in the examples, the expression library can handle both real and complex valued solution variables.
+See the \Xyce{} Reference Guide\ReferenceGuide{} for more details.
 
 
 %%%%%%

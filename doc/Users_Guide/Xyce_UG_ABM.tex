@@ -122,6 +122,7 @@ name. \Xyce{} recognizes the following constructs in ABM expressions:
 \item Lookup tables, which may be a function of time and other inputs
 \item User-defined functions via \texttt{.func}
 \item User-defined \texttt{.param} and \texttt{.global\_param} parameters.
+\item Random operators such as \texttt{AGAUSS}.
 \end{XyceItemize}
 
 In a hierarchical circuit (a circuit with possibly nested levels of
@@ -141,26 +142,26 @@ allowed. The following netlist fragment shows the range of
 simple items allowed in ABM  expressions:
 
 \begin{vquote}
-* Current through B1 given as expression of voltage drop between 
-* nodes 2 and 3 plus current through voltage source Vr4mon
+\color{blue}* Current through B1 given as expression of voltage drop between 
+* nodes 2 and 3 plus current through voltage source Vr4mon\color{black}
 B1  1  0  I=\{V(2,3) + I(Vr4mon)\}
 R4  2  0  10K
 Vr4mon  2a 2  0V
-* Voltage across device Em given as time-dependent expression 
+\color{blue}* Voltage across device Em given as time-dependent expression \color{black}
 Em  3  2a  VALUE=\{PAR3+1000*time\}
-* Voltage across device B2 set to  current through device Em
+\color{blue}* Voltage across device B2 set to  current through device Em\color{black}
 B2  2a  0  V=\{I(Em)\}
 M3  Drain  6  0  NMOD
 VdrainM3 DrainPrime Drain 0v
-* Voltage across B3 is function of voltage on node two and current through
-* device VdrainM3
+\color{blue}* Voltage across B3 is function of voltage on node two and 
+* current through device VdrainM3\color{black}
 B3  6  4  V=\{I(VdrainM3)+V(2)\}
-* Voltage across device B4 is function of an internal node named "5" of 
-* subcircuit instance X1
+\color{blue}* Voltage across device B4 is function of an internal node 
+* named "5" of subcircuit instance X1\color{black}
 X1 1 3 mysubcircuit
 B4 4 5 V=\{V(X1:5)\}
-* Current through device B5 taken from current through internal device V4
-* of subcircuit instance X1
+\color{blue}* Current through device B5 taken from current through 
+* internal device V4 of subcircuit instance X1\color{black}
 B5 4 5 I=\{I(X1:V4)\}
 \end{vquote}
 
