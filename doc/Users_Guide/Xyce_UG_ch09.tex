@@ -1769,9 +1769,9 @@ sensitivities are supported.  An example netlist which exercises the
 capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
 
 The netlist commands for AC sensitivities are very similar to those
-for DC, but with some small exceptions.  The expression library in
-\Xyce{} currently does not support complex numbers, so the
-specification for objective functions is more limited.  As such, the
+for DC, but with some small exceptions.   As of this writing, objective 
+functions for this capability have not been implemented to use the 
+expression library.  As such, the
 \texttt{objfunc} parameter will not work with AC sensitivities, and
 the user should instead specify outputs using \texttt{objvars}
 followed by a list of node names.  The sensitivities that are computed
@@ -1818,9 +1818,9 @@ Direct Sensitivities for node V(2):
 VR(2) = 1.0000e+01  VI(2) = -1.3880e-02
 VM(2) = 1.0000e+01  VP(2) = -1.3880e-03
 
-Name  Value Sensitivity\_Re  Sensitivity\_Im  Sensitivity\_Mag Sensitivity\_Phase
-R1:R  4.7e+03  -8.1975e-09     -2.9531e-06     -4.0988e-09     -2.9531e-07
-C1:C  4.7e-08  -8.1975e+02     -2.9531e+05     -4.0988e+02     -2.9531e+04
+Name   Value    Real         Im         Mag        Phase
+R1:R  4.7e+03 -8.1975e-09 -2.9531e-06 -4.0988e-09 -2.9531e-07
+C1:C  4.7e-08 -8.1975e+02 -2.9531e+05 -4.0988e+02 -2.9531e+04
 
 \end{vquote}
 \end{minipage}
