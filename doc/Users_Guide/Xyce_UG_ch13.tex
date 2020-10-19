@@ -201,9 +201,9 @@ Section~\ref{HybridLinearSolver_Options}.
 Mode & Linear System Size & Reason \\
 \hline
 ``Serial load, serial solve'' & $10^0$ - $10^3$ & MPI overhead cannot speed up device evaluation or linear solve. \\
-``Parallel load, serial solve'' & $10^3$ - $10^5$ & Distributed device evaluations can speed up the simulation, but 
+``Parallel load, serial solve'' & $10^3$ - $10^4$ & Distributed device evaluations can speed up the simulation, but 
 iterative linear solvers are not more efficient than direct methods.\\
-``Parallel load, parallel solve'' & $10^5$ or more & Distributed device evaluations can speed up the simulation and
+``Parallel load, parallel solve'' & $10^4$ or more & Distributed device evaluations can speed up the simulation and
 so can iterative linear solvers, if an efficient preconditioner is available. \\
 \hline
 \end{tabular}
@@ -257,8 +257,8 @@ is `\texttt{KLU},' `\texttt{KSPARSE},' `\texttt{SUPERLU},' `\texttt{SUPERLUDIST}
 Solver & Version & Linear System Size\\
 \hline
 KLU & Serial & {\it all} \\
-KLU & Parallel & $1-(10^5-1)$ unknowns \\
-AztecOO & Parallel & $10^5+$ unknowns \\
+KLU & Parallel & $< 10^4$ unknowns \\
+AztecOO & Parallel & $\geq 10^4$ unknowns \\
 \hline
 \end{tabular}
 \end{center}
@@ -269,7 +269,7 @@ KLU is a serial, sparse direct solver native to the Amesos package in Trilinos~\
 KLU is the default solver for small circuits in parallel builds of \Xyce{} as well, but this requires the linear system to be solved 
 on one processor and the solution communicated back to all processors. As long as the linear system can fit on one processor, KLU is 
 often a superior approach to using an iterative linear solver.  So, if a parallel build of \Xyce{} is run in serial on a circuit that generates a linear system
-larger than one thousand unknowns and the simulation fails to converge, then specifying KLU as the linear solver may fix that problem.  
+larger than ten thousand unknowns and the simulation fails to converge, then specifying KLU as the linear solver may fix that problem.  
 
 Some of the solver parameters for KLU can be altered through the `\texttt{.OPTIONS LINSOL}' control line in the netlist.  
 Table \ref{tab:klu:options} lists solver parameters and their default values for KLU.
