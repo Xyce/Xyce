@@ -957,8 +957,7 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
   {
     DevelFatal(*this).in("Instance::InterpV1V2FromHistory")
       << " InterpV1V2FromHistory called but history list is"
-      << " empty.  Might be due to trying to restart this netlist.\n"
-      << "Restarts of netlists with transmission lines does not work yet.\n";
+      << " empty.";
   }
 
   last--; // point to the last stored item, not the tail of the list!

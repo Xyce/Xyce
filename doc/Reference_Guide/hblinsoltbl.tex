@@ -15,7 +15,7 @@
 \label{HBLinSolPKG}
 \begin{OptionTable}{Options for Linear Solver Package for HB.}  \\ \hline
 
-TYPE & Determines which linear solver will be used.
+type & Determines which linear solver will be used
 \begin{XyceItemize}
 \item AztecOO 
 \item Belos
@@ -24,7 +24,18 @@ TYPE & Determines which linear solver will be used.
 &
 AztecOO\\ \hline
 
-DIRECT\_SOLVER & Determines which direct linear solver will be used.
+prec\_type & Determines which preconditioner will be used with an iterative linear solver 
+\begin{XyceItemize}
+\item block\_jacobi
+\end{XyceItemize}
+A preconditioner will not be used if {\tt type=Direct} is specified
+& block\_jacobi\\ \hline
+
+block\_jacobi\_corrected & Enable one-step correction to the {\tt block\_jacobi} preconditioner.
+& 0 (FALSE)\\ \hline
+ 
+direct\_solver & Determines which direct linear solver will be used if {\tt type=Direct}
+is specified
 \begin{XyceItemize}
 \item LAPACK
 \end{XyceItemize}
@@ -37,8 +48,8 @@ AZ\_max\_iter & Maximum number of iterative solver iterations & 200 \\ \hline
 
 AZ\_tol & Convergence tolerance & 1.0E-9 \\ \hline
 
-\texttt{prec\_type} & Preconditioning type & block\_jacobi \\ \hline
-
+output\_ls & Write out linear system matrix and right-hand-side vector to Matrix Market file every \# solves
+& 0 (no output) \\ \hline 
 \end{OptionTable}
 
 %%% Local Variables:

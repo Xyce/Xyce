@@ -1155,7 +1155,8 @@ C1 1 0 2e-6
 .AC data=table
 
 \color{blue}* AC file output\color{black}
-.print ac \{mag\} \{phase\} \{Isrc:acmag\} \{Isrc:acphase\} \{r1:r\} v(1)
+.print ac \{mag\} \{phase\} \{Isrc:acmag\} \{Isrc:acphase\} 
++ \{r1:r\} v(1)
 
 .end
 \end{vquote}
@@ -1247,13 +1248,13 @@ Some examples are as follows:
 \Example{\\ 
 \texttt{.print AC V(3) }\\
 \texttt{.print AC VI(15)}\\
-\texttt{.print AC VP(OUTPUT)}
+\texttt{.print AC VP(OUTPUT)} \\
+\texttt{.print AC \{Re(V(OUTPUT))\} } \\
+\texttt{.print AC \{Img(V(OUTPUT))\} }
 }
 
-As a note, the \Xyce{} expression library was not written to work with
-complex quantities. If AC voltages are used in expressions then the
-expression library uses only the real part.  See the \Xyce{} Reference
-Guide\ReferenceGuide{} for more details.
+As shown in the examples, the expression library can handle both real and complex valued solution variables.
+See the \Xyce{} Reference Guide\ReferenceGuide{} for more details.
 
 
 %%%%%%
@@ -1768,9 +1769,9 @@ sensitivities are supported.  An example netlist which exercises the
 capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
 
 The netlist commands for AC sensitivities are very similar to those
-for DC, but with some small exceptions.  The expression library in
-\Xyce{} currently does not support complex numbers, so the
-specification for objective functions is more limited.  As such, the
+for DC, but with some small exceptions.   As of this writing, objective 
+functions for this capability have not been implemented to use the 
+expression library.  As such, the
 \texttt{objfunc} parameter will not work with AC sensitivities, and
 the user should instead specify outputs using \texttt{objvars}
 followed by a list of node names.  The sensitivities that are computed
@@ -1817,9 +1818,9 @@ Direct Sensitivities for node V(2):
 VR(2) = 1.0000e+01  VI(2) = -1.3880e-02
 VM(2) = 1.0000e+01  VP(2) = -1.3880e-03
 
-Name  Value Sensitivity\_Re  Sensitivity\_Im  Sensitivity\_Mag Sensitivity\_Phase
-R1:R  4.7e+03  -8.1975e-09     -2.9531e-06     -4.0988e-09     -2.9531e-07
-C1:C  4.7e-08  -8.1975e+02     -2.9531e+05     -4.0988e+02     -2.9531e+04
+Name   Value    Real         Im         Mag        Phase
+R1:R  4.7e+03 -8.1975e-09 -2.9531e-06 -4.0988e-09 -2.9531e-07
+C1:C  4.7e-08 -8.1975e+02 -2.9531e+05 -4.0988e+02 -2.9531e+04
 
 \end{vquote}
 \end{minipage}

@@ -95,6 +95,18 @@ struct Depend
 
 };
 
+// ERK.  this could be replaced by a lambda
+struct MatchDependName
+{
+  MatchDependName(const std::string& name) : matchName_(name) {}
+  bool operator()(const Depend & dep) const
+  {
+    return dep.name == matchName_;
+  }
+  private:
+    const std::string& matchName_;
+};
+
 //-----------------------------------------------------------------------------
 // Class         : DeviceEntity
 // Purpose       :
@@ -231,6 +243,7 @@ public:
   void setupParamBreakpoints();
   bool getParamBreakpoints( std::vector<Util::BreakPoint> & );
 
+  bool setParameterRandomExpressionTerms(const std::string & paramName, int opIndex, int astType, double value, bool override_original);
 
   bool updateGlobalAndDependentParameters (
       bool globalParameterChanged,

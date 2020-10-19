@@ -25,15 +25,9 @@
 
     ABS(x) & $|x|$ & absolute value of $x$ \\ \hline
 
-    AGAUSS($\mu$,$\alpha$,$n$) & $\mu-\alpha < result < \mu+\alpha$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
-    & & The number returned will differ from the mean by at most $\alpha$ \\
-    & & A deviation $\alpha$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
 
     CEIL(x) & $\lceil x \rceil$ & least integer greater or equal to variable $x$  \\ \hline
 
-    GAUSS($\mu$,$\alpha$,$n$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
-    & & The number returned will differ from the mean by at most $\alpha*\mu$ \\
-    & & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
 
     DDT(x)
     &  $\frac{d}{dt} x(t)$ & time derivative of $x$ \\ \hline
@@ -70,11 +64,12 @@
 %%    & & \hspace*{1in}${p(z=x+y) = 1/2}$ \\
 %%    & & \hspace*{1in}${p(z=x-y) = 1/2}$ \\ \hline
     
-    M(x) & $|x|$ & absolute value of $x$ \\ \hline
+    M(x) & $|x|$ & absolute value or magnitude of $x$ \\ \hline
 
     MIN(x,y) & $\min(x,y)$ & minimum of $x$ and $y$  \\ \hline
 
     MAX(x,y) & $\max(x,y)$ & maximum of $x$ and $y$  \\ \hline
+
 
     PWR(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
     POW(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
@@ -82,9 +77,6 @@
     & $x^{y}$ if $x > 0$ & \\
     & 0 if $x = 0$ & sign corrected $x$ raised to $y$ power  \\
     & $-(-x)^{y}$ if $x < 0$ & \\ \hline
-
-    RAND()
-    & $0 < result < 1$ & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
 
     SDT(x)
     & $\int x(t)  dt$ & time integral of $x$ \\ \hline
@@ -109,6 +101,16 @@
     URAMP(x)
     & $x$ if $x > 0$ & ramp function \\
     & 0 otherwise &  \\ \hline
+
+    \category{Operators related to complex numbers} \\ \hline
+
+    IMG(x) &     & imaginary part of variable $x$ \\ \hline
+
+    PH(x) &  & phase of variable $x$ \\ \hline 
+
+    R(x) &      & real part of variable $x$ \\ \hline
+
+    RE(x) &      & real part of variable $x$ \\ \hline
 
     \category{Exponential, logarithmic, and trigonometric functions} \\ \hline
 
@@ -148,10 +150,37 @@
 
     TANH(x) & $\tanh(x)$ & hyperbolic tangent of $x$ \\ \hline
 
+    \category{Operators related to random distributions} \\ \hline
+
+    %AGAUSS($\mu$,$\alpha$,$n$) & $\mu-\alpha < result < \mu+\alpha$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
+    AGAUSS($\mu$,$\alpha$,$n$) &  & Random number sampled from normal distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
+    %& & The number returned will differ from the mean by at most $\alpha$ \\
+    & & A deviation $\alpha$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
+
+    %GAUSS($\mu$,$\alpha$,$n$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
+    GAUSS($\mu$,$\alpha$,$n$) &  & Random number sampled from normal distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
+    %& & The number returned will differ from the mean by at most $\alpha*\mu$ \\
+    & & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
+
+
+    %AUNIF($\mu$,$\alpha$) & $\mu-\alpha < result < \mu+\alpha$ & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
+    AUNIF($\mu$,$\alpha$) &  & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
+    & & The number returned will differ from the mean by at most $\alpha$ \footnotemark[1]  \\\hline 
+   % & & A deviation $\alpha$ will be $n$ standard deviations from the mean.
+
+    %UNIF($\mu$,$\alpha$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
+    UNIF($\mu$,$\alpha$) &  & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
+    & & The number returned will differ from the mean by at most $\alpha*\mu$ \footnotemark[1]  \\\hline 
+    %& & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.
+
+    RAND() & & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
+    %& $0 < result < 1$ & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
+
   \end{longtable}
-\footnotetext[1]{The random number functions \texttt{RAND}, \texttt{GAUSS},
-  and \texttt{AGAUSS} return a unique number per use in an expression,
-  but once evaluated this number is constant for the entire run, even
-  across \texttt{.STEP} iterations.  Unless a specific seed is specified using the \texttt{-randseed} command line option, the random number generator will be seeded using the system ``time'' function.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}  
+\footnotetext[1]{The default behavior of the random number functions \texttt{RAND}, \texttt{GAUSS},
+  and \texttt{AGAUSS} is to return a unique number per use in an expression, but once evaluated 
+  this number is constant for the entire run.  These functions can be connected to \texttt{.SAMPLING}, but only 
+  if so specified in the netlist by the command \texttt{.SAMPLING USEEXPR=TRUE}
+  Unless a specific seed is specified using the \texttt{-randseed} command line option, the random number generator will be seeded internally.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}  
 \footnotetext[2]{Use of the \texttt{IF} function to create an expression that has step-function-like behavior as a function of a solution variable is highly likely to produce convergence errors in simulation.  \texttt{IF} statements that have step-like behavior with an explicit time dependence are the exception, as the code will insert breakpoints at the discontinuities.  Do not use step-function or other infinite-slope transitions dependent on variables other than time. Smooth the transition so that it is more easily integrated through. See the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User’s Guide for guidance on using the \texttt{IF} function with the B-source device.}
 }

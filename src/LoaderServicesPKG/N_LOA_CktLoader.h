@@ -185,13 +185,13 @@ public:
 
   virtual bool setParamRandomExpressionTerms(
       std::string & name, std::string & opName, int opIndex,
-      enum Util::astRandTypes astType,
+      int astType,
       double val, bool overrideOriginal = false);
 
   // Function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const;
 
-  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams);
+  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams, Parallel::Communicator & parallel_comm);
 
   // Method which is called to update the sources.
   bool updateSources();

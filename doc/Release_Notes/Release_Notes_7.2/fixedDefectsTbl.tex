@@ -170,6 +170,23 @@ When a really large table (thousands of points) was used to specify a Bsrc
 via the expression library, there was a bottleneck which caused really slow execution.
 \\ \hline
 
+\textbf{1827-SRN}: Expression library selection of minimum breakpoint distance is too large &
+The breakpointing algorithm for expression-based sources had a flaw in it that 
+imposed an artificially large minimum distance between breakpoints.  This 
+prevented really fast rise times (for example) from working correctly.
+\\ \hline
+
+\textbf{794-SON}: Bug in TABLE Form of \Xyce{} Controlled Sources & 
+In some case, a \Xyce{} netlist that contains a controlled source that uses the 
+TABLE form would get the correct answer at first.  However, it may then "stall" 
+(e.g, keep taking really small time-steps) and never complete the simulation run.
+\\ \hline
+
+\textbf{1222-SON}: Near-infinite loop in expression library, uncovered by modern PDK files  & 
+Some modern process design kits (PDKs) contain very complex use of expressions, 
+involving many nested function calls.  In some cases, this was not parsable with
+the old \Xyce{} expression library.
+\\ \hline
 
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline

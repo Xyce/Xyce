@@ -236,13 +236,13 @@ public:
 
   virtual bool setParamRandomExpressionTerms(
       std::string & name, std::string & opName, int opIndex,
-      enum Util::astRandTypes astType,
+      int astType,
       double val, bool overrideOriginal = false) { return true; };
 
   // Virtual function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const = 0; 
 
-  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams) {};
+  virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams, Parallel::Communicator & parallel_comm) {};
 
   // Virtual method which is called to update the sources.
   virtual bool updateSources()

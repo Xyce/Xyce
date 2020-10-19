@@ -6246,6 +6246,57 @@ TEST (  Double_Parser_specials, CtoK1)
   EXPECT_DOUBLE_EQ(result, refRes);
 }
 
+TEST ( Double_Parser_specials, exp1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("exp"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  double result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, std::exp(1.0));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, std::exp(1.0));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, std::exp(1.0));
+  OUTPUT_MACRO2(Double_Parser_specials, exp1, expTest) 
+}
+
+TEST ( Double_Parser_specials, exp2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("5.0*exp"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  double result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  OUTPUT_MACRO2(Double_Parser_specials, exp2, expTest) 
+}
+
+TEST ( Double_Parser_specials, exp3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("exp*exp(2.0)"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  double result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  OUTPUT_MACRO2(Double_Parser_specials, exp3, expTest) 
+}
+
 //
 
 // these next two tests are for the use case of a parameter that is named either "I" or "V".

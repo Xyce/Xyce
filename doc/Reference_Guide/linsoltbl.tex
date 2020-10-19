@@ -14,7 +14,7 @@
 \index{solvers!linear!options}
 \begin{OptionTable}{Options for Linear Solver Package.}  
 \label{LinSolPKG}
-TYPE & Determines which linear solver will be used.
+type & Determines which linear solver will be used.
 \begin{XyceItemize}
 \item KLU
 \item KSparse
@@ -26,9 +26,32 @@ TYPE & Determines which linear solver will be used.
 Note that while KLU, KSparse, and SuperLU (optional) are available for parallel execution they will solve the linear system in serial.  Therefore they will be useful for moderate problem sizes but will not scale in memory or performance for large problems  &
 KLU (Serial) AztecOO (Parallel) \\ \hline
 
+prec\_type & Determines which preconditioner will be used with an iterative linear solver
+\begin{XyceItemize}
+\item Ifpack
+\end{XyceItemize}
+A preconditioner will not be used if a direct solver (KLU, KSparse, SuperLU) is specified.
+& Ifpack (Ifpack\_IlukGraph)\\ \hline
+
+use\_aztec\_precond & Triggers use of native AztecOO preconditioners for the iterative linear solves & 0 (FALSE) \\ \hline
+
+use\_ifpack\_factory & Use Ifpack factory to create preconditioner instead of using Ifpack\_IlukGraph & 0 (FALSE) \\ \hline
+
+ifpack\_type & If using the Ifpack factory, {\tt use\_ifpack\_factory=1}, which preconditioner is created
+\begin{XyceItemize}
+\item Amesos (Additive Schwarz w/ KLU subdomain solve)
+\item ILU
+\item ILUT
+\end{XyceItemize}
+& Amesos \\ \hline
+
+ShyLU\_rthresh & Relative dropping threshold for Schur complement preconditioner (ShyLU only) & 1.0E-03 \\ \hline
+
+\multicolumn{3}{|c|}{\color{XyceDarkBlue}\em\bfseries Transformation parameters} \\ \hline\hline
+
 TR\_partition & Perform load-balance partitioning on the linear system & 0 (NONE, Serial) \hspace{3em} 1 (Isorropia, Parallel) \\ \hline
 
-TR\_partition\_type & Type of load-balance partitioning on the linear system & ``HYPERGRAPH'' \\ \hline
+TR\_partition\_type & Type of load-balance partitioning on the linear system & HYPERGRAPH \\ \hline
 
 TR\_singleton\_filter & Triggers use of singleton filter for linear system & 0 (FALSE, Serial) 1 (TRUE, Parallel) \\ \hline
 
@@ -43,8 +66,6 @@ TR\_solvermap & Triggers remapping of column indices for parallel runs, recommen
 \multicolumn{3}{|c|}{\color{XyceDarkBlue}\em\bfseries Iterative linear solver parameters} \\ \hline\hline
 
 adaptive\_solve & Triggers use of AztecOO adaptive solve algorithm for preconditioning of iterative linear solves & 0 (FALSE) \\ \hline
-
-use\_aztec\_precond & Triggers use of native AztecOO preconditioners for the iterative linear solves & 0 (FALSE) \\ \hline
 
 AZ\_max\_iter & Maximum number of iterative solver iterations & 200 \\ \hline
 
@@ -87,7 +108,14 @@ AZ\_rthresh & Diagonal shifting relative threshold for ILU preconditioners & 1.0
 
 AZ\_athresh & Diagonal shifting absolute threshold for ILU preconditioners & 1.0E-04 \\ \hline
 
-ShyLU\_rthresh & Relative dropping threshold for Schur complement preconditioner (ShyLU only) & 1.0E-03 \\ \hline
+output\_ls & Write out linear system matrix and right-hand-side vector, post-transformation, to Matrix Market file every \# solves
+& 0 (no output) \\ \hline
+
+output\_base\_ls & Write out linear system matrix and right-hand-side vector, pre-transformation, to Matrix Market file every \# solves
+& 0 (no output) \\ \hline
+
+output\_failed\_ls & Write out linear system matrix and right-hand-side vector to Matrix Market file every \# solves when linear solver fails (only available for direct solvers)
+& 0 (no output) \\ \hline
 \end{OptionTable}
 
 %%% Local Variables:

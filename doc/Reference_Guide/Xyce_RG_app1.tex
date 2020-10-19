@@ -378,32 +378,27 @@ V1 1 0 sin(0 5 100khz)
 
 \subsection{Limitations on Using Complex Values in Expressions}
 \label{ComplexExpressions}
-The \Xyce{} expression library was not written to work with complex
-quantities.  If AC voltages are used in expressions then the
-expression library uses only the real part.  While the expression
-library was expanded recently to recognize the various components of
-complex quantities, such as real and imaginary parts (\texttt{VR(A)}
-and \texttt{VI(A)}) or the magnitude and phase (\texttt{VM(A)} or
-\texttt{VP(A)}), the arithmetic operators in the \Xyce{} expression
-library only work on real quantities.  The following approaches can be
-used to work around those limitations.
+The \Xyce{} expression library was written to work with complex
+quantities, and can perform complex arithmetic on any set of 
+complex inputs to produce a complex output.
+However, the default behavior is to print only the real part 
+for expressions on the print line.  If the user desires both the
+real and imaginary part, it is necessary to use operators 
+such as \texttt{Re()} and \texttt{Img()} as follows:
 
-The voltage drop between two nodes \texttt{N0} and \texttt{N1} can be
-printed with the two-node variant of the \texttt{V()} accessor:
 \begin{vquote}
-.PRINT AC  V(N0,N1)
+.PRINT AC  \{RE(V(N0,N1))\} \{IMG(V(N0,N1))\}
 \end{vquote}
-For any other sort of complex arithmetic, the expression must use the
-real and imaginary parts of the variables in question.  An example is
-as follows, where the real and imaginary parts of the desired
-quantities are calculated and printed separately:
+
+Note that this is only necessary to obtain the specific components 
+final result.   It isn't necessary to manually specify real equivalent 
+arithmetic expressions to do complex math, although that will work.  Complex 
+arithmetic will happen automatically within the expression.  So, for example,
+the following will work to produce the magnitude of the product of two 
+complex-valued voltage nodes:
+
 \begin{vquote}
-.PRINT AC \{VR(N0)-VR(N1)\} \{VI(N0)-VI(N1)\}
-+ \{VR(N0)*VR(N1)-VI(N0)*VI(N1)\} \{VR(N0)*VI(N1)+VI(N0)*VR(N1)\}
-\end{vquote}
-instead of:
-\begin{vquote}
-.PRINT AC \{V(N0)-V(N1)\}  \{V(N0)*V(N1)\}
+.PRINT AC  \{M(V(N1)*V(N0))\}
 \end{vquote}
 
 \subsection{Expressions for Device Instance and Model Parameters}

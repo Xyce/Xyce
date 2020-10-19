@@ -296,6 +296,65 @@ parameter, DCV0, only applies to \texttt{.DC} analyses.  They do not have
 default parameters for their transient forms, such as \texttt{SIN}
 or \texttt{PULSE}.
 
+\subsection{Sampling using random operators from expressions}
+
+The \Xyce{} expression library supports random operators in expressions, 
+including \texttt{AGAUSS}, \texttt{GAUSS}, \texttt{AUNIF}, \texttt{UNIF} and \texttt{RAND}.
+The \Xyce{} \texttt{.SAMPLING} analysis is able to use these, but they are not
+connected by default.  In order to use random expression operators with \texttt{.SAMPLING}, 
+the following commend must be present in the netlist:
+
+\Example{\\
+\texttt{\\
+.SAMPLING  useExpr=true
+}
+}
+
+This capability is potentially very powerful, as the random operators can 
+act as operators within complex expressions.  A simple example of this feature can be 
+seen in figure~\ref{Sampling_Netlist_4}.
+
+Note that currently, this feature cannot be used in the same netlist as the 
+specification described in section~\ref{sampling_statement}.  If 
+\texttt{useExpr=true}, \Xyce{} will ignore the comma-separated lists such as 
+\texttt{param}.  Likewise, if \texttt{useExpr=false} (the default), then 
+\Xyce{} will not randomly sample any random operators present in the circuit.  
+It will only sample the parameters listed by comma-separated lists.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}sampling example with random expression operators \color{black}
+R4 b 0 \{agauss(4k,0.4k,1)\}
+R3 a b \{agauss(1k,0.1k,1)\}
+R2 1 a \{agauss(2k,0.2k,1)\}
+R1 1 2 \{agauss(3k,0.1k,1)\}
+v1 2 0 10V
+
+.dc v1 10 10 1
+.print dc v(1)
+
+.SAMPLING 
++ useExpr=true
+
+.options SAMPLES numsamples=10
++ outputs=\{v(1)\}
++ sample\_type=lhs
++ stdoutput=true
+.end
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Voltage divider circuit netlist using random expression operators.
+\label{Sampling_Netlist_4}}
+\end{centering}
+\end{figure}
+
+
+
 \subsection{Output files}
 \label{sampling_output_files}
 \index{output!\texttt{.SAMPLING}}

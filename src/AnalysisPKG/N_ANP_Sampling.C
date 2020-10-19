@@ -280,10 +280,17 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 
   if (useExpressionSamples_)
   {
+    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+    N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
+
     SweepVector exprSamplingVector_;
-    loader_.getRandomParams(exprSamplingVector_);
+    loader_.getRandomParams(exprSamplingVector_, pdsComm);
+
     samplingVector_.insert
       (samplingVector_.end(), exprSamplingVector_.begin(), exprSamplingVector_.end());
+
+    paramNameVec_.resize(samplingVector_.size());
+    for (int ii=0;ii<samplingVector_.size();ii++) { paramNameVec_[ii] = samplingVector_[ii].name; }
   }
   else
   {
@@ -612,6 +619,13 @@ bool Sampling::doInit()
   }
 
   // check that all the specified params exist
+#if 0
+  std::cout << "Sampling::doInit.  Size of samplingVector = " << samplingVector_.size() <<std::endl;
+  for (int ii=0;ii<samplingVector_.size();ii++)
+  {
+    std::cout << "samplingVector_["<<ii<<"].name = " << samplingVector_[ii].name << std::endl;
+  }
+#endif
   UQ::checkParameterList(
       analysisManager_.getComm(), 
       loader_, 
@@ -954,7 +968,11 @@ void Sampling::completeEnsembleOutputs()
   {
 #if Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
-    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    long theSeed=0;
+    if (resamplePCE_)
+    {
+      theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    }
 #endif
 
     Parallel::Machine comm = analysisManager_.getComm();
@@ -1109,7 +1127,11 @@ void Sampling::completeEnsembleOutputs()
   {
 #if Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
-    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    long theSeed=0;
+    if (resamplePCE_)
+    {
+      theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    }
 #endif
 
     Parallel::Machine comm = analysisManager_.getComm();

@@ -246,7 +246,8 @@ long getTheSeed(
     Parallel::Machine comm, 
     const Xyce::IO::CmdParse & commandLine, 
     int userSeed, 
-    bool userSeedGiven);
+    bool userSeedGiven,
+    bool output=true);
 
 #if Xyce_STOKHOS_ENABLE
 //-----------------------------------------------------------------------------

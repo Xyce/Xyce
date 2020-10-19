@@ -88,7 +88,7 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item place holder
+\item The expression library in \Xyce{} has been completely rewritten and replaced.  This new library is much more efficient for expressions found in modern process design kits (PDKs).  
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -112,6 +112,8 @@ please visit the \XyceTM{} web page at
     for branch currents for AC and NOISE analysis modes.
   \item There is now limited support for more complex wildcards,
     such as V(X1*), I(X1*), P(X1*) and W(X1*), on .PRINT lines.
+  \item The new expression library (mentioned above) now fully supports complex numbers.
+  \item The new expression library can now connect random operators such as AGAUSS to .SAMPLING analysis.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

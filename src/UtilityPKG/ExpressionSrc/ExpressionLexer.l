@@ -259,6 +259,8 @@ LEAD I[SDGBEC1-9]
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
+<INITIAL>"exp"   { return XyceExpression::ExpressionParser::token::TOK_EXP_CONST; }
+
 <INITIAL>{VOP}[ \t]*"("     |
 <INITIAL>"VDB"[ \t]*"("     {
   BEGIN(voltagenodedef);
