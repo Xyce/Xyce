@@ -162,6 +162,15 @@ please visit the \XyceTM{} web page at
   be deprecated in a future release and the simpler syntax of
   \texttt{PARAMETER="string value"} will be used to specify string
   valued parameters.
+\item The ``Xygra'' device, which was written as a special-purpose
+  coupling mechanism to ALEGRA but which has occasionally been used
+  for other coupling problems, has been removed.  The new, more
+  flexible ``General External'' device was created to take its place,
+  and has supplanted the use of Xygra in ALEGRA.  If your code has
+  been using the Xygra capability to couple to Xyce, you must replace
+  your usage with the new capability.  The ``General External''
+  coupling mechanism is documented thoroughly in an application note
+  available on the \Xyce{} web site.
 \end{XyceItemize}
 
 \newpage
