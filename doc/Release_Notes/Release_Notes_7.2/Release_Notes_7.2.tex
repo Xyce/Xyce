@@ -135,7 +135,6 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
-\item The \Xyce{} project is no longer providing binaries for RHEL6.
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
@@ -163,31 +162,19 @@ please visit the \XyceTM{} web page at
   be deprecated in a future release and the simpler syntax of
   \texttt{PARAMETER="string value"} will be used to specify string
   valued parameters.
-\item The ``Xygra'' device, which was written as a special-purpose
-  coupling mechanism to ALEGRA but which has occasionally been used
-  for other coupling problems, has been removed.  The new, more
-  flexible ``General External'' device was created to take its place,
-  and has supplanted the use of Xygra in ALEGRA.  If your code has
-  been using the Xygra capability to couple to Xyce, you must replace
-  your usage with the new capability.  The ``General External''
-  coupling mechanism is documented thoroughly in an application note
-  available on the \Xyce{} web site.
 \end{XyceItemize}
-
-\newpage
-\section{Defects Fixed in this Release}
-\input{fixedDefectsTbl}
-
 
 \newpage
 \section{Interface Changes in this Release}
 \input{changesInputTbl}
 
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
 
 \newpage
 \section{Known Defects and Workarounds}
 \input{knownDefectsTbl}
-
 
 \newpage
 \section{Supported Platforms}
@@ -197,8 +184,9 @@ The following platforms have been subject to certification testing for the
 \begin{XyceItemize}
   \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
   \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
-  \item Apple${}^{\mbox{\textregistered}}$ OS X Sierra, x86-64 (serial and parallel)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS 10.14 and 10.15, x86-64 (serial and parallel)
 \end{XyceItemize}
+
 
 \subsection*{Build Support}
 Though not certified platforms, \Xyce{} has been known to run on the following
