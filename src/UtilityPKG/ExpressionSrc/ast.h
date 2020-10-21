@@ -3772,8 +3772,8 @@ class interpolatorOp : public astNode<ScalarT>
   public:
     //-------------------------------------------------------------------------------
     // functions:
-    interpolatorOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
-      astNode<ScalarT>(), tableArgs_(*args),
+    interpolatorOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(), tableArgs_(args),
       allNumVal_(true), input_(input)
       {
         int size = tableArgs_.size();
@@ -4064,6 +4064,8 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     std::vector<ScalarT> ya_;
 
     // All of the following will compile and will work on a lot of cases.
+    // I have chosen to use the Akima spline.  
+    // It doesn't get the wiggles that cubic splines tend to get.
     Xyce::Util::akima<ScalarT> yInterpolator_;
     //Xyce::Util::wodicka<ScalarT> yInterpolator_;
     //Xyce::Util::cubicSpline<ScalarT> yInterpolator_;
