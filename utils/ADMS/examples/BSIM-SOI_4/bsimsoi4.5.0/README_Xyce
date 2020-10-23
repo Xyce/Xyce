@@ -1,4 +1,4 @@
-In order to work in Xyce, several things in the BSIM SOI 4.6.1 code
+In order to work in Xyce, several things in the BSIM SOI 4.5.0 code
 needed modification.  These are documented here:
 
 
