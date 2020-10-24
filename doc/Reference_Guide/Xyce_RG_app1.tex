@@ -628,13 +628,14 @@ in all netlist contexts in \Xyce{}.
 \end{XyceItemize}
 The caveats are as follows:
 \begin{XyceItemize}
-\item The star character (*) is allowed in both node names and device
-names.  However, \texttt{.PRINT TRAN V(*)} has a special meaning in \Xyce{}.
-So, the single-character node name of * is discouraged.
+\item The star (*) and question mark (?) characters are allowed in both
+node names and device names.  However, those two characters also function
+as ``print wildcards'' in \Xyce{}, per section~\ref{Print_Wildcards}.
+So, that usage is discouraged.
 \item Global nodes in \Xyce{} begin with the two characters ``\$G''.
 \item The node named \texttt{0} (``zero'') is a special global node,
 which is always the ground node.
-\item These arithmetic operators \verb|%| \verb|^| \verb|&|
+\item These arithmetic operators \verb|%| \verb|^| \verb|&| \verb|?| \verb|:|
 \verb|~| \verb|*| \verb|-| \verb|+| \verb|<| \verb|>| \verb|/|
 \verb+|+ should not be used in node or device names that will
 be used outside of a \Xyce{} ``operator'', such as \texttt{V()}, within
