@@ -502,8 +502,10 @@ LEAD I[SDGBEC1-9]
 
 <INITIAL>"time" {return XyceExpression::ExpressionParser::token::TOK_TIME; }
 <INITIAL>"temp" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
+<INITIAL>"temper" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
 <INITIAL>"vt" {return XyceExpression::ExpressionParser::token::TOK_VT; }
 <INITIAL>"freq" {return XyceExpression::ExpressionParser::token::TOK_FREQ; }
+<INITIAL>"hertz" {return XyceExpression::ExpressionParser::token::TOK_FREQ; }
 <INITIAL>"gmin" {return XyceExpression::ExpressionParser::token::TOK_GMIN; }
 <INITIAL>"pi" {return XyceExpression::ExpressionParser::token::TOK_PI; }
 <INITIAL>"constctok" {return XyceExpression::ExpressionParser::token::TOK_C_TO_K; }

@@ -6393,6 +6393,68 @@ TEST ( Double_Parser_specials, freq2)
   OUTPUT_MACRO(Double_Parser_specials, freq2)
 }
 
+TEST ( Double_Parser_specials, hertz)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+  Xyce::Util::newExpression testExpression(std::string("hertz"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, hertz)
+}
+
+TEST ( Double_Parser_specials, hertz2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> fExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("hertz"), testGroup));
+  fExpression->lexAndParseExpression();
+  std::string fName = "F";
+
+  Xyce::Util::newExpression testExpression(std::string("f"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(fName,fExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();  
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, hertz2)
+}
 
 TEST ( Double_Parser_specials, gmin)
 {
@@ -6518,6 +6580,69 @@ TEST ( Double_Parser_specials, temp2)
   EXPECT_EQ(assignTempDependent, true);
 
   OUTPUT_MACRO(Double_Parser_specials, temp2)
+}
+
+TEST ( Double_Parser_specials, temper)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+  Xyce::Util::newExpression testExpression(std::string("temper"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, temper)
+}
+
+TEST ( Double_Parser_specials, temper2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("temper"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  double result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Double_Parser_specials, temper2)
 }
 
 //
