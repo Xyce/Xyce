@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-
+option(BUILD_SHARED_LIBS OFF)
+option(TEST_SUITE OFF)
 # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
 # loaded before "project" is called.
 message(STATUS "Looking for required Trilinos packages:\n"

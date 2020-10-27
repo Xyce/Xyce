@@ -9,7 +9,7 @@ set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 #add_subdirectory()
 
 add_subdirectory(CircuitPKG)
-add_subdirectory(AnalysisPKG) 
+add_subdirectory(AnalysisPKG)
 add_subdirectory(DeviceModelPKG)
 add_subdirectory(UtilityPKG)
 add_subdirectory(ErrorHandlingPKG)
@@ -51,12 +51,12 @@ FLEX_TARGET( XyceExpressionLexer "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/Express
 ADD_FLEX_BISON_DEPENDENCY( XyceExpressionLexer XyceExpressionParser  )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 
-#End bison and Flex non-sense. 
+#End bison and Flex non-sense.
 
 # ---- This is the declaration and linking of the desired
 # artifacts ----------------
 
-add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
+add_library(XyceStatic ${XYCE_SOURCES} ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
 target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
@@ -71,15 +71,15 @@ endif(Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(Xyce XyceStatic) 
+target_link_libraries(Xyce XyceStatic)
 
 
 # ---- And the installation of them. ----------------
 # rename the library		# a word to the wise about Windows
-				# A Static library named "xyce" will produce 
+				# A Static library named "xyce" will produce
 				# a file named xyce.lib.
 				# A Shared library named "xyce" will produce
-				# two files, one named xyce.dll and another 
+				# two files, one named xyce.dll and another
 				# named xyce.lib, which is not the same as the
 				# static library. It is an interface library.
 				# Interface libraries may be quite foriegn to
@@ -87,16 +87,14 @@ target_link_libraries(Xyce XyceStatic)
 				# I can tell xyce.lib the static library apart
 				# from xyce.lib the interface library is that
 				# the interface library is smaller in size.
-				# Which isn't a very clear distinction. 
+				# Which isn't a very clear distinction.
 				# MORAL: if you would like to build both a
 				# static and shared library use names such as
 				# xyce-static and xyce-shared to make things
-				# explicit. 
+				# explicit.
 set_target_properties ( XyceStatic PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
-					
+
 install(TARGETS XyceStatic DESTINATION lib)
 install(TARGETS Xyce DESTINATION bin)
-
-
