@@ -156,7 +156,7 @@ fi
 
 case $PLAT in
 
-  Intel64_RHEL6*icc14*|Intel64_RHEL6*icc16*|Intel64_RHEL*icc18* )
+  Intel64_RHEL*icc* )
     cp -v $MKLROOT/lib/intel64/libmkl_intel_lp64.so*   $BUILDIR/lib/
     cp -v $MKLROOT/lib/intel64/libmkl_intel_thread.so* $BUILDIR/lib/
     cp -v $MKLROOT/lib/intel64/libmkl_core.so*         $BUILDIR/lib/
@@ -189,7 +189,7 @@ case $PLAT in
     fi
   ;;
 
-  Intel64_OSX*icc16* )
+  Intel64_OSX*icc* )
     cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib     $BUILDIR/lib/
     cp -v $MKLROOT/lib/libmkl_avx.dylib     $BUILDIR/lib/
     cp -v $MKLROOT/lib/libmkl_avx2.dylib     $BUILDIR/lib/
