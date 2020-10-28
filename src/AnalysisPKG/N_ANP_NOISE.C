@@ -579,7 +579,7 @@ bool NOISE::doInit()
     {
       SweepParam &sweep_param = (*it);
       std::string name = (*it).name; Util::toUpper(name);
-      if (name == "FREQ")
+      if (name == "FREQ" || name == "HERTZ")
       {
         // used to check that the specified frequencies are monotonically
         // increasing, to determine whether the noise integrals can be
@@ -1694,7 +1694,7 @@ bool NOISE::updateDataParams_ (int stepNumber)
   {
     std::string name = noiseSweepVector_[iac].name; Util::toUpper(name);
     double val = noiseSweepVector_[iac].currentVal;
-    if (name=="FREQ")
+    if (name == "FREQ" || name == "HERTZ")
     {
       currentFreq_ = val;
 
