@@ -50,17 +50,7 @@ void FREE(char *);
 
 #define ZERO(PTR,TYPE)	(bzero((PTR),sizeof(TYPE)))
 
-#ifdef HAS_STDLIB
-#ifndef _STDLIB_INCLUDED
-#define _STDLIB_INCLUDED
 #include <stdlib.h>
-#endif
-#else
-extern void *malloc();
-extern void *calloc();
-extern void *realloc();
-extern void free();
-#endif
 
 extern char *trealloc();
 extern char *tmalloc();

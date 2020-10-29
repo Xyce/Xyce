@@ -74,11 +74,7 @@ fi
 # set build parameters 
 SRC=$1
 EXEC=$2
-DOC1=$3 
-DOC2=$4 
-NOTES=$5
 PLAT=$6        
-XTRA=$7
 
 if [ "x$SRC" = "x" ]; then
 	SRC="../../Xyce"
@@ -86,22 +82,6 @@ fi
 
 if [ "x$EXEC" = "x" ]; then
 	EXEC="./src/Xyce"
-fi
-
-if [ "x$DOC1" = "x" ]; then
-	DOC1="$SRC/doc/Users_Guide/Xyce_UG.pdf"
-fi
-
-if [ "x$DOC2" = "x" ]; then
-	DOC2="$SRC/doc/Reference_Guide/Xyce_RG.pdf"
-fi
-
-if [ "x$NOTES" = "x" ]; then
-	NOTES="$SRC/doc/Release_Notes_4.0/Release_Notes_4.0.pdf"
-fi
-
-if [ "x$XTRA" = "x" ]; then
-      XTRA="NONE"
 fi
 
 if [ "x$PLAT" = "x" ]; then
@@ -131,32 +111,13 @@ if [ -d $EXEC -o ! -x $EXEC ]; then
     exit 1;
 fi
 
-if [ ! -f $DOC1 ]; then
-    echo "ERROR:  $DOC1 does not appear to be the Xyce User Guide"
-    exit 1;
-fi
-
-if [ ! -f $DOC2 ]; then
-    echo "ERROR:  $DOC2 does not appear to be the Xyce Reference Guide"
-    exit 1;
-fi
-
-if [ ! -f $NOTES ]; then
-    echo "ERROR:  $NOTES does not appear to be the Xyce Release Notes"
-    exit 1;
-fi
-
 #   quick note about what will be used to build this
 case $PLAT in
     * | alpha* | freebsd* | linux* | windows* | ppc* | sgi* | solaris* ) 
         echo "Building install tarball using the following:"
         echo "    platform:           $PLAT"
         echo "    executable:         $EXEC"
-        echo "    user guide:         $DOC1" 
-        echo "    reference guide:    $DOC2" 
-        echo "    release notes:      $NOTES"
         echo "    source tree:        $SRC"
-        echo "    RAD docs:           $XTRA"
     ;;
     
     * )
@@ -195,7 +156,7 @@ fi
 
 case $PLAT in
 
-  Intel64_RHEL6*icc14*|Intel64_RHEL6*icc16*|Intel64_RHEL*icc18* )
+  Intel64_RHEL*icc* )
     cp -v $MKLROOT/lib/intel64/libmkl_intel_lp64.so*   $BUILDIR/lib/
     cp -v $MKLROOT/lib/intel64/libmkl_intel_thread.so* $BUILDIR/lib/
     cp -v $MKLROOT/lib/intel64/libmkl_core.so*         $BUILDIR/lib/
@@ -228,7 +189,7 @@ case $PLAT in
     fi
   ;;
 
-  Intel64_OSX*icc16* )
+  Intel64_OSX*icc* )
     cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib     $BUILDIR/lib/
     cp -v $MKLROOT/lib/libmkl_avx.dylib     $BUILDIR/lib/
     cp -v $MKLROOT/lib/libmkl_avx2.dylib     $BUILDIR/lib/
@@ -256,22 +217,9 @@ case $PLAT in
 esac
 
 
-#   copy documentation
-if [ "$PLATTYPE" = "windows" ]; then
-    echo "What are you doing here?  This script is not for windows."
-    exit 1
-else 
-    cp $SRC/distribution/README.TXT $BUILDIR/bin/README
-    cp $SRC/distribution/README.TXT $BUILDIR/README
-fi
-
-cp $DOC1 $BUILDIR/doc/Users_Guide.pdf
-cp $DOC2 $BUILDIR/doc/Reference_Guide.pdf
-cp $NOTES $BUILDIR/doc/Release_Notes.pdf
-if [ "x$XTRA" != "xNONE" ]; then
-  cp $XTRA $BUILDIR/doc/
-fi
-
+cp $SRC/distribution/README.TXT $BUILDIR/bin/README
+cp $SRC/distribution/README.TXT $BUILDIR/README
+cp $SRC/distribution/README.TXT $BUILDIR/doc/README
 
 #   remember where we started this
 ORIG_PWD=`pwd`

@@ -41,6 +41,30 @@
 %
 %
 
+\textbf{Gitlab issue 85} Complex-valued parameters are not handed correctly &
+The \Xyce{} expression library was rewritten for the 7.2 release, and
+has added support for complex numbers in expressions.  However, the
+use of complex-valued parameters and global parameters is not correct yet. 
+This is because parameters and global parameters are still assumed to
+always be real numbers.
+An example is:
+\begin{verbatim}
+.PARAM P1={log10(-2)}
+V1  1 0 1
+R1  1 0 1
+.OP
+.PRINT DC 
++ {Re(P1)} {Img(P1)} 
++ {Re(log10(-2))} {Img(log10(-2))}
+.END
+\end{verbatim}
+The output will have \texttt{RE(P2)} equal 3.01e-01 and \texttt{IMG(P2)}
+  equal 0, which is incorrect.  However,  the non-parameter fields will be
+  output as \texttt{Re(log10(-2))} equal to
+  3.01e-01 and \texttt{Img(log10(-2))} equal to -1.36e+00, which is correct.
+  The code assumes that the parameter \texttt{P1} is unconditionally real.
+\\ \hline
+
 \textbf{Gitlab issue 60} Xyce/ADMS omits derivative code for output arguments of analog functions if return value derivatives are not needed &
 Verilog-A permits analog functions (user defined functions) to have arguments that can be used to return values in addition to the return value of the function.  These output arguments have their values calculated as a ``side effect'' of the function call.  Due to a difficulty with bookkeeping, if the return value of the function is neither used in sources nor ddx() calls, Xyce/ADMS will not emit any code that calls the function in such a way that the derivatives of the output arguments would be computed.  This can lead to incorrect results if the output arguments are later used in any way where their derivatives are required (e.g. on the right-hand side of non-noise contributions, or as the argument to be differentiated in a ddx() call).
 

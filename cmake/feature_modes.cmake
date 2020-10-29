@@ -17,7 +17,7 @@ set(Xyce_BELOS TRUE)
 set(Xyce_SPICE_NORMS TRUE)
 
 # For communicating the exact version of Xyce to the code
-set(Xyce_RELEASE                   FALSE CACHE BOOL "Set to TRUE to designate a release version")
+set(Xyce_RELEASE                   TRUE CACHE BOOL "Set to TRUE to designate a release version")
 set(Xyce_QUALIFICATION             FALSE CACHE BOOL "Set to TRUE to designate a qualification release")
 if(Xyce_RELEASE)
      set(RELEASE_CHARACTER "R")
@@ -37,6 +37,10 @@ if ( DEFINED Xyce_VERSION_PATCH AND NOT (Xyce_VERSION_PATCH STREQUAL "" OR Xyce_
 endif ( DEFINED Xyce_VERSION_PATCH AND NOT (Xyce_VERSION_PATCH STREQUAL "" OR Xyce_VERSION_PATCH STREQUAL "0"))
 
 set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_SHORT}" )
+
+if ( DEFINED Xyce_VERSION_EXTRA AND NOT(Xyce_VERSION_EXTRA STREQUAL ""))
+  set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_LONG} ${Xyce_VERSION_EXTRA}" )
+endif ( DEFINED Xyce_VERSION_EXTRA AND NOT(Xyce_VERSION_EXTRA STREQUAL ""))
 
 if ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""))
     set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_LONG} ${QUALIFICATION_CHARACTER}" )

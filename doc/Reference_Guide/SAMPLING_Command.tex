@@ -46,6 +46,9 @@ values are generated from random distributions rather than sweeps.
 + lower\_bounds=1K,2K
 + upper\_bounds=5K,6K
 
+.SAMPLING
++ useExpr=true
+
 .options SAMPLES numsamples=10000
 
 .options SAMPLES numsamples=25000
@@ -92,17 +95,26 @@ If using uniform distributions, the upper bound must be specified.  This is opti
   If used with normal distributions, may alter the mean and standard deviation.
   If more than one parameter, then specify as a comma-separated list.
 
+\argument{useExpr}
+If this argument is set to true, then the sampling algorithm will set up random 
+  inputs from expression operators such as \verb|AGAUSS| and \verb|AUNIF|.  In 
+  this case it will also ignore the list of parameters on the \verb|.SAMPLING| command line.
+  For a complete description of expression-based random operators, see the expression
+  documentation in section~\ref{ExpressionDocumentation}.
+
 \end{Arguments}
 
 \comments
 
 In addition to the \verb|.SAMPLING| command, this analysis requires a 
   \verb|.options SAMPLES| command as well.  The \verb|.SAMPLING| command specifies 
-  parameters and their attributes.  The \verb|.options SAMPLES| command specifies 
-  analysis options, including the number of samples, the type of sampling (LHS or MC), 
+  parameters and their attributes, either using the \verb|useExpr| option, or 
+  with comma-separated lists.  The \verb|.options SAMPLES| command specifies 
+  analysis options, including the number of samples, the type of sampling (LHS or MC)
   and the outputs and/or measures for which to compute statistics.
 
-On the \verb|.SAMPLING| command line, parameters and their attributes must be specified 
+On the \verb|.SAMPLING| command line, if not using \verb|useExpr|, 
+  parameters and their attributes must be specified 
   using comma-separated lists.  The comma-separated lists must all be the same length.
 
 \end{Command}
