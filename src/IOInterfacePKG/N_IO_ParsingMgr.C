@@ -78,7 +78,7 @@ ParsingMgr::ParsingMgr(
     {
       if ( hspiceExtArgStr[i] == ',' )
       {
-	hspiceExtVec.push_back(hspiceExtArgStr.substr(tokStart,i-tokStart));
+        hspiceExtVec.push_back(hspiceExtArgStr.substr(tokStart,i-tokStart));
         tokStart = i+1;
       }
       else if ( i == hspiceExtArgStr.length()-1 )
