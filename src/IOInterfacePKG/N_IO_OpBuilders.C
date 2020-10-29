@@ -158,7 +158,7 @@ const AliasNodeMap &      alias_map)
 //--------------------------------------------------------------------------
 // Structure     : Util::Op::Builder::CircuitTemperatureOpBuilder
 // Purpose       : This creates an OutputMgrTemperatureOp
-// Special Notes :
+// Special Notes : TEMP and TEMPER are synoymns in Xyce
 // Creator       : Dave Baur
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
@@ -181,7 +181,7 @@ struct CircuitTemperatureOpBuilder : public Util::Op::Builder
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "TEMP")
+    if (param_tag == "TEMP" || param_tag == "TEMPER")
     {
       new_op  = new OutputMgrTemperatureOp(param_tag, outputManager_);
     }
@@ -431,7 +431,7 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
 //--------------------------------------------------------------------------
 // Structure     : Util::Op::Builder::CircuitFrequencyOpBuilder
 // Purpose       : This creates an OutputMgrFrequencyOp
-// Special Notes :
+// Special Notes : FREQ and HERTZ are synonyms in Xyce
 // Creator       : Dave Baur
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
@@ -453,7 +453,7 @@ struct CircuitFrequencyOpBuilder : public Util::Op::Builder
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if ( param_tag == "FREQ" )
+    if ( param_tag == "FREQ" || param_tag == "HERTZ")
     {
       new_op  = new OutputMgrFrequencyOp(param_tag, outputManager_);
     }
