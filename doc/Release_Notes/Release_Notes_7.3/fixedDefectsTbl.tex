@@ -37,5 +37,26 @@
 Placeholder description.
 \\ \hline
 
+\textbf{1203-SON}: Issues with temperature-dependent device
+instance-parameters that were expression-based & The values for
+temperature-dependent device instance parameters could be incorrect
+if their expression used a global parameter. This could occur if the
+default temperature of 27C was used.  It could also occur if the
+temperature was set with a \texttt{.OPTIONS DEVICE} line or via
+\texttt{.STEP}.  A simple example is:
+\begin{verbatim}
+.GLOBAL_PARAM GTEMP=37
+R1 1 0 1  TC=0.1 temp={GTEMP}
+\end{verbatim}
+If the temperature was set with a \texttt{.OPTIONS DEVICE} line then
+the use of a ``normal'' parameter in their expression could also give
+an incorrect answer.  An example is:
+\begin{verbatim}
+.PARAM ptemp=10
+R2 2 0 1  TC=0.1 temp={temp+ptemp}
+\end{verbatim}
+
+\\ \hline
+
 \end{longtable}
 }
