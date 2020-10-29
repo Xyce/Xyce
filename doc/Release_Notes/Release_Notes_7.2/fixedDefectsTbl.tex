@@ -33,6 +33,14 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{Gitlab-ex 69}: ksparse's alloc.c fails to compile with clang 12.0.0 on MacOS 10.15&
+The clang compiler supplied with Xcode 12 is more restrictive in complying with
+the C99 standard. As such, a bit of code in the ksparse solver package failed
+to compile. Fortunately, that bit of code was a relic of Spice 3f5, from which
+ksparse was copied. Removing the code allows \Xyce{} to compile, without
+affecting the behavior of ksparse.
+\\ \hline
+
 \textbf{Gitlab-ex 56}: Xyce header files unnecessarily include Trilinos header files&
 \Xyce{} provides an API for coupling circuit simulation to external
 programs. The headers and shared libraries installed by ``make
@@ -188,7 +196,5 @@ involving many nested function calls.  In some cases, this was not parsable with
 the old \Xyce{} expression library.
 \\ \hline
 
-\textbf{xxx-SRN}: Place holder title &
-Place holder description.  \\ \hline
 \end{longtable}
 }

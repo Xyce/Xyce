@@ -24,7 +24,7 @@ type & Determines which linear solver will be used.
 \item ShyLU (optional) 
 \end{XyceItemize}
 Note that while KLU, KSparse, and SuperLU (optional) are available for parallel execution they will solve the linear system in serial.  Therefore they will be useful for moderate problem sizes but will not scale in memory or performance for large problems  &
-KLU (Serial) AztecOO (Parallel) \\ \hline
+KLU (Serial, Parallel $< 10^4$ unknowns) AztecOO, (Parallel, $\geq 10^4$ unknowns) \\ \hline
 
 prec\_type & Determines which preconditioner will be used with an iterative linear solver
 \begin{XyceItemize}

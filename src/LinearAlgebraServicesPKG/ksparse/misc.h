@@ -87,73 +87,7 @@ extern char *smktemp();
 
 /* Externs from libc */
 
-#ifdef HAS_STDLIB
-
-#  ifndef _STDLIB_INCLUDED
-#    define _STDLIB_INCLUDED
 #    include <stdlib.h>
-#  endif
-#  ifndef HAS_BSDRAND
-#    define random	rand
-#    define srandom	srand
-#  endif
-#  ifdef HAS_DOSDIRS
-#include <unistd.h>
-#  endif
-
-#else
-
-#  ifdef HAS_BSDRAND
-extern long random();
-extern void srandom();
-#  else
-#    define random	rand
-#    define srandom	srand
-#  endif
-
-extern void *calloc();
-extern void *malloc();
-extern void *realloc();
-extern char *getenv();
-extern int errno;
-extern char *getenv();
-extern char *getwd();
-extern int rand();
-extern void srand();
-extern int atoi();
-extern int kill();
-extern int getpid();
-extern void qsort();
-#  ifdef notdef
-extern void exit();
-#  endif
-
-#  ifdef HAS_GETCWD
-char *getcwd(char *, size_t);
-#  endif
-
-#  ifdef HAS_CLEARERR
-#    ifndef clearerr
-extern void clearerr();
-#    endif /* clearerr */
-#  endif /* HAS_CLEARERR */
-
-#  ifndef index
-#    ifdef HAS_INDEX
-extern char *rindex();
-extern char *index();
-#    else
-#      ifdef HAS_STRCHR
-/* For some strange reason these lines screw up the compile on linux:
-extern char *strchr();
-extern char *strrchr();
-*/
-#      else
-#      endif
-#    endif
-#  endif
-
-#endif	/* else STDLIB */
 
 #ifndef HAS_INDEX
 #  ifndef index
