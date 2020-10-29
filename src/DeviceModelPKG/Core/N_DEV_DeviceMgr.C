@@ -66,7 +66,6 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
-#include <N_PDS_Manager.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
