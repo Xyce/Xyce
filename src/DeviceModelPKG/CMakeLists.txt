@@ -30,7 +30,3 @@ endif ()
 #   add_subdirectory( EXTSC )
 # endif ( Xyce_EXTDEV )
 
-#Catch the scope and put it into the top level
-set (XYCE_SOURCES ${XYCE_SOURCES} PARENT_SCOPE)
-set (XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} PARENT_SCOPE) 
-

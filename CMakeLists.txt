@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_policy(SET CMP0076 NEW)
 
 # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
 # loaded before "project" is called.

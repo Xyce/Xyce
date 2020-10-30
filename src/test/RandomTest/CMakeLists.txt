@@ -1,5 +1,5 @@
 
-add_executable( testRandom EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/testRandom.C )
+add_executable( testRandom EXCLUDE_FROM_ALL testRandom.C )
 target_link_libraries( testRandom XyceStatic )
 
 #if( Xyce_ENABLED_SHARED )

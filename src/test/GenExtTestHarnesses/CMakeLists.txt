@@ -1,5 +1,5 @@
 
-add_executable( testGenCoup EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/testGenCoup.C )
+add_executable( testGenCoup EXCLUDE_FROM_ALL testGenCoup.C )
 target_link_libraries( testGenCoup XyceStatic )
 
 #if( Xyce_ENABLED_SHARED )

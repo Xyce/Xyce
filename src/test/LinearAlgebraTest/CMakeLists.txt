@@ -1,5 +1,5 @@
 
-add_executable( testBlockLinearSystems EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/testBlockLinearSystems.C )
+add_executable( testBlockLinearSystems EXCLUDE_FROM_ALL testBlockLinearSystems.C )
 target_link_libraries( testBlockLinearSystems XyceStatic )
 
 #if( Xyce_ENABLED_SHARED )

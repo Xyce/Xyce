@@ -2,41 +2,34 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( ADMS_SOURCES
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterADMSDevices.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSvbic13.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSvbic13_4t.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSPSP103VA.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSPSP103TVA.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSPSP102VA.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSJUNCAP200.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSDIODE_CMC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSHBT_X.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsimcmg.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsimcmg_108.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsimcmg_110.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsim6.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsimsoi.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbsimsoi450.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbjt504va.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSbjt504tva.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSmvs_2_0_0_etsoi.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSmvs_2_0_0_hemt.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMSmvsg_cmc.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMShicumL2va.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADMShic0_full.C
-      CACHE INTERNAL "X_S" )
+target_sources(XyceStatic PUBLIC
+      N_DEV_RegisterADMSDevices.C
+      N_DEV_ADMSvbic13.C
+      N_DEV_ADMSvbic13_4t.C
+      N_DEV_ADMSPSP103VA.C
+      N_DEV_ADMSPSP103TVA.C
+      N_DEV_ADMSPSP102VA.C
+      N_DEV_ADMSJUNCAP200.C
+      N_DEV_ADMSDIODE_CMC.C
+      N_DEV_ADMSHBT_X.C
+      N_DEV_ADMSbsimcmg.C
+      N_DEV_ADMSbsimcmg_108.C
+      N_DEV_ADMSbsimcmg_110.C
+      N_DEV_ADMSbsim6.C
+      N_DEV_ADMSbsimsoi.C
+      N_DEV_ADMSbsimsoi450.C
+      N_DEV_ADMSbjt504va.C
+      N_DEV_ADMSbjt504tva.C
+      N_DEV_ADMSmvs_2_0_0_etsoi.C
+      N_DEV_ADMSmvs_2_0_0_hemt.C
+      N_DEV_ADMSmvsg_cmc.C
+      N_DEV_ADMShicumL2va.C
+      N_DEV_ADMShic0_full.C)
 
-set (XYCE_SOURCES ${XYCE_SOURCES} ${ADMS_SOURCES} PARENT_SCOPE )
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      PARENT_SCOPE )
-
-
-
+target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
-      ADMS 
+set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
+      ADMS
       CACHE INTERNAL "X_L" )

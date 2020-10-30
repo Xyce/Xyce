@@ -2,18 +2,13 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( IBISModels_SOURCES  
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterIBISDevices.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_IBIS.C
-      CACHE INTERNAL "X_S" )
-  
-set (XYCE_SOURCES ${XYCE_SOURCES} ${IBISModels_SOURCES} PARENT_SCOPE)
+target_sources(XyceStatic PUBLIC
+      N_DEV_RegisterIBISDevices.C
+      N_DEV_IBIS.C)
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      PARENT_SCOPE )
+target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
+set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
       IBISModels
       CACHE INTERNAL "X_L" )
