@@ -80,7 +80,8 @@ public:
 
   // Constructor which takes a Epetra map (private).
   N_PDS_ParMap(Epetra_Map * pMap,
-               N_PDS_Comm & aComm);
+               N_PDS_Comm & aComm,
+               bool mapOwned = false);
 
 private:
 

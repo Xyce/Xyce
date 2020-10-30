@@ -130,9 +130,10 @@ N_PDS_ParMap::N_PDS_ParMap(
 //-----------------------------------------------------------------------------
 N_PDS_ParMap::N_PDS_ParMap(
   Epetra_Map *          map,
-  N_PDS_Comm &          aComm )
+  N_PDS_Comm &          aComm,
+  bool                  mapOwned )
   : petraMap_(map),
-    mapOwned_(false),
+    mapOwned_(mapOwned),
     pdsComm_(aComm)
 {}
 

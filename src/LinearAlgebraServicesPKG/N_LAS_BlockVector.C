@@ -43,6 +43,7 @@
 #include <N_LAS_BlockVector.h>
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
 
@@ -64,9 +65,9 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( int numBlocks,
-                                      const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                      const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
-                                      int augmentRows )
+                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                          int augmentRows )
 : Vector( *globalMap ),
   blocksViewGlobalVec_(true),
   globalBlockSize_(subBlockMap->numGlobalEntities()),
@@ -100,22 +101,21 @@ BlockVector::BlockVector( int numBlocks,
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector(
-  int                                   blockSize,
-  const Teuchos::RCP<N_PDS_ParMap> &    globalMap,
-  int augmentRows )
-  : Vector( *globalMap ),
-    blocksViewGlobalVec_( true ),
-    globalBlockSize_( blockSize ),
-    localBlockSize_( blockSize ),
-    overlapBlockSize_( blockSize ),
-    numBlocks_( (globalMap->numGlobalEntities()-augmentRows) / blockSize ),
-    augmentCount_( augmentRows ),
-    startBlock_( 0 ),
-    endBlock_( (globalMap->numGlobalEntities()-augmentRows) / blockSize ),
-    newBlockMap_( Teuchos::rcp( new N_PDS_ParMap( blockSize, blockSize, globalMap->indexBase(), globalMap->pdsComm() ) ) ),
-    newoBlockMap_( Teuchos::rcp( new N_PDS_ParMap( blockSize, blockSize, globalMap->indexBase(), globalMap->pdsComm() ) ) ),
-    blocks_( (globalMap->numGlobalEntities()-augmentRows) / blockSize )
+BlockVector::BlockVector( int blockSize,
+                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                          int augmentRows )
+: Vector( *globalMap ),
+  blocksViewGlobalVec_( true ),
+  globalBlockSize_( blockSize ),
+  localBlockSize_( blockSize ),
+  overlapBlockSize_( blockSize ),
+  numBlocks_( (globalMap->numGlobalEntities()-augmentRows) / blockSize ),
+  augmentCount_( augmentRows ),
+  startBlock_( 0 ),
+  endBlock_( (globalMap->numGlobalEntities()-augmentRows) / blockSize ),
+  newBlockMap_( Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, globalMap->indexBase(), globalMap->pdsComm() ) ) ),
+  newoBlockMap_( Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, globalMap->indexBase(), globalMap->pdsComm() ) ) ),
+  blocks_( (globalMap->numGlobalEntities()-augmentRows) / blockSize )
 {
   // Determine where these blocks start and end in the grand scheme of things.
   startBlock_ = (int) std::floor( (double)(globalMap->petraMap()->MinMyGID() + 1) / (double)blockSize );
@@ -170,10 +170,10 @@ BlockVector::BlockVector(
 // Constructor that takes the global map and overlap map (Map / oMap) as well as the
 // local block map and overlap map (subBlockMap / osubBlockMap)
 BlockVector::BlockVector( int numBlocks,
-                                      const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                      const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
-                                      const Teuchos::RCP<N_PDS_ParMap> & osubBlockMap,
-                                      int augmentRows )
+                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                          const Teuchos::RCP<N_PDS_ParMap> & osubBlockMap,
+                          int augmentRows )
 : Vector(*globalMap),
   blocksViewGlobalVec_(false), 
   globalBlockSize_(subBlockMap->numGlobalEntities()),
@@ -330,10 +330,10 @@ BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
 
   // Create the new maps for each block that places all the entries of the block on one processor.
   MultiVector& rhs_nonconst = const_cast<MultiVector&>( rhs );
-  newBlockMap_ = Teuchos::rcp( new N_PDS_ParMap( blockSize, blockSize, 
+  newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                  ( aMultiVector_->Map() ).IndexBase(),
                                  *rhs_nonconst.pdsComm() ) );
-  newoBlockMap_ = Teuchos::rcp( new N_PDS_ParMap( blockSize, blockSize, 
+  newoBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                  ( aMultiVector_->Map() ).IndexBase(),
                                  *rhs_nonconst.pdsComm() ) );
 
@@ -361,10 +361,11 @@ BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
     {
       myBlockSize = blockSize;
     }
-    N_PDS_ParMap currBlockMap( blockSize, myBlockSize, newBlockMap_->indexBase(), newBlockMap_->pdsComm() );
+    Teuchos::RCP<N_PDS_ParMap> currBlockMap = 
+      Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize, newBlockMap_->indexBase(), newBlockMap_->pdsComm() ) );
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, dynamic_cast<const Epetra_BlockMap&>(*(currBlockMap.petraMap())), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, dynamic_cast<const Epetra_BlockMap&>(*(currBlockMap->petraMap())), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {

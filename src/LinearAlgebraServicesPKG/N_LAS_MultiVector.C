@@ -214,25 +214,8 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
     importer_ = new Epetra_Import( overlapMV->Map(), parMap );
   }
 
-#ifdef Xyce_PARALLEL_MPI
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( overlapMV->Comm() );
-  Epetra_MpiComm * empicomm = dynamic_cast<Epetra_MpiComm *>( &ecomm );
-
-  if (empicomm)
-  {
-    pdsComm_= Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, empicomm->Comm() ) );
-  }
-  else
-  {
-    // This is a parallel build executed using one processor.
-    pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, MPI_COMM_WORLD ) );
-  }
-
-#else
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm(0, 0, MPI_COMM_NULL) );
-#endif
-
-
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );  
 }
 
 //-----------------------------------------------------------------------------
@@ -252,23 +235,8 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
   isOwned_(isOwned),
   groundNode_(0.0)
 {
-#ifdef Xyce_PARALLEL_MPI
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( origMV->Comm() );
-  Epetra_MpiComm * empicomm = dynamic_cast<Epetra_MpiComm *>( &ecomm );
-
-  if (empicomm)
-  {
-    pdsComm_= Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, empicomm->Comm() ) );
-  }
-  else
-  { 
-    // This is a parallel build executed using one processor.
-    pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, MPI_COMM_WORLD ) );
-  }
-
-#else
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm(0, 0, MPI_COMM_NULL) );
-#endif
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );
 }
 
 //-----------------------------------------------------------------------------

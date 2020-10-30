@@ -119,14 +119,6 @@ public:
     return matrixGraphs_[id];
   }
 
-  // Create a parallel map from a global id array:
-  // if num_global = -1, num_global will be calculated and returned
-  N_PDS_ParMap *createParallelMap(
-    int &                       num_global,
-    int                         num_local,
-    const std::vector<int> &    gid_map,
-    const int                   index_base = 0);
-
   bool addParallelMap(int id, N_PDS_ParMap * map);
 
   bool linkParallelMap(int new_id, int link_id);

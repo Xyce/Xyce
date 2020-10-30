@@ -43,6 +43,7 @@
 
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraHelpers.h>
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
@@ -263,8 +264,8 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
 
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap, oBlockMap;
-   blockMap = Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
-   oBlockMap = Teuchos::rcp(new N_PDS_ParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
+   blockMap = Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
+   oBlockMap = Teuchos::rcp(Parallel::createPDSParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
 
    std::vector<Teuchos::RCP<N_PDS_ParMap> > allMaps;
    allMaps.push_back(blockMap);
@@ -340,8 +341,8 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
 
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap, oBlockMap;
-   blockMap = Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
-   oBlockMap = Teuchos::rcp(new N_PDS_ParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
+   blockMap = Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
+   oBlockMap = Teuchos::rcp(Parallel::createPDSParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
 
    std::vector<Teuchos::RCP<N_PDS_ParMap> > allMaps;
    allMaps.push_back(blockMap);
@@ -435,7 +436,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap = 
-     Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
+     Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
 
    return blockMap;
 }
@@ -575,7 +576,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
 
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap = 
-     Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
+     Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
 
    // Now capture the LIDs of the augmented rows.
    if ( maxProc >= 0 )
@@ -666,7 +667,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
 
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap = 
-     Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
+     Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
 
    // Now capture the GIDs of the augmented rows.
    if (augmentRows)

@@ -41,15 +41,71 @@
 
 #ifdef Xyce_PARALLEL_MPI
 #include <mpi.h>
+#include <Epetra_MpiComm.h>
 #endif
 
 #include <N_PDS_EpetraHelpers.h>
+
+#include <N_PDS_ParMap.h>
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraMPIComm.h>
 #include <N_PDS_EpetraSerialComm.h>
 
 #include <Epetra_Comm.h>
+#include <Epetra_Map.h>
+
+//-----------------------------------------------------------------------------
+// Function      : createPDSParMap
+// Purpose       : Creates an ParMap object based on linear algebra.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/26/01
+//-----------------------------------------------------------------------------
+N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
+                                                int numLocalEntities,
+                                                const std::vector<int> & lbMap,
+                                                const int index_base,
+                                                N_PDS_Comm & aComm )
+{
+  const int * mArray = lbMap.empty() ? 0 : static_cast<const int *>(&lbMap[0]);
+
+  // fix for empty maps
+  int nGE = std::max( -1, numGlobalEntities );
+  int nLE = std::max( 0, numLocalEntities );
+  // Call the Petra constructor for the true Petra map.
+  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
+  Epetra_Map*  petraMap = new Epetra_Map( nGE,
+                              nLE,
+                              mArray,
+                              index_base,
+                              *petraComm );
+
+  return ( new N_PDS_ParMap( petraMap, aComm, true ) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : createPDSParMap
+// Purpose       : Creates an ParMap object based on linear algebra.
+// Special Notes : let the underlying linear algebra determine the IDs
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/26/01
+//-----------------------------------------------------------------------------
+N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
+                                                int numLocalEntities,
+                                                const int index_base,
+                                                N_PDS_Comm & aComm )
+{
+  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
+  Epetra_Map*  petraMap = new Epetra_Map( numGlobalEntities,
+                                          numLocalEntities,
+                                          index_base,
+                                          *petraComm );
+
+  return ( new N_PDS_ParMap( petraMap, aComm, true ) );
+}
 
 //-----------------------------------------------------------------------------
 // Function      : createPDSComm
@@ -73,6 +129,33 @@ N_PDS_Comm *Xyce::Parallel::createPDSComm( int iargs, char * cargs[], Xyce::Para
   theComm = new N_PDS_EpetraSerialComm();
 #endif
   return theComm;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : createPDSComm
+// Purpose       : Creates an N_PDS_Comm based on either the Epetra serial or 
+//               : parallel comm object.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/26/01
+//-----------------------------------------------------------------------------
+N_PDS_Comm *Xyce::Parallel::createPDSComm( Epetra_Comm* comm )
+{
+  N_PDS_Comm * pdsComm = NULL;
+
+#ifdef Xyce_PARALLEL_MPI
+  Epetra_MpiComm * mpicomm = dynamic_cast<Epetra_MpiComm *>( comm );
+
+  if (mpicomm)
+    pdsComm = new N_PDS_EpetraMPIComm( mpicomm->Comm() );
+  else
+    pdsComm = new N_PDS_EpetraMPIComm( MPI_COMM_WORLD );
+#else
+  pdsComm = new N_PDS_EpetraSerialComm();
+#endif
+
+  return pdsComm;
 }
 
 //-----------------------------------------------------------------------------
