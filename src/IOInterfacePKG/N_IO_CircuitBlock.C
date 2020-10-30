@@ -195,6 +195,7 @@ CircuitBlock::CircuitBlock(
   preprocessFilter_(PreprocessType::NUM_PREPROCESS, false),
   remove_any_redundant_(false),
   model_binning_flag_(false),
+  lengthScale_(1.0),
   topology_(topology),
   deviceManager_(device_manager)
 {
