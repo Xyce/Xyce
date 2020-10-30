@@ -334,6 +334,20 @@ bool DeviceMgr::setSensitivityOptions (const Util::OptionBlock & OB)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setParserOptions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/29/2020
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setParserOptions (const Util::OptionBlock & OB)
+{
+  return devOptions_.setParserOptions (OB);
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setDeviceOptions
 // Purpose       :
 // Special Notes :
@@ -4749,6 +4763,7 @@ bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options
   options_manager.addCommandProcessor("NOISE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setNOISEAnalysisParams));
   options_manager.addOptionsProcessor("DEVICE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setDeviceOptions));
   options_manager.addOptionsProcessor("SENSITIVITY", IO::createRegistrationOptions(device_manager, &DeviceMgr::setSensitivityOptions));
+  options_manager.addOptionsProcessor("PARSER", IO::createRegistrationOptions(device_manager, &DeviceMgr::setParserOptions));
 
   return true;
 }

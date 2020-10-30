@@ -80,6 +80,8 @@ DeviceOptions::DeviceOptions()
     defas (0.0e+0),  // MOS source diffusion area.
     defl  (1.0e-4),  // MOS channel length.
     defw  (1.0e-4),  // MOS channel width.
+    modelBinningFlag(false),
+    lengthScale(1.0),
     abstol(1.0e-12), // absolute current error tol.
     reltol(1.0e-4),  // relative current error tol.
     chgtol(1.0e-12), // absolute charge error tol.
@@ -160,9 +162,7 @@ DeviceOptions::~DeviceOptions ()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 5/24/00
 //-----------------------------------------------------------------------------
-bool
-DeviceOptions::setOptions(
-  const Util::OptionBlock &     option_block)
+bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
 {
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
@@ -348,6 +348,31 @@ DeviceOptions::setOptions(
     dout() << *this << std::endl;
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceOptions::registerParserOptions
+// Purpose       :
+// Special Notes : this is mostly to support the HSPICE/ngspice option "scale"
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/29/20
+//-----------------------------------------------------------------------------
+bool DeviceOptions::setParserOptions(const Util::OptionBlock & option_block)
+{
+  for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
+  {
+    const std::string &tag = (*it).uTag();
+
+    if (tag == "MODEL_BINNING")
+    {
+      modelBinningFlag = static_cast<bool> ((*it).getImmutableValue<int>());
+    }
+    else if (tag == "SCALE")
+    {
+      lengthScale = (*it).getImmutableValue<double>();
+    }
+  }
 }
 
 void

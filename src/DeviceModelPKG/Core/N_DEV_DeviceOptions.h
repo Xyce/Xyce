@@ -67,6 +67,7 @@ public:
   ~DeviceOptions();
 
   bool setOptions(const Util::OptionBlock &option_block);
+  bool setParserOptions(const Util::OptionBlock &option_block);
 
 private:
   DeviceOptions(DeviceOptions const &);                 ///< No copying
@@ -78,6 +79,8 @@ public:
   double        defas;                                ///< MOS source diffusion area.
   double        defl;                                 ///< MOS channel length.
   double        defw;                                 ///< MOS channel width.
+  bool          modelBinningFlag;
+  double        lengthScale;
 
   double        abstol;                               ///< absolute current error tolerance.
   double        reltol;                               ///< relative current error tolerance.

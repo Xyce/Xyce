@@ -421,6 +421,7 @@ public:
   bool setACAnalysisParams(const Util::OptionBlock & option_block);
   bool setNOISEAnalysisParams(const Util::OptionBlock & option_block);
   bool setSensitivityOptions (const Util::OptionBlock & option_block);
+  bool setParserOptions (const Util::OptionBlock & option_block);
 
   bool getHBSpecified() const
   {

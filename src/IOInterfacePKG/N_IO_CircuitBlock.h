@@ -104,7 +104,8 @@ public:
      const std::vector< std::pair< std::string, std::string> > &        externalNetlistParams,
      std::vector<bool> &                                                pFilter,
      bool                                                               removeRedundant,
-     bool                                                               modelBinning);
+     bool                                                               modelBinning,
+     double                                                             scale);
 
   ~CircuitBlock();
 
@@ -286,6 +287,16 @@ public:
     return model_binning_flag_;
   }
 
+  void setLengthScale (double scale)
+  {
+    lengthScale_ = scale;
+  }
+
+  double getLengthScale ()
+  {
+    return lengthScale_;
+  }
+
   void setLevelSet( const std::set<int>& levelSet )
   {
     levelSet_ = levelSet;
@@ -378,6 +389,7 @@ private:
 
   // model binning enable/disable
   bool model_binning_flag_;
+  double lengthScale_;
 
   Topo::Topology &              topology_;
   Device::DeviceMgr  &          deviceManager_;

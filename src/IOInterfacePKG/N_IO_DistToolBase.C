@@ -642,7 +642,8 @@ bool DistToolBase::handleDeviceLine( TokenVector const& deviceLine,
 
     bool resolveParams=true;
     bool modelBinning=circuitBlock_.getModelBinningFlag();
-    result = device_.extractData(netlistFilename_, deviceLine, resolveParams,modelBinning);
+    double scale = circuitBlock_.getLengthScale();
+    result = device_.extractData(netlistFilename_, deviceLine, resolveParams,modelBinning,scale);
     if (!result)
       return result;
   }

@@ -437,6 +437,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   registerCircuitOptions(options_manager, mainCircuitBlock_->getOptionsTable());
 
   mainCircuitBlock_->setModelBinningFlag( parsing_manager.getModelBinningFlag() );
+  mainCircuitBlock_->setLengthScale( parsing_manager.getLengthScale() );
 
   {
     Stats::StatTop _distributeStat("Distribute Devices");

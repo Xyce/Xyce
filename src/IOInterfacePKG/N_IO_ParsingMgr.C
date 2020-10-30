@@ -63,7 +63,8 @@ ParsingMgr::ParsingMgr(
     useHspiceUnits_(false),
     useHspiceMath_(false),
     enableRandomExpression_(true),
-    modelBinningFlag_(false)
+    modelBinningFlag_(false),
+    lengthScale_(1.0)
 {
   if (hspiceExtFlag_)
   {
@@ -147,6 +148,10 @@ bool ParsingMgr::setParserOptions(const Util::OptionBlock & OB)
     {
       modelBinningFlag_ = static_cast<bool>((*it).getImmutableValue<int>());
     }
+    else if (tag == "SCALE")
+    {
+      lengthScale_ = ((*it).getImmutableValue<double>());
+    }
   }
 
   return true;
@@ -174,6 +179,7 @@ void populateMetadata(
 {
    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("PARSER");
    parameters.insert(Util::ParamMap::value_type("MODEL_BINNING", Util::Param("MODEL_BINNING", 0)));
+   parameters.insert(Util::ParamMap::value_type("SCALE", Util::Param("SCALE", 1.0)));
 }
 
 } // namespace <unnamed>

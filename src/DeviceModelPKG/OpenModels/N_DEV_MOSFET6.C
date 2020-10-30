@@ -390,6 +390,16 @@ std::vector< std::vector<int> > Instance::jacMap2;
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
+  // apply scale
+  if (getDeviceOptions().lengthScale != 1.0)
+  {
+    if (given("L")) { l *= getDeviceOptions().lengthScale; } 
+    if (given("W")) { w *= getDeviceOptions().lengthScale; } 
+    if (given("AS")) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; } 
+    if (given("AD")) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; } 
+    if (given("PD")) { drainPerimeter *= getDeviceOptions().lengthScale; } 
+    if (given("PS")) { sourcePerimeter *= getDeviceOptions().lengthScale; }
+  }
 
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))

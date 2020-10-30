@@ -198,11 +198,12 @@ public:
   bool extractData( const std::string & fileName, 
                     const TokenVector & parsedInputLine,
                     bool resolveParams,
-                    bool modelBinning);
+                    bool modelBinning,
+                    double scale);
 
-  bool extractData(bool resolveParams, bool modelBinning)
+  bool extractData(bool resolveParams, bool modelBinning,double scale)
   {
-    return extractData( getNetlistFilename(), parsedLine_, resolveParams, modelBinning ); 
+    return extractData( getNetlistFilename(), parsedLine_, resolveParams, modelBinning, scale ); 
   } 
 
   // Extract the subcircuit instance data given on a netlist 'X' line.
@@ -224,14 +225,14 @@ private:
   bool extractMutualInductanceData( const TokenVector & parsedInputLine );
 
   //bool extractBasicDeviceData( bool failIfUnresolved=true)
-  bool extractBasicDeviceData( bool failIfUnresolved, bool modelBinning)
+  bool extractBasicDeviceData( bool failIfUnresolved, bool modelBinning, double scale)
   {
     //return extractBasicDeviceData( parsedLine_ ,failIfUnresolved);
-    return extractBasicDeviceData( parsedLine_ ,failIfUnresolved, modelBinning);
+    return extractBasicDeviceData( parsedLine_ ,failIfUnresolved, modelBinning, scale);
   }
 
   //bool extractBasicDeviceData( const TokenVector & parsedInputLine , bool failIfUnresolved=true);
-  bool extractBasicDeviceData( const TokenVector & parsedInputLine , bool failIfUnresolved, bool modelBinning);
+  bool extractBasicDeviceData( const TokenVector & parsedInputLine , bool failIfUnresolved, bool modelBinning, double scale);
 
   bool extractBehavioralDeviceData( const TokenVector & parsedInputLine );
 
@@ -247,7 +248,8 @@ private:
                                     std::string& modelType, 
                                     int & modelLevel, 
                                     int & modelNamePosition,
-                                    bool modelBinning=false);
+                                    bool modelBinning,
+                                    double scale);
 
   void addDefaultInstanceParameters(int modelLevel);
 
