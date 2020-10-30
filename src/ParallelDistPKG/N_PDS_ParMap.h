@@ -62,26 +62,13 @@ class N_PDS_ParMap
 {
 
 public:
-  // Constructors
-  N_PDS_ParMap( int & numGlobalEntities,
-                int numLocalEntities,
-                const std::vector<int> & lbMap,
-                const int index_base,
-                N_PDS_Comm & aComm);
-
-  // Constructor, let the underlying linear algebra determine the IDs.
-  N_PDS_ParMap( int & numGlobalEntities,
-                int numLocalEntities,
-                const int index_base,
-                N_PDS_Comm & aComm);
-
-  // Destructor
-  ~N_PDS_ParMap();
-
-  // Constructor which takes a Epetra map (private).
+  // Constructor which takes a Epetra map.
   N_PDS_ParMap(Epetra_Map * pMap,
                N_PDS_Comm & aComm,
                bool mapOwned = false);
+
+  // Destructor
+  ~N_PDS_ParMap();
 
 private:
 

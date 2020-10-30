@@ -69,7 +69,7 @@
 #include <N_IO_OutputCsd.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraHelpers.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
@@ -889,8 +889,8 @@ void Manager::remeasure(
   // this safeBarrier will cause remeasure to error out if any of the MeasureOps are invalid.
   Report::safeBarrier(pds_comm.comm());
 
-  N_PDS_ParMap aParMap(numVars, numLocalVars, lbMap, 0, pds_comm);
-  Linear::Vector varValuesVec(aParMap);
+  Teuchos::RCP<N_PDS_ParMap> aParMap = Teuchos::rcp( Parallel::createPDSParMap(numVars, numLocalVars, lbMap, 0, pds_comm) );
+  Linear::Vector varValuesVec(*aParMap);
   varValuesVec.putScalar(0);
   
   // Variables used to handle a STEP in the re-measured data.  For .DC, we need to 

@@ -81,13 +81,15 @@ int main(int argc, char* argv[])
   Teuchos::RCP<N_PDS_Comm> pdsComm = Teuchos::rcp( Xyce::Parallel::createPDSComm( argc, argv ) );
   std::vector<int> realLbMap(numPts, 0.0);
   std::vector<int> complexLbMap(lengthTransformedSignal, 0.0);
-  N_PDS_ParMap parMapForReal( numPts, numPts, realLbMap, 0, *pdsComm.get() );
-  N_PDS_ParMap parMapForComplex( lengthTransformedSignal, lengthTransformedSignal, complexLbMap, 0, *pdsComm.get() );
+  Teuchos::RCP<N_PDS_ParMap> parMapForReal = 
+    Teuchos::rcp( Xyce::Parallel::createPDSParMap( numPts, numPts, realLbMap, 0, *pdsComm.get() ) );
+  Teuchos::RCP<N_PDS_ParMap> parMapForComplex = 
+    Teuchos::rcp( Xyce::Parallel::createPDSParMap( lengthTransformedSignal, lengthTransformedSignal, complexLbMap, 0, *pdsComm.get() ) );
   
-  Xyce::Linear::Vector timeMV( parMapForReal );
-  Xyce::Linear::Vector inputSignalMV( parMapForReal );
-  Xyce::Linear::Vector outputSignalMV( parMapForComplex );
-  Xyce::Linear::Vector backSignalMV( parMapForReal );
+  Xyce::Linear::Vector timeMV( *parMapForReal );
+  Xyce::Linear::Vector inputSignalMV( *parMapForReal );
+  Xyce::Linear::Vector outputSignalMV( *parMapForComplex );
+  Xyce::Linear::Vector backSignalMV( *parMapForReal );
   
   // Fill in the vectors
   for(int i=0; i<numPts; i++)

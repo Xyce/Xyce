@@ -146,10 +146,11 @@ BlockVector::BlockVector( int blockSize,
     {
       myBlockSize = blockSize;
     }
-    N_PDS_ParMap currBlockMap( blockSize, myBlockSize, globalMap->indexBase(), globalMap->pdsComm() );
+    Teuchos::RCP<N_PDS_ParMap> currBlockMap = 
+      Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize, globalMap->indexBase(), globalMap->pdsComm() ) );
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, dynamic_cast<const Epetra_BlockMap&>(*(currBlockMap.petraMap())), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, dynamic_cast<const Epetra_BlockMap&>(*(currBlockMap->petraMap())), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {
