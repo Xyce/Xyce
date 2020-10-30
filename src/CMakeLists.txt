@@ -67,7 +67,7 @@ target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBR
 # an import library defined.  Let's check for that:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceStatic PUBLIC CURL::libcurl)
-endif(Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
+endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
