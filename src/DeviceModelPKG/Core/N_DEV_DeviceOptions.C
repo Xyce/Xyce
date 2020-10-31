@@ -373,6 +373,7 @@ bool DeviceOptions::setParserOptions(const Util::OptionBlock & option_block)
       lengthScale = (*it).getImmutableValue<double>();
     }
   }
+  return true;
 }
 
 void
