@@ -102,7 +102,8 @@ specifies that the output should be formatted to be compatible with the
 \texttt{TECPLOT} format specifies that the output should be formatted to
 be compatible with the Tecplot plotting program.  The \texttt{RAW}
 format specifies that the output should comply with the SPICE binary
-rawfile format.  Use with the {\bf -a} command line option to output an
+rawfile format.  The {\bf -a} command line option, in conjunction with
+\texttt{FORMAT=RAW} on the \texttt{.PRINT} line, can then be used to output an
 ASCII rawfile.  The \texttt{CSV} format specifies that the output file
 should be a comma-separated value file with a header indicating the
 variables printed in the file.  It is similar to, but not identical to
@@ -297,7 +298,8 @@ via the \texttt{.PRINT NOISE} line for devices that support stationary noise.
 \item When the command line option \texttt{-r <raw-file-name>} is used,
   all of the output is diverted to the \emph{raw-file-name} file as a
   concatenation of the plots, and each plot includes all of the
-  variables of the circuit.  Using the \texttt{-a} options in
+  variables of the circuit instead of the variable list(s) given on the
+  \texttt{.PRINT} lines in the netlist.  Using the \texttt{-a} options in
   conjunction with the \texttt{-r} option results in a raw file that is
   output all in ASCII characters.
 
@@ -359,8 +361,8 @@ and provides an example.
   subdirectory that does not already exist.  \Xyce{} 
   will not create new subdirectories.
 
-\item The output filename specified with the -r command line option, 
-  to produce {\tt FORMAT=RAW} output, should take precedence over 
+\item The output filename specified with the -r command line option,
+  to produce raw file output, should take precedence over
   a {\tt FILE=} parameter specified on a {\tt .PRINT} line.
 
 \item The print statements for some analysis types could result in multiple

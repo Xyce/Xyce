@@ -23,8 +23,8 @@ Xyce -a \newline .PRINT TRAN FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hli
 .PRINT TRAN FORMAT=TECPLOT & \emph{circuit-file}.dat & TIME \\ \hline
 .PRINT TRAN FORMAT=PROBE & \emph{circuit-file}.csd & -- \\ \hline
 \multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Command Line Raw Override Output} \\ \hline
-Xyce -r & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-Xyce -r -a & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+Xyce -r raw-file-name & \emph{raw-file-name} & All circuit variables printed \\ \hline
+Xyce -r raw-file-name -a & \emph{raw-file-name} & All circuit variables printed \\ \hline
 \multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Additional Output Available} \\ \hline
 .OP & \emph{log file} & Operating point data \\ \hline
 .SENS \newline .PRINT SENS & \multicolumn{2}{c}{see~\nameref{Print_Sensitivity}} \\ \hline
