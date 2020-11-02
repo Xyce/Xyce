@@ -68,7 +68,7 @@ list (APPEND TRILINOS_PARALLEL_ARGS
   -DTrilinos_ENABLE_TrilinosCouplings=ON
   -DTrilinos_ENABLE_Ifpack=ON
   -DTrilinos_ENABLE_ShyLU=ON
-  -DTrilinos_ENABLE_Isorropia=OFF
+  -DTrilinos_ENABLE_Isorropia=ON
   -DTrilinos_ENABLE_AztecOO=ON
   -DTrilinos_ENABLE_Belos=ON
   -DTrilinos_ENABLE_Teuchos=ON
@@ -127,9 +127,20 @@ if(WIN32)
 endif()
 
 set(Xyce_TRILINOS_ARGS ${TRILINOS_SERIAL_ARGS})
-option(Xyce_USE_PARALLEL_ARGS OFF "Use the parallel args for building Trilinos?")
-if(Xyce_USE_PARALLEL_ARGS)
-  set(Xyce_TRILINOS_ARGS ${TRILINOS_PARALLEL_ARGS})
+if(NOT WIN32)
+  option(Xyce_USE_PARALLEL_ARGS OFF "Use the parallel args for building Trilinos?")
+  if(Xyce_USE_PARALLEL_ARGS)
+    find_package(MPI REQUIRED)
+    set(Xyce_TRILINOS_ARGS
+     ${TRILINOS_PARALLEL_ARGS}
+    -DCMAKE_C_COMPILER=${MPI_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${MPI_CXX_COMPILER}
+    -DCMAKE_fortran_COMPILER=${MPI_fortran_COMPILER})
+    list(APPEND Xyce_ARGS
+    -DCMAKE_C_COMPILER=${MPI_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${MPI_CXX_COMPILER}
+    -DCMAKE_Fortran_COMPILER=${MPI_Fortran_COMPILER})
+  endif()
 endif()
 
 if(WIN32)
