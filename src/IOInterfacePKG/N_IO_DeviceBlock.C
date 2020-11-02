@@ -250,7 +250,8 @@ void DeviceBlock::clear()
 bool DeviceBlock::extractData( std::string const& fileName,
                                TokenVector const& parsedInputLine,
                                bool resolveParams,
-                               bool modelBinning)
+                               bool modelBinning,
+                               double scale)
 {
   // Set the device name and netlist type.
   ExtendedString deviceName(parsedInputLine[0].string_);
@@ -306,7 +307,7 @@ bool DeviceBlock::extractData( std::string const& fileName,
   }
   else
   {
-    result = extractBasicDeviceData( parsedInputLine, resolveParams, modelBinning );
+    result = extractBasicDeviceData( parsedInputLine, resolveParams, modelBinning, scale );
   }
 
   // Check the status and extracting device data
@@ -459,7 +460,7 @@ bool DeviceBlock::extractSubcircuitInstanceData( const TokenVector & parsedInput
 // Creator       : Lon Waters, SNL
 // Creation Date : 09/24/2001
 //-----------------------------------------------------------------------------
-bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , bool failIfUnresolved, bool modelBinning)
+bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , bool failIfUnresolved, bool modelBinning, double scale)
 {
   bool result;
   int i, n_start, n_end, n_req, n_opt, n_fill;
@@ -473,7 +474,7 @@ bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , 
   // a model name was found, find its type.
   int modelLevel, modelNamePosition;
   std::string modelType;
-  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition, modelBinning );
+  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition, modelBinning, scale );
   if (modelFound == MODEL_NOT_FOUND)
     return false;
   else if (modelFound == MODEL_NOT_SPECIFIED)
@@ -819,7 +820,8 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
   {
     bool resolveParams=true;
     bool modelBinning=false;
-    result = extractBasicDeviceData( parsedInputLine, resolveParams, modelBinning);
+    double scale=1.0;
+    result = extractBasicDeviceData( parsedInputLine, resolveParams, modelBinning, scale);
     return result;
   }
 
@@ -1131,7 +1133,8 @@ bool DeviceBlock::extractYDeviceData( const TokenVector & parsedInputLine )
   {
     bool resolveParams=true;
     bool modelBinning=false;
-    result = extractBasicDeviceData( parsedLine_, resolveParams, modelBinning );
+    double scale=1.0;
+    result = extractBasicDeviceData( parsedLine_, resolveParams, modelBinning, scale );
   }
 
   return result;
@@ -1256,7 +1259,8 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
 
   bool resolveParams=true;
   bool modelBinning=false;
-  return (noError == true) ? extractBasicDeviceData( parsedLine_, resolveParams, modelBinning ) : false;
+  double scale=1.0;
+  return (noError == true) ? extractBasicDeviceData( parsedLine_, resolveParams, modelBinning, scale ) : false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1326,7 +1330,9 @@ bool DeviceBlock::extractMutualInductanceData( const TokenVector & parsedInputLi
 
   int modelLevel, modelNamePosition;
   std::string modelType;
-  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition );
+  bool modelBinning=false;
+  double scale=1.0;
+  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition,modelBinning,scale);
 
   // check format for errors; bogus Lnames are handled later
   if ( modelFound == MODEL_FOUND)
@@ -1397,7 +1403,9 @@ bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
     setNetlistType ( 'S' );
   }
 
-  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition );
+  bool modelBinning=false;
+  double scale=1.0;
+  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition, modelBinning, scale);
   if (modelFound != MODEL_FOUND)
   {
     Report::UserError().at(getNetlistFilename(), getLineNumber())
@@ -1626,7 +1634,8 @@ DeviceBlock::extractModelName(
   std::string & modelType,
   int &         modelLevel,
   int &         modelNamePosition,
-  bool modelBinning )
+  bool modelBinning,
+  double scale)
 {
   modelType = "";
   modelNamePosition = 0;
@@ -1650,6 +1659,7 @@ DeviceBlock::extractModelName(
   {
     LWfound = getLandW (parsedInputLine, circuitContext_, L, W);
     LNFINfound = getLandNFIN (parsedInputLine, circuitContext_, L, NFIN);
+    if ( (LWfound || LNFINfound) && scale != 1.0) { L *= scale; W *= scale; }
   }
 
   for (size_t fieldno = model_search_begin_index; fieldno < model_search_end_index; ++fieldno )
@@ -2341,7 +2351,9 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
   // a model name was found, find its type.
   int modelLevel, modelNamePosition;
   std::string modelType;
-  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition );
+  bool modelBinning=false;
+  double scale=1.0;
+  ModelFoundState modelFound = extractModelName( parsedInputLine, modelType, modelLevel, modelNamePosition, modelBinning, scale);
   if (modelFound == MODEL_NOT_FOUND)
     return false;
   else if (modelFound == MODEL_NOT_SPECIFIED)

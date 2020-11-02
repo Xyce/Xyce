@@ -502,8 +502,10 @@ LEAD I[SDGBEC1-9]
 
 <INITIAL>"time" {return XyceExpression::ExpressionParser::token::TOK_TIME; }
 <INITIAL>"temp" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
+<INITIAL>"temper" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
 <INITIAL>"vt" {return XyceExpression::ExpressionParser::token::TOK_VT; }
 <INITIAL>"freq" {return XyceExpression::ExpressionParser::token::TOK_FREQ; }
+<INITIAL>"hertz" {return XyceExpression::ExpressionParser::token::TOK_FREQ; }
 <INITIAL>"gmin" {return XyceExpression::ExpressionParser::token::TOK_GMIN; }
 <INITIAL>"pi" {return XyceExpression::ExpressionParser::token::TOK_PI; }
 <INITIAL>"constctok" {return XyceExpression::ExpressionParser::token::TOK_C_TO_K; }
@@ -520,9 +522,13 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"sign"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SIGN; }
 <INITIAL>"stp"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_STP; }
 <INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
+
 <INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
 <INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
+<INITIAL>"spline"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SPLINE; }
+<INITIAL>"spline"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE2; }
+<INITIAL>"spline"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE3; }
 <INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 

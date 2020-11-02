@@ -951,6 +951,15 @@ inline void OutputMgr::addOutputter(PrintType::PrintType print_type, Outputter::
   outputterMap_[print_type].push_back(outputter);
 }
 
+// functions for handling wildcard variables on .PRINT lines
+void removeWildcardVariables(
+  Parallel::Machine     comm,
+  Util::ParamList &     variable_list,
+  const NodeNameMap &   external_nodes,
+  const NodeNameMap &   branch_vars);
+
+bool excludeYDeviceFromWildcard(const std::string& tmpStr);
+
 //-----------------------------------------------------------------------------
 // Function      : operator<
 // Purpose       : 

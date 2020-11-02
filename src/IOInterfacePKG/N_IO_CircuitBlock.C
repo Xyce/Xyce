@@ -99,7 +99,8 @@ CircuitBlock::CircuitBlock(
   const std::vector< std::pair< std::string, std::string> >  &  externalNetlistParams,
   std::vector<bool> &                                           pFilter,
   bool                                                          removeRedundant,
-  bool                                                          modelBinning)
+  bool                                                          modelBinning,
+  double                                                        scale)
 : netlistFilename_(fileName),
   title_(""),
   name_(""),
@@ -131,6 +132,7 @@ CircuitBlock::CircuitBlock(
   preprocessFilter_(pFilter),
   remove_any_redundant_(removeRedundant),
   model_binning_flag_(modelBinning),
+  lengthScale_(scale),
   topology_(topology),
   deviceManager_(device_manager)
 {
@@ -193,6 +195,7 @@ CircuitBlock::CircuitBlock(
   preprocessFilter_(PreprocessType::NUM_PREPROCESS, false),
   remove_any_redundant_(false),
   model_binning_flag_(false),
+  lengthScale_(1.0),
   topology_(topology),
   deviceManager_(device_manager)
 {
@@ -363,7 +366,8 @@ bool CircuitBlock::parseNetlistFilePass1(
       // unresolvable at this stage in processing.
       bool resolveParams=false;
       bool modelBinning=false;
-      ( ( *mm ).second ).extractData(resolveParams,modelBinning);
+      double scale=1.0;
+      ( ( *mm ).second ).extractData(resolveParams,modelBinning,scale);
 
       // Add mutual inductance to circuit context
       circuitContext_.addMutualInductance( ( *mm ).second );
@@ -1440,7 +1444,8 @@ bool CircuitBlock::handleLinePass1(
           externalNetlistParams_,
           preprocessFilter_,
           remove_any_redundant_,
-          model_binning_flag_);
+          model_binning_flag_,
+          lengthScale_);
 
       // Start a new subcircuit context in the circuit context.
       result = circuitContext_.beginSubcircuitContext(netlistFilename_, line);
@@ -1553,7 +1558,8 @@ bool CircuitBlock::getLinePassMI()
             device_.clear();
             bool resolveParams=false;
             bool modelBinning=false;
-            device_.extractData(netlistFilename_, line, resolveParams, modelBinning);
+            double scale=1.0;
+            device_.extractData(netlistFilename_, line, resolveParams, modelBinning,scale);
 
             int numParams = device_.getNumberOfInstanceParameters();
             for( int j = 0; j < numParams; ++j )

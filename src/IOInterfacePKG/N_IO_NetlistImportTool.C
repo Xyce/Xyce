@@ -437,6 +437,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   registerCircuitOptions(options_manager, mainCircuitBlock_->getOptionsTable());
 
   mainCircuitBlock_->setModelBinningFlag( parsing_manager.getModelBinningFlag() );
+  mainCircuitBlock_->setLengthScale( parsing_manager.getLengthScale() );
 
   {
     Stats::StatTop _distributeStat("Distribute Devices");
@@ -828,8 +829,8 @@ void printLineDiagnostics(
           const std::string &name = *it4;
 
           bool done = false;
-          if (name == "TEMP" || name == "TIME" || name == "FREQ" || name == "INDEX" || name == "STEPNUM" ||
-              name == "OBJFUNC" || name == "OBJVARS" || name == "SENS" || name == "NOISE" || name == "sweep" ||
+          if (name == "TEMP" || name == "TEMPER" || name == "TIME" || name == "FREQ" || name == "HERTZ" || name == "INDEX" ||
+              name == "STEPNUM" || name == "OBJFUNC" || name == "OBJVARS" || name == "SENS" || name == "NOISE" || name == "sweep" ||
               name == "ONOISE" || name == "INOISE")
           {
             done = true;

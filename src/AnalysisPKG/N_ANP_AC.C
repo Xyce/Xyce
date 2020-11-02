@@ -643,7 +643,7 @@ bool AC::doInit()
     {
       SweepParam &sweep_param = (*it);
       std::string name = (*it).name; Util::toUpper(name);
-      if (name == "FREQ")
+      if (name == "FREQ" || name == "HERTZ")
       {
         // frequency values for .AC must be > 0
         for (int i=0; i<(*it).valList.size(); ++i)
@@ -2049,7 +2049,7 @@ bool AC::updateDataParams_ (int stepNumber)
   {
     std::string name = acSweepVector_[iac].name; Util::toUpper(name);
     double val = acSweepVector_[iac].currentVal;
-    if (name=="FREQ")
+    if (name == "FREQ" || name == "HERTZ")
     {
       currentFreq_ = val;
     }

@@ -4426,6 +4426,17 @@ bool Instance::processParams ()
 {
   double Rtot;
 
+  // apply scale
+  if (getDeviceOptions().lengthScale != 1.0)
+  {
+    if (given("L")) { l *= getDeviceOptions().lengthScale; }
+    if (given("W")) { w *= getDeviceOptions().lengthScale; }
+    if (sourceAreaGiven) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
+    if (drainAreaGiven) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
+    if (drainPerimeterGiven) { drainPerimeter *= getDeviceOptions().lengthScale; }
+    if (sourcePerimeterGiven) { sourcePerimeter *= getDeviceOptions().lengthScale; }
+  }
+
   // Set any non-constant parameter defaults:
   if (!RBDBgiven)
     rbdb = model_.rbdb;

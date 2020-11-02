@@ -438,6 +438,8 @@ and provides an example.
 \input{PRINT_STEP_Command.tex}
 
 \subsubsection{Print Wildcards}
+\label{Print_Wildcards}
+\index{\texttt{.PRINT}!Wildcards}
 Wildcards are partially supported on \texttt{.PRINT} lines. In particular,
 \texttt{V(*)} will print all of the node voltages in the circuit for all
 analysis modes.  The \texttt{P(*)}  and \texttt{W(*)} wildcards are supported
@@ -465,16 +467,21 @@ analysis modes.  The \texttt{VR(*)}, \texttt{VI(*)}, \texttt{VP(*)},
 supported for these two analysis modes.
 
 There is also limited support for the * character (meaning ``zero or more
-characters'') in more complex wildcards, where the * characters can be in
+characters'') and the ? character (meaning ``any one character'') in more
+complex wildcards, where the * and/or ? characters can be in
 any positions in the wildcard specification.  For example, \texttt{V(X1*)}
 should output the voltage at all nodes in subcircuit X1 for all analysis
-modes.  At present, wildcards such as \texttt{VR(X1*)}, \texttt{VI(X1*)},
-\texttt{VP(X1*)}, \texttt{VM(X1*)} and \texttt{VDB(X1*)} are not supported.
+modes.  As another example, \texttt{V(1?)} should output the voltage at all
+nodes that have two-character names that start with the character 1.  At present,
+wildcards such as \texttt{VR(X1*)}, \texttt{VI(X1*)}, \texttt{VP(X1*)},
+\texttt{VM(X1*)} and \texttt{VDB(X1*)} are not supported for either the *
+or ? wildcard characters.
 
 Similarly, \texttt{P(X1*)} or \texttt{W(X1*)} should output the
 power for all devices, that support power calculations, in subcircuit X1
 for all analysis modes.  Devices that don't support power calculations
-should be silently omitted.
+should be silently omitted.  Alternately, \texttt{P(R?)} or \texttt{W(R?)}
+should output the power for all resistors that have two-character names.
 
 There is less support for more complex wildcards for the I()
 operator.  In particular, I(X1*) will only include the two-terminal
@@ -485,7 +492,8 @@ currents.  For AC and NOISE, it will only include branch currents. At
 present, wildcards such as \texttt{IR(X1*)}, \texttt{II(X1*)},
 \texttt{IP(X1*)}, \texttt{IM(X1*)}, \texttt{IDB(X1*)}, \texttt{IB(X1*)},
 \texttt{IC(*)}, \texttt{ID(X1*)}, \texttt{IE(X1*)} \texttt{IG(X1*)} and
-\texttt{IS(X1*)} are not supported.
+\texttt{IS(X1*)} are not supported.  The same caveats apply for the ?
+wildcard character.
 
 \subsubsection{Device Parameters and Internal Variables}
 \label{Print_Device_Info}

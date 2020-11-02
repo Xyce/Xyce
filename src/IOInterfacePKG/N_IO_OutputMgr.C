@@ -2628,16 +2628,17 @@ void makeParamList(const std::string name, It first, It last, Out out)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::IO::removeStarVariables
+// Function      : Xyce::IO::removeWildcardVariables
 // Purpose       : Process V(*), I(*), P(*) and W(*) on .print line
 // Special Notes : Replaces v(*), i(*), p(*) and w(*) that appear on the .print line
 //                 with a list of all v(), i(), p() and w() variables as appropriate.
-//                 This works for operators like vr() and ir() also.
+//                 This works for operators like vr() and ir() also.  It also handles
+//                 the ? wildcard.
 // Scope         :
 // Creator       : David Baur, Raytheon
 // Creation Date : 6/28/2013
 //-----------------------------------------------------------------------------
-void removeStarVariables(
+void removeWildcardVariables(
   Parallel::Machine     comm,
   Util::ParamList &     variable_list,
   const NodeNameMap &   external_nodes,
@@ -2732,7 +2733,8 @@ void removeStarVariables(
       // remove the *
       it = variable_list.erase(it);
     }
-    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && ((*it).tag().find("*") != std::string::npos) )
+    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && (((*it).tag().find("*") != std::string::npos) ||
+							     ((*it).tag().find("?") != std::string::npos)) )
     {
       // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*) W(X1*).  Assume that,
       // for example, V(1*) is a request for all nodes that start with '1'.  It is
@@ -2857,23 +2859,10 @@ void removeStarVariables(
         // in print params lists are all in Xyce style.  So we must
         // fake things out here by converting back to Xyce style.
         tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-        // BUG 989 SON:  we are allowing Y device branches to be output by
-        // I(*) now, but YMIL and YMIN (mutual inductors) have two names
-        // for each branch/lead current, and one of them is already included without
-        // the unintuitive "y" device syntax.  So don't print the second
-        // one.  Only add tmpStr if it is neither a YMIL or YMIN.
         if (devType == 'Y')
         {
-          std::string::size_type i=tmpStr.find_last_of(':');
-          i=((i == std::string::npos)?0:i+1);
-          std::string basename=tmpStr.substr(i);
-          if (startswith_nocase(basename,"YMIL")
-              || startswith_nocase(basename,"YMIN")
-              || startswith_nocase(basename,"YGENEXT")
-              || startswith_nocase(basename,"YPG"))
-          {
+          if (excludeYDeviceFromWildcard(tmpStr))
             addIt=false;
-          }
         }
         else if (devType == 'Q')
 	{
@@ -2929,16 +2918,8 @@ void removeStarVariables(
         tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
         if (devType == 'Y')
         {
-          std::string::size_type i=tmpStr.find_last_of(':');
-          i=((i == std::string::npos)?0:i+1);
-          std::string basename=tmpStr.substr(i);
-          if (startswith_nocase(basename,"YMIL")
-              || startswith_nocase(basename,"YMIN")
-              || startswith_nocase(basename,"YGENEXT")
-              || startswith_nocase(basename,"YPG"))
-          {
+          if (excludeYDeviceFromWildcard(tmpStr))
             addIt=false;
-          }
         }
         else if (devType == 'O')
         {
@@ -2969,27 +2950,15 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = vWildCards.begin();
     for ( ; itWC != vWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
       // search through the node names to see if any of them match the
       // wild card pattern
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itEN = external_nodes.begin();
       for ( ; itEN!=external_nodes.end(); ++itEN)
       {
-        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos, trailingStar))
-        {
-          ExtendedString tmpStr((*itEN).first);
-          tmpStr.toUpper();
+        ExtendedString tmpStr((*itEN).first);
+        tmpStr.toUpper();
+        if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
           vWildCard_list.push_back(tmpStr);
-        }
       }
     }
     ++vWildCardPosition;
@@ -3001,16 +2970,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = iWildCards.begin();
     for ( ; itWC != iWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3027,16 +2986,8 @@ void removeStarVariables(
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
           {
-            std::string::size_type i=tmpStr.find_last_of(':');
-            i=((i == std::string::npos)?0:i+1);
-            std::string basename=tmpStr.substr(i);
-            if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN")
-                || startswith_nocase(basename,"YGENEXT")
-                || startswith_nocase(basename,"YPG"))
-            {
+            if (excludeYDeviceFromWildcard(tmpStr))
               addDevice=false;
-            }
           }
           else if (devType == 'M' || devType == 'J' || devType == 'O' ||
                    devType == 'Q' || devType == 'T' || devType == 'Z')
@@ -3049,7 +3000,7 @@ void removeStarVariables(
         if (addDevice)
 	{
           // Use tmpStr here since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
             iWildCard_list.push_back(tmpStr);
         }
       }
@@ -3063,16 +3014,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = pWildCards.begin();
     for ( ; itWC != pWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3089,16 +3030,8 @@ void removeStarVariables(
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
           {
-            std::string::size_type i=tmpStr.find_last_of(':');
-            i=((i == std::string::npos)?0:i+1);
-            std::string basename=tmpStr.substr(i);
-            if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN")
-                || startswith_nocase(basename,"YGENEXT")
-                || startswith_nocase(basename,"YPG"))
-            {
+            if (excludeYDeviceFromWildcard(tmpStr))
               addDevice=false;
-            }
           }
           else if (devType == 'O')
           {
@@ -3111,7 +3044,7 @@ void removeStarVariables(
 	{
           // search through the device names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
 	    pWildCard_list.insert(tmpStr);
         }
       }
@@ -3125,16 +3058,6 @@ void removeStarVariables(
     std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = wWildCards.begin();
     for ( ; itWC != wWildCards.end(); ++itWC)
     {
-      std::string name((*itWC).second);
-      // determine where the first * is.
-      std::size_t firstStarPos = name.find_first_of("*");
-      bool trailingStar = (name.find_last_of("*") == name.size()-1);
-
-      // Pull out the non-* fragments of name into nameSubStrings.
-      std::vector<std::string> nameSubStrings;
-      splitWildCardString(name, nameSubStrings);
-
-      std::vector<std::string>::const_iterator nss_it;
       NodeNameMap::const_iterator itBV = branch_vars.begin();
       for ( ; itBV!=branch_vars.end(); ++itBV)
       {
@@ -3151,16 +3074,8 @@ void removeStarVariables(
           tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
           if (devType == 'Y')
           {
-            std::string::size_type i=tmpStr.find_last_of(':');
-            i=((i == std::string::npos)?0:i+1);
-            std::string basename=tmpStr.substr(i);
-            if (startswith_nocase(basename,"YMIL")
-                || startswith_nocase(basename,"YMIN")
-                || startswith_nocase(basename,"YGENEXT")
-                || startswith_nocase(basename,"YPG"))
-            {
+            if (excludeYDeviceFromWildcard(tmpStr))
               addDevice=false;
-            }
           }
           else if (devType == 'O')
           {
@@ -3173,7 +3088,7 @@ void removeStarVariables(
 	{
           // search through the node names to see if any of them match the
           // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos, trailingStar))
+          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
 	    wWildCard_list.insert(tmpStr);
         }
       }
@@ -3306,6 +3221,38 @@ void removeStarVariables(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Xyce::IO::excludeYDeviceFromWildcard
+// Purpose       : Determine if a Y device should be excluded from a
+//                 the device list generated from a wildcard specification.
+// Special Notes : Per BUG 989 SON:  we are allowing Y device branches to be
+//                 output by I(*) now, but YMIL and YMIN (mutual inductors)
+//                 have two names for each branch/lead current, and one of them
+//                 is already included without the unintuitive "y" device syntax.
+//                 So don't print the second one.  There are also other Y device
+//                 types that don't support lead currents or power.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 10/19/2020
+//-----------------------------------------------------------------------------
+bool excludeYDeviceFromWildcard(const std::string& tmpStr)
+{
+  bool retval=false;
+
+  std::string::size_type i=tmpStr.find_last_of(':');
+  i=((i == std::string::npos)?0:i+1);
+  std::string basename=tmpStr.substr(i);
+  if (startswith_nocase(basename,"YMIL")
+      || startswith_nocase(basename,"YMIN")
+      || startswith_nocase(basename,"YGENEXT")
+      || startswith_nocase(basename,"YPG"))
+   {
+     retval=true;
+   }
+
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::setSweepParameters
 // Purpose       : Copy .DC or .STEP sweep parameters, and set up flags if
 //                 sweeping the TEMP variable.
@@ -3372,7 +3319,7 @@ void OutputMgr::setDCSweepVector(const Analysis::SweepVector &sweep_vector)
 // Function      : OutputMgr::fixupPrintParameters
 // Purpose       : Perform some .print line checks and munging, primarily
 //                 dealing with use of V(*) and I(*)
-// Special Notes : This function used to call removeStarVariables directly,
+// Special Notes : This function used to call removeWildcardVariables directly,
 //                 but that was moved to "fixupOutputVariables."  This function
 //                 now exists only to maintain a prior interface for
 //                 existing outputters to call.
@@ -3390,7 +3337,7 @@ void OutputMgr::fixupPrintParameters(
 //-----------------------------------------------------------------------------
 // Function      : OutputMgr::fixupOutputVariables
 // Purpose       : 
-// Special Notes : Just a re-wrapping of removeStarVariables
+// Special Notes : Just a re-wrapping of removeWildcardVariables
 // Scope         : public
 // Creator       : Tom Russo
 // Creation Date : 21 Feb 2018
@@ -3402,9 +3349,9 @@ void OutputMgr::fixupOutputVariables(
   // For AC and Noise analysis, only branch currents will be used for I(*) and P(*).
   // For other analysis types, both branch currents and lead currents will be used.
   if (dotACSpecified_ || dotNoiseSpecified_)
-    removeStarVariables(comm, outputParamList, getExternalNodeMap(), getSolutionNodeMap());
+    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getSolutionNodeMap());
   else
-    removeStarVariables(comm, outputParamList, getExternalNodeMap(), getBranchVarsNodeMap());
+    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getBranchVarsNodeMap());
 }
 
 //-----------------------------------------------------------------------------
