@@ -73,16 +73,6 @@ namespace Linear {
 int generateOffset( const N_PDS_ParMap& baseMap );
 
 //-----------------------------------------------------------------------------
-// Function      : createBlockVector
-// Purpose       : A helper function for creating a block vector.
-// Special Notes : This block vector construction is a numBlock replicate of the parallel
-//               : distribution defined by the maps in the subBlockVector.
-// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
-// Creation Date : 6/22/11
-//-----------------------------------------------------------------------------
-Teuchos::RCP<BlockVector> createBlockVector( int numBlocks, Vector& subBlockVector, int augmentRows=0 );
-
-//-----------------------------------------------------------------------------
 // Function      : createBlockParMaps
 // Purpose       : A helper function for creating block parallel maps.
 //               : This function returns both the map and overlap map.

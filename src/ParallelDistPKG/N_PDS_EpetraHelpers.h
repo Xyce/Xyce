@@ -42,6 +42,8 @@
 
 // ---------- Standard Includes ----------
 
+#include <vector>
+
 // ----------   Xyce Includes   ----------
 
 #include <N_PDS_Comm.h>

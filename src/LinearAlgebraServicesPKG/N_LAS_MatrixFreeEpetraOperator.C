@@ -47,6 +47,7 @@
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraHelpers.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_LAS_Vector.h>
 
 namespace Xyce {
@@ -113,7 +114,7 @@ void MatrixFreeEpetraOperator::initialize(
     )
 {
   linearOperatorRCPtr_ = linearOperator;
-  solutionMap_ = solutionMap;
+  solutionMap_ = Teuchos::rcp_dynamic_cast<const N_PDS_EpetraParMap>(solutionMap);
   isInitialized_ = true;
 }
 

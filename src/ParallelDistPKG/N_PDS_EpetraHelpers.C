@@ -47,6 +47,7 @@
 #include <N_PDS_EpetraHelpers.h>
 
 #include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraMPIComm.h>
@@ -82,7 +83,7 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
                               index_base,
                               *petraComm );
 
-  return ( new N_PDS_ParMap( petraMap, aComm, true ) );
+  return ( new N_PDS_EpetraParMap( petraMap, aComm, true ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
                                           index_base,
                                           *petraComm );
 
-  return ( new N_PDS_ParMap( petraMap, aComm, true ) );
+  return ( new N_PDS_EpetraParMap( petraMap, aComm, true ) );
 }
 
 //-----------------------------------------------------------------------------

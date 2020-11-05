@@ -252,10 +252,10 @@ public:
   virtual void printPetraObject(std::ostream &os) const;
 
   // Get the parallel map associated with this multi-vector
-  N_PDS_ParMap * pmap() { return parallelMap_.get(); }
-  N_PDS_ParMap * omap() { return overlapMap_.get(); }
-  const N_PDS_ParMap * pmap() const { return parallelMap_.get(); }
-  const N_PDS_ParMap * omap() const { return overlapMap_.get(); }
+  N_PDS_ParMap * pmap() { return parallelMap_; }
+  N_PDS_ParMap * omap() { return overlapMap_; }
+  const N_PDS_ParMap * pmap() const { return parallelMap_; }
+  const N_PDS_ParMap * omap() const { return overlapMap_; }
 
   // Get the parallel communicator associated with this multi-vector
   N_PDS_Comm * pdsComm() { return pdsComm_.get(); }
@@ -273,10 +273,10 @@ public:
 protected:
 
   // Pointer to the multi-vector's parallel map object
-  RCP<N_PDS_ParMap> parallelMap_;
+  N_PDS_ParMap* parallelMap_;
 
   // Parallel Map for overlapped data
-  RCP<N_PDS_ParMap> overlapMap_;
+  N_PDS_ParMap* overlapMap_;
 
   // Pointer the Petra multi-vector object.
   Epetra_MultiVector * aMultiVector_;
@@ -294,7 +294,7 @@ protected:
   EpetraExt::MultiVector_View * viewTransform_;
 
   // Communicator object, if one is needed.
-  RCP<N_PDS_Comm> pdsComm_;
+  Teuchos::RCP<N_PDS_Comm> pdsComm_;
 
   // isOwned flag
   bool isOwned_;

@@ -50,7 +50,7 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_PDS_EpetraHelpers.h>
 #include <N_PDS_MPI.h>
 #include <N_UTL_FeatureTest.h>
@@ -409,12 +409,15 @@ bool Builder::generateGraphs()
 
   int numLocalRows_Overlap = rcData.size();
 
+  N_PDS_ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
   Epetra_BlockMap & overlapGndMap = 
-    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND )->petraMap());
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvGMap)->petraMap());
+  N_PDS_ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
   Epetra_BlockMap & overlapMap = 
-    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP )->petraMap());
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvMap)->petraMap());
+  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
   Epetra_BlockMap & localMap = 
-    *dynamic_cast<Epetra_BlockMap*>(pdsMgr_->getParallelMap( Parallel::SOLUTION )->petraMap());
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap());
 
   Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
 
@@ -552,7 +555,8 @@ bool Builder::setupSeparatedLSObjects()
   // between linear and nonlinear portions of the graph.  The entries of the Jacobian
   // for A and B are static, where C and D can change over the course of a transient.
   //
-  Epetra_Map * baseMap = pdsMgr_->getParallelMap(Parallel::SOLUTION)->petraMap();
+  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
+  Epetra_Map * baseMap = dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap();
   const Epetra_CrsGraph & baseFullGraph = *(pdsMgr_->getMatrixGraph(Parallel::JACOBIAN)->epetraObj());
   int numLocalRows = baseFullGraph.NumMyRows();
 
@@ -669,11 +673,11 @@ bool Builder::setupSeparatedLSObjects()
   {
     Xyce::dout() << "Linear Solution Map:" << std::endl;
     linSolnMap->print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *linSolnMap->petraMap() );
+    EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
 
     Xyce::dout() << "Nonlinear Solution Map:" << std::endl;
     nonlinSolnMap->print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *nonlinSolnMap->petraMap() );
+    EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
 
     // Construct graphs from linear and nonlinear data.
     Xyce::dout() << "Base solution map:" << std::endl;
@@ -685,10 +689,10 @@ bool Builder::setupSeparatedLSObjects()
   Epetra_CrsGraph * linearNLGraph = new Epetra_CrsGraph( Copy, *baseMap, &linNLArrayNZs[0] );
   Epetra_CrsGraph * nlLinearGraph = new Epetra_CrsGraph( Copy, *baseMap, &nlLinArrayNZs[0] );
 
-  Epetra_CrsGraph * lcl_nonlinGraph = new Epetra_CrsGraph( Copy, *nonlinSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_nlLinearGraph = new Epetra_CrsGraph( Copy, *nonlinSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearGraph = new Epetra_CrsGraph( Copy, *linSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearNLGraph = new Epetra_CrsGraph( Copy, *linSolnMap->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_nonlinGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_nlLinearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_linearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_linearNLGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
 
   for( int i = 0; i < numLocalRows; ++i )
   {
@@ -741,9 +745,11 @@ bool Builder::setupSeparatedLSObjects()
   lcl_linearGraph->OptimizeStorage();
   lcl_nonlinGraph->FillComplete();
   lcl_nonlinGraph->OptimizeStorage();
-  lcl_linearNLGraph->FillComplete( *nonlinSolnMap->petraMap(), *linSolnMap->petraMap() );
+  lcl_linearNLGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 
+                                   *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
   lcl_linearNLGraph->OptimizeStorage();
-  lcl_nlLinearGraph->FillComplete( *linSolnMap->petraMap(), *nonlinSolnMap->petraMap() );
+  lcl_nlLinearGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 
+                                   *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
   lcl_nlLinearGraph->OptimizeStorage();
 
   pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, 

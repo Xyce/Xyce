@@ -68,6 +68,8 @@
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Serial.h>
 #include <N_PDS_MPI.h>
+#include <N_PDS_EpetraParMap.h>
+#include <N_PDS_EpetraHelpers.h>
 
 #include <N_TIA_DataStore.h>
 #include <N_TIA_NoTimeIntegration.h>
@@ -1234,10 +1236,7 @@ bool MOR::createRedLinearSystem_()
 
     int numBlocks = 2;
 
-    N_PDS_Manager &pdsManager = *analysisManager_.getPDSManager();
-    N_PDS_ParMap redPDSMap( redMapPtr_.get(), *pdsManager.getPDSComm() );
-
-    RCP<N_PDS_ParMap> redBlockMapPtr = Linear::createBlockParMap(numBlocks, redPDSMap);
+    RCP<N_PDS_ParMap> redBlockMapPtr = Linear::createBlockParMap(numBlocks, *redMapPtr_);
  
     std::vector<std::vector<int> > blockPattern(2);
     blockPattern[0].resize(2);
@@ -1245,7 +1244,7 @@ bool MOR::createRedLinearSystem_()
     blockPattern[1].resize(2);
     blockPattern[1][0] = 0; blockPattern[1][1] = 1;
    
-    int offset= Linear::generateOffset( redPDSMap );
+    int offset= Linear::generateOffset( *redMapPtr_ );
     RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
     sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
@@ -1269,8 +1268,8 @@ bool MOR::createRedLinearSystem_()
     Amesos amesosFactory;
 
     // Create a block vector
-    ref_redBPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, rcp(&redPDSMap, false) ) );
-    ref_redXPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, rcp(&redPDSMap, false) ) );
+    ref_redBPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
+    ref_redXPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
     ref_redXPtr_->putScalar( 0.0 );
 
     blockRedProblem_ = rcp(new Epetra_LinearProblem(&sCpG_ref_redMatrixPtr_->epetraObj(), 
@@ -1431,8 +1430,9 @@ bool MOR::solveRedLinearSystem_()
     }
 
     // Create a multivector with the reduced B and L vectors.
-    Epetra_MultiVector tmp_redL( View, *redMapPtr_, redL_.values(), redL_.stride(), numPorts_ ); 
-    Epetra_MultiVector tmp_redB( View, *redMapPtr_, redB_.values(), redB_.stride(), numPorts_ ); 
+    Teuchos::RCP<N_PDS_EpetraParMap> e_redMapPtr_ = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>( redMapPtr_ );
+    Epetra_MultiVector tmp_redL( View, *e_redMapPtr_->petraMap(), redL_.values(), redL_.stride(), numPorts_ ); 
+    Epetra_MultiVector tmp_redB( View, *e_redMapPtr_->petraMap(), redB_.values(), redB_.stride(), numPorts_ ); 
     Linear::MultiVector redBmv( &tmp_redB, tmp_redB.Map(), false ), redLmv( &tmp_redL, tmp_redL.Map(), false );
 
     // Loop over number of I/O ports here
@@ -1775,13 +1775,15 @@ bool MOR::sparsifyRedSystem_()
   // Generate Epetra_Map that puts all the values of the reduced system on one processor.
   N_PDS_Manager &pdsManager = *analysisManager_.getPDSManager();
   N_PDS_ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
+  N_PDS_EpetraParMap &e_BaseMap = dynamic_cast<N_PDS_EpetraParMap&>(BaseMap); 
   if (BaseMap.pdsComm().procID() == 0)
-    redMapPtr_ = Teuchos::rcp( new Epetra_Map( k, k, 0, BaseMap.petraMap()->Comm() ) );
+    redMapPtr_ = Teuchos::rcp( Parallel::createPDSParMap( k, k, 0, BaseMap.pdsComm() ) );
   else
-    redMapPtr_ = Teuchos::rcp( new Epetra_Map( k, 0, 0, BaseMap.petraMap()->Comm() ) );
+    redMapPtr_ = Teuchos::rcp( Parallel::createPDSParMap( k, 0, 0, BaseMap.pdsComm() ) );
 
-  Epetra_CrsMatrix* tmpRedG = new Epetra_CrsMatrix( Copy, *redMapPtr_, 1 );
-  Epetra_CrsMatrix* tmpRedC = new Epetra_CrsMatrix( Copy, *redMapPtr_, 2 );
+  Teuchos::RCP<N_PDS_EpetraParMap> e_redMapPtr_ = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>( redMapPtr_ );
+  Epetra_CrsMatrix* tmpRedG = new Epetra_CrsMatrix( Copy, *e_redMapPtr_->petraMap(), 1 );
+  Epetra_CrsMatrix* tmpRedC = new Epetra_CrsMatrix( Copy, *e_redMapPtr_->petraMap(), 2 );
 
   // Let processor 0 insert entries into tmpRedG and tmpRedC
   if (BaseMap.pdsComm().procID() == 0)

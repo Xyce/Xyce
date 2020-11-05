@@ -44,6 +44,7 @@
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraHelpers.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
@@ -88,29 +89,6 @@ int generateOffset( const N_PDS_ParMap& baseMap )
      offset = 1;
 
    return offset;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : createBlockVector
-// Purpose       : A helper function for creating a block vector.
-// Special Notes :
-// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
-// Creation Date : 6/22/11
-//-----------------------------------------------------------------------------
-Teuchos::RCP<BlockVector> createBlockVector( int numBlocks, Vector& subBlockVector, int augmentRows )
-{
-   // Create the parallel block maps based on the distribution of the subBlockVector
-   Teuchos::RCP<N_PDS_ParMap> globalMap = createBlockParMap( numBlocks, *(subBlockVector.pmap()), augmentRows );
-
-   // Create the new BlockVector using the parallel maps
-   Teuchos::RCP<BlockVector> newvector 
-     = Teuchos::rcp( new BlockVector( numBlocks, globalMap,
-                                            Teuchos::rcp(subBlockVector.pmap(),false),
-                                            Teuchos::rcp(subBlockVector.omap(),false),
-                                            augmentRows ) );
-
-   // Return the new block vector
-   return newvector;
 }
 
 //-----------------------------------------------------------------------------
@@ -232,8 +210,10 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
+   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
+   N_PDS_EpetraParMap& e_omap = dynamic_cast<N_PDS_EpetraParMap&>(omap);
+   e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    int gnd_node = 0;  // Will be decremented before first use.
 
@@ -315,8 +295,10 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
+   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
+   N_PDS_EpetraParMap& e_omap = dynamic_cast<N_PDS_EpetraParMap&>(omap);
+   e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    for( int i = 0; i < numBlocks; ++i )
    {
@@ -400,7 +382,8 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
    std::vector<int> GIDs(numLocalElements);
 
    // Extract the global indices.
-   pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
+   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
 
    for( int i = 0; i < numBlocks; ++i )
    {
@@ -465,7 +448,9 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   }
  
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *dynamic_cast<Epetra_BlockMap*>(blockMap.petraMap()), 0 ));
+  N_PDS_EpetraParMap& e_blockMap = dynamic_cast<N_PDS_EpetraParMap&>(blockMap);
+ 
+  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *dynamic_cast<Epetra_BlockMap*>(e_blockMap.petraMap()), 0 ));
   
   std::vector<int> indices(maxIndices);
   int shift=0, index=0, baseRow=0, blockRow=0, numIndices=0;

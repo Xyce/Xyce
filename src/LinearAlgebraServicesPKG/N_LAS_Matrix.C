@@ -52,7 +52,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
 
 #include <Epetra_CrsMatrix.h>
@@ -125,7 +125,8 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
   groundNode_(0.0),
   isOwned_(true)
 {
-  aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *e_map.petraMap() , &(diagArray[0]) );
   oDCRSMatrix_ = aDCRSMatrix_;
 
   baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
@@ -890,7 +891,7 @@ bool Matrix::useTranspose ()
 N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 {
   if (!oColMap_)
-    oColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
+    oColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
   
   return oColMap_;
 }
@@ -906,7 +907,7 @@ N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
 {
   if (!aColMap_)
-    aColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+    aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
   
   return aColMap_;
 }

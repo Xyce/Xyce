@@ -68,6 +68,8 @@
 
 #include <N_ERH_ErrorMgr.h>
 
+#include <N_PDS_EpetraParMap.h>
+
 #include <Teuchos_RCP.hpp>
 #include <Epetra_LinearProblem.h>
 #include <Epetra_CrsMatrix.h>
@@ -192,7 +194,8 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   int origGlobalRows = origMap->numGlobalEntities();
   int refRows = 2*origLocalRows;
   std::vector<int> rowIdxs( refRows );
-  int * origIdxs = origMap->petraMap()->MyGlobalElements();
+  RCP<N_PDS_EpetraParMap> e_origMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(origMap);
+  int * origIdxs = e_origMap->petraMap()->MyGlobalElements();
   for (int i=0; i<origLocalRows; ++i)
   {
     rowIdxs[i] = origIdxs[i];

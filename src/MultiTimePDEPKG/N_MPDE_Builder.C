@@ -42,7 +42,7 @@
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 
 #include <N_ERH_ErrorMgr.h>
@@ -319,8 +319,9 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
   int BlockSize = BaseMap_->numLocalEntities();
 
   //Construct MPDE dFdX Graph
+  Teuchos::RCP<N_PDS_EpetraParMap> e_mpdeMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(MPDEMap_);
   Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
-                                                           *dynamic_cast<Epetra_BlockMap*>(MPDEMap_->petraMap()),
+                                                           *dynamic_cast<Epetra_BlockMap*>(e_mpdeMap->petraMap()),
                                                            0 );
 
   int MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();

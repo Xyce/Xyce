@@ -57,6 +57,7 @@
 #include <N_UTL_Timer.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <Epetra_MultiVector.h>
 #include <Epetra_CrsMatrix.h>
@@ -699,8 +700,9 @@ void HBDirectSolver::createBlockStructures()
   // Create serial objects for parallel
   if (numProcs > 1)
   {
-    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(hbBuilderPtr_->getSolutionMap()->petraMap()), 0 ) ) );
-    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(hbBuilderPtr_->getSolutionMap()->petraMap()) ) );
+    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilderPtr_->getSolutionMap());
+    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
+    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
     serialB_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
   }

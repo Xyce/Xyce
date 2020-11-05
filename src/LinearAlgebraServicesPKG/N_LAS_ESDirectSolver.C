@@ -53,6 +53,7 @@
 #include <N_UTL_Timer.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <Epetra_MultiVector.h>
 #include <Epetra_CrsMatrix.h>
@@ -556,8 +557,9 @@ void ESDirectSolver::createBlockStructures()
   {
     // ERK note, currently the builder that is passed into this class is an ES builder.  Not sure if this is 
     // correct builder for these function calls.  Check this.
-    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(esBuilderPtr_->getSolutionMap()->petraMap()), 0 ) ) );
-    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(esBuilderPtr_->getSolutionMap()->petraMap()) ) );
+    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(esBuilderPtr_->getSolutionMap());
+    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
+    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
     serialB_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
   }

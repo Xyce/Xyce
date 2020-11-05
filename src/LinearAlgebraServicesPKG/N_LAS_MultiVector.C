@@ -49,7 +49,7 @@
 #include <N_LAS_Vector.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraHelpers.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
 
 // ---------  Other Includes  -----------
@@ -81,8 +81,8 @@ namespace Linear {
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
-:  parallelMap_(rcp(&map,false)),
-   overlapMap_(rcp(&map,false)),
+:  parallelMap_(&map),
+   overlapMap_(&map),
    importer_(0),
    exporter_(0),
    viewTransform_(0),
@@ -102,7 +102,8 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
   }
 
   // Create a new Petra MultiVector and set the pointer.
-  aMultiVector_ = new Epetra_MultiVector( *dynamic_cast<Epetra_BlockMap*>(map.petraMap()), numVectors );
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  aMultiVector_ = new Epetra_MultiVector( *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), numVectors );
 
   oMultiVector_ = aMultiVector_;
 }
@@ -119,8 +120,8 @@ MultiVector::MultiVector(
   N_PDS_ParMap &        map,
   N_PDS_ParMap &        ol_map,
   int                   numVectors )
-  : parallelMap_(rcp(&map,false)),
-    overlapMap_(rcp(&ol_map,false)),
+  : parallelMap_(&map),
+    overlapMap_(&ol_map),
     importer_(0),
     exporter_(0),
     viewTransform_(0),
@@ -133,19 +134,21 @@ MultiVector::MultiVector(
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
-  oMultiVector_ = new Epetra_MultiVector(*dynamic_cast<Epetra_BlockMap*>(ol_map.petraMap()), numVectors);
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  N_PDS_EpetraParMap& e_ol_map = dynamic_cast<N_PDS_EpetraParMap&>( ol_map );
+  oMultiVector_ = new Epetra_MultiVector(*dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), numVectors);
 
   viewTransform_ = new EpetraExt::MultiVector_View(
-    *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()), *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()));
+    *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()));
   aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
   if (map.pdsComm().numProc() > 1)
   {
-    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
-                                   *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
   }
 
-  importer_ = new Epetra_Import( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()), 
-                                 *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
+  importer_ = new Epetra_Import( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), 
+                                 *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -171,16 +174,22 @@ MultiVector::MultiVector( const MultiVector & right )
     aMultiVector_ = oMultiVector_;
   else
   {
-    viewTransform_ = new EpetraExt::MultiVector_View( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
-                                                      *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
+    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
+    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+
+    viewTransform_ = new EpetraExt::MultiVector_View( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
+                                                      *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
   }
 
   // Generate new exporter instead of using copy constructor, there is an issue with Epetra_MpiDistributor
   if( right.exporter_ ) 
   {
-    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(overlapMap_->petraMap()),
-                                   *dynamic_cast<Epetra_BlockMap*>(parallelMap_->petraMap()) );
+    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
+    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
   }
   if( right.importer_ ) importer_ = new Epetra_Import( *right.importer_ );
 }
@@ -194,7 +203,9 @@ MultiVector::MultiVector( const MultiVector & right )
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned )
-: oMultiVector_( overlapMV ),
+: parallelMap_(0),
+  overlapMap_(0),
+  oMultiVector_( overlapMV ),
   importer_(0),
   exporter_(0),
   viewTransform_(0),
@@ -227,7 +238,9 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
-: aMultiVector_( origMV ),
+: parallelMap_(0),
+  overlapMap_(0),
+  aMultiVector_( origMV ),
   oMultiVector_( origMV ),
   importer_(0),
   exporter_(0),
@@ -944,7 +957,7 @@ const double & MultiVector::getElementByGlobalIndex(
 {
   if( aMultiVector_ != oMultiVector_ )
     return (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)];
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     return (*aMultiVector_)[vec_index][ aMultiVector_->Map().LID(global_index) ];
   else
   {
@@ -984,7 +997,7 @@ bool MultiVector::setElementByGlobalIndex(const int & global_index,
 {
   if( aMultiVector_ != oMultiVector_ )
     (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)] = val;
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     (*oMultiVector_)[vec_index][ oMultiVector_->Map().LID(global_index) ] = val;
   else
   {
@@ -1022,7 +1035,7 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
 {
   if( aMultiVector_ != oMultiVector_ )
     (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)] += val;
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     (*oMultiVector_)[vec_index][ oMultiVector_->Map().LID(global_index) ] += val;
   else
   {
