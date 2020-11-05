@@ -44,8 +44,11 @@ if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
   add_subdirectory (Xyce_UnitTests)
 endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 
+option(TEST_SUITE OFF)
+option(BUILD_SHARED_LIBS OFF)
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings
