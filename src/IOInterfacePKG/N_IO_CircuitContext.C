@@ -389,7 +389,7 @@ void CircuitContext::addParams(
   for ( ; paramIter != paramEnd; ++paramIter)
   {
     parameter = *paramIter;
-    resolveQuote(parameter);
+    //RLS resolveQuote(parameter);
     resolveTableFileType(parameter);
     resolveStringType(parameter);
     currentContextPtr_->unresolvedParams_.insert(parameter);
@@ -412,7 +412,7 @@ void CircuitContext::addGlobalParams(
   for ( ; paramIter != paramEnd; ++paramIter)
   {
     parameter = *paramIter;
-    resolveQuote(parameter);
+    //RLS resolveQuote(parameter);
     resolveTableFileType(parameter);
     resolveStringType(parameter);
     currentContextPtr_->unresolvedGlobalParams_.push_back(parameter);
@@ -432,6 +432,7 @@ void CircuitContext::addGlobalNode( std::string & gnode)
   currentContextPtr_->globalNodes_.insert(gnode);
 }
 
+#if 0
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveQuote
 // Purpose        : Resolve quoted parameters as soon as they are encountered.
@@ -461,6 +462,7 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
     return;
   }
 }
+#endif 
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveTableFileType
@@ -1355,7 +1357,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
   }
   // Handle quoted parameters e.g. "filename" (which get turned into
   // TABLEs)
-  resolveQuote(parameter);
+  //RLS resolveQuote(parameter);
   resolveTableFileType(parameter);
   resolveStringType(parameter);
 
@@ -1548,7 +1550,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
  
   // Handle quoted parameters e.g. "filename" (which get turned into
   // TABLEs)
-  resolveQuote(parameter);
+  //RLS resolveQuote(parameter);
   resolveTableFileType(parameter);
   resolveStringType(parameter);
 

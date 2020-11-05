@@ -137,7 +137,7 @@ public:
   // Do early resolution of quoted parameters into a table
   // this is deprecated and should be removed in Xyce 6.11
   // in Xyce 6.12 a quoted string should be interpreted as a string.
-  void resolveQuote (Util::Param & parameter) const;
+  //RLS void resolveQuote (Util::Param & parameter) const;
   
   // resolve tablefile( "filename ") into a table expression
   void resolveTableFileType (Util::Param & parameter) const;
