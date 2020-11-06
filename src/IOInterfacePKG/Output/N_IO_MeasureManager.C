@@ -69,7 +69,7 @@
 #include <N_IO_OutputCsd.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
-#include <N_PDS_EpetraHelpers.h>
+#include <N_PDS_ParHelpers.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>

@@ -68,8 +68,8 @@
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Serial.h>
 #include <N_PDS_MPI.h>
+#include <N_PDS_ParHelpers.h>
 #include <N_PDS_EpetraParMap.h>
-#include <N_PDS_EpetraHelpers.h>
 
 #include <N_TIA_DataStore.h>
 #include <N_TIA_NoTimeIntegration.h>

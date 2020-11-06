@@ -51,7 +51,7 @@
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
 #include <N_PDS_EpetraParMap.h>
-#include <N_PDS_EpetraHelpers.h>
+#include <N_PDS_ParHelpers.h>
 #include <N_PDS_MPI.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Functors.h>

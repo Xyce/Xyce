@@ -22,6 +22,7 @@ libParallelDist_la_SOURCES = \
   N_PDS_Manager.h \
   N_PDS_Migrate.h \
   N_PDS_ParMap.h \
+  N_PDS_ParHelpers.h \
   N_PDS_EpetraMPIComm.h \
   N_PDS_EpetraSerialComm.h \
   N_PDS_EpetraParMap.h \

@@ -24,7 +24,6 @@
 //
 // Purpose        : This is collection of non-member functions that help
 //                  in the construction of parallel distribution objects
-//                  in Epetra
 //
 // Special Notes  :
 //
@@ -37,26 +36,39 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef  Xyce_PDS_EPETRAHELPERS_H
-#define  Xyce_PDS_EPETRAHELPERS_H
+#ifndef  Xyce_PDS_PARHELPERS_H
+#define  Xyce_PDS_PARHELPERS_H
 
 // ---------- Standard Includes ----------
+
+#include <vector>
 
 // ----------   Xyce Includes   ----------
 
 #include <N_PDS_Comm.h>
+#include <N_PDS_ParMap.h>
 
 // ---------- Forward Declarations ----------
-
-class Epetra_Comm;
 
 namespace Xyce {
 namespace Parallel {
 
-N_PDS_Comm * createPDSComm( Epetra_Comm* comm );
+// Return a new Comm
+N_PDS_Comm * createPDSComm(int iargs = 0, char * cargs[] = 0, Xyce::Parallel::Machine comm = MPI_COMM_NULL );
 
-const Epetra_Comm* getEpetraComm( const N_PDS_Comm* comm );
-Epetra_Comm* getEpetraComm( N_PDS_Comm* comm );
+// Return a new ParMap
+N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
+                                int numLocalEntities,
+                                const std::vector<int> & lbMap,
+                                const int index_base,
+                                N_PDS_Comm & aComm );
+
+// Return a new ParMap
+//  -> let the underlying linear algebra determine the IDs.
+N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
+                                int numLocalEntities,
+                                const int index_base,
+                                N_PDS_Comm & aComm );
 
 } // namespace Parallel 
 } // namespace Xyce

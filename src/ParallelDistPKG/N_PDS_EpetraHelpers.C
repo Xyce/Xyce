@@ -44,6 +44,7 @@
 #include <Epetra_MpiComm.h>
 #endif
 
+#include <N_PDS_ParHelpers.h>
 #include <N_PDS_EpetraHelpers.h>
 
 #include <N_PDS_ParMap.h>
