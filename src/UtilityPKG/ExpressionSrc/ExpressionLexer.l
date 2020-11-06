@@ -62,6 +62,7 @@ class ExpressionLexer;
 %s internaldevdef
 %s noisedevdef
    /* %s polydef */
+%s tablefilename
 %s polyargs
 %s polyvoltagenodedef
 %s polycurrentdevdef
@@ -526,6 +527,22 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
 <INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
+
+<INITIAL>"tablefile"[ \t]*"("[ \t]*"\""  {
+    BEGIN(tablefilename);
+    return XyceExpression::ExpressionParser::token::TOK_TABLEFILE; 
+  }
+
+<tablefilename>{ID}+ { 
+  lvalp->build<std::string *>()=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_FILENAME; 
+}
+
+<tablefilename>"\""[ \t]*")" {
+    BEGIN(INITIAL);
+    return XyceExpression::ExpressionParser::token::TOK_TABLEFILE_END; 
+  }
+
 <INITIAL>"spline"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SPLINE; }
 <INITIAL>"spline"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE2; }
 <INITIAL>"spline"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE3; }

@@ -423,6 +423,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token <double> TOK_NUM	"num"
 %token <double> TOK_IMAG_NUM	"imag_num"
 %token <std::string *> TOK_WORD "word"
+%token <std::string *> TOK_FILENAME "filename"
 %token <std::string *> TOK_FUNCTION "function"
 %token <std::string *> TOK_LEAD "lead"
 %token <std::string *> TOK_ONOISE "onoise"
@@ -491,6 +492,8 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_TABLE	"table"
 %token TOK_TABLE2	"table2"
 %token TOK_TABLE3	"table3"
+%token TOK_TABLEFILE	"tablefile"
+%token TOK_TABLEFILE_END	"tablefile_end"
 %token TOK_SPLINE	"spline"
 %token TOK_SPLINE2	"spline2"
 %token TOK_SPLINE3	"spline3"
@@ -1181,6 +1184,11 @@ exp:
 
       $$ = tmpPtr;
       delete $1;
+      delete $2;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2)); 
       delete $2;
     }
   | table3_threeOrFourArgs nonempty_func_arglist 
