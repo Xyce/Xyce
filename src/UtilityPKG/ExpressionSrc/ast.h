@@ -1103,7 +1103,7 @@ template <typename ScalarT>
 class paramOp: public astNode<ScalarT>
 {
   public:
-    paramOp (std::string par):
+    paramOp (const std::string & par):
       astNode<ScalarT>(),
       paramName_(par),
       thisIsAFunctionArgument_(false),
@@ -1268,7 +1268,7 @@ template <typename ScalarT>
 class voltageOp: public astNode<ScalarT>
 {
   public:
-    voltageOp (std::vector<std::string> voltageNodes):
+    voltageOp (const std::vector<std::string> & voltageNodes):
       astNode<ScalarT>(),
       voltageNodes_(voltageNodes),
       voltageVals_(voltageNodes.size(),0.0),
@@ -1383,7 +1383,7 @@ template <typename ScalarT>
 class currentOp: public astNode<ScalarT>
 {
   public:
-    currentOp (std::string currentDevice):
+    currentOp (const std::string & currentDevice):
       astNode<ScalarT>(),
       number_(0.0),
       currentDevice_(currentDevice),
@@ -1446,7 +1446,7 @@ template <typename ScalarT>
 class sparamOp: public astNode<ScalarT>
 {
   public:
-    sparamOp (std::vector<int> args):
+    sparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1510,7 +1510,7 @@ template <typename ScalarT>
 class yparamOp: public astNode<ScalarT>
 {
   public:
-    yparamOp (std::vector<int> args):
+    yparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1574,7 +1574,7 @@ template <typename ScalarT>
 class zparamOp: public astNode<ScalarT>
 {
   public:
-    zparamOp (std::vector<int> args):
+    zparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1638,7 +1638,7 @@ template <typename ScalarT>
 class leadCurrentOp: public astNode<ScalarT>
 {
   public:
-    leadCurrentOp (std::string designator, std::string leadCurrentDevice):
+    leadCurrentOp (const std::string & designator, const std::string & leadCurrentDevice):
       astNode<ScalarT>(),
       number_(0.0),
       leadCurrentDesignator_(designator),
@@ -1700,7 +1700,7 @@ template <typename ScalarT>
 class powerOp: public astNode<ScalarT>
 {
   public:
-    powerOp ( std::string tag, std::string powerDevice):
+    powerOp (const std::string & tag, const std::string & powerDevice):
       astNode<ScalarT>(),
       number_(0.0),
       tag_(tag),
@@ -1758,7 +1758,7 @@ template <typename ScalarT>
 class internalDevVarOp: public astNode<ScalarT>
 {
   public:
-    internalDevVarOp (std::string internalDevVarDevice):
+    internalDevVarOp (const std::string & internalDevVarDevice):
       astNode<ScalarT>(),
       number_(0.0),
       internalDevVarDevice_(internalDevVarDevice),
@@ -1815,7 +1815,7 @@ template <typename ScalarT>
 class dnoNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dnoNoiseVarOp (std::vector<std::string> noiseDevices):
+    dnoNoiseVarOp (const std::vector<std::string> & noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
       noiseDevices_(noiseDevices),
@@ -1880,7 +1880,7 @@ template <typename ScalarT>
 class dniNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dniNoiseVarOp (std::vector<std::string> noiseDevices):
+    dniNoiseVarOp (const std::vector<std::string> & noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
       noiseDevices_(noiseDevices),
@@ -2044,7 +2044,7 @@ class funcOp: public astNode<ScalarT>
 {
   public:
     // functions:
-    funcOp ( std::string name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+    funcOp (const std::string & name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
       astNode<ScalarT>(),
       funcName_(name),
       funcArgs_(args),
@@ -3393,6 +3393,36 @@ class tableOp : public astNode<ScalarT>
           }
         }
       };
+
+    //-------------------------------------------------------------------------------
+    // special constructor for values read in from a file, in which the file IO is 
+    // handled directly in this constructor.
+    tableOp (const std::string & filename):
+      astNode<ScalarT>(), allNumVal_(true)
+      {
+        allNumVal_=true; 
+        std::vector<ScalarT> xvals, yvals;
+
+        // do the file IO
+
+
+
+        // set up the arrays
+
+        int size = xvals.size(); int size2=yvals.size();
+        if (size != size2)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (table) needs x and y vectors to be the same size.")); yyerror(errStr);
+        }
+        ta_.resize(size); ya_.resize(size); dya_.resize(size,0.0);
+
+        for (int ii=0;ii<size;ii++)
+        {
+          ta_[ii] = xvals[ii];
+          ya_[ii] = yvals[ii];
+        }
+      };
+
 
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, that are now stored in std::vector objects
