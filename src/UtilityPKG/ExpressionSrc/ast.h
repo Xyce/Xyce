@@ -52,6 +52,7 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_CheckIfValidFile.h>
 #include <N_ERH_Message.h>
 #include <N_UTL_HspiceBools.h>
 #include <expressionParamTypes.h>
@@ -3397,32 +3398,43 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, in which the file IO is 
     // handled directly in this constructor.
-    tableOp (const std::string & filename):
-      astNode<ScalarT>(), allNumVal_(true)
+    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename):
+      astNode<ScalarT>(), allNumVal_(true), input_(input)
       {
-        allNumVal_=true; 
-        std::vector<ScalarT> xvals, yvals;
-
-        // do the file IO
-
-
-
-        // set up the arrays
-
-        int size = xvals.size(); int size2=yvals.size();
-        if (size != size2)
+        std::ifstream dataIn;
+        if ( !(Xyce::Util::checkIfValidFile(filename)) )
         {
-          std::vector<std::string> errStr(1,std::string("AST node (table) needs x and y vectors to be the same size.")); yyerror(errStr);
+          std::vector<std::string> errStr(1,std::string("Could not find file " + filename));
+          yyerror(errStr);
         }
-        ta_.resize(size); ya_.resize(size); dya_.resize(size,0.0);
-
-        for (int ii=0;ii<size;ii++)
+        dataIn.open(filename.c_str(), std::ios::in);
+        if ( !dataIn.good() )
         {
-          ta_[ii] = xvals[ii];
-          ya_[ii] = yvals[ii];
+          std::vector<std::string> errStr(1,std::string("Could not open file " + filename));
+          yyerror(errStr);
         }
+        else
+        {
+          double time;
+          double value;
+          ta_.clear();
+          ya_.clear();
+          while ( dataIn >> time )
+          {
+            if ( dataIn >> value )
+            {
+              ta_.push_back(time);
+              ya_.push_back(value);
+            }
+            else
+            {
+              std::vector<std::string> errStr(1,std::string("Reached end of file in " + filename + " while expecting another value"));
+              yyerror(errStr);
+            }
+          }
+        }
+        dataIn.close();
       };
-
 
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, that are now stored in std::vector objects

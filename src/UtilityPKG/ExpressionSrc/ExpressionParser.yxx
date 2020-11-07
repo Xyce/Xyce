@@ -1188,7 +1188,11 @@ exp:
     }
   | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*$2)); 
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(timeNode,*$2)); 
+      newExp.getSrcNodeVec().push_back(tmpPtr);
+      newExp.setTimeDependent(true); 
+      $$ = tmpPtr;
       delete $2;
     }
   | table3_threeOrFourArgs nonempty_func_arglist 
