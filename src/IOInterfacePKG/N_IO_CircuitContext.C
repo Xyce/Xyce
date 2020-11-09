@@ -455,54 +455,9 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
     std::ifstream paramDataIn;
     std::string parameterFile(parameter.stringValue().substr(1,parameter.stringValue().size()-2));
 
-#if 0
-    // Error out if the user-specified file does not exist, cannot
-    // be opened, or is a directory name rather than a file name.  
-    // See SON Bug 785 and SRN Bug 2100 for more details.
-    if ( !(Util::checkIfValidFile(parameterFile)) )
-    {
-      Report::UserFatal() << "Could not find file " << parameterFile;
-    }
-
-    paramDataIn.open(parameterFile.c_str(), std::ios::in);
-    std::string table("table(time");
-
-    if ( !paramDataIn.good() )
-    {
-      Report::UserFatal() << "Could not open file " << parameterFile;
-    }
-    else
-    {
-      std::string time;
-      std::string value;
-      while ( paramDataIn >> time )
-      {
-        if ( paramDataIn >> value )
-        {
-          table += "," + time + "," + value;
-        }
-        else
-        {
-          Report::UserFatal() << "Reached end of file in " << parameterFile << " while expecting another value";
-        }
-      }
-    }
-
-    paramDataIn.close();
-
-    if( table.size() <= 10 ) // the length of "table(time" from above
-    {
-      Report::UserFatal() << "Failed to successfully read contents of " << parameterFile;
-    }
-
-    table += ")";
-
-    // ERK.  Change this to use the new method for tables in the newExpression library.
-    parameter.setVal( Util::Expression(expressionGroup_,table) );
-#else
     std::string tableFileString = "{tablefile(\"" + parameterFile + "\")}";
     parameter.setVal( Util::Expression(expressionGroup_,tableFileString) );
-#endif
+
     return;
   }
 }
@@ -545,53 +500,8 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
     }
     std::string parameterFile(parameter.stringValue().substr(tablefileLen+offset,paramLen-(tablefileLen+2*offset)));
 
-#if 0
-    // Error out if the user-specified file does not exist, cannot
-    // be opened, or is a directory name rather than a file name.  
-    // See SON Bug 785 and SRN Bug 2100 for more details.
-    if ( !(Util::checkIfValidFile(parameterFile)) )
-    {
-      Report::UserFatal() << "Could not find file " << parameterFile;
-    }
-
-    paramDataIn.open(parameterFile.c_str(), std::ios::in);
-    std::string table("table(time");
-
-    if ( !paramDataIn.good() )
-    {
-      Report::UserFatal() << "Could not open file " << parameterFile;
-    }
-    else
-    {
-      std::string time;
-      std::string value;
-      while ( paramDataIn >> time )
-      {
-        if ( paramDataIn >> value )
-        {
-          table += "," + time + "," + value;
-        }
-        else
-        {
-          Report::UserFatal() << "Reached end of file in " << parameterFile << " while expecting another value";
-        }
-      }
-    }
-
-    paramDataIn.close();
-
-    if( table.size() <= 10 ) // the length of "table(time" from above
-    {
-      Report::UserFatal() << "Failed to successfully read contents of " << parameterFile;
-    }
-
-    table += ")";
-    parameter.setVal( Util::Expression(expressionGroup_, table) );
-
-#else
     std::string tableFileString = "{tablefile(\"" + parameterFile + "\")}";
     parameter.setVal( Util::Expression(expressionGroup_,tableFileString) );
-#endif
 
     return;
   }
