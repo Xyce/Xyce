@@ -4504,6 +4504,67 @@ TEST ( Double_Parser_table_Test, tablefile_break1)
 }
 
 
+TEST ( Double_Parser_table_Test, tablefile_break1b)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"./SubDir1/test1.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1b, tableExpression) 
+}
+
+TEST ( Double_Parser_table_Test, tablefile_break1c)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"./Sub_Dir/1test_5.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1c, tableExpression) 
+}
+
+
 TEST ( Double_Parser_table_Test, break2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
