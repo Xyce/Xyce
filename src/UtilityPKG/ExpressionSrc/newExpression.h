@@ -130,7 +130,6 @@ public:
   newExpression ( std::string const & exp, Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_(exp),
-    originalExpressionString_(exp),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -158,21 +157,6 @@ public:
     phaseOutputUsesRadians_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_)
   {
-    // The bison file is officially case-insensitive.  So converting the
-    // input string to all upper case is not necessary for it to work.
-    //
-    // However:
-    //
-    // Xyce mostly deals with netlist strings by converting to upper case.
-    // So, when the code outside of bison code interacts with it, Bison will not
-    // have converted it to upper or lower case.  It will be the original case,
-    // whatever that was in the netlist.
-    //
-    // The simplest, easiest way to make all of this work is to simply
-    // upcase the whole string.
-    //
-    Xyce::Util::toUpper(expressionString_);
-
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
     timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
     tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
@@ -189,7 +173,6 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
-    originalExpressionString_("TIME"),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -237,7 +220,6 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
-    originalExpressionString_("TIME"),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -316,7 +298,6 @@ public:
   newExpression (const newExpression & right) :
     group_(right.group_),
     expressionString_(right.expressionString_),
-    originalExpressionString_(right.originalExpressionString_),
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
@@ -424,7 +405,6 @@ public:
   {
     group_ = right.group_;
     expressionString_ = right.expressionString_;
-    originalExpressionString_ = right.originalExpressionString_;
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
@@ -680,7 +660,6 @@ public:
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
-  const std::string & getOriginalExpressionString() { return originalExpressionString_; };
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
 
@@ -808,7 +787,6 @@ private:
 
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
-  std::string originalExpressionString_; // before toUpper, used for error messages
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;

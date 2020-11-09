@@ -597,18 +597,21 @@ exp:
         std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
         std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & paramOpMap = newExp.getParamOpMap ();
 
-        //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
+
+        const std::string & paramName = *$1;
+
+        //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), paramName);
         //if ( nameIter == paramNameVec.end() )
-        if ( paramOpMap.find( *$1 ) == paramOpMap.end() )
+        if ( paramOpMap.find( paramName ) == paramOpMap.end() )
         {
-          Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(*$1));
+          Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(paramName));
           paramOpVec.push_back(tmpPtr);
 
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;
           vec.push_back(tmpPtr);
-          paramOpMap[*$1] = vec;
+          paramOpMap[paramName] = vec;
 
-          paramNameVec.push_back(*$1);
+          paramNameVec.push_back(paramName);
           Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(tmpPtr);
 
           $$ = tmpPtr2;
@@ -618,7 +621,7 @@ exp:
           //int index = std::distance(paramNameVec.begin(),nameIter);
           //Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
 
-          Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpMap[*$1][0]);
+          Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpMap[paramName][0]);
           $$ = tmpPtr2;
         }
         delete $1;
@@ -890,7 +893,8 @@ exp:
     {
       Teuchos::RCP<astNode<usedType> > returnPtr;
 
-      Teuchos::RCP<internalDevVarOp<usedType> > internalDevVarPtr = Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(*$2));
+      const std::string & name=*$2;
+      Teuchos::RCP<internalDevVarOp<usedType> > internalDevVarPtr = Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(name));
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(internalDevVarPtr);
       newExp.getInternalDevVarOpVec().push_back(internalDevVarPtr);
 
@@ -1490,7 +1494,7 @@ exp:
 // error condition patterns
    | TOK_BADPOLY 
     {
-      Xyce::Report::UserError() << "Syntax error in number of nodes in expression: " << newExp.getOriginalExpressionString() << std::endl;
+      Xyce::Report::UserError() << "Syntax error in number of nodes in expression: " << newExp.getExpressionString() << std::endl;
 
       // the "rand" operator is allocated here b/c all of these functions need to return a 
       // valid operator or else cause a segfault.  It is not intended to be used, as this function
@@ -1502,7 +1506,7 @@ exp:
     }
   | exp TOK_INVALID_OP exp
     {
-      Xyce::Report::UserError() << "Invalid operator in expression " << newExp.getOriginalExpressionString() << std::endl;
+      Xyce::Report::UserError() << "Invalid operator in expression " << newExp.getExpressionString() << std::endl;
 
       // the "rand" operator is allocated here b/c all of these functions need to return a 
       // valid operator or else cause a segfault.  It is not intended to be used, as this function
@@ -1666,5 +1670,5 @@ XyceExpression::ExpressionParser::error(
 {
   //Xyce::Report::UserError().at(theLexer->netlistLocation_)
   Xyce::Report::UserError()
-   << message << " in expression " << newExp.getOriginalExpressionString() << std::endl;
+   << message << " in expression " << newExp.getExpressionString() << std::endl;
 }

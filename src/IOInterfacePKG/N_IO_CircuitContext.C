@@ -455,6 +455,7 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
     std::ifstream paramDataIn;
     std::string parameterFile(parameter.stringValue().substr(1,parameter.stringValue().size()-2));
 
+#if 0
     // Error out if the user-specified file does not exist, cannot
     // be opened, or is a directory name rather than a file name.  
     // See SON Bug 785 and SRN Bug 2100 for more details.
@@ -498,6 +499,10 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
 
     // ERK.  Change this to use the new method for tables in the newExpression library.
     parameter.setVal( Util::Expression(expressionGroup_,table) );
+#else
+    std::string tableFileString = "{tablefile(\"" + parameterFile + "\")}";
+    parameter.setVal( Util::Expression(expressionGroup_,tableFileString) );
+#endif
     return;
   }
 }
@@ -540,6 +545,7 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
     }
     std::string parameterFile(parameter.stringValue().substr(tablefileLen+offset,paramLen-(tablefileLen+2*offset)));
 
+#if 0
     // Error out if the user-specified file does not exist, cannot
     // be opened, or is a directory name rather than a file name.  
     // See SON Bug 785 and SRN Bug 2100 for more details.
@@ -580,8 +586,13 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
     }
 
     table += ")";
-
     parameter.setVal( Util::Expression(expressionGroup_, table) );
+
+#else
+    std::string tableFileString = "{tablefile(\"" + parameterFile + "\")}";
+    parameter.setVal( Util::Expression(expressionGroup_,tableFileString) );
+#endif
+
     return;
   }
 }

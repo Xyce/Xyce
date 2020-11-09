@@ -70,6 +70,31 @@ class ExpressionLexer;
 %s yparamdef
 %s zparamdef
 
+
+
+ /* 
+    The bison file is officially case-insensitive.  So converting the
+    various strings to upper case is not necessary for it to work by 
+    itself.
+
+    However, Xyce mostly deals with netlist strings by converting to upper case.
+    So, when the Xyce source code outside of expression library interacts with it, 
+    Bison will not have converted the expression string or any subordinate substrings
+    to upper or lower case on its own.  They will be the original case, 
+    whatever that was in the netlist. 
+
+    I previously set up the expression library so that it would up-case the entire 
+    expression string prior to parsing.  However, this doesn't work now because 
+    the tableOp class now supports reading data from a user-specified file, 
+    and this needs to work on systems that are case sensitive like Linux.  So,
+    up-casing the whole expression string won't work anymore.
+
+    Instead, in this file, certain requisite tokens are up-cased via "toUpper".  
+    These include voltage node names, parameter names and function names.  
+    Most other stuff (including filenames especially) is left in its original 
+    case.
+ */
+
  /* ID is used for a variety of random strings, including function and 
     parameter names.  So, it cannot have characters in it that could 
     also be interpretted as operators, such as '!', '+' and '-'. This 
@@ -83,6 +108,9 @@ class ExpressionLexer;
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
 ID [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*
+
+ /* this is to support table files */
+FILENAME [a-zA-Z0-9_:`@#\.\$\/]*
 
  /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
 DEV [a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*
@@ -256,7 +284,9 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"ZDB"    |
 <INITIAL>"DNO"    |
 <INITIAL>"DNI"    {
-  lvalp->build<std::string *>()=new std::string(YYText());
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
@@ -266,6 +296,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"VDB"[ \t]*"("     {
   BEGIN(voltagenodedef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGE;
 }
@@ -273,6 +304,7 @@ LEAD I[SDGBEC1-9]
  /* single node name by itself */
 <voltagenodedef>{NODE}")" {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
@@ -281,6 +313,7 @@ LEAD I[SDGBEC1-9]
  /* first node in a comma-separated list of two nodes */
 <voltagenodedef>{NODE}"," {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
@@ -296,6 +329,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"IDB"[ \t]*"("    {
   BEGIN(currentdevdef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_CURRENT;
 } 
@@ -303,6 +337,7 @@ LEAD I[SDGBEC1-9]
  /* single device name by itself */
 <currentdevdef>{DEV}")" {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
@@ -312,6 +347,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"NDB"[ \t]*"("    {
   BEGIN(internaldevdef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR;
 }
@@ -398,6 +434,7 @@ LEAD I[SDGBEC1-9]
  /* this needs to be a "NODE" macro rather than "DEV" b/c the N() can be used to obtain voltage nodes */
 <internaldevdef>{NODE}")" {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_INTERNAL_VAR_DEV;
@@ -533,7 +570,7 @@ LEAD I[SDGBEC1-9]
     return XyceExpression::ExpressionParser::token::TOK_TABLEFILE; 
   }
 
-<tablefilename>{ID}+ { 
+<tablefilename>{FILENAME}+ { 
   lvalp->build<std::string *>()=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_FILENAME; 
 }
@@ -602,6 +639,7 @@ LEAD I[SDGBEC1-9]
  /* single node name by itself */
 <polyvoltagenodedef>{NODE}")" {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   BEGIN(polyargs);
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
@@ -610,6 +648,7 @@ LEAD I[SDGBEC1-9]
  /* first node in a comma-separated list of two nodes */
 <polyvoltagenodedef>{NODE}"," {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
@@ -624,6 +663,7 @@ LEAD I[SDGBEC1-9]
  /* single device name by itself */
 <polycurrentdevdef>{DEV}")" {
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   BEGIN(polyargs);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
@@ -651,13 +691,16 @@ LEAD I[SDGBEC1-9]
 
  /* letters */
 <INITIAL>{ID}+ { 
-  lvalp->build<std::string *>()=new std::string(YYText());
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_WORD; 
 }
 
  /* functions */
 <INITIAL>{ID}+[ \t]*"("  { 
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_FUNCTION; 
 }
