@@ -2,66 +2,62 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( OpenModels_SOURCES
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterOpenDevices.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ArtificialParameters.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ACC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_BJT.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Battery.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Capacitor.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_DAC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Bsrc.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Diode.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_GeneralExternal.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ISRC.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Inductor.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_JFET.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_LTRA.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorPEM.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorTEAM.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorYakopcic.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MESFET.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET1.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET2.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET3.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET6.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET_B3.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET_B4.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET_B3SOI.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MutIndLin.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MutIndNonLin.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MutIndNonLin2.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_OpAmp.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Digital.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_VDMOS.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Resistor.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Resistor3.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ThermalResistor.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_SW.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_TRA.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_VCCS.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Vcvs.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Vsrc.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ROM.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_TransLine.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGrid.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridBranch.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridBusShunt.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridGenBus.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridTransformer.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_AntiWindupLimiter.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_YLin.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_StepDelay.C
-      CACHE INTERNAL "X_S" )
-  
-set ( XYCE_SOURCES ${XYCE_SOURCES} ${OpenModels_SOURCES} PARENT_SCOPE)
+target_sources(XyceStatic PUBLIC
+      N_DEV_RegisterOpenDevices.C
+      N_DEV_ArtificialParameters.C
+      N_DEV_ACC.C
+      N_DEV_BJT.C
+      N_DEV_Battery.C
+      N_DEV_Capacitor.C
+      N_DEV_DAC.C
+      N_DEV_ADC.C
+      N_DEV_Bsrc.C
+      N_DEV_Diode.C
+      N_DEV_GeneralExternal.C
+      N_DEV_ISRC.C
+      N_DEV_Inductor.C
+      N_DEV_JFET.C
+      N_DEV_LTRA.C
+      N_DEV_MemristorPEM.C
+      N_DEV_MemristorTEAM.C
+      N_DEV_MemristorYakopcic.C
+      N_DEV_MESFET.C
+      N_DEV_MOSFET1.C
+      N_DEV_MOSFET2.C
+      N_DEV_MOSFET3.C
+      N_DEV_MOSFET6.C
+      N_DEV_MOSFET_B3.C
+      N_DEV_MOSFET_B4.C
+      N_DEV_MOSFET_B3SOI.C
+      N_DEV_MutIndLin.C
+      N_DEV_MutIndNonLin.C
+      N_DEV_MutIndNonLin2.C
+      N_DEV_OpAmp.C
+      N_DEV_Digital.C
+      N_DEV_VDMOS.C
+      N_DEV_Resistor.C
+      N_DEV_Resistor3.C
+      N_DEV_ThermalResistor.C
+      N_DEV_SW.C
+      N_DEV_TRA.C
+      N_DEV_VCCS.C
+      N_DEV_Vcvs.C
+      N_DEV_Vsrc.C
+      N_DEV_ROM.C
+      N_DEV_TransLine.C
+      N_DEV_PowerGrid.C
+      N_DEV_PowerGridBranch.C
+      N_DEV_PowerGridBusShunt.C
+      N_DEV_PowerGridGenBus.C
+      N_DEV_PowerGridTransformer.C
+      N_DEV_AntiWindupLimiter.C
+      N_DEV_YLin.C
+      N_DEV_StepDelay.C)
 
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${REACTION_PARSER_INC}
-      PARENT_SCOPE )
+target_include_directories(XyceStatic PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${REACTION_PARSER_INC})
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

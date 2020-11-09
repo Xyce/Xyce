@@ -201,7 +201,7 @@ else()
     PATHS ${PKG_FFTW_INCLUDE_DIRS} ${INCLUDE_INSTALL_DIR}
   )
 
-endif( FFTW_ROOT )
+endif()
 
 #--------------------------------------- components
 

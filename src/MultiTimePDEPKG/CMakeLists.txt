@@ -2,26 +2,23 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( MPDE_SOURCES  
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_Builder.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_Discretization.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_Loader.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_Manager.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_SawtoothLoader.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_MPDE_WarpedPhaseCondition.C 
-      CACHE INTERNAL "X_S" )
-set ( XYCE_SOURCES ${XYCE_SOURCES} ${MPDE_SOURCES} PARENT_SCOPE)
+target_sources(XyceStatic PUBLIC
+      N_MPDE_Builder.C
+      N_MPDE_Discretization.C
+      N_MPDE_Loader.C
+      N_MPDE_Manager.C
+      N_MPDE_SawtoothLoader.C
+      N_MPDE_WarpedPhaseCondition.C )
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      PARENT_SCOPE )
+target_include_directories(XyceStatic PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 
 
 # -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
-      MPDE 
+set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
+      MPDE
       CACHE INTERNAL "X_L" )
 
 ## add_dependencies ( MPDE LinearAlgebraServices )

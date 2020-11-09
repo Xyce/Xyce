@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_policy(SET CMP0076 NEW)
 
 # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
 # loaded before "project" is called.
@@ -18,17 +19,17 @@ message(STATUS "Looking for required Trilinos packages - found")
 # environment defaults
 if( DEFINED CMAKE_CXX_COMPILER )
   message( "Using user defined CXX ${CMAKE_CXX_COMPILER}" )
-else( DEFINED CMAKE_CXX_COMPILER )
+else()
   message( "Using Trilinos CXX compiler" )
   set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
-endif( DEFINED CMAKE_CXX_COMPILER )
+endif()
 
 if( DEFINED CMAKE_C_COMPILER )
   message( "Using user defined CC ${CMAKE_C_COMPILER}" )
-else( DEFINED CMAKE_C_COMPILER )
+else()
   message( "Using Trilinos C compiler" )
   set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
-endif( DEFINED CMAKE_C_COMPILER )
+endif()
 
 project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 
