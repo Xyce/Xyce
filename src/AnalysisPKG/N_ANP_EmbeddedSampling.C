@@ -99,11 +99,6 @@
 #if Xyce_STOKHOS_ENABLE
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
-
-#include <Tpetra_Map.hpp>
-#include <Tpetra_CrsMatrix.hpp>
-#include <Tpetra_MultiVector.hpp>
-#include <Tpetra_DefaultPlatform.hpp>
 #endif
 
 // ---------- Standard Includes ----------
