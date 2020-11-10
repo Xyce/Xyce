@@ -1,12 +1,6 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
-if(DEFINED ENV{MKLROOT})
-  set(BLA_VENDOR Intel10_64ilp_seq)
-endif()
-find_package(LAPACK 3.5.0)
-find_package(BLAS 3.5.0)
-
 set( XYCE_SOURCES "Xyce.C")
 set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -72,7 +66,7 @@ add_subdirectory(test)
 target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # In the case where CURL has been built with CMake, then we have NOT
 # gotten CURL_LIBRARIES or CURL_INCLUDE_DIRS set, we have instead gotten
