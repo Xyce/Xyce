@@ -990,17 +990,18 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
   }
   else
   {
+    // If there are no elements of history with time later than t, there
+    // is no point using lower_bound to search for one.
 
-    LessThan<History,double> lessFunct;
-    it1 = lower_bound(history.begin(),history.end(),t,lessFunct);
-
-    if (it1 == history.end())
+    it1=last;
+    if (it1->t < t)
     {
-      // If there IS no element of history later than t, then we are not
-      // interpolating, we're extrapolating.  But we're going to roll with
-      // it.  Just use the last element of the history as the latest point
-      // instead.
-      --it1;
+      // just use this last point, which will cause us to extrapolate
+    }
+    else
+    {
+      LessThan<History,double> lessFunct;
+      it1 = lower_bound(history.begin(),history.end(),t,lessFunct);
     }
 
     // Now it1 points to the first element with time > t (or last element of
