@@ -57,6 +57,12 @@ R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \end{verbatim}
 
 \\ \hline
-
+\textbf{Gitlab Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
+Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
+has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
+syntax to read a file into a table.  A double quoted string is 
+now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
+has also been removed as it was used to signify a string.
+\\ \hline
 \end{longtable}
 }
