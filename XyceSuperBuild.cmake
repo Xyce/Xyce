@@ -1,3 +1,5 @@
+project(Xyce_Superbuild VERSION 8.0.0 LANGUAGES CXX C)
+
 include(ExternalProject)
 find_package(Git)
 # Find specific folder locations
