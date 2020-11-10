@@ -498,36 +498,6 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
   }
 }
 
-#if 0
-//----------------------------------------------------------------------------
-// Function       : CircuitContext::resolveStringType
-// Purpose        : Resolve quoted parameters as soon as they are encountered.
-// Special Notes  : This avoids every processor in a parallel run trying to
-//                  access the same file.  Also exit handling does not work on
-//                  error for parallel runs otherwise.
-// Scope          :
-// Creator        : Dave Shirley, PSSI
-// Creation Date  :
-//----------------------------------------------------------------------------
-void CircuitContext::resolveStringType(Util::Param & parameter) const
-{
-  if (parameter.isStringTypeQuoted())
-  {
-    Report::UserWarning() << "The string(\" \") syntax is temporary and will be deprecated "
-      << "in a future release, when it will be replaced with simple double quotes,"
-      << "after which the string(\" \") syntax will be removed.";
-    // The parameter is time dependent with its time history defined by the set
-    // of time-value pairs in the file given by the value of the parameter.
-    // Open and read these values, using them to build a "Table" expression
-    // for the value of the parameter.
-    std::ifstream paramDataIn;
-    std::string stringParameterValue(parameter.stringValue().substr(7,parameter.stringValue().size()-8));
-
-    parameter.setVal( stringParameterValue );
-    return;
-  }
-}
-#endif 
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::addFunction
