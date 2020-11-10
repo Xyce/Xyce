@@ -91,33 +91,23 @@ public:
   // attributes to transparently construct proper objects for this linear
   // system
 
-  // Multivector factory with num vectors and initial value
-  virtual MultiVector * createMultiVector( const int numVectors = 1, const double value = 0.0 ) const;
-  // State Multivector factory with num vectors and initial value
-  virtual MultiVector * createStateMultiVector( const int numVectors = 1, const double value = 0.0 ) const;
-  // Store Multivector factory with num vectors and initial value
-  virtual MultiVector * createStoreMultiVector( const int numVectors = 1, const double value = 0.0 ) const;
+  // Multivector factory with num vectors 
+  virtual MultiVector * createMultiVector( const int numVectors = 1 ) const;
+  // State Multivector factory with num vectors 
+  virtual MultiVector * createStateMultiVector( const int numVectors = 1 ) const;
+  // Store Multivector factory with num vectors 
+  virtual MultiVector * createStoreMultiVector( const int numVectors = 1 ) const;
   // Vector factory with initial value
-  virtual Vector * createVector( const double value = 0.0 ) const;
+  virtual Vector * createVector() const;
   // State-vector factory
-  virtual Vector * createStateVector( const double value = 0.0 ) const;
+  virtual Vector * createStateVector() const;
   // Store-vector factory
-  virtual Vector * createStoreVector( const double value = 0.0 ) const;
+  virtual Vector * createStoreVector() const;
   // LeadCurrent-vector factory
-  virtual Vector * createLeadCurrentVector( const double value = 0.0 ) const;
-
-#if 1
-  // ERK.  HACK!!! FIX THIS
-  // State-vector factory
-  virtual Vector * createStateQuadVector( const double value = 0.0 ) const { return createStateVector(value); }
-  // Store-vector factory
-  virtual Vector * createStoreQuadVector( const double value = 0.0 ) const { return createStoreVector(value); }
-  // LeadCurrent-vector factory
-  virtual Vector * createLeadCurrentQuadVector( const double value = 0.0 ) const { return createLeadCurrentVector(value); }
-#endif
+  virtual Vector * createLeadCurrentVector() const;
 
   // Matrix factory
-  virtual Matrix * createMatrix( const double initialValue = 0.0 ) const;
+  virtual Matrix * createMatrix() const;
 
   //Coloring Assoc with Variable Types in Solution Vector
   virtual const std::vector<int> & createSolnColoring() const;

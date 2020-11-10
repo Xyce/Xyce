@@ -55,7 +55,6 @@
 #include <N_IO_CmdParse.h>
 #include <N_IO_OutputMgr.h>
 #include <N_IO_PkgOptionsMgr.h>
-#include <N_LAS_LAFactory.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>

@@ -57,7 +57,6 @@ target_sources(XyceStatic PUBLIC
       N_LAS_ESSolverFactory.C
       N_LAS_PCESolverFactory.C
       N_LAS_IfpackPrecond.C
-      N_LAS_LAFactory.C
       N_LAS_Graph.C
       N_LAS_Matrix.C
       N_LAS_FilteredMatrix.C

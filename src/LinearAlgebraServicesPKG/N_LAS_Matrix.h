@@ -94,8 +94,6 @@ public:
   };
 
   //Constructors
-  Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray);
-
   Matrix( const Graph* overlapGraph,
           const Graph* baseGraph );
 
@@ -130,17 +128,11 @@ public:
   // Replace a set of values into a row
   void replaceLocalRow(int row, int length, double * coeffs, int * colIndices);
 
-  // Sum values into a row into the sparse matrix, using global indices.
-  bool sumIntoRow(int row, int length, const double * coeffs, const int * colIndices);
-
   // Sum values into a row into the sparse matrix, using local indices
   bool sumIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices);
 
   // get a pointer to the compressed local row.
   int extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const;
-
-  // get a pointer to the compressed local row.
-  int extractLocalRowView(int lidRow, int& numEntries, double*& values) const;
 
   // Return a pointer to a single row, col element.
   double * returnRawEntryPointer (int lidRow, int lidCol);
@@ -154,8 +146,6 @@ public:
   // Direct access into matrix rows and columns using local indexing, with column offset.
   double * operator()(int row, int col_offset);
   const double * operator()(int row, int col_offset) const;
-
-  Epetra_CrsMatrix & epetraOverlapObj() { return *oDCRSMatrix_; }
 
   // Get column map for overlapped matrix
   N_PDS_ParMap* getOverlapColMap( N_PDS_Comm& comm );
@@ -203,9 +193,6 @@ public:
   void getLocalRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
 
   int getLocalNumRows() const;
-
-  // Put a set of values into a row, using global indices
-  bool putGlobalRow(int row, int length, double * coeffs, int * colIndices);
 
   // Put a set of values into a row, using local indices
   bool putLocalRow(int row, int length, const double * coeffs, const int * colIndices);

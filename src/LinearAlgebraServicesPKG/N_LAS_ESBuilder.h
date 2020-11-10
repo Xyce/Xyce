@@ -80,19 +80,19 @@ class ESBuilder : public Builder
   // Vector and Matrix creators
 
   // Vector factory with initial value
-  Vector * createVector( double initialValue = 0.0 ) const;
+  Vector * createVector() const;
 
   // MultiVector factory with initial value
-  MultiVector * createMultiVector( int numVectors = 1, double initialValue = 0.0 ) const;
+  MultiVector * createMultiVector( int numVectors = 1 ) const;
 
   // State Vector factory with initial value
-  Vector * createStateVector( double initialValue = 0.0 ) const;
+  Vector * createStateVector() const;
 
   // Store Vector factory with initial value
-  Vector * createStoreVector( double initialValue = 0.0 ) const;
+  Vector * createStoreVector() const;
 
   // Lead Current Vector factory with initial value
-  Vector * createLeadCurrentVector( double initialValue = 0.0 ) const;
+  Vector * createLeadCurrentVector() const;
 
   Teuchos::RCP<BlockVector> createBlockVector() const;
   Teuchos::RCP<BlockVector> createTransposeBlockVector() const;
@@ -101,13 +101,8 @@ class ESBuilder : public Builder
   Teuchos::RCP<BlockVector> createTransposeLeadCurrentBlockVector() const;
 
   // Matrix factory
-  Matrix * createMatrix( double initialValue = 0.0 ) const;
-  Teuchos::RCP<BlockMatrix> createBlockMatrix( double initialValue = 0.0 ) const;
-
-  // DAE Jacobians
-  Matrix * createDAEdQdxMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEdFdxMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const { return 0; }
+  Matrix * createMatrix() const;
+  Teuchos::RCP<BlockMatrix> createBlockMatrix() const;
 
   //Coloring Assoc with Variable Types in Solution Vector
   const std::vector<int> & createSolnColoring() const;

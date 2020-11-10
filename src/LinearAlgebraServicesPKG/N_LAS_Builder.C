@@ -41,7 +41,6 @@
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Builder.h>
-#include <N_LAS_LAFactory.h>
 #include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
@@ -76,12 +75,11 @@ namespace Linear {
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                                    numVectors,
-                                    *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                          *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -92,11 +90,10 @@ MultiVector * Builder::createMultiVector( const int numVectors, const double val
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createStateMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createStateMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::STATE)),
-                                    numVectors );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STATE)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -107,11 +104,10 @@ MultiVector * Builder::createStateMultiVector( const int numVectors, const doubl
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createStoreMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createStoreMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::STORE)),
-                                    numVectors );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STORE)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -122,11 +118,10 @@ MultiVector * Builder::createStoreMultiVector( const int numVectors, const doubl
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 03/02/01
 //-----------------------------------------------------------------------------
-Vector * Builder::createVector( const double value ) const
+Vector * Builder::createVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                                 *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                       *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -137,10 +132,9 @@ Vector * Builder::createVector( const double value ) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-Vector * Builder::createStateVector( const double value ) const
+Vector * Builder::createStateVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::STATE)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STATE)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -151,10 +145,9 @@ Vector * Builder::createStateVector( const double value ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date :
 //-----------------------------------------------------------------------------
-Vector * Builder::createStoreVector( const double value ) const
+Vector * Builder::createStoreVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::STORE)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STORE)) );
 }
 
 
@@ -166,10 +159,9 @@ Vector * Builder::createStoreVector( const double value ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date :
 //-----------------------------------------------------------------------------
-Vector * Builder::createLeadCurrentVector( const double value ) const
+Vector * Builder::createLeadCurrentVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -180,7 +172,7 @@ Vector * Builder::createLeadCurrentVector( const double value ) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-Matrix * Builder::createMatrix(const double initialValue) const
+Matrix * Builder::createMatrix() const
 {
 
   Matrix * mat = 0;

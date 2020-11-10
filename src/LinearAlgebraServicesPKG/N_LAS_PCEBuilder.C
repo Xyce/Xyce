@@ -85,7 +85,7 @@ PCEBuilder::PCEBuilder( const int Size, const int quadPointsSize )
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createVector( double initialValue ) const
+Vector * PCEBuilder::createVector() const
 {
   RCP<Vector> vector = createBlockVector(); 
   vector.release(); // Release ownership of the object.
@@ -183,7 +183,7 @@ RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentBlockVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/25/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createQuadVector( double initialValue ) const
+Vector * PCEBuilder::createQuadVector() const
 {
   RCP<Vector> vector = createQuadBlockVector(); 
   vector.release(); // Release ownership of the object.
@@ -230,9 +230,9 @@ RCP<BlockVector> PCEBuilder::createTransposeQuadBlockVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Matrix * PCEBuilder::createMatrix( double initialValue ) const
+Matrix * PCEBuilder::createMatrix() const
 {
-  RCP<Matrix> matrix = createBlockMatrix( initialValue );
+  RCP<Matrix> matrix = createBlockMatrix();
   matrix.release(); // Release ownership of the object.
   return(&*matrix);
 }
@@ -245,7 +245,7 @@ Matrix * PCEBuilder::createMatrix( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix( double initialValue ) const
+Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix() const
 {
   return rcp (new Linear::BlockMatrix( numBlockRows_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get() ) );
 }
@@ -258,9 +258,9 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix( double initialValue ) c
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/25/2019
 //-----------------------------------------------------------------------------
-Matrix * PCEBuilder::createQuadMatrix( double initialValue ) const
+Matrix * PCEBuilder::createQuadMatrix() const
 {
-  RCP<Matrix> matrix = createQuadBlockMatrix( initialValue );
+  RCP<Matrix> matrix = createQuadBlockMatrix();
   matrix.release(); // Release ownership of the object.
   return(&*matrix);
 }
@@ -273,7 +273,7 @@ Matrix * PCEBuilder::createQuadMatrix( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/25/2019
 //-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix( double initialValue ) const
+Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix() const
 {
   return rcp (new Linear::BlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, quadBlockGraph_.get(), baseFullGraph_.get()) );
 }
@@ -286,7 +286,7 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix( double initialValue
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createStateVector( double initialValue ) const
+Vector * PCEBuilder::createStateVector() const
 {
   return dynamic_cast<Vector*>(
         //new BlockVector( numBlockRows_, PCEStateMap_, BaseStateMap_ ) );
@@ -301,7 +301,7 @@ Vector * PCEBuilder::createStateVector( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createStoreVector( double initialValue ) const
+Vector * PCEBuilder::createStoreVector() const
 {
   return dynamic_cast<Vector*>(
         //new BlockVector( numBlockRows_, PCEStoreMap_, BaseStoreMap_ ) );
@@ -316,7 +316,7 @@ Vector * PCEBuilder::createStoreVector( double initialValue ) const
 // Creator       : Eric Keiter
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createLeadCurrentVector( double initialValue ) const
+Vector * PCEBuilder::createLeadCurrentVector() const
 {
   return dynamic_cast<Vector*>(
         //new BlockVector( numBlockRows_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );

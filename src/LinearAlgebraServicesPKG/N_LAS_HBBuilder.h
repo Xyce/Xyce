@@ -79,16 +79,16 @@ class HBBuilder : public Builder
   // Vector and Matrix creators
 
   // Vector factory with initial value
-  Vector * createVector( double initialValue = 0.0 ) const;
+  Vector * createVector() const;
 
   // State Vector factory with initial value
-  Vector * createStateVector( double initialValue = 0.0 ) const;
+  Vector * createStateVector() const;
 
   // Store Vector factory with initial value
-  Vector * createStoreVector( double initialValue = 0.0 ) const;
+  Vector * createStoreVector() const;
 
   // Lead Current Vector factory with initial value
-  Vector * createLeadCurrentVector( double initialValue = 0.0 ) const;
+  Vector * createLeadCurrentVector() const;
 
   // HB time-domain block vector creation:
   Teuchos::RCP<BlockVector> createTimeDomainBlockVector() const;
@@ -103,12 +103,7 @@ class HBBuilder : public Builder
   Teuchos::RCP<BlockVector> createExpandedRealFormTransposeLeadCurrentBlockVector() const;
 
   // Matrix factory
-  Matrix * createMatrix( double initialValue = 0.0 ) const { return 0; }
-
-  // DAE Jacobians
-  Matrix * createDAEdQdxMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEdFdxMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const { return 0; }
+  Matrix * createMatrix() const { return 0; }
 
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );

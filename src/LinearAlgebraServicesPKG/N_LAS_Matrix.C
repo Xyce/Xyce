@@ -102,37 +102,6 @@ Matrix::~Matrix()
     delete overlapGraph_;
 }
 
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::Matrix
-// Purpose       : Constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 06/04/00
-//-----------------------------------------------------------------------------
-Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
-: aDCRSMatrix_(0),
-  oDCRSMatrix_(0),
-  exporter_(0),
-  offsetIndex_(0),
-  aColMap_(0),
-  oColMap_(0),
-  overlapGraph_(0),
-  baseGraph_(0),
-  proxy_( 0, *this ),
-  groundLID_(-1),
-  groundNode_(0.0),
-  isOwned_(true)
-{
-  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
-  aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *e_map.petraMap() , &(diagArray[0]) );
-  oDCRSMatrix_ = aDCRSMatrix_;
-
-  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
-  overlapGraph_ = baseGraph_;
-}
-
 //-----------------------------------------------------------------------------
 // Function      : Matrix::Matrix
 // Purpose       : Constructor
@@ -391,27 +360,6 @@ int Matrix::getLocalRowLength(int row) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::putGlobalRow
-// Purpose       : Put a row into the sparse matrix.
-// Special Notes : Replace already allocated values.
-//                 erkeite: note; unlike putRow, this function uses the
-//                 assembled matrix and global ids.
-//
-// Scope         : Public
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 05/24/06
-//-----------------------------------------------------------------------------
-bool Matrix::putGlobalRow(int row, int length, double *coeffs, int *colIndices)
-{
-  int PetraError = aDCRSMatrix_->ReplaceGlobalValues(row, length, coeffs, colIndices);
-
-  if (DEBUG_LINEAR)
-    processError( "Matrix::putRow - ", PetraError );
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Matrix::putLocalRow
 // Purpose       : Put values into a row into the sparse matrix, using local indices.
 // Special Notes :
@@ -480,27 +428,6 @@ bool Matrix::replaceDiagonal( const Vector & vec )
 
   if (DEBUG_LINEAR)
     processError( "Matrix::replaceDiagonal - ", PetraError );
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::sumIntoRow
-// Purpose       : Sum values into a row into the sparse matrix.
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 06/04/00
-//-----------------------------------------------------------------------------
-bool Matrix::sumIntoRow(int row, int length, const double * coeffs,
-                                                   const int * colIndices)
-{
-  double * tmp_c = const_cast<double *>(coeffs);
-  int * tmp_i = const_cast<int *>(colIndices);
-  int PetraError = oDCRSMatrix_->SumIntoGlobalValues(row, length, tmp_c, tmp_i);
-
-  if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::sumIntoRow - ", PetraError );
 
   return true;
 }
@@ -584,19 +511,6 @@ double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
 int Matrix::extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
 {
   return oDCRSMatrix_->ExtractMyRowView( lidRow, numEntries, values, indices );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::extractLocalRowView
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 05/18/2010
-//-----------------------------------------------------------------------------
-int Matrix::extractLocalRowView(int lidRow, int& numEntries, double*& values) const
-{
-  return oDCRSMatrix_->ExtractMyRowView( lidRow, numEntries, values);
 }
 
 //-----------------------------------------------------------------------------

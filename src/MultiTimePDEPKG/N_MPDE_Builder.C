@@ -60,7 +60,7 @@ using Teuchos::rcp;
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-Xyce::Linear::Vector * N_MPDE_Builder::createVector( double initialValue ) const
+Xyce::Linear::Vector * N_MPDE_Builder::createVector() const
 {
   if (warpMPDE_)
   {
@@ -83,7 +83,7 @@ Xyce::Linear::Vector * N_MPDE_Builder::createVector( double initialValue ) const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 01/17/07
 //-----------------------------------------------------------------------------
-Xyce::Linear::Vector * N_MPDE_Builder::createStateVector( double initialValue ) const
+Xyce::Linear::Vector * N_MPDE_Builder::createStateVector() const
 {
   return new Xyce::Linear::BlockVector( Size_, MPDEStateMap_, BaseStateMap_ );
 }
@@ -96,7 +96,7 @@ Xyce::Linear::Vector * N_MPDE_Builder::createStateVector( double initialValue ) 
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-Xyce::Linear::Vector * N_MPDE_Builder::createStoreVector( double initialValue ) const
+Xyce::Linear::Vector * N_MPDE_Builder::createStoreVector() const
 {
   return new Xyce::Linear::BlockVector( Size_, MPDEStoreMap_, BaseStoreMap_ );
 }
@@ -109,34 +109,21 @@ Xyce::Linear::Vector * N_MPDE_Builder::createStoreVector( double initialValue ) 
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-Xyce::Linear::Vector * N_MPDE_Builder::createLeadCurrentVector( double initialValue ) const
+Xyce::Linear::Vector * N_MPDE_Builder::createLeadCurrentVector() const
 {
   return dynamic_cast<Xyce::Linear::Vector*>(
         new Xyce::Linear::BlockVector( Size_, MPDELeadCurrentMap_, BaseLeadCurrentMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_MPDE_Builder::createDAEdQdxMatrix
+// Function      : N_MPDE_Builder::createMatrix
 // Purpose       : 
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-Xyce::Linear::Matrix * N_MPDE_Builder::createDAEdQdxMatrix( double initialValue ) const
-{
-  return createDAEdFdxMatrix( initialValue );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : N_MPDE_Builder::createDAEdFdxMatrix
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Robert Hoekstra, 9233, Computational Sciences
-// Creation Date : 03/12/04
-//-----------------------------------------------------------------------------
-Xyce::Linear::Matrix * N_MPDE_Builder::createDAEdFdxMatrix( double initialValue ) const
+Xyce::Linear::Matrix * N_MPDE_Builder::createMatrix() const
 {
   std::vector< std::vector<int> > Cols(Size_);
   int Start = Disc_.Start();
@@ -173,19 +160,6 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createDAEdFdxMatrix( double initialValue 
                                  MPDEdFdxGraph_.get(),
                                  BasedFdxGraph_.get());
   }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : N_MPDE_Builder::createDAEFullMatrix
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Robert Hoekstra, 9233, Computational Sciences
-// Creation Date : 03/12/04
-//-----------------------------------------------------------------------------
-Xyce::Linear::Matrix * N_MPDE_Builder::createDAEFullMatrix( double initialValue ) const
-{
-  return createDAEdFdxMatrix( initialValue );
 }
 
 //-----------------------------------------------------------------------------

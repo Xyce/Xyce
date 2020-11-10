@@ -56,7 +56,6 @@ using std::tr1::unordered_map;
 #include <N_DEV_Message.h>
 #include <N_DEV_Param.h>
 #include <N_DEV_SolverState.h>
-#include <N_LAS_Vector.h>
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_Expression.h>

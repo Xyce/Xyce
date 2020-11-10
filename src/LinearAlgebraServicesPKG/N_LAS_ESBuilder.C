@@ -90,7 +90,7 @@ ESBuilder::ESBuilder( const int Size )
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-Vector * ESBuilder::createVector( double initialValue ) const
+Vector * ESBuilder::createVector() const
 {
   RCP<Vector> vector = createBlockVector(); 
   vector.release(); // Release ownership of the object.
@@ -105,7 +105,7 @@ Vector * ESBuilder::createVector( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-MultiVector * ESBuilder::createMultiVector( int numVectors, double initialValue ) const
+MultiVector * ESBuilder::createMultiVector( int numVectors ) const
 {
   BlockMultiVector* ret = new BlockMultiVector( numSamples_, numVectors, ESMap_, BaseMap_ );
 
@@ -200,9 +200,9 @@ RCP<BlockVector> ESBuilder::createTransposeLeadCurrentBlockVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/14/2018
 //-----------------------------------------------------------------------------
-Matrix * ESBuilder::createMatrix( double initialValue ) const
+Matrix * ESBuilder::createMatrix() const
 {
-  RCP<Matrix> matrix = createBlockMatrix( initialValue );
+  RCP<Matrix> matrix = createBlockMatrix();
   matrix.release(); // Release ownership of the object.
   return(&*matrix);
 }
@@ -215,7 +215,7 @@ Matrix * ESBuilder::createMatrix( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/14/2018
 //-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> ESBuilder::createBlockMatrix( double initialValue ) const
+Teuchos::RCP<BlockMatrix> ESBuilder::createBlockMatrix() const
 {
   return rcp (new Linear::BlockMatrix( numSamples_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get()) );
 }
@@ -228,7 +228,7 @@ Teuchos::RCP<BlockMatrix> ESBuilder::createBlockMatrix( double initialValue ) co
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-Vector * ESBuilder::createStateVector( double initialValue ) const
+Vector * ESBuilder::createStateVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numSamples_, ESStateMap_, BaseStateMap_ ) );
@@ -242,7 +242,7 @@ Vector * ESBuilder::createStateVector( double initialValue ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-Vector * ESBuilder::createStoreVector( double initialValue ) const
+Vector * ESBuilder::createStoreVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numSamples_, ESStoreMap_, BaseStoreMap_ ) );
@@ -256,7 +256,7 @@ Vector * ESBuilder::createStoreVector( double initialValue ) const
 // Creator       : Eric Keiter
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-Vector * ESBuilder::createLeadCurrentVector( double initialValue ) const
+Vector * ESBuilder::createLeadCurrentVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numSamples_, ESLeadCurrentMap_, BaseLeadCurrentMap_ ) );
