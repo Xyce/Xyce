@@ -1070,8 +1070,55 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
     }
     // that's it, we have the interpolation functions evaluated at the time t,
     // and the values of v1 and v2 at the points, perform  the interpolation
-    *v1p = f1*v11+f2*v12+f3*v13;
-    *v2p = f1*v21+f2*v22+f3*v23;
+
+    double d11=(v13-v12)/(t3-t2);
+    double d21=(v12-v11)/(t2-t1);
+    double d12=(v23-v22)/(t3-t2);
+    double d22=(v22-v21)/(t2-t1);
+
+    // If the derivatives are changing dramatically, don't do quadradic
+    // interpolation, just do linear between t2 and t3
+    // The conditions here are the same as the conditions that would
+    // make us set a breakpoint
+    if (fabs(d11-d21) >= .99*std::max(fabs(d11),fabs(d21))+1)
+    {
+      // linear
+      if (fabs(v13-v12)<Util::MachineDependentParams::MachinePrecision())
+      {
+        // this is a really pathological case where the history
+        // after a breakpoint is totally flat.  Either extrapolation or
+        // interpolation should just be the average of the two
+        *v1p = (v13+v12)/2.0;
+      }
+      else
+      {
+        *v1p = v12+d11*(t-t2);
+      }
+    }
+    else
+    {
+      *v1p = f1*v11+f2*v12+f3*v13;
+    }
+
+    if (fabs(d12-d22) >= .99*std::max(fabs(d12),fabs(d22))+1)
+    {
+      // linear
+      if (fabs(v23-v22)<Util::MachineDependentParams::MachinePrecision())
+      {
+        // this is a really pathological case where the history
+        // after a breakpoint is totally flat.  Either extrapolation or
+        // interpolation should just be the average of the two
+        *v2p = (v23+v22)/2.0;
+      }
+      else
+      {
+        *v2p = v22+d12*(t-t2);
+      }
+    }
+    else
+    {
+      *v2p = f1*v21+f2*v22+f3*v23;
+    }
   }
 
 }
@@ -1212,7 +1259,7 @@ void Instance::acceptStep()
         Xyce::dout() << " vneg2 = " << oVn2 << std::endl;
         Xyce::dout() << " vint2 = " << oVi2 << std::endl;
         Xyce::dout() << " ibr2 = " << oI2 << std::endl;
-        Xyce::dout() << "in set breakpoints, saving for time=" << currentTime << ", V1 = " << ov1 <<  ", V2 = " << ov2  << std::endl;
+        Xyce::dout() << "in acceptStep, saving for time=" << currentTime << ", V1 = " << ov1 <<  ", V2 = " << ov2  << std::endl;
         Xyce::dout() << " V1V2DBG " << currentTime << " " << ov1 << " " << ov2 << std::endl;
       }
     }
