@@ -10,6 +10,7 @@ target_sources(XyceStatic PUBLIC
       N_TIA_StepErrorControl.C
       N_TIA_TIAParams.C
       N_TIA_TimeIntegrationMethods.C
+      N_TIA_TwoLevelError.C
       N_TIA_RegisterTimeIntegrationMethods.C
       N_TIA_WorkingIntegrationMethod.C )
 

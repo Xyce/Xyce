@@ -1,7 +1,6 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
-
 set( XYCE_SOURCES "Xyce.C")
 set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -78,7 +77,23 @@ endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(Xyce XyceStatic) 
+target_link_libraries(Xyce XyceStatic)
+
+if(WIN32)
+  if(DEFINED ENV{MKLROOT})
+
+    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      set( POINTER_SIZE  "64" )
+    else()
+      set( POINTER_SIZE "32" )
+    endif()
+    add_custom_command(
+      TARGET Xyce POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $ENV{MKLROOT}/../redist/intel${POINTER_SIZE}/mkl/mkl_sequential.dll
+              ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+endif()
 
 
 # ---- And the installation of them. ----------------

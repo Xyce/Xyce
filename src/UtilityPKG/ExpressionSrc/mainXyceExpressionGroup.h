@@ -41,6 +41,7 @@
 
 #include<string>
 #include<complex>
+#include <random>
 #include<unordered_map>
 
 #include <N_UTL_fwd.h>

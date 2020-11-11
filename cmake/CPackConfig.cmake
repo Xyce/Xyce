@@ -88,24 +88,32 @@ if ( CMAKE_HOST_WIN32 )
   # new way when more recent versions of cmake are available.
 
   # Add the required intel library.  This is permitted for redistribution.
-  set ( INTELLIBPATH "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler" )
-  string ( REPLACE "\\" "/" INTELLIBPATH ${INTELLIBPATH} )
-  if ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
+  find_file(SVNL_PATH
+    "svml_dispmd.dll"
+    PATHS
+      "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler"
+      "$ENV{INTEL_DEV_REDIST}redist/intel64_win/compiler" )
+  find_file(MMD_PATH
+      "libmmd.dll"
+      PATHS
+        "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler"
+        "$ENV{INTEL_DEV_REDIST}redist/intel64_win/compiler" )
+  if ( MMD_PATH AND SVNL_PATH)
     # For native Windows builds, check for these two dll's.  If they don't exist,
     # assume the package is being build on the legacy Windows build system and use that
     # dll and path instead.
-    install ( FILES ${INTELLIBPATH}/libmmd.dll
+    install ( FILES ${MMD_PATH}
 	    DESTINATION bin
 	    COMPONENT Runtime)
-    install ( FILES ${INTELLIBPATH}/svml_dispmd.dll
+    install ( FILES ${SVNL_PATH}
 	    DESTINATION bin
 	    COMPONENT Runtime)
-  else ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
+  else ()
     set ( INTELLIBPATH "$ENV{ICPP_COMPILER12_CYGWIN}/redist/ia32/compiler" )
     install ( FILES ${INTELLIBPATH}/libmmd.dll
 	    DESTINATION bin
 	    COMPONENT Runtime)
-  endif ( EXISTS "${INTELLIBPATH}/libmmd.dll" AND EXISTS "${INTELLIBPATH}/svml_dispmd.dll" )
+  endif()
 
 
   # For native Windows builds we also need assorted MS Visual Studio DLLs

@@ -275,7 +275,7 @@ set( CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_SAV} )
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(FFTW
-        REQUIRED_VARS FFTW_INCLUDE_DIRS
+        REQUIRED_VARS FFTW_INCLUDE_DIRS FFTW_LIBRARIES
         HANDLE_COMPONENTS
         )
 
