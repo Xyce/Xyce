@@ -565,6 +565,16 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
 <INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
 
+
+<INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE; }
+<INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE2; }
+<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE3; }
+
+<INITIAL>"fasttablefile"[ \t]*"("[ \t]*"\""  {
+    BEGIN(tablefilename);
+    return XyceExpression::ExpressionParser::token::TOK_FAST_TABLEFILE; 
+  }
+
 <INITIAL>"tablefile"[ \t]*"("[ \t]*"\""  {
     BEGIN(tablefilename);
     return XyceExpression::ExpressionParser::token::TOK_TABLEFILE; 

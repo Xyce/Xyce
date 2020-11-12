@@ -3347,9 +3347,10 @@ class tableOp : public astNode<ScalarT>
   public:
     //-------------------------------------------------------------------------------
     // functions:
-    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(), tableArgs_(args),
-      allNumVal_(true), input_(input)
+    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, bool useBP=true):
+      astNode<ScalarT>(), tableArgs_(args), 
+      allNumVal_(true), input_(input), 
+      useBreakPoints_(useBP)
       {
         int size = tableArgs_.size();
         if (size % 2)
@@ -3399,8 +3400,9 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, in which the file IO is 
     // handled directly in this constructor.
-    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename):
-      astNode<ScalarT>(), allNumVal_(true), input_(input)
+    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename, bool useBP=true):
+      astNode<ScalarT>(), allNumVal_(true), input_(input),
+      useBreakPoints_(useBP)
       {
         std::ifstream dataIn;
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
@@ -3441,8 +3443,9 @@ class tableOp : public astNode<ScalarT>
     // special constructor for values read in from a file, that are now stored in std::vector objects
     // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
     // the above numvalType test in the first constructor.
-    tableOp (Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
-      astNode<ScalarT>(), allNumVal_(true), input_(input)
+    tableOp (Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals, bool useBP=true):
+      astNode<ScalarT>(), allNumVal_(true), input_(input),
+      useBreakPoints_(useBP)
       {
         allNumVal_=true; int size = xvals.size(); int size2=yvals.size();
         if (size != size2)
@@ -3649,29 +3652,32 @@ class tableOp : public astNode<ScalarT>
     virtual void setupBreakPoints() {};
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
-     if ( input_->timeSpecialType() )
-     {
-       ScalarT time = std::real(this->input_->val());
-       size_t size = ta_.size();
-       size_t index = yInterpolator_.binarySearch (ta_, time, 0, size - 1);
+      if (useBreakPoints_)
+      {
+        if ( input_->timeSpecialType() )
+        {
+          ScalarT time = std::real(this->input_->val());
+          size_t size = ta_.size();
+          size_t index = yInterpolator_.binarySearch (ta_, time, 0, size - 1);
 
-       if ( std::real(ta_[index]) < std::real(time))
-       {
-         int tmp=index;
-         while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
-         index = tmp;
-       }
+          if ( std::real(ta_[index]) < std::real(time))
+          {
+           int tmp=index;
+           while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+           index = tmp;
+          }
 
-       if (index < size)
-       {
-         size_t max = index+5;
-         if ( max  > size ) { max = size; }
-         int ii=index;
-         for( ;ii<max;ii++)
-         {
-           breakPointTimes.push_back( std::real(ta_[ii]) );
-         }
-       }
+          if (index < size)
+          {
+           size_t max = index+5;
+           if ( max  > size ) { max = size; }
+           int ii=index;
+           for( ;ii<max;ii++)
+           {
+             breakPointTimes.push_back( std::real(ta_[ii]) );
+           }
+          }
+        }
       }
       return true;
     }
@@ -3803,6 +3809,7 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice
 
     Teuchos::RCP<astNode<ScalarT> > input_;
+    bool useBreakPoints_;
 };
 
 //-------------------------------------------------------------------------------

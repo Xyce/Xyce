@@ -492,6 +492,10 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_TABLE	"table"
 %token TOK_TABLE2	"table2"
 %token TOK_TABLE3	"table3"
+%token TOK_FAST_TABLE	"fast_table"
+%token TOK_FAST_TABLE2	"fast_table2"
+%token TOK_FAST_TABLE3	"fast_table3"
+%token TOK_FAST_TABLEFILE	"fast_tablefile"
 %token TOK_TABLEFILE	"tablefile"
 %token TOK_TABLEFILE_END	"tablefile_end"
 %token TOK_SPLINE	"spline"
@@ -523,9 +527,15 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 // types for nonterminal operators
 %type  <Teuchos::RCP<astNode<usedType> > >   exp
 %type  <Teuchos::RCP<astNode<usedType> > >   expression
+
 %type  <Teuchos::RCP<astNode<usedType> > >   table_threeOrFourArgs 
 %type  <Teuchos::RCP<astNode<usedType> > >   table2_threeOrFourArgs  
 %type  <Teuchos::RCP<astNode<usedType> > >   table3_threeOrFourArgs 
+
+%type  <Teuchos::RCP<astNode<usedType> > >   fast_table_threeOrFourArgs 
+%type  <Teuchos::RCP<astNode<usedType> > >   fast_table2_threeOrFourArgs  
+%type  <Teuchos::RCP<astNode<usedType> > >   fast_table3_threeOrFourArgs 
+
 %type  <Teuchos::RCP<astNode<usedType> > >   spline_threeOrFourArgs 
 %type  <Teuchos::RCP<astNode<usedType> > >   spline2_threeOrFourArgs  
 %type  <Teuchos::RCP<astNode<usedType> > >   spline3_threeOrFourArgs 
@@ -1190,6 +1200,15 @@ exp:
       delete $1;
       delete $2;
     }
+  | TOK_FAST_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(timeNode,*$2,false)); 
+      newExp.getSrcNodeVec().push_back(tmpPtr);
+      newExp.setTimeDependent(true); 
+      $$ = tmpPtr;
+      delete $2;
+    }
   | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
     {
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
@@ -1199,6 +1218,7 @@ exp:
       $$ = tmpPtr;
       delete $2;
     }
+   /* tables with breakpoints */
   | table3_threeOrFourArgs nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1,*$2)); 
@@ -1258,6 +1278,54 @@ exp:
       delete $1;
     }
     */
+  
+   /* tables without breakpoints */
+   | fast_table3_threeOrFourArgs nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1,*$2,false)); 
+      $$ = tmpPtr;
+      if ( ($1)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+    }
+  | fast_table_threeOrFourArgs nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1,*$2,false));
+      $$ = tmpPtr;
+      if ( ($1)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+    }
+  | fast_table_threeOrFourArgs nonempty_func_arglist2
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1,*$2,false));
+      $$ = tmpPtr;
+      if ( ($1)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+    }
+  | fast_table2_threeOrFourArgs nonempty_arg_pairs 
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1,*$2,false));
+      $$ = tmpPtr;
+      if ( ($1)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+    }
+
+   /* splines */
   | spline3_threeOrFourArgs nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new interpolatorOp<usedType>($1,*$2)); 
@@ -1626,6 +1694,33 @@ table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
        $$ = $2;
     }
 
+  /*  fast table */
+fast_table_threeOrFourArgs: TOK_FAST_TABLE exp TOK_COMMA
+    {
+       $$ = $2;
+    }
+  | TOK_FAST_TABLE exp TOK_COMMA TOK_EQUALS
+    {
+       $$ = $2;
+    }
+fast_table2_threeOrFourArgs: TOK_FAST_TABLE2 exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_FAST_TABLE2 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
+    {
+       $$ = $2;
+    }
+fast_table3_threeOrFourArgs: TOK_FAST_TABLE3 exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_FAST_TABLE3 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
+    {
+       $$ = $2;
+    }
+
+  /* spline */
 spline_threeOrFourArgs: TOK_SPLINE exp TOK_COMMA
     {
        $$ = $2;
