@@ -107,6 +107,14 @@ supported on .PRINT lines for all analysis modes.
   package on those operating systems.  Please see commentary in the
   ``Known Defects'' section of these release notes under bug number
   ``967-SON''.
+ \item Support for the deprecated conversion of quoted-sting file 
+  names to a table of data has been removed.  The supported method
+  for reading a data file into a table is to use the \texttt{tablefile("")} keyword. 
+  For example this would set the parameter, \texttt{PARAMETER} to a table 
+  of data read from a file \texttt{"file.dat"}
+  \texttt{PARAMETER=tablefile("file.dat")} 
+  Using \texttt{PARAMETER="file.dat"} will set \texttt{PARAMETER} to the
+  string value \texttt{"file.dat"}.
 \end{XyceItemize}
 
 \newpage
