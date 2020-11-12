@@ -107,22 +107,6 @@ supported on .PRINT lines for all analysis modes.
   package on those operating systems.  Please see commentary in the
   ``Known Defects'' section of these release notes under bug number
   ``967-SON''.
-\item \Xyce{} has deprecated the default conversion of quoted-string file
-  names to a table of x,y pairs of data.  The old convention of
-  \texttt{PARAMETER="file.dat"} which worked in some model statements
-  and in behavioral sources will now generate a warning in the \Xyce{}
-  output.  The correct way to specify a file of data for a parameter
-  is to use the new \texttt{tablefile} keyword as in
-  \texttt{PARAMETER=tablefile("file.dat")}.  While this release of
-  \Xyce{} will accept both the old and new syntax, the double quote
-  technique will be removed in a future release, after which Xyce
-  will only accept the syntax of
-  \texttt{PARAMETER=tablefile("file.dat")}.  Additionally, a new
-  syntax of \texttt{PARAMETER=string("string value")} has been
-  introduced to specify parameters that are pure strings.  This will
-  be deprecated in a future release and the simpler syntax of
-  \texttt{PARAMETER="string value"} will be used to specify string
-  valued parameters.
 \end{XyceItemize}
 
 \newpage
