@@ -69,7 +69,7 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
                                                 int numLocalEntities,
                                                 const std::vector<int> & lbMap,
                                                 const int index_base,
-                                                N_PDS_Comm & aComm )
+                                                const N_PDS_Comm & aComm )
 {
   const int * mArray = lbMap.empty() ? 0 : static_cast<const int *>(&lbMap[0]);
 
@@ -77,14 +77,15 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
   int nGE = std::max( -1, numGlobalEntities );
   int nLE = std::max( 0, numLocalEntities );
   // Call the Petra constructor for the true Petra map.
-  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
+  const Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
   Epetra_Map*  petraMap = new Epetra_Map( nGE,
                               nLE,
                               mArray,
                               index_base,
                               *petraComm );
+  N_PDS_Comm& nonconst_comm = const_cast<N_PDS_Comm&>(aComm);
 
-  return ( new N_PDS_EpetraParMap( petraMap, aComm, true ) );
+  return ( new N_PDS_EpetraParMap( petraMap, nonconst_comm, true ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -98,15 +99,16 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
 N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
                                                 int numLocalEntities,
                                                 const int index_base,
-                                                N_PDS_Comm & aComm )
+                                                const N_PDS_Comm & aComm )
 {
-  Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
+  const Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
   Epetra_Map*  petraMap = new Epetra_Map( numGlobalEntities,
                                           numLocalEntities,
                                           index_base,
                                           *petraComm );
+  N_PDS_Comm& nonconst_comm = const_cast<N_PDS_Comm&>(aComm);
 
-  return ( new N_PDS_EpetraParMap( petraMap, aComm, true ) );
+  return ( new N_PDS_EpetraParMap( petraMap, nonconst_comm, true ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -208,7 +210,7 @@ const Epetra_Comm* Xyce::Parallel::getEpetraComm( const N_PDS_Comm* comm )
     petraComm = mpiComm->petraComm();
 #endif
   
-  if (!comm)
+  if (!petraComm)
   { 
     const N_PDS_EpetraSerialComm* serialComm = dynamic_cast<const N_PDS_EpetraSerialComm*>( comm );
     if ( serialComm )

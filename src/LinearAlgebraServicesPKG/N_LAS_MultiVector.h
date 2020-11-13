@@ -207,6 +207,8 @@ public:
   // Vector access function
   const Vector* getVectorView(int index) const;
   Vector* getNonConstVectorView(int index);
+  const Vector* getVectorViewAssembled(int index) const;
+  Vector* getNonConstVectorViewAssembled(int index);
 
   // Get the global (across all processors) length of the multi-vector
   int globalLength() const;
@@ -264,8 +266,6 @@ public:
   Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
   
   const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
-
-  Epetra_Vector * epetraVector( int index = 0 ) const;
 
   //Accumulate off processor fill contributions if necessary
   void fillComplete();

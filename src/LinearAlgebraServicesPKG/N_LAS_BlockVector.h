@@ -74,10 +74,10 @@ class BlockVector : public Vector
   //Copy constructor
   BlockVector( const BlockVector & right );
 
-  //Copy constructor
-  //NOTE:  This constructor assumes that the MultiVector is divided up into blockSize subvectors,
+  // View constructor
+  //NOTE:  This constructor assumes that the Vector is divided up into blockSize subvectors,
   //       whose values are solely owned by one of the processors.
-  BlockVector( const MultiVector & right, int blockSize, int col=0 );
+  BlockVector( const Vector * right, int blockSize );
 
   // Destructor
   virtual ~BlockVector() {};

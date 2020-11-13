@@ -422,9 +422,8 @@ void Matrix::getDiagonal( Vector & diagonal ) const
 //-----------------------------------------------------------------------------
 bool Matrix::replaceDiagonal( const Vector & vec )
 {
-  Epetra_Vector * eVec = vec.epetraVector();
+  const Epetra_Vector * eVec = vec.epetraObj()(0);
   int PetraError = aDCRSMatrix_->ReplaceDiagonalValues( *eVec );
-  delete eVec;
 
   if (DEBUG_LINEAR)
     processError( "Matrix::replaceDiagonal - ", PetraError );

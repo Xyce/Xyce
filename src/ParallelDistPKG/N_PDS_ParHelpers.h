@@ -61,14 +61,14 @@ N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
                                 int numLocalEntities,
                                 const std::vector<int> & lbMap,
                                 const int index_base,
-                                N_PDS_Comm & aComm );
+                                const N_PDS_Comm & aComm );
 
 // Return a new ParMap
 //  -> let the underlying linear algebra determine the IDs.
 N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
                                 int numLocalEntities,
                                 const int index_base,
-                                N_PDS_Comm & aComm );
+                                const N_PDS_Comm & aComm );
 
 } // namespace Parallel 
 } // namespace Xyce

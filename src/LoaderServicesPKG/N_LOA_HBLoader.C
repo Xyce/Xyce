@@ -231,7 +231,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   // probably used the Epetra_LinearProblem's Epetra_Maps to create the input
   // vector here.  In this case, Vf is just an Linear::Vector and not a
   // Linear::BlockVector.
-  const Linear::BlockVector bVf(Vf, bXf.blockSize());
+  const Linear::BlockVector bVf(&Vf, bXf.blockSize());
 
   if (hbOsc_)
   {
@@ -479,7 +479,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
                                     Linear::BlockVector & permlindFdxV )
 {
   int numharms = bVtPtr_->blockCount();
-  const Linear::BlockVector bVf(Vf, 2*numharms);
+  const Linear::BlockVector bVf(&Vf, 2*numharms);
   int first = bVf.startBlock();
 
   Teuchos::RCP<const Linear::Vector> Vf_overlap;

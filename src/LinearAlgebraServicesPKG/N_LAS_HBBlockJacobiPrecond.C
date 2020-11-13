@@ -327,7 +327,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   params.set( "TrustMe", true );
   
   // Generate the vectors and matrices for the N_ linear problems to be solved on the diagonal.
-  // epetraMatrix_/epetraVector_ : objects having the same distribution as the original system.
+  // epetraMatrix_               : object  having the same distribution as the original system.
   // serialMatrix_/serialVector_ : objects having all rows on a single processor; target for exporting dist objects.
   // singleMatrix_/singleVector_ : objects having all rows on a single processor with a split communicator.
   if (numProcs > 1)

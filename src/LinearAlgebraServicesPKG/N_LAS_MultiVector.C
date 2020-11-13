@@ -811,6 +811,36 @@ Vector* MultiVector::getNonConstVectorView(int index)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MultiVector::getVectorView
+// Purpose       : Const view of individual vector in MultiVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Todd Coffey, 1414
+// Creation Date : 9/11/08
+//-----------------------------------------------------------------------------
+const Vector* MultiVector::getVectorViewAssembled(int index) const
+{
+  const Vector* vec = new Vector( new 
+                      Epetra_Vector( View, *aMultiVector_, index ), true );
+  return vec;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MultiVector::getNonConstVectorView
+// Purpose       : NonConst view of individual vector in MultiVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Todd Coffey, 1414
+// Creation Date : 9/11/08
+//-----------------------------------------------------------------------------
+Vector* MultiVector::getNonConstVectorViewAssembled(int index)
+{
+  Vector* vec = new Vector( new 
+                Epetra_Vector( View, *aMultiVector_, index ), true );
+  return vec;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MultiVector::fillComplete
 // Purpose       :
 // Special Notes :
@@ -1058,19 +1088,6 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
   }
 
   return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : epetraVector
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 02/19/03
-//-----------------------------------------------------------------------------
-Epetra_Vector * MultiVector::epetraVector( int index ) const
-{
-  return new Epetra_Vector( View, *aMultiVector_, index );
 }
 
 //-----------------------------------------------------------------------------

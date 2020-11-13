@@ -362,7 +362,8 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
     serialX_->Import( X.epetraObj(), *serialImporter_[myPID], Insert );
   }
 
-  Teuchos::RCP<Vector> x, y;
+  Teuchos::RCP<const Vector> x;
+  Teuchos::RCP<Vector> y;
  
   int size = freqs_.size();
 
@@ -380,8 +381,8 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
       }
       else
       {
-        x = Teuchos::rcp( new Vector(X.epetraVector(i), true) );
-        y = Teuchos::rcp( new Vector(Y.epetraVector(i), true) );
+        x = Teuchos::rcp( X.getVectorViewAssembled(i), true );
+        y = Teuchos::rcp( Y.getNonConstVectorViewAssembled(i), true );
       }
 
       for (int j=0; j<n; ++j) 
@@ -452,7 +453,8 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
     int blockCount = bXtPtr->blockCount();
 
     // Apply one column at a time to the multivector.
-    BlockVector bXf( X, 2*N_, col );
+    Teuchos::RCP<const Vector> X_col = Teuchos::rcp( X.getVectorViewAssembled( col ) );
+    BlockVector bXf( &*X_col, 2*N_ );
 
     // Permute the input vector from the frequency to time domain, since this
     // is a time domain preconditioner.
@@ -514,7 +516,7 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
     }
 
     // Assign the correction back to col of Y. 
-    Teuchos::RCP<Vector> Y_col = Teuchos::rcp( Y.getNonConstVectorView( col ) );
+    Teuchos::RCP<Vector> Y_col = Teuchos::rcp( Y.getNonConstVectorViewAssembled( col ) );
     Y_col->update( 1.0, *bYf, 0.0 );
   }
 

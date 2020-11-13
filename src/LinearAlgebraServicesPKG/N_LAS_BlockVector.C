@@ -240,38 +240,37 @@ BlockVector::BlockVector( const BlockVector & rhs )
 
 //-----------------------------------------------------------------------------
 // Function      : BlockVector:::BlockVector
-// Purpose       : copy constructor
-// Special Notes :
+// Purpose       : view constructor
+// Special Notes : Memory management is assumed to be outside this constructor
 // Scope         : Public
-// Creator       : Todd Coffey 1414, Ting Mei 1437
-// Creation Date : 9/10/08
+// Creator       : Heidi Thornquist
+// Creation Date : 11/12/20
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
-: Vector( const_cast<MultiVector&>(rhs).epetraVector(col), true ),
+BlockVector::BlockVector( const Vector * right, int blockSize )
+: Vector( (const_cast<Vector*>(right)->epetraObj())(0), false ),
   blocksViewGlobalVec_( true ), 
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
-  numBlocks_( rhs.globalLength() / blockSize ),
-  augmentCount_( rhs.globalLength() % blockSize ),
+  numBlocks_( right->globalLength() / blockSize ),
+  augmentCount_( right->globalLength() % blockSize ),
   startBlock_( 0 ),
-  endBlock_( rhs.globalLength() / blockSize ),
-  blocks_( rhs.globalLength() / blockSize )
+  endBlock_( right->globalLength() / blockSize ),
+  blocks_( right->globalLength() / blockSize )
 {
   // If the oscillating HB algorithm is being used then augmentCount_ is probably not zero.
-  int localAugmentCount = rhs.localLength() % blockSize;
+  int localAugmentCount = right->localLength() % blockSize;
   if (augmentCount_)
   {
-    endBlock_ = (rhs.globalLength() - augmentCount_) / blockSize;
+    endBlock_ = (right->globalLength() - augmentCount_) / blockSize;
     blocks_.resize( endBlock_ );
     numBlocks_ = endBlock_; 
   }
 
   // Create the new maps for each block that places all the entries of the block on one processor.
-  MultiVector& rhs_nonconst = const_cast<MultiVector&>( rhs );
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                  ( aMultiVector_->Map() ).IndexBase(),
-                                 *rhs_nonconst.pdsComm() ) );
+                                 *right->pdsComm() ) );
 
   // Determine where these blocks start and end in the grand scheme of things.
   int minMyGID = (aMultiVector_->Map()).MinMyGID();
@@ -296,7 +295,7 @@ BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
       myBlockSize = blockSize;
 
     Teuchos::RCP<N_PDS_ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize,
-                                                          ( aMultiVector_->Map() ).IndexBase(), *rhs_nonconst.pdsComm() ) );
+                                                          ( aMultiVector_->Map() ).IndexBase(), *right->pdsComm() ) );
  
     Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
 

@@ -754,7 +754,7 @@ void PCEDirectSolver::formPCEJacobian()
 
     if (numProcs > 1)
     {
-      serialB_->Import( *(B->epetraVector( j )), *serialImporter_, Insert );
+      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
       B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
     }
     else
@@ -960,7 +960,7 @@ int PCEDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      X->epetraVector( j )->Export( *serialX_, *serialImporter_, Add );
+      (X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
     }
   }
 
@@ -1080,7 +1080,7 @@ void PCEDirectSolver::printPCEResidual( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      serialB_->Import( *(B->epetraVector( j )), *serialImporter_, Insert );
+      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
       B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
     }
     else
