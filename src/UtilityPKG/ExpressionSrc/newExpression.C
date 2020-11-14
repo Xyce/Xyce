@@ -62,6 +62,15 @@
 // need this forward declaration
 namespace Xyce {
 namespace Util {
+
+template <typename ScalarT>
+class tableArgs
+{
+  public:
+    std::string * keywordPtr;
+    Teuchos::RCP<astNode<ScalarT> > node;
+};
+
 class ExpressionLexer;
 }}
 

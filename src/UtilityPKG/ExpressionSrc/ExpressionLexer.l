@@ -38,6 +38,15 @@
 
 namespace Xyce {
 namespace Util {
+
+template <typename ScalarT>
+class tableArgs
+{
+  public:
+    std::string * keywordPtr;
+    Teuchos::RCP<astNode<ScalarT> > node;
+};
+
 class ExpressionLexer;
 }}
 #include "ExpressionParser.hxx"
@@ -561,14 +570,36 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"stp"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_STP; }
 <INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 
-<INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
-<INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
-<INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
+  /* <INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; } */
+  /* <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; } */
+  /* <INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; } */
 
+<INITIAL>"table"[ \t]*"(" { 
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
+  return XyceExpression::ExpressionParser::token::TOK_TABLE; 
+}
+<INITIAL>"table"[ \t]*"{" { 
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
+  return XyceExpression::ExpressionParser::token::TOK_TABLE2; 
+}
+<INITIAL>"table"[ \t]*"("[ \t]*"{" { 
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
+  return XyceExpression::ExpressionParser::token::TOK_TABLE3; 
+} 
 
-<INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE; }
-<INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE2; }
-<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE3; }
+  /* <INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE;}*/
+  /* <INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE2;}*/
+  /* <INITIAL>"fasttable"[ \t]*"("[ \t]*"{"{return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE3;}*/
+
+<INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
+<INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
+<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
 
 <INITIAL>"fasttablefile"[ \t]*"("[ \t]*"\""  {
     BEGIN(tablefilename);
@@ -593,6 +624,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"spline"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SPLINE; }
 <INITIAL>"spline"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE2; }
 <INITIAL>"spline"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_SPLINE3; }
+
 <INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
