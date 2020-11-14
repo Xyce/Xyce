@@ -151,6 +151,8 @@ MIL [mM][iI][lL]
 UNIT [sSvVaAhHfF]
 HZ   [Hh][Zz]
 
+TABLE "fast"?"table"
+
 LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
@@ -570,36 +572,24 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"stp"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_STP; }
 <INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 
-  /* <INITIAL>"table"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; } */
-  /* <INITIAL>"table"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; } */
-  /* <INITIAL>"table"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; } */
-
-<INITIAL>"table"[ \t]*"(" { 
+<INITIAL>TABLE[ \t]*"(" { 
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_TABLE; 
 }
-<INITIAL>"table"[ \t]*"{" { 
+<INITIAL>TABLE[ \t]*"{" { 
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_TABLE2; 
 }
-<INITIAL>"table"[ \t]*"("[ \t]*"{" { 
+<INITIAL>TABLE[ \t]*"("[ \t]*"{" { 
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_TABLE3; 
 } 
-
-  /* <INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE;}*/
-  /* <INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE2;}*/
-  /* <INITIAL>"fasttable"[ \t]*"("[ \t]*"{"{return XyceExpression::ExpressionParser::token::TOK_FAST_TABLE3;}*/
-
-<INITIAL>"fasttable"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
-<INITIAL>"fasttable"[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE2; }
-<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"  {return XyceExpression::ExpressionParser::token::TOK_TABLE3; }
 
 <INITIAL>"fasttablefile"[ \t]*"("[ \t]*"\""  {
     BEGIN(tablefilename);
