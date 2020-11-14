@@ -3337,6 +3337,10 @@ AST_GET_TIME_OPS(polyVars_[ii])
     int sizeOfVars_;
 };
 
+inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
+
+inline bool isLeftParen(char c) { return (c=='('); }
+
 //-------------------------------------------------------------------------------
 // TABLE(x,y,z,*)
 // f(x) where f(y) = z
@@ -3347,11 +3351,65 @@ class tableOp : public astNode<ScalarT>
   public:
     //-------------------------------------------------------------------------------
     // functions:
-    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, bool useBP=true):
+    tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
       astNode<ScalarT>(), tableArgs_(args), 
-      allNumVal_(true), input_(input), 
-      useBreakPoints_(useBP)
+      allNumVal_(true), 
+      input_(input),
+      useBreakPoints_(true),
+      keyword_(kw)
       {
+        // remove whitespace from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), ::isspace), keyword_.end());
+
+        // remove left curly braces from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftCurlyBrace), keyword_.end());
+
+        // remove left parens from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftParen), keyword_.end());
+
+        Xyce::Util::toUpper(keyword_);
+
+        if (keyword_==std::string("FASTTABLE"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("TABLE"))
+        {
+          useBreakPoints_ = true;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("CUBIC"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+        }
+        else if (keyword_==std::string("SPLINE") || keyword_==std::string("AKIMA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+        }
+        else if (keyword_==std::string("WODICKA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+        }
+        else if (keyword_==std::string("BLI")) // Barycentric Lagrange Interpolation
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+        }
+        else
+        { 
+          std::vector<std::string> errStr(1,std::string("AST node (table) type not recognized")); yyerror(errStr);
+        }
+
         int size = tableArgs_.size();
         if (size % 2)
         {
@@ -3366,9 +3424,9 @@ class tableOp : public astNode<ScalarT>
             ya_[jj] = (tableArgs_)[ii+1]->val();
             if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allNumVal_ = false; }
           }
-          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
-          if (ya_.size() > 2)
+          if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
           {
             // create derivative table
             // this code mimics the old expression library.   It uses finite differencing
@@ -3392,7 +3450,7 @@ class tableOp : public astNode<ScalarT>
                 dya_[ii] = 0.0;
               }
             }
-            dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+            dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
           }
         }
       };
@@ -3400,10 +3458,63 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, in which the file IO is 
     // handled directly in this constructor.
-    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename, bool useBP=true):
+    tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename):
       astNode<ScalarT>(), allNumVal_(true), input_(input),
-      useBreakPoints_(useBP)
+      useBreakPoints_(true),
+      keyword_(kw)
       {
+        // remove whitespace from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), ::isspace), keyword_.end());
+
+        // remove left curly braces from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftCurlyBrace), keyword_.end());
+
+        // remove left parens from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftParen), keyword_.end());
+
+        Xyce::Util::toUpper(keyword_);
+
+        if (keyword_==std::string("FASTTABLE"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("TABLE"))
+        {
+          useBreakPoints_ = true;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("CUBIC"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+        }
+        else if (keyword_==std::string("SPLINE") || keyword_==std::string("AKIMA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+        }
+        else if (keyword_==std::string("WODICKA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+        }
+        else if (keyword_==std::string("BLI")) // Barycentric Lagrange Interpolation
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+        }
+        else
+        { 
+          std::vector<std::string> errStr(1,std::string("AST node (table) type not recognized")); yyerror(errStr);
+        }
+
         std::ifstream dataIn;
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
         {
@@ -3437,16 +3548,98 @@ class tableOp : public astNode<ScalarT>
           }
         }
         dataIn.close();
+
+        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+        if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
+        {
+          // create derivative table
+          // this code mimics the old expression library.   It uses finite differencing
+          // to set up a new table of derivatives.  The new table is based on the midpoints of
+          // the original table, so it has one extra entry.
+          int ya_size = ya_.size();
+          ta2_.resize(ya_size+1);
+          dya_.resize(ya_size+1);
+          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+          for (int ii=1;ii<ya_size;++ii)
+          {
+            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+            ScalarT h = ( ta_[ii]- ta_[ii-1]);
+            if (std::real(h) != 0.0)
+            {
+              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+            }
+            else
+            {
+              dya_[ii] = 0.0;
+            }
+          }
+          dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+        }
       };
 
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, that are now stored in std::vector objects
     // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
     // the above numvalType test in the first constructor.
-    tableOp (Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals, bool useBP=true):
+    tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
       astNode<ScalarT>(), allNumVal_(true), input_(input),
-      useBreakPoints_(useBP)
+      useBreakPoints_(true),
+      keyword_(kw)
       {
+        // remove whitespace from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), ::isspace), keyword_.end());
+
+        // remove left curly braces from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftCurlyBrace), keyword_.end());
+
+        // remove left parens from the keyword
+        keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftParen), keyword_.end());
+
+        Xyce::Util::toUpper(keyword_);
+
+        if (keyword_==std::string("FASTTABLE"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("TABLE"))
+        {
+          useBreakPoints_ = true;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::linear<ScalarT>());
+        }
+        else if (keyword_==std::string("CUBIC"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::cubicSpline<ScalarT>());
+        }
+        else if (keyword_==std::string("SPLINE") || keyword_==std::string("AKIMA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::akima<ScalarT>());
+        }
+        else if (keyword_==std::string("WODICKA"))
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::wodicka<ScalarT>());
+        }
+        else if (keyword_==std::string("BLI")) // Barycentric Lagrange Interpolation
+        {
+          useBreakPoints_ = false;
+          yInterpolator_  = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+          dyInterpolator_ = Teuchos::RCP<Xyce::Util::interpolator<ScalarT> >(new Xyce::Util::barycentricLagrange<ScalarT>());
+        }
+        else
+        { 
+          std::vector<std::string> errStr(1,std::string("AST node (table) type not recognized")); yyerror(errStr);
+        }
+
         allNumVal_=true; int size = xvals.size(); int size2=yvals.size();
         if (size != size2)
         {
@@ -3458,6 +3651,35 @@ class tableOp : public astNode<ScalarT>
         {
           ta_[ii] = xvals[ii];
           ya_[ii] = yvals[ii];
+        }
+
+        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+        if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
+        {
+          // create derivative table
+          // this code mimics the old expression library.   It uses finite differencing
+          // to set up a new table of derivatives.  The new table is based on the midpoints of
+          // the original table, so it has one extra entry.
+          int ya_size = ya_.size();
+          ta2_.resize(ya_size+1);
+          dya_.resize(ya_size+1);
+          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+          for (int ii=1;ii<ya_size;++ii)
+          {
+            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+            ScalarT h = ( ta_[ii]- ta_[ii-1]);
+            if (std::real(h) != 0.0)
+            {
+              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+            }
+            else
+            {
+              dya_[ii] = 0.0;
+            }
+          }
+          dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
         }
       };
 
@@ -3474,7 +3696,7 @@ class tableOp : public astNode<ScalarT>
           ta_[jj] = (tableArgs_)[ii]->val();
           ya_[jj] = (tableArgs_)[ii+1]->val();
         }
-        yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
       }
 
       ScalarT input = std::real(this->input_->val());
@@ -3492,7 +3714,7 @@ class tableOp : public astNode<ScalarT>
         }
         else
         {
-          yInterpolator_.eval(ta_,ya_, input, y); 
+          yInterpolator_->eval(ta_,ya_, input, y); 
         }
       }
 
@@ -3502,7 +3724,144 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     virtual ScalarT dx(int i)
     {
-      //ScalarT y = 0.0;
+      ScalarT dydx = 0.0;
+
+      if ( ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
+      {
+        int size = tableArgs_.size();
+
+        ScalarT dinput_dx = std::real(this->input_->dx(i));
+
+        if (std::real(dinput_dx) != 0.0)
+        {
+          // derivative w.r.t. input
+          //
+          // this code mimics the old expression library.   It uses finite differencing
+          // to set up a new table of derivatives.  The new table is based on the midpoints of
+          // the original table, so it has one extra entry.
+          //
+          // I initially tried to use the evalDeriv function in the yInterpolator object.
+          // That method doen't use midpoints, it just differntiates the the linear
+          // interpolation device.  That approach failed at least one regression test.
+          //
+          if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+          {
+            for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+            {
+              ta_[jj] = (tableArgs_)[ii]->val();
+              ya_[jj] = (tableArgs_)[ii+1]->val();
+            }
+            yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+            int ya_size = ya_.size();
+            if (ya_size > 2)
+            {
+              ta2_.resize(ya_size+1);
+              dya_.resize(ya_size+1);
+              ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+              dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+              for (int ii=1;ii<ya_size;++ii)
+              {
+                ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+                ScalarT h = ( ta_[ii]- ta_[ii-1]);
+                if (std::real(h) != 0.0)
+                {
+                  dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+                }
+                else
+                {
+                  dya_[ii] = 0.0;
+                }
+              }
+              dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+            }
+          }
+
+          ScalarT input = std::real(this->input_->val());
+   
+          if ( !(ta2_.empty()) )
+          {
+            int arraySize=ta2_.size();
+
+            if (std::real(input) <= std::real(ta2_[0]))
+            {
+              dydx = 0.0;
+            }
+            else if (std::real(input) >= std::real(ta2_[arraySize-1]))
+            {
+              dydx = 0.0;
+            }
+            else
+            {
+              dyInterpolator_->eval(ta2_,dya_, input, dydx); 
+              dydx *= dinput_dx;
+            }
+          }
+          else
+          {
+            dydx=0.0;
+            if  (ya_.size()==2)
+            {
+              if (std::real(input) <= std::real(ya_[1]) && std::real(input) >= std::real(ya_[0]))
+              {
+                ScalarT h = (ta_[1]-ta_[0]);
+                if (std::real(h) != 0.0) { dydx = (ya_[1]-ya_[0])/h;}
+                dydx *= dinput_dx;
+              }
+            }
+          }
+        }
+#if 0
+        // this code is slightly busted, due to the changes above. Fix later.
+        // (dyInterpolator and dya are used a little differently)
+        // This code is for derivatives w.r.t. table values, rather than the input.
+        // This is a use case that the old library didn't handle.  
+        // So, for now, leaving it commented out.
+        else
+        {
+          // derivative w.r.t. table y values
+          //
+          if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  
+          {
+            for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+            {
+              ta_[jj] = (tableArgs_)[ii]->val();
+              dya_[jj] = (tableArgs_)[ii+1]->dx(i);
+            }
+            dyInterpolator_->init(ta_,dya_); // for linear, this isn't necessary, but for others it is
+
+            ScalarT input = std::real(this->input_->val());
+
+            if ( !(ta_.empty()) )
+            {
+              int arraySize=ta_.size();
+              if (std::real(input) < std::real(ta_[0]))
+              {
+                dydx = dya_[0];
+              }
+              else if (std::real(input) > std::real(ta_[arraySize-1]))
+              {
+                dydx = dya_[arraySize-1];
+              }
+              else
+              {
+                dyInterpolator_->eval(ta_,dya_, input, dydx);
+              }
+            }
+          }
+        }
+#endif
+      }
+      else
+      {
+        dydx = dx_splines(i);
+      }
+
+      return dydx;
+    }
+
+    virtual ScalarT dx_splines(int i)
+    {
       ScalarT dydx = 0.0;
       int size = tableArgs_.size();
 
@@ -3527,106 +3886,15 @@ class tableOp : public astNode<ScalarT>
             ta_[jj] = (tableArgs_)[ii]->val();
             ya_[jj] = (tableArgs_)[ii+1]->val();
           }
-          yInterpolator_.init(ta_,ya_); // for linear, this isn't necessary, but for others it is
-
-          int ya_size = ya_.size();
-          if (ya_size > 2)
-          {
-            ta2_.resize(ya_size+1);
-            dya_.resize(ya_size+1);
-            ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-            dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-            for (int ii=1;ii<ya_size;++ii)
-            {
-              ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-              ScalarT h = ( ta_[ii]- ta_[ii-1]);
-              if (std::real(h) != 0.0)
-              {
-                dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-              }
-              else
-              {
-                dya_[ii] = 0.0;
-              }
-            }
-            dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
-          }
+          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
         }
 
         ScalarT input = std::real(this->input_->val());
  
-        if ( !(ta2_.empty()) )
-        {
-          int arraySize=ta2_.size();
+        yInterpolator_->evalDeriv(ta_,ya_, input, dydx); 
+        dydx *= dinput_dx;
 
-          if (std::real(input) <= std::real(ta2_[0]))
-          {
-            dydx = 0.0;
-          }
-          else if (std::real(input) >= std::real(ta2_[arraySize-1]))
-          {
-            dydx = 0.0;
-          }
-          else
-          {
-            dyInterpolator_.eval(ta2_,dya_, input, dydx); 
-            dydx *= dinput_dx;
-          }
-        }
-        else
-        {
-          dydx=0.0;
-          if  (ya_.size()==2)
-          {
-            if (std::real(input) <= std::real(ya_[1]) && std::real(input) >= std::real(ya_[0]))
-            {
-              ScalarT h = (ta_[1]-ta_[0]);
-              if (std::real(h) != 0.0) { dydx = (ya_[1]-ya_[0])/h;}
-              dydx *= dinput_dx;
-            }
-          }
-        }
       }
-#if 0
-      // this code is slightly busted, due to the changes above. Fix later.
-      // (dyInterpolator and dya are used a little differently)
-      // This code is for derivatives w.r.t. table values, rather than the input.
-      // This is a use case that the old library didn't handle.  
-      // So, for now, leaving it commented out.
-      else
-      {
-        // derivative w.r.t. table y values
-        //
-        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  
-        {
-          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
-          {
-            ta_[jj] = (tableArgs_)[ii]->val();
-            dya_[jj] = (tableArgs_)[ii+1]->dx(i);
-          }
-          dyInterpolator_.init(ta_,dya_); // for linear, this isn't necessary, but for others it is
-
-          ScalarT input = std::real(this->input_->val());
-
-          if ( !(ta_.empty()) )
-          {
-            int arraySize=ta_.size();
-            if (std::real(input) < std::real(ta_[0]))
-            {
-              dydx = dya_[0];
-            }
-            else if (std::real(input) > std::real(ta_[arraySize-1]))
-            {
-              dydx = dya_[arraySize-1];
-            }
-            else
-            {
-              dyInterpolator_.eval(ta_,dya_, input, dydx);
-            }
-          }
-        }
-      }
-#endif
       return dydx;
     }
 
@@ -3658,7 +3926,7 @@ class tableOp : public astNode<ScalarT>
         {
           ScalarT time = std::real(this->input_->val());
           size_t size = ta_.size();
-          size_t index = yInterpolator_.binarySearch (ta_, time, 0, size - 1);
+          size_t index = yInterpolator_->binarySearch (ta_, time, 0, size - 1);
 
           if ( std::real(ta_[index]) < std::real(time))
           {
@@ -3805,11 +4073,18 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     std::vector<ScalarT> ya_;
     std::vector<ScalarT> ta2_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> dya_;
+
+    Teuchos::RCP<Xyce::Util::interpolator<ScalarT> > yInterpolator_;
+    Teuchos::RCP<Xyce::Util::interpolator<ScalarT> > dyInterpolator_;
+
+#if 0
     Xyce::Util::linear<ScalarT> yInterpolator_; // possibly make this a user choice
     Xyce::Util::linear<ScalarT> dyInterpolator_; // possibly make this a user choice
+#endif
 
     Teuchos::RCP<astNode<ScalarT> > input_;
     bool useBreakPoints_;
+    std::string keyword_;
 };
 
 //-------------------------------------------------------------------------------

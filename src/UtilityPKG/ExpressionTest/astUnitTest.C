@@ -1234,7 +1234,8 @@ TEST ( Double_Ast_table_Test, break1)
   args.push_back( rcp(new numval<double>(1)));
   args.push_back( rcp(new numval<double>(1)));
 
-  RCP<astNode<double> > table = rcp(new tableOp<double> (time_op, args));
+  std::string keyword = std::string("TABLE");
+  RCP<astNode<double> > table = rcp(new tableOp<double> (keyword, time_op, args));
 
   std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
   std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
@@ -1256,7 +1257,8 @@ TEST ( Double_Ast_table_Test, array1)
   std::vector<double> xa = { 0.0, 0.3, 0.301, 0.302, 0.6, 1 };
   std::vector<double> ya = { 0.0, 0, 2, 2, 1, 1 }; 
 
-  RCP<astNode<double> > table = rcp(new tableOp<double> (time_op, xa,ya));
+  std::string keyword = std::string("TABLE");
+  RCP<astNode<double> > table = rcp(new tableOp<double> (keyword, time_op, xa,ya));
 
   std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
   std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
@@ -1384,7 +1386,8 @@ TEST ( Double_Ast_table_Test, array2)
     RCP_NV(1.0000000), RCP_NV(31)
   };
 
-  RCP<astNode<double> > tableFromParser = rcp(new tableOp<double> (leftArgExpr,  args));
+  std::string keyword = std::string("TABLE");
+  RCP<astNode<double> > tableFromParser = rcp(new tableOp<double> (keyword, leftArgExpr,  args));
   RCP<astNode<double> > tableFromParserCopy = tableFromParser;
 
   // set up the "pure array" table
@@ -1392,7 +1395,7 @@ TEST ( Double_Ast_table_Test, array2)
 
     std::vector<double> ya = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31 };
 
-  RCP<astNode<double> > tablePureArray = rcp(new tableOp<double> (leftArgExpr, xa,ya));
+  RCP<astNode<double> > tablePureArray = rcp(new tableOp<double> (keyword, leftArgExpr, xa,ya));
   RCP<astNode<double> > tablePureArrayCopy = tablePureArray;
 
   int numpoints=100; 

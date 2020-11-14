@@ -209,8 +209,9 @@ public:
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
     CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
+    std::string keyword = std::string("TABLE");
     Teuchos::RCP<astNode<usedType> > time_base = timeNodePtr_;
-    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (time_base, xvals, yvals));
+    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (keyword, time_base, xvals, yvals));
     astNodePtr_ = Teuchos::RCP<astNode<usedType> >(tableNodePtr_);
   };
 
@@ -256,7 +257,8 @@ public:
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
     CtoKNodePtr_   = Teuchos::rcp(new CtoKConstOp<usedType>  ());
 
-    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
+    std::string keyword = std::string("TABLE");
+    Teuchos::RCP<tableOp<usedType> > tableNodePtr_ = Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (keyword, left, xvals, yvals));
     astNodePtr_ = Teuchos::RCP<astNode<usedType> >(tableNodePtr_);
 
     if( !(Teuchos::is_null(left)) )
