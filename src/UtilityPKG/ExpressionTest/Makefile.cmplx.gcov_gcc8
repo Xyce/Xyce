@@ -78,9 +78,6 @@ complexParserUnitTest: complexParserUnitTest.C ast.o  ../ExpressionSrc/ast.h ../
 Test: Test.C
 	$(CXX) $(CXXFLAGS) $(LIBPATH) -o Test Test.C $(XYCELIBS)
 
-hello: hello.C
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o hello hello.C $(XYCELIBS)
-
 clean:
 	rm -f complexParserUnitTest *.o \
 		NetlistLexer.cxx NetlistParser.cxx stack.hh position.hh location.hh \
@@ -92,5 +89,5 @@ clean:
 		newExpression.gcno complexParserUnitTest.gcno \
 		ExpressionLexer.gcda N_UTL_ExtendedString.gcda expressionGroup.gcda complexParserUnitTest.gcda \
 		ExpressionParser.gcda N_UTL_NoCase.gcda newExpression.gcda \
-		*png hello hello.gcda hello.gcno Test Test.gcda Test.gcno *html gcov.css
+		*png Test Test.gcda Test.gcno *html gcov.css
 

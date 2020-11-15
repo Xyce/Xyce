@@ -58,6 +58,26 @@ Extrema::Extrema(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
+
+  // Negative rise/fall/cross values < -1 are not supported for Extrema measures
+  if (riseGiven_ && rise_ < -1)
+  {
+    rise_ = -1;
+    Report::UserWarning0() << "RISE value for " << type_ << " measure " << name_
+                           << " set to LAST (-1)";
+  }
+  else if (fallGiven_ && fall_ < -1)
+  {
+    fall_ = -1;
+    Report::UserWarning0() << "FALL value for " << type_ << " measure " << name_
+                           << " set to LAST (-1)";
+  }
+  else if (crossGiven_ && cross_ < -1)
+  {
+    cross_ = -1;
+    Report::UserWarning0() << "CROSS value for " << type_ << " measure " << name_
+                           << " set to LAST (-1)";
+  }
 }
 
 //-----------------------------------------------------------------------------

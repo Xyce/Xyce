@@ -1,5 +1,5 @@
 
-add_executable( DeviceInterfaceTest EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/DeviceInterfaceTest.C )
+add_executable( DeviceInterfaceTest EXCLUDE_FROM_ALL DeviceInterfaceTest.C )
 target_link_libraries( DeviceInterfaceTest XyceStatic )
 
 #if( Xyce_ENABLED_SHARED )

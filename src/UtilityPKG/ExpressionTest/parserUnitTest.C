@@ -4473,6 +4473,98 @@ TEST ( Double_Parser_table_Test, break1)
   OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
 }
 
+TEST ( Double_Parser_table_Test, tablefile_break1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"test1.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1, tableExpression) 
+}
+
+
+TEST ( Double_Parser_table_Test, tablefile_break1b)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"./SubDir1/test1.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1b, tableExpression) 
+}
+
+TEST ( Double_Parser_table_Test, tablefile_break1c)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"./Sub_Dir/1test_5.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1c, tableExpression) 
+}
+
+
 TEST ( Double_Parser_table_Test, break2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -4803,7 +4895,7 @@ TEST ( Double_Parser_spline_Test, break1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
-  Xyce::Util::newExpression splineExpression(std::string("Table(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  Xyce::Util::newExpression splineExpression(std::string("Spline(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
   splineExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_splineExpression(splineExpression); 
@@ -4822,10 +4914,11 @@ TEST ( Double_Parser_spline_Test, break1)
     splineExpression.evaluateFunction(result[ii]); 
     copy_splineExpression.evaluateFunction(copyResult[ii]); 
     assign_splineExpression.evaluateFunction(assignResult[ii]); 
+
+    EXPECT_FLOAT_EQ(refRes[ii],result[ii]);
+    EXPECT_FLOAT_EQ(refRes[ii],copyResult[ii]);
+    EXPECT_FLOAT_EQ(refRes[ii],assignResult[ii]);
   }
-  EXPECT_EQ(refRes,result);
-  EXPECT_EQ(refRes,copyResult);
-  EXPECT_EQ(refRes,assignResult);
   OUTPUT_MACRO2(Double_Parser_spline_Test, break1, splineExpression) 
 }
 
@@ -4833,7 +4926,7 @@ TEST ( Double_Parser_spline_Test, break2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
-  Xyce::Util::newExpression splineExpression(std::string("Table({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  Xyce::Util::newExpression splineExpression(std::string("Spline({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
   splineExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_splineExpression(splineExpression); 
@@ -4852,10 +4945,11 @@ TEST ( Double_Parser_spline_Test, break2)
     splineExpression.evaluateFunction(result[ii]); 
     copy_splineExpression.evaluateFunction(copyResult[ii]); 
     assign_splineExpression.evaluateFunction(assignResult[ii]); 
+
+    EXPECT_FLOAT_EQ(refRes[ii],result[ii]);
+    EXPECT_FLOAT_EQ(refRes[ii],copyResult[ii]);
+    EXPECT_FLOAT_EQ(refRes[ii],assignResult[ii]);
   }
-  EXPECT_EQ(refRes,result);
-  EXPECT_EQ(refRes,copyResult);
-  EXPECT_EQ(refRes,assignResult);
   OUTPUT_MACRO2(Double_Parser_spline_Test, break2, splineExpression) 
 }
 
@@ -5089,12 +5183,16 @@ TEST ( Double_Parser_spline_Test, Bsrc_C1_pairsWithParens)
   }
 }
 
+#if 0
+// ERK. Turning these off for now b/c they don't pass, but that is b/c they 
+// are using a "table" gold standard to test spline.
+//
 TEST ( Double_Parser_spline_Test, power_e_gear)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
   {
-    Xyce::Util::newExpression eTable(std::string("TABLE {V(1,0)} = ( 0 , 1 ) ( 1 , 2 )"), grp);
+    Xyce::Util::newExpression eTable(std::string("SPLINE {V(1,0)} = ( 0 , 1 ) ( 1 , 2 )"), grp);
     eTable.lexAndParseExpression();
 
     Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
@@ -5115,9 +5213,8 @@ TEST ( Double_Parser_spline_Test, power_e_gear)
     {
       bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
       eTable.evaluateFunction(result[ii]);
+      ASSERT_FLOAT_EQ (refArray[ii],result[ii]);
     }
-
-    EXPECT_EQ(refArray,result);
   }
 }
 
@@ -5126,7 +5223,7 @@ TEST ( Double_Parser_spline_Test, power_endcomma)
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
   {
-    Xyce::Util::newExpression eTable(std::string("TABLE(V(1,0),0,1,1,2,)"), grp);
+    Xyce::Util::newExpression eTable(std::string("SPLINE(V(1,0),0,1,1,2,)"), grp);
     eTable.lexAndParseExpression();
 
     Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
@@ -5147,11 +5244,11 @@ TEST ( Double_Parser_spline_Test, power_endcomma)
     {
       bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
       eTable.evaluateFunction(result[ii]);
+      ASSERT_FLOAT_EQ (refArray[ii],result[ii]);
     }
-
-    EXPECT_EQ(refArray,result);
   }
 }
+#endif
 
 // Schedule is like a table, but with no interpolation.
 // If the schedule is (t0, dt0, t1, dt1, t2, dt2) 

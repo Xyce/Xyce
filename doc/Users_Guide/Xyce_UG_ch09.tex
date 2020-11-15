@@ -211,8 +211,8 @@ is written, though not specified on the \texttt{.PRINT} line.
 \texttt{.PRINT DC FORMAT=TECPLOT} & \emph{circuit-file}.dat & TIME \\ \hline
 \texttt{.PRINT DC FORMAT=PROBE} & \emph{circuit-file}.csd & TIME \\ \hline
 
-\texttt{\emph{Xyce} -r} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-\texttt{\emph{Xyce} -r -a} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name} & \emph{raw-file-name} & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name -a} & \emph{raw-file-name} & All circuit variables printed \\ \hline
 
 \texttt{.OP} & \emph{log-file} & Operating point information \\ \hline
 
@@ -612,8 +612,8 @@ data that is written, though not specified on the \texttt{.PRINT} line.
 \texttt{.PRINT TRAN FORMAT=TECPLOT} & \emph{circuit-file}.dat & TIME \\ \hline
 \texttt{.PRINT TRAN FORMAT=PROBE} & \emph{circuit-file}.csd & TIME \\ \hline
 
-\texttt{\emph{Xyce} -r} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-\texttt{\emph{Xyce} -r -a} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name} & \emph{raw-file-name} & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name -a} & \emph{raw-file-name} & All circuit variables printed \\ \hline
 
 \texttt{.OP} & \emph{log-file} & Operating point information \\ \hline
 
@@ -1205,17 +1205,17 @@ is written, though not specified on the \texttt{.PRINT} line.
 \texttt{.PRINT AC FORMAT=TECPLOT} & \emph{circuit-file}.FD.dat & TIME \\ \hline
 \texttt{.PRINT AC FORMAT=PROBE} & \emph{circuit-file}.csd & TIME \\ \hline
 
-\texttt{\emph{Xyce} -r} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-\texttt{\emph{Xyce} -r -a} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name} & \emph{raw-file-name} & All circuit variables printed \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name -a} & \emph{raw-file-name} & All circuit variables printed \\ \hline
 
-\texttt{.OP}  & falls back to .PRINT AC \\ \hline
+\texttt{.OP}  & falls back to .PRINT AC & Operating point information \\ \hline
 \texttt{.PRINT AC\_IC FORMAT=NOINDEX} & \emph{circuit-file}.TD.prn & TIME \\ \hline
 \texttt{.PRINT AC\_IC FORMAT=CSV} & \emph{circuit-file}.TD.csv & TIME \\ \hline
 \texttt{.PRINT AC\_IC FORMAT=RAW} & \emph{circuit-file}.raw & TIME \\ \hline
 \texttt{.PRINT AC\_IC FORMAT=TECPLOT} & \emph{circuit-file}.TD.dat & TIME \\ \hline
 \texttt{.PRINT AC\_IC FORMAT=PROBE} & \emph{circuit-file}.TD.csd & TIME \\ \hline
 
-\texttt{.OPTIONS NONLIN CONTINUATION=<method>\ldots} & falls back to AC \\ \hline
+\texttt{.OPTIONS NONLIN CONTINUATION=<method>\ldots} & falls back to AC & \\ \hline
 \texttt{.PRINT HOMOTOPY FORMAT=NOINDEX} & \emph{circuit-file}.HOMOTOPY.prn & INDEX TIME \\ \hline
 
   \end{tabularx}
@@ -2168,8 +2168,8 @@ a \texttt{.LIN} line.
 \texttt{.LIN LINTYPE=Y} & \emph{circuit-file}.sNp & Y-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
 \texttt{.LIN LINTYPE=Z} & \emph{circuit-file}.sNp & Z-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
 
-\texttt{\emph{Xyce} -r} & NA & This will produce a parsing error. \\ \hline
-\texttt{\emph{Xyce} -r -a} & NA & This will produce a parsing error. \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name} & NA & This will produce a parsing error. \\ \hline
+\texttt{\emph{Xyce} -r raw-file-name -a} & NA & This will produce a parsing error. \\ \hline
 
 \end{tabularx}
 \end{table}

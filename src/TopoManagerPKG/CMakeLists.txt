@@ -2,34 +2,30 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( TopoManager_SOURCES 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_CktGraph.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_CktGraphBasic.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_CktNode.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_CktNode_Dev.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_CktNode_V.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_Directory.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_Indexor.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_Node.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_NodeDevBlock.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_ParNode.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_Topology.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_SerialLSUtil.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_ParLSUtil.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_TOP_LSUtilFactory.C 
-      CACHE INTERNAL "X_S" )
-  
-set ( XYCE_SOURCES ${XYCE_SOURCES} ${TopoManager_SOURCES} PARENT_SCOPE )
+target_sources(XyceStatic PUBLIC
+      N_TOP_CktGraph.C
+      N_TOP_CktGraphBasic.C
+      N_TOP_CktNode.C
+      N_TOP_CktNode_Dev.C
+      N_TOP_CktNode_V.C
+      N_TOP_Directory.C
+      N_TOP_Indexor.C
+      N_TOP_Node.C
+      N_TOP_NodeDevBlock.C
+      N_TOP_ParNode.C
+      N_TOP_Topology.C
+      N_TOP_SerialLSUtil.C
+      N_TOP_ParLSUtil.C
+      N_TOP_LSUtilFactory.C )
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      PARENT_SCOPE )
+target_include_directories(XyceStatic PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 
 
 # -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
-      TopoManager 
+set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
+      TopoManager
       CACHE INTERNAL "X_L" )
 

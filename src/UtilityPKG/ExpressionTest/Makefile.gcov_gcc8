@@ -88,9 +88,6 @@ parserCopyUnitTest: parserCopyUnitTest.C ast.o  ../ExpressionSrc/ast.h ../Expres
 Test: Test.C
 	$(CXX) $(CXXFLAGS) $(LIBPATH) -o Test Test.C $(XYCELIBS)
 
-hello: hello.C
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o hello hello.C $(XYCELIBS)
-
 clean:
 	rm -f astUnitTest parserUnitTest parserCopyUnitTest astCopyConstUnitTest *.o \
 		NetlistLexer.cxx NetlistParser.cxx stack.hh position.hh location.hh \
@@ -102,7 +99,7 @@ clean:
 		newExpression.gcno parserCopyUnitTest.gcno parserUnitTest.gcno \
 		ExpressionLexer.gcda N_UTL_ExtendedString.gcda expressionGroup.gcda parserUnitTest.gcda \
 		ExpressionParser.gcda N_UTL_NoCase.gcda newExpression.gcda astUnitTest.gcda \
-		*png hello hello.gcda hello.gcno Test Test.gcda Test.gcno *html gcov.css
+		*png Test Test.gcda Test.gcno *html gcov.css
 
 
 # this removes everything except the executables
@@ -117,5 +114,5 @@ cleanup:
 		newExpression.gcno parserCopyUnitTest.gcno parserUnitTest.gcno \
 		ExpressionLexer.gcda N_UTL_ExtendedString.gcda expressionGroup.gcda parserUnitTest.gcda \
 		ExpressionParser.gcda N_UTL_NoCase.gcda newExpression.gcda astUnitTest.gcda \
-		*png hello hello.gcda hello.gcno Test Test.gcda Test.gcno *html gcov.css
+		*png Test Test.gcda Test.gcno *html gcov.css
 

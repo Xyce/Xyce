@@ -68,8 +68,20 @@ Output a binary rawfile. &
 No rawfile written. \\ \hline
 
 -a &
-Use with \verb+-r+ to output a readable (ASCII) rawfile. &
-\verb+-r  <file> -a+ &
+Use with \verb+-r+ to output a readable (ASCII) rawfile.
+Without the concurrent use of \verb+-r+, \verb+-a+
+will cause all .PRINT lines that use FORMAT=RAW to produce
+ASCII rawfiles. &
+\verb+-r  <file> -a+
+
+\verb+-a+
+&
+Default rawfile is binary. \\ \hline
+
+-a &
+Use without \verb+-r+ to output a readable (ASCII) rawfile
+when FORMAT=RAW was used on a .PRINT line. &
+\verb+-a+ &
 Default rawfile is binary. \\ \hline
 
 -nox &

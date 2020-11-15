@@ -134,16 +134,15 @@ public:
   // Add a set of .PARAM parameters to the current context.
   void addParams(Util::ParamList::const_iterator paramIter, Util::ParamList::const_iterator paramEnd);
 
-  // Do early resolution of quoted parameters into a table
-  // this is deprecated and should be removed in Xyce 6.11
-  // in Xyce 6.12 a quoted string should be interpreted as a string.
+  // strings are parsed with quotes still attached.
+  // this function removes the quotes
   void resolveQuote (Util::Param & parameter) const;
   
   // resolve tablefile( "filename ") into a table expression
   void resolveTableFileType (Util::Param & parameter) const;
   
   //resolve string("a string value") into a string 
-  void resolveStringType (Util::Param & parameter) const;
+  //RLS void resolveStringType (Util::Param & parameter) const;
 
   // Add a set of .GLOBAL_PARAM parameters to the current context.
   void addGlobalParams(Util::ParamList::const_iterator paramIter, Util::ParamList::const_iterator paramEnd);

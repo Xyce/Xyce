@@ -39,6 +39,7 @@
 #define ast_H
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <vector>
 #include <list>
@@ -52,6 +53,7 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_Interpolators.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_CheckIfValidFile.h>
 #include <N_ERH_Message.h>
 #include <N_UTL_HspiceBools.h>
 #include <expressionParamTypes.h>
@@ -1103,7 +1105,7 @@ template <typename ScalarT>
 class paramOp: public astNode<ScalarT>
 {
   public:
-    paramOp (std::string par):
+    paramOp (const std::string & par):
       astNode<ScalarT>(),
       paramName_(par),
       thisIsAFunctionArgument_(false),
@@ -1268,7 +1270,7 @@ template <typename ScalarT>
 class voltageOp: public astNode<ScalarT>
 {
   public:
-    voltageOp (std::vector<std::string> voltageNodes):
+    voltageOp (const std::vector<std::string> & voltageNodes):
       astNode<ScalarT>(),
       voltageNodes_(voltageNodes),
       voltageVals_(voltageNodes.size(),0.0),
@@ -1383,7 +1385,7 @@ template <typename ScalarT>
 class currentOp: public astNode<ScalarT>
 {
   public:
-    currentOp (std::string currentDevice):
+    currentOp (const std::string & currentDevice):
       astNode<ScalarT>(),
       number_(0.0),
       currentDevice_(currentDevice),
@@ -1446,7 +1448,7 @@ template <typename ScalarT>
 class sparamOp: public astNode<ScalarT>
 {
   public:
-    sparamOp (std::vector<int> args):
+    sparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1510,7 +1512,7 @@ template <typename ScalarT>
 class yparamOp: public astNode<ScalarT>
 {
   public:
-    yparamOp (std::vector<int> args):
+    yparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1574,7 +1576,7 @@ template <typename ScalarT>
 class zparamOp: public astNode<ScalarT>
 {
   public:
-    zparamOp (std::vector<int> args):
+    zparamOp (const std::vector<int> & args):
       astNode<ScalarT>(),
       number_(0.0),
       derivIndex_(-1),
@@ -1638,7 +1640,7 @@ template <typename ScalarT>
 class leadCurrentOp: public astNode<ScalarT>
 {
   public:
-    leadCurrentOp (std::string designator, std::string leadCurrentDevice):
+    leadCurrentOp (const std::string & designator, const std::string & leadCurrentDevice):
       astNode<ScalarT>(),
       number_(0.0),
       leadCurrentDesignator_(designator),
@@ -1700,7 +1702,7 @@ template <typename ScalarT>
 class powerOp: public astNode<ScalarT>
 {
   public:
-    powerOp ( std::string tag, std::string powerDevice):
+    powerOp (const std::string & tag, const std::string & powerDevice):
       astNode<ScalarT>(),
       number_(0.0),
       tag_(tag),
@@ -1758,7 +1760,7 @@ template <typename ScalarT>
 class internalDevVarOp: public astNode<ScalarT>
 {
   public:
-    internalDevVarOp (std::string internalDevVarDevice):
+    internalDevVarOp (const std::string & internalDevVarDevice):
       astNode<ScalarT>(),
       number_(0.0),
       internalDevVarDevice_(internalDevVarDevice),
@@ -1815,7 +1817,7 @@ template <typename ScalarT>
 class dnoNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dnoNoiseVarOp (std::vector<std::string> noiseDevices):
+    dnoNoiseVarOp (const std::vector<std::string> & noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
       noiseDevices_(noiseDevices),
@@ -1880,7 +1882,7 @@ template <typename ScalarT>
 class dniNoiseVarOp: public astNode<ScalarT>
 {
   public:
-    dniNoiseVarOp (std::vector<std::string> noiseDevices):
+    dniNoiseVarOp (const std::vector<std::string> & noiseDevices):
       astNode<ScalarT>(),
       number_(0.0),
       noiseDevices_(noiseDevices),
@@ -2044,7 +2046,7 @@ class funcOp: public astNode<ScalarT>
 {
   public:
     // functions:
-    funcOp ( std::string name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+    funcOp (const std::string & name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
       astNode<ScalarT>(),
       funcName_(name),
       funcArgs_(args),
@@ -3392,6 +3394,47 @@ class tableOp : public astNode<ScalarT>
             dyInterpolator_.init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
           }
         }
+      };
+
+    //-------------------------------------------------------------------------------
+    // special constructor for values read in from a file, in which the file IO is 
+    // handled directly in this constructor.
+    tableOp (Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename):
+      astNode<ScalarT>(), allNumVal_(true), input_(input)
+      {
+        std::ifstream dataIn;
+        if ( !(Xyce::Util::checkIfValidFile(filename)) )
+        {
+          std::vector<std::string> errStr(1,std::string("Could not find file " + filename));
+          yyerror(errStr);
+        }
+        dataIn.open(filename.c_str(), std::ios::in);
+        if ( !dataIn.good() )
+        {
+          std::vector<std::string> errStr(1,std::string("Could not open file " + filename));
+          yyerror(errStr);
+        }
+        else
+        {
+          double time;
+          double value;
+          ta_.clear();
+          ya_.clear();
+          while ( dataIn >> time )
+          {
+            if ( dataIn >> value )
+            {
+              ta_.push_back(time);
+              ya_.push_back(value);
+            }
+            else
+            {
+              std::vector<std::string> errStr(1,std::string("Reached end of file in " + filename + " while expecting another value"));
+              yyerror(errStr);
+            }
+          }
+        }
+        dataIn.close();
       };
 
     //-------------------------------------------------------------------------------

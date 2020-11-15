@@ -391,7 +391,6 @@ void CircuitContext::addParams(
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    resolveStringType(parameter);
     currentContextPtr_->unresolvedParams_.insert(parameter);
   }
 }
@@ -414,7 +413,6 @@ void CircuitContext::addGlobalParams(
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    resolveStringType(parameter);
     currentContextPtr_->unresolvedGlobalParams_.push_back(parameter);
   }
 }
@@ -432,75 +430,28 @@ void CircuitContext::addGlobalNode( std::string & gnode)
   currentContextPtr_->globalNodes_.insert(gnode);
 }
 
+
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveQuote
-// Purpose        : Resolve quoted parameters as soon as they are encountered.
-// Special Notes  : This avoids every processor in a parallel run trying to
-//                  access the same file.  Also exit handling does not work on
-//                  error for parallel runs otherwise.
+// Purpose        : Remove quotes from string parameters
+// Special Notes  : Strings are parsed with double quotes still at the beginning 
+//                  and ending.  This function removes them
 // Scope          :
-// Creator        : Dave Shirley, PSSI
+// Creator        : 
 // Creation Date  :
 //----------------------------------------------------------------------------
 void CircuitContext::resolveQuote(Util::Param & parameter) const
 {
   if (parameter.isQuoted())
   {
-    Report::UserWarning() << "Automatic conversion of quoted filename to table is DEPRECATED "
-      << " and will be removed in a future version of Xyce.  Please use the new syntax of tablefile(\"filename\") ";
-    // The parameter is time dependent with its time history defined by the set
-    // of time-value pairs in the file given by the value of the parameter.
-    // Open and read these values, using them to build a "Table" expression
-    // for the value of the parameter.
     std::ifstream paramDataIn;
-    std::string parameterFile(parameter.stringValue().substr(1,parameter.stringValue().size()-2));
-
-    // Error out if the user-specified file does not exist, cannot
-    // be opened, or is a directory name rather than a file name.  
-    // See SON Bug 785 and SRN Bug 2100 for more details.
-    if ( !(Util::checkIfValidFile(parameterFile)) )
-    {
-      Report::UserFatal() << "Could not find file " << parameterFile;
-    }
-
-    paramDataIn.open(parameterFile.c_str(), std::ios::in);
-    std::string table("table(time");
-
-    if ( !paramDataIn.good() )
-    {
-      Report::UserFatal() << "Could not open file " << parameterFile;
-    }
-    else
-    {
-      std::string time;
-      std::string value;
-      while ( paramDataIn >> time )
-      {
-        if ( paramDataIn >> value )
-        {
-          table += "," + time + "," + value;
-        }
-        else
-        {
-          Report::UserFatal() << "Reached end of file in " << parameterFile << " while expecting another value";
-        }
-      }
-    }
-
-    paramDataIn.close();
-
-    if( table.size() <= 10 ) // the length of "table(time" from above
-    {
-      Report::UserFatal() << "Failed to successfully read contents of " << parameterFile;
-    }
-
-    table += ")";
-
-    // ERK.  Change this to use the new method for tables in the newExpression library.
-    parameter.setVal( Util::Expression(expressionGroup_,table) );
+    std::string parameterData(parameter.stringValue().substr(1,parameter.stringValue().size()-2));
+    std::string paramString = parameterData;
+    parameter.setVal( paramString );
     return;
   }
 }
+ 
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveTableFileType
@@ -540,80 +491,14 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
     }
     std::string parameterFile(parameter.stringValue().substr(tablefileLen+offset,paramLen-(tablefileLen+2*offset)));
 
-    // Error out if the user-specified file does not exist, cannot
-    // be opened, or is a directory name rather than a file name.  
-    // See SON Bug 785 and SRN Bug 2100 for more details.
-    if ( !(Util::checkIfValidFile(parameterFile)) )
-    {
-      Report::UserFatal() << "Could not find file " << parameterFile;
-    }
+    std::string tableFileString = "{tablefile(\"" + parameterFile + "\")}";
+    parameter.setVal( Util::Expression(expressionGroup_,tableFileString) );
 
-    paramDataIn.open(parameterFile.c_str(), std::ios::in);
-    std::string table("table(time");
-
-    if ( !paramDataIn.good() )
-    {
-      Report::UserFatal() << "Could not open file " << parameterFile;
-    }
-    else
-    {
-      std::string time;
-      std::string value;
-      while ( paramDataIn >> time )
-      {
-        if ( paramDataIn >> value )
-        {
-          table += "," + time + "," + value;
-        }
-        else
-        {
-          Report::UserFatal() << "Reached end of file in " << parameterFile << " while expecting another value";
-        }
-      }
-    }
-
-    paramDataIn.close();
-
-    if( table.size() <= 10 ) // the length of "table(time" from above
-    {
-      Report::UserFatal() << "Failed to successfully read contents of " << parameterFile;
-    }
-
-    table += ")";
-
-    parameter.setVal( Util::Expression(expressionGroup_, table) );
     return;
   }
 }
 
-//----------------------------------------------------------------------------
-// Function       : CircuitContext::resolveStringType
-// Purpose        : Resolve quoted parameters as soon as they are encountered.
-// Special Notes  : This avoids every processor in a parallel run trying to
-//                  access the same file.  Also exit handling does not work on
-//                  error for parallel runs otherwise.
-// Scope          :
-// Creator        : Dave Shirley, PSSI
-// Creation Date  :
-//----------------------------------------------------------------------------
-void CircuitContext::resolveStringType(Util::Param & parameter) const
-{
-  if (parameter.isStringTypeQuoted())
-  {
-    Report::UserWarning() << "The string(\" \") syntax is temporary and will be deprecated "
-      << "in a future release, when it will be replaced with simple double quotes,"
-      << "after which the string(\" \") syntax will be removed.";
-    // The parameter is time dependent with its time history defined by the set
-    // of time-value pairs in the file given by the value of the parameter.
-    // Open and read these values, using them to build a "Table" expression
-    // for the value of the parameter.
-    std::ifstream paramDataIn;
-    std::string stringParameterValue(parameter.stringValue().substr(7,parameter.stringValue().size()-8));
 
-    parameter.setVal( stringParameterValue );
-    return;
-  }
-}
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::addFunction
 // Purpose        : Add a .FUNC function to the current context.
@@ -1432,14 +1317,10 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
     return stringsResolved && functionsResolved;
 
   }
-  // Handle quoted parameters e.g. "filename" (which get turned into
-  // TABLEs)
+  // Handle quoted string parameters e.g. "some text" by removing quotes.
   resolveQuote(parameter);
   resolveTableFileType(parameter);
-  resolveStringType(parameter);
-
-  // The parameter does not have an expression value and does not need
-  // resolving.
+  
   return true;
 }
 
@@ -1625,14 +1506,10 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
 
   }
  
-  // Handle quoted parameters e.g. "filename" (which get turned into
-  // TABLEs)
+  // Handle quoted string parameters e.g. "some text" by removing quotes.
   resolveQuote(parameter);
   resolveTableFileType(parameter);
-  resolveStringType(parameter);
-
-  // The parameter does not have an expression value and does not need
-  // resolving.
+  
   return true;
 }
 

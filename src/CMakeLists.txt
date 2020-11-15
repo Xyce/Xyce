@@ -1,15 +1,46 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
-configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
-
+configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
 set( XYCE_SOURCES "Xyce.C")
 set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
+
+
+####
+# Bison and Flex modules don't work in any directory. Under the covers, they
+# are CMake2 style, where they use include_directories :(
+if( Xyce_REACTION_PARSER )
+    bison_target( XyceReactionParser DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
+         ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
+    flex_target( XyceReactionScanner "DeviceModelPKG/Core/N_DEV_ReactionLexer.l"
+        "${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx"
+	COMPILE_FLAGS "-+"
+		)
+    add_flex_bison_dependency( XyceReactionScanner XyceReactionParser )
+
+    set( REACTION_PARSER_SRC
+        ${BISON_XyceReactionParser_OUTPUT_SOURCE}
+        ${FLEX_XyceReactionScanner_OUTPUT_SOURCE})
+
+    include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
+endif()
+bison_target( XyceExpressionParser "UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
+flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --full --prefix=exp")
+add_flex_bison_dependency( XyceExpressionLexer XyceExpressionParser  )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+
+#End bison and Flex non-sense.
+
+# ---- This is the declaration and linking of the desired
+# artifacts ----------------
+
+add_library(XyceStatic STATIC ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS})
+
 ###
 # add_subdirectories here
 #add_subdirectory()
 
 add_subdirectory(CircuitPKG)
-add_subdirectory(AnalysisPKG) 
+add_subdirectory(AnalysisPKG)
 add_subdirectory(DeviceModelPKG)
 add_subdirectory(UtilityPKG)
 add_subdirectory(ErrorHandlingPKG)
@@ -25,39 +56,14 @@ add_subdirectory(MultiTimePDEPKG)
 add_subdirectory(test)
 
 # For debugging:
-#    message(STATUS "Xyce Source ${XYCE_SOURCES}")
-#    message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
 
-####
-# Bison and Flex modules don't work in any directory. Under the covers, they
-# are CMake2 style, where they use include_directories :(
-if( Xyce_REACTION_PARSER )
-    BISON_TARGET( XyceReactionParser ${CMAKE_CURRENT_SOURCE_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
-         ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
-    FLEX_TARGET( XyceReactionScanner "${CMAKE_CURRENT_SOURCE_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.l"
-        "${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx"
-	COMPILE_FLAGS "-+"
-		)
-    ADD_FLEX_BISON_DEPENDENCY( XyceReactionScanner XyceReactionParser )
+# get_target_property(XYCE_SOURCES XyceStatic SOURCES)
+# message(STATUS "Xyce Sources ${XYCE_SOURCES}")
+# get_target_property(XYCE_INCLUDE_DIRECTORIES XyceStatic INCLUDE_DIRECTORIES)
+# message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
 
-    set( REACTION_PARSER_SRC
-        ${BISON_XyceReactionParser_OUTPUT_SOURCE}
-        ${FLEX_XyceReactionScanner_OUTPUT_SOURCE} )
 
-    include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
-endif()
-BISON_TARGET( XyceExpressionParser "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
-FLEX_TARGET( XyceExpressionLexer "${CMAKE_CURRENT_SOURCE_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --full --prefix=exp")
-ADD_FLEX_BISON_DEPENDENCY( XyceExpressionLexer XyceExpressionParser  )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
-
-#End bison and Flex non-sense. 
-
-# ---- This is the declaration and linking of the desired
-# artifacts ----------------
-
-add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
-target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
+target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -67,11 +73,27 @@ target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBR
 # an import library defined.  Let's check for that:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceStatic PUBLIC CURL::libcurl)
-endif(Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
+endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(Xyce XyceStatic) 
+target_link_libraries(Xyce XyceStatic)
+
+if(WIN32)
+  if(DEFINED ENV{MKLROOT})
+
+    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      set( POINTER_SIZE  "64" )
+    else()
+      set( POINTER_SIZE "32" )
+    endif()
+    add_custom_command(
+      TARGET Xyce POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $ENV{MKLROOT}/../redist/intel${POINTER_SIZE}/mkl/mkl_sequential.dll
+              ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+endif()
 
 
 # ---- And the installation of them. ----------------

@@ -37,7 +37,7 @@ check_cxx_symbol_exists(uname "sys/utsname.h" HAVE_UNAME)
 check_cxx_symbol_exists(sysconf "unistd.h" HAVE_SYSCONF)
 if(EXISTS /proc/self/stat)
   set( HAVE__PROC_SELF_STAT TRUE )
-endif(EXISTS /proc/self/stat)
+endif()
 
 # see `src/UtilityPKG/N_UTL_CheckIfValidFile.C` for more stuff about
 # HAVE_SYS_STAT_H that should be here.
