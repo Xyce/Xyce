@@ -457,10 +457,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token <std::string *> TOK_TABLE	"table" 
 %token <std::string *> TOK_TABLE2	"table2" 
 %token <std::string *> TOK_TABLE3	"table3" 
-
-%token <std::string *> TOK_SPLINE	"spline" 
-%token <std::string *> TOK_SPLINE2	"spline2" 
-%token <std::string *> TOK_SPLINE3	"spline3" 
+%token <std::string *> TOK_SPLINEFILE	"splinefile"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -513,8 +510,6 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_TABLEFILE	"tablefile"
 %token TOK_TABLEFILE_END	"tablefile_end"
 
-%token TOK_SPLINEFILE	"splinefile"
-
 %token TOK_SCHEDULE	"schedule"
 %token TOK_URAMP	"uramp"
  /* %token TOK_POLY	"poly" */
@@ -545,10 +540,6 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %type  <Xyce::Util::tableArgs<usedType> >  table_threeOrFourArgs  
 %type  <Xyce::Util::tableArgs<usedType> >   table2_threeOrFourArgs  
 %type  <Xyce::Util::tableArgs<usedType> >   table3_threeOrFourArgs 
-
-%type  <Xyce::Util::tableArgs<usedType> >   spline_threeOrFourArgs 
-%type  <Xyce::Util::tableArgs<usedType> >   spline2_threeOrFourArgs  
-%type  <Xyce::Util::tableArgs<usedType> >   spline3_threeOrFourArgs 
 
 %type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist
 %type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist2
@@ -1233,9 +1224,8 @@ exp:
     }
   | TOK_SPLINEFILE TOK_FILENAME TOK_TABLEFILE_END
     {
-      std::string keyword("SPLINE");
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(keyword,timeNode,*$2)); 
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2)); 
       newExp.getSrcNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true); 
       $$ = tmpPtr;
@@ -1302,52 +1292,7 @@ exp:
       delete $1;
     }
     */
-
-   /* splines */
-  | spline3_threeOrFourArgs nonempty_func_arglist 
-    {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2)); 
-      $$ = tmpPtr;
-      if ( ($1.node)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $2;
-    }
-  | spline_threeOrFourArgs nonempty_func_arglist 
-    {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2)); 
-      $$ = tmpPtr;
-      if ( ($1.node)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $2;
-    }
-  | spline_threeOrFourArgs nonempty_func_arglist2
-    {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2)); 
-      $$ = tmpPtr;
-      if ( ($1.node)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $2;
-    }
-  | spline2_threeOrFourArgs nonempty_arg_pairs 
-    {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2)); 
-      $$ = tmpPtr;
-      if ( ($1.node)->timeSpecialType() )
-      {
-        newExp.getSrcNodeVec().push_back(tmpPtr);
-        newExp.setTimeDependent(true); 
-      }
-      delete $2;
-    } 
+ 
   | TOK_SCHEDULE nonempty_func_arglist 
     {
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
@@ -1688,52 +1633,6 @@ table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
       ta.node = $2;
       $$ = ta;
     }
-
-  /* spline */
-spline_threeOrFourArgs: TOK_SPLINE exp TOK_COMMA
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-  | TOK_SPLINE exp TOK_COMMA TOK_EQUALS
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-spline2_threeOrFourArgs: TOK_SPLINE2 exp TOK_RIGHTCURLYBRACE
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-  | TOK_SPLINE2 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-spline3_threeOrFourArgs: TOK_SPLINE3 exp TOK_RIGHTCURLYBRACE
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-  | TOK_SPLINE3 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
-    {
-      Xyce::Util::tableArgs<usedType> ta;
-      ta.keywordPtr = $1;
-      ta.node = $2;
-      $$ = ta;
-    }
-
-
 
 %%
 

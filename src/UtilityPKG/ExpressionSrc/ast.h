@@ -3341,6 +3341,8 @@ inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
 
 inline bool isLeftParen(char c) { return (c=='('); }
 
+inline bool isQuoteSymbol(char c) { return (c=='"'); }
+
 //------------------------------------------------------------------------------- 
 // This is an interpolation operator. 
 //
@@ -3548,6 +3550,8 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     void allocateInterpolators()
     {
+      Xyce::Util::toUpper(keyword_);
+
       // remove whitespace from the keyword
       keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), ::isspace), keyword_.end());
 
@@ -3557,7 +3561,16 @@ class tableOp : public astNode<ScalarT>
       // remove left parens from the keyword
       keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isLeftParen), keyword_.end());
 
-      Xyce::Util::toUpper(keyword_);
+      // remove quote symbol from the keyword
+      keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), isQuoteSymbol), keyword_.end());
+
+      // remove the word "FILE" from the keyword
+      std::string fileString ("FILE");
+      std::string::size_type n = fileString.length();
+      for (std::string::size_type i = keyword_.find(fileString); i != std::string::npos; i = keyword_.find(fileString))
+      {
+        keyword_.erase(i, n);
+      }
 
       if (keyword_==std::string("FASTTABLE"))
       {
@@ -3597,7 +3610,9 @@ class tableOp : public astNode<ScalarT>
       }
       else
       { 
-        std::vector<std::string> errStr(1,std::string("AST node (table) type not recognized")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (table) type not recognized.  Type = ")); 
+        errStr[0] += keyword_;
+        yyerror(errStr);
       }
     }
 

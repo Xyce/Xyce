@@ -153,7 +153,6 @@ HZ   [Hh][Zz]
 
 TABLE "fast"?"table"
 
-
 LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
@@ -573,19 +572,36 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"stp"[ \t]*"("    {return XyceExpression::ExpressionParser::token::TOK_STP; }
 <INITIAL>"sqrt"[ \t]*"("   {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 
-<INITIAL>TABLE[ \t]*"(" { 
+<INITIAL>"spline"[ \t]*"("  |
+<INITIAL>"akima"[ \t]*"("   |
+<INITIAL>"cubic"[ \t]*"("   |
+<INITIAL>"wodicka"[ \t]*"(" |
+<INITIAL>"bli"[ \t]*"("     |
+<INITIAL>TABLE[ \t]*"("     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_TABLE; 
 }
-<INITIAL>TABLE[ \t]*"{" { 
+
+<INITIAL>"spline"[ \t]*"{"  |
+<INITIAL>"akima"[ \t]*"{"   |
+<INITIAL>"cubic"[ \t]*"{"   |
+<INITIAL>"wodicka"[ \t]*"{" |
+<INITIAL>"bli"[ \t]*"{"     |
+<INITIAL>TABLE[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
   return XyceExpression::ExpressionParser::token::TOK_TABLE2; 
 }
-<INITIAL>TABLE[ \t]*"("[ \t]*"{" { 
+
+<INITIAL>"spline"[ \t]*"("[ \t]*"{"  |
+<INITIAL>"akima"[ \t]*"("[ \t]*"{"   |
+<INITIAL>"cubic"[ \t]*"("[ \t]*"{"   |
+<INITIAL>"wodicka"[ \t]*"("[ \t]*"{" |
+<INITIAL>"bli"[ \t]*"("[ \t]*"{"     |
+<INITIAL>TABLE[ \t]*"("[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
@@ -602,18 +618,15 @@ LEAD I[SDGBEC1-9]
     return XyceExpression::ExpressionParser::token::TOK_TABLEFILE; 
   }
 
-<tablefilename>{FILENAME}+ { 
-  lvalp->build<std::string *>()=new std::string(YYText());
-  return XyceExpression::ExpressionParser::token::TOK_FILENAME; 
-}
-
-<tablefilename>"\""[ \t]*")" {
-    BEGIN(INITIAL);
-    return XyceExpression::ExpressionParser::token::TOK_TABLEFILE_END; 
-  }
-
-<INITIAL>"splinefile"[ \t]*"("[ \t]*"\""  {
+<INITIAL>"splinefile"[ \t]*"("[ \t]*"\""  |
+<INITIAL>"akimafile"[ \t]*"("[ \t]*"\""   |
+<INITIAL>"cubicfile"[ \t]*"("[ \t]*"\""   |
+<INITIAL>"wodickafile"[ \t]*"("[ \t]*"\"" |
+<INITIAL>"blifile"[ \t]*"("[ \t]*"\""     {
     BEGIN(tablefilename);
+    std::string tmp = std::string(YYText());
+    Xyce::Util::toUpper(tmp);
+    lvalp->build<std::string *>()=new std::string( tmp );
     return XyceExpression::ExpressionParser::token::TOK_SPLINEFILE; 
   }
 
@@ -626,25 +639,6 @@ LEAD I[SDGBEC1-9]
     BEGIN(INITIAL);
     return XyceExpression::ExpressionParser::token::TOK_TABLEFILE_END; 
   }
-
-<INITIAL>"spline"[ \t]*"("  { 
-  std::string tmp = std::string(YYText());
-  Xyce::Util::toUpper(tmp);
-  lvalp->build<std::string *>()=new std::string( tmp );
-  return XyceExpression::ExpressionParser::token::TOK_SPLINE; 
-}
-<INITIAL>"spline"[ \t]*"{"  { 
-  std::string tmp = std::string(YYText());
-  Xyce::Util::toUpper(tmp);
-  lvalp->build<std::string *>()=new std::string( tmp );
-  return XyceExpression::ExpressionParser::token::TOK_SPLINE2; 
-}
-<INITIAL>"spline"[ \t]*"("[ \t]*"{"  { 
-  std::string tmp = std::string(YYText());
-  Xyce::Util::toUpper(tmp);
-  lvalp->build<std::string *>()=new std::string( tmp );
-  return XyceExpression::ExpressionParser::token::TOK_SPLINE3; 
-} 
 
 <INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
