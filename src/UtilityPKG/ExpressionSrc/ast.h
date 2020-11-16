@@ -3550,8 +3550,6 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     void allocateInterpolators()
     {
-      Xyce::Util::toUpper(keyword_);
-
       // remove whitespace from the keyword
       keyword_.erase(std::remove_if(keyword_.begin(),keyword_.end(), ::isspace), keyword_.end());
 

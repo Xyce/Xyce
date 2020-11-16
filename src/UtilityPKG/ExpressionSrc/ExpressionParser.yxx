@@ -506,7 +506,6 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_SGN	"sgn"
 %token TOK_SIGN	"sign"
 %token TOK_STP	"stp"
-%token TOK_FAST_TABLEFILE	"fast_tablefile"
 %token TOK_TABLEFILE_END	"tablefile_end"
 
 %token TOK_SCHEDULE	"schedule"
@@ -1199,16 +1198,6 @@ exp:
 
       $$ = tmpPtr;
       delete $1;
-      delete $2;
-    }
-  | TOK_FAST_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
-    {
-      std::string keyword("FASTTABLE");
-      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(keyword,timeNode,*$2)); 
-      newExp.getSrcNodeVec().push_back(tmpPtr);
-      newExp.setTimeDependent(true); 
-      $$ = tmpPtr;
       delete $2;
     }
   | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
