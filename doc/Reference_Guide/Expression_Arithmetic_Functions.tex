@@ -97,6 +97,10 @@
 
     TABLE(x,y,z,*)
     & $f(x)$ where $f(y)=z$ & piecewise linear interpolation, multiple ($y$,$z$) pairs can be specified \\ \hline
+    
+    TABLEFILE(``filename'') &  
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space saprated, is 
+      read from disk and put into a \texttt{TABLE} for use as function lookup table. \\ \hline
 
     URAMP(x)
     & $x$ if $x > 0$ & ramp function \\

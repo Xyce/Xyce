@@ -38,6 +38,14 @@ the time they are needed. They may, therefore, be time dependent, and may
 depend on other time dependent quantities in the circuit.  They may also
 be frequency dependent.
 
+For example to load an external data file with time voltage pairs of data on each 
+line into a global parameter, use this syntax:
+
+\texttt{.GLOBAL\_PARAM extdata = \{tablefile("filename")\}}
+
+where \texttt{filename} would be the name of the file to load.  See \ref{ExpressionDocumentation} for 
+further information.
+
 Global parameters are accessible, and have the same value, throughout all
 levels of the netlist hierarchy.  It is not legal to redefine global parameters
 in different levels of the netlist hierarchy.
