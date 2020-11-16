@@ -1091,14 +1091,14 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : printPetraObject
+// Function      : print
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void MultiVector::printPetraObject(std::ostream &os) const
+void MultiVector::print(std::ostream &os) const
 {
   if (aMultiVector_ != oMultiVector_)
   {

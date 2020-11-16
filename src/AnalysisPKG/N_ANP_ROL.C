@@ -447,7 +447,7 @@ bool ROL::doLoopProcess()
       doProcessSuccessfulStep();
       // collect solutions here
       *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
-      // solutionPtrVector_[currentStep]->printPetraObject(Xyce::dout());
+      // solutionPtrVector_[currentStep]->print(Xyce::dout());
     }
     else // stepAttemptStatus  (ie do this if the step FAILED)
     {

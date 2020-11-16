@@ -504,7 +504,7 @@ double Error::getMeasureResult()
   // performance if the comparision file has many data points in it.
   if (!gotMeasureResult_ && initialized_)
   {
-    // make an epetra vector to hold difference values
+    // make a vector to hold difference values
     Teuchos::SerialDenseVector<int,double> differenceVector(dataValues_.size());
 
     if (mode_ == "DC")

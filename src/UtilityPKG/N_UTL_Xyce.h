@@ -22,8 +22,7 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : This file is similar to Petra_Petra.h.  It  contains
-//                  a number of Xyce-wide definitions and includes.
+// Purpose        : It contains a number of Xyce-wide definitions and includes.
 //
 // Special Notes  :
 //

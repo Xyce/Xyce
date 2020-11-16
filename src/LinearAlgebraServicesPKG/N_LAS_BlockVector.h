@@ -112,7 +112,7 @@ class BlockVector : public Vector
   const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
-  void printPetraObject(std::ostream &os) const;
+  void print(std::ostream &os) const;
 
  private:
 

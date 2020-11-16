@@ -178,7 +178,7 @@ public:
 
   void print(std::ostream & outStream=std::cout) {
     for (int i=0;i<size_;i++){
-      (*xyce_multi_vec_)[i]->printPetraObject(outStream);
+      (*xyce_multi_vec_)[i]->print(outStream);
     }
   }
 

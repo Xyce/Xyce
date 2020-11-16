@@ -221,7 +221,7 @@ public:
       
       // Get rhs
       *((*cp)[i]) = *(linearSystem_.getRHSVector());
-      //(*cp)[i]->printPetraObject(Xyce::dout());
+      //(*cp)[i]->print(Xyce::dout());
     }
     nEqLoader_.setVoltageLimiterStatus(vstatus);
 
@@ -242,7 +242,7 @@ public:
     for (int i=0;i<nc_;i++)
     {
       *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
-      //(*up)[i]->printPetraObject(Xyce::dout());
+      //(*up)[i]->print(Xyce::dout());
     }
       
   }
@@ -288,7 +288,7 @@ public:
       
       // // Test
       // std::cout << "Jac_1 Success = " << success << std::endl;
-      // (*jvp)[i]->printPetraObject(Xyce::dout());
+      // (*jvp)[i]->print(Xyce::dout());
       
     }
     nEqLoader_.setVoltageLimiterStatus(vstatus);

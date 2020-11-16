@@ -336,7 +336,7 @@ bool ConductanceExtractor::setup_dIdX_Vectors_ ()
     if (DEBUG_CONDUCTANCE && isActive(Diag::NONLINEAR_CONDUCTANCE))
     {
       Xyce::dout() << "\ndIdx[" << iC_row << "]:" << std::endl;
-      dIdxPtrVector_[iC_row]->printPetraObject(Xyce::dout());
+      dIdxPtrVector_[iC_row]->print(Xyce::dout());
     }
   }
 
@@ -520,7 +520,7 @@ bool ConductanceExtractor::extract(
       if (DEBUG_CONDUCTANCE && isActive(Diag::NONLINEAR_CONDUCTANCE))
       {
         std::string vsrcName = iterM->first;
-        printPetraObjects_ (vsrcName);
+        print_(vsrcName);
         Xyce::dout() << "dIdv = " << dIdv << std::endl;
       }
 
@@ -569,27 +569,27 @@ void ConductanceExtractor::printJacobian_
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ConductanceExtractor::printPetraObjects_
+// Function      : ConductanceExtractor::print_
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/08/06
 //-----------------------------------------------------------------------------
-void ConductanceExtractor::printPetraObjects_ (const std::string & varName)
+void ConductanceExtractor::print_(const std::string & varName)
 {
   Xyce::dout().width(15); Xyce::dout().precision(7); Xyce::dout().setf(std::ios::scientific);
   std::string srcName = varName;
   Xyce::dout() << "Info for input voltage: " << srcName << std::endl;
   Xyce::dout() << "Jacobian:" << std::endl;
-  jacobianMatrixPtr_->printPetraObject(Xyce::dout());
+  jacobianMatrixPtr_->print(Xyce::dout());
 
   // now print out the dxdv vector:
   Xyce::dout() << "dxdv:" << std::endl;
-  dxdvVectorPtr_->printPetraObject(Xyce::dout());
+  dxdvVectorPtr_->print(Xyce::dout());
 
   Xyce::dout() << "dfdv:" << std::endl;
-  dfdvVectorPtr_->printPetraObject(Xyce::dout());
+  dfdvVectorPtr_->print(Xyce::dout());
 }
 
 } // namespace Nonlinear

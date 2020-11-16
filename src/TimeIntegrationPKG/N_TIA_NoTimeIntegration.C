@@ -198,7 +198,7 @@ void NoTimeIntegration::obtainSensitivityResiduals ()
 
 #ifdef DEBUG_SENS
     Xyce::dout() << "NoTimeIntegration: obtainSensitivityResiduals: " << std::endl; 
-    ds.sensRHSPtrVector->printPetraObject(Xyce::dout());
+    ds.sensRHSPtrVector->print(Xyce::dout());
 #endif
 
 }
@@ -362,10 +362,10 @@ bool NoTimeIntegration::printOutputSolution(
     Xyce::dout() << "NoTimeIntegration::printOutputSolution" << std::endl;
 
     Xyce::dout() << "tmp lead current vector:" <<std::endl;
-    ds.tmpLeadCurrentVectorPtr->printPetraObject(Xyce::dout());
+    ds.tmpLeadCurrentVectorPtr->print(Xyce::dout());
 
     Xyce::dout() << "tmp lead deltaV vector:" <<std::endl;
-    ds.tmpLeadDeltaVPtr->printPetraObject(Xyce::dout());
+    ds.tmpLeadDeltaVPtr->print(Xyce::dout());
 
   }
 

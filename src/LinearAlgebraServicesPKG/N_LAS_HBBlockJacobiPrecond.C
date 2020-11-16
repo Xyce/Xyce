@@ -479,9 +479,9 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
 
 /*
   std::cout << "appdQdxSum = " << std::endl;
-  appdQdxSum->printPetraObject( std::cout );
+  appdQdxSum->print( std::cout );
   std::cout << "appdFdxSum = " << std::endl;
-  appdFdxSum->printPetraObject( std::cout );
+  appdFdxSum->print( std::cout );
 */
   int tmpNNZs=0;
   double cplxCoeff = 0.0;

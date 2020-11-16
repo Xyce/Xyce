@@ -25,7 +25,7 @@
 // Purpose       : This file contains the functions for the N_UTL_Timing
 //                 class.
 //
-// Special Notes : Adapted from the timing routines in Petra.
+// Special Notes : 
 //
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 //

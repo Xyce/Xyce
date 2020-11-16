@@ -239,7 +239,7 @@ double Vector::innerProduct(const NOX::Abstract::Vector& y) const
 
 void Vector::print(std::ostream &os) const
 {
-  vectorPtr_->printPetraObject(os);
+  vectorPtr_->print(os);
 }
 
 }}}

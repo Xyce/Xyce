@@ -102,7 +102,7 @@ class BlockMatrix : public Matrix
  
   void fillComplete();
  
-  void printPetraObject(std::ostream &os) const;
+  void print(std::ostream &os) const;
 
  private:
 

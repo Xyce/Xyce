@@ -253,18 +253,18 @@ bool ESLoader::loadDAEMatrices( Linear::Vector * X,
   if (DEBUG_ES)
   {
     Xyce::dout() << "ES bX:" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     Xyce::dout() << "ES bdQdx:" << std::endl;
-    bdQdx.printPetraObject(std::cout);
+    bdQdx.print(std::cout);
     Xyce::dout() << "ES bdFdx:" << std::endl;
-    bdFdx.printPetraObject(std::cout);
+    bdFdx.print(std::cout);
 #ifdef Xyce_FLEXIBLE_DAE_LOADS
     Xyce::dout() << "ES bS:" << std::endl;
-    bS.printPetraObject(std::cout);
+    bS.print(std::cout);
     Xyce::dout() << "ES dSdt:" << std::endl;
-    bdSdt.printPetraObject(std::cout);
+    bdSdt.print(std::cout);
     Xyce::dout() << "ES bStore:" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bStore.print(std::cout);
 #endif // Xyce_FLEXIBLE_DAE_LOADS
   
     Xyce::dout() << Xyce::section_divider << std::endl;
@@ -501,26 +501,26 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   if (DEBUG_ES)
   {
     Xyce::dout() << "ES X Vector" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     Xyce::dout() << "ES S Vector" << std::endl;
-    bS.printPetraObject(std::cout);
+    bS.print(std::cout);
     Xyce::dout() << "ES dSdt Vector" << std::endl;
-    bdSdt.printPetraObject(std::cout);
+    bdSdt.print(std::cout);
     Xyce::dout() << "ES Store Vector" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bStore.print(std::cout);
     Xyce::dout() << "ES Q Vector" << std::endl;
-    bQ.printPetraObject(std::cout);
+    bQ.print(std::cout);
     Xyce::dout() << "ES F Vector" << std::endl;
-    bF.printPetraObject(std::cout);
+    bF.print(std::cout);
 
 #ifndef Xyce_FLEXIBLE_DAE_LOADS
     bmdQdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "ES bmdQdx_" << std::endl;
-    bmdQdxPtr_->printPetraObject(std::cout);
+    bmdQdxPtr_->print(std::cout);
 
     bmdFdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "ES bmdFdx_" << std::endl;
-    bmdFdxPtr_->printPetraObject(std::cout);
+    bmdFdxPtr_->print(std::cout);
 #endif // Xyce_FLEXIBLE_DAE_LOADS
 
     Xyce::dout() << Xyce::section_divider << std::endl;

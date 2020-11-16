@@ -795,11 +795,11 @@ bool CktLoader::loadDAEVectors   (
   BVectorPtr->fillComplete();
 /*
   std::cout << "Q vector: " << std::endl;
-  QVectorPtr->printPetraObject( std::cout );
+  QVectorPtr->print( std::cout );
   std::cout << "F vector: " << std::endl;
-  FVectorPtr->printPetraObject( std::cout );
+  FVectorPtr->print( std::cout );
   std::cout << "B vector: " << std::endl;
-  BVectorPtr->printPetraObject( std::cout );
+  BVectorPtr->print( std::cout );
 */
 
   dFdxdVpVectorPtr->fillComplete();

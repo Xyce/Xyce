@@ -58,8 +58,6 @@ class N_MPDE_Manager;
 
 class N_PDS_ParMap;
 
-class Epetra_Map;
-
 //-----------------------------------------------------------------------------
 // Class         : N_MPDE_Builder
 // Purpose       :

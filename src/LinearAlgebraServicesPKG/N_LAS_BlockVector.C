@@ -327,14 +327,14 @@ void BlockVector::assembleGlobalVector()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector:::printPetraObject
+// Function      : BlockVector:::print
 // Purpose       : Output
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/19/04
 //-----------------------------------------------------------------------------
-void BlockVector::printPetraObject(std::ostream &os) const
+void BlockVector::print(std::ostream &os) const
 {
   os << "BlockVector Object (Number of Blocks =" << numBlocks_ << ", View =" << blocksViewGlobalVec_ << ", Augmented Rows=" << augmentCount_ << ")" << std::endl;
 
@@ -345,7 +345,7 @@ void BlockVector::printPetraObject(std::ostream &os) const
     {
       os << "Block[" << i << "]\n";
     }
-    blocks_[i]->printPetraObject( os );
+    blocks_[i]->print( os );
   }
   os << "Base Object\n";
   os << *aMultiVector_;

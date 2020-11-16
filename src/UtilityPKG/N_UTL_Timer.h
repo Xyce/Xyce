@@ -24,8 +24,7 @@
 //
 // Purpose        : Contains wrappers for timing classes.
 //
-// Special Notes  : Initial implementation is based upon the Petra timing
-//                  classes.
+// Special Notes  : 
 //
 // Creator        : Scott A. Hutchinson, SNL, Computational Sciences
 //
@@ -46,7 +45,7 @@ namespace Util {
 
 //-----------------------------------------------------------------------------
 // Class         : Timer
-// Purpose       : Wraps Petra timing class.
+// Purpose       : 
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences

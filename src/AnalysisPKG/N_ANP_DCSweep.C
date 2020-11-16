@@ -398,9 +398,9 @@ bool DCSweep::doLoopProcess()
    
 #if 0 
     Xyce::dout() << "Current Solution\n";
-    analysisManager_.getDataStore()->currSolutionPtr->printPetraObject(Xyce::dout());
+    analysisManager_.getDataStore()->currSolutionPtr->print(Xyce::dout());
     Xyce::dout() << "Next    Solution\n";
-    analysisManager_.getDataStore()->nextSolutionPtr->printPetraObject(Xyce::dout());
+    analysisManager_.getDataStore()->nextSolutionPtr->print(Xyce::dout());
 #endif
     takeStep_();
 

@@ -751,14 +751,14 @@ void Matrix::processError(std::string methodMsg, int error) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : operator<<
-// Purpose       : output stream pipe operator for Matrix
+// Function      : print
+// Purpose       : print method for Matrix
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void Matrix::printPetraObject(std::ostream &os) const
+void Matrix::print(std::ostream &os) const
 {
   if (oDCRSMatrix_ != aDCRSMatrix_)
   {

@@ -34,7 +34,6 @@
 #include <N_MPDE_Discretization.h>
 #include <N_MPDE_Manager.h>
 
-#include <Epetra_Comm.h>
 #include <Epetra_Map.h>
 #include <Epetra_CrsGraph.h>
 

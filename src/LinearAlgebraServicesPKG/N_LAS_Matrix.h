@@ -223,8 +223,8 @@ public:
   // Scale the matrix
   void scale(double scaleFactor);
 
-  // Print the underlying Epetra objects
-  virtual void printPetraObject(std::ostream &os) const;
+  // Print the underlying objects
+  virtual void print(std::ostream &os) const;
 
   // Friend in the MultiVector and IterativeSolver classes so their
   // member functions can access our private members.

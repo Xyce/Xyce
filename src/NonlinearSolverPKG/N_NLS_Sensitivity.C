@@ -1566,7 +1566,7 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
 
 #if 0
     dout() << "Lambda vector: " << std::endl;
-    lambda.printPetraObject(dout());
+    lambda.print(dout());
 #endif
 
     // Now that we have lambda, get the dOdp's by doing dot products of

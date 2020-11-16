@@ -250,8 +250,8 @@ public:
   void addElementToExternVectorMap(const int & global_index,
   	const double & value);
 
-  // Print the underlying Petra object.
-  virtual void printPetraObject(std::ostream &os) const;
+  // Print the underlying object.
+  virtual void print(std::ostream &os) const;
 
   // Get the parallel map associated with this multi-vector
   N_PDS_ParMap * pmap() { return parallelMap_; }

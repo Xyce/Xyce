@@ -153,26 +153,26 @@ void Gear12::obtainPredictor()
     for (int i=0; i<=sec.currentOrder_ ; ++i)
     {
       Xyce::dout() << "\n xHistory["<< i << "]: \n" << std::endl;
-      (ds.xHistory[i])->printPetraObject(Xyce::dout());
+      (ds.xHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.currentOrder_ ; ++i)
     {
       Xyce::dout() << "\n qHistory["<< i << "]: \n" << std::endl;
-      (ds.qHistory[i])->printPetraObject(Xyce::dout());
+      (ds.qHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.currentOrder_ ; ++i)
     {
       Xyce::dout() << "\n sHistory["<< i << "]: \n" << std::endl;
-      (ds.sHistory[i])->printPetraObject(Xyce::dout());
+      (ds.sHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     Xyce::dout() << "\n xn0: \n" << std::endl;
-    ds.xn0Ptr->printPetraObject(Xyce::dout());
+    ds.xn0Ptr->print(Xyce::dout());
     Xyce::dout() << std::endl;
     Xyce::dout() << "\n qn0: \n" << std::endl;
-    ds.qn0Ptr->printPetraObject(Xyce::dout());
+    ds.qn0Ptr->print(Xyce::dout());
     Xyce::dout() << std::endl;
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
@@ -218,17 +218,17 @@ void Gear12::obtainResidual()
       << "  Gear12::obtainResidual" << std::endl
       << "\n t = " << sec.nextTime << "\n" << std::endl
       << "\n solution: \n" << std::endl;
-    ds.nextSolutionPtr->printPetraObject(Xyce::dout());
+    ds.nextSolutionPtr->print(Xyce::dout());
     Xyce::dout() << "\n daeQVector: \n" << std::endl;
-    ds.daeQVectorPtr->printPetraObject(Xyce::dout());
+    ds.daeQVectorPtr->print(Xyce::dout());
     Xyce::dout() << "\n qn0: \n" << std::endl;
-    ds.qn0Ptr->printPetraObject(Xyce::dout());
+    ds.qn0Ptr->print(Xyce::dout());
     Xyce::dout() << "\n sec.alphas_/hn: " << sec.alphas_/sec.currentTimeStep << "\n" << std::endl
       << "\n daeFVector: \n" << std::endl;
-    ds.daeFVectorPtr->printPetraObject(Xyce::dout());
+    ds.daeFVectorPtr->print(Xyce::dout());
 
     Xyce::dout() << "\n dQdt-vector: \n" << std::endl;
-    ds.RHSVectorPtr->printPetraObject(Xyce::dout());
+    ds.RHSVectorPtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
   }
 
@@ -258,7 +258,7 @@ void Gear12::obtainResidual()
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))
   {
     Xyce::dout() << "\n Residual-vector: \n" << std::endl;
-    ds.RHSVectorPtr->printPetraObject(Xyce::dout());
+    ds.RHSVectorPtr->print(Xyce::dout());
     Xyce::dout() << Xyce::section_divider << std::endl
       << std::endl;
   }
@@ -300,7 +300,7 @@ void Gear12::obtainSensitivityResiduals()
 
 #ifdef DEBUG_SENS
   Xyce::dout() << "Gear12: obtainSensitivityResiduals: RHS Vector : " << std::endl;
-  ds.sensRHSPtrVector->printPetraObject(Xyce::dout());
+  ds.sensRHSPtrVector->print(Xyce::dout());
 #endif
 }
 
@@ -505,9 +505,9 @@ void Gear12::obtainJacobian()
   if (DEBUG_TIME && isActive(Diag::TIME_JACOBIAN))
   {
     Xyce::dout() << "\n dFdx:" <<std::endl;
-    dFdx.printPetraObject(Xyce::dout());
+    dFdx.print(Xyce::dout());
     Xyce::dout() << "\n Total Jacobian:" <<std::endl;
-    Jac.printPetraObject(Xyce::dout());
+    Jac.print(Xyce::dout());
     //    for (int i=0;i<3;++i)
     //    {
     //      printf("[ %25.20g\t%25.20g\t%25.20g ]\n",Jac[i][0],Jac[i][1],Jac[i][2]);
@@ -832,19 +832,19 @@ void Gear12::updateHistory()
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n xHistory["<< i << "]: \n" << std::endl;
-      (ds.xHistory[i])->printPetraObject(Xyce::dout());
+      (ds.xHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n qHistory["<< i << "]: \n" << std::endl;
-      (ds.qHistory[i])->printPetraObject(Xyce::dout());
+      (ds.qHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n sHistory["<< i << "]: \n" << std::endl;
-      (ds.sHistory[i])->printPetraObject(Xyce::dout());
+      (ds.sHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     Xyce::dout() << Xyce::section_divider << std::endl;
@@ -880,29 +880,29 @@ void Gear12::updateHistory()
   {
     Xyce::dout() << "\n After updates \n" << std::endl;
     Xyce::dout() << "\n newtonCorrectionPtr: " << std::endl;
-    ds.newtonCorrectionPtr->printPetraObject(Xyce::dout());
+    ds.newtonCorrectionPtr->print(Xyce::dout());
     Xyce::dout() << "\n qNewtonCorrectionPtr: " << std::endl;
-    ds.qNewtonCorrectionPtr->printPetraObject(Xyce::dout());
+    ds.qNewtonCorrectionPtr->print(Xyce::dout());
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n xHistory["<< i << "]: \n" << std::endl;
-      (ds.xHistory[i])->printPetraObject(Xyce::dout());
+      (ds.xHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n qHistory["<< i << "]: \n" << std::endl;
-      (ds.qHistory[i])->printPetraObject(Xyce::dout());
+      (ds.qHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     Xyce::dout() << std::endl;
     Xyce::dout() << "\n nextStatePtr: " << std::endl;
-    ds.nextStatePtr->printPetraObject(Xyce::dout());
+    ds.nextStatePtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n sHistory["<< i << "]: \n" << std::endl;
-      (ds.sHistory[i])->printPetraObject(Xyce::dout());
+      (ds.sHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     Xyce::dout() << Xyce::section_divider << std::endl;
@@ -1022,19 +1022,19 @@ void Gear12::restoreHistory()
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n xHistory["<< i << "]: \n" << std::endl;
-      (ds.xHistory[i])->printPetraObject(Xyce::dout());
+      (ds.xHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n qHistory["<< i << "]: \n" << std::endl;
-      (ds.qHistory[i])->printPetraObject(Xyce::dout());
+      (ds.qHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     for (int i=0; i<=sec.maxOrder_ ; ++i)
     {
       Xyce::dout() << "\n sHistory["<< i << "]: \n" << std::endl;
-      (ds.sHistory[i])->printPetraObject(Xyce::dout());
+      (ds.sHistory[i])->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
     Xyce::dout() << Xyce::section_divider << std::endl;
@@ -1312,19 +1312,19 @@ void Gear12::initialize(const TIAParams &tia_params)
       << Xyce::section_divider << std::endl
       << "  Gear12::initialize" << std::endl
       << "\n xHistory: \n" << std::endl;
-    (ds.xHistory[0])->printPetraObject(Xyce::dout());
+    (ds.xHistory[0])->print(Xyce::dout());
     Xyce::dout() << std::endl;
-    (ds.xHistory[1])->printPetraObject(Xyce::dout());
+    (ds.xHistory[1])->print(Xyce::dout());
     Xyce::dout() << std::endl
       << "\n qHistory: \n" << std::endl;
-    (ds.qHistory[0])->printPetraObject(Xyce::dout());
+    (ds.qHistory[0])->print(Xyce::dout());
     Xyce::dout() << std::endl;
-    (ds.qHistory[1])->printPetraObject(Xyce::dout());
+    (ds.qHistory[1])->print(Xyce::dout());
     Xyce::dout() << std::endl
       << "\n sHistory: \n" << std::endl;
-    (ds.sHistory[0])->printPetraObject(Xyce::dout());
+    (ds.sHistory[0])->print(Xyce::dout());
     Xyce::dout() << std::endl;
-    (ds.sHistory[1])->printPetraObject(Xyce::dout());
+    (ds.sHistory[1])->print(Xyce::dout());
     Xyce::dout() << std::endl
       << "\n" << "currentTimeStep = " << currentTimeStep << "\n" << std::endl
       << "\n" << "time_to_stop = " << time_to_stop << "\n" << std::endl
@@ -1919,11 +1919,11 @@ void Gear12::updateStateDeriv ()
   if (DEBUG_TIME && isActive(Diag::TIME_DUMP_SOLUTION_ARRAYS))
   {
     Xyce::dout() << "\n Next State Ptr: \n" << std::endl;
-    ds.nextStatePtr->printPetraObject(Xyce::dout());
+    ds.nextStatePtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
 
     Xyce::dout() << "\n Next State Deriv: \n" << std::endl;
-    ds.nextStateDerivPtr->printPetraObject(Xyce::dout());
+    ds.nextStateDerivPtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
   }
 }
@@ -1958,7 +1958,7 @@ void Gear12::updateLeadCurrentVec ()
     if (DEBUG_TIME && isActive(Diag::TIME_DUMP_SOLUTION_ARRAYS))
     {
       Xyce::dout() << "\n next leadcurrent q Ptr: \n" << std::endl;
-      ds.nextLeadCurrentPtr->printPetraObject(Xyce::dout());
+      ds.nextLeadCurrentPtr->print(Xyce::dout());
       Xyce::dout() << std::endl;
     }
   }

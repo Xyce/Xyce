@@ -467,12 +467,12 @@ Group::augmentJacobianForHomotopy(double conParamValue)
   Linear::Matrix& jacobian =
     const_cast<Linear::Matrix&>(sharedSystemPtr_->getJacobian());
 
-  //jacobian.printPetraObject();
+  //jacobian.print();
   jacobian.scale(conParamValue);
   jacobian.getDiagonal(*tmpVectorPtr);
   (*tmpVectorPtr).addScalar(1.0 - conParamValue);
   jacobian.replaceDiagonal(*tmpVectorPtr);
-  //jacobian.printPetraObject();
+  //jacobian.print();
 
   return NOX::Abstract::Group::Ok;
 }

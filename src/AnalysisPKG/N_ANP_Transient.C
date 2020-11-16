@@ -1783,7 +1783,7 @@ bool Transient::doProcessSuccessfulStep()
            << "Newton step succeeded:" << std::endl
            << "nextSolutionPtr: " << std::endl;
 
-    analysisManager_.getDataStore()->nextSolutionPtr->printPetraObject(dout());
+    analysisManager_.getDataStore()->nextSolutionPtr->print(dout());
     dout() << std::endl;
   }
 
@@ -2055,7 +2055,7 @@ bool Transient::doProcessFailedStep()
     dout() << "  Transient::processFailedStep" << std::endl
            << "Newton step failed:" << std::endl
            << "nextSolutionPtr: " << std::endl;
-    analysisManager_.getDataStore()->nextSolutionPtr->printPetraObject(dout());
+    analysisManager_.getDataStore()->nextSolutionPtr->print(dout());
     dout() << std::endl;
   }
 
@@ -3449,10 +3449,10 @@ void Transient::tranopOutputs ()
         dout() << "Transient::tranopOutputs:" << std::endl;
         dout() << "current lead current vector:" << std::endl;
 
-        analysisManager_.getDataStore()->currLeadCurrentPtr->printPetraObject(dout());
+        analysisManager_.getDataStore()->currLeadCurrentPtr->print(dout());
 
         dout() << "current lead current deltaV vector:" << std::endl;
-        analysisManager_.getDataStore()->currLeadDeltaVPtr->printPetraObject(dout());
+        analysisManager_.getDataStore()->currLeadDeltaVPtr->print(dout());
       }
 
       outputManagerAdapter_.tranOutput(analysisManager_.getStepErrorControl().currentTime,

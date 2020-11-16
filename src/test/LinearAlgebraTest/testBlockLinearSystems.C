@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
   linearStatus = solver->Solve();
   if (linearStatus != 0) Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
 
-  origSoln.printPetraObject();
+  origSoln.print();
 
   // Solve the block problem
 
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
   linearStatus = blockSolver->Solve();
   if (linearStatus != 0) Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
  
-  blockSoln.printPetraObject();
+  blockSoln.print();
   
   return 0;
 

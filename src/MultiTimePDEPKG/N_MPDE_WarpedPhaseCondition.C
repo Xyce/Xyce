@@ -39,7 +39,6 @@
 
 
 #include <N_MPDE_WarpedPhaseCondition.h>
-#include <Epetra_MultiVector.h>
 #include <N_PDS_Comm.h>
 
 using std::max;

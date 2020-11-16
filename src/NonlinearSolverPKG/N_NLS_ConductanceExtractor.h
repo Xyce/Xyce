@@ -86,7 +86,7 @@ private:
      const std::map<std::string,double> & inputMap,
      std::vector< std::vector<double> > & jacobian);
   
-  void printPetraObjects_ (const std::string & varName);
+  void print_(const std::string & varName);
   
 private:
   int solutionSize_;

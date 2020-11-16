@@ -44,10 +44,6 @@
 
 #ifdef Xyce_USE_HDF5
 
-#include <Epetra_Map.h>
-#include <Epetra_Comm.h>
-#include <Epetra_MultiVector.h>
-
 #endif // Xyce_USE_HDF5
 
 namespace Xyce {
@@ -137,9 +133,6 @@ OutputMgr::updateHDF5Output(
     // unknowns are on prior processors.  We could infer this from the GID values,
     // however that would not work in block analysis modes like MPDE, HB and AC
     // Thus, we will have the individual processes communicate this info .
-    // This duplicates what could be done with an epetra multivector, if we could
-    // construct one that held strings or char*.  We can't so for now this is what
-    // we'll do.
     std::vector<int> unknownsPerProc(Parallel::size(comm));
 
     Parallel::AllGather(comm, numLocalNodes, unknownsPerProc);

@@ -1186,7 +1186,7 @@ void PCE::outputXvectors()
 
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
     Xyce::lout() << "X coef vector:" <<std::endl;
-    bX.printPetraObject(Xyce::lout());
+    bX.print(Xyce::lout());
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
 
     Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
@@ -1194,7 +1194,7 @@ void PCE::outputXvectors()
 
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
     Xyce::lout() << "X quad vector:" <<std::endl;
-    bXNext_quad_ptr_->printPetraObject(Xyce::lout());
+    bXNext_quad_ptr_->print(Xyce::lout());
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
   }
 }

@@ -127,13 +127,13 @@ void AugmentLinSysPseudoTransient::augmentJacobian
   //cout << "Augmenting Jacobian for Pseudo Transient" << endl;
   //cout << "Pseudo Trans Step Size = " << pseudoTransientTimeStep_ << endl;
   
-  //jacobian->printPetraObject();
+  //jacobian->print();
 
   //jacobian->scale(conParamValue);
 
   jacobian->getDiagonal(*tmp_vector_ptr_);
   
-  //tmp_vector_ptr_->printPetraObject();
+  //tmp_vector_ptr_->print();
     
   double value = 1.0 / time_step_size_;
     
@@ -162,7 +162,7 @@ void AugmentLinSysPseudoTransient::augmentJacobian
 
   jacobian->replaceDiagonal(*tmp_vector_ptr_);
 
-  //jacobian->printPetraObject();
+  //jacobian->print();
    
   //cout << "Time step size = " << time_step_size_ << endl;
 

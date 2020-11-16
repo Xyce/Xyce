@@ -572,7 +572,7 @@ void NonLinearSolver::debugOutput1(
   if (screenOutput == 1)
   {
     Xyce::dout() << "\n\t***** Jacobian matrix:" << std::endl;
-    jacobian.printPetraObject(Xyce::dout());
+    jacobian.print(Xyce::dout());
   }
 
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
@@ -592,7 +592,7 @@ void NonLinearSolver::debugOutput1(
   {
     Xyce::dout() << "\n\t***** RHS vector:" << std::endl;
 
-    rhs.printPetraObject(Xyce::dout());
+    rhs.print(Xyce::dout());
   }
 
   rhs.writeToFile(filename2);
