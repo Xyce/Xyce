@@ -74,6 +74,8 @@ void Traits::loadInstanceParameters(ParametricData<Delay::Instance> &p)
     .setDescription("Can this device set discontinuity breakpoints?");
   p.addPar("EXTRAPOLATION", true, &Delay::Instance::useExtrapolation_)
     .setDescription("Can this device use extrapolation on history?");
+  p.addPar("LINEARINTERP", false, &Delay::Instance::useOnlyLinearInterpolation_)
+    .setDescription("Should this device use only linear interpolation on history?");
 }
 
 void Traits::loadModelParameters(ParametricData<Delay::Model> &p)
@@ -119,7 +121,8 @@ Instance::Instance(
     timeOld_(-1.0),
     newBreakPoint_(false),
     canSetBreakPoints_(true),
-    useExtrapolation_(true)
+    useExtrapolation_(true),
+    useOnlyLinearInterpolation_(false)
 {
   numIntVars   = 1;
   numExtVars   = 4;
@@ -884,6 +887,8 @@ void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 //                 If the user has disabled extrapolation, then in this case
 //                 we use the unconverged current value of time as the third
 //                 interpolation point
+//                 There is also an instance parameter that forces
+//                 us to use only linear interpolation.
 // Scope         : private
 // Creator       : Tom Russo
 // Creation Date : 17 Nov 2020
@@ -968,7 +973,9 @@ bool Instance::interpVoltageFromHistory_(double t, double & voltage,
     // Compute derivatives for discontinuity detection
     double d1 = (v3-v2)/(t3-t2);
     double d2 = (v2-v1)/(t2-t1);
-    if (fabs(d1-d2) >= .99*std::max(fabs(d1),fabs(d2))+1)
+
+    // If discontinuous, or user has asked for purely linear interpolation
+    if (useOnlyLinearInterpolation_ || fabs(d1-d2) >= .99*std::max(fabs(d1),fabs(d2))+1)
     {
       // linear
       if (fabs(v3-v2)<Util::MachineDependentParams::MachinePrecision())
@@ -986,6 +993,7 @@ bool Instance::interpVoltageFromHistory_(double t, double & voltage,
     else
     {
       // If we're not doing linear interpolation because of discontinuities,
+      // and the user didn't specify linear-only,
       // then we're doing quadratic lagrange interpolation.
 
       // Set up the differences for lagrange interpolation:

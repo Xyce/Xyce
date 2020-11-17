@@ -195,6 +195,7 @@ private:
   bool canSetBreakPoints_;
 
   bool useExtrapolation_;
+  bool useOnlyLinearInterpolation_;
   bool lastInterpolationConverged_;  //< True if interpolation obtained solely from converged history
 
   double v_drop_;
