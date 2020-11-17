@@ -21,7 +21,7 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Implement ERR, ERR1 and ERR2 measure types
+// Purpose       : Implement ERR, ERR1, ERR2 and ERR3 measure types
 // Special Notes : The Err1 class implements both the ERR and ERR1 measure types
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/08/2020
@@ -31,6 +31,7 @@
 #include <Xyce_config.h>
 
 #include <N_IO_MeasureErrorFunctions.h>
+#include <N_DEV_DeviceSupport.h>
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
@@ -39,7 +40,7 @@ namespace Measure {
 
 //-----------------------------------------------------------------------------
 // Function      : ErrorFunctions::ErrorFunctions()
-// Purpose       : Class for functions common to Err1 and Err2 classes
+// Purpose       : Class for functions common to Err1, Err2 and Err3 classes
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -386,6 +387,76 @@ double Err2::getMeasureResult()
   if( initialized_ )
   {
     calculationResult_ =  err2Sum_ / numPts_;
+  }
+  return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Err3::Err3()
+// Purpose       : Constructor
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/17/2020
+//-----------------------------------------------------------------------------
+Err3::Err3(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+  ErrorFunctions(measureMgr, measureBlock),
+  err3SqSum_(0.0),
+  numPts_(0.0)
+{}
+
+//-----------------------------------------------------------------------------
+// Function      : Err3::reset()
+// Purpose       : Called when restarting a measure function.  Resets any state
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/17/2020
+//-----------------------------------------------------------------------------
+void Err3::reset()
+{
+  resetErrorFunctions();
+  err3SqSum_ = 0.0;
+  numPts_ = 0.0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Err3::updateErrVars()
+// Purpose       : Update the variables used to calculate the measure result
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/17/2020
+//-----------------------------------------------------------------------------
+void Err3::updateErrVars(double mVal, double cVal)
+{
+  ++numPts_;
+
+  double numerator = std::max(abs(mVal/cVal),N_MINLOG);
+  double denom = std::max(abs(mVal), minval_);
+  double err3_subi = log(numerator) / abs(log(denom));
+
+  // numPts_ is always incremented, but inf or nan is not
+  // added to the sum-squared accumulator.
+  if (!isnan(err3_subi) && !isinf(err3_subi))
+    err3SqSum_ += err3_subi * err3_subi;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Err3::getMeasureResult()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/17/2020
+//-----------------------------------------------------------------------------
+double Err3::getMeasureResult()
+{
+  if( initialized_ )
+  {
+    calculationResult_ =  sqrt(err3SqSum_ / numPts_);
   }
   return calculationResult_;
 }
