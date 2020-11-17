@@ -34,6 +34,15 @@
 #include <N_DEV_DeviceSupport.h>
 #include <N_ERH_ErrorMgr.h>
 
+#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
+#include <float.h>
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#else
+#define isnan(x) std::isnan(x)
+#define isinf(x) std::isinf(x)
+#endif
+
 namespace Xyce {
 namespace IO {
 namespace Measure {
