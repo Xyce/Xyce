@@ -1221,6 +1221,7 @@ exp:
         newExp.setTimeDependent(true); 
       }
       delete $2;
+      delete $1.keywordPtr;
     }
   | table_threeOrFourArgs nonempty_func_arglist 
     {
@@ -1232,6 +1233,7 @@ exp:
         newExp.setTimeDependent(true); 
       }
       delete $2;
+      delete $1.keywordPtr;
     }
   | table_threeOrFourArgs nonempty_func_arglist2
     {
@@ -1243,6 +1245,7 @@ exp:
         newExp.setTimeDependent(true); 
       }
       delete $2;
+      delete $1.keywordPtr;
     }
   | table2_threeOrFourArgs nonempty_arg_pairs 
     {
@@ -1254,6 +1257,7 @@ exp:
         newExp.setTimeDependent(true); 
       }
       delete $2;
+      delete $1.keywordPtr;
     }
 
     /* excluding this pattern b/c it causes shift/reduce errors.  
