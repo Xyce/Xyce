@@ -16,7 +16,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
 #      ${BISON_XyceReactionParser_OUTPUTS}
       N_DEV_RegisterDevices.C
       N_DEV_DeviceInstance.C

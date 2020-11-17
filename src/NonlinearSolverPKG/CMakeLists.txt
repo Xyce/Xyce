@@ -6,7 +6,7 @@
 # -- process files for this library ------------------------------------------
 
 # add class files that should be included in this directory's library
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_NLS_ConductanceExtractor.C
       N_NLS_ConstraintBT.C
       N_NLS_DampedNewton.C

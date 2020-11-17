@@ -19,16 +19,16 @@ configure_file(timestamp.h.cmake timestamp.h)
 
 # process source file options
 if ( Xyce_USE_INTEL_FFT )
-  target_sources(XyceStatic PUBLIC N_UTL_IntelFFT_Interface.C )
+  target_sources(XyceStatic PRIVATE N_UTL_IntelFFT_Interface.C )
 endif ( Xyce_USE_INTEL_FFT )
 
 if ( Xyce_USE_FFTW )
-  target_sources(XyceStatic PUBLIC N_UTL_FFTW_Interface.C )
+  target_sources(XyceStatic PRIVATE N_UTL_FFTW_Interface.C )
 endif ( Xyce_USE_FFTW )
 
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_UTL_BreakPoint.C
       N_UTL_Demangle.C
       N_UTL_DeviceNameConverters.C

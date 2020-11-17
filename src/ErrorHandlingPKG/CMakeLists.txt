@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_ERH_ErrorMgr.C
       N_ERH_Message.C
       N_ERH_Messenger.C

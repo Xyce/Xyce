@@ -1,5 +1,5 @@
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
   ast.C
   expressionGroup.C
   newExpression.C

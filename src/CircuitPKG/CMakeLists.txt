@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       # DO NOT list Xyce.C here.  It is part of the Xyce binary target.
       N_CIR_Xyce.C
       N_CIR_SecondLevelSimulator.C

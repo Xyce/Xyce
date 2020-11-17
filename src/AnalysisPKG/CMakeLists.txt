@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_ANP_AC.C
       N_ANP_AnalysisBase.C
       N_ANP_AnalysisEvent.C
@@ -31,7 +31,8 @@ target_sources(XyceStatic PUBLIC
       N_ANP_UQSupport.C)
 
 # add header files to project
-target_include_directories (XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories (XyceStatic PUBLIC
+ ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 

@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_MPDE_Builder.C
       N_MPDE_Discretization.C
       N_MPDE_Loader.C

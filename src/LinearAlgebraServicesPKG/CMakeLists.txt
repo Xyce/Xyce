@@ -29,7 +29,7 @@ set ( KSPARSE_INC ksparse/ )
 
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       ${BELOS_SRC}
       ${SHYLU_SRC}
       ${AMESOS2_SRC}

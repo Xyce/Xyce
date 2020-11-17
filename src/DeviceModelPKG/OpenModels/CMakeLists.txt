@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_RegisterOpenDevices.C
       N_DEV_ArtificialParameters.C
       N_DEV_ACC.C

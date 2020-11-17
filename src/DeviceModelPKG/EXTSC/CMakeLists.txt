@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_1D_Interface.C
       N_DEV_CharonInterface.C
       N_DEV_ExternCodeInterface.C

@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_PDS_Comm.C
       N_PDS_GlobalAccessor.C
       N_PDS_MPI.C
