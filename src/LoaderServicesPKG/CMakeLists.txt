@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_LOA_CktLoader.C
       N_LOA_HBLoader.C
       N_LOA_Loader.C

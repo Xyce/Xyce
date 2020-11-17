@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_RegisterADMSDevices.C
       N_DEV_ADMSvbic13.C
       N_DEV_ADMSvbic13_4t.C

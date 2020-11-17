@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
      N_IO_MeasureManager.C
      N_IO_MeasureBase.C
      N_IO_MeasureExtrema.C

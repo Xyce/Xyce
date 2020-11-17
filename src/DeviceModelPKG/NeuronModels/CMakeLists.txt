@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_RegisterNeuronDevices.C
       N_DEV_Neuron.C
       N_DEV_Neuron2.C

@@ -4,7 +4,7 @@ add_subdirectory( Output )
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_IO_CmdParse.C
       N_IO_NetlistImportTool.C
       N_IO_DistToolFactory.C

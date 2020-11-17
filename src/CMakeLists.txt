@@ -1,10 +1,6 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
-set( XYCE_SOURCES "Xyce.C")
-set( XYCE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-
-
 ####
 # Bison and Flex modules don't work in any directory. Under the covers, they
 # are CMake2 style, where they use include_directories :(
@@ -33,7 +29,11 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 # ---- This is the declaration and linking of the desired
 # artifacts ----------------
 
-add_library(XyceStatic STATIC ${BISON_XyceExpressionParser_OUTPUTS} ${FLEX_XyceExpressionLexer_OUTPUTS} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS})
+add_library(XyceStatic STATIC
+ ${BISON_XyceExpressionParser_OUTPUTS}
+ ${FLEX_XyceExpressionLexer_OUTPUTS}
+ ${BISON_XyceReactionParser_OUTPUTS}
+ ${FLEX_XyceReactionScanner_OUTPUTS})
 
 ###
 # add_subdirectories here

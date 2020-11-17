@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_RegisterTCADDevices.C
       N_DEV_2DPDE_DAE.C
       N_DEV_2DPDE_Output.C

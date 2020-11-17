@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PUBLIC
+target_sources(XyceStatic PRIVATE
       N_DEV_RegisterIBISDevices.C
       N_DEV_IBIS.C)
 # add header files to project
