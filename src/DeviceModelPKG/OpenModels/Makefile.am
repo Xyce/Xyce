@@ -50,6 +50,7 @@ libOpenModels_la_SOURCES = \
   N_DEV_PowerGridBusShunt.C \
   N_DEV_PowerGridGenBus.C \
   N_DEV_AntiWindupLimiter.C \
+  N_DEV_Delay.C \
   N_DEV_StepDelay.C \
   N_DEV_TransLine.C \
   N_DEV_YLin.C \

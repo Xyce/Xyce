@@ -52,7 +52,8 @@ target_sources(XyceStatic PRIVATE
       N_DEV_PowerGridTransformer.C
       N_DEV_AntiWindupLimiter.C
       N_DEV_YLin.C
-      N_DEV_StepDelay.C)
+      N_DEV_StepDelay.C
+      N_DEV_Delay.C)
 
 # add header files to project
 target_include_directories(XyceStatic PUBLIC

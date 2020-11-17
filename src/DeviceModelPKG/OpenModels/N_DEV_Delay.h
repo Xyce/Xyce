@@ -22,32 +22,29 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Transmission line.
+// Purpose        : Delay element classes
 //
 // Special Notes  :
 //
-// Creator        : Eric R. Keiter, SNL, Parallel Computational Sciences
+// Creator        : Tom Russo
 //
-// Creation Date  : 02/28/00
-//
-//
-//
+// Creation Date  : 17 Nov 2020
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_DEV_TRA_h
-#define Xyce_N_DEV_TRA_h
+#ifndef Xyce_N_DEV_Delay_h
+#define Xyce_N_DEV_Delay_h
 
 // ----------   Xyce Includes   ----------
-#include <N_UTL_fwd.h>
-
 #include <N_DEV_Configuration.h>
+#include <N_DEV_Source.h>
+#include <N_DEV_DeviceBlock.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 
 namespace Xyce {
 namespace Device {
-namespace TRA {
+namespace Delay {
 
 class Model;
 class Instance;
@@ -55,8 +52,8 @@ class History;
 
 struct Traits : public DeviceTraits<Model, Instance>
 {
-  static const char *name() {return "Ideal Transmission Line";}
-  static const char *deviceTypeName() {return "T level 1";}
+  static const char *name() {return "Delay element";}
+  static const char *deviceTypeName() {return "Delay level 1";}
   static int numNodes() {return 4;}
   static bool isLinearDevice() {return false;}
 
@@ -69,21 +66,21 @@ struct Traits : public DeviceTraits<Model, Instance>
 // Class         : Instance
 // Purpose       :
 // Special Notes :
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 3/16/00
+// Creator       : Tom Russo
+// Creation Date : 14 Apr 2020
 //-----------------------------------------------------------------------------
 class Instance : public DeviceInstance
 {
   friend class ParametricData<Instance>;
   friend class Model;
-  friend class Master;
   friend struct Traits;
 
 public:
+
   Instance(
-     const Configuration &     configuration,
-     const InstanceBlock &     instance_block,
-     Model &                   model,
+     const Configuration &       configuration,
+     const InstanceBlock &     IBref,
+     Model &                   Viter,
      const FactoryBlock &      factory_block);
 
   ~Instance();
@@ -93,15 +90,25 @@ private:
   Instance &operator=(const Instance &);
 
 public:
+  bool isLinearDevice() const
+  {
+    if (loadLeadCurrent)
+    {
+      return false;
+    }
+    return true;
+  }
+
   void registerLIDs( const std::vector<int> & intLIDVecRef,
                      const std::vector<int> & extLIDVecRef );
   void registerStateLIDs( const std::vector<int> & staLIDVecRef );
-  void registerStoreLIDs( const std::vector<int> & st0LIDVecRef );
-  virtual void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
+
+  void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
 
   void loadNodeSymbols(Util::SymbolTable &symbol_table) const; // override
 
   const std::vector< std::vector<int> > & jacobianStamp() const;
+  void registerStoreLIDs( const std::vector<int> & stoLIDVecRef);
   void registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVec );
 
   bool processParams ();
@@ -111,6 +118,7 @@ public:
   // load functions, residual:
   bool loadDAEQVector () {return true;}
   bool loadDAEFVector ();
+  bool loadDAEBVector ();
 
   // load functions, Jacobian:
   bool loadDAEdQdx () {return true;}
@@ -119,19 +127,24 @@ public:
   bool getInstanceBreakPoints (std::vector<Util::BreakPoint> &breakPointTimes);
   void acceptStep();
 
+  void setupPointers();
+
   double getMaxTimeStepSize();
-  virtual bool maxTimeStepSupported () {return false;};
+  virtual bool maxTimeStepSupported () {return true;};
+
+  void varTypes( std::vector<char> & varTypeVec );
 
   DeviceState * getInternalState();
   bool setInternalState( const DeviceState & state );
 
 private:
-  void pruneHistory(double t);
-  void InterpV1V2FromHistory(double t, double * v1p , double * v2p);
+  bool interpVoltageFromHistory_(double t, double & voltage,
+                                const double currentT, const double currentV);
 
 public:
+  // iterator reference to the vcvs model which owns this instance.
   // Getters and setters
-  Model &getModel()
+  Model &getModel() 
   {
     return model_;
   }
@@ -141,78 +154,58 @@ private:
 
   Model &       model_;         //< Owning model
 
-  double Z0;   // Characteristic impedence
-  double ZO;
-  double G0;   // Conductance
-  double td;   // Time delay  (= NL/freq if given that way)
-  double freq; // frequency
-  double NL;   // Normalized length
-  // Flags
-  // not supporting initial condition just yet... this is An Issue, I think
-  // double IC_V12, IC_V34, IC_I1, IC_I2;
+  double LeadCurrent;
 
-  bool DCMODE;
+  double TD_;   //< time delay
+
+  // Matrix equation index variables:
+
   // local indices (offsets)
-  int li_Pos1;
-  int li_Neg1;
-  int li_Int1;
-  int li_Ibr1;
-  int li_Pos2;
-  int li_Neg2;
-  int li_Int2;
-  int li_Ibr2;
+  int li_Pos;
+  int li_Neg;
+  int li_Bra;
 
-  // indices into store vec for lead currents if needed
-  int li_branch_data_1;
-  int li_branch_data_2;
+  int li_ContPos;
+  int li_ContNeg;
 
+  int li_branch_data;   ///< Index for lead current and junction voltage (for power calculations)
 
-  // Matrix elements
-  // Matrix equation offset variables
-  int APos1EquPos1NodeOffset;
-  int APos1EquInt1NodeOffset;
-  int AInt1EquPos1NodeOffset;
-  int AInt1EquInt1NodeOffset;
-  int AInt1EquIbr1NodeOffset;
-  int ANeg1EquIbr1NodeOffset;
-  int AIbr1EquInt1NodeOffset;
-  int AIbr1EquNeg1NodeOffset;
-  // for DC simulations these 6 pairs get filled because v1 and v2 reduce
-  // to V1=Ibr2*Z0 and V2=Ibr1*Z0 and no time delay
-  int APos2EquPos2NodeOffset;
-  int APos2EquInt2NodeOffset;
-  int AInt2EquPos2NodeOffset;
-  int AInt2EquInt2NodeOffset;
-  int AInt2EquIbr2NodeOffset;
-  int ANeg2EquIbr2NodeOffset;
-  int AIbr2EquInt2NodeOffset;
-  int AIbr2EquNeg2NodeOffset;
-  int AIbr1EquPos2NodeOffset;
-  int AIbr1EquNeg2NodeOffset;
-  int AIbr1EquIbr2NodeOffset;
-  int AIbr2EquPos1NodeOffset;
-  int AIbr2EquNeg1NodeOffset;
-  int AIbr2EquIbr1NodeOffset;
+  // Offset variables for all of the above index variables.
+  int ABraEquPosNodeOffset;
+  int ABraEquNegNodeOffset;
+  int ABraEquContPosNodeOffset;
+  int ABraEquContNegNodeOffset;
+  int APosEquBraVarOffset;
+  int ANegEquBraVarOffset;
 
-  double Vpos1,Vpos2,Vneg1,Vneg2,Vint1,Vint2,Ibr1,Ibr2; // solution vars
-  double last_t;     // "primary" state variables
-  double v1;    //
-  double v2;    //
-  bool first_BP_call_done;
+  // Ptr variables for all of the above index variables.
+  double * f_BraEquPosNodePtr;
+  double * f_BraEquNegNodePtr;
+  double * f_BraEquContPosNodePtr;
+  double * f_BraEquContNegNodePtr;
+  double * f_PosEquBraVarPtr;
+  double * f_NegEquBraVarPtr;
 
-  std::vector<History> history;
-  double timeOld;
+  std::vector<History> history_;
+  double timeOld_;
 
-  bool newBreakPoint;
-  double newBreakPointTime;
+  bool newBreakPoint_;
+  double newBreakPointTime_;
+
+  bool canSetBreakPoints_;
+
+  bool useExtrapolation_;
+  bool lastInterpolationConverged_;  //< True if interpolation obtained solely from converged history
+
+  double v_drop_;
 };
 
 //-----------------------------------------------------------------------------
 // Class         : History
 // Purpose       : Provide a structure to save internal state history
 // Special Notes :
-// Creator       : Tom Russo, SNL, Component Information and Models
-// Creation Date : 6/14/2001
+// Creator       : Tom Russo
+// Creation Date : 17 Nov 2020
 //-----------------------------------------------------------------------------
 class History
 {
@@ -222,22 +215,21 @@ class History
 public:
   History();
   History(const History &right);
-  History(double t, double v1, double v2);
+  History(double t, double v);
   ~History();
-  inline bool operator<(const double &test_t) const;
+  inline bool operator<(const double &test_t) const { return (t_ < test_t);};
 
 private:
-  double t;
-  double v1;
-  double v2;
+  double t_;
+  double v_;
 };
 
 //-----------------------------------------------------------------------------
 // Class         : Model
 // Purpose       :
 // Special Notes :
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 3/16/00
+// Creator       : Tom Russo
+// Creation Date : 14 Apr 2020
 //-----------------------------------------------------------------------------
 class Model : public DeviceModel
 {
@@ -245,7 +237,6 @@ class Model : public DeviceModel
 
   friend class ParametricData<Model>;
   friend class Instance;
-  friend class Master;
   friend struct Traits;
 
 public:
@@ -264,12 +255,20 @@ public:
   virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
 
   virtual std::ostream &printOutInstances(std::ostream &os) const;
-  bool processParams ();
-  bool processInstanceParams ();
+
+  virtual bool processParams() 
+  {
+    return true;
+  }
+
+  virtual bool processInstanceParams() 
+  {
+    return true;
+  }
 
 
 public:
-  void addInstance(Instance *instance)
+  void addInstance(Instance *instance) 
   {
     instanceContainer.push_back(instance);
   }
@@ -286,70 +285,13 @@ public:
 
 private:
   std::vector<Instance*> instanceContainer;
+
 private:
-
 };
-
-//-----------------------------------------------------------------------------
-// Class         : Master
-// Purpose       : This is class refers to the collected instances of the
-//                 Transmission line device.
-// Special Notes :
-// Creator       : Tom Russo, ANL
-// Creation Date : 26 April 2018
-//-----------------------------------------------------------------------------
-
-class Master : public DeviceMaster<Traits>
-{
-  friend class Instance;
-  friend class Model;
-
-public:
-
-  Master(
-     const Configuration &     configuration,
-     const FactoryBlock &      factory_block,
-     const SolverState &       solver_state,
-     const DeviceOptions &     device_options)
-   : DeviceMaster<Traits>(configuration, factory_block, solver_state, device_options)
-  {}
-
-  virtual bool updateState (double * solVec, double * staVec, double * stoVec,
-                            int loadType);
-
-  virtual bool loadDAEVectors (double * solVec, double * fVec, double * qVec,
-                               double * bVec, double * leadF, double * leadQ,
-                               double * junctionV, int loadType);
-
-  virtual bool loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx,
-                               int loadType);
-
-  virtual bool loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
-                                  std::vector<Util::FreqVecEntry>& fVec,
-                                  std::vector<Util::FreqVecEntry>& bVec);
-  virtual bool loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
-                                   std::vector<Util::FreqMatEntry>& dFdx);
-
-};
-
-//-----------------------------------------------------------------------------
-// Function      : History::operator<
-// Purpose       : compare used in the lower_bound operation.  Returns
-//                 true if the time in the history object is less than
-//                 the given time (double)
-// Special Notes :
-// Scope         : private
-// Creator       : Tom Russo, SNL, Component Information and Models
-// Creation Date : 7/27/2005
-//-----------------------------------------------------------------------------
-inline bool History::operator<(const double &test_t) const
-{
-  return (t < test_t);
-}
 
 void registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet);
 
-} // namespace TRA
+} // namespace Delay
 } // namespace Device
 } // namespace Xyce
 
