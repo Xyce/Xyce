@@ -4,18 +4,6 @@ if(TEST_SUITE)
   message(STATUS "Enabling test suite")
   # Parser tests currently cause issue: std::complex<double> to double
   # when this is resolved, uncomment and parser tests should work as intended
-  set(TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/astCopyConstUnitTest.C
-    ${CMAKE_CURRENT_SOURCE_DIR}/astUnitTest.C
-
-    #${CMAKE_CURRENT_SOURCE_DIR}/complexParserUnitTest.C
-    #${CMAKE_CURRENT_SOURCE_DIR}/parserUnitTest.C
-    #${CMAKE_CURRENT_SOURCE_DIR}/parserCopyUnitTest.C
-
-  )
-  set ( XYCE_SOURCES ${XYCE_SOURCES} ${TEST_SOURCES} PARENT_SCOPE)
-
-  include_directories( "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" "${FLEX_INCLUDE_DIR}" )
 
   #flex-bison generation
   bison_target(ExpressionParser ExpressionParser.yxx ${CMAKE_CURRENT_BINARY_DIR}/ExpressionParser.cxx)
