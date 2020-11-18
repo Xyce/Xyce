@@ -3428,39 +3428,42 @@ class tableOp : public astNode<ScalarT>
       {
         allocateInterpolators();
 
-        std::ifstream dataIn;
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
         {
           std::vector<std::string> errStr(1,std::string("Could not find file " + filename));
           yyerror(errStr);
         }
-        dataIn.open(filename.c_str(), std::ios::in);
-        if ( !dataIn.good() )
-        {
-          std::vector<std::string> errStr(1,std::string("Could not open file " + filename));
-          yyerror(errStr);
-        }
         else
         {
-          double time;
-          double value;
-          ta_.clear();
-          ya_.clear();
-          while ( dataIn >> time )
+          std::ifstream dataIn;
+          dataIn.open(filename.c_str(), std::ios::in);
+          if ( !dataIn.good() )
           {
-            if ( dataIn >> value )
+            std::vector<std::string> errStr(1,std::string("Could not open file " + filename));
+            yyerror(errStr);
+          }
+          else
+          {
+            double time;
+            double value;
+            ta_.clear();
+            ya_.clear();
+            while ( dataIn >> time )
             {
-              ta_.push_back(time);
-              ya_.push_back(value);
-            }
-            else
-            {
-              std::vector<std::string> errStr(1,std::string("Reached end of file in " + filename + " while expecting another value"));
-              yyerror(errStr);
+              if ( dataIn >> value )
+              {
+                ta_.push_back(time);
+                ya_.push_back(value);
+              }
+              else
+              {
+                std::vector<std::string> errStr(1,std::string("Reached end of file in " + filename + " while expecting another value"));
+                yyerror(errStr);
+              }
             }
           }
+          dataIn.close();
         }
-        dataIn.close();
 
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
@@ -3618,22 +3621,25 @@ class tableOp : public astNode<ScalarT>
     virtual ScalarT val()
     {
       ScalarT y = 0.0;
-      int size = tableArgs_.size();
 
       if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
       {
-        for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+        if(!(tableArgs_.empty()))
         {
-          ta_[jj] = (tableArgs_)[ii]->val();
-          ya_[jj] = (tableArgs_)[ii+1]->val();
+          int size = tableArgs_.size();
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            ta_[jj] = (tableArgs_)[ii]->val();
+            ya_[jj] = (tableArgs_)[ii+1]->val();
+          }
+          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
         }
-        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
       }
 
-      ScalarT input = std::real(this->input_->val());
    
       if ( !(ta_.empty()) )
       {
+        ScalarT input = std::real(this->input_->val());
         int arraySize=ta_.size();
         if (std::real(input) < std::real(ta_[0]))
         {
@@ -3672,7 +3678,6 @@ class tableOp : public astNode<ScalarT>
     ScalarT dx_linear(int i)
     {
       ScalarT dydx = 0.0;
-      int size = tableArgs_.size();
 
       ScalarT dinput_dx = std::real(this->input_->dx(i));
 
@@ -3690,34 +3695,38 @@ class tableOp : public astNode<ScalarT>
         //
         if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
         {
-          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          if (!(tableArgs_.empty()))
           {
-            ta_[jj] = (tableArgs_)[ii]->val();
-            ya_[jj] = (tableArgs_)[ii+1]->val();
-          }
-          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
-
-          int ya_size = ya_.size();
-          if (ya_size > 2)
-          {
-            ta2_.resize(ya_size+1);
-            dya_.resize(ya_size+1);
-            ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-            dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-            for (int ii=1;ii<ya_size;++ii)
+            int size = tableArgs_.size();
+            for (int ii=0,jj=0;ii<size;ii+=2,jj++)
             {
-              ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-              ScalarT h = ( ta_[ii]- ta_[ii-1]);
-              if (std::real(h) != 0.0)
-              {
-                dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-              }
-              else
-              {
-                dya_[ii] = 0.0;
-              }
+              ta_[jj] = (tableArgs_)[ii]->val();
+              ya_[jj] = (tableArgs_)[ii+1]->val();
             }
-            dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+            yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+            int ya_size = ya_.size();
+            if (ya_size > 2)
+            {
+              ta2_.resize(ya_size+1);
+              dya_.resize(ya_size+1);
+              ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+              dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+              for (int ii=1;ii<ya_size;++ii)
+              {
+                ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+                ScalarT h = ( ta_[ii]- ta_[ii-1]);
+                if (std::real(h) != 0.0)
+                {
+                  dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+                }
+                else
+                {
+                  dya_[ii] = 0.0;
+                }
+              }
+              dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+            }
           }
         }
 
@@ -3801,7 +3810,6 @@ class tableOp : public astNode<ScalarT>
     ScalarT dx_splines(int i)
     {
       ScalarT dydx = 0.0;
-      int size = tableArgs_.size();
 
       ScalarT dinput_dx = std::real(this->input_->dx(i));
 
@@ -3812,18 +3820,24 @@ class tableOp : public astNode<ScalarT>
         // approach is much cleaner than what we do for the linear interpolator.
         if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
         {
-          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          if (!(tableArgs_.empty()))
           {
-            ta_[jj] = (tableArgs_)[ii]->val();
-            ya_[jj] = (tableArgs_)[ii+1]->val();
+            int size = tableArgs_.size();
+            for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+            {
+              ta_[jj] = (tableArgs_)[ii]->val();
+              ya_[jj] = (tableArgs_)[ii+1]->val();
+            }
+            yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
           }
-          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
         }
 
-        ScalarT input = std::real(this->input_->val());
- 
-        yInterpolator_->evalDeriv(ta_,ya_, input, dydx); 
-        dydx *= dinput_dx;
+        if (!(ta_.empty()))
+        {
+          ScalarT input = std::real(this->input_->val());
+          yInterpolator_->evalDeriv(ta_,ya_, input, dydx); 
+          dydx *= dinput_dx;
+        }
 
       }
       return dydx;
@@ -3853,28 +3867,31 @@ class tableOp : public astNode<ScalarT>
     {
       if (useBreakPoints_)
       {
-        if ( input_->timeSpecialType() )
+        if (!(ta_.empty()))
         {
-          ScalarT time = std::real(this->input_->val());
-          size_t size = ta_.size();
-          size_t index = yInterpolator_->binarySearch (ta_, time, 0, size - 1);
-
-          if ( std::real(ta_[index]) < std::real(time))
+          if ( input_->timeSpecialType() )
           {
-           int tmp=index;
-           while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
-           index = tmp;
-          }
+            ScalarT time = std::real(this->input_->val());
+            size_t size = ta_.size();
+            size_t index = yInterpolator_->binarySearch (ta_, time, 0, size - 1);
 
-          if (index < size)
-          {
-           size_t max = index+5;
-           if ( max  > size ) { max = size; }
-           int ii=index;
-           for( ;ii<max;ii++)
-           {
-             breakPointTimes.push_back( std::real(ta_[ii]) );
-           }
+            if ( std::real(ta_[index]) < std::real(time))
+            {
+             int tmp=index;
+             while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+             index = tmp;
+            }
+
+            if (index < size)
+            {
+             size_t max = index+5;
+             if ( max  > size ) { max = size; }
+             int ii=index;
+             for( ;ii<max;ii++)
+             {
+               breakPointTimes.push_back( std::real(ta_[ii]) );
+             }
+            }
           }
         }
       }
@@ -3890,10 +3907,13 @@ AST_GET_INTERESTING_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_INTERESTING_OPS(tableArgs_[ii])
+          }
         }
       }
     }
@@ -3905,10 +3925,13 @@ AST_GET_STATE_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_STATE_OPS(tableArgs_[ii])
+          }
         }
       }
     }
@@ -3919,10 +3942,13 @@ AST_GET_PARAM_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_PARAM_OPS(tableArgs_[ii]) 
+          }
         }
       }
     }
@@ -3933,10 +3959,13 @@ AST_GET_FUNC_ARG_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_FUNC_ARG_OPS(tableArgs_[ii]) 
+          }
         }
       }
     }
@@ -3947,10 +3976,13 @@ AST_GET_FUNC_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_FUNC_OPS(tableArgs_[ii]) 
+          }
         }
       }
     }
@@ -3961,10 +3993,13 @@ AST_GET_VOLT_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_VOLT_OPS(tableArgs_[ii] ) 
+          }
         }
       }
     }
@@ -3975,10 +4010,13 @@ AST_GET_CURRENT_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_CURRENT_OPS(tableArgs_[ii]) 
+          }
         }
       }
     }
@@ -3989,10 +4027,13 @@ AST_GET_TIME_OPS(input_)
 
       if (!allNumVal_)
       {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
+        if (!(tableArgs_.empty()))
         {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
 AST_GET_TIME_OPS(tableArgs_[ii]) 
+          }
         }
       }
     }
