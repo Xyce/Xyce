@@ -22,8 +22,8 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : This file is similar to Petra_Petra.h.  It  contains
-//                  a number of Xyce-wide definitions and includes.
+// Purpose        : Feature test translation from c pre-processor directive 
+//                  to Xyce namespace static constants.
 //
 // Special Notes  :
 //

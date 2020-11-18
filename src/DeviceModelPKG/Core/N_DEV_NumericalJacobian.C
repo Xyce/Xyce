@@ -193,7 +193,7 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
   std::vector<double> & saveNextState = mlData.saveNextState;
   std::vector<double> & saveStateDerivs = mlData.saveStateDerivs;
 
-  // set up references to epetra objects.
+  // set up references to linear algebra objects.
   Linear::Vector & Fvec          = (*extData.daeFVectorPtr);
   Linear::Vector & Qvec          = (*extData.daeQVectorPtr);
 

@@ -250,11 +250,11 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
   if (DEBUG_PCE)
   {
     Xyce::dout() << "PCE bnextX:" << std::endl;
-    bnextX.printPetraObject(std::cout);
+    bnextX.print(std::cout);
     Xyce::dout() << "PCE bdQdx:" << std::endl;
-    bdQdx.printPetraObject(std::cout);
+    bdQdx.print(std::cout);
     Xyce::dout() << "PCE bdFdx:" << std::endl;
-    bdFdx.printPetraObject(std::cout);
+    bdFdx.print(std::cout);
   
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
@@ -672,7 +672,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
 #if 0
   std::cout << "Printing bF_quad_ptr_ (quadrature points):" <<std::endl;
-  bF_quad_ptr_->printPetraObject(std::cout);
+  bF_quad_ptr_->print(std::cout);
   double maxNormFquad=0.0; 
   bF_quad_ptr_->infNorm(&maxNormFquad);
   std::cout << "Max norm of bF_quad_ptr_ = " << maxNormFquad <<std::endl;
@@ -798,7 +798,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
 #if 0
   std::cout << "Printing bF (PCE coefs):" <<std::endl;
-  bF.printPetraObject(std::cout);
+  bF.print(std::cout);
   double maxNormF=0.0; 
   bF.infNorm(&maxNormF);
   std::cout << "Max norm of bF = " << maxNormF <<std::endl;
@@ -892,8 +892,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
 #if 0
   std::cout << "--------------------------------------------------------------" <<std::endl;
-  std::cout << "Full Epetra Jacobian" << std::endl;
-  bmdFdxPtr_->printPetraObject(std::cout);
+  std::cout << "Full Jacobian" << std::endl;
+  bmdFdxPtr_->print(std::cout);
   std::cout << "--------------------------------------------------------------" <<std::endl;
 #endif
   }
@@ -915,25 +915,25 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   if (DEBUG_PCE)
   {
     Xyce::dout() << "PCE X Vector" << std::endl;
-    bnextX.printPetraObject(std::cout);
+    bnextX.print(std::cout);
     Xyce::dout() << "PCE S Vector" << std::endl;
-    bnextS.printPetraObject(std::cout);
+    bnextS.print(std::cout);
     Xyce::dout() << "PCE dSdt Vector" << std::endl;
-    bdSdt.printPetraObject(std::cout);
+    bdSdt.print(std::cout);
     Xyce::dout() << "PCE Store Vector" << std::endl;
-    bnextStore.printPetraObject(std::cout);
+    bnextStore.print(std::cout);
     Xyce::dout() << "PCE Q Vector" << std::endl;
-    bQ.printPetraObject(std::cout);
+    bQ.print(std::cout);
     Xyce::dout() << "PCE F Vector" << std::endl;
-    bF.printPetraObject(std::cout);
+    bF.print(std::cout);
 
     bmdQdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdQdx_" << std::endl;
-    bmdQdxPtr_->printPetraObject(std::cout);
+    bmdQdxPtr_->print(std::cout);
 
     bmdFdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdFdx_" << std::endl;
-    bmdFdxPtr_->printPetraObject(std::cout);
+    bmdFdxPtr_->print(std::cout);
 
     Xyce::dout() << Xyce::section_divider << std::endl;
   }

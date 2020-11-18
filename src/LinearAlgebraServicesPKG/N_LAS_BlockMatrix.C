@@ -271,14 +271,14 @@ void BlockMatrix::assembleGlobalMatrix()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockMatrix::printPetraObject
+// Function      : BlockMatrix::print
 // Purpose       : Output
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 03/19/04
 //-----------------------------------------------------------------------------
-void BlockMatrix::printPetraObject(std::ostream &os) const
+void BlockMatrix::print(std::ostream &os) const
 {
   os << "BlockMatrix Object (Size=" << numBlockRows_ << ", View =" << blocksViewGlobalMat_ << ")" << std::endl;
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
@@ -288,7 +288,7 @@ void BlockMatrix::printPetraObject(std::ostream &os) const
     for( int j = 0; j < numCols; ++j )
     {
       os << "Block[" << i << "][" << cols_[i][j] << "]\n";
-      blocks_[i][j]->printPetraObject(os);
+      blocks_[i][j]->print(os);
     }
   }
   os << "Base Object\n";

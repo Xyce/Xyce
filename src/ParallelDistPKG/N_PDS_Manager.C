@@ -38,11 +38,11 @@
 #include <Xyce_config.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_LAFactory.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_ParMap.h>
+#include <N_PDS_ParHelpers.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_ParMap.h>
 #include <N_LAS_Graph.h>
 
 namespace Xyce {
@@ -86,24 +86,6 @@ Manager::~Manager()
   }
 
   delete pdsComm_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Manager::createParallelMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 01/31/01
-//-----------------------------------------------------------------------------
-N_PDS_ParMap *
-Manager::createParallelMap(
-  int &                         num_global,
-  int                           num_local,
-  const std::vector<int> &      gid_map,
-  const int                     index_base)
-{
-  return new N_PDS_ParMap(num_global, num_local, gid_map, index_base, *pdsComm_);
 }
 
 //-----------------------------------------------------------------------------

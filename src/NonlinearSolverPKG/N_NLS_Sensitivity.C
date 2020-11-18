@@ -1100,8 +1100,8 @@ int Sensitivity::solveDirect ()
   {
     // copy the sensitivity residual into the rhs vector location,
     // as that is the RHS vector that the linear solver expects.
-    *rhsVectorPtr_ = *(sensRHSPtrVector->getNonConstVectorView(iparam));
-    Teuchos::RCP<Linear::Vector> dXdp = dXdpPtrVector->getNonConstVectorView(iparam);
+    *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(iparam));
+    Teuchos::RCP<Linear::Vector> dXdp = Teuchos::rcp( dXdpPtrVector->getNonConstVectorView(iparam) );
 
     lasSolverRCPtr_->solve(reuseFactors_);
 
@@ -1145,7 +1145,7 @@ int Sensitivity::solveDirect ()
   {
     for (iparam=0; iparam< numSensParams_; ++iparam)
     {
-      double tmp = objFuncDataVec_[iobj]->dOdXVectorPtr->dotProduct( *(dXdpPtrVector->getNonConstVectorView(iparam)) );
+      double tmp = objFuncDataVec_[iobj]->dOdXVectorPtr->dotProduct( *Teuchos::rcp(dXdpPtrVector->getNonConstVectorView(iparam)) );
       tmp += objFuncDataVec_[iobj]->dOdp;
 
       ds.dOdpVec_.push_back(tmp);
@@ -1566,7 +1566,7 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
 
 #if 0
     dout() << "Lambda vector: " << std::endl;
-    lambda.printPetraObject(dout());
+    lambda.print(dout());
 #endif
 
     // Now that we have lambda, get the dOdp's by doing dot products of
@@ -1601,7 +1601,7 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
     {
       for (int iparam=0; iparam< numSensParams_; ++iparam)
       {
-        Teuchos::RCP<Linear::Vector> functionSens = ds.sensRHSPtrVector->getNonConstVectorView(iparam);
+        Teuchos::RCP<Linear::Vector> functionSens = Teuchos::rcp( ds.sensRHSPtrVector->getNonConstVectorView(iparam) );
         ds.dOdpAdjVec_[iparam] += lambda.dotProduct(*functionSens);
       }
     }

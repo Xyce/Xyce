@@ -54,6 +54,8 @@
 #include <N_LAS_MultiVector.h>
 #include <N_PDS_ParMap.h>
 
+class N_PDS_EpetraParMap;
+
 // ---------- Using Declarations ------------
 using Teuchos::RCP;
 using Teuchos::rcp;
@@ -151,7 +153,7 @@ public:
 private:
   bool isInitialized_;
   Teuchos::RCP<Operator> linearOperatorRCPtr_;
-  Teuchos::RCP<const N_PDS_ParMap> solutionMap_;
+  Teuchos::RCP<const N_PDS_EpetraParMap> solutionMap_;
 };
 
 // Non-member constructor

@@ -468,11 +468,11 @@ bool HB::doInit()
   if (DEBUG_HB && isActive(Diag::HB_PRINT_VECTORS))
   {
     Xyce::dout() << "HB Initial Condition Solution!\n";
-    HBICVectorPtr_->printPetraObject(std::cout);
+    HBICVectorPtr_->print(std::cout);
     Xyce::dout() << "HB Initial Condition State Vector!\n";
-    HBICStateVectorPtr_->printPetraObject(std::cout);
+    HBICStateVectorPtr_->print(std::cout);
     Xyce::dout() << "HB Initial Condition Store Vector!\n";
-    HBICStoreVectorPtr_->printPetraObject(std::cout);
+    HBICStoreVectorPtr_->print(std::cout);
   }
 
   //Destroy Solvers, etc. from IC phase and prepare for HB
@@ -1128,8 +1128,8 @@ void HB::prepareHBOutput(
  
   if (DEBUG_HB)
   {
-    freqDomainSolnVecReal->printPetraObject(std::cout);
-    freqDomainSolnVecImag->printPetraObject(std::cout);
+    freqDomainSolnVecReal->print(std::cout);
+    freqDomainSolnVecImag->print(std::cout);
   }
 }
 

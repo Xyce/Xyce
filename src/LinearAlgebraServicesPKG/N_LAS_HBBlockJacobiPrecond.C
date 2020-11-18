@@ -68,7 +68,7 @@
 
 #include <N_ERH_ErrorMgr.h>
 
-#include <N_PDS_SerialComm.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <Teuchos_RCP.hpp>
 #include <Epetra_LinearProblem.h>
@@ -194,7 +194,8 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   int origGlobalRows = origMap->numGlobalEntities();
   int refRows = 2*origLocalRows;
   std::vector<int> rowIdxs( refRows );
-  int * origIdxs = origMap->petraMap()->MyGlobalElements();
+  RCP<N_PDS_EpetraParMap> e_origMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(origMap);
+  int * origIdxs = e_origMap->petraMap()->MyGlobalElements();
   for (int i=0; i<origLocalRows; ++i)
   {
     rowIdxs[i] = origIdxs[i];
@@ -326,7 +327,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   params.set( "TrustMe", true );
   
   // Generate the vectors and matrices for the N_ linear problems to be solved on the diagonal.
-  // epetraMatrix_/epetraVector_ : objects having the same distribution as the original system.
+  // epetraMatrix_               : object  having the same distribution as the original system.
   // serialMatrix_/serialVector_ : objects having all rows on a single processor; target for exporting dist objects.
   // singleMatrix_/singleVector_ : objects having all rows on a single processor with a split communicator.
   if (numProcs > 1)
@@ -478,9 +479,9 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
 
 /*
   std::cout << "appdQdxSum = " << std::endl;
-  appdQdxSum->printPetraObject( std::cout );
+  appdQdxSum->print( std::cout );
   std::cout << "appdFdxSum = " << std::endl;
-  appdFdxSum->printPetraObject( std::cout );
+  appdFdxSum->print( std::cout );
 */
   int tmpNNZs=0;
   double cplxCoeff = 0.0;

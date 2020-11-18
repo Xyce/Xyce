@@ -70,8 +70,6 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_Timer.h>
 
-#include <Epetra_MultiVector.h>
-
 #include <Teuchos_RCP.hpp>
 using Teuchos::rcp;
 using Teuchos::rcp_dynamic_cast;
@@ -826,7 +824,7 @@ N_MPDE_Manager::runInitialCondition(
     {
       std::cout << "OSCOUT's GID = " << warpMPDEOSCOUT_ << std::endl;
       std::cout << "dsPtr->fastTimeSolutionVec[0] = " << std::endl;
-      (dsPtr->fastTimeSolutionVec[0])->printPetraObject(Xyce::dout());
+      (dsPtr->fastTimeSolutionVec[0])->print(Xyce::dout());
       Xyce::Linear::Vector &firstSolVec = *dsPtr->fastTimeSolutionVec[0];
       Xyce::Linear::Vector &nextSolVec = *dsPtr->fastTimeSolutionVec[1];
       std::cout << "time=0 OSCOUT solution = " << firstSolVec[warpMPDEOSCOUT_] << std::endl;
@@ -1081,13 +1079,13 @@ N_MPDE_Manager::runInitialCondition(
         if ( Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS) )
         {
           Xyce::dout() << "mpdeICVectorPtr_->block(" << i << ") = dsPtr->fastTimeSolutionVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICStateVectorPtr_->block(" << i << ") = dsPtr->fastTimeStateVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeStateVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeStateVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICQVectorPtr_->block(" << i << ") = dsPtr->fastTimeQVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeQVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeQVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICStoreVectorPtr_->block(" << i << ") = dsPtr->fastTimeStoreVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeStoreVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeStoreVec[indicesUsed_[i]])->print(Xyce::dout());
         }
 
         if (warpMPDE_)
@@ -1106,14 +1104,14 @@ N_MPDE_Manager::runInitialCondition(
           std::cout << "Loading initial condition data from updated time: fastTimes_["
                     << i << "] = " << fastTimes_[i] << std::endl;
           std::cout << "mpdeICVectorPtr_->block(" << i << ") = dsPtr->fastTimeSolutionVec[" << indicesUsed_[i+goodStartPoint] << "] = " << std::endl;
-          ////(dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
-          (mpdeICVectorPtr_->block(i)).printPetraObject(Xyce::dout());
+          ////(dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->print(Xyce::dout());
+          (mpdeICVectorPtr_->block(i)).print(Xyce::dout());
           std::cout << "mpdeICStateVectorPtr_->block(" << i << ") = dsPtr->fastTimeStateVec[" << indicesUsed_[i+goodStartPoint] << "] = " << std::endl;
-          ////(dsPtr->fastTimeStateVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          ////(dsPtr->fastTimeStateVec[indicesUsed_[i]])->print(Xyce::dout());
           std::cout << "mpdeICQVectorPtr_->block(" << i << ") = dsPtr->fastTimeQVec[" << indicesUsed_[i+goodStartPoint] << "] = " << std::endl;
-          ////(dsPtr->fastTimeQVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          ////(dsPtr->fastTimeQVec[indicesUsed_[i]])->print(Xyce::dout());
           std::cout << "mpdeICStoreVectorPtr_->block(" << i << ") = dsPtr->fastTimeStoreVec[" << indicesUsed_[i+goodStartPoint] << "] = " << std::endl;
-          ////(dsPtr->fastTimeStoreVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          ////(dsPtr->fastTimeStoreVec[indicesUsed_[i]])->print(Xyce::dout());
         }
         else
         {
@@ -1125,13 +1123,13 @@ N_MPDE_Manager::runInitialCondition(
           std::cout << "Loading initial condition data from time: fastTimes_["
                     << i << "] = " << fastTimes_[i] << std::endl;
           std::cout << "mpdeICVectorPtr_->block(" << i << ") = dsPtr->fastTimeSolutionVec[" << indicesUsed_[i] << "] = " << std::endl;
-          ////(dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->printPetraObject();
+          ////(dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->print();
           std::cout << "mpdeICStateVectorPtr_->block(" << i << ") = dsPtr->fastTimeStateVec[" << indicesUsed_[i] << "] = " << std::endl;
-          ////(dsPtr->fastTimeStateVec[indicesUsed_[i]])->printPetraObject();
+          ////(dsPtr->fastTimeStateVec[indicesUsed_[i]])->print();
           std::cout << "mpdeICQVectorPtr_->block(" << i << ") = dsPtr->fastTimeQVec[" << indicesUsed_[i] << "] = " << std::endl;
-          ////(dsPtr->fastTimeQVec[indicesUsed_[i]])->printPetraObject();
+          ////(dsPtr->fastTimeQVec[indicesUsed_[i]])->print();
           std::cout << "mpdeICStoreVectorPtr_->block(" << i << ") = dsPtr->fastTimeStoreVec[" << indicesUsed_[i] << "] = " << std::endl;
-          ////(dsPtr->fastTimeStoreVec[indicesUsed_[i]])->printPetraObject();
+          ////(dsPtr->fastTimeStoreVec[indicesUsed_[i]])->print();
         }
 
       }
@@ -1426,13 +1424,13 @@ N_MPDE_Manager::runInitialCondition(
         if ( Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS) )
         {
           Xyce::dout() << "mpdeICVectorPtr_->block(" << i << ") = dsPtr->fastTimeSolutionVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeSolutionVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICStateVectorPtr_->block(" << i << ") = dsPtr->fastTimeStateVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeStateVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeStateVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICQVectorPtr_->block(" << i << ") = dsPtr->fastTimeQVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeQVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeQVec[indicesUsed_[i]])->print(Xyce::dout());
           Xyce::dout() << "mpdeICStoreVectorPtr_->block(" << i << ") = dsPtr->fastTimeStoreVec[" << indicesUsed_[i] << "] = " << std::endl;
-          (dsPtr->fastTimeStoreVec[indicesUsed_[i]])->printPetraObject(Xyce::dout());
+          (dsPtr->fastTimeStoreVec[indicesUsed_[i]])->print(Xyce::dout());
         }
 
         mpdeICVectorPtr_->block(i) = *(dsPtr->fastTimeSolutionVec[indicesUsed_[i]]);
@@ -1474,11 +1472,11 @@ N_MPDE_Manager::runInitialCondition(
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS) )
   {
     Xyce::dout() << "MPDE Initial Condition Solution!\n";
-    mpdeICVectorPtr_->printPetraObject(std::cout);
+    mpdeICVectorPtr_->print(std::cout);
     Xyce::dout() << "MPDE Initial Condition State Vector!\n";
-    mpdeICStateVectorPtr_->printPetraObject(std::cout);
+    mpdeICStateVectorPtr_->print(std::cout);
     Xyce::dout() << "MPDE Initial Condition Store Vector!\n";
-    mpdeICStoreVectorPtr_->printPetraObject(std::cout);
+    mpdeICStoreVectorPtr_->print(std::cout);
   }
 
   if (DEBUG_MPDE)
@@ -2107,8 +2105,8 @@ bool N_MPDE_Manager::runTests_()
   Xyce::Linear::BlockMatrix *bdFdx = dynamic_cast<Xyce::Linear::BlockMatrix *>(dFdx);
   Xyce::Linear::BlockMatrix *bJac = dynamic_cast<Xyce::Linear::BlockMatrix *>(Jac);
 
-  bNextX->printPetraObject(Xyce::dout());
-  bJac->printPetraObject(Xyce::dout());
+  bNextX->print(Xyce::dout());
+  bJac->print(Xyce::dout());
   
   Xyce::dout() << "N_MPDE_Manager::runTests_[Finished Vectors and Matrices]\n";
 
@@ -2130,20 +2128,20 @@ bool N_MPDE_Manager::runTests_()
   mpdeLoaderPtr_->loadDAEMatrices( &*nextX, &*nextS, &*dSdt, &*nextStore, &*dQdx, &*dFdx );
   Xyce::dout() << "N_MPDE_Manager::runTests_[Finished Loads]\n";
 
-  bQ->printPetraObject(Xyce::dout());
-  bF->printPetraObject(Xyce::dout());
+  bQ->print(Xyce::dout());
+  bF->print(Xyce::dout());
 
-  bdQdx->printPetraObject(Xyce::dout());
-  bdFdx->printPetraObject(Xyce::dout());
+  bdQdx->print(Xyce::dout());
+  bdFdx->print(Xyce::dout());
   //-----------------------------------------
 
   //Pretend to solve DCOP problems
   //-----------------------------------------
   Res->linearCombo( 1.0, *Res, +1.0, *F );
-  bRes->printPetraObject(Xyce::dout());
+  bRes->print(Xyce::dout());
 
   Jac->add( *dFdx );
-  bJac->printPetraObject(Xyce::dout());
+  bJac->print(Xyce::dout());
 
   delete Q;
   delete F;

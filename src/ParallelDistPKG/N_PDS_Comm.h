@@ -41,12 +41,7 @@
 #ifndef Xyce_N_PDS_Comm_h
 #define Xyce_N_PDS_Comm_h
 
-#include <list>
-
 #include <N_PDS_ParallelMachine.h>
-
-
-class Epetra_Comm;
 
 namespace Xyce {
 namespace Parallel {
@@ -152,9 +147,6 @@ public:
   virtual bool unpack(const char * buf, const int size, int & pos, long * val,
                       const int count) const = 0; 
  
-  virtual Epetra_Comm * petraComm() = 0;
-  virtual const Epetra_Comm * petraComm() const = 0;
-
   // Communicator Barrier function.
   // A no-op for a serial communicator.  For MPI, it causes each processor in
   // the communicator to wait until all processors have arrived.
@@ -162,9 +154,6 @@ public:
 
   virtual Parallel::Machine comm() const = 0;
 };
-
-// Return a new Comm
-N_PDS_Comm * createPDSComm(int iargs = 0, char * cargs[] = 0, Xyce::Parallel::Machine comm = MPI_COMM_NULL );
 
 } // namespace Parallel
 } // namespace Xyce

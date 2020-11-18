@@ -38,8 +38,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_PDS_MPIComm_h
-#define Xyce_N_PDS_MPIComm_h
+#ifndef Xyce_N_PDS_EpetraMPIComm_h
+#define Xyce_N_PDS_EpetraMPIComm_h
 
 #ifdef Xyce_PARALLEL_MPI
 #include <mpi.h>
@@ -53,35 +53,35 @@
 #include <N_ERH_ErrorMgr.h>
 
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_MPIComm
+// Class         : N_PDS_EpetraMPIComm
 // Purpose       : Parallel communication class for Xyce.  This class
 //                 will contain parallel data and functions.
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-class N_PDS_MPIComm : public N_PDS_Comm
+class N_PDS_EpetraMPIComm : public N_PDS_Comm
 {
 
 public:
 
   // Constructor
-  N_PDS_MPIComm(int iargs, char * cargs[]);
+  N_PDS_EpetraMPIComm(int iargs, char * cargs[]);
 
 #ifdef Xyce_PARALLEL_MPI
-  N_PDS_MPIComm( MPI_Comm comm );
+  N_PDS_EpetraMPIComm( MPI_Comm comm );
 #endif
 
   //Destructor
-  ~N_PDS_MPIComm();
+  ~N_PDS_EpetraMPIComm();
 
   // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_MPIComm(const N_PDS_MPIComm& right);
+  N_PDS_EpetraMPIComm(const N_PDS_EpetraMPIComm& right);
   // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_MPIComm & operator = (const N_PDS_MPIComm& right);
+  N_PDS_EpetraMPIComm & operator = (const N_PDS_EpetraMPIComm& right);
 
   // Cloning
-  N_PDS_Comm * clone() const { return new N_PDS_MPIComm(* this); }
+  N_PDS_Comm * clone() const { return new N_PDS_EpetraMPIComm(* this); }
 
     Xyce::Parallel::Machine comm() const;
     

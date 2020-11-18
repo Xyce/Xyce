@@ -1349,7 +1349,7 @@ void DataStore::setErrorWtVector(
         Xyce::dout() << "currMaxValueoldLte = " << currMaxValue << ", currMaxValueIndex = " << index[0]  << std::endl;
         
         std::cout << " old LTE rel reference:"  << std::endl;
-        relSolutionPtr->printPetraObject(Xyce::dout());
+        relSolutionPtr->print(Xyce::dout());
 
       }
     }
@@ -1369,10 +1369,10 @@ void DataStore::setErrorWtVector(
         Xyce::dout() << "currMaxValue = " << currMaxValue << ", currMaxValueIndex = " << index[0] << std::endl;
 
         std::cout << " lte =1 rel reference:"  << std::endl;
-        relSolutionPtr->printPetraObject(Xyce::dout());
+        relSolutionPtr->print(Xyce::dout());
 
         std::cout << " lte = 1 currSolution :"  << std::endl;
-        currSolutionPtr->printPetraObject(Xyce::dout());
+        currSolutionPtr->print(Xyce::dout());
       }
      } 
       break;
@@ -1433,10 +1433,10 @@ void DataStore::setErrorWtVector(
       if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
       {
         std::cout << " LTE 3 rel reference:"  << std::endl; std::cout << " LTE 3 rel reference:"  << std::endl;
-        relSolutionPtr->printPetraObject(Xyce::dout()); 
+        relSolutionPtr->print(Xyce::dout()); 
 
         std::cout << " LTE = 3 next solutions  :"  << std::endl;
-        nextSolutionPtr->printPetraObject(Xyce::dout()); 
+        nextSolutionPtr->print(Xyce::dout()); 
       }
 
     }
@@ -1750,10 +1750,10 @@ void DataStore::stepLinearCombo()
   if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
   {
     Xyce::dout() << "\n newtonCorrection: \n" << std::endl;
-    newtonCorrectionPtr->printPetraObject(Xyce::dout());
+    newtonCorrectionPtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
     Xyce::dout() << "\n qNewtonCorrection: \n" << std::endl;
-    qNewtonCorrectionPtr->printPetraObject(Xyce::dout());
+    qNewtonCorrectionPtr->print(Xyce::dout());
     Xyce::dout() << std::endl;
   }
 }

@@ -47,6 +47,7 @@ using Teuchos::rcp;
 #include <N_UTL_fwd.h>
 #include <N_LAS_fwd.h>
 #include <N_TOP_fwd.h>
+#include <N_PDS_fwd.h>
 
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
@@ -57,7 +58,6 @@ using Teuchos::rcp;
 // ---------- Forward Declarations ----------
 class Amesos_BaseSolver;
 class Epetra_LinearProblem;
-class Epetra_Map;
 
 namespace Xyce {
 namespace Analysis {
@@ -202,7 +202,7 @@ private:
 
     // Reduced system (sparse)
     RCP<Linear::Matrix> redCPtr_, redGPtr_;
-    RCP<Epetra_Map> redMapPtr_;
+    RCP<N_PDS_ParMap> redMapPtr_;
 
     // Reduced system, real-equivalent form (dense)
     Teuchos::SerialDenseMatrix<int, double> sCpG_redMatrix_, sCpG_tmpMatrix_;

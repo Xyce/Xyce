@@ -44,10 +44,6 @@
 
 #ifdef Xyce_USE_HDF5
 
-#include <Epetra_Map.h>
-#include <Epetra_Comm.h>
-#include <Epetra_MultiVector.h>
-
 #endif // Xyce_USE_HDF5
 
 namespace Xyce {
@@ -137,9 +133,6 @@ OutputMgr::updateHDF5Output(
     // unknowns are on prior processors.  We could infer this from the GID values,
     // however that would not work in block analysis modes like MPDE, HB and AC
     // Thus, we will have the individual processes communicate this info .
-    // This duplicates what could be done with an epetra multivector, if we could
-    // construct one that held strings or char*.  We can't so for now this is what
-    // we'll do.
     std::vector<int> unknownsPerProc(Parallel::size(comm));
 
     Parallel::AllGather(comm, numLocalNodes, unknownsPerProc);
@@ -157,7 +150,7 @@ OutputMgr::updateHDF5Output(
     for (NodeNameMap::const_iterator nameIter = getSolutionNodeMap().begin(), nameEnd = getSolutionNodeMap().end(); nameIter != nameEnd ; ++nameIter, index++)
     {
       strncpy(nodeNameArray[index], (*nameIter).first.c_str(), globalMaxNodeNameLength);
-      nodeGIDArray[index] = solnVecPtr.pmap()->petraMap()->GID((*nameIter).second);
+      nodeGIDArray[index] = solnVecPtr.pmap()->localToGlobalIndex((*nameIter).second);
     }
 
     // make the group for writing
@@ -289,8 +282,7 @@ OutputMgr::updateHDF5Output(
 
     // set up hyperslab to define the relationship between memspace and filespace.
     hid_t dependentVarFilespace = H5Dget_space(dependentVarDataSet);
-    hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->GID(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
-    //hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->IndexBase()};
+    hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->localToGlobalIndex(0) - solnVecPtr.pmap()->indexBase()};
     hsize_t solVecStride[2] = {1, 1};
     hsize_t solVecCount[2] = {1, solnVecPtr.localLength()};
     hsize_t solVecBlock[2] = {1, 1};
@@ -384,8 +376,7 @@ OutputMgr::updateHDF5Output(
     hid_t dependentFileSpace = H5Dget_space(dependentVarDataSet);
 
     // set up hyperslab to define the relationship between memspace and filespace.
-    hsize_t solVecStart[2] = {hdf5IndexValue_, solnVecPtr.pmap()->petraMap()->GID(0) - solnVecPtr.pmap()->petraMap()->IndexBase()};
-    //hsize_t solVecStart[2] = {0, solnVecPtr.pmap()->petraMap()->IndexBase()};
+    hsize_t solVecStart[2] = {hdf5IndexValue_, solnVecPtr.pmap()->localToGlobalIndex(0) - solnVecPtr.pmap()->indexBase()};
     hsize_t solVecStride[2] = {1, 1};
     hsize_t solVecCount[2] = {1, solnVecPtr.localLength()};
     hsize_t solVecBlock[2] = {1, 1};

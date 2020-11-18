@@ -58,8 +58,6 @@ class N_MPDE_Manager;
 
 class N_PDS_ParMap;
 
-class Epetra_Map;
-
 //-----------------------------------------------------------------------------
 // Class         : N_MPDE_Builder
 // Purpose       :
@@ -99,26 +97,20 @@ class N_MPDE_Builder : public Xyce::Linear::Builder
 
   // Vector and Matrix creators
 
-  // Vector factory with initial value
-  Xyce::Linear::Vector * createVector( double initialValue = 0.0 ) const;
+  // Vector factory 
+  Xyce::Linear::Vector * createVector() const;
 
-  // State Vector factory with initial value
-  Xyce::Linear::Vector * createStateVector( double initialValue = 0.0 ) const;
+  // State Vector factory 
+  Xyce::Linear::Vector * createStateVector() const;
 
-  // Store Vector factory with initial value
-  Xyce::Linear::Vector * createStoreVector( double initialValue = 0.0 ) const;
+  // Store Vector factory 
+  Xyce::Linear::Vector * createStoreVector() const;
 
-  // Lead Current Vector factory with initial value
-  Xyce::Linear::Vector * createLeadCurrentVector( double initialValue = 0.0 ) const;
+  // Lead Current Vector factory 
+  Xyce::Linear::Vector * createLeadCurrentVector() const;
 
   // Matrix factory
-  Xyce::Linear::Matrix * createMatrix( double initialValue = 0.0 ) const
-  { return createDAEFullMatrix(initialValue); }
-
-  // DAE Jacobians
-  Xyce::Linear::Matrix * createDAEdQdxMatrix( double initialValue = 0.0 ) const;
-  Xyce::Linear::Matrix * createDAEdFdxMatrix( double initialValue = 0.0 ) const;
-  Xyce::Linear::Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const;
+  Xyce::Linear::Matrix * createMatrix() const;
 
   bool generateMaps( const RCP<N_PDS_ParMap>& BaseMap );
 

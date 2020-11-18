@@ -36,72 +36,93 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_PDS_ParMap_h
-#define Xyce_N_PDS_ParMap_h
+#ifndef Xyce_N_PDS_EpetraParMap_h
+#define Xyce_N_PDS_EpetraParMap_h
 
 // ---------- Standard Includes ----------
 
-#include <iostream>
+#include <ostream>
 
 // ----------   Xyce Includes   ----------
 
 #include <N_PDS_fwd.h>
+#include <N_PDS_ParMap.h>
+
+class Epetra_Map;
 
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_ParMap
-// Purpose       : Abstract base class for the parallel map data and functions.
+// Class         : N_PDS_EpetraParMap
+// Purpose       : Epetra implementation of the parallel map data and functions.
 // Special Notes :
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 03/08/00
 //-----------------------------------------------------------------------------
-class N_PDS_ParMap
+class N_PDS_EpetraParMap : public N_PDS_ParMap
 {
 
 public:
-
-  N_PDS_ParMap(N_PDS_Comm & aComm)
-  : pdsComm_(aComm)
-  {}
+  // Constructor which takes a Epetra map.
+  N_PDS_EpetraParMap( Epetra_Map * pMap,
+                      N_PDS_Comm & aComm,
+                      bool mapOwned = false );
 
   // Destructor
-  virtual ~N_PDS_ParMap() {}
+  virtual ~N_PDS_EpetraParMap();
+
+private:
+
+  // Copy constructor (private).
+  N_PDS_EpetraParMap(const N_PDS_ParMap & right);
+
+  // Assignment operator (private).
+  N_PDS_EpetraParMap & operator=(const N_PDS_ParMap & right);
+
+  // Equality operator (private).
+  bool operator==(const N_PDS_EpetraParMap & right) const;
+
+  // Non-equality operator (private).
+  bool operator!=(const N_PDS_EpetraParMap & right) const;
+
+public:
 
   // Number of global "entities" represented as vertices in the graph. These
   // may be, for example, equations for the linear algebra quantities or
   // devices/nodes for the circuit graph.
-  virtual int numGlobalEntities() const = 0;
+  int numGlobalEntities() const;
 
   // Number of local (on processor) "entities".
-  virtual int numLocalEntities() const = 0;
+  int numLocalEntities() const;
 
   // Indexing base (0 or 1) used for the maps.
-  virtual int indexBase() const = 0;
+  int indexBase() const;
 
   // Minimum globally-numbered identifier on this processor.
-  virtual int minMyGlobalEntity() const = 0;
+  int minMyGlobalEntity() const;
 
   // Maximum globally-numbered identifier on this processor.
-  virtual int maxMyGlobalEntity() const = 0;
+  int maxMyGlobalEntity() const;
 
   // Maximum globally-numbered identifier.
-  virtual int maxGlobalEntity() const = 0;
-
-  // Comm object
-  N_PDS_Comm &pdsComm() { return pdsComm_; }
-  const N_PDS_Comm &pdsComm() const { return pdsComm_; }
+  int maxGlobalEntity() const;
 
   // dereference global index to get local index
-  virtual int globalToLocalIndex(int global_index) const = 0;
+  int globalToLocalIndex(int global_index) const;
 
   // dereference local index to get global index
-  virtual int localToGlobalIndex(int local_index) const = 0;
+  int localToGlobalIndex(int local_index) const;
 
-  virtual void print(std::ostream &os) const {}
+  // Accessor functions (overridden in derived classes) for the pointer to the
+  // library map object.
+  Epetra_Map * petraMap() { return petraMap_; }
+  const Epetra_Map * petraMap() const { return petraMap_; }
 
-protected:
+  void print(std::ostream &os) const;
 
-  // Comm object.
-  N_PDS_Comm &          pdsComm_;
+private:
+
+  // Pointer to Petra map object.
+  Epetra_Map * petraMap_;
+  bool mapOwned_;
 };
 
 #endif

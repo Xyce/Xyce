@@ -66,7 +66,6 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
-#include <N_PDS_Manager.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
@@ -2594,11 +2593,11 @@ bool DeviceMgr::loadDAEMatrices(
     int newtonIter = solState_.newtonIter;
     dout() << section_divider << std::endl;
     dout() <<  "Q-matrix: nonlinear iteration = " << newtonIter << "\n";
-    externData_.dQdxMatrixPtr->printPetraObject(dout());
+    externData_.dQdxMatrixPtr->print(dout());
     dout() << std::endl;
     dout() << section_divider << std::endl;
     dout() <<  "F-matrix: nonlinear iteration = " << newtonIter << "\n";
-    externData_.dFdxMatrixPtr->printPetraObject(dout());
+    externData_.dFdxMatrixPtr->print(dout());
     dout() << std::endl;
     dout() << section_divider << std::endl;
   }
@@ -2742,19 +2741,19 @@ bool DeviceMgr::loadDAEVectors(
   {
     int newtonIter = solState_.newtonIter;
     dout() <<  "Q-vector: nonlinear iteration = " << newtonIter << "\n";
-    externData_.daeQVectorPtr->printPetraObject(std::cout);
+    externData_.daeQVectorPtr->print(std::cout);
     dout() << std::endl;
     dout() <<  "F-vector: nonlinear iteration = " << newtonIter << "\n";
-    externData_.daeFVectorPtr->printPetraObject(std::cout);
+    externData_.daeFVectorPtr->print(std::cout);
     dout() << std::endl;
 
     if (devOptions_.voltageLimiterFlag)
     {
       dout() << "\n\n  dFdxdVp vector: nonlinear iteration = " << newtonIter << "\n";
-      externData_.dFdxdVpVectorPtr->printPetraObject(std::cout);
+      externData_.dFdxdVpVectorPtr->print(std::cout);
       dout() << std::endl;
       dout() << "\n\n  dQdxdVp vector: nonlinear iteration = " << newtonIter << "\n";
-      externData_.dQdxdVpVectorPtr->printPetraObject(std::cout);
+      externData_.dQdxdVpVectorPtr->print(std::cout);
       dout() << std::endl;
     }
 

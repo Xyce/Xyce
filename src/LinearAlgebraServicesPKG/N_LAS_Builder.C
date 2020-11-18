@@ -41,7 +41,6 @@
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Builder.h>
-#include <N_LAS_LAFactory.h>
 #include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
@@ -50,7 +49,8 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
+#include <N_PDS_ParHelpers.h>
 #include <N_PDS_MPI.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Functors.h>
@@ -75,12 +75,11 @@ namespace Linear {
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                                    numVectors,
-                                    *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                          *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -91,11 +90,10 @@ MultiVector * Builder::createMultiVector( const int numVectors, const double val
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createStateMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createStateMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::STATE)),
-                                    numVectors );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STATE)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -106,11 +104,10 @@ MultiVector * Builder::createStateMultiVector( const int numVectors, const doubl
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-MultiVector * Builder::createStoreMultiVector( const int numVectors, const double value ) const
+MultiVector * Builder::createStoreMultiVector( const int numVectors ) const
 {
-  return LAFactory::newMultiVector( value,
-                                    *(pdsMgr_->getParallelMap(Parallel::STORE)),
-                                    numVectors );
+  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STORE)),
+                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -121,11 +118,10 @@ MultiVector * Builder::createStoreMultiVector( const int numVectors, const doubl
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 03/02/01
 //-----------------------------------------------------------------------------
-Vector * Builder::createVector( const double value ) const
+Vector * Builder::createVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                                 *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                       *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -136,10 +132,9 @@ Vector * Builder::createVector( const double value ) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-Vector * Builder::createStateVector( const double value ) const
+Vector * Builder::createStateVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::STATE)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STATE)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -150,10 +145,9 @@ Vector * Builder::createStateVector( const double value ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date :
 //-----------------------------------------------------------------------------
-Vector * Builder::createStoreVector( const double value ) const
+Vector * Builder::createStoreVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::STORE)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STORE)) );
 }
 
 
@@ -165,10 +159,9 @@ Vector * Builder::createStoreVector( const double value ) const
 // Creator       : Eric Keiter, SNL
 // Creation Date :
 //-----------------------------------------------------------------------------
-Vector * Builder::createLeadCurrentVector( const double value ) const
+Vector * Builder::createLeadCurrentVector() const
 {
-    return LAFactory::newVector( value,
-                                 *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
+    return new Vector( *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -179,7 +172,7 @@ Vector * Builder::createLeadCurrentVector( const double value ) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/10/00
 //-----------------------------------------------------------------------------
-Matrix * Builder::createMatrix(const double initialValue) const
+Matrix * Builder::createMatrix() const
 {
 
   Matrix * mat = 0;
@@ -303,19 +296,16 @@ bool Builder::generateParMaps()
     const std::vector<int>& arrayStoreGIDs = lasQueryUtil_->rowList_StoreGID();
     const std::vector<int>& arrayLeadCurrentGIDs = lasQueryUtil_->rowList_LeadCurrentGID();
   
-    N_PDS_ParMap *solnMap = pdsMgr_->createParallelMap(numLocalRows, numLocalRows, arrayGIDs);
-    N_PDS_ParMap *stateMap = pdsMgr_->createParallelMap(numLocalStateVars, numLocalStateVars, arrayStateGIDs);
-    N_PDS_ParMap *storeMap = pdsMgr_->createParallelMap(numLocalStoreVars, numLocalStoreVars, arrayStoreGIDs);
-    N_PDS_ParMap *leadCurrentMap = pdsMgr_->createParallelMap(numLocalLeadCurrentVars, numLocalLeadCurrentVars, arrayLeadCurrentGIDs);
+    N_PDS_ParMap *solnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
+    N_PDS_ParMap *stateMap = Parallel::createPDSParMap(numLocalStateVars, numLocalStateVars, arrayStateGIDs, 0, *(pdsMgr_->getPDSComm()));
+    N_PDS_ParMap *storeMap = Parallel::createPDSParMap(numLocalStoreVars, numLocalStoreVars, arrayStoreGIDs, 0, *(pdsMgr_->getPDSComm()));
+    N_PDS_ParMap *leadCurrentMap = Parallel::createPDSParMap(numLocalLeadCurrentVars, numLocalLeadCurrentVars, 
+                                                             arrayLeadCurrentGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     // Create solution map with ground by appending ground to the end of the arrayGIDs vector.
     arrayGIDs.push_back(-1);
     numLocalRows++;
-    N_PDS_ParMap *overlapGndSolnMap = pdsMgr_->createParallelMap(
-	numLocalRows,
-        numLocalRows,
-        arrayGIDs,
-        -1 );
+    N_PDS_ParMap *overlapGndSolnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
 
     // Register serial maps. 
     pdsMgr_->addParallelMap( Parallel::SOLUTION, solnMap );
@@ -333,7 +323,7 @@ bool Builder::generateParMaps()
     std::vector<int> arrayGIDs = lasQueryUtil_->rowList_GID();
 
     int numGlobalRows = lasQueryUtil_->numGlobalRows();
-    N_PDS_ParMap *solnMap = pdsMgr_->createParallelMap(numGlobalRows, numLocalRows, arrayGIDs);
+    N_PDS_ParMap *solnMap = Parallel::createPDSParMap(numGlobalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     int procCnt = pdsMgr_->getPDSComm()->numProc();
     int numExternRows = lasQueryUtil_->numExternRows();
@@ -345,19 +335,12 @@ bool Builder::generateParMaps()
 
     int numGlobalExternRows = lasQueryUtil_->numGlobalExternRows();
     int totalGlobalRows = numGlobalRows + numGlobalExternRows;
-    N_PDS_ParMap *overlapSolnMap = pdsMgr_->createParallelMap(
-  	totalGlobalRows,
-        totalRows,
-        arrayGIDs );
+    N_PDS_ParMap *overlapSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     arrayGIDs.push_back(-1);
     totalGlobalRows += procCnt;
     totalRows++;
-    N_PDS_ParMap *overlapGndSolnMap = pdsMgr_->createParallelMap(
-	totalGlobalRows,
-        totalRows,
-        arrayGIDs,
-        -1 );
+    N_PDS_ParMap *overlapGndSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
 
     // Register the parallel maps.
     pdsMgr_->addParallelMap( Parallel::SOLUTION, solnMap );
@@ -376,19 +359,22 @@ bool Builder::generateParMaps()
     // Create state map.
     int numGlobalStateVars = lasQueryUtil_->numGlobalStateVars();
     std::vector<int> arrayStateGIDs = lasQueryUtil_->rowList_StateGID();
-    N_PDS_ParMap *stateMap = pdsMgr_->createParallelMap(numGlobalStateVars, numLocalStateVars, arrayStateGIDs);
+    N_PDS_ParMap *stateMap = Parallel::createPDSParMap(numGlobalStateVars, numLocalStateVars, 
+                                                       arrayStateGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::STATE, stateMap );
 
     // Create store map.
     int numGlobalStoreVars = lasQueryUtil_->numGlobalStoreVars();
     std::vector<int> arrayStoreGIDs = lasQueryUtil_->rowList_StoreGID();
-    N_PDS_ParMap *storeMap = pdsMgr_->createParallelMap(numGlobalStoreVars, numLocalStoreVars, arrayStoreGIDs);
+    N_PDS_ParMap *storeMap = Parallel::createPDSParMap(numGlobalStoreVars, numLocalStoreVars, 
+                                                       arrayStoreGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::STORE, storeMap );
 
     // Create lead current map and lead current overlap map.
     int numGlobalLeadCurrentVars = lasQueryUtil_->numGlobalLeadCurrentVars();
     std::vector<int> arrayLeadCurrentGIDs = lasQueryUtil_->rowList_LeadCurrentGID();
-    N_PDS_ParMap *leadCurrentMap = pdsMgr_->createParallelMap(numGlobalLeadCurrentVars, numLocalLeadCurrentVars, arrayLeadCurrentGIDs);
+    N_PDS_ParMap *leadCurrentMap = Parallel::createPDSParMap(numGlobalLeadCurrentVars, numLocalLeadCurrentVars,
+                                                             arrayLeadCurrentGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::LEADCURRENT, leadCurrentMap );
  
     // Add global accessors for parallel data migration.
@@ -415,9 +401,15 @@ bool Builder::generateGraphs()
 
   int numLocalRows_Overlap = rcData.size();
 
-  Epetra_BlockMap & overlapGndMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND )->petraBlockMap());
-  Epetra_BlockMap & overlapMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP )->petraBlockMap());
-  Epetra_BlockMap & localMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION )->petraBlockMap());
+  N_PDS_ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
+  Epetra_BlockMap & overlapGndMap = 
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvGMap)->petraMap());
+  N_PDS_ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
+  Epetra_BlockMap & overlapMap = 
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvMap)->petraMap());
+  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
+  Epetra_BlockMap & localMap = 
+    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap());
 
   Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
 
@@ -555,7 +547,8 @@ bool Builder::setupSeparatedLSObjects()
   // between linear and nonlinear portions of the graph.  The entries of the Jacobian
   // for A and B are static, where C and D can change over the course of a transient.
   //
-  Epetra_Map * baseMap = pdsMgr_->getParallelMap(Parallel::SOLUTION)->petraMap();
+  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
+  Epetra_Map * baseMap = dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap();
   const Epetra_CrsGraph & baseFullGraph = *(pdsMgr_->getMatrixGraph(Parallel::JACOBIAN)->epetraObj());
   int numLocalRows = baseFullGraph.NumMyRows();
 
@@ -663,20 +656,20 @@ bool Builder::setupSeparatedLSObjects()
   pdsMgr_->getPDSComm()->sumAll( &numLinGIDs, &tnumLinGIDs, 1 );
   pdsMgr_->getPDSComm()->sumAll( &numNonlinGIDs, &tnumNonlinGIDs, 1 );
 
-  N_PDS_ParMap * linSolnMap = pdsMgr_->createParallelMap(tnumLinGIDs, numLinGIDs, linGIDs);
-  N_PDS_ParMap * nonlinSolnMap = pdsMgr_->createParallelMap(tnumNonlinGIDs, numNonlinGIDs, finalNLGIDs);
+  N_PDS_ParMap * linSolnMap = Parallel::createPDSParMap(tnumLinGIDs, numLinGIDs, linGIDs, 0, *(pdsMgr_->getPDSComm()));
+  N_PDS_ParMap * nonlinSolnMap = Parallel::createPDSParMap(tnumNonlinGIDs, numNonlinGIDs, finalNLGIDs, 0, *(pdsMgr_->getPDSComm()));
   pdsMgr_->addParallelMap(Parallel::LINEAR_SOLUTION, linSolnMap);
   pdsMgr_->addParallelMap(Parallel::NONLINEAR_SOLUTION, nonlinSolnMap);
 
   if (DEBUG_LINEAR)
   {
     Xyce::dout() << "Linear Solution Map:" << std::endl;
-    linSolnMap->petraMap()->Print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *linSolnMap->petraMap() );
+    linSolnMap->print(std::cout);
+    EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
 
     Xyce::dout() << "Nonlinear Solution Map:" << std::endl;
-    nonlinSolnMap->petraMap()->Print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *nonlinSolnMap->petraMap() );
+    nonlinSolnMap->print(std::cout);
+    EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
 
     // Construct graphs from linear and nonlinear data.
     Xyce::dout() << "Base solution map:" << std::endl;
@@ -688,10 +681,10 @@ bool Builder::setupSeparatedLSObjects()
   Epetra_CrsGraph * linearNLGraph = new Epetra_CrsGraph( Copy, *baseMap, &linNLArrayNZs[0] );
   Epetra_CrsGraph * nlLinearGraph = new Epetra_CrsGraph( Copy, *baseMap, &nlLinArrayNZs[0] );
 
-  Epetra_CrsGraph * lcl_nonlinGraph = new Epetra_CrsGraph( Copy, *nonlinSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_nlLinearGraph = new Epetra_CrsGraph( Copy, *nonlinSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearGraph = new Epetra_CrsGraph( Copy, *linSolnMap->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearNLGraph = new Epetra_CrsGraph( Copy, *linSolnMap->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_nonlinGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_nlLinearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_linearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
+  Epetra_CrsGraph * lcl_linearNLGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
 
   for( int i = 0; i < numLocalRows; ++i )
   {
@@ -744,9 +737,11 @@ bool Builder::setupSeparatedLSObjects()
   lcl_linearGraph->OptimizeStorage();
   lcl_nonlinGraph->FillComplete();
   lcl_nonlinGraph->OptimizeStorage();
-  lcl_linearNLGraph->FillComplete( *nonlinSolnMap->petraMap(), *linSolnMap->petraMap() );
+  lcl_linearNLGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 
+                                   *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
   lcl_linearNLGraph->OptimizeStorage();
-  lcl_nlLinearGraph->FillComplete( *linSolnMap->petraMap(), *nonlinSolnMap->petraMap() );
+  lcl_nlLinearGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 
+                                   *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
   lcl_nlLinearGraph->OptimizeStorage();
 
   pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, 

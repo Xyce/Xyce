@@ -97,12 +97,10 @@ class BlockMultiVector : public MultiVector
 
   // Get the ParMap objects for each BLOCK in this block vector.
   N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
-  N_PDS_ParMap * blockOmap() { return newBlockMap_.get(); }
   const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
-  const N_PDS_ParMap * blockOmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
-  void printPetraObject(std::ostream &os) const;
+  void print(std::ostream &os) const;
 
  private:
 

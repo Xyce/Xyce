@@ -140,20 +140,20 @@ int main(int argc, char* argv[])
         *(comm.petraComm()) // communicator
         );
   N_PDS_ParMap oBaseMap( &oPetraBaseMap, &comm );
-  baseMap.petraMap()->Print(Xyce::dout());
-  oBaseMap.petraMap()->Print(Xyce::dout());
+  baseMap.print(Xyce::dout();
+  oBaseMap.print(Xyce::dout());
 
   // Create block maps for a map including ground nodes.
   std::vector<Teuchos::RCP<N_PDS_ParMap> > blockMaps = 
     createBlockParMaps( numBlocks, baseMap, oBaseMap );
-  blockMaps[0]->petraMap()->Print(Xyce::dout());
-  blockMaps[1]->petraMap()->Print(Xyce::dout());
+  blockMaps[0]->print(Xyce::dout());
+  blockMaps[1]->print(Xyce::dout());
 
   Xyce::dout() << "CREATING NEW BLOCK MAPS!!!" << std::endl;
   std::vector<Teuchos::RCP<N_PDS_ParMap> > blockMaps2 = 
     createBlockParMaps2( numBlocks, baseMap, oBaseMap );
-  blockMaps2[0]->petraMap()->Print(Xyce::dout());
-  blockMaps2[1]->petraMap()->Print(Xyce::dout());
+  blockMaps2[0]->print(Xyce::dout());
+  blockMaps2[1]->print(Xyce::dout());
 
   // Create a block of vectors using the baseMap and oBaseMap
   std::vector<Teuchos::RCP<N_LAS_Vector> > blockVectors2( numBlocks );
@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
   linearStatus = solver->Solve();
   if (linearStatus != 0) Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
 
-  origSoln.printPetraObject();
+  origSoln.print();
 
   // Solve the block problem
 
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
   linearStatus = blockSolver->Solve();
   if (linearStatus != 0) Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
  
-  blockSoln.printPetraObject();
+  blockSoln.print();
   
   return 0;
 

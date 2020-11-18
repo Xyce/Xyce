@@ -52,7 +52,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
 
 #include <Epetra_CrsMatrix.h>
@@ -100,36 +100,6 @@ Matrix::~Matrix()
   }
   if (overlapGraph_)
     delete overlapGraph_;
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::Matrix
-// Purpose       : Constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 06/04/00
-//-----------------------------------------------------------------------------
-Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
-: aDCRSMatrix_(0),
-  oDCRSMatrix_(0),
-  exporter_(0),
-  offsetIndex_(0),
-  aColMap_(0),
-  oColMap_(0),
-  overlapGraph_(0),
-  baseGraph_(0),
-  proxy_( 0, *this ),
-  groundLID_(-1),
-  groundNode_(0.0),
-  isOwned_(true)
-{
-  aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
-  oDCRSMatrix_ = aDCRSMatrix_;
-
-  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
-  overlapGraph_ = baseGraph_;
 }
 
 //-----------------------------------------------------------------------------
@@ -390,27 +360,6 @@ int Matrix::getLocalRowLength(int row) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::putGlobalRow
-// Purpose       : Put a row into the sparse matrix.
-// Special Notes : Replace already allocated values.
-//                 erkeite: note; unlike putRow, this function uses the
-//                 assembled matrix and global ids.
-//
-// Scope         : Public
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 05/24/06
-//-----------------------------------------------------------------------------
-bool Matrix::putGlobalRow(int row, int length, double *coeffs, int *colIndices)
-{
-  int PetraError = aDCRSMatrix_->ReplaceGlobalValues(row, length, coeffs, colIndices);
-
-  if (DEBUG_LINEAR)
-    processError( "Matrix::putRow - ", PetraError );
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Matrix::putLocalRow
 // Purpose       : Put values into a row into the sparse matrix, using local indices.
 // Special Notes :
@@ -473,33 +422,11 @@ void Matrix::getDiagonal( Vector & diagonal ) const
 //-----------------------------------------------------------------------------
 bool Matrix::replaceDiagonal( const Vector & vec )
 {
-  Epetra_Vector * eVec = vec.epetraVector();
+  const Epetra_Vector * eVec = vec.epetraObj()(0);
   int PetraError = aDCRSMatrix_->ReplaceDiagonalValues( *eVec );
-  delete eVec;
 
   if (DEBUG_LINEAR)
     processError( "Matrix::replaceDiagonal - ", PetraError );
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::sumIntoRow
-// Purpose       : Sum values into a row into the sparse matrix.
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 06/04/00
-//-----------------------------------------------------------------------------
-bool Matrix::sumIntoRow(int row, int length, const double * coeffs,
-                                                   const int * colIndices)
-{
-  double * tmp_c = const_cast<double *>(coeffs);
-  int * tmp_i = const_cast<int *>(colIndices);
-  int PetraError = oDCRSMatrix_->SumIntoGlobalValues(row, length, tmp_c, tmp_i);
-
-  if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::sumIntoRow - ", PetraError );
 
   return true;
 }
@@ -583,19 +510,6 @@ double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
 int Matrix::extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
 {
   return oDCRSMatrix_->ExtractMyRowView( lidRow, numEntries, values, indices );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::extractLocalRowView
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 05/18/2010
-//-----------------------------------------------------------------------------
-int Matrix::extractLocalRowView(int lidRow, int& numEntries, double*& values) const
-{
-  return oDCRSMatrix_->ExtractMyRowView( lidRow, numEntries, values);
 }
 
 //-----------------------------------------------------------------------------
@@ -837,14 +751,14 @@ void Matrix::processError(std::string methodMsg, int error) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : operator<<
-// Purpose       : output stream pipe operator for Matrix
+// Function      : print
+// Purpose       : print method for Matrix
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void Matrix::printPetraObject(std::ostream &os) const
+void Matrix::print(std::ostream &os) const
 {
   if (oDCRSMatrix_ != aDCRSMatrix_)
   {
@@ -890,7 +804,7 @@ bool Matrix::useTranspose ()
 N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 {
   if (!oColMap_)
-    oColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
+    oColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
   
   return oColMap_;
 }
@@ -906,7 +820,7 @@ N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
 {
   if (!aColMap_)
-    aColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+    aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
   
   return aColMap_;
 }

@@ -82,7 +82,7 @@ HBBuilder::HBBuilder( const int Size, const bool hbOsc)
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-Vector * HBBuilder::createVector( double initialValue ) const
+Vector * HBBuilder::createVector() const
 {
   RCP<Vector> vector =
     createExpandedRealFormTransposeBlockVector(); 
@@ -257,7 +257,7 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeLeadCurrentBlockVecto
 // Creator       : Todd Coffey, 1414
 // Creation Date : 01/17/07
 //-----------------------------------------------------------------------------
-Vector * HBBuilder::createStateVector( double initialValue ) const
+Vector * HBBuilder::createStateVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numHarmonics_, HBStateMap_, BaseStateMap_ ) );
@@ -271,7 +271,7 @@ Vector * HBBuilder::createStateVector( double initialValue ) const
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-Vector * HBBuilder::createStoreVector( double initialValue ) const
+Vector * HBBuilder::createStoreVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numHarmonics_, HBStoreMap_, BaseStoreMap_ ) );
@@ -285,7 +285,7 @@ Vector * HBBuilder::createStoreVector( double initialValue ) const
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-Vector * HBBuilder::createLeadCurrentVector( double initialValue ) const
+Vector * HBBuilder::createLeadCurrentVector() const
 {
   return dynamic_cast<Vector*>(
         new BlockVector( numHarmonics_, HBLeadCurrentMap_, BaseLeadCurrentMap_ ) );
@@ -306,9 +306,9 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   BaseMap_ = BaseMap;
   oBaseMap_ = oBaseMap;
   //Xyce::dout() << "BaseMap" << std::endl;
-  //BaseMap->petraMap()->Print(std::cout);
+  //BaseMap->print(std::cout);
   //Xyce::dout() << "oBaseMap" << std::endl;
-  //oBaseMap->petraMap()->Print(std::cout);
+  //oBaseMap->print(std::cout);
 
   //Determine block offset
   offset_ = generateOffset( *BaseMap );
@@ -332,9 +332,9 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   oHBMap_ = blockMaps[1];
   
   //Xyce::dout() << "HBMap_" << std::endl;
-  //HBMap_->petraMap()->Print(std::cout);
+  //HBMap_->print(std::cout);
   //Xyce::dout() << "oHBMap_" << std::endl;
-  //oHBMap_->petraMap()->Print(std::cout); 
+  //oHBMap_->print(std::cout); 
 
   int indexBase = oBaseMap_->indexBase();
 

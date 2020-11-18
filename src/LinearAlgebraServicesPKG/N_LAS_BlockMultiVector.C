@@ -42,6 +42,7 @@
 
 #include <N_LAS_BlockMultiVector.h>
 #include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
@@ -88,13 +89,15 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
 
   aMultiVector_->ExtractView( &Ptrs );
 
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
+
   for( int i = 0; i < numBlocks; ++i )
   {
     for( int j = 0; j < numVectors; ++j )
     {
       Loc[j] = Ptrs[j] + localBlockSize_*i;
     }
-    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*newBlockMap_->petraMap()), Loc, numVectors ), true ) );
+    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*(e_map.petraMap())), Loc, numVectors ), true ) );
   }
 
   free(Loc);
@@ -133,13 +136,15 @@ BlockMultiVector::BlockMultiVector( const BlockMultiVector & rhs )
 
       aMultiVector_->ExtractView( &Ptrs );
 
+      N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
+
       for( int i = 0; i < numBlocks; ++i )
       {
         for ( int j = 0; j < numVectors(); ++j )
         {
           Loc[j] = Ptrs[j] + localBlockSize_*i;
         }
-        blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*(newBlockMap_->petraMap())), Loc, numVectors() ), true ) );
+        blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*(e_map.petraMap())), Loc, numVectors() ), true ) );
       }
 
       free(Loc);
@@ -196,14 +201,14 @@ void BlockMultiVector::assembleGlobalVector()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockMultiVector:::printPetraObject
+// Function      : BlockMultiVector:::print
 // Purpose       : Output
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/19/04
 //-----------------------------------------------------------------------------
-void BlockMultiVector::printPetraObject(std::ostream &os) const
+void BlockMultiVector::print(std::ostream &os) const
 {
   os << "BlockMultiVector Object (Number of Blocks =" << numBlocks_ << ", Number of Vectors =" << numVectors() << ", View =" << blocksViewGlobalVec_ << std::endl;
 
@@ -214,7 +219,7 @@ void BlockMultiVector::printPetraObject(std::ostream &os) const
     {
       os << "Block[" << i << "]\n";
     }
-    blocks_[i]->printPetraObject( os );
+    blocks_[i]->print( os );
   }
   os << "Base Object\n";
   os << *aMultiVector_;

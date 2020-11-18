@@ -3,15 +3,17 @@
 
 # class source list
 target_sources(XyceStatic PRIVATE
-      N_PDS_Comm.C
       N_PDS_GlobalAccessor.C
       N_PDS_MPI.C
-      N_PDS_MPIComm.C
       N_PDS_Manager.C
-      N_PDS_ParMap.C
       N_PDS_ParallelMachine.C
+      N_PDS_EpetraMPIComm.C 
+      N_PDS_EpetraSerialComm.C 
+      N_PDS_EpetraHelpers.C 
+      N_PDS_EpetraParMap.C 
       N_PDS_SerialComm.C
       N_PDS_Node.C  )
+
 # add header files to project
 target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

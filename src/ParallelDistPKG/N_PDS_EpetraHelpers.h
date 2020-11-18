@@ -20,43 +20,45 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
-// Purpose        : 
-//                  
-//                  
+// Purpose        : This is collection of non-member functions that help
+//                  in the construction of parallel distribution objects
+//                  in Epetra
 //
-// Special Notes  : 
-//                  
+// Special Notes  :
 //
-// Creator        : David Baur
+// Creator        : Heidi Thornquist, SNL, Electrical Systems Modeling
 //
-// Creation Date  : 
-//
+// Creation Date  : 09/29/20
 //
 //
 //
-//-------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 
-#ifndef XYCE_PDS_Op_h
-#define XYCE_PDS_Op_h
+#ifndef  Xyce_PDS_EPETRAHELPERS_H
+#define  Xyce_PDS_EPETRAHELPERS_H
 
-#include <mpi.h>
-#include <vector>
-#include <iterator>
-#include <stdexcept>
-#include <complex>
+// ---------- Standard Includes ----------
+
+// ----------   Xyce Includes   ----------
+
+#include <N_PDS_Comm.h>
+
+// ---------- Forward Declarations ----------
+
+class Epetra_Comm;
 
 namespace Xyce {
 namespace Parallel {
 
-#ifdef Xyce_PARALLEL_MPI
+N_PDS_Comm * createPDSComm( Epetra_Comm* comm );
 
+const Epetra_Comm* getEpetraComm( const N_PDS_Comm* comm );
+Epetra_Comm* getEpetraComm( N_PDS_Comm* comm );
 
-
-template <class T>
-void sum(T &t) {
-if (
-
-} // namespace Parallel
+} // namespace Parallel 
 } // namespace Xyce
+
+#endif

@@ -57,7 +57,6 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Misc.h>
 
-#include <Epetra_Util.h>
 #include <Teuchos_Utils.hpp>
 
 namespace Xyce {

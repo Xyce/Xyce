@@ -2698,7 +2698,7 @@ bool Interface::computeDfDpMulti
       NOX::Abstract::Vector *DFDP = &dfdp[index+1]; 
       DFDP->init(0.0);
 
-      Teuchos::RCP<Linear::Vector> tmp = sensRHSPtrVector->getNonConstVectorView(index);
+      Teuchos::RCP<Linear::Vector> tmp = Teuchos::rcp( sensRHSPtrVector->getNonConstVectorView(index) );
       Vector tmpNox(*tmp, *lasSysPtr_);
       (*DFDP) = tmpNox;
       DFDP->scale(-1.0);

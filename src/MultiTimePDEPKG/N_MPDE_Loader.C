@@ -287,18 +287,18 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS))
   {
     Xyce::dout() << "MPDE bX:" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     Xyce::dout() << "MPDE bdQdx:" << std::endl;
-    bdQdx.printPetraObject(std::cout);
+    bdQdx.print(std::cout);
     Xyce::dout() << "MPDE bdFdx:" << std::endl;
-    bdFdx.printPetraObject(std::cout);
+    bdFdx.print(std::cout);
 #ifdef Xyce_FLEXIBLE_DAE_LOADS
     Xyce::dout() << "MPDE bS:" << std::endl;
-    bS.printPetraObject(std::cout);
+    bS.print(std::cout);
     Xyce::dout() << "MPDE dSdt:" << std::endl;
-    bdSdt.printPetraObject(std::cout);
+    bdSdt.print(std::cout);
     Xyce::dout() << "MPDE bStore:" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bStore.print(std::cout);
 #endif // Xyce_FLEXIBLE_DAE_LOADS
   
     Xyce::dout() << Xyce::section_divider << std::endl;
@@ -672,26 +672,26 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS))
   {
     Xyce::dout() << "MPDE X Vector" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     Xyce::dout() << "MPDE S Vector" << std::endl;
-    bS.printPetraObject(std::cout);
+    bS.print(std::cout);
     Xyce::dout() << "MPDE dSdt Vector" << std::endl;
-    bdSdt.printPetraObject(std::cout);
+    bdSdt.print(std::cout);
     Xyce::dout() << "MPDE Store Vector" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bStore.print(std::cout);
     Xyce::dout() << "MPDE Q Vector" << std::endl;
-    bQ.printPetraObject(std::cout);
+    bQ.print(std::cout);
     Xyce::dout() << "MPDE F Vector" << std::endl;
-    bF.printPetraObject(std::cout);
+    bF.print(std::cout);
 
 #ifndef Xyce_FLEXIBLE_DAE_LOADS
     bmdQdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "MPDE bmdQdx_" << std::endl;
-    bmdQdxPtr_->printPetraObject(std::cout);
+    bmdQdxPtr_->print(std::cout);
 
     bmdFdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "MPDE bmdFdx_" << std::endl;
-    bmdFdxPtr_->printPetraObject(std::cout);
+    bmdFdxPtr_->print(std::cout);
 #endif // Xyce_FLEXIBLE_DAE_LOADS
 
     Xyce::dout() << Xyce::section_divider << std::endl;

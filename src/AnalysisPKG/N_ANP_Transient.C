@@ -1783,7 +1783,7 @@ bool Transient::doProcessSuccessfulStep()
            << "Newton step succeeded:" << std::endl
            << "nextSolutionPtr: " << std::endl;
 
-    analysisManager_.getDataStore()->nextSolutionPtr->printPetraObject(dout());
+    analysisManager_.getDataStore()->nextSolutionPtr->print(dout());
     dout() << std::endl;
   }
 
@@ -2055,7 +2055,7 @@ bool Transient::doProcessFailedStep()
     dout() << "  Transient::processFailedStep" << std::endl
            << "Newton step failed:" << std::endl
            << "nextSolutionPtr: " << std::endl;
-    analysisManager_.getDataStore()->nextSolutionPtr->printPetraObject(dout());
+    analysisManager_.getDataStore()->nextSolutionPtr->print(dout());
     dout() << std::endl;
   }
 
@@ -2549,7 +2549,8 @@ void Transient::transientLambdaOutput (int it)
     lambdaFile << ds.timeHistory[it];
 
     int iparam=0;
-    Teuchos::RCP<Linear::Vector> functionSens  = ds.functionSensitivityHistory[it]->getNonConstVectorView( iparam );
+    Teuchos::RCP<Linear::Vector> functionSens  = 
+      Teuchos::rcp( ds.functionSensitivityHistory[it]->getNonConstVectorView( iparam ) );
 
     // function sensitivity, R1
     for (int i=0;i<size;i++)
@@ -2624,7 +2625,8 @@ void Transient::transientAdjointSensOutput (int itGlobal)
 
       for (int i1=0;i1<numSensParams_;i1++)
       {
-        Teuchos::RCP<Linear::Vector> func = ds.functionSensitivityHistory[itGlobal]->getNonConstVectorView( i1 );
+        Teuchos::RCP<Linear::Vector> func = 
+          Teuchos::rcp( ds.functionSensitivityHistory[itGlobal]->getNonConstVectorView( i1 ) );
         int size = func->localLength();
 
         for (int i2=0;i2<size;i2++)
@@ -2660,7 +2662,8 @@ void Transient::transientAdjointSensOutput (int itGlobal)
 
     for (int i1=0;i1<numSensParams_;i1++)
     {
-      Teuchos::RCP<Linear::Vector> func = ds.functionSensitivityHistory[itGlobal]->getNonConstVectorView( i1 );
+      Teuchos::RCP<Linear::Vector> func = 
+        Teuchos::rcp( ds.functionSensitivityHistory[itGlobal]->getNonConstVectorView( i1 ) );
       int size = func->localLength();
 
       for (int i2=0;i2<size;i2++)
@@ -3446,10 +3449,10 @@ void Transient::tranopOutputs ()
         dout() << "Transient::tranopOutputs:" << std::endl;
         dout() << "current lead current vector:" << std::endl;
 
-        analysisManager_.getDataStore()->currLeadCurrentPtr->printPetraObject(dout());
+        analysisManager_.getDataStore()->currLeadCurrentPtr->print(dout());
 
         dout() << "current lead current deltaV vector:" << std::endl;
-        analysisManager_.getDataStore()->currLeadDeltaVPtr->printPetraObject(dout());
+        analysisManager_.getDataStore()->currLeadDeltaVPtr->print(dout());
       }
 
       outputManagerAdapter_.tranOutput(analysisManager_.getStepErrorControl().currentTime,

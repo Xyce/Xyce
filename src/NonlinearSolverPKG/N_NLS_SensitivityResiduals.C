@@ -277,17 +277,17 @@ bool slowNumericalDerivatives( int iparam,
 
   // calculate the df/dp vector.  
   double rdp=1/dp;
-  Teuchos::RCP<Linear::Vector> dfdpPtr = dfdpPtrVector->getNonConstVectorView(iparam);
+  Teuchos::RCP<Linear::Vector> dfdpPtr = Teuchos::rcp( dfdpPtrVector->getNonConstVectorView(iparam) );
   dfdpPtr->linearCombo( 1.0, pertFVector, -1.0, origFVector );
   dfdpPtr->scale(rdp);
 
   // calculate the dq/dp vector.  
-  Teuchos::RCP<Linear::Vector> dqdpPtr = dqdpPtrVector->getNonConstVectorView(iparam);
+  Teuchos::RCP<Linear::Vector> dqdpPtr = Teuchos::rcp( dqdpPtrVector->getNonConstVectorView(iparam) );
   dqdpPtr->linearCombo( 1.0, pertQVector, -1.0, origQVector );
   dqdpPtr->scale(rdp);
 
   // calculate the db/dp vector.  
-  Teuchos::RCP<Linear::Vector> dbdpPtr = dbdpPtrVector->getNonConstVectorView(iparam);
+  Teuchos::RCP<Linear::Vector> dbdpPtr = Teuchos::rcp( dbdpPtrVector->getNonConstVectorView(iparam) );
   dbdpPtr->linearCombo( 1.0, pertBVector, -1.0, origBVector );
   dbdpPtr->scale(rdp);
 
@@ -514,9 +514,9 @@ bool loadSensitivityResiduals (
         Report::UserError0() << "loadSensitivityResiduals: ERROR, can't compute dfdp,dqdp,dbdp \n";
       }
 
-      Teuchos::RCP<Linear::Vector> dfdpPtr = dfdpPtrVector->getNonConstVectorView(iparam);
-      Teuchos::RCP<Linear::Vector> dqdpPtr = dqdpPtrVector->getNonConstVectorView(iparam);
-      Teuchos::RCP<Linear::Vector> dbdpPtr = dbdpPtrVector->getNonConstVectorView(iparam);
+      Teuchos::RCP<Linear::Vector> dfdpPtr = Teuchos::rcp( dfdpPtrVector->getNonConstVectorView(iparam) );
+      Teuchos::RCP<Linear::Vector> dqdpPtr = Teuchos::rcp( dqdpPtrVector->getNonConstVectorView(iparam) );
+      Teuchos::RCP<Linear::Vector> dbdpPtr = Teuchos::rcp( dbdpPtrVector->getNonConstVectorView(iparam) );
 
       // ADMS devices with nodes that collapse to ground can have "-1"
       // as their LIDs, meaning the node doesn't really exist

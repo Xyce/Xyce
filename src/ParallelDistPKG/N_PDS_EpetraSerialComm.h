@@ -36,42 +36,44 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_PDS_SerialComm_h
-#define Xyce_N_PDS_SerialComm_h
+#ifndef Xyce_N_PDS_EpetraSerialComm_h
+#define Xyce_N_PDS_EpetraSerialComm_h
 
 #include <N_PDS_fwd.h>
 #include <N_PDS_Comm.h>
 
+#include <Epetra_SerialComm.h>
+
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_SerialComm
+// Class         : N_PDS_EpetraSerialComm
 // Purpose       : Serial communication class for Xyce.
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-class N_PDS_SerialComm : public N_PDS_Comm
+class N_PDS_EpetraSerialComm : public N_PDS_Comm
 {
 
 public:
 
   // Default constructor.
-  N_PDS_SerialComm();
+  N_PDS_EpetraSerialComm();
 
   //Destructor
-  ~N_PDS_SerialComm();
+  ~N_PDS_EpetraSerialComm();
 
   // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_SerialComm(const N_PDS_SerialComm & right);
+  N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm & right);
 
   // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_SerialComm & operator = (const N_PDS_SerialComm & right);
+  N_PDS_EpetraSerialComm & operator = (const N_PDS_EpetraSerialComm & right);
 
   // Cloning
-  N_PDS_Comm * clone() const { return new N_PDS_SerialComm(* this); }
+  N_PDS_Comm * clone() const { return new N_PDS_EpetraSerialComm(* this); }
 
-    Xyce::Parallel::Machine comm() const {
-      return 0;
-    }
+  Xyce::Parallel::Machine comm() const {
+    return 0;
+  }
     
   // Get my processor ID.
   int procID() const { return 0; }

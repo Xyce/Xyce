@@ -60,9 +60,9 @@ class BlockVector : public Vector
 {
  public:
   BlockVector( int numBlocks,
-                     const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                     const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
-                     int augmentRows = 0 );
+               const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+               const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+               int augmentRows = 0 );
 
   // Constructor that uses the block size to divide up the number of elements on
   // each processor into vectors whose values are all "owned" by one processor.
@@ -70,27 +70,14 @@ class BlockVector : public Vector
   BlockVector( int blockSize,
                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
                int augmentRows = 0 );
-  
-  // Constructors to map to Petra constructors.
-  BlockVector( int numBlocks,
-                     const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                     const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
-                     const Teuchos::RCP<N_PDS_ParMap> & osubBlockMap,
-                     int augmentRows = 0 );
 
   //Copy constructor
   BlockVector( const BlockVector & right );
 
-  //Copy constructor
-  BlockVector( const Vector & right, const Teuchos::RCP<N_PDS_ParMap> & subBlockMap, int numBlocks );
-
-  //Copy constructor
-  //NOTE:  This constructor assumes that the MultiVector is divided up into blockSize subvectors,
+  // View constructor
+  //NOTE:  This constructor assumes that the Vector is divided up into blockSize subvectors,
   //       whose values are solely owned by one of the processors.
-  BlockVector( const MultiVector & right, int blockSize, int col=0 );
-
-  //View constructor
-  BlockVector( Epetra_Vector * vector, const Teuchos::RCP<N_PDS_ParMap> & subBlockMap, int numBlocks, bool isOwned );
+  BlockVector( const Vector * right, int blockSize );
 
   // Destructor
   virtual ~BlockVector() {};
@@ -122,12 +109,10 @@ class BlockVector : public Vector
 
   // Get the ParMap objects for each BLOCK in this block vector.
   N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
-  N_PDS_ParMap * blockOmap() { return newoBlockMap_.get(); }
   const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
-  const N_PDS_ParMap * blockOmap() const { return newoBlockMap_.get(); }
 
   // Print out the underlying data in this object.
-  void printPetraObject(std::ostream &os) const;
+  void print(std::ostream &os) const;
 
  private:
 
@@ -143,7 +128,7 @@ class BlockVector : public Vector
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
 
-  Teuchos::RCP<N_PDS_ParMap> newBlockMap_, newoBlockMap_;
+  Teuchos::RCP<N_PDS_ParMap> newBlockMap_;
 
   std::vector<Teuchos::RCP<Vector> > blocks_;
 

@@ -51,7 +51,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_FilteredMatrix.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_FeatureTest.h>
 
@@ -240,6 +240,8 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
     indexBase = matrix->oDCRSMatrix_->IndexBase();
   }
 
+  const N_PDS_EpetraParMap* e_map = dynamic_cast<const N_PDS_EpetraParMap*>( map );
+
   // Delete/clear all internal objects and recreate them
   if (reset)
   {
@@ -412,9 +414,9 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
 
       if (globalColsOffProc)
       {
-        importer_ = Teuchos::rcp( new Epetra_Import( matrix->aDCRSMatrix_->ColMap(), *(map->petraMap() ) ) ); 
-        targetMap_ = Teuchos::rcp( new N_PDS_ParMap( new Epetra_Map( matrix->aDCRSMatrix_->ColMap() ),
-                                                     const_cast<N_PDS_Comm&>( map->pdsComm() ) ) );
+        importer_ = Teuchos::rcp( new Epetra_Import( matrix->aDCRSMatrix_->ColMap(), *(e_map->petraMap() ) ) ); 
+        targetMap_ = Teuchos::rcp( new N_PDS_EpetraParMap( new Epetra_Map( matrix->aDCRSMatrix_->ColMap() ),
+                                                           const_cast<N_PDS_Comm&>( map->pdsComm() ) ) );
         // Compute the local indicies for the target map.
         for (unsigned int i=0; i<vecIndices_.size(); i++)
         {

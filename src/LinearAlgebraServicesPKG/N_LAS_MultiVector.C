@@ -48,7 +48,8 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_Comm.h>
-#include <N_PDS_ParMap.h>
+#include <N_PDS_EpetraHelpers.h>
+#include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
 
 // ---------  Other Includes  -----------
@@ -80,8 +81,8 @@ namespace Linear {
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
-:  parallelMap_(rcp(&map,false)),
-   overlapMap_(rcp(&map,false)),
+:  parallelMap_(&map),
+   overlapMap_(&map),
    importer_(0),
    exporter_(0),
    viewTransform_(0),
@@ -101,7 +102,8 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
   }
 
   // Create a new Petra MultiVector and set the pointer.
-  aMultiVector_ = new Epetra_MultiVector( *map.petraBlockMap(), numVectors );
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  aMultiVector_ = new Epetra_MultiVector( *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), numVectors );
 
   oMultiVector_ = aMultiVector_;
 }
@@ -118,8 +120,8 @@ MultiVector::MultiVector(
   N_PDS_ParMap &        map,
   N_PDS_ParMap &        ol_map,
   int                   numVectors )
-  : parallelMap_(rcp(&map,false)),
-    overlapMap_(rcp(&ol_map,false)),
+  : parallelMap_(&map),
+    overlapMap_(&ol_map),
     importer_(0),
     exporter_(0),
     viewTransform_(0),
@@ -132,18 +134,21 @@ MultiVector::MultiVector(
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
-  oMultiVector_ = new Epetra_MultiVector(*ol_map.petraBlockMap(), numVectors);
+  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  N_PDS_EpetraParMap& e_ol_map = dynamic_cast<N_PDS_EpetraParMap&>( ol_map );
+  oMultiVector_ = new Epetra_MultiVector(*dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), numVectors);
 
   viewTransform_ = new EpetraExt::MultiVector_View(
-    *overlapMap_->petraBlockMap(), *parallelMap_->petraBlockMap());
+    *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()));
   aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
   if (map.pdsComm().numProc() > 1)
   {
-    exporter_ = new Epetra_Export( *overlapMap_->petraBlockMap(),
-                                   *parallelMap_->petraBlockMap() );
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
   }
 
-  importer_ = new Epetra_Import( *overlapMap_->petraBlockMap(), *parallelMap_->petraBlockMap() );
+  importer_ = new Epetra_Import( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), 
+                                 *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
 }
 
 //-----------------------------------------------------------------------------
@@ -169,16 +174,22 @@ MultiVector::MultiVector( const MultiVector & right )
     aMultiVector_ = oMultiVector_;
   else
   {
-    viewTransform_ = new EpetraExt::MultiVector_View( *overlapMap_->petraBlockMap(),
-                                                      *parallelMap_->petraBlockMap() );
+    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
+    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+
+    viewTransform_ = new EpetraExt::MultiVector_View( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
+                                                      *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
   }
 
   // Generate new exporter instead of using copy constructor, there is an issue with Epetra_MpiDistributor
   if( right.exporter_ ) 
   {
-    exporter_ = new Epetra_Export( *overlapMap_->petraBlockMap(),
-                                   *parallelMap_->petraBlockMap() );
+    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
+    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+
+    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
+                                   *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
   }
   if( right.importer_ ) importer_ = new Epetra_Import( *right.importer_ );
 }
@@ -192,7 +203,9 @@ MultiVector::MultiVector( const MultiVector & right )
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned )
-: oMultiVector_( overlapMV ),
+: parallelMap_(0),
+  overlapMap_(0),
+  oMultiVector_( overlapMV ),
   importer_(0),
   exporter_(0),
   viewTransform_(0),
@@ -212,25 +225,8 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
     importer_ = new Epetra_Import( overlapMV->Map(), parMap );
   }
 
-#ifdef Xyce_PARALLEL_MPI
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( overlapMV->Comm() );
-  Epetra_MpiComm * empicomm = dynamic_cast<Epetra_MpiComm *>( &ecomm );
-
-  if (empicomm)
-  {
-    pdsComm_= Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, empicomm->Comm() ) );
-  }
-  else
-  {
-    // This is a parallel build executed using one processor.
-    pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, MPI_COMM_WORLD ) );
-  }
-
-#else
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm(0, 0, MPI_COMM_NULL) );
-#endif
-
-
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );  
 }
 
 //-----------------------------------------------------------------------------
@@ -242,7 +238,9 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
-: aMultiVector_( origMV ),
+: parallelMap_(0),
+  overlapMap_(0),
+  aMultiVector_( origMV ),
   oMultiVector_( origMV ),
   importer_(0),
   exporter_(0),
@@ -250,23 +248,8 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
   isOwned_(isOwned),
   groundNode_(0.0)
 {
-#ifdef Xyce_PARALLEL_MPI
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( origMV->Comm() );
-  Epetra_MpiComm * empicomm = dynamic_cast<Epetra_MpiComm *>( &ecomm );
-
-  if (empicomm)
-  {
-    pdsComm_= Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, empicomm->Comm() ) );
-  }
-  else
-  { 
-    // This is a parallel build executed using one processor.
-    pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( 0, 0, MPI_COMM_WORLD ) );
-  }
-
-#else
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm(0, 0, MPI_COMM_NULL) );
-#endif
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -805,10 +788,10 @@ void MultiVector::reciprocal(const MultiVector & A)
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-RCP<const Vector> MultiVector::getVectorView(int index) const
+const Vector* MultiVector::getVectorView(int index) const
 {
-  RCP<const Vector> vec = rcp(new Vector((*oMultiVector_)(index),
-                                         aMultiVector_->Map(),false), true);
+  const Vector* vec = new Vector((*oMultiVector_)(index),
+                                  aMultiVector_->Map(),false);
   return vec;
 }
 
@@ -820,38 +803,42 @@ RCP<const Vector> MultiVector::getVectorView(int index) const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-RCP<Vector> MultiVector::getNonConstVectorView(int index)
+Vector* MultiVector::getNonConstVectorView(int index)
 {
-  RCP<Vector> vec = rcp(new Vector((*oMultiVector_)(index),
-                                   aMultiVector_->Map(),false), true);
+  Vector* vec = new Vector((*oMultiVector_)(index),
+                            aMultiVector_->Map(),false);
   return vec;
 }
 
-// //-----------------------------------------------------------------------------
-// // Function      : MultiVector::operator []
-// // Purpose       : "[]" operator for MultiVector.
-// // Special Notes :
-// // Scope         : Public
-// // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// // Creation Date : 05/23/00
-// //-----------------------------------------------------------------------------
-// double *& MultiVector::operator[](int index)
-// {
-//   return (*oMultiVector_)[index];
-// }
+//-----------------------------------------------------------------------------
+// Function      : MultiVector::getVectorView
+// Purpose       : Const view of individual vector in MultiVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Todd Coffey, 1414
+// Creation Date : 9/11/08
+//-----------------------------------------------------------------------------
+const Vector* MultiVector::getVectorViewAssembled(int index) const
+{
+  const Vector* vec = new Vector( new 
+                      Epetra_Vector( View, *aMultiVector_, index ), true );
+  return vec;
+}
 
-// //-----------------------------------------------------------------------------
-// // Function      : MultiVector::operator []
-// // Purpose       : "[]" operator for MultiVector.
-// // Special Notes : This version returns a "const double".
-// // Scope         : Public
-// // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// // Creation Date : 05/23/00
-// //-----------------------------------------------------------------------------
-// const double *& MultiVector::operator[](int index) const
-// {
-//   return const_cast <const double *&> ((*oMultiVector_)[index]);
-// }
+//-----------------------------------------------------------------------------
+// Function      : MultiVector::getNonConstVectorView
+// Purpose       : NonConst view of individual vector in MultiVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Todd Coffey, 1414
+// Creation Date : 9/11/08
+//-----------------------------------------------------------------------------
+Vector* MultiVector::getNonConstVectorViewAssembled(int index)
+{
+  Vector* vec = new Vector( new 
+                Epetra_Vector( View, *aMultiVector_, index ), true );
+  return vec;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : MultiVector::fillComplete
@@ -1000,7 +987,7 @@ const double & MultiVector::getElementByGlobalIndex(
 {
   if( aMultiVector_ != oMultiVector_ )
     return (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)];
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     return (*aMultiVector_)[vec_index][ aMultiVector_->Map().LID(global_index) ];
   else
   {
@@ -1040,7 +1027,7 @@ bool MultiVector::setElementByGlobalIndex(const int & global_index,
 {
   if( aMultiVector_ != oMultiVector_ )
     (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)] = val;
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     (*oMultiVector_)[vec_index][ oMultiVector_->Map().LID(global_index) ] = val;
   else
   {
@@ -1078,7 +1065,7 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
 {
   if( aMultiVector_ != oMultiVector_ )
     (*oMultiVector_)[vec_index][overlapMap_->globalToLocalIndex(global_index)] += val;
-  else if( parallelMap_ == Teuchos::null )
+  else if( parallelMap_ == NULL )
     (*oMultiVector_)[vec_index][ oMultiVector_->Map().LID(global_index) ] += val;
   else
   {
@@ -1104,27 +1091,14 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : epetraVector
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 02/19/03
-//-----------------------------------------------------------------------------
-Epetra_Vector * MultiVector::epetraVector( int index ) const
-{
-  return new Epetra_Vector( View, *aMultiVector_, index );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : printPetraObject
+// Function      : print
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void MultiVector::printPetraObject(std::ostream &os) const
+void MultiVector::print(std::ostream &os) const
 {
   if (aMultiVector_ != oMultiVector_)
   {

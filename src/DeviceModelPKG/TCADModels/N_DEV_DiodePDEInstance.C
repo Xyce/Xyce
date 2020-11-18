@@ -2407,10 +2407,10 @@ bool Instance::calcConductance (int iElectrode, const Linear::Vector * dxdvPtr)
         //
         // As of this writing, this problems isn't resolved and I need to move on.
         Xyce::dout() << "(2,2) dIdX vector:"<<std::endl;
-        dIdX.printPetraObject(Xyce::dout());
+        dIdX.print(Xyce::dout());
 
         Xyce::dout() << "(2,2) dxdv vector:"<<std::endl;
-        dxdv.printPetraObject(Xyce::dout());
+        dxdv.print(Xyce::dout());
 
         double testDotProd = dxdv.dotProduct( dIdX );
         Xyce::dout() << "test dot product = " << testDotProd <<std::endl;

@@ -39,9 +39,6 @@
 #ifndef Xyce_N_LAS_Vector_h
 #define Xyce_N_LAS_Vector_h
 
-#include <string>
-#include <map>
-
 #include <N_LAS_MultiVector.h>
 
 #include <Epetra_Vector.h>
@@ -78,11 +75,11 @@ public:
   : MultiVector(right)
   {}
 
-  // Constructor that wraps an Epetra multivector inside a Linear::MultiVector.
+  // Constructor that wraps an Epetra vector inside a Linear::Vector.
   // This is used in the nonlinear solver and linear solver interface.
   Vector( Epetra_Vector * origV, bool isOwned);
 
-  // Constructor takes the oMultiVector and generates the aMultiVector
+  // Constructor takes the overlap Epetra vector and generates the assembled vector.
   Vector( Epetra_Vector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned = true );
 
   // Destructor

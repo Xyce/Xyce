@@ -228,10 +228,10 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   Linear::BlockVector & bXf = *dynamic_cast<Linear::BlockVector*>(Xf);
 
   // We have to do something special with Vf because AztecOO (or Belos)
-  // probably used the Epetra_LinearProblem's Epetra_Maps to create the input
+  // probably used the LinearProblem's maps to create the input
   // vector here.  In this case, Vf is just an Linear::Vector and not a
   // Linear::BlockVector.
-  const Linear::BlockVector bVf(Vf, bXf.blockSize());
+  const Linear::BlockVector bVf(&Vf, bXf.blockSize());
 
   if (hbOsc_)
   {
@@ -284,13 +284,13 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
       if (DEBUG_HB)
       {
         Xyce::dout() << "bVtPtr block i = " << i << " : " << std::endl;
-        bVtPtr_->block(i).printPetraObject(dout());
+        bVtPtr_->block(i).print(dout());
 
         Xyce::dout() << "bdQdxVt block i = " << i << " : " << std::endl;
-        bdQdxVt->block(i).printPetraObject(dout());
+        bdQdxVt->block(i).print(dout());
 
         Xyce::dout() << "bdFdxVt block i = " << i << " : " << std::endl;
-        bdFdxVt->block(i).printPetraObject(dout());
+        bdFdxVt->block(i).print(dout());
       }
     }
 
@@ -417,11 +417,11 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   if (DEBUG_HB)
   {
     Xyce::dout() << "HB bVf:" << std::endl;
-    bVf.printPetraObject(std::cout);
+    bVf.print(std::cout);
     Xyce::dout() << "HB bdQdxV:" << std::endl;
-    bdQdxV->printPetraObject(std::cout);
+    bdQdxV->print(std::cout);
     Xyce::dout() << "HB bdFdxV:" << std::endl;
-    bdFdxV->printPetraObject(std::cout);
+    bdFdxV->print(std::cout);
 
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
@@ -479,7 +479,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
                                     Linear::BlockVector & permlindFdxV )
 {
   int numharms = bVtPtr_->blockCount();
-  const Linear::BlockVector bVf(Vf, 2*numharms);
+  const Linear::BlockVector bVf(&Vf, 2*numharms);
   int first = bVf.startBlock();
 
   Teuchos::RCP<const Linear::Vector> Vf_overlap;
@@ -997,13 +997,13 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
 /*
     Xyce::dout() << "HB X Vector" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     Xyce::dout() << "HB Q Vector" << std::endl;
-    bQ->printPetraObject(std::cout);
+    bQ->print(std::cout);
     Xyce::dout() << "HB F Vector" << std::endl;
-    bF->printPetraObject(std::cout);
+    bF->print(std::cout);
     Xyce::dout() << "HB B Vector" << std::endl;
-    bB->printPetraObject(std::cout);
+    bB->print(std::cout);
 */
 
   int blockCount = bXf.blockCount();
@@ -1108,21 +1108,21 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
   if (DEBUG_HB)
   {
     Xyce::dout() << "HB X Vector" << std::endl;
-    bX.printPetraObject(std::cout);
+    bX.print(std::cout);
     //  Xyce::dout() << "HB S Vector" << std::endl;
-    //  bS.printPetraObject(Xyce::dout());
+    //  bS.print(Xyce::dout());
     //  Xyce::dout() << "HB dSdt Vector" << std::endl;
-    //  bdSdt.printPetraObject(Xyce::dout());
+    //  bdSdt.print(Xyce::dout());
     Xyce::dout() << "HB Store Vector" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bStore.print(std::cout);
     Xyce::dout() << "HB Q Vector" << std::endl;
-    bQ->printPetraObject(std::cout);
+    bQ->print(std::cout);
     Xyce::dout() << "HB F Vector" << std::endl;
-    bF->printPetraObject(std::cout);
+    bF->print(std::cout);
     Xyce::dout() << "HB bdFdxdVp Vector" << std::endl;
-    bdFdxdVp->printPetraObject(std::cout);
+    bdFdxdVp->print(std::cout);
     Xyce::dout() << "HB bdQdxdVp Vector" << std::endl;
-    bdQdxdVp->printPetraObject(std::cout);
+    bdQdxdVp->print(std::cout);
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
 
@@ -1179,7 +1179,7 @@ HBLoader::loadDeviceErrorWeightMask(
 #if 0
   Xyce::dout() << "bDevMask.blockCount = "<< blockCount <<std::endl;
   Xyce::dout() << "bDevMask.blockSize = "<< blockSize <<std::endl;
-  appVecPtr_->printPetraObject(Xyce::dout());
+  appVecPtr_->print(Xyce::dout());
 #endif
 
   //Teuchos::RCP<N_PDS_ParMap> baseMap = Teuchos::rcp_const_cast<N_PDS_ParMap>( hbBuilderPtr_->getBaseStoreMap() );
@@ -1199,7 +1199,7 @@ HBLoader::loadDeviceErrorWeightMask(
   }
 
 #if 0
-  bDevMask.printPetraObject(Xyce::dout());
+  bDevMask.print(Xyce::dout());
 #endif
 
   return returnValue;

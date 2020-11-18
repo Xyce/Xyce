@@ -1063,10 +1063,10 @@ bool NOISE::updateACLinearSystem_C_and_G_()
   if (DEBUG_TIME && isActive(Diag::TIME_PARAMETERS))
   {
     Xyce::dout() << "dQdxMatrixPtr:" << std::endl;
-    analysisManager_.getDataStore()->dQdxMatrixPtr->printPetraObject( Xyce::dout() );
+    analysisManager_.getDataStore()->dQdxMatrixPtr->print( Xyce::dout() );
 
     Xyce::dout() << "dFdxMatrixPtr:" << std::endl;
-    analysisManager_.getDataStore()->dFdxMatrixPtr->printPetraObject( Xyce::dout() );
+    analysisManager_.getDataStore()->dFdxMatrixPtr->print( Xyce::dout() );
 
     Xyce::dout() << std::endl;
   }
@@ -1285,13 +1285,13 @@ void NOISE::resetAdjointNOISELinearSystem_()
   if (DEBUG_ANALYSIS)
   {
     Xyce::dout()<<"adjoint noise B vector:"<<std::endl;
-    B_->printPetraObject(Xyce::dout());
+    B_->print(Xyce::dout());
   }
 
   if (DEBUG_ANALYSIS)
   {
     Xyce::dout()<<"matrix:"<<std::endl;
-    ACMatrix_->printPetraObject(Xyce::dout());
+    ACMatrix_->print(Xyce::dout());
   }
 }
 
@@ -1335,9 +1335,9 @@ bool NOISE::solveAdjointNOISE_()
   if (DEBUG_ANALYSIS)
   {
     std::cout << "Xreal: ------------------------------------"<<std::endl;
-    Xreal.printPetraObject( Xyce::dout() );
+    Xreal.print( Xyce::dout() );
     std::cout << "Ximag: ------------------------------------"<<std::endl;
-    Ximag.printPetraObject( Xyce::dout() );
+    Ximag.print( Xyce::dout() );
   }
 
   N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();

@@ -53,6 +53,7 @@
 #include <N_UTL_Timer.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_EpetraParMap.h>
 
 #include <Epetra_MultiVector.h>
 #include <Epetra_CrsMatrix.h>
@@ -561,8 +562,9 @@ void PCEDirectSolver::createBlockStructures()
   {
     // ERK note, currently the builder that is passed into this class is an PCE builder.  Not sure if this is 
     // correct builder for these function calls.  Check this.
-    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(pceBuilderPtr_->getSolutionMap()->petraMap()), 0 ) ) );
-    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(pceBuilderPtr_->getSolutionMap()->petraMap()) ) );
+    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(pceBuilderPtr_->getSolutionMap());
+    serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
+    serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
     serialB_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
   }
@@ -752,12 +754,12 @@ void PCEDirectSolver::formPCEJacobian()
 
     if (numProcs > 1)
     {
-      serialB_->Import( *(B->epetraVector( j )), *serialImporter_, Insert );
+      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
       B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
-      B_j = B->getNonConstVectorView( j );
+      B_j = Teuchos::rcp( B->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )
@@ -886,7 +888,7 @@ int PCEDirectSolver::solve()
     }
     else
     {
-      X_j = X->getNonConstVectorView( j );
+      X_j = Teuchos::rcp( X->getNonConstVectorView( j ) );
     } 
 
     if ( myProc == 0 )
@@ -958,7 +960,7 @@ int PCEDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      X->epetraVector( j )->Export( *serialX_, *serialImporter_, Add );
+      (X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
     }
   }
 
@@ -1078,12 +1080,12 @@ void PCEDirectSolver::printPCEResidual( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      serialB_->Import( *(B->epetraVector( j )), *serialImporter_, Insert );
+      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
       B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
-      B_j = B->getNonConstVectorView( j );
+      B_j = Teuchos::rcp( B->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )
@@ -1146,7 +1148,7 @@ void PCEDirectSolver::printPCESolution( const std::string& fileName )
     }
     else
     {
-      X_j = X->getNonConstVectorView( j );
+      X_j = Teuchos::rcp( X->getNonConstVectorView( j ) );
     }
 
     if ( myProc == 0 )

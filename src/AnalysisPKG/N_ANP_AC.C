@@ -1037,10 +1037,10 @@ bool AC::updateLinearSystem_C_and_G_()
   if (DEBUG_TIME && isActive(Diag::TIME_PARAMETERS))
   {
     Xyce::dout() << "dQdxMatrixPtr:" << std::endl;
-    analysisManager_.getDataStore()->dQdxMatrixPtr->printPetraObject( Xyce::dout() );
+    analysisManager_.getDataStore()->dQdxMatrixPtr->print( Xyce::dout() );
 
     Xyce::dout() << "dFdxMatrixPtr:" << std::endl;
-    analysisManager_.getDataStore()->dFdxMatrixPtr->printPetraObject( Xyce::dout() );
+    analysisManager_.getDataStore()->dFdxMatrixPtr->print( Xyce::dout() );
 
     Xyce::dout() << std::endl;
   }
