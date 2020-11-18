@@ -8,8 +8,6 @@
 #cmakedefine HAVE_UNORDERED_SET
 #cmakedefine HAVE_ERF
 #cmakedefine HAVE_ERFC
-#cmakedefine HAVE_ISNAN
-#cmakedefine HAVE_ISINF
 
 // This is required (so why is it ifdef'd?)
 #cmakedefine Xyce_BELOS

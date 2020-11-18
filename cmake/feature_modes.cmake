@@ -6,9 +6,6 @@ set (HAVE_UNORDERED_MAP TRUE)
 set (HAVE_UNORDERED_SET TRUE)
 set (HAVE_ERF TRUE)
 set (HAVE_ERFC TRUE)
-# These may be problematic on Windows????????
-set (HAVE_ISNAN TRUE)
-set (HAVE_ISINF TRUE)
 
 # END C++11 features
 

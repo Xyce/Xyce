@@ -34,15 +34,6 @@
 #include <N_DEV_DeviceSupport.h>
 #include <N_ERH_ErrorMgr.h>
 
-#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
-#include <float.h>
-#define isnan(x) _isnan(x)
-#define isinf(x) (!_finite(x))
-#else
-#define isnan(x) std::isnan(x)
-#define isinf(x) std::isinf(x)
-#endif
-
 namespace Xyce {
 namespace IO {
 namespace Measure {
@@ -447,7 +438,7 @@ void Err3::updateErrVars(double mVal, double cVal)
 
   // numPts_ is always incremented, but inf or nan is not
   // added to the sum-squared accumulator.
-  if (!isnan(err3_subi) && !isinf(err3_subi))
+  if (!std::isnan(err3_subi) && !std::isinf(err3_subi))
     err3SqSum_ += err3_subi * err3_subi;
 
   return;

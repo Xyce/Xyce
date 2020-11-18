@@ -451,7 +451,7 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
         relJacQ[j][i] = relError_dQdx;
 
 #ifdef Xyce_DEBUG_TESTJAC
-        if (isnan(numJacF[j][i]))
+        if (std::isnan(numJacF[j][i]))
         {
           testDebugOut (instance, nameVec, i, j);
         }

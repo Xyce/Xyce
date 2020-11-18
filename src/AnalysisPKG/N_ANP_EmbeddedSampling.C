@@ -101,15 +101,6 @@
 #include <Stokhos_Sacado.hpp>
 #endif
 
-// ---------- Standard Includes ----------
-#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
-#include <float.h>
-#define isnan(x) _isnan(x)
-#define isinf(x) (!_finite(x))
-#else
-#define isnan(x) std::isnan(x)
-#define isinf(x) std::isinf(x)
-#endif
 
 namespace Xyce {
 namespace Analysis {
@@ -1559,17 +1550,17 @@ void EmbeddedSampling::hackEnsembleOutput ()
         double pce_stddev = regressionPCE.standard_deviation();
         double pce_variance = pce_stddev*pce_stddev;
 
-        if ( isinf(pce_mean) || isnan(pce_mean) )
+        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
         {
           pce_mean = 0.0;
         }
 
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
+        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
         {
           pce_stddev = 0.0;
         }
 
-        if ( isinf(pce_variance) || isnan(pce_variance) )
+        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
         {
           pce_variance = 0.0;
         }
@@ -1602,17 +1593,17 @@ void EmbeddedSampling::hackEnsembleOutput ()
         double pce_stddev = projectionPCE.standard_deviation();
         double pce_variance = pce_stddev*pce_stddev;
 
-        if ( isinf(pce_mean) || isnan(pce_mean) )
+        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
         {
           pce_mean = 0.0;
         }
 
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
+        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
         {
           pce_stddev = 0.0;
         }
 
-        if ( isinf(pce_variance) || isnan(pce_variance) )
+        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
         {
           pce_variance = 0.0;
         }

@@ -42,15 +42,6 @@
 #include <N_UTL_RandomNumbers.h>
 #endif
 
-#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
-#include <float.h>
-#define isnan(x) _isnan(x)
-#define isinf(x) (!_finite(x))
-#else
-#define isnan(x) std::isnan(x)
-#define isinf(x) std::isinf(x)
-#endif
-
 namespace Xyce {
 namespace Analysis {
 namespace UQ {
@@ -135,11 +126,11 @@ void computeStats (const std::vector<double> & values, statisticalMoments & sm)
   // use case in which this has been observed to happen is if 
   // variance is negative, which produces stddev=nan.  That problem
   // has been mitigated, above.
-  if ( isinf(mean) || isnan(mean) ) { mean = 0.0; }
-  if ( isinf(stddev) || isnan(stddev) ) { stddev = 0.0; }
-  if ( isinf(variance) || isnan(variance) ) { variance = 0.0; }
-  if ( isinf(skew) || isnan(skew) ) { skew = 0.0; }
-  if ( isinf(kurtosis) || isnan(kurtosis) ) { kurtosis = 0.0; }
+  if ( std::isinf(mean) || std::isnan(mean) ) { mean = 0.0; }
+  if ( std::isinf(stddev) || std::isnan(stddev) ) { stddev = 0.0; }
+  if ( std::isinf(variance) || std::isnan(variance) ) { variance = 0.0; }
+  if ( std::isinf(skew) || std::isnan(skew) ) { skew = 0.0; }
+  if ( std::isinf(kurtosis) || std::isnan(kurtosis) ) { kurtosis = 0.0; }
 
   sm.mean = mean;
   sm.stddev = stddev;

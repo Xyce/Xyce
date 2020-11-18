@@ -548,11 +548,6 @@ AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FILES(/proc/self/stat)
 AC_CHECK_HEADERS(mathimf.h)
 
-dnl *********************************************************************
-dnl See if compiler supplies a nan/inf checker.  This must be done after the
-dnl cmath probe, because some platforms have wonky cmath/math.h pairs.
-AC_FINITE_NUMBER_CHECK
-
 dnl CAREFUL --- if parallel is enabled, epetra needs MPI, so better have
 dnl it later in the libs path! (which means detecting it earlier, since
 dnl LIBS is assembled right to left)

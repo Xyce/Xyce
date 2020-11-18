@@ -46,15 +46,6 @@
 #include <newExpression.h>
 #include <N_ERH_Message.h>
 
-#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
-#include <float.h>
-#define isnan(x) _isnan(x)
-#define isinf(x) (!_finite(x))
-#else
-#define isnan(x) std::isnan(x)
-#define isinf(x) std::isinf(x)
-#endif
-
 //-------------------------------------------------------------------------------
 // Expression Lexer/Parser header stuff
 //
@@ -1841,8 +1832,8 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   // fix these properly for std::complex later.
   for(int ii=0;ii<derivs.size();++ii)
   {
-    if ( isnan(std::real(derivs[ii])) ) { derivs[ii] = 0.0; }
-    if ( isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this
+    if ( std::isnan(std::real(derivs[ii])) ) { derivs[ii] = 0.0; }
+    if ( std::isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this
   }
   // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
