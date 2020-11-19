@@ -36,7 +36,20 @@
 \textbf{ISSUE NUMBER}:  Placeholder title&
 Placeholder description.
 \\ \hline
-
+\textbf{Gitlab-ex issue 103}: Fix glitches in transmission line at breakpoints &
+The lossless transmission line is an ideal behavioral device that
+operates by keeping a record of the histories of the two ends of the
+line, and using interpolation on that history to look up prior
+behavior at a time in the past in order to determine the current
+behavior.  This interpolation is generally done using three-point
+quadratic Lagrange interpolation.  It has been determined that Xyce
+has historically been producing small ``glitches'' at the corners of
+pulsed signals because quadratic interpolation is not really
+appropriate with piecewise linear signals at the corners where the
+slope changes signficantly.  Xyce now detects when such
+discontinuities in derivative occur and performs linear interpolation
+instead.  This prevents the small overshoots that have been observed
+in these cases in all prior versions of Xyce. \\ \hline
 \textbf{1203-SON}: Issues with temperature-dependent device
 instance-parameters that were expression-based & The values for
 temperature-dependent device instance parameters could be incorrect
@@ -57,7 +70,7 @@ R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \end{verbatim}
 
 \\ \hline
-\textbf{Gitlab Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
+\textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
 Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
 has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
 syntax to read a file into a table.  A double quoted string is 
