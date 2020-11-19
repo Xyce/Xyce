@@ -305,6 +305,45 @@ MultiVector::~MultiVector()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MultiVector::clone
+// Purpose       : clone multivector
+// Special Notes : clone shape, not values
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 11/18/20
+//-----------------------------------------------------------------------------
+MultiVector* MultiVector::clone() const
+{
+  MultiVector* new_vec = 0;
+  if ( parallelMap_ )
+  {
+    if ( parallelMap_ == overlapMap_ )
+      new_vec = new MultiVector( *parallelMap_, this->numVectors() );
+    else
+      new_vec = new MultiVector( *parallelMap_, *overlapMap_, this->numVectors() );
+  }
+  else
+  {
+    // We don't have a map, so perform a cloneCopy
+    new_vec = new MultiVector( *this );
+  }
+  return new_vec;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MultiVector::cloneCopy
+// Purpose       : clone multivector
+// Special Notes : clone shape and values
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 11/18/20
+//-----------------------------------------------------------------------------
+MultiVector* MultiVector::cloneCopy() const
+{
+  return new MultiVector( *this );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MultiVector::globalLength
 // Purpose       :
 // Special Notes :
@@ -386,24 +425,6 @@ void MultiVector::dotProduct(const MultiVector & y, std::vector<double>& d) cons
 void MultiVector::scale(const double a)
 {
   int PetraError = aMultiVector_->Scale(a);
-
-  if (DEBUG_LINEAR)
-    processError( "MultiVector::scale - ", PetraError);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::scale
-// Purpose       : Scales a MultiVector by a constant value, but
-//                 puts it into this.
-//                 this = a*x
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 10/16/00
-//-----------------------------------------------------------------------------
-void MultiVector::scale(const double a, const MultiVector &x)
-{
-  int PetraError = aMultiVector_->Scale(a, *(x.aMultiVector_));
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::scale - ", PetraError);

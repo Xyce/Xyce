@@ -211,9 +211,9 @@ bool slowNumericalDerivatives( int iparam,
   getSetParamName(paramName, setParamName); // remove curly braces;
 
   // save a copy of the DAE vectors
-  Linear::Vector origFVector( *(ds.daeFVectorPtr) );
-  Linear::Vector origQVector( *(ds.daeQVectorPtr) );
-  Linear::Vector origBVector( *(ds.daeBVectorPtr) );
+  Linear::Vector * origFVector = ds.daeFVectorPtr->cloneCopy();
+  Linear::Vector * origQVector = ds.daeQVectorPtr->cloneCopy();
+  Linear::Vector * origBVector = ds.daeBVectorPtr->cloneCopy();
 
   double paramOrig = ds.paramOrigVals_[iparam];
 
@@ -267,9 +267,9 @@ bool slowNumericalDerivatives( int iparam,
   nonlinearEquationLoader_.loadRHS();
 
   // save the perturbed DAE vectors
-  Linear::Vector pertFVector( *(ds.daeFVectorPtr) );
-  Linear::Vector pertQVector( *(ds.daeQVectorPtr) );
-  Linear::Vector pertBVector( *(ds.daeBVectorPtr) );
+  Linear::Vector * pertFVector = ds.daeFVectorPtr->cloneCopy();
+  Linear::Vector * pertQVector = ds.daeQVectorPtr->cloneCopy();
+  Linear::Vector * pertBVector = ds.daeBVectorPtr->cloneCopy();
 
   Linear::MultiVector * dfdpPtrVector = ds.nextDfdpPtrVector;
   Linear::MultiVector * dqdpPtrVector = ds.nextDqdpPtrVector;
@@ -278,17 +278,17 @@ bool slowNumericalDerivatives( int iparam,
   // calculate the df/dp vector.  
   double rdp=1/dp;
   Teuchos::RCP<Linear::Vector> dfdpPtr = Teuchos::rcp( dfdpPtrVector->getNonConstVectorView(iparam) );
-  dfdpPtr->linearCombo( 1.0, pertFVector, -1.0, origFVector );
+  dfdpPtr->linearCombo( 1.0, *pertFVector, -1.0, *origFVector );
   dfdpPtr->scale(rdp);
 
   // calculate the dq/dp vector.  
   Teuchos::RCP<Linear::Vector> dqdpPtr = Teuchos::rcp( dqdpPtrVector->getNonConstVectorView(iparam) );
-  dqdpPtr->linearCombo( 1.0, pertQVector, -1.0, origQVector );
+  dqdpPtr->linearCombo( 1.0, *pertQVector, -1.0, *origQVector );
   dqdpPtr->scale(rdp);
 
   // calculate the db/dp vector.  
   Teuchos::RCP<Linear::Vector> dbdpPtr = Teuchos::rcp( dbdpPtrVector->getNonConstVectorView(iparam) );
-  dbdpPtr->linearCombo( 1.0, pertBVector, -1.0, origBVector );
+  dbdpPtr->linearCombo( 1.0, *pertBVector, -1.0, *origBVector );
   dbdpPtr->scale(rdp);
 
   if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
@@ -297,14 +297,14 @@ bool slowNumericalDerivatives( int iparam,
     Xyce::dout().width(15); Xyce::dout().precision(7); Xyce::dout().setf(std::ios::scientific);
     Xyce::dout() << "deviceSens_dp = " << dp << std::endl;
 
-    int solutionSize_ = pertFVector.localLength();
+    int solutionSize_ = pertFVector->localLength();
 
     for (int k1 = 0; k1 < solutionSize_; ++k1)
     {
 
       Xyce::dout() 
-        <<"fpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(pertFVector)[k1]
-        <<" forig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(origFVector)[k1]
+        <<"fpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*pertFVector)[k1]
+        <<" forig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*origFVector)[k1]
         <<" dfdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dfdpPtr)[k1]
         <<std::endl;
     }
@@ -313,8 +313,8 @@ bool slowNumericalDerivatives( int iparam,
     for (int k1 = 0; k1 < solutionSize_; ++k1)
     {
       Xyce::dout() 
-        <<"qpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(pertQVector)[k1]
-        <<" qorig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(origQVector)[k1]
+        <<"qpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*pertQVector)[k1]
+        <<" qorig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*origQVector)[k1]
         <<" dqdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dqdpPtr)[k1]
         <<std::endl;
     }
@@ -323,8 +323,8 @@ bool slowNumericalDerivatives( int iparam,
     for (int k1 = 0; k1 < solutionSize_; ++k1)
     {
       Xyce::dout() 
-        <<"bpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(pertBVector)[k1]
-        <<" borig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(origBVector)[k1]
+        <<"bpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*pertBVector)[k1]
+        <<" borig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*origBVector)[k1]
         <<" dbdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dbdpPtr)[k1]
         <<std::endl;
 
@@ -340,7 +340,7 @@ bool slowNumericalDerivatives( int iparam,
     filename << netlistFilename_ << "_fpert";
     filename << std::setw(3) << std::setfill('0') << iparam;
     filename << ".txt";
-    pertFVector.writeToFile(const_cast<char *>(filename.str().c_str()));
+    pertFVector->writeToFile(const_cast<char *>(filename.str().c_str()));
 
     filename.str("");
     filename << netlistFilename_ << "_dqdp";
@@ -352,7 +352,7 @@ bool slowNumericalDerivatives( int iparam,
     filename << netlistFilename_ << "_qpert";
     filename << std::setw(3) << std::setfill('0') << iparam;
     filename << ".txt";
-    pertQVector.writeToFile(const_cast<char *>(filename.str().c_str()));
+    pertQVector->writeToFile(const_cast<char *>(filename.str().c_str()));
 
     filename.str("");
     filename << netlistFilename_ << "_dbdp";
@@ -364,7 +364,7 @@ bool slowNumericalDerivatives( int iparam,
     filename << netlistFilename_ << "_bpert";
     filename << std::setw(3) << std::setfill('0') << iparam;
     filename << ".txt";
-    pertBVector.writeToFile(const_cast<char *>(filename.str().c_str()));
+    pertBVector->writeToFile(const_cast<char *>(filename.str().c_str()));
   }
 
   // now reset the parameter and rhs to previous values.
@@ -374,9 +374,9 @@ bool slowNumericalDerivatives( int iparam,
       << "cannot find parameter " << setParamName;
   }
 
-  *(ds.daeFVectorPtr) = origFVector;
-  *(ds.daeQVectorPtr) = origQVector;
-  *(ds.daeBVectorPtr) = origBVector;
+  *(ds.daeFVectorPtr) = *origFVector;
+  *(ds.daeQVectorPtr) = *origQVector;
+  *(ds.daeBVectorPtr) = *origBVector;
 
 #if 0
   // this is needed for finite differences to work with transient adjoints!
@@ -390,6 +390,13 @@ bool slowNumericalDerivatives( int iparam,
     computeSparseIndices( iparam, ds, FindicesVec, QindicesVec, BindicesVec );
   }
 #endif
+
+  delete origFVector;
+  delete origQVector;
+  delete origBVector;
+  delete pertFVector;
+  delete pertQVector;
+  delete pertBVector;
 
   return true;
 }

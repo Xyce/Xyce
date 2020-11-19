@@ -102,11 +102,14 @@ public:
   // Assignment operator
   MultiVector & operator=(const MultiVector & right);
 
-  // Copy constructor
-  MultiVector(const MultiVector & right);
-
   //Destructor
   virtual ~MultiVector();
+
+  // Clone operation:
+  virtual MultiVector* clone() const;
+
+  // Clone operation:
+  virtual MultiVector* cloneCopy() const;
 
   // Returns the dot product of "this" vector and another.
   // NOTE:  If *this or y is a single vector, it will return the dot product of each column.
@@ -115,9 +118,6 @@ public:
 
   // Scale every entry in the multi-vector by "a"
   void scale(const double a);
-
-  // Scale every entry ([i]) in the multi-vector by "a*x[i]"
-  void scale(const double a, const MultiVector & x);
 
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
@@ -271,6 +271,9 @@ public:
   void fillComplete();
 
 protected:
+
+  // Copy constructor
+  MultiVector(const MultiVector & right);
 
   // Pointer to the multi-vector's parallel map object
   N_PDS_ParMap* parallelMap_;

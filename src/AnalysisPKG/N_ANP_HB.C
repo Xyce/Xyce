@@ -1988,10 +1988,10 @@ HB::runStartupPeriods()
   // put the dsPtr->currentSolutionPtr into dcOpSol and State Vec so that it
   // is used as our initial condition for the pending fast time scale runs
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  dcOpSolVecPtr_ = rcp( new Linear::Vector( *(dsPtr->currSolutionPtr) ));
-  dcOpStateVecPtr_ = rcp( new Linear::Vector( *(dsPtr->currStatePtr) ));
-  dcOpQVecPtr_ = rcp( new Linear::Vector( *(dsPtr->daeQVectorPtr) ));
-  dcOpStoreVecPtr_ = rcp( new Linear::Vector( *(dsPtr->currStorePtr) ));
+  dcOpSolVecPtr_ = rcp( dsPtr->currSolutionPtr->cloneCopy() );
+  dcOpStateVecPtr_ = rcp( dsPtr->currStatePtr->cloneCopy() ); 
+  dcOpQVecPtr_ = rcp( dsPtr->daeQVectorPtr->cloneCopy() );
+  dcOpStoreVecPtr_ = rcp( dsPtr->currStorePtr->cloneCopy() );
 
   return returnValue;
 }
@@ -2095,10 +2095,10 @@ HB::runDCOP()
 
     currentAnalysisObject_ = 0;
 
-  dcOpSolVecPtr_ =  rcp( new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currSolutionPtr));
-  dcOpStateVecPtr_ = rcp( new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStatePtr));
-  dcOpQVecPtr_ =  rcp( new Xyce::Linear::Vector(*analysisManager_.getDataStore()->daeQVectorPtr));
-  dcOpStoreVecPtr_ =  rcp( new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStorePtr));
+  dcOpSolVecPtr_ =  rcp( analysisManager_.getDataStore()->currSolutionPtr->cloneCopy() );
+  dcOpStateVecPtr_ = rcp( analysisManager_.getDataStore()->currStatePtr->cloneCopy() );
+  dcOpQVecPtr_ =  rcp( analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy() );
+  dcOpStoreVecPtr_ = rcp( analysisManager_.getDataStore()->currStorePtr->cloneCopy() );
 
   return returnValue;
 
@@ -2212,27 +2212,22 @@ HB::interpolateIC(
 
     double fraction = (goodTimePoints_[i] -  dsPtr->timeSteps[currentIndex])/(dsPtr->timeSteps[currentIndex+1] -  dsPtr->timeSteps[currentIndex]);
 
-    RCP<Linear::Vector> InterpICSolVecPtr = rcp( new Linear::Vector( *secondSolVecPtr ) );
-    RCP<Linear::Vector> InterpICStateVecPtr = rcp( new Linear::Vector( *secondStateVecPtr ) );
-    RCP<Linear::Vector> InterpICQVecPtr = rcp( new Linear::Vector( *secondQVecPtr ) );
-    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( new Linear::Vector( *secondStoreVecPtr ) );
+    RCP<Linear::Vector> InterpICSolVecPtr = rcp( secondSolVecPtr->cloneCopy() );
+    RCP<Linear::Vector> InterpICStateVecPtr = rcp( secondStateVecPtr->cloneCopy() );
+    RCP<Linear::Vector> InterpICQVecPtr = rcp( secondQVecPtr->cloneCopy() );
+    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( secondStoreVecPtr->cloneCopy() );
 
-    InterpICSolVecPtr->putScalar(0.0);
-    InterpICStateVecPtr->putScalar(0.0);
-    InterpICQVecPtr->putScalar(0.0);
-    InterpICStoreVecPtr->putScalar(0.0);
+    InterpICSolVecPtr->update(-1.0, *firstSolVecPtr, 1.0);
+    InterpICSolVecPtr->update(1.0, *firstSolVecPtr, fraction);
 
-    InterpICSolVecPtr->linearCombo(-1.0, *firstSolVecPtr, 1.0, *secondSolVecPtr );
-    InterpICSolVecPtr->linearCombo(1.0, *firstSolVecPtr, fraction , *InterpICSolVecPtr);
+    InterpICStateVecPtr->update(-1.0, *firstStateVecPtr, 1.0);
+    InterpICStateVecPtr->update(1.0, *firstStateVecPtr, fraction);
 
-    InterpICStateVecPtr->linearCombo(-1.0, *firstStateVecPtr, 1.0, *secondStateVecPtr );
-    InterpICStateVecPtr->linearCombo(1.0, *firstStateVecPtr, fraction , *InterpICStateVecPtr);
+    InterpICQVecPtr->update(-1.0, *firstQVecPtr, 1.0);
+    InterpICQVecPtr->update(1.0, *firstQVecPtr, fraction);
 
-    InterpICQVecPtr->linearCombo(-1.0, *firstQVecPtr, 1.0, *secondQVecPtr );
-    InterpICQVecPtr->linearCombo(1.0, *firstQVecPtr, fraction , *InterpICQVecPtr);
-
-    InterpICStoreVecPtr->linearCombo(-1.0, *firstStoreVecPtr, 1.0, *secondStoreVecPtr );
-    InterpICStoreVecPtr->linearCombo(1.0, *firstStoreVecPtr, fraction , *InterpICStoreVecPtr);
+    InterpICStoreVecPtr->update(-1.0, *firstStoreVecPtr, 1.0);
+    InterpICStoreVecPtr->update(1.0, *firstStoreVecPtr, fraction);
 
     goodSolutionVec_.push_back(InterpICSolVecPtr);
     goodStateVec_.push_back(InterpICStateVecPtr);

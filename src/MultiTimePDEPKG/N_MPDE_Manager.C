@@ -1221,10 +1221,10 @@ N_MPDE_Manager::runInitialCondition(
       // get the time integrator params, and save a copy.
       Xyce::TimeIntg::TIAParams tia_params;
 
-      Xyce::Linear::Vector interpIcSolVecPtr(endIcSolVecPtr_);
-      Xyce::Linear::Vector interpIcStateVecPtr(endIcStateVecPtr_);
-      Xyce::Linear::Vector interpIcQVecPtr(endIcQVecPtr_ );
-      Xyce::Linear::Vector interpIcStoreVecPtr(endIcStoreVecPtr_ );
+      Xyce::Linear::Vector * interpIcSolVecPtr = endIcSolVecPtr_.clone();
+      Xyce::Linear::Vector * interpIcStateVecPtr = endIcStateVecPtr_.clone();
+      Xyce::Linear::Vector * interpIcQVecPtr = endIcQVecPtr_.clone();
+      Xyce::Linear::Vector * interpIcStoreVecPtr = endIcStoreVecPtr_.clone();
 
       for (int i=1 ; i<n2 ; ++i)
       {
@@ -1253,20 +1253,20 @@ N_MPDE_Manager::runInitialCondition(
         // Set t = t + (i-1.0)*h2 in MPDE source in bhat
         stLoader.setTimeShift( -fastTimes_[n2-i] );
 
-        interpIcSolVecPtr.putScalar( 0.0 );
-        interpIcStateVecPtr.putScalar( 0.0 );
-        interpIcQVecPtr.putScalar( 0.0 );
-        interpIcStoreVecPtr.putScalar( 0.0 );
-        interpIcSolVecPtr.linearCombo( (1.0-fraction), *dcOpSolVecPtr_, fraction, endIcSolVecPtr_ );
-        interpIcStateVecPtr.linearCombo( (1.0-fraction), *dcOpStateVecPtr_, fraction, endIcStateVecPtr_ );
-        interpIcQVecPtr.linearCombo( (1.0-fraction), *dcOpQVecPtr_, fraction, endIcQVecPtr_ );
-        interpIcStoreVecPtr.linearCombo( (1.0-fraction), *dcOpStoreVecPtr_, fraction, endIcStoreVecPtr_ );
+        interpIcSolVecPtr->putScalar( 0.0 );
+        interpIcStateVecPtr->putScalar( 0.0 );
+        interpIcQVecPtr->putScalar( 0.0 );
+        interpIcStoreVecPtr->putScalar( 0.0 );
+        interpIcSolVecPtr->linearCombo( (1.0-fraction), *dcOpSolVecPtr_, fraction, endIcSolVecPtr_ );
+        interpIcStateVecPtr->linearCombo( (1.0-fraction), *dcOpStateVecPtr_, fraction, endIcStateVecPtr_ );
+        interpIcQVecPtr->linearCombo( (1.0-fraction), *dcOpQVecPtr_, fraction, endIcQVecPtr_ );
+        interpIcStoreVecPtr->linearCombo( (1.0-fraction), *dcOpStoreVecPtr_, fraction, endIcStoreVecPtr_ );
 
         // set DAE initial condition to mpdeICVectorPtr_[i-1]
-        *(analysisManager_.getDataStore()->nextSolutionPtr) = interpIcSolVecPtr;
-        *(analysisManager_.getDataStore()->nextStatePtr) = interpIcStateVecPtr;
-        *(analysisManager_.getDataStore()->daeQVectorPtr) = interpIcQVecPtr;
-        *(analysisManager_.getDataStore()->nextStorePtr) = interpIcStoreVecPtr;
+        *(analysisManager_.getDataStore()->nextSolutionPtr) = *interpIcSolVecPtr;
+        *(analysisManager_.getDataStore()->nextStatePtr) = *interpIcStateVecPtr;
+        *(analysisManager_.getDataStore()->daeQVectorPtr) = *interpIcQVecPtr;
+        *(analysisManager_.getDataStore()->nextStorePtr) = *interpIcStoreVecPtr;
 
         // throw std::runtime_error("This has not been tested using Transient locally");
 
@@ -1306,6 +1306,11 @@ N_MPDE_Manager::runInitialCondition(
         if (DEBUG_MPDE)
           Xyce::dout() << "End MPDE_IC_TRAN_MAP IC: i = " << i <<std::endl;
       }
+
+      delete interpIcSolVecPtr;
+      delete interpIcStateVecPtr;
+      delete interpIcQVecPtr; 
+      delete interpIcStoreVecPtr;
 
       tiaMPDEParams_.initialTime = tia_params.finalTime;
     }
@@ -1366,30 +1371,36 @@ N_MPDE_Manager::runInitialCondition(
             Xyce::Linear::Vector &secondPeriodQVecPtr = *dsPtr->fastTimeQVec[indicesUsed_[i]];
             Xyce::Linear::Vector &secondPeriodStoreVecPtr = *dsPtr->fastTimeStoreVec[indicesUsed_[i]];
 
-            Xyce::Linear::Vector interpIcSolVecPtr( secondPeriodSolVecPtr );
-            Xyce::Linear::Vector interpIcStateVecPtr( secondPeriodStateVecPtr );
-            Xyce::Linear::Vector interpIcQVecPtr( secondPeriodQVecPtr );
-            Xyce::Linear::Vector interpIcStoreVecPtr( secondPeriodStoreVecPtr );
+            Xyce::Linear::Vector * interpIcSolVecPtr = secondPeriodSolVecPtr.clone();
+            Xyce::Linear::Vector * interpIcStateVecPtr = secondPeriodStateVecPtr.clone();
+            Xyce::Linear::Vector * interpIcQVecPtr = secondPeriodQVecPtr.clone();
+            Xyce::Linear::Vector * interpIcStoreVecPtr = secondPeriodStoreVecPtr.clone();
 
             double fraction = fastTimes_[i] / period_;
             if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS) )
               Xyce::dout() << " fraction = " << fraction << std::endl;
 
-            interpIcSolVecPtr.putScalar( 0.0 );
-            interpIcStateVecPtr.putScalar( 0.0 );
-            interpIcQVecPtr.putScalar( 0.0 );
-            interpIcStoreVecPtr.putScalar( 0.0 );
-            interpIcSolVecPtr.linearCombo( fraction, firstPeriodSolVecPtr, (1.0-fraction), secondPeriodSolVecPtr );
-            interpIcStateVecPtr.linearCombo( fraction, firstPeriodStateVecPtr, (1.0-fraction), secondPeriodStateVecPtr );
-            interpIcQVecPtr.linearCombo( fraction, firstPeriodQVecPtr, (1.0-fraction), secondPeriodQVecPtr );
-            interpIcStoreVecPtr.linearCombo( fraction, firstPeriodStoreVecPtr, (1.0-fraction), secondPeriodStoreVecPtr );
+            interpIcSolVecPtr->putScalar( 0.0 );
+            interpIcStateVecPtr->putScalar( 0.0 );
+            interpIcQVecPtr->putScalar( 0.0 );
+            interpIcStoreVecPtr->putScalar( 0.0 );
+            interpIcSolVecPtr->linearCombo( fraction, firstPeriodSolVecPtr, (1.0-fraction), secondPeriodSolVecPtr );
+            interpIcStateVecPtr->linearCombo( fraction, firstPeriodStateVecPtr, (1.0-fraction), secondPeriodStateVecPtr );
+            interpIcQVecPtr->linearCombo( fraction, firstPeriodQVecPtr, (1.0-fraction), secondPeriodQVecPtr );
+            interpIcStoreVecPtr->linearCombo( fraction, firstPeriodStoreVecPtr, (1.0-fraction), secondPeriodStoreVecPtr );
 
-            mpdeICVectorPtr_->block(i) = interpIcSolVecPtr;
-            mpdeICStateVectorPtr_->block(i) = interpIcStateVecPtr;
-            mpdeICQVectorPtr_->block(i) = interpIcQVecPtr;
-            mpdeICStoreVectorPtr_->block(i) = interpIcStoreVecPtr;
+            mpdeICVectorPtr_->block(i) = *interpIcSolVecPtr;
+            mpdeICStateVectorPtr_->block(i) = *interpIcStateVecPtr;
+            mpdeICQVectorPtr_->block(i) = *interpIcQVecPtr;
+            mpdeICStoreVectorPtr_->block(i) = *interpIcStoreVecPtr;
 
             lastJused = interpolationPoint;
+
+            delete interpIcSolVecPtr;
+            delete interpIcStateVecPtr;
+            delete interpIcQVecPtr; 
+            delete interpIcStoreVecPtr;
+            
             break;  // break out of for(j..) loop.  We don't need to cycle more
           }
         }
@@ -1522,10 +1533,10 @@ N_MPDE_Manager::runDCOP(
     success = false;
 
   // store the dc op results in case we need them later
-  dcOpSolVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currSolutionPtr);
-  dcOpStateVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStatePtr);
-  dcOpQVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->daeQVectorPtr);
-  dcOpStoreVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStorePtr);
+  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopy();
+  dcOpStateVecPtr_ = analysisManager_.getDataStore()->currStatePtr->cloneCopy();
+  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy();
+  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopy();
 
   return success;
 }
@@ -1582,10 +1593,10 @@ N_MPDE_Manager::runStartupPeriods(
 
   // put the dsPtr->currentSolutionPtr into dcOpSol and State Vec so that it
   // is used as our initial condition for the pending fast time scale runs
-  dcOpSolVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currSolutionPtr);
-  dcOpStateVecPtr_ =  new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStatePtr);
-  dcOpQVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->daeQVectorPtr);
-  dcOpStoreVecPtr_ = new Xyce::Linear::Vector(*analysisManager_.getDataStore()->currStorePtr);
+  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopy();
+  dcOpStateVecPtr_ =  analysisManager_.getDataStore()->currStatePtr->cloneCopy();
+  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy();
+  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopy();
 
   // startUpPeriodsFlag_ = false;
 
@@ -2221,9 +2232,10 @@ double N_MPDE_Manager::checkPeriodicity_()
 
           Xyce::Linear::Vector *thisPeriod = dsPtr->fastTimeSolutionVec[indicesUsed_[i]];
           Xyce::Linear::Vector *lastPeriod = dsPtr->fastTimeSolutionVec[interpolationPoint];
-          Xyce::Linear::Vector scratchVec( *thisPeriod );
-          scratchVec.linearCombo( 1.0, scratchVec, -1.0, *lastPeriod );
-          scratchVec.infNorm(&returnValue);
+          Xyce::Linear::Vector *scratchVec = thisPeriod->cloneCopy();
+          scratchVec->update( -1.0, *lastPeriod, 1.0 );
+          scratchVec->infNorm(&returnValue);
+          delete scratchVec;
           Xyce::dout() << i << " returnValue = " << returnValue << std::endl;
         }
       }

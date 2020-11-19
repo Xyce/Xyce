@@ -115,8 +115,6 @@ NOX::Abstract::Vector& Vector::operator=(const NOX::Abstract::Vector& source)
 
 NOX::Abstract::Vector& Vector::operator=(const Vector& source)
 {
-  //vectorPtr_->scale(1.0, source.getNativeVectorRef_());
-  //vectorPtr_->update(1.0, source.getNativeVectorRef_(), 0.0);
   *vectorPtr_ = *(source.vectorPtr_);
   return *this;
 }
