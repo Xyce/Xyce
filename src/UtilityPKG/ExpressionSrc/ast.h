@@ -2904,8 +2904,7 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
-      return ((std::real(x->val())<std::real(y->val()))?0.0:((std::real(x->val())>std::real(z->val()))?0.0:1.0));
-
+      return ((std::real(x->val())<std::real(y->val()))?0.0:((std::real(x->val())>std::real(z->val()))?0.0:(x->dx(i))));
     };
 
     virtual void output(std::ostream & os, int indent=0)
