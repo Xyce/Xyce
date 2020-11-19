@@ -62,12 +62,6 @@ public:
   //Destructor
   ~N_PDS_EpetraSerialComm();
 
-  // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm & right);
-
-  // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_EpetraSerialComm & operator = (const N_PDS_EpetraSerialComm & right);
-
   // Cloning
   N_PDS_Comm * clone() const { return new N_PDS_EpetraSerialComm(* this); }
 
@@ -149,6 +143,9 @@ public:
   void barrier() const { }
 
 private:
+
+  // Copy constructor - reuse the same Petra_Comm object.
+  N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm & right);
 
   // Serial-run flag.
   bool isSerial_;

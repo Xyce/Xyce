@@ -75,15 +75,10 @@ public:
   //Destructor
   ~N_PDS_EpetraMPIComm();
 
-  // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_EpetraMPIComm(const N_PDS_EpetraMPIComm& right);
-  // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_EpetraMPIComm & operator = (const N_PDS_EpetraMPIComm& right);
-
   // Cloning
   N_PDS_Comm * clone() const { return new N_PDS_EpetraMPIComm(* this); }
 
-    Xyce::Parallel::Machine comm() const;
+  Xyce::Parallel::Machine comm() const;
     
   // Get my processor ID.
   int procID() const;
@@ -165,12 +160,13 @@ public:
   // the communicator to wait until all processors have arrived.
   void barrier() const;
 
-protected:
+private:
+  
+  // Copy constructor - reuse the same Petra_Comm object.
+  N_PDS_EpetraMPIComm(const N_PDS_EpetraMPIComm& right);
 
   // Serial or parallel flag - "true" implies a serial run.
   bool isSerial_;
-
-private:
 
   // Pointer to library-support comm object.
   bool petraCommOwned_;

@@ -361,24 +361,3 @@ bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos
   return true;
 }
 
-//-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::operator=
-// Purpose       : Assignment operator.
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/27/01
-//-----------------------------------------------------------------------------
-N_PDS_EpetraSerialComm & N_PDS_EpetraSerialComm::operator=(const N_PDS_EpetraSerialComm &right)
-{
-  if (this != &right)
-  {
-    isSerial_ = right.isSerial_;
-    delete petraComm_;
-    petraComm_  = right.petraComm_;
-    petraCommOwned_ = false;
-  }
-
-  return *this;
-}
-
