@@ -374,9 +374,32 @@ class spiceSinOp : public astNode<ScalarT>
       return SourceValue;
     }
 
+    // Note: this is only set up to compute dx w.r.t. time, for supporting breakpoints.  
+    // And, it assumes that "time" is a special Op, and can't be a more complicated expression.
+    // This function should be expanded to compute derivatives for other input params, such as va, v0, etc.
     virtual ScalarT dx (int i)
     {
-      return 0.0;
+      ScalarT dSource_dt = 0.0;
+
+      ScalarT dTime_dt = this->time_->dx(i); 
+      if(std::real(dTime_dt) != 0.0)
+      { 
+        ScalarT time = std::real(this->time_->val());
+        time -= std::real(this->td_->val());
+        double mpi = M_PI;
+
+        if (std::real(time) <= 0)
+        {
+          ScalarT dSource_dt = 0.0;
+        }
+        else
+        {
+          // time derivative computed via Maple:
+          dSource_dt = 2.0*this->va_->val()*mpi*std::real(this->freq_->val())*cos(2.0*mpi*(std::real(this->freq_->val())*time+1/360*std::real(this->phase_->val())))*exp(-time*std::real(this->theta_->val()))-this->va_->val()*sin(2.0*mpi*(std::real(this->freq_->val())*time+1/360*std::real(this->phase_->val())))*std::real(this->theta_->val())*exp(-time*std::real(this->theta_->val()));
+          dSource_dt *= dTime_dt;
+        }
+      }
+      return dSource_dt;
     }
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
