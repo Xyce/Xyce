@@ -299,9 +299,10 @@ protected:
   // Communicator object, if one is needed.
   Teuchos::RCP<N_PDS_Comm> pdsComm_;
 
-  // isOwned flag
-  bool isOwned_;
+  // isOwned flags
+  bool vecOwned_, mapOwned_;
 
+  // 
   // Map containing extern elements from migration
   std::map<int,double> externVectorMap_;
 

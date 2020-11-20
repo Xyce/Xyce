@@ -91,7 +91,7 @@ BlockVector::BlockVector( int numBlocks,
   for( int i = 0; i < numBlocks; ++i )
   {
     Loc = Ptrs[0] + overlapBlockSize_*i;
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
   }
 }
 
@@ -154,7 +154,7 @@ BlockVector::BlockVector( int blockSize,
     Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_currBlockMap->petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {
@@ -203,7 +203,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
       for( int i = 0; i < numBlocks; ++i )
       {
         Loc = Ptrs[0] + overlapBlockSize_*i;
-        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), Loc ), true ) );
+        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
       }
     }
     else
@@ -300,7 +300,7 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
     Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_currBlockMap->petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {

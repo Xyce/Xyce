@@ -53,8 +53,6 @@
 // ---------- Forward Declarations ----------
 
 class N_PDS_ParMap;
-class Epetra_CrsGraph;
-class Epetra_BlockMap;
 
 namespace Xyce {
 namespace Linear {

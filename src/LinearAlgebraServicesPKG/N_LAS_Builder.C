@@ -46,6 +46,7 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_QueryUtil.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
@@ -77,9 +78,9 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 MultiVector * Builder::createMultiVector( const int numVectors ) const
 {
-  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                          *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)),
-                          numVectors );
+  return Xyce::Linear::createMultiVector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                                          *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)),
+                                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -92,8 +93,8 @@ MultiVector * Builder::createMultiVector( const int numVectors ) const
 //-----------------------------------------------------------------------------
 MultiVector * Builder::createStateMultiVector( const int numVectors ) const
 {
-  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STATE)),
-                          numVectors );
+  return Xyce::Linear::createMultiVector( *(pdsMgr_->getParallelMap(Parallel::STATE)),
+                                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -106,8 +107,8 @@ MultiVector * Builder::createStateMultiVector( const int numVectors ) const
 //-----------------------------------------------------------------------------
 MultiVector * Builder::createStoreMultiVector( const int numVectors ) const
 {
-  return new MultiVector( *(pdsMgr_->getParallelMap(Parallel::STORE)),
-                          numVectors );
+  return Xyce::Linear::createMultiVector( *(pdsMgr_->getParallelMap(Parallel::STORE)),
+                                          numVectors );
 }
 
 //-----------------------------------------------------------------------------
@@ -120,8 +121,8 @@ MultiVector * Builder::createStoreMultiVector( const int numVectors ) const
 //-----------------------------------------------------------------------------
 Vector * Builder::createVector() const
 {
-    return new Vector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
-                       *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
+    return Xyce::Linear::createVector( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)),
+                                       *(pdsMgr_->getParallelMap(Parallel::SOLUTION_OVERLAP_GND)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -134,7 +135,7 @@ Vector * Builder::createVector() const
 //-----------------------------------------------------------------------------
 Vector * Builder::createStateVector() const
 {
-    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STATE)) );
+    return Xyce::Linear::createVector( *(pdsMgr_->getParallelMap(Parallel::STATE)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -147,7 +148,7 @@ Vector * Builder::createStateVector() const
 //-----------------------------------------------------------------------------
 Vector * Builder::createStoreVector() const
 {
-    return new Vector( *(pdsMgr_->getParallelMap(Parallel::STORE)) );
+    return Xyce::Linear::createVector( *(pdsMgr_->getParallelMap(Parallel::STORE)) );
 }
 
 
@@ -161,7 +162,7 @@ Vector * Builder::createStoreVector() const
 //-----------------------------------------------------------------------------
 Vector * Builder::createLeadCurrentVector() const
 {
-    return new Vector( *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
+    return Xyce::Linear::createVector( *(pdsMgr_->getParallelMap(Parallel::LEADCURRENT)) );
 }
 
 //-----------------------------------------------------------------------------
@@ -403,13 +404,13 @@ bool Builder::generateGraphs()
 
   N_PDS_ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
   Epetra_BlockMap & overlapGndMap = 
-    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvGMap)->petraMap());
+    *(dynamic_cast<N_PDS_EpetraParMap*>(solnOvGMap)->petraMap());
   N_PDS_ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
   Epetra_BlockMap & overlapMap = 
-    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnOvMap)->petraMap());
+    *(dynamic_cast<N_PDS_EpetraParMap*>(solnOvMap)->petraMap());
   N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
   Epetra_BlockMap & localMap = 
-    *dynamic_cast<Epetra_BlockMap*>(dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap());
+    *(dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap());
 
   Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
 

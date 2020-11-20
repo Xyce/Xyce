@@ -87,7 +87,8 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
    exporter_(0),
    viewTransform_(0),
    pdsComm_(rcp(&map.pdsComm(),false)), 
-   isOwned_(true),
+   vecOwned_(true),
+   mapOwned_(false),
    groundNode_(0.0)
 {
   if (map.numGlobalEntities() < 0)
@@ -103,7 +104,7 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
 
   // Create a new Petra MultiVector and set the pointer.
   N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
-  aMultiVector_ = new Epetra_MultiVector( *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), numVectors );
+  aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), numVectors );
 
   oMultiVector_ = aMultiVector_;
 }
@@ -126,7 +127,8 @@ MultiVector::MultiVector(
     exporter_(0),
     viewTransform_(0),
     pdsComm_(rcp(&map.pdsComm(),false)), 
-    isOwned_(true),
+    vecOwned_(true),
+    mapOwned_(false),
     groundNode_(0.0)
 {
   if (map.numGlobalEntities() < 0)
@@ -136,19 +138,16 @@ MultiVector::MultiVector(
   // Create a new Petra MultiVector and set the pointer.
   N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
   N_PDS_EpetraParMap& e_ol_map = dynamic_cast<N_PDS_EpetraParMap&>( ol_map );
-  oMultiVector_ = new Epetra_MultiVector(*dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), numVectors);
+  oMultiVector_ = new Epetra_MultiVector( *e_ol_map.petraMap(), numVectors);
 
-  viewTransform_ = new EpetraExt::MultiVector_View(
-    *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()));
+  viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map.petraMap(), *e_map.petraMap() );
   aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
   if (map.pdsComm().numProc() > 1)
   {
-    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()),
-                                   *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
+    exporter_ = new Epetra_Export( *e_ol_map.petraMap(), *e_map.petraMap() );
   }
 
-  importer_ = new Epetra_Import( *dynamic_cast<Epetra_BlockMap*>(e_ol_map.petraMap()), 
-                                 *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()) );
+  importer_ = new Epetra_Import( *e_ol_map.petraMap(), *e_map.petraMap() );
 }
 
 //-----------------------------------------------------------------------------
@@ -167,7 +166,8 @@ MultiVector::MultiVector( const MultiVector & right )
   exporter_(0),
   viewTransform_(0),
   pdsComm_( right.pdsComm_ ),
-  isOwned_(true),
+  vecOwned_(true),
+  mapOwned_(false),
   groundNode_(0.0)
 {
   if (right.aMultiVector_ == right.oMultiVector_)
@@ -177,8 +177,7 @@ MultiVector::MultiVector( const MultiVector & right )
     N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
     N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
 
-    viewTransform_ = new EpetraExt::MultiVector_View( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
-                                                      *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
+    viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map->petraMap(), *e_map->petraMap() );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
   }
 
@@ -188,8 +187,7 @@ MultiVector::MultiVector( const MultiVector & right )
     N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
     N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
 
-    exporter_ = new Epetra_Export( *dynamic_cast<Epetra_BlockMap*>(e_ol_map->petraMap()),
-                                   *dynamic_cast<Epetra_BlockMap*>(e_map->petraMap()) );
+    exporter_ = new Epetra_Export( *e_ol_map->petraMap(), *e_map->petraMap() );
   }
   if( right.importer_ ) importer_ = new Epetra_Import( *right.importer_ );
 }
@@ -209,24 +207,27 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
   importer_(0),
   exporter_(0),
   viewTransform_(0),
-  isOwned_(isOwned),
+  vecOwned_(isOwned),
+  mapOwned_(false),
   groundNode_(0.0) 
 {
+  Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( overlapMV->Comm() );
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );  
+
   // Make sure there is anything to communicate before creating a transform, importer, or exporter
   if (overlapMV->MyLength() == parMap.NumMyElements())
+  {
     aMultiVector_ = oMultiVector_;
+  }
   else
   {
     viewTransform_ = new EpetraExt::MultiVector_View( overlapMV->Map(), parMap );
     aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
-    if( parMap.Comm().NumProc() > 1 )
+    if( pdsComm_->numProc() > 1 )
       exporter_ = new Epetra_Export( overlapMV->Map(), parMap );
 
     importer_ = new Epetra_Import( overlapMV->Map(), parMap );
   }
-
-  Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( overlapMV->Comm() );
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );  
 }
 
 //-----------------------------------------------------------------------------
@@ -245,7 +246,8 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
   importer_(0),
   exporter_(0),
   viewTransform_(0),
-  isOwned_(isOwned),
+  vecOwned_(isOwned),
+  mapOwned_(false),
   groundNode_(0.0)
 {
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( origMV->Comm() );
@@ -298,9 +300,15 @@ MultiVector::~MultiVector()
   delete importer_;
   delete exporter_;
   delete viewTransform_; //destroys of aMultiVector_ as well
-  if (isOwned_)
+  if (vecOwned_)
   {
     delete oMultiVector_;
+  }
+  if (mapOwned_)
+  {
+    delete parallelMap_; parallelMap_=0;
+    if (overlapMap_)
+      delete overlapMap_;
   }
 }
 
@@ -598,7 +606,7 @@ int MultiVector::infNormIndex(int * index) const
 {
   Teuchos::BLAS<int,double> blas;
 
-  int numProcs = aMultiVector_->Comm().NumProc();
+  int numProcs = pdsComm_->numProc();
   int numVectors = aMultiVector_->NumVectors();
   int myLength = aMultiVector_->MyLength();
   std::vector<int> indexTemp( numVectors, 0 ), indexTempAll( numVectors*numProcs, 0 );
@@ -920,8 +928,8 @@ bool MultiVector::importOverlap()
 //-----------------------------------------------------------------------------
 void MultiVector::writeToFile( const char * filename, bool useLIDs, bool mmFormat ) const
 {
-  int numProcs = aMultiVector_->Comm().NumProc();
-  int localRank = aMultiVector_->Comm().MyPID();
+  int numProcs = pdsComm_->numProc();
+  int localRank = pdsComm_->procID();
   int masterRank = 0;
 
   if (!mmFormat)

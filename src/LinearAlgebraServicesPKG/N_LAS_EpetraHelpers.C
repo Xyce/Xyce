@@ -39,7 +39,10 @@
 
 #include <Xyce_config.h>
 
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_EpetraHelpers.h>
+#include <N_LAS_MultiVector.h>
+#include <N_LAS_Vector.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -50,6 +53,30 @@
 
 namespace Xyce {
 namespace Linear {
+
+  // Non-member creation methods.
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                int numVectors )
+{
+  return new MultiVector( map, numVectors );
+}
+
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                N_PDS_ParMap & ol_map,
+                                int numVectors )
+{
+  return new MultiVector( map, ol_map, numVectors );
+}
+
+Vector* createVector( N_PDS_ParMap & map ) 
+{
+  return new Vector( map );
+}
+
+Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
+{
+  return new Vector( map, ol_map );
+}
 
 // ///////////////////////////////////////////////////////////////////
 //

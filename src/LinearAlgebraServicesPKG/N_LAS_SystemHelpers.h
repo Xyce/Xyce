@@ -43,17 +43,26 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_fwd.h>
-
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
 
 class N_PDS_ParMap;
-class Epetra_CrsGraph;
-class Epetra_BlockMap;
 
 namespace Xyce {
 namespace Linear {
+
+  // Non-member creation methods.
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                int numVectors = 1 );
+
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                      N_PDS_ParMap & ol_map,
+                                int numVectors = 1 );
+
+Vector* createVector( N_PDS_ParMap & map );
+
+Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map );
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues
