@@ -60,6 +60,39 @@
 
 #define CONSTCtoK    (273.15)  
 
+namespace Xyce {
+namespace Util {
+
+template <typename ScalarA>
+inline void fixNan(ScalarA & result) { if (std::isnan(std::real(result))) { result = 1.0e+50; } }
+
+template <>
+inline void fixNan(std::complex<double> & result)
+{
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
+  if (std::isnan(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
+  if (std::isnan(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
+}
+
+template <typename ScalarA>
+inline void fixInf(ScalarA & result) { if (std::isinf(std::real(result))) { bool neg = std::signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
+
+template <>
+inline void fixInf(std::complex<double> & result) 
+{ 
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
+
+  if (std::isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
+  if (std::isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
+}
+
+}
+}
+
+
+
 template <typename ScalarT>
 class astNode;
 
@@ -609,8 +642,8 @@ inline void computeBreakPoint(
     int index = -99999;
 
     for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setDerivIndex(index); }
-    ScalarT dfdt = f_Ast_->dx(index);
-    ScalarT f = f_Ast_->val();
+    ScalarT f = f_Ast_->val();        Xyce::Util::fixNan(f);  Xyce::Util::fixInf(f);
+    ScalarT dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
 
     // The Newton iterate is:  -(F(t)-A)/F'(t)
     double delta_bpTime =  0.0;
@@ -620,8 +653,8 @@ inline void computeBreakPoint(
 
     // test
     for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
-    f = f_Ast_->val();
-    dfdt = f_Ast_->dx(index);
+    f = f_Ast_->val();        Xyce::Util::fixNan(f);  Xyce::Util::fixInf(f);
+    dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
 
     int iteration = 1;
     while (std::abs(std::real(f)) > bpTol_ && iteration < 20)  // iterate
@@ -631,8 +664,8 @@ inline void computeBreakPoint(
       bpTime +=delta_bpTime;
 
       for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
-      dfdt = f_Ast_->dx(index);
-      f = f_Ast_->val();
+      f = f_Ast_->val();        Xyce::Util::fixNan(f);  Xyce::Util::fixInf(f);
+      dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
 
       ++iteration;
     }
@@ -2796,7 +2829,12 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
-      return ((std::real(x->val()))?(y->val()):(z->val()));
+
+      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.  
+      // The correct place to fix this is in the comparison operators.  Fix later.
+      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+      return ((std::real(x->val()))?(yFixed):(zFixed));
     };
 
     virtual ScalarT dx (int i)
@@ -2804,7 +2842,12 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
-      return ((std::real(x->val()))?(y->dx(i)):(z->dx(i)));
+
+      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.  
+      // The correct place to fix this is in the comparison operators.  Fix later.
+      ScalarT dyFixed = y->dx(i);  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
+      ScalarT dzFixed = z->dx(i);  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
+      return ((std::real(x->val()))?(dyFixed):(dzFixed));
     };
 
     virtual void output(std::ostream & os, int indent=0)
@@ -2896,13 +2939,17 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
+      ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+
       bpTimes_.clear();
       computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
       computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
 
-      return ((std::real(x->val())<std::real(y->val()))?
-          std::real(y->val()):
-          ((std::real(x->val())>std::real(z->val()))?std::real(z->val()):std::real(x->val())));
+      return ((std::real(xFixed)<std::real(yFixed))?
+          std::real(yFixed):
+          ((std::real(xFixed)>std::real(zFixed))?std::real(zFixed):std::real(xFixed)));
     };
 
     virtual ScalarT dx (int i)
@@ -2911,7 +2958,12 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
-      return ((std::real(x->val())<std::real(y->val()))?0.0:((std::real(x->val())>std::real(z->val()))?0.0:(x->dx(i))));
+      ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+      ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
+      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+
+      return ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
     };
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
@@ -3013,7 +3065,10 @@ class stpOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
       bpTimes_.clear();
       computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
-      return ((std::real(this->leftAst_->val()))>0)?1.0:0.0; 
+
+      ScalarT xFixed = this->leftAst_->val();
+      Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+      return ((std::real(xFixed))>0)?1.0:0.0; 
     }
 
     virtual ScalarT dx (int i) { return 0.0; }
