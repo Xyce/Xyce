@@ -48,6 +48,7 @@ class NAME : public astNode<ScalarT>                                            
                                                                                             \
     virtual ScalarT val()                                                                   \
     {                                                                                       \
+      bpTimes_.clear();                                                                     \
       computeBreakPoint ( this->leftAst_, this->rightAst_, timeOpVec_, bpTol_, bpTimes_);   \
       return VAL;                                                                           \
     }                                                                                       \

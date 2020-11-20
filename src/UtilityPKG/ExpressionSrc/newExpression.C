@@ -500,6 +500,7 @@ void newExpression::clear ()
   srcAstNodeVec_.clear();
   stpAstNodeVec_.clear();
   compAstNodeVec_.clear();
+  limitAstNodeVec_.clear();
 
   timeOpVec_.clear();
   dtOpVec_.clear();
@@ -876,6 +877,7 @@ NEW_EXP_OUTPUT_ARRAY(sdtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(ddtOpVec_)
 NEW_EXP_OUTPUT_ARRAY(stpAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(compAstNodeVec_)
+NEW_EXP_OUTPUT_ARRAY(limitAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY(phaseOpVec_)
 NEW_EXP_OUTPUT_ARRAY(timeOpVec_)
 NEW_EXP_OUTPUT_ARRAY(dtOpVec_)
@@ -915,6 +917,7 @@ NEW_EXP_OUTPUT_ARRAY_SIZE(sdtOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(ddtOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(stpAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(compAstNodeVec_)
+NEW_EXP_OUTPUT_ARRAY_SIZE(limitAstNodeVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(phaseOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(timeOpVec_)
 NEW_EXP_OUTPUT_ARRAY_SIZE(dtOpVec_)
@@ -972,6 +975,7 @@ void newExpression::setupVariousAstArrays()
       srcAstNodeVec_.clear();
       stpAstNodeVec_.clear();
       compAstNodeVec_.clear();
+      limitAstNodeVec_.clear();
       phaseOpVec_.clear();
       sparamOpVec_.clear();
       yparamOpVec_.clear();
@@ -1011,6 +1015,7 @@ void newExpression::setupVariousAstArrays()
         if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
         if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
         if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
+        if (astNodePtr_->limitType())      { limitAstNodeVec_.push_back(astNodePtr_); }
         if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
 
         if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
@@ -1696,7 +1701,8 @@ bool newExpression::getValuesFromGroup_()
   // ERK: should the rest of these affect "noChange" boolean?
   if ( !(srcAstNodeVec_.empty())  || 
        !(stpAstNodeVec_.empty())  ||  
-       !(compAstNodeVec_.empty()))
+       !(compAstNodeVec_.empty()) ||  
+       !(limitAstNodeVec_.empty()) )
   {
     bpTol_ = group_->getBpTol();
   }
@@ -1729,6 +1735,15 @@ bool newExpression::getValuesFromGroup_()
     for (int ii=0;ii< compSize; ii++)
     {
       (compAstNodeVec_[ii])->setBreakPointTol(bpTol_);
+    }
+  }
+
+  if ( !(limitAstNodeVec_.empty()) )
+  {
+    int limitSize = limitAstNodeVec_.size();
+    for (int ii=0;ii< limitSize; ii++)
+    {
+      (limitAstNodeVec_[ii])->setBreakPointTol(bpTol_);
     }
   }
 
@@ -2047,6 +2062,10 @@ bool newExpression::getBreakPoints (
     int compSize = compAstNodeVec_.size();
     for (int ii=0;ii< compSize; ii++)
     { (compAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
+
+    int limitSize = limitAstNodeVec_.size();
+    for (int ii=0;ii< limitSize; ii++)
+    { (limitAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
 #if 0
     {

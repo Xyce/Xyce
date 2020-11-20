@@ -101,6 +101,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
   if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
   if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
+  if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
   if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
   if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
   if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
@@ -167,6 +168,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & src,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & comp,
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limit,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
@@ -200,6 +202,7 @@ public:
     srcOpVector(src),
     stpOpVector(stp),
     compOpVector(comp),
+    limitOpVector(limit),
     phaseOpVector(phase),
     sparamOpVector(sparam),
     yparamOpVector(yparam),
@@ -234,6 +237,7 @@ public:
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & srcOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & compOpVector;
+  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limitOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
@@ -402,6 +406,7 @@ class astNode : public staticsContainer
     virtual bool srcType() { return false; }
     virtual bool stpType() { return false; }
     virtual bool compType() { return false; }
+    virtual bool limitType() { return false; }
     virtual bool phaseType()       { return false; };
     virtual bool sparamType()       { return false; };
     virtual bool yparamType()       { return false; };
@@ -595,8 +600,6 @@ inline void computeBreakPoint(
 
   if (!(timeOpVec_.empty()))
   {
-    bpTimes_.clear();
-
     // The following uses Newton's method to obtain the next breakpoint.
     // If it fails to converge, then it will not save one.
     // Possibly bpTol (which is the breakpoint tolerance used by the time integrator) 
@@ -2885,13 +2888,17 @@ class limitOp : public astNode<ScalarT>
   public:
     limitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst, Teuchos::RCP<astNode<ScalarT> > &zAst):
       astNode<ScalarT>(xAst,yAst),
-      zAst_(zAst) {};
+      zAst_(zAst), bpTol_(0.0) {};
 
     virtual ScalarT val()
     {
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+
+      bpTimes_.clear();
+      computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
+      computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
 
       return ((std::real(x->val())<std::real(y->val()))?
           std::real(y->val()):
@@ -2906,6 +2913,21 @@ class limitOp : public astNode<ScalarT>
 
       return ((std::real(x->val())<std::real(y->val()))?0.0:((std::real(x->val())>std::real(z->val()))?0.0:(x->dx(i))));
     };
+
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+      if(!(bpTimes_.empty()))
+      {
+        for (int ii=0;ii<bpTimes_.size();ii++)
+        {
+          breakPointTimes.push_back(bpTimes_[ii]);
+        }
+      }
+
+      return true;
+    }
+
+    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2968,8 +2990,13 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_) 
     }
 
+    virtual bool limitType() { return true; }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > zAst_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
+    double bpTol_;
+    std::vector<Xyce::Util::BreakPoint> bpTimes_;
 };
 
 //-------------------------------------------------------------------------------
@@ -2984,6 +3011,7 @@ class stpOp : public astNode<ScalarT>
     { 
       // stpOp returns a 1 or a 0.  
       Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
+      bpTimes_.clear();
       computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
       return ((std::real(this->leftAst_->val()))>0)?1.0:0.0; 
     }
