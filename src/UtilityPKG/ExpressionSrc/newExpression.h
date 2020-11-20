@@ -937,6 +937,7 @@ private:
   bool phaseOutputUsesRadians_;
 
   opVectorContainers<usedType> opVectors_;
+  std::vector<usedType> oldSolVals_;
 };
 
 }
