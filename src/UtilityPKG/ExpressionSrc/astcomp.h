@@ -125,15 +125,18 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                  \
 }; 
 
-AST_CMP_OP_MACRO(  gtOp,  ">", ((std::real(this->leftAst_->val()) > std::real(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  ltOp,  "<", ((std::real(this->leftAst_->val()) < std::real(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  neOp, "!=", (((this->leftAst_->val()) != (this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  eqOp, "==", (((this->leftAst_->val()) == (this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  geOp, ">=", ((std::real(this->leftAst_->val()) >= std::real(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  leOp, "<=", ((std::real(this->leftAst_->val()) <= std::real(this->rightAst_->val()))? 1 : 0), (0.0))
+#define FIXVAL(val)  Xyce::Util::fixNan(  Xyce::Util::fixInf( val ) )
+#define FIXVALREAL(val)  std::real( FIXVAL(val) )
 
-AST_CMP_OP_MACRO2(  orOp, "||", ((std::real(this->leftAst_->val()) || std::real(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO2( andOp, "&&", ((std::real(this->leftAst_->val()) && std::real(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO2( xorOp,  "^", (((std::real(this->leftAst_->val()) > 0 && std::real(this->rightAst_->val()) <= 0) || (std::real(this->leftAst_->val()) <= 0 && std::real(this->rightAst_->val()) > 0))?1.0:0.0), (0.0))
+AST_CMP_OP_MACRO(  gtOp,  ">", ((FIXVALREAL(this->leftAst_->val()) > FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  ltOp,  "<", ((FIXVALREAL(this->leftAst_->val()) < FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  neOp, "!=", (((FIXVAL(this->leftAst_->val())) != (FIXVAL(this->rightAst_->val())))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  eqOp, "==", (((FIXVAL(this->leftAst_->val())) == (FIXVAL(this->rightAst_->val())))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  geOp, ">=", ((FIXVALREAL(this->leftAst_->val()) >= FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  leOp, "<=", ((FIXVALREAL(this->leftAst_->val()) <= FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+
+AST_CMP_OP_MACRO2(  orOp, "||", ((FIXVALREAL(this->leftAst_->val()) || FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO2( andOp, "&&", ((FIXVALREAL(this->leftAst_->val()) && FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO2( xorOp,  "^", (((FIXVALREAL(this->leftAst_->val()) > 0 && FIXVALREAL(this->rightAst_->val()) <= 0) || (FIXVALREAL(this->leftAst_->val()) <= 0 && FIXVALREAL(this->rightAst_->val()) > 0))?1.0:0.0), (0.0))
 #endif
 

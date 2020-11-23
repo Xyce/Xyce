@@ -76,6 +76,25 @@ inline void fixNan(std::complex<double> & result)
 }
 
 template <typename ScalarA>
+inline ScalarA fixNan(const ScalarA & result) 
+{ 
+  ScalarA tmp = result;
+  if (std::isnan(std::real(result))) { tmp = 1.0e+50; } 
+  return tmp;
+}
+
+template <>
+inline std::complex<double> fixNan(const std::complex<double> & result)
+{
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
+  std::complex<double> tmp = result;
+  if (std::isnan(std::real(result))) { tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag()); }
+  if (std::isnan(std::imag(result))) { tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0)); }
+  return tmp;
+}
+
+template <typename ScalarA>
 inline void fixInf(ScalarA & result) { if (std::isinf(std::real(result))) { bool neg = std::signbit(result); result = (1.0e+50)*(neg?-1.0:1.0); } }
 
 template <>
@@ -86,6 +105,25 @@ inline void fixInf(std::complex<double> & result)
 
   if (std::isinf(std::real(result))) {std::complex<double> tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());result = tmp;}
   if (std::isinf(std::imag(result))) {std::complex<double> tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));result = tmp;}
+}
+
+template <typename ScalarA>
+inline ScalarA fixInf(const ScalarA & result) 
+{ 
+  ScalarA tmp = result;
+  if (std::isinf(std::real(result))) { bool neg = std::signbit(result); tmp = (1.0e+50)*(neg?-1.0:1.0); } 
+  return tmp;
+}
+
+template <>
+inline std::complex<double> fixInf(const std::complex<double> & result) 
+{ 
+  bool negReal = std::signbit(std::real(result));
+  bool negImag = std::signbit(std::imag(result));
+  std::complex<double> tmp = result;
+  if (std::isinf(std::real(result))) {tmp = std::complex<double>((1.0e+50)*(negReal?-1.0:1.0),result.imag());}
+  if (std::isinf(std::imag(result))) {tmp = std::complex<double>(result.real(),(1.0e+50)*(negImag?-1.0:1.0));}
+  return tmp;
 }
 
 }
