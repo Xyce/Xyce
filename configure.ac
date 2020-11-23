@@ -381,35 +381,30 @@ if test "$FORTRAN_BLAS" != "no"; then
 fi
 
 
-if test "$REACTION_PARSER" = "yes"; then
- # check for flex --- we use flex-only features, and can't use vanilla lex
- # if don't find flex, don't build parser
- # Same goes for bison, as yacc won't do the job for us, and AC_PROG_YACC
- # will use bison in yacc compatibility mode if we use it.  WE also
- # cannot just check for "all versions of bison newer than X.Y" because
- # bison's C++ interface has a habit of changing incompatibly from time
- # to time.  We therefore enumerate actual versions of Bison our interface
- # is *known* to work with and against which Xyce has been tested. 
- AC_PROG_LEX
- XYCE_CHECK_BISON([3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
- if test `basename $LEX` = "flex";
- then
-    AC_DEFINE(HAVE_FLEX,1,[define if you have the flex lexical scanner generator])
- else
-    AC_MSG_ERROR(["Requested reaction parser, but no FLEX."])
- fi
- if test "$BISON" != "no";
- then
-   AC_DEFINE(HAVE_BISON,1,[define if you have the bison parser generator])
- else
-   AC_MSG_ERROR(["Requested reaction parser, but no bison of correct version number."])
- fi
+# check for flex --- we use flex-only features, and can't use vanilla lex
+# if don't find flex, don't build parser
+# Same goes for bison, as yacc won't do the job for us, and AC_PROG_YACC
+# will use bison in yacc compatibility mode if we use it.  WE also
+# cannot just check for "all versions of bison newer than X.Y" because
+# bison's C++ interface has a habit of changing incompatibly from time
+# to time.  We therefore enumerate actual versions of Bison our interface
+# is *known* to work with and against which Xyce has been tested. 
+AC_PROG_LEX
+XYCE_CHECK_BISON([3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
+if test `basename $LEX` = "flex";
+then
+   AC_DEFINE(HAVE_FLEX,1,[define if you have the flex lexical scanner generator])
 else
- LEX=no
- BISON=no
+   AC_MSG_ERROR(["FLEX not found."])
+fi
+if test "$BISON" != "no";
+then
+  AC_DEFINE(HAVE_BISON,1,[define if you have the bison parser generator])
+else
+  AC_MSG_ERROR(["No bison of usable version number found."])
 fi
 
-AM_CONDITIONAL(BUILD_REACTION_PARSER, test `basename $LEX` = "flex" -a "$BISON" != "no")
+AM_CONDITIONAL(BUILD_REACTION_PARSER, test "$REACTION_PARSER" = "yes")
 
 dnl Check to see if valid Fortran compiler was found (HKT; 07/11/06; bug #1091).
 if test "$FORTRAN_BLAS" != "no" -a "x$F77" = "x" ; then
