@@ -2388,8 +2388,15 @@ other variables does not get propagated into a variable's
               </admst:when>
               <admst:when test="lhs/branch/pnode[location='internal']">
                 <!-- we only get here if nnode was external -->
-                <admst:value-to select="lhs/branch/pnode/#collapsible" string="yes"/>
-                <admst:push into="lhs/branch/pnode/@collapsesTo" onduplicate="ignore" select="lhs/branch/nnode"/>
+                <admst:choose>
+                  <admst:when test="[exists(lhs/branch/pnode/#collapsible)]">
+                    <admst:fatal format=" Collapse contribution '%(.)' requests collapse of internal node %(lhs/branch/pnode/name) onto external node %(lhs/branch/nnode/name), but %(lhs/branch/pnode/name) is already collapsible to %(lhs/branch/pnode/@collapsesTo) as a result of earlier collapses, and we cannot proceed!\n"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:value-to select="lhs/branch/pnode/#collapsible" string="yes"/>
+                    <admst:push into="lhs/branch/pnode/@collapsesTo" onduplicate="ignore" select="lhs/branch/nnode"/>
+                  </admst:otherwise>
+                </admst:choose>
               </admst:when>
             </admst:choose>
           </admst:when>
