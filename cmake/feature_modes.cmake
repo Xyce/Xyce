@@ -3,8 +3,6 @@
 # Setting them true, always
 set (HAVE_UNORDERED_MAP TRUE)
 set (HAVE_UNORDERED_SET TRUE)
-set (HAVE_ERF TRUE)
-set (HAVE_ERFC TRUE)
 
 # END C++11 features
 

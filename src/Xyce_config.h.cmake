@@ -5,8 +5,6 @@
 
 #cmakedefine HAVE_UNORDERED_MAP
 #cmakedefine HAVE_UNORDERED_SET
-#cmakedefine HAVE_ERF
-#cmakedefine HAVE_ERFC
 
 // This is required (so why is it ifdef'd?)
 #cmakedefine Xyce_BELOS
