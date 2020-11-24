@@ -39,16 +39,6 @@
 #include <list>
 #include <vector>
 
-#if defined(HAVE_UNORDERED_SET)
-#include <unordered_set>
-using std::unordered_set;
-#elif defined(HAVE_TR1_UNORDERED_SET)
-#include <tr1/unordered_set>
-using std::tr1::unordered_set;
-#else
-#error neither unordered_set or tr1/unordered_set found
-#endif
-
 namespace Xyce {
 
 enum NodeTYPE {_VNODE, _DNODE, _CNODE, _PNODE, _NUM_NODE_TYPES};

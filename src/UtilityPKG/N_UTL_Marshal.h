@@ -39,6 +39,8 @@
 #define N_UTL_MARSHAL_HPP
 
 #include <stdint.h>
+#include <unordered_set>
+using std::unordered_set;
 
 #include <string>
 #include <sstream>

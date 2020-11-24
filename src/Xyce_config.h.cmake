@@ -1,11 +1,6 @@
 #ifndef  Xyce_CONFIG_H
 #define  Xyce_CONFIG_H
 
-// C++11 Features; these should go away ASAP
-
-#cmakedefine HAVE_UNORDERED_MAP
-#cmakedefine HAVE_UNORDERED_SET
-
 // This is required (so why is it ifdef'd?)
 #cmakedefine Xyce_BELOS
 #cmakedefine Xyce_SPICE_NORMS

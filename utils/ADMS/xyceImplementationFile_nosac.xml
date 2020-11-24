@@ -197,15 +197,8 @@
 </admst:if>
 
 #include &lt;N_UTL_FeatureTest.h&gt;
-#if defined(HAVE_UNORDERED_MAP)
 #include &lt;unordered_map&gt;
 using std::unordered_map;
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include &lt;tr1/unordered_map&gt;
-using std::tr1::unordered_map;
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
 
 #include &lt;algorithm&gt;
 

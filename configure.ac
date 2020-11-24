@@ -524,7 +524,7 @@ AC_CXX_HAVE_STL
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([unistd.h limits.h float.h], , [AC_MSG_ERROR([Cannot find required C99 standard header])])
-AC_CHECK_HEADERS(unordered_map unordered_set functional tr1/unordered_map tr1/unordered_set sys/resource.h)
+AC_CHECK_HEADERS(functional sys/resource.h)
 
 dnl *********************************************************************
 dnl dlopen interface

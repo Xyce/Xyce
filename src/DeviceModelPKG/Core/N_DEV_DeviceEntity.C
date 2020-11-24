@@ -39,15 +39,8 @@
 
 #include <string>
 #include <iostream>
-#if defined(HAVE_UNORDERED_MAP)
 #include <unordered_map>
 using std::unordered_map;
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
 #include <N_DEV_fwd.h>
 #include <N_DEV_CompositeParam.h>
 #include <N_DEV_Const.h>
