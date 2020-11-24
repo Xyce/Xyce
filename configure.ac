@@ -40,6 +40,9 @@ AM_INIT_AUTOMAKE([1.11 foreign])
 dnl ********************************************************************
 dnl the autoconfing proper 
 
+dnl Ensure the compiler is C++11 compatable
+AX_CXX_COMPILE_STDCXX(11,,mandatory)
+
 dnl *****************************************************************
 dnl Before we can get to the meat, we need to do some options
 dnl *****************************************************************
