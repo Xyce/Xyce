@@ -3,7 +3,6 @@
 
 // C++11 Features; these should go away ASAP
 
-#cmakedefine HAVE_IOTA
 #cmakedefine HAVE_UNORDERED_MAP
 #cmakedefine HAVE_UNORDERED_SET
 #cmakedefine HAVE_ERF

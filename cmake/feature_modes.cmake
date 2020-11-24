@@ -1,7 +1,6 @@
 
 # These are all C++11 features that have ifdef's in the code.
 # Setting them true, always
-set (HAVE_IOTA TRUE)
 set (HAVE_UNORDERED_MAP TRUE)
 set (HAVE_UNORDERED_SET TRUE)
 set (HAVE_ERF TRUE)

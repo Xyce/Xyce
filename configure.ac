@@ -888,8 +888,6 @@ else
   ac_cv_header_curl_curl_h=no
 fi
 
-XYCE_CHECK_IOTA
-
 dnl Set the ATHENA requirements.
 AS_IF([test x$enable_athena = xyes],
       [ #Yes, user asked for athena
