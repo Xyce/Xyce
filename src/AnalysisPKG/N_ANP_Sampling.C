@@ -357,7 +357,6 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#if __cplusplus>=201103L
       else if (sampling_param.type == "GAMMA") 
       {
         sampling_param.alpha    = alphaVec_[ip];
@@ -376,7 +375,6 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#endif
       else
       {
         Report::DevelFatal().in("parseSamplingParam") << "Unsupported SAMPLING type";

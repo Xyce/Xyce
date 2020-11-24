@@ -33,11 +33,6 @@
 
 #if Xyce_STOKHOS_ENABLE
 
-#if __cplusplus>=201103L
-#else
-#include <sstream>
-#endif
-
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
@@ -475,7 +470,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#if __cplusplus>=201103L
       else if (sampling_param.type == "GAMMA") 
       {
         sampling_param.alpha    = alphaVec_[ip];
@@ -494,7 +488,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#endif    
       else
       {
         Report::DevelFatal().in("parsePCEParam") << "Unsupported SAMPLING type";
@@ -1238,13 +1231,7 @@ void PCE::hackPCEOutput2()
 
     for (int isol=0;isol<solutionSize;++isol)
     {
-#if __cplusplus>=201103L
       std::string varName = "var_" + std::to_string(isol);
-#else
-      std::stringstream ss;
-      ss << isol;
-      std::string varName = "var_" + ss.str();
-#endif
 
       std::string meanString = varName + "_quad_pce_mean";
       std::string meanStringPlus = varName + "_quad_pce_meanPlus";
@@ -1267,13 +1254,7 @@ void PCE::hackPCEOutput2()
       int basisSize = basis->size();
       for (int icoef=0;icoef<basisSize;++icoef)
       {
-#if __cplusplus>=201103L
           std::string sampleString = varName + "_coef_"+std::to_string(icoef);
-#else
-          std::stringstream ss;
-          ss << icoef;
-          std::string sampleString = varName + "_coef_"+ss.str();
-#endif
           output_stream << "\t\" " << sampleString << "\""<<std::endl;
       }
     }
@@ -1526,13 +1507,7 @@ void PCE::hackPCEOutput ()
         {
           for(int i=0;i<numQuadPoints_; ++i)
           {
-#if __cplusplus>=201103L
             std::string sampleString = outFunc.outFuncString + "_"+std::to_string(i);
-#else
-            std::stringstream ss;
-            ss << i;
-            std::string sampleString = outFunc.outFuncString + "_"+ss.str();
-#endif
             output_stream << "\t\" " << sampleString << "\""<<std::endl;
           }
         }
