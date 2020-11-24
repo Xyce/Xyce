@@ -92,9 +92,7 @@ ESBuilder::ESBuilder( const int Size )
 //-----------------------------------------------------------------------------
 Vector * ESBuilder::createVector() const
 {
-  RCP<Vector> vector = createBlockVector(); 
-  vector.release(); // Release ownership of the object.
-  return(&*vector);
+  return Xyce::Linear::createBlockVector( numSamples_, ESMap_, BaseMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -107,89 +105,7 @@ Vector * ESBuilder::createVector() const
 //-----------------------------------------------------------------------------
 MultiVector * ESBuilder::createMultiVector( int numVectors ) const
 {
-  BlockMultiVector* ret = new BlockMultiVector( numSamples_, numVectors, ESMap_, BaseMap_ );
-
-  return ret;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
-//-----------------------------------------------------------------------------
-RCP<BlockVector> ESBuilder::createBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, ESMap_, BaseMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createTransposeBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
-//-----------------------------------------------------------------------------
-RCP<BlockVector> ESBuilder::createTransposeBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-      new BlockVector( numSamples_, ESMap_ )
-      );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createTransposeStateBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
-//-----------------------------------------------------------------------------
-RCP<BlockVector> ESBuilder::createTransposeStateBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, ESStateMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createTransposeStoreBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
-//-----------------------------------------------------------------------------
-RCP<BlockVector> ESBuilder::createTransposeStoreBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, ESStoreMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createTransposeLeadCurrentBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
-//-----------------------------------------------------------------------------
-RCP<BlockVector> ESBuilder::createTransposeLeadCurrentBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, ESLeadCurrentMap_ )
-        );
-  return(vec);
+  return Xyce::Linear::createBlockMultiVector( numSamples_, numVectors, ESMap_, BaseMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -202,22 +118,7 @@ RCP<BlockVector> ESBuilder::createTransposeLeadCurrentBlockVector() const
 //-----------------------------------------------------------------------------
 Matrix * ESBuilder::createMatrix() const
 {
-  RCP<Matrix> matrix = createBlockMatrix();
-  matrix.release(); // Release ownership of the object.
-  return(&*matrix);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ESBuilder::createBlockMatrix
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 06/14/2018
-//-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> ESBuilder::createBlockMatrix() const
-{
-  return rcp (new Linear::BlockMatrix( numSamples_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get()) );
+  return Xyce::Linear::createBlockMatrix( numSamples_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get() );
 }
 
 //-----------------------------------------------------------------------------

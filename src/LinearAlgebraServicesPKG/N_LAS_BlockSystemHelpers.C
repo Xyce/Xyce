@@ -49,6 +49,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
+#include <N_LAS_BlockMultiVector.h>
 
 #include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
@@ -66,6 +67,32 @@
 
 namespace Xyce {
 namespace Linear {
+
+BlockMatrix* createBlockMatrix( int size,
+                                int offset,
+                                const std::vector< std::vector<int> > & blockColumns,
+                                const Graph* globalGraph,
+                                const Graph* subBlockGraph,
+                                int augmentCount )
+{
+  return new BlockMatrix( size, offset, blockColumns, globalGraph, subBlockGraph, augmentCount );
+}
+
+BlockVector* createBlockVector( int numBlocks,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                int augmentRows )
+{
+  return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
+}
+
+BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
+                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap )
+{
+  return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : generateOffset

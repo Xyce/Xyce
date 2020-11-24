@@ -144,20 +144,20 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createMatrix() const
   if (warpMPDE_)
   {
     // tscoffe/tmei 08/11/05:  Appending an extra row & column for omega and phi
-    return new Xyce::Linear::BlockMatrix( Size_,
-                                 offset_, 
-                                 Cols,
-                                 MPDEdFdxGraph_.get(),
-                                 BasedFdxGraph_.get(),
-                                 2);
+    return Xyce::Linear::createBlockMatrix( Size_,
+                                            offset_, 
+                                            Cols,
+                                            MPDEdFdxGraph_.get(),
+                                            BasedFdxGraph_.get(),
+                                            2 );
   }
   else
   {
-    return new Xyce::Linear::BlockMatrix( Size_,
-                                 offset_,
-                                 Cols,
-                                 MPDEdFdxGraph_.get(),
-                                 BasedFdxGraph_.get());
+    return Xyce::Linear::createBlockMatrix( Size_,
+                                            offset_,
+                                            Cols,
+                                            MPDEdFdxGraph_.get(),
+                                            BasedFdxGraph_.get() );
   }
 }
 

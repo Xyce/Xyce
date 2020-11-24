@@ -138,6 +138,34 @@ PCELoader::PCELoader(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : PCELoader::~PCELoader
+// Purpose       : destructor
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date :
+//-----------------------------------------------------------------------------
+PCELoader::~PCELoader()
+{
+  delete bmdQdx_ptr_;
+  delete bmdFdx_ptr_;
+  delete bmdQdx_quad_ptr_;
+  delete bmdFdx_quad_ptr_;
+  delete b_dV_voltlim_coef_Ptr_;
+  delete b_dV_voltlim_quad_Ptr_;
+
+  delete bQ_quad_ptr_;
+  delete bF_quad_ptr_;
+  delete bB_quad_ptr_;
+  delete bdFdxdVp_quad_ptr_;
+  delete bdQdxdVp_quad_ptr_;
+
+  delete bXNext_quad_ptr_;
+  delete bXCurr_quad_ptr_;
+  delete bXLast_quad_ptr_;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : PCELoader::registerPCEBuilder
 // Purpose       : Registration method for the PCE builder
 // Special Notes :
@@ -149,24 +177,24 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 {
   pceBuilderPtr_ = pceBuilderPtr;
 
-  bmdQdxPtr_ = pceBuilderPtr_->createBlockMatrix();
-  bmdFdxPtr_ = pceBuilderPtr_->createBlockMatrix();
+  bmdQdx_ptr_ = dynamic_cast<Linear::BlockMatrix *>(pceBuilderPtr_->createMatrix());
+  bmdFdx_ptr_ = dynamic_cast<Linear::BlockMatrix *>(pceBuilderPtr_->createMatrix());
 
-  bmdQdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
-  bmdFdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
+  bmdQdx_quad_ptr_ = pceBuilderPtr_->createQuadMatrix();
+  bmdFdx_quad_ptr_ = pceBuilderPtr_->createQuadMatrix();
 
-  bQ_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector();
-  bF_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  bB_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  bdFdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  bdQdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bQ_quad_ptr_ = pceBuilderPtr_->createQuadVector();
+  bF_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
+  bB_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
+  bdFdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
+  bdQdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
 
-  bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  bXCurr_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  bXLast_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bXNext_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
+  bXCurr_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
+  bXLast_quad_ptr_ = pceBuilderPtr_->createQuadVector(); 
 
-  b_dV_voltlim_quad_Ptr_ = pceBuilderPtr_->createQuadBlockVector();
-  b_dV_voltlim_coef_Ptr_ = pceBuilderPtr_->createBlockVector();
+  b_dV_voltlim_quad_Ptr_ = pceBuilderPtr_->createQuadVector();
+  b_dV_voltlim_coef_Ptr_ = dynamic_cast<Linear::BlockVector *>(pceBuilderPtr_->createVector());
 }
 
 //-----------------------------------------------------------------------------
@@ -234,8 +262,8 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
     for( int j = 0; j < basisSize; ++j )
     {
       //The matrices are loaded during the loadDAEVectors method, and are copied here
-      bdQdx.block(i,j).add( bmdQdxPtr_->block(i,j) );
-      bdFdx.block(i,j).add( bmdFdxPtr_->block(i,j) );
+      bdQdx.block(i,j).add( bmdQdx_ptr_->block(i,j) );
+      bdFdx.block(i,j).add( bmdFdx_ptr_->block(i,j) );
     }
   }
 
@@ -418,11 +446,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::BlockVector & bdFdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dFdxdVp);
   Xyce::Linear::BlockVector & bdQdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dQdxdVp);
 
-  bmdQdxPtr_->put(0.0);
-  bmdFdxPtr_->put(0.0);
+  bmdQdx_ptr_->put(0.0);
+  bmdFdx_ptr_->put(0.0);
 
-  bmdQdx_quad_Ptr_->put(0.0);
-  bmdFdx_quad_Ptr_->put(0.0);
+  bmdQdx_quad_ptr_->put(0.0);
+  bmdFdx_quad_ptr_->put(0.0);
 
   // ERK.  Convert the solution vector bnextX from coefficients to quadrature variable values.
   //
@@ -594,8 +622,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     appLoaderPtr_->loadDAEMatrices( &*appNextVecPtr_, &*appNextStaVecPtr_, &appdSdt, &*appNextStoVecPtr_, 
                                     &*appdQdxPtr_, &*appdFdxPtr_);
 
-    bmdQdx_quad_Ptr_->block(i,i).add( *appdQdxPtr_ );
-    bmdFdx_quad_Ptr_->block(i,i).add( *appdFdxPtr_ );
+    bmdQdx_quad_ptr_->block(i,i).add( *appdQdxPtr_ );
+    bmdFdx_quad_ptr_->block(i,i).add( *appdFdxPtr_ );
 
     // solve volt lim problem, if necessary.  
     // check max norm. if tiny don't bother
@@ -665,10 +693,10 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bNextJunctionV.assembleGlobalVector();
 
   // matrices
-  bmdQdx_quad_Ptr_->assembleGlobalMatrix();
-  bmdFdx_quad_Ptr_->assembleGlobalMatrix();
-  bmdQdx_quad_Ptr_->fillComplete();
-  bmdFdx_quad_Ptr_->fillComplete();
+  bmdQdx_quad_ptr_->assembleGlobalMatrix();
+  bmdFdx_quad_ptr_->assembleGlobalMatrix();
+  bmdQdx_quad_ptr_->fillComplete();
+  bmdFdx_quad_ptr_->fillComplete();
 
 #if 0
   std::cout << "Printing bF_quad_ptr_ (quadrature points):" <<std::endl;
@@ -809,7 +837,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // solve for the PCE coefficients of both dfdx and dqdx
   int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
 
-  Xyce::Linear::Matrix & subMatRef = bmdFdx_quad_Ptr_->block(0,0); // use this to get the structure
+  Xyce::Linear::Matrix & subMatRef = bmdFdx_quad_ptr_->block(0,0); // use this to get the structure
   int numLocalRowsRef = subMatRef.getLocalNumRows(); // num ckt vars = n_
 
   int basisSize = basis_->size();
@@ -829,8 +857,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     {
       for (int iquad=0;iquad<numQuadPoints_;++iquad)
       {
-        Xyce::Linear::Matrix & subMatF = bmdFdx_quad_Ptr_->block(iquad,iquad); 
-        Xyce::Linear::Matrix & subMatQ = bmdQdx_quad_Ptr_->block(iquad,iquad); 
+        Xyce::Linear::Matrix & subMatF = bmdFdx_quad_ptr_->block(iquad,iquad); 
+        Xyce::Linear::Matrix & subMatQ = bmdQdx_quad_ptr_->block(iquad,iquad); 
         double fval = subMatF[irow][icol];
         double qval = subMatQ[irow][icol];
         dfdx[iquad] = fval;
@@ -874,8 +902,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       {
         for (int icoefCol=0;icoefCol<basisSize;++icoefCol)
         {
-          Xyce::Linear::Matrix & subMatF = bmdFdxPtr_->block(icoefRow,icoefCol);
-          Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoefRow,icoefCol);
+          Xyce::Linear::Matrix & subMatF = bmdFdx_ptr_->block(icoefRow,icoefCol);
+          Xyce::Linear::Matrix & subMatQ = bmdQdx_ptr_->block(icoefRow,icoefCol);
           double fval = (*denseEntryF)(icoefRow,icoefCol);
           double qval = (*denseEntryQ)(icoefRow,icoefCol);
           subMatF[irow][icol] += fval;
@@ -885,15 +913,15 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     }
   }
 
-  bmdFdxPtr_->assembleGlobalMatrix();
-  bmdQdxPtr_->assembleGlobalMatrix();
-  bmdFdxPtr_->fillComplete();
-  bmdQdxPtr_->fillComplete();
+  bmdFdx_ptr_->assembleGlobalMatrix();
+  bmdQdx_ptr_->assembleGlobalMatrix();
+  bmdFdx_ptr_->fillComplete();
+  bmdQdx_ptr_->fillComplete();
 
 #if 0
   std::cout << "--------------------------------------------------------------" <<std::endl;
   std::cout << "Full Jacobian" << std::endl;
-  bmdFdxPtr_->print(std::cout);
+  bmdFdx_ptr_->print(std::cout);
   std::cout << "--------------------------------------------------------------" <<std::endl;
 #endif
   }
@@ -905,10 +933,10 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       // perform matvecs to convert bDV to dFdxdVp and dQdxdVp
       bool Transpose = false;
       dFdxdVp->putScalar(0.0);
-      bmdFdxPtr_->matvec( Transpose , bDV, *dFdxdVp );
+      bmdFdx_ptr_->matvec( Transpose , bDV, *dFdxdVp );
 
       dQdxdVp->putScalar(0.0);
-      bmdQdxPtr_->matvec( Transpose , bDV, *dQdxdVp );
+      bmdQdx_ptr_->matvec( Transpose , bDV, *dQdxdVp );
     }
   }
 
@@ -927,13 +955,13 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     Xyce::dout() << "PCE F Vector" << std::endl;
     bF.print(std::cout);
 
-    bmdQdxPtr_->assembleGlobalMatrix();
+    bmdQdx_ptr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdQdx_" << std::endl;
-    bmdQdxPtr_->print(std::cout);
+    bmdQdx_ptr_->print(std::cout);
 
-    bmdFdxPtr_->assembleGlobalMatrix();
+    bmdFdx_ptr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdFdx_" << std::endl;
-    bmdFdxPtr_->print(std::cout);
+    bmdFdx_ptr_->print(std::cout);
 
     Xyce::dout() << Xyce::section_divider << std::endl;
   }

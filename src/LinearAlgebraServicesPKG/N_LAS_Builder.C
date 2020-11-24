@@ -175,15 +175,8 @@ Vector * Builder::createLeadCurrentVector() const
 //-----------------------------------------------------------------------------
 Matrix * Builder::createMatrix() const
 {
-
-  Matrix * mat = 0;
-
-  const Graph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
-  const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
-
-  mat = new Matrix( overlapGraph, baseGraph );
-
-  return mat;
+  return Xyce::Linear::createMatrix( pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP ),
+                                     pdsMgr_->getMatrixGraph( Parallel::JACOBIAN ) );
 }
 
 //-----------------------------------------------------------------------------

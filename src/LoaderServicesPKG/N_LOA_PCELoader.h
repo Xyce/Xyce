@@ -88,8 +88,7 @@ public:
     bool useExprSamples
     ); 
 
-  ~PCELoader()
-  {}
+  ~PCELoader();
 
   // Get convergence info from devices
   bool allDevicesConverged(Xyce::Parallel::Machine comm);
@@ -162,10 +161,6 @@ public:
 
   // voltage limiter solver
   void allocateVoltageLimitingSolver ();
-
-  // Get the stored quad-based matrices 
-  Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dQdx() { return bmdQdx_quad_Ptr_; }
-  Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dFdx() { return bmdFdx_quad_Ptr_; }
 
   // Registration method for the device packaage
   void registerAppLoader( Teuchos::RCP<Loader> appLoaderPtr )
@@ -250,25 +245,24 @@ private:
   Linear::Builder &             builder_;
 
   // Tmp storage block matrices 
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdxPtr_;
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdxPtr_;
-
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdx_quad_Ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdx_quad_Ptr_;
+  Linear::BlockMatrix* bmdQdx_ptr_;
+  Linear::BlockMatrix* bmdFdx_ptr_;
+  Linear::BlockMatrix* bmdQdx_quad_ptr_;
+  Linear::BlockMatrix* bmdFdx_quad_ptr_;
 
   // Tmp storage block vectors 
-  Teuchos::RCP<Xyce::Linear::BlockVector> bQ_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bF_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bB_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bdFdxdVp_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bdQdxdVp_quad_ptr_;
+  Linear::BlockVector* bQ_quad_ptr_;
+  Linear::BlockVector* bF_quad_ptr_;
+  Linear::BlockVector* bB_quad_ptr_;
+  Linear::BlockVector* bdFdxdVp_quad_ptr_;
+  Linear::BlockVector* bdQdxdVp_quad_ptr_;
 
-  Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bXCurr_quad_ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> bXLast_quad_ptr_;
+  Linear::BlockVector* bXNext_quad_ptr_;
+  Linear::BlockVector* bXCurr_quad_ptr_;
+  Linear::BlockVector* bXLast_quad_ptr_;
 
-  Teuchos::RCP<Xyce::Linear::BlockVector> b_dV_voltlim_quad_Ptr_;
-  Teuchos::RCP<Xyce::Linear::BlockVector> b_dV_voltlim_coef_Ptr_;
+  Linear::BlockVector* b_dV_voltlim_quad_Ptr_;
+  Linear::BlockVector* b_dV_voltlim_coef_Ptr_;
 
   // PCE stuff:
   int numQuadPoints_;

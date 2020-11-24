@@ -43,6 +43,8 @@
 #include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_Matrix.h>
+#include <N_LAS_BlockMatrix.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -78,6 +80,12 @@ Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
   return new Vector( map, ol_map );
 }
 
+Matrix* createMatrix( const Graph* overlapGraph,
+                      const Graph* baseGraph )
+{
+  return new Matrix( overlapGraph, baseGraph );
+}
+                      
 // ///////////////////////////////////////////////////////////////////
 //
 // Implementation of the Xyce::Linear::EpetraTransOp class.

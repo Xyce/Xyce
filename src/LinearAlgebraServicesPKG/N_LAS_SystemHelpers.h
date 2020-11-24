@@ -64,6 +64,9 @@ Vector* createVector( N_PDS_ParMap & map );
 
 Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map );
 
+Matrix* createMatrix( const Graph* overlapGraph,
+                      const Graph* baseGraph );
+
 //-----------------------------------------------------------------------------
 // Function      : extractValues
 // Purpose       : A helper function that extracts the values into another matrix

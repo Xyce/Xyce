@@ -69,11 +69,11 @@ class BlockMatrix : public Matrix
  public:
 
   BlockMatrix( int size,
-                     int offset,
-                     const std::vector< std::vector<int> > & blockColumns,
-                     const Graph* globalGraph,
-                     const Graph* subBlockGraph,
-                     int augmentCount = 0 );
+               int offset,
+               const std::vector< std::vector<int> > & blockColumns,
+               const Graph* globalGraph,
+               const Graph* subBlockGraph,
+               int augmentCount = 0 );
 
   //Destructor
   ~BlockMatrix() {}

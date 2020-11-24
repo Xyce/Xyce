@@ -57,6 +57,22 @@ class N_PDS_ParMap;
 namespace Xyce {
 namespace Linear {
 
+BlockVector* createBlockVector( int numBlocks,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                int augmentRows = 0 );
+
+BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
+                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap );
+
+BlockMatrix* createBlockMatrix( int size,
+                                int offset,
+                                const std::vector< std::vector<int> > & blockColumns,
+                                const Graph* globalGraph,
+                                const Graph* subBlockGraph,
+                                int augmentCount = 0 );
+
 //-----------------------------------------------------------------------------
 // Function      : generateOffset 
 // Purpose       : A helper function that standardizes how offsets are computed

@@ -87,92 +87,7 @@ PCEBuilder::PCEBuilder( const int Size, const int quadPointsSize )
 //-----------------------------------------------------------------------------
 Vector * PCEBuilder::createVector() const
 {
-  RCP<Vector> vector = createBlockVector(); 
-  vector.release(); // Release ownership of the object.
-  return(&*vector);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numBlockRows_, PCEMap_, BaseMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-      new BlockVector( numBlockRows_, PCEMap_ )
-      );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeStateBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeStateBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        //new BlockVector( numBlockRows_, PCEStateMap_ )
-        new BlockVector( numQuadPoints_, quadStateMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeStoreBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeStoreBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        //new BlockVector( numBlockRows_, PCEStoreMap_ )
-        new BlockVector( numQuadPoints_, quadStoreMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeLeadCurrentBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        //new BlockVector( numBlockRows_, PCELeadCurrentMap_ )
-        new BlockVector( numQuadPoints_, quadLeadCurrentMap_ )
-        );
-  return(vec);
+  return Xyce::Linear::createBlockVector( numBlockRows_, PCEMap_, BaseMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -183,43 +98,9 @@ RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentBlockVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/25/2019
 //-----------------------------------------------------------------------------
-Vector * PCEBuilder::createQuadVector() const
+BlockVector * PCEBuilder::createQuadVector() const
 {
-  RCP<Vector> vector = createQuadBlockVector(); 
-  vector.release(); // Release ownership of the object.
-  return(&*vector);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createQuadBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createQuadBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numQuadPoints_, quadMap_, BaseMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeQuadBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeQuadBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-      new BlockVector( numQuadPoints_, quadMap_ )
-      );
-  return(vec);
+  return Xyce::Linear::createBlockVector( numQuadPoints_, quadMap_, BaseMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -232,22 +113,7 @@ RCP<BlockVector> PCEBuilder::createTransposeQuadBlockVector() const
 //-----------------------------------------------------------------------------
 Matrix * PCEBuilder::createMatrix() const
 {
-  RCP<Matrix> matrix = createBlockMatrix();
-  matrix.release(); // Release ownership of the object.
-  return(&*matrix);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createBlockMatrix
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 6/27/2019
-//-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix() const
-{
-  return rcp (new Linear::BlockMatrix( numBlockRows_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get() ) );
+  return Xyce::Linear::createBlockMatrix( numBlockRows_, offset_, blockPattern_, blockGraph_.get(), baseFullGraph_.get() );
 }
 
 //-----------------------------------------------------------------------------
@@ -258,24 +124,9 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/25/2019
 //-----------------------------------------------------------------------------
-Matrix * PCEBuilder::createQuadMatrix() const
+BlockMatrix * PCEBuilder::createQuadMatrix() const
 {
-  RCP<Matrix> matrix = createQuadBlockMatrix();
-  matrix.release(); // Release ownership of the object.
-  return(&*matrix);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createQuadBlockMatrix
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix() const
-{
-  return rcp (new Linear::BlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, quadBlockGraph_.get(), baseFullGraph_.get()) );
+  return Xyce::Linear::createBlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, quadBlockGraph_.get(), baseFullGraph_.get() );
 }
 
 //-----------------------------------------------------------------------------
@@ -288,9 +139,7 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix() const
 //-----------------------------------------------------------------------------
 Vector * PCEBuilder::createStateVector() const
 {
-  return dynamic_cast<Vector*>(
-        //new BlockVector( numBlockRows_, PCEStateMap_, BaseStateMap_ ) );
-        new BlockVector( numQuadPoints_, quadStateMap_, BaseStateMap_ ) );
+  return Xyce::Linear::createBlockVector( numQuadPoints_, quadStateMap_, BaseStateMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -303,9 +152,7 @@ Vector * PCEBuilder::createStateVector() const
 //-----------------------------------------------------------------------------
 Vector * PCEBuilder::createStoreVector() const
 {
-  return dynamic_cast<Vector*>(
-        //new BlockVector( numBlockRows_, PCEStoreMap_, BaseStoreMap_ ) );
-        new BlockVector( numQuadPoints_, quadStoreMap_, BaseStoreMap_ ) );
+  return Xyce::Linear::createBlockVector( numQuadPoints_, quadStoreMap_, BaseStoreMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -318,9 +165,7 @@ Vector * PCEBuilder::createStoreVector() const
 //-----------------------------------------------------------------------------
 Vector * PCEBuilder::createLeadCurrentVector() const
 {
-  return dynamic_cast<Vector*>(
-        //new BlockVector( numBlockRows_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );
-        new BlockVector( numQuadPoints_, quadLeadCurrentMap_, BaseLeadCurrentMap_ ) );
+  return Xyce::Linear::createBlockVector( numQuadPoints_, quadLeadCurrentMap_, BaseLeadCurrentMap_ );
 }
 
 //-----------------------------------------------------------------------------
