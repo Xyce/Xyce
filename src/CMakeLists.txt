@@ -2,26 +2,28 @@ set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
 ####
-# Bison and Flex modules don't work in any directory. Under the covers, they
-# are CMake2 style, where they use include_directories :(
+# Bison and Flex modules don't work in just any directory. Under the covers,
+# they are CMake2 style, where they use include_directories.
 if( Xyce_REACTION_PARSER )
-    bison_target( XyceReactionParser DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
-         ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
-    flex_target( XyceReactionScanner "DeviceModelPKG/Core/N_DEV_ReactionLexer.l"
-        "${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx"
-	COMPILE_FLAGS "-+"
-		)
-    add_flex_bison_dependency( XyceReactionScanner XyceReactionParser )
+     bison_target( XyceReactionParser DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
+          ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
+     flex_target( XyceReactionLexer "DeviceModelPKG/Core/N_DEV_ReactionLexer.l"
+          "${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx"
+          COMPILE_FLAGS "-+")
 
-    set( REACTION_PARSER_SRC
-        ${BISON_XyceReactionParser_OUTPUT_SOURCE}
-        ${FLEX_XyceReactionScanner_OUTPUT_SOURCE})
+     add_flex_bison_dependency( XyceReactionLexer XyceReactionParser )
 
-    include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
+     include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
 endif()
-bison_target( XyceExpressionParser "UtilityPKG/ExpressionSrc/ExpressionParser.yxx" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
-flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l" "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx" COMPILE_FLAGS "-i -+ --full --prefix=exp")
+bison_target( XyceExpressionParser
+     "UtilityPKG/ExpressionSrc/ExpressionParser.yxx"
+     "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
+flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l"
+     "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionLexer.cxx"
+     COMPILE_FLAGS "-i -+ --full --prefix=exp")
+
 add_flex_bison_dependency( XyceExpressionLexer XyceExpressionParser  )
+
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 
 #End bison and Flex non-sense.
@@ -33,7 +35,7 @@ add_library(XyceStatic STATIC
  ${BISON_XyceExpressionParser_OUTPUTS}
  ${FLEX_XyceExpressionLexer_OUTPUTS}
  ${BISON_XyceReactionParser_OUTPUTS}
- ${FLEX_XyceReactionScanner_OUTPUTS})
+ ${FLEX_XyceReactionLexer_OUTPUTS})
 
 ###
 # add_subdirectories here

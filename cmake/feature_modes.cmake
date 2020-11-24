@@ -56,6 +56,9 @@ set(Xyce_TRACKING_URL              ""  CACHE STRING "The URL for the usage track
 # ADMS-generated devices
 set(Xyce_ADMS_SENSITIVITIES        TRUE CACHE BOOL "Enable analytic sensitivities in ADMS-generated devices")
 
+# Self-explanatory: Enable the chemical reaction parsing capability
+set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction parsing capability")
+
 # Support for Charon coupling
 set(Xyce_CHARON                    FALSE CACHE BOOL "Enable Charon device support")
 
