@@ -40,6 +40,9 @@ AM_INIT_AUTOMAKE([1.11 foreign])
 dnl ********************************************************************
 dnl the autoconfing proper 
 
+dnl Ensure the compiler is C++11 compatable
+AX_CXX_COMPILE_STDCXX(11,,mandatory)
+
 dnl *****************************************************************
 dnl Before we can get to the meat, we need to do some options
 dnl *****************************************************************
@@ -524,7 +527,7 @@ AC_CXX_HAVE_STL
 
 AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([unistd.h limits.h float.h], , [AC_MSG_ERROR([Cannot find required C99 standard header])])
-AC_CHECK_HEADERS(unordered_map unordered_set functional tr1/unordered_map tr1/unordered_set sys/resource.h)
+AC_CHECK_HEADERS(functional sys/resource.h)
 
 dnl *********************************************************************
 dnl dlopen interface
@@ -787,12 +790,6 @@ AC_CHECK_FUNCS(getopt)
 
 AC_CHECK_FUNCS(drand48)
 
-dnl Checks for library function erf 
-AC_CHECK_FUNCS(erf)
-
-dnl Checks for library function erfc
-AC_CHECK_FUNCS(erfc)
-
 # check if FFT library support is enabled. If so, check for Intel FFT or FFTW.
 if test "X$USE_FFT" = "Xyes"; then
 
@@ -887,8 +884,6 @@ if test "X$USE_CURL" = "Xyes"; then
 else
   ac_cv_header_curl_curl_h=no
 fi
-
-XYCE_CHECK_IOTA
 
 dnl Set the ATHENA requirements.
 AS_IF([test x$enable_athena = xyes],

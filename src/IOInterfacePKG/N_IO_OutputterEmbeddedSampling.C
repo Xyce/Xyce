@@ -196,13 +196,7 @@ void makeEmbeddedSamplingColumnNames(
     {
       for(int i=0;i<numSamples; ++i)
       {
-#if __cplusplus>=201103L
         colNames.push_back(outFunc.outFuncString + "_"+std::to_string(i));
-#else
-        std::stringstream ss;
-        ss << i;
-        colNames.push_back(outFunc.outFuncString + "_"+ss.str());
-#endif
       }
     }
   }

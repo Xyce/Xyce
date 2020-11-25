@@ -135,11 +135,7 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
     currentVal = valList[stepNumberArg];
     ++count;
   }
-  else if (type=="NORMAL" || type=="UNIFORM"
-#if __cplusplus>=201103L
-          || type=="GAMMA"
-#endif
-        )
+  else if (type=="NORMAL" || type=="UNIFORM" || type=="GAMMA")
   {
     // Doesn't do anything
     // The sampling values are set elsewhere
@@ -483,11 +479,7 @@ int setSweepLoopVals(std::vector<SweepParam>::iterator begin, std::vector<SweepP
       sweep_param.maxStep = 1;
       data=true;
     }
-    else if (sweep_param.type=="NORMAL" || sweep_param.type=="UNIFORM"
-#if __cplusplus>=201103L
-          || sweep_param.type=="GAMMA"
-#endif
-        )
+    else if (sweep_param.type=="NORMAL" || sweep_param.type=="UNIFORM" || sweep_param.type=="GAMMA")
     {
       // ERK. this is a no-op, to avoid the error message.  This class is used for
       // sampling as well as sweep loops.

@@ -40,16 +40,6 @@
 #include <utility>
 #include <vector>
 
-#if defined(HAVE_UNORDERED_MAP)
-#include <unordered_map>
-using std::unordered_map;
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
-
 #include <N_UTL_Pack.h>
 
 namespace Xyce {
@@ -164,10 +154,6 @@ struct equal_to<Xyce::NodeID> : public std::binary_function<Xyce::NodeID, Xyce::
   }
 };
 
-#if defined(HAVE_TR1_UNORDERED_MAP) && !defined(HAVE_UNORDERED_MAP)
-namespace tr1 {
-#endif
-
 template<>
 struct hash<Xyce::NodeID> : public std::unary_function<Xyce::NodeID, size_t>
 {
@@ -179,10 +165,6 @@ struct hash<Xyce::NodeID> : public std::unary_function<Xyce::NodeID, size_t>
     return x0(Xyce::get_node_id(node_id)) ^ x1(Xyce::get_node_type(node_id));
   }
 };
-
-#if defined(HAVE_TR1_UNORDERED_MAP) && !defined(HAVE_UNORDERED_MAP)
-} // namespace tr1
-#endif
 
 } // std namespace
 

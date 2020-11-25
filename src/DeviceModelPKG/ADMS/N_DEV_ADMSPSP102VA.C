@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 10 Sep 2020 12:35:59
+// Creation Date  : Tue, 24 Nov 2020 13:32:45
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -57,15 +57,8 @@
   #include <N_ANP_NoiseData.h>
 
 #include <N_UTL_FeatureTest.h>
-#if defined(HAVE_UNORDERED_MAP)
 #include <unordered_map>
 using std::unordered_map;
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
 
 #include <algorithm>
 

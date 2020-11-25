@@ -35,12 +35,7 @@
 #include <Teuchos_Utils.hpp>
 #include <Teuchos_LAPACK.hpp>
 
-#if __cplusplus>=201103L
-// note, this only works with C++11!
 #include <random>
-#else
-#include <N_UTL_RandomNumbers.h>
-#endif
 
 namespace Xyce {
 namespace Analysis {
@@ -700,7 +695,6 @@ void setupMonteCarloSampleValues(
 {
   int numParams = samplingVector.size();
 
-#if __cplusplus>=201103L
   // allocate the Mersenne Twister algorithm class
   std::mt19937 * mtPtr = new std::mt19937(theSeed);
   std::mt19937 & mt = *mtPtr;
@@ -708,9 +702,6 @@ void setupMonteCarloSampleValues(
   // sampling related objects:
   std::uniform_real_distribution<double> uniformDistribution(0.0,1.0);
   //std::normal_distribution<double> normalDistribution(1.0,0.0);
-#else
-  Xyce::Util::RandomNumbers *theRandomNumberGenerator = new Xyce::Util::RandomNumbers(theSeed);
-#endif
 
   X.resize(numSamples*numParams,0.0);
 
@@ -726,7 +717,6 @@ void setupMonteCarloSampleValues(
 
       val=0.0;
 
-#if __cplusplus>=201103L
       if (sp.type == "UNIFORM")
       {
         //allDistributionsNormal=false;
@@ -757,35 +747,12 @@ void setupMonteCarloSampleValues(
           val = gammaDistribution(mt);
         }
       }
-#else
-      if (sp.type == "UNIFORM")
-      {
-        //allDistributionsNormal=false;  
-        double tmp = theRandomNumberGenerator->uniformRandom();
-        double dv = sp.stopVal-sp.startVal;
-        val = sp.startVal + dv*tmp;
-      }
-      else if (sp.type == "NORMAL")
-      {
-        val = theRandomNumberGenerator->gaussianRandom(sp.mean,sp.stdDev);
-
-        while (  (sp.upper_boundGiven && sp.upper_bound < val) ||
-                 (sp.lower_boundGiven && sp.lower_bound > val) )
-        {
-          val = theRandomNumberGenerator->gaussianRandom(sp.mean,sp.stdDev);
-        }
-      }
-#endif
 
       X[numSamples * ip + is] = val;
     }
   }
 
-#if __cplusplus>=201103L
   delete mtPtr;
-#else
-  delete theRandomNumberGenerator;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -802,15 +769,11 @@ void setupLHSSampleValues(
     const SweepVector & samplingVector,
     std::vector<double> & X)
 {
-#if __cplusplus>=201103L
   // allocate the Mersenne Twister algorithm class
   std::mt19937 * mtPtr = new std::mt19937(theSeed);
   std::mt19937 & mt = *mtPtr;
   std::uniform_int_distribution<> dis(1, numSamples);
   std::uniform_real_distribution<double> distribution(0.0,1.0);
-#else
-  Xyce::Util::RandomNumbers *theRandomNumberGenerator = new Xyce::Util::RandomNumbers(theSeed);
-#endif  
   
   int numParams = samplingVector.size();
   X.resize(numSamples*numParams,0.0);
@@ -826,13 +789,8 @@ void setupLHSSampleValues(
       double prob=0.0;
       int bin=0;
 
-#if __cplusplus>=201103L
       val = distribution(mt);
       bin = dis(mt);
-#else
-      val = theRandomNumberGenerator->uniformRandom(); 
-      bin = theRandomNumberGenerator->uniformRandomInt(1, numSamples);
-#endif
       prob = (bin-val)/numSamples;
 
       if (sp.type == "UNIFORM")     
@@ -846,13 +804,8 @@ void setupLHSSampleValues(
         while ( (sp.upper_boundGiven && sp.upper_bound < finalVal) ||
                 (sp.lower_boundGiven && sp.lower_bound > finalVal) )
         {
-#if __cplusplus>=201103L
           val = distribution(mt);
           bin = dis(mt);
-#else
-          val = theRandomNumberGenerator->uniformRandom(); 
-          bin = theRandomNumberGenerator->uniformRandomInt(1, numSamples);
-#endif
           prob = (bin-val)/numSamples;
           finalVal = setupNormal(prob,sp.mean,sp.stdDev);
         }
@@ -868,11 +821,7 @@ void setupLHSSampleValues(
     }
   }
 
-#if __cplusplus>=201103L
   delete mtPtr;
-#else
-  delete theRandomNumberGenerator;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -885,7 +834,6 @@ void setupLHSSampleValues(
 //-----------------------------------------------------------------------------
 void setupMonteCarloStdNormals(long theSeed, std::vector<double> & X)
 {
-#if __cplusplus>=201103L
   // allocate the Mersenne Twister algorithm class
   std::mt19937 * mtPtr = new std::mt19937(theSeed);
   std::mt19937 & mt = *mtPtr;
@@ -897,14 +845,6 @@ void setupMonteCarloStdNormals(long theSeed, std::vector<double> & X)
     X[i] = stdNormalDistribution(mt);
   }
   delete mtPtr;
-#else
-  Xyce::Util::RandomNumbers *theRandomNumberGenerator = new Xyce::Util::RandomNumbers(theSeed);
-  for (int i=0;i<X.size();++i)
-  {
-    X[i] = theRandomNumberGenerator->gaussianRandom(0.0,1.0);
-  }
-  delete theRandomNumberGenerator;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -921,7 +861,6 @@ void setupLHSStdNormals(long theSeed, const int numSamples, std::vector<double> 
   double prob=0.0;
   int bin=0;
 
-#if __cplusplus>=201103L
   // allocate the Mersenne Twister algorithm class
   std::mt19937 * mtPtr = new std::mt19937(theSeed);
   std::mt19937 & mt = *mtPtr;
@@ -937,17 +876,6 @@ void setupLHSStdNormals(long theSeed, const int numSamples, std::vector<double> 
     X[i] = setupNormal(prob,0.0,1.0);
   }
   delete mtPtr;
-#else
-  Xyce::Util::RandomNumbers *theRandomNumberGenerator = new Xyce::Util::RandomNumbers(theSeed);
-  for (int i=0;i<X.size();++i)
-  {
-    val = theRandomNumberGenerator->uniformRandom(); 
-    bin = theRandomNumberGenerator->uniformRandomInt(1, numSamples);
-    prob = (bin-val)/numSamples;
-    X[i] = setupNormal(prob,0.0,1.0);
-  }
-  delete theRandomNumberGenerator;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1303,9 +1231,7 @@ long getTheSeed(
     const Xyce::IO::CmdParse & commandLine, int userSeed, bool userSeedGiven,
     bool output)
 {
-#if __cplusplus>=201103L
   std::random_device rd;
-#endif
 
   long theSeed;
   if (commandLine.argExists("-randseed"))
@@ -1330,11 +1256,7 @@ long getTheSeed(
 
         if (Parallel::rank(comm) == 0) 
         {
-#if __cplusplus>=201103L
           theSeed = rd();
-#else
-          theSeed=time(NULL);
-#endif
           Util::Marshal mout;
           mout << theSeed;
           Parallel::Broadcast(comm, mout, 0);
@@ -1348,21 +1270,15 @@ long getTheSeed(
       }
       else
       {
-#if __cplusplus>=201103L
         theSeed = rd();
-#else
-        theSeed=time(NULL);
-#endif
       }
     }
   }
 
-#if __cplusplus>=201103L
   if (output)
   {
     Xyce::lout() << "Seeding random number generator with " << ((unsigned long)theSeed) << std::endl;
   }
-#endif
 
   return theSeed;
 }

@@ -31,11 +31,6 @@
 //-----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
-#if __cplusplus>=201103L
-#else
-#include <sstream>
-#endif
-
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
@@ -474,7 +469,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#if __cplusplus>=201103L
       else if (sampling_param.type == "GAMMA") 
       {
         sampling_param.alpha    = alphaVec_[ip];
@@ -493,7 +487,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
           sampling_param.upper_boundGiven = true;
         }
       }
-#endif    
       else
       {
         Report::DevelFatal().in("parseEmbeddedSamplingParam") << "Unsupported SAMPLING type";
@@ -1493,13 +1486,7 @@ void EmbeddedSampling::hackEnsembleOutput ()
         {
           for(int i=0;i<numSamples_; ++i)
           {
-#if __cplusplus>=201103L
             std::string sampleString = outFunc.outFuncString + "_"+std::to_string(i);
-#else
-            std::stringstream ss;
-            ss << i;
-            std::string sampleString = outFunc.outFuncString + "_"+ss.str();
-#endif
             output_stream << "\t\" " << sampleString << "\""<<std::endl;
           }
         }

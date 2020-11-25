@@ -43,12 +43,7 @@
 #include <vector>
 #include <map>
 
-#if __cplusplus>=201103L
-// note, this only works with C++11!
 #include <random>
-#else
-#include <N_UTL_RandomNumbers.h>
-#endif
 
 #include <N_ANP_fwd.h>
 #include <N_LOA_fwd.h>

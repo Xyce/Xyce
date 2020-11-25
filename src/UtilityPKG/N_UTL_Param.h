@@ -44,6 +44,8 @@
 #include <vector>
 #include <typeinfo>
 #include <iostream>
+#include <unordered_set>
+using std::unordered_set;
 
 #include <N_UTL_fwd.h>
 #include <N_UTL_Pack.h>
