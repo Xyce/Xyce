@@ -40,7 +40,6 @@
 
 
 #include <Teuchos_RCP.hpp>
-#include <Epetra_Map.h>
 
 #include <N_LAS_fwd.h>
 

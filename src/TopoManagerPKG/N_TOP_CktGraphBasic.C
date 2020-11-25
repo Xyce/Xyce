@@ -610,7 +610,6 @@ void CktGraphBasic::registerJacLIDswithDevs( Indexor & indexor )
       counts[0] = extGIDs.size();
       counts[1] = intGIDs.size();
       counts[2] = depGIDs.size();
-      //cktNodeDevPtr->registerGIDDataWithDev( counts, gids, stampVec );
 
       indexor.matrixGlobalToLocal(Parallel::JACOBIAN_OVERLAP, gids, stampVec );
 

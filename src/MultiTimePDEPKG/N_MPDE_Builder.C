@@ -285,9 +285,9 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  BasedQdxGraph_ = rcp(new Xyce::Linear::Graph( BasedQdxGraph ));
-  BasedFdxGraph_ = rcp(new Xyce::Linear::Graph( BasedFdxGraph ));
-  BaseFullGraph_ = rcp(new Xyce::Linear::Graph( BaseFullGraph ));
+  BasedQdxGraph_ = rcp( BasedQdxGraph.cloneCopy() );
+  BasedFdxGraph_ = rcp( BasedFdxGraph.cloneCopy() );
+  BaseFullGraph_ = rcp( BaseFullGraph.cloneCopy() );
 
   int BlockSize = BaseMap_->numLocalEntities();
 
@@ -297,7 +297,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
                                                            *dynamic_cast<Epetra_BlockMap*>(e_mpdeMap->petraMap()),
                                                            0 );
 
-  int MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();
+  int MaxIndices = BasedFdxGraph_->maxNumIndices();
   std::vector<int> Indices(MaxIndices);
   int NumIndices;
   int BaseRow;
@@ -307,7 +307,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph_->epetraObj()->ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BasedFdxGraph_->extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
       for( int k = 0; k < NumIndices; ++k ) Indices[k] += offset_*i;
       //Diagonal Block
       MPDERow = BaseRow + offset_*i;
@@ -323,7 +323,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     epetraMPDEGraph->Print(Xyce::dout());
   }
 
-  MaxIndices = BasedFdxGraph_->epetraObj()->MaxNumIndices();
+  MaxIndices = BasedFdxGraph_->maxNumIndices();
   Indices.resize(MaxIndices);
   std::vector<int> NewIndices(MaxIndices);
   int DiscStart = Disc_.Start();
@@ -341,7 +341,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph.epetraObj()->ExtractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BasedFdxGraph.extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
 
       MPDERow = BaseRow + offset_*i;
       for( int k = 0; k < DiscWidth; ++k )
@@ -413,9 +413,9 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
   {  
     Xyce::dout() << "Final MPDEdQdxGraph = " << std::endl;
-    MPDEdQdxGraph_->epetraObj()->Print(Xyce::dout());
+    MPDEdQdxGraph_->print(Xyce::dout());
     Xyce::dout() << "Final MPDEdFdxGraph = " << std::endl;
-    MPDEdFdxGraph_->epetraObj()->Print(Xyce::dout());
+    MPDEdFdxGraph_->print(Xyce::dout());
   }
 
   return true;

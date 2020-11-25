@@ -420,7 +420,7 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
     Y.epetraObj().Export( *serialY_, *serialImporter_[myPID], Add );
 
     // Wait for everyone else before moving on.
-    Y.epetraObj().Comm().Barrier();
+    hbBuilder_->getPDSComm()->barrier();
   }
 
   return 0;

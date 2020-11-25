@@ -50,17 +50,10 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_GlobalAccessor.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_EpetraParMap.h>
 #include <N_PDS_ParHelpers.h>
 #include <N_PDS_MPI.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Functors.h>
-
-#include <Epetra_CrsGraph.h>
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_Map.h>
-#include <Epetra_Export.h>
-#include <EpetraExt_BlockMapOut.h>
 
 using std::max;
 using Xyce::VERBOSE_LINEAR;
@@ -396,32 +389,24 @@ bool Builder::generateGraphs()
   int numLocalRows_Overlap = rcData.size();
 
   N_PDS_ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
-  Epetra_BlockMap & overlapGndMap = 
-    *(dynamic_cast<N_PDS_EpetraParMap*>(solnOvGMap)->petraMap());
   N_PDS_ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
-  Epetra_BlockMap & overlapMap = 
-    *(dynamic_cast<N_PDS_EpetraParMap*>(solnOvMap)->petraMap());
   N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
-  Epetra_BlockMap & localMap = 
-    *(dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap());
 
-  Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
+  Graph * overlapGraph = Xyce::Linear::createGraph( *solnOvMap, arrayNZs );
 
   for( int i = 0; i < numLocalRows_Overlap; ++i )
   {
     std::vector<int>& rcData_i = const_cast<std::vector<int> &>(rcData[i]);
-    if( overlapGndMap.GID(i) != -1 && arrayNZs[i] )
+    if( solnOvGMap->localToGlobalIndex(i) != -1 && arrayNZs[i] )
     {
       if( rcData_i[0] == -1 )
-        overlapGraph->InsertGlobalIndices( overlapMap.GID(i), arrayNZs[i]-1, &rcData_i[1] );
+        overlapGraph->insertGlobalIndices( solnOvMap->localToGlobalIndex(i), arrayNZs[i]-1, &rcData_i[1] );
       else
-        overlapGraph->InsertGlobalIndices( overlapMap.GID(i), arrayNZs[i], &rcData_i[0] );
+        overlapGraph->insertGlobalIndices( solnOvMap->localToGlobalIndex(i), arrayNZs[i], &rcData_i[0] );
     }
   }
-  overlapGraph->FillComplete();
-  overlapGraph->OptimizeStorage();
-  Graph * oGraph = new Graph( Teuchos::rcp( overlapGraph ) );
-  pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, oGraph );
+  overlapGraph->fillComplete();
+  pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, overlapGraph );
 
   if( pdsMgr_->getPDSComm()->isSerial() )
   {
@@ -430,20 +415,12 @@ bool Builder::generateGraphs()
   }
   else
   {
-    Epetra_Export exporter( overlapMap, localMap );
-    Epetra_CrsGraph * localGraph = new Epetra_CrsGraph( Copy, localMap, 0 );
-    localGraph->Export( *overlapGraph, exporter, Add );
-    if (VERBOSE_LINEAR)
-      Xyce::lout() << "Exported To Local Graph!\n"  << std::endl;
-
-    localGraph->FillComplete();
-    localGraph->OptimizeStorage();
-    Graph * lGraph = new Graph( Teuchos::rcp( localGraph ) );
+    Graph * solnGraph = overlapGraph->exportGraph( *solnMap );
 
     if (VERBOSE_LINEAR)
       Xyce::lout() << "Local Graph Transformed!\n"  << std::endl;
 
-    pdsMgr_->addMatrixGraph( Parallel::JACOBIAN, lGraph );
+    pdsMgr_->addMatrixGraph( Parallel::JACOBIAN, solnGraph );
   }
 
   // Clean up GID arrays in lasQueryUtil
@@ -542,16 +519,16 @@ bool Builder::setupSeparatedLSObjects()
   // for A and B are static, where C and D can change over the course of a transient.
   //
   N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
-  Epetra_Map * baseMap = dynamic_cast<N_PDS_EpetraParMap*>(solnMap)->petraMap();
-  const Epetra_CrsGraph & baseFullGraph = *(pdsMgr_->getMatrixGraph(Parallel::JACOBIAN)->epetraObj());
-  int numLocalRows = baseFullGraph.NumMyRows();
+  const Graph* graph = pdsMgr_->getMatrixGraph(Parallel::JACOBIAN);
+  int numLocalRows = graph->numLocalEntities();
 
   std::vector<int> linArrayNZs(numLocalRows), nonlinArrayNZs(numLocalRows);
   std::vector<int> linNLArrayNZs(numLocalRows), nlLinArrayNZs(numLocalRows);
   std::vector< std::vector<int> > linArrayCols(numLocalRows), nonlinArrayCols(numLocalRows);
   std::vector< std::vector<int> > linNLArrayCols(numLocalRows), nlLinArrayCols(numLocalRows);
+  int maxLinArrayNZs = 0, maxNonlinArrayNZs = 0, maxLinNLArrayNZs = 0, maxNlLinArrayNZs = 0;
  
-  int numIndices, maxIndices = baseFullGraph.MaxNumIndices();
+  int numIndices, maxIndices = graph->maxNumIndices();
   std::vector<int> Indices(maxIndices); 
 
   // Check if there are any linear GID entries in linArrayCols.  If not, this linear variable
@@ -560,7 +537,7 @@ bool Builder::setupSeparatedLSObjects()
   std::vector<int>::iterator lin_it = linGIDs.begin();
   for ( ; lin_it != linGIDs.end(); lin_it++ )
   {
-    baseFullGraph.ExtractGlobalRowCopy( *lin_it, maxIndices, numIndices, &Indices[0] );
+    graph->extractGlobalRowCopy( *lin_it, maxIndices, numIndices, &Indices[0] );
     std::sort( Indices.begin(), Indices.begin()+numIndices );
 
     // There are no linear GIDs associated with this linear row, move it to a nonlinear GID.
@@ -590,8 +567,8 @@ bool Builder::setupSeparatedLSObjects()
   {
     std::vector<int>::iterator found_it = std::find( linGIDs.begin(), linGIDs.end(), arrayGIDs[i] );
 
-    int baseRow = baseMap->GID(i);
-    baseFullGraph.ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &Indices[0] );
+    int baseRow = solnMap->localToGlobalIndex(i);
+    graph->extractGlobalRowCopy( baseRow, maxIndices, numIndices, &Indices[0] );
     std::sort( Indices.begin(), Indices.begin()+numIndices );
 
     // Check if this is a row associated with a linear device
@@ -640,6 +617,16 @@ bool Builder::setupSeparatedLSObjects()
     nonlinArrayNZs[i] = nonlinArrayCols[i].size();
     linNLArrayNZs[i] = linNLArrayCols[i].size();
     nlLinArrayNZs[i] = nlLinArrayCols[i].size();
+
+    // Record the largest nonzero values for each array.
+    if (linArrayNZs[i] > maxLinArrayNZs)
+      maxLinArrayNZs = linArrayNZs[i];
+    if (nonlinArrayNZs[i] > maxNonlinArrayNZs)
+      maxNonlinArrayNZs = nonlinArrayNZs[i];
+    if (linNLArrayNZs[i] > maxLinNLArrayNZs)
+      maxLinNLArrayNZs = linNLArrayNZs[i];
+    if (nlLinArrayNZs[i] > maxNlLinArrayNZs)
+      maxNlLinArrayNZs = nlLinArrayNZs[i];
   }
 
   // Get final nonlinear GID list size, just in case some were added.
@@ -659,115 +646,95 @@ bool Builder::setupSeparatedLSObjects()
   {
     Xyce::dout() << "Linear Solution Map:" << std::endl;
     linSolnMap->print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "LinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
 
     Xyce::dout() << "Nonlinear Solution Map:" << std::endl;
     nonlinSolnMap->print(std::cout);
-    EpetraExt::BlockMapToMatrixMarketFile( "NonlinearSolutionMap.mm", *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
 
     // Construct graphs from linear and nonlinear data.
     Xyce::dout() << "Base solution map:" << std::endl;
-    baseMap->Print(std::cout);
+    solnMap->print(std::cout);
   }
 
-  Epetra_CrsGraph * linearGraph = new Epetra_CrsGraph( Copy, *baseMap, &linArrayNZs[0] );
-  Epetra_CrsGraph * nonlinGraph = new Epetra_CrsGraph( Copy, *baseMap, &nonlinArrayNZs[0] );
-  Epetra_CrsGraph * linearNLGraph = new Epetra_CrsGraph( Copy, *baseMap, &linNLArrayNZs[0] );
-  Epetra_CrsGraph * nlLinearGraph = new Epetra_CrsGraph( Copy, *baseMap, &nlLinArrayNZs[0] );
+  Graph* linearGraph = Xyce::Linear::createGraph( *solnMap, linArrayNZs );
+  Graph* nonlinGraph = Xyce::Linear::createGraph( *solnMap, nonlinArrayNZs );
+  Graph* linearNLGraph = Xyce::Linear::createGraph( *solnMap, linNLArrayNZs );
+  Graph* nlLinearGraph = Xyce::Linear::createGraph( *solnMap, nlLinArrayNZs );
 
-  Epetra_CrsGraph * lcl_nonlinGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_nlLinearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
-  Epetra_CrsGraph * lcl_linearNLGraph = new Epetra_CrsGraph( Copy, *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 0 );
+  Graph* lcl_nonlinGraph = Xyce::Linear::createGraph( *nonlinSolnMap, maxNonlinArrayNZs );
+  Graph* lcl_nlLinearGraph = Xyce::Linear::createGraph( *nonlinSolnMap, maxNlLinArrayNZs );
+  Graph* lcl_linearGraph = Xyce::Linear::createGraph( *linSolnMap, maxLinArrayNZs );
+  Graph* lcl_linearNLGraph = Xyce::Linear::createGraph( *linSolnMap, maxLinNLArrayNZs );
 
   for( int i = 0; i < numLocalRows; ++i )
   {
     // Add linear variable entries to graph.
     if( linArrayNZs[i] )
     {
-      linearGraph->InsertGlobalIndices( arrayGIDs[i], linArrayNZs[i], &(linArrayCols[i])[0] );
-      lcl_linearGraph->InsertGlobalIndices( arrayGIDs[i], linArrayNZs[i], &(linArrayCols[i])[0] );
+      linearGraph->insertGlobalIndices( arrayGIDs[i], linArrayNZs[i], &(linArrayCols[i])[0] );
+      lcl_linearGraph->insertGlobalIndices( arrayGIDs[i], linArrayNZs[i], &(linArrayCols[i])[0] );
     }
     // Add nonlinear variable entries to graph.
     if( nonlinArrayNZs[i] )
     {
-      nonlinGraph->InsertGlobalIndices( arrayGIDs[i], nonlinArrayNZs[i], &(nonlinArrayCols[i])[0] );
-      lcl_nonlinGraph->InsertGlobalIndices( arrayGIDs[i], nonlinArrayNZs[i], &(nonlinArrayCols[i])[0] );
+      nonlinGraph->insertGlobalIndices( arrayGIDs[i], nonlinArrayNZs[i], &(nonlinArrayCols[i])[0] );
+      lcl_nonlinGraph->insertGlobalIndices( arrayGIDs[i], nonlinArrayNZs[i], &(nonlinArrayCols[i])[0] );
     }
 
     // Add linear variable nonlinear column entries to graph.
     if( linNLArrayNZs[i] )
     {
-      linearNLGraph->InsertGlobalIndices( arrayGIDs[i], linNLArrayNZs[i], &(linNLArrayCols[i])[0] );
-      lcl_linearNLGraph->InsertGlobalIndices( arrayGIDs[i], linNLArrayNZs[i], &(linNLArrayCols[i])[0] );
+      linearNLGraph->insertGlobalIndices( arrayGIDs[i], linNLArrayNZs[i], &(linNLArrayCols[i])[0] );
+      lcl_linearNLGraph->insertGlobalIndices( arrayGIDs[i], linNLArrayNZs[i], &(linNLArrayCols[i])[0] );
     }
     // Add nonlinear variable entries to graph.
     if( nlLinArrayNZs[i] )
     {
-      nlLinearGraph->InsertGlobalIndices( arrayGIDs[i], nlLinArrayNZs[i], &(nlLinArrayCols[i])[0] );
-      lcl_nlLinearGraph->InsertGlobalIndices( arrayGIDs[i], nlLinArrayNZs[i], &(nlLinArrayCols[i])[0] );
+      nlLinearGraph->insertGlobalIndices( arrayGIDs[i], nlLinArrayNZs[i], &(nlLinArrayCols[i])[0] );
+      lcl_nlLinearGraph->insertGlobalIndices( arrayGIDs[i], nlLinArrayNZs[i], &(nlLinArrayCols[i])[0] );
     }
   }
 
-  linearGraph->FillComplete();
-  linearGraph->OptimizeStorage();
-  nonlinGraph->FillComplete();
-  nonlinGraph->OptimizeStorage();
-  linearNLGraph->FillComplete();
-  linearNLGraph->OptimizeStorage();
-  nlLinearGraph->FillComplete();
-  nlLinearGraph->OptimizeStorage();
+  linearGraph->fillComplete();
+  nonlinGraph->fillComplete();
+  linearNLGraph->fillComplete();
+  nlLinearGraph->fillComplete();
 
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN, 
-                           new Graph( Teuchos::rcp(linearGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LIN_NONLIN_JACOBIAN,
-                           new Graph( Teuchos::rcp(linearNLGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLINEAR_JACOBIAN,
-                           new Graph( Teuchos::rcp(nonlinGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLIN_LIN_JACOBIAN, 
-                           new Graph( Teuchos::rcp(nlLinearGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LINEAR_JACOBIAN, linearGraph );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_LIN_NONLIN_JACOBIAN, linearNLGraph );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLINEAR_JACOBIAN, nonlinGraph );
+  pdsMgr_->addMatrixGraph( Parallel::GLOBAL_NONLIN_LIN_JACOBIAN, nlLinearGraph );
 
-  lcl_linearGraph->FillComplete();
-  lcl_linearGraph->OptimizeStorage();
-  lcl_nonlinGraph->FillComplete();
-  lcl_nonlinGraph->OptimizeStorage();
-  lcl_linearNLGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap(), 
-                                   *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap() );
-  lcl_linearNLGraph->OptimizeStorage();
-  lcl_nlLinearGraph->FillComplete( *dynamic_cast<N_PDS_EpetraParMap*>(linSolnMap)->petraMap(), 
-                                   *dynamic_cast<N_PDS_EpetraParMap*>(nonlinSolnMap)->petraMap() );
-  lcl_nlLinearGraph->OptimizeStorage();
+  lcl_linearGraph->fillComplete();
+  lcl_nonlinGraph->fillComplete();
+  lcl_linearNLGraph->fillComplete( *nonlinSolnMap, *linSolnMap );
+  lcl_nlLinearGraph->fillComplete( *linSolnMap, *nonlinSolnMap );
 
-  pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, 
-                           new Graph( Teuchos::rcp(lcl_linearGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::LIN_NONLIN_JACOBIAN, 
-                           new Graph( Teuchos::rcp(lcl_linearNLGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::NONLINEAR_JACOBIAN,
-                           new Graph( Teuchos::rcp(lcl_nonlinGraph) ) );
-  pdsMgr_->addMatrixGraph( Parallel::NONLIN_LIN_JACOBIAN, 
-                           new Graph( Teuchos::rcp(lcl_nlLinearGraph) ) );
+  pdsMgr_->addMatrixGraph( Parallel::LINEAR_JACOBIAN, lcl_linearGraph );
+  pdsMgr_->addMatrixGraph( Parallel::LIN_NONLIN_JACOBIAN, lcl_linearNLGraph );
+  pdsMgr_->addMatrixGraph( Parallel::NONLINEAR_JACOBIAN, lcl_nonlinGraph );
+  pdsMgr_->addMatrixGraph( Parallel::NONLIN_LIN_JACOBIAN, lcl_nlLinearGraph );
 
   if (DEBUG_LINEAR)
   {
     std::cout << "Linear graph: " << std::endl;
-    linearGraph->Print(std::cout);  
+    linearGraph->print(std::cout);  
     std::cout << "Local Linear graph: " << std::endl;
-    lcl_linearGraph->Print(std::cout);  
+    lcl_linearGraph->print(std::cout);  
     std::cout << "Nonlinear graph: " << std::endl;
-    nonlinGraph->Print(std::cout); 
+    nonlinGraph->print(std::cout); 
     std::cout << "Local Nonlinear graph: " << std::endl;
-    lcl_nonlinGraph->Print(std::cout); 
+    lcl_nonlinGraph->print(std::cout); 
     std::cout << "Linear->Nonlinear graph: " << std::endl;
-    linearNLGraph->Print(std::cout);  
+    linearNLGraph->print(std::cout);  
     std::cout << "Local Linear->Nonlinear graph: " << std::endl;
-    lcl_linearNLGraph->Print(std::cout);  
+    lcl_linearNLGraph->print(std::cout);  
     std::cout << "Nonlinear->Linear graph: " << std::endl;
-    nlLinearGraph->Print(std::cout); 
+    nlLinearGraph->print(std::cout); 
     std::cout << "Local Nonlinear->Linear graph: " << std::endl;
-    lcl_nlLinearGraph->Print(std::cout); 
+    lcl_nlLinearGraph->print(std::cout); 
     const Graph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
     std::cout << "Base graph: " << std::endl;
-    baseGraph->epetraObj()->Print(std::cout);
+    baseGraph->print(std::cout);
   }
 
   return true;

@@ -41,7 +41,6 @@
 
 // ---------- Standard Includes ----------
 #include <string>
-#include <vector>
 
 // ----------   Xyce Includes   ----------
 #include <N_LAS_fwd.h>
@@ -49,7 +48,6 @@
 #include <N_PDS_fwd.h>
 
 class Epetra_CrsMatrix;
-class Epetra_CrsGraph;
 
 class Epetra_Export;
 class Epetra_OffsetIndex;

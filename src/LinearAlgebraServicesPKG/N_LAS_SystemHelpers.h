@@ -38,6 +38,7 @@
 #define  Xyce_LAS_SYSTEMHELPERS_H
 
 // ---------- Standard Includes ----------
+
 #include <vector>
 
 // ----------   Xyce Includes   ----------
@@ -66,6 +67,12 @@ Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map );
 
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph );
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    const std::vector<int>& numIndicesPerRow );
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    int maxNumIndicesPerRow );
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues

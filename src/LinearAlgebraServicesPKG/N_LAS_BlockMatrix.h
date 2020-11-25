@@ -51,9 +51,6 @@
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
 
-class Epetra_CrsGraph;
-class Epetra_Map;
-
 namespace Xyce {
 namespace Linear {
 

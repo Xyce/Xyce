@@ -42,6 +42,7 @@
 // ---------- Standard Includes ----------
 
 #include <algorithm>
+#include <vector>
 
 // ----------   Xyce Includes   ----------
 
@@ -125,7 +126,7 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 {
   oDCRSMatrix_ = aDCRSMatrix_;
 
-  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+  baseGraph_ = new Graph( Teuchos::rcp( const_cast<Epetra_CrsGraph*>(&(aDCRSMatrix_->Graph())), false ) );
   overlapGraph_ = baseGraph_;
 }
 
@@ -157,7 +158,7 @@ Matrix::Matrix( const Graph* overlapGraph,
     oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(overlapGraph->epetraObj()) );
 
     // Get ground node, if there is one.
-    groundLID_ = overlapGraph->epetraObj()->LRID( -1 );
+    groundLID_ = overlapGraph->globalToLocalRowIndex( -1 );
 
     aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
     exporter_ = new Epetra_Export( overlapGraph->epetraObj()->RowMap(), baseGraph->epetraObj()->RowMap() );
@@ -169,8 +170,8 @@ Matrix::Matrix( const Graph* overlapGraph,
     oDCRSMatrix_ = aDCRSMatrix_;
   }
 
-  overlapGraph_ = new Graph( *overlapGraph );
-  baseGraph_ = new Graph( *baseGraph );
+  overlapGraph_ = overlapGraph->cloneCopy();
+  baseGraph_ = baseGraph->cloneCopy();
 }
 
 //-----------------------------------------------------------------------------

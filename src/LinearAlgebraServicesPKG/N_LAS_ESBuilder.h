@@ -51,9 +51,6 @@
 
 // ---------- Forward Declarations ----------
 
-
-class Epetra_Map;
-
 class N_PDS_ParMap;
 
 namespace Xyce {

@@ -76,7 +76,7 @@ BlockMatrix::BlockMatrix( int size,
 
 : Matrix( new Epetra_CrsMatrix( Copy, *(globalGraph->epetraObj()) ), true ),
   blocksViewGlobalMat_(true),
-  blockSize_( subBlockGraph->epetraObj()->NumMyRows() ),
+  blockSize_( subBlockGraph->numLocalEntities() ),
   offset_( offset ),
   numBlockRows_( size ),
   augmentCount_( augmentCount ),
@@ -84,7 +84,7 @@ BlockMatrix::BlockMatrix( int size,
   blocks_( size )
 {
   // Individual blocks cannot be a view of the global matrix because of graph ordering and communication
-  if ( globalGraph->epetraObj()->Comm().NumProc() > 1 )
+  if ( aDCRSMatrix_->Comm().NumProc() > 1 )
   {
     blocksViewGlobalMat_ = false;
 
@@ -153,7 +153,7 @@ BlockMatrix::BlockMatrix( int size,
   // Communicate the augmented GIDs to all processors.
   // All other processors other than the one that owns the augmented GID will have -1.
   std::vector<int> tmpAugmentGIDs = augmentGIDs_;
-  globalGraph->epetraObj()->Comm().MaxAll( &tmpAugmentGIDs[0], &augmentGIDs_[0], augmentCount_ );
+  aDCRSMatrix_->Comm().MaxAll( &tmpAugmentGIDs[0], &augmentGIDs_[0], augmentCount_ );
 }
 
 //-----------------------------------------------------------------------------

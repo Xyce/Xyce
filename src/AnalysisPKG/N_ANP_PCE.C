@@ -1013,7 +1013,7 @@ void PCE::setupStokhosObjects ()
 
   pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk, *petraComm ) ) );
 
-  numBlockRows_ = pceGraph->epetraObj()->NumMyRows();
+  numBlockRows_ = pceGraph->numLocalEntities();
 
 #if 0
   std::cout << "Cijk:" <<std::endl;

@@ -51,8 +51,6 @@
 #include <N_UTL_fwd.h>
 #include <N_UTL_FeatureTest.h>
 
-#include <Epetra_Comm.h>
-#include <Epetra_Map.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
@@ -282,7 +280,7 @@ bool ESBuilder::generateGraphs( const Graph& baseFullGraph )
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
+  baseFullGraph_ = rcp( baseFullGraph.cloneCopy() );
 
   int numBlocks = numSamples_;
   blockPattern_.clear();

@@ -85,7 +85,19 @@ Matrix* createMatrix( const Graph* overlapGraph,
 {
   return new Matrix( overlapGraph, baseGraph );
 }
-                      
+
+Graph* createGraph( N_PDS_ParMap & map, 
+                    const std::vector<int>& numIndicesPerRow )
+{
+  return new Graph( map, numIndicesPerRow );
+}
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    int maxNumIndicesPerRow )
+{
+  return new Graph( map, maxNumIndicesPerRow );
+}
+               
 // ///////////////////////////////////////////////////////////////////
 //
 // Implementation of the Xyce::Linear::EpetraTransOp class.

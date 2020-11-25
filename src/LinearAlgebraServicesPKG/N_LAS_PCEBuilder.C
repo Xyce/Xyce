@@ -42,9 +42,6 @@
 #include <N_UTL_fwd.h>
 #include <N_UTL_FeatureTest.h>
 
-#include <Epetra_Comm.h>
-#include <Epetra_Map.h>
-#include <Epetra_CrsGraph.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
@@ -299,8 +296,8 @@ bool PCEBuilder::generateGraphs(
       << "Need to setup Maps first";
 
   //Copies of graphs
-  pceGraph_ = rcp(new Graph( pceGraph ));
-  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
+  pceGraph_ = rcp( pceGraph.cloneCopy() );
+  baseFullGraph_ = rcp( baseFullGraph.cloneCopy() );
 
   int numBlockRows = numBlockRows_;
   blockPattern_.clear();
@@ -315,11 +312,11 @@ bool PCEBuilder::generateGraphs(
 
 #if 0
     // sparse version
-    int maxIndices = pceGraph.MaxNumIndices();
+    int maxIndices = pceGraph.maxNumIndices();
     std::vector<int> indices(maxIndices);
     int numIndices=0;
-    int pceRow = pceGraph.GRID(i);
-    pceGraph.ExtractGlobalRowCopy( pceRow, maxIndices, numIndices, &indices[0] );
+    int pceRow = pceGraph.localToGlobalIndex(i);
+    pceGraph.extractGlobalRowCopy( pceRow, maxIndices, numIndices, &indices[0] );
     blockPattern_[i].resize(numIndices,0);
     for (int j=0;j<numIndices;++j)
     {
