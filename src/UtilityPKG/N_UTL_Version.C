@@ -225,10 +225,6 @@ std::string Version::getCapabilities()
   capabilities += "Dakota direct linkage\n";
 #endif
 
-#if __cplusplus>=201103L
-  capabilities += "Build compiler is C++11 compliant\n";
-#endif
-
 #if __cplusplus>=201402L
   capabilities += "Build compiler is C++14 compliant\n";
 #endif
