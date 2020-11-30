@@ -1,15 +1,4 @@
-
-# These are all C++11 features that have ifdef's in the code.
-# Setting them true, always
-set (HAVE_IOTA TRUE)
-set (HAVE_UNORDERED_MAP TRUE)
-set (HAVE_UNORDERED_SET TRUE)
-set (HAVE_ERF TRUE)
-set (HAVE_ERFC TRUE)
-
-# END C++11 features
-
-# This should always be true, so why is it optional?
+# These should always be true, so why are they optional?
 set(Xyce_BELOS TRUE)
 set(Xyce_SPICE_NORMS TRUE)
 
@@ -55,6 +44,9 @@ set(Xyce_TRACKING_URL              ""  CACHE STRING "The URL for the usage track
 # Speed up compiles by disabling the analytic sensitivities in the
 # ADMS-generated devices
 set(Xyce_ADMS_SENSITIVITIES        TRUE CACHE BOOL "Enable analytic sensitivities in ADMS-generated devices")
+
+# Self-explanatory: Enable the chemical reaction parsing capability
+set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction parsing capability")
 
 # Support for Charon coupling
 set(Xyce_CHARON                    FALSE CACHE BOOL "Enable Charon device support")

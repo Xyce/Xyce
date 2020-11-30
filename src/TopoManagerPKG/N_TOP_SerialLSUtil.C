@@ -491,21 +491,6 @@ bool SerialLSUtil::setupNodeGIDs()
   return true;
 }
 
-#ifndef HAVE_IOTA
-// iota is not part of the C++ standard.  It is an extension.
-namespace {
-
-template <class _ForwardIterator, class _Tp>
-void
-iota(_ForwardIterator __first, _ForwardIterator __last, _Tp __value)
-{
-  while (__first != __last)
-    *__first++ = __value++;
-}
-
-} // namespace <unnamed>
-#endif
-
 
 //-----------------------------------------------------------------------------
 // Function      : SerialLSUtil::setupSolnAndStateGIDs

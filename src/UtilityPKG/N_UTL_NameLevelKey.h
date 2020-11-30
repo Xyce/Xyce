@@ -39,14 +39,6 @@
 #include <string>
 #include <functional>
 
-#if defined(HAVE_UNORDERED_MAP)
-#include <unordered_map>
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include <tr1/unordered_map>
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
-
 #include <N_UTL_NoCase.h>
 
 namespace Xyce {
@@ -108,10 +100,6 @@ struct equal_to<Xyce::NameLevelKey> : public std::binary_function<Xyce::NameLeve
   }
 };
 
-#if defined(HAVE_TR1_UNORDERED_MAP) && !defined(HAVE_UNORDERED_MAP)
-namespace tr1 {
-#endif
-
 template<>
 struct hash<Xyce::NameLevelKey> : public std::unary_function<Xyce::NameLevelKey, size_t>
 {
@@ -123,10 +111,6 @@ struct hash<Xyce::NameLevelKey> : public std::unary_function<Xyce::NameLevelKey,
     return x0(node_id.first) ^ x1(node_id.second);
   }
 };
-
-#if defined(HAVE_TR1_UNORDERED_MAP) && !defined(HAVE_UNORDERED_MAP)
-} // namespace tr1
-#endif
 
 } // std namespace
 

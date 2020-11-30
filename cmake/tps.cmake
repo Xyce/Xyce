@@ -329,22 +329,13 @@ endif ()
 
 # Find flex and Bison
 message(STATUS "Looking for flex and Bison")
-find_package(FLEX)
-find_package(BISON 3.0.4)
+find_package(FLEX REQUIRED)
+find_package(BISON 3.0.4 REQUIRED)
 # The 3.0.4 specifies the minimum version.  That is ok at the moment, as Bison
 # has been functional for many versions (through 3.6 at the time of this
 # writing).  Historically, though, new versions have had backward
 # incompatibility issues.  If that occurs again, the BISON_VERSION variable
 # will have to be probed for a certain range.
-if (FLEX_FOUND AND BISON_FOUND)
-     message(STATUS "Looking for flex and Bison - found")
-     message(STATUS "  enabling the chemical reaction parsing capability")
-     set(Xyce_REACTION_PARSER TRUE CACHE BOOL "Enable the chemical reaction parsing capability")
-else()
-     message(STATUS "Looking for flex and Bison - not found")
-     message(STATUS "  disabling the chemical reaction parsing capability")
-     set(Xyce_REACTION_PARSER FALSE CACHE BOOL "Enable the chemical reaction parsing capability")
-endif ()
 
 # Find CURL
 if (Xyce_USE_CURL)

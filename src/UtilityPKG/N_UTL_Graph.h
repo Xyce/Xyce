@@ -39,15 +39,8 @@
 #define Xyce_UTL_Graph_H
 
 #include <vector>
-#if defined(HAVE_UNORDERED_MAP)
 #include <unordered_map>
 using std::unordered_map;
-#elif defined(HAVE_TR1_UNORDERED_MAP)
-#include <tr1/unordered_map>
-using std::tr1::unordered_map;
-#else
-#error neither unordered_map or tr1/unordered_map found
-#endif
 #include <map>
 #include <queue>
 #include <set>
