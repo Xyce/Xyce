@@ -5330,60 +5330,6 @@ TEST ( Double_Parser_Param_Test, testE1)
   OUTPUT_MACRO(Double_Parser_Param_Test, testE1)
 }
 
-//-----------------------------------------------------------------------------
-// This tests the use of solution variables inside a parameter.
-// It is also derived from the Bsrc_C1 table test, only without the table.
-// I've added the twist that p1 is multiplied by 2 in the final expression.
-// This one works.
-
-#if 0
-TEST ( Double_Parser_Param_Test, test2)
-{
-  Teuchos::RCP<Bsrc_C1_ExpressionGroup> paramGroup = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = paramGroup;
-
-  Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp);            v1exp.lexAndParseExpression();
-  Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
-  Xyce::Util::newExpression testExpression(std::string("2*p1"), grp);                                   testExpression.lexAndParseExpression();
-  Teuchos::RCP<Xyce::Util::newExpression> p1exp
-    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("V(2) * (V(1) + 30) / 60" ), grp));
-  p1exp->lexAndParseExpression();
-  std::string p1Name="p1";
-  paramGroup->addParam(p1Name, p1exp);
-
-  testExpression.resolveExpression();
-
-  Xyce::Util::newExpression copy_testExpression(testExpression); 
-  Xyce::Util::newExpression assign_testExpression; 
-  assign_testExpression = testExpression; 
-
-  int numpoints=100;
-  double tfinal = 0.0005;
-  double dt = tfinal/(numpoints-1), time=0.0;
-
-  std::vector<double> refRes(numpoints), result(numpoints);
-  std::vector<double> copyResult(numpoints), assignResult(numpoints);
-  for (int ii=0;ii<numpoints;ii++,time+=dt)
-  {
-    paramGroup->setTime(time);
-    double v1Value(0.0),v2Value(0.0);
-    v1exp.evaluateFunction(v1Value);
-    v2exp.evaluateFunction(v2Value);
-    paramGroup->setSoln(std::string("1"),v1Value);
-    paramGroup->setSoln(std::string("2"),v2Value);
-    testExpression.evaluateFunction(result[ii]);
-    copy_testExpression.evaluateFunction(copyResult[ii]);
-    assign_testExpression.evaluateFunction(assignResult[ii]);
-    refRes[ii] = 2 * v2Value * (v1Value + 30) / 60;
-  }
-  EXPECT_EQ(refRes,result);
-  EXPECT_EQ(refRes,copyResult);
-  EXPECT_EQ(refRes,assignResult);
-  OUTPUT_MACRO(Double_Parser_Param_Test, test2)
-}
-#endif
-
-
 TEST ( Double_Parser_Param_Test, test2)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup_noparam> paramGroup = Teuchos::rcp(new Bsrc_C1_ExpressionGroup_noparam() );
@@ -5427,10 +5373,8 @@ TEST ( Double_Parser_Param_Test, test2)
   OUTPUT_MACRO(Double_Parser_Param_Test, test2)
 }
 
-
 TEST ( Double_Parser_calculus, ddx1)
 {
-  //Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
   Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup));
@@ -5452,7 +5396,6 @@ TEST ( Double_Parser_calculus, ddx1)
 
 TEST ( Double_Parser_calculus, ddx2)
 {
-  //Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
   Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
@@ -5474,7 +5417,6 @@ TEST ( Double_Parser_calculus, ddx2)
 
 TEST ( Double_Parser_calculus, ddx3)
 {
-  //Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
   Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup));
@@ -5517,7 +5459,6 @@ TEST ( Double_Parser_calculus, ddx4)
 
 TEST ( Double_Parser_calculus, ddx5)
 {
-  //Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
   Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup)); 
@@ -5566,7 +5507,6 @@ TEST ( Double_Parser_calculus, ddx5b)
 
 TEST ( Double_Parser_calculus, ddx6)
 {
-  //Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
   Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup)); 
