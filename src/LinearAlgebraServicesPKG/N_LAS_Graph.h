@@ -77,8 +77,9 @@ public:
   // Create new graph exporting values from this one.
   Graph* exportGraph( N_PDS_ParMap& map ) const;
 
-  // Create new graph importing values from this one.
-  // Graph* import() const;
+  // Get the base index for this graph
+  int indexBase() const
+  { return epetraGraph_->IndexBase(); }
 
   // Get the maximum number of indices for any row on this processor.
   int maxNumIndices() const
@@ -87,6 +88,10 @@ public:
   // Get the number of rows on this processor.
   int numLocalEntities() const 
   { return epetraGraph_->NumMyRows(); } 
+
+  // Get the number of nonzero entries on this processor.
+  int numLocalNonzeros() const
+  { return epetraGraph_->NumMyNonzeros(); }
 
   int localToGlobalRowIndex(int localIndex) const 
   { return epetraGraph_->GRID( localIndex ); }

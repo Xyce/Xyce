@@ -1876,7 +1876,7 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   else
   {
     // this assumes that sensRhs has dBdp or has -J'*X, but not both
-    sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );  
+    sensRhs_->axpy( *sensRhs_, 1.0, *dBdp_ );  
   }
 
   return true;

@@ -458,7 +458,7 @@ void MultiVector::multiply(const MultiVector &x)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::daxpy
+// Function      : MultiVector::axpy
 // Purpose       : Linear combination of two MultiVectors:
 //                 this = y + a*x
 // Special Notes :
@@ -466,14 +466,13 @@ void MultiVector::multiply(const MultiVector &x)
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/23/00
 //-----------------------------------------------------------------------------
-void MultiVector::daxpy(const MultiVector &y, const double a,
-                              const MultiVector &x)
+void MultiVector::axpy(const MultiVector &y, const double a, const MultiVector &x)
 {
   int PetraError = aMultiVector_->Update(1.0, *(y.aMultiVector_), a,
                                          *(x.aMultiVector_), 0.0);
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::daxpy - ", PetraError);
+    processError( "MultiVector::axpy - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------

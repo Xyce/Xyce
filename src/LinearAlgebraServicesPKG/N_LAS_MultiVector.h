@@ -122,9 +122,8 @@ public:
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
 
-  // Standard blas DAXPY operation
-  void daxpy(const MultiVector & y, const double a,
-  	const MultiVector & x);
+  // Standard blas AXPY operation
+  void axpy(const MultiVector & y, const double a, const MultiVector & x);
 
   // Linear combination with two constants and vectors
   void linearCombo(const double a, const MultiVector & x,
@@ -227,12 +226,6 @@ public:
   // Dump vector entries to file.
   virtual void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
 
-  // Friend of the Matrix and IterativeSolver classes so their
-  // member functions can access our private members.
-  friend class Matrix;
-  friend class FilteredMatrix;
-  friend class Nonlinear::DampedNewton;
-
   // Get for vector elements by their global index (const version)
   const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
 
@@ -302,7 +295,6 @@ protected:
   // isOwned flags
   bool vecOwned_, mapOwned_;
 
-  // 
   // Map containing extern elements from migration
   std::map<int,double> externVectorMap_;
 

@@ -184,13 +184,16 @@ public:
 
   // Get the non-zero values in a row, using local indices
   // NOTE:  The global indices version of this method is not available after fillComplete is called.
-  void getLocalRowView(int row, int & length, double * coeffs, int * colIndices) const;
+  int getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const;
 
   // Get the non-zero values in a row
   void getRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
   void getLocalRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
 
   int getLocalNumRows() const;
+
+  // Sum values into a row into the sparse matrix, using local indices, without overlap contributions
+  bool addIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices);
 
   // Put a set of values into a row, using local indices
   bool putLocalRow(int row, int length, const double * coeffs, const int * colIndices);
@@ -203,6 +206,7 @@ public:
 
   // Get column map for assembled matrix
   N_PDS_ParMap* getColMap( N_PDS_Comm& comm );
+  const N_PDS_ParMap* getColMap( N_PDS_Comm& comm ) const;
 
   // Get graph for assembled matrix
   Graph* getGraph() { return baseGraph_; }
@@ -224,12 +228,6 @@ public:
   // Print the underlying objects
   virtual void print(std::ostream &os) const;
 
-  // Friend in the MultiVector and IterativeSolver classes so their
-  // member functions can access our private members.
-  friend class MultiVector;
-  friend class FilteredMatrix;
-  friend class Xyce::Nonlinear::DampedNewton;
-
 protected:
 
   // Pointer the Petra multi-vector object.
@@ -243,7 +241,7 @@ protected:
   Epetra_OffsetIndex * offsetIndex_;
 
   // Column maps, assembled and overlapped.
-  N_PDS_ParMap *aColMap_, *oColMap_;
+  mutable N_PDS_ParMap *aColMap_, *oColMap_;
 
   // Graphs, assembled and overlapped.
   Graph *overlapGraph_, *baseGraph_;

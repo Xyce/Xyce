@@ -107,6 +107,12 @@ public:
   // Dot product with another vector.
   double dotProduct(const Vector & y) const;
 
+  Epetra_Vector& epetraObj()
+  { return *(*aMultiVector_)(0); }
+
+  const Epetra_Vector& epetraObj() const
+  { return *(*aMultiVector_)(0); }
+
 protected:
 
   //Copy constructor
