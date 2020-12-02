@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_DEV_RegisterADMSDevices.C
       N_DEV_ADMSvbic13.C
       N_DEV_ADMSvbic13_4t.C
@@ -27,7 +27,7 @@ target_sources(XyceStatic PRIVATE
       N_DEV_ADMShic0_full.C)
 
 # add header files to project
-target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

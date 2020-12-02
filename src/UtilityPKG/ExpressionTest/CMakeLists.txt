@@ -5,13 +5,13 @@ if(TEST_SUITE)
 
      #test executables
      add_executable(astUnitTest astUnitTest.C)
-     target_link_libraries(astUnitTest PUBLIC XyceStatic GTest::GTest)
+     target_link_libraries(astUnitTest PUBLIC XyceLib GTest::GTest)
 
      add_executable(astCopyConstUnitTest astCopyConstUnitTest.C)
-     target_link_libraries(astCopyConstUnitTest PUBLIC XyceStatic GTest::GTest)
+     target_link_libraries(astCopyConstUnitTest PUBLIC XyceLib GTest::GTest)
 
      add_executable(complexParserUnitTest complexParserUnitTest.C)
-     target_link_libraries(complexParserUnitTest PUBLIC XyceStatic GTest::GTest)
+     target_link_libraries(complexParserUnitTest PUBLIC XyceLib GTest::GTest)
      # One complexParserUnitTest test requires a data file; put it in the right place
      file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/SubDir1/test1.dat DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -28,7 +28,7 @@ if(TEST_SUITE)
      # written to test out the expression library with `std::complex<double>`.
      #
      #    add_executable(parserUnitTest parserUnitTest.C)
-     #    target_link_libraries(parserUnitTest PUBLIC XyceStatic GTest::GTest)
+     #    target_link_libraries(parserUnitTest PUBLIC XyceLib GTest::GTest)
      #    # Some parserUnitTest tests require data files; put them in the right place
      #    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Sub_Dir ${CMAKE_CURRENT_BINARY_DIR}/SubDir1)
      #    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/SubDir1/test1.dat DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SubDir1)

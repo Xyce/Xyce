@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_DEV_1D_Interface.C
       N_DEV_CharonInterface.C
       N_DEV_ExternCodeInterface.C
@@ -11,7 +11,7 @@ target_sources(XyceStatic PRIVATE
       N_DEV_XyceInterface.C )
 
 # add header files to project
-target_include_directories(XyceStatic PUBLIC
+target_include_directories(XyceLib PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR})
 
 

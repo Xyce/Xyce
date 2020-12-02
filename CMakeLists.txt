@@ -42,6 +42,7 @@ project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 include(cmake/config.cmake)
 
 add_subdirectory(src)
@@ -52,7 +53,6 @@ if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 
 option(TEST_SUITE "Enables the unit tests" OFF)
-option(BUILD_SHARED_LIBS OFF)
 
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")

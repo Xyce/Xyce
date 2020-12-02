@@ -29,7 +29,7 @@ set ( KSPARSE_INC ksparse/ )
 
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       ${BELOS_SRC}
       ${SHYLU_SRC}
       ${AMESOS2_SRC}
@@ -74,7 +74,7 @@ target_sources(XyceStatic PRIVATE
       N_LAS_Vector.C )
 
 # add header files to project
-target_include_directories(XyceStatic PUBLIC
+target_include_directories(XyceLib PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${KSPARSE_INC} )
 

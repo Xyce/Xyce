@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_PDS_GlobalAccessor.C
       N_PDS_MPI.C
       N_PDS_Manager.C
@@ -14,7 +14,7 @@ target_sources(XyceStatic PRIVATE
       N_PDS_Node.C  )
 
 # add header files to project
-target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 

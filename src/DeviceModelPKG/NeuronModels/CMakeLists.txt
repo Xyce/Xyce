@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_DEV_RegisterNeuronDevices.C
       N_DEV_Neuron.C
       N_DEV_Neuron2.C
@@ -24,7 +24,7 @@ target_sources(XyceStatic PRIVATE
       N_DEV_MembraneCS.C
       N_DEV_MembraneUserDefined.C)
 # add header files to project
-target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 

@@ -20,7 +20,7 @@ The tests executables can be run individually as well.
 
 The CMakeLists.txt file basically has two independent ways of building the
 Expression Library test suite. The first is in the `if(TEST_SUITE)` block. That
-links into the `XyceStatic` library, and `TEST_SUITE` is a known option in the
+links into the `XyceLib` library, and `TEST_SUITE` is a known option in the
 main build. In this mode, the tests in "parserUnitTest" are not run, because it
 needs to be compiled with `-DUSE_TYPE_DOUBLE`. The `USE_TYPE_DOUBLE` flag sets
 the `usedType` typedef to `double`, whereas the `usedType` default is
