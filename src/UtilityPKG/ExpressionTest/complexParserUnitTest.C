@@ -10707,6 +10707,455 @@ TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint2)
   OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, tableBreakPoint2)
 }
 
+
+//-------------------------------------------------------------------------------
+// Testing out error trapping.  This needs some work.
+
+//-------------------------------------------------------------------------------
+// For this test, see invalid math error message (See Message/Function/invalid_math_operator.cir, which has 'b =# n' )
+//
+//  As of this writing (6/27/2020) the new expression library doesn't believe this is an error.  It incorrectly passes.
+TEST ( Complex_Parser_ErrorTest, invalidMath)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  //Xyce::Util::newExpression testExpression(std::string("b # n"), testGroup); // 
+  Xyce::Util::newExpression testExpression(std::string("b =# n"), testGroup); // this is what is in the regression test.  it now exits with error, but it was necessary to create a special rule in the parser to trap for it.
+  //Xyce::Util::newExpression testExpression(std::string("b * "), testGroup); // this exits with an error
+  //Xyce::Util::newExpression testExpression(std::string("sin()"), testGroup); // this exits with an error
+  testExpression.lexAndParseExpression();
+  //testExpression.dumpParseTree(std::cout);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+//  ASSERT_EQ( (result-(1.0)), 0.0);
+}
+
+//-------------------------------------------------------------------------------
+// For this test see bug 850 SON, which has the following bad_user_defined_func.cir:
+// 
+//  * User defined functions (udf) from the bug report for SON Bug 850.
+//  * These functions were called UGAUSS in the bug report.
+//  .FUNC udfA(mu,sigma) {exp(mu/sigma)}       ; User Defined Func. A
+//  .func udfB(mu,sigma,t) {exp((t-mu)/sigma)} ; User Defined Func. B
+//
+//  VTEST    1    0     10
+//  R1       1    2     50
+//
+//  * All of these B-source statements should produce a netlist parsing error.
+//  * The inline comments give their behavior with Xyce 6.7.
+//  
+//  * udfA should have two arguments, but is given three arguments
+//  B1 2 0     I = {(V(2)+udfA(10m,1u,23))/50} ; segfault with Func. A
+//  B2 2 0     I = {udfA(10m,1u,23)/50}   ; runs fine with Func. A, but shouldn't
+//  B3 2 0     I = {udfA(10m,1u,23)+V(2)} ; segfaults with Func. A.
+//  B4 2 0     I = {udfA(10m,1u,23)}      ; correctly aborts with Func. A 
+//  
+//  * udfB should have three arguments, and is only given two arguments
+//  B5 2 0     I = {(V(2)+udfB(10m,1u))/50}  ; segfault with Func. B
+//  B6 2 0     I = {(udfB(10m,1u)+V(2))/50}  ; segfault with Func. B  
+//  B7 2 0     I = {(udfB(20m,1u))/50}    ; runs fine with Func. B, but shouldn't
+//
+//  As of this writing (6/27/2020) the new expression library DOES believe these 
+//  are errors.  However, as I haven't yet figured out how to properly do unit 
+//  tests on error messages, I've hacked the code below to (rightfully) pass.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func udfA.
+  //Xyce::Util::newExpression testExpression(std::string("udfA(10m,1u,23)/50"), testGroup); // this, correctly fails
+  Xyce::Util::newExpression testExpression(std::string("udfA(10p,1u)/50"), testGroup); // this passes, correctly.
+  testExpression.lexAndParseExpression();
+
+  // .func udfA(mu,sigma) {exp(mu/sigma)}
+  std::string udfAName;
+  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression;
+  std::string lhs=std::string("udfA(mu,sigma)");
+  std::string rhs=std::string("exp(mu/sigma)");
+  createFunc(lhs,rhs,testGroup, udfAName,udfAExpression);
+
+  testExpression.attachFunctionNode(udfAName, udfAExpression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
+  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_user_defined_func)
+}
+
+//-------------------------------------------------------------------------------
+// This test is to make sure new expression library doesn't crash when you
+// attach an invalid function.  The invalid function is the udfA function, which
+// has a syntax error.
+//
+// This test does NOT compare against a test value.
+//
+// The test succeeds if the testExpression.evaluateFunction function can be
+// called without causing a seg fault.  It should also test to ensure that the
+// rhs expression triggers a syntax error, but I haven't figured out how to test
+// that yet.
+//
+// Good news: no segfault.
+// Bad news:  (as of 9/1/2020) no syntax error for extra paren at the end.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func udfA.
+  Xyce::Util::newExpression testExpression(std::string("udfA(10p,1u)/50"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // The correct function declaration would be: .func udfA(mu,sigma) {exp(mu/sigma)}
+  // But I am using an incorrect one:           .func udfA(mu,sigma) {exp(mu/sigma))} (extra paren)
+  // But I am using an incorrect one:           .func udfA(mu,sigma) {exp(mu/sigma} (missing paren)
+  std::string udfAName;
+  Teuchos::RCP<Xyce::Util::newExpression> udfAExpression;
+  std::string lhs=std::string("udfA(mu,sigma)");
+  //std::string rhs=std::string("exp(mu/sigma))");
+  std::string rhs=std::string("exp(mu/sigma");
+  createFunc(lhs,rhs,testGroup, udfAName,udfAExpression);
+
+  testExpression.attachFunctionNode(udfAName, udfAExpression);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);
+  copyExpression.evaluateFunction(result);
+  assignExpression.evaluateFunction(result);
+  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_user_defined_func2)
+}
+
+//-------------------------------------------------------------------------------
+// From: SENS/improperObjFormat.cir
+//
+//  objfunc={{I(VM),V(3)*V(3)}
+//
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_ErrorTest,  bad_obj_func)
+{
+  Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
+
+  //Xyce::Util::newExpression testExpression(std::string("POW(I(VM),V(3),V(3))"), testGroup);  // this should fail, and does
+  //Xyce::Util::newExpression testExpression(std::string("(I(VM),V(3)*V(3))"), testGroup);  // this should fail in parsing, and does
+  //Xyce::Util::newExpression testExpression(std::string("{I(VM),V(3)*V(3)}"), testGroup);  // this should fail in parsing, and does
+  //Xyce::Util::newExpression testExpression(std::string("I(VM),V(3)*V(3)"), testGroup);  // this should fail in parsing, but does not
+  Xyce::Util::newExpression testExpression(std::string("I(VM)*V(3)*V(3)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  std::complex<double> vmValue=2.0;
+  std::complex<double> threeValue=3.0;
+
+  solGroup->setSoln(std::string("VM"), vmValue);
+  solGroup->setSoln(std::string("3"), threeValue);
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);   ASSERT_EQ( result, 18.0 );
+  //copyExpression.evaluateFunction(result);   ASSERT_EQ( result, 1.0 );
+  //assignExpression.evaluateFunction(result); ASSERT_EQ( result, 1.0 );
+  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_obj_func)
+}
+
+//-------------------------------------------------------------------------------
+// ERK. 6/30/2020.
+//
+// This failed to parse in a recent circuit:  '1e-9*(w==2.0u)+1e9*(w!=2.0u)'
+//
+// The following tests are about this.  It appears that the "==" operator works
+// but the "!=" operator does not, as of this writing.  The reason, as it turns
+// out is because I added "!" to the allowed characters for parameter strings
+// So, w!=2.0 can be interpretted as a parameter named "w!" equals 2.0.  This doesn't
+// happen if there is a space between the w and the "!".  The fix appears to be
+// to just exclude "!" from the TOK_ID in the lexer file.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_inlineComp, equiv)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2u"), baseGroup));
+  wExpression->lexAndParseExpression();
+  std::string wName="w";
+
+  Xyce::Util::newExpression e11(std::string("1e-9*(w==2.0u)"), baseGroup);
+  e11.lexAndParseExpression();
+  e11.attachParameterNode(wName,wExpression);
+
+  Xyce::Util::newExpression copy_e11(e11);
+  Xyce::Util::newExpression assign_e11;
+  assign_e11 = e11;
+
+  std::complex<double> result=0.0;
+  e11.evaluateFunction(result);        ASSERT_EQ( result, 1.0e-9);
+  copy_e11.evaluateFunction(result);   ASSERT_EQ( result, 1.0e-9);
+  assign_e11.evaluateFunction(result); ASSERT_EQ( result, 1.0e-9);
+
+  OUTPUT_MACRO2(Complex_Parser_ternary_precedence, equiv, e11)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_inlineComp, notEquiv)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> wExpression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2"), baseGroup));
+  wExpression->lexAndParseExpression();
+  std::string wName="w";
+
+  Xyce::Util::newExpression e11(std::string("1e9*(w!=2.0u)"), baseGroup);
+  e11.lexAndParseExpression();
+  e11.attachParameterNode(wName,wExpression);
+
+  Xyce::Util::newExpression copy_e11(e11);
+  Xyce::Util::newExpression assign_e11;
+  assign_e11 = e11;
+
+  std::complex<double> result=0.0;
+  e11.evaluateFunction(result);        ASSERT_EQ( result, 1.0e9);
+  copy_e11.evaluateFunction(result);   ASSERT_EQ( result, 1.0e9);
+  assign_e11.evaluateFunction(result); ASSERT_EQ( result, 1.0e9);
+
+  OUTPUT_MACRO2(Complex_Parser_ternary_precedence, notEquiv, e11)
+}
+
+
+// This test emits the following error messages:
+//
+// Netlist error: Function or variable W(YACC!ACC1) is not defined
+// Netlist error: Function or variable P(K1) is not defined
+// Netlist error: Function or variable W(K2) is not defined
+// Netlist error: Function or variable P(OLINE1) is not defined
+// Netlist error: Function or variable P(UAND1) is not defined
+// Netlist error: Function or variable P(YOR!OR1) is not defined
+//
+TEST ( Complex_Parser_ErrorTest,  power_unsupported_devices)
+{
+  Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("{W(YACC!ACC1)}"), testGroup);
+  //Xyce::Util::newExpression testExpression(std::string("{P(K1)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //Xyce::Util::newExpression copyExpression(testExpression);
+  //Xyce::Util::newExpression assignExpression;
+  //assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);   ASSERT_EQ( result, 0.0 );
+  //copyExpression.evaluateFunction(result);   ASSERT_EQ( result, 1.0 );
+  //assignExpression.evaluateFunction(result); ASSERT_EQ( result, 1.0 );
+  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_obj_func)
+}
+
+
+//-------------------------------------------------------------------------------
+//
+// The point of this function is just to get thru the lex/parse phase w/o a
+// syntax error.  So, I don't care about the result.
+//
+// The issue here (prompted by bug 28) is that the name "int" is used in that
+// test as a node name.  And, that node name is initially processed as an
+// expression.  The parser was interpretting "int" as the operator, when it
+// needed to be perceiving it as an unresolved string.
+//
+// Note to self: I changed the lexer and parser so that the "int" operator
+// token (TOK_INT) now includes the left paren.  That way, if the left paren
+// is not present, it it tokenized as the generic TOK_WORD.  Given that the
+// Xyce parser is used in this way, to process node names that ultimately are
+// not really expressions, I should probably update a lot of the
+// operators in this manner to force them to include the left paren in their
+// token.
+//
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parsing_Syntax, bug28_1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Int"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);
+}
+
+#if 0
+// Similar to the above with "int", theoretically a user could attempt to
+// use operator names as parameter names.  For example (below) sdt.
+//
+// Q:  Should I fix this for all operators that take an argument inside of parens?
+TEST ( Complex_Parsing_Syntax, bug28_2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("SDT"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);
+}
+#endif
+
+//-------------------------------------------------------------------------------
+// tests for random operators
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+  Xyce::Util::enableRandomExpression = true; // restore default
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss0)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss1)
+
+  Xyce::Util::enableRandomExpression = true; // restore default
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss1_func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {A*agauss(1.0,0.1,1.0)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("A*agauss(1.0,0.1,1.0)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss_func)
+
+  Xyce::Util::enableRandomExpression = true; // restore default
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testRandExpressionGroup() );
+
+  Xyce::Util::newExpression testExpression1(std::string("agauss(1.0,0.1,1.0)"), testGroup);
+  testExpression1.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("agauss(1.0,0.1,1.0)"), testGroup);
+  testExpression2.lexAndParseExpression();
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  Xyce::Util::enableRandomExpression = true;
+  testExpression1.evaluateFunction(result1);
+  testExpression2.evaluateFunction(result2);
+
+  ASSERT_NE( result1, result2); // these should NOT match, because it is 2 separate expressions.
+
+  OUTPUT_MACRO2(Complex_Parser_Random, agauss2,testExpression1)
+}
+
+TEST ( Complex_Parser_Random, gauss0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1,1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, gauss0)
+  Xyce::Util::enableRandomExpression = true;
+}
+
+TEST ( Complex_Parser_Random, aunif0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("aunif(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, aunif0)
+  Xyce::Util::enableRandomExpression = true;
+}
+
+TEST ( Complex_Parser_Random, unif0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("unif(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  Xyce::Util::enableRandomExpression = false;
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, unif0)
+  Xyce::Util::enableRandomExpression = true;
+}
+
+
+
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
