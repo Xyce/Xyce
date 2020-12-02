@@ -368,6 +368,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"SDB"[ \t]*"("     {
   BEGIN(sparamdef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
@@ -394,6 +395,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"YDB"[ \t]*"("     {
   BEGIN(yparamdef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
@@ -420,6 +422,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"ZDB"[ \t]*"("     {
   BEGIN(zparamdef);
   std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp.substr(0, tmp.length()-1) );
   return XyceExpression::ExpressionParser::token::TOK_RFPARAM;
 }
