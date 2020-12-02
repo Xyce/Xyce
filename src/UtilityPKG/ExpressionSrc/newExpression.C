@@ -1891,10 +1891,15 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     dumpParseTree(Xyce::dout());
 #endif
     retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
+   
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
-    for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
-    for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
-    for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+      
+    if ( !(Teuchos::is_null(astNodePtr_)) )
+    {
+      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
+      for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
+      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+    }
   }
   else
   {
@@ -1906,8 +1911,8 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   // fix these properly for std::complex later.
   for(int ii=0;ii<derivs.size();++ii)
   {
-    if ( std::isnan(std::real(derivs[ii])) ) { derivs[ii] = 0.0; }
-    if ( std::isinf(std::real(derivs[ii])) ) { derivs[ii] = 1.0e+10; } // fix this
+    Util::fixNan(derivs[ii]);
+    Util::fixInf(derivs[ii]); // this was previous for 1.0e+10, but this function call uses 1.0e+50.  check this.
   }
   // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
@@ -1951,9 +1956,12 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 
     if (doTheEvaluation)
     {
-      result = astNodePtr_->val();
-      Util::fixNan(result);
-      Util::fixInf(result);
+      if ( !(Teuchos::is_null(astNodePtr_)) )
+      {
+        result = astNodePtr_->val();
+        Util::fixNan(result);
+        Util::fixInf(result);
+      }
       retVal = (result != savedResult_);
 
 #if 0
