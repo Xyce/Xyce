@@ -9971,7 +9971,7 @@ TEST ( Double_Parser_Derivative_Test, ddt7)
 }
 
 //-------------------------------------------------------------------------------
-// this test is similar to ddt7, except that the SDT operators 
+// this test is similar to ddt7, except that the DDT operators 
 // are behind 2 layers of funcs instead of 1.
 TEST ( Double_Parser_Derivative_Test, ddt8)
 {

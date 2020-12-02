@@ -613,7 +613,7 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
   {};
     ~sdtExpressionGroup () {};
 
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
   {
     std::string tmp = nodeName; Xyce::Util::toLower(tmp);
     if (tmp==std::string("a")) { retval = Aval; return true; }
@@ -623,7 +623,7 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
     else { retval= 0.0; return false; }
   }
 
-  void setSoln(const std::string & nodeName, double val)
+  void setSoln(const std::string & nodeName, std::complex<double> val)
   {
     std::string tmp = nodeName; Xyce::Util::toLower(tmp);
     if (tmp==std::string("a")) { Aval = val; }
@@ -642,7 +642,7 @@ class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
   unsigned int getStepNumber () { return stepNumber; }
 
   private:
-    double Aval, Bval,Cval,Dval;
+    std::complex<double> Aval, Bval,Cval,Dval;
     double time;
     double timeStep;
     unsigned int stepNumber;
@@ -6685,6 +6685,132 @@ TEST (Complex_Parser_specials, freq2)
   OUTPUT_MACRO(Complex_Parser_specials, freq2)
 }
 
+TEST ( Complex_Parser_specials, hertz)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+  Xyce::Util::newExpression testExpression(std::string("hertz"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, hertz)
+}
+
+TEST ( Complex_Parser_specials, hertz2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> fExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("hertz"), testGroup));
+  fExpression->lexAndParseExpression();
+  std::string fName = "F";
+
+  Xyce::Util::newExpression testExpression(std::string("f"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(fName,fExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setFreq(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool freqDependent = testExpression.getFreqDependent();  
+  bool copyFreqDependent = copy_testExpression.getFreqDependent();
+  bool assignFreqDependent = assign_testExpression.getFreqDependent();
+
+  EXPECT_EQ(freqDependent, true);
+  EXPECT_EQ(copyFreqDependent, true);
+  EXPECT_EQ(assignFreqDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, hertz2)
+}
+
+TEST ( Complex_Parser_specials, gmin)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+  Xyce::Util::newExpression testExpression(std::string("gmin"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setGmin(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool gminDependent = testExpression.getGminDependent();
+  bool copyGminDependent = copy_testExpression.getGminDependent();
+  bool assignGminDependent = assign_testExpression.getGminDependent();
+
+  EXPECT_EQ(gminDependent, true);
+  EXPECT_EQ(copyGminDependent, true);
+  EXPECT_EQ(assignGminDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, gmin)
+}
+
+TEST ( Complex_Parser_specials, gmin2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> gExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("gmin"), testGroup));
+  gExpression->lexAndParseExpression();
+  std::string gName = "G";
+
+  Xyce::Util::newExpression testExpression(std::string("g"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(gName,gExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  timeGroup->setGmin(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool gminDependent = testExpression.getGminDependent();  
+  bool copyGminDependent = copy_testExpression.getGminDependent();
+  bool assignGminDependent = assign_testExpression.getGminDependent();
+
+  EXPECT_EQ(gminDependent, true);
+  EXPECT_EQ(copyGminDependent, true);
+  EXPECT_EQ(assignGminDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, gmin2)
+}
+
 TEST (Complex_Parser_specials, temp)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
@@ -6747,6 +6873,71 @@ TEST (Complex_Parser_specials, temp2)
 
   OUTPUT_MACRO(Complex_Parser_specials, temp2)
 }
+
+
+TEST ( Complex_Parser_specials, temper)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+  Xyce::Util::newExpression testExpression(std::string("temper"),testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, temper)
+}
+
+TEST ( Complex_Parser_specials, temper2)
+{
+  Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> tExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("temper"), testGroup));
+  tExpression->lexAndParseExpression();
+  std::string tName = "T";
+
+  Xyce::Util::newExpression testExpression(std::string("t"),testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.attachParameterNode(tName,tExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  tempGroup->setTemp(1.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+
+  bool tempDependent = testExpression.getTempDependent();  
+  bool copyTempDependent = copy_testExpression.getTempDependent();
+  bool assignTempDependent = assign_testExpression.getTempDependent();
+
+  EXPECT_EQ(tempDependent, true);
+  EXPECT_EQ(copyTempDependent, true);
+  EXPECT_EQ(assignTempDependent, true);
+
+  OUTPUT_MACRO(Complex_Parser_specials, temper2)
+}
+
 
 //
 TEST (Complex_Parser_specials, vt)
@@ -6811,6 +7002,81 @@ TEST (Complex_Parser_specials, vt2)
 
   OUTPUT_MACRO(Complex_Parser_specials, vt2)
 }
+
+TEST (  Complex_Parser_specials, CtoK1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("CtoK"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  std::complex<double> refRes(CONSTCtoK);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ(result, refRes);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  copyExpression.evaluateFunction(result); 
+  EXPECT_EQ(result, refRes);
+
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+  assignExpression.evaluateFunction(result); 
+  EXPECT_EQ(result, refRes);
+}
+
+TEST ( Complex_Parser_specials, exp1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("exp"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  std::complex<double> result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, std::exp(1.0));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, std::exp(1.0));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, std::exp(1.0));
+  OUTPUT_MACRO2(Complex_Parser_specials, exp1, expTest) 
+}
+
+TEST ( Complex_Parser_specials, exp2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("5.0*exp"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  std::complex<double> result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (5.0*std::exp(1.0)));
+  OUTPUT_MACRO2(Complex_Parser_specials, exp2, expTest) 
+}
+
+TEST ( Complex_Parser_specials, exp3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression expTest(std::string("exp*exp(2.0)"), testGroup);
+  expTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_expTest(expTest); 
+  Xyce::Util::newExpression assign_expTest; 
+  assign_expTest = expTest; 
+
+  std::complex<double> result;
+  expTest.evaluateFunction(result);        EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
+  OUTPUT_MACRO2(Complex_Parser_specials, exp3, expTest) 
+}
+
+
+
+
 //
 
 
@@ -6966,6 +7232,193 @@ TEST ( Complex_Parser_ASCTH_Test, test2)
 }
 
 
+TEST ( Complex_Parser_STP_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("stp(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=2.0;
+  std::complex<double> refRes = 1.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Complex_Parser_STP_Test, test1)
+}
+
+TEST ( Complex_Parser_STP_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("stp(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=-2.0;
+  std::complex<double>  refRes = 0.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Complex_Parser_STP_Test, test2)
+}
+
+
+TEST ( Complex_Parser_atan2_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=0.5, Bval=0.25;
+  std::complex<double>  refRes = std::atan2(std::real(Aval),std::real(Bval));
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<std::complex<double> > derivs;
+
+  std::complex<double>  denom = Aval*Aval+Bval*Bval;
+  std::vector<std::complex<double> > refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Complex_Parser_atan2_Test, test1)
+}
+
+
+TEST ( Complex_Parser_atan2_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=0.5, Bval=-0.25;
+  std::complex<double>  refRes = std::atan2(std::real(Aval),std::real(Bval));
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<std::complex<double> > derivs;
+
+  std::complex<double>  denom = Aval*Aval+Bval*Bval;
+  std::vector<std::complex<double> > refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Complex_Parser_atan2_Test, test2)
+}
+
+TEST ( Complex_Parser_atan2_Test, test3)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=-0.5, Bval=0.25;
+  std::complex<double>  refRes = std::atan2(std::real(Aval),std::real(Bval));
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<std::complex<double> > derivs;
+
+  std::complex<double>  denom = Aval*Aval+Bval*Bval;
+  std::vector<std::complex<double> > refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Complex_Parser_atan2_Test, test3)
+}
+
+TEST ( Complex_Parser_atan2_Test, test4)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=-0.5, Bval=-0.25;
+  std::complex<double>  refRes = std::atan2(std::real(Aval),std::real(Bval));
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<std::complex<double> > derivs;
+
+  std::complex<double>  denom = Aval*Aval+Bval*Bval;
+  std::vector<std::complex<double> > refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Complex_Parser_atan2_Test, test4)
+}
+
+
+
+
 TEST ( Complex_Parser_TwoNodeDeriv_Test, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -7000,7 +7453,6 @@ TEST ( Complex_Parser_TwoNodeDeriv_Test, test1)
   EXPECT_EQ( derivs, refderivs);
 }
 
-#if 1
 //
 TEST ( Complex_Parser_poly_Test, test1)
 {
@@ -7929,7 +8381,2331 @@ TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 
   OUTPUT_MACRO3(Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }
+
+
+template <typename ScalarT>
+inline void trapezoidIntegral (
+   const std::vector<double> & times,
+   const std::vector<double> & values,
+   std::vector<double> & testIntegral,
+   ScalarT & integral)
+{
+  int cpSize = times.size();
+  int midIndex = cpSize-1;
+  integral=0.0;
+
+  testIntegral.resize(cpSize,0.0);
+
+  for (int is=0;is<cpSize-1;++is)
+  {
+    double deltaT = times[is+1]-times[is];
+    double pulse1 = values[is];
+    double pulse2 = values[is+1];
+    double Tau1 = times[is];
+    double Tau2 = times[is+1];
+    double deltaI = 0.5*(pulse1+pulse2)*deltaT;
+    integral += deltaI;
+    testIntegral[is+1] = integral;
+  }
+}
+
+//-------------------------------------------------------------------------------
+// SDT tests
+//-------------------------------------------------------------------------------
+#if 1
+#define NUM_SDT_STEPS 101
+#define NUM_SDT_STEPS2 1001
+#else
+#define NUM_SDT_STEPS 11
+#define NUM_SDT_STEPS2 11
 #endif
+TEST ( Complex_Parser_Integral_Test, sdt1)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = time*time*0.5;
+
+    testExpression.evaluateFunction(result);   ASSERT_NEAR( std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    copyExpression.evaluateFunction(result);   ASSERT_NEAR( std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    assignExpression.evaluateFunction(result); ASSERT_NEAR( std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    time += dt;
+
+    // only one of these "clear" calls is necessary. but test calling all to make sure nothing broken  
+    // Also, the best way is using the "static" function call:
+    //     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    // but that is sufficiently tested elsewhere
+    //
+    testExpression.clearProcessSuccessfulTimeStepMap(); 
+    copyExpression.clearProcessSuccessfulTimeStepMap();
+    assignExpression.clearProcessSuccessfulTimeStepMap();
+
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt1)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt2)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT (3.0*cos(time))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::vector<std::complex<double> > derivs;
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = 3.0*std::sin(time);
+
+    testExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_EQ(derivs.size(),0);
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_EQ(derivs.size(),0);
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result),std::real(refRes),std::abs(1.0e-4*std::real(result)));
+    ASSERT_EQ(derivs.size(),0);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt2)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt3)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt); 
+
+    if (ii!=0) { refDerivs[0] = 0.5*dt; }
+    else       { refDerivs[0] = 0.0; }
+
+    refRes = time*time*0.5;
+
+    testExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt3)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt4)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT(2.0*v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+  std::complex<double> result = 0.0, refRes = 0.0; 
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+  std::complex<double> Aval=1.0;
+  sdtGroup->setSoln(std::string("A"),Aval);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt); 
+
+    if (ii!=0) { refDerivs[0] = dt;  }
+    else       { refDerivs[0] = 0.0; }
+
+    refRes = 2.0*time;
+
+    testExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt4)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt5)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {sdt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS;
+  double dt = finalTime/(numSteps-1);
+
+  refDerivs.push_back(0.5*dt);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = time*time*0.5;
+
+    if (ii!=0) { refDerivs[0] = 0.5*dt;  }
+    else       { refDerivs[0] = 0.0; }
+
+    testExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    copyExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    assignExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt5)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt6)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {sdt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.push_back(dt);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    if (ii!=0) { refDerivs[0] = dt;  }
+    else       { refDerivs[0] = 0.0; }
+
+    refRes = time*time;
+
+    testExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    copyExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    assignExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt6)
+}
+
+//-------------------------------------------------------------------------------
+// this point of this test is to make sure that when SDT is inside of a .FUNC, 
+// and that .FUNC is called more than once, that the integral informmation doesn't 
+// get mangled.  Each call to the .FUNC should carry its own unique SDT state.
+TEST ( Complex_Parser_Integral_Test, sdt7)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {sdt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt7)
+}
+
+//-------------------------------------------------------------------------------
+// this test is similar to sdt7, except that the SDT operators 
+// are behind 2 layers of funcs instead of 1.
+TEST ( Complex_Parser_Integral_Test, sdt8)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(a)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(A) {sdt(a)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A)");
+  rhs=std::string("sdt(a)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt8)
+}
+
+//-------------------------------------------------------------------------------
+// this test is similar to sdt7, except that the SDT operators 
+// are behind 3 layers of funcs instead of 1.
+TEST ( Complex_Parser_Integral_Test, sdt9)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(a)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(A) {f3(a)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A)");
+  rhs=std::string("f3(a)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {sdt(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)");
+  rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  f2Expression->attachFunctionNode(f3Name, f3Expression);
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 0.5*dt;
+      refDerivs[1] = 0.5*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt9)
+}
+
+//-------------------------------------------------------------------------------
+// this test is similar to sdt7, except that the SDT operators 
+// are behind 3 layers of funcs instead of 1.
+// Also, the f1 layer calls sdt directly, which doubles the size of the answer
+TEST ( Complex_Parser_Integral_Test, sdt10)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(a)+sdt(a)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("f2(a)+sdt(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(A) {f3(a)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A)");
+  rhs=std::string("f3(a)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {sdt(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)");
+  rhs=std::string("sdt(A)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  f2Expression->attachFunctionNode(f3Name, f3Expression);
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = Aint + Bint;
+    refRes *= 2.0;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = dt;
+      refDerivs[1] = dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt10)
+}
+
+//-------------------------------------------------------------------------------
+// this test is similar to sdt7, except that the SDT operators 
+// are behind 3 layers of funcs instead of 1.
+// Also, the f1 layer calls sdt directly, which doubles the size of the answer
+TEST ( Complex_Parser_Integral_Test, sdt11)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(a)+sdt(a)+sdt(v(b))}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("f2(a)+sdt(a)+sdt(v(b))");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(A) {f3(a)*2.0+sdt(a)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A)");
+  rhs=std::string("f3(a)*2.0+sdt(a)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {sdt(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)");
+  rhs=std::string("sdt(a)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  f2Expression->attachFunctionNode(f3Name, f3Expression);
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    double Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    double Aint = time*time*0.5;
+    double Bint = 3.0*std::sin(time);
+    refRes = 4.0*Aint + 6.0*Bint;
+
+    if (ii!=0)
+    {
+      refDerivs[0] = 2.0*dt;
+      refDerivs[1] = 3.0*dt;
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+      refDerivs[1] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt11)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt12)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT (F1(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(B) {(3.0*cos(B))}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(B)"), rhs=std::string("(3.0*cos(B))");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::vector<std::complex<double> > derivs(2);
+  std::vector<std::complex<double> > refDerivs(2);
+  std::complex<double> result = 0.0, refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    refRes = 3.0*std::sin(time);
+
+    if (ii!=0)
+    {
+      refDerivs[0] = -3.0*0.5*dt*sin(Aval);
+    }
+    else
+    {
+      refDerivs[0] = 0.0;
+    }
+
+    testExpression.evaluate(result,derivs);
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    copyExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    assignExpression.evaluate(result,derivs);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
+    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt12)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt13)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT (F1(V(A))*F1(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(B) {(3.0*cos(B))}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(B)"), rhs=std::string("(3.0*cos(B))");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0; 
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = 9.0*(0.5*time  + 0.25 * std::sin(2.0*time));
+ 
+    testExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    copyExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    assignExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt13)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt14)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("SDT (F1(V(A))*F1(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {(3.0*cos(B))}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(B)"); rhs=std::string("(3.0*cos(B))");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0; 
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double Aval=time;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = 9.0*(0.5*time  + 0.25 * std::sin(2.0*time));
+ 
+    testExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    copyExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    assignExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt14)
+}
+
+
+//-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//
+// In this case, the argument to sdt is a function argument parameter.  So, a 
+// relatively simple scenario
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt15)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(V(B))"), testGroup);
+  testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(B)"); rhs=std::string("sdt(B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)"); rhs=std::string("f4(a)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(B)"); rhs=std::string("sdt(B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0, refRes2 = 0.0; 
+  double time=0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double mpi = M_PI;
+    double freq = 4000e3;
+    double Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    sdtGroup->setSoln(std::string("A"),Aval);
+
+    double Bval = time;
+    sdtGroup->setSoln(std::string("B"),Bval);
+
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
+    ASSERT_EQ( result, refRes2);
+
+    copyExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    assignExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt15)
+}
+
+//-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//
+// This test is similar, but different from sdt15, in that the argument to sdt
+// is an expression. (B*B) instead of (B).  This was a little harder to manage.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt16)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(V(B))"), testGroup);
+  testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B*B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(B)"); rhs=std::string("sdt(B*B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A)"); rhs=std::string("f4(a)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B*B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(B)"); rhs=std::string("sdt(B*B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0, refRes2 = 0.0; 
+  double time = 0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double mpi = M_PI;
+    double freq = 4000e3;
+    double Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    sdtGroup->setSoln(std::string("A"),Aval);
+
+    double Bval = time;
+    sdtGroup->setSoln(std::string("B"),Bval);
+
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
+    
+    ASSERT_EQ( result, refRes2);
+
+    copyExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    assignExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt16)
+}
+
+//-------------------------------------------------------------------------------
+// The point of this test is to make sure that one function call doesn't 
+// corrupt another one.
+//
+// testExpression and testExpression3 are functionally identical.
+//
+// But, testExpression2 calls the same function as testExpression 
+// but using different inputs.  If state is managed carefully, then this should
+// not be a problem.
+//
+// This is similar, but slightly more complicated than sdt16, in that the 
+// functions have 2 arguments rather than 1.  Among other issues, having 
+// two arguments introduces the possible bug of having (A,B) be treated 
+// the same as (B,A), in terms of  the state key. (the key that determines which
+// state to use).
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt17)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("f1(V(B),V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression2(std::string("f1(-V(A),V(C))"), testGroup);
+  testExpression2.lexAndParseExpression();
+  Xyce::Util::newExpression testExpression3(std::string("f3(V(B),V(A))"), testGroup);
+  testExpression3.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A,B)"), rhs=std::string("f2(a,b)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(B) {sdt(B*B)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A,B)"); rhs=std::string("sdt(A+B*B)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  // .func F3(A) {f4(A)}
+  std::string f3Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f3Expression;
+  lhs=std::string("F3(A,B)"); rhs=std::string("f4(a,b)");
+  createFunc(lhs,rhs,testGroup, f3Name,f3Expression);
+
+  // .func F4(B) {sdt(B*B)}
+  std::string f4Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f4Expression;
+  lhs=std::string("F4(A,B)"); rhs=std::string("sdt(A+B*B)");
+  createFunc(lhs,rhs,testGroup, f4Name,f4Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+  testExpression2.attachFunctionNode(f1Name, f1Expression);
+
+  f3Expression->attachFunctionNode(f4Name, f4Expression);
+  testExpression3.attachFunctionNode(f3Name, f3Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0, refRes = 0.0, refRes2=0.0; 
+  double time=0.0;
+  double finalTime=1.25000000e-07;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    double mpi = M_PI;
+    double freq = 4000e3;
+    std::complex<double> Aval= 1.0e3 * std::sin (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    std::complex<double> Bval = time;
+    std::complex<double> Cval= 1.0e3 * std::cos (2.0*mpi*((std::real(freq))*std::real(time) )) ;
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setSoln(std::string("C"),Cval);
+
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+ 
+    testExpression.evaluateFunction(result);   
+    testExpression2.evaluateFunction(refRes);   
+    testExpression3.evaluateFunction(refRes2);
+    
+    ASSERT_EQ( result, refRes2);
+
+    copyExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    assignExpression.evaluateFunction(result);   
+    ASSERT_EQ( result, refRes2);
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    testExpression2.processSuccessfulTimeStep();
+    testExpression3.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt17)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+  int numFuncs=100;
+
+  // this expression will use the function f1.
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // need to set up vector of funcs
+  std::vector< std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > >  dotFuncVector;
+  // set up the first func in the list (which will be the final one evaluated)  
+ 
+  // need to set up vector of funcs
+  for (int ii=1;ii<numFuncs+1;ii++)
+  { 
+    // .func Fii(A) {fii+1(A)}
+    std::string fii_name_args    = std::string("f") + std::to_string(ii) + std::string("(a)");   // lhs
+    std::string fiiP1_name_args  = std::string("f") + std::to_string(ii+1) + std::string("(a)"); // rhs
+    std::string fiiName;
+    Teuchos::RCP<Xyce::Util::newExpression> fiiExpression;
+    createFunc(fii_name_args,fiiP1_name_args,testGroup, fiiName,fiiExpression);
+
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair(fiiName,fiiExpression);
+    dotFuncVector.push_back(funcPair);
+  }
+  
+  { 
+    // .func Fii(A) {sdt(a)}
+    int ii=numFuncs;
+    std::string fiiName;
+    Teuchos::RCP<Xyce::Util::newExpression> fiiExpression;
+    std::string lhs = std::string("f") + std::to_string(ii+1) + std::string("(a)");
+    std::string rhs = std::string("sdt(a)");
+    createFunc(lhs,rhs,testGroup, fiiName,fiiExpression);
+
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair(fiiName,fiiExpression);
+    dotFuncVector.push_back(funcPair);
+  }
+
+  // do all the attachments
+  for (int ii=0;ii<dotFuncVector.size()-1;ii++)
+  {
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPairP1 = dotFuncVector[ii+1];
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair   = dotFuncVector[ii];
+
+    funcPair.second->attachFunctionNode(funcPairP1.first, funcPairP1.second);
+  }
+
+  testExpression.attachFunctionNode(dotFuncVector[0].first, dotFuncVector[0].second);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result = 0.0, refRes = 0.0; 
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    std::complex<double> Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+    refRes = time*time*0.5 + 3.0*std::sin(time);
+
+    testExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    
+    copyExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    
+    assignExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  //OUTPUT_MACRO3(Complex_Parser_Integral_Test, sdt_1000nest_no_deriv)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv2)
+{
+  Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
+
+
+  // this expression will use the function f1.
+  Xyce::Util::newExpression testExpression(std::string("SDT(F1(V(A))+F1(V(B)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // need to set up vector of funcs
+  std::vector< std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > >  dotFuncVector;
+ 
+  // need to set up vector of funcs
+  int numFuncs=100;
+  for (int ii=1;ii<numFuncs+1;ii++)
+  { 
+    // .func Fii(A) {fii+1(A)}
+    std::string fii_name_args    = std::string("f") + std::to_string(ii) + std::string("(a)");   // lhs
+    std::string fiiP1_name_args  = std::string("f") + std::to_string(ii+1) + std::string("(a)"); // rhs
+    std::string fiiName;
+    Teuchos::RCP<Xyce::Util::newExpression> fiiExpression;
+    createFunc(fii_name_args,fiiP1_name_args,testGroup, fiiName,fiiExpression);
+
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair(fiiName,fiiExpression);
+    dotFuncVector.push_back(funcPair);
+  }
+  
+  { 
+    // .func Fii(A) {a*2.0}
+    int ii=numFuncs;
+    std::string fiiName;
+    Teuchos::RCP<Xyce::Util::newExpression> fiiExpression;
+    std::string lhs = std::string("f") + std::to_string(ii+1) + std::string("(a)");
+    std::string rhs = std::string("a*2.0");
+    createFunc(lhs,rhs,testGroup, fiiName,fiiExpression);
+
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair(fiiName,fiiExpression);
+    dotFuncVector.push_back(funcPair);
+  }
+
+  // do all the attachments
+  for (int ii=0;ii<dotFuncVector.size()-1;ii++)
+  {
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPairP1 = dotFuncVector[ii+1];
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > funcPair   = dotFuncVector[ii];
+
+    funcPair.second->attachFunctionNode(funcPairP1.first, funcPairP1.second);
+  }
+
+  testExpression.attachFunctionNode(dotFuncVector[0].first, dotFuncVector[0].second);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result = 0.0, refRes = 0.0; 
+  double time=0.0, finalTime=1.0;
+  int numSteps = NUM_SDT_STEPS2;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    std::complex<double> Bval=3.0*std::cos(time);
+    sdtGroup->setSoln(std::string("A"),Aval);
+    sdtGroup->setSoln(std::string("B"),Bval);
+    sdtGroup->setTime(time);
+    sdtGroup->setStepNumber(ii);
+    sdtGroup->setTimeStep(dt);
+
+    refRes = 2.0*(time*time*0.5 + 3.0*std::sin(time));
+
+    testExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    
+    copyExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+    
+    assignExpression.evaluateFunction(result);   
+    ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  //OUTPUT_MACRO3(Complex_Parser_Integral_Test, sdt_1000nest_no_deriv)
+}
+
+
+//-------------------------------------------------------------------------------
+// DDT tests
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt1)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0;
+  std::complex<double> refRes = 0.0;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+
+    if (ii>0) {refRes = 1.0;}
+    else  {refRes = 0.0;}
+
+    testExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    
+    copyExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    
+    assignExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt1)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt2)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT (3.0*sin(time))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0;
+  std::complex<double> refRes = 0.0;
+  double time=0.0, finalTime=0.01;
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+
+    if (ii > 0) { refRes = 3.0*std::cos(time); }
+    else { refRes = 0.0; }
+
+    testExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    
+    copyExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    
+    assignExpression.evaluateFunction(result);   
+    ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt2)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt3)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0;
+  std::complex<double> refRes = 0.0;
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt); 
+
+    testExpression.evaluate(result,derivs);   
+
+    if (ii>0)
+    {
+      refDerivs[0] = 1.0/dt;
+      refRes = 1.0;
+
+      ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+      ASSERT_FLOAT_EQ( std::real(derivs[0]), std::real(refDerivs[0]) );
+    }
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt3)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt4)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("DDT(2.0*v(a))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0; 
+  std::complex<double> refRes = 0.0;
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refDerivs;
+
+  double time=0.0;
+  double finalTime=1.0;
+
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+  refDerivs.resize(1,0.5*dt);
+
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=2*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt); 
+    testExpression.evaluate(result,derivs);   
+
+    if (ii>0)
+    {
+      refDerivs[0] = 2.0/dt;
+      refRes = 4.0;
+      ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+      ASSERT_FLOAT_EQ( std::real(derivs[0]), std::real(refDerivs[0]) );
+    }
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt4)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt5)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {ddt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)"), rhs=std::string("ddt(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0; 
+  std::complex<double> refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+
+    if (ii>0) {refRes = 1.0;}
+    else { refRes = 0.0; }
+
+    testExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    copyExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt5)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt6)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {ddt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("ddt(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  std::complex<double> result = 0.0; 
+  std::complex<double> refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = 101;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+
+    if (ii>0) {refRes = 2.0;}
+    else { refRes = 0.0;}
+
+    testExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    copyExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt6)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Derivative_Test, ddt7)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {ddt(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("ddt(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result = 0.0; 
+  std::complex<double> refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    std::complex<double> Bval=3.0*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setSoln(std::string("B"),Bval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+    if (ii>0) { refRes = 1.0 + 3.0; }
+    else { refRes = 0.0; }
+
+    testExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    copyExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt7)
+}
+
+//-------------------------------------------------------------------------------
+// this test is similar to ddt7, except that the DDT operators 
+// are behind 2 layers of funcs instead of 1.
+TEST ( Complex_Parser_Derivative_Test, ddt8)
+{
+  Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("F1(V(A))+F1(V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {f2(A)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("f2(a)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  // .func F2(A) {ddt(A)}
+  std::string f2Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression;
+  lhs=std::string("F2(A)");
+  rhs=std::string("ddt(a)");
+  createFunc(lhs,rhs,testGroup, f2Name,f2Expression);
+
+  f1Expression->attachFunctionNode(f2Name, f2Expression);
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result = 0.0; 
+  std::complex<double> refRes = 0.0;
+  double time=0.0, finalTime=1.0;
+  int numSteps = 1001;
+  double dt = finalTime/(numSteps-1);
+  for (int ii=0;ii<numSteps;ii++)
+  {
+    std::complex<double> Aval=time;
+    std::complex<double> Bval=3.0*time;
+    ddtGroup->setSoln(std::string("A"),Aval);
+    ddtGroup->setSoln(std::string("B"),Bval);
+    ddtGroup->setTime(time);
+    ddtGroup->setStepNumber(ii);
+    ddtGroup->setTimeStep(dt);
+
+    if (ii>0) { refRes = 1.0 + 3.0; }
+    else { refRes = 0.0; }
+
+    testExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    copyExpression.evaluateFunction(result);     ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+    assignExpression.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), std::real(refRes));
+
+    time += dt;
+
+    Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
+    testExpression.processSuccessfulTimeStep();
+    copyExpression.processSuccessfulTimeStep();
+    assignExpression.processSuccessfulTimeStep();
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt8)
+}
+
+//-------------------------------------------------------------------------------
+// breakpoint function testing
+//
+// The two stp tests, below will cause the function computeBreakPoint to be 
+// called in ast.h.  That function evaluates a Newton loop to obtain the next
+// breakpoint.  However, for the STP operator, in these tests, this is a linear
+// problem.  So, it won't use the bottom part of the function, where it continues
+// for subsequent iterations.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Breakpoint_Test, stp1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func stpTest.
+  Xyce::Util::newExpression testExpression(std::string("stpTest(time)*0.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func stpTest(t) {t-0.5}
+  std::string stpTestName;
+  Teuchos::RCP<Xyce::Util::newExpression> stpTestExpression;
+  std::string lhs=std::string("stpTest(t)");
+  std::string rhs=std::string("stp(T-0.5)");
+  createFunc(lhs,rhs,testGroup,stpTestName,stpTestExpression);
+
+  testExpression.attachFunctionNode(stpTestName, stpTestExpression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  timeDepGroup->setTime(0.4);
+  std::complex<double> result = 0.0;
+
+  {
+  testExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+  EXPECT_EQ( numBp, 1 ); EXPECT_EQ( bpVals[0], 0.5 );
+  }
+
+  {
+  copyExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  copyExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+  EXPECT_EQ( numBp, 1 ); EXPECT_EQ( bpVals[0], 0.5 );
+  }
+
+  {
+  assignExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  assignExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+  EXPECT_EQ( numBp, 1 ); EXPECT_EQ( bpVals[0], 0.5 );
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, stp1)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Breakpoint_Test, stp2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func f1.
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)*stp(time-0.5)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func f1(x) {5.0*x}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("f1(x)");
+  std::string rhs=std::string("5.0*x");
+  createFunc(lhs,rhs,testGroup,f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  timeDepGroup->setTime(0.4);
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(1,0.0);
+  if (numBp > 0) { bpVals[0] = breakPointTimes[0].value(); }
+
+  EXPECT_EQ( numBp, 1 );
+  EXPECT_EQ( bpVals[0], 0.5 );
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, stp2)
+}
+
+//-------------------------------------------------------------------------------
+// Breakpoint test inspired by ABM_BREAK/breaks.cir:
+//
+// V1   1  0  PULSE(0 3 0.01 1ms 1ms 0.05 0.15)
+// B2   2  0  V = {Table(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)}
+// B3   3  0  V = {v(2) + v(1) * if(abs(sin(5*PI*time)) > 0.9, (abs(sin(5*PI*time))-0.9)*10, 0)}
+//
+//
+TEST ( Complex_Parser_Breakpoint_Test, abm_breaks1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression is inspired by B3, above.
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "sin" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * if(abs(sin(5*PI*time)) > 0.9, (abs(sin(5*PI*time))-0.9)*10, 0)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // do some math.   sin(5*pi*time) = 0.9 ->  sin^(-1)(0.9) = 5*pi*time   ->     time = sin^(-1)(0.9)/(5*pi) = firstBP
+  double firstBP = std::asin(0.9)/(5.0*M_PI);
+  double seconBP = (M_PI - std::asin(0.9))/(5.0*M_PI);
+  //std::cout << "firstBP = " << firstBP << std::endl;
+  //std::cout << "seconBP = " << seconBP << std::endl;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp > 0) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+
+  timeDepGroup->setTime(seconBP-0.01);
+  testExpression.evaluateFunction(result);
+  breakPointTimes.clear();
+  testExpression.getBreakPoints(breakPointTimes);
+  if (numBp > 0)  
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, seconBP );
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, abm_breaks1)
+}
+
+//-------------------------------------------------------------------------------
+// made up test, for the equiv operator
+TEST ( Complex_Parser_Breakpoint_Test, timeSquared1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "time*time" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * if((time*time == 4.0 ), 2.0, 1.0)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  double firstBP = 2.0;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp == 1) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+  else
+  {
+    EXPECT_EQ( numBp, 1);
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, timeSquared1)
+}
+
+//-------------------------------------------------------------------------------
+// made up test, for the equiv operator, which uses it in a .func
+TEST ( Complex_Parser_Breakpoint_Test, timeSquared2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func f1.
+  // It forces the breakpointing function to call computeBreakPoint, 
+  // and to do a multi-iteration Newton solve to obtain the breakpoint.  This
+  // is necessary b/c "time*time" is a nonlinear function.
+  Xyce::Util::newExpression testExpression(std::string("{2.0 + 3.0 * f1(time)}"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(x)");
+  std::string rhs=std::string("if((x*x == 4.0 ), 2.0, 1.0)");
+  createFunc(lhs,rhs,testGroup,f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  double firstBP = 2.0;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::complex<double> result;
+  timeDepGroup->setTime(0.01);
+  testExpression.evaluateFunction(result); 
+  // This "evaluateFunction" call is to force the full AST setup, 
+  // so that the arrays related to breakpoints are correct.  
+  // This test does not check "result"
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  int numBp = breakPointTimes.size();
+  if (numBp == 1) 
+  { 
+    double val = breakPointTimes[0].value(); 
+    EXPECT_DOUBLE_EQ( val, firstBP );
+  }
+  else
+  {
+    EXPECT_EQ( numBp, 1);
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, timeSquared2)
+}
+
+//-------------------------------------------------------------------------------
+// breakpoint test, for table source
+TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("Table({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  tableExpression.lexAndParseExpression();
+
+  std::complex<double> result=0.0;
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  timeDepGroup->setTime(0.0);
+  tableExpression.evaluateFunction(result); 
+  tableExpression.getBreakPoints(breakPointTimes);
+
+  // there are 6 entries in the table, but the tableOp breakpoint function only returns the first 5
+  int size = breakPointTimes.size();
+  EXPECT_EQ(size,5);
+
+  if (size==5)
+  {
+    std::vector<double> refTimes = {0, 0.3, 0.301, 0.302, 0.6};
+    for(int ii=0;ii<size;ii++)
+    {
+      EXPECT_DOUBLE_EQ( refTimes[ii], breakPointTimes[ii].value() );
+    }
+  }
+
+  OUTPUT_MACRO2(Complex_Parser_Breakpoint_Test, tableBreakPoint, tableExpression) 
+}
+
+//-------------------------------------------------------------------------------
+// breakpoint test, for table source
+TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("f1(2.0)"), grp);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(x) {(if((x*x == 4.0 ), 2.0, 1.0)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(x)");
+  std::string rhs=std::string("X*Table({time} 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)");
+  createFunc(lhs,rhs,grp,f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> result=0.0;
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  timeDepGroup->setTime(0.0);
+  testExpression.evaluateFunction(result); 
+  testExpression.getBreakPoints(breakPointTimes);
+
+  // there are 6 entries in the table, but the tableOp breakpoint function only returns the first 5
+  int size = breakPointTimes.size();
+  EXPECT_EQ(size,5);
+
+  if (size==5)
+  {
+    std::vector<double> refTimes = {0, 0.3, 0.301, 0.302, 0.6};
+    for(int ii=0;ii<size;ii++)
+    {
+      EXPECT_DOUBLE_EQ( refTimes[ii], breakPointTimes[ii].value() );
+    }
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, tableBreakPoint2)
+}
 
 int main (int argc, char **argv)
 {
