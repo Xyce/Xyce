@@ -374,7 +374,7 @@ fi
 
 dnl Checks for programs.
 # Checks for programs.
-AC_PROG_CXX(CC c++ g++ gcc cxx icpc)
+AC_PROG_CXX(CC c++ g++ cxx icpc)
 AC_PROG_CC(cc gcc icc)
 if test "$FORTRAN_BLAS" != "no"; then
   AC_PROG_F77(f77 g77 g95 gfortran ifort)
