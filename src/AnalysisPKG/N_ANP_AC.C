@@ -75,6 +75,7 @@
 #include <N_UTL_RFparams.h>
 #include <N_UTL_SaveIOSState.h>
 #include <N_UTL_Timer.h>
+#include <N_UTL_MachDepParams.h>
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
@@ -145,6 +146,27 @@ bool AC::setTimeIntegratorOptions(
 bool AC::setACLinSolOptions(const Util::OptionBlock &option_block)
 {
   acLinSolOptionBlock_ = option_block;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : setDCLinSolOptionBlock
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 12/10/2020
+//-----------------------------------------------------------------------------
+///
+/// Saves the LINSOL parsed options block in the factory.
+///
+/// @invariant Overwrites any previously specified LINSOL option block.
+///
+/// @param option_block parsed option block
+///
+bool AC::setDCLinSolOptions(const Util::OptionBlock &option_block)
+{
+  dcLinSolOptionBlock_ = option_block;
   return true;
 }
 
@@ -286,6 +308,11 @@ bool AC::setSensitivityOptions(const Util::OptionBlock & option_block)
     {
       reuseFactors_ = (*it).getImmutableValue<double>();
     }
+    else if ((*it).uTag() == "NLCORRECTION")
+    {
+      acCorrectionFlag_ =
+        static_cast<bool>((*it).getImmutableValue<bool>());
+    }
     else
     {
       // do nothing.
@@ -367,6 +394,7 @@ AC::AC(
     outputUnscaledFlag_(false),
     maxParamStringSize_(0),
     stdOutputFlag_(false),
+    acCorrectionFlag_(true),
     numSensParams_(0),
     sqrtEta_(1.0e-8),
     sqrtEtaGiven_(false),
@@ -647,9 +675,9 @@ bool AC::doInit()
       {
         // frequency values for .AC must be > 0
         for (int i=0; i<(*it).valList.size(); ++i)
-	{
+        {
           if ( (*it).valList[i] <= 0 )
-	  {
+          {
             Report::UserFatal() << "Frequency values in .DATA for .AC analysis must be > 0";
             return false;
           }
@@ -979,7 +1007,12 @@ bool AC::createLinearSystem_()
 // Function      : AC::updateLinearSystem_C_and_G_()
 // Purpose       :
 // Special Notes : This is only needed if device parameters are being swept.
-//                 This only works for linear problems!
+//
+//                 For sweeps, this only works for linear problems!
+//
+//                 For sensitivity analysis, this works for nonlinear 
+//                 problems and devices.
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 9/10/2018
@@ -1573,6 +1606,141 @@ bool AC::solveAdjointSensitivity_()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AC::computeNumerical_dJdp
+// Purpose       : 
+//
+// Special Notes :
+//
+// this is an alternative way to compute J'.  Unlike the "getNumericalMatrixSensitivities" 
+// function call, which was the original method, this method performs a finite differences 
+// on the entire matrix, rather than a small targeted part of it.
+//
+// As of this writing, this method (and the targeted function below) is only correct 
+// if the parameters are associated with linear devices.
+//
+// For a nonlinear device,  J' = dJ/dp + dJ/dx * dx/dp (or something like that), where the "d" are partials.
+// In other words, it needs to include the effects of p on x, which nonlinear J depends on. 
+//
+// How to compute J' when dJ/dx != 0.0?  Most of the ideas I have come up with 
+// are expensive.
+//
+// Here is one possible way:
+//
+// (1) compute dx/dp direct sensitivity at the DCOP.  Using the direct method, 
+//     you get the entire dx/dp vector for each param.  Unfortunately, we probably need entire X vector, 
+//     meaning adjoints aren't a realistic option for this.
+//
+// (2) then, once you have this, in the loop below, don't just perturb the param value, 
+//     also perturb the DC x-vector.  Perburb as follows.  For a give deltaP, 
+//     compute deltaX = dx/dp * deltaP.  Then the perturbed DC x-vector is x_pert = x_orig + deltaX
+//
+// (3) re-load dFdx and dQdx.
+//
+// (4) then compute dJdp as before.  
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 3/15/2019
+//-----------------------------------------------------------------------------
+bool AC::computeNumerical_dJdp(const std::string & name)
+{
+
+  double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
+  double sqrtEta= std::sqrt(epsilon);
+
+  Xyce::Linear::Vector *dcDXdp = linearSystem_.getNewtonVector();
+
+  if(acCorrectionFlag_)
+  {
+    // If we are in this function, this is probably a nonlinear device, 
+    // meaning that dJ/dx is nonzero.  Currently Xyce doesn't support Hessians.  
+    // If it did, the Hessian would be used here.
+
+    // compute DCOP direct sensitivity to get the DC dx/dp vector for this parameter.
+
+    // first get the derivatives of the DAE RHS vector w.r.t. the
+    // user-specified optimization parameters.
+    analysisManager_.getDataStore()->allocateSensitivityArrays(1, true, false);
+   
+    int difference_ = 0;
+    TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
+    std::vector<std::string> paramNameVec(1,name);
+    std::string netlist = analysisManager_.getNetlistFilename();
+    Xyce::Nonlinear::loadSensitivityResiduals (difference_, 
+        false, false, false,
+        //forceFD_, forceDeviceFD_, forceAnalytic_, 
+        sqrtEta, netlist, ds,
+        analysisManager_.getNonlinearEquationLoader(),
+        paramNameVec, analysisManager_);
+
+    int iparam=0;
+    Xyce::Linear::MultiVector * sensRHSPtrVector = ds.sensRHSPtrVector;
+
+    // via the loader, setup all the sensitivity residuals.
+    analysisManager_.getNonlinearEquationLoader().loadSensitivityResiduals();
+
+    Linear::Vector* rhsVectorPtr_ = linearSystem_.getRHSVector();
+    *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(iparam));
+    Teuchos::RCP<Linear::Solver> sensSolver = nonlinearManager_.getNonlinearSolver().getLinearSolver();
+    bool reuseFactors=true;
+    sensSolver->solve(reuseFactors);
+  }
+
+  double origParamValue = loader_.getParamAndReduce(analysisManager_.getComm(), name);
+
+  double dP = sqrtEta * fabs( origParamValue );
+  double newParamValue = origParamValue + dP;
+  std::string tmpName = name; // remove const
+  loader_.setParam(tmpName, newParamValue, true);
+
+  if(acCorrectionFlag_)
+  {
+    dcDXdp->scale(dP);
+
+    // save next solution
+    analysisManager_.getDataStore()->tmpSolVectorPtr->update(1.0, *(analysisManager_.getDataStore()->nextSolutionPtr), 0.0);
+
+    // update next Solution to x+dx
+    analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(dcDXdp), 1.0);
+  }
+
+  updateLinearSystem_C_and_G_();
+
+  dJdp_->put(0.0);
+  dJdp_->block( 0, 0 ).add(*G_ );
+
+  // Second diagonal block
+  dJdp_->block( 1, 1 ).add(*G_);
+
+  double omega =  2.0 * M_PI * currentFreq_;
+
+  dJdp_->block( 0, 1).put( 0.0);
+  dJdp_->block( 0, 1).add(*C_);
+  dJdp_->block( 0, 1).scale(-omega);
+
+  dJdp_->block(1, 0).put( 0.0);
+  dJdp_->block(1, 0).add(*C_);
+  dJdp_->block(1, 0).scale(omega);
+
+  dJdp_->scale( -1.0 );
+  dJdp_->add( *ACMatrix_ );
+  dJdp_->scale( -1.0/dP );
+  dJdp_->assembleGlobalMatrix();
+
+  // restore param and matrix:
+  loader_.setParam(tmpName, origParamValue, true);
+
+  if(acCorrectionFlag_)
+  {
+    analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(analysisManager_.getDataStore()->tmpSolVectorPtr), 0.0);
+  }
+
+  updateLinearSystem_C_and_G_();
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AC::loadSensitivityRHS_()
 // Purpose       : puts values into the rhs block vector.  The is the RHS for 
 //                 the linear system in the direct method.  It is also used in 
@@ -1599,18 +1767,6 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   bool analyticBVecSensAvailable = loader_.analyticBVecSensAvailable (name);
   bool deviceLevelBVecSensNumericalAvailable = loader_.numericalBVecSensAvailable (name);
 
-#if 0
-  if (forceAnalytic_ && !analyticBVecSensAvailable )
-  {
-    Report::UserError0() << "AC::loadSensitivityRHS_: Analytical derivative was requested, but not available\n";
-  }
-
-  if (forceDeviceFD_ && !deviceLevelBVecSensNumericalAvailable)
-  {
-    Report::UserError0() << "AC::loadSensitivityRHS_: Device level numerical derivative was requested, but not available\n";
-  }
-#endif
-
   // B' sensitivities:
   std::vector< std::complex<double> > dbdp;
   std::vector<int> BindicesVec;
@@ -1622,23 +1778,22 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   {
     loader_.getNumericalBSensVectorsforAC (name, dbdp, BindicesVec);
   }
-#if 0
-  else
-  {
-    Report::UserError0() << "AC::loadSensitivityRHS_: ERROR, can't compute RHS\n";
-  }
-#endif
 
-  dbdpVecRealPtr->putScalar(0.0);
-  dbdpVecImagPtr->putScalar(0.0);
-  for (int ib=0;ib<BindicesVec.size();++ib)
-  {
-    (*dbdpVecRealPtr)[BindicesVec[ib]] += dbdp[ib].real();
-    (*dbdpVecImagPtr)[BindicesVec[ib]] += dbdp[ib].imag();
-  }
   dBdp_->putScalar( 0.0 );
-  dBdp_->block( 0 ).addVec( 1.0, *dbdpVecRealPtr);
-  dBdp_->block( 1 ).addVec( 1.0, *dbdpVecImagPtr);
+  if (!(BindicesVec.empty())) 
+  {
+    dbdpVecRealPtr->putScalar(0.0);
+    dbdpVecImagPtr->putScalar(0.0);
+    for (int ib=0;ib<BindicesVec.size();++ib)
+    {
+      (*dbdpVecRealPtr)[BindicesVec[ib]] += dbdp[ib].real();
+      (*dbdpVecImagPtr)[BindicesVec[ib]] += dbdp[ib].imag();
+    }
+    dBdp_->block( 0 ).addVec( 1.0, *dbdpVecRealPtr);
+    dBdp_->block( 1 ).addVec( 1.0, *dbdpVecImagPtr);
+
+    // if inside of this if-statement, calc is done, except for adding dBdp to sensRhs_
+  }
 
   // If couldn't obtain B', then try J'.  
   // Note that the "Avail" functions are not very accurate yet, so checking Bindices.size
@@ -1656,66 +1811,73 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     {
       loader_.getAnalyticMatrixSensitivities(name,
                     d_dfdx_dp, d_dqdx_dp, F_lids, Q_lids, F_jacLIDs, Q_jacLIDs);
-    }
-    else if (deviceLevelMatrixNumericalAvailable && !forceAnalytic_)
-    {
-      loader_.getNumericalMatrixSensitivities(name,
-                     d_dfdx_dp, d_dqdx_dp, F_lids, Q_lids, F_jacLIDs, Q_jacLIDs);
+
+      dGdp_->put(0.0);
+      for (int ii=0;ii<F_lids.size();++ii)
+      {
+        // FIX this for parallel
+        for (int jj=0;jj<F_jacLIDs[ii].size();++jj)
+        {
+          // NOTE: this used to be a sum, ie, "+=".  
+          // Now it is not, as we are doing one param at a time, so there 
+          // shouldn't be more than one legitimate contribution to the 
+          // dGdp matrix.  However, the d_dfdx_dp object may have some
+          // duplicates in it.  So, should not sum 2x.
+          (*dGdp_)[F_lids[ii]][F_jacLIDs[ii][jj]] = d_dfdx_dp[ii][jj];
+        }
+      }
+      dGdp_->fillComplete();
+
+      dCdp_->put(0.0);
+      for (int ii=0;ii<Q_lids.size();++ii)
+      {
+        // FIX this for parallel
+        for (int jj=0;jj<Q_jacLIDs[ii].size();++jj)
+        {
+          // NOTE: this used to be a sum, ie, "+=".  
+          // Now it is not, as we are doing one param at a time, so there 
+          // shouldn't be more than one legitimate contribution to the 
+          // dCdp matrix.  However, the d_dqdx_dp object may have some
+          // duplicates in it.  So, should not sum 2x.
+          (*dCdp_)[Q_lids[ii]][Q_jacLIDs[ii][jj]] = d_dqdx_dp[ii][jj];
+        }
+      }
+      dCdp_->fillComplete();
+
+      dJdp_->put(0.0);
+      dJdp_->block( 0, 0 ).add(*dGdp_);
+
+      // Second diagonal block
+      dJdp_->block( 1, 1 ).add(*dGdp_);
+
+      double omega =  2.0 * M_PI * currentFreq_;
+
+      dJdp_->block( 0, 1).put( 0.0);
+      dJdp_->block( 0, 1).add(*dCdp_);
+      dJdp_->block( 0, 1).scale(-omega);
+
+      dJdp_->block(1, 0).put( 0.0);
+      dJdp_->block(1, 0).add(*dCdp_);
+      dJdp_->block(1, 0).scale(omega);
+
+      // Copy the values loaded into the blocks into the global matrix for the solve.
+      dJdp_->assembleGlobalMatrix();
     }
     else
     {
-      Report::UserError0() << "AC::loadSensitivityRHS_: ERROR, can't compute RHS\n";
-      return false;
+      computeNumerical_dJdp(name);
     }
-
-    dGdp_->put(0.0);
-    for (int ii=0;ii<F_lids.size();++ii)
-    {
-      // FIX this for parallel
-      for (int jj=0;jj<F_jacLIDs[ii].size();++jj)
-      {
-        (*dGdp_)[F_lids[ii]][F_jacLIDs[ii][jj]] += d_dfdx_dp[ii][jj];
-      }
-    }
-    dGdp_->fillComplete();
-
-    dCdp_->put(0.0);
-    for (int ii=0;ii<Q_lids.size();++ii)
-    {
-      // FIX this for parallel
-      for (int jj=0;jj<Q_jacLIDs[ii].size();++jj)
-      {
-        (*dCdp_)[Q_lids[ii]][Q_jacLIDs[ii][jj]] += d_dqdx_dp[ii][jj];
-      }
-    }
-    dCdp_->fillComplete();
-
-    dJdp_->put(0.0);
-    dJdp_->block( 0, 0 ).add(*dGdp_);
-
-    // Second diagonal block
-    dJdp_->block( 1, 1 ).add(*dGdp_);
-
-    double omega =  2.0 * M_PI * currentFreq_;
-
-    dJdp_->block( 0, 1).put( 0.0);
-    dJdp_->block( 0, 1).add(*dCdp_);
-    dJdp_->block( 0, 1).scale(-omega);
-
-    dJdp_->block(1, 0).put( 0.0);
-    dJdp_->block(1, 0).add(*dCdp_);
-    dJdp_->block(1, 0).scale(omega);
-
-    // Copy the values loaded into the blocks into the global matrix for the solve.
-    dJdp_->assembleGlobalMatrix();
 
     // compute the matvec and then sum into the rhs vector.
     bool Transpose = false;
     dJdp_->matvec( Transpose , *X_, *sensRhs_ );
     sensRhs_->scale(-1.0);
   }
-
-  sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );
+  else
+  {
+    // this assumes that sensRhs has dBdp or has -J'*X, but not both
+    sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );  
+  }
 
   return true;
 }
@@ -2244,6 +2406,7 @@ public:
     ac->setAnalysisParams(acAnalysisOptionBlock_);
     ac->setTimeIntegratorOptions(timeIntegratorOptionBlock_);
     ac->setACLinSolOptions(acLinSolOptionBlock_);
+    ac->setDCLinSolOptions(dcLinSolOptionBlock_);
 
     for (std::vector<Util::OptionBlock>::const_iterator it = ACLinOptionBlockVec_.begin(), end = ACLinOptionBlockVec_.end(); it != end; ++it)
     {
@@ -2306,7 +2469,12 @@ public:
   bool setACLinSolOptionBlock(const Util::OptionBlock &option_block)
   {
     acLinSolOptionBlock_ = option_block;
+    return true;
+  }
 
+  bool setDCLinSolOptionBlock(const Util::OptionBlock &option_block)
+  {
+    dcLinSolOptionBlock_ = option_block;
     return true;
   }
 
@@ -2359,6 +2527,7 @@ private:
   Util::OptionBlock     acAnalysisOptionBlock_;
   Util::OptionBlock     timeIntegratorOptionBlock_;
   Util::OptionBlock     acLinSolOptionBlock_;
+  Util::OptionBlock     dcLinSolOptionBlock_;
   std::vector<Util::OptionBlock>        dataOptionBlockVec_;
 
   std::vector<Util::OptionBlock>        ACLinOptionBlockVec_;
@@ -2602,6 +2771,8 @@ registerACFactory(
   factory_block.optionsManager_.addOptionsProcessor("TIMEINT", IO::createRegistrationOptions(*factory, &ACFactory::setTimeIntegratorOptionBlock));
 
   factory_block.optionsManager_.addOptionsProcessor("LINSOL-AC", IO::createRegistrationOptions(*factory, &ACFactory::setACLinSolOptionBlock));
+
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions(*factory, &ACFactory::setDCLinSolOptionBlock));
 
   factory_block.optionsManager_.addCommandProcessor("DATA",
     IO::createRegistrationOptions(*factory, &ACFactory::setDotDataBlock) );
