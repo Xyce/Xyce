@@ -774,6 +774,52 @@ class testRandExpressionGroup : public Xyce::Util::baseExpressionGroup
   std::normal_distribution<double> normalDistribution;
 };
 
+//-------------------------------------------------------------------------------
+class rfParamGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    rfParamGroup () : Xyce::Util::baseExpressionGroup() 
+    { };
+
+    ~rfParamGroup () {};
+
+  public:
+    void setSparam( const std::vector< std::vector< std::complex<double> > > & sp ) { sparams_ = sp; }
+    void setYparam( const std::vector< std::vector< std::complex<double> > > & yp ) { yparams_ = yp; }
+    void setZparam( const std::vector< std::vector< std::complex<double> > > & zp ) { zparams_ = zp; }
+
+    virtual bool getSparam (const std::vector<int> & args, std::complex<double> & retval ) 
+    { 
+      int i1=args[0]-1;
+      int i2=args[1]-1;
+      retval=0.0;
+      if (i1<sparams_.size()) { retval=sparams_[i1][i2]; }
+      return true; 
+    }
+
+    virtual bool getYparam (const std::vector<int> & args, std::complex<double> & retval ) 
+    { 
+      int i1=args[0]-1;
+      int i2=args[1]-1;
+      retval=0.0;
+      if (i1<yparams_.size()) { retval=yparams_[i1][i2]; }
+      return true; 
+    }
+
+    virtual bool getZparam (const std::vector<int> & args, std::complex<double> & retval ) 
+    { 
+      int i1=args[0]-1;
+      int i2=args[1]-1;
+      retval=0.0;
+      if (i1<zparams_.size()) { retval=zparams_[i1][i2]; }
+      return true; 
+    }
+
+  std::vector< std::vector< std::complex<double> > > sparams_;
+  std::vector< std::vector< std::complex<double> > > yparams_;
+  std::vector< std::vector< std::complex<double> > > zparams_;
+};
+
 #define OUTPUT_MACRO(NAME,SUBNAME) \
 { \
   char filename[ ] = "parserUnitTest.out"; \
@@ -7219,7 +7265,7 @@ TEST ( Complex_Parser_ASCTH_Test, test2)
 
   // this double checks if the derivatives are NOT Nan.
   std::vector<std::complex<double> > derivs;
-  std::vector<std::complex<double> > refderivs = { std::complex<double>(0.0,0.0) };
+  std::vector<std::complex<double> > refderivs = { std::complex<double>(-1.0e+50,-1.0e+50) };
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
@@ -11154,7 +11200,434 @@ TEST ( Complex_Parser_Random, unif0)
 }
 
 
+// .print operators for S-params, Y-params, and Z-params
+// from test Xyce_Regression/Netlists/Output/SPARAMS/sparams-ts2-dataFormat.cir
+//.PRINT AC FILE=sparams-ts2-dataFormat.cir.FD.exp.prn
+//+ {S(1,1)} {SR(1,1)} {SI(1,1)} {SM(1,1)} {SP(1,1)} {SDB(1,1)}
+//+ {S(1,2)} {SR(1,2)} {SI(1,2)} {SM(1,2)} {SP(1,2)} {SDB(1,2)}
+//+ {S(2,1)} {SR(2,1)} {SI(2,1)} {SM(2,1)} {SP(2,1)} {SDB(2,1)}
+//+ {S(2,2)} {SR(2,2)} {SI(2,2)} {SM(2,2)} {SP(2,2)} {SDB(2,2)}
+//+ {Y(1,1)} {YR(1,1)} {YI(1,1)} {YM(1,1)} {YP(1,1)} {YDB(1,1)}
+//+ {Y(1,2)} {YR(1,2)} {YI(1,2)} {YM(1,2)} {YP(1,2)} {YDB(1,2)}
+//+ {Y(2,1)} {YR(2,1)} {YI(2,1)} {YM(2,1)} {YP(2,1)} {YDB(2,1)}
+//+ {Y(2,2)} {YR(2,2)} {YI(2,2)} {YM(2,2)} {YP(2,2)} {YDB(2,2)}
+//+ {Z(1,1)} {ZR(1,1)} {ZI(1,1)} {ZM(1,1)} {ZP(1,1)} {ZDB(1,1)}
+//+ {Z(1,2)} {ZR(1,2)} {ZI(1,2)} {ZM(1,2)} {ZP(1,2)} {ZDB(1,2)}
+//+ {Z(2,1)} {ZR(2,1)} {ZI(2,1)} {ZM(2,1)} {ZP(2,1)} {ZDB(2,1)}
+//+ {Z(2,2)} {ZR(2,2)} {ZI(2,2)} {ZM(2,2)} {ZP(2,2)} {ZDB(2,2)}
 
+
+//SR(1,1)	-9.99200320e-01
+//SI(1,1)	-6.36110782e-06
+//SR(1,2)	-3.69390430e-10
+//SI(1,2)	-1.27273037e-06
+//SR(2,1)	-3.69390430e-10
+//SI(2,1)	-1.27273037e-06
+//SR(2,2)	5.99999973e-01
+//SI(2,2)	-1.59093567e-04
+
+//YR(1,1)	4.99968336e+01
+//YI(1,1)	3.97862158e-01
+//YR(1,2)	-3.08890787e-07
+//YI(1,2)	3.97862762e-05
+//YR(2,1)	-3.08890787e-07
+//YI(2,1)	3.97862762e-05
+//YR(2,2)	5.00000014e-03
+//YI(2,2)	2.48583681e-06
+
+//ZR(1,1)	2.00000000e-02
+//ZI(1,1)	-1.59154943e-04
+//ZR(1,2)	-1.09999962e-07
+//ZI(1,2)	-1.59154878e-04
+//ZR(2,1)	-1.09999962e-07
+//ZI(2,1)	-1.59154878e-04
+//ZR(2,2)	1.99999944e+02
+//ZI(2,2)	-9.94334503e-02
+
+TEST ( Complex_Parser_Sparam_Test, sparam1)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("s(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("sr(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("si(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("sm(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("sdb(1,1)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > spars(2);
+  spars[0] = 
+  {
+    std::complex<double>( -9.99200320e-01, -6.36110782e-06), // SR(1,1)	SI(1,1)	
+    std::complex<double>( -3.69390430e-10, -1.27273037e-06) // SR(1,2)	SI(1,2)	
+  };
+  spars[1] = {
+    std::complex<double>( -3.69390430e-10, -1.27273037e-06), // SR(2,1)	SI(2,1)	
+    std::complex<double>( 5.99999973e-01, -1.59093567e-04) // SR(2,2)	SI(2,2)	
+  };
+
+  rfGroup->setSparam(spars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, spars[0][0]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, spars[0][0]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, spars[0][0]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(spars[0][0]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(spars[0][0]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(spars[0][0]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(spars[0][0]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(spars[0][0]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(spars[0][0]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(spars[0][0]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(spars[0][0]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(spars[0][0]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[0][0])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[0][0])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[0][0])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Sparam_Test, sparam1)
+}
+
+
+TEST ( Complex_Parser_Sparam_Test, sparam2)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("S (2,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("sr (2,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("sI (2,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("SM (2,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("sdb (2,1)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > spars(2);
+  spars[0] = 
+  {
+    std::complex<double>( -9.99200320e-01, -6.36110782e-06), // SR(1,1)	SI(1,1)	
+    std::complex<double>( -3.69390430e-10, -1.27273037e-06) // SR(1,2)	SI(1,2)	
+  };
+  spars[1] = {
+    std::complex<double>( -3.69390430e-10, -1.27273037e-06), // SR(2,1)	SI(2,1)	
+    std::complex<double>( 5.99999973e-01, -1.59093567e-04) // SR(2,2)	SI(2,2)	
+  };
+
+  rfGroup->setSparam(spars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, spars[1][0]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, spars[1][0]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, spars[1][0]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(spars[1][0]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(spars[1][0]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(spars[1][0]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(spars[1][0]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(spars[1][0]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(spars[1][0]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(spars[1][0]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(spars[1][0]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(spars[1][0]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[1][0])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[1][0])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[1][0])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Sparam_Test, sparam2)
+}
+
+TEST ( Complex_Parser_Yparam_Test, yparam1)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("y(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("yr(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("yi(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("ym(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("ydb(1,1)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > ypars(2);
+  ypars[0] = 
+  {
+    std::complex<double>(4.99968336e+01, 3.97862158e-01), //YR(1,1)	YI(1,1)	
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05) // YR(1,2)	YI(1,2)	
+  };
+  ypars[1] =   
+  {
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05), //YR(2,1)	YI(2,1)	
+    std::complex<double>(5.00000014e-03, 2.48583681e-06) //YR(2,2)	YI(2,2)	
+  };  
+  rfGroup->setYparam(ypars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, ypars[0][0]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, ypars[0][0]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, ypars[0][0]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(ypars[0][0]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(ypars[0][0]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(ypars[0][0]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(ypars[0][0]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(ypars[0][0]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(ypars[0][0]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(ypars[0][0]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(ypars[0][0]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(ypars[0][0]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][0])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][0])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][0])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Yparam_Test, yparam1)
+}
+
+TEST ( Complex_Parser_Yparam_Test, yparam2)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("y (1,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("yr (1,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("Yi (1,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("ym (1,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("YDB (1,2)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > ypars(2);
+  ypars[0] = 
+  {
+    std::complex<double>(4.99968336e+01, 3.97862158e-01), //YR(1,1)	YI(1,1)	
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05) // YR(1,2)	YI(1,2)	
+  };
+  ypars[1] =   
+  {
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05), //YR(2,1)	YI(2,1)	
+    std::complex<double>(5.00000014e-03, 2.48583681e-06) //YR(2,2)	YI(2,2)	
+  };  
+  rfGroup->setYparam(ypars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, ypars[0][1]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, ypars[0][1]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, ypars[0][1]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(ypars[0][1]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(ypars[0][1]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(ypars[0][1]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(ypars[0][1]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(ypars[0][1]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(ypars[0][1]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(ypars[0][1]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(ypars[0][1]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(ypars[0][1]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][1])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][1])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][1])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Yparam_Test, yparam2)
+}
+
+TEST ( Complex_Parser_Zparam_Test, zparam1)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("z(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("zr(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("zi(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("zm(1,1)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("zdb(1,1)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > zpars(2);
+  zpars[0] = 
+  {
+    std::complex<double>(4.99968336e+01, 3.97862158e-01), //ZR(1,1)	ZI(1,1)	
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05) // ZR(1,2)	ZI(1,2)	
+  };
+  zpars[1] =   
+  {
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05), //ZR(2,1)	ZI(2,1)	
+    std::complex<double>(5.00000014e-03, 2.48583681e-06) //ZR(2,2)	ZI(2,2)	
+  }; 
+  rfGroup->setZparam(zpars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, zpars[0][0]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, zpars[0][0]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, zpars[0][0]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(zpars[0][0]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(zpars[0][0]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(zpars[0][0]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(zpars[0][0]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(zpars[0][0]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(zpars[0][0]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(zpars[0][0]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(zpars[0][0]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(zpars[0][0]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[0][0])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[0][0])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[0][0])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam1)
+}
+
+TEST ( Complex_Parser_Zparam_Test, zparam2)
+{
+  Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
+
+  Xyce::Util::newExpression testExpression_s(std::string("z (2,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sr(std::string("ZR (2,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_si(std::string("zi (2,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sm(std::string("ZM (2,2)"), testGroup);
+  Xyce::Util::newExpression testExpression_sdb(std::string("zdb (2,2)"), testGroup);
+
+  testExpression_s.lexAndParseExpression();
+  testExpression_sr.lexAndParseExpression();
+  testExpression_si.lexAndParseExpression();
+  testExpression_sm.lexAndParseExpression();
+  testExpression_sdb.lexAndParseExpression();
+
+
+  Xyce::Util::newExpression copyExpr_s(testExpression_s);Xyce::Util::newExpression assignExpr_s;assignExpr_s=testExpression_s; 
+  Xyce::Util::newExpression copyExpr_sr(testExpression_sr);Xyce::Util::newExpression assignExpr_sr;assignExpr_sr=testExpression_sr; 
+  Xyce::Util::newExpression copyExpr_si(testExpression_si);Xyce::Util::newExpression assignExpr_si;assignExpr_si=testExpression_si; 
+  Xyce::Util::newExpression copyExpr_sm(testExpression_sm);Xyce::Util::newExpression assignExpr_sm;assignExpr_sm=testExpression_sm; 
+  Xyce::Util::newExpression copyExpr_sdb(testExpression_sdb);Xyce::Util::newExpression assignExpr_sdb;assignExpr_sdb=testExpression_sdb; 
+  
+  std::vector< std::vector< std::complex<double> > > zpars(2);
+  zpars[0] = 
+  {
+    std::complex<double>(4.99968336e+01, 3.97862158e-01), //ZR(1,1)	ZI(1,1)	
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05) // ZR(1,2)	ZI(1,2)	
+  };
+  zpars[1] =   
+  {
+    std::complex<double>(-3.08890787e-07, 3.97862762e-05), //ZR(2,1)	ZI(2,1)	
+    std::complex<double>(5.00000014e-03, 2.48583681e-06) //ZR(2,2)	ZI(2,2)	
+  }; 
+  rfGroup->setZparam(zpars);
+
+  std::complex<double>  result=0.0;
+
+  testExpression_s.evaluateFunction(result);   ASSERT_EQ( result, zpars[1][1]);
+  copyExpr_s.evaluateFunction(result);   ASSERT_EQ( result, zpars[1][1]);
+  assignExpr_s.evaluateFunction(result); ASSERT_EQ( result, zpars[1][1]);
+
+
+  testExpression_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(zpars[1][1]));
+  copyExpr_sr.evaluateFunction(result);   ASSERT_EQ( result, std::real(zpars[1][1]));
+  assignExpr_sr.evaluateFunction(result); ASSERT_EQ( result, std::real(zpars[1][1]));
+
+  testExpression_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(zpars[1][1]));
+  copyExpr_si.evaluateFunction(result);   ASSERT_EQ( result, std::imag(zpars[1][1]));
+  assignExpr_si.evaluateFunction(result); ASSERT_EQ( result, std::imag(zpars[1][1]));
+
+  testExpression_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(zpars[1][1]));
+  copyExpr_sm.evaluateFunction(result);   ASSERT_EQ( result, std::abs(zpars[1][1]));
+  assignExpr_sm.evaluateFunction(result); ASSERT_EQ( result, std::abs(zpars[1][1]));
+
+
+  testExpression_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])) );
+  copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])) );
+  assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])));
+  
+  //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam2)
+}
 
 int main (int argc, char **argv)
 {
