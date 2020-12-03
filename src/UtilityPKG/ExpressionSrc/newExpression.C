@@ -1911,9 +1911,10 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   // fix these properly for std::complex later.
   for(int ii=0;ii<derivs.size();++ii)
   {
-    Util::fixNan(derivs[ii]);
-    Util::fixInf(derivs[ii]); // this was previous for 1.0e+10, but this function call uses 1.0e+50.  check this.
+    Util::fixNan(derivs[ii]);// this was previously set to return 0.0, but the function returns 1.0e+50.  check this
+    Util::fixInf(derivs[ii]);// this was previously for 1.0e+10, but this function call uses 1.0e+50.  check this.
   }
+
   // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
   return retVal;
