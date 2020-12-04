@@ -74,6 +74,10 @@ Graph* createGraph( N_PDS_ParMap & map,
 Graph* createGraph( N_PDS_ParMap & map,
                     int maxNumIndicesPerRow );
 
+Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
+
+Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );
+
 //-----------------------------------------------------------------------------
 // Function      : extractValues
 // Purpose       : A helper function that extracts the values into another matrix

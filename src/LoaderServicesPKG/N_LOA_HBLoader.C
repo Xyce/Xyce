@@ -486,7 +486,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   Linear::Vector freqDFDXtVf( *(hbBuilderPtr_->getSolutionMap()) );
   if ( overlapMap_ != Teuchos::null )
   {
-    Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( new Linear::Vector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
+    Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
     *Vf_overlap_tmp = Vf;
     Vf_overlap_tmp->importOverlap();
     Vf_overlap = Vf_overlap_tmp;

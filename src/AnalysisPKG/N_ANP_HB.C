@@ -964,9 +964,8 @@ void HB::prepareHBOutput(
   Teuchos::RCP<N_PDS_ParMap> baseMap = Teuchos::rcp_const_cast<N_PDS_ParMap>( hbBuilderPtr_->getBaseSolutionMap() );
   Teuchos::RCP<N_PDS_ParMap> globalMap = Linear::createBlockParMap( blockCounttd, *baseMap );
   
-  timeDomainSolnVec = Teuchos::rcp( new Linear::BlockVector(blockCounttd, globalMap, baseMap ) );
+  timeDomainSolnVec = Teuchos::rcp( Xyce::Linear::createBlockVector(blockCounttd, globalMap, baseMap ) );
 
-//  Teuchos::RCP<Linear::BlockVector> bStoreVecFreqPtr_ = hbLoaderPtr_->getStoreVecFreqPtr();
   Teuchos::RCP<Linear::BlockVector> bLeadCurrentVecFreqPtr_ = hbLoaderPtr_->getLeadCurrentVecFreqPtr();
   freqPoints = freqPoints_;
   
@@ -1016,8 +1015,8 @@ void HB::prepareHBOutput(
 
   int blockCount = size_;
   Teuchos::RCP<N_PDS_ParMap> globalMapfreq = Linear::createBlockParMap( blockCount, *baseMap );
-  freqDomainSolnVecReal = Teuchos::rcp( new Linear::BlockVector( blockCount, globalMapfreq, baseMap ) );
-  freqDomainSolnVecImag = Teuchos::rcp( new Linear::BlockVector( blockCount, globalMapfreq, baseMap ) ); 
+  freqDomainSolnVecReal = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalMapfreq, baseMap ) );
+  freqDomainSolnVecImag = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalMapfreq, baseMap ) ); 
 
   hbLoaderPtr_->permutedIFT(blockSolVecPtr, &*timeDomainSolnVec, numTimePts_);
 
@@ -1064,13 +1063,13 @@ void HB::prepareHBOutput(
   Teuchos::RCP<N_PDS_ParMap> globalLeadCurrentMap = Linear::createBlockParMap( blockCounttd, *baseLeadCurrentMap );
   Teuchos::RCP<N_PDS_ParMap> globalLeadCurrentMapfq = Linear::createBlockParMap( blockCount, *baseLeadCurrentMap ); 
 
-  freqDomainLeadCurrentVecReal  = Teuchos::rcp( new Linear::BlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
-  freqDomainLeadCurrentVecImaginary = Teuchos::rcp( new Linear::BlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
-  freqDomainJunctionVoltageVecReal = Teuchos::rcp( new Linear::BlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
-  freqDomainJunctionVoltageVecImaginary = Teuchos::rcp( new Linear::BlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
+  freqDomainLeadCurrentVecReal  = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
+  freqDomainLeadCurrentVecImaginary = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
+  freqDomainJunctionVoltageVecReal = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
+  freqDomainJunctionVoltageVecImaginary = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
 
-  timeDomainLeadCurrentVec = Teuchos::rcp( new Linear::BlockVector( blockCounttd, globalLeadCurrentMap, baseLeadCurrentMap ));
-  timeDomainJunctionVoltageVec =  Teuchos::rcp( new Linear::BlockVector( blockCounttd, globalLeadCurrentMap, baseLeadCurrentMap ) );
+  timeDomainLeadCurrentVec = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCounttd, globalLeadCurrentMap, baseLeadCurrentMap ));
+  timeDomainJunctionVoltageVec =  Teuchos::rcp( Xyce::Linear::createBlockVector( blockCounttd, globalLeadCurrentMap, baseLeadCurrentMap ) );
 
   N = timeDomainLeadCurrentVec->block(0).globalLength(); 
 

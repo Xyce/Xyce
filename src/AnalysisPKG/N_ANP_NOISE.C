@@ -58,6 +58,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_TranSolverFactory.h>
@@ -762,8 +763,7 @@ bool NOISE::doLoopProcess()
     }
 
     // save a copy of X_ (the AC solution, already computed), for output purposes, etc.
-    delete saved_AC_X_;
-    saved_AC_X_ = new Linear::BlockVector (*X_);
+    *saved_AC_X_ = *X_;
 
     // Compute AC gain.
     Linear::Vector & Xreal = X_->block( 0 );
@@ -958,7 +958,7 @@ bool NOISE::createACLinearSystem_()
 
   // Create a block vector
   delete B_;
-  B_ = new Linear::BlockVector(numBlocks, blockMap, baseMap);
+  B_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
 
   // -----------------------------------------------------
   // Now test block graphs.
@@ -973,7 +973,7 @@ bool NOISE::createACLinearSystem_()
   RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph);
 
   delete ACMatrix_;
-  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
+  ACMatrix_ = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
 
   ACMatrix_->put( 0.0 ); // Zero out whole matrix.
   // Matrix will be loaded with nonzero (C,G) sub-matrices later.
@@ -986,15 +986,15 @@ bool NOISE::createACLinearSystem_()
   B_->block( 1 ).addVec( 1.0, *bVecImagPtr);
 
   delete X_;
-  X_ = new Linear::BlockVector (numBlocks, blockMap, baseMap);
+  X_ = Xyce::Linear::createBlockVector (numBlocks, blockMap, baseMap);
   X_->putScalar( 0.0 );
 
   delete saved_AC_X_;
-  saved_AC_X_ = new Linear::BlockVector (numBlocks, blockMap, baseMap);
+  saved_AC_X_ = Xyce::Linear::createBlockVector (numBlocks, blockMap, baseMap);
   saved_AC_X_->putScalar( 0.0 );
 
   delete blockProblem_;
-  blockProblem_ = new Linear::Problem( ACMatrix_, X_, B_ );
+  blockProblem_ = Xyce::Linear::createProblem( ACMatrix_, X_, B_ );
 
   delete blockSolver_;
   Linear::TranSolverFactory factory;

@@ -64,11 +64,11 @@ Xyce::Linear::Vector * N_MPDE_Builder::createVector() const
   if (warpMPDE_)
   {
     // tscoffe/tmei 08/11/05:  Appending an extra row for omega and phi
-    return new Xyce::Linear::BlockVector( Size_, MPDEMap_, BaseMap_, 2 );
+    return Xyce::Linear::createBlockVector( Size_, MPDEMap_, BaseMap_, 2 );
   }
   else
   {
-    return new Xyce::Linear::BlockVector( Size_, MPDEMap_, BaseMap_ );
+    return Xyce::Linear::createBlockVector( Size_, MPDEMap_, BaseMap_ );
   }
 }
 
@@ -84,7 +84,7 @@ Xyce::Linear::Vector * N_MPDE_Builder::createVector() const
 //-----------------------------------------------------------------------------
 Xyce::Linear::Vector * N_MPDE_Builder::createStateVector() const
 {
-  return new Xyce::Linear::BlockVector( Size_, MPDEStateMap_, BaseStateMap_ );
+  return Xyce::Linear::createBlockVector( Size_, MPDEStateMap_, BaseStateMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ Xyce::Linear::Vector * N_MPDE_Builder::createStateVector() const
 //-----------------------------------------------------------------------------
 Xyce::Linear::Vector * N_MPDE_Builder::createStoreVector() const
 {
-  return new Xyce::Linear::BlockVector( Size_, MPDEStoreMap_, BaseStoreMap_ );
+  return Xyce::Linear::createBlockVector( Size_, MPDEStoreMap_, BaseStoreMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ Xyce::Linear::Vector * N_MPDE_Builder::createStoreVector() const
 Xyce::Linear::Vector * N_MPDE_Builder::createLeadCurrentVector() const
 {
   return dynamic_cast<Xyce::Linear::Vector*>(
-        new Xyce::Linear::BlockVector( Size_, MPDELeadCurrentMap_, BaseLeadCurrentMap_ ) );
+        Xyce::Linear::createBlockVector( Size_, MPDELeadCurrentMap_, BaseLeadCurrentMap_ ) );
 }
 
 //-----------------------------------------------------------------------------

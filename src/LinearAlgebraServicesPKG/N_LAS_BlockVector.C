@@ -165,6 +165,21 @@ BlockVector::BlockVector( int blockSize,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : BlockVector::operator=
+// Purpose       : assignment
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
+BlockVector & BlockVector::operator=( const BlockVector & right )
+{
+  MultiVector::operator=( right ); 
+
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : BlockVector::BlockVector
 // Purpose       : copy constructor
 // Special Notes :

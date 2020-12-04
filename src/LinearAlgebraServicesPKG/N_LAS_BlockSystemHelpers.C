@@ -86,6 +86,18 @@ BlockVector* createBlockVector( int numBlocks,
   return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
 }
 
+BlockVector* createBlockVector( int blockSize,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                int augmentRows )
+{
+  return new BlockVector( blockSize, globalMap, augmentRows );
+}
+
+BlockVector* createBlockVector( const Vector * right, int blockSize )
+{
+  return new BlockVector( right, blockSize );
+}
+
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
                                           const Teuchos::RCP<N_PDS_ParMap> & globalMap,
                                           const Teuchos::RCP<N_PDS_ParMap> & subBlockMap )

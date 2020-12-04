@@ -134,7 +134,7 @@ PCELoader::PCELoader(
   appNextJunctionVVecPtr_ = rcp(builder.createLeadCurrentVector());
 
   // Create Linear::Problem
-  lasProblemPtr_ = rcp(new Linear::Problem(appdFdxPtr_, app_dV_voltlim_Ptr_, appdFdxdVpPtr_));
+  lasProblemPtr_ = rcp(Xyce::Linear::createProblem(appdFdxPtr_.get(), app_dV_voltlim_Ptr_.get(), appdFdxdVpPtr_.get()));
 }
 
 //-----------------------------------------------------------------------------
