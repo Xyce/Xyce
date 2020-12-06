@@ -40,9 +40,6 @@ AM_INIT_AUTOMAKE([1.11 foreign])
 dnl ********************************************************************
 dnl the autoconfing proper 
 
-dnl Ensure the compiler is C++11 compatable
-AX_CXX_COMPILE_STDCXX(11,,mandatory)
-
 dnl *****************************************************************
 dnl Before we can get to the meat, we need to do some options
 dnl *****************************************************************
@@ -377,12 +374,14 @@ fi
 
 dnl Checks for programs.
 # Checks for programs.
-AC_PROG_CXX(CC c++ g++ gcc cxx icpc)
+AC_PROG_CXX(CC c++ g++ cxx icpc)
 AC_PROG_CC(cc gcc icc)
 if test "$FORTRAN_BLAS" != "no"; then
   AC_PROG_F77(f77 g77 g95 gfortran ifort)
 fi
 
+dnl Ensure the compiler is C++11 compatable
+AX_CXX_COMPILE_STDCXX(11,,mandatory)
 
 # check for flex --- we use flex-only features, and can't use vanilla lex
 # if don't find flex, don't build parser

@@ -339,7 +339,7 @@ void setupObjectiveFunctions(
              replacement_param.getType() == Xyce::Util::DBLE )
         {
           enumParamType paramType=DOT_PARAM;
-          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>()),paramType)
+          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>(),paramType))
           {
             Report::UserWarning0() << "Problem converting parameter " << strings[istring] << " to its value.";
           }

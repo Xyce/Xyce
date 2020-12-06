@@ -4804,6 +4804,7 @@ class ddxOp : public astNode<ScalarT>
       {
         std::string msg = "DDX argument ";
         std::string tmp;
+        // ERK: this block of code needs to be revised.  The set of if-statements, below often fail, so tmp=""
         if (this->rightAst_->paramType() || this->rightAst_->getFunctionArgType())
         {
           tmp = this->rightAst_->getName();
@@ -4831,12 +4832,14 @@ class ddxOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,msg);
         yyerror(errStr);
       }
-
-      astNodeX_->setDerivIndex(0);
-      astNodeX_->setIsVar();
-      ret = this->leftAst_->dx(0);
-      astNodeX_->unsetDerivIndex();
-      astNodeX_->unsetIsVar();
+      else
+      {
+        astNodeX_->setDerivIndex(0);
+        astNodeX_->setIsVar();
+        ret = this->leftAst_->dx(0);
+        astNodeX_->unsetDerivIndex();
+        astNodeX_->unsetIsVar();
+      }
 
       return ret;
     };
