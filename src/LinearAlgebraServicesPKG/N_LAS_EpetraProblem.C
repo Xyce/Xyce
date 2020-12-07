@@ -40,60 +40,81 @@
 
 // ---------- Standard Includes ----------
 
+#include <Epetra_LinearProblem.h>
+#include <Epetra_CrsMatrix.h>
+#include <Epetra_MultiVector.h>
+
 // ----------   Xyce Includes   ----------
 
-#include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
+
 #include <N_LAS_Operator.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
+#include <N_LAS_MatrixFreeEpetraOperator.h>
+
+#include <Teuchos_RCP.hpp>
 
 namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : Problem::Problem
+// Function      : EpetraProblem::EpetraProblem
 // Purpose       : 
 // Special Notes : 
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-Problem::Problem( Matrix* A, MultiVector* x, MultiVector* b )
- : A_(A),
-   x_(x),
-   b_(b),
-   matrixFreeFlag_(false)
+EpetraProblem::EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b )
+ : Problem(A,x,b),
+   epetraProblem_( Teuchos::rcp( new Epetra_LinearProblem( dynamic_cast<Epetra_RowMatrix*>(&(A_->epetraObj())),
+                                             &(x_->epetraObj()),
+                                             &(b_->epetraObj()) ) ) )
 {}
 
 //-----------------------------------------------------------------------------
-// Function      : Problem::Problem
+// Function      : EpetraProblem::EpetraProblem
 // Purpose       : 
 // Special Notes : 
 // Scope         : Public
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/04/08
 //-----------------------------------------------------------------------------
-Problem::Problem( Operator* Op, MultiVector* x, MultiVector* b )
- : Op_(Op),
-   x_(x),
-   b_(b),
-   matrixFreeFlag_(true)
-{}
+EpetraProblem::EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b )
+ : Problem(Op,x,b)
+{
+  epetraOp_ = matrixFreeEpetraOperator( Teuchos::rcp( Op, false ), 
+                                        Teuchos::rcp( x->pmap(), false ) );
+  epetraProblem_ =  Teuchos::rcp( new Epetra_LinearProblem( &*epetraOp_,
+                                             &(x_->epetraObj()),
+                                             &(b_->epetraObj()) ) ); 
+}
 
 //-----------------------------------------------------------------------------
-// Function      : Problem::Problem
-// Purpose       :
-// Special Notes :
+// Function      : EpetraProblem::EpetraProblem
+// Purpose       : 
+// Special Notes : 
 // Scope         : Public
-// Creator       : Todd Coffey, 1414
-// Creation Date : 09/04/08
+// Creator       : Heidi Thornquist, 1437
+// Creation Date : 10/08/08
 //-----------------------------------------------------------------------------
-Problem::Problem( const Problem& prob ) 
- : A_(prob.A_),
-   Op_(prob.Op_),
-   x_(prob.x_),
-   b_(prob.b_)
-{}
+EpetraProblem::EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraProblem )
+ : Problem(),
+   epetraProblem_(epetraProblem)
+{
+  x_ = new MultiVector(epetraProblem->GetLHS(), false);
+  b_ = new MultiVector(epetraProblem->GetRHS(), false);
+
+  if (epetraProblem_->GetMatrix()) {
+    matrixFreeFlag_ = false;
+    A_ = new Matrix(dynamic_cast<Epetra_CrsMatrix *>(epetraProblem_->GetMatrix()));
+  }
+  else {
+    matrixFreeFlag_ = true;
+    epetraOp_ = Teuchos::rcp(epetraProblem_->GetOperator(),false);
+  }
+}
 
 } // namespace Linear
 } // namespace Xyce

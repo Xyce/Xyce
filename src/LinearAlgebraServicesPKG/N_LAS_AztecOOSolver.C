@@ -48,7 +48,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Preconditioner.h>
-#include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_TrilinosPrecondFactory.h>
 #include <N_UTL_FeatureTest.h>
@@ -115,7 +115,6 @@ AztecOOSolver::AztecOOSolver(
   : Solver(true),
   reduceKSpace_(false),
   maxKSpace_(50),
-  probDiff_(0),
   preCondDefault_(14),
   solverDefault_(1),
   scalingDefault_(0),
@@ -140,7 +139,6 @@ AztecOOSolver::AztecOOSolver(
   outputLS_(0),
   outputBaseLS_(0),
   lasProblem_(problem),
-  problem_(&(problem.epetraObj())),
   options_( new Util::OptionBlock( options ) ),
   useAztecPrecond_(false),
   isPrecSet_(false),
@@ -148,7 +146,8 @@ AztecOOSolver::AztecOOSolver(
   tProblem_(0),
   timer_( new Util::Timer())
 {
-  problem_->SetPDL((ProblemDifficultyLevel) probDiff_);
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj());
 
   setDefaultOptions();
 
@@ -411,7 +410,6 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
     if( !tProblem_ )
     {
       tProblem_ = &((*transform_)( *problem_ ));
-      tProblem_->SetPDL(unsure);
       if( solver_ ) delete solver_;
     }
     std::swap( tProblem_, problem_ );
@@ -496,7 +494,7 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
 
   if( !useAztecPrecond_ )
   {
-    Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new Problem( Teuchos::rcp(problem_,false) ) );
+    Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new EpetraProblem( Teuchos::rcp(problem_,false) ) );
 
     // Create the preconditioner if we don't have one.
     if ( Teuchos::is_null( precond_ ) ) {

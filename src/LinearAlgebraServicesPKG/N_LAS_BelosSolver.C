@@ -47,7 +47,7 @@
 #include <N_LAS_BelosSolver.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Preconditioner.h>
-#include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_TrilinosPrecondFactory.h>
 #include <N_LAS_EpetraHelpers.h>
@@ -108,12 +108,14 @@ BelosSolver::BelosSolver(
   outputLS_(0),
   outputBaseLS_(0),
   lasProblem_(problem),
-  problem_(&(problem.epetraObj())),
   updatedParams_(false),
   linearResidual_(1.0),
   tProblem_(0),
   isPrecSet_(false)
 {
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj());  
+
   options_ = Teuchos::rcp( new Util::OptionBlock( options ) );
   timer_ = Teuchos::rcp( new Util::Timer( ) );
 
@@ -422,7 +424,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   if (VERBOSE_LINEAR)
     time1 = timer_->wallTime();
 
-  Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new Problem( Teuchos::rcp(problem_,false) ) );
+  Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new EpetraProblem( Teuchos::rcp(problem_,false) ) );
 
   // Create the preconditioner if we don't have one.
   if ( Teuchos::is_null( precond_ ) ) {

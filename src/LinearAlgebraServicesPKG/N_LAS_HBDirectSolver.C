@@ -1608,7 +1608,7 @@ void HBDirectSolver::formHBJacobian()
   }
 
   // form frequency-domain RHS vector
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
 
   for (int j=0; j<numVectors; j++)
@@ -1701,8 +1701,8 @@ int HBDirectSolver::solve()
   int linearStatus = 0;
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> X = lasProblem_.getLHS();
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* X = lasProblem_.getLHS();
+  MultiVector* B = lasProblem_.getRHS();
 
   // Initialize solution vector X.
   X->putScalar( 0.0 );
@@ -1928,7 +1928,7 @@ void HBDirectSolver::printHBResidual( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
 
   std::ofstream out;
@@ -1985,7 +1985,7 @@ void HBDirectSolver::printHBSolution( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> X = lasProblem_.getLHS();
+  MultiVector* X = lasProblem_.getLHS();
   int numVectors = X->numVectors();
 
   std::ofstream out;

@@ -58,6 +58,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Amesos2Solver.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
 #include <N_LAS_TransformTool.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
@@ -87,7 +88,6 @@ Amesos2Solver::Amesos2Solver(
   : Solver(false),
     type_(type),
     lasProblem_(problem),
-    problem_(problem.epetraObj()),
     outputLS_(0),
     outputBaseLS_(0),
     outputFailedLS_(0),
@@ -95,6 +95,9 @@ Amesos2Solver::Amesos2Solver(
     options_( new Util::OptionBlock( options ) ),
     timer_( new Util::Timer() )
 {
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj());
+
   setOptions( options );
 }
 
@@ -217,12 +220,12 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
   int linearStatus = 0;
 
-  Epetra_LinearProblem * prob = &problem_;
+  Epetra_LinearProblem * prob = problem_;
 
   if( transform_.get() )
   {
     if( !tProblem_ )
-      tProblem_ = &((*transform_)( problem_ ));
+      tProblem_ = &((*transform_)( *problem_ ));
     prob = tProblem_;
     transform_->fwd();
   }
@@ -254,7 +257,7 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
       char file_name[40];
       if (!reuse_factors) {
         if (base_file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_.GetMatrix())->Map() );
+          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_->GetMatrix())->Map() );
         }
         sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
 
@@ -262,9 +265,9 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
         sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
         sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
 
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_.GetMatrix()), sandiaReq.c_str() );
+        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
         sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_.GetRHS()) );
+        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
       }
     }
     // base_file_number++;  This will be incremented after the solution vector is written to file.
@@ -391,7 +394,7 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
     if (!(file_number % outputLS_)) {
       char file_name[40];
       sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_.GetLHS()) );
+      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetLHS()) );
     }
   }
   file_number++;

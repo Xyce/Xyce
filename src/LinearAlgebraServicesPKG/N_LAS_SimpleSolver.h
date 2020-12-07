@@ -38,15 +38,9 @@
 #ifndef Xyce_N_LAS_SimpleSolver_h
 #define Xyce_N_LAS_SimpleSolver_h
 
-#include <string>
-
 #include <N_LAS_Solver.h>
 #include <N_UTL_fwd.h>
-#include <Teuchos_RCP.hpp>
-
-class Epetra_LinearProblem;
-class Epetra_CrsMatrix;
-class Epetra_Export;
+#include <N_LAS_fwd.h>
 
 namespace Xyce {
 namespace Linear {
@@ -88,7 +82,6 @@ private:
 
   //Primary problem access
   Problem & lasProblem_;
-  Epetra_LinearProblem & problem_;
 
   //Output linear system every outputLS_ calls
   int outputLS_;

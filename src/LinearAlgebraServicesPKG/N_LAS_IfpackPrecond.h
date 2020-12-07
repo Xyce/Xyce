@@ -43,6 +43,7 @@
 
 #include <N_LAS_Preconditioner.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
 
 // ----------  Fwd Declares     ----------
 
@@ -135,7 +136,7 @@ private:
   Teuchos::RCP<Ifpack_Preconditioner> ifpackPrecond_;
 
   // Current matrix being preconditioned.
-  Teuchos::RCP<Problem> problem_;
+  Teuchos::RCP<EpetraProblem> problem_;
 
   // Preconditioner as an Epetra_Operator object.
   Teuchos::RCP<Epetra_Operator> epetraPrec_;

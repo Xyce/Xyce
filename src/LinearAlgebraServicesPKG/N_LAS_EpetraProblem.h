@@ -22,109 +22,66 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Amesos Direct Linear Solver Interface
+// Purpose        : interface to linear problem
 //
 // Special Notes  :
 //
 // Creator        : Robert Hoekstra, SNL, Parallel Computational Sciences
 //
-// Creation Date  : 05/24/04
+// Creation Date  : 05/17/04
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_AmesosSolver_h
-#define Xyce_N_LAS_AmesosSolver_h
-
-#include <string>
+#ifndef Xyce_N_LAS_EpetraProblem_h
+#define Xyce_N_LAS_EpetraProblem_h
 
 #include <N_LAS_fwd.h>
-#include <N_UTL_fwd.h>
+#include <N_PDS_fwd.h>
+#include <N_PDS_ParMap.h>
 
-#include <N_LAS_Solver.h>
-#include <N_LAS_TransformTool.h>
+#include <N_LAS_Problem.h>
+
 #include <Teuchos_RCP.hpp>
 
-class Amesos_BaseSolver;
 class Epetra_LinearProblem;
-class Epetra_CrsMatrix;
-class Epetra_Export;
+class Epetra_Operator;
 
 namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Class         : AmesosSolver
-// Purpose       :
+// Class         : EpetraProblem
+// Purpose       : interface to Epetra linear problem
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
-// Creation Date : 05/20/04
+// Creation Date : 05/17/04
 //-----------------------------------------------------------------------------
-class AmesosSolver : public Solver
+class EpetraProblem : public Problem
 {
-
 public:
-  // Constructor
-  AmesosSolver(
-    const std::string &         type,
-    Problem &                   problem,
-    Util::OptionBlock &         options);
 
-  // Destructor
-  ~AmesosSolver();
+  //Constructors
+  EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b );
+  EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b );
 
-  // Set the solver options
-  bool setOptions(const Util::OptionBlock & OB);
-  bool setDefaultOptions();
+  //Epetra constructors
+  EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraProblem );
 
-  // Set individual options
-  bool setParam( const Util::Param & param );
+  //Destructor
+  virtual ~EpetraProblem() {}
 
-  // Get info such as Num Iterations, Residual, etc.
-  bool getInfo( Util::Param & info );
-
-  // Solve function: x = A^(-1) b.
-  // input parameter 'ReuseFactors': If 'true', do not factor A, rather reuse
-  // factors from previous solve.  Useful for inexact nonlinear techniques and
-  // multiple RHS solves.
-  int doSolve( bool reuse_factors, bool transpose = false );
+  Epetra_LinearProblem & epetraObj() { return *epetraProblem_; }
 
 private:
 
-  //Solver Type
-  const std::string type_;
-
-  //Primary problem access
-  Problem & lasProblem_;
-  Epetra_LinearProblem * problem_;
-
-  //Wrapped solver object
-  Amesos_BaseSolver * solver_;
-
-  //Repivot every time or use static pivoting
-  bool repivot_;
-  
-  //Output linear system every outputLS_ calls
-  int outputLS_;
-  int outputBaseLS_;
-  int outputFailedLS_;
-
-  // Transform Support
-  Teuchos::RCP<Transform> transform_;
-  Epetra_LinearProblem * tProblem_;
-
-  //Options
-  Util::OptionBlock * options_;
-
-  //Timer
-  Util::Timer * timer_;
-
+  Teuchos::RCP<Epetra_LinearProblem> epetraProblem_;
+  Teuchos::RCP<Epetra_Operator> epetraOp_;
 };
 
 } // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_LAS_AmesosSolver_h
-
+#endif

@@ -52,6 +52,7 @@
 
 #include <N_LAS_KSparseSolver.h>
 
+#include <N_LAS_EpetraProblem.h>
 #include <N_LAS_Problem.h>
 
 #include <N_LAS_TransformTool.h>
@@ -86,13 +87,15 @@ namespace Linear {
 KSparseSolver::KSparseSolver(Problem & prob, Util::OptionBlock & options)
  : Solver(false),
    lasProblem_(prob),
-   problem_(prob.epetraObj()),
    outputLS_(0),
    outputBaseLS_(0),
    outputFailedLS_(0),
    tProblem_(0),
    options_( new Util::OptionBlock( options ) )
 {
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj()); 
+
   timer_ = Teuchos::rcp( new Util::Timer( ) );
   setOptions( options );
 }
@@ -202,12 +205,12 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
 
   int linearStatus = 0;
 
-  Epetra_LinearProblem * prob = &problem_;
+  Epetra_LinearProblem * prob = problem_;
 
   if( transform_.get() )
   {
     if( !tProblem_ )
-      tProblem_ = &((*transform_)( problem_ ));
+      tProblem_ = &((*transform_)( *problem_ ));
     prob = tProblem_;
     transform_->fwd();
   }
@@ -237,15 +240,15 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
       char file_name[40];
       if (!reuse_factors) {
         if (base_file_number == 1) {      
-          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_.GetMatrix())->Map() );
+          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_->GetMatrix())->Map() );
         }
         sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
         std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
         sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
         sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_.GetMatrix()), sandiaReq.c_str() );
+        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
         sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_.GetRHS()) );
+        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
       }
     } 
     base_file_number++;
@@ -373,7 +376,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
 Epetra_LinearProblem * KSparseSolver::importToSerial()
 {
 #ifdef Xyce_PARALLEL_MPI
-    Epetra_CrsMatrix * origMat = dynamic_cast<Epetra_CrsMatrix *>(problem_.GetOperator());
+    Epetra_CrsMatrix * origMat = dynamic_cast<Epetra_CrsMatrix *>(problem_->GetOperator());
 
     // If we haven't set up the maps for serial matrix storage on proc 0, then do it now.
     if (serialMap_ == Teuchos::null) {
@@ -384,7 +387,7 @@ Epetra_LinearProblem * KSparseSolver::importToSerial()
       if (MyPID != 0)
         NumMyElements = 0;
       serialMap_ = Teuchos::rcp(new Epetra_Map(-1, NumMyElements, 0, origMap.Comm()));
-      int NumVectors = problem_.GetRHS()->NumVectors() ;
+      int NumVectors = problem_->GetRHS()->NumVectors() ;
     
       serialLHS_ = Teuchos::rcp( new Epetra_MultiVector( *serialMap_, NumVectors ));
       serialRHS_ = Teuchos::rcp (new Epetra_MultiVector( *serialMap_, NumVectors ));
@@ -397,12 +400,12 @@ Epetra_LinearProblem * KSparseSolver::importToSerial()
     serialMat_->Import( *origMat, *serialImporter_, Insert );
     serialMat_->FillComplete();
     serialMat_->OptimizeStorage(); 
-    serialLHS_->Import( *problem_.GetLHS(), *serialImporter_, Insert );
-    serialRHS_->Import( *problem_.GetRHS(), *serialImporter_, Insert );   
+    serialLHS_->Import( *problem_->GetLHS(), *serialImporter_, Insert );
+    serialRHS_->Import( *problem_->GetRHS(), *serialImporter_, Insert );   
 
     return &*serialProblem_;
 #else
-    return &problem_;
+    return problem_;
 #endif
 } 
 
@@ -418,7 +421,7 @@ int KSparseSolver::exportToGlobal()
 {
 #ifdef Xyce_PARALLEL_MPI
   // Return solution back to global problem
-  problem_.GetLHS()->Export( *serialLHS_, *serialImporter_, Insert ) ;
+  problem_->GetLHS()->Export( *serialLHS_, *serialImporter_, Insert ) ;
 #endif
   return 0;
 }

@@ -46,7 +46,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Operator.h>
 #include <N_LAS_BlockMatrix.h>
-#include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -102,12 +102,12 @@ Graph* createGraph( N_PDS_ParMap & map,
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
 {
-  return new Problem( A, x, b );
+  return new EpetraProblem( A, x, b );
 }
                
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b )
 {
-  return new Problem( Teuchos::rcp(Op,false), Teuchos::rcp(x,false), Teuchos::rcp(b,false) );
+  return new EpetraProblem( Op, x, b );
 }
                
 // ///////////////////////////////////////////////////////////////////

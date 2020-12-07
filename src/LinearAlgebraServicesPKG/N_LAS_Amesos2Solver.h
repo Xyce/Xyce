@@ -99,7 +99,7 @@ private:
 
   //Primary problem access
   Problem & lasProblem_;
-  Epetra_LinearProblem & problem_;
+  Epetra_LinearProblem * problem_;
 
   //Wrapped solver object
   Teuchos::RCP<Amesos2::Solver<Epetra_CrsMatrix,Epetra_MultiVector> > solver_;

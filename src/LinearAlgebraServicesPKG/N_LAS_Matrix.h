@@ -190,6 +190,7 @@ public:
   void getRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
   void getLocalRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
 
+  int getNumRows() const;
   int getLocalNumRows() const;
 
   // Sum values into a row into the sparse matrix, using local indices, without overlap contributions

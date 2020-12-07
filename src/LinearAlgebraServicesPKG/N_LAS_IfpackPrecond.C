@@ -186,6 +186,8 @@ bool IfpackPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 {
   bool precStatus = true;
 
+  Teuchos::RCP<EpetraProblem> eproblem = Teuchos::rcp_dynamic_cast<EpetraProblem>( problem );
+
   if (useFactory_)
   {
     // Because a new graph is being used, recreate the preconditioner.
@@ -194,7 +196,7 @@ bool IfpackPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     Ifpack Factory;
 
     // Create the preconditioner.
-    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(problem->epetraObj().GetMatrix());
+    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(eproblem->epetraObj().GetMatrix());
     ifpackPrecond_ = Teuchos::rcp( Factory.Create(ifpackType_, epetraA, overlap_) );
 
     if (ifpackPrecond_ == Teuchos::null) {
@@ -236,7 +238,7 @@ bool IfpackPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   else
   {
     // Create the graph.
-    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(problem->epetraObj().GetMatrix());
+    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(eproblem->epetraObj().GetMatrix());
     const Epetra_CrsGraph & Graph = epetraA->Graph();
     ilukGraph_ = Teuchos::rcp( new Ifpack_IlukGraph( Graph, static_cast<int>(ilutFill_), overlap_ ) );
     int graphRet = ilukGraph_->ConstructFilledGraph();
@@ -262,7 +264,7 @@ bool IfpackPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 bool IfpackPrecond::initValues( const Teuchos::RCP<Problem> & problem )
 {
   bool precStatus = true;
-  problem_ = problem;
+  problem_ = Teuchos::rcp_dynamic_cast<EpetraProblem>(problem);
 
   if (useFactory_)
   {

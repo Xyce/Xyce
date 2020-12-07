@@ -332,7 +332,7 @@ bool Matrix::putRow(int row, int length, const double *coeffs, const int *colInd
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::getLocalNumRows
-// Purpose       : Returns the number of nonzeroes in the row.
+// Purpose       : Returns the number of rows on this processor.
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
@@ -341,6 +341,19 @@ bool Matrix::putRow(int row, int length, const double *coeffs, const int *colInd
 int Matrix::getLocalNumRows() const
 {
   return aDCRSMatrix_->NumMyRows();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getNumRows
+// Purpose       : Returns the number of rows on all processors.
+// Special Notes :
+// Scope         : Public
+// Creator       : Dave Shirley, PSSI
+// Creation Date : 05/24/06
+//-----------------------------------------------------------------------------
+int Matrix::getNumRows() const
+{
+  return aDCRSMatrix_->NumGlobalRows();
 }
 
 //-----------------------------------------------------------------------------
