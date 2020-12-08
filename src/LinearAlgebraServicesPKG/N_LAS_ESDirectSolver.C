@@ -194,19 +194,6 @@ bool ESDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 06/01/2018
-//-----------------------------------------------------------------------------
-bool ESDirectSolver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : ESDirectSolver::doSolve
 // Purpose       :
 // Special Notes :

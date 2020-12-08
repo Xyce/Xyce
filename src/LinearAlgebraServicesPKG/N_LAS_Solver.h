@@ -70,14 +70,14 @@ public:
 
   // Set the solver options
   virtual bool setOptions(const Util::OptionBlock & OB) = 0;
-  virtual bool setDefaultOptions() = 0;
+  virtual bool setDefaultOptions() { return true; }
   virtual bool setPreconditioner( const Teuchos::RCP<Preconditioner>& precond ) { return true; }
 
   // Set individual options
-  virtual bool setParam( const Util::Param & param ) = 0;
+  virtual bool setParam( const Util::Param & param ) { return true; }
 
   // Get info such as Num Iterations, Residual, etc.
-  virtual bool getInfo( Util::Param & info ) = 0;
+  virtual bool getInfo( Util::Param & info ) { return true; }
 
   //Residual
   virtual double residual() { return 0.0; }

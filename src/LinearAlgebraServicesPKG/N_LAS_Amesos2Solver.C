@@ -58,6 +58,8 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Amesos2Solver.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_Matrix.h>
+#include <N_LAS_MultiVector.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_TransformTool.h>
 #include <N_UTL_FeatureTest.h>
@@ -167,45 +169,6 @@ bool Amesos2Solver::setOptions( const Util::OptionBlock & OB )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Amesos2Solver::setDefaultOptions
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool Amesos2Solver::setDefaultOptions()
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Amesos2Solver::setParam
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool Amesos2Solver::setParam( const Util::Param & param )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Amesos2Solver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool Amesos2Solver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Amesos2Solver::doSolve
 // Purpose       :
 // Special Notes :
@@ -260,14 +223,9 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
           EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_->GetMatrix())->Map() );
         }
         sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
+        lasProblem_.getMatrix()->writeToFile( file_name, false, true );
         sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
+        lasProblem_.getRHS()->writeToFile( file_name, false, true );
       }
     }
     // base_file_number++;  This will be incremented after the solution vector is written to file.
@@ -402,7 +360,7 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
     if (!(base_file_number % outputBaseLS_)) {
       char file_name[40];
       sprintf( file_name, "Base_Soln%d.mm", base_file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(prob->GetLHS()) );
+      lasProblem_.getLHS()->writeToFile( file_name, false, true );
     }
     base_file_number++;
   }

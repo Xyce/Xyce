@@ -107,6 +107,10 @@ class BlockVector : public Vector
   // that the values are sync'ed up.  Call this before using the global vector for computations.
   void assembleGlobalVector();
 
+  // Get the global ParMap
+  N_PDS_ParMap * pmap() { return this->parallelMap_; }
+  const N_PDS_ParMap * pmap() const { return this->parallelMap_; }
+
   // Get the ParMap objects for each BLOCK in this block vector.
   N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
   const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }

@@ -199,19 +199,6 @@ bool HBDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : HBDirectSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool HBDirectSolver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : HBDirectSolver::doSolve
 // Purpose       :
 // Special Notes :

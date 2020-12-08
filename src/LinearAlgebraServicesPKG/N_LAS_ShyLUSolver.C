@@ -59,8 +59,8 @@
 
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_Problem.h>
-
 #include <N_LAS_Matrix.h>
+#include <N_LAS_MultiVector.h>
 
 #include <EpetraExt_RowMatrixOut.h>
 #include <EpetraExt_MultiVectorOut.h>
@@ -265,17 +265,6 @@ bool ShyLUSolver::setShyLUParam_(const char * paramName,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ShyLU::printParams_
-// Purpose       : Print out the linear solver parameter values.
-// Special Notes :
-// Scope         : Private
-// Creator       : Heidi Thornquist, SNL, Computational Sciences
-// Creation Date : 09/25/07
-//-----------------------------------------------------------------------------
-void ShyLUSolver::printParams_() const
-{}
-
-//-----------------------------------------------------------------------------
 // Function      : ShyLUSolver::doSolve
 // Purpose       : Calls the actual solver to solve Ax=b.
 // Special Notes :
@@ -367,12 +356,9 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
           EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (tProblem_->GetMatrix())->Map() );
         }
         sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(tProblem_->GetMatrix()), sandiaReq.c_str() );
+        lasProblem_.getMatrix()->writeToFile( file_name, false, true );
         sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetRHS()) );
+        lasProblem_.getRHS()->writeToFile( file_name, false, true );
       }
     }
     base_file_number++;

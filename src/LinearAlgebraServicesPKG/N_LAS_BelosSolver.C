@@ -46,6 +46,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_BelosSolver.h>
 #include <N_LAS_Matrix.h>
+#include <N_LAS_MultiVector.h>
 #include <N_LAS_Preconditioner.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_TransformTool.h>
@@ -289,17 +290,6 @@ bool BelosSolver::setBelosParam_(const char * paramName,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Belos::printParams_
-// Purpose       : Print out the linear solver parameter values.
-// Special Notes :
-// Scope         : Private
-// Creator       : Heidi Thornquist, SNL, Computational Sciences
-// Creation Date : 09/25/07
-//-----------------------------------------------------------------------------
-void BelosSolver::printParams_() const
-{}
-
-//-----------------------------------------------------------------------------
 // Function      : BelosSolver::doSolve
 // Purpose       : Calls the actual solver to solve Ax=b.
 // Special Notes :
@@ -410,12 +400,9 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
           EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (tProblem_->GetMatrix())->Map() );
         }
         sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(tProblem_->GetMatrix()), sandiaReq.c_str() );
+        lasProblem_.getMatrix()->writeToFile( file_name, false, true );
         sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetRHS()) );
+        lasProblem_.getRHS()->writeToFile( file_name, false, true );
       }
     }
     // base_file_number++;  This is incremented below after the solution is written to file.
@@ -587,7 +574,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
     if (!(base_file_number % outputBaseLS_)) {
       char file_name[40];
       sprintf( file_name, "Base_Soln%d.mm", base_file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetLHS()) );
+      lasProblem_.getLHS()->writeToFile( file_name, false, true );
     }
     base_file_number++;
   }

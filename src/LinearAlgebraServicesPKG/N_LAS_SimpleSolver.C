@@ -75,9 +75,6 @@ SimpleSolver::SimpleSolver(
   Util::OptionBlock &   options)
   : Solver(false),
    lasProblem_(prob),
-   outputLS_(0),
-   outputBaseLS_(0),
-   outputFailedLS_(0),
    options_( new Util::OptionBlock( options ) ),
    timer_( new Util::Timer())
 {
@@ -108,60 +105,9 @@ SimpleSolver::~SimpleSolver()
 //-----------------------------------------------------------------------------
 bool SimpleSolver::setOptions( const Util::OptionBlock & OB )
 {
-  for( Util::ParamList::const_iterator it_tpL = OB.begin();
-         it_tpL != OB.end(); ++it_tpL )
-  {
-    std::string tag = it_tpL->uTag();
-
-    if( tag == "OUTPUT_LS" ) outputLS_ = it_tpL->getImmutableValue<int>();
-
-    if( tag == "OUTPUT_BASE_LS" ) outputBaseLS_ = it_tpL->getImmutableValue<int>();
-
-    if( tag == "OUTPUT_FAILED_LS" ) outputFailedLS_ = it_tpL->getImmutableValue<int>();
-  }
-
   if( options_ ) delete options_;
   options_ = new Util::OptionBlock( OB );
 
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SimpleSolver::setDefaultOptions
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool SimpleSolver::setDefaultOptions()
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SimpleSolver::setParam
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool SimpleSolver::setParam( const Util::Param & param )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SimpleSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool SimpleSolver::getInfo( Util::Param & info )
-{
   return true;
 }
 

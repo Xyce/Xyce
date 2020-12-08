@@ -348,9 +348,6 @@ private:
   int outputLS_;
   int outputBaseLS_;
 
-  // Output solver parameters
-  void printParams_() const;
-
   // Linear Problem
   Problem & lasProblem_;
   Epetra_LinearProblem * problem_;

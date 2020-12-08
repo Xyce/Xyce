@@ -194,19 +194,6 @@ bool PCEDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : PCEDirectSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 06/01/2018
-//-----------------------------------------------------------------------------
-bool PCEDirectSolver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : PCEDirectSolver::doSolve
 // Purpose       :
 // Special Notes :

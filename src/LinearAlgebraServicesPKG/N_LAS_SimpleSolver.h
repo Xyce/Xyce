@@ -66,13 +66,6 @@ public:
 
   // Set the solver options
   bool setOptions(const Util::OptionBlock & OB);
-  bool setDefaultOptions();
-
-  // Set individual options
-  bool setParam( const Util::Param & param );
-
-  // Get info such as Num Iterations, Residual, etc.
-  bool getInfo( Util::Param & info );
 
   // Solve function: x = A^(-1) b.
   // This class is only used when A is a 1x1 matrix so x = b / A(1,1)
@@ -82,11 +75,6 @@ private:
 
   //Primary problem access
   Problem & lasProblem_;
-
-  //Output linear system every outputLS_ calls
-  int outputLS_;
-  int outputBaseLS_;
-  int outputFailedLS_;
 
   //Options
   Util::OptionBlock * options_;
