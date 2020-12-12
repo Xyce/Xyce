@@ -129,6 +129,7 @@ public:
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
   bool setACLinSolOptions(const Util::OptionBlock &option_block);
+  bool setDCLinSolOptions(const Util::OptionBlock &option_block);
   bool setDataStatements(const Util::OptionBlock & paramsBlock);
   bool convertDataToSweepParams();
   bool setSensitivityOptions(const Util::OptionBlock &option_block);
@@ -169,6 +170,7 @@ private:
   bool solveDirectSensitivity_();
   bool solveAdjointSensitivity_();
   bool loadSensitivityRHS_(const std::string & name);
+  bool computeNumerical_dJdp(const std::string & name);
   bool outputSensitivity_();
   bool setupObjectiveFuncGIDs_();
 
@@ -267,6 +269,10 @@ private:
   Linear::Problem *             blockProblem_;
   Util::OptionBlock             acLinSolOptionBlock_;
 
+  Linear::Solver *              directSensSolver_;
+  Linear::Problem *             directSensProblem_;
+  Util::OptionBlock             dcLinSolOptionBlock_;
+
   SweepVector                   acSweepVector_;
   std::map< std::string, std::vector<std::string> > dataNamesMap_;
   std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;
@@ -279,6 +285,7 @@ private:
   bool outputUnscaledFlag_; // include unscaled sensitivities in IO
   int maxParamStringSize_;
   bool stdOutputFlag_;
+  bool acCorrectionFlag_;
 
   int numSensParams_;
   std::vector<double>   objectiveVec_;

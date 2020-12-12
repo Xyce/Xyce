@@ -2106,6 +2106,8 @@ void Sensitivity::populateMetadata(
     parameters.insert(Util::ParamMap::value_type("SPARSESTORAGE", Util::Param("SPARSESTORAGE", 1)));
     parameters.insert(Util::ParamMap::value_type("COMPUTEDELAYS", Util::Param("COMPUTEDELAYS", 1)));
     parameters.insert(Util::ParamMap::value_type("ADJOINTTIMEPOINTS", Util::Param("ADJOINTTIMEPOINTS", "VECTOR")));
+
+    parameters.insert(Util::ParamMap::value_type("NLCORRECTION", Util::Param("NLCORRECTION", 1)));
   }
 
   {

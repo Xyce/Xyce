@@ -1192,360 +1192,386 @@ bool DeviceModel::getNumericalMatrixSensitivity (
     if (!(FjacLIDs.empty())) {  FjacLIDs.clear(); }
     if (!(QjacLIDs.empty())) {  QjacLIDs.clear(); }
 
-    bool thisIsWorthDoing=true; // stand in for a more global test that applies to all instances.  revise later
-    if(thisIsWorthDoing)
+    // NOTE:  the use of the lidCheckMap was an attempt to make sure that 
+    // I didn't double count anything.  I eventually gave up on that, however,
+    // as I screwed up the logic and that caused problems.
+    //
+    // Now, I go ahead and compute things more than once, if the same 
+    // element appears multiple times in the LIDs.  That should be OK,
+    // as the AC class that uses this information will just overwrite 
+    // any duplicates.
+    unordered_map<int,int> lidCheckMap;
+    unordered_map<int,int> stateLidCheckMap;
+
+    std::vector<int> stateIndicesVec;
+
+    for (iterInst=begin;iterInst!=end;++iterInst)
     {
-      unordered_map<int,int> lidCheckMap;
-      unordered_map<int,int> stateLidCheckMap;
+      const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+      const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+      for (int i=0;i<devLIDs.size();++i)
+      {
+        int newID = devLIDs[i];
+        const std::vector<int> & jacRow = devJacLIDs[i]; 
 
-      std::vector<int> stateIndicesVec;
+        //if (lidCheckMap.find(newID) == lidCheckMap.end())
+        {
+          FindicesVec.push_back(newID);
+          lidCheckMap[newID] = i;
+          FjacLIDs.push_back(jacRow); 
+        }
+      }
 
+      const IdVector & stateDevLIDs = (*iterInst)->getStaLIDVec();
+      for (int i=0;i<stateDevLIDs.size();++i)
+      {
+        int newID = stateDevLIDs[i];
+        //if (stateLidCheckMap.find(newID) == stateLidCheckMap.end())
+        {
+          stateIndicesVec.push_back(newID);
+          stateLidCheckMap[newID] = i;
+        }
+      }
+    }
+    QindicesVec.insert(QindicesVec.end(), FindicesVec.begin(), FindicesVec.end()); 
+
+    if (FjacLIDs.size() != FindicesVec.size() ) // Houston we have a problem
+    {
+      Report::DevelFatal().in("DeviceInstance::getNumericalMatrixSensitivity") << "Internal Error 1";
+    }
+
+    QjacLIDs.resize(FjacLIDs.size());
+    for (int i=0 ; i<FjacLIDs.size(); ++i)
+    {
+      int jCol = FjacLIDs[i].size(); QjacLIDs[i].resize(jCol);
+      for (int j=0 ; j<jCol ; ++j) { QjacLIDs[i][j] = FjacLIDs[i][j]; }
+    }
+
+    // grab some references
+    const ExternData & extData = (*begin)->getExternData();
+    Linear::Vector & Fvec          = (*extData.daeFVectorPtr);
+    Linear::Vector & Qvec          = (*extData.daeQVectorPtr);
+    Linear::Vector & Bvec          = (*extData.daeBVectorPtr);
+    Linear::Vector & nextSol      = (*extData.nextSolVectorPtr);
+
+    Linear::Vector & lastSta      = (*extData.lastStaVectorPtr);
+    Linear::Vector & currSta      = (*extData.currStaVectorPtr);
+    Linear::Vector & nextSta      = (*extData.nextStaVectorPtr);
+    Linear::Vector & nextStaDeriv = (*extData.nextStaDerivVectorPtr);
+
+    Linear::Matrix & dQdxMat      = (*extData.dQdxMatrixPtr);
+    Linear::Matrix & dFdxMat      = (*extData.dFdxMatrixPtr);
+
+    int solSize=FindicesVec.size();
+    int stateSize=stateIndicesVec.size();
+    mlData.resizeSolnSizedVectors (solSize);
+    mlData.resizeStateSizedVectors (stateSize);
+
+    std::vector< std::vector<double> > & numJacF = mlData.numJac;
+    std::vector< std::vector<double> > & saveJacF = mlData.saveJac;
+    std::vector< std::vector<double> > & devJacF = mlData.devJac;
+
+    std::vector< std::vector<double> > & numJacQ = mlData.numJacQ;
+    std::vector< std::vector<double> > & saveJacQ = mlData.saveJacQ;
+    std::vector< std::vector<double> > & devJacQ = mlData.devJacQ;
+
+    std::vector< std::vector<int> > & stencil = mlData.stencil;
+
+    std::vector<double> & saveF = mlData.saveF;
+    std::vector<double> & saveQ = mlData.saveQ;
+    std::vector<double> & saveB = mlData.saveB;
+
+    std::vector<double> & saveLastState = mlData.saveLastState;
+    std::vector<double> & saveCurrState = mlData.saveCurrState;
+    std::vector<double> & saveNextState = mlData.saveNextState;
+    std::vector<double> & saveStateDerivs = mlData.saveStateDerivs;
+
+    // initialize/ zero things out
+    saveF.assign(saveF.size(),0.0);
+    saveQ.assign(saveQ.size(),0.0);
+    saveB.assign(saveB.size(),0.0);
+
+    // zero out the matrix stuff
+    for (int i=0;i<numJacF.size();++i)
+    {
+      numJacF[i].assign(numJacF[i].size(),0.0);
+      saveJacF[i].assign(saveJacF[i].size(),0.0);
+      devJacF[i].assign(devJacF[i].size(),0.0);
+      stencil[i].assign(stencil[i].size(),0);
+
+      numJacQ[i].assign(numJacQ[i].size(),0.0);
+      saveJacQ[i].assign(saveJacQ[i].size(),0.0);
+      devJacQ[i].assign(devJacQ[i].size(),0.0);
+    }
+
+    d_dfdx_dp.clear();
+    d_dqdx_dp.clear();
+    d_dfdx_dp.resize(FindicesVec.size());
+    d_dqdx_dp.resize(FindicesVec.size());
+
+    for (int i=0;i<d_dfdx_dp.size();++i)
+    {
+      d_dfdx_dp[i].resize(d_dfdx_dp.size(),0.0);
+      d_dqdx_dp[i].resize(d_dqdx_dp.size(),0.0);
+    }
+
+    // save RHS information
+    std::vector<int> origFlags( baseInstanceContainer.size() );
+    int ii=0;
+    for (iterInst=begin;iterInst!=end;++iterInst,++ii)
+    {
+      origFlags[ii] = static_cast<int> (  (*iterInst)->getOrigFlag() );
+    }
+
+    for (int i=0; i<saveF.size(); ++i)
+    {
+      saveF[i]      = Fvec[FindicesVec[i]];
+      saveQ[i]      = Qvec[FindicesVec[i]];
+      saveB[i]      = Bvec[FindicesVec[i]];
+    }
+    //const std::vector<int> & devStateLIDs = getStaLIDVec();
+    for (int i=0; i<saveLastState.size(); ++i)
+    {
+      saveLastState[i] = lastSta[stateIndicesVec[i]];
+      saveCurrState[i] = currSta[stateIndicesVec[i]];
+      saveNextState[i] = nextSta[stateIndicesVec[i]];
+      saveStateDerivs[i] = nextStaDeriv[stateIndicesVec[i]];
+    }
+
+    // re-load for just this instance:
+    for (iterInst=begin;iterInst!=end;++iterInst,++ii)
+    {
+      (*iterInst)->numJacPtr->loadLocalDAEVectorsIncludingB(*(*iterInst));
+    }
+
+    // save the Jacobian matrix information. 
+    //
+    // the number of rows in saveF is equal to a union of all the rows from all the instances.
+    // So this number (-1) is what "ii" should end up at.
+    //
+    // Or it should be the sum of numRows from each instance.  If done this way, then some rows might
+    // be represented more than once.  The code below is written with this logic.
+    // Essentially this will be a vector of jacobian stamps, push into the same STL object.
+    {
+      int ii=0; // master row index
       for (iterInst=begin;iterInst!=end;++iterInst)
       {
         const IdVector & devLIDs = (*iterInst)->getDevLIDs();
         const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-        for (int i=0;i<devLIDs.size();++i)
-        {
-          int newID = devLIDs[i];
-          const std::vector<int> & jacRow = devJacLIDs[i]; 
 
-          //if (lidCheckMap.find(newID) == lidCheckMap.end())
-          {
-            FindicesVec.push_back(newID);
-            lidCheckMap[newID] = i;
-            FjacLIDs.push_back(jacRow); 
-          }
-        }
-
-        const IdVector & stateDevLIDs = (*iterInst)->getStaLIDVec();
-        for (int i=0;i<stateDevLIDs.size();++i)
-        {
-          int newID = stateDevLIDs[i];
-          //if (stateLidCheckMap.find(newID) == stateLidCheckMap.end())
-          {
-            stateIndicesVec.push_back(newID);
-            stateLidCheckMap[newID] = i;
-          }
-        }
-      }
-      QindicesVec.insert(QindicesVec.end(), FindicesVec.begin(), FindicesVec.end()); 
-
-      if (FjacLIDs.size() != FindicesVec.size() ) // Houston we have a problem
-      {
-        Report::DevelFatal().in("DeviceInstance::getNumericalMatrixSensitivity") << "Internal Error 1";
-      }
-
-      QjacLIDs.resize(FjacLIDs.size());
-      for (int i=0 ; i<FjacLIDs.size(); ++i)
-      {
-        int jCol = FjacLIDs[i].size(); QjacLIDs[i].resize(jCol);
-        for (int j=0 ; j<jCol ; ++j) { QjacLIDs[i][j] = FjacLIDs[i][j]; }
-      }
-
-      // grab some references
-      const ExternData & extData = (*begin)->getExternData();
-      Linear::Vector & Fvec          = (*extData.daeFVectorPtr);
-      Linear::Vector & Qvec          = (*extData.daeQVectorPtr);
-      Linear::Vector & Bvec          = (*extData.daeBVectorPtr);
-      Linear::Vector & nextSol      = (*extData.nextSolVectorPtr);
-
-      Linear::Vector & lastSta      = (*extData.lastStaVectorPtr);
-      Linear::Vector & currSta      = (*extData.currStaVectorPtr);
-      Linear::Vector & nextSta      = (*extData.nextStaVectorPtr);
-      Linear::Vector & nextStaDeriv = (*extData.nextStaDerivVectorPtr);
-
-      Linear::Matrix & dQdxMat      = (*extData.dQdxMatrixPtr);
-      Linear::Matrix & dFdxMat      = (*extData.dFdxMatrixPtr);
-
-      int solSize=FindicesVec.size();
-      int stateSize=stateIndicesVec.size();
-      mlData.resizeSolnSizedVectors (solSize);
-      mlData.resizeStateSizedVectors (stateSize);
-
-      std::vector< std::vector<double> > & numJacF = mlData.numJac;
-      std::vector< std::vector<double> > & saveJacF = mlData.saveJac;
-      std::vector< std::vector<double> > & devJacF = mlData.devJac;
-
-      std::vector< std::vector<double> > & numJacQ = mlData.numJacQ;
-      std::vector< std::vector<double> > & saveJacQ = mlData.saveJacQ;
-      std::vector< std::vector<double> > & devJacQ = mlData.devJacQ;
-
-      std::vector< std::vector<int> > & stencil = mlData.stencil;
-
-      std::vector<double> & saveF = mlData.saveF;
-      std::vector<double> & saveQ = mlData.saveQ;
-      std::vector<double> & saveB = mlData.saveB;
-
-      std::vector<double> & saveLastState = mlData.saveLastState;
-      std::vector<double> & saveCurrState = mlData.saveCurrState;
-      std::vector<double> & saveNextState = mlData.saveNextState;
-      std::vector<double> & saveStateDerivs = mlData.saveStateDerivs;
-
-      // initialize/ zero things out
-      saveF.assign(saveF.size(),0.0);
-      saveQ.assign(saveQ.size(),0.0);
-      saveB.assign(saveB.size(),0.0);
-
-      // zero out the matrix stuff
-      for (int i=0;i<numJacF.size();++i)
-      {
-        numJacF[i].assign(numJacF[i].size(),0.0);
-        saveJacF[i].assign(saveJacF[i].size(),0.0);
-        devJacF[i].assign(devJacF[i].size(),0.0);
-        stencil[i].assign(stencil[i].size(),0);
-
-        numJacQ[i].assign(numJacQ[i].size(),0.0);
-        saveJacQ[i].assign(saveJacQ[i].size(),0.0);
-        devJacQ[i].assign(devJacQ[i].size(),0.0);
-      }
-
-      d_dfdx_dp.clear();
-      d_dqdx_dp.clear();
-      d_dfdx_dp.resize(FindicesVec.size());
-      d_dqdx_dp.resize(FindicesVec.size());
-
-      for (int i=0;i<d_dfdx_dp.size();++i)
-      {
-        d_dfdx_dp[i].resize(d_dfdx_dp.size(),0.0);
-        d_dqdx_dp[i].resize(d_dqdx_dp.size(),0.0);
-      }
-
-      // save RHS information
-      std::vector<int> origFlags( baseInstanceContainer.size() );
-      int ii=0;
-      for (iterInst=begin;iterInst!=end;++iterInst,++ii)
-      {
-        origFlags[ii] = static_cast<int> (  (*iterInst)->getOrigFlag() );
-      }
-
-      for (int i=0; i<saveF.size(); ++i)
-      {
-        saveF[i]      = Fvec[FindicesVec[i]];
-        saveQ[i]      = Qvec[FindicesVec[i]];
-        saveB[i]      = Bvec[FindicesVec[i]];
-      }
-      //const std::vector<int> & devStateLIDs = getStaLIDVec();
-      for (int i=0; i<saveLastState.size(); ++i)
-      {
-        saveLastState[i] = lastSta[stateIndicesVec[i]];
-        saveCurrState[i] = currSta[stateIndicesVec[i]];
-        saveNextState[i] = nextSta[stateIndicesVec[i]];
-        saveStateDerivs[i] = nextStaDeriv[stateIndicesVec[i]];
-      }
-
-      // re-load for just this instance:
-      for (iterInst=begin;iterInst!=end;++iterInst,++ii)
-      {
-        (*iterInst)->numJacPtr->loadLocalDAEVectorsIncludingB(*(*iterInst));
-      }
-
-      // save the Jacobian matrix information. 
-      //
-      // the number of rows in saveF is equal to a union of all the rows from all the instances.
-      // So this number (-1) is what "ii" should end up at.
-      //
-      // Or it should be the sum of numRows from each instance.  If done this way, then some rows might
-      // be represented more than once.  The code below is written with this logic.
-      // Essentially this will be a vector of jacobian stamps, push into the same STL object.
-      {
-        int ii=0; // master row index
-        for (iterInst=begin;iterInst!=end;++iterInst)
-        {
-          const IdVector & devLIDs = (*iterInst)->getDevLIDs();
-          const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-
-          for (int i=0 ; i<devLIDs.size(); ++i, ++ii)
-          {
-            int jCol = devJacLIDs[i].size();
-            for (int j=0 ; j<jCol ; ++j)
-            {
-              double valF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
-              saveJacF[ii][j] = valF;
-              double valQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
-              saveJacQ[ii][j] = valQ;
-            }
-          }
-        }
-      }
-
-      // Zeroing needs to be done after all saved values are
-      // recorded because there can be multiple references
-      // to the same element
-      {
-        for (iterInst=begin;iterInst!=end;++iterInst)
-        {
-          const IdVector & devLIDs = (*iterInst)->getDevLIDs();
-          const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-
-          for (int i=0 ; i<devLIDs.size(); ++i)
-          {
-            int jCol = devJacLIDs[i].size();
-            for (int j=0 ; j<jCol ; ++j)
-            {
-              dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-              dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-            }
-          }
-        }
-      }
-
-      // Now that the original load has been zeroed out, re-load the
-      // analytic contributions, to get the contributions from *just* this
-      // device.
-      {
-        for (iterInst=begin;iterInst!=end;++iterInst)
-        {
-          const IdVector & devLIDs = (*iterInst)->getDevLIDs();
-          const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-
-          (*iterInst)->loadDAEdQdx ();
-          (*iterInst)->loadDAEdFdx ();
-        }
-      }
-
-      for (int i=0 ; i<devJacF.size() ; ++i)
-      {
-        devJacF[i].assign(devJacF[i].size(),0.0);
-        devJacQ[i].assign(devJacQ[i].size(),0.0);
-        stencil[i].assign(stencil[i].size(),0);
-      }
-
-      for (iterInst=begin;iterInst!=end;++iterInst)
-      {
-        const IdVector & devLIDs = (*iterInst)->getDevLIDs();
-        const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-        const std::vector< std::vector<int> > & jacStamp   = (*iterInst)->jacobianStamp();
-
-        int ii=0; // master row index
-        for (int i=0 ; i<devJacLIDs.size() ; ++i,++ii)
+        for (int i=0 ; i<devLIDs.size(); ++i, ++ii)
         {
           int jCol = devJacLIDs[i].size();
           for (int j=0 ; j<jCol ; ++j)
           {
             double valF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
-            devJacF[ii][jacStamp[i][j]] = valF;
+            saveJacF[ii][j] = valF;
             double valQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
-            devJacQ[ii][jacStamp[i][j]] = valQ;
-            stencil[ii][jacStamp[i][j]] = 1;
+            saveJacQ[ii][j] = valQ;
           }
         }
       }
+    }
 
-      // zero again
-      {
-        for (iterInst=begin;iterInst!=end;++iterInst)
-        {
-          const IdVector & devLIDs = (*iterInst)->getDevLIDs();
-          const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-
-          for (int i=0 ; i<devLIDs.size(); ++i)
-          {
-            int jCol = devJacLIDs[i].size();
-            for (int j=0 ; j<jCol ; ++j)
-            {
-              dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-              dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-            }
-          }
-        }
-      }
-
-      // perturb the parameter
-      double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
-      double sqrtEta= std::sqrt(epsilon);
-      double dP = sqrtEta * fabs( origParamValue );
-      double minDouble = Util::MachineDependentParams::DoubleMin();
-      if (dP < minDouble)
-      {
-        dP = sqrtEta;
-      }
-
-      double newParamValue = origParamValue + dP;
-
-      if (paramName == "")
-      {
-        setDefaultParam(newParamValue, false);
-      }
-      else
-      {
-        setParam(paramName, newParamValue, false);
-      }
-
-      processParams (); // if this "entity" is a model, then need to
-      // also do a  "processParams" on the related instances.
-      processInstanceParams();
-
-      // load new values for F,Q,B  (this is done here b/c Jacobian elements computed here)
-      for (iterInst=begin; iterInst != end; ++iterInst)
-      {
-        Xyce::Device::DeviceInstance * instPtr = *(iterInst);
-        instPtr->numJacPtr->loadLocalDAEVectorsIncludingB(*instPtr);
-        instPtr->loadDAEdQdx ();
-        instPtr->loadDAEdFdx ();
-      }
-
-      // Save the new matrix, compute the derivatives
+    // Zeroing needs to be done after all saved values are
+    // recorded because there can be multiple references
+    // to the same element
+    {
       for (iterInst=begin;iterInst!=end;++iterInst)
       {
         const IdVector & devLIDs = (*iterInst)->getDevLIDs();
         const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
-        const std::vector< std::vector<int> > & jacStamp   = (*iterInst)->jacobianStamp();
 
-        int ii=0; // will be the master row index
-
-        for (int i=0 ; i<devJacLIDs.size() ; ++i,++ii)      
+        for (int i=0 ; i<devLIDs.size(); ++i)
         {
           int jCol = devJacLIDs[i].size();
           for (int j=0 ; j<jCol ; ++j)
           {
-            double pertValF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
-            numJacF[ii][j] = pertValF;
-            double pertValQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
-            numJacQ[ii][j] = pertValQ;
-
-            d_dfdx_dp[i][j] = (pertValF - devJacF[ii][j])/dP;
-            d_dqdx_dp[i][j] = (pertValQ - devJacQ[ii][j])/dP;
+            dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
+            dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
           }
         }
       }
+    }
 
-      // restore everything:
-      if (paramName == "")
+    // Now that the original load has been zeroed out, re-load the
+    // analytic contributions, to get the contributions from *just* this
+    // device.
+    {
+      for (iterInst=begin;iterInst!=end;++iterInst)
       {
-        setDefaultParam(origParamValue, false);
+        const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+        const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+
+        (*iterInst)->loadDAEdQdx ();
+        (*iterInst)->loadDAEdFdx ();
       }
-      else
-      {
-        setParam(paramName, origParamValue, false);
-      }
+    }
 
-      processParams (); // if this "entity" is a model, then need to
-      // also do a  "processParams" on the related instances.
-      processInstanceParams();
+    for (int i=0 ; i<devJacF.size() ; ++i)
+    {
+      devJacF[i].assign(devJacF[i].size(),0.0);
+      devJacQ[i].assign(devJacQ[i].size(),0.0);
+      stencil[i].assign(stencil[i].size(),0);
+    }
 
+    for (iterInst=begin;iterInst!=end;++iterInst)
+    {
+      const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+      const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+      const std::vector< std::vector<int> > & jacStamp   = (*iterInst)->jacobianStamp();
+
+      int ii=0; // master row index
+      for (int i=0 ; i<devJacLIDs.size() ; ++i,++ii)
       {
-        int ii=0;
-        for (iterInst=begin;iterInst!=end;++iterInst,++ii)
+        int jCol = devJacLIDs[i].size();
+        for (int j=0 ; j<jCol ; ++j)
         {
-          (*iterInst)->setOrigFlag( static_cast<bool>(origFlags[ii])  );
+          double valF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          devJacF[ii][jacStamp[i][j]] = valF;
+          double valQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          devJacQ[ii][jacStamp[i][j]] = valQ;
+          stencil[ii][jacStamp[i][j]] = 1;
         }
-      } 
-      
-      for (int i=0; i<FindicesVec.size(); ++i)
-      {
-        Fvec[FindicesVec[i]] = saveF[i];
-        Qvec[FindicesVec[i]] = saveQ[i];
-        Bvec[FindicesVec[i]] = saveB[i];
       }
+    }
 
-      for (int i=0; i<saveLastState.size(); ++i)
+    // zero again
+    {
+      for (iterInst=begin;iterInst!=end;++iterInst)
       {
-        lastSta[stateIndicesVec[i]] = saveLastState[i];
-        currSta[stateIndicesVec[i]] = saveCurrState[i];
-        nextSta[stateIndicesVec[i]] = saveNextState[i];
-        nextStaDeriv[stateIndicesVec[i]] = saveStateDerivs[i];
+        const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+        const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+
+        for (int i=0 ; i<devLIDs.size(); ++i)
+        {
+          int jCol = devJacLIDs[i].size();
+          for (int j=0 ; j<jCol ; ++j)
+          {
+            dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
+            dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
+          }
+        }
       }
-    } // isThisWorthDoing
+    }
+
+    // perturb the parameter
+    double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
+    double sqrtEta= std::sqrt(epsilon);
+    double dP = sqrtEta * fabs( origParamValue );
+    double minDouble = Util::MachineDependentParams::DoubleMin();
+    if (dP < minDouble)
+    {
+      dP = sqrtEta;
+    }
+
+    double newParamValue = origParamValue + dP;
+
+    if (paramName == "")
+    {
+      setDefaultParam(newParamValue, false);
+    }
+    else
+    {
+      setParam(paramName, newParamValue, false);
+    }
+
+    processParams (); // if this "entity" is a model, then need to
+    // also do a  "processParams" on the related instances.
+    processInstanceParams();
+
+    // load new values for F,Q,B  (this is done here b/c Jacobian elements computed here)
+    for (iterInst=begin; iterInst != end; ++iterInst)
+    {
+      Xyce::Device::DeviceInstance * instPtr = *(iterInst);
+      instPtr->numJacPtr->loadLocalDAEVectorsIncludingB(*instPtr);
+      instPtr->loadDAEdQdx ();
+      instPtr->loadDAEdFdx ();
+    }
+
+    // Save the new matrix, compute the derivatives
+    for (iterInst=begin;iterInst!=end;++iterInst)
+    {
+      const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+      const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+      const std::vector< std::vector<int> > & jacStamp   = (*iterInst)->jacobianStamp();
+
+      int ii=0; // will be the master row index
+
+      for (int i=0 ; i<devJacLIDs.size() ; ++i,++ii)      
+      {
+        int jCol = devJacLIDs[i].size();
+        for (int j=0 ; j<jCol ; ++j)
+        {
+          double pertValF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          numJacF[ii][j] = pertValF;
+          double pertValQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          numJacQ[ii][j] = pertValQ;
+
+          d_dfdx_dp[i][j] = (pertValF - devJacF[ii][j])/dP;
+          d_dqdx_dp[i][j] = (pertValQ - devJacQ[ii][j])/dP;
+        }
+      }
+    }
+
+    // restore everything:
+    if (paramName == "")
+    {
+      setDefaultParam(origParamValue, false);
+    }
+    else
+    {
+      setParam(paramName, origParamValue, false);
+    }
+
+    processParams (); // if this "entity" is a model, then need to
+    // also do a  "processParams" on the related instances.
+    processInstanceParams();
+
+    {
+      int ii=0;
+      for (iterInst=begin;iterInst!=end;++iterInst,++ii)
+      {
+        (*iterInst)->setOrigFlag( static_cast<bool>(origFlags[ii])  );
+      }
+    } 
+    
+    for (int i=0; i<FindicesVec.size(); ++i)
+    {
+      Fvec[FindicesVec[i]] = saveF[i];
+      Qvec[FindicesVec[i]] = saveQ[i];
+      Bvec[FindicesVec[i]] = saveB[i];
+    }
+
+    for (int i=0; i<saveLastState.size(); ++i)
+    {
+      lastSta[stateIndicesVec[i]] = saveLastState[i];
+      currSta[stateIndicesVec[i]] = saveCurrState[i];
+      nextSta[stateIndicesVec[i]] = saveNextState[i];
+      nextStaDeriv[stateIndicesVec[i]] = saveStateDerivs[i];
+    }
+
+    // restore the Jacobian matrix information
+    {
+      int ii=0; // master row index
+      for (iterInst=begin;iterInst!=end;++iterInst)
+      {
+        const IdVector & devLIDs = (*iterInst)->getDevLIDs();
+        const std::vector<IdVector > & devJacLIDs = (*iterInst)->getDevJacLIDs();
+
+        for (int i=0 ; i<devLIDs.size(); ++i, ++ii)
+        {
+          int jCol = devJacLIDs[i].size();
+          for (int j=0 ; j<jCol ; ++j)
+          {
+            dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = saveJacF[ii][j];
+            dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = saveJacQ[ii][j];
+          }
+        }
+      }
+    }
+
+
   } // found
 
   return found;
