@@ -1479,6 +1479,7 @@ bool AC::solveDirectSensitivity_()
       ds.dOdpVec_.push_back(dOdpReal);
       ds.dOdpVec_.push_back(dOdpImag);
 
+
       // do polar
       double dOdp_mag, dOdp_phase;
       solve_mag_phase_Sensitivities_(dOdpReal, dOdpImag, xr, xi, dOdp_mag, dOdp_phase);
@@ -1707,24 +1708,31 @@ bool AC::computeNumerical_dJdp(const std::string & name)
   updateLinearSystem_C_and_G_();
 
   dJdp_->put(0.0);
-  dJdp_->block( 0, 0 ).add(*G_ );
+  dJdp_->block(0, 0).add(*G_ );
+  dJdp_->block(0, 0).scale(-1.0);
+  dJdp_->block(0, 0).add(ACMatrix_->block(0,0));
+  dJdp_->block(0, 0).scale(-1.0/dP);
 
   // Second diagonal block
-  dJdp_->block( 1, 1 ).add(*G_);
+  dJdp_->block(1, 1).add(*G_);
+  dJdp_->block(1, 1).scale(-1.0);
+  dJdp_->block(1, 1).add(ACMatrix_->block(1,1));
+  dJdp_->block(1, 1).scale(-1.0/dP);
 
   double omega =  2.0 * M_PI * currentFreq_;
 
-  dJdp_->block( 0, 1).put( 0.0);
-  dJdp_->block( 0, 1).add(*C_);
-  dJdp_->block( 0, 1).scale(-omega);
+  dJdp_->block(0, 1).put( 0.0);
+  dJdp_->block(0, 1).add(*C_);
+  dJdp_->block(0, 1).scale(omega);
+  dJdp_->block(0, 1).add(ACMatrix_->block(0,1));
+  dJdp_->block(0, 1).scale(-1.0/dP);
 
-  dJdp_->block(1, 0).put( 0.0);
+
+  dJdp_->block(1, 0).put(0.0);
   dJdp_->block(1, 0).add(*C_);
-  dJdp_->block(1, 0).scale(omega);
-
-  dJdp_->scale( -1.0 );
-  dJdp_->add( *ACMatrix_ );
-  dJdp_->scale( -1.0/dP );
+  dJdp_->block(1, 0).scale(-omega);
+  dJdp_->block(1, 0).add(ACMatrix_->block(1,0));
+  dJdp_->block(1, 0).scale(-1.0/dP);
   dJdp_->assembleGlobalMatrix();
 
   // restore param and matrix:
@@ -1792,13 +1800,19 @@ bool AC::loadSensitivityRHS_(const std::string & name)
       (*dbdpVecImagPtr)[BindicesVec[ib]] += dbdp[ib].imag();
     }
 
+#ifdef Xyce_PARALLEL_MPI
     dbdpVecRealPtr->importOverlap();
     dbdpVecImagPtr->importOverlap();
+#endif
 
     dBdp_->block( 0 ).addVec( 1.0, *dbdpVecRealPtr);
     dBdp_->block( 1 ).addVec( 1.0, *dbdpVecImagPtr);
 
-    sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );  
+    sensRhs_->axpy( *sensRhs_, 1.0, *dBdp_ );  
+
+#ifdef Xyce_PARALLEL_MPI
+    sensRhs_->importOverlap();
+#endif
   }
   else // If couldn't obtain B', then try J'.  
   {
@@ -1875,11 +1889,9 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     bool Transpose = false;
     dJdp_->matvec( Transpose , *X_, *sensRhs_ );
     sensRhs_->scale(-1.0);
-  }
-  else
-  {
-    // this assumes that sensRhs has dBdp or has -J'*X, but not both
-    sensRhs_->axpy( *sensRhs_, 1.0, *dBdp_ );  
+#ifdef Xyce_PARALLEL_MPI
+    sensRhs_->importOverlap();
+#endif
   }
 
   return true;
@@ -2054,6 +2066,9 @@ bool AC::setup_dOdX_(int iobj)
     }
   }
   dOdxVecRealPtr->fillComplete();
+#ifdef Xyce_PARALLEL_MPI
+  dOdxVecRealPtr->importOverlap();
+#endif
 
   dOdXreal_->putScalar( 0.0 );
   dOdXreal_->block( 0 ).addVec( 1.0, *dOdxVecRealPtr);
