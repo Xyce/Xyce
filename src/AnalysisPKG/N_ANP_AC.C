@@ -1645,7 +1645,6 @@ bool AC::solveAdjointSensitivity_()
 //-----------------------------------------------------------------------------
 bool AC::computeNumerical_dJdp(const std::string & name)
 {
-
   double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
   double sqrtEta= std::sqrt(epsilon);
 
@@ -1781,24 +1780,27 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   }
 
   dBdp_->putScalar( 0.0 );
-  if (!(BindicesVec.empty())) 
+
+  if (analyticBVecSensAvailable || deviceLevelBVecSensNumericalAvailable)
   {
     dbdpVecRealPtr->putScalar(0.0);
     dbdpVecImagPtr->putScalar(0.0);
+
     for (int ib=0;ib<BindicesVec.size();++ib)
     {
       (*dbdpVecRealPtr)[BindicesVec[ib]] += dbdp[ib].real();
       (*dbdpVecImagPtr)[BindicesVec[ib]] += dbdp[ib].imag();
     }
+
+    dbdpVecRealPtr->importOverlap();
+    dbdpVecImagPtr->importOverlap();
+
     dBdp_->block( 0 ).addVec( 1.0, *dbdpVecRealPtr);
     dBdp_->block( 1 ).addVec( 1.0, *dbdpVecImagPtr);
 
-    // if inside of this if-statement, calc is done, except for adding dBdp to sensRhs_
+    sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );  
   }
-
-  // If couldn't obtain B', then try J'.  
-  // Note that the "Avail" functions are not very accurate yet, so checking Bindices.size
-  if (BindicesVec.empty()) 
+  else // If couldn't obtain B', then try J'.  
   {
     // J'*X sensitivities
     bool analyticMatrixAvailable = loader_.analyticMatrixSensitivitiesAvailable (name);
