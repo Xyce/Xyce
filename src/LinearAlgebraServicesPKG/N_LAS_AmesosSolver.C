@@ -54,16 +54,13 @@
 #include <N_LAS_AmesosSolver.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_TransformTool.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
-
-#include <EpetraExt_RowMatrixOut.h>
-#include <EpetraExt_MultiVectorOut.h>
-#include <EpetraExt_BlockMapOut.h>
 
 #include <Teuchos_Utils.hpp>
 
@@ -163,7 +160,7 @@ bool AmesosSolver::setOptions( const Util::OptionBlock & OB )
   options_->addParam(Util::Param("TR_reindex", 1));
 #endif
 
-  if( !transform_.get() ) transform_ = TransformTool()( *options_ );
+  if( Teuchos::is_null(transform_) ) transform_ = TransformTool()( *options_ );
 
   return true;
 }
@@ -222,9 +219,11 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
 
   int linearStatus = 0;
 
+  // The Epetra_LinearProblem, prob, is the linear system being solved.
+  // It will point to either the original linear system or transformed system.
   Epetra_LinearProblem * prob = problem_;
 
-  if( transform_.get() )
+  if( !Teuchos::is_null(transform_) )
   {
     if( !tProblem_ )
       tProblem_ = &((*transform_)( *problem_ ));
@@ -236,35 +235,16 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
   static int failure_number = 0, file_number = 1, base_file_number = 1;
   if (outputLS_) {
     if (!(file_number % outputLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Transformed_BlockMap.mm", (prob->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Transformed_Matrix%d.mm", file_number );
-
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(prob->GetMatrix()), sandiaReq.c_str() );
-        sprintf( file_name, "Transformed_RHS%d.mm", file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(prob->GetRHS()) );
+        Xyce::Linear::writeToFile( *prob, "Transformed", file_number, (file_number == 1) );
       }
     }
     // file_number++;  This will be incremented after the solution vector is written to file.
   }
   if (outputBaseLS_) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (base_file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (problem_->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-        lasProblem_.getMatrix()->writeToFile( file_name, false, true ); 
-        sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        lasProblem_.getRHS()->writeToFile( file_name, false, true );
+        Xyce::Linear::writeToFile( *problem_, "Base", base_file_number, (base_file_number == 1) );
       }
     }
     // base_file_number++;  This will be incremented after the solution vector is written to file.
@@ -390,18 +370,7 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
       // Output the singular linear system to a Matrix Market file if outputFailedLS_ > 0
       if (outputFailedLS_) {
         failure_number++;
-        char file_name[40];
-        if (failure_number== 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Failed_BlockMap.mm", (prob->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Failed_Matrix%d.mm", failure_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(prob->GetMatrix()), sandiaReq.c_str() );
-        sprintf( file_name, "Failed_RHS%d.mm", failure_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(prob->GetRHS()) );
+        Xyce::Linear::writeToFile( *prob, "Failed", failure_number, (failure_number == 1) );
       }
 
       return linearStatus;  // return the actual status (see bug 414 SON)
@@ -434,14 +403,15 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
       std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << std::endl;
   }
 
-  if( transform_.get() ) transform_->rvs();
+  if( !Teuchos::is_null(transform_) ) transform_->rvs();
 
   // Output computed solution vectors, if requested.
   if (outputLS_) {
     if (!(file_number % outputLS_)) {
+      Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
       char file_name[40];
       sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetLHS()) );
+      las_prob->getLHS()->writeToFile( file_name, false, true );
     }
     file_number++;
   }

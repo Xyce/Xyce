@@ -42,18 +42,23 @@
 
 // ---------- Standard Includes ----------
 #include <vector>
-
+#include <string>
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_fwd.h>
 #include <Teuchos_RCP.hpp>
 
 #include <Epetra_Operator.h>
+#include <Epetra_LinearProblem.h>
 
 // ---------- Forward Declarations ----------
 
 namespace Xyce {
 namespace Linear {
+
+// Helper function for writing Epetra_LinearProblem to file
+void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
+                 int file_number, bool write_map);
 
 //-----------------------------------------------------------------------------
 // Class         : EpetraTransOp

@@ -49,6 +49,7 @@
 // ----------   Other Includes   ----------
 
 #include <Epetra_Map.h>
+#include <EpetraExt_BlockMapOut.h>
 
 //-----------------------------------------------------------------------------
 // Function      : N_PDS_EpetraParMap::N_PDS_EpetraParMap
@@ -186,6 +187,19 @@ int N_PDS_EpetraParMap::globalToLocalIndex(int global_index) const
 int N_PDS_EpetraParMap::localToGlobalIndex(int local_index) const
 {
   return petraMap_->GID(local_index);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : N_PDS_EpetraParMap::writeToFile
+// Purpose       : write out map
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist 
+// Creation Date : 12/14/20
+//-----------------------------------------------------------------------------
+void N_PDS_EpetraParMap::writeToFile(const char * filename) const
+{
+  EpetraExt::BlockMapToMatrixMarketFile( filename, *petraMap_ );
 }
 
 //-----------------------------------------------------------------------------

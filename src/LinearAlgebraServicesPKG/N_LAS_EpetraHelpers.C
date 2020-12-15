@@ -53,6 +53,10 @@
 #include <Epetra_CrsGraph.h>
 #include <Epetra_MultiVector.h>
 
+#include <EpetraExt_RowMatrixOut.h>
+#include <EpetraExt_MultiVectorOut.h>
+#include <EpetraExt_BlockMapOut.h>
+
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
@@ -109,6 +113,28 @@ Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b )
 {
   return new EpetraProblem( Op, x, b );
 }
+
+void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
+                 int file_number, bool write_map)
+{
+  std::string file_name;
+  char char_file_name[40];
+  if (write_map) {
+    file_name = prefix + "_BlockMap.mm";
+    EpetraExt::BlockMapToMatrixMarketFile( file_name.c_str(), (problem.GetMatrix())->Map() );
+  }
+
+  file_name = prefix + "_Matrix%d.mm";
+  sprintf( char_file_name, file_name.c_str(), file_number );
+  std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
+  sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
+  sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
+  EpetraExt::RowMatrixToMatrixMarketFile( char_file_name, *(problem.GetMatrix()), sandiaReq.c_str() );
+  file_name = prefix + "_RHS%d.mm";
+  sprintf( char_file_name, file_name.c_str(), file_number );
+  EpetraExt::MultiVectorToMatrixMarketFile( char_file_name, *(problem.GetRHS()) );
+}
+
                
 // ///////////////////////////////////////////////////////////////////
 //

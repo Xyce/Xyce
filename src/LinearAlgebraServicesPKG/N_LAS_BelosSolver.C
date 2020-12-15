@@ -49,9 +49,9 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Preconditioner.h>
 #include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_TrilinosPrecondFactory.h>
-#include <N_LAS_EpetraHelpers.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
@@ -65,27 +65,11 @@
 #include <BelosEpetraAdapter.hpp>
 #include <BelosLinearProblem.hpp>
 
-#include <EpetraExt_RowMatrixOut.h>
-#include <EpetraExt_MultiVectorOut.h>
-#include <EpetraExt_BlockMapOut.h>
-
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_Utils.hpp>
 
 namespace Xyce {
 namespace Linear {
-
-//-----------------------------------------------------------------------------
-// Function      : BelosSolver::~BelosSolver
-// Purpose       : Default destructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL, Electrical & Microsystem Modeling
-// Creation Date : 05/18/04
-//-----------------------------------------------------------------------------
-BelosSolver::~BelosSolver()
-{
-}
 
 //-----------------------------------------------------------------------------
 // Function      : BelosSolver::BelosSolver
@@ -308,14 +292,18 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   if (VERBOSE_LINEAR)
     time1 = timer_->wallTime();
 
+  // The Epetra_LinearProblem, prob, is the linear system being solved.
+  // It will point to either the original linear system or transformed system.
+  Epetra_LinearProblem * prob = problem_;
+
   if( !Teuchos::is_null(transform_) )
   {
     if( !tProblem_ )
     {
       tProblem_ = &((*transform_)( *problem_ ));
-      tProblem_->SetPDL(unsure);
+      solver_ = Teuchos::null;
     }
-    std::swap( tProblem_, problem_ );
+    prob = tProblem_;
     transform_->fwd();
   }
 
@@ -329,13 +317,13 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
 
     Teuchos::RCP< Epetra_Operator > A;
     if (lasProblem_.matrixFree()) {
-      A = Teuchos::rcp( problem_->GetOperator(), false );
+      A = Teuchos::rcp( prob->GetOperator(), false );
     }
     else {
-      A = Teuchos::rcp( problem_->GetMatrix(), false );
+      A = Teuchos::rcp( prob->GetMatrix(), false );
     }
-    Teuchos::RCP< Epetra_MultiVector> X = Teuchos::rcp( problem_->GetLHS(), false );
-    Teuchos::RCP< Epetra_MultiVector> B = Teuchos::rcp( problem_->GetRHS(), false );
+    Teuchos::RCP< Epetra_MultiVector> X = Teuchos::rcp( prob->GetLHS(), false );
+    Teuchos::RCP< Epetra_MultiVector> B = Teuchos::rcp( prob->GetRHS(), false );
     belosProblem_ =
       Teuchos::rcp( new Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator>( A, X, B ) );
 
@@ -368,7 +356,6 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   if( trivialLS_ && !Teuchos::is_null(transform_) )
   {
     transform_->rvs();
-    std::swap( tProblem_, problem_ );
     return 0;
   }
 
@@ -376,33 +363,16 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   static int file_number = 1, base_file_number = 1;
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Transformed_BlockMap.mm", (problem_->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Transformed_Matrix%d.mm", file_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
-        sprintf( file_name, "Transformed_RHS%d.mm", file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
+        Xyce::Linear::writeToFile( *prob, "Transformed", file_number, (file_number == 1) );
       }
     }
     // file_number++;  This is incremented below after the solution is written to file.
   }
   if (outputBaseLS_ && !lasProblem_.matrixFree()) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (base_file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (tProblem_->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-        lasProblem_.getMatrix()->writeToFile( file_name, false, true );
-        sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        lasProblem_.getRHS()->writeToFile( file_name, false, true );
+        Xyce::Linear::writeToFile( *problem_, "Base", base_file_number, (base_file_number == 1) );
       }
     }
     // base_file_number++;  This is incremented below after the solution is written to file.
@@ -411,7 +381,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   if (VERBOSE_LINEAR)
     time1 = timer_->wallTime();
 
-  Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new EpetraProblem( Teuchos::rcp(problem_,false) ) );
+  Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new EpetraProblem( Teuchos::rcp(prob,false) ) );
 
   // Create the preconditioner if we don't have one.
   if ( Teuchos::is_null( precond_ ) ) {
@@ -421,14 +391,14 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   }
 
   // Change the operator's transpose state if necessary before creating preconditioner.
-  bool currTrans = problem_->GetOperator()->UseTranspose();
+  bool currTrans = prob->GetOperator()->UseTranspose();
   if ( transpose != currTrans )
   {
     if (VERBOSE_LINEAR)
       Xyce::dout() << "Belos: Operator with transpose state " << currTrans << " is being set to transpose state " << transpose << std::endl;
 
     // Set the system to solve with the transposed matrix.  Make sure the new preconditioner is set with the solver.
-    problem_->GetOperator()->SetUseTranspose( transpose );
+    prob->GetOperator()->SetUseTranspose( transpose );
   }
 
   // Initialize the values compute the preconditioner.
@@ -469,7 +439,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
     if ( transpose )
     {
       // Wrap the operator.
-      Teuchos::RCP<EpetraTransOp> transA = Teuchos::rcp( new EpetraTransOp( Teuchos::rcp( problem_->GetOperator(), false ) ) );
+      Teuchos::RCP<EpetraTransOp> transA = Teuchos::rcp( new EpetraTransOp( Teuchos::rcp( prob->GetOperator(), false ) ) );
       belosProblem_->setOperator( transA );   
     
       // Wrap the preconditioner, if we have one.
@@ -482,7 +452,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
     else
     {
       // Change the linear problem from the transposed problem, back to the original forward problem.
-      belosProblem_->setOperator( Teuchos::rcp( problem_->GetOperator(), false ) );
+      belosProblem_->setOperator( Teuchos::rcp( prob->GetOperator(), false ) );
       belosProblem_->setRightPrec( belosPrecond_ );   
     } 
   }
@@ -524,11 +494,11 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
     solveTime = time1 - time2;
   }
 /*
-  Epetra_MultiVector* b = problem_->GetRHS();
+  Epetra_MultiVector* b = prob->GetRHS();
   int numrhs = b->NumVectors();
   std::vector<double> actual_resids( numrhs ), rhs_norm( numrhs );
   Epetra_MultiVector resid( b->Map(), numrhs );
-  problem_->GetOperator()->Apply( *(problem_->GetLHS()), resid );
+  prob->GetOperator()->Apply( *(prob->GetLHS()), resid );
   resid.Update( -1.0, *b, 1.0 );
   resid.Norm2( &actual_resids[0] );
   b->Norm2( &rhs_norm[0] );
@@ -537,11 +507,7 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   }
 */
 
- if( !Teuchos::is_null(transform_) )
- {
-   transform_->rvs();
-   std::swap( tProblem_, problem_ );
- }
+ if( !Teuchos::is_null(transform_) ) transform_->rvs();
 
  if (VERBOSE_LINEAR)
  {
@@ -564,9 +530,10 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   // Output computed solution vectors, if requested.
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
+      Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
       char file_name[40];
       sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetLHS()) );
+      las_prob->getLHS()->writeToFile( file_name, false, true );
     }
     file_number++;
   }

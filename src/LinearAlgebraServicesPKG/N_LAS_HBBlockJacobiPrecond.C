@@ -77,7 +77,6 @@
 #include <Epetra_Import.h>
 #include <Epetra_Util.h>
 #include <Epetra_Comm.h>
-#include <EpetraExt_MatrixMatrix.h>
 #include <Amesos.h>
 
 #ifdef Xyce_PARALLEL_MPI

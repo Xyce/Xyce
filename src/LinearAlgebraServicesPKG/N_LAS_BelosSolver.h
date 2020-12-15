@@ -81,7 +81,7 @@ public:
     Util::OptionBlock & options);
 
   // Destructor
-  ~BelosSolver();
+  ~BelosSolver() {}
 
   //Control of solver options
   bool setOptions( const Util::OptionBlock & OB );
