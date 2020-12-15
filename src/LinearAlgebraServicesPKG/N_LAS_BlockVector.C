@@ -91,7 +91,7 @@ BlockVector::BlockVector( int numBlocks,
   for( int i = 0; i < numBlocks; ++i )
   {
     Loc = Ptrs[0] + overlapBlockSize_*i;
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
   }
 }
 
@@ -154,7 +154,7 @@ BlockVector::BlockVector( int blockSize,
     Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_currBlockMap->petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {
@@ -162,6 +162,21 @@ BlockVector::BlockVector( int blockSize,
       Loc += blockSize;
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : BlockVector::operator=
+// Purpose       : assignment
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
+BlockVector & BlockVector::operator=( const BlockVector & right )
+{
+  MultiVector::operator=( right ); 
+
+  return *this;
 }
 
 //-----------------------------------------------------------------------------
@@ -203,7 +218,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
       for( int i = 0; i < numBlocks; ++i )
       {
         Loc = Ptrs[0] + overlapBlockSize_*i;
-        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_map.petraMap()), Loc ), true ) );
+        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
       }
     }
     else
@@ -233,7 +248,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
   {
     for( int i = 0; i < numBlocks_; ++i )
     {
-      blocks_[i] =  Teuchos::rcp( new Vector( *(rhs.blocks_[i]) ) );
+      blocks_[i] =  Teuchos::rcp( rhs.blocks_[i]->cloneCopy() );
     }
   }
 }
@@ -300,7 +315,7 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
     Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *dynamic_cast<Epetra_BlockMap*>(e_currBlockMap->petraMap()), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {

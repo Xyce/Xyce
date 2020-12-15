@@ -486,7 +486,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   Linear::Vector freqDFDXtVf( *(hbBuilderPtr_->getSolutionMap()) );
   if ( overlapMap_ != Teuchos::null )
   {
-    Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( new Linear::Vector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
+    Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
     *Vf_overlap_tmp = Vf;
     Vf_overlap_tmp->importOverlap();
     Vf_overlap = Vf_overlap_tmp;
@@ -646,7 +646,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
   appNextStaVecPtr_->putScalar(0.0);
   appCurrStaVecPtr_->putScalar(0.0);
   appLastStaVecPtr_->putScalar(0.0);
-  Linear::Vector appdSdt( *appNextStaVecPtr_ );
+  Linear::Vector * appdSdt = builder_.createStateVector();
 
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
@@ -744,7 +744,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     *appNextStaVecPtr_ = bS.block(i);
     *appCurrStaVecPtr_ = bcurrS.block(i);
     *appLastStaVecPtr_ = blastS.block(i);
-    appdSdt = bdSdt.block(i);
+    *appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
     *appNextLeadFVecPtr_  = bNextLeadF.block(i);
@@ -789,7 +789,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       ( &*appVecPtr_,
         &*appVecPtr_,  // note, this is a placeholder! ERK
         &*appVecPtr_,  // note, this is a placeholder! ERK
-        &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, &appdSdt,
+        &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, &*appdSdt,
         &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
         &*appNextLeadFVecPtr_, &*appLeadQVecPtr_, 
         &*appNextJunctionVVecPtr_, 
@@ -820,7 +820,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Load dQdx and dFdx into the storage location for this time point, for linear devices.
     if (i == 0 && Teuchos::is_null(linAppdQdxPtr_) && Teuchos::is_null(linAppdFdxPtr_))
     {
-      appLoaderPtr_->loadDAEMatrices( &*appVecPtr_, &*appNextStaVecPtr_, &appdSdt, &*appNextStoVecPtr_, &*appdQdxPtr_, &*appdFdxPtr_, Xyce::Device::LINEAR_FREQ);
+      appLoaderPtr_->loadDAEMatrices( &*appVecPtr_, &*appNextStaVecPtr_, &*appdSdt, &*appNextStoVecPtr_, &*appdQdxPtr_, &*appdFdxPtr_, Xyce::Device::LINEAR_FREQ);
 
       // Copy over matrix values into linear storage
       linAppdQdxPtr_ = Teuchos::rcp( new Xyce::Linear::FilteredMatrix( &*appdQdxPtr_, appVecPtr_->pmap(), false ) );
@@ -838,7 +838,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     }
 
     // Load dQdx and dFdx into the storage location for this time point, for nonlinear devices.
-    appLoaderPtr_->loadDAEMatrices( &*appVecPtr_, &*appNextStaVecPtr_, &appdSdt, &*appNextStoVecPtr_, &*appdQdxPtr_, &*appdFdxPtr_, Xyce::Device::NONLINEAR_FREQ);
+    appLoaderPtr_->loadDAEMatrices( &*appVecPtr_, &*appNextStaVecPtr_, &*appdSdt, &*appNextStoVecPtr_, &*appdQdxPtr_, &*appdFdxPtr_, Xyce::Device::NONLINEAR_FREQ);
 
     // Copy over matrix values into storage for nonlinear.
     // Try to reuse filtered matrix objects whenever possible, for efficiency.
@@ -963,6 +963,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
   permutedFFT2(*bdFdxdVpt, bdFdxdVp);
 
   // Clean up temporary vectors before moving on.
+  delete appdSdt;
   delete appQ; 
   delete appF;
   delete appB;
@@ -1020,12 +1021,13 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector QVec(bQ->block(i));
-    Linear::Vector freqVec = bQ->block(i);
+    Linear::Vector * QVecPtr = (bQ->block(i)).clone();
+    Linear::Vector& QVec = *QVecPtr;
+    Linear::Vector& freqVec = bQ->block(i);
 
-    Linear::Vector dQdxdVpVec(bdQdxdVp->block(i));
-    Linear::Vector freqVec1 = bdQdxdVp->block(i);
-
+    Linear::Vector * dQdxdVpVecPtr = (bdQdxdVp->block(i)).clone();
+    Linear::Vector& dQdxdVpVec = *dQdxdVpVecPtr;
+    Linear::Vector& freqVec1 = bdQdxdVp->block(i);
 
     if (hbOsc_)
       bQPtr_->block(i) = bQ->block(i);
@@ -1043,7 +1045,6 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
       for (int j=1; j < (blockSize/2+1)/2; ++j)
       {
-        
         omega = 2.0 * M_PI * freqs_[posFreq + j] * fScalar;
 
         QVec[2*j] = -freqVec[2*j+1]*omega;
@@ -1057,13 +1058,14 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
         dQdxdVpVec[2*j+1] = freqVec1[2*j]*omega;
         dQdxdVpVec[2*(blockSize/2-j)+1] = -freqVec1[2*j]*omega;
-
       }
     }
 
     bF->block(i).update(1.0, QVec , 1.0);
-
     bdFdxdVp->block(i).update(1.0, dQdxdVpVec, 1.0);
+
+    delete QVecPtr;
+    delete dQdxdVpVecPtr;
   }
 
 //  blockCount = bStoreVecFreqPtr_->blockCount();
@@ -1079,8 +1081,9 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector leadCurrdQdtVec(bLeadCurrentQVecFreqPtr_->block(i));
-    Linear::Vector leadCurrQVec = bLeadCurrentQVecFreqPtr_->block(i);
+    Linear::Vector * leadCurrdQdtVecPtr = (bLeadCurrentQVecFreqPtr_->block(i)).clone();
+    Linear::Vector& leadCurrdQdtVec = *leadCurrdQdtVecPtr;
+    Linear::Vector& leadCurrQVec = bLeadCurrentQVecFreqPtr_->block(i);
 
     // Only one processor owns each block of the frequency-domain vector
     if (leadCurrQVec.localLength() > 0)
@@ -1103,6 +1106,8 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     }
 
     bLeadCurrentVecFreqPtr_->block(i).update(1.0, leadCurrdQdtVec, 1.0);
+
+    delete leadCurrdQdtVecPtr;
   }
 
   if (DEBUG_HB)
@@ -1133,7 +1138,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 //      (*bF)[(augmentedLIDs)[0 ]] = fScalar - 1.0;
     double refValue = 0.0;
     double tmpValue= 0.0;
-    Linear::Vector freqVec = bXf.block(refID_);
+    Linear::Vector& freqVec = bXf.block(refID_);
 
     if (freqVec.localLength() > 0)
     {

@@ -323,7 +323,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
   // Save a copy of nextSolutionPtr before stdNewtonSolve, just in case
   // of failure, so we can start gmin and source stepping with the same vector.
   // NOTE:  This is necessary if .IC statements are being enforced.
-  Linear::Vector initVec(*(dsPtr_->nextSolutionPtr));
+  Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopy();
 
   groupPtr_->setNonContinuationFlag (true);
   int isuccess = stdNewtonSolve (paramsPtr);
@@ -341,7 +341,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
     dsPtr_->setZeroHistory();
 
     // Copy saved initial solution vector.
-    (*dsPtr_->nextSolutionPtr) = initVec;
+    (*dsPtr_->nextSolutionPtr) = *initVec;
     Vector tmpVec(*dsPtr_->nextSolutionPtr, *lasSysPtr_);
     groupPtr_->setX(tmpVec);
 
@@ -367,7 +367,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       dsPtr_->setZeroHistory();
 
       // Copy saved initial solution vector.
-      (*dsPtr_->nextSolutionPtr) = initVec;
+      (*dsPtr_->nextSolutionPtr) = *initVec;
       Vector tmpVec(*dsPtr_->nextSolutionPtr, *lasSysPtr_);
       groupPtr_->setX(tmpVec);
       
@@ -385,7 +385,10 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       nonlinearEquationLoader_->resetScaledParams();
     }
   }
-    return isuccess;
+
+  delete initVec;
+
+  return isuccess;
 
 }
 

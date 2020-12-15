@@ -135,29 +135,6 @@ Xyce::Parallel::Machine N_PDS_EpetraMPIComm::comm() const
 }
     
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraMPIComm::operator=
-// Purpose       : Assignment operator.
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/26/01
-//-----------------------------------------------------------------------------
-N_PDS_EpetraMPIComm & N_PDS_EpetraMPIComm::operator=(const N_PDS_EpetraMPIComm &right)
-{
-  if (this != &right)
-  {
-    isSerial_ = right.isSerial_;
-    petraComm_  = right.petraComm_;
-    petraCommOwned_ = false;
-#ifdef Xyce_PARALLEL_MPI
-    mpiComm_ = right.mpiComm_;
-    mpiCommOwned_ = false;
-#endif
-  }
-
-  return *this;
-}
-//-----------------------------------------------------------------------------
 // Function      : N_PDS_EpetraMPIComm::~N_PDS_EpetraMPIComm
 // Purpose       : Destructor
 // Special Notes :

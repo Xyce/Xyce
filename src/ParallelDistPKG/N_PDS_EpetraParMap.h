@@ -116,6 +116,8 @@ public:
   Epetra_Map * petraMap() { return petraMap_; }
   const Epetra_Map * petraMap() const { return petraMap_; }
 
+  void writeToFile(const char * filename) const;
+
   void print(std::ostream &os) const;
 
 private:

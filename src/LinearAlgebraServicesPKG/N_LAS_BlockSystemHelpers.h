@@ -53,11 +53,31 @@
 // ---------- Forward Declarations ----------
 
 class N_PDS_ParMap;
-class Epetra_CrsGraph;
-class Epetra_BlockMap;
 
 namespace Xyce {
 namespace Linear {
+
+BlockVector* createBlockVector( int numBlocks,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                int augmentRows = 0 );
+
+BlockVector* createBlockVector( int blockSize,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                int augmentRows = 0 );
+
+BlockVector* createBlockVector( const Vector * right, int blockSize );
+
+BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
+                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap );
+
+BlockMatrix* createBlockMatrix( int size,
+                                int offset,
+                                const std::vector< std::vector<int> > & blockColumns,
+                                const Graph* globalGraph,
+                                const Graph* subBlockGraph,
+                                int augmentCount = 0 );
 
 //-----------------------------------------------------------------------------
 // Function      : generateOffset 

@@ -49,6 +49,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
+#include <N_LAS_BlockMultiVector.h>
 
 #include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
@@ -66,6 +67,44 @@
 
 namespace Xyce {
 namespace Linear {
+
+BlockMatrix* createBlockMatrix( int size,
+                                int offset,
+                                const std::vector< std::vector<int> > & blockColumns,
+                                const Graph* globalGraph,
+                                const Graph* subBlockGraph,
+                                int augmentCount )
+{
+  return new BlockMatrix( size, offset, blockColumns, globalGraph, subBlockGraph, augmentCount );
+}
+
+BlockVector* createBlockVector( int numBlocks,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                int augmentRows )
+{
+  return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
+}
+
+BlockVector* createBlockVector( int blockSize,
+                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                int augmentRows )
+{
+  return new BlockVector( blockSize, globalMap, augmentRows );
+}
+
+BlockVector* createBlockVector( const Vector * right, int blockSize )
+{
+  return new BlockVector( right, blockSize );
+}
+
+BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
+                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap )
+{
+  return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : generateOffset
@@ -434,11 +473,9 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
                                       N_PDS_ParMap& blockMap, const Graph& baseGraph )
 {
-  Teuchos::RCP<const Epetra_CrsGraph> epetraGraph = baseGraph.epetraObj();
-
   int numBlockRows = blockPattern.size();
-  int numMyBaseRows = epetraGraph->NumMyRows();
-  int maxIndices = epetraGraph->MaxNumIndices();
+  int numMyBaseRows = baseGraph.numLocalEntities();
+  int maxIndices = baseGraph.maxNumIndices();
  
   int maxBlockCols = blockPattern[0].size();
   for (int i=1; i<numBlockRows; ++i) { 
@@ -447,21 +484,21 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
       maxBlockCols = cols;
   }
  
-  //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  N_PDS_EpetraParMap& e_blockMap = dynamic_cast<N_PDS_EpetraParMap&>(blockMap);
- 
-  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *dynamic_cast<Epetra_BlockMap*>(e_blockMap.petraMap()), 0 ));
-  
   std::vector<int> indices(maxIndices);
   int shift=0, index=0, baseRow=0, blockRow=0, numIndices=0;
   int maxNNZs = maxIndices*maxBlockCols;
   std::vector<int> newIndices(maxNNZs);  // Make as large as the combined maximum of indices and column blocks
 
+  //Construct block graph based on  [All graphs are the same, so only one needs to be made]
+  N_PDS_EpetraParMap& e_blockMap = dynamic_cast<N_PDS_EpetraParMap&>(blockMap);
+ 
+  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *e_blockMap.petraMap(), maxNNZs ));
+  
   for( int j = 0; j < numMyBaseRows; ++j )
   {
     // Extract the base entries from the base row.
-    baseRow = epetraGraph->GRID(j);
-    epetraGraph->ExtractGlobalRowCopy( baseRow, maxIndices, numIndices, &indices[0] );
+    baseRow = baseGraph.localToGlobalRowIndex(j);
+    baseGraph.extractGlobalRowCopy( baseRow, maxIndices, numIndices, &indices[0] );
 
     for( int i = 0; i < numBlockRows; ++i )
     {

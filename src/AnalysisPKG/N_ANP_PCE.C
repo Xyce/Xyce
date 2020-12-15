@@ -1013,7 +1013,7 @@ void PCE::setupStokhosObjects ()
 
   pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk, *petraComm ) ) );
 
-  numBlockRows_ = pceGraph->epetraObj()->NumMyRows();
+  numBlockRows_ = pceGraph->numLocalEntities();
 
 #if 0
   std::cout << "Cijk:" <<std::endl;
@@ -1109,7 +1109,7 @@ bool PCE::doFinish()
 void PCE::convertPointToPCE (int index, Stokhos::OrthogPolyApprox<int,double> & pceApprox)
 {
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+  Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
 
   pceApprox.reset(basis);
   int basisSize = basis->size();
@@ -1128,14 +1128,14 @@ void PCE::convertPointToPCE (int index, Stokhos::OrthogPolyApprox<int,double> & 
 // Creator       : Eric Keiter, SNL
 // Creation Date : 8/28/2019
 //-----------------------------------------------------------------------------
-void PCE::evaluateVector ( Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr_ )
+void PCE::evaluateVector ( Teuchos::RCP<Linear::BlockVector> & bX_quad_ptr_ )
 {
   std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec(1);
 
   int solutionSize = bX_quad_ptr_->block(0).localLength(); // serial only
 
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+  Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
 
   for (int isol=0;isol<solutionSize;++isol)
   {
@@ -1165,14 +1165,14 @@ void PCE::outputXvectors()
   if (stdOutputFlag_xvec_)
   {
     TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-    Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+    Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
 
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
     Xyce::lout() << "X coef vector:" <<std::endl;
     bX.print(Xyce::lout());
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
 
-    Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+    Teuchos::RCP<Linear::BlockVector> bXNext_quad_ptr_ = Teuchos::rcp( pceBuilderPtr_->createQuadVector() ); 
     evaluateVector(bXNext_quad_ptr_);
 
     Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
@@ -1193,7 +1193,7 @@ void PCE::outputXvectors()
 void PCE::hackPCEOutput2()
 {
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+  Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
 
   int solutionSize = bX.block(0).localLength();
 
@@ -1349,11 +1349,11 @@ void PCE::computePCEOutputs()
 
     // loop over the params
     TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-    //Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
-    Xyce::Linear::BlockVector & bSta = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStatePtr) );
-    Xyce::Linear::BlockVector & bSto = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStorePtr) );
+    //Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+    Linear::BlockVector & bSta = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStatePtr) );
+    Linear::BlockVector & bSto = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStorePtr) );
 
-    Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+    Teuchos::RCP<Linear::BlockVector> bXNext_quad_ptr_ = Teuchos::rcp( pceBuilderPtr_->createQuadVector() ); 
     evaluateVector(bXNext_quad_ptr_);
 
     nextSolutionPtr_->putScalar(0.0);

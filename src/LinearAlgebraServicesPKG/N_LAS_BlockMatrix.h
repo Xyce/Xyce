@@ -51,9 +51,6 @@
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
 
-class Epetra_CrsGraph;
-class Epetra_Map;
-
 namespace Xyce {
 namespace Linear {
 
@@ -69,11 +66,11 @@ class BlockMatrix : public Matrix
  public:
 
   BlockMatrix( int size,
-                     int offset,
-                     const std::vector< std::vector<int> > & blockColumns,
-                     const Graph* globalGraph,
-                     const Graph* subBlockGraph,
-                     int augmentCount = 0 );
+               int offset,
+               const std::vector< std::vector<int> > & blockColumns,
+               const Graph* globalGraph,
+               const Graph* subBlockGraph,
+               int augmentCount = 0 );
 
   //Destructor
   ~BlockMatrix() {}

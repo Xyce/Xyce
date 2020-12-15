@@ -70,11 +70,6 @@ public:
   : MultiVector( map, ol_map, 1 )
   {}
 
-  //Copy constructor
-  Vector( const Vector & right )
-  : MultiVector(right)
-  {}
-
   // Constructor that wraps an Epetra vector inside a Linear::Vector.
   // This is used in the nonlinear solver and linear solver interface.
   Vector( Epetra_Vector * origV, bool isOwned);
@@ -84,6 +79,12 @@ public:
 
   // Destructor
   virtual ~Vector() {}
+
+  // Clone operation:
+  Vector* clone() const;
+
+  // Clone operation:
+  Vector* cloneCopy() const;
 
   // Operation: operator []
   double & operator[] (int index)
@@ -105,6 +106,21 @@ public:
 
   // Dot product with another vector.
   double dotProduct(const Vector & y) const;
+
+  Epetra_Vector& epetraObj()
+  { return *(*aMultiVector_)(0); }
+
+  const Epetra_Vector& epetraObj() const
+  { return *(*aMultiVector_)(0); }
+
+protected:
+
+  //Copy constructor
+  Vector( const Vector & right )
+  : MultiVector(right)
+  {}
+
+
 };
 
 } // namespace Linear

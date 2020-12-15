@@ -81,7 +81,7 @@ public:
     Util::OptionBlock & options);
 
   // Destructor
-  ~BelosSolver();
+  ~BelosSolver() {}
 
   //Control of solver options
   bool setOptions( const Util::OptionBlock & OB );
@@ -174,9 +174,6 @@ private:
   // Output linear system every outputLS_ or outputBaseLS_ calls
   int outputLS_;
   int outputBaseLS_;
-
-  // Output solver parameters
-  void printParams_() const;
 
   // Linear Problem
   Problem & lasProblem_;

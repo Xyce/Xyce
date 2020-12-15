@@ -37,6 +37,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_AmesosSolver.C \
   N_LAS_AztecOOSolver.C \
   N_LAS_Problem.C \
+  N_LAS_EpetraProblem.C \
   N_LAS_MultiVector.C \
   N_LAS_Matrix.C \
   N_LAS_FilteredMatrix.C \
@@ -80,6 +81,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_PCEBuilder.h \
   N_LAS_Solver.h \
   N_LAS_Problem.h \
+  N_LAS_EpetraProblem.h \
   N_LAS_Matrix.h \
   N_LAS_FilteredMatrix.h \
   N_LAS_FilteredMultiVector.h \

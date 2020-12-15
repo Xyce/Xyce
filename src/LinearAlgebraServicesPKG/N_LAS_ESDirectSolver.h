@@ -89,9 +89,6 @@ public:
   // Set individual options
   bool setParam( const Util::Param & param );
 
-  // Get info such as Num Iterations, Residual, etc.
-  bool getInfo( Util::Param & info );
-
   // Register the ES builder
   void registerESBuilder( const Teuchos::RCP<ESBuilder> & esBuilderPtr )
     { esBuilderPtr_ = esBuilderPtr; }

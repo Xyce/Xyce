@@ -96,6 +96,9 @@ public:
   // dereference local index to get global index
   virtual int localToGlobalIndex(int local_index) const = 0;
 
+  // Output the map to a file
+  virtual void writeToFile(const char * filename) const = 0;
+
   virtual void print(std::ostream &os) const {}
 
 protected:

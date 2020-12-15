@@ -42,6 +42,7 @@
 // ---------- Standard Includes ----------
 
 #include <algorithm>
+#include <vector>
 
 // ----------   Xyce Includes   ----------
 
@@ -125,7 +126,7 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 {
   oDCRSMatrix_ = aDCRSMatrix_;
 
-  baseGraph_ = new Graph( Teuchos::rcp( &(aDCRSMatrix_->Graph()), false ) );
+  baseGraph_ = new Graph( Teuchos::rcp( const_cast<Epetra_CrsGraph*>(&(aDCRSMatrix_->Graph())), false ) );
   overlapGraph_ = baseGraph_;
 }
 
@@ -157,7 +158,7 @@ Matrix::Matrix( const Graph* overlapGraph,
     oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(overlapGraph->epetraObj()) );
 
     // Get ground node, if there is one.
-    groundLID_ = overlapGraph->epetraObj()->LRID( -1 );
+    groundLID_ = overlapGraph->globalToLocalRowIndex( -1 );
 
     aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
     exporter_ = new Epetra_Export( overlapGraph->epetraObj()->RowMap(), baseGraph->epetraObj()->RowMap() );
@@ -169,8 +170,8 @@ Matrix::Matrix( const Graph* overlapGraph,
     oDCRSMatrix_ = aDCRSMatrix_;
   }
 
-  overlapGraph_ = new Graph( *overlapGraph );
-  baseGraph_ = new Graph( *baseGraph );
+  overlapGraph_ = overlapGraph->cloneCopy();
+  baseGraph_ = baseGraph->cloneCopy();
 }
 
 //-----------------------------------------------------------------------------
@@ -203,8 +204,7 @@ void Matrix::fillComplete()
 void Matrix::matvec(bool transA, const MultiVector &x,
                           MultiVector &y)
 {
-  int PetraError = aDCRSMatrix_->Multiply(transA, *(x.aMultiVector_),
-					  *(y.aMultiVector_));
+  int PetraError = aDCRSMatrix_->Multiply(transA, x.epetraObj(), y.epetraObj());
 
   if (DEBUG_LINEAR)
     processError( "Matrix::matvec - ", PetraError);
@@ -267,12 +267,9 @@ int Matrix::getRowLength(int row) const
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::getLocalRowView(int row, int &length, double *coeffs, int *colIndices) const
+int Matrix::getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
 {
-  int PetraError = aDCRSMatrix_->ExtractMyRowView(row, length, coeffs, colIndices);
-
-  if (DEBUG_LINEAR)
-    processError( "Matrix::getLocalRowView - ", PetraError );
+  return aDCRSMatrix_->ExtractMyRowView(lidRow, numEntries, values, indices);
 }
 
 
@@ -335,7 +332,7 @@ bool Matrix::putRow(int row, int length, const double *coeffs, const int *colInd
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::getLocalNumRows
-// Purpose       : Returns the number of nonzeroes in the row.
+// Purpose       : Returns the number of rows on this processor.
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
@@ -344,6 +341,19 @@ bool Matrix::putRow(int row, int length, const double *coeffs, const int *colInd
 int Matrix::getLocalNumRows() const
 {
   return aDCRSMatrix_->NumMyRows();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getNumRows
+// Purpose       : Returns the number of rows on all processors.
+// Special Notes :
+// Scope         : Public
+// Creator       : Dave Shirley, PSSI
+// Creation Date : 05/24/06
+//-----------------------------------------------------------------------------
+int Matrix::getNumRows() const
+{
+  return aDCRSMatrix_->NumGlobalRows();
 }
 
 //-----------------------------------------------------------------------------
@@ -360,6 +370,25 @@ int Matrix::getLocalRowLength(int row) const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Matrix::sumIntoLocalRow
+// Purpose       : Sum values into a row into the sparse matrix, using local indices.
+// Special Notes :
+// Scope         : Public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/30/10
+//-----------------------------------------------------------------------------
+bool Matrix::addIntoLocalRow(int row, int length, const double * coeffs,
+                                                   const int * colIndices)
+{
+  int PetraError = aDCRSMatrix_->SumIntoMyValues(row, length, coeffs, colIndices);
+
+  if (DEBUG_LINEAR | DEBUG_DEVICE)
+    processError( "Matrix::addIntoLocalRow - ", PetraError );
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Matrix::putLocalRow
 // Purpose       : Put values into a row into the sparse matrix, using local indices.
 // Special Notes :
@@ -370,9 +399,7 @@ int Matrix::getLocalRowLength(int row) const
 bool Matrix::putLocalRow(int row, int length, const double * coeffs,
                                                    const int * colIndices)
 {
-  double * tmp_c = const_cast<double *>(coeffs);
-  int * tmp_i = const_cast<int *>(colIndices);
-  int PetraError = aDCRSMatrix_->ReplaceMyValues(row, length, tmp_c, tmp_i);
+  int PetraError = aDCRSMatrix_->ReplaceMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
     processError( "Matrix::putLocalRow - ", PetraError );
@@ -406,7 +433,7 @@ void Matrix::replaceLocalRow(int row, int length, double *coeffs, int *colIndice
 //-----------------------------------------------------------------------------
 void Matrix::getDiagonal( Vector & diagonal ) const
 {
-  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( *((*(diagonal.aMultiVector_))(0)) );
+  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( diagonal.epetraObj() );
 
   if (DEBUG_LINEAR)
     processError( "Matrix::getDiagonal - ", PetraError );
@@ -442,9 +469,7 @@ bool Matrix::replaceDiagonal( const Vector & vec )
 bool Matrix::sumIntoLocalRow(int row, int length, const double * coeffs,
                                                    const int * colIndices)
 {
-  double * tmp_c = const_cast<double *>(coeffs);
-  int * tmp_i = const_cast<int *>(colIndices);
-  int PetraError = oDCRSMatrix_->SumIntoMyValues(row, length, tmp_c, tmp_i);
+  int PetraError = oDCRSMatrix_->SumIntoMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
     processError( "Matrix::sumIntoLocalRow - ", PetraError );
@@ -818,6 +843,22 @@ N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
 N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
+{
+  if (!aColMap_)
+    aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+  
+  return aColMap_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::getColMap
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/6/17
+//-----------------------------------------------------------------------------
+const N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm ) const
 {
   if (!aColMap_)
     aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );

@@ -102,11 +102,14 @@ public:
   // Assignment operator
   MultiVector & operator=(const MultiVector & right);
 
-  // Copy constructor
-  MultiVector(const MultiVector & right);
-
   //Destructor
   virtual ~MultiVector();
+
+  // Clone operation:
+  virtual MultiVector* clone() const;
+
+  // Clone operation:
+  virtual MultiVector* cloneCopy() const;
 
   // Returns the dot product of "this" vector and another.
   // NOTE:  If *this or y is a single vector, it will return the dot product of each column.
@@ -116,15 +119,11 @@ public:
   // Scale every entry in the multi-vector by "a"
   void scale(const double a);
 
-  // Scale every entry ([i]) in the multi-vector by "a*x[i]"
-  void scale(const double a, const MultiVector & x);
-
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
 
-  // Standard blas DAXPY operation
-  void daxpy(const MultiVector & y, const double a,
-  	const MultiVector & x);
+  // Standard blas AXPY operation
+  void axpy(const MultiVector & y, const double a, const MultiVector & x);
 
   // Linear combination with two constants and vectors
   void linearCombo(const double a, const MultiVector & x,
@@ -227,12 +226,6 @@ public:
   // Dump vector entries to file.
   virtual void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
 
-  // Friend of the Matrix and IterativeSolver classes so their
-  // member functions can access our private members.
-  friend class Matrix;
-  friend class FilteredMatrix;
-  friend class Nonlinear::DampedNewton;
-
   // Get for vector elements by their global index (const version)
   const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
 
@@ -272,6 +265,9 @@ public:
 
 protected:
 
+  // Copy constructor
+  MultiVector(const MultiVector & right);
+
   // Pointer to the multi-vector's parallel map object
   N_PDS_ParMap* parallelMap_;
 
@@ -296,8 +292,8 @@ protected:
   // Communicator object, if one is needed.
   Teuchos::RCP<N_PDS_Comm> pdsComm_;
 
-  // isOwned flag
-  bool isOwned_;
+  // isOwned flags
+  bool vecOwned_, mapOwned_;
 
   // Map containing extern elements from migration
   std::map<int,double> externVectorMap_;

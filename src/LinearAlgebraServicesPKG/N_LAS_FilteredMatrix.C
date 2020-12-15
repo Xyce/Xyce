@@ -50,6 +50,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_FilteredMatrix.h>
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
@@ -225,20 +226,16 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
   bool isReset = reset;
   bool bSuccess = true;
 
-  int maxEntries, numMyRows;
-  int indexBase = 0;
+  const Graph* matrixGraph = 0;
+
   if (filterOverlap_)
-  {   
-    maxEntries = matrix->oDCRSMatrix_->NumMyNonzeros();
-    numMyRows = matrix->oDCRSMatrix_->NumMyRows();
-    indexBase = matrix->oDCRSMatrix_->IndexBase();
-  }
+    matrixGraph = matrix->getOverlapGraph();
   else
-  { 
-    maxEntries = matrix->aDCRSMatrix_->NumMyNonzeros();
-    numMyRows = matrix->aDCRSMatrix_->NumMyRows();
-    indexBase = matrix->oDCRSMatrix_->IndexBase();
-  }
+    matrixGraph = matrix->getGraph();
+
+  int maxEntries = matrixGraph->numLocalNonzeros();
+  int numMyRows = matrixGraph->numLocalEntities();
+  int indexBase = matrixGraph->indexBase();
 
   const N_PDS_EpetraParMap* e_map = dynamic_cast<const N_PDS_EpetraParMap*>( map );
 
@@ -255,16 +252,8 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
   int row_groundID = -1, col_groundID = -1;
   if (indexBase == -1)
   {
-    if (filterOverlap_)
-    {
-      row_groundID = matrix->oDCRSMatrix_->LRID( -1  );
-      col_groundID = matrix->oDCRSMatrix_->LCID( -1  );
-    }
-    else
-    {
-      row_groundID = matrix->aDCRSMatrix_->LRID( -1  );
-      col_groundID = matrix->aDCRSMatrix_->LCID( -1  );
-    }
+    row_groundID = matrixGraph->globalToLocalRowIndex( -1 );
+    col_groundID = matrixGraph->globalToLocalColIndex( -1 );
   }
 
   int numEntries, currEntries=0;
@@ -295,11 +284,11 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
     {
       if (filterOverlap_)
       {
-        matrix->oDCRSMatrix_->ExtractMyRowView( rowIdx, numEntries, values, indices );
+        matrix->extractLocalRowView( rowIdx, numEntries, values, indices );
       }
       else
       {
-        matrix->aDCRSMatrix_->ExtractMyRowView( rowIdx, numEntries, values, indices );
+        matrix->getLocalRowView( rowIdx, numEntries, values, indices );
       }
       for( int j = 0; j < numEntries; ++j )
       {
@@ -347,11 +336,11 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
           colIndices_.push_back( valColPair[j].second );
           if (filterOverlap_)
           {
-            vecIndices_.push_back( map->globalToLocalIndex(matrix->oDCRSMatrix_->GCID(valColPair[j].second)) );
+            vecIndices_.push_back( map->globalToLocalIndex(matrixGraph->localToGlobalColIndex(valColPair[j].second)) );
           }
           else
           {
-            int idx = matrix->aDCRSMatrix_->GCID(valColPair[j].second);
+            int idx = matrixGraph->localToGlobalColIndex(valColPair[j].second);
             vecIndices_.push_back( idx );
             colIdxs.insert( idx );
             if ( map->globalToLocalIndex( idx ) < 0 )
@@ -364,18 +353,18 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
           colIndices_[currEntries] = valColPair[j].second;
           if (filterOverlap_)
           {
-            vecIndices_[currEntries] = map->globalToLocalIndex(matrix->oDCRSMatrix_->GCID(valColPair[j].second));
+            vecIndices_[currEntries] = map->globalToLocalIndex(matrixGraph->localToGlobalColIndex(valColPair[j].second));
           }
           else
           {
             // Reuse the current targetMap_, if it exists.
             if (!Teuchos::is_null(targetMap_))
             {
-              vecIndices_[currEntries] = targetMap_->globalToLocalIndex(matrix->aDCRSMatrix_->GCID(valColPair[j].second));
+              vecIndices_[currEntries] = targetMap_->globalToLocalIndex(matrixGraph->localToGlobalColIndex(valColPair[j].second));
             }
             else
             {
-              vecIndices_[currEntries] = map->globalToLocalIndex(matrix->aDCRSMatrix_->GCID(valColPair[j].second));
+              vecIndices_[currEntries] = map->globalToLocalIndex(matrixGraph->localToGlobalColIndex(valColPair[j].second));
             } 
             if (vecIndices_[currEntries] < 0)
             {
@@ -414,8 +403,10 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
 
       if (globalColsOffProc)
       {
-        importer_ = Teuchos::rcp( new Epetra_Import( matrix->aDCRSMatrix_->ColMap(), *(e_map->petraMap() ) ) ); 
-        targetMap_ = Teuchos::rcp( new N_PDS_EpetraParMap( new Epetra_Map( matrix->aDCRSMatrix_->ColMap() ),
+        const N_PDS_ParMap* colMap = matrix->getColMap( const_cast<N_PDS_Comm&>( map->pdsComm() ) );
+        const N_PDS_EpetraParMap* e_colmap = dynamic_cast<const N_PDS_EpetraParMap*>( colMap );
+        importer_ = Teuchos::rcp( new Epetra_Import( *(e_colmap->petraMap()), *(e_map->petraMap() ) ) ); 
+        targetMap_ = Teuchos::rcp( new N_PDS_EpetraParMap( new Epetra_Map( *(e_colmap->petraMap()) ),
                                                            const_cast<N_PDS_Comm&>( map->pdsComm() ) ) );
         // Compute the local indicies for the target map.
         for (unsigned int i=0; i<vecIndices_.size(); i++)
@@ -659,13 +650,13 @@ void FilteredMatrix::addToMatrix( Matrix & A, double alpha )
       int rowPtr = rowPtr_[row];
       if (filterOverlap_)
       {
-        A.oDCRSMatrix_->SumIntoMyValues( row, rowPtr_[row+1]-rowPtr, 
-                                         scaledValues+rowPtr, &colIndices_[rowPtr] );
+        A.sumIntoLocalRow( row, rowPtr_[row+1]-rowPtr, 
+                           scaledValues+rowPtr, &colIndices_[rowPtr] );
       }
       else
       {
-        A.aDCRSMatrix_->SumIntoMyValues( row, rowPtr_[row+1]-rowPtr, 
-                                         scaledValues+rowPtr, &colIndices_[rowPtr] );
+        A.addIntoLocalRow( row, rowPtr_[row+1]-rowPtr, 
+                           scaledValues+rowPtr, &colIndices_[rowPtr] );
       }
     }
 

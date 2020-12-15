@@ -40,7 +40,6 @@
 
 
 #include <Teuchos_RCP.hpp>
-#include <Epetra_Map.h>
 
 #include <N_LAS_fwd.h>
 
@@ -97,7 +96,7 @@ public:
   virtual MultiVector * createStateMultiVector( const int numVectors = 1 ) const;
   // Store Multivector factory with num vectors 
   virtual MultiVector * createStoreMultiVector( const int numVectors = 1 ) const;
-  // Vector factory with initial value
+  // Vector factory 
   virtual Vector * createVector() const;
   // State-vector factory
   virtual Vector * createStateVector() const;

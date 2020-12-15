@@ -64,6 +64,7 @@ target_sources(XyceStatic PRIVATE
       N_LAS_MultiVector.C
       N_LAS_MOROperators.C
       N_LAS_Problem.C
+      N_LAS_EpetraProblem.C
       N_LAS_QueryUtil.C
       N_LAS_TranSolverFactory.C
       N_LAS_System.C

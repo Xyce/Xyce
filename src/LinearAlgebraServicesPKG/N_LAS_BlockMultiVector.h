@@ -64,9 +64,6 @@ class BlockMultiVector : public MultiVector
                     const Teuchos::RCP<N_PDS_ParMap> & subBlockMap
                   );
 
-  //Copy constructor
-  BlockMultiVector( const BlockMultiVector & right );
-
   // Destructor
   virtual ~BlockMultiVector() {};
 

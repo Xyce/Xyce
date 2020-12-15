@@ -39,18 +39,103 @@
 
 #include <Xyce_config.h>
 
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_EpetraHelpers.h>
+#include <N_LAS_MultiVector.h>
+#include <N_LAS_Vector.h>
+#include <N_LAS_Matrix.h>
+#include <N_LAS_Operator.h>
+#include <N_LAS_BlockMatrix.h>
+#include <N_LAS_EpetraProblem.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
 #include <Epetra_CrsGraph.h>
 #include <Epetra_MultiVector.h>
 
+#include <EpetraExt_RowMatrixOut.h>
+#include <EpetraExt_MultiVectorOut.h>
+#include <EpetraExt_BlockMapOut.h>
+
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
 namespace Linear {
 
+  // Non-member creation methods.
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                int numVectors )
+{
+  return new MultiVector( map, numVectors );
+}
+
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                N_PDS_ParMap & ol_map,
+                                int numVectors )
+{
+  return new MultiVector( map, ol_map, numVectors );
+}
+
+Vector* createVector( N_PDS_ParMap & map ) 
+{
+  return new Vector( map );
+}
+
+Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
+{
+  return new Vector( map, ol_map );
+}
+
+Matrix* createMatrix( const Graph* overlapGraph,
+                      const Graph* baseGraph )
+{
+  return new Matrix( overlapGraph, baseGraph );
+}
+
+Graph* createGraph( N_PDS_ParMap & map, 
+                    const std::vector<int>& numIndicesPerRow )
+{
+  return new Graph( map, numIndicesPerRow );
+}
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    int maxNumIndicesPerRow )
+{
+  return new Graph( map, maxNumIndicesPerRow );
+}
+
+Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
+{
+  return new EpetraProblem( A, x, b );
+}
+               
+Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b )
+{
+  return new EpetraProblem( Op, x, b );
+}
+
+void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
+                 int file_number, bool write_map)
+{
+  std::string file_name;
+  char char_file_name[40];
+  if (write_map) {
+    file_name = prefix + "_BlockMap.mm";
+    EpetraExt::BlockMapToMatrixMarketFile( file_name.c_str(), (problem.GetMatrix())->Map() );
+  }
+
+  file_name = prefix + "_Matrix%d.mm";
+  sprintf( char_file_name, file_name.c_str(), file_number );
+  std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
+  sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
+  sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
+  EpetraExt::RowMatrixToMatrixMarketFile( char_file_name, *(problem.GetMatrix()), sandiaReq.c_str() );
+  file_name = prefix + "_RHS%d.mm";
+  sprintf( char_file_name, file_name.c_str(), file_number );
+  EpetraExt::MultiVectorToMatrixMarketFile( char_file_name, *(problem.GetRHS()) );
+}
+
+               
 // ///////////////////////////////////////////////////////////////////
 //
 // Implementation of the Xyce::Linear::EpetraTransOp class.

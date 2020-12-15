@@ -93,37 +93,22 @@ class PCEBuilder : public Builder
 
   // Vector and Matrix creators
 
-  // Vector factory with initial value
+  // Vector factory 
   Vector * createVector() const;
+  BlockVector * createQuadVector() const;
 
-  // State Vector factory with initial value
+  // State Vector factory 
   Vector * createStateVector() const;
 
-  // Store Vector factory with initial value
+  // Store Vector factory 
   Vector * createStoreVector() const;
 
-  // Lead Current Vector factory with initial value
+  // Lead Current Vector factory 
   Vector * createLeadCurrentVector() const;
-
-  Teuchos::RCP<BlockVector> createBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStateBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStoreBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeLeadCurrentBlockVector() const;
-
-  // QuadVector factory with initial value
-  Vector * createQuadVector() const;
-
-  Teuchos::RCP<BlockVector> createQuadBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeQuadBlockVector() const;
 
   // Matrix factory
   Matrix * createMatrix() const;
-  Teuchos::RCP<BlockMatrix> createBlockMatrix() const;
-
-  // Matrix factory
-  Matrix * createQuadMatrix() const;
-  Teuchos::RCP<BlockMatrix> createQuadBlockMatrix() const;
+  BlockMatrix * createQuadMatrix() const;
 
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );

@@ -79,8 +79,8 @@ AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin(
     vecptr1_(0),
     vecptr2_(0)
 {
-  vecptr1_ = new Linear::Vector(*cloneVector);
-  vecptr2_ = new Linear::Vector(*cloneVector);
+  vecptr1_ = cloneVector->clone();
+  vecptr2_ = cloneVector->clone();
 }
 
 //-----------------------------------------------------------------------------

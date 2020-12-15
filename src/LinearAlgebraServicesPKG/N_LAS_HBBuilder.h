@@ -78,16 +78,16 @@ class HBBuilder : public Builder
 
   // Vector and Matrix creators
 
-  // Vector factory with initial value
+  // Vector factory 
   Vector * createVector() const;
 
-  // State Vector factory with initial value
+  // State Vector factory 
   Vector * createStateVector() const;
 
-  // Store Vector factory with initial value
+  // Store Vector factory 
   Vector * createStoreVector() const;
 
-  // Lead Current Vector factory with initial value
+  // Lead Current Vector factory 
   Vector * createLeadCurrentVector() const;
 
   // HB time-domain block vector creation:

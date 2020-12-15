@@ -38,22 +38,45 @@
 #define  Xyce_LAS_SYSTEMHELPERS_H
 
 // ---------- Standard Includes ----------
+
 #include <vector>
 
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_fwd.h>
-
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
 
 class N_PDS_ParMap;
-class Epetra_CrsGraph;
-class Epetra_BlockMap;
 
 namespace Xyce {
 namespace Linear {
+
+  // Non-member creation methods.
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                int numVectors = 1 );
+
+MultiVector* createMultiVector( N_PDS_ParMap & map,
+                                      N_PDS_ParMap & ol_map,
+                                int numVectors = 1 );
+
+Vector* createVector( N_PDS_ParMap & map );
+
+Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map );
+
+Matrix* createMatrix( const Graph* overlapGraph,
+                      const Graph* baseGraph );
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    const std::vector<int>& numIndicesPerRow );
+
+Graph* createGraph( N_PDS_ParMap & map,
+                    int maxNumIndicesPerRow );
+
+Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
+
+Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues

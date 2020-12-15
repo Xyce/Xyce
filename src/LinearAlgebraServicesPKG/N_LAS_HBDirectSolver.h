@@ -88,9 +88,6 @@ public:
   // Set individual options
   bool setParam( const Util::Param & param );
 
-  // Get info such as Num Iterations, Residual, etc.
-  bool getInfo( Util::Param & info );
-
   // Register the HB builder
   void registerHBBuilder( const Teuchos::RCP<HBBuilder> & hbBuilderPtr )
     { hbBuilderPtr_ = hbBuilderPtr; }

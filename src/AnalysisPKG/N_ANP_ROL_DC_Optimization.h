@@ -72,7 +72,6 @@
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
-#include <N_LAS_Problem.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>

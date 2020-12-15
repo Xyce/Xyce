@@ -39,6 +39,7 @@
 #define Xyce_N_LAS_Graph_h
 
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 
 #include <Teuchos_RCP.hpp>
 #include <Epetra_CrsGraph.h>
@@ -58,20 +59,82 @@ class Graph
 
 public:
 
-  // Simple constructor using Epetra_CrsGraph
-  Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph );
+  // Basic constructor with map and number of entries per row
+  Graph( N_PDS_ParMap & map, const std::vector<int>& numIndicesPerRow );
 
-  // Copy constructor
-  Graph( const Graph& graph );
+  // Basic constructor with map and maximum number of entries per row
+  Graph( N_PDS_ParMap & map, int maxIndicesPerRow );
+
+  // Simple constructor using Epetra_CrsGraph
+  Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph );
 
   // Destructor
   virtual ~Graph() {}
 
-  const Teuchos::RCP<const Epetra_CrsGraph>& epetraObj() const { return epetraGraph_; }
+  // Clone this graph
+  Graph* cloneCopy() const;
+
+  // Create new graph exporting values from this one.
+  Graph* exportGraph( N_PDS_ParMap& map ) const;
+
+  // Get the base index for this graph
+  int indexBase() const
+  { return epetraGraph_->IndexBase(); }
+
+  // Get the maximum number of indices for any row on this processor.
+  int maxNumIndices() const
+  { return epetraGraph_->MaxNumIndices(); }
+
+  // Get the number of rows on this processor.
+  int numLocalEntities() const 
+  { return epetraGraph_->NumMyRows(); } 
+
+  // Get the number of nonzero entries on this processor.
+  int numLocalNonzeros() const
+  { return epetraGraph_->NumMyNonzeros(); }
+
+  int localToGlobalRowIndex(int localIndex) const 
+  { return epetraGraph_->GRID( localIndex ); }
+
+  int localToGlobalColIndex(int localIndex) const 
+  { return epetraGraph_->GCID( localIndex ); }
+
+  int globalToLocalRowIndex(int globalIndex) const
+  { return epetraGraph_->LRID( globalIndex ); }
+
+  int globalToLocalColIndex(int globalIndex) const
+  { return epetraGraph_->LCID( globalIndex ); }
+
+  void extractGlobalRowCopy(int globalRow, int length, int& numIndices, int* indices) const
+  { epetraGraph_->ExtractGlobalRowCopy( globalRow, length, numIndices, indices ); }
+
+  void extractLocalRowView(int localRow, int& numIndices, int*& indices) const
+  { epetraGraph_->ExtractMyRowView( localRow, numIndices, indices ); }
+
+  void insertGlobalIndices(int globalRow, int numIndices, int* indices)
+  { epetraGraph_->InsertGlobalIndices( globalRow, numIndices, indices ); }
+
+  //Accumulate off processor fill contributions if necessary
+  void fillComplete()
+  {
+    epetraGraph_->FillComplete();
+    epetraGraph_->OptimizeStorage(); 
+  }
+
+  void fillComplete( N_PDS_ParMap& rowMap, N_PDS_ParMap& colMap );
+
+  const Teuchos::RCP<Epetra_CrsGraph>& epetraObj() const { return epetraGraph_; }
+
+  // Print the underlying object.
+  void print(std::ostream &os) const
+  {  epetraGraph_->Print( os ); }
 
 private:
 
-  Teuchos::RCP<const Epetra_CrsGraph> epetraGraph_;
+  // Copy constructor
+  Graph( const Graph& graph );
+
+  Teuchos::RCP<Epetra_CrsGraph> epetraGraph_;
 
 };
 

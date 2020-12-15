@@ -57,6 +57,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_TranSolverFactory.h>
@@ -941,7 +942,7 @@ bool AC::createLinearSystem_()
 
   // Create a block vector
   delete B_;
-  B_ = new Linear::BlockVector(numBlocks, blockMap, baseMap);
+  B_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
 
   // -----------------------------------------------------
   // Now test block graphs.
@@ -956,7 +957,7 @@ bool AC::createLinearSystem_()
   RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph );
 
   delete ACMatrix_;
-  ACMatrix_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph );
+  ACMatrix_ = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph );
 
   ACMatrix_->put( 0.0 ); // Zero out whole matrix.
   // Matrix will be loaded with nonzero (C,G) sub-matrices later.
@@ -969,11 +970,11 @@ bool AC::createLinearSystem_()
   B_->block( 1 ).addVec( 1.0, *bVecImagPtr);
 
   delete X_;
-  X_ = new Linear::BlockVector (numBlocks, blockMap, baseMap);
+  X_ = Xyce::Linear::createBlockVector (numBlocks, blockMap, baseMap);
   X_->putScalar( 0.0 );
 
   delete blockProblem_;
-  blockProblem_ = new Linear::Problem( ACMatrix_, X_, B_ );
+  blockProblem_ = Xyce::Linear::createProblem( ACMatrix_, X_, B_ );
 
   delete blockSolver_;
   Linear::TranSolverFactory factory;
@@ -988,15 +989,15 @@ bool AC::createLinearSystem_()
 
     dCdp_ = linearSystem_.builder().createMatrix ();
     dGdp_ = linearSystem_.builder().createMatrix ();
-    dJdp_ = new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
+    dJdp_ = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
 
-    dBdp_     = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    dXdp_     = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    sensRhs_  = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    lambda_   = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    dOdXreal_ = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    dOdXimag_ = new Linear::BlockVector(numBlocks, blockMap, baseMap);
-    savedX_   = new Linear::BlockVector(numBlocks, blockMap, baseMap);
+    dBdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    dXdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    sensRhs_  = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    lambda_   = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    dOdXreal_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    dOdXimag_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+    savedX_   = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
   }
 
   return true;
@@ -1876,7 +1877,7 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   else
   {
     // this assumes that sensRhs has dBdp or has -J'*X, but not both
-    sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );  
+    sensRhs_->axpy( *sensRhs_, 1.0, *dBdp_ );  
   }
 
   return true;

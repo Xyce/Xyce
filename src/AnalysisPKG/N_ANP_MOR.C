@@ -1174,8 +1174,8 @@ bool MOR::createOrigLinearSystem_()
   Amesos amesosFactory;
 
   // Create block vectors
-  REFBPtr_ = rcp ( new Linear::BlockVector ( numBlocks, blockMaps[0], rcp(&BaseMap, false) ) );
-  REFXPtr_ = rcp ( new Linear::BlockVector ( numBlocks, blockMaps[0], rcp(&BaseMap, false) ) );
+  REFBPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, blockMaps[0], rcp(&BaseMap, false) ) );
+  REFXPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, blockMaps[0], rcp(&BaseMap, false) ) );
   REFXPtr_->putScalar( 0.0 );
 
   blockProblem_ = rcp(new Epetra_LinearProblem(&sCpG_REFMatrixPtr_->epetraObj(), &REFXPtr_->epetraObj(), &REFBPtr_->epetraObj() ) );
@@ -1268,8 +1268,8 @@ bool MOR::createRedLinearSystem_()
     Amesos amesosFactory;
 
     // Create a block vector
-    ref_redBPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
-    ref_redXPtr_ = rcp ( new Linear::BlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
+    ref_redBPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
+    ref_redXPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
     ref_redXPtr_->putScalar( 0.0 );
 
     blockRedProblem_ = rcp(new Epetra_LinearProblem(&sCpG_ref_redMatrixPtr_->epetraObj(), 

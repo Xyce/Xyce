@@ -34,8 +34,8 @@
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_BlockVector.h>
-#include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_LAS_Graph.h>
 
 #include <N_PDS_ParMap.h>
 
@@ -43,8 +43,6 @@
 #include <N_UTL_fwd.h>
 #include <N_UTL_FeatureTest.h>
 
-#include <Epetra_Comm.h>
-#include <Epetra_Map.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
@@ -456,7 +454,7 @@ bool HBBuilder::generateGraphs( const Graph& baseFullGraph )
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  baseFullGraph_ = rcp(new Graph( baseFullGraph ));
+  baseFullGraph_ = rcp( baseFullGraph.cloneCopy() );
 
   return true;
 }

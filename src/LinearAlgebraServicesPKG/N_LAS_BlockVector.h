@@ -71,9 +71,6 @@ class BlockVector : public Vector
                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
                int augmentRows = 0 );
 
-  //Copy constructor
-  BlockVector( const BlockVector & right );
-
   // View constructor
   //NOTE:  This constructor assumes that the Vector is divided up into blockSize subvectors,
   //       whose values are solely owned by one of the processors.
@@ -81,6 +78,9 @@ class BlockVector : public Vector
 
   // Destructor
   virtual ~BlockVector() {};
+
+  // Assignment operator
+  BlockVector & operator=(const BlockVector & right);
 
   // Block accessors
   Vector & block( int Loc ) const
@@ -107,6 +107,10 @@ class BlockVector : public Vector
   // that the values are sync'ed up.  Call this before using the global vector for computations.
   void assembleGlobalVector();
 
+  // Get the global ParMap
+  N_PDS_ParMap * pmap() { return this->parallelMap_; }
+  const N_PDS_ParMap * pmap() const { return this->parallelMap_; }
+
   // Get the ParMap objects for each BLOCK in this block vector.
   N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
   const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
@@ -115,6 +119,9 @@ class BlockVector : public Vector
   void print(std::ostream &os) const;
 
  private:
+
+  //Copy constructor
+  BlockVector( const BlockVector & right );
 
   bool blocksViewGlobalVec_;
   int globalBlockSize_;

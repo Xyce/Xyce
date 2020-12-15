@@ -22,69 +22,66 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Simple Direct Linear Solver Interface
+// Purpose        : interface to linear problem
 //
-// Special Notes  : This direct solver is used for trivial 1x1 linear systems
+// Special Notes  :
 //
-// Creator        : Heidi Thornquist, SNL
+// Creator        : Robert Hoekstra, SNL, Parallel Computational Sciences
 //
-// Creation Date  : 03/07/2013
+// Creation Date  : 05/17/04
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_SimpleSolver_h
-#define Xyce_N_LAS_SimpleSolver_h
+#ifndef Xyce_N_LAS_EpetraProblem_h
+#define Xyce_N_LAS_EpetraProblem_h
 
-#include <N_LAS_Solver.h>
-#include <N_UTL_fwd.h>
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
+#include <N_PDS_ParMap.h>
+
+#include <N_LAS_Problem.h>
+
+#include <Teuchos_RCP.hpp>
+
+class Epetra_LinearProblem;
+class Epetra_Operator;
 
 namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Class         : SimpleSolver
-// Purpose       :
+// Class         : EpetraProblem
+// Purpose       : interface to Epetra linear problem
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
-// Creation Date : 05/20/04
+// Creation Date : 05/17/04
 //-----------------------------------------------------------------------------
-class SimpleSolver : public Solver
+class EpetraProblem : public Problem
 {
-
 public:
-  // Constructor
-  SimpleSolver(
-    Problem &     problem,
-    Util::OptionBlock & options);
 
-  // Destructor
-  ~SimpleSolver();
+  //Constructors
+  EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b );
+  EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b );
 
-  // Set the solver options
-  bool setOptions(const Util::OptionBlock & OB);
+  //Epetra constructors
+  EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraProblem );
 
-  // Solve function: x = A^(-1) b.
-  // This class is only used when A is a 1x1 matrix so x = b / A(1,1)
-  int doSolve( bool reuse_factors, bool transpose = false );
+  //Destructor
+  virtual ~EpetraProblem() {}
+
+  Epetra_LinearProblem & epetraObj() { return *epetraProblem_; }
 
 private:
 
-  //Primary problem access
-  Problem & lasProblem_;
-
-  //Options
-  Util::OptionBlock * options_;
-
-  //Timer
-  Util::Timer * timer_;
-
+  Teuchos::RCP<Epetra_LinearProblem> epetraProblem_;
+  Teuchos::RCP<Epetra_Operator> epetraOp_;
 };
 
 } // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_LAS_SimpleSolver_h
+#endif
