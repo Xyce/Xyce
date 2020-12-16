@@ -71,11 +71,13 @@ public:
   EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraProblem );
 
   //Destructor
-  virtual ~EpetraProblem() {}
+  virtual ~EpetraProblem();
 
   Epetra_LinearProblem & epetraObj() { return *epetraProblem_; }
 
 private:
+
+  bool isOwned_;
 
   Teuchos::RCP<Epetra_LinearProblem> epetraProblem_;
   Teuchos::RCP<Epetra_Operator> epetraOp_;

@@ -68,6 +68,7 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 EpetraProblem::EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b )
  : Problem(A,x,b),
+   isOwned_(false),
    epetraProblem_( Teuchos::rcp( new Epetra_LinearProblem( dynamic_cast<Epetra_RowMatrix*>(&(A_->epetraObj())),
                                              &(x_->epetraObj()),
                                              &(b_->epetraObj()) ) ) )
@@ -82,7 +83,8 @@ EpetraProblem::EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b )
 // Creation Date : 09/04/08
 //-----------------------------------------------------------------------------
 EpetraProblem::EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b )
- : Problem(Op,x,b)
+ : Problem(Op,x,b),
+   isOwned_(false)
 {
   epetraOp_ = matrixFreeEpetraOperator( Teuchos::rcp( Op, false ), 
                                         Teuchos::rcp( x->pmap(), false ) );
@@ -96,11 +98,12 @@ EpetraProblem::EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b )
 // Purpose       : 
 // Special Notes : 
 // Scope         : Public
-// Creator       : Heidi Thornquist, 1437
+// Creator       : Heidi Thornquist, SNL
 // Creation Date : 10/08/08
 //-----------------------------------------------------------------------------
 EpetraProblem::EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraProblem )
  : Problem(),
+   isOwned_(true),
    epetraProblem_(epetraProblem)
 {
   x_ = new MultiVector(epetraProblem->GetLHS(), false);
@@ -108,11 +111,29 @@ EpetraProblem::EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraP
 
   if (epetraProblem_->GetMatrix()) {
     matrixFreeFlag_ = false;
-    A_ = new Matrix(dynamic_cast<Epetra_CrsMatrix *>(epetraProblem_->GetMatrix()));
+    A_ = new Matrix(dynamic_cast<Epetra_CrsMatrix *>(epetraProblem_->GetMatrix()), false);
   }
   else {
     matrixFreeFlag_ = true;
     epetraOp_ = Teuchos::rcp(epetraProblem_->GetOperator(),false);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraProblem::~EpetraProblem
+// Purpose       :
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL 
+// Creation Date : 12/16/20
+//-----------------------------------------------------------------------------
+EpetraProblem::~EpetraProblem()
+{
+  if (isOwned_)
+  {
+    delete A_;
+    delete x_;
+    delete b_;
   }
 }
 
