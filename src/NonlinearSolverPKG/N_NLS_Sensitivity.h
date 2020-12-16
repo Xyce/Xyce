@@ -77,9 +77,7 @@ public:
 public:
   int            numExpVars;  // this is just the size of the numVarDerivs array
   std::vector<std::string> expVarNames; // need this to get the GIDs
-  std::vector<int>    expVarGIDs;  // need ths even with new way
-
-  std::vector<double> expVarVals; // these are variable values that must be passed into the expression for eval.  Not needed for the new approach
+  std::vector<int>    expVarGIDs;  // need this even with new expression lib, to populate the dOdX vector
 
   std::vector<double> expVarDerivs; // this is returned by expPtr->evaluate
   double         expVal; // this is returned by expPtr->evaluate

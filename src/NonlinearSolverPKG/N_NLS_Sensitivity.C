@@ -121,36 +121,7 @@ bool evaluateObjFuncs (
   // obtain the expression variable values.  It will only grab this value if it is owned on this processor.
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
-    objVec[iobj]->expVarVals.resize (objVec[iobj]->numExpVars, 0.0);
     objVec[iobj]->expVarDerivs.resize (objVec[iobj]->numExpVars, 0.0);
-
-    for (i = 0; i < objVec[iobj]->numExpVars; ++i)
-    {
-      double tmpVal=0.0;
-      if ( objVec[iobj]->globalParamVariableStencil[i] == 1) // this is a global param
-      {
-        // This is a bit of overkill, as "getParamAndReduce" refers to all kinds of parameters, not just global 
-        // parameters.  So this call will result in a search over a larger container than necessary.  (ON the other 
-        // hand this might be useful later.  But the entity which "owns" the global parameter values is the device package.
-        // The "global param" Op is a class in Xyce::Device.  I'm not using ops here, but am relying on the device package
-        // being fully aware of global parmaeter values.
-        nlEquLoader.getParamAndReduce(comm.comm(), objVec[iobj]->expVarNames[i], tmpVal);
-      }
-      else
-      {
-        int tmpGID=objVec[iobj]->expVarGIDs[i];
-        if (tmpGID >= 0)
-        {
-          tmpVal = dataStore.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
-        }
-        else 
-        {
-          tmpVal = 0.0;
-        }
-        Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &tmpVal, 1);
-      }
-      objVec[iobj]->expVarVals[i] = tmpVal;
-    }
   }
 
   //get expression value and partial derivatives
