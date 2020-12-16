@@ -57,6 +57,17 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OptionBlock.h>
 
+#include <expressionGroup.h>
+#include <mainXyceExpressionGroup.h>
+
+namespace Xyce {
+namespace Nonlinear {
+
+template <typename ScalarT>
+class objectiveFunctionData;
+}
+}
+
 namespace Xyce {
 namespace Analysis {
 
@@ -66,13 +77,50 @@ std::ostream& sensStdOutput (
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
        const std::vector<std::string> & paramNameVec,
+       const std::vector<double> & param_dP,
+       const std::vector<int> & numericalDiff,
        const std::vector<std::string> & objFuncVars,
        const std::vector<double> & objectiveVec,
        OutputMgrAdapter & outputManagerAdapter,
        std::ostream& os
        );
 
-void evaluateObjFuncs (
+
+//-------------------------------------------------------------------------------
+// This is a test class for objective function expressions.  
+//
+// A real class will need to be developed.
+//
+// This class is necessary for now b/c the "main" group doesn't know about the 
+// AC solution vector and the function for getting voltage node values won't work.
+//
+// Possibly the "outputs" group would work as well.  Try that later.
+//-------------------------------------------------------------------------------
+class ACExpressionGroup : public Xyce::Util::mainXyceExpressionGroup
+{
+  public:
+    ACExpressionGroup (
+      const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> & mainGroup,
+      const Linear::BlockVector & X) 
+      : 
+      mainXyceExpressionGroup( 
+        mainGroup->comm_, mainGroup->top_,
+        mainGroup->analysisManager_,
+        mainGroup->deviceManager_,
+        mainGroup->outputManager_),
+      X_(X)
+    {};
+
+    ~ACExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval);
+
+  private:
+    const Linear::BlockVector & X_;
+
+};
+
+void evaluateSimpleObjFuncs (
   Parallel::Communicator & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
@@ -169,8 +217,8 @@ private:
   bool solveSensitivity_();
   bool solveDirectSensitivity_();
   bool solveAdjointSensitivity_();
-  bool loadSensitivityRHS_(const std::string & name);
-  bool computeNumerical_dJdp(const std::string & name);
+  bool loadSensitivityRHS_(int ipar);
+  bool computeNumerical_dJdp(int ipar);
   bool outputSensitivity_();
   bool setupObjectiveFuncGIDs_();
 
@@ -294,17 +342,24 @@ private:
   std::vector<double>   scaled_dOdpVec_;
   std::vector<double>   scaled_dOdpAdjVec_;
 
-  // kludges for objective functions
-  std::vector<std::string> objFuncStrings_;
+  // objective function objects
+  //std::vector<std::string> objFuncStrings_;
+  // these are for the new-expression method of specifying objective functions
+  bool objFuncGiven_;
+  bool objFuncGIDsetup_;
+  std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> objFuncDataVec_;
+
+  // these are for the "old" style of specifying objective functions
+  bool objVarGiven_;
   std::vector<std::string> objFuncVars_;
   std::vector<int>    outputVarGIDs_;
 
   std::vector<std::string> paramNameVec_;
+  std::vector<double> param_dP_;
+  std::vector<int> numericalDiff_;
 
   // finite difference variables
   //int difference_;
-  double sqrtEta_;
-  bool sqrtEtaGiven_;
   bool forceFD_;
   bool forceDeviceFD_;
   bool forceAnalytic_;

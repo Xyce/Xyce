@@ -86,6 +86,8 @@ class Sampling;
 class SweepParam;
 class Transient;
 
+class ACExpressionGroup;
+
 typedef std::vector<SweepParam> SweepVector;
 
 } // namespace Analysis

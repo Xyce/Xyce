@@ -51,74 +51,13 @@
 #include <N_TOP_fwd.h>
 #include <N_UTL_MachDepParams.h>
 #include <N_NLS_NonLinearSolver.h>
+//#include <N_NLS_ObjectiveFunctions.h>
 
 namespace Xyce {
 namespace Nonlinear {
 
-//-----------------------------------------------------------------------------
-// Class         : objective function data
-// Purpose       :
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 8/17/2015
-//-----------------------------------------------------------------------------
-class objectiveFunctionData
-{
-public:  
-  objectiveFunctionData() :
-    numExpVars(0),
-    expVal(0.0),
-    objFuncString(""),
-    expPtr(0),
-    numDdt(0),
-    objFuncEval(0.0),
-    dOdp(0.0)
-  {};
-
-public:
-  int            numExpVars;  // this is just the size of the numVarDerivs array
-  std::vector<std::string> expVarNames; // need this to get the GIDs
-  std::vector<int>    expVarGIDs;  // need this even with new expression lib, to populate the dOdX vector
-
-  std::vector<double> expVarDerivs; // this is returned by expPtr->evaluate
-  double         expVal; // this is returned by expPtr->evaluate
-
-  std::vector<int> globalParamVariableStencil;
-
-  std::string objFuncString;
-
-  Util::Expression * expPtr;
-
-  int numDdt;
-
-  double objFuncEval;// value of the evaluated objective function.
-  double dOdp;
-
-  Linear::Vector* dOdXVectorPtr; // size of solution vector.
-};
-
-bool evaluateObjFuncs ( 
-    std::vector<objectiveFunctionData*> & objVec, 
-    Parallel::Communicator & comm,
-    Loader::NonlinearEquationLoader & nlEquLoader_,
-    TimeIntg::DataStore & dataStore,
-    TimeIntg::StepErrorControl & sec,
-    std::string & netlistFilename);
-
-void setupObjectiveFunctions (
-    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
-    std::vector<objectiveFunctionData*> & objVec,
-    IO::OutputMgr & output_manager, Linear::System & lasSys,
-    const IO::CmdParse &cp,
-    bool checkTimeDeriv=true);
-
-void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData*> & objVec, Parallel::Communicator& comm, 
-    Topo::Topology & top, IO::OutputMgr & output_manager);
-
-void applyHocevarDelayTerms(
-    std::vector<objectiveFunctionData*> & objVec,
-    std::vector<objectiveFunctionData*> & objTimeDerivVec,
-    TimeIntg::DataStore & dataStore
-    );
+template <typename ScalarT>
+class objectiveFunctionData;
 
 //-----------------------------------------------------------------------------
 // Class         : Sensitivity
@@ -241,10 +180,10 @@ private:
 
   bool objFuncGiven_;
   bool objFuncGIDsetup_;
-  std::vector<objectiveFunctionData*> objFuncDataVec_;
+  std::vector<objectiveFunctionData<double> *> objFuncDataVec_;
 
   bool objFuncTimeDerivGIDsetup_;
-  std::vector<objectiveFunctionData*> objFuncTimeDerivDataVec_;
+  std::vector<objectiveFunctionData<double> *> objFuncTimeDerivDataVec_;
 
   // finite difference variables
   int difference_;
