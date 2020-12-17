@@ -391,8 +391,8 @@ void ESDirectSolver::createBlockStructures()
       Teuchos::RCP<Matrix> parMatrix = Teuchos::rcp( builder_.createMatrix() );
       Teuchos::RCP<Vector> parVector = Teuchos::rcp( builder_.createVector() );
 
-      N_PDS_ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
-      N_PDS_ParMap * rowMapPtr = parVector->pmap();
+      Parallel::ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+      Parallel::ParMap * rowMapPtr = parVector->pmap();
 
       // Determine the number of unique unknowns for each row.
       // This code is inspired by the similar code in the HBDirectSolver that Heidi 
@@ -544,7 +544,7 @@ void ESDirectSolver::createBlockStructures()
   {
     // ERK note, currently the builder that is passed into this class is an ES builder.  Not sure if this is 
     // correct builder for these function calls.  Check this.
-    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(esBuilderPtr_->getSolutionMap());
+    Teuchos::RCP<Parallel::EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(esBuilderPtr_->getSolutionMap());
     serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
     serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );

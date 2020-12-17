@@ -46,31 +46,31 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 #include <N_UTL_DFTInterfaceDecl.hpp>
 
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
 
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
 
 BlockVector* createBlockVector( int numBlocks,
-                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
                                 int augmentRows = 0 );
 
 BlockVector* createBlockVector( int blockSize,
-                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
                                 int augmentRows = 0 );
 
 BlockVector* createBlockVector( const Vector * right, int blockSize );
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
-                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap );
+                                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap );
 
 BlockMatrix* createBlockMatrix( int size,
                                 int offset,
@@ -86,11 +86,11 @@ BlockMatrix* createBlockMatrix( int size,
 //               : numbering scheme.  Xyce uses an offset index to space the 
 //               : global ids apart so that they are unique.  The computation
 //               : of this offset is performed by this function using the
-//               : N_PDS_ParMap from the base block object.
+//               : Parallel::ParMap from the base block object.
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 10/8/13
 //-----------------------------------------------------------------------------
-int generateOffset( const N_PDS_ParMap& baseMap );
+int generateOffset( const Parallel::ParMap& baseMap );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockParMaps
@@ -100,8 +100,8 @@ int generateOffset( const N_PDS_ParMap& baseMap );
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PDS_ParMap& pmap, N_PDS_ParMap& omap );
-std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_PDS_ParMap& pmap, N_PDS_ParMap& omap );
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap );
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockParMap
@@ -111,7 +111,7 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
+Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMap& pmap,
                                               int augmentRows=0, std::vector<int>* augmentedGIDs = 0,
                                               int offset = -1 );
 
@@ -123,7 +123,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern,
-                                      N_PDS_ParMap& blockMap, const Graph& baseGraph );
+                                      Parallel::ParMap& blockMap, const Graph& baseGraph );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockFreqERFParMap
@@ -136,10 +136,10 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_ParMap& pmap,
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap,
                                                      int augmentRows = 0, std::vector<int>* augmentedLIDs = 0 );
 
-Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_ParMap& pmap, N_PDS_ParMap& omap,
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, Parallel::ParMap& omap,
                                                      int augmentRows = 0, std::vector<int>* augmentedLIDs = 0 );
 //-----------------------------------------------------------------------------
 // Function      : copyToBlockVector

@@ -98,7 +98,7 @@ public:
 
 bool evaluateObjFuncs ( 
     std::vector<objectiveFunctionData*> & objVec, 
-    N_PDS_Comm & comm,
+    Parallel::Communicator & comm,
     Loader::NonlinearEquationLoader & nlEquLoader_,
     TimeIntg::DataStore & dataStore,
     TimeIntg::StepErrorControl & sec,
@@ -111,7 +111,7 @@ void setupObjectiveFunctions (
     const IO::CmdParse &cp,
     bool checkTimeDeriv=true);
 
-void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData*> & objVec, N_PDS_Comm & comm, 
+void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData*> & objVec, Parallel::Communicator& comm, 
     Topo::Topology & top, IO::OutputMgr & output_manager);
 
 void applyHocevarDelayTerms(

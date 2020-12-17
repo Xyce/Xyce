@@ -79,15 +79,15 @@ BlockMatrix* createBlockMatrix( int size,
 }
 
 BlockVector* createBlockVector( int numBlocks,
-                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
                                 int augmentRows )
 {
   return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
 }
 
 BlockVector* createBlockVector( int blockSize,
-                                const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
                                 int augmentRows )
 {
   return new BlockVector( blockSize, globalMap, augmentRows );
@@ -99,8 +99,8 @@ BlockVector* createBlockVector( const Vector * right, int blockSize )
 }
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
-                                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap )
+                                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap )
 {
   return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
 }
@@ -113,11 +113,11 @@ BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
 //               : numbering scheme.  Xyce uses an offset index to space the 
 //               : global ids apart so that they are unique.  The computation
 //               : of this offset is performed by this function using the
-//               : N_PDS_ParMap from the base block object.
+//               : Parallel::ParMap from the base block object.
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 10/8/13
 //-----------------------------------------------------------------------------
-int generateOffset( const N_PDS_ParMap& baseMap )
+int generateOffset( const Parallel::ParMap& baseMap )
 {
    // Compute the offset needed for global indexing.
    int offset = baseMap.maxGlobalEntity();
@@ -220,7 +220,7 @@ void copyFromBlockVectors( std::vector<Teuchos::RCP<BlockVector> >& blockVectors
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PDS_ParMap& pmap, N_PDS_ParMap& omap )
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap )
 {
    // The information about the current maps, given by pmap and omap (overlap map)
    // will be used to generate new parallel maps for the block system.
@@ -249,9 +249,9 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   N_PDS_EpetraParMap& e_omap = dynamic_cast<N_PDS_EpetraParMap&>(omap);
+   Parallel::EpetraParMap& e_omap = dynamic_cast<Parallel::EpetraParMap&>(omap);
    e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    int gnd_node = 0;  // Will be decremented before first use.
@@ -282,11 +282,11 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
    oBaseIndex = std::min( oBaseIndex, gnd_node );
 
    // Create new maps for the block system 
-   Teuchos::RCP<N_PDS_ParMap> blockMap, oBlockMap;
+   Teuchos::RCP<Parallel::ParMap> blockMap, oBlockMap;
    blockMap = Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
    oBlockMap = Teuchos::rcp(Parallel::createPDSParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
 
-   std::vector<Teuchos::RCP<N_PDS_ParMap> > allMaps;
+   std::vector<Teuchos::RCP<Parallel::ParMap> > allMaps;
    allMaps.push_back(blockMap);
    allMaps.push_back(oBlockMap);
 
@@ -301,7 +301,7 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_PDS_ParMap& pmap, N_PDS_ParMap& omap )
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap )
 {
    // The information about the current maps, given by pmap and omap (overlap map)
    // will be used to generate new parallel maps for the block system.
@@ -334,9 +334,9 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   N_PDS_EpetraParMap& e_omap = dynamic_cast<N_PDS_EpetraParMap&>(omap);
+   Parallel::EpetraParMap& e_omap = dynamic_cast<Parallel::EpetraParMap&>(omap);
    e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    for( int i = 0; i < numBlocks; ++i )
@@ -361,11 +361,11 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
    oGIDs[onumLocalElements-1] = -1;
 
    // Create new maps for the block system 
-   Teuchos::RCP<N_PDS_ParMap> blockMap, oBlockMap;
+   Teuchos::RCP<Parallel::ParMap> blockMap, oBlockMap;
    blockMap = Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
    oBlockMap = Teuchos::rcp(Parallel::createPDSParMap(onumGlobalElements, onumLocalElements, oGIDs, oBaseIndex, pmap.pdsComm()));
 
-   std::vector<Teuchos::RCP<N_PDS_ParMap> > allMaps;
+   std::vector<Teuchos::RCP<Parallel::ParMap> > allMaps;
    allMaps.push_back(blockMap);
    allMaps.push_back(oBlockMap);
 
@@ -381,7 +381,7 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps2( int numBlocks, N_P
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap, 
+Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMap& pmap, 
                                               int augmentRows, std::vector<int>* augmentedGIDs,
                                               int offset )
 {
@@ -421,7 +421,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
    std::vector<int> GIDs(numLocalElements);
 
    // Extract the global indices.
-   N_PDS_EpetraParMap& e_pmap = dynamic_cast<N_PDS_EpetraParMap&>(pmap);
+   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
 
    for( int i = 0; i < numBlocks; ++i )
@@ -457,7 +457,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
    }
 
    // Create new maps for the block system 
-   Teuchos::RCP<N_PDS_ParMap> blockMap = 
+   Teuchos::RCP<Parallel::ParMap> blockMap = 
      Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, GIDs, BaseIndex, pmap.pdsComm()));
 
    return blockMap;
@@ -471,7 +471,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockParMap( int numBlocks, N_PDS_ParMap& pmap,
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
-                                      N_PDS_ParMap& blockMap, const Graph& baseGraph )
+                                      Parallel::ParMap& blockMap, const Graph& baseGraph )
 {
   int numBlockRows = blockPattern.size();
   int numMyBaseRows = baseGraph.numLocalEntities();
@@ -490,7 +490,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   std::vector<int> newIndices(maxNNZs);  // Make as large as the combined maximum of indices and column blocks
 
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  N_PDS_EpetraParMap& e_blockMap = dynamic_cast<N_PDS_EpetraParMap&>(blockMap);
+  Parallel::EpetraParMap& e_blockMap = dynamic_cast<Parallel::EpetraParMap&>(blockMap);
  
   Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *e_blockMap.petraMap(), maxNNZs ));
   
@@ -538,7 +538,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 12/3/13
 //-----------------------------------------------------------------------------
-Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_ParMap& pmap, 
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, 
                                                      int augmentRows, std::vector<int>* augmentedLIDs )
 {
    // The information about the current maps, given by pmap
@@ -597,7 +597,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
    numGlobalElements += augmentRows;
 
    // Create new maps for the block system 
-   Teuchos::RCP<N_PDS_ParMap> blockMap = 
+   Teuchos::RCP<Parallel::ParMap> blockMap = 
      Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
 
    // Now capture the LIDs of the augmented rows.
@@ -628,8 +628,8 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 12/3/13
 //-----------------------------------------------------------------------------
-Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_ParMap& pmap, 
-                                                     N_PDS_ParMap& omap,
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, 
+                                                     Parallel::ParMap& omap,
                                                      int augmentRows, std::vector<int>* augmentedLIDs )
 {
    // The information about the current maps, given by pmap
@@ -688,7 +688,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
    }
 
    // Create new maps for the block system 
-   Teuchos::RCP<N_PDS_ParMap> blockMap = 
+   Teuchos::RCP<Parallel::ParMap> blockMap = 
      Teuchos::rcp(Parallel::createPDSParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
 
    // Now capture the GIDs of the augmented rows.
@@ -726,7 +726,7 @@ void computePermutedDFT(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int blockCount = xt.blockCount();
   int localN = xt.block(0).localLength();
 
-  // It's necessary to get the blockmap from Epetra because the N_PDS_ParMap is not always guaranteed to be valid.
+  // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
   Epetra_BlockMap blockMap = xt.block(0).epetraObj().Map();
 
   // Obtain registered vectors with the DFT interface.
@@ -786,7 +786,7 @@ void computePermutedDFT2(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int blockCount = xt.blockCount();
   int localN = xt.block(0).localLength();
 
-  // It's necessary to get the blockmap from Epetra because the N_PDS_ParMap is not always guaranteed to be valid.
+  // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
   Epetra_BlockMap blockMap = xt.block(0).epetraObj().Map();
 
   // Obtain registered vectors with the DFT interface.
@@ -845,7 +845,7 @@ void computePermutedIFT(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int N = xf.block(0).globalLength();
   int localBC = xt->block(0).localLength();
 
-  // It's necessary to get the blockmap from Epetra because the N_PDS_ParMap is not always guaranteed to be valid.
+  // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
   Epetra_BlockMap blockMap = (xt->block(0)).epetraObj().Map();
 
   // Register input and output signals for the IFT.

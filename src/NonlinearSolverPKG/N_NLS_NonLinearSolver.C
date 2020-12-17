@@ -339,7 +339,7 @@ bool NonLinearSolver::registerPrecondFactory(const Linear::PrecondFactory *tmp_L
 // Creator       : Eric Keiter, Sandia
 // Creation Date : 6/8/2013
 //-----------------------------------------------------------------------------
-bool NonLinearSolver::registerParallelMgr(N_PDS_Manager * pdsMgrPtr)
+bool NonLinearSolver::registerParallelMgr(Parallel::Manager * pdsMgrPtr)
 {
   pdsMgrPtr_ = pdsMgrPtr;
   return (pdsMgrPtr_ != 0);

@@ -826,10 +826,10 @@ bool Matrix::useTranspose ()
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
+Parallel::ParMap* Matrix::getOverlapColMap( Parallel::Communicator& comm )
 {
   if (!oColMap_)
-    oColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
+    oColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
   
   return oColMap_;
 }
@@ -842,10 +842,10 @@ N_PDS_ParMap* Matrix::getOverlapColMap( N_PDS_Comm& comm )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
+Parallel::ParMap* Matrix::getColMap( Parallel::Communicator& comm )
 {
   if (!aColMap_)
-    aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+    aColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
   
   return aColMap_;
 }
@@ -858,10 +858,10 @@ N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-const N_PDS_ParMap* Matrix::getColMap( N_PDS_Comm& comm ) const
+const Parallel::ParMap* Matrix::getColMap( Parallel::Communicator& comm ) const
 {
   if (!aColMap_)
-    aColMap_ = new N_PDS_EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+    aColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
   
   return aColMap_;
 }

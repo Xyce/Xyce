@@ -146,7 +146,7 @@ public:
   const double * operator()(int row, int col_offset) const;
 
   // Get column map for overlapped matrix
-  N_PDS_ParMap* getOverlapColMap( N_PDS_Comm& comm );
+  Parallel::ParMap* getOverlapColMap( Parallel::Communicator& comm );
 
   // Get graphs for overlapped matrix
   Graph* getOverlapGraph() { return overlapGraph_; }
@@ -206,8 +206,8 @@ public:
   const Epetra_CrsMatrix & epetraObj() const { return *aDCRSMatrix_; }
 
   // Get column map for assembled matrix
-  N_PDS_ParMap* getColMap( N_PDS_Comm& comm );
-  const N_PDS_ParMap* getColMap( N_PDS_Comm& comm ) const;
+  Parallel::ParMap* getColMap( Parallel::Communicator& comm );
+  const Parallel::ParMap* getColMap( Parallel::Communicator& comm ) const;
 
   // Get graph for assembled matrix
   Graph* getGraph() { return baseGraph_; }
@@ -242,7 +242,7 @@ protected:
   Epetra_OffsetIndex * offsetIndex_;
 
   // Column maps, assembled and overlapped.
-  mutable N_PDS_ParMap *aColMap_, *oColMap_;
+  mutable Parallel::ParMap *aColMap_, *oColMap_;
 
   // Graphs, assembled and overlapped.
   Graph *overlapGraph_, *baseGraph_;

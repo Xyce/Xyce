@@ -51,7 +51,7 @@ namespace Measure{
 // Creation Date : 2/15/18
 //-----------------------------------------------------------------------------
 RemeasureBase::RemeasureBase(
-  N_PDS_Comm &pds_comm, 
+  Parallel::Communicator &pds_comm, 
   Manager &measure_manager, 
   OutputMgr &output_manager,
   Analysis::AnalysisManager &analysis_manager,
@@ -87,7 +87,7 @@ RemeasureBase::~RemeasureBase()
 // Creation Date : 2/15/18
 //-----------------------------------------------------------------------------
 RemeasureAC::RemeasureAC(
-  N_PDS_Comm &pds_comm, 
+  Parallel::Communicator &pds_comm, 
   Manager &measure_manager, 
   OutputMgr &output_manager,
   Analysis::AnalysisManager &analysis_manager,
@@ -163,7 +163,7 @@ void RemeasureAC::checkIndepVarCol(int rank, int index)
 // Creation Date : 2/15/18
 //-----------------------------------------------------------------------------
 RemeasureDC::RemeasureDC(
-  N_PDS_Comm &pds_comm, 
+  Parallel::Communicator &pds_comm, 
   Manager &measure_manager, 
   OutputMgr &output_manager,
   Analysis::AnalysisManager &analysis_manager,
@@ -330,7 +330,7 @@ void RemeasureDC::updateSweepVars()
 // Creation Date : 2/15/18
 //-----------------------------------------------------------------------------
 RemeasureTRAN::RemeasureTRAN(
-  N_PDS_Comm &pds_comm, 
+  Parallel::Communicator &pds_comm, 
   Manager &measure_manager, 
   OutputMgr &output_manager,
   Analysis::AnalysisManager &analysis_manager,

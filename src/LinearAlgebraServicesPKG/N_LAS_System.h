@@ -45,9 +45,7 @@
 
 #include <N_ANP_fwd.h>
 #include <N_LAS_fwd.h>
-
-// to eliminate RCP warnings, putting N_PDS_Manager header here.
-#include <N_PDS_Manager.h>
+#include <N_PDS_fwd.h>
 
 // ---------- Forward Declarations ----------
 
@@ -73,7 +71,7 @@ public:
 
   // Registers the Parallel Distribution Services (PDS) manager (i.e., sets the
   // pointer.
-  bool registerPDSManager(N_PDS_Manager * PDS_Manager)
+  bool registerPDSManager(Parallel::Manager * PDS_Manager)
   { return ( pdsMgr_ = PDS_Manager ); }
 
   // Registers the LAS Builder object
@@ -128,7 +126,7 @@ public:
 
 private:
 
-  N_PDS_Manager   *  pdsMgr_;
+  Parallel::Manager   *  pdsMgr_;
 
   Builder   *  lasBuilder_;
   Problem   *  lasProblemPtr_;

@@ -63,25 +63,25 @@ namespace Xyce {
 namespace Linear {
 
   // Non-member creation methods.
-MultiVector* createMultiVector( N_PDS_ParMap & map,
+MultiVector* createMultiVector( Parallel::ParMap & map,
                                 int numVectors )
 {
   return new MultiVector( map, numVectors );
 }
 
-MultiVector* createMultiVector( N_PDS_ParMap & map,
-                                N_PDS_ParMap & ol_map,
+MultiVector* createMultiVector( Parallel::ParMap & map,
+                                Parallel::ParMap & ol_map,
                                 int numVectors )
 {
   return new MultiVector( map, ol_map, numVectors );
 }
 
-Vector* createVector( N_PDS_ParMap & map ) 
+Vector* createVector( Parallel::ParMap & map ) 
 {
   return new Vector( map );
 }
 
-Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
+Vector* createVector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
 {
   return new Vector( map, ol_map );
 }
@@ -92,13 +92,13 @@ Matrix* createMatrix( const Graph* overlapGraph,
   return new Matrix( overlapGraph, baseGraph );
 }
 
-Graph* createGraph( N_PDS_ParMap & map, 
+Graph* createGraph( Parallel::ParMap & map, 
                     const std::vector<int>& numIndicesPerRow )
 {
   return new Graph( map, numIndicesPerRow );
 }
 
-Graph* createGraph( N_PDS_ParMap & map,
+Graph* createGraph( Parallel::ParMap & map,
                     int maxNumIndicesPerRow )
 {
   return new Graph( map, maxNumIndicesPerRow );

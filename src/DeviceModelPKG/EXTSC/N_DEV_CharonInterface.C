@@ -122,7 +122,7 @@ CharonInterface::~CharonInterface()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 03/13/2006
 //-----------------------------------------------------------------------------
-bool CharonInterface::initialize(N_PDS_Comm * comm)
+bool CharonInterface::initialize(Parallel::Communicator* comm)
 {
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))

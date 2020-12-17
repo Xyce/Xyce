@@ -782,7 +782,7 @@ bool AC::doInit()
 
     loader_.getBMatrixEntries(tempVec, portNumVec_, &tempZ0s);
 
-    N_PDS_Manager * pdsMgrPtr = analysisManager_.getPDSManager();
+    Parallel::Manager * pdsMgrPtr = analysisManager_.getPDSManager();
 
     int myPID = pdsMgrPtr->getPDSComm()->procID();
     Parallel::Machine comm =  pdsMgrPtr->getPDSComm()->comm();
@@ -930,15 +930,15 @@ bool AC::doLoopProcess()
 //-----------------------------------------------------------------------------
 bool AC::createLinearSystem_()
 {
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-  RCP<N_PDS_ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
+  RCP<Parallel::ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
   const Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
   int offset = baseMap->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
 
-  RCP<N_PDS_ParMap> blockMap = Linear::createBlockParMap(numBlocks, *baseMap, 0, 0, offset);
+  RCP<Parallel::ParMap> blockMap = Linear::createBlockParMap(numBlocks, *baseMap, 0, 0, offset);
 
   // Create a block vector
   delete B_;
@@ -1170,7 +1170,7 @@ bool AC::solveLinearSystem_()
   // Loop over number of I/O ports here
   {
 
-    N_PDS_Manager * pdsMgrPtr = analysisManager_.getPDSManager();
+    Parallel::Manager * pdsMgrPtr = analysisManager_.getPDSManager();
 
     int myPID = pdsMgrPtr->getPDSComm()->procID();
     Parallel::Machine comm =  pdsMgrPtr->getPDSComm()->comm();
@@ -1236,7 +1236,7 @@ bool AC::solveSensitivity_()
   ds.scaled_dOdpAdjVec_.clear();
 
   // for AC objective functions are always solution variables
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
   evaluateObjFuncs ( *(pds_manager.getPDSComm()), *X_, outputVarGIDs_, objectiveVec_, outputManagerAdapter_);
 
   if(solveDirectSensitivityFlag_)
@@ -1442,8 +1442,8 @@ std::ostream& sensStdOutput (
 bool AC::solveDirectSensitivity_()
 {
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator & comm = *(pds_manager.getPDSComm());
   int myPID = comm.procID();
 
   int ii=0;
@@ -1490,7 +1490,7 @@ bool AC::solveDirectSensitivity_()
 
   if (stdOutputFlag_)
   {
-    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+    Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
     sensStdOutput(std::string("Direct"), ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
        paramNameVec_, objFuncVars_, objectiveVec_,
@@ -1517,8 +1517,8 @@ bool AC::solveDirectSensitivity_()
 bool AC::solveAdjointSensitivity_()
 {
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator & comm = *(pds_manager.getPDSComm());
   int myPID = comm.procID();
 
   int ii=0;
@@ -1597,7 +1597,7 @@ bool AC::solveAdjointSensitivity_()
 
   if (stdOutputFlag_)
   {
-    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+    Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
     sensStdOutput (std::string("Adjoint"), ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
        paramNameVec_, objFuncVars_, objectiveVec_,
@@ -1941,8 +1941,8 @@ bool AC::setupObjectiveFuncGIDs_()
   bool foundLocal(false);
   bool foundLocal2(false);
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator & comm = *(pds_manager.getPDSComm());
 
   outputVarGIDs_.resize( numOutVars, -1 );
   for (int iout = 0; iout < numOutVars; ++iout)
@@ -1994,7 +1994,7 @@ bool AC::setupObjectiveFuncGIDs_()
 // Creation Date : 3/29/2019
 //-----------------------------------------------------------------------------
 void evaluateObjFuncs (
-  N_PDS_Comm & comm,
+  Parallel::Communicator & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
   std::vector<double> & objectiveVec,

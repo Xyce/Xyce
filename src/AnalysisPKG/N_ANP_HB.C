@@ -961,8 +961,8 @@ void HB::prepareHBOutput(
  //  int blockCounttd = (size_-1)/2*tdsampleRate*2 + 1; 
 
   int N = blockSolVecPtr.blockCount(); 
-  Teuchos::RCP<N_PDS_ParMap> baseMap = Teuchos::rcp_const_cast<N_PDS_ParMap>( hbBuilderPtr_->getBaseSolutionMap() );
-  Teuchos::RCP<N_PDS_ParMap> globalMap = Linear::createBlockParMap( blockCounttd, *baseMap );
+  Teuchos::RCP<Parallel::ParMap> baseMap = Teuchos::rcp_const_cast<Parallel::ParMap>( hbBuilderPtr_->getBaseSolutionMap() );
+  Teuchos::RCP<Parallel::ParMap> globalMap = Linear::createBlockParMap( blockCounttd, *baseMap );
   
   timeDomainSolnVec = Teuchos::rcp( Xyce::Linear::createBlockVector(blockCounttd, globalMap, baseMap ) );
 
@@ -1014,7 +1014,7 @@ void HB::prepareHBOutput(
   }
 
   int blockCount = size_;
-  Teuchos::RCP<N_PDS_ParMap> globalMapfreq = Linear::createBlockParMap( blockCount, *baseMap );
+  Teuchos::RCP<Parallel::ParMap> globalMapfreq = Linear::createBlockParMap( blockCount, *baseMap );
   freqDomainSolnVecReal = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalMapfreq, baseMap ) );
   freqDomainSolnVecImag = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalMapfreq, baseMap ) ); 
 
@@ -1059,9 +1059,9 @@ void HB::prepareHBOutput(
   }
 
     // lead current vector
-  Teuchos::RCP<N_PDS_ParMap> baseLeadCurrentMap = Teuchos::rcp_const_cast<N_PDS_ParMap>( hbBuilderPtr_->getBaseLeadCurrentMap() );
-  Teuchos::RCP<N_PDS_ParMap> globalLeadCurrentMap = Linear::createBlockParMap( blockCounttd, *baseLeadCurrentMap );
-  Teuchos::RCP<N_PDS_ParMap> globalLeadCurrentMapfq = Linear::createBlockParMap( blockCount, *baseLeadCurrentMap ); 
+  Teuchos::RCP<Parallel::ParMap> baseLeadCurrentMap = Teuchos::rcp_const_cast<Parallel::ParMap>( hbBuilderPtr_->getBaseLeadCurrentMap() );
+  Teuchos::RCP<Parallel::ParMap> globalLeadCurrentMap = Linear::createBlockParMap( blockCounttd, *baseLeadCurrentMap );
+  Teuchos::RCP<Parallel::ParMap> globalLeadCurrentMapfq = Linear::createBlockParMap( blockCount, *baseLeadCurrentMap ); 
 
   freqDomainLeadCurrentVecReal  = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );
   freqDomainLeadCurrentVecImaginary = Teuchos::rcp( Xyce::Linear::createBlockVector( blockCount, globalLeadCurrentMapfq, baseLeadCurrentMap ) );

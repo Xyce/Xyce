@@ -60,10 +60,10 @@ class Graph
 public:
 
   // Basic constructor with map and number of entries per row
-  Graph( N_PDS_ParMap & map, const std::vector<int>& numIndicesPerRow );
+  Graph( Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow );
 
   // Basic constructor with map and maximum number of entries per row
-  Graph( N_PDS_ParMap & map, int maxIndicesPerRow );
+  Graph( Parallel::ParMap & map, int maxIndicesPerRow );
 
   // Simple constructor using Epetra_CrsGraph
   Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph );
@@ -75,7 +75,7 @@ public:
   Graph* cloneCopy() const;
 
   // Create new graph exporting values from this one.
-  Graph* exportGraph( N_PDS_ParMap& map ) const;
+  Graph* exportGraph( Parallel::ParMap& map ) const;
 
   // Get the base index for this graph
   int indexBase() const
@@ -121,7 +121,7 @@ public:
     epetraGraph_->OptimizeStorage(); 
   }
 
-  void fillComplete( N_PDS_ParMap& rowMap, N_PDS_ParMap& colMap );
+  void fillComplete( Parallel::ParMap& rowMap, Parallel::ParMap& colMap );
 
   const Teuchos::RCP<Epetra_CrsGraph>& epetraObj() const { return epetraGraph_; }
 

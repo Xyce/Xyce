@@ -493,7 +493,7 @@ bool removeDevice(const std::vector<bool>& pFilter,
 // Creator       : Richard Schiek, 1437 Electrical Systems Modeling
 // Creation Date : 07/24/2012
 //---------------------------------------------------------------------------
-void readExternalParamsFromFile( N_PDS_Comm& comm,
+void readExternalParamsFromFile( Parallel::Communicator& comm,
   std::string filename,
   std::vector< std::pair< std::string, std::string > > & paramList )
 {

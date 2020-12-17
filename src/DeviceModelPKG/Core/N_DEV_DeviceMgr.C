@@ -4538,7 +4538,7 @@ int DeviceMgr::restartDataSize(bool pack) const
 // Creation Date : 06/26/2013
 //-----------------------------------------------------------------------------
 bool DeviceMgr::dumpRestartData(
-  char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack) const
+  char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack) const
 {
   bool retval=true;
 
@@ -4603,7 +4603,7 @@ bool DeviceMgr::dumpRestartData(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 06/26/2013
 //-----------------------------------------------------------------------------
-bool DeviceMgr::restoreRestartData(char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack)
+bool DeviceMgr::restoreRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack)
 {
   bool retval=true;
 

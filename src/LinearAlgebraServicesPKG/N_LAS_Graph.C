@@ -52,16 +52,16 @@
 namespace Xyce {
 namespace Linear {
 
-  Graph::Graph( N_PDS_ParMap & map, const std::vector<int>& numIndicesPerRow )
+  Graph::Graph( Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow )
   {
-    Epetra_Map* epetraMap = dynamic_cast<N_PDS_EpetraParMap&>(map).petraMap();
+    Epetra_Map* epetraMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
     epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, &numIndicesPerRow[0] ) );
   }
 
   // Basic constructor with map and maximum number of entries per row
-  Graph::Graph( N_PDS_ParMap & map, int maxIndicesPerRow )
+  Graph::Graph( Parallel::ParMap & map, int maxIndicesPerRow )
   {
-    Epetra_Map* epetraMap = dynamic_cast<N_PDS_EpetraParMap&>(map).petraMap();
+    Epetra_Map* epetraMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
     epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, maxIndicesPerRow ) );
   }
 
@@ -78,9 +78,9 @@ namespace Linear {
     return( new Graph( *this ) ); 
   }
 
-  Graph* Graph::exportGraph( N_PDS_ParMap& map ) const
+  Graph* Graph::exportGraph( Parallel::ParMap& map ) const
   {
-    Epetra_Map* exportMap = dynamic_cast<N_PDS_EpetraParMap&>(map).petraMap();
+    Epetra_Map* exportMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
 
     Epetra_Export exporter( epetraGraph_->Map(), *exportMap );
     Epetra_CrsGraph * newGraph = new Epetra_CrsGraph( Copy, *exportMap, 0 );
@@ -92,10 +92,10 @@ namespace Linear {
     return retGraph;
   }
 
-  void Graph::fillComplete( N_PDS_ParMap& rowMap, N_PDS_ParMap& colMap )
+  void Graph::fillComplete( Parallel::ParMap& rowMap, Parallel::ParMap& colMap )
   {
-    Epetra_Map* rMap = dynamic_cast<N_PDS_EpetraParMap&>(rowMap).petraMap();
-    Epetra_Map* cMap = dynamic_cast<N_PDS_EpetraParMap&>(colMap).petraMap();
+    Epetra_Map* rMap = dynamic_cast<Parallel::EpetraParMap&>(rowMap).petraMap();
+    Epetra_Map* cMap = dynamic_cast<Parallel::EpetraParMap&>(colMap).petraMap();
 
     epetraGraph_->FillComplete( *rMap, *cMap );
     epetraGraph_->OptimizeStorage();

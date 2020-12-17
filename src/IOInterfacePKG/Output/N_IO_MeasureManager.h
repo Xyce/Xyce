@@ -158,7 +158,7 @@ public:
   const Base *find(const std::string &name) const;
 
   void remeasure(
-    N_PDS_Comm &pds_comm,
+    Parallel::Communicator &pds_comm,
     const std::string &netlist_filename,
     const std::string &remeasure_path,
     const char& analysisName,

@@ -49,7 +49,6 @@
 
 #include <N_UTL_Functors.h>
 
-#include <N_PDS_Manager.h>
 #include <N_PDS_Migrate.h>
 #include <N_PDS_Comm.h>
 
@@ -80,7 +79,7 @@ struct DirectoryData
                                      NodeContainer,
                                      NodeMigrate >  NodeDir;
 
-  DirectoryData( N_PDS_Comm & comm )
+  DirectoryData( Parallel::Communicator & comm )
   : hash(comm.numProc()),
     migrate(comm),
     directory(migrate,hash)

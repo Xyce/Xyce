@@ -66,7 +66,7 @@ class ExternCodeInterface
     ExternCodeInterface (const ExternCodeInterface &right);
     virtual ~ExternCodeInterface();
 
-    virtual bool initialize(N_PDS_Comm * comm = 0) = 0;
+    virtual bool initialize(Parallel::Communicator* comm = 0) = 0;
 
     virtual bool simulateStep(
       const SolverState & solState,

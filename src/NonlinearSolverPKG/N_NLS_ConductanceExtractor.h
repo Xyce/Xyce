@@ -42,11 +42,9 @@
 #include <vector>
 
 #include <N_IO_fwd.h>
-
+#include <N_PDS_fwd.h>
 #include <N_NLS_NonLinearSolver.h>
 #include <N_LOA_NonlinearEquationLoader.h>
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Nonlinear {
@@ -124,7 +122,7 @@ private:
   Linear::Vector  * gradVectorPtr_;
 
   Linear::Vector  * columnVectorPtr_;
-  N_PDS_ParMap  * columnMapPtr_;
+  Parallel::ParMap  * columnMapPtr_;
 };
 
 } // namespace Nonlinear

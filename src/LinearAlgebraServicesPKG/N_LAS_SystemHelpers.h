@@ -44,34 +44,34 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
 
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
 
   // Non-member creation methods.
-MultiVector* createMultiVector( N_PDS_ParMap & map,
+MultiVector* createMultiVector( Parallel::ParMap & map,
                                 int numVectors = 1 );
 
-MultiVector* createMultiVector( N_PDS_ParMap & map,
-                                      N_PDS_ParMap & ol_map,
+MultiVector* createMultiVector( Parallel::ParMap & map,
+                                Parallel::ParMap & ol_map,
                                 int numVectors = 1 );
 
-Vector* createVector( N_PDS_ParMap & map );
+Vector* createVector( Parallel::ParMap & map );
 
-Vector* createVector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map );
+Vector* createVector( Parallel::ParMap & map, Parallel::ParMap & ol_map );
 
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph );
 
-Graph* createGraph( N_PDS_ParMap & map,
+Graph* createGraph( Parallel::ParMap & map,
                     const std::vector<int>& numIndicesPerRow );
 
-Graph* createGraph( N_PDS_ParMap & map,
+Graph* createGraph( Parallel::ParMap & map,
                     int maxNumIndicesPerRow );
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );

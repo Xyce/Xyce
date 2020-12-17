@@ -169,8 +169,8 @@ Vector * ESBuilder::createLeadCurrentVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-bool ESBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap, 
-                              const RCP<N_PDS_ParMap>& oBaseMap )
+bool ESBuilder::generateMaps( const RCP<Parallel::ParMap>& BaseMap, 
+                              const RCP<Parallel::ParMap>& oBaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;
@@ -196,7 +196,7 @@ bool ESBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-bool ESBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
+bool ESBuilder::generateStateMaps( const RCP<Parallel::ParMap>& BaseStateMap )
 {
   //Save copy of base map
   BaseStateMap_ = BaseStateMap;
@@ -222,7 +222,7 @@ bool ESBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
 // Creator       : Eric Keiter
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-bool ESBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
+bool ESBuilder::generateStoreMaps( const RCP<Parallel::ParMap>& BaseStoreMap )
 {
   //Save copy of base map
   BaseStoreMap_ = BaseStoreMap;
@@ -248,7 +248,7 @@ bool ESBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
 // Creator       : Eric Keiter
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
-bool ESBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap )
+bool ESBuilder::generateLeadCurrentMaps( const RCP<Parallel::ParMap>& BaseLeadCurrentMap )
 {
   //Save copy of base map
   BaseLeadCurrentMap_ = BaseLeadCurrentMap;

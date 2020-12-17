@@ -62,7 +62,7 @@ Indexor::globalToLocal(
   int                   graph_id,
   std::vector<int> &    ids )
 {
-  N_PDS_ParMap *map = pdsMgr_.getParallelMap(graph_id);
+  Parallel::ParMap *map = pdsMgr_.getParallelMap(graph_id);
 
   for (unsigned int i = 0; i < ids.size(); ++i)
     ids[i] = map->globalToLocalIndex( ids[i] );
@@ -83,7 +83,7 @@ Indexor::localToGlobal(
   int                   graph_id,
   std::vector<int> &    ids )
 {
-  N_PDS_ParMap *map = pdsMgr_.getParallelMap(graph_id);
+  Parallel::ParMap *map = pdsMgr_.getParallelMap(graph_id);
 
   for( unsigned int i = 0; i < ids.size(); ++i )
     ids[i] = map->localToGlobalIndex( ids[i] );

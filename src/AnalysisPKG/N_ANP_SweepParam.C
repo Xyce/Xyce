@@ -853,7 +853,7 @@ Pack<Analysis::SweepParam>::packedByteCount(const Analysis::SweepParam &param)
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, int bsize, int & pos, Parallel::Communicator* comm )
 {
   int length;
   std::string tmp;
@@ -1054,7 +1054,7 @@ Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, 
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int bsize, int & pos, Parallel::Communicator* comm )
 {
   int length = 0;
   int vector_size = 0;

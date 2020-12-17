@@ -80,7 +80,7 @@ namespace Linear {
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
+MultiVector::MultiVector(Parallel::ParMap & map, int numVectors)
 :  parallelMap_(&map),
    overlapMap_(&map),
    importer_(0),
@@ -103,7 +103,7 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
   }
 
   // Create a new Petra MultiVector and set the pointer.
-  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
+  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>( map );
   aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), numVectors );
 
   oMultiVector_ = aMultiVector_;
@@ -118,8 +118,8 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
 // Creation Date : 06/06/02
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector(
-  N_PDS_ParMap &        map,
-  N_PDS_ParMap &        ol_map,
+  Parallel::ParMap &        map,
+  Parallel::ParMap &        ol_map,
   int                   numVectors )
   : parallelMap_(&map),
     overlapMap_(&ol_map),
@@ -136,8 +136,8 @@ MultiVector::MultiVector(
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
-  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>( map );
-  N_PDS_EpetraParMap& e_ol_map = dynamic_cast<N_PDS_EpetraParMap&>( ol_map );
+  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>( map );
+  Parallel::EpetraParMap& e_ol_map = dynamic_cast<Parallel::EpetraParMap&>( ol_map );
   oMultiVector_ = new Epetra_MultiVector( *e_ol_map.petraMap(), numVectors);
 
   viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map.petraMap(), *e_map.petraMap() );
@@ -174,8 +174,8 @@ MultiVector::MultiVector( const MultiVector & right )
     aMultiVector_ = oMultiVector_;
   else
   {
-    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
-    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+    Parallel::EpetraParMap* e_map = dynamic_cast<Parallel::EpetraParMap*>( parallelMap_ );
+    Parallel::EpetraParMap* e_ol_map = dynamic_cast<Parallel::EpetraParMap*>( overlapMap_ );
 
     viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map->petraMap(), *e_map->petraMap() );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
@@ -184,8 +184,8 @@ MultiVector::MultiVector( const MultiVector & right )
   // Generate new exporter instead of using copy constructor, there is an issue with Epetra_MpiDistributor
   if( right.exporter_ ) 
   {
-    N_PDS_EpetraParMap* e_map = dynamic_cast<N_PDS_EpetraParMap*>( parallelMap_ );
-    N_PDS_EpetraParMap* e_ol_map = dynamic_cast<N_PDS_EpetraParMap*>( overlapMap_ );
+    Parallel::EpetraParMap* e_map = dynamic_cast<Parallel::EpetraParMap*>( parallelMap_ );
+    Parallel::EpetraParMap* e_ol_map = dynamic_cast<Parallel::EpetraParMap*>( overlapMap_ );
 
     exporter_ = new Epetra_Export( *e_ol_map->petraMap(), *e_map->petraMap() );
   }

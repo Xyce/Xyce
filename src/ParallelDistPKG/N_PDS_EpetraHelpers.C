@@ -57,6 +57,9 @@
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
 
+namespace Xyce {
+namespace Parallel {
+
 //-----------------------------------------------------------------------------
 // Function      : createPDSParMap
 // Purpose       : Creates an ParMap object based on linear algebra.
@@ -65,11 +68,11 @@
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
-                                                int numLocalEntities,
-                                                const std::vector<int> & lbMap,
-                                                const int index_base,
-                                                const N_PDS_Comm & aComm )
+ParMap * createPDSParMap( int & numGlobalEntities,
+                          int numLocalEntities,
+                          const std::vector<int> & lbMap,
+                          const int index_base,
+                          const Communicator & aComm )
 {
   const int * mArray = lbMap.empty() ? 0 : static_cast<const int *>(&lbMap[0]);
 
@@ -83,9 +86,9 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
                               mArray,
                               index_base,
                               *petraComm );
-  N_PDS_Comm& nonconst_comm = const_cast<N_PDS_Comm&>(aComm);
+  Communicator& nonconst_comm = const_cast<Communicator&>(aComm);
 
-  return ( new N_PDS_EpetraParMap( petraMap, nonconst_comm, true ) );
+  return ( new EpetraParMap( petraMap, nonconst_comm, true ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -96,19 +99,19 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
-                                                int numLocalEntities,
-                                                const int index_base,
-                                                const N_PDS_Comm & aComm )
+ParMap * createPDSParMap( int & numGlobalEntities,
+                          int numLocalEntities,
+                          const int index_base,
+                          const Communicator & aComm )
 {
   const Epetra_Comm* petraComm = Xyce::Parallel::getEpetraComm( &aComm );
   Epetra_Map*  petraMap = new Epetra_Map( numGlobalEntities,
                                           numLocalEntities,
                                           index_base,
                                           *petraComm );
-  N_PDS_Comm& nonconst_comm = const_cast<N_PDS_Comm&>(aComm);
+  Communicator& nonconst_comm = const_cast<Communicator&>(aComm);
 
-  return ( new N_PDS_EpetraParMap( petraMap, nonconst_comm, true ) );
+  return ( new EpetraParMap( petraMap, nonconst_comm, true ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -120,43 +123,43 @@ N_PDS_ParMap * Xyce::Parallel::createPDSParMap( int & numGlobalEntities,
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_Comm *Xyce::Parallel::createPDSComm( int iargs, char * cargs[], Xyce::Parallel::Machine comm)
+Communicator * createPDSComm( int iargs, char * cargs[], Machine comm)
 {
-  N_PDS_Comm * theComm = NULL;
+  Communicator * theComm = NULL;
 
 #ifdef Xyce_PARALLEL_MPI
   if (comm != MPI_COMM_NULL)
-    theComm = new N_PDS_EpetraMPIComm( comm );
+    theComm = new EpetraMPIComm( comm );
   else
-    theComm = new N_PDS_EpetraMPIComm( iargs, cargs );
+    theComm = new EpetraMPIComm( iargs, cargs );
 #else
-  theComm = new N_PDS_EpetraSerialComm();
+  theComm = new EpetraSerialComm();
 #endif
   return theComm;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : createPDSComm
-// Purpose       : Creates an N_PDS_Comm based on either the Epetra serial or 
+// Purpose       : Creates an Communicator based on either the Epetra serial or 
 //               : parallel comm object.
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_Comm *Xyce::Parallel::createPDSComm( Epetra_Comm* comm )
+Communicator * createPDSComm( Epetra_Comm* comm )
 {
-  N_PDS_Comm * pdsComm = NULL;
+  Communicator * pdsComm = NULL;
 
 #ifdef Xyce_PARALLEL_MPI
   Epetra_MpiComm * mpicomm = dynamic_cast<Epetra_MpiComm *>( comm );
 
   if (mpicomm)
-    pdsComm = new N_PDS_EpetraMPIComm( mpicomm->Comm() );
+    pdsComm = new EpetraMPIComm( mpicomm->Comm() );
   else
-    pdsComm = new N_PDS_EpetraMPIComm( MPI_COMM_WORLD );
+    pdsComm = new EpetraMPIComm( MPI_COMM_WORLD );
 #else
-  pdsComm = new N_PDS_EpetraSerialComm();
+  pdsComm = new EpetraSerialComm();
 #endif
 
   return pdsComm;
@@ -171,19 +174,19 @@ N_PDS_Comm *Xyce::Parallel::createPDSComm( Epetra_Comm* comm )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 09/29/20
 //-----------------------------------------------------------------------------
-Epetra_Comm* Xyce::Parallel::getEpetraComm( N_PDS_Comm* comm )
+Epetra_Comm* getEpetraComm( Communicator* comm )
 { 
   Epetra_Comm* petraComm = 0;
 
 #ifdef Xyce_PARALLEL_MPI
-  N_PDS_EpetraMPIComm* mpiComm = dynamic_cast<N_PDS_EpetraMPIComm*>( comm );
+  EpetraMPIComm* mpiComm = dynamic_cast<EpetraMPIComm*>( comm );
   if ( mpiComm )
     petraComm = mpiComm->petraComm();
 #endif
   
   if (!petraComm)
   { 
-    N_PDS_EpetraSerialComm* serialComm = dynamic_cast<N_PDS_EpetraSerialComm*>( comm );
+    EpetraSerialComm* serialComm = dynamic_cast<EpetraSerialComm*>( comm );
     if ( serialComm )
       petraComm = serialComm->petraComm();
   }
@@ -200,23 +203,27 @@ Epetra_Comm* Xyce::Parallel::getEpetraComm( N_PDS_Comm* comm )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 09/29/20
 //-----------------------------------------------------------------------------
-const Epetra_Comm* Xyce::Parallel::getEpetraComm( const N_PDS_Comm* comm )
+const Epetra_Comm* getEpetraComm( const Communicator* comm )
 { 
   const Epetra_Comm* petraComm = 0;
 
 #ifdef Xyce_PARALLEL_MPI
-  const N_PDS_EpetraMPIComm* mpiComm = dynamic_cast<const N_PDS_EpetraMPIComm*>( comm );
+  const EpetraMPIComm* mpiComm = dynamic_cast<const EpetraMPIComm*>( comm );
   if ( mpiComm )
     petraComm = mpiComm->petraComm();
 #endif
   
   if (!petraComm)
   { 
-    const N_PDS_EpetraSerialComm* serialComm = dynamic_cast<const N_PDS_EpetraSerialComm*>( comm );
+    const EpetraSerialComm* serialComm = dynamic_cast<const EpetraSerialComm*>( comm );
     if ( serialComm )
       petraComm = serialComm->petraComm();
   }
   
   return petraComm;
 }
+
+} // namespace Parallel
+} // namespace Xyce
+
 

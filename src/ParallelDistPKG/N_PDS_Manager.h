@@ -103,12 +103,12 @@ public:
     return pdsComm_;
   }
 
-  N_PDS_ParMap *getParallelMap(int id) {
+  ParMap *getParallelMap(int id) {
     return parMaps_[id];
   }
 
   // Gets a global accessor object which is associated with a parallel map.
-  N_PDS_GlobalAccessor * getGlobalAccessor(int id)
+  GlobalAccessor * getGlobalAccessor(int id)
   {
     return globalAccessors_[id];
   }
@@ -119,20 +119,20 @@ public:
     return matrixGraphs_[id];
   }
 
-  bool addParallelMap(int id, N_PDS_ParMap * map);
+  bool addParallelMap(int id, ParMap * map);
 
   bool linkParallelMap(int new_id, int link_id);
 
   bool deleteParallelMap(int id);
 
   // Add a global accessor object associated with a parallel map.
-  N_PDS_GlobalAccessor *addGlobalAccessor(int id);
+  GlobalAccessor *addGlobalAccessor(int id);
 
   // Delete a global accessor object associated with a parallel map.
   bool deleteGlobalAccessor(int id);
 
   // Method which greats a global accessor object.
-  N_PDS_GlobalAccessor * createGlobalAccessor();
+  GlobalAccessor * createGlobalAccessor();
 
   // Add a matrix graph object
   bool addMatrixGraph(
@@ -146,8 +146,8 @@ public:
 
 private:
   Communicator *                pdsComm_;               ///< Pointer to the PDS_Comm object.
-  N_PDS_ParMap *                parMaps_[MAP_COUNT];
-  N_PDS_GlobalAccessor *        globalAccessors_[MAP_COUNT];
+  ParMap *                      parMaps_[MAP_COUNT];
+  GlobalAccessor *              globalAccessors_[MAP_COUNT];
   Linear::Graph *               matrixGraphs_[MAP_COUNT];
 
   std::map<int,int>             linkedMapsGraphs_;
@@ -155,7 +155,5 @@ private:
 
 } // namespace Parallel
 } // namespace Xyce
-
-typedef Xyce::Parallel::Manager N_PDS_Manager;
 
 #endif

@@ -241,7 +241,7 @@ const std::vector<int> & Builder::createInitialConditionColoring() const
       }
     }
 
-    N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
+    Parallel::ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
     for( int i=0; i < vsrcSize; ++i )
     {
       int vsrcID = vsrcGIDColors[i];
@@ -283,16 +283,16 @@ bool Builder::generateParMaps()
     const std::vector<int>& arrayStoreGIDs = lasQueryUtil_->rowList_StoreGID();
     const std::vector<int>& arrayLeadCurrentGIDs = lasQueryUtil_->rowList_LeadCurrentGID();
   
-    N_PDS_ParMap *solnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
-    N_PDS_ParMap *stateMap = Parallel::createPDSParMap(numLocalStateVars, numLocalStateVars, arrayStateGIDs, 0, *(pdsMgr_->getPDSComm()));
-    N_PDS_ParMap *storeMap = Parallel::createPDSParMap(numLocalStoreVars, numLocalStoreVars, arrayStoreGIDs, 0, *(pdsMgr_->getPDSComm()));
-    N_PDS_ParMap *leadCurrentMap = Parallel::createPDSParMap(numLocalLeadCurrentVars, numLocalLeadCurrentVars, 
+    Parallel::ParMap *solnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *stateMap = Parallel::createPDSParMap(numLocalStateVars, numLocalStateVars, arrayStateGIDs, 0, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *storeMap = Parallel::createPDSParMap(numLocalStoreVars, numLocalStoreVars, arrayStoreGIDs, 0, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *leadCurrentMap = Parallel::createPDSParMap(numLocalLeadCurrentVars, numLocalLeadCurrentVars, 
                                                              arrayLeadCurrentGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     // Create solution map with ground by appending ground to the end of the arrayGIDs vector.
     arrayGIDs.push_back(-1);
     numLocalRows++;
-    N_PDS_ParMap *overlapGndSolnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *overlapGndSolnMap = Parallel::createPDSParMap(numLocalRows, numLocalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
 
     // Register serial maps. 
     pdsMgr_->addParallelMap( Parallel::SOLUTION, solnMap );
@@ -310,7 +310,7 @@ bool Builder::generateParMaps()
     std::vector<int> arrayGIDs = lasQueryUtil_->rowList_GID();
 
     int numGlobalRows = lasQueryUtil_->numGlobalRows();
-    N_PDS_ParMap *solnMap = Parallel::createPDSParMap(numGlobalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *solnMap = Parallel::createPDSParMap(numGlobalRows, numLocalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     int procCnt = pdsMgr_->getPDSComm()->numProc();
     int numExternRows = lasQueryUtil_->numExternRows();
@@ -322,12 +322,12 @@ bool Builder::generateParMaps()
 
     int numGlobalExternRows = lasQueryUtil_->numGlobalExternRows();
     int totalGlobalRows = numGlobalRows + numGlobalExternRows;
-    N_PDS_ParMap *overlapSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *overlapSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, 0, *(pdsMgr_->getPDSComm()));
 
     arrayGIDs.push_back(-1);
     totalGlobalRows += procCnt;
     totalRows++;
-    N_PDS_ParMap *overlapGndSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
+    Parallel::ParMap *overlapGndSolnMap = Parallel::createPDSParMap(totalGlobalRows, totalRows, arrayGIDs, -1, *(pdsMgr_->getPDSComm()));
 
     // Register the parallel maps.
     pdsMgr_->addParallelMap( Parallel::SOLUTION, solnMap );
@@ -346,27 +346,27 @@ bool Builder::generateParMaps()
     // Create state map.
     int numGlobalStateVars = lasQueryUtil_->numGlobalStateVars();
     std::vector<int> arrayStateGIDs = lasQueryUtil_->rowList_StateGID();
-    N_PDS_ParMap *stateMap = Parallel::createPDSParMap(numGlobalStateVars, numLocalStateVars, 
+    Parallel::ParMap *stateMap = Parallel::createPDSParMap(numGlobalStateVars, numLocalStateVars, 
                                                        arrayStateGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::STATE, stateMap );
 
     // Create store map.
     int numGlobalStoreVars = lasQueryUtil_->numGlobalStoreVars();
     std::vector<int> arrayStoreGIDs = lasQueryUtil_->rowList_StoreGID();
-    N_PDS_ParMap *storeMap = Parallel::createPDSParMap(numGlobalStoreVars, numLocalStoreVars, 
+    Parallel::ParMap *storeMap = Parallel::createPDSParMap(numGlobalStoreVars, numLocalStoreVars, 
                                                        arrayStoreGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::STORE, storeMap );
 
     // Create lead current map and lead current overlap map.
     int numGlobalLeadCurrentVars = lasQueryUtil_->numGlobalLeadCurrentVars();
     std::vector<int> arrayLeadCurrentGIDs = lasQueryUtil_->rowList_LeadCurrentGID();
-    N_PDS_ParMap *leadCurrentMap = Parallel::createPDSParMap(numGlobalLeadCurrentVars, numLocalLeadCurrentVars,
+    Parallel::ParMap *leadCurrentMap = Parallel::createPDSParMap(numGlobalLeadCurrentVars, numLocalLeadCurrentVars,
                                                              arrayLeadCurrentGIDs, 0, *(pdsMgr_->getPDSComm()));
     pdsMgr_->addParallelMap( Parallel::LEADCURRENT, leadCurrentMap );
  
     // Add global accessors for parallel data migration.
     // NOTE:  This has to be after the map registration.
-    N_PDS_GlobalAccessor * solnGA = pdsMgr_->addGlobalAccessor( Parallel::SOLUTION );
+    Parallel::GlobalAccessor * solnGA = pdsMgr_->addGlobalAccessor( Parallel::SOLUTION );
     solnGA->registerExternGIDVector( lasQueryUtil_->rowList_ExternGID() );
     solnGA->generateMigrationPlan();
   }
@@ -388,9 +388,9 @@ bool Builder::generateGraphs()
 
   int numLocalRows_Overlap = rcData.size();
 
-  N_PDS_ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
-  N_PDS_ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
-  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
+  Parallel::ParMap * solnOvGMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND );
+  Parallel::ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
+  Parallel::ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
 
   Graph * overlapGraph = Xyce::Linear::createGraph( *solnOvMap, arrayNZs );
 
@@ -518,7 +518,7 @@ bool Builder::setupSeparatedLSObjects()
   // between linear and nonlinear portions of the graph.  The entries of the Jacobian
   // for A and B are static, where C and D can change over the course of a transient.
   //
-  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
+  Parallel::ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
   const Graph* graph = pdsMgr_->getMatrixGraph(Parallel::JACOBIAN);
   int numLocalRows = graph->numLocalEntities();
 
@@ -637,8 +637,8 @@ bool Builder::setupSeparatedLSObjects()
   pdsMgr_->getPDSComm()->sumAll( &numLinGIDs, &tnumLinGIDs, 1 );
   pdsMgr_->getPDSComm()->sumAll( &numNonlinGIDs, &tnumNonlinGIDs, 1 );
 
-  N_PDS_ParMap * linSolnMap = Parallel::createPDSParMap(tnumLinGIDs, numLinGIDs, linGIDs, 0, *(pdsMgr_->getPDSComm()));
-  N_PDS_ParMap * nonlinSolnMap = Parallel::createPDSParMap(tnumNonlinGIDs, numNonlinGIDs, finalNLGIDs, 0, *(pdsMgr_->getPDSComm()));
+  Parallel::ParMap * linSolnMap = Parallel::createPDSParMap(tnumLinGIDs, numLinGIDs, linGIDs, 0, *(pdsMgr_->getPDSComm()));
+  Parallel::ParMap * nonlinSolnMap = Parallel::createPDSParMap(tnumNonlinGIDs, numNonlinGIDs, finalNLGIDs, 0, *(pdsMgr_->getPDSComm()));
   pdsMgr_->addParallelMap(Parallel::LINEAR_SOLUTION, linSolnMap);
   pdsMgr_->addParallelMap(Parallel::NONLINEAR_SOLUTION, nonlinSolnMap);
 
@@ -749,8 +749,8 @@ bool Builder::setupSeparatedLSObjects()
 // Creator       : Heidi Thornquist and Ting Mei, Electrical Simulation and Modeling
 // Creation Date : 04/01/15
 //-----------------------------------------------------------------------------
-void Builder::getSeparatedSolnMap( RCP<N_PDS_ParMap>& linear_map,
-                                   RCP<N_PDS_ParMap>& nonlin_map
+void Builder::getSeparatedSolnMap( RCP<Parallel::ParMap>& linear_map,
+                                   RCP<Parallel::ParMap>& nonlin_map
                                  ) const
 {
   linear_map = Teuchos::rcp(pdsMgr_->getParallelMap(Parallel::LINEAR_SOLUTION),false);
@@ -808,7 +808,7 @@ void Builder::getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-RCP<const N_PDS_ParMap> Builder::getSolutionMap() const
+RCP<const Parallel::ParMap> Builder::getSolutionMap() const
 {
   return(Teuchos::rcp(pdsMgr_->getParallelMap(Parallel::SOLUTION),false));
 }
@@ -822,7 +822,7 @@ RCP<const N_PDS_ParMap> Builder::getSolutionMap() const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-RCP<N_PDS_ParMap> Builder::getSolutionMap() 
+RCP<Parallel::ParMap> Builder::getSolutionMap() 
 {
   return(Teuchos::rcp(pdsMgr_->getParallelMap(Parallel::SOLUTION),false));
 }

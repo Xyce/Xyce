@@ -233,7 +233,7 @@ Pack<IO::FunctionBlock>::pack(
   char *                        buf,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm )
+  Parallel::Communicator *      comm )
 {
   int size, length;
 #ifdef Xyce_COUNT_PACKED_BYTES
@@ -291,11 +291,11 @@ Pack<IO::FunctionBlock>::pack(
 template<>
 void
 Pack<IO::FunctionBlock>::unpack(
-  IO::FunctionBlock &   function_block,
-  char *                pB,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm)
+  IO::FunctionBlock &      function_block,
+  char *                   pB,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm)
 {
   int length, size, j;
 

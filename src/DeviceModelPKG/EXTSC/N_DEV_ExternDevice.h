@@ -196,7 +196,7 @@ public:
 
   void setNonlocallyConnected() { locallyConnected_ = false; }
   void setOwningProc(int proc) { owningProc_ = proc; }
-  void setComm(N_PDS_Comm* comm) { comm_ = comm; }
+  void setComm(Parallel::Communicator* comm) { comm_ = comm; }
 
   void homotopyStepSuccess(const std::vector<std::string> & paramNames, const std::vector<double> & paramVals);
 
@@ -267,7 +267,7 @@ private:
 
   bool locallyConnected_;
   int  owningProc_;
-  N_PDS_Comm *          comm_;
+  Parallel::Communicator*          comm_;
   const IO::CmdParse &  commandLine_;
   InstanceBlock         instanceBlock_;
 };

@@ -1100,7 +1100,7 @@ int Pack<IO::ParameterBlock>::packedByteCount(
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<IO::ParameterBlock>::pack(const IO::ParameterBlock &parameter_block, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<IO::ParameterBlock>::pack(const IO::ParameterBlock &parameter_block, char * buf, int bsize, int & pos, Parallel::Communicator* comm )
 {
   int size, length, j;
   int def;
@@ -1186,7 +1186,7 @@ void Pack<IO::ParameterBlock>::unpack(
   char *                        pB,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm)
+  Parallel::Communicator *      comm)
 {
   int size = 0;
   int length = 0;

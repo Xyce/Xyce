@@ -72,7 +72,7 @@ namespace Topo {
 //-----------------------------------------------------------------------------
 SerialLSUtil::SerialLSUtil(
   Topology &            topology,
-  N_PDS_Manager &       pds_manager)
+  Parallel::Manager &   pds_manager)
   : Linear::QueryUtil(),
     topology_(topology),
     pdsManager_(pds_manager),

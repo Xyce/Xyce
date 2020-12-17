@@ -44,16 +44,15 @@
 #include <vector>
 
 // ----------   Xyce Includes   ----------
-#include <N_LAS_fwd.h>
 
+#include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 #include <N_LAS_Builder.h>
 
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
 
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -110,38 +109,38 @@ class PCEBuilder : public Builder
   Matrix * createMatrix() const;
   BlockMatrix * createQuadMatrix() const;
 
-  bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
-                     const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );
+  bool generateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseMap, 
+                     const Teuchos::RCP<Parallel::ParMap>& oBaseMap );
 
-  bool generateStateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStateMap );
-  bool generateStoreMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStoreMap );
-  bool generateLeadCurrentMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
+  bool generateStateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseStateMap );
+  bool generateStoreMaps( const Teuchos::RCP<Parallel::ParMap>& BaseStoreMap );
+  bool generateLeadCurrentMaps( const Teuchos::RCP<Parallel::ParMap>& BaseLeadCurrentMap );
 
   bool generateGraphs( 
     const Graph& pceGraph,
     const Graph& baseFullGraph );
 
   // Return maps for sampling linear system.
-  Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const
+  Teuchos::RCP<const Parallel::ParMap> getSolutionMap() const
   { return( PCEMap_ ); }
 
-  Teuchos::RCP<N_PDS_ParMap> getSolutionMap()
+  Teuchos::RCP<Parallel::ParMap> getSolutionMap()
   { return( PCEMap_ ); }
 
-  Teuchos::RCP<N_PDS_ParMap> getSolutionOverlapMap() const
+  Teuchos::RCP<Parallel::ParMap> getSolutionOverlapMap() const
   { return oPCEMap_; }
 
   // Return the base map for each block in the expanded maps (a.k.a. time-domain maps)
-  Teuchos::RCP<const N_PDS_ParMap> getBaseSolutionMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseSolutionMap() const
   { return BaseMap_; }
 
-  Teuchos::RCP<const N_PDS_ParMap> getBaseStateMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseStateMap() const
   { return BaseStateMap_; }
 
-  Teuchos::RCP<const N_PDS_ParMap> getBaseStoreMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseStoreMap() const
   { return BaseStoreMap_; }
   
-  Teuchos::RCP<const N_PDS_ParMap> getBaseLeadCurrentMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseLeadCurrentMap() const
   { return BaseLeadCurrentMap_; }
 
   // Return GID offset for blocks for construction of Loader
@@ -172,11 +171,11 @@ private:
   int leadCurrentOffset_;
 
   // PCE maps for block vectors (BV):
-  Teuchos::RCP<N_PDS_ParMap> BaseMap_, oBaseMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseMap_, oBaseMap_;
 
-  Teuchos::RCP<N_PDS_ParMap> BaseStateMap_;
-  Teuchos::RCP<N_PDS_ParMap> BaseStoreMap_;
-  Teuchos::RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseStateMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseStoreMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseLeadCurrentMap_;
 
   Teuchos::RCP<Graph> pceGraph_;
   Teuchos::RCP<Graph> baseFullGraph_;
@@ -186,17 +185,17 @@ private:
   std::vector<std::vector<int> > blockPattern_;
   std::vector<std::vector<int> > quadBlockPattern_;
 
-  Teuchos::RCP<N_PDS_ParMap> PCEMap_, oPCEMap_;
-  Teuchos::RCP<N_PDS_ParMap> quadMap_, oquadMap_;
+  Teuchos::RCP<Parallel::ParMap> PCEMap_, oPCEMap_;
+  Teuchos::RCP<Parallel::ParMap> quadMap_, oquadMap_;
 
-  Teuchos::RCP<N_PDS_ParMap> PCEStateMap_;
-  Teuchos::RCP<N_PDS_ParMap> quadStateMap_;
+  Teuchos::RCP<Parallel::ParMap> PCEStateMap_;
+  Teuchos::RCP<Parallel::ParMap> quadStateMap_;
 
-  Teuchos::RCP<N_PDS_ParMap> PCEStoreMap_;
-  Teuchos::RCP<N_PDS_ParMap> quadStoreMap_;
+  Teuchos::RCP<Parallel::ParMap> PCEStoreMap_;
+  Teuchos::RCP<Parallel::ParMap> quadStoreMap_;
 
-  Teuchos::RCP<N_PDS_ParMap> PCELeadCurrentMap_;
-  Teuchos::RCP<N_PDS_ParMap> quadLeadCurrentMap_;
+  Teuchos::RCP<Parallel::ParMap> PCELeadCurrentMap_;
+  Teuchos::RCP<Parallel::ParMap> quadLeadCurrentMap_;
 };
 
 } // namespace Linear

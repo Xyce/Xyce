@@ -108,7 +108,7 @@ XyceInterface::~XyceInterface()
 // Creation Date : 03/01/2006
 //-----------------------------------------------------------------------------
 bool XyceInterface::initialize(
-  N_PDS_Comm *          comm)
+  Parallel::Communicator*          comm)
 {
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {

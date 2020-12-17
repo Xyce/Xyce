@@ -102,7 +102,7 @@ bool registerPkgOptionsMgr(Topology &topology, IO::PkgOptionsMgr &options_manage
 Topology::Topology(
   const IO::CmdParse &          cp,
   IO::HangingResistor &         hanging_resistor,
-  N_PDS_Manager &               pds_manager)
+  Parallel::Manager &           pds_manager)
   : commandLine_(cp),
     hangingResistor_(hanging_resistor),
     linearSolverUtility_(Topo::LSUtilFactory::newLSUtil(*this, pds_manager)),
@@ -447,7 +447,7 @@ void Topology::verifyNodesAndDevices(
       currentCktNodeItr++;
     }
 
-    N_PDS_Comm * commPtr = pdsManager_.getPDSComm();
+    Parallel::Communicator * commPtr = pdsManager_.getPDSComm();
     int totalBadDevices = 0;
     commPtr->sumAll( &badDeviceCount, &totalBadDevices, 1 );
 
@@ -616,7 +616,7 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
 {
   if( linearSolverUtility_->supernodeFlag() && !(pdsManager_.getPDSComm())->isSerial() )
   {
-    N_PDS_Comm * commPtr = pdsManager_.getPDSComm();
+    Parallel::Communicator * commPtr = pdsManager_.getPDSComm();
     int numProcs = commPtr->numProc();
     int thisProc = commPtr->procID();
 
@@ -1186,7 +1186,7 @@ void Topology::writeNetlistAddResistors
 (unordered_set<std::string> &        connToOneTermIDs,
  unordered_set<std::string> &        noDCPathIDs)
 {
-  N_PDS_Comm * commPtr = pdsManager_.getPDSComm();
+  Parallel::Communicator * commPtr = pdsManager_.getPDSComm();
   int procID = commPtr->procID();
 
   if (procID == 0 && hangingResistor_.getNetlistCopy())
@@ -1373,7 +1373,7 @@ void Topology::appendEndStatement()
 void Topology::outputTopoWarnings(unordered_set<std::string> & oneTermName,
                                   unordered_set<std::string> & noDCName)
 {
-  N_PDS_Comm & comm = *(pdsManager_.getPDSComm());
+  Parallel::Communicator & comm = *(pdsManager_.getPDSComm());
   int procID = comm.procID();
 
   std::string warn1("connected to only 1 device Terminal");
@@ -1418,7 +1418,7 @@ void Topology::outputTopoWarnings(unordered_set<std::string> & oneTermName,
 //-----------------------------------------------------------------------------
 void Topology::generateGlobalNameSet( unordered_set<std::string> & nodeName )
 {
-  N_PDS_Comm & comm = *(pdsManager_.getPDSComm());
+  Parallel::Communicator & comm = *(pdsManager_.getPDSComm());
   int procCnt = comm.numProc();
   int procID = comm.procID();
 

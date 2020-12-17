@@ -132,7 +132,7 @@ friend class ExpressionData;
 public:
 
   mainXyceExpressionGroup ( 
-      N_PDS_Comm & comm, Topo::Topology & top,
+      Parallel::Communicator & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
@@ -180,7 +180,7 @@ private:
 
   int getSolutionGID_(const std::string & nodeName);
 
-  N_PDS_Comm & comm_;
+  Parallel::Communicator & comm_;
   Topo::Topology & top_;
 
   Analysis::AnalysisManager & analysisManager_;

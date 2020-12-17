@@ -121,7 +121,7 @@ public:
 
   bool
   restoreRestartData(
-    N_PDS_Comm &                  comm,
+    Parallel::Communicator &      comm,
     Topo::Topology &              topology,
     Analysis::AnalysisManager &   analysis_manager,
     Device::DeviceMgr &           device_manager,
@@ -144,7 +144,7 @@ bool registerPkgOptionsMgr(RestartMgr &restart_manager, PkgOptionsMgr &options_m
 
 bool
 dumpRestartData(
-  N_PDS_Comm &                  comm,
+  Parallel::Communicator &      comm,
   Topo::Topology &              topology,
   Analysis::AnalysisManager &   analysis_manager,
   Device::DeviceMgr &           device_manager,

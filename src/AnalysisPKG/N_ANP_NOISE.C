@@ -728,8 +728,8 @@ bool NOISE::doLoopProcess()
 
   setupAdjointRHS_();
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator &comm = *(pds_manager.getPDSComm());
   int myPID = comm.procID();
 
   ///////////////////////////////////////////////////////////////////////////
@@ -946,15 +946,15 @@ std::ostream& NOISE::noiseOutputToScreen_(std::ostream& os)
 //-----------------------------------------------------------------------------
 bool NOISE::createACLinearSystem_()
 {
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-  RCP<N_PDS_ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
+  RCP<Parallel::ParMap> baseMap = rcp(pds_manager.getParallelMap( Parallel::SOLUTION ), false);
   const Linear::Graph* baseFullGraph = pds_manager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
   int offset = baseMap->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
 
-  RCP<N_PDS_ParMap> blockMap = Linear::createBlockParMap(numBlocks, *baseMap, 0, 0, offset);
+  RCP<Parallel::ParMap> blockMap = Linear::createBlockParMap(numBlocks, *baseMap, 0, 0, offset);
 
   // Create a block vector
   delete B_;
@@ -1181,8 +1181,8 @@ void NOISE::processOutputNodes ()
   bool foundLocal(false);
   bool foundLocal2(false);
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator &comm = *(pds_manager.getPDSComm());
 
   outputVarGIDs_.resize( numOutVars, -1 );
   for (int iout = 0; iout < numOutVars; ++iout)
@@ -1244,8 +1244,8 @@ void NOISE::setupAdjointRHS_()
   // replace RHS in linear system.  Assume that the phase is zero, so no
   // imaginary contribution.
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator &comm = *(pds_manager.getPDSComm());
 
   bNoiseVecRealPtr->putScalar(0.0);
   bNoiseVecImagPtr->putScalar(0.0);
@@ -1340,8 +1340,8 @@ bool NOISE::solveAdjointNOISE_()
     Ximag.print( Xyce::dout() );
   }
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & comm = *(pds_manager.getPDSComm());
+  Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+  Parallel::Communicator &comm = *(pds_manager.getPDSComm());
 
   totalOutputNoiseDens_ = 0.0;
   totalInputNoiseDens_ = 0.0;

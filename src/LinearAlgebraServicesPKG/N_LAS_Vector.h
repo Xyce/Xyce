@@ -40,10 +40,9 @@
 #define Xyce_N_LAS_Vector_h
 
 #include <N_LAS_MultiVector.h>
+#include <N_PDS_fwd.h>
 
 #include <Epetra_Vector.h>
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -62,11 +61,11 @@ class Vector : public MultiVector
 public:
 
   // Constructors to map to Petra constructors.
-  Vector(N_PDS_ParMap & map)
+  Vector(Parallel::ParMap & map)
   : MultiVector(map, 1)
   {}
 
-  Vector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
+  Vector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
   : MultiVector( map, ol_map, 1 )
   {}
 

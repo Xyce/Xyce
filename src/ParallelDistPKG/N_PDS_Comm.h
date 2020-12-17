@@ -151,6 +151,4 @@ public:
 } // namespace Parallel
 } // namespace Xyce
 
-typedef Xyce::Parallel::Communicator N_PDS_Comm;
-
 #endif // Xyce_N_PDS_Comm_h

@@ -169,7 +169,7 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createMatrix() const
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap )
+bool N_MPDE_Builder::generateMaps( const RCP<Xyce::Parallel::ParMap>& BaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;
@@ -208,7 +208,7 @@ bool N_MPDE_Builder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap )
 // Creator       : Todd Coffey, 1414
 // Creation Date : 01/17/07
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
+bool N_MPDE_Builder::generateStateMaps( const RCP<Xyce::Parallel::ParMap>& BaseStateMap )
 {
   //Save copy of base map
   BaseStateMap_ = BaseStateMap;
@@ -230,7 +230,7 @@ bool N_MPDE_Builder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
+bool N_MPDE_Builder::generateStoreMaps( const RCP<Xyce::Parallel::ParMap>& BaseStoreMap )
 {
   //Save copy of base map
   BaseStoreMap_ = BaseStoreMap;
@@ -253,7 +253,7 @@ bool N_MPDE_Builder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap )
+bool N_MPDE_Builder::generateLeadCurrentMaps( const RCP<Xyce::Parallel::ParMap>& BaseLeadCurrentMap )
 {
   //Save copy of base map
   BaseLeadCurrentMap_ = BaseLeadCurrentMap;
@@ -292,7 +292,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
   int BlockSize = BaseMap_->numLocalEntities();
 
   //Construct MPDE dFdX Graph
-  Teuchos::RCP<N_PDS_EpetraParMap> e_mpdeMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(MPDEMap_);
+  Teuchos::RCP<Xyce::Parallel::EpetraParMap> e_mpdeMap = Teuchos::rcp_dynamic_cast<Xyce::Parallel::EpetraParMap>(MPDEMap_);
   Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
                                                            *dynamic_cast<Epetra_BlockMap*>(e_mpdeMap->petraMap()),
                                                            0 );
@@ -430,7 +430,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-Teuchos::RCP<const N_PDS_ParMap> N_MPDE_Builder::getSolutionMap() const
+Teuchos::RCP<const Xyce::Parallel::ParMap> N_MPDE_Builder::getSolutionMap() const
 {
   return( MPDEMap_ );
 }
@@ -444,7 +444,7 @@ Teuchos::RCP<const N_PDS_ParMap> N_MPDE_Builder::getSolutionMap() const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-Teuchos::RCP<N_PDS_ParMap> N_MPDE_Builder::getSolutionMap() 
+Teuchos::RCP<Xyce::Parallel::ParMap> N_MPDE_Builder::getSolutionMap() 
 {
   return( MPDEMap_ );
 }

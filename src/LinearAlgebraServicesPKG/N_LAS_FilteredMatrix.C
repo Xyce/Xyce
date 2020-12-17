@@ -87,7 +87,7 @@ struct valComp : public std::binary_function<std::pair<double,int>, std::pair<do
 // Creator       : Heidi Thornquist, Sandia National Labs
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-FilteredMatrix::FilteredMatrix( const Matrix* matrix, const N_PDS_ParMap* map, 
+FilteredMatrix::FilteredMatrix( const Matrix* matrix, const Parallel::ParMap* map, 
                                 bool filterOverlap )
 : filterOverlap_(filterOverlap),
   totalNZRows_( 0 ),
@@ -221,7 +221,7 @@ FilteredMatrix::FilteredMatrix( const std::vector<int>& ptr, const std::vector<i
 // Creator       : Heidi Thornquist, Sandia National Labs
 // Creation Date : 3/4/01
 //-----------------------------------------------------------------------------
-bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map, bool reset )
+bool FilteredMatrix::filterMatrix( const Matrix* matrix, const Parallel::ParMap* map, bool reset )
 {
   bool isReset = reset;
   bool bSuccess = true;
@@ -237,7 +237,7 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
   int numMyRows = matrixGraph->numLocalEntities();
   int indexBase = matrixGraph->indexBase();
 
-  const N_PDS_EpetraParMap* e_map = dynamic_cast<const N_PDS_EpetraParMap*>( map );
+  const Parallel::EpetraParMap* e_map = dynamic_cast<const Parallel::EpetraParMap*>( map );
 
   // Delete/clear all internal objects and recreate them
   if (reset)
@@ -403,11 +403,11 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
 
       if (globalColsOffProc)
       {
-        const N_PDS_ParMap* colMap = matrix->getColMap( const_cast<N_PDS_Comm&>( map->pdsComm() ) );
-        const N_PDS_EpetraParMap* e_colmap = dynamic_cast<const N_PDS_EpetraParMap*>( colMap );
+        const Parallel::ParMap* colMap = matrix->getColMap( const_cast<Parallel::Communicator&>( map->pdsComm() ) );
+        const Parallel::EpetraParMap* e_colmap = dynamic_cast<const Parallel::EpetraParMap*>( colMap );
         importer_ = Teuchos::rcp( new Epetra_Import( *(e_colmap->petraMap()), *(e_map->petraMap() ) ) ); 
-        targetMap_ = Teuchos::rcp( new N_PDS_EpetraParMap( new Epetra_Map( *(e_colmap->petraMap()) ),
-                                                           const_cast<N_PDS_Comm&>( map->pdsComm() ) ) );
+        targetMap_ = Teuchos::rcp( new Parallel::EpetraParMap( new Epetra_Map( *(e_colmap->petraMap()) ),
+                                                           const_cast<Parallel::Communicator&>( map->pdsComm() ), true ) );
         // Compute the local indicies for the target map.
         for (unsigned int i=0; i<vecIndices_.size(); i++)
         {

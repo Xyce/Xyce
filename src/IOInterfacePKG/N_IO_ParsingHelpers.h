@@ -100,7 +100,7 @@ bool removeTwoTerminalDevice(const std::vector<bool>& pFilter,
 bool removeDevice(const std::vector<bool>& pFilter,
                   const DeviceBlock& device);
 
-void readExternalParamsFromFile( N_PDS_Comm& comm,
+void readExternalParamsFromFile( Parallel::Communicator& comm,
                                  std::string filename, 
                                  std::vector< std::pair< std::string, std::string > > & paramList );
 

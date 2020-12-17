@@ -183,11 +183,11 @@ int Pack<NodeID>::packedByteCount(
 template<>
 void
 Pack<NodeID>::pack(
-  const NodeID &        node,
-  char *                buf,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm ) 
+  const NodeID &           node,
+  char *                   buf,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm ) 
 {
   int length = Xyce::get_node_id(node).length();
   comm->pack( &length, 1, buf, bsize, pos );
@@ -209,11 +209,11 @@ Pack<NodeID>::pack(
 template<>
 void
 Pack<NodeID>::unpack(
-  NodeID &      node,
-  char *        buf,
-  int           bsize,
-  int &         pos,
-  N_PDS_Comm *  comm )
+  NodeID &                  node,
+  char *                    buf,
+  int                       bsize,
+  int &                     pos,
+  Parallel::Communicator *  comm )
 {
   int length;
   comm->unpack( buf, bsize, pos, &length, 1 );

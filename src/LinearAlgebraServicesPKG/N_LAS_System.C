@@ -52,6 +52,7 @@
 #include <N_LAS_Problem.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_GlobalAccessor.h>
+#include <N_PDS_Manager.h>
 #include <N_PDS_ParMap.h>
 #include <N_UTL_FeatureTest.h>
 
@@ -157,7 +158,7 @@ bool System::initializeSystem()
 bool System::updateExternValsSolnVector(MultiVector * solnVector)
 {
 #ifdef Xyce_PARALLEL_MPI
-  N_PDS_GlobalAccessor * Accessor = pdsMgr_->getGlobalAccessor( Parallel::SOLUTION );
+  Parallel::GlobalAccessor * Accessor = pdsMgr_->getGlobalAccessor( Parallel::SOLUTION );
   if (Accessor)
     Accessor->migrateMultiVector(solnVector);
 #endif

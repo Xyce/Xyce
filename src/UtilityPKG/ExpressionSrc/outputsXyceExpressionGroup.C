@@ -76,7 +76,7 @@ namespace Util {
 // Creation Date : 
 //-------------------------------------------------------------------------------
 outputsXyceExpressionGroup::outputsXyceExpressionGroup ( 
- N_PDS_Comm & comm, Topo::Topology & top,
+ Parallel::Communicator & comm, Topo::Topology & top,
  Analysis::AnalysisManager &analysis_manager,
  Device::DeviceMgr & device_manager,
  IO::OutputMgr &output_manager

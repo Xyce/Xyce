@@ -73,7 +73,7 @@ std::ostream& sensStdOutput (
        );
 
 void evaluateObjFuncs (
-  N_PDS_Comm & comm,
+  Parallel::Communicator & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
   std::vector<double> & objectiveVec,

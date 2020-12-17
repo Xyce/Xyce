@@ -163,10 +163,10 @@ class StepErrorControl
   int getRestartDataSize( bool pack );
 
   // Output restart data.
-  bool dumpRestartData(char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack );
+  bool dumpRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack );
 
   // Load restart data.
-  bool restoreRestartData(char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack, double &initial_time);
+  bool restoreRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack, double &initial_time);
 
   // called if you want to start the time integration over from scratch.
   bool resetAll(const TIAParams &tia_params);

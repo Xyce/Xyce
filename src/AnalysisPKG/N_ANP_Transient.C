@@ -57,6 +57,7 @@
 #include <N_NLS_ConductanceExtractor.h>
 #include <N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
+#include <N_PDS_Manager.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>

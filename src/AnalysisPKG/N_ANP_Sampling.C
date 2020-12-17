@@ -275,8 +275,8 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 
   if (useExpressionSamples_)
   {
-    N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-    N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
+    Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+    Parallel::Communicator &pdsComm = *(pds_manager.getPDSComm());
 
     SweepVector exprSamplingVector_;
     loader_.getRandomParams(exprSamplingVector_, pdsComm);
@@ -647,8 +647,8 @@ bool Sampling::doInit()
 Parallel::Machine comm = analysisManager_.getComm();
 N_ERH_ErrorMgr::safeBarrier(comm);
 
-N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
+Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+Parallel::Communicator &pdsComm = *(pds_manager.getPDSComm());
 int myPID = pdsComm.procID();
 int numProc = pdsComm.numProc();
 

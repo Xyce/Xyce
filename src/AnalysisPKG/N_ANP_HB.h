@@ -187,7 +187,7 @@ private:
   Topo::Topology &                      topology_;
   IO::InitialConditionsManager &        initialConditionsManager_;
   IO::RestartMgr &                      restartManager_;
-  N_PDS_Manager *                       pdsMgrPtr_;
+  Parallel::Manager *                   pdsMgrPtr_;
   AnalysisBase *                        currentAnalysisObject_;
   Loader::HBLoader *                    hbLoaderPtr_; /// HB loader, builder, system, and DFT
   Teuchos::RCP<Linear::HBBuilder>       hbBuilderPtr_;

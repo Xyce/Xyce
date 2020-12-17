@@ -1187,7 +1187,7 @@ HBLoader::loadDeviceErrorWeightMask(
   appVecPtr_->print(Xyce::dout());
 #endif
 
-  //Teuchos::RCP<N_PDS_ParMap> baseMap = Teuchos::rcp_const_cast<N_PDS_ParMap>( hbBuilderPtr_->getBaseStoreMap() );
+  //Teuchos::RCP<Parallel::ParMap> baseMap = Teuchos::rcp_const_cast<Parallel::ParMap>( hbBuilderPtr_->getBaseStoreMap() );
 
   for( int i = 0; i < blockCount; ++i )
   {
@@ -1300,8 +1300,8 @@ void HBLoader::consolidateMatrixEntries( const std::vector<int>& nzRows,
   int numEntries = 0;
   double * values = 0;
   int * indices = 0;
-  N_PDS_ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
-  N_PDS_ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
+  Parallel::ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
+  Parallel::ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
 
   std::vector<int>::const_iterator lid_it = nzRows.begin();
 
@@ -1364,8 +1364,8 @@ void HBLoader::sendReceiveMatrixEntries( const std::vector< Util::FreqMatEntry >
 {
   int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
   int myProc = appVecPtr_->pmap()->pdsComm().procID();
-  N_PDS_ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
-  N_PDS_ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
+  Parallel::ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
+  Parallel::ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
 
   if ( totalNZOffProcRows_ )
   {
@@ -1644,7 +1644,7 @@ void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& v
   // Create an overlap map to be used for matrix-vector products with the frequency-domain matrix entries.
   // NOTE:  This map could be reduced to only those columns for which we have entries to reduce parallel communication.
   int numharms = bVtPtr_->blockCount();
-  N_PDS_ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
+  Parallel::ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
 
   if ( numProcs > 1 )
   {

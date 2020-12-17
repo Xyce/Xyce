@@ -41,10 +41,9 @@
 #include <vector>
 
 #include <N_LAS_MultiVector.h>
+#include <N_PDS_fwd.h>
 
 #include <Teuchos_RCP.hpp>
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -60,8 +59,8 @@ class BlockMultiVector : public MultiVector
 {
  public:
   BlockMultiVector( int numBlocks, int numVectors,
-                    const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                    const Teuchos::RCP<N_PDS_ParMap> & subBlockMap
+                    const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                    const Teuchos::RCP<Parallel::ParMap> & subBlockMap
                   );
 
   // Destructor
@@ -93,8 +92,8 @@ class BlockMultiVector : public MultiVector
   void assembleGlobalVector();
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
-  const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
+  Parallel::ParMap * blockPmap() { return newBlockMap_.get(); }
+  const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
   void print(std::ostream &os) const;
@@ -111,7 +110,7 @@ class BlockMultiVector : public MultiVector
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
 
-  Teuchos::RCP<N_PDS_ParMap> newBlockMap_; 
+  Teuchos::RCP<Parallel::ParMap> newBlockMap_; 
 
   std::vector<Teuchos::RCP<MultiVector> > blocks_;
 

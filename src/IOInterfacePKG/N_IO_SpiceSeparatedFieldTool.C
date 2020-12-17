@@ -1043,7 +1043,7 @@ Pack<IO::StringToken>::pack(
   char *                        buf,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm)
+  Parallel::Communicator *      comm)
 {
   int length;
 #ifdef Xyce_COUNT_PACKED_BYTES
@@ -1078,11 +1078,11 @@ Pack<IO::StringToken>::pack(
 template<>
 void
 Pack<IO::StringToken>::unpack(
-  IO::StringToken &     token,
-  char *                pB,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm)
+  IO::StringToken &        token,
+  char *                   pB,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm)
 {
   int length = 0;
 

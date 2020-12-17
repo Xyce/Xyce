@@ -444,7 +444,7 @@ public:
   // for the parallel case, we need to give all the processors a copy
   // of the device so all the parallel synchronized calls such are
   // called by all processors together.
-  bool setupExternalDevices(N_PDS_Comm &parallel_comm);
+  bool setupExternalDevices(Parallel::Communicator &parallel_comm);
 
   const DeviceCountMap &getDeviceCountMap()
   {
@@ -481,10 +481,10 @@ public:
   int restartDataSize(bool pack) const;
 
   // Output restart data.
-  bool dumpRestartData(char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack ) const;
+  bool dumpRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack ) const;
 
   // Load restart data.
-  bool restoreRestartData(char * buf, int bsize, int & pos, N_PDS_Comm * comm, bool pack );
+  bool restoreRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack );
 
   // needed for parallel only:
   void setGlobalFlags();

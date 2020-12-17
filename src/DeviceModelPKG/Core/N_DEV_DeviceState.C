@@ -154,7 +154,7 @@ Pack<Device::DeviceState>::packedByteCount(const Device::DeviceState &device_sta
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::DeviceState>::pack(const Device::DeviceState &device_state, char * buf, int bsize, int & pos, N_PDS_Comm * comm)
+Pack<Device::DeviceState>::pack(const Device::DeviceState &device_state, char * buf, int bsize, int & pos, Parallel::Communicator * comm)
 {
   int length;
 
@@ -184,7 +184,7 @@ Pack<Device::DeviceState>::pack(const Device::DeviceState &device_state, char * 
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::DeviceState>::unpack(Device::DeviceState &device_state, char * buf, int bsize, int & pos, N_PDS_Comm * comm)
+Pack<Device::DeviceState>::unpack(Device::DeviceState &device_state, char * buf, int bsize, int & pos, Parallel::Communicator * comm)
 {
   int length;
 

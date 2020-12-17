@@ -66,7 +66,6 @@
 #include <N_NLS_SensitivityResiduals.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
-#include <N_PDS_Manager.h>
 #include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
@@ -103,7 +102,7 @@ namespace Nonlinear {
 //-----------------------------------------------------------------------------
 bool evaluateObjFuncs ( 
     std::vector<objectiveFunctionData*> & objVec, 
-    N_PDS_Comm & comm,
+    Parallel::Communicator & comm,
     Loader::NonlinearEquationLoader & nlEquLoader,
     TimeIntg::DataStore & dataStore,
     TimeIntg::StepErrorControl & sec,
@@ -384,7 +383,7 @@ void setupObjectiveFunctions(
 //-----------------------------------------------------------------------------
 void setupObjectiveFuncGIDs (
    std::vector<objectiveFunctionData*> & objVec, 
-   N_PDS_Comm & comm,
+   Parallel::Communicator & comm,
    Topo::Topology & top,
    IO::OutputMgr & output_manager)
 {
@@ -770,7 +769,7 @@ void Sensitivity::fileOutput (
        std::vector<double> & sensitivities,
        std::vector<double> & scaled_sensitivities)
 {
-  N_PDS_Comm & comm = *(pdsMgrPtr_->getPDSComm());
+  Parallel::Communicator & comm = *(pdsMgrPtr_->getPDSComm());
   int myPID = comm.procID();
   if (myPID==0)
   {

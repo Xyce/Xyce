@@ -49,7 +49,6 @@
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_Math.h>
-#include <N_PDS_EpetraParMap.h>
 
 // ----------   Trilinos Includes   ----------
 
@@ -169,7 +168,7 @@ void HBBlockJacobiEpetraOperator::initialize(
   {
     serialEpetraMap_.resize(numProcs);
     serialImporter_.resize(numProcs);
-    Teuchos::RCP<N_PDS_EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilder_->getSolutionMap()); 
+    Teuchos::RCP<Parallel::EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilder_->getSolutionMap()); 
     for (int proc = 0; proc < numProcs; ++proc )
     {
       serialEpetraMap_[proc] = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_map->petraMap()), proc ) ) );
@@ -630,7 +629,7 @@ const Epetra_Comm & HBBlockJacobiEpetraOperator::Comm() const
     std::string msg = "HBBlockJacobiEpetraOperator::Comm:  I'm not initialized!";
     Report::DevelFatal0() << msg;
   }
-  return(Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap()->Comm());
+  return(Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap()->Comm());
 }
 
 //-----------------------------------------------------------------------------
@@ -648,7 +647,7 @@ const Epetra_Map & HBBlockJacobiEpetraOperator::OperatorDomainMap() const
     std::string msg = "HBBlockJacobiEpetraOperator::OperatorDomainMap:  I'm not initialized!";
     Report::DevelFatal0() << msg;
   }
-  return(*Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap());
+  return(*Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap());
 }
 
 //-----------------------------------------------------------------------------
@@ -666,7 +665,7 @@ const Epetra_Map & HBBlockJacobiEpetraOperator::OperatorRangeMap() const
     std::string msg = "HBBlockJacobiEpetraOperator::OperatorRangeMap:  I'm not initialized!";
     Report::DevelFatal0() << msg;
   }
-  return(*Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap());
+  return(*Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilder_->getSolutionMap())->petraMap());
 }
 
 } // namespace Linear

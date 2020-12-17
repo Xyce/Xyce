@@ -53,10 +53,10 @@ class Epetra_Comm;
 namespace Xyce {
 namespace Parallel {
 
-N_PDS_Comm * createPDSComm( Epetra_Comm* comm );
+Communicator * createPDSComm( Epetra_Comm* comm );
 
-const Epetra_Comm* getEpetraComm( const N_PDS_Comm* comm );
-Epetra_Comm* getEpetraComm( N_PDS_Comm* comm );
+const Epetra_Comm* getEpetraComm( const Communicator* comm );
+Epetra_Comm* getEpetraComm( Communicator* comm );
 
 } // namespace Parallel 
 } // namespace Xyce

@@ -68,7 +68,7 @@ class SerialLSUtil : public Linear::QueryUtil
   friend std::ostream & operator << (std::ostream & os, const SerialLSUtil & tlsu);
 
 public:
-  SerialLSUtil(Topology &topology, N_PDS_Manager &pds_manager);
+  SerialLSUtil(Topology &topology, Parallel::Manager &pds_manager);
 
   // Destructor
   ~SerialLSUtil() {}
@@ -121,7 +121,7 @@ private:
 
 private:
   Topology &            topology_;                      ///< Topology
-  N_PDS_Manager &       pdsManager_;                    ///< Parallel services manager object.
+  Parallel::Manager &   pdsManager_;                    ///< Parallel services manager object.
 
   // Number of global (across all processors) nodes in the topology.
   int numGlobalNodes_;

@@ -352,7 +352,7 @@ void HBDirectSolver::createBlockStructures()
 
     Teuchos::RCP<Matrix> parMatrix;
     Teuchos::RCP<Vector> parVector;
-    N_PDS_ParMap * columnMapPtr, * rowMapPtr;
+    Parallel::ParMap * columnMapPtr, * rowMapPtr;
     if (numProcs > 1)
     {
       parMatrix = Teuchos::rcp( builder_.createMatrix() );
@@ -687,7 +687,7 @@ void HBDirectSolver::createBlockStructures()
   // Create serial objects for parallel
   if (numProcs > 1)
   {
-    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilderPtr_->getSolutionMap());
+    Teuchos::RCP<Parallel::EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilderPtr_->getSolutionMap());
     serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
     serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
@@ -735,7 +735,7 @@ void HBDirectSolver::formHBJacobian()
 
   Teuchos::RCP<Matrix> parMatrix;
   Teuchos::RCP<Vector> parVector;
-  N_PDS_ParMap * columnMapPtr = 0, * rowMapPtr = 0;
+  Parallel::ParMap * columnMapPtr = 0, * rowMapPtr = 0;
   if (numProcs > 1)
   {
     parMatrix = Teuchos::rcp( builder_.createMatrix() );

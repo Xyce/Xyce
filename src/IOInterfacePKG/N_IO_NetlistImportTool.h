@@ -240,7 +240,7 @@ private:
 bool registerPkgOptionsMgr(NetlistImportTool &netlist_import_tool, PkgOptionsMgr &options_manager);
 
 // check for name collisions between nodes and devices
-void checkNodeDevConflicts(const unordered_set<std::string> &device_names, N_PDS_Comm &pdsComm);
+void checkNodeDevConflicts(const unordered_set<std::string> &device_names, Parallel::Communicator &pdsComm);
 
 void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::string> &devicesNeedingLeadCurrents);
 

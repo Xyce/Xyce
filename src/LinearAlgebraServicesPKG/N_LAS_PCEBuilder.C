@@ -173,8 +173,8 @@ Vector * PCEBuilder::createLeadCurrentVector() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-bool PCEBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap, 
-                               const RCP<N_PDS_ParMap>& oBaseMap )
+bool PCEBuilder::generateMaps( const RCP<Parallel::ParMap>& BaseMap, 
+                               const RCP<Parallel::ParMap>& oBaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;
@@ -203,7 +203,7 @@ bool PCEBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-bool PCEBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
+bool PCEBuilder::generateStateMaps( const RCP<Parallel::ParMap>& BaseStateMap )
 {
   //Save copy of base map
   BaseStateMap_ = BaseStateMap;
@@ -231,7 +231,7 @@ bool PCEBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
 // Creator       : Eric Keiter
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-bool PCEBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
+bool PCEBuilder::generateStoreMaps( const RCP<Parallel::ParMap>& BaseStoreMap )
 {
   //Save copy of base map
   BaseStoreMap_ = BaseStoreMap;
@@ -259,7 +259,7 @@ bool PCEBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
 // Creator       : Eric Keiter
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-bool PCEBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap )
+bool PCEBuilder::generateLeadCurrentMaps( const RCP<Parallel::ParMap>& BaseLeadCurrentMap )
 {
   //Save copy of base map
   BaseLeadCurrentMap_ = BaseLeadCurrentMap;

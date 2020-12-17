@@ -66,8 +66,8 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( int numBlocks,
-                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                          const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
                           int augmentRows )
 : Vector( *globalMap ),
   blocksViewGlobalVec_(true),
@@ -86,7 +86,7 @@ BlockVector::BlockVector( int numBlocks,
   aMultiVector_->ExtractView( &Ptrs );
   double * Loc;
 
-  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
+  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
 
   for( int i = 0; i < numBlocks; ++i )
   {
@@ -104,7 +104,7 @@ BlockVector::BlockVector( int numBlocks,
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( int blockSize,
-                          const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
                           int augmentRows )
 : Vector( *globalMap ),
   blocksViewGlobalVec_( true ),
@@ -119,7 +119,7 @@ BlockVector::BlockVector( int blockSize,
 {
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                globalMap->indexBase(), globalMap->pdsComm() ) );
-  Teuchos::RCP<N_PDS_EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(globalMap);
+  Teuchos::RCP<Parallel::EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(globalMap);
 
   // Determine where these blocks start and end in the grand scheme of things.
   startBlock_ = (int) std::floor( (double)(e_map->petraMap()->MinMyGID() + 1) / (double)blockSize );
@@ -149,9 +149,9 @@ BlockVector::BlockVector( int blockSize,
     if ( (i >= startBlock_) && (i < endBlock_) )
       myBlockSize = blockSize;
 
-    Teuchos::RCP<N_PDS_ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize, 
+    Teuchos::RCP<Parallel::ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize, 
                                                             globalMap->indexBase(), globalMap->pdsComm() ) );
-    Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
+    Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
     blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
@@ -213,7 +213,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
       aMultiVector_->ExtractView( &Ptrs );
       double * Loc;
 
-      N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
+      Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
 
       for( int i = 0; i < numBlocks; ++i )
       {
@@ -309,10 +309,10 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
     if ( (i >= startBlock_) && (i < endBlock_) )
       myBlockSize = blockSize;
 
-    Teuchos::RCP<N_PDS_ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize,
+    Teuchos::RCP<Parallel::ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize,
                                                           ( aMultiVector_->Map() ).IndexBase(), *right->pdsComm() ) );
  
-    Teuchos::RCP<N_PDS_EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(currBlockMap);
+    Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
     blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );

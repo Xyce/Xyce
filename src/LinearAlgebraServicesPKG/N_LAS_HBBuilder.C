@@ -297,8 +297,8 @@ Vector * HBBuilder::createLeadCurrentVector() const
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap, 
-                                    const RCP<N_PDS_ParMap>& oBaseMap )
+bool HBBuilder::generateMaps( const RCP<Parallel::ParMap>& BaseMap, 
+                                    const RCP<Parallel::ParMap>& oBaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;
@@ -324,7 +324,7 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   }                          
 
   // Use the block linear system helper to create the block parallel maps
-  std::vector<RCP<N_PDS_ParMap> > blockMaps = createBlockParMaps(numHarmonics_, *BaseMap, *oBaseMap);
+  std::vector<RCP<Parallel::ParMap> > blockMaps = createBlockParMaps(numHarmonics_, *BaseMap, *oBaseMap);
 
   HBMap_ = blockMaps[0];
   oHBMap_ = blockMaps[1];
@@ -361,7 +361,7 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
 // Creator       : Todd Coffey, 1414
 // Creation Date : 01/17/07
 //-----------------------------------------------------------------------------
-bool HBBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
+bool HBBuilder::generateStateMaps( const RCP<Parallel::ParMap>& BaseStateMap )
 {
   //Save copy of base map
   BaseStateMap_ = BaseStateMap;
@@ -390,7 +390,7 @@ bool HBBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-bool HBBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
+bool HBBuilder::generateStoreMaps( const RCP<Parallel::ParMap>& BaseStoreMap )
 {
   //Save copy of base map
   BaseStoreMap_ = BaseStoreMap;
@@ -419,7 +419,7 @@ bool HBBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-bool HBBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap )
+bool HBBuilder::generateLeadCurrentMaps( const RCP<Parallel::ParMap>& BaseLeadCurrentMap )
 {
   //Save copy of base map
   BaseLeadCurrentMap_ = BaseLeadCurrentMap;
@@ -468,7 +468,7 @@ bool HBBuilder::generateGraphs( const Graph& baseFullGraph )
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-RCP<const N_PDS_ParMap> HBBuilder::getSolutionMap() const
+RCP<const Parallel::ParMap> HBBuilder::getSolutionMap() const
 {
     return( HBExpandedRealFormBVMap_ );
 }
@@ -482,7 +482,7 @@ RCP<const N_PDS_ParMap> HBBuilder::getSolutionMap() const
 // Creator       : Todd Coffey, 1414
 // Creation Date : 09/05/08
 //-----------------------------------------------------------------------------
-RCP<N_PDS_ParMap> HBBuilder::getSolutionMap() 
+RCP<Parallel::ParMap> HBBuilder::getSolutionMap() 
 {
     return( HBExpandedRealFormBVMap_ );
 }

@@ -400,7 +400,7 @@ bool ConductanceExtractor::extract(
 
 #ifdef Xyce_PARALLEL_MPI
   //sumAll to get all currents locally
-  N_PDS_Comm &comm = dfdvVectorPtr_->pmap()->pdsComm();
+  Parallel::Communicator &comm = dfdvVectorPtr_->pmap()->pdsComm();
   std::vector<double> tmpVector(idSize,0.0);
   for( int i = 0; i < idSize; ++i )
   {
