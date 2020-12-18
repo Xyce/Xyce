@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_TIA_DataStore.C
       N_TIA_NoTimeIntegration.C
       N_TIA_Gear12.C
@@ -15,7 +15,7 @@ target_sources(XyceStatic PRIVATE
       N_TIA_WorkingIntegrationMethod.C )
 
 # add header files to project
-target_include_directories( XyceStatic PUBLIC
+target_include_directories( XyceLib PUBLIC
  ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -- build requested libraries -----------------------------------------------

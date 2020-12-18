@@ -15,7 +15,7 @@ endif()
 set(BLAS_DEPS)
 set(CMAKE_LIBRARY_PATH ${CMAKE_CURRENT_BINARY_DIR}/install)
 
-
+option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 
 # Lifted from KWIVER
 # Don't force a build type in mutli-configuration platforms
@@ -57,7 +57,7 @@ list(APPEND DEFAULT_ARGS
 
 set(Xyce_ARGS ${DEFAULT_ARGS}
   -DXyce_USE_SUPERBUILD=OFF
-  )
+)
 
 list (APPEND TRILINOS_PARALLEL_ARGS
   ${DEFAULT_ARGS}

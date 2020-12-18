@@ -31,7 +31,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 # ---- This is the declaration and linking of the desired
 # artifacts ----------------
 
-add_library(XyceStatic STATIC
+add_library(XyceLib
  ${BISON_XyceExpressionParser_OUTPUTS}
  ${FLEX_XyceExpressionLexer_OUTPUTS}
  ${BISON_XyceReactionParser_OUTPUTS}
@@ -59,27 +59,27 @@ add_subdirectory(test)
 
 # For debugging:
 
-# get_target_property(XYCE_SOURCES XyceStatic SOURCES)
+# get_target_property(XYCE_SOURCES XyceLib SOURCES)
 # message(STATUS "Xyce Sources ${XYCE_SOURCES}")
-# get_target_property(XYCE_INCLUDE_DIRECTORIES XyceStatic INCLUDE_DIRECTORIES)
+# get_target_property(XYCE_INCLUDE_DIRECTORIES XyceLib INCLUDE_DIRECTORIES)
 # message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
 
 
-target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
+target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # In the case where CURL has been built with CMake, then we have NOT
 # gotten CURL_LIBRARIES or CURL_INCLUDE_DIRS set, we have instead gotten
 # an import library defined.  Let's check for that:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
-  target_link_libraries(XyceStatic PUBLIC CURL::libcurl)
+  target_link_libraries(XyceLib PUBLIC CURL::libcurl)
 endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(Xyce XyceStatic)
+target_link_libraries(Xyce XyceLib)
 
 if(WIN32)
   if(DEFINED ENV{MKLROOT})
@@ -116,11 +116,11 @@ endif()
 				# static and shared library use names such as
 				# xyce-static and xyce-shared to make things
 				# explicit. 
-set_target_properties ( XyceStatic PROPERTIES
+set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
 					
-install(TARGETS XyceStatic DESTINATION lib)
+install(TARGETS XyceLib DESTINATION lib)
 install(TARGETS Xyce DESTINATION bin)
 
 
