@@ -348,6 +348,7 @@ private:
   bool objFuncGiven_;
   bool objFuncGIDsetup_;
   std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> objFuncDataVec_;
+  std::vector<std::string> objFuncStrings_; // needed for output
 
   // these are for the "old" style of specifying objective functions
   bool objVarGiven_;

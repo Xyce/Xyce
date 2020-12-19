@@ -1624,6 +1624,7 @@ void Sensitivity::populateMetadata(
   {
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("SENS");
 
+    parameters.insert(Util::ParamMap::value_type("ACOBJFUNC", Util::Param("ACOBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJFUNC", Util::Param("OBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJVARS", Util::Param("OBJVARS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));

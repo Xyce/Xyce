@@ -240,39 +240,14 @@ bool AC::setSensAnalysisParams(const Util::OptionBlock & OB)
   numSensParams_ = 0;
   for ( ; iter != end; ++ iter)
   {
-    if ( std::string( iter->uTag() ,0,7) == "OBJFUNC") // this is a vector
+    //if ( std::string( iter->uTag() ,0,7) == "OBJFUNC") // this is a vector.  Can't use this b/c names in the *prn file gets mangled.
+    if ( std::string( iter->uTag() ,0,9) == "ACOBJFUNC") // this is a vector
     {
-#if 0
-      // do 4 of these: real, imag, mag, phase
-      // real
-      {
-      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
-      ofDataPtr->objFuncString = std::string("RE(") + iter->stringValue() + std::string(")");
-      objFuncDataVec_.push_back(ofDataPtr);
-      }
-      // imag
-      {
-      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
-      ofDataPtr->objFuncString = std::string("IMG(") + iter->stringValue() + std::string(")");
-      objFuncDataVec_.push_back(ofDataPtr);
-      }
-      // mag
-      {
-      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
-      ofDataPtr->objFuncString = std::string("M(") + iter->stringValue() + std::string(")");
-      objFuncDataVec_.push_back(ofDataPtr);
-      }
-      // phase
-      {
-      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
-      ofDataPtr->objFuncString = std::string("Ph(") + iter->stringValue() + std::string(")");
-      objFuncDataVec_.push_back(ofDataPtr);
-      }
-#else
       Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
       ofDataPtr->objFuncString = iter->stringValue();
       objFuncDataVec_.push_back(ofDataPtr);
-#endif
+
+      objFuncStrings_.push_back(ofDataPtr->objFuncString);
 
       objFuncGiven_ = true;
     }
@@ -936,7 +911,7 @@ bool AC::doInit()
   {
     if ( objVarGiven_  && objFuncGiven_)
     {
-      Report::UserError() << "AC sensitivities cannot use both OBJFUNC and OBJVARS specification";
+      Report::UserError() << "AC sensitivities cannot use both ACOBJFUNC and OBJVARS specification";
     }
 
     if ( objVarGiven_ )
@@ -1398,7 +1373,7 @@ bool AC::solveSensitivity_()
   // for now, implementing separate functions for this stuff.
   if ( objVarGiven_  && objFuncGiven_)
   {
-    Report::UserError0() << "AC sensitivities cannot use both OBJFUNC and OBJVARS specification";
+    Report::UserError0() << "AC sensitivities cannot use both ACOBJFUNC and OBJVARS specification";
   }
 
   if ( !objVarGiven_  && !objFuncGiven_)
@@ -1426,7 +1401,18 @@ bool AC::solveSensitivity_()
     objectiveVec_.clear();
     for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
     {
-      objectiveVec_.push_back(std::real(objFuncDataVec_[iobj]->expVal));
+      double xr = std::real(objFuncDataVec_[iobj]->expVal);
+      double xi = std::imag(objFuncDataVec_[iobj]->expVal);
+      double sumOfSquares = (xr*xr + xi*xi);
+      double xm = sqrt(sumOfSquares);
+      double xp = (std::arg(objFuncDataVec_[iobj]->expVal)); 
+      if (!outputManagerAdapter_.getPhaseOutputUsesRadians())
+        xp *= 180.0/M_PI;
+
+      objectiveVec_.push_back(xr);
+      objectiveVec_.push_back(xi);
+      objectiveVec_.push_back(xm);
+      objectiveVec_.push_back(xp);
     }
   }
 
@@ -1605,14 +1591,11 @@ std::ostream& sensStdOutput (
       double sumOfSquares = (xr*xr + xi*xi);
       double xm = sqrt(sumOfSquares);
       double xp = (std::arg(objFuncDataVec[iobj]->expVal)); 
+      if (!outputManagerAdapter.getPhaseOutputUsesRadians())
+        xp *= 180.0/M_PI;
 
       os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
 
-#if 0
-      os << objFuncDataVec[iobj]->objFuncString << " = " 
-        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
-        << objFuncDataVec[iobj]->expVal <<std::endl;
-#else
       os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
         << xr << "  ";
@@ -1620,7 +1603,6 @@ std::ostream& sensStdOutput (
       os << "Img(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
         << xi <<std::endl;
-#endif
 
       if (!outputManagerAdapter.getPhaseOutputUsesRadians()){ xp *= 180.0/M_PI; }
 
@@ -2476,11 +2458,24 @@ bool AC::doProcessSuccessfulStep()
 
     if (sensFlag_)
     {
-      // this outputs both the direct and adjoint sensitivity information
-      const TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-      outputManagerAdapter_.outputSensitivityAC(currentFreq_, X_->block(0), X_-> block(1),
-	      ds.paramOrigVals_, paramNameVec_, objFuncVars_, objectiveVec_,
-	      ds.dOdpVec_, ds.dOdpAdjVec_, ds.scaled_dOdpVec_, ds.scaled_dOdpAdjVec_);
+
+      if (!(objFuncVars_.empty()))
+      {
+        // this outputs both the direct and adjoint sensitivity information
+        const TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
+        outputManagerAdapter_.outputSensitivityAC(currentFreq_, X_->block(0), X_-> block(1),
+          ds.paramOrigVals_, paramNameVec_, objFuncVars_, objectiveVec_,
+          ds.dOdpVec_, ds.dOdpAdjVec_, ds.scaled_dOdpVec_, ds.scaled_dOdpAdjVec_);
+      }
+      else if (!(objFuncDataVec_.empty()))
+      {
+
+        // this outputs both the direct and adjoint sensitivity information
+        const TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
+        outputManagerAdapter_.outputSensitivityAC(currentFreq_, X_->block(0), X_-> block(1),
+          ds.paramOrigVals_, paramNameVec_, objFuncStrings_, objectiveVec_,
+          ds.dOdpVec_, ds.dOdpAdjVec_, ds.scaled_dOdpVec_, ds.scaled_dOdpAdjVec_);
+      }
     }
   }
   else
