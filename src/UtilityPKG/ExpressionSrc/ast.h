@@ -848,7 +848,7 @@ class phaseOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (phase) without a dx function"));
+      std::vector<std::string> errStr(1,std::string("AST node (phase) is not differntiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -896,7 +896,7 @@ class realOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (real) without a dx function"));
+      std::vector<std::string> errStr(1,std::string("AST node (real) is not differntiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -936,7 +936,7 @@ class imagOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (imag) without a dx function"));
+      std::vector<std::string> errStr(1,std::string("AST node (imag) is not differntiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -2133,16 +2133,9 @@ class funcOp: public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     void setArgs() 
     { 
-#if 0
-      std::cout << "In funcOp::setArgs name = " << funcName_ << " id = " << this->getId () << " arg size = " << dummyFuncArgs_.size() << std::endl;
-#endif
       for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
       { 
         dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); 
-#if 0
-        std::cout << "In funcOp::setArgs name = " << funcName_ << " id = " << this->getId () << " arg name = " << funcArgs_[ii]->getName()
-          << " id = " << funcArgs_[ii]->getId() << " node id = " << funcArgs_[ii]->getNodeId() <<std::endl;
-#endif
       }
 
       if (!(sdtNodes_.empty()))
@@ -2153,7 +2146,6 @@ class funcOp: public astNode<ScalarT>
           stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
           if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
         }
-        //std::cout << "In funcOp::setArgs key = " << stateKey << std::endl;
         if( sdtStateVecMap_.find(stateKey) == sdtStateVecMap_.end() )
         {
           std::vector<sdtStateData<ScalarT> > sdtStateVec( sdtNodes_.size() );
@@ -2176,7 +2168,6 @@ class funcOp: public astNode<ScalarT>
           stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
           if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
         }
-        //std::cout << "In funcOp::setArgs key = " << stateKey << std::endl;
         if( ddtStateVecMap_.find(stateKey) == ddtStateVecMap_.end() )
         {
           std::vector<ddtStateData<ScalarT> > ddtStateVec( ddtNodes_.size() );
@@ -2203,7 +2194,6 @@ class funcOp: public astNode<ScalarT>
           stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
           if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
         }
-        //std::cout << "In funcOp::unsetArgs key = " << stateKey << std::endl;
         for (int ii=0;ii<sdtNodes_.size();ii++)
         {
           std::vector<sdtStateData<ScalarT> > & ssVec = sdtStateVecMap_[stateKey];
@@ -2220,7 +2210,6 @@ class funcOp: public astNode<ScalarT>
           stateKey += std::to_string(  funcArgs_[ii]->getNodeId() );
           if (ii<dummyFuncArgs_.size()-1) stateKey += std::string("_");
         }
-        //std::cout << "In funcOp::unsetArgs key = " << stateKey << std::endl;
         for (int ii=0;ii<ddtNodes_.size();ii++)
         {
           std::vector<ddtStateData<ScalarT> > & ssVec = ddtStateVecMap_[stateKey];
@@ -4443,15 +4432,7 @@ class sdtOp : public astNode<ScalarT>
         unsigned long int id = this->getSdtState().id;
         if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
         {
-          //std::cout << "sdtOp::val processSuccessfulTimeStep for id = " << id <<std::endl;
           this->getSdtState().processSuccessfulTimeStep (); 
-#if 0
-          std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
-          std::cout << "sdtOp::val "
-            << " val1 = " << this->getSdtState().val1 << " val2 = " << this->getSdtState().val2 
-            << " integral = " << this->getSdtState().integral  << " id = " << this->getSdtState().id 
-            <<std::endl;
-#endif
           this->processSuccessfulStepMap[id] = 1;
         }
       }
@@ -4480,15 +4461,6 @@ class sdtOp : public astNode<ScalarT>
       state.val2 = this->leftAst_->val();
       ScalarT deltaI = 0.5*(state.val1+state.val2)*deltaT;
       state.integral = state.integral_old + deltaI;
-
-#if 0
-      std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
-      std::cout << "sdtOp::val time = " << time << " dt = " << deltaT 
-        << " val1 = " << state.val1 << " val2 = " << state.val2 
-        << " integral = " << state.integral  << " id = " << state.id 
-        <<std::endl;
-#endif
-
       return state.integral;
     };
 
@@ -4575,15 +4547,7 @@ class ddtOp : public astNode<ScalarT>
         unsigned long int id = this->getDdtState().id;
         if ( this->processSuccessfulStepMap.find(id) == this->processSuccessfulStepMap.end() )
         {
-          //std::cout << "ddtOp::val processSuccessfulTimeStep for id = " << id <<std::endl;
           this->getDdtState().processSuccessfulTimeStep (); 
-#if 0
-          std::cout.width(10);std::cout.precision(3);std::cout.setf(std::ios::scientific);
-          std::cout << "ddtOp::val "
-            << " val1 = " << this->getDdtState().val1 << " val2 = " << this->getDdtState().val2 
-            << " integral = " << this->getDdtState().integral  << " id = " << this->getDdtState().id 
-            <<std::endl;
-#endif
           this->processSuccessfulStepMap[id] = 1;
         }
       }
@@ -4611,7 +4575,6 @@ class ddtOp : public astNode<ScalarT>
           timeDerivative_ = (state.val2-state.val1)/deltaT;
         }
       }
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state.val1 << " val2 = " << state.val2 << " ddt = " << timeDerivative_ <<std::endl;
       return timeDerivative_;
     };
 
@@ -4640,8 +4603,6 @@ class ddtOp : public astNode<ScalarT>
           ddt_dx = ddt_dVal2 * dVal2dx;
         }
       }
-      //std::cout << "time = " << time << " dt = " << deltaT << " val1 = " << state.val1 << " val2 = " << state.val2
-        //<< " ddt_dx = " << ddt_dx <<std::endl;
       return ddt_dx;
     };
 

@@ -78,9 +78,10 @@
 #include <N_UTL_Timer.h>
 #include <N_UTL_MachDepParams.h>
 
+#include <newExpression.h>
+
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
-#include <N_PDS_Manager.h>
 #include <N_PDS_Serial.h>
 #include <N_PDS_ParMap.h>
 
@@ -88,6 +89,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
+#include <N_NLS_ObjectiveFunctions.h>
 
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
@@ -95,6 +97,32 @@ using Teuchos::rcp;
 
 namespace Xyce {
 namespace Analysis {
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool ACExpressionGroup::getSolutionVal
+    (const std::string & nodeName, std::complex<double> & retval)
+{
+  double real_val=0.0;
+  double imag_val=0.0;
+  int tmpGID = -1;
+
+  tmpGID = getSolutionGID_(nodeName);
+  if (tmpGID >= 0)
+  {
+    Linear::Vector & Xreal = X_.block( 0 );
+    Linear::Vector & Ximag = X_.block( 1 );
+    real_val = Xreal.getElementByGlobalIndex(tmpGID, 0); 
+    imag_val = Ximag.getElementByGlobalIndex(tmpGID, 0); 
+  }
+
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &real_val, 1);
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &imag_val, 1);
+
+  retval = std::complex<double>(real_val,imag_val);
+  return (tmpGID>=0);
+}
 
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::setTimeIntegratorOptions
@@ -197,7 +225,6 @@ bool  AC::convertDataToSweepParams()
   return convertData(acSweepVector_, dataNamesMap_, dataTablesMap_);
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : AC::setSensAnalysisParams
 // Purpose       : This function processes the .SENS line
@@ -215,15 +242,46 @@ bool AC::setSensAnalysisParams(const Util::OptionBlock & OB)
   {
     if ( std::string( iter->uTag() ,0,7) == "OBJFUNC") // this is a vector
     {
-       // B/C the expression library doesn't support complex numbers, 
-       // handle this a different way
-      objFuncStrings_.push_back(iter->stringValue());
+#if 0
+      // do 4 of these: real, imag, mag, phase
+      // real
+      {
+      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
+      ofDataPtr->objFuncString = std::string("RE(") + iter->stringValue() + std::string(")");
+      objFuncDataVec_.push_back(ofDataPtr);
+      }
+      // imag
+      {
+      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
+      ofDataPtr->objFuncString = std::string("IMG(") + iter->stringValue() + std::string(")");
+      objFuncDataVec_.push_back(ofDataPtr);
+      }
+      // mag
+      {
+      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
+      ofDataPtr->objFuncString = std::string("M(") + iter->stringValue() + std::string(")");
+      objFuncDataVec_.push_back(ofDataPtr);
+      }
+      // phase
+      {
+      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
+      ofDataPtr->objFuncString = std::string("Ph(") + iter->stringValue() + std::string(")");
+      objFuncDataVec_.push_back(ofDataPtr);
+      }
+#else
+      Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > * ofDataPtr = new Xyce::Nonlinear::objectiveFunctionData<std::complex<double> >();
+      ofDataPtr->objFuncString = iter->stringValue();
+      objFuncDataVec_.push_back(ofDataPtr);
+#endif
+
+      objFuncGiven_ = true;
     }
     else if ( std::string( iter->uTag() ,0,7) == "OBJVARS") // this is a vector
     {
       std::string varName = iter->stringValue();
       Util::toUpper(varName);
       objFuncVars_.push_back(varName); // netlist name of the node
+      objVarGiven_=true;
     }
     else if ( std::string( iter->uTag() ,0,5) == "PARAM") // this is a vector
     {
@@ -244,6 +302,15 @@ bool AC::setSensAnalysisParams(const Util::OptionBlock & OB)
       Xyce::Report::UserWarning() << iter->uTag()
         << " is not a recognized sensitivity solver option.\n" << std::endl;
     }
+  }
+
+  if (objFuncGiven_)
+  {
+    IO::OutputMgr & output_manager = outputManagerAdapter_.getOutputManager();
+
+    Xyce::Nonlinear::setupObjectiveFunctions(
+      analysisManager_.getExpressionGroup(),
+         objFuncDataVec_, output_manager, linearSystem_, analysisManager_.getCommandLine() );
   }
 
   return true;
@@ -397,8 +464,11 @@ AC::AC(
     stdOutputFlag_(false),
     acCorrectionFlag_(true),
     numSensParams_(0),
-    sqrtEta_(1.0e-8),
-    sqrtEtaGiven_(false),
+
+    objFuncGiven_(false),
+    objFuncGIDsetup_(false),
+    objVarGiven_(false),
+
     forceFD_(false),
     forceDeviceFD_(false),
     forceAnalytic_(false),
@@ -451,6 +521,21 @@ AC::~AC()
     delete dOdXreal_;
     delete dOdXimag_;
     delete savedX_;
+
+    for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
+    {
+      delete objFuncDataVec_[iobj]->dOdXVectorRealPtr;
+      objFuncDataVec_[iobj]->dOdXVectorRealPtr = 0;
+
+      delete objFuncDataVec_[iobj]->dOdXVectorImagPtr;
+      objFuncDataVec_[iobj]->dOdXVectorImagPtr = 0;
+
+      delete objFuncDataVec_[iobj]->expPtr;
+      objFuncDataVec_[iobj]->expPtr = 0;
+
+      delete objFuncDataVec_[iobj];
+      objFuncDataVec_[iobj] = 0;
+    } 
   }
 }
 
@@ -849,7 +934,27 @@ bool AC::doInit()
 
   if (sensFlag_)
   {
-    setupObjectiveFuncGIDs_();
+    if ( objVarGiven_  && objFuncGiven_)
+    {
+      Report::UserError() << "AC sensitivities cannot use both OBJFUNC and OBJVARS specification";
+    }
+
+    if ( objVarGiven_ )
+    {
+      setupObjectiveFuncGIDs_();
+    }
+    else if ( objFuncGiven_)
+    {
+      if ( !objFuncGIDsetup_ )
+      {
+        IO::OutputMgr & output_manager = outputManagerAdapter_.getOutputManager();
+        Parallel::Machine comm =  analysisManager_.getPDSManager()->getPDSComm()->comm();
+        Xyce::Nonlinear::setupObjectiveFuncGIDs ( objFuncDataVec_, comm, topology_, output_manager );
+
+        objFuncGIDsetup_ = true;
+      }
+    }
+
   }
 
   return bsuccess;
@@ -915,6 +1020,8 @@ bool AC::doLoopProcess()
   }
 
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::AC));
+
+
 
   return true;
 }
@@ -998,6 +1105,22 @@ bool AC::createLinearSystem_()
     dOdXreal_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dOdXimag_ = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     savedX_   = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
+
+    if (objFuncGiven_)
+    {
+      const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
+        Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(analysisManager_.getExpressionGroup());
+
+      Teuchos::RCP<ACExpressionGroup>  acGroup =
+         Teuchos::rcp(new ACExpressionGroup(group, *X_));
+
+      Teuchos::RCP<Xyce::Util::baseExpressionGroup> newGroup = acGroup;
+ 
+      for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
+      {
+        objFuncDataVec_[iobj]->expPtr->setGroup( newGroup );
+      }
+    }
   }
 
   return true;
@@ -1230,14 +1353,82 @@ bool AC::solveSensitivity_()
       ds, analysisManager_.getNonlinearEquationLoader(),
       paramNameVec_, analysisManager_);
 
+  double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
+  double sqrtEta= std::sqrt(epsilon);
+
+  {
+    param_dP_.clear();
+    numericalDiff_.clear();
+    numericalDiff_.resize(ds.paramOrigVals_.size(),0);
+    for (int ii=0;ii< ds.paramOrigVals_.size();ii++)
+    {
+      const std::string name = paramNameVec_[ii];
+      double origParamValue = ds.paramOrigVals_[ii];
+      param_dP_.push_back(sqrtEta * fabs( origParamValue ));
+    }
+  }
+
+  if(acCorrectionFlag_)
+  {
+
+    bool direct=true;
+    bool adjoint=false; // don't need this.
+    analysisManager_.getDataStore()->allocateSensitivityArrays(paramNameVec_.size(), true, false);
+   
+    int difference_ = 0;
+    std::string netlist = analysisManager_.getNetlistFilename();
+    Xyce::Nonlinear::loadSensitivityResiduals (difference_, 
+        false, false, false,
+        //forceFD_, forceDeviceFD_, forceAnalytic_, 
+        sqrtEta, netlist, ds,
+        analysisManager_.getNonlinearEquationLoader(),
+        paramNameVec_,
+        analysisManager_);
+
+    analysisManager_.getNonlinearEquationLoader().loadSensitivityResiduals();
+  }
+
   ds.dOdpVec_.clear();
   ds.dOdpAdjVec_.clear();
   ds.scaled_dOdpVec_.clear();
   ds.scaled_dOdpAdjVec_.clear();
 
-  // for AC objective functions are always solution variables
   Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
-  evaluateObjFuncs ( *(pds_manager.getPDSComm()), *X_, outputVarGIDs_, objectiveVec_, outputManagerAdapter_);
+
+  // for now, implementing separate functions for this stuff.
+  if ( objVarGiven_  && objFuncGiven_)
+  {
+    Report::UserError0() << "AC sensitivities cannot use both OBJFUNC and OBJVARS specification";
+  }
+
+  if ( !objVarGiven_  && !objFuncGiven_)
+  {
+    Report::UserError0() << "No objective functions specified";
+  }
+
+  if ( objVarGiven_ )
+  {
+    evaluateSimpleObjFuncs ( 
+        *(pds_manager.getPDSComm()), *X_,
+        outputVarGIDs_, objectiveVec_,
+        outputManagerAdapter_);
+  }
+  else if ( objFuncGiven_ )
+  {
+    std::string netlist = analysisManager_.getNetlistFilename();
+
+    Parallel::Machine comm =  analysisManager_.getPDSManager()->getPDSComm()->comm();
+    Xyce::Nonlinear::evaluateObjFuncs (
+        objFuncDataVec_, comm,
+        analysisManager_.getNonlinearEquationLoader(), 
+        netlist); 
+
+    objectiveVec_.clear();
+    for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
+    {
+      objectiveVec_.push_back(std::real(objFuncDataVec_[iobj]->expVal));
+    }
+  }
 
   if(solveDirectSensitivityFlag_)
   {
@@ -1248,6 +1439,7 @@ bool AC::solveSensitivity_()
   {
     bool adjointSuccess = solveAdjointSensitivity_();
   }
+
 
   return true;
 }
@@ -1319,7 +1511,10 @@ std::ostream& sensStdOutput (
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
        const std::vector<std::string> & paramNameVec,
+       const std::vector<double> & param_dP,
+       const std::vector<int> & numericalDiff,
        const std::vector<std::string> & objFuncVars,
+       const std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> & objFuncDataVec,
        const std::vector<double> & objectiveVec,
        OutputMgrAdapter & outputManagerAdapter,
        std::ostream& os
@@ -1346,46 +1541,119 @@ std::ostream& sensStdOutput (
   int maxSize=5;
   for (int ip=0;ip<paramVals.size();++ip){if(paramNameVec[ip].size() > maxSize) maxSize = paramNameVec[ip].size();}
 
+  int numWV=11;
   int numW=14;
+  int numWP=18;
   int ii=0;
   int sensIndex=0;
-  for (int iobj=0;iobj<objFuncVars.size();++iobj)
+  if (!(objFuncVars.empty()))
   {
-    os << "\n"<<idString << " Sensitivities for node V("<<objFuncVars[iobj]<<"):"<<std::endl;
-
-    os << "VR(" << objFuncVars[iobj] << ") = " 
-      << std::setw(numW)<< std::scientific<< std::setprecision(4) 
-      << objectiveVec[ii++] << "  ";
-
-    os << "VI(" << objFuncVars[iobj] << ") = " 
-      << std::setw(numW)<< std::scientific<< std::setprecision(4) 
-      << objectiveVec[ii++] <<std::endl;
-
-    os << "VM(" << objFuncVars[iobj] << ") = " 
-      << std::setw(numW)<< std::scientific<< std::setprecision(4) 
-      << objectiveVec[ii++] << "  ";
-
-    os << "VP(" << objFuncVars[iobj] << ") = " 
-      << std::setw(numW)<< std::scientific<< std::setprecision(4) 
-      << objectiveVec[ii++] <<std::endl;
-
-    os << std::setw(maxSize)<<std::left<< "Name";
-    os << "\t"<<std::setw(numW)<<"Value";
-    os << "\t"<<std::setw(numW)<<"Sensitivity_Re";
-    os << "\t"<<std::setw(numW)<<"Sensitivity_Im";
-    os << "\t"<<std::setw(numW)<<"Sensitivity_Mag";
-    os << "\t"<<std::setw(numW)<<"Sensitivity_Phase";
-    os << std::endl;
-
-    for (int iparam=0; iparam< paramVals.size(); ++iparam)
+    int ii=0;
+    int sensIndex=0;
+    for (int iobj=0;iobj<objFuncVars.size();++iobj)
     {
-      os << std::setw(maxSize)<<std::left<<paramNameVec[iparam];
-      os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4) << paramVals[iparam];
-      os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
-      os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
-      os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
-      os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+      os << "\n"<<idString << " Sensitivities for node V("<<objFuncVars[iobj]<<"):"<<std::endl;
+
+      os << "VR(" << objFuncVars[iobj] << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << objectiveVec[ii++] << "  ";
+
+      os << "VI(" << objFuncVars[iobj] << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << objectiveVec[ii++] <<std::endl;
+
+      os << "VM(" << objFuncVars[iobj] << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << objectiveVec[ii++] << "  ";
+
+      os << "VP(" << objFuncVars[iobj] << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << objectiveVec[ii++] <<std::endl;
+
+      os << std::setw(maxSize)<<std::left<< "Name";
+      os << "\t"<<std::setw(numWV)<<"Value";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Re";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Im";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Mag";
+      os << "\t"<<std::setw(numWP)<<"Sensitivity_Phase";
+      os << "\t"<<std::setw(numWV)<<"Delta P";
       os << std::endl;
+
+      for (int iparam=0; iparam< paramVals.size(); ++iparam)
+      {
+        os << std::setw(maxSize)<<std::left<<paramNameVec[iparam];
+        os <<"\t"<< std::setw(numWV)<< std::scientific<< std::setprecision(4) << paramVals[iparam];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numWP)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numWV)<< std::scientific<< std::setprecision(4)<< param_dP[iparam];
+        if (numericalDiff[iparam]==1) { os << "\t" << "FD used"; }
+        else { os << "\t" << "FD not used";}
+        os << std::endl;
+      }
+    }
+  }
+  else if (!(objFuncDataVec.empty()))
+  {
+    int ii=0;
+    int sensIndex=0;
+    for (int iobj=0;iobj<objFuncDataVec.size();++iobj)
+    {
+      double xr = std::real(objFuncDataVec[iobj]->expVal);
+      double xi = std::imag(objFuncDataVec[iobj]->expVal);
+      double sumOfSquares = (xr*xr + xi*xi);
+      double xm = sqrt(sumOfSquares);
+      double xp = (std::arg(objFuncDataVec[iobj]->expVal)); 
+
+      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
+
+#if 0
+      os << objFuncDataVec[iobj]->objFuncString << " = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << objFuncDataVec[iobj]->expVal <<std::endl;
+#else
+      os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << xr << "  ";
+
+      os << "Img(" << objFuncDataVec[iobj]->objFuncString << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << xi <<std::endl;
+#endif
+
+      if (!outputManagerAdapter.getPhaseOutputUsesRadians()){ xp *= 180.0/M_PI; }
+
+      os << "  M(" << objFuncDataVec[iobj]->objFuncString << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << xm << "  ";
+
+      os << " Ph(" << objFuncDataVec[iobj]->objFuncString << ") = " 
+        << std::setw(numW)<< std::scientific<< std::setprecision(4) 
+        << xp << std::endl;
+
+      os << std::setw(maxSize)<<std::left<< "Name";
+      os << "\t"<<std::setw(numWV)<<"Value";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Re";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Im";
+      os << "\t"<<std::setw(numW)<<"Sensitivity_Mag";
+      os << "\t"<<std::setw(numWP)<<"Sensitivity_Phase";
+      os << "\t"<<std::setw(numWV)<<"Delta P";
+      os << std::endl;
+
+      for (int iparam=0; iparam< paramVals.size(); ++iparam)
+      {
+        os << std::setw(maxSize)<<std::left<<paramNameVec[iparam];
+        os <<"\t"<< std::setw(numWV)<< std::scientific<< std::setprecision(4) << paramVals[iparam];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numW)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numWP)<< std::scientific<< std::setprecision(4)<< sensitivities[sensIndex++];
+        os <<"\t"<< std::setw(numWV)<< std::scientific<< std::setprecision(4)<< param_dP[iparam];
+        if (numericalDiff[iparam]==1) { os << "\t" << "FD used"; }
+        else { os << "\t" << "FD not used";}
+        os << std::endl;
+      }
     }
   }
 
@@ -1446,45 +1714,88 @@ bool AC::solveDirectSensitivity_()
   Parallel::Communicator & comm = *(pds_manager.getPDSComm());
   int myPID = comm.procID();
 
-  int ii=0;
-  int numOutVars = objFuncVars_.size();
-  for (int iobj=0;iobj<numOutVars;++iobj)
+  // list of nodes.  (numOutVars != 0).  In this case, 4 outputs per variable/node (re, im, mag, ph)
   {
-    setup_dOdX_(iobj); 
-
-    double xr=objectiveVec_[ii++];
-    double xi=objectiveVec_[ii++];
-    double xm=objectiveVec_[ii++];
-    double xp=objectiveVec_[ii++];
-
-    for (int ipar=0;ipar<numSensParams_;++ipar)
+    int ii=0;
+    int numOutVars = objFuncVars_.size();
+    for (int iobj=0;iobj<numOutVars;++iobj)
     {
-      std::string name = paramNameVec_[ipar];
-      bool rhsSuccess = loadSensitivityRHS_(name);
+      double xr,xi,xm,xp;
+      setup_dOdX_(iobj); 
 
-      savedX_->putScalar(0.0); 
-      savedX_->addVec( 1.0, *X_);
+      xr=objectiveVec_[ii++];
+      xi=objectiveVec_[ii++];
+      xm=objectiveVec_[ii++];
+      xp=objectiveVec_[ii++];
 
-      B_->putScalar(0.0);      
-      B_->addVec( 1.0, *sensRhs_);
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
 
-      int linearStatus = blockSolver_->solve(reuseFactors_);
+        savedX_->putScalar(0.0); 
+        savedX_->addVec( 1.0, *X_);
 
-      dXdp_->putScalar(0.0); dXdp_->addVec(1.0, *X_);
-      X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+        B_->putScalar(0.0);      
+        B_->addVec( 1.0, *sensRhs_);
 
-      double dOdpReal = dOdXreal_->dotProduct( *dXdp_ ); 
-      double dOdpImag = dOdXimag_->dotProduct( *dXdp_ );
+        int linearStatus = blockSolver_->solve(reuseFactors_);
 
-      ds.dOdpVec_.push_back(dOdpReal);
-      ds.dOdpVec_.push_back(dOdpImag);
+        dXdp_->putScalar(0.0); dXdp_->addVec(1.0, *X_);
+        X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+
+        double dOdpReal = dOdXreal_->dotProduct( *dXdp_ ); 
+        double dOdpImag = dOdXimag_->dotProduct( *dXdp_ );
+
+        ds.dOdpVec_.push_back(dOdpReal);
+        ds.dOdpVec_.push_back(dOdpImag);
 
 
-      // do polar
-      double dOdp_mag, dOdp_phase;
-      solve_mag_phase_Sensitivities_(dOdpReal, dOdpImag, xr, xi, dOdp_mag, dOdp_phase);
-      ds.dOdpVec_.push_back(dOdp_mag);
-      ds.dOdpVec_.push_back(dOdp_phase);
+        // do polar
+        double dOdp_mag, dOdp_phase;
+        solve_mag_phase_Sensitivities_(dOdpReal, dOdpImag, xr, xi, dOdp_mag, dOdp_phase);
+        ds.dOdpVec_.push_back(dOdp_mag);
+        ds.dOdpVec_.push_back(dOdp_phase);
+      }
+    }
+  }
+
+  // list of objective functions specified as expressions.
+  {
+    int ii=0;
+    int numOutFuncs = objFuncDataVec_.size();
+    for (int iobj=0;iobj<numOutFuncs;++iobj)
+    {
+      double xr=std::real(objFuncDataVec_[iobj]->expVal);
+      double xi=std::imag(objFuncDataVec_[iobj]->expVal);
+
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
+
+        savedX_->putScalar(0.0); 
+        savedX_->addVec( 1.0, *X_);
+
+        B_->putScalar(0.0);      
+        B_->addVec( 1.0, *sensRhs_);
+
+        int linearStatus = blockSolver_->solve(reuseFactors_);
+
+        dXdp_->putScalar(0.0); dXdp_->addVec(1.0, *X_);
+        X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+
+        double dOdp_real = objFuncDataVec_[iobj]->dOdXVectorRealPtr->dotProduct ( dXdp_->block(0) );
+        double dOdp_imag = objFuncDataVec_[iobj]->dOdXVectorImagPtr->dotProduct ( dXdp_->block(1) );
+        std::complex<double> dOdp = std::complex<double>(dOdp_real,dOdp_imag);
+
+        ds.dOdpVec_.push_back(std::real(dOdp));
+        ds.dOdpVec_.push_back(std::imag(dOdp));
+        
+        // do polar
+        double dOdp_mag, dOdp_phase;
+        solve_mag_phase_Sensitivities_(std::real(dOdp), std::imag(dOdp), xr, xi, dOdp_mag, dOdp_phase);
+        ds.dOdpVec_.push_back(dOdp_mag);
+        ds.dOdpVec_.push_back(dOdp_phase);
+      }
     }
   }
 
@@ -1493,7 +1804,11 @@ bool AC::solveDirectSensitivity_()
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
     sensStdOutput(std::string("Direct"), ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
-       paramNameVec_, objFuncVars_, objectiveVec_,
+       paramNameVec_, 
+       param_dP_,
+       numericalDiff_,
+       objFuncVars_, objFuncDataVec_,
+       objectiveVec_,
        outputManagerAdapter_, Xyce::lout ());
   }
 
@@ -1521,77 +1836,151 @@ bool AC::solveAdjointSensitivity_()
   Parallel::Communicator & comm = *(pds_manager.getPDSComm());
   int myPID = comm.procID();
 
-  int ii=0;
-  int numOutVars = objFuncVars_.size();
-  for (int iobj=0;iobj<numOutVars;++iobj)
+  // list of nodes.  (numOutVars != 0).  In this case, 4 outputs per variable/node (re, im, mag, ph)
   {
-    setup_dOdX_(iobj); 
-
-    double xr=objectiveVec_[ii++];
-    double xi=objectiveVec_[ii++];
-    double xm=objectiveVec_[ii++];
-    double xp=objectiveVec_[ii++];
-
-    savedX_->putScalar(0.0); 
-    savedX_->addVec( 1.0, *X_);
-
-    B_->putScalar(0.0);      
-    B_->addVec( 1.0, *dOdXreal_);
-
-    int linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
-
-    lambda_->putScalar(0.0); 
-    lambda_->addVec(1.0, *X_);
-
-    X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
-    
-    std::vector<double> dOdpReal(numSensParams_,0.0);
-    std::vector<double> dOdpImag(numSensParams_,0.0);
-    std::vector<double> dOdpMag (numSensParams_,0.0);
-    std::vector<double> dOdpPhase(numSensParams_,0.0);
-
-    for (int ipar=0;ipar<numSensParams_;++ipar)
+    int ii=0;
+    int numOutVars = objFuncVars_.size();
+    for (int iobj=0;iobj<numOutVars;++iobj)
     {
-      std::string name = paramNameVec_[ipar];
-      bool rhsSuccess = loadSensitivityRHS_(name);
+      setup_dOdX_(iobj); 
 
-      // compute dot products for this param
-      dOdpReal[ipar] = sensRhs_->dotProduct( *lambda_ );
+      double xr=objectiveVec_[ii++];
+      double xi=objectiveVec_[ii++];
+      double xm=objectiveVec_[ii++];
+      double xp=objectiveVec_[ii++];
+
+      savedX_->putScalar(0.0); 
+      savedX_->addVec( 1.0, *X_);
+
+      B_->putScalar(0.0);      
+      B_->addVec( 1.0, *dOdXreal_);
+
+      int linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
+
+      lambda_->putScalar(0.0); 
+      lambda_->addVec(1.0, *X_);
+
+      X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+      
+      std::vector<double> dOdpReal(numSensParams_,0.0);
+      std::vector<double> dOdpImag(numSensParams_,0.0);
+      std::vector<double> dOdpMag (numSensParams_,0.0);
+      std::vector<double> dOdpPhase(numSensParams_,0.0);
+
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
+        // compute dot products for this param
+        dOdpReal[ipar] = sensRhs_->dotProduct( *lambda_ );
+      }
+
+      savedX_->putScalar(0.0); 
+      savedX_->addVec( 1.0, *X_);
+
+      B_->putScalar(0.0);      
+      B_->addVec( 1.0, *dOdXimag_);
+
+      linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
+
+      lambda_->putScalar(0.0); 
+      lambda_->addVec(1.0, *X_);
+
+      X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
+        // compute dot products for this param
+        dOdpImag[ipar] = sensRhs_->dotProduct( *lambda_ );
+      }
+
+      // get mag, phase sensitivities:
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        solve_mag_phase_Sensitivities_(dOdpReal[ipar], dOdpImag[ipar], xr, xi, dOdpMag[ipar], dOdpPhase[ipar]);
+      }
+
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        ds.dOdpAdjVec_.push_back(dOdpReal[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpImag[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpMag[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpPhase[ipar]);
+      }
     }
+  }
 
-    savedX_->putScalar(0.0); 
-    savedX_->addVec( 1.0, *X_);
-
-    B_->putScalar(0.0);      
-    B_->addVec( 1.0, *dOdXimag_);
-
-    linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
-
-    lambda_->putScalar(0.0); 
-    lambda_->addVec(1.0, *X_);
-
-    X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
-    for (int ipar=0;ipar<numSensParams_;++ipar)
+  // list of objective functions specified as expressions.
+  {
+    int ii=0;
+    int numOutFuncs = objFuncDataVec_.size();
+    for (int iobj=0;iobj<numOutFuncs;++iobj)
     {
-      std::string name = paramNameVec_[ipar];
-      bool rhsSuccess = loadSensitivityRHS_(name);
+      dOdXreal_->putScalar( 0.0 );
+      dOdXreal_->block( 0 ).addVec( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorRealPtr));
 
-      // compute dot products for this param
-      dOdpImag[ipar] = sensRhs_->dotProduct( *lambda_ );
-    }
+      dOdXimag_->putScalar( 0.0 );
+      dOdXimag_->block( 1 ).addVec( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorImagPtr));
 
-    // get mag, phase sensitivities:
-    for (int ipar=0;ipar<numSensParams_;++ipar)
-    {
-      solve_mag_phase_Sensitivities_(dOdpReal[ipar], dOdpImag[ipar], xr, xi, dOdpMag[ipar], dOdpPhase[ipar]);
-    }
+      double xr=std::real(objFuncDataVec_[iobj]->expVal);
+      double xi=std::imag(objFuncDataVec_[iobj]->expVal);
 
-    for (int ipar=0;ipar<numSensParams_;++ipar)
-    {
-      ds.dOdpAdjVec_.push_back(dOdpReal[ipar]);
-      ds.dOdpAdjVec_.push_back(dOdpImag[ipar]);
-      ds.dOdpAdjVec_.push_back(dOdpMag[ipar]);
-      ds.dOdpAdjVec_.push_back(dOdpPhase[ipar]);
+      savedX_->putScalar(0.0); 
+      savedX_->addVec( 1.0, *X_);
+
+      B_->putScalar(0.0);      
+      B_->addVec( 1.0, *dOdXreal_);
+
+      int linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
+
+      lambda_->putScalar(0.0); 
+      lambda_->addVec(1.0, *X_);
+
+      X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+      
+      std::vector<double> dOdpReal(numSensParams_,0.0);
+      std::vector<double> dOdpImag(numSensParams_,0.0);
+      std::vector<double> dOdpMag (numSensParams_,0.0);
+      std::vector<double> dOdpPhase(numSensParams_,0.0);
+
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
+        // compute dot products for this param
+        dOdpReal[ipar] = sensRhs_->dotProduct( *lambda_ );
+      }
+
+      savedX_->putScalar(0.0); 
+      savedX_->addVec( 1.0, *X_);
+
+      B_->putScalar(0.0);      
+      B_->addVec( 1.0, *dOdXimag_);
+
+      linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
+
+      lambda_->putScalar(0.0); 
+      lambda_->addVec(1.0, *X_);
+
+      X_->putScalar(0.0); X_->addVec( 1.0, *savedX_); // restore X
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        bool rhsSuccess = loadSensitivityRHS_(ipar);
+        // compute dot products for this param
+        dOdpImag[ipar] = sensRhs_->dotProduct( *lambda_ );
+      }
+
+      // get mag, phase sensitivities:
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        solve_mag_phase_Sensitivities_(dOdpReal[ipar], dOdpImag[ipar], xr, xi, dOdpMag[ipar], dOdpPhase[ipar]);
+      }
+
+      for (int ipar=0;ipar<numSensParams_;++ipar)
+      {
+        ds.dOdpAdjVec_.push_back(dOdpReal[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpImag[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpMag[ipar]);
+        ds.dOdpAdjVec_.push_back(dOdpPhase[ipar]);
+      }
     }
   }
 
@@ -1600,7 +1989,11 @@ bool AC::solveAdjointSensitivity_()
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
     sensStdOutput (std::string("Adjoint"), ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
-       paramNameVec_, objFuncVars_, objectiveVec_,
+       paramNameVec_, 
+       param_dP_,
+       numericalDiff_,
+       objFuncVars_, objFuncDataVec_,
+       objectiveVec_,
        outputManagerAdapter_, Xyce::lout ());
   }
 
@@ -1644,52 +2037,30 @@ bool AC::solveAdjointSensitivity_()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 3/15/2019
 //-----------------------------------------------------------------------------
-bool AC::computeNumerical_dJdp(const std::string & name)
+bool AC::computeNumerical_dJdp(int ipar)
 {
+  const std::string name = paramNameVec_[ipar];
+
   double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
   double sqrtEta= std::sqrt(epsilon);
 
   Xyce::Linear::Vector *dcDXdp = linearSystem_.getNewtonVector();
 
+  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
   if(acCorrectionFlag_)
   {
-    // If we are in this function, this is probably a nonlinear device, 
-    // meaning that dJ/dx is nonzero.  Currently Xyce doesn't support Hessians.  
-    // If it did, the Hessian would be used here.
-
-    // compute DCOP direct sensitivity to get the DC dx/dp vector for this parameter.
-
-    // first get the derivatives of the DAE RHS vector w.r.t. the
-    // user-specified optimization parameters.
-    analysisManager_.getDataStore()->allocateSensitivityArrays(1, true, false);
-   
-    int difference_ = 0;
-    TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-    std::vector<std::string> paramNameVec(1,name);
-    std::string netlist = analysisManager_.getNetlistFilename();
-    Xyce::Nonlinear::loadSensitivityResiduals (difference_, 
-        false, false, false,
-        //forceFD_, forceDeviceFD_, forceAnalytic_, 
-        sqrtEta, netlist, ds,
-        analysisManager_.getNonlinearEquationLoader(),
-        paramNameVec, analysisManager_);
-
-    int iparam=0;
+    Xyce::Linear::Vector* rhsVectorPtr_ = linearSystem_.getRHSVector();
     Xyce::Linear::MultiVector * sensRHSPtrVector = ds.sensRHSPtrVector;
 
-    // via the loader, setup all the sensitivity residuals.
-    analysisManager_.getNonlinearEquationLoader().loadSensitivityResiduals();
+    *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(ipar));
 
-    Linear::Vector* rhsVectorPtr_ = linearSystem_.getRHSVector();
-    *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(iparam));
     Teuchos::RCP<Linear::Solver> sensSolver = nonlinearManager_.getNonlinearSolver().getLinearSolver();
     bool reuseFactors=true;
     sensSolver->solve(reuseFactors);
   }
 
-  double origParamValue = loader_.getParamAndReduce(analysisManager_.getComm(), name);
-
-  double dP = sqrtEta * fabs( origParamValue );
+  double origParamValue = ds.paramOrigVals_[ipar];
+  double dP = param_dP_[ipar];
   double newParamValue = origParamValue + dP;
   std::string tmpName = name; // remove const
   loader_.setParam(tmpName, newParamValue, true);
@@ -1697,10 +2068,8 @@ bool AC::computeNumerical_dJdp(const std::string & name)
   if(acCorrectionFlag_)
   {
     dcDXdp->scale(dP);
-
     // save next solution
     analysisManager_.getDataStore()->tmpSolVectorPtr->update(1.0, *(analysisManager_.getDataStore()->nextSolutionPtr), 0.0);
-
     // update next Solution to x+dx
     analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(dcDXdp), 1.0);
   }
@@ -1768,8 +2137,10 @@ bool AC::computeNumerical_dJdp(const std::string & name)
 // Creator       : Eric Keiter, SNL
 // Creation Date : 3/15/2019
 //-----------------------------------------------------------------------------
-bool AC::loadSensitivityRHS_(const std::string & name)
+bool AC::loadSensitivityRHS_(int ipar)
 {
+  const std::string name = paramNameVec_[ipar];
+
   sensRhs_->putScalar(0.0);
 
   bool analyticBVecSensAvailable = loader_.analyticBVecSensAvailable (name);
@@ -1781,10 +2152,12 @@ bool AC::loadSensitivityRHS_(const std::string & name)
   if (analyticBVecSensAvailable && !forceDeviceFD_)
   {
     loader_.getAnalyticBSensVectorsforAC (name, dbdp, BindicesVec);
+    numericalDiff_[ipar] = 0;
   }
   else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_)
   {
     loader_.getNumericalBSensVectorsforAC (name, dbdp, BindicesVec);
+    numericalDiff_[ipar] = 1;
   }
 
   dBdp_->putScalar( 0.0 );
@@ -1826,6 +2199,8 @@ bool AC::loadSensitivityRHS_(const std::string & name)
 
     if (analyticMatrixAvailable && !forceDeviceFD_)
     {
+      numericalDiff_[ipar] = 0;
+
       loader_.getAnalyticMatrixSensitivities(name,
                     d_dfdx_dp, d_dqdx_dp, F_lids, Q_lids, F_jacLIDs, Q_jacLIDs);
 
@@ -1882,7 +2257,8 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     }
     else
     {
-      computeNumerical_dJdp(name);
+      numericalDiff_[ipar] = 1;
+      computeNumerical_dJdp(ipar);
     }
 
     // compute the matvec and then sum into the rhs vector.
@@ -1986,14 +2362,14 @@ bool AC::setupObjectiveFuncGIDs_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : evaluateObjFuncs
+// Function      : evaluateSimpleObjFuncs
 // Purpose       : 
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 3/29/2019
 //-----------------------------------------------------------------------------
-void evaluateObjFuncs (
+void evaluateSimpleObjFuncs (
   Parallel::Communicator & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
@@ -2037,9 +2413,10 @@ void evaluateObjFuncs (
 //-----------------------------------------------------------------------------
 // Function      : AC::setup_dOdX_
 //
-// Purpose       : Adapted from noise.  This will need refactoring later once I
-//                 figure out how to do better objective functions.  For now, 
-//                 objective functions are variables.
+// Purpose       : Adapted from noise.  
+//
+//                 This version is only for objective functions that are 
+//                 pure solution variables.  It doesn't use expressions.
 //
 // Special Notes :
 // Scope         : public
@@ -2056,15 +2433,13 @@ bool AC::setup_dOdX_(int iobj)
 
   int numOutVars = outputVarGIDs_.size();
   
-  //for (int iobj=0;iobj<numOutVars;++iobj)
+  int tmpGID=outputVarGIDs_[iobj];
+  if (tmpGID > -1)
   {
-    int tmpGID=outputVarGIDs_[iobj];
-    if (tmpGID > -1)
-    {
-      double val=1.0;
-      dOdxVecRealPtr->setElementByGlobalIndex( tmpGID, val, 0);
-    }
+    double val=1.0;
+    dOdxVecRealPtr->setElementByGlobalIndex( tmpGID, val, 0);
   }
+
   dOdxVecRealPtr->fillComplete();
 #ifdef Xyce_PARALLEL_MPI
   dOdxVecRealPtr->importOverlap();
@@ -2073,13 +2448,14 @@ bool AC::setup_dOdX_(int iobj)
   dOdXreal_->putScalar( 0.0 );
   dOdXreal_->block( 0 ).addVec( 1.0, *dOdxVecRealPtr);
   dOdXreal_->block( 1 ).addVec( 1.0, *dOdxVecImagPtr);
+  dOdXreal_->assembleGlobalVector();
 
   dOdXimag_->putScalar( 0.0 );
   dOdXimag_->block( 0 ).addVec( 1.0, *dOdxVecImagPtr);
   dOdXimag_->block( 1 ).addVec( 1.0, *dOdxVecRealPtr);
+  dOdXimag_->assembleGlobalVector();
 
   return true;
-
 }
 
 //-----------------------------------------------------------------------------
