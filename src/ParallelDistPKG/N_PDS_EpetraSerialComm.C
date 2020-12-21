@@ -47,17 +47,18 @@
 
 #include <N_ERH_ErrorMgr.h>
 
-// ----------  Other Includes   ----------
+namespace Xyce {
+namespace Parallel {
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm
+// Function      : EpetraSerialComm::EpetraSerialComm
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm()
+EpetraSerialComm::EpetraSerialComm()
   :
   isSerial_(true),
   petraComm_(0),
@@ -68,14 +69,14 @@ N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm
+// Function      : EpetraSerialComm::EpetraSerialComm
 // Purpose       : Copy constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm &right)
+EpetraSerialComm::EpetraSerialComm(const EpetraSerialComm &right)
   :
   isSerial_(right.isSerial_) ,
   petraComm_(right.petraComm_),
@@ -84,28 +85,28 @@ N_PDS_EpetraSerialComm::N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm &rig
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::~N_PDS_EpetraSerialComm
+// Function      : EpetraSerialComm::~EpetraSerialComm
 // Purpose       : Destructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoeksta, SNL, Parallel Computational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-N_PDS_EpetraSerialComm::~N_PDS_EpetraSerialComm()
+EpetraSerialComm::~EpetraSerialComm()
 {
   if( petraCommOwned_ )
     if( petraComm_ ) delete petraComm_;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_Comm::scanSum
+// Function      : EpetraSerialComm::scanSum
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::scanSum( const double * vals, double * sums,
+bool EpetraSerialComm::scanSum( const double * vals, double * sums,
 		const int & count ) const
 {
   return ( petraComm_->ScanSum( const_cast<double *> (vals), sums,
@@ -113,14 +114,14 @@ bool N_PDS_EpetraSerialComm::scanSum( const double * vals, double * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_Comm::sumAll
+// Function      : EpetraSerialComm::sumAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::sumAll( const double * vals, double * sums,
+bool EpetraSerialComm::sumAll( const double * vals, double * sums,
 		const int & count ) const
 {
   return ( petraComm_->SumAll( const_cast<double *> (vals), sums,
@@ -128,14 +129,14 @@ bool N_PDS_EpetraSerialComm::sumAll( const double * vals, double * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::maxAll
+// Function      : EpetraSerialComm::maxAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::maxAll( const double * vals, double * maxs,
+bool EpetraSerialComm::maxAll( const double * vals, double * maxs,
 		const int & count ) const
 {
   return ( petraComm_->MaxAll( const_cast<double *> (vals), maxs,
@@ -143,14 +144,14 @@ bool N_PDS_EpetraSerialComm::maxAll( const double * vals, double * maxs,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::minAll
+// Function      : EpetraSerialComm::minAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 08/30/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::minAll( const double * vals, double * mins,
+bool EpetraSerialComm::minAll( const double * vals, double * mins,
 		const int & count ) const
 {
   return ( petraComm_->MinAll( const_cast<double *> (vals), mins,
@@ -158,14 +159,14 @@ bool N_PDS_EpetraSerialComm::minAll( const double * vals, double * mins,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_Comm::scanSum
+// Function      : EpetraSerialComm::scanSum
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::scanSum( const int * vals, int * sums,
+bool EpetraSerialComm::scanSum( const int * vals, int * sums,
 		const int & count ) const
 {
   return ( petraComm_->ScanSum( const_cast<int *> (vals), sums,
@@ -173,14 +174,14 @@ bool N_PDS_EpetraSerialComm::scanSum( const int * vals, int * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_Comm::sumAll
+// Function      : EpetraSerialComm::sumAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::sumAll( const int * vals, int * sums,
+bool EpetraSerialComm::sumAll( const int * vals, int * sums,
 		const int & count ) const
 {
   return ( petraComm_->SumAll( const_cast<int *> (vals), sums,
@@ -188,14 +189,14 @@ bool N_PDS_EpetraSerialComm::sumAll( const int * vals, int * sums,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::maxAll
+// Function      : EpetraSerialComm::maxAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::maxAll( const int * vals, int * maxs,
+bool EpetraSerialComm::maxAll( const int * vals, int * maxs,
 		const int & count ) const
 {
   return ( petraComm_->MaxAll( const_cast<int *> (vals), maxs,
@@ -203,14 +204,14 @@ bool N_PDS_EpetraSerialComm::maxAll( const int * vals, int * maxs,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::minAll
+// Function      : EpetraSerialComm::minAll
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::minAll( const int * vals, int * mins,
+bool EpetraSerialComm::minAll( const int * vals, int * mins,
 		const int & count ) const
 {
   return ( petraComm_->MinAll( const_cast<int *> (vals), mins,
@@ -218,14 +219,14 @@ bool N_PDS_EpetraSerialComm::minAll( const int * vals, int * mins,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::pack
+// Function      : EpetraSerialComm::pack
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::pack( const int * val, const int count, char * buf,
+bool EpetraSerialComm::pack( const int * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
   int bC = count * sizeof(int);
@@ -236,14 +237,14 @@ bool N_PDS_EpetraSerialComm::pack( const int * val, const int count, char * buf,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::pack
+// Function      : EpetraSerialComm::pack
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::pack( const char * val, const int count, char * buf,
+bool EpetraSerialComm::pack( const char * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
   int bC = count * sizeof(char);
@@ -254,14 +255,14 @@ bool N_PDS_EpetraSerialComm::pack( const char * val, const int count, char * buf
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::pack
+// Function      : EpetraSerialComm::pack
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::pack( const double * val, const int count, char * buf,
+bool EpetraSerialComm::pack( const double * val, const int count, char * buf,
 		const int size, int & pos ) const
 {
   int bC = count * sizeof(double);
@@ -272,14 +273,14 @@ bool N_PDS_EpetraSerialComm::pack( const double * val, const int count, char * b
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::pack
+// Function      : EpetraSerialComm::pack
 // Purpose       : LNGs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::pack( const long * val, const int count, char * buf,
+bool EpetraSerialComm::pack( const long * val, const int count, char * buf,
                 const int size, int & pos ) const
 {
   int bC = count * sizeof(long);
@@ -290,14 +291,14 @@ bool N_PDS_EpetraSerialComm::pack( const long * val, const int count, char * buf
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::unpack
+// Function      : EpetraSerialComm::unpack
 // Purpose       : INTs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
+bool EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
 		int * val, const int count ) const
 {
   int bC = count * sizeof(int);
@@ -308,14 +309,14 @@ bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::unpack
+// Function      : EpetraSerialComm::unpack
 // Purpose       : CHARs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
+bool EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
 		char * val, const int count ) const
 {
   int bC = count * sizeof(char);
@@ -326,14 +327,14 @@ bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::unpack
+// Function      : EpetraSerialComm::unpack
 // Purpose       : DBLEs
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
+bool EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
 		double * val, const int count ) const
 {
   int bC = count * sizeof(double);
@@ -344,14 +345,14 @@ bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::unpack
+// Function      : EpetraSerialComm::unpack
 // Purpose       : LNGs 
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 06/26/2013
 //-----------------------------------------------------------------------------
-bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
+bool EpetraSerialComm::unpack( const char * buf, const int size, int & pos,
                 long * val, const int count ) const
 {
   int bC = count * sizeof(long);
@@ -361,24 +362,5 @@ bool N_PDS_EpetraSerialComm::unpack( const char * buf, const int size, int & pos
   return true;
 }
 
-//-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraSerialComm::operator=
-// Purpose       : Assignment operator.
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/27/01
-//-----------------------------------------------------------------------------
-N_PDS_EpetraSerialComm & N_PDS_EpetraSerialComm::operator=(const N_PDS_EpetraSerialComm &right)
-{
-  if (this != &right)
-  {
-    isSerial_ = right.isSerial_;
-    delete petraComm_;
-    petraComm_  = right.petraComm_;
-    petraCommOwned_ = false;
-  }
-
-  return *this;
-}
-
+} // namespace Parallel
+} // namespace Xyce

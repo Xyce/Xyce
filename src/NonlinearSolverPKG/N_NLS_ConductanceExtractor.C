@@ -46,6 +46,7 @@
 #include <N_LAS_Problem.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_Vector.h>
 #include <N_LOA_Loader.h>
 #include <N_NLS_ConductanceExtractor.h>
@@ -111,7 +112,7 @@ ConductanceExtractor::ConductanceExtractor(
 #ifdef Xyce_PARALLEL_MPI
   // construct column vector used for parallel construction of RHS's
   columnMapPtr_ = jacobianMatrixPtr_->getColMap( savedRHSVectorPtr_->pmap()->pdsComm() );
-  columnVectorPtr_ = new Linear::Vector( *(savedRHSVectorPtr_->pmap()), *columnMapPtr_ );
+  columnVectorPtr_ = Xyce::Linear::createVector( *(savedRHSVectorPtr_->pmap()), *columnMapPtr_ );
 #endif
 }
 
@@ -399,7 +400,7 @@ bool ConductanceExtractor::extract(
 
 #ifdef Xyce_PARALLEL_MPI
   //sumAll to get all currents locally
-  N_PDS_Comm &comm = dfdvVectorPtr_->pmap()->pdsComm();
+  Parallel::Communicator &comm = dfdvVectorPtr_->pmap()->pdsComm();
   std::vector<double> tmpVector(idSize,0.0);
   for( int i = 0; i < idSize; ++i )
   {

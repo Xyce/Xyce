@@ -45,41 +45,43 @@
 #include <N_PDS_fwd.h>
 #include <N_LAS_fwd.h>
 
-class N_PDS_ParMap;
 class Epetra_Distributor;
 class Epetra_Comm;
 
+namespace Xyce {
+namespace Parallel {
+
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_GlobalAccessor
+// Class         : GlobalAccessor
 // Purpose       : Migrator utility to retrieve off processor elements
 //                 of distributed objects
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-class N_PDS_GlobalAccessor
+class GlobalAccessor
 {
 public:
   // Constructors
-  N_PDS_GlobalAccessor(N_PDS_Comm & comm);
+  GlobalAccessor(Communicator& comm);
 
   // Destructor
-  ~N_PDS_GlobalAccessor();
+  ~GlobalAccessor();
 
 private:
   // No public copy construction, assignment, or equality operators.
 
   // Copy constructor (private).
-  N_PDS_GlobalAccessor(const N_PDS_GlobalAccessor & right);
+  GlobalAccessor(const GlobalAccessor & right);
 
   // Assignment operator (private).
-  N_PDS_GlobalAccessor & operator = (const N_PDS_GlobalAccessor & right);
+  GlobalAccessor & operator = (const GlobalAccessor & right);
 
   // Equality operation.
-  bool operator == (const N_PDS_GlobalAccessor & right) const;
+  bool operator == (const GlobalAccessor & right) const;
 
   // Non-equality operation.
-  bool operator != (const N_PDS_GlobalAccessor & right) const;
+  bool operator != (const GlobalAccessor & right) const;
 
 public:
   void registerExternGIDVector(const std::vector< std::pair< int,
@@ -104,7 +106,7 @@ public:
 private:
 
   // PDS Comm
-  N_PDS_Comm & pdsComm_;
+  Communicator & pdsComm_;
 
   // Vector listing extern GIDs and their respective procs needed for nonlocal
   // dependencies.
@@ -141,14 +143,14 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::registerExternGIDVector
+// Function      : GlobalAccessor::registerExternGIDVector
 // Purpose       : Registers vector of external GIDs and procs.
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-inline void N_PDS_GlobalAccessor::registerExternGIDVector(
+inline void GlobalAccessor::registerExternGIDVector(
   const std::vector< std::pair< int, int > > & extGIDVector)
 {
 
@@ -158,6 +160,9 @@ inline void N_PDS_GlobalAccessor::registerExternGIDVector(
   // Then, assign the GIDs and processors.
   externGIDVector_.assign(extGIDVector.begin(), extGIDVector.end());
 }
+
+} // namespace Parallel
+} // namespace Xyce
 
 #endif
 

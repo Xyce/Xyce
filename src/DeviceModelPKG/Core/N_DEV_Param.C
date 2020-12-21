@@ -79,11 +79,11 @@ Pack<Device::Param>::packedByteCount(
 template<>
 void
 Pack<Device::Param>::pack(
-  const Device::Param & param,
-  char *                buf,
-  const int             bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm )
+  const Device::Param &    param,
+  char *                   buf,
+  const int                bsize,
+  int &                    pos,
+  Parallel::Communicator * comm )
 {
 #ifdef Xyce_COUNT_PACKED_BYTES
   int predictedPos = pos + Xyce::packedByteCount(param);
@@ -113,7 +113,7 @@ Pack<Device::Param>::pack(
 //-----------------------------------------------------------------------------
 template <>
 void
-Pack<Device::Param>::unpack(Device::Param &param, char * pB, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<Device::Param>::unpack(Device::Param &param, char * pB, int bsize, int & pos, Parallel::Communicator* comm )
 {
   Xyce::unpack(static_cast<Util::Param &>(param), pB, bsize, pos, comm );
 

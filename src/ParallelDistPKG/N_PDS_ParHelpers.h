@@ -54,21 +54,21 @@ namespace Xyce {
 namespace Parallel {
 
 // Return a new Comm
-N_PDS_Comm * createPDSComm(int iargs = 0, char * cargs[] = 0, Xyce::Parallel::Machine comm = MPI_COMM_NULL );
+Communicator* createPDSComm(int iargs = 0, char * cargs[] = 0, Xyce::Parallel::Machine comm = MPI_COMM_NULL );
 
 // Return a new ParMap
-N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
-                                int numLocalEntities,
-                                const std::vector<int> & lbMap,
-                                const int index_base,
-                                const N_PDS_Comm & aComm );
+ParMap * createPDSParMap( int & numGlobalEntities,
+                          int numLocalEntities,
+                          const std::vector<int> & lbMap,
+                          const int index_base,
+                          const Communicator& aComm );
 
 // Return a new ParMap
 //  -> let the underlying linear algebra determine the IDs.
-N_PDS_ParMap * createPDSParMap( int & numGlobalEntities,
-                                int numLocalEntities,
-                                const int index_base,
-                                const N_PDS_Comm & aComm );
+ParMap * createPDSParMap( int & numGlobalEntities,
+                          int numLocalEntities,
+                          const int index_base,
+                          const Communicator& aComm );
 
 } // namespace Parallel 
 } // namespace Xyce

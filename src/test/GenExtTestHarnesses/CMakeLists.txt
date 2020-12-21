@@ -1,6 +1,6 @@
 
 add_executable( testGenCoup EXCLUDE_FROM_ALL testGenCoup.C )
-target_link_libraries( testGenCoup XyceStatic )
+target_link_libraries( testGenCoup XyceLib )
 
 #if( Xyce_ENABLED_SHARED )
 #  target_link_libraries( testGenCoup lib_xyce_shared )

@@ -41,7 +41,6 @@
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
-#include <N_PDS_Manager.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_DataStore.h>
 #include <N_UTL_Diagnostic.h>

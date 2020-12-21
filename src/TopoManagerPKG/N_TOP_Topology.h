@@ -74,7 +74,7 @@ class Topology
   friend std::ostream & operator << (std::ostream & os, const Topology & topo);
 
 public:
-  Topology(const IO::CmdParse &cp, IO::HangingResistor &hanging_resistor, N_PDS_Manager &pds_manager);
+  Topology(const IO::CmdParse &cp, IO::HangingResistor &hanging_resistor, Parallel::Manager &pds_manager);
   ~Topology();
 
 private:
@@ -222,7 +222,7 @@ public:
     return depSolnGIDMap_;
   }
 
-  N_PDS_Manager &getPDSManager() {
+  Parallel::Manager &getPDSManager() {
     return pdsManager_;
   }
 
@@ -250,7 +250,7 @@ private:
   IO::HangingResistor &                 hangingResistor_;       ///< Hanging resistor repair
   Linear::QueryUtil *                   linearSolverUtility_;   ///< Utility class to extract alloc info for linear solver.
 
-  N_PDS_Manager &                       pdsManager_;            ///< Parallel services manager object
+  Parallel::Manager &                   pdsManager_;            ///< Parallel services manager object
 
   CktGraph *                            mainGraphPtr_;
 

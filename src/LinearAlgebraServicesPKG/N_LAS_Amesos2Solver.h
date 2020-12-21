@@ -78,13 +78,6 @@ public:
 
   // Set the solver options
   bool setOptions(const Util::OptionBlock & OB);
-  bool setDefaultOptions();
-
-  // Set individual options
-  bool setParam( const Util::Param & param );
-
-  // Get info such as Num Iterations, Residual, etc.
-  bool getInfo( Util::Param & info );
 
   // Solve function: x = A^(-1) b.
   // input parameter 'ReuseFactors': If 'true', do not factor A, rather reuse
@@ -99,7 +92,7 @@ private:
 
   //Primary problem access
   Problem & lasProblem_;
-  Epetra_LinearProblem & problem_;
+  Epetra_LinearProblem * problem_;
 
   //Wrapped solver object
   Teuchos::RCP<Amesos2::Solver<Epetra_CrsMatrix,Epetra_MultiVector> > solver_;

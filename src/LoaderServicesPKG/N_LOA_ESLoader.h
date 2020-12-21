@@ -74,8 +74,7 @@ public:
     const std::vector<double> & Y,
     bool useExprSamples);
 
-  ~ESLoader()
-  {}
+  ~ESLoader();
 
   // Get convergence info from devices
   bool allDevicesConverged(Xyce::Parallel::Machine comm);
@@ -221,10 +220,9 @@ private:
   // App Builder:
   Linear::Builder &             builder_;
 
-  // stuff copied from MPDE loader:
   // Tmp storage block matrices 
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdxPtr_;
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdxPtr_;
+  Linear::BlockMatrix* bmdQdxPtr_;
+  Linear::BlockMatrix* bmdFdxPtr_;
 
 // sampling stuff:
   int numSamples_;

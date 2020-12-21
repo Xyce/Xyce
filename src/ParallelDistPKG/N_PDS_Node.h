@@ -84,13 +84,13 @@ struct PackTraits<IndexNode>
   static int size( IndexNode const & object )
   { return 2*sizeof(int); }
 
-  static void pack( IndexNode const & object, char * buf, int size, int & pos, Comm & comm )
+  static void pack( IndexNode const & object, char * buf, int size, int & pos, Communicator & comm )
   {
     comm.pack( &object.gid, 1, buf, size, pos );
     comm.pack( &object.pid, 1, buf, size, pos );
   }
 
-  static void unpack( IndexNode & object, char * buf, int size, int & pos, Comm & comm )
+  static void unpack( IndexNode & object, char * buf, int size, int & pos, Communicator & comm )
   {
     comm.unpack( buf, size, pos, &object.gid, 1 );
     comm.unpack( buf, size, pos, &object.pid, 1 );

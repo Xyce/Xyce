@@ -248,10 +248,10 @@ void Gear12::obtainResidual()
     (ds.dQdxdVpVectorPtr)->scale( sec.alpha_[0]/sec.currentTimeStep );
     //        double qscalar(sec.alpha_[0]/sec.currentTimeStep);
 
-    (ds.RHSVectorPtr)->daxpy(
+    (ds.RHSVectorPtr)->axpy(
         *(ds.RHSVectorPtr), +1.0, *(ds.dQdxdVpVectorPtr));
 
-    (ds.RHSVectorPtr)->daxpy(
+    (ds.RHSVectorPtr)->axpy(
         *(ds.RHSVectorPtr), +1.0, *(ds.dFdxdVpVectorPtr));
   }
 

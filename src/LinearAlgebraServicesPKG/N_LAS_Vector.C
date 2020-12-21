@@ -51,7 +51,7 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : Vector:::Vector
+// Function      : Vector::Vector
 // Purpose       : constructor 
 // Special Notes : 
 // Scope         : Public
@@ -64,7 +64,7 @@ Vector::Vector( Epetra_Vector * origV, bool isOwned )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Vector:::Vector
+// Function      : Vector::Vector
 // Purpose       : constructor
 // Special Notes : 
 // Scope         : Public
@@ -74,6 +74,45 @@ Vector::Vector( Epetra_Vector * origV, bool isOwned )
 Vector::Vector( Epetra_Vector * overlapV, const Epetra_BlockMap& parMap, bool isOwned )
 : MultiVector( dynamic_cast<Epetra_MultiVector *>(overlapV), parMap, isOwned )
 {
+}
+
+//-----------------------------------------------------------------------------
+// Function      : clone
+// Purpose       : vector clone function 
+// Special Notes : clones shape, not values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* Vector::clone() const
+{
+  Vector* new_vec = 0;
+  if ( parallelMap_ )
+  {
+    if ( parallelMap_ == overlapMap_ )
+      new_vec = new Vector( *parallelMap_ );
+    else
+      new_vec = new Vector( *parallelMap_, *overlapMap_ );
+  }
+  else
+  {
+    // We don't have a map, so perform a cloneCopy
+    new_vec = new Vector( *this );
+  }
+  return new_vec;
+}
+  
+//-----------------------------------------------------------------------------
+// Function      : cloneCopy
+// Purpose       : vector clone function 
+// Special Notes : clones shape and values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* Vector::cloneCopy() const
+{
+  return new Vector( *this );
 }
 
 //-----------------------------------------------------------------------------

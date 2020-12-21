@@ -66,7 +66,7 @@ namespace Topo {
 // Creation Date : 02/23/15
 //-----------------------------------------------------------------------------
 Linear::QueryUtil * LSUtilFactory::newLSUtil( Topology &topology, 
-                                              N_PDS_Manager &pds_manager )
+                                              Parallel::Manager &pds_manager )
 {
   if ((pds_manager.getPDSComm())->isSerial())
   {

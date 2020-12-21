@@ -1,6 +1,6 @@
 
 add_executable( testMPI EXCLUDE_FROM_ALL testBUG967.c )
-target_link_libraries( testMPI XyceStatic )
+target_link_libraries( testMPI XyceLib )
 
 #if( Xyce_ENABLED_SHARED )
 #  target_link_libraries( testMPI lib_xyce_shared )

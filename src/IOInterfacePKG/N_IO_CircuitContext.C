@@ -2795,7 +2795,7 @@ Pack<IO::CircuitContext>::pack(
   char *                        buf,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm )
+  Parallel::Communicator *      comm )
 {
   int size, length, i;
 #ifdef Xyce_COUNT_PACKED_BYTES
@@ -2961,11 +2961,11 @@ Pack<IO::CircuitContext>::pack(
 template<>
 void
 Pack<IO::CircuitContext>::unpack(
-  IO::CircuitContext &  circuit_context,
-  char *                pB,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm )
+  IO::CircuitContext &     circuit_context,
+  char *                   pB,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm )
 {
   int size = 0;
   int length = 0;
@@ -3166,7 +3166,7 @@ Pack<IO::CircuitContext::MutualInductance>::pack(
   char *                                        buf,
   int                                           bsize,
   int &                                         pos,
-  N_PDS_Comm *                                  comm ) 
+  Parallel::Communicator *                      comm ) 
 {
   int size, length;
 #ifdef Xyce_COUNT_PACKED_BYTES
@@ -3226,7 +3226,7 @@ Pack<IO::CircuitContext::MutualInductance>::unpack(
   char *                                        pB,
   int                                           bsize,
   int &                                         pos,
-  N_PDS_Comm *                                  comm )
+  Parallel::Communicator *                      comm )
 {
   int size, length, i;
 

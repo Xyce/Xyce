@@ -59,12 +59,8 @@
 
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_Problem.h>
-
 #include <N_LAS_Matrix.h>
-
-#include <EpetraExt_RowMatrixOut.h>
-#include <EpetraExt_MultiVectorOut.h>
-#include <EpetraExt_BlockMapOut.h>
+#include <N_LAS_MultiVector.h>
 
 #include <Teuchos_ParameterList.hpp>
 #include <Teuchos_Utils.hpp>
@@ -265,17 +261,6 @@ bool ShyLUSolver::setShyLUParam_(const char * paramName,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ShyLU::printParams_
-// Purpose       : Print out the linear solver parameter values.
-// Special Notes :
-// Scope         : Private
-// Creator       : Heidi Thornquist, SNL, Computational Sciences
-// Creation Date : 09/25/07
-//-----------------------------------------------------------------------------
-void ShyLUSolver::printParams_() const
-{}
-
-//-----------------------------------------------------------------------------
 // Function      : ShyLUSolver::doSolve
 // Purpose       : Calls the actual solver to solve Ax=b.
 // Special Notes :
@@ -299,14 +284,15 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
   if (VERBOSE_LINEAR)
     time1 = timer_->wallTime();
 
+  // The Epetra_LinearProblem, prob, is the linear system being solved.
+  // It will point to either the original linear system or transformed system.
+  Epetra_LinearProblem * prob = problem_;
+
   if( !Teuchos::is_null(transform_) )
   {
     if( !tProblem_ )
-    {
       tProblem_ = &((*transform_)( *problem_ ));
-      tProblem_->SetPDL(unsure);
-    }
-    std::swap( tProblem_, problem_ );
+    prob = tProblem_;
     transform_->fwd();
   }
 
@@ -322,7 +308,7 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
       Xyce::Report::DevelFatal0().in("ShyLUSolver::solve()") << "cannot work on matrix-free linear systems!";
     }
 
-    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(problem_->GetMatrix());
+    Epetra_CrsMatrix * epetraA = dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix());
     solver_ = Teuchos::rcp( new Ifpack_ShyLU( epetraA ) );
 
     // Set the parameters
@@ -343,36 +329,16 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
   static int file_number = 1, base_file_number = 1;
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Transformed_BlockMap.mm", (problem_->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Transformed_Matrix%d.mm", file_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
-        sprintf( file_name, "Transformed_RHS%d.mm", file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
+        Xyce::Linear::writeToFile( *prob, "Transformed", file_number, (file_number == 1) );
       }
     }
     file_number++;
   }
   if (outputBaseLS_ && !lasProblem_.matrixFree()) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
       if (!reuse_factors) {
-        if (base_file_number == 1) {
-          EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (tProblem_->GetMatrix())->Map() );
-        }
-        sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-        std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-        sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-        sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-        EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(tProblem_->GetMatrix()), sandiaReq.c_str() );
-        sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-        EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetRHS()) );
+        Xyce::Linear::writeToFile( *problem_, "Base", base_file_number, (base_file_number == 1) );
       }
     }
     base_file_number++;
@@ -391,7 +357,7 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
   }
 
   // Solve the linear system
-  int solveRet = solver_->ApplyInverse( *problem_->GetRHS(), *problem_->GetLHS() );
+  int solveRet = solver_->ApplyInverse( *prob->GetRHS(), *problem_->GetLHS() );
 
   if (solveRet)
     Xyce::Report::DevelFatal0().in("ShyLUSolver::solve()") << "ShyLU solver could not be applied!";
@@ -406,11 +372,11 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
 
   if (DEBUG_LINEAR)
   {
-    Epetra_MultiVector* b = problem_->GetRHS();
+    Epetra_MultiVector* b = prob->GetRHS();
     int numrhs = b->NumVectors();
     std::vector<double> actual_resids( numrhs ), rhs_norm( numrhs );
     Epetra_MultiVector resid( b->Map(), numrhs );
-    problem_->GetOperator()->Apply( *(problem_->GetLHS()), resid );
+    prob->GetOperator()->Apply( *(prob->GetLHS()), resid );
     resid.Update( -1.0, *b, 1.0 );
     resid.Norm2( &actual_resids[0] );
     b->Norm2( &rhs_norm[0] );
@@ -419,11 +385,7 @@ int ShyLUSolver::doSolve( bool reuse_factors, bool transpose )
     }
   }
 
-  if( !Teuchos::is_null(transform_) )
-  {
-    transform_->rvs();
-    std::swap( tProblem_, problem_ );
-  }
+  if( !Teuchos::is_null(transform_) ) transform_->rvs();
 
   if (VERBOSE_LINEAR)
   {

@@ -206,7 +206,7 @@ bool TwoLevelNewton::registerTIADataStore(TimeIntg::DataStore * ptr)
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-bool TwoLevelNewton::registerParallelMgr (N_PDS_Manager * ptr)
+bool TwoLevelNewton::registerParallelMgr (Parallel::Manager * ptr)
 {
   bool bsuccess = true;
   bool tmpBool = true;

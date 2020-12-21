@@ -44,6 +44,7 @@
 #include <random>
 #include<unordered_map>
 
+#include <N_ANP_fwd.h>
 #include <N_UTL_fwd.h>
 #include <N_DEV_fwd.h>
 #include <N_PDS_fwd.h>
@@ -125,6 +126,7 @@ static randomSamplesGenerator *theRandomSamplesGenerator=0;
 //-----------------------------------------------------------------------------
 class mainXyceExpressionGroup : public baseExpressionGroup
 {
+friend class Xyce::Analysis::ACExpressionGroup;
 friend class outputsXyceExpressionGroup;
 friend class deviceExpressionGroup;
 friend class ExpressionData;
@@ -132,7 +134,7 @@ friend class ExpressionData;
 public:
 
   mainXyceExpressionGroup ( 
-      N_PDS_Comm & comm, Topo::Topology & top,
+      Parallel::Communicator & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
@@ -174,13 +176,16 @@ public:
 
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
+  int getSolutionGID_(const std::string & nodeName);
+
+  Parallel::Communicator & getComm() { return comm_; }
+
 private:
 
   void setupRandom_ ();
 
-  int getSolutionGID_(const std::string & nodeName);
+  Parallel::Communicator & comm_;
 
-  N_PDS_Comm & comm_;
   Topo::Topology & top_;
 
   Analysis::AnalysisManager & analysisManager_;

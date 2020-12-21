@@ -50,38 +50,41 @@
 
 class Epetra_Map;
 
+namespace Xyce {
+namespace Parallel {
+
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_EpetraParMap
+// Class         : EpetraParMap
 // Purpose       : Epetra implementation of the parallel map data and functions.
 // Special Notes :
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 03/08/00
 //-----------------------------------------------------------------------------
-class N_PDS_EpetraParMap : public N_PDS_ParMap
+class EpetraParMap : public ParMap
 {
 
 public:
   // Constructor which takes a Epetra map.
-  N_PDS_EpetraParMap( Epetra_Map * pMap,
-                      N_PDS_Comm & aComm,
-                      bool mapOwned = false );
+  EpetraParMap( Epetra_Map * pMap,
+                Communicator & aComm,
+                bool mapOwned = false );
 
   // Destructor
-  virtual ~N_PDS_EpetraParMap();
+  virtual ~EpetraParMap();
 
 private:
 
   // Copy constructor (private).
-  N_PDS_EpetraParMap(const N_PDS_ParMap & right);
+  EpetraParMap(const ParMap & right);
 
   // Assignment operator (private).
-  N_PDS_EpetraParMap & operator=(const N_PDS_ParMap & right);
+  EpetraParMap & operator=(const ParMap & right);
 
   // Equality operator (private).
-  bool operator==(const N_PDS_EpetraParMap & right) const;
+  bool operator==(const EpetraParMap & right) const;
 
   // Non-equality operator (private).
-  bool operator!=(const N_PDS_EpetraParMap & right) const;
+  bool operator!=(const EpetraParMap & right) const;
 
 public:
 
@@ -116,6 +119,8 @@ public:
   Epetra_Map * petraMap() { return petraMap_; }
   const Epetra_Map * petraMap() const { return petraMap_; }
 
+  void writeToFile(const char * filename) const;
+
   void print(std::ostream &os) const;
 
 private:
@@ -124,5 +129,8 @@ private:
   Epetra_Map * petraMap_;
   bool mapOwned_;
 };
+
+} // namespace Parallel
+} // namespace Xyce
 
 #endif

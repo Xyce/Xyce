@@ -36,6 +36,7 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_TwoLevelPrintJac.h \
   N_NLS_Sensitivity.h \
   N_NLS_SensitivityResiduals.h \
+	N_NLS_ObjectiveFunctions.h \
   N_NLS_ConductanceExtractor.h \
   N_NLS_Manager.h \
   N_NLS_NLParams.h \

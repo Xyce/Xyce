@@ -39,15 +39,6 @@
 #define Xyce_N_LAS_Problem_h
 
 #include <N_LAS_fwd.h>
-#include <N_PDS_fwd.h>
-#include <N_PDS_ParMap.h>
-
-#include <Teuchos_RCP.hpp>
-using Teuchos::RCP;
-using Teuchos::rcp;
-
-class Epetra_LinearProblem;
-class Epetra_Operator;
 
 namespace Xyce {
 namespace Linear {
@@ -61,38 +52,37 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 class Problem
 {
-
 public:
+
+  //Default constructor.
+  Problem()
+  : A_(0), Op_(0), x_(0), b_(0), matrixFreeFlag_(false)
+  {}
+
   //Constructors
-  Problem( const RCP<Matrix> & A, const RCP<MultiVector> & x, const RCP<MultiVector> & b );
-  Problem( const RCP<Operator> & Op, const RCP<MultiVector> & x, const RCP<MultiVector> & b );
+  Problem( Operator* Op, MultiVector* x, MultiVector* b );
   Problem( Matrix* A, MultiVector* x, MultiVector* b );
 
-  //Epetra constructors
-  Problem( const RCP<Epetra_LinearProblem> & epetraProblem );
+  //Copy constructor
+  Problem( const Problem& prob );
 
   //Destructor
-  ~Problem();
+  virtual ~Problem() {}
 
   // Access linear problem components
-  RCP<Matrix>& getJac () { return A_; }
-  RCP<Operator>& getOp () { return Op_; }
-  RCP<MultiVector>& getRHS() { return b_; }
-  RCP<MultiVector>& getLHS() { return x_; }
-
-  Epetra_LinearProblem & epetraObj() { return *epetraProblem_; }
+  Matrix* getMatrix () { return A_; }
+  Operator* getOp () { return Op_; }
+  MultiVector* getRHS() { return b_; }
+  MultiVector* getLHS() { return x_; }
 
   bool matrixFree() const { return(matrixFreeFlag_); }
 
-private:
+protected:
 
-  RCP<Matrix> A_;
-  RCP<Operator> Op_;
-  RCP<MultiVector> x_;
-  RCP<MultiVector> b_;
-
-  RCP<Epetra_LinearProblem> epetraProblem_;
-  RCP<Epetra_Operator> epetraOp_;
+  Matrix* A_;
+  Operator* Op_;
+  MultiVector* x_;
+  MultiVector* b_;
 
   bool matrixFreeFlag_;
 };

@@ -110,11 +110,11 @@ int Pack<Topo::Node>::packedByteCount(
 template<>
 void
 Pack<Topo::Node>::pack(
-  const Topo::Node &    node,
-  char *                buf,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm ) 
+  const Topo::Node &       node,
+  char *                   buf,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm ) 
 {
   // Pack NodeID
   Xyce::pack( node.nodeID_, buf, bsize, pos, comm );
@@ -134,11 +134,11 @@ Pack<Topo::Node>::pack(
 template<>
 void
 Pack<Topo::Node>::unpack(
-  Topo::Node &  node,
-  char *        buf,
-  int           bsize,
-  int &         pos,
-  N_PDS_Comm *  comm )
+  Topo::Node &              node,
+  char *                    buf,
+  int                       bsize,
+  int &                     pos,
+  Parallel::Communicator *  comm )
 {
   // Unpack NodeID
   Xyce::unpack( node.nodeID_, buf, bsize, pos, comm );

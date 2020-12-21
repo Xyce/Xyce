@@ -221,7 +221,7 @@ Pack<Filename::FilenameVector>::packedByteCount(
 template<>
 void
 Pack<Filename::FilenameVector>::pack(const Filename::FilenameVector &filename_obj,
-                                     char * buf, int bsize, int & pos, N_PDS_Comm * comm)
+                                     char * buf, int bsize, int & pos, Parallel::Communicator * comm)
 { 
   if (DEBUG_IO)
     Xyce::dout() << "Packing FilenameVector "<< std::endl;
@@ -257,7 +257,7 @@ Pack<Filename::FilenameVector>::pack(const Filename::FilenameVector &filename_ob
 template<>
 void
 Pack<Filename::FilenameVector>::unpack(Filename::FilenameVector &filename_obj,
-                                       char * pB, int bsize,int & pos, N_PDS_Comm * comm)
+                                       char * pB, int bsize,int & pos, Parallel::Communicator * comm)
 {
   int size = 0;
   int length = 0;

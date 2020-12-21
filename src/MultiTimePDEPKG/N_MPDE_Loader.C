@@ -156,7 +156,7 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
   dQdx->put(0.0);
   dFdx->put(0.0);
 
-  Xyce::Linear::Vector appdSdt( *appNextStaVecPtr_ );
+  Xyce::Linear::Vector * appdSdt = appNextStaVecPtr_->clone();
 
   Xyce::Linear::BlockMatrix & bdQdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dQdx);
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
@@ -186,10 +186,10 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
 
     *appNextVecPtr_ = bX.block(i);
     *appNextStaVecPtr_ = bS.block(i);
-    appdSdt = bdSdt.block(i);
+    *appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
 
-    loader_.loadDAEMatrices( appNextVecPtr_, appNextStaVecPtr_, &appdSdt, 
+    loader_.loadDAEMatrices( appNextVecPtr_, appNextStaVecPtr_, appdSdt, 
         appNextStoVecPtr_, appdQdxPtr_, appdFdxPtr_);
 
     bdQdx.block(i,i).add( *appdQdxPtr_ );
@@ -304,6 +304,8 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
 
+  delete appdSdt;
+
   return true;
 }
 
@@ -398,18 +400,18 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   appNextStaVecPtr_->putScalar(0.0);
   appCurrStaVecPtr_->putScalar(0.0);
   appLastStaVecPtr_->putScalar(0.0);
-  Xyce::Linear::Vector appdSdt( *appNextStaVecPtr_ );
+  Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->clone();
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
 
-  Xyce::Linear::Vector appQ( *appNextVecPtr_ );
-  Xyce::Linear::Vector appF( *appNextVecPtr_ );
-  Xyce::Linear::Vector appB( *appNextVecPtr_ );
-  Xyce::Linear::Vector appdFdxdVp( *appNextVecPtr_ );
-  Xyce::Linear::Vector appdQdxdVp( *appNextVecPtr_ );
+  Xyce::Linear::Vector * appQ = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appF = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appB = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appdFdxdVp = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appdQdxdVp = appNextVecPtr_->clone();
 
   // This is a temporary load storage vector.
-  Xyce::Linear::Vector dQdt2( *appNextVecPtr_ ); 
+  Xyce::Linear::Vector * dQdt2 = appNextVecPtr_->clone(); 
 
   // 12/8/06 tscoffe:   Note:  "b" at beginning of variable name means Xyce::Linear::BlockVector
   Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
@@ -466,7 +468,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     *appNextStaVecPtr_ = bS.block(i);
     *appCurrStaVecPtr_ = bcurrS.block(i);
     *appLastStaVecPtr_ = blastS.block(i);
-    appdSdt = bdSdt.block(i);
+    *appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
     
@@ -499,33 +501,33 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     }
 
     // This has to be done because the app loader does NOT zero these vectors out.
-    appQ.putScalar(0.0);
-    appF.putScalar(0.0);
-    appB.putScalar(0.0);
-    appdFdxdVp.putScalar(0.0);
-    appdQdxdVp.putScalar(0.0);
+    appQ->putScalar(0.0);
+    appF->putScalar(0.0);
+    appB->putScalar(0.0);
+    appdFdxdVp->putScalar(0.0);
+    appdQdxdVp->putScalar(0.0);
 
     // RLS need to fix Store vector passage with lead current junction voltage equivalent
     loader_.loadDAEVectors
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_, 
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, 
-        &appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
+        &*appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
         &*appNextLeadFVecPtr_, &*appLeadQVecPtr_, 
         &*appNextJunctionVVecPtr_, 
-        &appQ, &appF, &appB,
-        &appdFdxdVp, &appdQdxdVp );
+        &*appQ, &*appF, &*appB,
+        &*appdFdxdVp, &*appdQdxdVp );
 
     // get the device convergence status
-    bool allDevsConv = loader_.allDevicesConverged(appQ.pmap()->pdsComm().comm());
+    bool allDevsConv = loader_.allDevicesConverged(appQ->pmap()->pdsComm().comm());
     bool tmpVal = allDevicesAllTimePointsConverged_;
     allDevicesAllTimePointsConverged_ = tmpVal && allDevsConv;
 
-    bQ.block(i) = appQ;
-    bF.block(i) = appF;
+    bQ.block(i) = *appQ;
+    bF.block(i) = *appF;
 
-    bB.block(i) = appB;
-    bdFdxdVp.block(i) = appdFdxdVp;
-    bdQdxdVp.block(i) = appdQdxdVp;
+    bB.block(i) = *appB;
+    bdFdxdVp.block(i) = *appdFdxdVp;
+    bdQdxdVp.block(i) = *appdQdxdVp;
 
 #ifndef Xyce_FLEXIBLE_DAE_LOADS
     if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
@@ -537,7 +539,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     appdQdxPtr_->put(0.0);
     appdFdxPtr_->put(0.0);
 
-    loader_.loadDAEMatrices( &*appNextVecPtr_, &*appNextStaVecPtr_, &appdSdt, &*appNextStoVecPtr_, 
+    loader_.loadDAEMatrices( &*appNextVecPtr_, &*appNextStaVecPtr_, &*appdSdt, &*appNextStoVecPtr_, 
                                     &*appdQdxPtr_, &*appdFdxPtr_);
 
     if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
@@ -607,7 +609,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     {
       Xyce::dout() << "Processing dQdt2 block " << i << " of " << BlockCount-1 << std::endl;
     }
-    dQdt2.putScalar(0.0);
+    dQdt2->putScalar(0.0);
     
     int Loc;
     int indexT1 = i + Start + periodicTimesOffset_;
@@ -626,16 +628,16 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
       {
         Loc -= BlockCount;
       }
-      dQdt2.update( Coeffs[j]*invh2, bQ.block(Loc), 1.0 );
+      dQdt2->update( Coeffs[j]*invh2, bQ.block(Loc), 1.0 );
     }
     
     if (warpMPDEPhasePtr_)
     {
       // 12/8/06 tscoffe:  save dQdt2 term for Jacobian evaluation
-      bOmegadQdt2Ptr_->block(i) = dQdt2; // This is not scaled by omega
+      bOmegadQdt2Ptr_->block(i) = *dQdt2; // This is not scaled by omega
     }
     // Update F with omega*dq/dt2 term
-    bF.block(i).update( omega, dQdt2, 1.0 );
+    bF.block(i).update( omega, *dQdt2, 1.0 );
   }
 
   //  tscoffe/tmei 08/04/05:  Add omega equation to end of f:
@@ -697,6 +699,14 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
 
+  delete appQ;
+  delete appF;
+  delete appB;
+  delete appdFdxdVp;
+  delete appdQdxdVp;
+  delete dQdt2;
+  delete appdSdt;
+ 
   return true;
 }
 

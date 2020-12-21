@@ -65,7 +65,7 @@ class LSUtilFactory
  public:
 
   // Creates a new LAS vector
-  static Linear::QueryUtil * newLSUtil( Topology &topology, N_PDS_Manager &pds_manager );
+  static Linear::QueryUtil * newLSUtil( Topology &topology, Parallel::Manager &pds_manager );
 
  private:
 

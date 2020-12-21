@@ -194,7 +194,7 @@ private:
   Xyce::Nonlinear::Manager              nonlinearManager_;
   Xyce::Linear::System                  mpdeLinearSystem_;
   Xyce::Device::DeviceMgr &             deviceManager_;
-  N_PDS_Manager &                       pdsManager_;
+  Xyce::Parallel::Manager &             pdsManager_;
   Xyce::Linear::Builder &               appBuilder_;
   Xyce::Topo::Topology &                topology_;
   Xyce::IO::InitialConditionsManager &  initialConditionsManager_;

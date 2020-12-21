@@ -45,6 +45,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 #include <N_LAS_Builder.h>
 #include <N_MPDE_WarpedPhaseCondition.h>
 
@@ -55,8 +56,6 @@ using Teuchos::RCP;
 
 class N_MPDE_Discretization;
 class N_MPDE_Manager;
-
-class N_PDS_ParMap;
 
 //-----------------------------------------------------------------------------
 // Class         : N_MPDE_Builder
@@ -112,18 +111,18 @@ class N_MPDE_Builder : public Xyce::Linear::Builder
   // Matrix factory
   Xyce::Linear::Matrix * createMatrix() const;
 
-  bool generateMaps( const RCP<N_PDS_ParMap>& BaseMap );
+  bool generateMaps( const RCP<Xyce::Parallel::ParMap>& BaseMap );
 
-  bool generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap );
-  bool generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap );
-  bool generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
+  bool generateStateMaps( const RCP<Xyce::Parallel::ParMap>& BaseStateMap );
+  bool generateStoreMaps( const RCP<Xyce::Parallel::ParMap>& BaseStoreMap );
+  bool generateLeadCurrentMaps( const RCP<Xyce::Parallel::ParMap>& BaseLeadCurrentMap );
 
   bool generateGraphs( const Xyce::Linear::Graph& BasedQdxGraph, 
                        const Xyce::Linear::Graph& BasedFdxGraph,
                        const Xyce::Linear::Graph& BaseFullGraph );
 
-  Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const;
-  Teuchos::RCP<N_PDS_ParMap> getSolutionMap();
+  Teuchos::RCP<const Xyce::Parallel::ParMap> getSolutionMap() const;
+  Teuchos::RCP<Xyce::Parallel::ParMap> getSolutionMap();
 
   // Return GID offset for blocks to Manager for construction of Loader
   int getMPDEOffset()
@@ -144,7 +143,7 @@ class N_MPDE_Builder : public Xyce::Linear::Builder
 private:
 
   const int Size_;
-const N_MPDE_Discretization &   Disc_;
+  const N_MPDE_Discretization &   Disc_;
   
   // mpde manager:
   N_MPDE_Manager &              mpdeMgr_;
@@ -157,12 +156,12 @@ const N_MPDE_Discretization &   Disc_;
   int phiGID_;
   int augProcID_;
 
-  RCP<N_PDS_ParMap> BaseMap_, BaseStateMap_;
-  RCP<N_PDS_ParMap> MPDEMap_, MPDEStateMap_;
-  RCP<N_PDS_ParMap> BaseStoreMap_;
-  RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
-  RCP<N_PDS_ParMap> MPDEStoreMap_;
-  RCP<N_PDS_ParMap> MPDELeadCurrentMap_;
+  RCP<Xyce::Parallel::ParMap> BaseMap_, BaseStateMap_;
+  RCP<Xyce::Parallel::ParMap> MPDEMap_, MPDEStateMap_;
+  RCP<Xyce::Parallel::ParMap> BaseStoreMap_;
+  RCP<Xyce::Parallel::ParMap> BaseLeadCurrentMap_;
+  RCP<Xyce::Parallel::ParMap> MPDEStoreMap_;
+  RCP<Xyce::Parallel::ParMap> MPDELeadCurrentMap_;
 
   RCP<Xyce::Linear::Graph> BasedQdxGraph_;
   RCP<Xyce::Linear::Graph> BasedFdxGraph_;

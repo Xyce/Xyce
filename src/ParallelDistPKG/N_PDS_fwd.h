@@ -54,7 +54,9 @@ typedef MPI_Comm Machine;
 typedef int Machine;
 #endif
 
+class ParMap;
 class Communicator;
+class GlobalAccessor;
 class Manager;
 struct ReduceInterface;
 struct Sum;
@@ -62,11 +64,6 @@ struct Sum;
 } // namespace Parallel
 } // namespace Xyce
 
-class N_PDS_ParMap;
-class N_PDS_GlobalAccessor;
-
-typedef Xyce::Parallel::Communicator N_PDS_Comm;
-typedef Xyce::Parallel::Manager N_PDS_Manager;
 
 #endif // Xyce_N_PDS_fwd_h
 

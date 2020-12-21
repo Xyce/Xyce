@@ -109,7 +109,7 @@ public:
   bool registerLinearSystem(Linear::System* ptr);
   bool registerAnalysisManager (Analysis::AnalysisManager * analysis_manager);
   bool registerTIADataStore(TimeIntg::DataStore * ptr);
-  bool registerParallelMgr(N_PDS_Manager * ptr);
+  bool registerParallelMgr(Parallel::Manager * ptr);
 
   bool registerSolverFactory(const Linear::SolverFactory *ptr);
   bool registerPrecondFactory(const Linear::PrecondFactory *ptr);

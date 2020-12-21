@@ -57,6 +57,7 @@
 #include <N_LAS_Solver.h>
 #include <N_LAS_TranSolverFactory.h>
 #include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_Vector.h>
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_ConstraintBT.h>
@@ -338,7 +339,7 @@ bool NonLinearSolver::registerPrecondFactory(const Linear::PrecondFactory *tmp_L
 // Creator       : Eric Keiter, Sandia
 // Creation Date : 6/8/2013
 //-----------------------------------------------------------------------------
-bool NonLinearSolver::registerParallelMgr(N_PDS_Manager * pdsMgrPtr)
+bool NonLinearSolver::registerParallelMgr(Parallel::Manager * pdsMgrPtr)
 {
   pdsMgrPtr_ = pdsMgrPtr;
   return (pdsMgrPtr_ != 0);
@@ -493,10 +494,9 @@ bool NonLinearSolver::initializeAll()
   else
   {
     // Matrix free harmonic balance linear problem 
-    Teuchos::RCP<Linear::Operator> jacOp = Teuchos::rcp(this, false); 
-    lasProblemPtr_ = new Linear::Problem( jacOp,
-                                          Teuchos::rcp(NewtonVectorPtr_, false),
-                                          Teuchos::rcp(rhsVectorPtr_, false) );
+    lasProblemPtr_ = Xyce::Linear::createProblem( this,
+                                                  NewtonVectorPtr_,
+                                                  rhsVectorPtr_ );
   }
 
   if ( Teuchos::is_null(lasSolverRCPtr_) )

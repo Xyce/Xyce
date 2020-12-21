@@ -103,7 +103,7 @@ private:
   SweepVector           samplingVector_;
   int                   maxParamStringSize_;
 
-  N_PDS_Manager *       pdsMgrPtr_;
+  Parallel::Manager *       pdsMgrPtr_;
 
   std::vector<std::string> paramNameVec_;
   std::vector<std::string> typeVec_;

@@ -218,7 +218,7 @@ bool RestartMgr::registerTimeintOptions(const Util::OptionBlock & option_block)
 // Creation Date : 7/19/01
 //-----------------------------------------------------------------------------
 bool dumpRestartData(
-  N_PDS_Comm &                  comm,
+  Parallel::Communicator &      comm,
   Topo::Topology &              topology,
   Analysis::AnalysisManager &   analysis_manager,
   Device::DeviceMgr &           device_manager,
@@ -428,7 +428,7 @@ bool dumpRestartData(
 //-----------------------------------------------------------------------------
 bool
 RestartMgr::restoreRestartData(
-  N_PDS_Comm &                  comm,
+  Parallel::Communicator &      comm,
   Topo::Topology &              topology,
   Analysis::AnalysisManager &   analysis_manager,
   Device::DeviceMgr &           device_manager,

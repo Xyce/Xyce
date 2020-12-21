@@ -296,7 +296,7 @@ private:
   std::vector<int> offProcBVecLIDs_, offProcBVecSendLIDs_, offProcBVecSendPIDs_, offProcBVecPIDs_;
   std::vector<int> offProcLocalRows_, offProcLocalRowsRecvPIDs_;
   std::vector<int> offProcNonlocalRows_, offProcNonlocalRowsSendPIDs_;
-  Teuchos::RCP<N_PDS_ParMap> overlapMap_;
+  Teuchos::RCP<Parallel::ParMap> overlapMap_;
   Teuchos::RCP<Linear::BlockVector> permFreqBVector_;
 
   // Time domain vectors for loading.  

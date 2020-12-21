@@ -261,16 +261,14 @@ void OneStep::obtainResidual()
   {
     (ds.dQdxdVpVectorPtr)->scale( -sec.alphas_/sec.currentTimeStep );
 
-    (ds.RHSVectorPtr)->daxpy(
-        *(ds.RHSVectorPtr), +1.0, *(ds.dQdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->axpy(*(ds.RHSVectorPtr), +1.0, *(ds.dQdxdVpVectorPtr));
 
     double fscalar(1.0);
 
     if (sec.currentOrder_  == 2)
       fscalar =1.0/2.0;
 
-    (ds.RHSVectorPtr)->daxpy(
-        *(ds.RHSVectorPtr), fscalar, *(ds.dFdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->axpy(*(ds.RHSVectorPtr), fscalar, *(ds.dFdxdVpVectorPtr));
   }
 
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))

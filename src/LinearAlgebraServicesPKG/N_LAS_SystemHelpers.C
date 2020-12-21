@@ -80,8 +80,8 @@ void extractValues( const Matrix& inputMatrix,
   if (numMatrices > 0)
   {
     // Get basic information from input graph.
-    const Epetra_CrsGraph& inGraph = inputMatrix.epetraObj().Graph();   
-    int in_currNNZ, in_maxNNZ = inGraph.MaxNumIndices();
+    const Graph* inGraph = inputMatrix.getGraph();   
+    int in_currNNZ, in_maxNNZ = inGraph->maxNumIndices();
     std::vector<int> inIdxs(in_maxNNZ);
     std::vector<double> inValues(in_maxNNZ);
 
@@ -90,24 +90,24 @@ void extractValues( const Matrix& inputMatrix,
     // the graph used to create the inputMatrix.
     for (int i=0; i<numMatrices; i++)
     {
-      const Epetra_CrsGraph& outGraph = outputMatrices[i]->epetraObj().Graph();   
+      const Graph* outGraph = outputMatrices[i]->getGraph();   
      
       // Get basic information from this graph.
-      int numMyRows = outGraph.NumMyRows();
-      int currNNZ, maxNNZ = outGraph.MaxNumIndices();
+      int numMyRows = outGraph->numLocalEntities();
+      int currNNZ, maxNNZ = outGraph->maxNumIndices();
       std::vector<int> outIdxs(maxNNZ);
       std::vector<double> values(maxNNZ);
       for (int j=0; j<numMyRows; j++)
       {
-         int globalRow = outGraph.GRID(j);
+         int globalRow = outGraph->localToGlobalRowIndex(j);
 
          // Extract entries needed by the output matrix.
-         outGraph.ExtractGlobalRowCopy( globalRow, maxNNZ, currNNZ, &outIdxs[0] );
+         outGraph->extractGlobalRowCopy( globalRow, maxNNZ, currNNZ, &outIdxs[0] );
   
          if (currNNZ > 0)
          { 
            // Extract entries in the input matrix.
-           inputMatrix.epetraObj().ExtractGlobalRowCopy( globalRow, in_maxNNZ, in_currNNZ, &inValues[0], &inIdxs[0] );
+           inputMatrix.getRowCopy( globalRow, in_maxNNZ, in_currNNZ, &inValues[0], &inIdxs[0] );
       
            int inIdxPtr = 0;
            for (int k=0; k<currNNZ; k++)

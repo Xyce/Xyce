@@ -64,9 +64,9 @@
 #include <N_NLS_Manager.h>
 #include <N_NLS_Sensitivity.h>
 #include <N_NLS_SensitivityResiduals.h>
+#include <N_NLS_ObjectiveFunctions.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
-#include <N_PDS_Manager.h>
 #include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
@@ -86,493 +86,6 @@
 
 namespace Xyce {
 namespace Nonlinear {
-
-//-----------------------------------------------------------------------------
-// -- stand-alone functions --
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-// Function      : evaluateObjFuncs
-//
-// Purpose       : Evaluates user-specified objective function expressions 
-//                 and their derivatives with respect to the solution vector x.
-//
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 3/25/2019
-//-----------------------------------------------------------------------------
-bool evaluateObjFuncs ( 
-    std::vector<objectiveFunctionData*> & objVec, 
-    N_PDS_Comm & comm,
-    Loader::NonlinearEquationLoader & nlEquLoader,
-    TimeIntg::DataStore & dataStore,
-    TimeIntg::StepErrorControl & sec,
-    std::string & netlistFilename
-    )
-{
-  bool bsuccess = true;
-  int i;
-
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->dOdXVectorPtr->putScalar(0.0);
-  }
-
-  // obtain the expression variable values.  It will only grab this value if it is owned on this processor.
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->expVarVals.resize (objVec[iobj]->numExpVars, 0.0);
-    objVec[iobj]->expVarDerivs.resize (objVec[iobj]->numExpVars, 0.0);
-
-    for (i = 0; i < objVec[iobj]->numExpVars; ++i)
-    {
-      double tmpVal=0.0;
-      if ( objVec[iobj]->globalParamVariableStencil[i] == 1) // this is a global param
-      {
-        // This is a bit of overkill, as "getParamAndReduce" refers to all kinds of parameters, not just global 
-        // parameters.  So this call will result in a search over a larger container than necessary.  (ON the other 
-        // hand this might be useful later.  But the entity which "owns" the global parameter values is the device package.
-        // The "global param" Op is a class in Xyce::Device.  I'm not using ops here, but am relying on the device package
-        // being fully aware of global parmaeter values.
-        nlEquLoader.getParamAndReduce(comm.comm(), objVec[iobj]->expVarNames[i], tmpVal);
-      }
-      else
-      {
-        int tmpGID=objVec[iobj]->expVarGIDs[i];
-        if (tmpGID >= 0)
-        {
-          tmpVal = dataStore.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
-        }
-        else 
-        {
-          tmpVal = 0.0;
-        }
-        Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &tmpVal, 1);
-      }
-      objVec[iobj]->expVarVals[i] = tmpVal;
-    }
-  }
-
-  //get expression value and partial derivatives
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->expPtr->evaluate( 
-        objVec[iobj]->expVal, 
-        objVec[iobj]->expVarDerivs); 
-
-    objVec[iobj]->objFuncEval = objVec[iobj]->expVal;
-    objVec[iobj]->dOdXVectorPtr->putScalar(0.0);
-    for (i=0;i<objVec[iobj]->numExpVars;++i)
-    {
-      int tmpGID = objVec[iobj]->expVarGIDs[i];
-      double tmpDODX = objVec[iobj]->expVarDerivs[i];
-
-      if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-      {
-        Xyce::dout() 
-          <<  objVec[iobj]->expVarNames[i] << "  "
-          << "i="<<i<<"  gid = " << tmpGID << "  dodx = "<< tmpDODX << std::endl;
-      }
-
-      if (tmpGID >= 0)
-      {
-        objVec[iobj]->dOdXVectorPtr->setElementByGlobalIndex(tmpGID, tmpDODX, 0);
-      }
-    }
-
-    // Assuming this is zero:
-    objVec[iobj]->dOdp = 0.0;
-  }
-
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->dOdXVectorPtr->fillComplete();
-
-    if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-    {
-      std::string filename = netlistFilename + "_dodx.txt";
-      objVec[iobj]->dOdXVectorPtr->writeToFile(const_cast<char *>(filename.c_str()));
-    }
-  }
-
-  return bsuccess;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : setupObjectiveFunctions
-// Purpose       : 
-// Special Notes : 
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 03/25/2019
-//-----------------------------------------------------------------------------
-void setupObjectiveFunctions(
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
-  std::vector<objectiveFunctionData*> & objVec,
-  IO::OutputMgr & output_manager,
-  Linear::System & lasSys,
-  const IO::CmdParse &cp,
-  bool checkTimeDeriv
-  )
-{
-
-  Xyce::ExtendedString exprType = cp.getArgumentValue( "-expression" );
-  exprType.toUpper();
-
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    objVec[iobj]->expPtr = new Util::Expression(exprGroup, objVec[iobj]->objFuncString);
-
-    if (!(objVec[iobj]->expPtr->parsed()))
-    {
-      Report::UserFatal0()
-        << "Objective function " << objVec[iobj]->objFuncString
-        << " is not parsable.";
-    }
-
-    // resolve user-defined functions first
-    {
-    std::vector<std::string> global_function_names;
-    objVec[iobj]->expPtr->getFuncNames(global_function_names);
- 
-    std::vector<std::string>::iterator it = global_function_names.begin();
-    std::vector<std::string>::iterator end = global_function_names.end();
-    const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
-
-    for ( ; it != end; ++it)
-    {
-      Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
-
-      if (paramMapIter == context_function_map.end())
-      {
-        Report::UserError0() << "Cannot find global function definition for " << *it 
-          << " in objective function expression " << objVec[iobj]->objFuncString;
-        break;
-      }
-
-      const Util::Param &functionParameter = (*paramMapIter).second;
-
-      std::string functionPrototype(functionParameter.tag());
-      std::string functionBody(functionParameter.stringValue());
-      Util::Expression prototypeExression(exprGroup, functionPrototype);
-      std::vector<std::string> arguments = prototypeExression.getFunctionArgStringVec ();
-
-      // in the parameter we found, pull out the RHS expression and attach
-      if(functionParameter.getType() == Xyce::Util::EXPR)
-      {
-        Util::Expression & expToBeAttached 
-          = const_cast<Util::Expression &> (functionParameter.getValue<Util::Expression>());
-
-        // attach the node
-        objVec[iobj]->expPtr->attachFunctionNode(*it, expToBeAttached);
-      }
-      else
-      {
-        std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
-
-        switch (functionParameter.getType()) 
-        {
-          case Xyce::Util::STR:
-            std::cout <<"It is STR type: " <<  functionParameter.stringValue();
-            break;
-          case Xyce::Util::DBLE:
-            std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
-            break;
-          case Xyce::Util::EXPR:
-            std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
-            break;
-          default:
-            std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
-        }
-      }
-    }
-    }
-
-#if 0
-    objVec[iobj]->numDdt = objVec[iobj]->expPtr->getNumDdt();
-    if ( checkTimeDeriv )
-    {
-      if (objVec[iobj]->numDdt > 0)
-      {
-        Report::DevelFatal() <<  "Objective function contains a time derivative, which cannot be processed.";
-      }
-    }
-#endif
-
-    // setup the names:
-    objVec[iobj]->expVarNames.clear();
-
-    std::vector<std::string> nodes;
-    std::vector<std::string> instances;
-
-    objVec[iobj]->expPtr->getVoltageNodes(nodes);
-    objVec[iobj]->expPtr->getDeviceCurrents(instances);
-
-    // Make the current (instance) strings all upper case.
-    // The topology directory apparently requires this.
-    std::vector<std::string>::iterator iter;
-    for (iter=instances.begin();iter!=instances.end();++iter)
-    {
-      ExtendedString tmpString = *iter;
-      tmpString.toUpper ();
-      *iter  = tmpString;
-    }
-
-    objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), nodes.begin(), nodes.end());
-    objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), instances.begin(), instances.end());
-
-    // now handle params and global params
-    std::vector<std::string> globalParams;
-    const std::vector<std::string> & strings = objVec[iobj]->expPtr->getUnresolvedParams();
-
-    const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
-    const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
-    for (int istring=0;istring<strings.size();istring++)
-    {
-      Util::ParamMap::const_iterator param_it = context_param_map.find(strings[istring]);
-
-      if (param_it != context_param_map.end())
-      {
-        const Util::Param &replacement_param = (*param_it).second;
-
-        if ( replacement_param.getType() == Xyce::Util::STR ||
-             replacement_param.getType() == Xyce::Util::DBLE )
-        {
-          enumParamType paramType=DOT_PARAM;
-          if (!objVec[iobj]->expPtr->make_constant(strings[istring], replacement_param.getImmutableValue<double>(),paramType))
-          {
-            Report::UserWarning0() << "Problem converting parameter " << strings[istring] << " to its value.";
-          }
-        }
-        else if (replacement_param.getType() == Xyce::Util::EXPR)
-        {
-#if 0
-          if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
-          {
-            std::string expressionString=objVec[iobj]->expPtr->get_expression();
-            Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-                                   << " as substitute for " << strings[istring] << " in expression " << expressionString;
-          }
-#else
-          enumParamType paramType=DOT_PARAM;
-          objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),paramType);
-#endif
-        }
-      }
-      else
-      {
-        // if this string is found in the global parameter map, then attach it to the expression
-        param_it = context_global_param_map.find(strings[istring]);
-        if (param_it != context_global_param_map.end())
-        {
-          globalParams.push_back(strings[istring]);
-
-          if(param_it->second.getType() == Xyce::Util::EXPR)
-          {
-            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
-            objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
-          }
-          else
-          {
-            if (!objVec[iobj]->expPtr->make_var(strings[istring]))
-            {
-              Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
-            }
-          }
-        }
-        else
-        {
-          Report::UserWarning0() << "This field: " << strings[istring] 
-            << " from the objective function " << objVec[iobj]->objFuncString << " is not resolvable";
-        }
-      }
-    }
-
-    objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), globalParams.begin(), globalParams.end());
-
-    objVec[iobj]->numExpVars = objVec[iobj]->expVarNames.size();
-
-    if (objVec[iobj]->numExpVars<=0)
-    {
-      Report::UserFatal0()
-        <<  "Objective function does not contain a resolvable solution variable.";
-    }
-
-    objVec[iobj]->dOdXVectorPtr = lasSys.builder().createVector();
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : setupObjectiveFuncGIDs
-//
-// Purpose       : 
-//
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 3/25/2019
-//-----------------------------------------------------------------------------
-void setupObjectiveFuncGIDs (
-   std::vector<objectiveFunctionData*> & objVec, 
-   N_PDS_Comm & comm,
-   Topo::Topology & top,
-   IO::OutputMgr & output_manager)
-{
-  int found(0);
-  int found2(0);
-  int found3(0);
-  int foundAliasNode(0);
-  bool foundLocal(false);
-  bool foundLocal2(false);
-  bool foundLocal3(false);
-  bool foundAliasNodeLocal(false);
-
-
-  // ERK. this code is pretty silly, in at least one respect.  We already know (or could know) 
-  // what type of variable each member of the expVarNames is.  This was figured out already in the 
-  // setupObjectiveFunctions function, as we pulled "nodes" and "instances" and "strings" out of 
-  // the expression and did specific things based on what they were.
-
-
-  for (int iobj=0;iobj<objVec.size();++iobj)
-  {
-    // set up the gid's:
-    objVec[iobj]->expVarGIDs.resize( objVec[iobj]->numExpVars, -1);
-    objVec[iobj]->globalParamVariableStencil.resize( objVec[iobj]->numExpVars, 0);
-
-    for (int i = 0; i < objVec[iobj]->numExpVars; ++i)
-    {
-      std::vector<int> svGIDList1, dummyList;
-      char type1;
-
-      // look for this variable as a node first.
-      foundLocal = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_VNODE), svGIDList1, dummyList, type1);
-      found = static_cast<int>(foundLocal);
-      Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found, 1);
-
-      // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
-      foundLocal2 = false;
-      if (!found)
-      {
-        foundLocal2 = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_DNODE), svGIDList1, dummyList, type1);
-      }
-      found2 = static_cast<int>(foundLocal2);
-      Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found2, 1);
-
-      // check global param list.  If it is a global parameter, then we don't need the GID. 
-      // The expression library, treats global parameters as variables.  
-      // It treats non-global parameters as constants.  In the way the expression library
-      // operates, if something is considered a variable, then it will compute derivatives of the
-      // expression with respect to it.  
-      //
-      // However, as the sensitivity calculation only cares about derivatives that can be propagated thru
-      // the Jacobian, these derivatives aren't needed for sensitivity calculations.
-      foundLocal3 = false;
-      if (!found && !found2)
-      {
-        const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
-        Util::ParamMap::const_iterator param_it = context_global_param_map.find(objVec[iobj]->expVarNames[i] ); 
-        foundLocal3 = (param_it != context_global_param_map.end());
-      }
-      found3 = static_cast<int>(foundLocal3);
-      Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found3, 1);
-
-      // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
-      // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
-      // more details but, as an example, these netlist lines:
-      //
-      //   X1 1 2 MYSUB
-      //   .SUBCKT MYSUB a c 
-      //   R1   a b 0.5
-      //   R2   b c 0.5
-      //  .ENDS
-      //
-      // would produce key-value pairs of <"X1:C","2"> and <"X1:A","1"> in the aliasNodeMap 
-      foundAliasNodeLocal = false;
-      if (!found && !found2 && !found3)
-      {
-        IO::AliasNodeMap::const_iterator alias_it = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
-        if (alias_it != output_manager.getAliasNodeMap().end())
-        {      
-          foundAliasNodeLocal = top.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
-        }
-      }
-      foundAliasNode = static_cast<int>(foundAliasNodeLocal);
-      Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &foundAliasNode, 1);
-
-      if (!found && !found2 && !found3 && !foundAliasNode)
-      {
-        Report::UserFatal() << "objective function variable not found!  Cannot find " << objVec[iobj]->expVarNames[i] ;
-      }
-
-      if (found || found2 || foundAliasNode)
-      {
-        int tmpGID=-1;
-        if(svGIDList1.size()==1)
-        {
-          tmpGID = svGIDList1.front();
-        }
-        objVec[iobj]->expVarGIDs[i] = tmpGID;
-      }
-
-      if (found3)
-      {
-        objVec[iobj]->expVarGIDs[i] = -100;
-        objVec[iobj]->globalParamVariableStencil[i] = 1;
-      }
-      else
-      {
-        objVec[iobj]->globalParamVariableStencil[i] = 0;
-      }
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : applyHocevarDelayTerms
-//
-// Purpose       : transform the computed solution sensitivities into 
-//                 delay sensitivities
-//
-// Special Notes : This implements the Hocevar version of delay sensitivies
-//
-//                 If you want a sensitivity for when a voltage crosses a 
-//                 specified value, use this approach.
-//
-//                 V_thresh = v(p,tau), where tau=time that v(p,tau) crosses V_thresh
-//
-//                 take derivative w.r.t. parameter, p.  Then this gives:
-//
-//                 0 = dv/dp + dv/dtau * dtau/dp
-//
-//                 rearrange:
-//
-//                 dtau/dp = -dv/dp * (v')^-1   where v' is the time derivative of v(tau)
-//
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 3/25/2019
-//-----------------------------------------------------------------------------
-void applyHocevarDelayTerms(
-    std::vector<objectiveFunctionData*> & objVec,
-    std::vector<objectiveFunctionData*> & objTimeDerivVec,
-    TimeIntg::DataStore & ds
-    )
-{
-  int size=objVec.size();
-  int numSensParams=ds.dOdpVec_.size();
-
-  for (int ii=0;ii<size;++ii)
-  {
-    double timeDeriv = objTimeDerivVec[ii]->objFuncEval;
-    double tdRecip = (timeDeriv!=0.0)?(1/timeDeriv):0.0;
-
-    for (int iparam=0; iparam< numSensParams; ++iparam)
-    {
-      ds.dOdpVec_[iparam] *= -tdRecip;
-      ds.scaled_dOdpVec_[iparam] *= -tdRecip;
-    }
-  }
-}
 
 //-----------------------------------------------------------------------------
 // -- Sensitivity class functions --
@@ -660,8 +173,11 @@ Sensitivity::~Sensitivity()
 
   for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
   {
-    delete objFuncDataVec_[iobj]->dOdXVectorPtr;
-    objFuncDataVec_[iobj]->dOdXVectorPtr = 0;
+    delete objFuncDataVec_[iobj]->dOdXVectorRealPtr;
+    objFuncDataVec_[iobj]->dOdXVectorRealPtr = 0;
+
+    delete objFuncDataVec_[iobj]->dOdXVectorImagPtr;
+    objFuncDataVec_[iobj]->dOdXVectorImagPtr = 0;
 
     delete objFuncDataVec_[iobj]->expPtr;
     objFuncDataVec_[iobj]->expPtr = 0;
@@ -799,7 +315,7 @@ void Sensitivity::fileOutput (
        std::vector<double> & sensitivities,
        std::vector<double> & scaled_sensitivities)
 {
-  N_PDS_Comm & comm = *(pdsMgrPtr_->getPDSComm());
+  Parallel::Communicator & comm = *(pdsMgrPtr_->getPDSComm());
   int myPID = comm.procID();
   if (myPID==0)
   {
@@ -1145,7 +661,7 @@ int Sensitivity::solveDirect ()
   {
     for (iparam=0; iparam< numSensParams_; ++iparam)
     {
-      double tmp = objFuncDataVec_[iobj]->dOdXVectorPtr->dotProduct( *Teuchos::rcp(dXdpPtrVector->getNonConstVectorView(iparam)) );
+      double tmp = objFuncDataVec_[iobj]->dOdXVectorRealPtr->dotProduct( *Teuchos::rcp(dXdpPtrVector->getNonConstVectorView(iparam)) );
       tmp += objFuncDataVec_[iobj]->dOdp;
 
       ds.dOdpVec_.push_back(tmp);
@@ -1183,18 +699,16 @@ int Sensitivity::solveDirect ()
 //-----------------------------------------------------------------------------
 bool Sensitivity::calcObjFuncDerivs ()
 {
+  Parallel::Machine comm =  pdsMgrPtr_->getPDSComm()->comm();
   if ( !objFuncGIDsetup_ )
   {
-    setupObjectiveFuncGIDs ( objFuncDataVec_, *(pdsMgrPtr_->getPDSComm()), top_, *outMgrPtr_ );
+    setupObjectiveFuncGIDs ( objFuncDataVec_, comm, top_, *outMgrPtr_ );
     objFuncGIDsetup_ = true;
   }
 
   return evaluateObjFuncs (
-      objFuncDataVec_, 
-      *(pdsMgrPtr_->getPDSComm()), 
+      objFuncDataVec_, comm,
       *nonlinearEquationLoader_, 
-      *dsPtr_, 
-      sec, 
       netlistFilename_); 
 }
 
@@ -1215,7 +729,7 @@ bool Sensitivity::calcObjFuncTimeDerivs ()
   {
     for(int ii=0;ii<objFuncDataVec_.size();++ii)
     {
-      objectiveFunctionData * ofDataPtr = new objectiveFunctionData();
+      objectiveFunctionData<double> * ofDataPtr = new objectiveFunctionData<double> ();
 
       std::string tmpString;
       std::string & ofString = objFuncDataVec_[ii]->objFuncString;
@@ -1240,22 +754,19 @@ bool Sensitivity::calcObjFuncTimeDerivs ()
     timeDerivsSetup_ = true;
   }
 
+  Parallel::Machine comm =  pdsMgrPtr_->getPDSComm()->comm();
   if ( !objFuncTimeDerivGIDsetup_ )
   {
     setupObjectiveFuncGIDs (
-        objFuncTimeDerivDataVec_,
-        *(pdsMgrPtr_->getPDSComm()),
+        objFuncTimeDerivDataVec_, comm,
         top_, *outMgrPtr_ );
 
     objFuncTimeDerivGIDsetup_ = true;
   }
 
   return evaluateObjFuncs (
-      objFuncTimeDerivDataVec_, 
-      *(pdsMgrPtr_->getPDSComm()),
+      objFuncTimeDerivDataVec_, comm,
       *nonlinearEquationLoader_, 
-      *dsPtr_, 
-      sec, 
       netlistFilename_); 
 }
 
@@ -1303,7 +814,7 @@ int Sensitivity::solveAdjoint ()
   for (int iobj=0;iobj<objFuncDataVec_.size();++iobj)
   {
     // copy the current dOdx vector into the rhs vector data structure.
-    rhsVectorPtr_->update(1.0, *(objFuncDataVec_[iobj]->dOdXVectorPtr),0.0);
+    rhsVectorPtr_->update(1.0, *(objFuncDataVec_[iobj]->dOdXVectorRealPtr),0.0);
 
     jacobianMatrixPtr_->setUseTranspose (true);
     int status = lasSolverRCPtr_->solveTranspose(reuseFactors_);
@@ -1550,7 +1061,7 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
       objectiveVec.push_back(objFuncDataVec_[iobj]->objFuncEval);
       ds.objectiveVec_.push_back(objFuncDataVec_[iobj]->objFuncEval);
 
-      rhsVectorPtr_->update(1.0, *(objFuncDataVec_[iobj]->dOdXVectorPtr),1.0);
+      rhsVectorPtr_->update(1.0, *(objFuncDataVec_[iobj]->dOdXVectorRealPtr),1.0);
     }
 
     bool reuseTheFactors = false; // don't use the class variable reuseFactors_! It is wrong here.
@@ -1645,7 +1156,7 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   {
     if ( std::string( iter->uTag() ,0,7) == "OBJFUNC") // this is a vector
     {
-      objectiveFunctionData * ofDataPtr = new objectiveFunctionData();
+      objectiveFunctionData<double> * ofDataPtr = new objectiveFunctionData<double>();
       ofDataPtr->objFuncString = iter->stringValue();
       objFuncDataVec_.push_back(ofDataPtr);
       objFuncGiven_ = true;
@@ -2106,11 +1617,14 @@ void Sensitivity::populateMetadata(
     parameters.insert(Util::ParamMap::value_type("SPARSESTORAGE", Util::Param("SPARSESTORAGE", 1)));
     parameters.insert(Util::ParamMap::value_type("COMPUTEDELAYS", Util::Param("COMPUTEDELAYS", 1)));
     parameters.insert(Util::ParamMap::value_type("ADJOINTTIMEPOINTS", Util::Param("ADJOINTTIMEPOINTS", "VECTOR")));
+
+    parameters.insert(Util::ParamMap::value_type("NLCORRECTION", Util::Param("NLCORRECTION", 1)));
   }
 
   {
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("SENS");
 
+    parameters.insert(Util::ParamMap::value_type("ACOBJFUNC", Util::Param("ACOBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJFUNC", Util::Param("OBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJVARS", Util::Param("OBJVARS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));

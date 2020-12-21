@@ -41,10 +41,9 @@
 #include <vector>
 
 #include <N_LAS_Vector.h>
+#include <N_PDS_fwd.h>
 
 #include <Teuchos_RCP.hpp>
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -60,19 +59,16 @@ class BlockVector : public Vector
 {
  public:
   BlockVector( int numBlocks,
-               const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-               const Teuchos::RCP<N_PDS_ParMap> & subBlockMap,
+               const Teuchos::RCP<Parallel::ParMap> & globalMap,
+               const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
                int augmentRows = 0 );
 
   // Constructor that uses the block size to divide up the number of elements on
   // each processor into vectors whose values are all "owned" by one processor.
   // NOTE:  This constructor is handy for frequency-domain representations of time-domain vectors.
   BlockVector( int blockSize,
-               const Teuchos::RCP<N_PDS_ParMap> & globalMap,
+               const Teuchos::RCP<Parallel::ParMap> & globalMap,
                int augmentRows = 0 );
-
-  //Copy constructor
-  BlockVector( const BlockVector & right );
 
   // View constructor
   //NOTE:  This constructor assumes that the Vector is divided up into blockSize subvectors,
@@ -81,6 +77,9 @@ class BlockVector : public Vector
 
   // Destructor
   virtual ~BlockVector() {};
+
+  // Assignment operator
+  BlockVector & operator=(const BlockVector & right);
 
   // Block accessors
   Vector & block( int Loc ) const
@@ -107,14 +106,21 @@ class BlockVector : public Vector
   // that the values are sync'ed up.  Call this before using the global vector for computations.
   void assembleGlobalVector();
 
+  // Get the global ParMap
+  Parallel::ParMap * pmap() { return this->parallelMap_; }
+  const Parallel::ParMap * pmap() const { return this->parallelMap_; }
+
   // Get the ParMap objects for each BLOCK in this block vector.
-  N_PDS_ParMap * blockPmap() { return newBlockMap_.get(); }
-  const N_PDS_ParMap * blockPmap() const { return newBlockMap_.get(); }
+  Parallel::ParMap * blockPmap() { return newBlockMap_.get(); }
+  const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
   void print(std::ostream &os) const;
 
  private:
+
+  //Copy constructor
+  BlockVector( const BlockVector & right );
 
   bool blocksViewGlobalVec_;
   int globalBlockSize_;
@@ -128,7 +134,7 @@ class BlockVector : public Vector
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
 
-  Teuchos::RCP<N_PDS_ParMap> newBlockMap_;
+  Teuchos::RCP<Parallel::ParMap> newBlockMap_;
 
   std::vector<Teuchos::RCP<Vector> > blocks_;
 

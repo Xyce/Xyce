@@ -54,8 +54,6 @@
 
 // ---------- Trilinos Includes ----------
 
-#include <Epetra_Operator.h>
-
 //-----------------------------------------------------------------------------
 // Function      : N_LAS_PrecondFactory::create
 // Purpose       :

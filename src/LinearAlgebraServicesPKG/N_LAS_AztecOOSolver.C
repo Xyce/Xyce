@@ -47,17 +47,15 @@
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_Matrix.h>
+#include <N_LAS_MultiVector.h>
 #include <N_LAS_Preconditioner.h>
-#include <N_LAS_Problem.h>
+#include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_TrilinosPrecondFactory.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
-
-#include <EpetraExt_RowMatrixOut.h>
-#include <EpetraExt_MultiVectorOut.h>
-#include <EpetraExt_BlockMapOut.h>
 
 // ---------- Other Includes  -----------
 
@@ -115,7 +113,6 @@ AztecOOSolver::AztecOOSolver(
   : Solver(true),
   reduceKSpace_(false),
   maxKSpace_(50),
-  probDiff_(0),
   preCondDefault_(14),
   solverDefault_(1),
   scalingDefault_(0),
@@ -140,7 +137,6 @@ AztecOOSolver::AztecOOSolver(
   outputLS_(0),
   outputBaseLS_(0),
   lasProblem_(problem),
-  problem_(&(problem.epetraObj())),
   options_( new Util::OptionBlock( options ) ),
   useAztecPrecond_(false),
   isPrecSet_(false),
@@ -148,17 +144,12 @@ AztecOOSolver::AztecOOSolver(
   tProblem_(0),
   timer_( new Util::Timer())
 {
-  problem_->SetPDL((ProblemDifficultyLevel) probDiff_);
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj());
 
   setDefaultOptions();
 
   setOptions( *options_ );
-
-  // Defaults for parameters above - see comment above for descriptions.
-  // !!!NOTE: these values are based on the Aztec include files on or about
-  // June, 2001.  We will eventually need a more consistent way of setting
-  // these - SAH
-
 }
 
 //-----------------------------------------------------------------------------
@@ -366,26 +357,6 @@ bool AztecOOSolver::setAztecParam_(const char * paramName,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AztecOO::printParams_
-// Purpose       : Print out the linear solver parameter values.
-// Special Notes :
-// Scope         : Private
-// Creator       : Robert Hoekstra, SNL, Computational Sciences
-// Creation Date : 05/18/04
-//-----------------------------------------------------------------------------
-void AztecOOSolver::printParams_() const
-{
-  Xyce::lout() << "\n" << std::endl
-               << Xyce::section_divider << std::endl
-               << "\n***** Linear solver options:\n" << std::endl
-               << "\tPreconditioner:\t\t" << preCond_ << std::endl
-               << "\tTolerance:\t\t" << tolerance_ << std::endl
-               << "\tMax Iterations:\t\t" << maxIter_ << std::endl
-               << Xyce::section_divider << std::endl
-               << "\n" << std::endl;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : AztecOOSolver::doSolve
 // Purpose       : Calls the actual solver to solve Ax=b.
 // Special Notes :
@@ -406,15 +377,18 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   if (VERBOSE_LINEAR)
     time1 = timer_->wallTime();
 
-  if( transform_.get() )
+  // The Epetra_LinearProblem, prob, is the linear system being solved.
+  // It will point to either the original linear system or transformed system.
+  Epetra_LinearProblem * prob = problem_;
+
+  if( !Teuchos::is_null(transform_) )
   {
     if( !tProblem_ )
     {
       tProblem_ = &((*transform_)( *problem_ ));
-      tProblem_->SetPDL(unsure);
       if( solver_ ) delete solver_;
-    }
-    std::swap( tProblem_, problem_ );
+    }      
+    prob = tProblem_;
     transform_->fwd();
   }
 
@@ -428,16 +402,16 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   {
     // Set the traceback mode in Epetra so it prints out warnings
     if (DEBUG_LINEAR)
-      dynamic_cast<Epetra_CrsMatrix*>(problem_->GetMatrix())->SetTracebackMode( 2 );
+      dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix())->SetTracebackMode( 2 );
 
     // Check to see if AztecOO can generate a Krylov subspace large enough for the default settings.
     // AztecOO's Krylov subspace allocation line:  vblock = AZ_manage_memory((kspace+1)*aligned_N_total*sizeof(double), ...
     // Resize KSpace_ if necessary.
-    int aligned_dim = problem_->GetRHS()->MyLength() + 2;
+    int aligned_dim = prob->GetRHS()->MyLength() + 2;
     maxKSpace_ = Teuchos::OrdinalTraits<int>::max() / (aligned_dim * sizeof(double)) - 1;
     reduceKSpace_ = true;
 
-    solver_ = new AztecOO( *problem_ );
+    solver_ = new AztecOO( *prob );
     setDefaultOptions();
     if( options_ ) setOptions( *options_ );
   }
@@ -446,35 +420,13 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   static int file_number = 1, base_file_number = 1;
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
-      char file_name[40];
-      if (file_number == 1) {
-        EpetraExt::BlockMapToMatrixMarketFile( "Transformed_BlockMap.mm", (problem_->GetMatrix())->Map() );
-      }
-      sprintf( file_name, "Transformed_Matrix%d.mm", file_number );
-      std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-      sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-      sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-      EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(problem_->GetMatrix()), sandiaReq.c_str() );
-
-      sprintf( file_name, "Transformed_RHS%d.mm", file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetRHS()) );
+      Xyce::Linear::writeToFile( *prob, "Transformed", file_number, (file_number == 1) );
     }
     // file_number++;  This will be incremented after the solution vector is written to file.
   }
   if (outputBaseLS_ && !lasProblem_.matrixFree()) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
-      if (base_file_number == 1) {
-        EpetraExt::BlockMapToMatrixMarketFile( "Base_BlockMap.mm", (tProblem_->GetMatrix())->Map() );
-      }
-      sprintf( file_name, "Base_Matrix%d.mm", base_file_number );
-      std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
-      sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
-      sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-      EpetraExt::RowMatrixToMatrixMarketFile( file_name, *(tProblem_->GetMatrix()), sandiaReq.c_str() );
-
-      sprintf( file_name, "Base_RHS%d.mm", base_file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetRHS()) );
+      Xyce::Linear::writeToFile( *problem_, "Base", base_file_number, (base_file_number == 1) );
     }
     // base_file_number++;  This will be incremented after the solution vector is written to file.
   }
@@ -483,20 +435,20 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
     time1 = timer_->wallTime();
 
   // Change the operator's transpose state if necessary before creating preconditioner.
-  bool currTrans = problem_->GetOperator()->UseTranspose();
+  bool currTrans = prob->GetOperator()->UseTranspose();
   if ( transpose != currTrans )
   {
     if (VERBOSE_LINEAR)
       Xyce::dout() << "AztecOO: Operator with transpose state " << currTrans << " is being set to transpose state " << transpose << std::endl;
 
     // Set the system to solve with the transposed matrix.  Make sure the new preconditioner is set with the solver.
-    problem_->GetOperator()->SetUseTranspose( transpose );
+    prob->GetOperator()->SetUseTranspose( transpose );
     isPrecSet_ = false;
   }
 
   if( !useAztecPrecond_ )
   {
-    Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new Problem( Teuchos::rcp(problem_,false) ) );
+    Teuchos::RCP<Problem> tmpProblem = Teuchos::rcp( new EpetraProblem( Teuchos::rcp(prob,false) ) );
 
     // Create the preconditioner if we don't have one.
     if ( Teuchos::is_null( precond_ ) ) {
@@ -542,11 +494,11 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   }
 
 /*
-  Epetra_MultiVector* b = problem_->GetRHS();
+  Epetra_MultiVector* b = prob->GetRHS();
   int numrhs = b->NumVectors();
   std::vector<double> actual_resids( numrhs ), rhs_norm( numrhs );
   Epetra_MultiVector resid( b->Map(), numrhs );
-  problem_->GetOperator()->Apply( *(problem_->GetLHS()), resid );
+  prob->GetOperator()->Apply( *(prob->GetLHS()), resid );
   resid.Update( -1.0, *b, 1.0 );
   resid.Norm2( &actual_resids[0] );
   b->Norm2( &rhs_norm[0] );
@@ -554,11 +506,8 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   Xyce::dout() << "Problem (before transform) " << i << " : \t" << actual_resids[i]/rhs_norm[i] << std::endl;
   }
 */
-  if( transform_.get() )
-  {
-    transform_->rvs();
-    std::swap( tProblem_, problem_ );
-  }
+
+  if( !Teuchos::is_null(transform_) ) transform_->rvs();
   
   if (VERBOSE_LINEAR)
   {
@@ -569,9 +518,10 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
   // Output computed solution vectors, if requested.
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
+      Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
       char file_name[40];
       sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(tProblem_->GetLHS()) );
+      las_prob->getLHS()->writeToFile( file_name, false, true );
     }
     file_number++;
   }
@@ -579,7 +529,7 @@ int AztecOOSolver::doSolve( bool reuse_factors, bool transpose )
     if (!(base_file_number % outputBaseLS_)) {
       char file_name[40];
       sprintf( file_name, "Base_Soln%d.mm", base_file_number );
-      EpetraExt::MultiVectorToMatrixMarketFile( file_name, *(problem_->GetLHS()) );
+      lasProblem_.getLHS()->writeToFile( file_name, false, true );
     }
     base_file_number++;
   }

@@ -1273,11 +1273,11 @@ int StepErrorControl::getRestartDataSize( bool pack )
 // Creation Date : 7/28/06
 //-----------------------------------------------------------------------------
 bool StepErrorControl::dumpRestartData(
-  char *        buf,
-  int           bsize,
-  int &         pos,
-  N_PDS_Comm *  comm,
-  bool          pack)
+  char *                    buf,
+  int                       bsize,
+  int &                     pos,
+  Parallel::Communicator *  comm,
+  bool                      pack)
 {
 
   // Set this variable up for later.  Note that pos means different things
@@ -1661,12 +1661,12 @@ bool StepErrorControl::dumpRestartData(
 // Creation Date : 7/28/06
 //-----------------------------------------------------------------------------
 bool StepErrorControl::restoreRestartData(
-  char *        buf,
-  int           bsize,
-  int &         pos,
-  N_PDS_Comm *  comm,
-  bool          pack,
-  double &      initial_time)
+  char *                    buf,
+  int                       bsize,
+  int &                     pos,
+  Parallel::Communicator *  comm,
+  bool                      pack,
+  double &                  initial_time)
 {
   // original class variables:
   if( pack )

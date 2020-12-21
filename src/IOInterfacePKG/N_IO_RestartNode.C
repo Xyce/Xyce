@@ -330,7 +330,7 @@ void Pack<IO::RestartNode>::pack(
   char *                        buf,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm)
+  Parallel::Communicator *      comm)
 {
   int size, size2;
   int predictedPos = pos+packedByteCount(restart_node);
@@ -395,11 +395,11 @@ void Pack<IO::RestartNode>::pack(
 template<>
 void
 Pack<IO::RestartNode>::unpack(
-  IO::RestartNode &     restart_node,
-  char *                buf,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm)
+  IO::RestartNode &        restart_node,
+  char *                   buf,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm)
 {
   int size, size2;
   comm->unpack( buf, bsize, pos, &size, 1 );

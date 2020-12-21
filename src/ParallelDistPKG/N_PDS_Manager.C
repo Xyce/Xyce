@@ -90,7 +90,7 @@ Manager::~Manager()
 
 //-----------------------------------------------------------------------------
 // Method        : Manager::addParallelMap
-// Purpose       : add N_PDS_ParMap obj to container, key{int}
+// Purpose       : add ParMap obj to container, key{int}
 // Scope         : public
 // Special Notes :
 // Creator       : Robert J Hoekstra, SNL, Parallel Compuational Sciences
@@ -98,8 +98,8 @@ Manager::~Manager()
 //-----------------------------------------------------------------------------
 bool
 Manager::addParallelMap(
-  int                   id,
-  N_PDS_ParMap *        map )
+  int             id,
+  ParMap *        map )
 {
   if (parMaps_[id])
   {
@@ -172,7 +172,7 @@ Manager::deleteParallelMap(
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 01/31/01
 //-----------------------------------------------------------------------------
-N_PDS_GlobalAccessor *
+GlobalAccessor *
 Manager::addGlobalAccessor(
   int           id )
 {
@@ -188,7 +188,7 @@ Manager::addGlobalAccessor(
     return 0;
   }
 
-  return globalAccessors_[id] = new N_PDS_GlobalAccessor(parMaps_[id]->pdsComm());
+  return globalAccessors_[id] = new GlobalAccessor(parMaps_[id]->pdsComm());
 }
 
 //-----------------------------------------------------------------------------
@@ -217,9 +217,9 @@ Manager::deleteGlobalAccessor(
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/1/01
 //-----------------------------------------------------------------------------
-N_PDS_GlobalAccessor * Manager::createGlobalAccessor()
+GlobalAccessor * Manager::createGlobalAccessor()
 {
-  return new N_PDS_GlobalAccessor( *pdsComm_ );
+  return new GlobalAccessor( *pdsComm_ );
 }
 
 //-----------------------------------------------------------------------------

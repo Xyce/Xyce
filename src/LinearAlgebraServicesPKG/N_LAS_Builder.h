@@ -40,14 +40,11 @@
 
 
 #include <Teuchos_RCP.hpp>
-#include <Epetra_Map.h>
 
 #include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 
-// to eliminate RCP warnings, putting N_PDS_Manager header here.
 #include <N_PDS_Manager.h>
-
-class N_PDS_ParMap;
 
 using Teuchos::RCP;
 using Teuchos::rcp;
@@ -77,7 +74,7 @@ public:
   virtual ~Builder() {}
 
   // Registration methods for necessary utilities
-  bool registerPDSManager(N_PDS_Manager * PDS_Manager)
+  bool registerPDSManager(Parallel::Manager * PDS_Manager)
   {
     return (pdsMgr_ = PDS_Manager);
   }
@@ -87,7 +84,7 @@ public:
     return (lasQueryUtil_ = LAS_QUtil);
   }
 
-  // Vector and Matrix creators which use QueryUtil and N_PDS_ParMap
+  // Vector and Matrix creators which use QueryUtil and ParMap
   // attributes to transparently construct proper objects for this linear
   // system
 
@@ -97,7 +94,7 @@ public:
   virtual MultiVector * createStateMultiVector( const int numVectors = 1 ) const;
   // Store Multivector factory with num vectors 
   virtual MultiVector * createStoreMultiVector( const int numVectors = 1 ) const;
-  // Vector factory with initial value
+  // Vector factory 
   virtual Vector * createVector() const;
   // State-vector factory
   virtual Vector * createStateVector() const;
@@ -123,8 +120,8 @@ public:
   // current solution maps and Jacobian graphs and separate them based
   // on linear vs. nonlinear GID information from topology.
   virtual bool setupSeparatedLSObjects();
-  virtual void getSeparatedSolnMap( RCP<N_PDS_ParMap>& linear_map, 
-                                    RCP<N_PDS_ParMap>& nonlin_map
+  virtual void getSeparatedSolnMap( RCP<Parallel::ParMap>& linear_map, 
+                                    RCP<Parallel::ParMap>& nonlin_map
                                   ) const;
 
   // Return the graphs with reference to the separated solution map
@@ -141,13 +138,13 @@ public:
                                         RCP<const Graph>& nonlinLin_graph
                                       ) const;
 
-  virtual RCP<const N_PDS_ParMap> getSolutionMap() const;
+  virtual RCP<const Parallel::ParMap> getSolutionMap() const;
   
-  virtual RCP<N_PDS_ParMap> getSolutionMap();
+  virtual RCP<Parallel::ParMap> getSolutionMap();
 
   virtual const std::vector<int> & vnodeGIDVec() const;
 
-  virtual N_PDS_Comm* getPDSComm() const
+  virtual Parallel::Communicator* getPDSComm() const
   {
     return pdsMgr_->getPDSComm();
   }
@@ -156,8 +153,8 @@ protected:
   mutable std::vector<int>      solnColoring_;
   mutable std::vector<int>      icColoring_;
 
-  N_PDS_Manager *       pdsMgr_;
-  QueryUtil *           lasQueryUtil_;
+  Parallel::Manager *       pdsMgr_;
+  QueryUtil *               lasQueryUtil_;
 };
 
 } // namespace Linear

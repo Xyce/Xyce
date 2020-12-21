@@ -1,5 +1,5 @@
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
   ast.C
   expressionGroup.C
   newExpression.C
@@ -8,7 +8,7 @@ target_sources(XyceStatic PRIVATE
   outputsXyceExpressionGroup.C
   xyceExpressionGroup.C)
 
-target_include_directories(XyceStatic PUBLIC
+target_include_directories(XyceLib PUBLIC
  "${CMAKE_CURRENT_SOURCE_DIR}"
  "${CMAKE_CURRENT_BINARY_DIR}"
  "${FLEX_INCLUDE_DIR}" )

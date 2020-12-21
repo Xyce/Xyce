@@ -77,7 +77,6 @@
 #include <Epetra_Import.h>
 #include <Epetra_Util.h>
 #include <Epetra_Comm.h>
-#include <EpetraExt_MatrixMatrix.h>
 #include <Amesos.h>
 
 #ifdef Xyce_PARALLEL_MPI
@@ -189,12 +188,12 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   //           using real equivalent form K_1 = [G_bar -i*omega*C_bar; i*omega*C_bar G_bar]
 
   // Generate the new real equivalent graph
-  RCP<N_PDS_ParMap> origMap = builder_.getSolutionMap(); 
+  RCP<Parallel::ParMap> origMap = builder_.getSolutionMap(); 
   int origLocalRows = origMap->numLocalEntities();
   int origGlobalRows = origMap->numGlobalEntities();
   int refRows = 2*origLocalRows;
   std::vector<int> rowIdxs( refRows );
-  RCP<N_PDS_EpetraParMap> e_origMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(origMap);
+  RCP<Parallel::EpetraParMap> e_origMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(origMap);
   int * origIdxs = e_origMap->petraMap()->MyGlobalElements();
   for (int i=0; i<origLocalRows; ++i)
   {
@@ -451,7 +450,7 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
     diffCMatrix_.resize(N_);
     diffGMatrix_.resize(N_);
 
-    RCP<N_PDS_ParMap> origMap = builder_.getSolutionMap();
+    RCP<Parallel::ParMap> origMap = builder_.getSolutionMap();
     Teuchos::RCP<Matrix> tmpCMatrix = rcp( builder_.createMatrix() );
     Teuchos::RCP<Matrix> tmpGMatrix = rcp( builder_.createMatrix() );
 
@@ -494,7 +493,7 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
   if (numProcs > 1)
       epetraMatrix_[0]->PutScalar(0.0);
 
-  RCP<N_PDS_ParMap> origMap = builder_.getSolutionMap(); 
+  RCP<Parallel::ParMap> origMap = builder_.getSolutionMap(); 
   int origLocalRows = origMap->numLocalEntities();
   int origGlobalRows = origMap->numGlobalEntities();
 

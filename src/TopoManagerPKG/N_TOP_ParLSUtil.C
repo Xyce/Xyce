@@ -77,7 +77,7 @@ namespace Topo {
 //-----------------------------------------------------------------------------
 ParLSUtil::ParLSUtil(
   Topology &            topology,
-  N_PDS_Manager &       pds_manager)
+  Parallel::Manager &   pds_manager)
   : Linear::QueryUtil(),
     topology_(topology),
     pdsManager_(pds_manager),
@@ -238,7 +238,7 @@ bool ParLSUtil::setupRowCol()
 {
   topology_.generateOrderedNodeList();
 
-  N_PDS_Comm & comm = *pdsManager_.getPDSComm();
+  Parallel::Communicator & comm = *pdsManager_.getPDSComm();
   int procCnt = comm.numProc();
   int procID = comm.procID();
 
@@ -540,7 +540,7 @@ bool ParLSUtil::testVoltageNodeConnectivity_()
   CktNodeList::const_iterator it_cnL = topology_.getOrderedNodeList().begin();
   CktNodeList::const_iterator end_cnL = topology_.getOrderedNodeList().end();
 
-  N_PDS_Comm & comm = *(pdsManager_.getPDSComm());
+  Parallel::Communicator & comm = *(pdsManager_.getPDSComm());
   int procCnt = comm.numProc();
   int procID = comm.procID();
   int m, n;
@@ -1087,7 +1087,7 @@ void ParLSUtil::comm_boundaries (std::map<int, std::vector<int> > & gid_map,
                                  std::vector<int *> & buf_in, std::vector<int *> & buf_out, int mode)
 
 {
-  N_PDS_Comm & comm = *(pdsManager_.getPDSComm());
+  Parallel::Communicator & comm = *(pdsManager_.getPDSComm());
   unsigned int i;
   unsigned int n_bufs = buf_len.size();
   std::map< int, std::map<int, bool> >::iterator cg_i;
@@ -1162,7 +1162,7 @@ bool ParLSUtil::setupNodeGIDs()
   //Setup temp global accessors
   //Use to get new node GIDs for boundary/ghost nodes
   //---------------------------
-  N_PDS_GlobalAccessor * nodeGlobalAccessorPtr = pdsManager_.createGlobalAccessor();
+  Parallel::GlobalAccessor * nodeGlobalAccessorPtr = pdsManager_.createGlobalAccessor();
   nodeGlobalAccessorPtr->registerExternGIDVector( nodeList_ExternGID_ );
   nodeGlobalAccessorPtr->generateMigrationPlan();
 
@@ -1315,7 +1315,7 @@ bool ParLSUtil::setupSolnAndStateGIDs()
     currLeadCurrentLoc += leadCurrentCountVec[i];
   }
 
-  N_PDS_GlobalAccessor * nodeGlobalAccessorPtr = pdsManager_.createGlobalAccessor();
+  Parallel::GlobalAccessor * nodeGlobalAccessorPtr = pdsManager_.createGlobalAccessor();
   nodeGlobalAccessorPtr->registerExternGIDVector( nodeList_ExternGID_ );
   nodeGlobalAccessorPtr->generateMigrationPlan();
 

@@ -60,17 +60,18 @@
 
 using Xyce::DEBUG_PARALLEL;
 
-// --------- Other Includes -------------
+namespace Xyce {
+namespace Parallel {
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::N_PDS_GlobalAccessor
+// Function      : GlobalAccessor::GlobalAccessor
 // Purpose       : constructor
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 02/06/01
 //-----------------------------------------------------------------------------
-N_PDS_GlobalAccessor::N_PDS_GlobalAccessor( N_PDS_Comm &comm )
+GlobalAccessor::GlobalAccessor( Communicator &comm )
   : pdsComm_(comm),
     numReceiveObjs_(0),
     arrayReceiveGIDs_(0),
@@ -96,14 +97,14 @@ N_PDS_GlobalAccessor::N_PDS_GlobalAccessor( N_PDS_Comm &comm )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::~N_PDS_GlobalAccessor
+// Function      : GlobalAccessor::~GlobalAccessor
 // Purpose       : destructor
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-N_PDS_GlobalAccessor::~N_PDS_GlobalAccessor()
+GlobalAccessor::~GlobalAccessor()
 {
   delete[] arrayReceiveGIDs_;
   delete[] arrayReceiveProcs_;
@@ -116,7 +117,7 @@ N_PDS_GlobalAccessor::~N_PDS_GlobalAccessor()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::generateMigrationPlan
+// Function      : GlobalAccessor::generateMigrationPlan
 // Purpose       : generates migration plan (Comm_Obj) using Zoltan
 // 		   utilities
 // Special Notes :
@@ -124,7 +125,7 @@ N_PDS_GlobalAccessor::~N_PDS_GlobalAccessor()
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-void N_PDS_GlobalAccessor::generateMigrationPlan()
+void GlobalAccessor::generateMigrationPlan()
 {
   numReceiveObjs_ = externGIDVector_.size();
 
@@ -171,7 +172,7 @@ void N_PDS_GlobalAccessor::generateMigrationPlan()
 
   if (DEBUG_PARALLEL)
   {
-    std::cout << "N_PDS_GlobalAccessor::generateMigrationPlan:" << std::endl;
+    std::cout << "GlobalAccessor::generateMigrationPlan:" << std::endl;
     std::cout << " setup numRecvObjs: " << numReceiveObjs_ << std::endl;
     std::cout << " setup numSendObjs: " << numSendObjs_ << std::endl;
     
@@ -226,7 +227,7 @@ void N_PDS_GlobalAccessor::generateMigrationPlan()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::migrateMultiVector
+// Function      : GlobalAccessor::migrateMultiVector
 // Purpose       : migrates nonlocal parts of multivector based on
 //                 migration plan (theZoltanCommObjPtr_)
 // Special Notes :
@@ -234,7 +235,7 @@ void N_PDS_GlobalAccessor::generateMigrationPlan()
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-void N_PDS_GlobalAccessor::migrateMultiVector( Xyce::Linear::MultiVector * mVector )
+void GlobalAccessor::migrateMultiVector( Xyce::Linear::MultiVector * mVector )
 {
 
   if (DEBUG_PARALLEL)
@@ -270,7 +271,7 @@ void N_PDS_GlobalAccessor::migrateMultiVector( Xyce::Linear::MultiVector * mVect
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::migrateIntArray
+// Function      : GlobalAccessor::migrateIntArray
 // Purpose       : migrates nonlocal parts of integer array based on
 //                 migration plan (theZoltanCommObjPtr_)
 // Special Notes :
@@ -278,7 +279,7 @@ void N_PDS_GlobalAccessor::migrateMultiVector( Xyce::Linear::MultiVector * mVect
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/07/00
 //-----------------------------------------------------------------------------
-void N_PDS_GlobalAccessor::migrateIntArray( std::map<int,int> & sendMap,
+void GlobalAccessor::migrateIntArray( std::map<int,int> & sendMap,
 	std::map<int,int> & recvMap )
 {
 
@@ -338,14 +339,14 @@ void N_PDS_GlobalAccessor::migrateIntArray( std::map<int,int> & sendMap,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_GlobalAccessor::migrateIntVecs
+// Function      : GlobalAccessor::migrateIntVecs
 // Purpose       : migrates nonlocal parts of integer vectors
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
-void N_PDS_GlobalAccessor::migrateIntVecs( std::map< int,std::vector<int> > & sendMap,
+void GlobalAccessor::migrateIntVecs( std::map< int,std::vector<int> > & sendMap,
 	std::map< int,std::vector<int> > & recvMap )
 {
 
@@ -424,6 +425,9 @@ void N_PDS_GlobalAccessor::migrateIntVecs( std::map< int,std::vector<int> > & se
   }
 
 #endif /* Xyce_PARALLEL_MPI */
+
+} // namespace Parallel
+} // namespace Xyce
 
 }
 

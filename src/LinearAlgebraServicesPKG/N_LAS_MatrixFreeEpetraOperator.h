@@ -52,9 +52,7 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_LAS_MultiVector.h>
-#include <N_PDS_ParMap.h>
-
-class N_PDS_EpetraParMap;
+#include <N_PDS_EpetraParMap.h>
 
 // ---------- Using Declarations ------------
 using Teuchos::RCP;
@@ -82,7 +80,7 @@ public:
 
   void initialize(
       RCP<Operator> linearOperator,
-      RCP<const N_PDS_ParMap> solutionMap
+      RCP<const Parallel::ParMap> solutionMap
       );
 
     //! If set true, transpose of this operator will be applied.
@@ -153,13 +151,13 @@ public:
 private:
   bool isInitialized_;
   Teuchos::RCP<Operator> linearOperatorRCPtr_;
-  Teuchos::RCP<const N_PDS_EpetraParMap> solutionMap_;
+  Teuchos::RCP<const Parallel::EpetraParMap> solutionMap_;
 };
 
 // Non-member constructor
 RCP<MatrixFreeEpetraOperator> matrixFreeEpetraOperator(
     RCP<Operator> linearOperator,
-    RCP<const N_PDS_ParMap> solutionMap
+    RCP<const Parallel::ParMap> solutionMap
     );
 
 } // namespace Linear

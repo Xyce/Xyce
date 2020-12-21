@@ -194,19 +194,6 @@ bool ESDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 06/01/2018
-//-----------------------------------------------------------------------------
-bool ESDirectSolver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : ESDirectSolver::doSolve
 // Purpose       :
 // Special Notes :
@@ -401,11 +388,11 @@ void ESDirectSolver::createBlockStructures()
     }
     else
     {
-      Teuchos::RCP<Xyce::Linear::Matrix> parMatrix = Teuchos::rcp( builder_.createMatrix() );
-      Teuchos::RCP<Xyce::Linear::Vector> parVector = Teuchos::rcp( builder_.createVector() );
+      Teuchos::RCP<Matrix> parMatrix = Teuchos::rcp( builder_.createMatrix() );
+      Teuchos::RCP<Vector> parVector = Teuchos::rcp( builder_.createVector() );
 
-      N_PDS_ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
-      N_PDS_ParMap * rowMapPtr = parVector->pmap();
+      Parallel::ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+      Parallel::ParMap * rowMapPtr = parVector->pmap();
 
       // Determine the number of unique unknowns for each row.
       // This code is inspired by the similar code in the HBDirectSolver that Heidi 
@@ -415,9 +402,9 @@ void ESDirectSolver::createBlockStructures()
       // (3) I also don't need to treat F and Q separately
       // (4) so the total amount of code is much smaller
       std::vector< std::vector<int> > nnzCol( n_ );
-      Teuchos::RCP<Xyce::Linear::Matrix> & Jac = lasProblem_.getJac();
-      Teuchos::RCP<Xyce::Linear::BlockMatrix> bJac =  Teuchos::rcp_dynamic_cast<Xyce::Linear::BlockMatrix>(Jac); 
-      Xyce::Linear::Matrix & subMat = bJac->block(0,0); 
+      Matrix * Jac = lasProblem_.getMatrix();
+      BlockMatrix * bJac =  dynamic_cast<BlockMatrix*>(Jac); 
+      Matrix & subMat = bJac->block(0,0); 
 
       for (int row=0;row<n_;++row) // loop over ckt unknowns
       {
@@ -557,7 +544,7 @@ void ESDirectSolver::createBlockStructures()
   {
     // ERK note, currently the builder that is passed into this class is an ES builder.  Not sure if this is 
     // correct builder for these function calls.  Check this.
-    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(esBuilderPtr_->getSolutionMap());
+    Teuchos::RCP<Parallel::EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(esBuilderPtr_->getSolutionMap());
     serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
     serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
@@ -595,9 +582,9 @@ void ESDirectSolver::formESJacobian()
   int myProc = (builder_.getPDSComm())->procID();
   int numProcs = (builder_.getPDSComm())->numProc();
 
-  Teuchos::RCP<Matrix> & Jac = lasProblem_.getJac();
-  Teuchos::RCP<BlockMatrix> bJac =  Teuchos::rcp_dynamic_cast<BlockMatrix>(Jac); 
-  Xyce::Linear::Matrix & subMatRef = bJac->block(0,0); // use this to get the structure
+  Matrix * Jac = lasProblem_.getMatrix();
+  BlockMatrix * bJac =  dynamic_cast<BlockMatrix*>(Jac); 
+  Matrix & subMatRef = bJac->block(0,0); // use this to get the structure
 
   int numLocalRowsRef = subMatRef.getLocalNumRows(); // num ckt vars = n_
   int numBlockRows = bJac->numBlockRows(); // = num params = N_
@@ -663,7 +650,7 @@ void ESDirectSolver::formESJacobian()
 
       for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
       {
-        Xyce::Linear::Matrix & subMat = bJac->block(ipar,ipar);
+        Matrix & subMat = bJac->block(ipar,ipar);
         int length=0; 
         double * coeffs; 
         int * colIndices;
@@ -773,7 +760,7 @@ void ESDirectSolver::formESJacobian()
   }
 #endif
 
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
 
   int numVectors = B->numVectors();
   for (int j=0; j<numVectors; j++)
@@ -896,8 +883,8 @@ int ESDirectSolver::solve()
 {
   int linearStatus = 0;
 
-  RCP<MultiVector> X = lasProblem_.getLHS();
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* X = lasProblem_.getLHS();
+  MultiVector* B = lasProblem_.getRHS();
 
   // Initialize solution vector X.
   X->putScalar( 0.0 );
@@ -1085,7 +1072,7 @@ void ESDirectSolver::printESResidual( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
 
   std::ofstream out;
@@ -1149,7 +1136,7 @@ void ESDirectSolver::printESSolution( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> X = lasProblem_.getLHS();
+  MultiVector* X = lasProblem_.getLHS();
   int numVectors = X->numVectors();
 
   std::ofstream out;

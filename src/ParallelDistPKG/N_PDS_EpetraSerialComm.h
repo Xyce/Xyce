@@ -44,32 +44,29 @@
 
 #include <Epetra_SerialComm.h>
 
+namespace Xyce {
+namespace Parallel {
+
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_EpetraSerialComm
+// Class         : EpetraSerialComm
 // Purpose       : Serial communication class for Xyce.
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-class N_PDS_EpetraSerialComm : public N_PDS_Comm
+class EpetraSerialComm : public Communicator
 {
 
 public:
 
   // Default constructor.
-  N_PDS_EpetraSerialComm();
+  EpetraSerialComm();
 
   //Destructor
-  ~N_PDS_EpetraSerialComm();
-
-  // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_EpetraSerialComm(const N_PDS_EpetraSerialComm & right);
-
-  // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_EpetraSerialComm & operator = (const N_PDS_EpetraSerialComm & right);
+  ~EpetraSerialComm();
 
   // Cloning
-  N_PDS_Comm * clone() const { return new N_PDS_EpetraSerialComm(* this); }
+  Communicator* clone() const { return new EpetraSerialComm(* this); }
 
   Xyce::Parallel::Machine comm() const {
     return 0;
@@ -150,6 +147,9 @@ public:
 
 private:
 
+  // Copy constructor - reuse the same Petra_Comm object.
+  EpetraSerialComm(const EpetraSerialComm & right);
+
   // Serial-run flag.
   bool isSerial_;
 
@@ -157,5 +157,8 @@ private:
   bool petraCommOwned_;
 
 };
+
+} // namespace Parallel
+} // namespace Xyce
 
 #endif

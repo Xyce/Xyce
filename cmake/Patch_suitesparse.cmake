@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 project(suitesparse C CXX)
 
 add_library(amd
-  STATIC
   ${suitesparse_SOURCE_DIR}/AMD/Source/amd_1.c
   ${suitesparse_SOURCE_DIR}/AMD/Source/amd_2.c
   ${suitesparse_SOURCE_DIR}/AMD/Source/amd_aat.c

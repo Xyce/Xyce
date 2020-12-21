@@ -116,7 +116,7 @@ Pack<Topo::ParNode>::pack(
   char *                        buf,
   int                           bsize,
   int &                         pos,
-  N_PDS_Comm *                  comm ) 
+  Parallel::Communicator *      comm ) 
 {
   Xyce::pack(static_cast<const Topo::Node &>(par_node), buf, bsize, pos, comm );
 
@@ -134,11 +134,11 @@ Pack<Topo::ParNode>::pack(
 template<>
 void
 Pack<Topo::ParNode>::unpack(
-  Topo::ParNode &       par_node,
-  char *                buf,
-  int                   bsize,
-  int &                 pos,
-  N_PDS_Comm *          comm )
+  Topo::ParNode &          par_node,
+  char *                   buf,
+  int                      bsize,
+  int &                    pos,
+  Parallel::Communicator * comm )
 {
   Xyce::unpack(static_cast<Topo::Node &>(par_node), buf, bsize, pos, comm );
 

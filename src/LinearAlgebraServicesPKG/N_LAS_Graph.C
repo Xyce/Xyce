@@ -42,19 +42,64 @@
 
 #include <N_LAS_Graph.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_PDS_EpetraParMap.h>
 
 // ---------  Other Includes  -----------
+
+#include <Epetra_Map.h>
+#include <Epetra_Export.h>
 
 namespace Xyce {
 namespace Linear {
 
-  Graph::Graph( const Teuchos::RCP<const Epetra_CrsGraph>& graph )
+  Graph::Graph( Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow )
+  {
+    Epetra_Map* epetraMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
+    epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, &numIndicesPerRow[0] ) );
+  }
+
+  // Basic constructor with map and maximum number of entries per row
+  Graph::Graph( Parallel::ParMap & map, int maxIndicesPerRow )
+  {
+    Epetra_Map* epetraMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
+    epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, maxIndicesPerRow ) );
+  }
+
+  Graph::Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph )
   : epetraGraph_(graph)
   {}
 
   Graph::Graph( const Graph& graph )
   : epetraGraph_(graph.epetraGraph_)
   {}
+
+  Graph* Graph::cloneCopy() const
+  {
+    return( new Graph( *this ) ); 
+  }
+
+  Graph* Graph::exportGraph( Parallel::ParMap& map ) const
+  {
+    Epetra_Map* exportMap = dynamic_cast<Parallel::EpetraParMap&>(map).petraMap();
+
+    Epetra_Export exporter( epetraGraph_->Map(), *exportMap );
+    Epetra_CrsGraph * newGraph = new Epetra_CrsGraph( Copy, *exportMap, 0 );
+    newGraph->Export( *epetraGraph_, exporter, Add );
+    newGraph->FillComplete();
+    newGraph->OptimizeStorage();
+    Graph* retGraph = new Graph( Teuchos::rcp( newGraph ) );
+
+    return retGraph;
+  }
+
+  void Graph::fillComplete( Parallel::ParMap& rowMap, Parallel::ParMap& colMap )
+  {
+    Epetra_Map* rMap = dynamic_cast<Parallel::EpetraParMap&>(rowMap).petraMap();
+    Epetra_Map* cMap = dynamic_cast<Parallel::EpetraParMap&>(colMap).petraMap();
+
+    epetraGraph_->FillComplete( *rMap, *cMap );
+    epetraGraph_->OptimizeStorage();
+  }
 
 } // namespace Linear
 } // namespace Xyce

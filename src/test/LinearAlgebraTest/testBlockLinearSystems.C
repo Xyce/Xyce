@@ -97,10 +97,10 @@ int main(int argc, char* argv[])
 
   int numBlocks = 2;
   int numMyElements = petraBaseMap.NumMyElements();
-  N_PDS_ParMap baseMap( const_cast<Epetra_Map*>(&petraBaseMap), &comm );
+  Xyce::Parallel::ParMap baseMap( const_cast<Epetra_Map*>(&petraBaseMap), &comm );
 
   // Create a block map for a map not including ground nodes.
-  Teuchos::RCP<N_PDS_ParMap> blockMap = createBlockParMap( numBlocks, baseMap ); 
+  Teuchos::RCP<Xyce::Parallel::ParMap> blockMap = createBlockParMap( numBlocks, baseMap ); 
 
   // Create a block vector
   N_LAS_BlockVector blockVector( numBlocks, *(blockMap->petraMap()), const_cast<Epetra_Map&>(petraBaseMap) );
@@ -139,18 +139,18 @@ int main(int argc, char* argv[])
         -1, // 0 or 1
         *(comm.petraComm()) // communicator
         );
-  N_PDS_ParMap oBaseMap( &oPetraBaseMap, &comm );
+  Xyce::Parallel::ParMap oBaseMap( &oPetraBaseMap, &comm );
   baseMap.print(Xyce::dout();
   oBaseMap.print(Xyce::dout());
 
   // Create block maps for a map including ground nodes.
-  std::vector<Teuchos::RCP<N_PDS_ParMap> > blockMaps = 
+  std::vector<Teuchos::RCP<Xyce::Parallel::ParMap> > blockMaps = 
     createBlockParMaps( numBlocks, baseMap, oBaseMap );
   blockMaps[0]->print(Xyce::dout());
   blockMaps[1]->print(Xyce::dout());
 
   Xyce::dout() << "CREATING NEW BLOCK MAPS!!!" << std::endl;
-  std::vector<Teuchos::RCP<N_PDS_ParMap> > blockMaps2 = 
+  std::vector<Teuchos::RCP<Xyce::Parallel::ParMap> > blockMaps2 = 
     createBlockParMaps2( numBlocks, baseMap, oBaseMap );
   blockMaps2[0]->print(Xyce::dout());
   blockMaps2[1]->print(Xyce::dout());

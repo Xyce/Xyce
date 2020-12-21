@@ -72,7 +72,7 @@ class RemeasureBase
  
 public:
   RemeasureBase(
-    N_PDS_Comm &pds_comm, 
+    Parallel::Communicator &pds_comm, 
     Manager &measure_manager, 
     OutputMgr &output_manager,
     Analysis::AnalysisManager &analysis_manager,
@@ -101,7 +101,7 @@ private:
   RemeasureBase &operator=(const RemeasureBase &right);
 
 protected:
-  N_PDS_Comm &pds_comm;  
+  Parallel::Communicator &pds_comm;  
   Manager &measure_manager;
   OutputMgr &output_manager;
   Analysis::AnalysisManager &analysis_manager;
@@ -127,7 +127,7 @@ protected:
  
 public:
   RemeasureAC(
-    N_PDS_Comm &pds_comm, 
+    Parallel::Communicator &pds_comm, 
     Manager &measure_manager, 
     OutputMgr &output_manager,
     Analysis::AnalysisManager &analysis_manager,
@@ -163,7 +163,7 @@ private:
  
 public:
   RemeasureDC(
-    N_PDS_Comm &pds_comm, 
+    Parallel::Communicator &pds_comm, 
     Manager &measure_manager, 
     OutputMgr &output_manager,
     Analysis::AnalysisManager &analysis_manager,
@@ -204,7 +204,7 @@ class RemeasureTRAN : public RemeasureBase
  
 public:
   RemeasureTRAN(
-    N_PDS_Comm &pds_comm, 
+    Parallel::Communicator &pds_comm, 
     Manager &measure_manager, 
     OutputMgr &output_manager,
     Analysis::AnalysisManager &analysis_manager,

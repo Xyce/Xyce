@@ -43,18 +43,14 @@
 #include <vector>
 
 // ----------   Xyce Includes   ----------
-#include <N_LAS_fwd.h>
 
+#include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
 #include <N_LAS_Builder.h>
 
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
-
-
-class Epetra_Map;
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -79,30 +75,23 @@ class ESBuilder : public Builder
 
   // Vector and Matrix creators
 
-  // Vector factory with initial value
+  // Vector factory 
   Vector * createVector() const;
 
-  // MultiVector factory with initial value
+  // MultiVector factory 
   MultiVector * createMultiVector( int numVectors = 1 ) const;
 
-  // State Vector factory with initial value
+  // State Vector factory 
   Vector * createStateVector() const;
 
-  // Store Vector factory with initial value
+  // Store Vector factory 
   Vector * createStoreVector() const;
 
-  // Lead Current Vector factory with initial value
+  // Lead Current Vector factory 
   Vector * createLeadCurrentVector() const;
-
-  Teuchos::RCP<BlockVector> createBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStateBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStoreBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeLeadCurrentBlockVector() const;
 
   // Matrix factory
   Matrix * createMatrix() const;
-  Teuchos::RCP<BlockMatrix> createBlockMatrix() const;
 
   //Coloring Assoc with Variable Types in Solution Vector
   const std::vector<int> & createSolnColoring() const;
@@ -110,38 +99,38 @@ class ESBuilder : public Builder
   //Coloring needed for imposing .IC and .NODESET
   const std::vector<int> & createInitialConditionColoring() const;
 
-  bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
-                     const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );
+  bool generateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseMap, 
+                     const Teuchos::RCP<Parallel::ParMap>& oBaseMap );
 
-  bool generateStateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStateMap );
-  bool generateStoreMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStoreMap );
-  bool generateLeadCurrentMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
+  bool generateStateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseStateMap );
+  bool generateStoreMaps( const Teuchos::RCP<Parallel::ParMap>& BaseStoreMap );
+  bool generateLeadCurrentMaps( const Teuchos::RCP<Parallel::ParMap>& BaseLeadCurrentMap );
 
   bool generateGraphs( const Graph& BaseFullGraph );
 
   // Return maps for sampling linear system.
-  Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const
+  Teuchos::RCP<const Parallel::ParMap> getSolutionMap() const
   { return( ESMap_ ); }
 
-  Teuchos::RCP<N_PDS_ParMap> getSolutionMap()
+  Teuchos::RCP<Parallel::ParMap> getSolutionMap()
   { return( ESMap_ ); }
 
-  Teuchos::RCP<N_PDS_ParMap> getSolutionOverlapMap() const
+  Teuchos::RCP<Parallel::ParMap> getSolutionOverlapMap() const
   { return oESMap_; }
 
   const std::vector<int> & vnodeGIDVec() const;
 
   // Return the base map for each block in the expanded maps (a.k.a. time-domain maps)
-  Teuchos::RCP<const N_PDS_ParMap> getBaseSolutionMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseSolutionMap() const
   { return BaseMap_; }
 
-  Teuchos::RCP<const N_PDS_ParMap> getBaseStateMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseStateMap() const
   { return BaseStateMap_; }
 
-  Teuchos::RCP<const N_PDS_ParMap> getBaseStoreMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseStoreMap() const
   { return BaseStoreMap_; }
   
-  Teuchos::RCP<const N_PDS_ParMap> getBaseLeadCurrentMap() const
+  Teuchos::RCP<const Parallel::ParMap> getBaseLeadCurrentMap() const
   { return BaseLeadCurrentMap_; }
 
   // Return GID offset for blocks for construction of Loader
@@ -176,21 +165,21 @@ private:
  // numBlocks = number of samples, numElem = number of solution variables
   
   // numBlocks = number of solution variables, numElem = number of samples
-  Teuchos::RCP<N_PDS_ParMap> BaseMap_, oBaseMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseMap_, oBaseMap_;
 
-  Teuchos::RCP<N_PDS_ParMap> BaseStateMap_;
-  Teuchos::RCP<N_PDS_ParMap> BaseStoreMap_;
-  Teuchos::RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseStateMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseStoreMap_;
+  Teuchos::RCP<Parallel::ParMap> BaseLeadCurrentMap_;
 
   Teuchos::RCP<Graph> baseFullGraph_;
   Teuchos::RCP<Graph> blockGraph_;
 
   std::vector<std::vector<int> > blockPattern_;
 
-  Teuchos::RCP<N_PDS_ParMap> ESMap_, oESMap_;
-  Teuchos::RCP<N_PDS_ParMap> ESStateMap_;
-  Teuchos::RCP<N_PDS_ParMap> ESStoreMap_;
-  Teuchos::RCP<N_PDS_ParMap> ESLeadCurrentMap_;
+  Teuchos::RCP<Parallel::ParMap> ESMap_, oESMap_;
+  Teuchos::RCP<Parallel::ParMap> ESStateMap_;
+  Teuchos::RCP<Parallel::ParMap> ESStoreMap_;
+  Teuchos::RCP<Parallel::ParMap> ESLeadCurrentMap_;
 };
 
 } // namespace Linear

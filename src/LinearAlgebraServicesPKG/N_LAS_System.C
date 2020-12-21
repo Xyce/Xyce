@@ -48,9 +48,11 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_QueryUtil.h>
 #include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_GlobalAccessor.h>
+#include <N_PDS_Manager.h>
 #include <N_PDS_ParMap.h>
 #include <N_UTL_FeatureTest.h>
 
@@ -133,7 +135,7 @@ bool System::initializeSystem()
   // If this is a matrix free analysis, there is no need to create a linear problem here.
   if (jacobianMatrixPtr_ != 0)
   { 
-    lasProblemPtr_ = new Linear::Problem( jacobianMatrixPtr_, newtonVectorPtr_, rhsVectorPtr_ );
+    lasProblemPtr_ = Xyce::Linear::createProblem( jacobianMatrixPtr_, newtonVectorPtr_, rhsVectorPtr_ );
   }
 
   // these are needed for new-DAE:
@@ -156,7 +158,7 @@ bool System::initializeSystem()
 bool System::updateExternValsSolnVector(MultiVector * solnVector)
 {
 #ifdef Xyce_PARALLEL_MPI
-  N_PDS_GlobalAccessor * Accessor = pdsMgr_->getGlobalAccessor( Parallel::SOLUTION );
+  Parallel::GlobalAccessor * Accessor = pdsMgr_->getGlobalAccessor( Parallel::SOLUTION );
   if (Accessor)
     Accessor->migrateMultiVector(solnVector);
 #endif

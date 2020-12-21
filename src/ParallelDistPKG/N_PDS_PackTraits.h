@@ -51,8 +51,6 @@
 namespace Xyce {
 namespace Parallel {
 
-typedef N_PDS_Comm Comm;
-
 //-----------------------------------------------------------------------------
 // Class         : Xyce::Parallel::PackTraits
 // Purpose       : 
@@ -66,10 +64,10 @@ struct PackTraits
   static int size( T const & object )
   { return Pack<T>::packedByteCount(object); }
 
-  static void pack( T const & object, char * buf, int size, int & pos, Comm & comm )
+  static void pack( T const & object, char * buf, int size, int & pos, Communicator & comm )
   { Pack<T>::pack(object, buf, size, pos, &comm ); }
 
-  static void unpack( T & object, char * buf, int size, int & pos, Comm & comm )
+  static void unpack( T & object, char * buf, int size, int & pos, Communicator & comm )
   { Pack<T>::unpack(object, buf, size, pos, &comm ); }
 };
 
@@ -79,14 +77,14 @@ struct PackTraits<std::string>
   static int size( std::string const & object )
   { return object.length() + sizeof(int); }
 
-  static void pack( std::string const & object, char * buf, int size, int & pos, Comm & comm )
+  static void pack( std::string const & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = object.length();
     comm.pack( &len, 1, buf, size, pos );
     comm.pack( object.c_str(), len, buf, size, pos );
   }
 
-  static void unpack( std::string & object, char * buf, int size, int & pos, Comm & comm )
+  static void unpack( std::string & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = 0;
     comm.unpack( buf, size, pos, &len, 1 );
@@ -101,7 +99,7 @@ struct PackTraits< std::vector<int> >
   static int size( std::vector<int> const & object )
   { return (object.size()+1) * sizeof(int); }
 
-  static void pack( std::vector<int> const & object, char * buf, int size, int & pos, Comm & comm )
+  static void pack( std::vector<int> const & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = object.size();
     comm.pack( &len, 1, buf, size, pos );
@@ -109,7 +107,7 @@ struct PackTraits< std::vector<int> >
       comm.pack( &object[i], 1, buf, size, pos );
   }
 
-  static void unpack( std::vector<int> & object, char * buf, int size, int & pos, Comm & comm )
+  static void unpack( std::vector<int> & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = 0;
     comm.unpack( buf, size, pos, &len, 1 );
@@ -125,7 +123,7 @@ struct PackTraits< NodeID >
   static int size( NodeID const & object )
   { return (object.first.length() + 2*sizeof(int)); }
 
-  static void pack( NodeID const & object, char * buf, int size, int & pos, Comm & comm )
+  static void pack( NodeID const & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = object.first.length();
     comm.pack( &len, 1, buf, size, pos );
@@ -133,7 +131,7 @@ struct PackTraits< NodeID >
     comm.pack( &object.second, 1, buf, size, pos );
   }
 
-  static void unpack( NodeID & object, char * buf, int size, int & pos, Comm & comm )
+  static void unpack( NodeID & object, char * buf, int size, int & pos, Communicator & comm )
   {
     int len = 0;
     comm.unpack( buf, size, pos, &len, 1 );

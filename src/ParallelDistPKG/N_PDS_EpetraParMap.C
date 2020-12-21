@@ -49,33 +49,37 @@
 // ----------   Other Includes   ----------
 
 #include <Epetra_Map.h>
+#include <EpetraExt_BlockMapOut.h>
+
+namespace Xyce {
+namespace Parallel {
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::N_PDS_EpetraParMap
+// Function      : EpetraParMap::EpetraParMap
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/2/00
 //-----------------------------------------------------------------------------
-N_PDS_EpetraParMap::N_PDS_EpetraParMap(
+EpetraParMap::EpetraParMap(
   Epetra_Map *          map,
-  N_PDS_Comm &          aComm,
+  Communicator &        aComm,
   bool                  mapOwned )
-  : N_PDS_ParMap(aComm),
+  : ParMap(aComm),
     petraMap_(map),
     mapOwned_(mapOwned)
 {}
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::~N_PDS_EpetraParMap
+// Function      : EpetraParMap::~EpetraParMap
 // Purpose       : Destructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-N_PDS_EpetraParMap::~N_PDS_EpetraParMap()
+EpetraParMap::~EpetraParMap()
 {
   if (mapOwned_)
   {
@@ -84,120 +88,136 @@ N_PDS_EpetraParMap::~N_PDS_EpetraParMap()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::numGlobalEntities
+// Function      : EpetraParMap::numGlobalEntities
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::numGlobalEntities() const
+int EpetraParMap::numGlobalEntities() const
 {
   return petraMap_->NumGlobalElements();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::numLocalEntities
+// Function      : EpetraParMap::numLocalEntities
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::numLocalEntities() const
+int EpetraParMap::numLocalEntities() const
 {
   return petraMap_->NumMyElements();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::indexBase
+// Function      : EpetraParMap::indexBase
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::indexBase() const
+int EpetraParMap::indexBase() const
 {
   return petraMap_->IndexBase();
 }
 
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::minMyGlobalEntity
+// Function      : EpetraParMap::minMyGlobalEntity
 // Purpose       : Minimum globally-numbered identifier on this processor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::minMyGlobalEntity() const
+int EpetraParMap::minMyGlobalEntity() const
 {
   return petraMap_->MinMyGID();
 }
  
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::maxMyGlobalEntity
+// Function      : EpetraParMap::maxMyGlobalEntity
 // Purpose       : Maximum globally-numbered identifier on this processor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::maxMyGlobalEntity() const
+int EpetraParMap::maxMyGlobalEntity() const
 {
   return petraMap_->MaxMyGID();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::maxGlobalEntity
+// Function      : EpetraParMap::maxGlobalEntity
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/27/01
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::maxGlobalEntity() const
+int EpetraParMap::maxGlobalEntity() const
 {
   return petraMap_->MaxAllGID();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::globalToLocalIndex
+// Function      : EpetraParMap::globalToLocalIndex
 // Purpose       : dereference Global to Local Index
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/6/00
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::globalToLocalIndex(int global_index) const
+int EpetraParMap::globalToLocalIndex(int global_index) const
 {
   return petraMap_->LID(global_index);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::localToGlobalIndex
+// Function      : EpetraParMap::localToGlobalIndex
 // Purpose       : dereference Local to Global Index
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 05/10/06
 //-----------------------------------------------------------------------------
-int N_PDS_EpetraParMap::localToGlobalIndex(int local_index) const
+int EpetraParMap::localToGlobalIndex(int local_index) const
 {
   return petraMap_->GID(local_index);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : N_PDS_EpetraParMap::print
+// Function      : EpetraParMap::writeToFile
+// Purpose       : write out map
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist 
+// Creation Date : 12/14/20
+//-----------------------------------------------------------------------------
+void EpetraParMap::writeToFile(const char * filename) const
+{
+  EpetraExt::BlockMapToMatrixMarketFile( filename, *petraMap_ );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraParMap::print
 // Purpose       : print map
 // Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist 
 // Creation Date : 09/30/20
 //-----------------------------------------------------------------------------
-void N_PDS_EpetraParMap::print(std::ostream &os) const
+void EpetraParMap::print(std::ostream &os) const
 {
   petraMap_->Print(os);
 }
+
+} // namespace Parallel
+} // namespace Xyce
 

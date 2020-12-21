@@ -123,6 +123,20 @@ ESLoader::ESLoader(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ESLoader::~ESLoader
+// Purpose       : destructor
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+ESLoader::~ESLoader()
+{ 
+  delete bmdQdxPtr_;
+  delete bmdFdxPtr_;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ESLoader::registerESBuilder
 // Purpose       : Registration method for the ES builder
 // Special Notes :
@@ -133,8 +147,8 @@ ESLoader::ESLoader(
 void ESLoader::registerESBuilder( Teuchos::RCP<Linear::ESBuilder> esBuilderPtr )
 {
   esBuilderPtr_ = esBuilderPtr;
-  bmdQdxPtr_ = esBuilderPtr_->createBlockMatrix();
-  bmdFdxPtr_ = esBuilderPtr_->createBlockMatrix();
+  bmdQdxPtr_ = dynamic_cast<Linear::BlockMatrix *>(esBuilderPtr_->createMatrix());
+  bmdFdxPtr_ = dynamic_cast<Linear::BlockMatrix *>(esBuilderPtr_->createMatrix());
 }
 
 //-----------------------------------------------------------------------------

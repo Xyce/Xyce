@@ -52,38 +52,36 @@
 #include <N_PDS_Comm.h>
 #include <N_ERH_ErrorMgr.h>
 
+namespace Xyce {
+namespace Parallel {
+
 //-----------------------------------------------------------------------------
-// Class         : N_PDS_EpetraMPIComm
+// Class         : EpetraMPIComm
 // Purpose       : Parallel communication class for Xyce.  This class
 //                 will contain parallel data and functions.
 // Special Notes :
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 06/26/01
 //-----------------------------------------------------------------------------
-class N_PDS_EpetraMPIComm : public N_PDS_Comm
+class EpetraMPIComm : public Communicator
 {
 
 public:
 
   // Constructor
-  N_PDS_EpetraMPIComm(int iargs, char * cargs[]);
+  EpetraMPIComm(int iargs, char * cargs[]);
 
 #ifdef Xyce_PARALLEL_MPI
-  N_PDS_EpetraMPIComm( MPI_Comm comm );
+  EpetraMPIComm( MPI_Comm comm );
 #endif
 
   //Destructor
-  ~N_PDS_EpetraMPIComm();
-
-  // Copy constructor - reuse the same Petra_Comm object.
-  N_PDS_EpetraMPIComm(const N_PDS_EpetraMPIComm& right);
-  // Assignment operator - reuse the same Petra_Comm object.
-  N_PDS_EpetraMPIComm & operator = (const N_PDS_EpetraMPIComm& right);
+  ~EpetraMPIComm();
 
   // Cloning
-  N_PDS_Comm * clone() const { return new N_PDS_EpetraMPIComm(* this); }
+  Communicator* clone() const { return new EpetraMPIComm(* this); }
 
-    Xyce::Parallel::Machine comm() const;
+  Xyce::Parallel::Machine comm() const;
     
   // Get my processor ID.
   int procID() const;
@@ -165,12 +163,13 @@ public:
   // the communicator to wait until all processors have arrived.
   void barrier() const;
 
-protected:
+private:
+  
+  // Copy constructor - reuse the same Petra_Comm object.
+  EpetraMPIComm(const EpetraMPIComm& right);
 
   // Serial or parallel flag - "true" implies a serial run.
   bool isSerial_;
-
-private:
 
   // Pointer to library-support comm object.
   bool petraCommOwned_;
@@ -187,5 +186,8 @@ private:
 #endif
 
 };
+
+} // namespace Parallel
+} // namespace Xyce
 
 #endif

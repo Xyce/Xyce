@@ -379,7 +379,7 @@ Pack<Device::ModelBlock>::packedByteCount(const Device::ModelBlock &model_block)
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::ModelBlock>::pack(const Device::ModelBlock &model_block, char * buf, int bsize, int & pos, N_PDS_Comm * comm)
+Pack<Device::ModelBlock>::pack(const Device::ModelBlock &model_block, char * buf, int bsize, int & pos, Parallel::Communicator * comm)
 {
 
   int size, length;
@@ -438,7 +438,7 @@ Pack<Device::ModelBlock>::pack(const Device::ModelBlock &model_block, char * buf
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::ModelBlock>::unpack(Device::ModelBlock &model_block, char * pB, int bsize,int & pos, N_PDS_Comm * comm)
+Pack<Device::ModelBlock>::unpack(Device::ModelBlock &model_block, char * pB, int bsize,int & pos, Parallel::Communicator * comm)
 {
 
   int size, length;
@@ -561,7 +561,7 @@ Pack<Device::InstanceBlock>::packedByteCount(const Device::InstanceBlock &instan
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::InstanceBlock>::pack(const Device::InstanceBlock &instance_block, char * buf, int bsize, int & pos, N_PDS_Comm * comm) 
+Pack<Device::InstanceBlock>::pack(const Device::InstanceBlock &instance_block, char * buf, int bsize, int & pos, Parallel::Communicator * comm) 
 {
 
   int size, length;
@@ -651,7 +651,7 @@ Pack<Device::InstanceBlock>::pack(const Device::InstanceBlock &instance_block, c
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Device::InstanceBlock>::unpack(Device::InstanceBlock &instance_block, char * pB, int bsize, int & pos, N_PDS_Comm * comm)
+Pack<Device::InstanceBlock>::unpack(Device::InstanceBlock &instance_block, char * pB, int bsize, int & pos, Parallel::Communicator * comm)
 {
 
   int size, length;

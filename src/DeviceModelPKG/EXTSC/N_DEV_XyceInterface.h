@@ -76,7 +76,7 @@ class XyceInterface : public ExternCodeInterface
     XyceInterface (const XyceInterface &right);
 
   public:
-    bool initialize(N_PDS_Comm * comm = 0);
+    bool initialize(Parallel::Communicator* comm = 0);
 
   bool simulateStep(
     const SolverState &                         solState,

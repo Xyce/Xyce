@@ -218,7 +218,7 @@ Pack<Util::OptionBlock>::packedByteCount(
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Util::OptionBlock>::pack(const Util::OptionBlock &option_block, char * buf, int bsize, int & pos, N_PDS_Comm * comm)
+Pack<Util::OptionBlock>::pack(const Util::OptionBlock &option_block, char * buf, int bsize, int & pos, Parallel::Communicator * comm)
 {
   if (DEBUG_TOPOLOGY)
     Xyce::dout() << "Packing OptionBlock: " << option_block.getName() << std::endl;
@@ -258,7 +258,7 @@ Pack<Util::OptionBlock>::pack(const Util::OptionBlock &option_block, char * buf,
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Util::OptionBlock>::unpack(Util::OptionBlock &option_block, char * pB, int bsize,int & pos, N_PDS_Comm * comm)
+Pack<Util::OptionBlock>::unpack(Util::OptionBlock &option_block, char * pB, int bsize,int & pos, Parallel::Communicator * comm)
 {
   int size = 0;
   int length = 0;

@@ -57,6 +57,7 @@ class Operator
 {
 
 public:
+  virtual ~Operator() {}
 
   //Apply method
   virtual int apply(const Linear::MultiVector& X, Linear::MultiVector& Y, 

@@ -6,7 +6,7 @@
 # -- process files for this library ------------------------------------------
 
 # add class files that should be included in this directory's library
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_NLS_ConductanceExtractor.C
       N_NLS_ConstraintBT.C
       N_NLS_DampedNewton.C
@@ -33,7 +33,7 @@ target_sources(XyceStatic PRIVATE
       N_NLS_SensitivityResiduals.C
       N_NLS_TwoLevelNewton.C )
 # add header files to project
-target_include_directories(XyceStatic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

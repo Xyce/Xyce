@@ -724,7 +724,7 @@ const Base *Manager::find(const std::string &name) const
 // Creation Date : 4/8/13
 //-----------------------------------------------------------------------------
 void Manager::remeasure(
-  N_PDS_Comm &pds_comm,
+  Parallel::Communicator &pds_comm,
   const std::string &netlist_filename,
   const std::string &remeasure_path,
   const char& analysisName,
@@ -893,7 +893,7 @@ void Manager::remeasure(
   // this safeBarrier will cause remeasure to error out if any of the MeasureOps are invalid.
   Report::safeBarrier(pds_comm.comm());
 
-  Teuchos::RCP<N_PDS_ParMap> aParMap = Teuchos::rcp( Parallel::createPDSParMap(numVars, numLocalVars, lbMap, 0, pds_comm) );
+  Teuchos::RCP<Parallel::ParMap> aParMap = Teuchos::rcp( Parallel::createPDSParMap(numVars, numLocalVars, lbMap, 0, pds_comm) );
   Linear::Vector varValuesVec(*aParMap);
   varValuesVec.putScalar(0);
   

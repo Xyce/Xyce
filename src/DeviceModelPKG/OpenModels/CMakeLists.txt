@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-target_sources(XyceStatic PRIVATE
+target_sources(XyceLib PRIVATE
       N_DEV_RegisterOpenDevices.C
       N_DEV_ArtificialParameters.C
       N_DEV_ACC.C
@@ -56,7 +56,7 @@ target_sources(XyceStatic PRIVATE
       N_DEV_Delay.C)
 
 # add header files to project
-target_include_directories(XyceStatic PUBLIC
+target_include_directories(XyceLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${REACTION_PARSER_INC})
 

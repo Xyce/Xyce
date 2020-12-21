@@ -40,10 +40,9 @@
 #define Xyce_N_LAS_Vector_h
 
 #include <N_LAS_MultiVector.h>
+#include <N_PDS_fwd.h>
 
 #include <Epetra_Vector.h>
-
-class N_PDS_ParMap;
 
 namespace Xyce {
 namespace Linear {
@@ -62,17 +61,12 @@ class Vector : public MultiVector
 public:
 
   // Constructors to map to Petra constructors.
-  Vector(N_PDS_ParMap & map)
+  Vector(Parallel::ParMap & map)
   : MultiVector(map, 1)
   {}
 
-  Vector( N_PDS_ParMap & map, N_PDS_ParMap & ol_map )
+  Vector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
   : MultiVector( map, ol_map, 1 )
-  {}
-
-  //Copy constructor
-  Vector( const Vector & right )
-  : MultiVector(right)
   {}
 
   // Constructor that wraps an Epetra vector inside a Linear::Vector.
@@ -84,6 +78,12 @@ public:
 
   // Destructor
   virtual ~Vector() {}
+
+  // Clone operation:
+  Vector* clone() const;
+
+  // Clone operation:
+  Vector* cloneCopy() const;
 
   // Operation: operator []
   double & operator[] (int index)
@@ -105,6 +105,21 @@ public:
 
   // Dot product with another vector.
   double dotProduct(const Vector & y) const;
+
+  Epetra_Vector& epetraObj()
+  { return *(*aMultiVector_)(0); }
+
+  const Epetra_Vector& epetraObj() const
+  { return *(*aMultiVector_)(0); }
+
+protected:
+
+  //Copy constructor
+  Vector( const Vector & right )
+  : MultiVector(right)
+  {}
+
+
 };
 
 } // namespace Linear

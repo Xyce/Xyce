@@ -95,7 +95,7 @@ class Migrate
   typedef typename std::vector<char> Buffer;
 
   // Constructor
-  Migrate( Comm & comm )
+  Migrate( Communicator & comm )
   : comm_(comm),
     imports_(0),
     importSize_(0)
@@ -132,7 +132,7 @@ class Migrate
   
  protected:
 
-  Comm & comm_;
+  Communicator & comm_;
 
   char * imports_;
   int    importSize_;
@@ -156,7 +156,7 @@ class Migrate1
   typedef typename std::vector<char>  Buffer;
 
   // Constructor
-  Migrate1( Comm & comm )
+  Migrate1( Communicator & comm )
   : comm_(comm),
     imports_(0),
     importSize_(0)
@@ -186,7 +186,7 @@ class Migrate1
   
  protected:
 
-  Comm & comm_;
+  Communicator & comm_;
 
   char * imports_;
   int    importSize_;

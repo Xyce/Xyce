@@ -61,7 +61,7 @@ class Indexor
 public:
 
   // Constructor
-  Indexor( N_PDS_Manager &pds)
+  Indexor( Parallel::Manager &pds)
   : pdsMgr_(pds),
     accelMatrixIndex_(false)
   { }
@@ -91,7 +91,7 @@ private:
 private:
 
   // Pointer to the PDS manager.
-  N_PDS_Manager &               pdsMgr_;
+  Parallel::Manager &           pdsMgr_;
   bool                          accelMatrixIndex_;
   std::vector< std::map<int,int> > matrixIndexMap_;
 

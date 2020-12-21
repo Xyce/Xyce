@@ -45,6 +45,7 @@ class AztecOOSolver;
 
 class BlockMatrix;
 class BlockVector;
+class BlockMultiVector;
 class Builder;
 class ESBuilder;
 class ESBuilder2;

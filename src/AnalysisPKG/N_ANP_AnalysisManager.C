@@ -76,6 +76,7 @@
 #include <N_UTL_Timer.h>
 
 #include <N_PDS_Comm.h>
+#include <N_PDS_Manager.h>
 
 #include <expressionGroup.h>
 
@@ -1407,7 +1408,7 @@ TimeIntg::TIAParams & AnalysisManager::getTIAParams()
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 04/19/02
 //-----------------------------------------------------------------------------
-bool AnalysisManager::registerParallelServices(N_PDS_Manager * pds)
+bool AnalysisManager::registerParallelServices(Parallel::Manager * pds)
 {
   parallelManager_ = pds;
 

@@ -2440,6 +2440,10 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
     {
        // do nothing for now
     }
+    else if ( std::string( (*it).uTag() ,0,9) == "ACOBJFUNC") // this is a vector
+    {
+       // do nothing for now
+    }
     else if (std::string((*it).uTag(), 0, 5) == "PARAM")
     {
       parameters.push_back((*it).stringValue());

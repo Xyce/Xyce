@@ -881,7 +881,7 @@ int DampedNewton::takeOneSolveStep()
 void DampedNewton::updateX_()
 {
   if (!basicNewton_)
-    dsPtr_->nextSolutionPtr->daxpy(*dsPtr_->tmpSolVectorPtr,
+    dsPtr_->nextSolutionPtr->axpy(*dsPtr_->tmpSolVectorPtr,
                                   stepLength_,
                                   *searchDirectionPtr_);
   else

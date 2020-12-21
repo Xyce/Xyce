@@ -155,7 +155,7 @@ protected:
 
 
   void convertPointToPCE (int index, Stokhos::OrthogPolyApprox<int,double> & pceApprox);
-  void evaluateVector (Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr_);
+  void evaluateVector (Teuchos::RCP<Linear::BlockVector> & bX_quad_ptr_);
   void outputXvectors(); // hack output, X vectors to stdout
   void hackPCEOutput2(); // new one, outputs *everything* to a plot file
 
@@ -189,7 +189,7 @@ private:
   SweepVector           dcSweepVector_;
   int                   maxParamStringSize_;
 
-  N_PDS_Manager *       pdsMgrPtr_;
+  Parallel::Manager *       pdsMgrPtr_;
 
   std::vector<std::string> paramNameVec_;
   std::vector<std::string> typeVec_;

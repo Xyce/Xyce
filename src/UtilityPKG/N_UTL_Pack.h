@@ -52,10 +52,10 @@ public:
   static int packedByteCount(const T &t);
 
   // Packs OptionBlock into char buffer using MPI_PACK.
-  static void pack(const T &t, char * buf, int bsize, int & pos, N_PDS_Comm * comm);
+  static void pack(const T &t, char * buf, int bsize, int & pos, Parallel::Communicator * comm);
 
   // Unpacks OptionBlock from char buffer using MPI_UNPACK.
-  static void unpack(T &t, char * pB, int bsize, int & pos, N_PDS_Comm * comm);
+  static void unpack(T &t, char * pB, int bsize, int & pos, Parallel::Communicator * comm);
 };
 
 // Counts bytes needed to pack block.
@@ -67,13 +67,13 @@ inline int packedByteCount(const T &t) {
 
 // Packs OptionBlock into char buffer using MPI_PACK.
 template <class T>
-void pack(const T &t, char * buf, int bsize, int & pos, N_PDS_Comm * comm) {
+void pack(const T &t, char * buf, int bsize, int & pos, Parallel::Communicator * comm) {
   Pack<T>::pack(t, buf, bsize, pos, comm);
 }
 
 // Unpacks OptionBlock from char buffer using MPI_UNPACK.
 template <class T>
-void unpack(T &t, char * pB, int bsize, int & pos, N_PDS_Comm * comm) {
+void unpack(T &t, char * pB, int bsize, int & pos, Parallel::Communicator * comm) {
   Pack<T>::unpack(t, pB, bsize, pos, comm);
 }
 

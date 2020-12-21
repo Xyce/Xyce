@@ -64,13 +64,6 @@ public:
   virtual ~Communicator()
   {}
 
-private:
-  Communicator(const Communicator & right);
-  Communicator & operator=(const Communicator & right);
-
-  bool operator==(const Communicator & right) const;
-  bool operator!=(const Communicator & right) const;
-
 public:
   virtual Communicator *clone() const = 0;
 
@@ -157,7 +150,5 @@ public:
 
 } // namespace Parallel
 } // namespace Xyce
-
-typedef Xyce::Parallel::Communicator N_PDS_Comm;
 
 #endif // Xyce_N_PDS_Comm_h

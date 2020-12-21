@@ -805,7 +805,7 @@ std::ostream &operator<<(std::ostream & os, const Param & p)
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, Parallel::Communicator * comm )
 {
 
   int length = 0;
@@ -980,7 +980,7 @@ Pack<Util::Param>::packedByteCount(const Util::Param &param)
 //-----------------------------------------------------------------------------
 template<>
 void
-Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & pos, N_PDS_Comm * comm )
+Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & pos, Parallel::Communicator * comm )
 {
   int length;
   std::string tmp;

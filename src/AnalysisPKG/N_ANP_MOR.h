@@ -202,7 +202,7 @@ private:
 
     // Reduced system (sparse)
     RCP<Linear::Matrix> redCPtr_, redGPtr_;
-    RCP<N_PDS_ParMap> redMapPtr_;
+    RCP<Parallel::ParMap> redMapPtr_;
 
     // Reduced system, real-equivalent form (dense)
     Teuchos::SerialDenseMatrix<int, double> sCpG_redMatrix_, sCpG_tmpMatrix_;

@@ -65,8 +65,8 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
-                                    const Teuchos::RCP<N_PDS_ParMap> & globalMap,
-                                    const Teuchos::RCP<N_PDS_ParMap> & subBlockMap
+                                    const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                    const Teuchos::RCP<Parallel::ParMap> & subBlockMap
                                   )
 : MultiVector( *globalMap, numVectors ),
   blocksViewGlobalVec_(true),
@@ -89,7 +89,7 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
 
   aMultiVector_->ExtractView( &Ptrs );
 
-  N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
+  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
 
   for( int i = 0; i < numBlocks; ++i )
   {
@@ -101,87 +101,6 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
   }
 
   free(Loc);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : BlockMultiVector::BlockMultiVector
-// Purpose       : copy constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Computational Sciences
-// Creation Date : 03/13/04
-//-----------------------------------------------------------------------------
-BlockMultiVector::BlockMultiVector( const BlockMultiVector & rhs )
-: MultiVector( dynamic_cast<const MultiVector&>(rhs) ),
-  blocksViewGlobalVec_( rhs.blocksViewGlobalVec_ ),
-  globalBlockSize_( rhs.globalBlockSize_ ),
-  localBlockSize_( rhs.localBlockSize_ ),
-  numBlocks_( rhs.numBlocks_ ),
-  startBlock_( rhs.startBlock_ ),
-  endBlock_( rhs.endBlock_ ),
-  newBlockMap_( rhs.newBlockMap_ ),
-  blocks_( rhs.blocks_.size() )
-{
-  if (blocksViewGlobalVec_)
-  {
-    // If the startBlock_ and endBlock_ cover every block in this vector than this is a time-domain representation
-    // or serial simulation, in which case a frequency-domain distinction need not be made.
-    if ((startBlock_ == 0) && (endBlock_ == numBlocks_))
-    {
-      int numBlocks = blocks_.size();
-
-      // Setup Views of blocks using Block Map
-      double ** Ptrs, ** Loc;
-      Loc = (double**)malloc(sizeof(double*) * numVectors());
-
-      aMultiVector_->ExtractView( &Ptrs );
-
-      N_PDS_EpetraParMap& e_map = dynamic_cast<N_PDS_EpetraParMap&>(*newBlockMap_);
-
-      for( int i = 0; i < numBlocks; ++i )
-      {
-        for ( int j = 0; j < numVectors(); ++j )
-        {
-          Loc[j] = Ptrs[j] + localBlockSize_*i;
-        }
-        blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*(e_map.petraMap())), Loc, numVectors() ), true ) );
-      }
-
-      free(Loc);
-    }
-    else
-    {
-      // This is a frequency-domain representation of the block vector, so create views accordingly.
-      int blockSize = globalBlockSize_;
-
-      // Setup Views of blocks using Block Map
-      double ** Ptrs, **Loc;
-      Loc = (double**)malloc(sizeof(double*) * numVectors());
-
-      aMultiVector_->ExtractView( &Ptrs );
-      for ( int j = 0; j < numVectors(); ++j )
-      {
-        Loc[j] = Ptrs[j];
-      } 
-
-      for( int i = 0; i < numBlocks_; ++i )
-      {
-        // Create a MultiVector that views all the block data that is local.
-        blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, ((rhs.blocks_[i])->epetraObj()).Map(), Loc, numVectors() ), true ) );
-
-        if ( (i >= startBlock_) && (i < endBlock_) )
-        {
-          for ( int j = 0; j < numVectors(); ++j )
-          {
-            // Advance the pointer for the local data.
-            Loc[j] += blockSize;
-          }
-        }
-      }
-
-      free(Loc);
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------

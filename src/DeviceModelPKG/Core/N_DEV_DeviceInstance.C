@@ -712,8 +712,8 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
     const std::string & paramName,
     std::vector <std::vector<double> > & d_dfdx_dp,
     std::vector <std::vector<double> > & d_dqdx_dp,
-    std::vector<int> & FindicesVec,
-    std::vector<int> & QindicesVec,
+    std::vector<int> & Findices,
+    std::vector<int> & Qindices,
     std::vector< std::vector<int> > & FjacLIDs,
     std::vector< std::vector<int> > & QjacLIDs )
 {
@@ -751,13 +751,26 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
   if (found)
   {
     // get the vector and matrix indices -------
-    // if necessary, consolidate the LIDs vector.
+    // consolidate the LIDs vector.  (this just puts the external and internal LIDs into 1 vector)
     consolidateDevLIDs();
 
+    // NOTE:  the use of the lidCheckMap was an attempt to make sure that 
+    // I didn't double count anything.  I eventually gave up on that, however,
+    // as I screwed up the logic and that caused problems.
+    //
+    // Now, I go ahead and compute things more than once, if the same 
+    // element appears multiple times in the LIDs.  That should be OK,
+    // as the AC class that uses this information will just overwrite 
+    // any duplicates.
     if ( !(devLIDs.empty()))
     {
-      if (!(FindicesVec.empty())) {  FindicesVec.clear(); }
-      if (!(QindicesVec.empty())) {  QindicesVec.clear(); }
+      if (devJacLIDs.size() != devLIDs.size() ) // Houston we have a problem
+      {
+        Report::DevelFatal().in("DeviceInstance::getNumericalMatrixSensitivity") << "Internal Error 1";
+      }
+
+      if (!(Findices.empty())) {  Findices.clear(); }
+      if (!(Qindices.empty())) {  Qindices.clear(); }
 
       if (!(FjacLIDs.empty())) {  FjacLIDs.clear(); }
       if (!(QjacLIDs.empty())) {  QjacLIDs.clear(); }
@@ -769,42 +782,43 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       {
         int newID = devLIDs[i];
 
-        std::vector<int> & jacRow = devJacLIDs[i]; // experiment
+        std::vector<int> jacRow = devJacLIDs[i]; 
+        // sort and unique:
+        std::sort(jacRow.begin(), jacRow.end());
+        std::vector<int>::iterator it = std::unique ( jacRow.begin(), jacRow.end());
 
-        if (lidCheckMap.find(newID) == lidCheckMap.end())
+        if (lidCheckMap.find(newID) == lidCheckMap.end()) 
         {
-          FindicesVec.push_back(newID);
+          Findices.push_back(newID);
           lidCheckMap[newID] = i;
 
           FjacLIDs.push_back(jacRow); // experiment
         }
       }
 
-      std::vector<int> stateIndicesVec;
+      std::vector<int> stateIndices;
       const IdVector & stateDevLIDs = getStaLIDVec();
       for (int i=0;i<stateDevLIDs.size();++i)
       {
         int newID = stateDevLIDs[i];
-        if (stateLidCheckMap.find(newID) == stateLidCheckMap.end())
+        if (stateLidCheckMap.find(newID) == stateLidCheckMap.end()) 
         {
-          stateIndicesVec.push_back(newID);
+          stateIndices.push_back(newID);
           stateLidCheckMap[newID] = i;
         }
       } 
 
-      QindicesVec.insert(QindicesVec.end(), FindicesVec.begin(), FindicesVec.end()); 
-
-      if (devJacLIDs.size() != devLIDs.size() ) // Houston we have a problem
-      {
-        Report::DevelFatal().in("DeviceInstance::getNumericalMatrixSensitivity") << "Internal Error 1";
-      }
+      Qindices.insert(Qindices.end(), Findices.begin(), Findices.end()); 
 
       QjacLIDs.resize(FjacLIDs.size());
-      for (int i=0 ; i<numRows ; ++i)
+      for (int i=0 ; i<QjacLIDs.size() ; ++i)
       {
         int jCol = FjacLIDs[i].size(); QjacLIDs[i].resize(jCol);
         for (int j=0 ; j<jCol ; ++j) { QjacLIDs[i][j] = FjacLIDs[i][j]; }
       }
+
+      // now that the Findices, Qindices, FjacLIDs and QjacLIDs are set up, ONLY use these.  
+      // Do not use devLIDs or jacDevLIDs, since these may still contain duplicates.
 
       // grab some references
       Linear::Vector & Fvec          = (*extData.daeFVectorPtr);
@@ -822,21 +836,21 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       Linear::Matrix & dQdxMat      = (*extData.dQdxMatrixPtr);
       Linear::Matrix & dFdxMat      = (*extData.dFdxMatrixPtr);
 
-      int solSize=FindicesVec.size();
-      int stateSize=stateIndicesVec.size();
+      int solSize=Findices.size();
+      int stateSize=stateIndices.size();
 
       mlData.resizeSolnSizedVectors (solSize);
       mlData.resizeStateSizedVectors (stateSize);
 
-      std::vector< std::vector<double> > & numJacF = mlData.numJac;
+      std::vector< std::vector<double> > & pertJacF = mlData.numJac;
       std::vector< std::vector<double> > & saveJacF = mlData.saveJac;
       std::vector< std::vector<double> > & devJacF = mlData.devJac;
 
-      std::vector< std::vector<double> > & numJacQ = mlData.numJacQ;
+      std::vector< std::vector<double> > & pertJacQ = mlData.numJacQ;
       std::vector< std::vector<double> > & saveJacQ = mlData.saveJacQ;
       std::vector< std::vector<double> > & devJacQ = mlData.devJacQ;
 
-      std::vector< std::vector<int> > & stencil = mlData.stencil;
+      //std::vector< std::vector<int> > & stencil = mlData.stencil;
 
       std::vector<double> & saveF = mlData.saveF;
       std::vector<double> & saveQ = mlData.saveQ;
@@ -852,26 +866,26 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       saveB.assign(saveB.size(),0.0);
 
       // zero out the matrix stuff
-      for (int i=0;i<numJacF.size();++i)
+      for (int i=0;i<pertJacF.size();++i)
       {
-        numJacF[i].assign(numJacF[i].size(),0.0);
+        pertJacF[i].assign(pertJacF[i].size(),0.0);
         saveJacF[i].assign(saveJacF[i].size(),0.0);
         devJacF[i].assign(devJacF[i].size(),0.0);
-        stencil[i].assign(stencil[i].size(),0);
+        //stencil[i].assign(stencil[i].size(),0);
 
-        numJacQ[i].assign(numJacQ[i].size(),0.0);
+        pertJacQ[i].assign(pertJacQ[i].size(),0.0);
         saveJacQ[i].assign(saveJacQ[i].size(),0.0);
         devJacQ[i].assign(devJacQ[i].size(),0.0);
       }
 
       d_dfdx_dp.clear();
       d_dqdx_dp.clear();
-      d_dfdx_dp.resize(numJacF.size());
-      d_dqdx_dp.resize(numJacF.size());
-      for (int i=0;i<numJacF.size();++i)
+      d_dfdx_dp.resize(pertJacF.size());
+      d_dqdx_dp.resize(pertJacF.size());
+      for (int i=0;i<pertJacF.size();++i)
       {
-        d_dfdx_dp[i].resize(numJacF.size(),0.0);
-        d_dqdx_dp[i].resize(numJacF.size(),0.0);
+        d_dfdx_dp[i].resize(pertJacF.size(),0.0);
+        d_dqdx_dp[i].resize(pertJacF.size(),0.0);
       }
 
       // save RHS information
@@ -879,45 +893,43 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
 
       for (int i=0; i<saveF.size(); ++i)
       {
-        saveF[i]      = Fvec[FindicesVec[i]];
-        saveQ[i]      = Qvec[FindicesVec[i]];
-        saveB[i]      = Bvec[FindicesVec[i]];
+        saveF[i]      = Fvec[Findices[i]];
+        saveQ[i]      = Qvec[Findices[i]];
+        saveB[i]      = Bvec[Findices[i]];
       }
       const std::vector<int> & devStateLIDs = getStaLIDVec();
       for (int i=0; i<saveLastState.size(); ++i)
       {
-        saveLastState[i] = lastSta[stateIndicesVec[i]];
-        saveCurrState[i] = currSta[stateIndicesVec[i]];
-        saveNextState[i] = nextSta[stateIndicesVec[i]];
-        saveStateDerivs[i] = nextStaDeriv[stateIndicesVec[i]];
+        saveLastState[i] = lastSta[stateIndices[i]];
+        saveCurrState[i] = currSta[stateIndices[i]];
+        saveNextState[i] = nextSta[stateIndices[i]];
+        saveStateDerivs[i] = nextStaDeriv[stateIndices[i]];
       }
 
       // re-load for just this instance:
       numJacPtr->loadLocalDAEVectorsIncludingB(*this);
 
-      // save the Jacobian matrix information
-      for (int i=0 ; i<numRows ; ++i)
+      // save the Jacobian matrix information, to be restored afterwards
+      for (int i=0 ; i<Findices.size(); ++i)
       {
-        int jCol = devJacLIDs[i].size();
+        int jCol = FjacLIDs[i].size();
         for (int j=0 ; j<jCol ; ++j)
         {
-          double valF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          double valF = dFdxMat[Findices[i]][FjacLIDs[i][j]];
           saveJacF[i][j] = valF;
-          double valQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
+          double valQ = dQdxMat[Qindices[i]][QjacLIDs[i][j]];
           saveJacQ[i][j] = valQ;
         }
       }
 
-      // Zeroing needs to be done after all saved values are
-      // recorded because there can be multiple references
-      // to the same element
-      for (int i=0 ; i<numRows ; ++i)
+      // Zero out the relevant portions of dFdx and dQdx
+      for (int i=0 ; i<Findices.size(); ++i)
       {
-        int jCol = devJacLIDs[i].size();
+        int jCol = FjacLIDs[i].size();
         for (int j=0 ; j<jCol ; ++j)
         {
-          dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-          dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
+          dFdxMat[Findices[i]][FjacLIDs[i][j]] = 0.0;
+          dQdxMat[Findices[i]][QjacLIDs[i][j]] = 0.0;
         }
       }
 
@@ -927,31 +939,35 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       loadDAEdQdx ();
       loadDAEdFdx ();
 
-      for (int i=0 ; i<numRows ; ++i)
+      // Use the reduced Findices and 
+      for (int i=0 ; i<Findices.size() ; ++i)
       {
         devJacF[i].assign(devJacF[i].size(),0.0);
         devJacQ[i].assign(devJacQ[i].size(),0.0);
-        stencil[i].assign(stencil[i].size(),0);
+        //stencil[i].assign(stencil[i].size(),0); // this should not be necessary at this point - duplicates were removed during the LID setup
 
-        int jCol = devJacLIDs[i].size();
+        int jCol = FjacLIDs[i].size();
         for (int j=0 ; j<jCol ; ++j)
         {
-          double valF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
-          devJacF[i][jacStamp[i][j]] = valF;
-          double valQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
-          devJacQ[i][jacStamp[i][j]] = valQ;
-          stencil[i][jacStamp[i][j]] = 1;
+          //if (stencil[i][j] == 0)
+          {
+            double valF = dFdxMat[Findices[i]][FjacLIDs[i][j]];
+            devJacF[i][j] = valF;
+            double valQ = dQdxMat[Qindices[i]][QjacLIDs[i][j]];
+            devJacQ[i][j] = valQ;
+            //stencil[i][j] = 1;
+          }
         }
       }
 
       // zero again
-      for (int i=0 ; i<numRows ; ++i)
+      for (int i=0 ; i<Findices.size(); ++i)
       {
-        int jCol = devJacLIDs[i].size();
+        int jCol = FjacLIDs[i].size();
         for (int j=0 ; j<jCol ; ++j)
         {
-          dFdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
-          dQdxMat[devLIDs[i]][devJacLIDs[i][j]] = 0;
+          dFdxMat[Findices[i]][FjacLIDs[i][j]] = 0.0;
+          dQdxMat[Findices[i]][QjacLIDs[i][j]] = 0.0;
         }
       }
 
@@ -987,18 +1003,24 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       loadDAEdFdx ();
 
       // Save the new matrix, compute the derivatives
-      for (int i=0 ; i<numRows ; ++i)
+      for (int i=0 ; i<Findices.size(); ++i)
       {
-        int jCol = devJacLIDs[i].size();
+        //stencil[i].assign(stencil[i].size(),0);
+
+        int jCol = FjacLIDs[i].size();
         for (int j=0 ; j<jCol ; ++j)
         {
-          double pertValF = dFdxMat[devLIDs[i]][devJacLIDs[i][j]];
-          numJacF[i][j] = pertValF;
-          double pertValQ = dQdxMat[devLIDs[i]][devJacLIDs[i][j]];
-          numJacQ[i][j] = pertValQ;
+          //if (stencil[i][j] == 0)
+          {
+            double pertValF = dFdxMat[Findices[i]][FjacLIDs[i][j]];
+            pertJacF[i][j] = pertValF;
+            double pertValQ = dQdxMat[Qindices[i]][QjacLIDs[i][j]];
+            pertJacQ[i][j] = pertValQ;
 
-          d_dfdx_dp[i][j] = (pertValF - devJacF[i][j])/dP;
-          d_dqdx_dp[i][j] = (pertValQ - devJacQ[i][j])/dP;
+            d_dfdx_dp[i][j] = (pertValF - devJacF[i][j])/dP;
+            d_dqdx_dp[i][j] = (pertValQ - devJacQ[i][j])/dP;
+            //stencil[i][j] = 1;
+          }
         }
       }
 
@@ -1017,20 +1039,32 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       processInstanceParams();
 
       setOrigFlag(origFlag);
-      for (int i=0; i<FindicesVec.size(); ++i)
+      for (int i=0; i<Findices.size(); ++i)
       {
-        Fvec[FindicesVec[i]] = saveF[i];
-        Qvec[FindicesVec[i]] = saveQ[i];
-        Bvec[FindicesVec[i]] = saveB[i];
+        Fvec[Findices[i]] = saveF[i];
+        Qvec[Findices[i]] = saveQ[i];
+        Bvec[Findices[i]] = saveB[i];
       }
 
       for (int i=0; i<saveLastState.size(); ++i)
       {
-        lastSta[stateIndicesVec[i]] = saveLastState[i];
-        currSta[stateIndicesVec[i]] = saveCurrState[i];
-        nextSta[stateIndicesVec[i]] = saveNextState[i];
-        nextStaDeriv[stateIndicesVec[i]] = saveStateDerivs[i];
+        lastSta[stateIndices[i]] = saveLastState[i];
+        currSta[stateIndices[i]] = saveCurrState[i];
+        nextSta[stateIndices[i]] = saveNextState[i];
+        nextStaDeriv[stateIndices[i]] = saveStateDerivs[i];
       }
+
+      // restore the Jacobian matrix information
+      for (int i=0 ; i<Findices.size() ; ++i)
+      {
+        int jCol = FjacLIDs[i].size();
+        for (int j=0 ; j<jCol ; ++j)
+        {
+          dFdxMat[Findices[i]][FjacLIDs[i][j]] = saveJacF[i][j];
+          dQdxMat[Qindices[i]][QjacLIDs[i][j]] = saveJacQ[i][j];
+        }
+      }
+
     } // devLIDs empty
   } // found
 

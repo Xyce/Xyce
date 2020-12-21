@@ -199,19 +199,6 @@ bool HBDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : HBDirectSolver::getInfo
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 05/20/04
-//-----------------------------------------------------------------------------
-bool HBDirectSolver::getInfo( Util::Param & info )
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : HBDirectSolver::doSolve
 // Purpose       :
 // Special Notes :
@@ -365,7 +352,7 @@ void HBDirectSolver::createBlockStructures()
 
     Teuchos::RCP<Matrix> parMatrix;
     Teuchos::RCP<Vector> parVector;
-    N_PDS_ParMap * columnMapPtr, * rowMapPtr;
+    Parallel::ParMap * columnMapPtr, * rowMapPtr;
     if (numProcs > 1)
     {
       parMatrix = Teuchos::rcp( builder_.createMatrix() );
@@ -700,7 +687,7 @@ void HBDirectSolver::createBlockStructures()
   // Create serial objects for parallel
   if (numProcs > 1)
   {
-    Teuchos::RCP<N_PDS_EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<N_PDS_EpetraParMap>(hbBuilderPtr_->getSolutionMap());
+    Teuchos::RCP<Parallel::EpetraParMap> e_solnMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(hbBuilderPtr_->getSolutionMap());
     serialMap_ = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_solnMap->petraMap()), 0 ) ) );
     serialImporter_ = Teuchos::rcp( new Epetra_Import( *serialMap_, *(e_solnMap->petraMap()) ) );
     serialX_ = Teuchos::rcp( new Epetra_Vector( *serialMap_ ) );
@@ -748,7 +735,7 @@ void HBDirectSolver::formHBJacobian()
 
   Teuchos::RCP<Matrix> parMatrix;
   Teuchos::RCP<Vector> parVector;
-  N_PDS_ParMap * columnMapPtr = 0, * rowMapPtr = 0;
+  Parallel::ParMap * columnMapPtr = 0, * rowMapPtr = 0;
   if (numProcs > 1)
   {
     parMatrix = Teuchos::rcp( builder_.createMatrix() );
@@ -1608,7 +1595,7 @@ void HBDirectSolver::formHBJacobian()
   }
 
   // form frequency-domain RHS vector
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
 
   for (int j=0; j<numVectors; j++)
@@ -1701,8 +1688,8 @@ int HBDirectSolver::solve()
   int linearStatus = 0;
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> X = lasProblem_.getLHS();
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* X = lasProblem_.getLHS();
+  MultiVector* B = lasProblem_.getRHS();
 
   // Initialize solution vector X.
   X->putScalar( 0.0 );
@@ -1928,7 +1915,7 @@ void HBDirectSolver::printHBResidual( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> B = lasProblem_.getRHS();
+  MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
 
   std::ofstream out;
@@ -1985,7 +1972,7 @@ void HBDirectSolver::printHBSolution( const std::string& fileName )
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
-  RCP<MultiVector> X = lasProblem_.getLHS();
+  MultiVector* X = lasProblem_.getLHS();
   int numVectors = X->numVectors();
 
   std::ofstream out;

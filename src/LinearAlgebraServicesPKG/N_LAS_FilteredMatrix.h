@@ -67,7 +67,7 @@ class FilteredMatrix
 public:
 
   //Constructors
-  FilteredMatrix( const Matrix* matrix, const N_PDS_ParMap* map, 
+  FilteredMatrix( const Matrix* matrix, const Parallel::ParMap* map, 
                   bool filterOverlap = true );
 
   FilteredMatrix( const std::vector<int>& ptr, const std::vector<int>& indices,
@@ -77,7 +77,7 @@ public:
   virtual ~FilteredMatrix() {}
 
   // Filter current matrix.
-  bool filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map, bool reset = false );
+  bool filterMatrix( const Matrix* matrix, const Parallel::ParMap* map, bool reset = false );
 
   bool isEmpty() const { return (totalNZRows_ == 0); }
 
@@ -132,7 +132,7 @@ private:
   Teuchos::RCP<Epetra_Import> importer_;
 
   // PDS_ParMap object, if needed.
-  Teuchos::RCP<N_PDS_ParMap> targetMap_;
+  Teuchos::RCP<Parallel::ParMap> targetMap_;
 
   // Local x vector for matvec/axpy
   Teuchos::RCP<MultiVector> targetX_;

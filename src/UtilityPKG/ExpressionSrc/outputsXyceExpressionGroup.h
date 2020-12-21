@@ -105,7 +105,7 @@ friend class mainXyceExpressionGroup;
 public:
 
   outputsXyceExpressionGroup ( 
-      N_PDS_Comm & comm, Topo::Topology & top,
+      Parallel::Communicator & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
@@ -175,7 +175,7 @@ public:
 
 
 private:
-  N_PDS_Comm & comm_;
+  Parallel::Communicator & comm_;
   Topo::Topology & top_;
 
   Analysis::AnalysisManager & analysisManager_;

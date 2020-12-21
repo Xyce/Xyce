@@ -52,8 +52,6 @@
 
 // --------  Forward Declarations --------
 
-class N_PDS_ParMap;
-
 class Epetra_MultiVector;
 class Epetra_Vector;
 class Epetra_Export;
@@ -85,11 +83,11 @@ class MultiVector
 public:
 
   // Constructors to map to Petra constructors.
-  MultiVector( N_PDS_ParMap & map,
+  MultiVector( Parallel::ParMap & map,
                int numVectors = 1 );
 
-  MultiVector( N_PDS_ParMap & map,
-               N_PDS_ParMap & ol_map,
+  MultiVector( Parallel::ParMap & map,
+               Parallel::ParMap & ol_map,
                int numVectors = 1 );
 
   // Constructor that wraps an Epetra multivector inside a Linear::MultiVector.
@@ -102,11 +100,14 @@ public:
   // Assignment operator
   MultiVector & operator=(const MultiVector & right);
 
-  // Copy constructor
-  MultiVector(const MultiVector & right);
-
   //Destructor
   virtual ~MultiVector();
+
+  // Clone operation:
+  virtual MultiVector* clone() const;
+
+  // Clone operation:
+  virtual MultiVector* cloneCopy() const;
 
   // Returns the dot product of "this" vector and another.
   // NOTE:  If *this or y is a single vector, it will return the dot product of each column.
@@ -116,15 +117,11 @@ public:
   // Scale every entry in the multi-vector by "a"
   void scale(const double a);
 
-  // Scale every entry ([i]) in the multi-vector by "a*x[i]"
-  void scale(const double a, const MultiVector & x);
-
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
 
-  // Standard blas DAXPY operation
-  void daxpy(const MultiVector & y, const double a,
-  	const MultiVector & x);
+  // Standard blas AXPY operation
+  void axpy(const MultiVector & y, const double a, const MultiVector & x);
 
   // Linear combination with two constants and vectors
   void linearCombo(const double a, const MultiVector & x,
@@ -227,12 +224,6 @@ public:
   // Dump vector entries to file.
   virtual void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
 
-  // Friend of the Matrix and IterativeSolver classes so their
-  // member functions can access our private members.
-  friend class Matrix;
-  friend class FilteredMatrix;
-  friend class Nonlinear::DampedNewton;
-
   // Get for vector elements by their global index (const version)
   const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
 
@@ -254,14 +245,14 @@ public:
   virtual void print(std::ostream &os) const;
 
   // Get the parallel map associated with this multi-vector
-  N_PDS_ParMap * pmap() { return parallelMap_; }
-  N_PDS_ParMap * omap() { return overlapMap_; }
-  const N_PDS_ParMap * pmap() const { return parallelMap_; }
-  const N_PDS_ParMap * omap() const { return overlapMap_; }
+  Parallel::ParMap * pmap() { return parallelMap_; }
+  Parallel::ParMap * omap() { return overlapMap_; }
+  const Parallel::ParMap * pmap() const { return parallelMap_; }
+  const Parallel::ParMap * omap() const { return overlapMap_; }
 
   // Get the parallel communicator associated with this multi-vector
-  N_PDS_Comm * pdsComm() { return pdsComm_.get(); }
-  const N_PDS_Comm * pdsComm() const { return pdsComm_.get(); }
+  Parallel::Communicator* pdsComm() { return pdsComm_.get(); }
+  const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
   Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
   
@@ -272,11 +263,14 @@ public:
 
 protected:
 
+  // Copy constructor
+  MultiVector(const MultiVector & right);
+
   // Pointer to the multi-vector's parallel map object
-  N_PDS_ParMap* parallelMap_;
+  Parallel::ParMap* parallelMap_;
 
   // Parallel Map for overlapped data
-  N_PDS_ParMap* overlapMap_;
+  Parallel::ParMap* overlapMap_;
 
   // Pointer the Petra multi-vector object.
   Epetra_MultiVector * aMultiVector_;
@@ -294,10 +288,10 @@ protected:
   EpetraExt::MultiVector_View * viewTransform_;
 
   // Communicator object, if one is needed.
-  Teuchos::RCP<N_PDS_Comm> pdsComm_;
+  Teuchos::RCP<Parallel::Communicator> pdsComm_;
 
-  // isOwned flag
-  bool isOwned_;
+  // isOwned flags
+  bool vecOwned_, mapOwned_;
 
   // Map containing extern elements from migration
   std::map<int,double> externVectorMap_;

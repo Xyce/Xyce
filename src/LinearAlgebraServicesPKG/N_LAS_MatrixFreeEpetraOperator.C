@@ -63,7 +63,7 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 RCP<MatrixFreeEpetraOperator> matrixFreeEpetraOperator(
     RCP<Operator> linearOperator,
-    RCP<const N_PDS_ParMap> solutionMap
+    RCP<const Parallel::ParMap> solutionMap
     )
 {
   RCP<MatrixFreeEpetraOperator> epetraOperator =
@@ -110,11 +110,11 @@ MatrixFreeEpetraOperator::~MatrixFreeEpetraOperator()
 //-----------------------------------------------------------------------------
 void MatrixFreeEpetraOperator::initialize(
       RCP<Operator> linearOperator,
-      RCP<const N_PDS_ParMap> solutionMap
+      RCP<const Parallel::ParMap> solutionMap
     )
 {
   linearOperatorRCPtr_ = linearOperator;
-  solutionMap_ = Teuchos::rcp_dynamic_cast<const N_PDS_EpetraParMap>(solutionMap);
+  solutionMap_ = Teuchos::rcp_dynamic_cast<const Parallel::EpetraParMap>(solutionMap);
   isInitialized_ = true;
 }
 

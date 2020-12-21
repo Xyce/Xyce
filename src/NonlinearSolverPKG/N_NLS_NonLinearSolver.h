@@ -126,7 +126,7 @@ public:
   virtual bool registerAnalysisManager(Analysis::AnalysisManager* tmp_anaIntPtr);
   virtual bool registerNonlinearEquationLoader(Loader::NonlinearEquationLoader* ptr);
   virtual bool registerTIADataStore(TimeIntg::DataStore * ptr);
-  virtual bool registerParallelMgr(N_PDS_Manager * ptr);
+  virtual bool registerParallelMgr(Parallel::Manager * ptr);
 
   bool registerTwoLevelSolver (TwoLevelNewton * ptr);
 
@@ -239,7 +239,7 @@ protected:
   ParamMgr * nonlinearParameterManager_;
   IO::OutputMgr * outMgrPtr_;
   IO::InitialConditionsManager * initialConditionsManager_;
-  N_PDS_Manager * pdsMgrPtr_;
+  Parallel::Manager * pdsMgrPtr_;
   TimeIntg::DataStore * dsPtr_;
 
   int numJacobianLoads_;
