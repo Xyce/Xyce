@@ -22,59 +22,63 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : Abstract interface to an importer between two different maps.
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  :
 //
-// Creator        : Ting Mei   
+// Creator        : Heidi Thornquist, SNL
 //
-// Creation Date  : 01/11
+// Creation Date  : 12/19/20
+//
+//
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_fwd_h
-#define Xyce_N_LAS_fwd_h
+#ifndef Xyce_N_LAS_EpetraImporter_h
+#define Xyce_N_LAS_EpetraImporter_h
+
+#include <N_LAS_fwd.h>
+#include <N_PDS_fwd.h>
+
+#include <Epetra_Import.h>
+
+#include <N_LAS_Importer.h>
 
 namespace Xyce {
 namespace Linear {
 
-class AmesosSolver;
-class AztecOOSolver;
+//-----------------------------------------------------------------------------
+// Class         : EpetraImporter
+// Purpose       : Epetra interface to a importer object for two separate maps.
+// Special Notes : 
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 12/19/20
+//-----------------------------------------------------------------------------
+class EpetraImporter : public Importer
+{
 
-class BlockMatrix;
-class BlockVector;
-class BlockMultiVector;
-class Builder;
-class ESBuilder;
-class ESBuilder2;
-class ESSolverFactory;
-class PCEBuilder;
-class PCESolverFactory;
-class HBBuilder;
-class HBSolverFactory;
-class HBPrecondFactory;
-class FilteredMatrix;
-class FilteredMultiVector;
-class Matrix;
-class MultiVector;
-class SolverFactory;
-class PrecondFactory;
-class Preconditioner;
-class Problem;
-class Solver;
-class System;
-struct Transform;
-class Vector;
-class QueryUtil;
-class Operator;
-class Graph;
-class Importer;
+public:
 
-static const int iterativeMin = 10000;
+  // Basic constructor with from and to maps for the importer
+  EpetraImporter( const Parallel::ParMap & target_map, const Parallel::ParMap & source_map );
+
+  // Return Epetra importer object
+  Epetra_Import& epetraObj() { return *importer_; }
+ 
+  // Destructor
+  ~EpetraImporter() { delete importer_; }
+
+private: 
+
+  Epetra_Import * importer_;
+
+  // Copy constructor
+  EpetraImporter( const EpetraImporter& import );
+
+};
 
 } // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_LAS_fwd_h
+#endif

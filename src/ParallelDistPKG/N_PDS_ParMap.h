@@ -69,6 +69,9 @@ public:
   // Destructor
   virtual ~ParMap() {}
 
+  // Clone method
+  virtual ParMap* clone() const = 0;
+
   // Number of global "entities" represented as vertices in the graph. These
   // may be, for example, equations for the linear algebra quantities or
   // devices/nodes for the circuit graph.

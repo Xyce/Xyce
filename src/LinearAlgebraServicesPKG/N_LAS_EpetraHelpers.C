@@ -47,6 +47,7 @@
 #include <N_LAS_Operator.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraImporter.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -112,6 +113,12 @@ Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b )
 {
   return new EpetraProblem( Op, x, b );
+}
+
+Importer* createImporter( const Parallel::ParMap & target_map, 
+                          const Parallel::ParMap & source_map )
+{
+  return new EpetraImporter( target_map, source_map );
 }
 
 void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 

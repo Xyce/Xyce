@@ -72,6 +72,9 @@ public:
   // Destructor
   virtual ~EpetraParMap();
 
+  // Clone method
+  EpetraParMap* clone() const;
+
 private:
 
   // Copy constructor (private).

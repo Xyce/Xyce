@@ -42,6 +42,8 @@ target_sources(XyceLib PRIVATE
       N_LAS_BlockMultiVector.C
       N_LAS_BlockSystemHelpers.C
       N_LAS_EpetraHelpers.C
+      N_LAS_EpetraImporter.C
+      N_LAS_EpetraProblem.C
       N_LAS_MatrixFreeEpetraOperator.C
       N_LAS_Builder.C
       N_LAS_HBDirectSolver.C
@@ -64,7 +66,6 @@ target_sources(XyceLib PRIVATE
       N_LAS_MultiVector.C
       N_LAS_MOROperators.C
       N_LAS_Problem.C
-      N_LAS_EpetraProblem.C
       N_LAS_QueryUtil.C
       N_LAS_TranSolverFactory.C
       N_LAS_System.C

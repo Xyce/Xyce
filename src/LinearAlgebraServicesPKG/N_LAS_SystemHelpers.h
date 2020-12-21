@@ -78,6 +78,8 @@ Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
 
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );
 
+Importer* createImporter( const Parallel::ParMap & target_map, const Parallel::ParMap & source_map );
+
 //-----------------------------------------------------------------------------
 // Function      : extractValues
 // Purpose       : A helper function that extracts the values into another matrix

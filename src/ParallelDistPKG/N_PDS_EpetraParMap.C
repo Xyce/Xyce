@@ -88,6 +88,19 @@ EpetraParMap::~EpetraParMap()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : EpetraParMap::clone
+// Purpose       : Create a copy of the map 
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 12/21/21
+//-----------------------------------------------------------------------------
+EpetraParMap* EpetraParMap::clone() const
+{
+  return new EpetraParMap( new Epetra_Map( *petraMap_ ), pdsComm_, true );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : EpetraParMap::numGlobalEntities
 // Purpose       :
 // Special Notes :

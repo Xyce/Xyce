@@ -218,7 +218,7 @@ public:
   int externVectorSize() const { return externVectorMap_.size(); }
 
   // Import/Export capability
-  bool vectorImport(const MultiVector * vec, Epetra_Import * importer);
+  bool vectorImport(const MultiVector * vec, Importer * importer);
   bool importOverlap();
 
   // Dump vector entries to file.

@@ -46,19 +46,18 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_UTL_fwd.h>
+#include <N_UTL_FeatureTest.h>
 
 #include <N_ERH_ErrorMgr.h>
+
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Graph.h>
 #include <N_LAS_FilteredMatrix.h>
-#include <N_PDS_EpetraParMap.h>
+#include <N_LAS_SystemHelpers.h>
+#include <N_LAS_Importer.h>
+#include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
-#include <N_UTL_FeatureTest.h>
-
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_Vector.h>
-#include <Epetra_Comm.h>
 
 namespace Xyce {
 namespace Linear {
@@ -237,8 +236,6 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const Parallel::ParMap*
   int numMyRows = matrixGraph->numLocalEntities();
   int indexBase = matrixGraph->indexBase();
 
-  const Parallel::EpetraParMap* e_map = dynamic_cast<const Parallel::EpetraParMap*>( map );
-
   // Delete/clear all internal objects and recreate them
   if (reset)
   {
@@ -404,10 +401,9 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const Parallel::ParMap*
       if (globalColsOffProc)
       {
         const Parallel::ParMap* colMap = matrix->getColMap( const_cast<Parallel::Communicator&>( map->pdsComm() ) );
-        const Parallel::EpetraParMap* e_colmap = dynamic_cast<const Parallel::EpetraParMap*>( colMap );
-        importer_ = Teuchos::rcp( new Epetra_Import( *(e_colmap->petraMap()), *(e_map->petraMap() ) ) ); 
-        targetMap_ = Teuchos::rcp( new Parallel::EpetraParMap( new Epetra_Map( *(e_colmap->petraMap()) ),
-                                                           const_cast<Parallel::Communicator&>( map->pdsComm() ), true ) );
+        importer_ = Teuchos::rcp( Xyce::Linear::createImporter( *colMap, *map ) ); 
+        targetMap_ = Teuchos::rcp( colMap->clone() );
+
         // Compute the local indicies for the target map.
         for (unsigned int i=0; i<vecIndices_.size(); i++)
         {

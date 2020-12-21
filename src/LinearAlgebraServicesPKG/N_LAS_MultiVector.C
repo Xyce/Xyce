@@ -47,6 +47,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_EpetraImporter.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_EpetraHelpers.h>
 #include <N_PDS_EpetraParMap.h>
@@ -893,9 +894,10 @@ void MultiVector::fillComplete()
 // Creation Date : 02/09/01
 //-----------------------------------------------------------------------------
 bool MultiVector::vectorImport(const MultiVector * vec,
-                               Epetra_Import * importer)
+                               Importer * importer)
 {
-  aMultiVector_->Import(*(vec->aMultiVector_), *importer, Insert);
+  EpetraImporter * e_importer = dynamic_cast<EpetraImporter *>( importer );
+  aMultiVector_->Import(*(vec->aMultiVector_), e_importer->epetraObj(), Insert);
   return true;
 }
 
