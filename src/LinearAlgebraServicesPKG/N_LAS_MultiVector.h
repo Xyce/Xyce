@@ -83,11 +83,11 @@ class MultiVector
 public:
 
   // Constructors to map to Petra constructors.
-  MultiVector( Parallel::ParMap & map,
+  MultiVector( const Parallel::ParMap & map,
                int numVectors = 1 );
 
-  MultiVector( Parallel::ParMap & map,
-               Parallel::ParMap & ol_map,
+  MultiVector( const Parallel::ParMap & map,
+               const Parallel::ParMap & ol_map,
                int numVectors = 1 );
 
   // Constructor that wraps an Epetra multivector inside a Linear::MultiVector.
@@ -245,13 +245,10 @@ public:
   virtual void print(std::ostream &os) const;
 
   // Get the parallel map associated with this multi-vector
-  Parallel::ParMap * pmap() { return parallelMap_; }
-  Parallel::ParMap * omap() { return overlapMap_; }
   const Parallel::ParMap * pmap() const { return parallelMap_; }
   const Parallel::ParMap * omap() const { return overlapMap_; }
 
   // Get the parallel communicator associated with this multi-vector
-  Parallel::Communicator* pdsComm() { return pdsComm_.get(); }
   const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
   Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
@@ -267,10 +264,10 @@ protected:
   MultiVector(const MultiVector & right);
 
   // Pointer to the multi-vector's parallel map object
-  Parallel::ParMap* parallelMap_;
+  const Parallel::ParMap* parallelMap_;
 
   // Parallel Map for overlapped data
-  Parallel::ParMap* overlapMap_;
+  const Parallel::ParMap* overlapMap_;
 
   // Pointer the Petra multi-vector object.
   Epetra_MultiVector * aMultiVector_;
@@ -288,7 +285,7 @@ protected:
   EpetraExt::MultiVector_View * viewTransform_;
 
   // Communicator object, if one is needed.
-  Teuchos::RCP<Parallel::Communicator> pdsComm_;
+  Teuchos::RCP<const Parallel::Communicator> pdsComm_;
 
   // isOwned flags
   bool vecOwned_, mapOwned_;

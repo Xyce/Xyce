@@ -352,7 +352,7 @@ void HBDirectSolver::createBlockStructures()
 
     Teuchos::RCP<Matrix> parMatrix;
     Teuchos::RCP<Vector> parVector;
-    Parallel::ParMap * columnMapPtr, * rowMapPtr;
+    const Parallel::ParMap * columnMapPtr, * rowMapPtr;
     if (numProcs > 1)
     {
       parMatrix = Teuchos::rcp( builder_.createMatrix() );
@@ -735,7 +735,7 @@ void HBDirectSolver::formHBJacobian()
 
   Teuchos::RCP<Matrix> parMatrix;
   Teuchos::RCP<Vector> parVector;
-  Parallel::ParMap * columnMapPtr = 0, * rowMapPtr = 0;
+  const Parallel::ParMap * columnMapPtr = 0, * rowMapPtr = 0;
   if (numProcs > 1)
   {
     parMatrix = Teuchos::rcp( builder_.createMatrix() );

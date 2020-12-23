@@ -79,15 +79,15 @@ BlockMatrix* createBlockMatrix( int size,
 }
 
 BlockVector* createBlockVector( int numBlocks,
-                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                                const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                                 int augmentRows )
 {
   return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
 }
 
 BlockVector* createBlockVector( int blockSize,
-                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                 int augmentRows )
 {
   return new BlockVector( blockSize, globalMap, augmentRows );
@@ -99,8 +99,8 @@ BlockVector* createBlockVector( const Vector * right, int blockSize )
 }
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
-                                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap )
+                                          const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                                          const Teuchos::RCP<const Parallel::ParMap> & subBlockMap )
 {
   return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
 }
@@ -220,7 +220,9 @@ void copyFromBlockVectors( std::vector<Teuchos::RCP<BlockVector> >& blockVectors
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap )
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, 
+                                                                 const Parallel::ParMap& pmap, 
+                                                                 const Parallel::ParMap& omap )
 {
    // The information about the current maps, given by pmap and omap (overlap map)
    // will be used to generate new parallel maps for the block system.
@@ -249,9 +251,9 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, 
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
+   const Parallel::EpetraParMap& e_pmap = dynamic_cast<const Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   Parallel::EpetraParMap& e_omap = dynamic_cast<Parallel::EpetraParMap&>(omap);
+   const Parallel::EpetraParMap& e_omap = dynamic_cast<const Parallel::EpetraParMap&>(omap);
    e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    int gnd_node = 0;  // Will be decremented before first use.
@@ -301,7 +303,9 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, 
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap )
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, 
+                                                                  const Parallel::ParMap& pmap, 
+                                                                  const Parallel::ParMap& omap )
 {
    // The information about the current maps, given by pmap and omap (overlap map)
    // will be used to generate new parallel maps for the block system.
@@ -334,9 +338,9 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks,
    std::vector<int> GIDs(numLocalElements), oGIDs(onumLocalElements);
 
    // Extract the global indices.
-   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
+   const Parallel::EpetraParMap& e_pmap = dynamic_cast<const Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
-   Parallel::EpetraParMap& e_omap = dynamic_cast<Parallel::EpetraParMap&>(omap);
+   const Parallel::EpetraParMap& e_omap = dynamic_cast<const Parallel::EpetraParMap&>(omap);
    e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
    
    for( int i = 0; i < numBlocks; ++i )
@@ -381,7 +385,7 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks,
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //----------------------------------------------------------------------------- 
-Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMap& pmap, 
+Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, const Parallel::ParMap& pmap, 
                                               int augmentRows, std::vector<int>* augmentedGIDs,
                                               int offset )
 {
@@ -421,7 +425,7 @@ Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMa
    std::vector<int> GIDs(numLocalElements);
 
    // Extract the global indices.
-   Parallel::EpetraParMap& e_pmap = dynamic_cast<Parallel::EpetraParMap&>(pmap);
+   const Parallel::EpetraParMap& e_pmap = dynamic_cast<const Parallel::EpetraParMap&>(pmap);
    e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
 
    for( int i = 0; i < numBlocks; ++i )
@@ -471,7 +475,7 @@ Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMa
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern, 
-                                      Parallel::ParMap& blockMap, const Graph& baseGraph )
+                                      const Parallel::ParMap& blockMap, const Graph& baseGraph )
 {
   int numBlockRows = blockPattern.size();
   int numMyBaseRows = baseGraph.numLocalEntities();
@@ -490,7 +494,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   std::vector<int> newIndices(maxNNZs);  // Make as large as the combined maximum of indices and column blocks
 
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
-  Parallel::EpetraParMap& e_blockMap = dynamic_cast<Parallel::EpetraParMap&>(blockMap);
+  const Parallel::EpetraParMap& e_blockMap = dynamic_cast<const Parallel::EpetraParMap&>(blockMap);
  
   Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *e_blockMap.petraMap(), maxNNZs ));
   
@@ -538,7 +542,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 12/3/13
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, 
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, const Parallel::ParMap& pmap, 
                                                      int augmentRows, std::vector<int>* augmentedLIDs )
 {
    // The information about the current maps, given by pmap
@@ -628,8 +632,8 @@ Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Paral
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 12/3/13
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, 
-                                                     Parallel::ParMap& omap,
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, const Parallel::ParMap& pmap, 
+                                                     const Parallel::ParMap& omap,
                                                      int augmentRows, std::vector<int>* augmentedLIDs )
 {
    // The information about the current maps, given by pmap

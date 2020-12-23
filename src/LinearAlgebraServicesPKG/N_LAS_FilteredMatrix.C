@@ -400,7 +400,7 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const Parallel::ParMap*
 
       if (globalColsOffProc)
       {
-        const Parallel::ParMap* colMap = matrix->getColMap( const_cast<Parallel::Communicator&>( map->pdsComm() ) );
+        const Parallel::ParMap* colMap = matrix->getColMap( map->pdsComm() );
         importer_ = Teuchos::rcp( Xyce::Linear::createImporter( *colMap, *map ) ); 
         targetMap_ = Teuchos::rcp( colMap->clone() );
 

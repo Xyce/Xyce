@@ -398,8 +398,8 @@ void PCEDirectSolver::createBlockStructures()
       Teuchos::RCP<Matrix> parMatrix = Teuchos::rcp( builder_.createMatrix() );
       Teuchos::RCP<Vector> parVector = Teuchos::rcp( builder_.createVector() );
 
-      Parallel::ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
-      Parallel::ParMap * rowMapPtr = parVector->pmap();
+      const Parallel::ParMap * columnMapPtr = parMatrix->getColMap( *builder_.getPDSComm() );
+      const Parallel::ParMap * rowMapPtr = parVector->pmap();
 
       // Determine the number of unique unknowns for each row.
       // This code is inspired by the similar code in the HBDirectSolver that Heidi 

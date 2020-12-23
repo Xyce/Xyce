@@ -63,8 +63,8 @@ namespace Parallel {
 // Creation Date : 05/2/00
 //-----------------------------------------------------------------------------
 EpetraParMap::EpetraParMap(
-  Epetra_Map *          map,
-  Communicator &        aComm,
+  const Epetra_Map *          map,
+  const Communicator &        aComm,
   bool                  mapOwned )
   : ParMap(aComm),
     petraMap_(map),

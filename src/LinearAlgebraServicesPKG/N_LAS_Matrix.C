@@ -826,10 +826,10 @@ bool Matrix::useTranspose ()
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-Parallel::ParMap* Matrix::getOverlapColMap( Parallel::Communicator& comm )
+const Parallel::ParMap* Matrix::getOverlapColMap( const Parallel::Communicator& comm )
 {
   if (!oColMap_)
-    oColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), comm );
+    oColMap_ = new Parallel::EpetraParMap( &oDCRSMatrix_->ColMap(), comm );
   
   return oColMap_;
 }
@@ -842,26 +842,10 @@ Parallel::ParMap* Matrix::getOverlapColMap( Parallel::Communicator& comm )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-Parallel::ParMap* Matrix::getColMap( Parallel::Communicator& comm )
+const Parallel::ParMap* Matrix::getColMap( const Parallel::Communicator& comm ) const
 {
   if (!aColMap_)
-    aColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
-  
-  return aColMap_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 9/6/17
-//-----------------------------------------------------------------------------
-const Parallel::ParMap* Matrix::getColMap( Parallel::Communicator& comm ) const
-{
-  if (!aColMap_)
-    aColMap_ = new Parallel::EpetraParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), comm );
+    aColMap_ = new Parallel::EpetraParMap( &aDCRSMatrix_->ColMap(), comm );
   
   return aColMap_;
 }

@@ -66,8 +66,8 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( int numBlocks,
-                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
+                          const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                          const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                           int augmentRows )
 : Vector( *globalMap ),
   blocksViewGlobalVec_(true),
@@ -86,7 +86,7 @@ BlockVector::BlockVector( int numBlocks,
   aMultiVector_->ExtractView( &Ptrs );
   double * Loc;
 
-  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
 
   for( int i = 0; i < numBlocks; ++i )
   {
@@ -104,7 +104,7 @@ BlockVector::BlockVector( int numBlocks,
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( int blockSize,
-                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                          const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           int augmentRows )
 : Vector( *globalMap ),
   blocksViewGlobalVec_( true ),
@@ -119,7 +119,7 @@ BlockVector::BlockVector( int blockSize,
 {
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                globalMap->indexBase(), globalMap->pdsComm() ) );
-  Teuchos::RCP<Parallel::EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(globalMap);
+  Teuchos::RCP<const Parallel::EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<const Parallel::EpetraParMap>(globalMap);
 
   // Determine where these blocks start and end in the grand scheme of things.
   startBlock_ = (int) std::floor( (double)(e_map->petraMap()->MinMyGID() + 1) / (double)blockSize );
@@ -213,7 +213,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
       aMultiVector_->ExtractView( &Ptrs );
       double * Loc;
 
-      Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
+      const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
 
       for( int i = 0; i < numBlocks; ++i )
       {

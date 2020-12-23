@@ -294,7 +294,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
   //Construct MPDE dFdX Graph
   Teuchos::RCP<Xyce::Parallel::EpetraParMap> e_mpdeMap = Teuchos::rcp_dynamic_cast<Xyce::Parallel::EpetraParMap>(MPDEMap_);
   Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
-                                                           *dynamic_cast<Epetra_BlockMap*>(e_mpdeMap->petraMap()),
+                                                           *(e_mpdeMap->petraMap()),
                                                            0 );
 
   int MaxIndices = BasedFdxGraph_->maxNumIndices();

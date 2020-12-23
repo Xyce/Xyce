@@ -166,6 +166,33 @@ Communicator * createPDSComm( Epetra_Comm* comm )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : createPDSComm
+// Purpose       : Creates an Communicator based on either the Epetra serial or 
+//               : parallel comm object.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/26/01
+//-----------------------------------------------------------------------------
+const Communicator * createPDSComm( const Epetra_Comm* comm )
+{
+  Communicator * pdsComm = NULL;
+
+#ifdef Xyce_PARALLEL_MPI
+  const Epetra_MpiComm * mpicomm = dynamic_cast<const Epetra_MpiComm *>( comm );
+
+  if (mpicomm)
+    pdsComm = new EpetraMPIComm( mpicomm->Comm() );
+  else
+    pdsComm = new EpetraMPIComm( MPI_COMM_WORLD );
+#else
+  pdsComm = new EpetraSerialComm();
+#endif
+
+  return pdsComm;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : getEpetraComm
 // Purpose       : Gets an Epetra serial or parallel comm object based on
 //                 system.

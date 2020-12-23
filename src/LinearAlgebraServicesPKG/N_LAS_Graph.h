@@ -60,10 +60,10 @@ class Graph
 public:
 
   // Basic constructor with map and number of entries per row
-  Graph( Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow );
+  Graph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow );
 
   // Basic constructor with map and maximum number of entries per row
-  Graph( Parallel::ParMap & map, int maxIndicesPerRow );
+  Graph( const Parallel::ParMap & map, int maxIndicesPerRow );
 
   // Simple constructor using Epetra_CrsGraph
   Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph );
@@ -75,7 +75,7 @@ public:
   Graph* cloneCopy() const;
 
   // Create new graph exporting values from this one.
-  Graph* exportGraph( Parallel::ParMap& map ) const;
+  Graph* exportGraph( const Parallel::ParMap& map ) const;
 
   // Get the base index for this graph
   int indexBase() const

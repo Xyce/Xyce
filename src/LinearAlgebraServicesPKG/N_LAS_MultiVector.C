@@ -81,17 +81,18 @@ namespace Linear {
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector(Parallel::ParMap & map, int numVectors)
+MultiVector::MultiVector(const Parallel::ParMap & map, int numVectors)
 :  parallelMap_(&map),
    overlapMap_(&map),
    importer_(0),
    exporter_(0),
    viewTransform_(0),
-   pdsComm_(rcp(&map.pdsComm(),false)), 
    vecOwned_(true),
    mapOwned_(false),
    groundNode_(0.0)
 {
+  pdsComm_ = rcp( &map.pdsComm(),false ); 
+
   if (map.numGlobalEntities() < 0)
   {
     Report::DevelFatal().in("MultiVector::MultiVector")
@@ -104,7 +105,7 @@ MultiVector::MultiVector(Parallel::ParMap & map, int numVectors)
   }
 
   // Create a new Petra MultiVector and set the pointer.
-  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>( map );
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( map );
   aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), numVectors );
 
   oMultiVector_ = aMultiVector_;
@@ -119,26 +120,27 @@ MultiVector::MultiVector(Parallel::ParMap & map, int numVectors)
 // Creation Date : 06/06/02
 //-----------------------------------------------------------------------------
 MultiVector::MultiVector(
-  Parallel::ParMap &        map,
-  Parallel::ParMap &        ol_map,
+  const Parallel::ParMap &        map,
+  const Parallel::ParMap &        ol_map,
   int                   numVectors )
   : parallelMap_(&map),
     overlapMap_(&ol_map),
     importer_(0),
     exporter_(0),
     viewTransform_(0),
-    pdsComm_(rcp(&map.pdsComm(),false)), 
     vecOwned_(true),
     mapOwned_(false),
     groundNode_(0.0)
 {
+  pdsComm_ = rcp( &map.pdsComm(),false ); 
+
   if (map.numGlobalEntities() < 0)
     Report::DevelFatal().in("MultiVector::MultiVector")
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
-  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>( map );
-  Parallel::EpetraParMap& e_ol_map = dynamic_cast<Parallel::EpetraParMap&>( ol_map );
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( map );
+  const Parallel::EpetraParMap& e_ol_map = dynamic_cast<const Parallel::EpetraParMap&>( ol_map );
   oMultiVector_ = new Epetra_MultiVector( *e_ol_map.petraMap(), numVectors);
 
   viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map.petraMap(), *e_map.petraMap() );
@@ -175,8 +177,8 @@ MultiVector::MultiVector( const MultiVector & right )
     aMultiVector_ = oMultiVector_;
   else
   {
-    Parallel::EpetraParMap* e_map = dynamic_cast<Parallel::EpetraParMap*>( parallelMap_ );
-    Parallel::EpetraParMap* e_ol_map = dynamic_cast<Parallel::EpetraParMap*>( overlapMap_ );
+    const Parallel::EpetraParMap* e_map = dynamic_cast<const Parallel::EpetraParMap*>( parallelMap_ );
+    const Parallel::EpetraParMap* e_ol_map = dynamic_cast<const Parallel::EpetraParMap*>( overlapMap_ );
 
     viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map->petraMap(), *e_map->petraMap() );
     aMultiVector_ = &((*viewTransform_)( *oMultiVector_ ));
@@ -185,8 +187,8 @@ MultiVector::MultiVector( const MultiVector & right )
   // Generate new exporter instead of using copy constructor, there is an issue with Epetra_MpiDistributor
   if( right.exporter_ ) 
   {
-    Parallel::EpetraParMap* e_map = dynamic_cast<Parallel::EpetraParMap*>( parallelMap_ );
-    Parallel::EpetraParMap* e_ol_map = dynamic_cast<Parallel::EpetraParMap*>( overlapMap_ );
+    const Parallel::EpetraParMap* e_map = dynamic_cast<const Parallel::EpetraParMap*>( parallelMap_ );
+    const Parallel::EpetraParMap* e_ol_map = dynamic_cast<const Parallel::EpetraParMap*>( overlapMap_ );
 
     exporter_ = new Epetra_Export( *e_ol_map->petraMap(), *e_map->petraMap() );
   }
@@ -212,8 +214,7 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
   mapOwned_(false),
   groundNode_(0.0) 
 {
-  Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( overlapMV->Comm() );
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );  
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &overlapMV->Comm() ) );  
 
   // Make sure there is anything to communicate before creating a transform, importer, or exporter
   if (overlapMV->MyLength() == parMap.NumMyElements())
@@ -251,8 +252,7 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
   mapOwned_(false),
   groundNode_(0.0)
 {
-  Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( origMV->Comm() );
-  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &ecomm ) );
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &origMV->Comm() ) );
 }
 
 //-----------------------------------------------------------------------------

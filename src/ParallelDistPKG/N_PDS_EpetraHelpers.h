@@ -54,6 +54,7 @@ namespace Xyce {
 namespace Parallel {
 
 Communicator * createPDSComm( Epetra_Comm* comm );
+const Communicator * createPDSComm( const Epetra_Comm* comm );
 
 const Epetra_Comm* getEpetraComm( const Communicator* comm );
 Epetra_Comm* getEpetraComm( Communicator* comm );
