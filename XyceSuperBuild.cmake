@@ -223,5 +223,35 @@ ExternalProject_Add (Xyce
   DEPENDS ${DEPENDENCIES}
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   CMAKE_ARGS ${Xyce_ARGS}
-  INSTALL_COMMAND ""
 )
+
+# Smoke tests for Xyce plugin capability.
+if(NOT WIN32)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugin_tests)
+  include(CTest)
+  set(toys_dir ${CMAKE_CURRENT_BINARY_DIR}/install/share/examples/toys)
+  add_test(
+    NAME buildplugin
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/install/bin/buildxyceplugin.sh
+            -o toys
+            ${toys_dir}/capacitor.va
+            ${toys_dir}/diode2.va
+            ${toys_dir}/diode.va
+            ${toys_dir}/isrc.va
+            ${toys_dir}/resistor.va
+            ${toys_dir}/rlc2.va
+            ${toys_dir}/rlc3.va
+            ${toys_dir}/rlc.va
+            ${toys_dir}/vsrc.va
+            .
+    WORKING_DIRECTORY plugin_tests)
+  set_tests_properties(buildplugin PROPERTIES
+    PASS_REGULAR_EXPRESSION "This plugin provides the Verilog-A modules")
+  add_test(
+    NAME runplugin
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/install/bin/Xyce -plugin ./libtoys.so ${toys_dir}/DiodeClipper.cir
+    WORKING_DIRECTORY plugin_tests)
+  set_tests_properties(runplugin PROPERTIES
+    PASS_REGULAR_EXPRESSION "Solution Summary"
+    DEPENDS buildplugin)
+endif()

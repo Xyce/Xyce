@@ -91,6 +91,10 @@ if(XYCE_PLUGIN_SUPPORT)
       ${CMAKE_BINARY_DIR}/XycePluginProject.cmake
     DESTINATION share)
 
+  install(
+    DIRECTORY utils/ADMS/examples/toys
+    DESTINATION share/examples)
+
   message(STATUS "Plugin compatibility enabled")
 else()
   message(STATUS "Plugin compatibility not enabled")
