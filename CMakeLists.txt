@@ -45,6 +45,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 include(cmake/config.cmake)
+option(XYCE_PLUGIN_SUPPORT "Install Xyce with plugin compatibility" OFF)
+if(XYCE_PLUGIN_SUPPORT)
+  if(NOT BUILD_SHARED_LIBS)
+    message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support")
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
+  endif()
+endif()
 
 add_subdirectory(src)
 
@@ -54,6 +61,40 @@ if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
 
 option(TEST_SUITE "Enables the unit tests" OFF)
+
+if(XYCE_PLUGIN_SUPPORT)
+  configure_file(
+    utils/buildxyceplugin.cmake.in
+    buildxyceplugin.sh
+    @ONLY)
+  configure_file(
+    utils/XycePluginProject.cmake.in
+    XycePluginProject.cmake
+    @ONLY)
+
+  find_program(ADMS_XML admsXml)
+
+  install(
+    PROGRAMS
+      ${ADMS_XML}
+      ${CMAKE_BINARY_DIR}/buildxyceplugin.sh
+    DESTINATION bin)
+
+  install(
+    FILES
+      utils/ADMS/adms.implicit.xml
+      utils/ADMS/xyceVersion_nosac.xml
+      utils/ADMS/xyceBasicTemplates_nosac.xml
+      utils/ADMS/xyceAnalogFunction_nosac.xml
+      utils/ADMS/xyceHeaderFile_nosac.xml
+      utils/ADMS/xyceImplementationFile_nosac.xml
+      ${CMAKE_BINARY_DIR}/XycePluginProject.cmake
+    DESTINATION share)
+
+  message(STATUS "Plugin compatibility enabled")
+else()
+  message(STATUS "Plugin compatibility not enabled")
+endif()
 
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")
