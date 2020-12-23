@@ -42,6 +42,7 @@ project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 include(cmake/config.cmake)
 
@@ -56,7 +57,6 @@ option(TEST_SUITE "Enables the unit tests" OFF)
 
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings
