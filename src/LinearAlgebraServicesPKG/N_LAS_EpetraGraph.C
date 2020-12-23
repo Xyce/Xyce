@@ -40,8 +40,8 @@
 
 // ----------   Xyce Includes   ----------
 
-#include <N_LAS_Graph.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_LAS_EpetraGraph.h>
 #include <N_PDS_EpetraParMap.h>
 
 // ---------  Other Includes  -----------
@@ -52,33 +52,33 @@
 namespace Xyce {
 namespace Linear {
 
-  Graph::Graph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow )
+  EpetraGraph::EpetraGraph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow )
   {
     const Epetra_Map* epetraMap = dynamic_cast<const Parallel::EpetraParMap&>(map).petraMap();
     epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, &numIndicesPerRow[0] ) );
   }
 
   // Basic constructor with map and maximum number of entries per row
-  Graph::Graph( const Parallel::ParMap & map, int maxIndicesPerRow )
+  EpetraGraph::EpetraGraph( const Parallel::ParMap & map, int maxIndicesPerRow )
   {
     const Epetra_Map* epetraMap = dynamic_cast<const Parallel::EpetraParMap&>(map).petraMap();
     epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, maxIndicesPerRow ) );
   }
 
-  Graph::Graph( const Teuchos::RCP<Epetra_CrsGraph>& graph )
+  EpetraGraph::EpetraGraph( const Teuchos::RCP<Epetra_CrsGraph>& graph )
   : epetraGraph_(graph)
   {}
 
-  Graph::Graph( const Graph& graph )
+  EpetraGraph::EpetraGraph( const EpetraGraph& graph )
   : epetraGraph_(graph.epetraGraph_)
   {}
 
-  Graph* Graph::cloneCopy() const
+  EpetraGraph* EpetraGraph::cloneCopy() const
   {
-    return( new Graph( *this ) ); 
+    return( new EpetraGraph( *this ) ); 
   }
 
-  Graph* Graph::exportGraph( const Parallel::ParMap& map ) const
+  EpetraGraph* EpetraGraph::exportGraph( const Parallel::ParMap& map ) const
   {
     const Epetra_Map* exportMap = dynamic_cast<const Parallel::EpetraParMap&>(map).petraMap();
 
@@ -87,12 +87,12 @@ namespace Linear {
     newGraph->Export( *epetraGraph_, exporter, Add );
     newGraph->FillComplete();
     newGraph->OptimizeStorage();
-    Graph* retGraph = new Graph( Teuchos::rcp( newGraph ) );
+    EpetraGraph* retGraph = new EpetraGraph( Teuchos::rcp( newGraph ) );
 
     return retGraph;
   }
 
-  void Graph::fillComplete( Parallel::ParMap& rowMap, Parallel::ParMap& colMap )
+  void EpetraGraph::fillComplete( Parallel::ParMap& rowMap, Parallel::ParMap& colMap )
   {
     const Epetra_Map* rMap = dynamic_cast<Parallel::EpetraParMap&>(rowMap).petraMap();
     const Epetra_Map* cMap = dynamic_cast<Parallel::EpetraParMap&>(colMap).petraMap();

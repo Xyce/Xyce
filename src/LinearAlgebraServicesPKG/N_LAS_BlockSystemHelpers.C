@@ -51,7 +51,7 @@
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMultiVector.h>
 
-#include <N_LAS_Graph.h>
+#include <N_LAS_EpetraGraph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_BlockMatrix.h>
 
@@ -527,7 +527,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   newEpetraGraph->FillComplete();
   newEpetraGraph->OptimizeStorage();
 
-  Teuchos::RCP<Graph> newGraph = Teuchos::rcp( new Graph( newEpetraGraph ) );
+  Teuchos::RCP<Graph> newGraph = Teuchos::rcp( new EpetraGraph( newEpetraGraph ) );
  
   return newGraph;
 }

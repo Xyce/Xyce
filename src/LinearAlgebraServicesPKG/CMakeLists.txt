@@ -41,6 +41,7 @@ target_sources(XyceLib PRIVATE
       N_LAS_BlockVector.C
       N_LAS_BlockMultiVector.C
       N_LAS_BlockSystemHelpers.C
+      N_LAS_EpetraGraph.C
       N_LAS_EpetraHelpers.C
       N_LAS_EpetraImporter.C
       N_LAS_EpetraProblem.C
@@ -59,7 +60,6 @@ target_sources(XyceLib PRIVATE
       N_LAS_ESSolverFactory.C
       N_LAS_PCESolverFactory.C
       N_LAS_IfpackPrecond.C
-      N_LAS_Graph.C
       N_LAS_Matrix.C
       N_LAS_FilteredMatrix.C
       N_LAS_FilteredMultiVector.C

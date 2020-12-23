@@ -49,10 +49,10 @@
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_Graph.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_EpetraGraph.h>
 #include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
 
@@ -126,7 +126,7 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 {
   oDCRSMatrix_ = aDCRSMatrix_;
 
-  baseGraph_ = new Graph( Teuchos::rcp( const_cast<Epetra_CrsGraph*>(&(aDCRSMatrix_->Graph())), false ) );
+  baseGraph_ = new EpetraGraph( Teuchos::rcp( const_cast<Epetra_CrsGraph*>(&(aDCRSMatrix_->Graph())), false ) );
   overlapGraph_ = baseGraph_;
 }
 
@@ -153,20 +153,23 @@ Matrix::Matrix( const Graph* overlapGraph,
   groundNode_(0.0),
   isOwned_(true)
 {
+  const EpetraGraph* e_overlapGraph = dynamic_cast<const EpetraGraph *>( overlapGraph );
+  const EpetraGraph* e_baseGraph = dynamic_cast<const EpetraGraph *>( baseGraph );
+
   if ( baseGraph!= overlapGraph )
   {
-    oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(overlapGraph->epetraObj()) );
+    oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(e_overlapGraph->epetraObj()) );
 
     // Get ground node, if there is one.
     groundLID_ = overlapGraph->globalToLocalRowIndex( -1 );
 
-    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
-    exporter_ = new Epetra_Export( overlapGraph->epetraObj()->RowMap(), baseGraph->epetraObj()->RowMap() );
-    offsetIndex_ = new Epetra_OffsetIndex( *(overlapGraph->epetraObj()), *(baseGraph->epetraObj()), *exporter_ );
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(e_baseGraph->epetraObj()) );
+    exporter_ = new Epetra_Export( e_overlapGraph->epetraObj()->RowMap(), e_baseGraph->epetraObj()->RowMap() );
+    offsetIndex_ = new Epetra_OffsetIndex( *(e_overlapGraph->epetraObj()), *(e_baseGraph->epetraObj()), *exporter_ );
   }
   else
   {
-    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(baseGraph->epetraObj()) );
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *(e_baseGraph->epetraObj()) );
     oDCRSMatrix_ = aDCRSMatrix_;
   }
 

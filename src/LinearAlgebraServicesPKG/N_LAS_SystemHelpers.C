@@ -47,6 +47,8 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_BlockMatrix.h>
 
+#include <N_LAS_Graph.h>
+
 #include <N_LAS_System.h>
 #include <N_LAS_QueryUtil.h>
 

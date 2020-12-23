@@ -45,7 +45,6 @@
 // ----------   Xyce Includes   ----------
 #include <N_LAS_fwd.h>
 #include <N_LAS_Matrix.h>
-#include <N_LAS_Graph.h>
 
 // ----------  Other Includes   ----------
 #include <Teuchos_RCP.hpp>

@@ -48,6 +48,7 @@
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraImporter.h>
+#include <N_LAS_EpetraGraph.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -96,13 +97,13 @@ Matrix* createMatrix( const Graph* overlapGraph,
 Graph* createGraph( const Parallel::ParMap & map, 
                     const std::vector<int>& numIndicesPerRow )
 {
-  return new Graph( map, numIndicesPerRow );
+  return new EpetraGraph( map, numIndicesPerRow );
 }
 
 Graph* createGraph( const Parallel::ParMap & map,
                     int maxNumIndicesPerRow )
 {
-  return new Graph( map, maxNumIndicesPerRow );
+  return new EpetraGraph( map, maxNumIndicesPerRow );
 }
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )

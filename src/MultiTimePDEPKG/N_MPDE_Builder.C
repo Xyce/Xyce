@@ -37,7 +37,7 @@
 #include <Epetra_Map.h>
 #include <Epetra_CrsGraph.h>
 
-#include <N_LAS_Graph.h>
+#include <N_LAS_EpetraGraph.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
@@ -147,8 +147,8 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createMatrix() const
     return Xyce::Linear::createBlockMatrix( Size_,
                                             offset_, 
                                             Cols,
-                                            MPDEdFdxGraph_.get(),
-                                            BasedFdxGraph_.get(),
+                                            MPDEGraph_.get(),
+                                            BaseGraph_.get(),
                                             2 );
   }
   else
@@ -156,8 +156,8 @@ Xyce::Linear::Matrix * N_MPDE_Builder::createMatrix() const
     return Xyce::Linear::createBlockMatrix( Size_,
                                             offset_,
                                             Cols,
-                                            MPDEdFdxGraph_.get(),
-                                            BasedFdxGraph_.get() );
+                                            MPDEGraph_.get(),
+                                            BaseGraph_.get() );
   }
 }
 
@@ -276,18 +276,14 @@ bool N_MPDE_Builder::generateLeadCurrentMaps( const RCP<Xyce::Parallel::ParMap>&
 // Creator       : Robert Hoekstra, 9233, Computational Sciences
 // Creation Date : 03/12/04
 //-----------------------------------------------------------------------------
-bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
-                                     const Xyce::Linear::Graph & BasedFdxGraph,
-                                     const Xyce::Linear::Graph & BaseFullGraph )
+bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BaseGraph )
 {
   if( Teuchos::is_null(BaseMap_) )
     Xyce::Report::DevelFatal0().in("N_MPDE_Builder::generateGraphs")
       << "Need to setup Maps first";
 
   //Copies of base graphs
-  BasedQdxGraph_ = rcp( BasedQdxGraph.cloneCopy() );
-  BasedFdxGraph_ = rcp( BasedFdxGraph.cloneCopy() );
-  BaseFullGraph_ = rcp( BaseFullGraph.cloneCopy() );
+  BaseGraph_ = rcp( BaseGraph.cloneCopy() );
 
   int BlockSize = BaseMap_->numLocalEntities();
 
@@ -297,7 +293,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
                                                            *(e_mpdeMap->petraMap()),
                                                            0 );
 
-  int MaxIndices = BasedFdxGraph_->maxNumIndices();
+  int MaxIndices = BaseGraph_->maxNumIndices();
   std::vector<int> Indices(MaxIndices);
   int NumIndices;
   int BaseRow;
@@ -307,7 +303,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph_->extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BaseGraph_->extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
       for( int k = 0; k < NumIndices; ++k ) Indices[k] += offset_*i;
       //Diagonal Block
       MPDERow = BaseRow + offset_*i;
@@ -323,7 +319,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     epetraMPDEGraph->Print(Xyce::dout());
   }
 
-  MaxIndices = BasedFdxGraph_->maxNumIndices();
+  MaxIndices = BaseGraph_->maxNumIndices();
   Indices.resize(MaxIndices);
   std::vector<int> NewIndices(MaxIndices);
   int DiscStart = Disc_.Start();
@@ -341,7 +337,7 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BasedFdxGraph.extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
+      BaseGraph.extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
 
       MPDERow = BaseRow + offset_*i;
       for( int k = 0; k < DiscWidth; ++k )
@@ -402,20 +398,12 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BasedQdxGraph,
   epetraMPDEGraph->FillComplete();
   epetraMPDEGraph->OptimizeStorage();
 
-  MPDEdFdxGraph_ = rcp(new Xyce::Linear::Graph( rcp( epetraMPDEGraph ) ) );
+  MPDEGraph_ = rcp(new Xyce::Linear::EpetraGraph( rcp( epetraMPDEGraph ) ) );
   
-  //Construct MPDE dQdx Graph
-  MPDEdQdxGraph_ = MPDEdFdxGraph_;
-
-  //Construct MPDE Full Graph
-  MPDEFullGraph_ = MPDEdFdxGraph_;
-
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
   {  
-    Xyce::dout() << "Final MPDEdQdxGraph = " << std::endl;
-    MPDEdQdxGraph_->print(Xyce::dout());
-    Xyce::dout() << "Final MPDEdFdxGraph = " << std::endl;
-    MPDEdFdxGraph_->print(Xyce::dout());
+    Xyce::dout() << "Final MPDEGraph = " << std::endl;
+    MPDEGraph_->print(Xyce::dout());
   }
 
   return true;

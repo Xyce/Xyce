@@ -1902,10 +1902,7 @@ bool N_MPDE_Manager::setupMPDEProblem_()
   analysisManager_.resetSolverSystem();
 
   // Finish setup of MPDE Builder
-  mpdeBuilderPtr_->generateGraphs(
-    *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )),
-    *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )),
-    *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )));
+  mpdeBuilderPtr_->generateGraphs( *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )) );
 
   // Setup MPDE Loader
   mpdeLoaderPtr_ = new N_MPDE_Loader(mpdeState_, deviceManager_, appLoader_, *mpdeDiscPtr_, *this, warpMPDEPhasePtr_);
@@ -2051,10 +2048,7 @@ bool N_MPDE_Manager::runTests_()
   //Finish setup of MPDE Builder
   //-----------------------------------------
   Xyce::dout() << "N_MPDE_Manager::runTests_[Generate Graphs]\n";
-  mpdeBuilderPtr_->generateGraphs
-    ( *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )),
-      *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )),
-      *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )) );
+  mpdeBuilderPtr_->generateGraphs( *(pdsManager_.getMatrixGraph( Xyce::Parallel::JACOBIAN )) );
 
   Xyce::dout() << "N_MPDE_Manager::runTests_[Finished Graphs]\n";
   //-----------------------------------------
