@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.13)
+project(xyce_plugin)
+
+# Determine library name.
+if(DEFINED PLUGIN_NAME)
+  set(library_name "${PLUGIN_NAME}")
+else()
+  set(library_name "xyceplugin")
+endif()
+
+# Glob for source files to compile.
+file(GLOB src_files ${CMAKE_SOURCE_DIR}/*.C)
+
+# Use any compile flags that were set when building Xyce.
+set(CMAKE_CXX_FLAGS "@CMAKE_CXX_FLAGS@")
+
+# Build shared library.
+add_library("${library_name}" SHARED ${src_files})
+target_include_directories("${library_name}" PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${XYCE_INSTALL}/include)
