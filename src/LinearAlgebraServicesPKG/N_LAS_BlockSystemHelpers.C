@@ -53,7 +53,7 @@
 
 #include <N_LAS_EpetraGraph.h>
 #include <N_LAS_Matrix.h>
-#include <N_LAS_BlockMatrix.h>
+#include <N_LAS_EpetraBlockMatrix.h>
 
 #include <N_LAS_System.h>
 #include <N_LAS_QueryUtil.h>
@@ -75,7 +75,7 @@ BlockMatrix* createBlockMatrix( int size,
                                 const Graph* subBlockGraph,
                                 int augmentCount )
 {
-  return new BlockMatrix( size, offset, blockColumns, globalGraph, subBlockGraph, augmentCount );
+  return new EpetraBlockMatrix( size, offset, blockColumns, globalGraph, subBlockGraph, augmentCount );
 }
 
 BlockVector* createBlockVector( int numBlocks,

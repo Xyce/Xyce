@@ -49,7 +49,8 @@
 #include <N_LAS_EpetraProblem.h>
 
 #include <N_LAS_Operator.h>
-#include <N_LAS_Matrix.h>
+#include <N_LAS_EpetraMatrix.h>
+#include <N_LAS_EpetraBlockMatrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_MatrixFreeEpetraOperator.h>
 
@@ -68,11 +69,17 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 EpetraProblem::EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b )
  : Problem(A,x,b),
-   isOwned_(false),
-   epetraProblem_( Teuchos::rcp( new Epetra_LinearProblem( dynamic_cast<Epetra_RowMatrix*>(&(A_->epetraObj())),
-                                             &(x_->epetraObj()),
-                                             &(b_->epetraObj()) ) ) )
-{}
+   isOwned_(false)
+{
+  EpetraMatrixAccess* e_A = dynamic_cast<EpetraMatrixAccess *>( A_ );
+  if (e_A)
+  {
+    epetraProblem_ = Teuchos::rcp( new Epetra_LinearProblem(
+                                   dynamic_cast<Epetra_RowMatrix*>(&(e_A->epetraObj())),
+                                   &(x_->epetraObj()),
+                                   &(b_->epetraObj()) ) );
+  }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : EpetraProblem::EpetraProblem
@@ -111,7 +118,7 @@ EpetraProblem::EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraP
 
   if (epetraProblem_->GetMatrix()) {
     matrixFreeFlag_ = false;
-    A_ = new Matrix(dynamic_cast<Epetra_CrsMatrix *>(epetraProblem_->GetMatrix()), false);
+    A_ = new EpetraMatrix(dynamic_cast<Epetra_CrsMatrix *>(epetraProblem_->GetMatrix()), false);
   }
   else {
     matrixFreeFlag_ = true;

@@ -49,6 +49,7 @@ using Teuchos::rcp;
 #include <N_TOP_fwd.h>
 #include <N_PDS_fwd.h>
 
+#include <N_LAS_EpetraMatrix.h>
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 #include <N_IO_OutputMOR.h>
@@ -183,9 +184,9 @@ private:
     bool sparsifyRedSystem_();
 
     // Original system
-    RCP<Linear::Matrix> CPtr_;
-    RCP<Linear::Matrix> GPtr_;
-    RCP<Linear::Matrix> sCpG_MatrixPtr_;
+    RCP<Linear::EpetraMatrix> CPtr_;
+    RCP<Linear::EpetraMatrix> GPtr_;
+    RCP<Linear::EpetraMatrix> sCpG_MatrixPtr_;
     RCP<Linear::MultiVector> RPtr_, BPtr_, VPtr_;
     std::vector<int> bMatEntriesVec_, bMatPosEntriesVec_;
 
@@ -201,7 +202,7 @@ private:
     Teuchos::SerialDenseMatrix<int, double> redL_;  // redL_ != redB_
 
     // Reduced system (sparse)
-    RCP<Linear::Matrix> redCPtr_, redGPtr_;
+    RCP<Linear::EpetraMatrix> redCPtr_, redGPtr_;
     RCP<Parallel::ParMap> redMapPtr_;
 
     // Reduced system, real-equivalent form (dense)

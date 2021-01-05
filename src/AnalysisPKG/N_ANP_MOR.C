@@ -42,11 +42,12 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_Report.h>
 
-#include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_MOROperators.h>
-#include <N_LAS_Matrix.h>
+#include <N_LAS_EpetraMatrix.h>
+#include <N_LAS_EpetraBlockMatrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Graph.h>
@@ -467,9 +468,8 @@ bool MOR::doInit()
       analysisManager_.getDataStore()->nextStorePtr,
       analysisManager_.getDataStore()->dQdxMatrixPtr,  analysisManager_.getDataStore()->dFdxMatrixPtr);
 
-  CPtr_ = rcp(analysisManager_.getDataStore()->dQdxMatrixPtr, false);
-  GPtr_ = rcp(analysisManager_.getDataStore()->dFdxMatrixPtr, false);
-
+  CPtr_ = rcp(dynamic_cast<Linear::EpetraMatrix *>(analysisManager_.getDataStore()->dQdxMatrixPtr), false);
+  GPtr_ = rcp(dynamic_cast<Linear::EpetraMatrix *>(analysisManager_.getDataStore()->dFdxMatrixPtr), false);
 
   ///  Xyce::dout() << "Branch nodes: " << std::endl;
   ///  for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
@@ -540,13 +540,13 @@ bool MOR::reduceSystem()
   // Create matrix for (G + s0 * C)
   if (s0_ != 0.0)
   {
-    sCpG_MatrixPtr_ = rcp( new Linear::Matrix( &CPtr_->epetraObj(), false ) );
+    sCpG_MatrixPtr_ = rcp( new Linear::EpetraMatrix( &CPtr_->epetraObj(), false ) );
     sCpG_MatrixPtr_->scale( s0_ );
     sCpG_MatrixPtr_->add( *GPtr_ );
   }
   else
   {
-    sCpG_MatrixPtr_ = rcp( new Linear::Matrix( &GPtr_->epetraObj(), false ) );
+    sCpG_MatrixPtr_ = rcp( new Linear::EpetraMatrix( &GPtr_->epetraObj(), false ) );
   }
 
   // Create multivector for B and R
@@ -1154,7 +1154,7 @@ bool MOR::createOrigLinearSystem_()
   int offset = Linear::generateOffset( BaseMap );
   RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], *baseFullGraph);
 
-  sCpG_REFMatrixPtr_ = rcp ( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
+  sCpG_REFMatrixPtr_ = rcp ( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
 
   // Load diagonal blocks of real equivalent form: (G - s0*C)
   sCpG_REFMatrixPtr_->put( 0.0 ); // Zero out whole matrix
@@ -1179,7 +1179,8 @@ bool MOR::createOrigLinearSystem_()
   REFXPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, blockMaps[0], rcp(&BaseMap, false) ) );
   REFXPtr_->putScalar( 0.0 );
 
-  blockProblem_ = rcp(new Epetra_LinearProblem(&sCpG_REFMatrixPtr_->epetraObj(), &REFXPtr_->epetraObj(), &REFBPtr_->epetraObj() ) );
+  Teuchos::RCP<Linear::EpetraBlockMatrix> e_sCpG = Teuchos::rcp_dynamic_cast<Linear::EpetraBlockMatrix>(sCpG_REFMatrixPtr_);
+  blockProblem_ = rcp(new Epetra_LinearProblem(&e_sCpG->epetraObj(), &REFXPtr_->epetraObj(), &REFBPtr_->epetraObj() ) );
 
   blockSolver_ = rcp( amesosFactory.Create( "Klu", *blockProblem_ ) );
 
@@ -1248,7 +1249,7 @@ bool MOR::createRedLinearSystem_()
     int offset= Linear::generateOffset( *redMapPtr_ );
     RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
-    sCpG_ref_redMatrixPtr_ = rcp( new Linear::BlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
+    sCpG_ref_redMatrixPtr_ = rcp( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
 
     // Load diagonal blocks of real equivalent form: (G - s0*C)
     sCpG_ref_redMatrixPtr_->put( 0.0 ); // Zero out whole matrix
@@ -1273,7 +1274,8 @@ bool MOR::createRedLinearSystem_()
     ref_redXPtr_ = rcp ( Xyce::Linear::createBlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
     ref_redXPtr_->putScalar( 0.0 );
 
-    blockRedProblem_ = rcp(new Epetra_LinearProblem(&sCpG_ref_redMatrixPtr_->epetraObj(), 
+    Teuchos::RCP<Linear::EpetraBlockMatrix> e_sCpG = Teuchos::rcp_dynamic_cast<Linear::EpetraBlockMatrix>(sCpG_ref_redMatrixPtr_);
+    blockRedProblem_ = rcp(new Epetra_LinearProblem(&e_sCpG->epetraObj(), 
                                                     &ref_redXPtr_->epetraObj(), &ref_redBPtr_->epetraObj() ) );
 
     blockRedSolver_ = rcp( amesosFactory.Create( "Klu", *blockRedProblem_ ) );
@@ -1824,8 +1826,8 @@ bool MOR::sparsifyRedSystem_()
   tmpRedG->OptimizeStorage();
 
   // Pass tmpRedG and tmpRedC into redGPtr_ and redGPtr_, respectively, which will manage the memory.
-  redGPtr_ = rcp( new Linear::Matrix( tmpRedG ) );
-  redCPtr_ = rcp( new Linear::Matrix( tmpRedC ) );
+  redGPtr_ = rcp( new Linear::EpetraMatrix( tmpRedG ) );
+  redCPtr_ = rcp( new Linear::EpetraMatrix( tmpRedC ) );
 
   // We now have a sparse ROM.
   if (bsuccess)

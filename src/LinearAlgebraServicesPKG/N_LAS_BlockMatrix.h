@@ -40,15 +40,12 @@
 #define Xyce_N_LAS_BlockMatrix_h
 
 // ---------- Standard Includes ----------
-#include <vector>
 
 // ----------   Xyce Includes   ----------
 #include <N_LAS_fwd.h>
 #include <N_LAS_Matrix.h>
 
 // ----------  Other Includes   ----------
-#include <Teuchos_RCP.hpp>
-using Teuchos::RCP;
 
 namespace Xyce {
 namespace Linear {
@@ -64,53 +61,27 @@ class BlockMatrix : public Matrix
 {
  public:
 
-  BlockMatrix( int size,
-               int offset,
-               const std::vector< std::vector<int> > & blockColumns,
-               const Graph* globalGraph,
-               const Graph* subBlockGraph,
-               int augmentCount = 0 );
+  BlockMatrix() {}
 
   //Destructor
-  ~BlockMatrix() {}
+  virtual ~BlockMatrix() {}
 
   //Block Access
-  Matrix & block( int row, int col );
+  virtual Matrix & block( int row, int col ) = 0;
 
-  int blockSize()
-  { return blockSize_; }
+  virtual int blockSize() const = 0;
   
-  int numBlockRows()
-  { return numBlockRows_; }
-
-  // Put function for the block sparse-matrix.
-  void put(double s);
+  virtual int numBlockRows() const = 0;
 
   // Replace the entries of an augmented row using the row GID.
-  void replaceAugmentedRow(int rowGID, int length, double * coeffs, int * colIndices); 
+  virtual void replaceAugmentedRow(int rowGID, int length, double * coeffs, int * colIndices) = 0; 
 
-  void replaceAugmentedColumn(int augmentedColumn, const BlockVector & vec);
+  virtual void replaceAugmentedColumn(int augmentedColumn, const BlockVector & vec) = 0;
 
   // Assemble global matrix with blocks
   // NOTE:  The global matrix is not always a view of the local matrix, so this function ensures
   // that the values are sync'ed up.  Call this before using the global matrix for computations.
-  void assembleGlobalMatrix();
- 
-  void fillComplete();
- 
-  void print(std::ostream &os) const;
-
- private:
-
-  bool blocksViewGlobalMat_;
-  const int blockSize_;
-  const int offset_;
-  const int numBlockRows_;
-  const int augmentCount_;
-
-  std::vector<int> augmentGIDs_, baseNumCols_, baseIndices_;
-  const std::vector< std::vector<int> > cols_;
-  std::vector< std::vector<Teuchos::RCP<Matrix> > > blocks_;
+  virtual void assembleGlobalMatrix() = 0;
 };
 
 } // namespace Linear

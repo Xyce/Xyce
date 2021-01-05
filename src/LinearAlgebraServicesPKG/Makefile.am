@@ -38,7 +38,6 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_AztecOOSolver.C \
   N_LAS_Problem.C \
   N_LAS_MultiVector.C \
-  N_LAS_Matrix.C \
   N_LAS_FilteredMatrix.C \
   N_LAS_FilteredMultiVector.C \
   N_LAS_MOROperators.C \
@@ -54,11 +53,12 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_TranSolverFactory.C \
   N_LAS_BlockVector.C \
   N_LAS_BlockMultiVector.C \
-  N_LAS_BlockMatrix.C \
   N_LAS_BlockSystemHelpers.C \
+  N_LAS_EpetraBlockMatrix.C \
   N_LAS_EpetraGraph.C \
   N_LAS_EpetraHelpers.C \
   N_LAS_EpetraImporter.C \
+  N_LAS_EpetraMatrix.C \
   N_LAS_EpetraProblem.C \
   N_LAS_MatrixFreeEpetraOperator.C \
   N_LAS_IfpackPrecond.C \
@@ -100,6 +100,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockMultiVector.h \
   N_LAS_BlockMatrix.h \
   N_LAS_BlockSystemHelpers.h \
+  N_LAS_EpetraBlockMatrix.h \
   N_LAS_EpetraGraph.h \
   N_LAS_EpetraHelpers.h \
   N_LAS_EpetraImporter.h \

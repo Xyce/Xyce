@@ -43,9 +43,8 @@
 #include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
-#include <N_LAS_Matrix.h>
 #include <N_LAS_Operator.h>
-#include <N_LAS_BlockMatrix.h>
+#include <N_LAS_EpetraMatrix.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraImporter.h>
 #include <N_LAS_EpetraGraph.h>
@@ -91,7 +90,7 @@ Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph )
 {
-  return new Matrix( overlapGraph, baseGraph );
+  return new EpetraMatrix( overlapGraph, baseGraph );
 }
 
 Graph* createGraph( const Parallel::ParMap & map, 

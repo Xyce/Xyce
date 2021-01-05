@@ -94,6 +94,9 @@ public:
   // Convert a global ID to the local ID using the column map
   virtual int globalToLocalColIndex(int globalIndex) const = 0;
 
+  // Get a copy of the row on this processor using local IDs
+  virtual void extractLocalRowCopy(int localRow, int length, int& numIndices, int* indices) const = 0;
+
   // Get a copy of the row on this processor using global IDs
   virtual void extractGlobalRowCopy(int globalRow, int length, int& numIndices, int* indices) const = 0;
 

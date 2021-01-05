@@ -119,17 +119,16 @@ BlockVector::BlockVector( int blockSize,
 {
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                globalMap->indexBase(), globalMap->pdsComm() ) );
-  Teuchos::RCP<const Parallel::EpetraParMap> e_map = Teuchos::rcp_dynamic_cast<const Parallel::EpetraParMap>(globalMap);
 
   // Determine where these blocks start and end in the grand scheme of things.
-  startBlock_ = (int) std::floor( (double)(e_map->petraMap()->MinMyGID() + 1) / (double)blockSize );
-  endBlock_ = (int) std::floor( (double)(e_map->petraMap()->MaxMyGID() + 1) / (double)blockSize );
+  startBlock_ = (int) std::floor( (double)(globalMap->minMyGlobalEntity() + 1) / (double)blockSize );
+  endBlock_ = (int) std::floor( (double)(globalMap->maxMyGlobalEntity() + 1) / (double)blockSize );
 
   // Check for the augmented rows
   // Assume they are being placed on one processor.
   if (augmentRows && (globalMap->numLocalEntities() % blockSize))
   {
-    endBlock_ = (int) std::floor( (double)(e_map->petraMap()->MaxMyGID()-augmentRows + 1) / (double)blockSize );
+    endBlock_ = (int) std::floor( (double)(globalMap->maxMyGlobalEntity()-augmentRows + 1) / (double)blockSize );
   }
 
   //Setup Views of blocks using Block Map

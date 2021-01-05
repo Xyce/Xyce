@@ -107,6 +107,9 @@ public:
   int globalToLocalColIndex(int globalIndex) const
   { return epetraGraph_->LCID( globalIndex ); }
 
+  void extractLocalRowCopy(int localRow, int length, int& numIndices, int* indices) const
+  { epetraGraph_->ExtractMyRowCopy( localRow, length, numIndices, indices ); }
+
   void extractGlobalRowCopy(int globalRow, int length, int& numIndices, int* indices) const
   { epetraGraph_->ExtractGlobalRowCopy( globalRow, length, numIndices, indices ); }
 
