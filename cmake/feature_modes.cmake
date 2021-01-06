@@ -32,7 +32,11 @@ if ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""
     set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_LONG} ${QUALIFICATION_CHARACTER}" )
 endif ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""))
 
+# Enable the Unit Tests
+option(Xyce_TEST_SUITE "Enables the unit tests" OFF)
 
+# Enable the Plugin capability
+option(Xyce_PLUGIN_SUPPORT "Install Xyce with plugin compatibility" OFF)
 
 # Enable parallel
 set(Xyce_PARALLEL_MPI              FALSE CACHE BOOL "Build Xyce with MPI enabled")
