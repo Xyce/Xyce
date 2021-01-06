@@ -168,7 +168,7 @@ void FourierMgr::fixupSensFourierParameters(Parallel::Machine comm, const Util::
       if (foundFreq != tmpFreqVector.end()) 
       {
         int index = std::distance(tmpFreqVector.begin(), foundFreq); 
-        int insertIndex = tmpOutputVarsPtr[index];
+        int insertIndex = tmpOutputVarsPtr[index+1];
         outputVars_.insert( (outputVars_.begin() + insertIndex), sensOutputVars_.begin(), sensOutputVars_.end());
       }
       else
