@@ -72,6 +72,7 @@ public:
     IO::OutputMgr &                     output_manager,
     IO::Measure::Manager &              measure_manager,
     IO::FourierMgr &                    fourier_manager,
+    IO::FFTMgr &                        fft_manager,
     Device::DeviceMgr &                 device_manager);
 
   virtual ~OutputMgrAdapter();
@@ -318,6 +319,7 @@ private:
   IO::OutputMgr &                       outputManager_;
   IO::Measure::Manager &                measureManager_;
   IO::FourierMgr &                      fourierManager_;
+  IO::FFTMgr &                          fftManager_;
   Device::DeviceMgr &                   deviceManager_;
 
   Util::Op::Operator *                  tempOp_;

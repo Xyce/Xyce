@@ -973,11 +973,12 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
 {
   const std::string &name = options.getName();
   
-  // This handles .PRINT, .MEASURE, .FOUR, .IC and .NODESET lines.
-  // Note that option blocks that have name="MEASURE" are actually 
-  // from .OPTIONS MEASURE lines and not .MEASURE lines.
-  if ( (name == "PRINT") || (name == "DOT_MEASURE_LINE") || (name == "FOUR") || 
-       (name == "IC") || (name == "NODESET") )
+  // This handles .PRINT, .MEASURE, .FOUR, .FFT, .IC and .NODESET lines.
+  // Note that option blocks that have name="MEASURE" are actually
+  // from .OPTIONS MEASURE lines and not .MEASURE lines.  Similarly, for
+  // .OPTIONS FFT lines versus .FFT lines.
+  if ( (name == "PRINT") || (name == "DOT_MEASURE_LINE") || (name == "FOUR") ||
+       (name == "DOT_FFT_LINE") || (name == "IC") || (name == "NODESET") )
   {
     // Update the aliasNodeMapHelper_ map with any parameters that start with X 
     // (subcircuit interface node names) or that are an expression.  The expressions 

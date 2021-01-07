@@ -112,6 +112,8 @@ libIOInterface_la_SOURCES = \
   N_IO_mmio.C \
   N_IO_PkgOptionsMgr.C \
   N_IO_FourierMgr.C \
+  N_IO_FFTMgr.C \
+  N_IO_FFTAnalysis.C \
   N_IO_ParsingHelpers.C \
   N_IO_WildcardSupport.C \
   N_IO_fwd.h \
@@ -227,5 +229,7 @@ libIOInterface_la_SOURCES = \
   N_IO_RestartNode.h \
   N_IO_PkgOptionsMgr.h \
   N_IO_FourierMgr.h \
+  N_IO_FFTMgr.h \
+  N_IO_FFTAnalysis.h \
   N_IO_ParsingHelpers.h \
   N_IO_WildcardSupport.h 

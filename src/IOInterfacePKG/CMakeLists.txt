@@ -106,6 +106,8 @@ target_sources(XyceLib PRIVATE
       N_IO_mmio.C
       N_IO_PkgOptionsMgr.C
       N_IO_FourierMgr.C
+      N_IO_FFTMgr.C
+      N_IO_FFTAnalysis.C
       N_IO_ParsingHelpers.C
       N_IO_OutputterEmbeddedSamplingTecplot.C
       N_IO_OutputterEmbeddedSamplingPrn.C

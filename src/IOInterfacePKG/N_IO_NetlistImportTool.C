@@ -345,7 +345,8 @@ int NetlistImportTool::constructCircuitFromNetlist(
   OutputMgr &                                                   output_manager,
   Device::DeviceMgr &                                           device_manager,
   Measure::Manager &                                            measure_manager,
-  FourierMgr &                                                  fourier_manager)
+  FourierMgr &                                                  fourier_manager,
+  FFTMgr &                                                      fft_manager)
 {
   Parallel::Machine comm = pds_comm.comm();
   unordered_set<std::string> device_names;
@@ -479,6 +480,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   // construction but before the store vector is allocated.
   device_manager.setLeadCurrentRequests(devicesNeedingLeadCurrents);
   device_manager.setLeadCurrentRequests(fourier_manager.getDevicesNeedingLeadCurrents());
+  device_manager.setLeadCurrentRequests(fft_manager.getDevicesNeedingLeadCurrents());
   device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
 
   // printLineDiagnostics() is where parsing looks for I(*), P(*) and W(*) on the .PRINT line,
