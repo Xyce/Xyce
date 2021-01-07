@@ -515,21 +515,21 @@ void FilteredMatrix::axpy(const MultiVector & x, MultiVector & y)
         {
           if (filterOverlap_)
           {
-            sum += values_[j2]*x[j][vecIndices_[j2]];
+            sum += values_[j2]*(*x(vecIndices_[j2],j));
           }
           else
           {
             if (!Teuchos::is_null(targetX_))
             {
-              sum += values_[j2]*(*targetX_)[j][vecIndices_[j2]];
+              sum += values_[j2]*(*(*targetX_)(vecIndices_[j2],j));
             }
             else
             {
-              sum += values_[j2]*x[j][vecIndices_[j2]];
+              sum += values_[j2]*(*x(vecIndices_[j2],j));
             }
           }
         }
-        y[j][row] += sum;
+        (*y(row,j)) += sum;
       }
     }
   }
@@ -592,26 +592,26 @@ void FilteredMatrix::matvec(const MultiVector & x, MultiVector & y)
         {
           if (filterOverlap_)
           {
-            sum += values_[j2]*x[j][vecIndices_[j2]];
+            sum += values_[j2]*(*x(vecIndices_[j2],j));
           }
           else
           {
             if (!Teuchos::is_null( targetX_ ))
             {
-              sum += values_[j2]*(*targetX_)[j][vecIndices_[j2]];
+              sum += values_[j2]*(*(*targetX_)(vecIndices_[j2],j));
  /*
               std::cout << "values_[" << j2 << "] = " << values_[j2] << ", vecIndices_[" << j2 << "] = "
                         << vecIndices_[j2] << ", targetX_[" << j << "][" << vecIndices_[j2] << " = "
-                        << (*targetX_)[j][vecIndices_[j2]] << std::endl;
+                        << *(*targetX_)(vecIndices_[j2],j) << std::endl;
  */
             } 
             else
             {
-              sum += values_[j2]*x[j][vecIndices_[j2]];
+              sum += values_[j2]*(*x(vecIndices_[j2],j));
             }
           }
         }
-        y[j][row] = sum;
+        (*y(row,j)) = sum;
       }
     }
   }

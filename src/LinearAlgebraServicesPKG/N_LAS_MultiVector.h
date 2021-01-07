@@ -172,18 +172,6 @@ public:
   void reciprocal(const MultiVector & A);
 
   // Index operator
-  double *& operator[] (int index)
-  {
-    return (*oMultiVector_)[index];
-  }
-
-  // Index operator
-  double * const & operator[] (int index) const
-  {
-    return (*oMultiVector_)[index];
-  }
-
-  // Index operator
   double * operator() (int row_lid, int col_lid)
   {
     if (row_lid >= 0 && col_lid >= 0)

@@ -678,10 +678,10 @@ int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
     double localMax = 0.0;
     if (length)
     { 
-      localMax = fabs((*(this))[i][0]) / weights[i][0]; 
+      localMax = fabs(*(*this)(0,i)) / (*weights(0,i)); 
       for (int j = 1; j < length; ++j)
       {
-        tmpVal = fabs((*(this))[i][j]) / weights[i][j];
+        tmpVal = fabs(*(*this)(j,i)) / (*weights(j,i));
         if (tmpVal > localMax)
           localMax = tmpVal;
       }

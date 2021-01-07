@@ -268,7 +268,7 @@ int HBBlockJacobiEpetraOperator::ApplyInverse(
       int j = 0;
       for (std::vector<int>::const_iterator it = augLIDs.begin(); it != augLIDs.end(); it++)
       {
-        Ytmp[i][j] = X[i][*it];
+        Ytmp[i][j] = (*X(*it,i));
         j++;
       } 
     }
@@ -303,7 +303,7 @@ int HBBlockJacobiEpetraOperator::ApplyInverse(
       int j = 0;
       for (std::vector<int>::const_iterator it = augLIDs.begin(); it != augLIDs.end(); it++)
       {
-        Y[i][*it] = Ytmp[i][j];
+        (*Y(*it,i)) = Ytmp[i][j];
         j++; 
       } 
     }
