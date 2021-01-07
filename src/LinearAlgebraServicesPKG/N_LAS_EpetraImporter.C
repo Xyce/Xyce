@@ -20,61 +20,42 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : Implementation file for importer interface 
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  :
 //
-// Creator        : Ting Mei   
+// Creator        : Heidi Thornquist, SNL, Computational Sciences
 //
-// Creation Date  : 01/11
+// Creation Date  : 12/18/20
 //
-//
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_fwd_h
-#define Xyce_N_LAS_fwd_h
+#include <Xyce_config.h>
+
+// ---------- Standard Includes ----------
+
+// ----------   Xyce Includes   ----------
+
+#include <N_LAS_EpetraImporter.h>
+#include <N_PDS_EpetraParMap.h>
+#include <Epetra_Map.h>
+
+// ---------  Other Includes  -----------
 
 namespace Xyce {
 namespace Linear {
 
-class AmesosSolver;
-class AztecOOSolver;
-
-class BlockMatrix;
-class BlockVector;
-class BlockMultiVector;
-class Builder;
-class ESBuilder;
-class ESBuilder2;
-class ESSolverFactory;
-class PCEBuilder;
-class PCESolverFactory;
-class HBBuilder;
-class HBSolverFactory;
-class HBPrecondFactory;
-class FilteredMatrix;
-class FilteredMultiVector;
-class Matrix;
-class MultiVector;
-class SolverFactory;
-class PrecondFactory;
-class Preconditioner;
-class Problem;
-class Solver;
-class System;
-struct Transform;
-class Vector;
-class QueryUtil;
-class Operator;
-class Graph;
-class Importer;
-
-static const int iterativeMin = 10000;
+  // Basic constructor with from and to maps for the importer
+  EpetraImporter::EpetraImporter( const Parallel::ParMap & target_map, const Parallel::ParMap & source_map )
+  : Importer( target_map, source_map )
+  {
+    const Parallel::EpetraParMap& e_target_map = dynamic_cast<const Parallel::EpetraParMap &>( target_map );
+    const Parallel::EpetraParMap& e_source_map = dynamic_cast<const Parallel::EpetraParMap &>( source_map );
+  
+    importer_ = new Epetra_Import( *e_target_map.petraMap(), *e_source_map.petraMap() );
+  }
 
 } // namespace Linear
 } // namespace Xyce
-
-#endif // Xyce_N_LAS_fwd_h

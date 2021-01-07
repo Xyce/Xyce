@@ -65,8 +65,8 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
-                                    const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                                    const Teuchos::RCP<Parallel::ParMap> & subBlockMap
+                                    const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                                    const Teuchos::RCP<const Parallel::ParMap> & subBlockMap
                                   )
 : MultiVector( *globalMap, numVectors ),
   blocksViewGlobalVec_(true),
@@ -89,7 +89,7 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
 
   aMultiVector_->ExtractView( &Ptrs );
 
-  Parallel::EpetraParMap& e_map = dynamic_cast<Parallel::EpetraParMap&>(*newBlockMap_);
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
 
   for( int i = 0; i < numBlocks; ++i )
   {
@@ -97,7 +97,7 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
     {
       Loc[j] = Ptrs[j] + localBlockSize_*i;
     }
-    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, dynamic_cast<const Epetra_BlockMap&>(*(e_map.petraMap())), Loc, numVectors ), true ) );
+    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, *(e_map.petraMap()), Loc, numVectors ), true ) );
   }
 
   free(Loc);

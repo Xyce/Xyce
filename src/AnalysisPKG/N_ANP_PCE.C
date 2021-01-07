@@ -78,7 +78,7 @@
 // new PCE loader class
 #include <N_LOA_PCELoader.h>
 
-#include <N_LAS_Graph.h>
+#include <N_LAS_EpetraGraph.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_System.h>
@@ -1011,7 +1011,7 @@ void PCE::setupStokhosObjects ()
         *petraComm, file);
   }
 
-  pceGraph = rcp( new Linear::Graph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk, *petraComm ) ) );
+  pceGraph = rcp( new Linear::EpetraGraph( Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk, *petraComm ) ) );
 
   numBlockRows_ = pceGraph->numLocalEntities();
 

@@ -49,7 +49,6 @@
 #include <N_NLS_fwd.h>
 #include <N_LAS_Matrix.h>
 
-#include <Epetra_Import.h>
 #include <Teuchos_RCP.hpp>
 
 namespace Xyce {
@@ -128,8 +127,8 @@ private:
   // NOTE:  This is used during device loading, before assembly occurs.
   bool filterOverlap_;
 
-  // Epetra import object, if needed.
-  Teuchos::RCP<Epetra_Import> importer_;
+  // Import object, if needed.
+  Teuchos::RCP<Importer> importer_;
 
   // PDS_ParMap object, if needed.
   Teuchos::RCP<Parallel::ParMap> targetMap_;

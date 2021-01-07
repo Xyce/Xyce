@@ -122,7 +122,7 @@ private:
   Linear::Vector  * gradVectorPtr_;
 
   Linear::Vector  * columnVectorPtr_;
-  Parallel::ParMap  * columnMapPtr_;
+  const Parallel::ParMap  * columnMapPtr_;
 };
 
 } // namespace Nonlinear

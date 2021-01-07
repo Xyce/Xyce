@@ -61,11 +61,11 @@ class Vector : public MultiVector
 public:
 
   // Constructors to map to Petra constructors.
-  Vector(Parallel::ParMap & map)
+  Vector( const Parallel::ParMap & map )
   : MultiVector(map, 1)
   {}
 
-  Vector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
+  Vector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map )
   : MultiVector( map, ol_map, 1 )
   {}
 

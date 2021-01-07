@@ -117,9 +117,7 @@ class N_MPDE_Builder : public Xyce::Linear::Builder
   bool generateStoreMaps( const RCP<Xyce::Parallel::ParMap>& BaseStoreMap );
   bool generateLeadCurrentMaps( const RCP<Xyce::Parallel::ParMap>& BaseLeadCurrentMap );
 
-  bool generateGraphs( const Xyce::Linear::Graph& BasedQdxGraph, 
-                       const Xyce::Linear::Graph& BasedFdxGraph,
-                       const Xyce::Linear::Graph& BaseFullGraph );
+  bool generateGraphs( const Xyce::Linear::Graph& BaseGraph );
 
   Teuchos::RCP<const Xyce::Parallel::ParMap> getSolutionMap() const;
   Teuchos::RCP<Xyce::Parallel::ParMap> getSolutionMap();
@@ -163,13 +161,8 @@ private:
   RCP<Xyce::Parallel::ParMap> MPDEStoreMap_;
   RCP<Xyce::Parallel::ParMap> MPDELeadCurrentMap_;
 
-  RCP<Xyce::Linear::Graph> BasedQdxGraph_;
-  RCP<Xyce::Linear::Graph> BasedFdxGraph_;
-  RCP<Xyce::Linear::Graph> BaseFullGraph_;
-
-  RCP<Xyce::Linear::Graph> MPDEdQdxGraph_;
-  RCP<Xyce::Linear::Graph> MPDEdFdxGraph_;
-  RCP<Xyce::Linear::Graph> MPDEFullGraph_;
+  RCP<Xyce::Linear::Graph> BaseGraph_;
+  RCP<Xyce::Linear::Graph> MPDEGraph_;
 };
 
 #endif

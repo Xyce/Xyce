@@ -59,15 +59,15 @@ class BlockVector : public Vector
 {
  public:
   BlockVector( int numBlocks,
-               const Teuchos::RCP<Parallel::ParMap> & globalMap,
-               const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
+               const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+               const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                int augmentRows = 0 );
 
   // Constructor that uses the block size to divide up the number of elements on
   // each processor into vectors whose values are all "owned" by one processor.
   // NOTE:  This constructor is handy for frequency-domain representations of time-domain vectors.
   BlockVector( int blockSize,
-               const Teuchos::RCP<Parallel::ParMap> & globalMap,
+               const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                int augmentRows = 0 );
 
   // View constructor
@@ -107,11 +107,9 @@ class BlockVector : public Vector
   void assembleGlobalVector();
 
   // Get the global ParMap
-  Parallel::ParMap * pmap() { return this->parallelMap_; }
   const Parallel::ParMap * pmap() const { return this->parallelMap_; }
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  Parallel::ParMap * blockPmap() { return newBlockMap_.get(); }
   const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
@@ -134,7 +132,7 @@ class BlockVector : public Vector
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
 
-  Teuchos::RCP<Parallel::ParMap> newBlockMap_;
+  Teuchos::RCP<const Parallel::ParMap> newBlockMap_;
 
   std::vector<Teuchos::RCP<Vector> > blocks_;
 

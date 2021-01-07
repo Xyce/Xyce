@@ -54,6 +54,7 @@
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_Matrix.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_FilteredMatrix.h>
 
 #include <N_LAS_Problem.h>
@@ -69,6 +70,7 @@
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_PDS_EpetraParMap.h>
+#include <N_PDS_Comm.h>
 
 #include <Teuchos_RCP.hpp>
 #include <Epetra_LinearProblem.h>
@@ -189,6 +191,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 
   // Generate the new real equivalent graph
   RCP<Parallel::ParMap> origMap = builder_.getSolutionMap(); 
+  const Xyce::Parallel::Communicator& comm = origMap->pdsComm();
   int origLocalRows = origMap->numLocalEntities();
   int origGlobalRows = origMap->numGlobalEntities();
   int refRows = 2*origLocalRows;
@@ -200,7 +203,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     rowIdxs[i] = origIdxs[i];
     rowIdxs[origLocalRows+i] = origIdxs[i] + origGlobalRows;
   }
-  epetraMap_ = rcp(new Epetra_Map( -1, refRows, &rowIdxs[0], 0, (appdQdx->epetraObj()).Comm() ) );
+  epetraMap_ = rcp(new Epetra_Map( -1, refRows, &rowIdxs[0], 0, e_origMap->petraMap()->Comm() ) );
 
   // Count up the number of nonzero entries for the 2x2 block matrix.
   std::vector<int> refNNZs(refRows);
@@ -214,7 +217,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 
   // Communicate the maximum number of nonzeros for all processors.
   int tmpMaxNNZs = maxRefNNZs_;
-  (appdQdx->epetraObj()).Comm().SumAll( &tmpMaxNNZs, &maxRefNNZs_, 1 );
+  comm.sumAll( &tmpMaxNNZs, &maxRefNNZs_, 1 );
 
   // Put together the indices for each row and insert them into the graph.
   int tmpNNZs=0, tmpNNZs2=0;
@@ -249,8 +252,8 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   N_ = bXt->blockCount();
   M_ = (int)((N_-1)/2);
 
-  int numProcs = (appdQdx->epetraObj()).Comm().NumProc();
-  int myPID = (appdQdx->epetraObj()).Comm().MyPID();
+  int numProcs = comm.numProc();
+  int myPID = comm.procID();
 
   if (numProcs > 1)
   {
@@ -399,6 +402,9 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
   int size_ = freqs_.size();
   int posFreq = (size_-1)/2;
 
+  RCP<Parallel::ParMap> origMap = builder_.getSolutionMap();
+  const Xyce::Parallel::Communicator& comm = origMap->pdsComm();
+
   if (VERBOSE_LINEAR)
   {
     Xyce::dout() << "HBBlockJacobiPrecond::initValues: " << std::endl;
@@ -413,8 +419,8 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
   appdQdxSum->put(0.0);
   appdFdxSum->put(0.0);
 
-  int numProcs = (appdQdxSum->epetraObj()).Comm().NumProc();
-  int myPID = (appdQdxSum->epetraObj()).Comm().MyPID();
+  int numProcs = comm.numProc();
+  int myPID = comm.procID();
 
   // Get the separated stored Jacobian matrices from the HB loader.
   Teuchos::RCP<FilteredMatrix>& linAppdQdx = hbLoaderPtr_->getStoreLindQdx();
@@ -450,7 +456,6 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
     diffCMatrix_.resize(N_);
     diffGMatrix_.resize(N_);
 
-    RCP<Parallel::ParMap> origMap = builder_.getSolutionMap();
     Teuchos::RCP<Matrix> tmpCMatrix = rcp( builder_.createMatrix() );
     Teuchos::RCP<Matrix> tmpGMatrix = rcp( builder_.createMatrix() );
 
@@ -493,7 +498,6 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
   if (numProcs > 1)
       epetraMatrix_[0]->PutScalar(0.0);
 
-  RCP<Parallel::ParMap> origMap = builder_.getSolutionMap(); 
   int origLocalRows = origMap->numLocalEntities();
   int origGlobalRows = origMap->numGlobalEntities();
 
@@ -564,7 +568,7 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
     {
        // Get the global ID for this row.
        int idx = linFreqNZRowMap[it->row_lid];
-       int gid = (appdFdxSum->epetraObj()).GCID( it->col_lid );
+       int gid = appdFdxSum->getGraph()->localToGlobalColIndex( it->col_lid );
        if (gid != -1)
        {
          realEntries[idx].push_back( (*it).val.real() );
@@ -576,7 +580,7 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
     // Second, sum into global values.
     for ( int i=0; i<numRows; i++ )
     {
-      int gid = (appdFdxSum->epetraObj()).GRID( linFreqNZRows[i] );
+      int gid = appdFdxSum->getGraph()->localToGlobalRowIndex( linFreqNZRows[i] );
       
       // Insert first quadrant, G
       if (numProcs > 1)

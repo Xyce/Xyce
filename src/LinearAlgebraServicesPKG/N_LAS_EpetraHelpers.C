@@ -43,10 +43,11 @@
 #include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
-#include <N_LAS_Matrix.h>
 #include <N_LAS_Operator.h>
-#include <N_LAS_BlockMatrix.h>
+#include <N_LAS_EpetraMatrix.h>
 #include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraImporter.h>
+#include <N_LAS_EpetraGraph.h>
 
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
@@ -63,25 +64,25 @@ namespace Xyce {
 namespace Linear {
 
   // Non-member creation methods.
-MultiVector* createMultiVector( Parallel::ParMap & map,
+MultiVector* createMultiVector( const Parallel::ParMap & map,
                                 int numVectors )
 {
   return new MultiVector( map, numVectors );
 }
 
-MultiVector* createMultiVector( Parallel::ParMap & map,
-                                Parallel::ParMap & ol_map,
+MultiVector* createMultiVector( const Parallel::ParMap & map,
+                                const Parallel::ParMap & ol_map,
                                 int numVectors )
 {
   return new MultiVector( map, ol_map, numVectors );
 }
 
-Vector* createVector( Parallel::ParMap & map ) 
+Vector* createVector( const Parallel::ParMap & map ) 
 {
   return new Vector( map );
 }
 
-Vector* createVector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
+Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map )
 {
   return new Vector( map, ol_map );
 }
@@ -89,19 +90,19 @@ Vector* createVector( Parallel::ParMap & map, Parallel::ParMap & ol_map )
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph )
 {
-  return new Matrix( overlapGraph, baseGraph );
+  return new EpetraMatrix( overlapGraph, baseGraph );
 }
 
-Graph* createGraph( Parallel::ParMap & map, 
+Graph* createGraph( const Parallel::ParMap & map, 
                     const std::vector<int>& numIndicesPerRow )
 {
-  return new Graph( map, numIndicesPerRow );
+  return new EpetraGraph( map, numIndicesPerRow );
 }
 
-Graph* createGraph( Parallel::ParMap & map,
+Graph* createGraph( const Parallel::ParMap & map,
                     int maxNumIndicesPerRow )
 {
-  return new Graph( map, maxNumIndicesPerRow );
+  return new EpetraGraph( map, maxNumIndicesPerRow );
 }
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
@@ -112,6 +113,12 @@ Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b )
 {
   return new EpetraProblem( Op, x, b );
+}
+
+Importer* createImporter( const Parallel::ParMap & target_map, 
+                          const Parallel::ParMap & source_map )
+{
+  return new EpetraImporter( target_map, source_map );
 }
 
 void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
