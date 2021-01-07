@@ -114,6 +114,11 @@ void Traits::loadInstanceParameters(ParametricData<MutIndNonLin2::Instance> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("");
+  
+  p.addPar ("IC",std::vector<double>(),&MutIndNonLin2::Instance::initialCondition)
+   .setUnit(U_AMP)
+   .setCategory(CAT_NONE)
+   .setDescription("Initial current through the inductor.");
 }
 
 void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
@@ -1855,7 +1860,8 @@ void registerDevice()
 {
   Config<Traits>::addConfiguration()
     .registerDevice("min", 2)
-    .registerModelType("min", 2);
+    .registerModelType("min", 2)
+    .registerModelType("core", 2);
 }
 
 } // namespace MutIndNonLin2

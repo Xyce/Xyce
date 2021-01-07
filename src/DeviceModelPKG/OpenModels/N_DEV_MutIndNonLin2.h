@@ -165,6 +165,8 @@ private:
   // and here's the list of ones we are coupling
   std::vector< std::string > couplingInductor;
   std::vector< double > couplingCoefficient;
+  std::vector< double > initialCondition;
+  std::vector< bool > initialConditionGiven;
   //std::vector< std::vector< double > > mutualCouplingCoef;
 
   // local indices for extra equations
