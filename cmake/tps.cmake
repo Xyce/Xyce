@@ -307,7 +307,7 @@ if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
      check_include_file_cxx("mkl_dfti.h" HAVE_MKL_FFT)
      unset(CMAKE_REQUIRED_INCLUDES)
      # The following is very cludgy, but I don't know how else to probe Trilnos for the MKL.
-     string(FIND "${Trilinos_TPL_LIBRARIES}" "libmkl" Tri_MKL_STRING_FOUND)
+     string(FIND "${Trilinos_TPL_LIBRARIES}" "mkl" Tri_MKL_STRING_FOUND)
      if(Tri_MKL_STRING_FOUND GREATER -1)
           set(Tri_KNOWS_MKL TRUE)
      endif()
