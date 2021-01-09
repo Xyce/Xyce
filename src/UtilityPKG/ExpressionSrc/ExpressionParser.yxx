@@ -132,6 +132,215 @@ bool checkGroundNodeName(std::string & name)
 }
 
 //-------------------------------------------------------------------------
+// Function      : setupCoords
+// Purpose       : Support function for setupPoly, which provides coordinates for a specific term.
+//
+// Special Notes : 
+//
+// The coefficients in a POLY statement are specified as an arbitrarily long list of numbers.  
+//
+// The coefs are listed in the order of polynomial order.  
+// So, the coefs for order=0 are first, followed by coefs for order=1, then order=2, etc.
+// 
+// The number of coefs needed at each order increases exponentially, w.r.t. the number of variables. 
+// If the number of variables = N = 2 then the number of coefs for each order is:
+// order 0 -> N^0 = 1
+// order 1 -> N^1 = N = 2
+// order 2 -> N^2 = N*N = 4
+// order 3 -> N^3 = N*N*N = 8 
+// etc.
+//
+// This function deals only with the coefs of a specific order, a subset of the original list.
+// For that order, it figures out the multi-dimensional indexing needed to properly compute 
+// this specific term in the polynomial.
+//
+// For example, if you are dealing with the 3rd order terms, then 
+// each term will have the form:  Cijk * var_i*var_j_*var_k.  This function determins 
+// what the values of i,j,k must be, for a given index in the 1D coef array.
+//
+// If dealing with 3rd order, and 2 inputs, then there will be 8 coefs and their order is:
+//     C000 C001 C010 C011 C100 C101 C110 C111
+// and their poly terms are:
+//
+//   C000*X0*X0*X0 + C001*X0*X0*X1 + C010*X0*X1*X0 + C011*X0*X1*X1 + 
+//   C100*X1*X0*X0 + C101*X1*X0*X1 + C110*X1*X1*X0 + C111*X1*X1*X1
+//
+// where "X" are variables
+//
+// The "localIndex" is the index relative to the beginning of this order of terms.  
+// So, in the above example C000 would be localIndex=0, and C001 would be localIndex=1
+//
+// This function, given the number of variables, the current order, and the localIndex 
+// provides the coordinates needed to evaluate the given polynomial term.  
+//
+// So for example, if N=2 and order=3, and localIndex=4, then this function should 
+// populate coords as: coords = {1,0,0}
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+void setupCoords (int order, int localIndex, int numvars, std::vector<int> & coords)
+{
+  coords.resize(order,0);
+  int p=numvars;
+  int d=order;
+  int indx = localIndex;
+  for (int k = d-1; k >= 0; k--) 
+  {
+    coords[k] = indx % (p);
+    indx /= p;
+  }
+}
+
+//-------------------------------------------------------------------------
+// Function      : setupPoly
+// Purpose       : Does work to create an expression tree representing the 
+//                 POLY operator
+//
+// Special Notes : Given the following POLY specification:
+//
+//  POLY(N) X1 ...XN   C0 C1 ...CN   C11 ...C1N    C21 ...CN1 ...CNN    C121 ...C12N ...
+//  
+// The AST constructed by this function needs to evaluate the following polynomial:
+//
+// term order: 
+//   0         Value = C0 
+//   1                   + sum_{j=1}^N C_j X_j 
+//   2                   + sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j
+//   3                   + sum_{i=1}^N sum_{j=1}^N sum_{k=1}^N C_{ijk} X_i * X_j * X_k + ...
+//             ....
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+Teuchos::RCP<astNode<usedType> > setupPoly(
+    Xyce::Util::newExpression & newExp,
+    usedType numvars, 
+    std::vector<Teuchos::RCP<astNode<usedType> > > & vars_and_coefs
+    )
+  {
+  int sizeOfVars_ = static_cast<int>(std::real(numvars));
+
+  if (vars_and_coefs.size() <= sizeOfVars_)
+  {
+    Xyce::Report::UserError()
+     << "Not enough arguments in POLY expression:" << newExp.getExpressionString() << std::endl;
+  }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > vars;
+  vars.insert(vars.end(),vars_and_coefs.begin(), vars_and_coefs.begin() + sizeOfVars_);
+  for(int ii=0;ii<sizeOfVars_;ii++)
+  {
+    if (vars[ii]->numvalType())
+    {
+      Xyce::Report::UserError()
+       << "There needs to be " << sizeOfVars_ 
+       << " input solution variables in POLY expression:" << newExp.getExpressionString() << std::endl;
+    }
+  }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > coefs;
+  coefs.insert(coefs.end(), vars_and_coefs.begin() + sizeOfVars_, vars_and_coefs.end());
+
+  Teuchos::RCP<astNode<usedType> > tmpPtr;
+  Teuchos::RCP<astNode<usedType> > tmpPtr2;
+  Teuchos::RCP<astNode<usedType> > value;
+  Teuchos::RCP<astNode<usedType> > value2;
+
+  // Set up arrays to determine what range of coefs corresponds to each order.
+  int currentOrderSize=1;
+  int currentMaxIndex=currentOrderSize;
+  std::vector<int> orderMinIndex(1,0);
+  std::vector<int> orderMaxIndex(1,currentMaxIndex);
+  while(currentMaxIndex < coefs.size())
+  {
+    currentOrderSize *= vars.size();
+    orderMinIndex.push_back(currentMaxIndex);
+    currentMaxIndex += currentOrderSize;
+    orderMaxIndex.push_back(currentMaxIndex);
+  }
+
+  // This creates an AST, with "value" at the head.
+  // It loops over all the used orders, and for each order, then loops over the 
+  // coefs for that order and uses them to create AST contributions for that 
+  // part of the polynomial.
+  value = coefs[0];
+  int maxOrderPlus1 = orderMaxIndex.size();
+  for (int iorder=1;iorder<maxOrderPlus1;iorder++)
+  {
+    int localIndex=0;
+    for(int ii=orderMinIndex[iorder];ii<orderMaxIndex[iorder];++ii,++localIndex) // loop over coefs of the current order
+    {
+      if(ii>=coefs.size()) break;
+  
+      tmpPtr = coefs[ii];
+      std::vector<int> coords;
+      setupCoords(iorder, localIndex, vars.size(), coords); // get the coordinates for this term
+      for (int ie=0;ie<coords.size();ie++) 
+      {
+        tmpPtr2 = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (tmpPtr,vars[coords[ie]]));
+        tmpPtr = tmpPtr2;
+      }
+      value2 = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (value,tmpPtr));
+      value = value2;
+    }
+  }
+  return value;
+}
+
+//-------------------------------------------------------------------------
+// Function      : createParamOp 
+// Purpose       : Does work required to allocate parameter operator
+// Special Notes : This is a separate function, b/c two rules use it.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+Teuchos::RCP<astNode<usedType> > createParamOp(
+    Xyce::Util::newExpression & newExp,
+    const std::string &  paramName)
+{
+  Teuchos::RCP<astNode<usedType> > returnPtr;
+
+  // ensure that each parameter and/or function argument  has a single, unique astNode allocated for it
+  //
+  // note that maps are not used here, intentionally, so as to preseve the original order of params.
+  // using a std::vector for the names and a separate vector for the paramOps keeps them in order user specified.
+  std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & paramOpMap = newExp.getParamOpMap ();
+
+  //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), paramName);
+  //if ( nameIter == paramNameVec.end() )
+  if ( paramOpMap.find( paramName ) == paramOpMap.end() )
+  {
+    Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(paramName));
+    paramOpVec.push_back(tmpPtr);
+
+    std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+    vec.push_back(tmpPtr);
+    paramOpMap[paramName] = vec;
+
+    paramNameVec.push_back(paramName);
+    Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(tmpPtr);
+
+    returnPtr = tmpPtr2;
+  }
+  else
+  {
+    //int index = std::distance(paramNameVec.begin(),nameIter);
+    //Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
+
+    Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpMap[paramName][0]);
+    returnPtr = tmpPtr2;
+  }
+
+  return returnPtr;
+}
+
+//-------------------------------------------------------------------------
 // Function      : createVoltageOp
 // Purpose       : Does work required by the rules for voltage operators
 // Special Notes : This is a separate function, b/c two rules use it.
@@ -447,6 +656,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token <std::string *> TOK_CURRENT "current"
 %token <std::string *> TOK_CURRENTDEV "currentdevice"
 %token <std::string *> TOK_POLY_CURRENT "poly_current"
+%token <std::string *> TOK_POLY_WORD    "poly_word"
 %token <std::string *> TOK_INTERNAL_VAR "internal_variable"
 %token <std::string *> TOK_INTERNAL_VAR_DEV "internal_variable_device"
 %token <std::string *> TOK_NOISE "noise"
@@ -543,7 +753,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist2
 %type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   two_or_more_arglist
 %type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_arg_pairs 
-%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   poly_coeflist 
+
 %type  <std::vector<std::string> *>  nonempty_voltagenodelist
 %type  <std::vector<int> *>  nonempty_rfparam_arg_list
 %type  <std::vector<std::string> *>  nonempty_noise_device_list
@@ -551,6 +761,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %type  <Teuchos::RCP<astNode<usedType> > >   polyarg
 %type  <std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > *>   polypair
 %type  <double>  paren_polycoef 
+%type  <std::string *>  paren_polyword
 
 %destructor { delete $$; } TOK_VOLTAGENODE
 %destructor { delete $$; } TOK_NOISE_DEV_VAR
@@ -599,41 +810,7 @@ exp:
 
   | TOK_WORD
       {
-        // ensure that each parameter and/or function argument  has a single, unique astNode allocated for it
-        //
-        // note that maps are not used here, intentionally, so as to preseve the original order of params.
-        // using a std::vector for the names and a separate vector for the paramOps keeps them in order user specified.
-        std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
-        std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
-        std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & paramOpMap = newExp.getParamOpMap ();
-
-
-        const std::string & paramName = *$1;
-
-        //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), paramName);
-        //if ( nameIter == paramNameVec.end() )
-        if ( paramOpMap.find( paramName ) == paramOpMap.end() )
-        {
-          Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(paramName));
-          paramOpVec.push_back(tmpPtr);
-
-          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
-          vec.push_back(tmpPtr);
-          paramOpMap[paramName] = vec;
-
-          paramNameVec.push_back(paramName);
-          Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(tmpPtr);
-
-          $$ = tmpPtr2;
-        }
-        else
-        {
-          //int index = std::distance(paramNameVec.begin(),nameIter);
-          //Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
-
-          Teuchos::RCP<astNode<usedType> > tmpPtr2 = Teuchos::RCP<astNode<usedType> >(paramOpMap[paramName][0]);
-          $$ = tmpPtr2;
-        }
+        $$ = createParamOp(newExp,*$1);
         delete $1;
     }
   | TOK_TIME
@@ -1190,15 +1367,14 @@ exp:
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new urampOp<usedType>($2));
       $$ = tmpPtr;
     }
-   | polypair  poly_coeflist
+   | polypair 
     {
       // the "pair" contains both the POLYSIZE value as well as a vector of ast nodes (the "args")
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new polyOp<usedType>
-          ($1->first, ($1->second), *$2));
-
+      // $1->first  - numvars
+      // $1->second - vars and coefs
+      Teuchos::RCP<astNode<usedType> > tmpPtr = setupPoly (newExp,$1->first, ($1->second));
       $$ = tmpPtr;
       delete $1;
-      delete $2;
     }
   | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
     {
@@ -1533,16 +1709,15 @@ polyarg: TOK_POLY_VOLTAGE nonempty_voltagenodelist
       delete $1;
       delete $2;
     }
-
-poly_coeflist:  paren_polycoef         { 
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
-      $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,tmpPtr);  
+  | paren_polyword
+    {
+      $$ = createParamOp(newExp,*$1);
+      delete $1;
     }
-  |  poly_coeflist  paren_polycoef{ 
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>($2));
-      $1->push_back((tmpPtr)); 
-      $$=$1;
-     }
+  | paren_polycoef
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
+    }
 
 paren_polycoef: TOK_POLYCOEF
      {
@@ -1557,6 +1732,19 @@ paren_polycoef: TOK_POLYCOEF
        $$ = $2;
     }
 
+
+paren_polyword: TOK_POLY_WORD
+     {
+       $$ = $1;
+     }
+  | TOK_LEFTPAREN paren_polyword TOK_RIGHTPAREN
+    {
+       $$ = $2;
+    }
+  | TOK_LEFTCURLYBRACE paren_polyword TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
 
 
     /* excluding this pattern b/c it causes shift/reduce errors.  
@@ -1631,7 +1819,6 @@ XyceExpression::ExpressionParser::error(
   const XyceExpression::ExpressionParser::location_type & l,
   const std::string &                               message)
 {
-  //Xyce::Report::UserError().at(theLexer->netlistLocation_)
   Xyce::Report::UserError()
    << message << " in expression " << newExp.getExpressionString() << std::endl;
 }
