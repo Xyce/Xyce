@@ -140,7 +140,7 @@ void OneStep::obtainPredictor()
 
   for (int i=1;i<=sec.currentOrder_;++i)
   {
-    ds.xn0Ptr->addVec(sec.beta_[i],*(ds.xHistory[i]));
+    ds.xn0Ptr->update(sec.beta_[i],*(ds.xHistory[i]));
   }
 
   if (DEBUG_TIME && isActive(Diag::TIME_PREDICTOR))
@@ -247,7 +247,7 @@ void OneStep::obtainResidual()
   if (sec.currentOrder_  == 2)
   {
     ds.RHSVectorPtr->update(1.0/2.0,*ds.daeFVectorPtr,-1.0/2.0,*ds.daeBVectorPtr,1.0/sec.currentTimeStep);
-    ds.RHSVectorPtr->addVec(+1.0/2.0,*ds.qHistory[2]);
+    ds.RHSVectorPtr->update(+1.0/2.0,*ds.qHistory[2]);
   }
   else
   {
@@ -261,14 +261,14 @@ void OneStep::obtainResidual()
   {
     (ds.dQdxdVpVectorPtr)->scale( -sec.alphas_/sec.currentTimeStep );
 
-    (ds.RHSVectorPtr)->axpy(*(ds.RHSVectorPtr), +1.0, *(ds.dQdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->update(+1.0, *(ds.dQdxdVpVectorPtr));
 
     double fscalar(1.0);
 
     if (sec.currentOrder_  == 2)
       fscalar =1.0/2.0;
 
-    (ds.RHSVectorPtr)->axpy(*(ds.RHSVectorPtr), fscalar, *(ds.dFdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->update(fscalar, *(ds.dFdxdVpVectorPtr));
   }
 
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))
@@ -296,10 +296,10 @@ void OneStep::obtainSensitivityResiduals()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(+0.5,*ds.dfdpHistory[0]);
+    ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.nextDbdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.dbdpHistory[0]);
+    ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-0.5,*ds.dbdpHistory[0]);
   }
   else
   {
@@ -307,7 +307,7 @@ void OneStep::obtainSensitivityResiduals()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-1.0,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
   // since the nonlinear solver is expecting a -dFdp, scale by -1.0:
@@ -315,12 +315,12 @@ void OneStep::obtainSensitivityResiduals()
 
   // correction terms
   double qscalar(1.0/sec.currentTimeStep);
-  ds.sensRHSPtrVector->addVec(qscalar, *ds.currDQdxDXdpPtrVector);
+  ds.sensRHSPtrVector->update(qscalar, *ds.currDQdxDXdpPtrVector);
 
   // second order "correction" term
   if (sec.currentOrder_ == 2)
   {
-    ds.sensRHSPtrVector->addVec(-0.5, *ds.currDFdxDXdpPtrVector);
+    ds.sensRHSPtrVector->update(-0.5, *ds.currDFdxDXdpPtrVector);
   }
 
 #ifdef DEBUG_SENS
@@ -351,10 +351,10 @@ void OneStep::obtainFunctionDerivativesForTranAdjoint ()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(+0.5,*ds.dfdpHistory[0]);
+    ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.nextDbdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.dbdpHistory[0]);
+    ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-0.5,*ds.dbdpHistory[0]);
   }
   else
   {
@@ -362,7 +362,7 @@ void OneStep::obtainFunctionDerivativesForTranAdjoint ()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-1.0,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
   // since the nonlinear solver is expecting a -dFdp, scale by -1.0:
@@ -391,10 +391,10 @@ void OneStep::obtainSparseFunctionDerivativesForTranAdjoint ()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(+0.5,*ds.dfdpHistory[0]);
+    ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.nextDbdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-0.5,*ds.dbdpHistory[0]);
+    ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-0.5,*ds.dbdpHistory[0]);
   }
   else
   {
@@ -402,7 +402,7 @@ void OneStep::obtainSparseFunctionDerivativesForTranAdjoint ()
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
     ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
-    ds.sensRHSPtrVector->addVec(-1.0,*ds.nextDbdpPtrVector);
+    ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
   // since the nonlinear solver is expecting a -dFdp, scale by -1.0:
@@ -445,7 +445,7 @@ void OneStep::obtainAdjointSensitivityResidual()
     double qscalar(1.0/sec.lastTimeStep);
     currDQdxLambda.putScalar(0.0);
     dQdx.matvec( Transpose , currLambda, currDQdxLambda);
-    RHSVec.addVec(+qscalar, currDQdxLambda);
+    RHSVec.update(+qscalar, currDQdxLambda);
     }
 
     if (ds.orderHistory[it+1] != 1)
@@ -453,7 +453,7 @@ void OneStep::obtainAdjointSensitivityResidual()
       double fscalar(-0.5);
       currDFdxLambda.putScalar(0.0);
       dFdx.matvec( Transpose , currLambda, currDFdxLambda);
-      RHSVec.addVec(+fscalar, currDFdxLambda);
+      RHSVec.update(+fscalar, currDFdxLambda);
     }
   }
 }
@@ -631,7 +631,7 @@ bool OneStep::interpolateMPDESolution(std::vector<double>& timepoint,
         return(false);
       }
       xHistoryVectorPtr = &(blockXHistoryVectorPtr->block(i));
-      solVectorPtr->addVec(c,*xHistoryVectorPtr);
+      solVectorPtr->update(c,*xHistoryVectorPtr);
     }
   }
   return true;
@@ -2424,7 +2424,7 @@ void OneStep::updateLeadCurrentVec ()
       ds.nextLeadCurrentQDerivPtr->
         update(-1.0,*(ds.currLeadCurrentQDerivPtr),2.0/sec.currentTimeStep);
     }
-    ds.nextLeadCurrentPtr->addVec(1.0,*ds.nextLeadCurrentQDerivPtr);
+    ds.nextLeadCurrentPtr->update(1.0,*ds.nextLeadCurrentQDerivPtr);
 
     if (DEBUG_TIME && isActive(Diag::TIME_STEP))
     {

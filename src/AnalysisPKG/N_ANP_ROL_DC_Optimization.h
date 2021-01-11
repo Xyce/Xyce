@@ -664,20 +664,20 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
         // calculate the df/dp vector.  
         double rdp=1/dp;
         rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydfdpPtrVector_[iparam]->addVec (+1.0, *(pertFVectorPtr_)); //+Fperturb
-        rolSweep_.mydfdpPtrVector_[iparam]->addVec (-1.0, *(origFVectorPtr_)); //-Forig
+        rolSweep_.mydfdpPtrVector_[iparam]->update (+1.0, *(pertFVectorPtr_)); //+Fperturb
+        rolSweep_.mydfdpPtrVector_[iparam]->update (-1.0, *(origFVectorPtr_)); //-Forig
         rolSweep_.mydfdpPtrVector_[iparam]->scale(rdp);
 
         // calculate the dq/dp vector.  
         rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydqdpPtrVector_[iparam]->addVec (+1.0, *(pertQVectorPtr_)); //+Fperturb
-        rolSweep_.mydqdpPtrVector_[iparam]->addVec (-1.0, *(origQVectorPtr_)); //-Forig
+        rolSweep_.mydqdpPtrVector_[iparam]->update (+1.0, *(pertQVectorPtr_)); //+Fperturb
+        rolSweep_.mydqdpPtrVector_[iparam]->update (-1.0, *(origQVectorPtr_)); //-Forig
         rolSweep_.mydqdpPtrVector_[iparam]->scale(rdp);
 
         // calculate the db/dp vector.  
         rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydbdpPtrVector_[iparam]->addVec (+1.0, *(pertBVectorPtr_)); //+Fperturb
-        rolSweep_.mydbdpPtrVector_[iparam]->addVec (-1.0, *(origBVectorPtr_)); //-Forig
+        rolSweep_.mydbdpPtrVector_[iparam]->update (+1.0, *(pertBVectorPtr_)); //+Fperturb
+        rolSweep_.mydbdpPtrVector_[iparam]->update (-1.0, *(origBVectorPtr_)); //-Forig
         rolSweep_.mydbdpPtrVector_[iparam]->scale(rdp);
 
         if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
@@ -777,7 +777,7 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
       sensRHS.scale( (*vp)[iparam] );
 
       // add to jvp[k]
-      (*jvp)[k]->addVec(1.0,sensRHS);
+      (*jvp)[k]->update(1.0,sensRHS);
 
     }// end of parameters loop
        
@@ -980,20 +980,20 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
           // calculate the df/dp vector.  
           double rdp=1/dp;
           rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
-          rolSweep_.mydfdpPtrVector_[iparam]->addVec (+1.0, *(pertFVectorPtr_)); //+Fperturb
-          rolSweep_.mydfdpPtrVector_[iparam]->addVec (-1.0, *(origFVectorPtr_)); //-Forig
+          rolSweep_.mydfdpPtrVector_[iparam]->update (+1.0, *(pertFVectorPtr_)); //+Fperturb
+          rolSweep_.mydfdpPtrVector_[iparam]->update (-1.0, *(origFVectorPtr_)); //-Forig
           rolSweep_.mydfdpPtrVector_[iparam]->scale(rdp);
 
           // calculate the dq/dp vector.  
           rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
-          rolSweep_.mydqdpPtrVector_[iparam]->addVec (+1.0, *(pertQVectorPtr_)); //+Fperturb
-          rolSweep_.mydqdpPtrVector_[iparam]->addVec (-1.0, *(origQVectorPtr_)); //-Forig
+          rolSweep_.mydqdpPtrVector_[iparam]->update (+1.0, *(pertQVectorPtr_)); //+Fperturb
+          rolSweep_.mydqdpPtrVector_[iparam]->update (-1.0, *(origQVectorPtr_)); //-Forig
           rolSweep_.mydqdpPtrVector_[iparam]->scale(rdp);
 
           // calculate the db/dp vector.  
           rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
-          rolSweep_.mydbdpPtrVector_[iparam]->addVec (+1.0, *(pertBVectorPtr_)); //+Fperturb
-          rolSweep_.mydbdpPtrVector_[iparam]->addVec (-1.0, *(origBVectorPtr_)); //-Forig
+          rolSweep_.mydbdpPtrVector_[iparam]->update (+1.0, *(pertBVectorPtr_)); //+Fperturb
+          rolSweep_.mydbdpPtrVector_[iparam]->update (-1.0, *(origBVectorPtr_)); //-Forig
           rolSweep_.mydbdpPtrVector_[iparam]->scale(rdp);
 
           if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))

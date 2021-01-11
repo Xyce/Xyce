@@ -49,6 +49,8 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_EpetraImporter.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_MPI.h>
+#include <N_PDS_Serial.h>
 #include <N_PDS_EpetraHelpers.h>
 #include <N_PDS_EpetraParMap.h>
 #include <N_UTL_FeatureTest.h>
@@ -60,11 +62,6 @@
 #include <Epetra_Import.h>
 #include <Epetra_Export.h>
 #include <Epetra_Map.h>
-#include <Epetra_Comm.h>
-
-#ifdef Xyce_PARALLEL_MPI
-#include <Epetra_MpiComm.h>
-#endif
 
 #include <EpetraExt_View_MultiVector.h>
 #include <EpetraExt_MultiVectorOut.h>
@@ -459,24 +456,6 @@ void MultiVector::multiply(const MultiVector &x)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::axpy
-// Purpose       : Linear combination of two MultiVectors:
-//                 this = y + a*x
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/23/00
-//-----------------------------------------------------------------------------
-void MultiVector::axpy(const MultiVector &y, const double a, const MultiVector &x)
-{
-  int PetraError = aMultiVector_->Update(1.0, *(y.aMultiVector_), a,
-                                         *(x.aMultiVector_), 0.0);
-
-  if (DEBUG_LINEAR)
-    processError( "MultiVector::axpy - ", PetraError);
-}
-
-//-----------------------------------------------------------------------------
 // Function      : MultiVector::linearCombo
 // Purpose       : Linear combination of two MultiVectors:
 //                 this = a*x + b*y
@@ -533,22 +512,6 @@ void MultiVector::update( double a, const MultiVector & A,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::addVec
-// Purpose       : Add multiple of a MultiVector:  this = this + a*y
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/23/00
-//-----------------------------------------------------------------------------
-void MultiVector::addVec(const double a, const MultiVector &y)
-{
-  int PetraError = aMultiVector_->Update(a, *(y.aMultiVector_), 1.0);
-
-  if (DEBUG_LINEAR)
-    processError( "MultiVector::addVec - ", PetraError);
-}
-
-//-----------------------------------------------------------------------------
 // Function      : MultiVector::lpNorm
 // Purpose       : Returns lp norms of each vector in MultiVector
 // Special Notes : Only p=1 and p=2 implemented now since this is all Petra
@@ -602,7 +565,7 @@ int MultiVector::infNorm(double * result) const
 // Creator       : Heidi K. Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 11/21/11
 //-----------------------------------------------------------------------------
-int MultiVector::infNormIndex(int * index) const
+void MultiVector::infNormIndex(int * index) const
 {
   Teuchos::BLAS<int,double> blas;
 
@@ -625,8 +588,8 @@ int MultiVector::infNormIndex(int * index) const
   }
 
   // Use the Epetra communicator to gather all the local maximum values and indices
-  int result = aMultiVector_->Comm().GatherAll(&indexTemp[0], &indexTempAll[0], numVectors);
-  result += aMultiVector_->Comm().GatherAll(&doubleTemp[0], &doubleTempAll[0], numVectors);
+  Parallel::AllGather( pdsComm_->comm(), indexTemp, indexTempAll );
+  Parallel::AllGather( pdsComm_->comm(), doubleTemp, doubleTempAll );
 
   // Compute the global infNorm and index
   for (int i=0; i < numVectors; i++)
@@ -635,8 +598,6 @@ int MultiVector::infNormIndex(int * index) const
     int ii = blas.IAMAX( numProcs, &doubleTempAll[i], numVectors ) - 1;
     index[i] = indexTempAll[ii*numVectors + i];
   }
-
-  return result;
 }
 
 
@@ -687,7 +648,7 @@ int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
       }
     } 
     // Determine global maximum.
-    aMultiVector_->Comm().MaxAll( &localMax, &(result[i]), 1 );
+    pdsComm_->maxAll( &localMax, &(result[i]), 1 );
   }
 
   return 0;
@@ -938,7 +899,7 @@ void MultiVector::writeToFile( const char * filename, bool useLIDs, bool mmForma
     for( int p = 0; p < numProcs; ++p )
     {
       //A barrier inside the loop so each processor waits its turn.
-      aMultiVector_->Comm().Barrier();
+      pdsComm_->barrier();
 
       if(p == localRank)
       {

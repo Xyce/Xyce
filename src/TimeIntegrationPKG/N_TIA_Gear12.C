@@ -136,8 +136,8 @@ void Gear12::obtainPredictor()
 
   for (int i=0;i<=sec.currentOrder_;++i)
   {
-    ds.xn0Ptr->addVec(sec.beta_[i],*(ds.xHistory[i]));
-    ds.qn0Ptr->addVec(sec.beta_[i],*(ds.qHistory[i]));
+    ds.xn0Ptr->update(sec.beta_[i],*(ds.xHistory[i]));
+    ds.qn0Ptr->update(sec.beta_[i],*(ds.qHistory[i]));
   }
 
   if (DEBUG_TIME && isActive(Diag::TIME_PREDICTOR))
@@ -234,7 +234,7 @@ void Gear12::obtainResidual()
 
   if (sec.currentOrder_  == 2)
   {
-    ds.RHSVectorPtr->addVec(sec.alpha_[2],*(ds.qHistory[1]));
+    ds.RHSVectorPtr->update(sec.alpha_[2],*(ds.qHistory[1]));
   }
 
   ds.RHSVectorPtr->update(+1.0,*ds.daeFVectorPtr,-1.0,*ds.daeBVectorPtr,1.0/sec.currentTimeStep);
@@ -248,11 +248,9 @@ void Gear12::obtainResidual()
     (ds.dQdxdVpVectorPtr)->scale( sec.alpha_[0]/sec.currentTimeStep );
     //        double qscalar(sec.alpha_[0]/sec.currentTimeStep);
 
-    (ds.RHSVectorPtr)->axpy(
-        *(ds.RHSVectorPtr), +1.0, *(ds.dQdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->update(+1.0, *(ds.dQdxdVpVectorPtr));
 
-    (ds.RHSVectorPtr)->axpy(
-        *(ds.RHSVectorPtr), +1.0, *(ds.dFdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->update(+1.0, *(ds.dFdxdVpVectorPtr));
   }
 
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))
@@ -279,7 +277,7 @@ void Gear12::obtainSensitivityResiduals()
 
   if (sec.currentOrder_  == 2)
   {
-    ds.sensRHSPtrVector->addVec(sec.alpha_[2],*(ds.dqdpHistory[1]));
+    ds.sensRHSPtrVector->update(sec.alpha_[2],*(ds.dqdpHistory[1]));
   }
 
   ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
@@ -290,12 +288,12 @@ void Gear12::obtainSensitivityResiduals()
   ds.sensRHSPtrVector->scale(-1.0);
 
   double qscalar1(sec.alpha_[1]/sec.currentTimeStep);
-  ds.sensRHSPtrVector->addVec(-qscalar1, *ds.currDQdxDXdpPtrVector);
+  ds.sensRHSPtrVector->update(-qscalar1, *ds.currDQdxDXdpPtrVector);
 
   if (sec.currentOrder_  == 2)
   {
     double qscalar2(sec.alpha_[2]/sec.currentTimeStep);
-    ds.sensRHSPtrVector->addVec(-qscalar2, *ds.lastDQdxDXdpPtrVector);
+    ds.sensRHSPtrVector->update(-qscalar2, *ds.lastDQdxDXdpPtrVector);
   }
 
 #ifdef DEBUG_SENS
@@ -326,7 +324,7 @@ void Gear12::obtainFunctionDerivativesForTranAdjoint()
 
   if (sec.currentOrder_  == 2)
   {
-    ds.sensRHSPtrVector->addVec(sec.alpha_[2],*(ds.dqdpHistory[1]));
+    ds.sensRHSPtrVector->update(sec.alpha_[2],*(ds.dqdpHistory[1]));
   }
 
   ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
@@ -358,7 +356,7 @@ void Gear12::obtainSparseFunctionDerivativesForTranAdjoint()
 
   if (sec.currentOrder_  == 2)
   {
-    ds.sensRHSPtrVector->addVec(sec.alpha_[2],*(ds.dqdpHistory[1]));
+    ds.sensRHSPtrVector->update(sec.alpha_[2],*(ds.dqdpHistory[1]));
   }
 
   ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
@@ -432,7 +430,7 @@ void Gear12::obtainAdjointSensitivityResidual()
     currDQdxLambda.putScalar(0.0);
     dQdx.matvec( Transpose , currLambda, currDQdxLambda);
     currDQdxLambda.scale(-1);
-    RHSVec.addVec(+qscalar1, currDQdxLambda);
+    RHSVec.update(+qscalar1, currDQdxLambda);
   }
 
   if (it<itmax-2)
@@ -463,7 +461,7 @@ void Gear12::obtainAdjointSensitivityResidual()
       lastDQdxLambda.putScalar(0.0);
       dQdx.matvec( Transpose , lastLambda, lastDQdxLambda);
       lastDQdxLambda.scale(-1);
-      RHSVec.addVec(+qscalar2, lastDQdxLambda);
+      RHSVec.update(+qscalar2, lastDQdxLambda);
     }
   }
 }
@@ -632,7 +630,7 @@ bool Gear12::interpolateMPDESolution(std::vector<double>& timepoint,
         return(false);
       }
       xHistoryVectorPtr = &(blockXHistoryVectorPtr->block(i));
-      solVectorPtr->addVec(c,*xHistoryVectorPtr);
+      solVectorPtr->update(c,*xHistoryVectorPtr);
     }
   }
   return true;
@@ -1911,7 +1909,7 @@ void Gear12::updateStateDeriv ()
   if (sec.currentOrder_ == 2)
   {
     ds.nextStateDerivPtr->
-      addVec(sec.alpha_[2], *(ds.sHistory[1]));
+      update(sec.alpha_[2], *(ds.sHistory[1]));
   }
 
   ds.nextStateDerivPtr->scale(1.0/sec.currentTimeStep);
@@ -1948,12 +1946,12 @@ void Gear12::updateLeadCurrentVec ()
     if (sec.currentOrder_ == 2)
     {
       ds.nextLeadCurrentQDerivPtr->
-        addVec(sec.alpha_[2], *(ds.leadCurrentQHistory[1]));
+        update(sec.alpha_[2], *(ds.leadCurrentQHistory[1]));
     }
 
     ds.nextLeadCurrentQDerivPtr->scale(1.0/sec.currentTimeStep);
 
-    ds.nextLeadCurrentPtr->addVec(1.0,*ds.nextLeadCurrentQDerivPtr);
+    ds.nextLeadCurrentPtr->update(1.0,*ds.nextLeadCurrentQDerivPtr);
 
     if (DEBUG_TIME && isActive(Diag::TIME_DUMP_SOLUTION_ARRAYS))
     {

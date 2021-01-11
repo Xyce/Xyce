@@ -168,7 +168,7 @@ void NoTimeIntegration::obtainResidual ()
   // if voltage limiting is on, add it in:
   if (ds.limiterFlag)
   {
-    (ds.RHSVectorPtr)->axpy(*(ds.RHSVectorPtr), +1.0, *(ds.dFdxdVpVectorPtr));
+    (ds.RHSVectorPtr)->update(+1.0, *(ds.dFdxdVpVectorPtr));
   }
 }
 

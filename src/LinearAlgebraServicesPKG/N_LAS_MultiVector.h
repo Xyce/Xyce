@@ -120,14 +120,11 @@ public:
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
 
-  // Standard blas AXPY operation
-  void axpy(const MultiVector & y, const double a, const MultiVector & x);
-
   // Linear combination with two constants and vectors
   void linearCombo(const double a, const MultiVector & x,
   	const double b, const MultiVector & y);
 
-  void update(double a, const MultiVector & A, double s);
+  void update(double a, const MultiVector & A, double s = 1.0);
 
   void update(double a, const MultiVector & A, double b,
   	const MultiVector & B, double s);
@@ -139,7 +136,7 @@ public:
   int infNorm(double * result) const;
 
   // Infinity norm index (the index pointer should be allocated by the caller)
-  int infNormIndex(int * index) const;
+  void infNormIndex(int * index) const;
 
   // Weighted root-mean-square norm
   int wRMSNorm(const MultiVector & weights, double * result) const;
@@ -148,13 +145,10 @@ public:
   int wMaxNorm(const MultiVector & weights, double * result) const;
 
   // maximum value
-  int maxValue(double * result) const;
+  int maxValue(double* result) const;
 
   // minimum value
-  int minValue(double * result) const;
-
-  // Add a multiple of a multi-vector (this = a*y).
-  void addVec(const double a, const MultiVector & y);
+  int minValue(double* result) const;
 
   // Generate random number
   void random();
