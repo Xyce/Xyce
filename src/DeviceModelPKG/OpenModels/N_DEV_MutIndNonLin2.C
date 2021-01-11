@@ -909,7 +909,7 @@ bool Instance::updateIntermediateVars ()
     branchCurrentSum += solVector[instanceData[i]->li_Branch] * inductanceVals[ i ];
   }
 
-  latestMag = MagVar + MagVarUpdate;
+  latestMag = MagVar  + MagVarUpdate;
 
   // used in voltage drop over first inductor
   double V1Pos = solVector[(instanceData[0])->li_Pos];
@@ -985,20 +985,24 @@ bool Instance::updateIntermediateVars ()
 #ifdef MS_FACTORING2
   double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
   double Manp =  Ms * (A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
+  /*
   if( ((dHdt < 0.0) && ((Manp - latestMag)>0.0)) || ((dHdt >= 0.0) && ((Manp - latestMag)<0.0) ) )
   {
     deltaM=1.0;
     Mirrp = 0.0;
   }
+  */
   P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / ((1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp)*Ms);
 #else
   double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
   double Manp =  Ms*(A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
+  /*
   if( ((dHdt < 0.0) && ((Manp - latestMag)>0.0)) || ((dHdt >= 0.0) && ((Manp - latestMag)<0.0) ) )
   {
     deltaM=1.0;
     Mirrp = 0.0;
   }
+  */
   P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
 #endif
 
