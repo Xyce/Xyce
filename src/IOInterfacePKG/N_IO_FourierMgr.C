@@ -50,6 +50,7 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OpBuilder.h>
 #include <N_UTL_OptionBlock.h>
+#include <N_UTL_SaveIOSState.h>
 
 #include <Teuchos_ScalarTraits.hpp>
 
@@ -818,7 +819,9 @@ void FourierMgr::calculateFT_()
 // Creation Date : 6/21/13
 //-----------------------------------------------------------------------------
 std::ostream& FourierMgr::printResult_( std::ostream& os )
-{ 
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+
   // Compute measure.
   if (calculated_)
   { 

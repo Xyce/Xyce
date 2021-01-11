@@ -50,6 +50,7 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OpBuilder.h>
 #include <N_UTL_OptionBlock.h>
+#include <N_UTL_SaveIOSState.h>
 
 #include <Teuchos_ScalarTraits.hpp>
 
@@ -508,6 +509,8 @@ void FFTAnalysis::calculateFFT_()
 //-----------------------------------------------------------------------------
 std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 {
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+
   if (calculated_)
   {
     double mag, phase;
