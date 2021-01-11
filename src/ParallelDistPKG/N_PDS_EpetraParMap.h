@@ -65,12 +65,15 @@ class EpetraParMap : public ParMap
 
 public:
   // Constructor which takes a Epetra map.
-  EpetraParMap( Epetra_Map * pMap,
-                Communicator & aComm,
+  EpetraParMap( const Epetra_Map * pMap,
+                const Communicator & aComm,
                 bool mapOwned = false );
 
   // Destructor
   virtual ~EpetraParMap();
+
+  // Clone method
+  EpetraParMap* clone() const;
 
 private:
 
@@ -116,7 +119,6 @@ public:
 
   // Accessor functions (overridden in derived classes) for the pointer to the
   // library map object.
-  Epetra_Map * petraMap() { return petraMap_; }
   const Epetra_Map * petraMap() const { return petraMap_; }
 
   void writeToFile(const char * filename) const;
@@ -126,7 +128,7 @@ public:
 private:
 
   // Pointer to Petra map object.
-  Epetra_Map * petraMap_;
+  const Epetra_Map * petraMap_;
   bool mapOwned_;
 };
 

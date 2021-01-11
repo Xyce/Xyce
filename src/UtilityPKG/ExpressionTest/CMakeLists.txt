@@ -1,4 +1,4 @@
-if(TEST_SUITE)
+if(Xyce_TEST_SUITE)
      include(GoogleTest)
      find_package(GTest REQUIRED)
      message(STATUS "Enabling test suite")

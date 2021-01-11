@@ -63,7 +63,7 @@ class GlobalAccessor
 {
 public:
   // Constructors
-  GlobalAccessor(Communicator& comm);
+  GlobalAccessor(const Communicator& comm);
 
   // Destructor
   ~GlobalAccessor();
@@ -106,7 +106,7 @@ public:
 private:
 
   // PDS Comm
-  Communicator & pdsComm_;
+  const Communicator & pdsComm_;
 
   // Vector listing extern GIDs and their respective procs needed for nonlocal
   // dependencies.

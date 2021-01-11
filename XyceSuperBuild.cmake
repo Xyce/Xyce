@@ -42,24 +42,34 @@ endif()
 set(DEPENDENCIES)
 set(TRILINOS_SERIAL_ARGS)
 set(TRILINOS_PARALLEL_ARGS)
-set(DEFAULT_ARGS)
-list(APPEND DEFAULT_ARGS
+
+# Build ADMS unconditionally static.
+set(DEFAULT_ARGS
   -DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/install
   -DCMAKE_BUILD_TYPE=$<CONFIG>
   -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/install
   -DGIT_EXEC=${GIT_EXECUTABLE}
   -DCMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}
   # -DCMAKE_CONFIGURATION_TYPES:STRING=${CMAKE_SS_CONF_TYPES}
-  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
   -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
 )
+set(ADMS_ARGS
+  ${DEFAULT_ARGS}
+  -DBUILD_SHARED_LIBS:BOOL=OFF
+)
+
+list(APPEND DEFAULT_ARGS
+  -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+)
 
 set(Xyce_ARGS ${DEFAULT_ARGS}
+  -DADMS_XML=${CMAKE_CURRENT_BINARY_DIR}/install/bin/admsXml
+  -DXyce_PLUGIN_SUPPORT=ON
   -DXyce_USE_SUPERBUILD=OFF
 )
 
-list (APPEND TRILINOS_PARALLEL_ARGS
+list(APPEND TRILINOS_PARALLEL_ARGS
   ${DEFAULT_ARGS}
   -DTrilinos_ENABLE_NOX=ON
   -DNOX_ENABLE_LOCA=ON
@@ -201,9 +211,47 @@ ExternalProject_Add(Trilinos
   CMAKE_ARGS ${Xyce_TRILINOS_ARGS}
 )
 
+list(APPEND DEPENDENCIES "ADMS")
+ExternalProject_Add(ADMS
+  GIT_REPOSITORY https://github.com/Qucs/ADMS
+  GIT_TAG release-2.3.7
+  GIT_SHALLOW True
+  CMAKE_ARGS ${ADMS_ARGS}
+)
+
 ExternalProject_Add (Xyce
   DEPENDS ${DEPENDENCIES}
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   CMAKE_ARGS ${Xyce_ARGS}
-  INSTALL_COMMAND ""
 )
+
+# Smoke tests for Xyce plugin capability.
+if(NOT WIN32)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/plugin_tests)
+  include(CTest)
+  set(toys_dir ${CMAKE_CURRENT_BINARY_DIR}/install/share/examples/toys)
+  add_test(
+    NAME buildplugin
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/install/bin/buildxyceplugin.sh
+            -o toys
+            ${toys_dir}/capacitor.va
+            ${toys_dir}/diode2.va
+            ${toys_dir}/diode.va
+            ${toys_dir}/isrc.va
+            ${toys_dir}/resistor.va
+            ${toys_dir}/rlc2.va
+            ${toys_dir}/rlc3.va
+            ${toys_dir}/rlc.va
+            ${toys_dir}/vsrc.va
+            .
+    WORKING_DIRECTORY plugin_tests)
+  set_tests_properties(buildplugin PROPERTIES
+    PASS_REGULAR_EXPRESSION "This plugin provides the Verilog-A modules")
+  add_test(
+    NAME runplugin
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/install/bin/Xyce -plugin ./libtoys.so ${toys_dir}/DiodeClipper.cir
+    WORKING_DIRECTORY plugin_tests)
+  set_tests_properties(runplugin PROPERTIES
+    PASS_REGULAR_EXPRESSION "Solution Summary"
+    DEPENDS buildplugin)
+endif()

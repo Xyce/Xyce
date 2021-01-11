@@ -733,6 +733,15 @@ LEAD I[SDGBEC1-9]
 <polyargs>"}" { return XyceExpression::ExpressionParser::token::TOK_RIGHTCURLYBRACE; }
 <polyargs>"{" { return XyceExpression::ExpressionParser::token::TOK_LEFTCURLYBRACE; }
 
+
+ /* letters */
+<polyargs>{ID}+ { 
+  std::string tmp = std::string(YYText());
+  Xyce::Util::toUpper(tmp);
+  lvalp->build<std::string *>()=new std::string( tmp );
+  return XyceExpression::ExpressionParser::token::TOK_POLY_WORD; 
+}
+
 <polyargs>[ \t]+  { llocp->step(); }   /* eat up whitespace */
 
 <polyargs>.  {
@@ -740,7 +749,6 @@ LEAD I[SDGBEC1-9]
   lvalp->build<std::string *>()=new std::string(YYText());
   yyless(0);
 }
-
 
  /* a bunch of spice source functions.  Doing them the right way this time */
 <INITIAL>"spice_pulse"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_PULSE; }

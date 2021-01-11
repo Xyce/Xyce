@@ -47,14 +47,10 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_BlockMatrix.h>
 
+#include <N_LAS_Graph.h>
+
 #include <N_LAS_System.h>
 #include <N_LAS_QueryUtil.h>
-
-#include <Epetra_Map.h>
-#include <Epetra_BlockMap.h>
-#include <Epetra_CrsGraph.h>
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_MultiVector.h>
 
 #include <N_ERH_ErrorMgr.h>
 

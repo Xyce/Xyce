@@ -256,7 +256,7 @@ bool FilteredMultiVector::replaceValues( const std::vector<std::vector<int> >& i
     for ( ; it != it_end; ++it, ++count)
     {
       rowIndices_.push_back( *it );
-      values_.push_back( V[j][*it] );
+      values_.push_back( *V(*it,j) );
     }
     colPtr_[j+1] = colPtr_[j] + count;   
   } 
@@ -289,7 +289,7 @@ void FilteredMultiVector::addToMultiVector( MultiVector& V, double alpha ) const
     {
       for (int ptr=colPtr_[j]; ptr<colPtr_[j+1]; ptr++)
       {
-        V[j][rowIndices_[ptr]] += alpha*values_[ptr];
+        *V(rowIndices_[ptr],j) += alpha*values_[ptr];
       }
     }
   }

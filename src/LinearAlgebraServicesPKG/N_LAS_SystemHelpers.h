@@ -49,34 +49,35 @@
 
 // ---------- Forward Declarations ----------
 
-
 namespace Xyce {
 namespace Linear {
 
   // Non-member creation methods.
-MultiVector* createMultiVector( Parallel::ParMap & map,
+MultiVector* createMultiVector( const Parallel::ParMap & map,
                                 int numVectors = 1 );
 
-MultiVector* createMultiVector( Parallel::ParMap & map,
-                                Parallel::ParMap & ol_map,
+MultiVector* createMultiVector( const Parallel::ParMap & map,
+                                const Parallel::ParMap & ol_map,
                                 int numVectors = 1 );
 
-Vector* createVector( Parallel::ParMap & map );
+Vector* createVector( const Parallel::ParMap & map );
 
-Vector* createVector( Parallel::ParMap & map, Parallel::ParMap & ol_map );
+Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map );
 
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph );
 
-Graph* createGraph( Parallel::ParMap & map,
+Graph* createGraph( const Parallel::ParMap & map,
                     const std::vector<int>& numIndicesPerRow );
 
-Graph* createGraph( Parallel::ParMap & map,
+Graph* createGraph( const Parallel::ParMap & map,
                     int maxNumIndicesPerRow );
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
 
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );
+
+Importer* createImporter( const Parallel::ParMap & target_map, const Parallel::ParMap & source_map );
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues

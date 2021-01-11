@@ -77,86 +77,35 @@ class testExpressionGroup : public Xyce::Util::baseExpressionGroup
 };
 
 //-------------------------------------------------------------------------------
-class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    timeDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0), gmin(0.0)  {};
-    ~timeDepExpressionGroup () {};
-    virtual double getTime() { return time; };
-    virtual double getFreq() { return freq; };
-    virtual double getGmin() { return gmin; };
-    void setTime(double t) { time = t; };
-    void setFreq(double f) { freq = f; };
-    void setGmin(double g) { gmin = g; };
-    double time;
-    double freq;
-    double gmin;
-};
-
-//-------------------------------------------------------------------------------
-class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0),
-         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0), ACC1val(0.0)
-  {};
-    ~solnExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else if (tmp==std::string("c")) { retval = Cval; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val; return true; }
-    else if (tmp==std::string("v1")) { retval = R1val; return true; }
-
-    else if (tmp==std::string("vb")) { retval = VBval; return true; }
-    else if (tmp==std::string("vc")) { retval = VCval; return true; }
-    else if (tmp==std::string("ve")) { retval = VEval; return true; }
-    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
-    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
-    else if (tmp==std::string("yacc_acc1")) { retval = ACC1val; return true; }
-    else if (tmp==std::string("yacc!acc1")) { retval = ACC1val; return true; }
-    else { retval = 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, std::complex<double> val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-    else if (tmp==std::string("c")) { Cval = val; }
-    else if (tmp==std::string("r1")) { R1val = val; }
-    else if (tmp==std::string("v1")) { R1val = val; }
-
-    else if (tmp==std::string("vb")) { VBval = val; }
-    else if (tmp==std::string("vc")) { VCval = val; }
-    else if (tmp==std::string("ve")) { VEval = val; }
-    else if (tmp==std::string("vlp")) { VLPval = val; }
-    else if (tmp==std::string("vln")) { VLNval = val; }
-    else if (tmp==std::string("yacc_acc1")) { ACC1val = val; }
-    else if (tmp==std::string("yacc!acc1")) { ACC1val = val; }
-  }
-
-  void setPower(const std::string & deviceName, std::complex<double> & val) { return setSoln(deviceName, val); }
-  bool getPower(const std::string & tag, const std::string & deviceName, std::complex<double> & retval) { return getSolutionVal(deviceName, retval); }
-
-  private:
-
-  std::complex<double> Aval, Bval, Cval, R1val;
-  std::complex<double> VBval, VCval, VEval, VLPval, VLNval, ACC1val;
-};
-
-//-------------------------------------------------------------------------------
 class solutionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
-    solutionGroup () : Xyce::Util::baseExpressionGroup() {};
+    solutionGroup () : Xyce::Util::baseExpressionGroup(), time(0.0), freq(0.0), gmin(0.0) , temp(0.0), VT(0.0), timeStep(0.0), stepNumber(0)
+  {};
     ~solutionGroup () {};
 
-  void setSoln(const std::string & name, std::complex<double> & val)
+  virtual double getTime() { return time; };
+  void setTime(double t) { time = t; };
+
+  virtual double getFreq() { return freq; };
+  void setFreq(double f) { freq = f; };
+
+  virtual double getGmin() { return gmin; };
+  void setGmin(double g) { gmin = g; };
+
+  virtual double getTemp() { return temp; };
+  void setTemp(double t) { temp = t; };
+
+  virtual double getVT() { return VT; };
+  void setVT(double t) { VT = t; };
+
+  virtual double getTimeStep() { return timeStep; };
+  void setTimeStep(double dt) { timeStep = dt; };
+
+  void setStepNumber (unsigned int number) { stepNumber = number; }
+  unsigned int getStepNumber () { return stepNumber; }
+
+  void setSoln(const std::string & name, std::complex<double> val)
   {
     std::string lowerName = name;
     Xyce::Util::toLower(lowerName);
@@ -178,57 +127,36 @@ class solutionGroup : public Xyce::Util::baseExpressionGroup
     return retval;
   }
 
+  void setPower(const std::string & deviceName, std::complex<double> val) { return setSoln(deviceName, val); }
+  bool getPower(const std::string & tag, const std::string & deviceName, std::complex<double> & retval) { return getSolutionVal(deviceName, retval); }
+
   private:
+    double time;
+    double freq;
+    double gmin;
+    double temp;
+    double VT;
+    double timeStep;
+    unsigned int stepNumber;
     std::unordered_map <std::string, std::complex<double> > internalVars_;
 };
 
-//-------------------------------------------------------------------------------
-class currSolnExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    currSolnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0),
-         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
-  {};
-    ~currSolnExpressionGroup () {};
-
-  virtual bool getCurrentVal(const std::string & deviceName, const std::string & designator, std::complex<double> & retval)
-  {
-    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else if (tmp==std::string("c")) { retval = Cval; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val; return true; }
-    else if (tmp==std::string("v1")) { retval = R1val; return true; }
-
-    else if (tmp==std::string("vb")) { retval = VBval; return true; }
-    else if (tmp==std::string("vc")) { retval = VCval; return true; }
-    else if (tmp==std::string("ve")) { retval = VEval; return true; }
-    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
-    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & deviceName, std::complex<double> val)
-  {
-    std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-    else if (tmp==std::string("c")) { Cval = val; }
-    else if (tmp==std::string("r1")) { R1val = val; }
-    else if (tmp==std::string("v1")) { R1val = val; }
-
-    else if (tmp==std::string("vb")) { VBval = val; }
-    else if (tmp==std::string("vc")) { VCval = val; }
-    else if (tmp==std::string("ve")) { VEval = val; }
-    else if (tmp==std::string("vlp")) { VLPval = val; }
-    else if (tmp==std::string("vln")) { VLNval = val; }
-  }
-
-  private:
-    std::complex<double> Aval, Bval, Cval, R1val;
-    std::complex<double> VBval, VCval, VEval, VLPval, VLNval;
-};
+// these are here to support some deprecated groups.  They were redundant 
+// with solutionGroup, so I got rid of them, but didn't want to edit every single 
+// test to update.  Most of these groups were written on the fly to support a 
+// small handful of tests, but ultimately they all basically did the same 
+// sorts of things.  So they are gone, replaced by typedefs.
+typedef  solutionGroup solnExpressionGroup;
+typedef  solutionGroup timeDepExpressionGroup;
+typedef  solutionGroup currSolnExpressionGroup;
+typedef  solutionGroup testExpressionGroupWithFuncSupport;
+typedef  solutionGroup ifStatementExpressionGroup;
+typedef  solutionGroup tempDepExpressionGroup;
+typedef  solutionGroup Bsrc_C1_ExpressionGroup;
+typedef  solutionGroup solnAndFuncExpressionGroup;
+typedef  solutionGroup solnExpressionGroup2;
+typedef  solutionGroup testExpressionGroupWithParamSupport;
+typedef  solutionGroup sdtExpressionGroup;
 
 //-------------------------------------------------------------------------------
 class leadCurrentExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -377,275 +305,6 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
     std::unordered_map <std::string, std::complex<double> > dnoDeviceVars_;
     std::unordered_map <std::string, std::complex<double> > dniDeviceVars_;
     std::complex<double> inoise_, onoise_;
-};
-
-//-------------------------------------------------------------------------------
-class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    testExpressionGroupWithFuncSupport () : 
-      Xyce::Util::baseExpressionGroup(),
-    B2(std::complex<double>(0.0,0.0)), V2(std::complex<double>(0.0,0.0)), v6(std::complex<double>(0.0,0.0)), v7(std::complex<double>(0.0,0.0)) {};
-
-
-    ~testExpressionGroupWithFuncSupport () {};
-
-    bool getCurrentVal(const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) 
-    {
-      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else if (tmp==std::string("z")) { retval = vz; return true; }
-      else { return 0.0; return false; }
-    }
-
-    virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else if (tmp==std::string("z")) { retval = vz; return true; }
-      else { return 0.0; return false; }
-    }
-
-    void setSoln(const std::string & nodeName, std::complex<double> val)
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { B2 = val; }
-      else if (tmp==std::string("v2")) { V2 = val; }
-      else if (tmp==std::string("6")) { v6 = val; }
-      else if (tmp==std::string("7")) { v7 = val; }
-      else if (tmp==std::string("z")) { vz = val; }
-    }
-
-  private:
-    std::complex<double> B2;
-    std::complex<double> V2;
-    std::complex<double> v6;
-    std::complex<double> v7;
-    std::complex<double> vz;
-};
-
-//-------------------------------------------------------------------------------
-class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    ifStatementExpressionGroup () : Xyce::Util::baseExpressionGroup(), 
-    time(0.0), B2(std::complex<double>(0.0,0.0)), V2(std::complex<double>(0.0,0.0)), v6(std::complex<double>(0.0,0.0)), v7(std::complex<double>(0.0,0.0)) {};
-    ~ifStatementExpressionGroup () {};
-
-    virtual double getTime() { return time; };
-    void setTime(double t) { time = t; };
-
-    bool getCurrentVal(const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) 
-    {
-      std::string tmp = deviceName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else { return 0.0; return false; }
-    }
-
-    virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { retval = B2; return true; }
-      else if (tmp==std::string("v2")) { retval = V2; return true; }
-      else if (tmp==std::string("6")) { retval = v6; return true; }
-      else if (tmp==std::string("7")) { retval = v7; return true; }
-      else { return 0.0; return false; }
-    }
-
-    void setSoln(const std::string & nodeName, std::complex<double> val)
-    {
-      std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-      if (tmp==std::string("b2")) { B2 = val; }
-      else if (tmp==std::string("v2")) { V2 = val; }
-      else if (tmp==std::string("6")) { v6 = val; }
-      else if (tmp==std::string("7")) { v7 = val; }
-    }
-
-  private:
-
-    double time;
-    std::complex<double> B2;
-    std::complex<double> V2;
-    std::complex<double> v6;
-    std::complex<double> v7;
-};
-
-//-------------------------------------------------------------------------------
-class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    tempDepExpressionGroup () : Xyce::Util::baseExpressionGroup(), temp(0.0), VT(0.0)  {};
-    ~tempDepExpressionGroup () {};
-
-    virtual double getTemp() { return temp; };
-    void setTemp(double t) { temp = t; };
-
-    virtual double getVT() { return VT; };
-    void setVT(double t) { VT = t; };
-
-    double temp;
-    double VT;
-};
-
-
-//-------------------------------------------------------------------------------
-class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    Bsrc_C1_ExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), time(0.0), ONEval(0.0), TWOval(0.0) {};
-    ~Bsrc_C1_ExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { retval = ONEval; return true; }
-    else if (tmp==std::string("2")) { retval = TWOval; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, std::complex<double> val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("1")) { ONEval = val; }
-    else if (tmp==std::string("2")) { TWOval = val; }
-  }
-
-  virtual double getTime() { return time; };
-  void setTime(double t) { time = t; };
-
-  private:
-    double time;
-    std::complex<double> ONEval, TWOval;
-};
-
-//-------------------------------------------------------------------------------
-class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    testExpressionGroupWithParamSupport () : Xyce::Util::baseExpressionGroup()  {};
-    ~testExpressionGroupWithParamSupport () {};
-
-  private:
-};
-
-
-//-------------------------------------------------------------------------------
-class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnAndFuncExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
-    ~solnAndFuncExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval_; return true; }
-    else if (tmp==std::string("b")) { retval = Bval_; return true; }
-    else if (tmp==std::string("c")) { retval = Cval_; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, std::complex<double> val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval_ = val; }
-    else if (tmp==std::string("b")) { Bval_ = val; }
-    else if (tmp==std::string("c")) { Cval_ = val; }
-    else if (tmp==std::string("r1")) { R1val_ = val; }
-  }
-
-  private:
-    std::complex<double> Aval_, Bval_, Cval_, R1val_;
-};
-
-//-------------------------------------------------------------------------------
-class solnExpressionGroup2 : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    solnExpressionGroup2 () :
-      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
-    ~solnExpressionGroup2 () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval_; return true; }
-    else if (tmp==std::string("b")) { retval = Bval_; return true; }
-    else if (tmp==std::string("c")) { retval = Cval_; return true; }
-    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
-    else { return 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, std::complex<double> val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval_ = val; }
-    else if (tmp==std::string("b")) { Bval_ = val; }
-    else if (tmp==std::string("c")) { Cval_ = val; }
-    else if (tmp==std::string("r1")) { R1val_ = val; }
-  }
-
-  private:
-    std::complex<double> Aval_, Bval_, Cval_, R1val_;
-};
-
-//-------------------------------------------------------------------------------
-class sdtExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-    sdtExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), 
-      Aval(0.0), Bval(0.0), 
-      Cval(0.0), Dval(0.0), 
-      time(0.0), timeStep(0.0), stepNumber(0)
-  {};
-    ~sdtExpressionGroup () {};
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval )
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { retval = Aval; return true; }
-    else if (tmp==std::string("b")) { retval = Bval; return true; }
-    else if (tmp==std::string("c")) { retval = Cval; return true; }
-    else if (tmp==std::string("d")) { retval = Dval; return true; }
-    else { retval= 0.0; return false; }
-  }
-
-  void setSoln(const std::string & nodeName, std::complex<double> val)
-  {
-    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
-    if (tmp==std::string("a")) { Aval = val; }
-    else if (tmp==std::string("b")) { Bval = val; }
-    else if (tmp==std::string("c")) { Cval = val; }
-    else if (tmp==std::string("d")) { Dval = val; }
-  }
-
-  virtual double getTime() { return time; };
-  void setTime(double t) { time = t; };
-
-  virtual double getTimeStep() { return timeStep; };
-  void setTimeStep(double dt) { timeStep = dt; };
-
-  void setStepNumber (unsigned int number) { stepNumber = number; }
-  unsigned int getStepNumber () { return stepNumber; }
-
-  private:
-    std::complex<double> Aval, Bval,Cval,Dval;
-    double time;
-    double timeStep;
-    unsigned int stepNumber;
 };
 
 //-------------------------------------------------------------------------------
@@ -2887,8 +2546,7 @@ TEST ( Complex_Parser_Power_Test, test3)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-//Xyce::Util::newExpression testExpression(std::string("1-W(YACC_ACC1)"), testGroup);  // this is parseable
-  Xyce::Util::newExpression testExpression(std::string("1-W(YACC!ACC1)"), testGroup);  // this cannot be parsed!
+  Xyce::Util::newExpression testExpression(std::string("1-W(YACC!ACC1)"), testGroup); 
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression);
@@ -2897,7 +2555,7 @@ TEST ( Complex_Parser_Power_Test, test3)
 
   std::complex<double> result=0.0, ACC1val=3.0;
   std::complex<double> refRes = 1.0-ACC1val;
-  solnGroup->setPower(std::string("YACC_ACC1"),ACC1val);
+  solnGroup->setPower(std::string("YACC!ACC1"),ACC1val);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
@@ -7861,12 +7519,10 @@ TEST ( Complex_Parser_poly_Test, test9)
   OUTPUT_MACRO(Complex_Parser_poly_Test, test9)
 }
 
-#if 0
 TEST ( Complex_Parser_poly_Test, test10)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  //Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A) 1.0 2.0"), testGroup);
   Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A) p1 p2"), testGroup);
   testExpression.lexAndParseExpression();
 
@@ -7877,10 +7533,12 @@ TEST ( Complex_Parser_poly_Test, test10)
     = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0"), testGroup));
   p1Expression->lexAndParseExpression();
   p2Expression->lexAndParseExpression();
+
   std::string p1Name = "p1";
   std::string p2Name = "p2";
-  solnGroup->addParam(p1Name,p1Expression);
-  solnGroup->addParam(p2Name,p2Expression);
+
+  testExpression.attachParameterNode(p1Name,p1Expression);
+  testExpression.attachParameterNode(p2Name,p2Expression);
 
   //testExpression.dumpParseTree(std::cout);
 
@@ -7905,8 +7563,422 @@ TEST ( Complex_Parser_poly_Test, test10)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
 }
-#endif
 
+// poly test with parameters and a function
+// This test is named "test10a" b/c it is nearly identical to test10, other than use of .func.
+TEST ( Complex_Parser_poly_Test, test10a)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  //Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A) p1 p2"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("f1(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A) {POLY ...}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  
+    = Teuchos::rcp(new Xyce::Util::newExpression(std::string("POLY(1) X p1 p2"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(X)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0"), testGroup));
+  Teuchos::RCP<Xyce::Util::newExpression> p2Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0"), testGroup));
+  p1Expression->lexAndParseExpression();
+  p2Expression->lexAndParseExpression();
+
+  std::string p1Name = "p1";
+  std::string p2Name = "p2";
+
+  f1Expression->attachParameterNode(p1Name,p1Expression);
+  f1Expression->attachParameterNode(p2Name,p2Expression);
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=5.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::complex<double> refRes = 1.0 + 2.0*Aval;
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refderivs = { 2.0 };
+
+  testExpression.evaluate(result, derivs);
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+// single input, 4th order POLY test, with parameters
+TEST ( Complex_Parser_poly_Test, test11)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("3.0*(POLY(1) V(A) p1 p2 p3 p4 p5)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("3.0"), testGroup));
+
+  Teuchos::RCP<Xyce::Util::newExpression> p2Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0"), testGroup));
+
+  Teuchos::RCP<Xyce::Util::newExpression> p3Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0"), testGroup));
+
+  Teuchos::RCP<Xyce::Util::newExpression> p4Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("3.0"), testGroup));
+
+  Teuchos::RCP<Xyce::Util::newExpression> p5Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("4.0"), testGroup));
+
+  p1Expression->lexAndParseExpression();
+  p2Expression->lexAndParseExpression();
+  p3Expression->lexAndParseExpression();
+  p4Expression->lexAndParseExpression();
+  p5Expression->lexAndParseExpression();
+
+  std::string p1Name = "p1";
+  std::string p2Name = "p2";
+  std::string p3Name = "p3";
+  std::string p4Name = "p4";
+  std::string p5Name = "p5";
+
+  testExpression.attachParameterNode(p1Name,p1Expression);
+  testExpression.attachParameterNode(p2Name,p2Expression);
+  testExpression.attachParameterNode(p3Name,p3Expression);
+  testExpression.attachParameterNode(p4Name,p4Expression);
+  testExpression.attachParameterNode(p5Name,p5Expression);
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=5.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::complex<double>  refRes = 3.0*((3.0+2.0*Aval+std::pow(Aval,2.0)+3.0*std::pow(Aval,3.0)+4.0*std::pow(Aval,4.0)));
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refderivs = { 3.0*(( 2.0+ 2.0*Aval+ 9.0*std::pow(Aval,2.0)+ 4.0*4.0*std::pow(Aval,3.0))) };
+
+  testExpression.evaluate(result, derivs);
+  EXPECT_FLOAT_EQ( std::real(result), std::real(refRes));
+  EXPECT_FLOAT_EQ( std::real(derivs[0]), std::real(refderivs[0]));
+
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_FLOAT_EQ( std::real(result), std::real(refRes));
+  EXPECT_FLOAT_EQ( std::real(derivs[0]), std::real(refderivs[0]));
+
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_FLOAT_EQ( std::real(result), std::real(refRes));
+  EXPECT_FLOAT_EQ( std::real(derivs[0]), std::real(refderivs[0]));
+}
+
+// two input, 3rd order POLY test
+TEST ( Complex_Parser_poly_Test, test12)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("POLY(2) V(A) V(B) C0 C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15 "), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // originals:
+   std::vector<double> C = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15};
+
+  std::vector < Teuchos::RCP<Xyce::Util::newExpression> > C_param_expressions;
+
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.1"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.2"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.3"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.4"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.5"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.6"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.7"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.8"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.9"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.10"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.11"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.12"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.13"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.14"), testGroup)) );
+  C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.15"), testGroup)) );
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) { C_param_expressions[ii]->lexAndParseExpression(); }
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) 
+  { 
+    std::string number = std::to_string(ii);
+    std::string name = "C" + number;
+    testExpression.attachParameterNode(name, C_param_expressions[ii]);
+  }
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0; 
+  std::vector<std::complex<double> > V = {5.0, 2.0};
+  solnGroup->setSoln(std::string("A"),V[0]);
+  solnGroup->setSoln(std::string("B"),V[1]);
+
+  std::complex<double> refRes= C[0] + C[1]*V[0] + C[2]*V[1] + C[3]*V[0]*V[0] + C[4]*V[0]*V[1] + C[5]*V[0]*V[1] + C[6]*V[1]*V[1] + ( C[7] * V[0]*V[0]*V[0] + C[8] * V[0]*V[0]*V[1] + C[9] * V[0]*V[1]*V[0] + C[10] * V[0]*V[1]*V[1] + C[11] * V[1]*V[0]*V[0] + C[12] * V[1]*V[0]*V[1] + C[13] * V[1]*V[1]*V[0] + C[14] * V[1]*V[1]*V[1] );
+
+
+
+  // deriv w.r.t. V[0]
+  std::complex<double> deriv0 =  C[1] + 2.0*C[3]*V[0] + C[4]*V[1] + C[5]*V[1] + ( 3.0* C[7] * V[0]*V[0] + 2.0*C[8] * V[0]*V[1] + 2.0*C[9] * V[1]*V[0] + C[10] * V[1]*V[1] + 2.0*C[11] * V[1]*V[0] + C[12] * V[1]*V[1] + C[13] * V[1]*V[1] );
+
+  // deriv w.r.t. V[1]
+  std::complex<double> deriv1 = + C[2] + C[4]*V[0] + C[5]*V[0] + 2.0*C[6]*V[1] + ( C[8] * V[0]*V[0] + C[9] * V[0]*V[0] + 2.0*C[10] * V[0]*V[1] + C[11] * V[0]*V[0] + 2.0*C[12] * V[1]*V[0] + 2.0*C[13] * V[1]*V[0] + 3.0*C[14] * V[1]*V[1] );
+
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refderivs = {deriv0, deriv1};
+
+  testExpression.evaluate(result, derivs);
+  EXPECT_FLOAT_EQ(std::real(result),std::real(refRes));
+  EXPECT_FLOAT_EQ(std::real(derivs[0]),std::real(refderivs[0]));
+  EXPECT_FLOAT_EQ(std::real(derivs[1]),std::real(refderivs[1]));
+
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_FLOAT_EQ(std::real(result),std::real(refRes));
+  EXPECT_FLOAT_EQ(std::real(derivs[0]),std::real(refderivs[0]));
+  EXPECT_FLOAT_EQ(std::real(derivs[1]),std::real(refderivs[1]));
+
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_FLOAT_EQ(std::real(result),std::real(refRes));
+  EXPECT_FLOAT_EQ(std::real(derivs[0]),std::real(refderivs[0]));
+  EXPECT_FLOAT_EQ(std::real(derivs[1]),std::real(refderivs[1]));
+}
+
+void setupCoordinates ( int order, int localIndex, int size, std::vector<int> & coords)
+{
+  coords.resize(order,0);
+  int p=size;
+  int d=order;
+  int indx = localIndex;
+  for (int k = d-1; k >= 0; k--) 
+  {
+    coords[k] = indx % (p);
+    indx /= p;
+  }
+}
+
+// three input, 3rd order POLY test
+TEST ( Complex_Parser_poly_Test, test13)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  std::string exprString = std::string("POLY(3) V(A) V(B) V(C)");
+  int numCoefs = 40;
+  std::vector<std::complex<double> > C(numCoefs);
+  std::vector < Teuchos::RCP<Xyce::Util::newExpression> > C_param_expressions;
+  for (int ii=0;ii<numCoefs;ii++)
+  {
+    std::string number = std::to_string(ii);
+    std::string name = " C" + number;
+    exprString += name;
+    C[ii] =  (static_cast<std::complex<double> >(ii+1))*0.1;
+
+    std::string paramNumber = std::to_string(std::real(C[ii]));
+    C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (paramNumber, testGroup)) );
+  }
+  Xyce::Util::newExpression testExpression(exprString, testGroup);
+  testExpression.lexAndParseExpression();
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) { C_param_expressions[ii]->lexAndParseExpression(); }
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) 
+  { 
+    std::string number = std::to_string(ii);
+    std::string name = "C" + number;
+    testExpression.attachParameterNode(name, C_param_expressions[ii]);
+  }
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0; 
+  std::vector<std::complex<double> > V = {5.0, 2.0, 3.0};
+  solnGroup->setSoln(std::string("A"),V[0]);
+  solnGroup->setSoln(std::string("B"),V[1]);
+  solnGroup->setSoln(std::string("C"),V[2]);
+
+  std::complex<double> refRes=0.0;
+  {
+    int currentOrderSize=1;
+    int currentMaxIndex=currentOrderSize;
+    std::vector<int> orderMinIndex(1,0);
+    std::vector<int> orderMaxIndex(1,currentMaxIndex);
+    while(currentMaxIndex < C.size())
+    {
+      currentOrderSize *= V.size();
+      orderMinIndex.push_back(currentMaxIndex);
+      currentMaxIndex += currentOrderSize;
+      orderMaxIndex.push_back(currentMaxIndex);
+    }
+
+    refRes=C[0];
+    int maxOrderPlus1 = orderMaxIndex.size();
+    for (int iorder=1;iorder<maxOrderPlus1;iorder++)
+    {
+      int localIndex=0;
+      for(int ii=orderMinIndex[iorder];ii<orderMaxIndex[iorder];++ii,++localIndex)
+      {
+        if(ii>=C.size()) break;
+        std::complex<double> newval = C[ii];
+        std::vector<int> coords;
+        setupCoordinates(iorder, localIndex, V.size(), coords);
+        for (int ie=0;ie<coords.size();ie++) { newval *= V[coords[ie]]; }
+        refRes += newval;
+      }
+    }
+  }
+
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refRes);
+}
+
+
+// four input, fourth order POLY test.  
+//
+// This function builds the POLY expression string, assigns values to parameters, 
+// and evaluates the reference polynomial via arrays, which are sized based on 
+// the number of variables and the order.   So this test can be modified to have 
+// different numbers for maxOrder and numVars, and it will still be a valid test.
+//
+// This will have 341 total coefs, based on the math below
+//
+//ii=0 numCoefs=1   4^0 = +1
+//ii=1 numCoefs=5  +4^1 = +4
+//ii=2 numCoefs=21 +4^2 = +16 
+//ii=3 numCoefs=85 +4^3 = +64
+//ii=4 numCoefs=341 +4^4 = +256
+TEST ( Complex_Parser_poly_Test, test14)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  int maxOrder=4, numVars=4;
+  //int maxOrder=1, numVars=4; // easy to debug, but not the full test
+  std::string exprString = std::string("POLY(");
+  std::string numberVars = std::to_string(numVars);
+  exprString += numberVars + ")";
+  for (int ii=0;ii<numVars;ii++)
+  {
+    char letter = 'A' + ii;
+    exprString += " V(" + std::string(1,letter) + ")";
+  }
+
+  int numCoefs = 0;
+  for (int ii=0;ii<=maxOrder;ii++) { numCoefs += std::pow(numVars,ii); }
+
+  std::vector<std::complex<double> > C(numCoefs);
+  std::vector < Teuchos::RCP<Xyce::Util::newExpression> > C_param_expressions;
+  for (int ii=0;ii<numCoefs;ii++)
+  {
+    std::string name = " C" + std::to_string(ii);
+    exprString += name;
+    double realCvalue = 10.0-((static_cast<double>(ii+1))*0.05);
+    C[ii] =  std::complex<double> (realCvalue , 0.0);
+    std::string paramNumber = std::to_string(realCvalue);
+    C_param_expressions.push_back( Teuchos::rcp(new Xyce::Util::newExpression (paramNumber, testGroup)) );
+  }
+  Xyce::Util::newExpression testExpression(exprString, testGroup);
+  testExpression.lexAndParseExpression();
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) { C_param_expressions[ii]->lexAndParseExpression(); }
+
+  for (int ii=0;ii<C_param_expressions.size();ii++) 
+  { 
+    std::string name = "C" + std::to_string(ii);
+    testExpression.attachParameterNode(name, C_param_expressions[ii]);
+  }
+
+  //testExpression.dumpParseTree(std::cout);
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0; 
+  std::vector<std::complex<double> > V(numVars);
+  for(int ii=0;ii<numVars;ii++) 
+  { 
+    V[ii] = 1.0+static_cast<double>(ii);
+    char letter = 'A' + ii;
+    solnGroup->setSoln(std::string(1,letter),V[ii]);
+  }
+
+  std::complex<double> refRes=0.0;
+  {
+    int currentOrderSize=1;
+    int currentMaxIndex=currentOrderSize;
+    std::vector<int> orderMinIndex(1,0);
+    std::vector<int> orderMaxIndex(1,currentMaxIndex);
+    while(currentMaxIndex < C.size())
+    {
+      currentOrderSize *= V.size();
+      orderMinIndex.push_back(currentMaxIndex);
+      currentMaxIndex += currentOrderSize;
+      orderMaxIndex.push_back(currentMaxIndex);
+    }
+
+    refRes=C[0];
+    int maxOrderPlus1 = orderMaxIndex.size();
+    for (int iorder=1;iorder<maxOrderPlus1;iorder++)
+    {
+      int localIndex=0;
+      for(int ii=orderMinIndex[iorder];ii<orderMaxIndex[iorder];++ii,++localIndex)
+      {
+        if(ii>=C.size()) break;
+        std::complex<double> newval = C[ii];
+        std::vector<int> coords;
+        setupCoordinates(iorder, localIndex, V.size(), coords);
+        for (int ie=0;ie<coords.size();ie++) { newval *= V[coords[ie]]; }
+        refRes += newval;
+      }
+    }
+  }
+
+
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);
+  ASSERT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result);
+  ASSERT_EQ( result, refRes);
+}
 
 #if 0
 TEST ( Complex_Parser_NestedFunc_Test, func_cir)
@@ -11018,7 +11090,7 @@ TEST ( Complex_Parser_ErrorTest,  power_unsupported_devices)
   testExpression.dumpParseTree(std::cout);
 #endif
 
-  std::complex<double> result;
+  std::complex<double> result(0.0,0.0);
   testExpression.evaluateFunction(result);   ASSERT_EQ( result, 0.0 );
   //copyExpression.evaluateFunction(result);   ASSERT_EQ( result, 1.0 );
   //assignExpression.evaluateFunction(result); ASSERT_EQ( result, 1.0 );

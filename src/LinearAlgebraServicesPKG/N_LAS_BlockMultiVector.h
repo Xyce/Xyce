@@ -59,8 +59,8 @@ class BlockMultiVector : public MultiVector
 {
  public:
   BlockMultiVector( int numBlocks, int numVectors,
-                    const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                    const Teuchos::RCP<Parallel::ParMap> & subBlockMap
+                    const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                    const Teuchos::RCP<const Parallel::ParMap> & subBlockMap
                   );
 
   // Destructor
@@ -92,7 +92,6 @@ class BlockMultiVector : public MultiVector
   void assembleGlobalVector();
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  Parallel::ParMap * blockPmap() { return newBlockMap_.get(); }
   const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
@@ -110,7 +109,7 @@ class BlockMultiVector : public MultiVector
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
 
-  Teuchos::RCP<Parallel::ParMap> newBlockMap_; 
+  Teuchos::RCP<const Parallel::ParMap> newBlockMap_; 
 
   std::vector<Teuchos::RCP<MultiVector> > blocks_;
 

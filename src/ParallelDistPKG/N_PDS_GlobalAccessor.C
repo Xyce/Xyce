@@ -71,7 +71,7 @@ namespace Parallel {
 // Creator       : Robert Hoekstra, SNL, Parallel Compuational Sciences
 // Creation Date : 02/06/01
 //-----------------------------------------------------------------------------
-GlobalAccessor::GlobalAccessor( Communicator &comm )
+GlobalAccessor::GlobalAccessor( const Communicator &comm )
   : pdsComm_(comm),
     numReceiveObjs_(0),
     arrayReceiveGIDs_(0),

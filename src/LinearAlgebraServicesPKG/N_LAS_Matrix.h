@@ -40,17 +40,11 @@
 #define Xyce_N_LAS_Matrix_h
 
 // ---------- Standard Includes ----------
-#include <string>
 
 // ----------   Xyce Includes   ----------
+
 #include <N_LAS_fwd.h>
-#include <N_NLS_fwd.h>
 #include <N_PDS_fwd.h>
-
-class Epetra_CrsMatrix;
-
-class Epetra_Export;
-class Epetra_OffsetIndex;
 
 namespace Xyce {
 namespace Linear {
@@ -67,7 +61,13 @@ class Matrix
 
 public:
 
-  // Bracket operator proxy.
+  // Default constructor 
+  Matrix()
+  : proxy_( 0, *this ),
+    groundLID_(-1),
+    groundNode_(0.0)
+  {}
+
   struct bracketProxy {
 
     bracketProxy( int row, Matrix& thisMatrix )
@@ -80,77 +80,73 @@ public:
     int rowLID_;
     Matrix& matrix_;
 
-    inline double& operator[] (int col_offset)
-    {
-      return *(matrix_( rowLID_, col_offset ));
-    }
+    double& operator[] (int col_offset);
 
-    inline const double& operator[] (int col_offset) const
-    {
-      return *(matrix_( rowLID_, col_offset ));
-    } 
+    const double& operator[] (int col_offset) const;
   };
 
-  //Constructors
-  Matrix( const Graph* overlapGraph,
-          const Graph* baseGraph );
-
-  //Constructor from an existing Epetra_CrsMatrix (makes copy of origMatrix)
-  Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned = true );
-
   //Destructor
-  virtual ~Matrix();
+  virtual ~Matrix() {}
 
   // This function needs to be invoked for a transpose solve.
-  int setUseTranspose (bool useTranspose);
-  bool useTranspose ();
+  virtual int setUseTranspose (bool useTranspose) = 0;
+  virtual bool useTranspose () const = 0;
 
   //Accumulate off processor fill contributions if necessary
   //NOTE:  This method sums the contributions from the overlapped matrix and places it in
   //       the assembled matrix.
-  virtual void fillComplete();
+  virtual void fillComplete() {};
 
   // --------------------------------------------------------------------------------
   // Overlapped matrix methods
-  // - Underlying this class is both an overlapped matrix and assembled matrix.
+  // - Underlying this class is possibly both an overlapped matrix and assembled matrix.
   // - The overlapped matrix is used during the assembly phase for device model loading.
   // - So these methods should only be used before fillComplete is called.
+  // - These methods can often default to assembled matrix methods.
   // --------------------------------------------------------------------------------
-  
+ 
+  // Get number of rows in the overlapped matrix  
+  virtual int getLocalNumRowsOverlap() const
+  { return this->getLocalNumRows(); } 
+
   // Add in a matrix contribution
-  void addOverlap( const Matrix & A );
+  virtual void addOverlap( const Matrix & A )
+  { this->add( A ); }
 
   // Put a set of values into a row
-  bool putRow(int row, int length, const double * coeffs, const int * colIndices);
+  virtual bool putRow(int row, int length, const double * coeffs, const int * colIndices) = 0;
 
   // Replace a set of values into a row
-  void replaceLocalRow(int row, int length, double * coeffs, int * colIndices);
+  virtual void replaceLocalRow(int row, int length, double * coeffs, int * colIndices)
+  { this->putLocalRow( row, length, coeffs, colIndices ); }
 
   // Sum values into a row into the sparse matrix, using local indices
-  bool sumIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices);
+  virtual bool sumIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices)
+  { return this->addIntoLocalRow( row, length, coeffs, colIndices ); }
 
   // get a pointer to the compressed local row.
-  int extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const;
+  virtual int extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
+  { return this->getLocalRowView( lidRow, numEntries, values, indices ); }
 
   // Return a pointer to a single row, col element.
-  double * returnRawEntryPointer (int lidRow, int lidCol);
+  virtual double * returnRawEntryPointer (int lidRow, int lidCol) = 0;
 
   // Direct access into matrix rows using local indexing.
-  //double * operator[]( int row );
-  //double * operator[]( int row ) const;
   bracketProxy& operator[]( int row );
+
   const bracketProxy& operator[]( int row ) const;
 
   // Direct access into matrix rows and columns using local indexing, with column offset.
-  double * operator()(int row, int col_offset);
-  const double * operator()(int row, int col_offset) const;
+  virtual double * operator()(int row, int col_offset) { return &groundNode_; }
+  virtual const double * operator()(int row, int col_offset) const { return &groundNode_; }
 
   // Get column map for overlapped matrix
-  Parallel::ParMap* getOverlapColMap( Parallel::Communicator& comm );
+  virtual const Parallel::ParMap* getOverlapColMap( const Parallel::Communicator& comm )
+  { return this->getColMap( comm ); }
 
   // Get graphs for overlapped matrix
-  Graph* getOverlapGraph() { return overlapGraph_; }
-  const Graph* getOverlapGraph() const { return overlapGraph_; }
+  virtual const Graph* getOverlapGraph() const
+  { return this->getGraph(); }
 
   // --------------------------------------------------------------------------------
   // Assembled matrix methods
@@ -162,56 +158,51 @@ public:
   // --------------------------------------------------------------------------------
 
   // Add in a matrix contribution
-  void add( const Matrix & A );
+  virtual void add( const Matrix & A ) = 0;
 
   // Sparse-matrix vector multiply - multivector version.  If transA is true,
   // multiply by the transpose of matrix, otherwise just use matrix.
-  void matvec(bool transA, const MultiVector & x, MultiVector & y);
+  virtual void matvec(bool transA, const MultiVector & x, MultiVector & y) = 0;
 
   // Performs the operation this <- a*A + b*B
-  void linearCombo ( const double a, const Matrix & A, 
-                     const double b, const Matrix & B);
+  virtual void linearCombo ( const double a, const Matrix & A, 
+                             const double b, const Matrix & B) = 0;
 
   // Get the matrix diagonal (stored in an Vector)
-  void getDiagonal(Vector & diagonal) const;
+  virtual void getDiagonal(Vector & diagonal) const = 0;
 
   // Replace a vector's values into the matrix diagonal
-  bool replaceDiagonal(const Vector & vec);
+  virtual bool replaceDiagonal(const Vector & vec) = 0;
 
   // Get a row's length (nonzero) using global and local row ids.
-  int getRowLength(int row) const;
-  int getLocalRowLength(int row) const;
+  virtual int getRowLength(int row) const = 0;
+  virtual int getLocalRowLength(int row) const = 0;
 
   // Get the non-zero values in a row, using local indices
   // NOTE:  The global indices version of this method is not available after fillComplete is called.
-  int getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const;
+  virtual int getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const = 0;
 
   // Get the non-zero values in a row
-  void getRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
-  void getLocalRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const;
+  virtual void getRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const = 0;
+  virtual void getLocalRowCopy(int row, int length, int & numEntries, double * coeffs, int * colIndices) const = 0;
 
-  int getNumRows() const;
-  int getLocalNumRows() const;
+  virtual int getNumRows() const = 0;
+  virtual int getLocalNumRows() const = 0;
 
   // Sum values into a row into the sparse matrix, using local indices, without overlap contributions
-  bool addIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices);
+  virtual bool addIntoLocalRow(int row, int length, const double * coeffs, const int * colIndices) = 0;
 
   // Put a set of values into a row, using local indices
-  bool putLocalRow(int row, int length, const double * coeffs, const int * colIndices);
+  virtual bool putLocalRow(int row, int length, const double * coeffs, const int * colIndices) = 0;
 
   // Output the matrix to a file
-  void writeToFile(const char * filename, bool useLIDs = false, bool mmFormat=false ) const;
-
-  Epetra_CrsMatrix & epetraObj() { return *aDCRSMatrix_; }
-  const Epetra_CrsMatrix & epetraObj() const { return *aDCRSMatrix_; }
+  virtual void writeToFile(const char * filename, bool useLIDs = false, bool mmFormat=false ) const = 0;
 
   // Get column map for assembled matrix
-  Parallel::ParMap* getColMap( Parallel::Communicator& comm );
-  const Parallel::ParMap* getColMap( Parallel::Communicator& comm ) const;
+  virtual const Parallel::ParMap* getColMap( const Parallel::Communicator& comm ) const = 0;
 
   // Get graph for assembled matrix
-  Graph* getGraph() { return baseGraph_; }
-  const Graph* getGraph() const { return baseGraph_; }
+  virtual const Graph* getGraph() const = 0;
 
   // --------------------------------------------------------------------------------
   // Overlapped/assembled matrix methods
@@ -221,31 +212,15 @@ public:
   // --------------------------------------------------------------------------------
 
   // Initialize matrix values to s
-  virtual void put(double s);
+  virtual void put(double s) = 0;
 
   // Scale the matrix
-  void scale(double scaleFactor);
+  virtual void scale(double scaleFactor) = 0;
 
   // Print the underlying objects
-  virtual void print(std::ostream &os) const;
+  virtual void print(std::ostream &os) const = 0;
 
 protected:
-
-  // Pointer the Petra multi-vector object.
-  Epetra_CrsMatrix * aDCRSMatrix_;
-
-  // Overlapped version of matrix
-  Epetra_CrsMatrix * oDCRSMatrix_;
-
-  // Importing Tools
-  Epetra_Export * exporter_;
-  Epetra_OffsetIndex * offsetIndex_;
-
-  // Column maps, assembled and overlapped.
-  mutable Parallel::ParMap *aColMap_, *oColMap_;
-
-  // Graphs, assembled and overlapped.
-  Graph *overlapGraph_, *baseGraph_;
 
   // Dummy variable for loading ground node contributions.
   mutable bracketProxy proxy_;
@@ -253,9 +228,6 @@ protected:
   double groundNode_;
 
 private:
-
-  // Default constructor (private)
-  Matrix();
 
   // Copy constructor (private)
   Matrix(const Matrix & right);
@@ -265,12 +237,61 @@ private:
   bool operator == (const Matrix & right) const;
   bool operator != (const Matrix & right) const;
 
-  // isOwned flag
-  bool isOwned_;
-
-  // Process library error codes.
-  void processError(std::string methodMsg, int error) const;
 };
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::operator[]
+// Purpose       : Direct access into matrix rows using local indexing
+// Special Notes :
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+inline Matrix::bracketProxy& Matrix::operator[]( int row )
+{
+  proxy_.rowLID_ = row;
+  return proxy_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::operator[] const
+// Purpose       : Direct access into matrix rows using local indexing
+// Special Notes : const version
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+inline const Matrix::bracketProxy& Matrix::operator[]( int row ) const
+{
+  proxy_.rowLID_ = row;
+  return proxy_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::bracketProxy::operator[] 
+// Purpose       : Direct access into matrix rows using local indexing
+// Special Notes : 
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+inline double& Matrix::bracketProxy::operator[] (int col_offset)
+{
+  return *(matrix_( rowLID_, col_offset ));
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::bracketProxy::operator[] const
+// Purpose       : Direct access into matrix rows using local indexing
+// Special Notes : const version
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+inline const double& Matrix::bracketProxy::operator[] (int col_offset) const
+{
+  return *(matrix_( rowLID_, col_offset ));
+}
 
 } // namespace Linear
 } // namespace Xyce

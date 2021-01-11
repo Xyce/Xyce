@@ -35,6 +35,7 @@
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_LAS_Graph.h>
 
 #include <N_PDS_ParMap.h>
 

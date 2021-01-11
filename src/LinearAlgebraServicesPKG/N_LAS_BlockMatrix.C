@@ -46,6 +46,7 @@
 
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
+#include <N_LAS_EpetraGraph.h>
 
 // ----------   Other Includes -----------
 
@@ -74,7 +75,7 @@ BlockMatrix::BlockMatrix( int size,
                           const Graph* subBlockGraph,
                           int augmentCount )
 
-: Matrix( new Epetra_CrsMatrix( Copy, *(globalGraph->epetraObj()) ), true ),
+: Matrix( new Epetra_CrsMatrix( Copy, *(dynamic_cast<const EpetraGraph *>(globalGraph)->epetraObj()) ), true ),
   blocksViewGlobalMat_(true),
   blockSize_( subBlockGraph->numLocalEntities() ),
   offset_( offset ),
@@ -83,6 +84,8 @@ BlockMatrix::BlockMatrix( int size,
   cols_( blockColumns ),
   blocks_( size )
 {
+  const EpetraGraph * e_subBlockGraph = dynamic_cast<const EpetraGraph *>(subBlockGraph);
+
   // Individual blocks cannot be a view of the global matrix because of graph ordering and communication
   if ( aDCRSMatrix_->Comm().NumProc() > 1 )
   {
@@ -94,18 +97,18 @@ BlockMatrix::BlockMatrix( int size,
       blocks_[i].resize( numCols );
       for( int j = 0; j < numCols; ++j )
       {
-        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( Copy, *(subBlockGraph->epetraObj()) );
+        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( Copy, *(e_subBlockGraph->epetraObj()) );
         blocks_[i][j] = Teuchos::rcp( new Matrix( bMat ) );
       }
     }
 
     // Get the local indices for the sub block so assembling is easier
     baseNumCols_.resize( blockSize_ );
-    baseIndices_.resize( subBlockGraph->epetraObj()->NumMyNonzeros() );
+    baseIndices_.resize( e_subBlockGraph->epetraObj()->NumMyNonzeros() );
     int ptr = 0;
     for( int i = 0; i < blockSize_; ++i )
     {
-      subBlockGraph->epetraObj()->ExtractMyRowCopy( i, subBlockGraph->epetraObj()->NumMyNonzeros()-ptr, baseNumCols_[i], &baseIndices_[ptr] );
+      e_subBlockGraph->epetraObj()->ExtractMyRowCopy( i, e_subBlockGraph->epetraObj()->NumMyNonzeros()-ptr, baseNumCols_[i], &baseIndices_[ptr] );
       ptr += baseNumCols_[i];
     }
   }
@@ -114,7 +117,7 @@ BlockMatrix::BlockMatrix( int size,
     std::vector<int> baseNumCols( blockSize_ );
     std::vector< int* > baseIndices( blockSize_ );
     for( int i = 0; i < blockSize_; ++i )
-      subBlockGraph->epetraObj()->ExtractMyRowView( i, baseNumCols[i], baseIndices[i] );
+      e_subBlockGraph->epetraObj()->ExtractMyRowView( i, baseNumCols[i], baseIndices[i] );
 
     std::vector< double* > Values( blockSize_ );
     int NumEntries;
@@ -129,7 +132,7 @@ BlockMatrix::BlockMatrix( int size,
 
       for( int j = 0; j < numCols; ++j )
       {
-        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( View, *(subBlockGraph->epetraObj()) );
+        Epetra_CrsMatrix * bMat = new Epetra_CrsMatrix( View, *(e_subBlockGraph->epetraObj()) );
 
         for( int k = 0; k < blockSize_; ++k )
           bMat->InsertMyValues( k, baseNumCols[k], Values[k]+j*baseNumCols[k], baseIndices[k] );
@@ -146,7 +149,7 @@ BlockMatrix::BlockMatrix( int size,
     int augStart = blockSize_ * size;
     for( int i = 0; i < augmentCount_; ++i )
     {
-      augmentGIDs_[i] = globalGraph->epetraObj()->RowMap().GID(augStart+i);
+      augmentGIDs_[i] = globalGraph->localToGlobalRowIndex( augStart+i );
     }
   }
 

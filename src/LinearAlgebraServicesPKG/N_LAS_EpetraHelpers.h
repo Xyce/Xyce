@@ -48,6 +48,7 @@
 #include <N_LAS_fwd.h>
 #include <Teuchos_RCP.hpp>
 
+#include <Epetra_CrsMatrix.h>
 #include <Epetra_Operator.h>
 #include <Epetra_LinearProblem.h>
 
@@ -59,6 +60,26 @@ namespace Linear {
 // Helper function for writing Epetra_LinearProblem to file
 void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
                  int file_number, bool write_map);
+
+
+//-----------------------------------------------------------------------------
+// Class         : EpetraMatrixAccess
+// Purpose       : Class defining epetraObj() methods for matrix classes.
+// Special Notes :
+// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
+// Creation Date : 1/4/2021
+//-----------------------------------------------------------------------------
+class EpetraMatrixAccess
+{
+  public:
+
+  // Empty constructor
+  EpetraMatrixAccess() {}
+  virtual ~EpetraMatrixAccess() {}
+
+  virtual Epetra_CrsMatrix & epetraObj() = 0;
+  virtual const Epetra_CrsMatrix & epetraObj() const = 0;
+};
 
 //-----------------------------------------------------------------------------
 // Class         : EpetraTransOp

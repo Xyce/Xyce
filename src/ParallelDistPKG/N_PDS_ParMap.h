@@ -62,12 +62,15 @@ class ParMap
 
 public:
 
-  ParMap(Xyce::Parallel::Communicator& aComm)
+  ParMap(const Xyce::Parallel::Communicator& aComm)
   : pdsComm_(aComm)
   {}
 
   // Destructor
   virtual ~ParMap() {}
+
+  // Clone method
+  virtual ParMap* clone() const = 0;
 
   // Number of global "entities" represented as vertices in the graph. These
   // may be, for example, equations for the linear algebra quantities or
@@ -90,7 +93,6 @@ public:
   virtual int maxGlobalEntity() const = 0;
 
   // Comm object
-  Xyce::Parallel::Communicator& pdsComm() { return pdsComm_; }
   const Xyce::Parallel::Communicator& pdsComm() const { return pdsComm_; }
 
   // dereference global index to get local index
@@ -107,7 +109,7 @@ public:
 protected:
 
   // Comm object.
-  Xyce::Parallel::Communicator &          pdsComm_;
+  const Xyce::Parallel::Communicator &          pdsComm_;
 };
 
 } // namespace Parallel

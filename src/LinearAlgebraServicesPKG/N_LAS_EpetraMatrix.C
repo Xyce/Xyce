@@ -49,7 +49,7 @@
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_Matrix.h>
+#include <N_LAS_EpetraMatrix.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Vector.h>
 #include <N_LAS_EpetraGraph.h>
@@ -70,14 +70,14 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::~Matrix
+// Function      : EpetraMatrix::~EpetraMatrix
 // Purpose       : Destructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-Matrix::~Matrix()
+EpetraMatrix::~EpetraMatrix()
 {
   if ( isOwned_ ) 
   {
@@ -104,14 +104,34 @@ Matrix::~Matrix()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::Matrix
+// Function      : EpetraMatrix::EpetraMatrix
+// Purpose       : Default Constructor
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+EpetraMatrix::EpetraMatrix()
+: aDCRSMatrix_(0),
+  oDCRSMatrix_(0),
+  exporter_(0),
+  offsetIndex_(0),
+  aColMap_(0),
+  oColMap_(0),
+  overlapGraph_(0),
+  baseGraph_(0),
+  isOwned_(false)
+{}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraMatrix::EpetraMatrix
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
-Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
+EpetraMatrix::EpetraMatrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 : aDCRSMatrix_( origMatrix ),
   exporter_(0),
   offsetIndex_(0),
@@ -119,9 +139,6 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
   oColMap_(0),
   overlapGraph_(0),
   baseGraph_(0),
-  proxy_( 0, *this ),
-  groundLID_(-1),
-  groundNode_(0.0),
   isOwned_(isOwned)
 {
   oDCRSMatrix_ = aDCRSMatrix_;
@@ -131,15 +148,15 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::Matrix
+// Function      : EpetraMatrix::EpetraMatrix
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 08/21/02
 //-----------------------------------------------------------------------------
-Matrix::Matrix( const Graph* overlapGraph,
-                const Graph* baseGraph )
+EpetraMatrix::EpetraMatrix( const Graph* overlapGraph,
+                            const Graph* baseGraph )
 : aDCRSMatrix_(0),
   oDCRSMatrix_(0),
   exporter_(0),
@@ -148,9 +165,6 @@ Matrix::Matrix( const Graph* overlapGraph,
   oColMap_(0),
   overlapGraph_(0),
   baseGraph_(0),
-  proxy_( 0, *this ),
-  groundLID_(-1),
-  groundNode_(0.0),
   isOwned_(true)
 {
   const EpetraGraph* e_overlapGraph = dynamic_cast<const EpetraGraph *>( overlapGraph );
@@ -178,14 +192,14 @@ Matrix::Matrix( const Graph* overlapGraph,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::fillComplete
+// Function      : EpetraMatrix::fillComplete
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 08/29/03
 //-----------------------------------------------------------------------------
-void Matrix::fillComplete()
+void EpetraMatrix::fillComplete()
 {
   if( exporter_ )
   {
@@ -194,7 +208,7 @@ void Matrix::fillComplete()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::matvec
+// Function      : EpetraMatrix::matvec
 // Purpose       : Sparse-matrix vector multiply - multivector version.  This
 //                 function forms the product y = Ax where x and y are
 //                 multivectors.  If transA is true, multiply by the transpose
@@ -204,24 +218,24 @@ void Matrix::fillComplete()
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::matvec(bool transA, const MultiVector &x,
+void EpetraMatrix::matvec(bool transA, const MultiVector &x,
                           MultiVector &y)
 {
   int PetraError = aDCRSMatrix_->Multiply(transA, x.epetraObj(), y.epetraObj());
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::matvec - ", PetraError);
+    processError( "EpetraMatrix::matvec - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::put
+// Function      : EpetraMatrix::put
 // Purpose       : Put function for the sparse-matrix.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::put( double s )
+void EpetraMatrix::put( double s )
 {
   if ( exporter_ )
   {
@@ -232,14 +246,14 @@ void Matrix::put( double s )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::scale
+// Function      : EpetraMatrix::scale
 // Purpose       : Scale function for the sparse-matrix.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::scale(double scaleFactor)
+void EpetraMatrix::scale(double scaleFactor)
 {
   if ( exporter_ )
   {
@@ -249,20 +263,20 @@ void Matrix::scale(double scaleFactor)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getRowLength
+// Function      : EpetraMatrix::getRowLength
 // Purpose       : Returns the number of nonzeroes in the row.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-int Matrix::getRowLength(int row) const
+int EpetraMatrix::getRowLength(int row) const
 {
   return aDCRSMatrix_->NumGlobalEntries(row);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getLocalRowView
+// Function      : EpetraMatrix::getLocalRowView
 // Purpose       : Returns row coefficients and associated column indices.
 // Special Notes : Uses Petra's ExtractRowView which does not require user
 //               : to setup space.
@@ -270,32 +284,32 @@ int Matrix::getRowLength(int row) const
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-int Matrix::getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
+int EpetraMatrix::getLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
 {
   return aDCRSMatrix_->ExtractMyRowView(lidRow, numEntries, values, indices);
 }
 
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getRowCopy
+// Function      : EpetraMatrix::getRowCopy
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/05/06
 //-----------------------------------------------------------------------------
-void Matrix::getRowCopy
+void EpetraMatrix::getRowCopy
   (int row, int length, int & numEntries, double *coeffs, int *colIndices) const
 {
   int PetraError = aDCRSMatrix_->ExtractGlobalRowCopy
        (row, length, numEntries, coeffs, colIndices);
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::getRowCopy - ", PetraError );
+    processError( "EpetraMatrix::getRowCopy - ", PetraError );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getLocalRowCopy
+// Function      : EpetraMatrix::getLocalRowCopy
 // Purpose       :
 // Special Notes :
 //               :
@@ -304,184 +318,196 @@ void Matrix::getRowCopy
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/05/06
 //-----------------------------------------------------------------------------
-void Matrix::getLocalRowCopy
+void EpetraMatrix::getLocalRowCopy
   (int row, int length, int & numEntries, double *coeffs, int *colIndices) const
 {
   int PetraError = aDCRSMatrix_->ExtractMyRowCopy
        (row, length, numEntries, coeffs, colIndices);
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::getLocalRowCopy - ", PetraError );
+    processError( "EpetraMatrix::getLocalRowCopy - ", PetraError );
 }
 
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// Function      : Matrix::putRow
+// Function      : EpetraMatrix::putRow
 // Purpose       : Put a row into the sparse matrix.
 // Special Notes : Replace already allocated values
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-bool Matrix::putRow(int row, int length, const double *coeffs, const int *colIndices)
+bool EpetraMatrix::putRow(int row, int length, const double *coeffs, const int *colIndices)
 {
   int PetraError = oDCRSMatrix_->ReplaceGlobalValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::putRow - ", PetraError );
+    processError( "EpetraMatrix::putRow - ", PetraError );
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getLocalNumRows
+// Function      : EpetraMatrix::getLocalNumRows
 // Purpose       : Returns the number of rows on this processor.
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 05/24/06
 //-----------------------------------------------------------------------------
-int Matrix::getLocalNumRows() const
+int EpetraMatrix::getLocalNumRows() const
 {
   return aDCRSMatrix_->NumMyRows();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getNumRows
+// Function      : EpetraMatrix::getLocalNumRowsOverlap
+// Purpose       : Returns the number of rows on this processor.
+// Special Notes : This is for the overlapped matrix
+// Scope         : Public
+// Creator       : Dave Shirley, PSSI
+// Creation Date : 05/24/06
+//-----------------------------------------------------------------------------
+int EpetraMatrix::getLocalNumRowsOverlap() const
+{
+  return oDCRSMatrix_->NumMyRows();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraMatrix::getNumRows
 // Purpose       : Returns the number of rows on all processors.
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 05/24/06
 //-----------------------------------------------------------------------------
-int Matrix::getNumRows() const
+int EpetraMatrix::getNumRows() const
 {
   return aDCRSMatrix_->NumGlobalRows();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getLocalRowLength
+// Function      : EpetraMatrix::getLocalRowLength
 // Purpose       : Returns the number of nonzeroes in the row.
 // Special Notes :
 // Scope         : Public
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 05/05/06
 //-----------------------------------------------------------------------------
-int Matrix::getLocalRowLength(int row) const
+int EpetraMatrix::getLocalRowLength(int row) const
 {
   return aDCRSMatrix_->NumMyEntries(row);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::sumIntoLocalRow
+// Function      : EpetraMatrix::sumIntoLocalRow
 // Purpose       : Sum values into a row into the sparse matrix, using local indices.
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/30/10
 //-----------------------------------------------------------------------------
-bool Matrix::addIntoLocalRow(int row, int length, const double * coeffs,
+bool EpetraMatrix::addIntoLocalRow(int row, int length, const double * coeffs,
                                                    const int * colIndices)
 {
   int PetraError = aDCRSMatrix_->SumIntoMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::addIntoLocalRow - ", PetraError );
+    processError( "EpetraMatrix::addIntoLocalRow - ", PetraError );
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::putLocalRow
+// Function      : EpetraMatrix::putLocalRow
 // Purpose       : Put values into a row into the sparse matrix, using local indices.
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/29/12
 //-----------------------------------------------------------------------------
-bool Matrix::putLocalRow(int row, int length, const double * coeffs,
+bool EpetraMatrix::putLocalRow(int row, int length, const double * coeffs,
                                                    const int * colIndices)
 {
   int PetraError = aDCRSMatrix_->ReplaceMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::putLocalRow - ", PetraError );
+    processError( "EpetraMatrix::putLocalRow - ", PetraError );
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::replaceLocalRow
+// Function      : EpetraMatrix::replaceLocalRow
 // Purpose       : Replace a row in the sparse matrix.
 // Special Notes : replace allocated locations
 // Scope         : Public
 // Creator       : Todd Coffey, 1414, Heidi Thornquist, 1437
 // Creation Date : 01/31/07
 //-----------------------------------------------------------------------------
-void Matrix::replaceLocalRow(int row, int length, double *coeffs, int *colIndices)
+void EpetraMatrix::replaceLocalRow(int row, int length, double *coeffs, int *colIndices)
 {
   int PetraError = oDCRSMatrix_->ReplaceMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::replaceLocalRow - ", PetraError );
+    processError( "EpetraMatrix::replaceLocalRow - ", PetraError );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getDiagonal
+// Function      : EpetraMatrix::getDiagonal
 // Purpose       : Return the diagonal entries of the sparse matrix.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::getDiagonal( Vector & diagonal ) const
+void EpetraMatrix::getDiagonal( Vector & diagonal ) const
 {
   int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( diagonal.epetraObj() );
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::getDiagonal - ", PetraError );
+    processError( "EpetraMatrix::getDiagonal - ", PetraError );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::replaceDiagonal
+// Function      : EpetraMatrix::replaceDiagonal
 // Purpose       : Replace values of diagonal elements
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 03/05/03
 //-----------------------------------------------------------------------------
-bool Matrix::replaceDiagonal( const Vector & vec )
+bool EpetraMatrix::replaceDiagonal( const Vector & vec )
 {
   const Epetra_Vector * eVec = vec.epetraObj()(0);
   int PetraError = aDCRSMatrix_->ReplaceDiagonalValues( *eVec );
 
   if (DEBUG_LINEAR)
-    processError( "Matrix::replaceDiagonal - ", PetraError );
+    processError( "EpetraMatrix::replaceDiagonal - ", PetraError );
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::sumIntoLocalRow
+// Function      : EpetraMatrix::sumIntoLocalRow
 // Purpose       : Sum values into a row into the sparse matrix, using local indices.
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/30/10
 //-----------------------------------------------------------------------------
-bool Matrix::sumIntoLocalRow(int row, int length, const double * coeffs,
+bool EpetraMatrix::sumIntoLocalRow(int row, int length, const double * coeffs,
                                                    const int * colIndices)
 {
   int PetraError = oDCRSMatrix_->SumIntoMyValues(row, length, coeffs, colIndices);
 
   if (DEBUG_LINEAR | DEBUG_DEVICE)
-    processError( "Matrix::sumIntoLocalRow - ", PetraError );
+    processError( "EpetraMatrix::sumIntoLocalRow - ", PetraError );
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::returnRawEntryPointer
+// Function      : EpetraMatrix::returnRawEntryPointer
 //
 // Purpose       : This function returns a raw double* pointer to a single
 //                 matrix element, specified by the local row,col indices.
@@ -498,7 +524,7 @@ bool Matrix::sumIntoLocalRow(int row, int length, const double * coeffs,
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 05/18/2010
 //-----------------------------------------------------------------------------
-double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
+double * EpetraMatrix::returnRawEntryPointer (int lidRow, int lidCol)
 {
   double * retPtr = &groundNode_;
 
@@ -528,64 +554,64 @@ double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::extractLocalRowView
+// Function      : EpetraMatrix::extractLocalRowView
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 05/18/2010
 //-----------------------------------------------------------------------------
-int Matrix::extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
+int EpetraMatrix::extractLocalRowView(int lidRow, int& numEntries, double*& values, int*& indices) const
 {
   return oDCRSMatrix_->ExtractMyRowView( lidRow, numEntries, values, indices );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::add
+// Function      : EpetraMatrix::add
 // Purpose       : Sums in a matrix contribution
 // Special Notes : WARNING: only works if graphs match, no checking
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 3/11/04
 //-----------------------------------------------------------------------------
-void Matrix::add( const Matrix & A )
+void EpetraMatrix::add( const Matrix & A )
 {
-  int NumRows = A.aDCRSMatrix_->NumMyRows();
+  int NumRows = A.getLocalNumRows();
   int* Indices;
   double* Values;
   int NumIndices;
 
   for( int i = 0; i < NumRows; ++i )
   {
-    A.aDCRSMatrix_->ExtractMyRowView( i, NumIndices, Values, Indices );
+    A.getLocalRowView( i, NumIndices, Values, Indices );
     aDCRSMatrix_->SumIntoMyValues( i, NumIndices, Values, Indices );
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::addOverlap
+// Function      : EpetraMatrix::addOverlap
 // Purpose       : Sums in a matrix contribution
 // Special Notes : WARNING: only works if graphs match, no checking
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 3/11/04
 //-----------------------------------------------------------------------------
-void Matrix::addOverlap( const Matrix & A )
+void EpetraMatrix::addOverlap( const Matrix & A )
 {
-  int NumRows = A.oDCRSMatrix_->NumMyRows();
+  int NumRows = A.getLocalNumRowsOverlap();
   int* Indices;
   double* Values;
   int NumIndices;
 
   for( int i = 0; i < NumRows; ++i )
   {
-    A.oDCRSMatrix_->ExtractMyRowView( i, NumIndices, Values, Indices );
+    A.extractLocalRowView( i, NumIndices, Values, Indices );
     oDCRSMatrix_->SumIntoMyValues( i, NumIndices, Values, Indices );
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::linearCombo
+// Function      : EpetraMatrix::linearCombo
 // Purpose       : Sums in a matrix contribution
 // Special Notes : WARNING: only works if graphs EXACTLY match no checking
 //
@@ -595,19 +621,20 @@ void Matrix::addOverlap( const Matrix & A )
 // Creator       : Eric Keiter
 // Creation Date : 2/13/07
 //-----------------------------------------------------------------------------
-void Matrix::linearCombo( const double a, const Matrix & A,
+void EpetraMatrix::linearCombo( const double a, const Matrix & A,
                                 const double b, const Matrix & B)
 {
-  int NumRows = (*aDCRSMatrix_).NumMyRows();
+  int NumRows = aDCRSMatrix_->NumMyRows();
 
   int *aIndices, *bIndices;
   int aNumIndices, bNumIndices;
   double *aValues, *bValues;
 
-  for( int i = 0; i < NumRows; ++i ) {
+  for( int i = 0; i < NumRows; ++i )
+  {
     // Get a view of the i-th row for A and B.
-    A.aDCRSMatrix_->ExtractMyRowView( i, aNumIndices, aValues, aIndices );
-    B.aDCRSMatrix_->ExtractMyRowView( i, bNumIndices, bValues, bIndices );
+    A.getLocalRowView( i, aNumIndices, aValues, aIndices );
+    B.getLocalRowView( i, bNumIndices, bValues, bIndices );
 
     // Add in the entries from each matrix.
     for ( int j = 0; j < aNumIndices; ++j )
@@ -616,42 +643,14 @@ void Matrix::linearCombo( const double a, const Matrix & A,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::operator[]
-// Purpose       : Direct access into matrix rows using local indexing
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 9/5/02
-//-----------------------------------------------------------------------------
-Matrix::bracketProxy& Matrix::operator[]( int row )
-{
-  proxy_.rowLID_ = row;
-  return proxy_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::operator[] const
-// Purpose       : Direct access into matrix rows using local indexing
-// Special Notes : const version
-// Scope         : Public
-// Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 9/5/02
-//-----------------------------------------------------------------------------
-const Matrix::bracketProxy& Matrix::operator[]( int row ) const
-{
-  proxy_.rowLID_ = row;
-  return proxy_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Matrix::operator()
+// Function      : EpetraMatrix::operator()
 // Purpose       : Direct access into matrix values using local indexing
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 9/5/02
 //-----------------------------------------------------------------------------
-double * Matrix::operator()( int row, int col_offset )
+double * EpetraMatrix::operator()( int row, int col_offset )
 {
   if ( row != groundLID_ && col_offset >= 0)
     return (*oDCRSMatrix_)[row]+col_offset;
@@ -660,14 +659,14 @@ double * Matrix::operator()( int row, int col_offset )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::operator() const
+// Function      : EpetraMatrix::operator() const
 // Purpose       : Direct access into matrix values using local indexing
 // Special Notes : const version
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 9/5/02
 //-----------------------------------------------------------------------------
-const double * Matrix::operator()( int row, int col_offset ) const
+const double * EpetraMatrix::operator()( int row, int col_offset ) const
 {
   if ( row != groundLID_ && col_offset >= 0)
     return (*oDCRSMatrix_)[row]+col_offset;
@@ -676,14 +675,14 @@ const double * Matrix::operator()( int row, int col_offset ) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::writeToFile
+// Function      : EpetraMatrix::writeToFile
 // Purpose       : Dumps out the sparse matrix to a file.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/19/00
 //-----------------------------------------------------------------------------
-void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) const
+void EpetraMatrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) const
 {
   if (!mmFormat)
   {
@@ -757,7 +756,7 @@ void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) con
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::processError
+// Function      : EpetraMatrix::processError
 // Purpose       : Concrete implementation which processes Petra (in this case)
 //                 error codes taken from the Petra member function returns.
 // Special Notes : Petra specific.  NOTE ALSO - this function is currently
@@ -767,7 +766,7 @@ void Matrix::writeToFile(const char *filename, bool useLIDs, bool mmFormat ) con
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
-void Matrix::processError(std::string methodMsg, int error) const
+void EpetraMatrix::processError(std::string methodMsg, int error) const
 {
 
   const std::string PetraError("Function returned with an error.\n");
@@ -786,7 +785,7 @@ void Matrix::processError(std::string methodMsg, int error) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void Matrix::print(std::ostream &os) const
+void EpetraMatrix::print(std::ostream &os) const
 {
   if (oDCRSMatrix_ != aDCRSMatrix_)
   {
@@ -796,40 +795,40 @@ void Matrix::print(std::ostream &os) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::setUseTranspose
+// Function      : EpetraMatrix::setUseTranspose
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 11/20/02
 //-----------------------------------------------------------------------------
-int Matrix::setUseTranspose (bool useTranspose)
+int EpetraMatrix::setUseTranspose (bool useTranspose)
 {
   return aDCRSMatrix_->SetUseTranspose(useTranspose);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::useTranspose
+// Function      : EpetraMatrix::useTranspose
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 11/20/02
 //-----------------------------------------------------------------------------
-bool Matrix::useTranspose ()
+bool EpetraMatrix::useTranspose () const
 {
   return aDCRSMatrix_->UseTranspose();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getOverlapColMap
+// Function      : EpetraMatrix::getOverlapColMap
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-const Parallel::ParMap* Matrix::getOverlapColMap( const Parallel::Communicator& comm )
+const Parallel::ParMap* EpetraMatrix::getOverlapColMap( const Parallel::Communicator& comm )
 {
   if (!oColMap_)
     oColMap_ = new Parallel::EpetraParMap( &oDCRSMatrix_->ColMap(), comm );
@@ -838,14 +837,14 @@ const Parallel::ParMap* Matrix::getOverlapColMap( const Parallel::Communicator& 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Matrix::getColMap
+// Function      : EpetraMatrix::getColMap
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 9/6/17
 //-----------------------------------------------------------------------------
-const Parallel::ParMap* Matrix::getColMap( const Parallel::Communicator& comm ) const
+const Parallel::ParMap* EpetraMatrix::getColMap( const Parallel::Communicator& comm ) const
 {
   if (!aColMap_)
     aColMap_ = new Parallel::EpetraParMap( &aDCRSMatrix_->ColMap(), comm );

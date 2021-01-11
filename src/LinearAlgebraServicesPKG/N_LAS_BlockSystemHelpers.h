@@ -58,19 +58,19 @@ namespace Xyce {
 namespace Linear {
 
 BlockVector* createBlockVector( int numBlocks,
-                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                                const Teuchos::RCP<Parallel::ParMap> & subBlockMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                                 int augmentRows = 0 );
 
 BlockVector* createBlockVector( int blockSize,
-                                const Teuchos::RCP<Parallel::ParMap> & globalMap,
+                                const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                 int augmentRows = 0 );
 
 BlockVector* createBlockVector( const Vector * right, int blockSize );
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
-                                          const Teuchos::RCP<Parallel::ParMap> & globalMap,
-                                          const Teuchos::RCP<Parallel::ParMap> & subBlockMap );
+                                          const Teuchos::RCP<const Parallel::ParMap> & globalMap,
+                                          const Teuchos::RCP<const Parallel::ParMap> & subBlockMap );
 
 BlockMatrix* createBlockMatrix( int size,
                                 int offset,
@@ -100,8 +100,8 @@ int generateOffset( const Parallel::ParMap& baseMap );
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap );
-std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, Parallel::ParMap& pmap, Parallel::ParMap& omap );
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks, const Parallel::ParMap& pmap, const Parallel::ParMap& omap );
+std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks, const Parallel::ParMap& pmap, const Parallel::ParMap& omap );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockParMap
@@ -111,7 +111,7 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps2( int numBlocks,
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMap& pmap,
+Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, const Parallel::ParMap& pmap,
                                               int augmentRows=0, std::vector<int>* augmentedGIDs = 0,
                                               int offset = -1 );
 
@@ -123,7 +123,7 @@ Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, Parallel::ParMa
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
 Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >& blockPattern,
-                                      Parallel::ParMap& blockMap, const Graph& baseGraph );
+                                      const Parallel::ParMap& blockMap, const Graph& baseGraph );
 
 //-----------------------------------------------------------------------------
 // Function      : createBlockFreqERFParMap
@@ -136,11 +136,12 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
 // Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
 // Creation Date : 6/22/11
 //-----------------------------------------------------------------------------
-Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap,
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, const Parallel::ParMap& pmap,
                                                      int augmentRows = 0, std::vector<int>* augmentedLIDs = 0 );
 
-Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, Parallel::ParMap& pmap, Parallel::ParMap& omap,
-                                                     int augmentRows = 0, std::vector<int>* augmentedLIDs = 0 );
+Teuchos::RCP<Parallel::ParMap> createBlockFreqERFParMap( int numHarmonics, const Parallel::ParMap& pmap, 
+                                                     const Parallel::ParMap& omap, int augmentRows = 0, 
+                                                     std::vector<int>* augmentedLIDs = 0 );
 //-----------------------------------------------------------------------------
 // Function      : copyToBlockVector
 // Purpose       : A helper function that copies the array of Vectors
