@@ -14,11 +14,15 @@ message(STATUS "Looking for required Trilinos packages:\n"
   "        Triutils AztecOO Belos TrilinosCouplings\n"
   "   Also looking for the optional packages:\n"
   "        Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL")
-find_package(Trilinos 12.12
+find_package(Trilinos
   REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
        AztecOO Belos TrilinosCouplings
   OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL)
 message(STATUS "Looking for required Trilinos packages - found")
+if(Trilinos_VERSION VERSION_LESS "12.12.1")
+  message(FATAL_ERROR
+    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12.1. Install a version of Trilinos of 12.12.1 or greater.")
+endif()
 
 # Set the compilers, so "project" finds the right ones
 # if the trilinos ones don't exist fall back on
@@ -46,8 +50,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+# Don't force a build type in mutli-configuration platforms
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build.")
+  message("Setting the build type to \"Release\", since it was not explicitly set.")
 endif()
 
 include(cmake/config.cmake)

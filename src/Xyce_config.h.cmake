@@ -71,6 +71,9 @@
 // This is not in the CMake at the moment
 #cmakedefine Xyce_MODSPEC_MODELS
 
+// Add the NOX solver statistics, if available
+#cmakedefine Xyce_NOX_SOLVERSTATS
+
 // Enable analytic sensitivities in ADMS-generated devices
 #cmakedefine Xyce_ADMS_SENSITIVITIES
 

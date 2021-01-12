@@ -48,24 +48,15 @@
 # would likely be missing.
 
 # Fix the library lists, as they contain a lot of duplicates. This is
-# recommended by the Finding Trilinos documents.
-LIST(REVERSE Trilinos_LIBRARIES)
-LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
-LIST(REVERSE Trilinos_LIBRARIES)
+# done automatically by Trilinos
+#    LIST(REVERSE Trilinos_LIBRARIES)
+#    LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
+#    LIST(REVERSE Trilinos_LIBRARIES)
 
-# The Finding Trilinos docs don't say to do this; but let's do it anyway.
-LIST(REVERSE Trilinos_TPL_LIBRARIES)
-LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
-LIST(REVERSE Trilinos_TPL_LIBRARIES)
-
-# Remove the include directory lists duplicates, too.  The duplicates aren't a
-# big deal, but this makes things cleaner when troubleshooting.
-LIST(REVERSE Trilinos_INCLUDE_DIRS)
-LIST(REMOVE_DUPLICATES Trilinos_INCLUDE_DIRS)
-LIST(REVERSE Trilinos_INCLUDE_DIRS)
-LIST(REVERSE Trilinos_TPL_INCLUDE_DIRS)
-LIST(REMOVE_DUPLICATES Trilinos_TPL_INCLUDE_DIRS)
-LIST(REVERSE Trilinos_TPL_INCLUDE_DIRS)
+# In the Trilinos build system, it says to not do this
+#    LIST(REVERSE Trilinos_TPL_LIBRARIES)
+#    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
+#    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
@@ -169,6 +160,11 @@ if (NOT Teuchos_COMPLEX_IN_Trilinos)
           "  -D Teuchos_ENABLE_COMPLEX=ON")
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
+
+# After the release of Trilinos 12.12.1, the abstract solver interface in NOX
+# was changed to include a new method that returns solver statistics. This test
+# and set of ifdefs can be removed if the minimum version of Trilinos is raised.
+check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
 
 # Should we be checking if Sacado has complex as well?
 #    check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
