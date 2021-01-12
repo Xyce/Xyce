@@ -52,7 +52,6 @@
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>
 #include <N_LOA_NonlinearEquationLoader.h>
-#include <N_NLS_ConstraintBT.h>
 #include <N_NLS_DampedNewton.h>
 #include <N_NLS_NonLinearSolver.h>
 #include <N_NLS_ParamMgr.h>
@@ -81,7 +80,6 @@ DampedNewton::DampedNewton(
   : NonLinearSolver (cp),
     nlParams(DC_OP,cp),
     basicNewton_(true),
-    nlConstraintPtr_(0),
     normRHS_(0.0),
     maxNormRHS_(0.0),
     maxNormRHSindex_(-1),
@@ -90,11 +88,8 @@ DampedNewton::DampedNewton(
     wtNormDX_(0.0),
     normSoln_(0.0),
     stepLength_(1.0),
-    constraintFactor_(1.0),
     nlStep_(0),
     newtonStep_(0),
-    modNewtonStep_(0),
-    descentStep_(0),
     searchStep_(0),
     searchDirectionPtr_(0),
     iNumCalls_(0),
@@ -123,7 +118,6 @@ DampedNewton::~DampedNewton()
 {
   if (!basicNewton_)
   {
-    delete nlConstraintPtr_;
     delete searchDirectionPtr_;
   }
   delete nonlinearParameterManager_;
@@ -217,15 +211,9 @@ bool DampedNewton::initializeAll()
   // make sure the current nlParams is correct.
   nonlinearParameterManager_->getCurrentParams(nlParams);
 
-  if ( ( nlParams.getNLStrategy() != NEWTON )
-      || ( nlParams.getDirection() != NEWTON_DIR ) )
+  if ( nlParams.getNLStrategy() != NEWTON )
   {
     basicNewton_ = false;
-
-    // create and initialize constraint backtracking vectors:
-    if (!nlConstraintPtr_)
-      nlConstraintPtr_ = new ConstraintBT();
-    nlConstraintPtr_->initializeAll (lasSysPtr_, nlParams);
 
     searchDirectionPtr_ = lasSysPtr_->builder().createVector();
   }
@@ -233,7 +221,6 @@ bool DampedNewton::initializeAll()
   {
     if (!basicNewton_)
     {
-      delete nlConstraintPtr_;
       delete searchDirectionPtr_;
     }
     basicNewton_ = true;
@@ -310,9 +297,8 @@ void DampedNewton::updateWeights_()
 
   // On the first call to the nonlinear solver,
   // weigh based on the minimums.
-  double tmp = 0.0;
-  dsPtr_->nextSolutionPtr->maxValue(&tmp);
-  double solnNorm = fabs(tmp);
+  double solnNorm = 0.0;
+  dsPtr_->nextSolutionPtr->infNorm(&solnNorm);
 
   if ((iNumCalls_ == 0) && (solnNorm <= Util::MachineDependentParams::DoubleMin()))
   {
@@ -396,16 +382,10 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
     printHeader_(Xyce::lout());
   }
 
-  // Print warning about using the gradient-only strategy
-  if (VERBOSE_NONLINEAR && nlParams.getNLStrategy() == GRADIENT)
-  {
-    Xyce::Report::UserWarning0() << "Use of the gradient strategy (1) is discouraged";
-  }
-
   // For the initial RHS load, the step number needs to be zero.  The Xyce
   // device package needs to know this - either in the event that it might want
   // to set initial conditions.
-  nlStep_ = newtonStep_ = modNewtonStep_ = descentStep_ = 0;
+  nlStep_ = newtonStep_ = 0;
 
   // Recall that prior to this solver being called, the new solution has been
   // predicted and resides in nextSolVectorPtr.
@@ -464,10 +444,6 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
     // Calculate a direction.
     direction_();
 
-    // Perform update constraining...
-    if (nlParams.getConstraintBT())
-      constraintFactor_ = constrain_();
-    
     if (!basicNewton_)
     {
       setX0_();
@@ -506,18 +482,8 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
     }
 
     // Increment diagnostic step counters.  These need to be updated after
-    // direction_, in which the current direction (NEWTON_DIR,
-    // MOD_NEWTON_DIR or GRADIENT_DIR) is set.
-    if (nlParams.getDirection() == NEWTON_DIR)
-      newtonStep_++;
-    else if (nlParams.getDirection() == MOD_NEWTON_DIR)
-      modNewtonStep_++;
-    else if (nlParams.getDirection() == GRADIENT_DIR)
-      descentStep_++;
-
-    // Evaluate the need for a fresh Jacobian and/or preconditioner...
-    if (nlParams.getDirection() == MOD_NEWTON_DIR)
-      evalModNewton_();
+    // direction_, in which the current direction.
+    newtonStep_++;
 
   } // while (convergedStatus == 0)
 
@@ -575,16 +541,10 @@ int DampedNewton::takeFirstSolveStep(NonLinearSolver * nlsTmpPtr)
     printHeader_(Xyce::lout());
   }
 
-  // Print warning about using the gradient-only strategy
-  if (VERBOSE_NONLINEAR && nlParams.getNLStrategy() == GRADIENT)
-  {
-    Xyce::Report::UserWarning0() << "Use of the gradient strategy (1) is discouraged";
-  }
-
   // For the initial RHS load, the step number needs to be zero.  The Xyce
   // device package needs to know this - either in the event that it might want
   // to set initial conditions.
-  nlStep_ = newtonStep_ = modNewtonStep_ = descentStep_ = 0;
+  nlStep_ = newtonStep_ = 0;
 
   // Recall that prior to this solver being called, the new solution has been
   // predicted and resides in nextSolVectorPtr.
@@ -639,10 +599,6 @@ int DampedNewton::takeFirstSolveStep(NonLinearSolver * nlsTmpPtr)
   // Calculate a direction.
   direction_();
 
-  // Perform update constraining...
-  if (nlParams.getConstraintBT())
-    constraintFactor_ = constrain_();
-
   if (!basicNewton_)
   {
     setX0_();
@@ -679,18 +635,8 @@ int DampedNewton::takeFirstSolveStep(NonLinearSolver * nlsTmpPtr)
   }
 
   // Increment diagnostic step counters.  These need to be updated after
-  // direction_, in which the current direction (NEWTON_DIR,
-  // MOD_NEWTON_DIR or GRADIENT_DIR) is set.
-  if (nlParams.getDirection() == NEWTON_DIR)
-    newtonStep_++;
-  else if (nlParams.getDirection() == MOD_NEWTON_DIR)
-    modNewtonStep_++;
-  else if (nlParams.getDirection() == GRADIENT_DIR)
-    descentStep_++;
-
-  // Evaluate the need for a fresh Jacobian and/or preconditioner...
-  if (nlParams.getDirection() == MOD_NEWTON_DIR)
-    evalModNewton_();
+  // direction_, in which the current direction.
+  newtonStep_++;
 
 #ifndef Xyce_SPICE_NORMS
 #if 0
@@ -784,10 +730,6 @@ int DampedNewton::takeOneSolveStep()
   // Calculate a direction.
   direction_();
 
-  // Perform update constraining...
-  if (nlParams.getConstraintBT())
-    constraintFactor_ = constrain_();
- 
   if (!basicNewton_)
   { 
     setX0_();
@@ -824,19 +766,8 @@ int DampedNewton::takeOneSolveStep()
   }
 
   // Increment diagnostic step counters.  These need to be updated after
-  // direction_, in which the current direction (NEWTON_DIR,
-  // MOD_NEWTON_DIR or GRADIENT_DIR) is set.
-  if (nlParams.getDirection() == NEWTON_DIR)
-    newtonStep_++;
-  else if (nlParams.getDirection() == MOD_NEWTON_DIR)
-    modNewtonStep_++;
-  else if (nlParams.getDirection() == GRADIENT_DIR)
-    descentStep_++;
-
-  // Evaluate the need for a fresh Jacobian and/or preconditioner...
-  if (nlParams.getDirection() == MOD_NEWTON_DIR)
-    evalModNewton_();
-
+  // direction_, in which the current direction.
+  newtonStep_++;
 
   if (DEBUG_NONLINEAR && !getMatrixFreeFlag() && convergedStatus > 0)
   {
@@ -892,7 +823,7 @@ void DampedNewton::updateX_()
 //-----------------------------------------------------------------------------
 // Function      : DampedNewton::rhs_()
 // Purpose       : Updates the RHS based on nextSolVectorPtrPtr_ and
-//                 calculates normRHS_ based on nlParams.getNormLevel().
+//                 calculates normRHS_ based on 2-norm.
 // Special Notes : The rhsVectorPtr_ is really the NEGATIVE of F(x).
 // Scope         : private
 // Creator       : Tamara G. Kolda, SNL, Compuational Sciences and
@@ -908,7 +839,7 @@ bool DampedNewton::rhs_()
     debugOutput3 (*dsPtr_->nextSolutionPtr, *searchDirectionPtr_ );
   }
 
-  rhsVectorPtr_->lpNorm(nlParams.getNormLevel(), &normRHS_);
+  rhsVectorPtr_->lpNorm(2, &normRHS_);
 
   return status;
 }
@@ -955,99 +886,15 @@ void DampedNewton::direction_()
 {
   static const char *trace = "DampedNewton::direction_: ";
 
-  // --- Set the Direction Type ---
-  switch (nlParams.getNLStrategy())
-  {
-    case NEWTON:
-      nlParams.setDirection(NEWTON_DIR);
-      break;
-
-    case MOD_NEWTON:
-      nlParams.setDirection(MOD_NEWTON_DIR);
-      break;
-
-    case NEWTON_GRADIENT:
-    {
-      const double minRedFac = 0.999;
-      if ((nlStep_ > 15) || (resConvRate_ > minRedFac))
-        nlParams.setDirection(NEWTON_DIR);
-      else
-        nlParams.setDirection(GRADIENT_DIR);
-
-      break;
-    }
-    case MOD_NEWTON_GRADIENT:
-    {
-      const double minRedFac = 0.999;
-      if ((nlStep_ > 15) || (resConvRate_ > minRedFac))
-      {
-        nlParams.setDirection(MOD_NEWTON_DIR);
-      }
-      else
-      {
-        nlParams.setDirection(GRADIENT_DIR);
-      }
-      break;
-    }
-    case GRADIENT:
-      nlParams.setDirection(GRADIENT_DIR);
-      break;
-
-    default:
-      nlParams.setDirection(NEWTON_DIR);
-      break;
-
-  } // end switch on nlParams.getNLStrategy()
-
   // --- Calculate SearchDirection ---
-  switch (nlParams.getDirection())
+  // Compute the Newton direction
+  linearStatus_ = newton_();
+
+  // Copy the Newton direction into the search direction
+  if (!basicNewton_)
   {
-    case NEWTON_DIR:
-
-      // Compute the Newton direction
-      linearStatus_ = newton_();
-
-      // Copy the Newton direction into the search direction
-      if (!basicNewton_)
-      {
-        *searchDirectionPtr_ = *NewtonVectorPtr_;
-      }
-
-      break;
-
-    case MOD_NEWTON_DIR:
-
-      // Compute the modified-Newton direction
-      linearStatus_ = newton_();
-
-      // Copy the modified-Newton direction into the search direction
-      *searchDirectionPtr_ = *NewtonVectorPtr_;
-
-      break;
-
-    case GRADIENT_DIR:
-
-      // Compute the gradient
-      gradient_();
-
-      // Copy Gradient into Search Direction, then Reverse and scale
-      // search direction. (Can this be done in one operation??)
-      *searchDirectionPtr_ = *gradVectorPtr_;
-      searchDirectionPtr_->scale(-1.0 / normRHS_);
-
-      break;
-
-    default:
-
-      if (DEBUG_NONLINEAR)
-      {
-        Xyce::Report::DevelFatal0().in("DampedNewton::direction_") << "Invalid search direction: " << static_cast<int>(nlParams.getDirection());
-      }
-
-      break;
-
-  } // end switch on nlParams.getDirection()
-
+    *searchDirectionPtr_ = *NewtonVectorPtr_;
+  }
 } // end direction_
 
 //-----------------------------------------------------------------------------
@@ -1084,11 +931,6 @@ bool DampedNewton::computeStepLength_()
       return backtrack_();
       break;
 
-    case SIMPLE_BACKTRACK:
-
-      return simpleBacktrack_();
-      break;
-
     default:
 
       return fullNewton_();
@@ -1122,7 +964,7 @@ bool DampedNewton::divide_()
 
   // The upper bound on the backtracking (damping) is determined by
   // the applied constraints.
-  const double fullStep = constraintFactor_;
+  const double fullStep = 1.0;
 
   // Starting value
   stepLength_ = fullStep;
@@ -1179,150 +1021,6 @@ bool DampedNewton::divide_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DampedNewton::backtrack_
-// Purpose       : Does a backtracking line search along the current search
-//                 direction in the hopes of satisfying the Wolfe conditions
-//                 for f(x) = 0.5 F(x)'F(x) = normrhs^2.
-// Special Notes :
-// Scope         : private
-// Creator       : Tamara G. Kolda, SNL, Compuational Sciences and
-//                 Mathematics Research Department
-// Creation Date : 07/02/01
-//-----------------------------------------------------------------------------
-bool DampedNewton::simpleBacktrack_()
-{
-  bool issuffdec;
-
-  // Local references
-  Linear::Vector& g(*gradVectorPtr_);            // Gradient
-  Linear::Vector& s(*searchDirectionPtr_);       // Search Direction
-
-  // Compute the gradient, i.e., fill in g
-  gradient_();
-
-  // Evaluate <s,g>
-  double sdotg = s.dotProduct(g);
-
-  double& normrhs(normRHS_);          // Norm of RHS
-  const double f = 0.5 * normrhs * normrhs;   // f(x) = 0.5 F(x)'F(X)
-
-  // If s is a descent direction, then do the line search
-  if (sdotg < 0)
-  {
-    issuffdec = simpleBt_(sdotg, f);
-  }
-
-  // If s is not a descent direction or we cannot find descent along s, switch
-  // to the gradient. We must recompute the maximum allowable step with the new
-  // search direction.
-  if (((sdotg >= 0) || (!issuffdec)) &&
-      (nlParams.getDirection() != GRADIENT_DIR))
-  {
-    Xyce::lout() << "Switching to Cauchy!" << std::endl;
-    s = g;
-    s.scale(-1.0 / normrhs);
-    sdotg = s.dotProduct(g);
-    double& maxstep(constraintFactor_);
-    maxstep = constrain_();
-    issuffdec = simpleBt_(sdotg, f);
-  }
-
-  if (!issuffdec)
-  {
-    double& step(stepLength_);
-    step = 0.0;
-    updateX_();
-    rhs_();
-
-    Xyce::lout() << "Linesearch failed!" << std::endl;
-  }
-
-  return issuffdec;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DampedNewton::simpleBt_
-// Purpose       : Does a backtracking line search along the current sear
-// Special Notes :
-// Scope         : private
-// Creator       : Tamara G. Kolda, SNL, Compuational Sciences and
-//                 Mathematics Research Department
-// Creation Date : 07/02/01
-//-----------------------------------------------------------------------------
-bool DampedNewton::simpleBt_(double gsinit, double finit)
-{
-  // Local references
-  double& normrhs(normRHS_);          // Norm of RHS
-  double& step(stepLength_);          // Step length
-  double& maxstep(constraintFactor_); // Maximum step length
-  unsigned int& nstep(searchStep_);   // Number of backtracking steps
-
-  // Local values
-  double f = 0.5 * normrhs * normrhs; // Function value
-  const double alpha = 1.0e-6;        // Suff dec cond parameter
-
-  Xyce::dout().setf(std::ios::scientific);
-  Xyce::dout().precision(10);
-
-  Xyce::dout() << "\nIteration: " << 0
-       << " Step: " << 0
-       << " F(X): " << finit
-       << " gsinit: " << gsinit
-       << " alpha * gsinit: " << alpha * gsinit
-       << std::endl;
-
-  // Initialize search
-  const int nstepmax = 20;            // Max number of backtracking steps
-  const double minstep = Util::MachineDependentParams::MachineEpsilon(); // Min step length
-  nstep = 0;
-
-  // Loop until we obtain sufficient decrease or violate some condition.
-  bool issuffdec = false;
-  while (!issuffdec)
-  {
-    // Stop if we've taken too many steps
-    if (nstep >= nstepmax)
-      break;
-
-    // If this is the first iteration, set the step to maxstep.
-    // Otherwise, reduce the step by a factor of one-half.
-    if (nstep == 0)
-      step = maxstep;
-    else
-      step *= 0.5;
-
-    // Stop if the step has gotten too small
-    if (step < minstep)
-      break;
-
-    // Compute the new X based on the currect step
-    updateX_();
-
-    // Evaluate the RHS for the new X
-    rhs_();
-
-    // Compute the new function value
-    f = 0.5 * normrhs * normrhs;
-
-    // Check the sufficient decrease condition
-    issuffdec = (f <= (finit + (alpha * step * gsinit)));
-
-    // Increment the step counter
-    nstep ++;
-
-    Xyce::dout() << "Iteration: " << nstep
-         << " Step: " << step
-         << " F(X): " << f
-         << " Test: " << (finit + (alpha * step * gsinit))
-         << std::endl;
-  }
-
-  Xyce::dout().unsetf(std::ios::scientific);
-
-  return issuffdec;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DampedNewton::backtrack_()
 // Purpose       : Backtracking method based on Dennis & Shnabel.
 // Special Notes :
@@ -1340,7 +1038,7 @@ bool DampedNewton::backtrack_()
 
   // The upper bound on the backtracking (damping) is determined by
   // the applied constraints.
-  const double fullStep = constraintFactor_;
+  const double fullStep = 1.0;
 
   // Starting value
   stepLength_ = fullStep;
@@ -1429,64 +1127,6 @@ bool DampedNewton::fullNewton_()
   rhs_();
 
   return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DampedNewton::evalModNewton_
-// Purpose       : This method evaluates the modified Newton status to
-//                 determine if a fresh Jacobian and associated preconditioner
-//                 are required.  If we take a step that dramatically degrades
-//                 the NLS convergence, we ensure that we're going to use a
-//                 "fresh" Jacobian and preconditioner for some number of steps
-//                 to get us back to a region of good convergence.
-// Special Notes :
-// Scope         : private
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences Department
-// Creation Date : 08/17/01
-//-----------------------------------------------------------------------------
-void DampedNewton::evalModNewton_()
-
-{
-  static const char * trace = "DampedNewton::evalModNewton_";
-
-  const double minConvFactor = 0.01;
-
-  const double etaMax  = 1.0;
-  const double etaMin  = 1.0e-12;
-  const double etaInit = 1.0e-01;
-  double       eta;
-  double       nlResNorm = normRHS_;
-
-  if (modNewtonStep_ <= 2)
-  {
-    eta          = etaInit;
-    nlResNormOld = nlResNorm;
-  }
-  else
-  {
-    eta = resConvRate_;
-  }
-
-  if (DEBUG_NONLINEAR && debugTimeFlag_ && isActive(Diag::NONLINEAR_PARAMETERS) )
-  {
-    Util::Param linRes( "RESIDUAL", 0.0 );
-    lasSolverRCPtr_->getInfo( linRes );
-    Xyce::dout() << "\tnlResNorm: " << nlResNorm << " linRes: " << linRes.getImmutableValue<double>()
-                 << "nlResNormOld: " << nlResNormOld << "calculated eta: " << eta << std::endl;
-  }
-
-  etaOld       = eta;
-  nlResNormOld = nlResNorm;
-
-  if (DEBUG_NONLINEAR && debugTimeFlag_ && isActive(Diag::NONLINEAR_PARAMETERS) )
-  {
-    Xyce::dout() << "\t\teta:\t" << eta <<  "\n" << std::endl;
-  }
-
-  if (VERBOSE_NONLINEAR) 
-  {
-    Xyce::lout() << " ***** Calculating new Jacobian and preconditioner\n" << std::endl;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1698,54 +1338,6 @@ int DampedNewton::converged_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DampedNewton::constrain_
-// Purpose       : This method performs constraint backtracking by determining
-//                 a damping factor:
-//
-//                      theta = min{1, theta-, theta+, theta_u}
-//
-//                 where theta-, theta+ and theta_u are determined according
-//                 the constraint algorithm of J.N. Shadid (SNL internal
-//                 communication).
-// Special Notes : See the notes in ConstraintBT.C for how these are
-//                 calculated.
-// Scope         : private
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences Department
-// Creation Date : 02/08/01
-//-----------------------------------------------------------------------------
-double DampedNewton::constrain_()
-{
-  double minValue;
-
-  // First, update all the thetas...
-  nlConstraintPtr_->updateThetaBoundNeg(dsPtr_->nextSolutionPtr,
-                                        searchDirectionPtr_);
-
-  nlConstraintPtr_->updateThetaBoundPos(dsPtr_->nextSolutionPtr,
-                                        searchDirectionPtr_);
-
-  nlConstraintPtr_->updateThetaChange(dsPtr_->nextSolutionPtr,
-                                       searchDirectionPtr_);
-
-  // Now, determine the minimum value
-  minValue = std::min(1.0, nlConstraintPtr_->getThetaBoundNeg());
-  minValue = std::min(minValue, nlConstraintPtr_->getThetaBoundPos());
-  minValue = std::min(minValue, nlConstraintPtr_->getThetaChange());
-
-  if (DEBUG_NONLINEAR)
-  {
-    Xyce::dout() << "DampedNewton::constrain_: minValue: " << minValue << std::endl;
-  }
-
-  if (VERBOSE_NONLINEAR && minValue < 1.0)
-  {
-    Xyce::lout() << " ***** Constraining:\t" <<  minValue << std::endl;
-  }
-
-  return minValue;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DampedNewton::setForcing_
 // Purpose       : This method calculates the forcing term (i.e., linear
 //                 residual tolerance) for iterative solvers based on the
@@ -1764,7 +1356,7 @@ void DampedNewton::setForcing_(const double nlResNorm)
   double eta;
   double etaSafe;
 
-  if (newtonStep_ == 0 && modNewtonStep_ == 0)
+  if (newtonStep_ == 0)
   {
     eta          = etaInit;
     nlResNormOld = nlResNorm;

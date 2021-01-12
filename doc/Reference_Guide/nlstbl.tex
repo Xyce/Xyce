@@ -67,10 +67,6 @@ MAXSTEP\index{\texttt{MAXSTEP}} & Maximum number of Newton steps & 200 & 20 \\ \
 
 MAXSEARCHSTEP & Maximum number of line-search steps & 2 & 2 \\ \hline
 
-NORMLVL & Norm level used by the nonlinear solver algorithms
-\textcolor{red}{\emph{(NOTE: not used for convergence tests)}} & 2 & 2
-\\ \hline
-
 IN\_FORCING & Inexact Newton-Krylov forcing flag & 
 0 (FALSE) &
 0 (FALSE) \\ \hline
@@ -90,10 +86,6 @@ RECOVERYSTEPTYPE &  If using a line search, this option determines the type of s
 RECOVERYSTEP & Value of the recovery step if a constant step length is selected & 
 1.0 &
 1.0 \\ \hline
-
-\debug{DLSDEBUG} & \debug{Debug output for direct linear solver} &
-\debug{0 (FALSE)} &
-\debug{0 (FALSE)} \\ \hline
 
 \debug{DEBUGLEVEL} & \debug{The higher this number, the more info is output} & 
 \debug{1} &
@@ -121,24 +113,5 @@ time (sec.) instead of step number} &
 \debug{1.0E+99} &
 \debug{1.0E+99} 
 \\ \hline
-
-\multicolumn{4}{|c|}{\color{XyceDarkBlue}\em\bfseries Parameters not supported by NOX} \\ \hline\hline
-
-LINOPT & Linear optimization flag & 0 (FALSE) & 0 (FALSE) \\ \hline
-
-CONSTRAINTBT & Constraint backtracking flag & 0 (FALSE) & 0 (FALSE) \\ \hline
-
-CONSTRAINTMAX & Global maximum setting for constraint backtracking
-& DBL\_MAX (Machine Dependent Constant) &
- DBL\_MAX  \\ \hline
-
-CONSTRAINTMIN & Global minimum setting for constraint backtracking
-& -DBL\_MAX (Machine Dependent Constant) &
- -DBL\_MAX \\ \hline
-
-CONSTRAINTCHANGE & Global percentage-change setting for constraint
-backtracking & 
-sqrt(DBL\_MAX) (Machine Dependent Constant) &
-sqrt(DBL\_MAX) \\ \hline
 
 \end{OptionTable4}

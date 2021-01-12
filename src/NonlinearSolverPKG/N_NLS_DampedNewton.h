@@ -119,12 +119,8 @@ private:
   bool   divide_();
   bool   backtrack_();
   bool   fullNewton_();
-  bool   simpleBacktrack_();
-  bool   simpleBt_(double gsinit, double finit);
 
-  double constrain_();
   void   setForcing_(const double);
-  void   evalModNewton_();
   int    converged_();
 
   void resetCountersAndTimers_();
@@ -146,9 +142,6 @@ private:
   //! Weighted convergence Rate
   double wtUpdateConvRate_;
 
-  //! Constraint object pointer
-  ConstraintBT* nlConstraintPtr_;
-
   // Current RHS norms:
   double normRHS_;
   double maxNormRHS_;
@@ -168,13 +161,6 @@ private:
 
   // step length:
   double stepLength_;
-
-  // backtracking upper and lower bounds and percentage change (0..1):
-  double BTUpper_;
-  double BTLower_;
-
-  // constraint factor:
-  double constraintFactor_;
 
   // current nonlinear solver step:
   unsigned nlStep_;

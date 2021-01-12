@@ -1013,15 +1013,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-6)));
     parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 200)));
     parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 0)));
-    parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-    parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
     parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
     parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-    parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
     parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -1032,7 +1025,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-    parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
     parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
     parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 1)));
   }
@@ -1050,15 +1042,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-2)));
     parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 20)));
     parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 2)));
-    parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-    parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
     parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
     parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-    parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
     parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -1069,7 +1054,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-    parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
     parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
     parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 0)));
   }
@@ -1087,15 +1071,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-6)));
     parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 200)));
     parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 2)));
-    parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-    parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
     parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
     parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-    parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
     parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -1106,7 +1083,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-    parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
     parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
     parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 0)));
   }
@@ -1124,15 +1100,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-6)));
     parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 200)));
     parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 0)));
-    parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-    parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
     parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
     parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-    parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
     parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -1143,7 +1112,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-    parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
     parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
     parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 0)));
     parameters.insert(Util::ParamMap::value_type("ALGORITHM", Util::Param("ALGORITHM", 0)));
@@ -1170,15 +1138,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-2)));
     parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 20)));
     parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 2)));
-    parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-    parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-    parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
     parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
     parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-    parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
     parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -1189,7 +1150,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
     parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-    parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
     parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
     parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 0)));
     parameters.insert(Util::ParamMap::value_type("ALGORITHM", Util::Param("ALGORITHM", 0)));

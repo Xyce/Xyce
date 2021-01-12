@@ -61,13 +61,6 @@ enum LineSearchMethod {
   SIMPLE_BACKTRACK // Simple backtracking method
 };
 
-// Search directions.
-enum Direction {
-  NEWTON_DIR,            // Newton's direction
-  GRADIENT_DIR,          // Steepest descent direction
-  MOD_NEWTON_DIR         // Modified Newton direction
-};
-
 // Nonlinear solution "strategies".
 enum NLStrategy {
   NEWTON,             // Pure Newton's method
@@ -116,10 +109,6 @@ public:
   inline void resetSearchMethod();
   inline LineSearchMethod getSearchMethod() const;
 
-  inline void setDirection(Direction value);
-  inline void resetDirection();
-  inline Direction getDirection() const;
-
   inline void   setDeltaXTol(double Tolerance);
   inline void   resetDeltaXTol();
   inline double getDeltaXTol() const;
@@ -160,27 +149,7 @@ public:
   inline void     resetForcingTerm();
   inline double   getForcingTerm() const;
 
-  inline void     setNormLevel(int level);
-  inline void     resetNormLevel();
-  inline int      getNormLevel() const;
-
-  inline void     setConstraintBT(bool flag);
-  inline void     resetConstraintBT();
-  inline bool     getConstraintBT() const;
-
-  inline void     setGlobalBTMax(double value);
-  inline void     resetGlobalBTMax();
-  inline double   getGlobalBTMax() const;
-
-  inline void     setGlobalBTMin(double value);
-  inline void     resetGlobalBTMin();
-  inline double   getGlobalBTMin() const;
-
-  inline void     setGlobalBTChange(double value);
-  inline void     resetGlobalBTChange();
-  inline double   getGlobalBTChange() const;
-
-    void printParams(std::ostream &os);
+  void printParams(std::ostream &os);
 
   inline void setDebugLevel(int value);
   inline void resetDebugLevel();
@@ -236,10 +205,6 @@ protected:
   // Damping method (e.g., Bank and Rose)
   LineSearchMethod searchMethod_;
 
-  // Direction flag - dictates which direction to take in advancing the
-  // nonlinear solver.
-  Direction direction_;
-
   // Absolute convergence tolerance for the norm of the residual.
   double absTol_;
 
@@ -276,17 +241,6 @@ protected:
 
   // linear optimization flag
   bool linearOptimization_;
-
-  // Constraint backtracking flag
-  bool constraintBT_;
-
-  // Backtracking constraint scalar values.  Note that these are used to set
-  // vectors of values to these defaults but, in general, the constraints can
-  // be individually applied to all solution variables (see
-  // ConstraintBT.h).
-  double globalBTMax_;
-  double globalBTMin_;
-  double globalBTChange_;
 
   // Debug output options:
   int debugLevel_;
@@ -481,47 +435,6 @@ inline void NLParams::resetSearchMethod()
 inline LineSearchMethod NLParams::getSearchMethod() const
 {
   return searchMethod_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setDirection
-// Purpose       : Accessor method to set the nonlinear direction flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/19/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setDirection(Direction value)
-{
-  // Make sure we have a valid value here.
-  direction_ = value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetDirection
-// Purpose       : Accessor method to reset the default nonlinear direction
-//                 flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/19/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetDirection()
-{
-  direction_ = NEWTON_DIR;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getDirection
-// Purpose       : Accessor method to return the nonlinear diection flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/19/01
-//-----------------------------------------------------------------------------
-inline Direction NLParams::getDirection() const
-{
-  return direction_;
 }
 
 //-----------------------------------------------------------------------------
@@ -923,206 +836,6 @@ inline void NLParams::resetForcingTerm()
 inline double NLParams::getForcingTerm() const
 {
   return eta_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setNormLevel
-// Purpose       : Accessor method to set the lp norm level (p).
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 01/24/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setNormLevel(int value)
-{
-  normLevel_ = value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetNormLevel
-// Purpose       : Accessor method to reset the lp norm level (p) to the
-//                 default value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 01/24/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetNormLevel()
-{
-  normLevel_ = 2;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getNormLevel
-// Purpose       : Accessor method to return the lp norm level (p).
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 01/24/01
-//-----------------------------------------------------------------------------
-inline int NLParams::getNormLevel() const
-{
-  return normLevel_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setConstraintBT
-// Purpose       : Accessor method to set the constraint backtracking flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/06/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setConstraintBT(bool flag)
-{
-  constraintBT_ = flag;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetConstraintBT
-// Purpose       : Accessor method to reset the default constraint backtracking
-//                 flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/06/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetConstraintBT()
-{
-  constraintBT_ = 0;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getConstraintBT
-// Purpose       : Accessor method to return the constraint backtracking flag.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/06/01
-//-----------------------------------------------------------------------------
-inline bool NLParams::getConstraintBT() const
-{
-  return constraintBT_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setGlobalBTMax
-// Purpose       : Accessor method to set the constraint maximum value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setGlobalBTMax(double value)
-{
-  globalBTMax_ = value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetGlobalBTMax
-// Purpose       : Accessor method to set the constraint maximum default value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetGlobalBTMax()
-{
-  globalBTMax_ = Util::MachineDependentParams::DoubleMax();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getGlobalBTMax
-// Purpose       : Accessor method to return the constraint maximum value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline double NLParams::getGlobalBTMax() const
-{
-  return globalBTMax_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setGlobalBTMin
-// Purpose       : Accessor method to set the constraint minimum value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setGlobalBTMin(double value)
-{
-  globalBTMin_ = value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetGlobalBTMin
-// Purpose       : Accessor method to set the constraint minimum default value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetGlobalBTMin()
-{
-  globalBTMin_ = -Util::MachineDependentParams::DoubleMax();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getGlobalBTMin
-// Purpose       : Accessor method to return the constraint minimum value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline double NLParams::getGlobalBTMin() const
-{
-  return globalBTMin_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::setGlobalBTChange
-// Purpose       : Accessor method to set the constraint percentage change
-//                 value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::setGlobalBTChange(double value)
-{
-  globalBTChange_ = value;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::resetGlobalBTChange
-// Purpose       : Accessor method to set the constraint percentage change
-//                 default value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline void NLParams::resetGlobalBTChange()
-{
-  globalBTChange_ = sqrt(Util::MachineDependentParams::DoubleMax());
-}
-
-//-----------------------------------------------------------------------------
-// Function      : NLParams::getGlobalBTChange
-// Purpose       : Accessor method to return the constraint percentage change
-//                 value.
-// Special Notes :
-// Scope         : public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 02/14/01
-//-----------------------------------------------------------------------------
-inline double NLParams::getGlobalBTChange() const
-{
-  return globalBTChange_;
 }
 
 //-----------------------------------------------------------------------------

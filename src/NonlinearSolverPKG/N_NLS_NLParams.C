@@ -88,17 +88,11 @@ NLParams::NLParams(AnalysisMode mode, const IO::CmdParse & cp)
   resetEnforceDeviceConvFlag ();
 
   resetSearchMethod();
-  resetDirection();
   resetNLStrategy();
   resetMaxNewtonStep();
   resetMaxSearchStep();
   resetForcingFlag();
   resetForcingTerm();
-  resetNormLevel();
-  resetConstraintBT();
-  resetGlobalBTMax();
-  resetGlobalBTMin();
-  resetGlobalBTChange();
 
   // Set the default parameters for transient, if the specified mode
   // is TRANSIENT.
@@ -144,7 +138,6 @@ NLParams::NLParams(const NLParams & right)
     modeToggled_(right.modeToggled_),
     nlStrategy_(right.nlStrategy_),
     searchMethod_(right.searchMethod_),
-    direction_(right.direction_),
     absTol_(right.absTol_),
     relTol_(right.relTol_),
     deltaXTol_(right.deltaXTol_),
@@ -155,10 +148,6 @@ NLParams::NLParams(const NLParams & right)
     eta_(right.eta_),
     normLevel_(right.normLevel_),
     linearOptimization_(right.linearOptimization_),
-    constraintBT_(right.constraintBT_),
-    globalBTMax_(right.globalBTMax_),
-    globalBTMin_(right.globalBTMin_),
-    globalBTChange_(right.globalBTChange_),
     debugLevel_(right.debugLevel_),
     debugMinTimeStep_(right.debugMinTimeStep_),
     debugMaxTimeStep_(right.debugMaxTimeStep_),
@@ -225,22 +214,6 @@ bool NLParams::setOptions (const Util::OptionBlock & OB)
     {
       setMaxNewtonStep(it_tpL->getImmutableValue<int>());
     }
-    else if (it_tpL->uTag() == "CONSTRAINTBT")
-    {
-      setConstraintBT(it_tpL->getImmutableValue<int>());
-    }
-    else if (it_tpL->uTag() == "CONSTRAINTMAX")
-    {
-      setGlobalBTMax(it_tpL->getImmutableValue<double>());
-    }
-    else if (it_tpL->uTag() == "CONSTRAINTMIN")
-    {
-      setGlobalBTMin(it_tpL->getImmutableValue<double>());
-    }
-    else if (it_tpL->uTag() == "CONSTRAINTCHANGE")
-    {
-      setGlobalBTChange(it_tpL->getImmutableValue<double>());
-    }
     else if (it_tpL->uTag() == "NLSTRATEGY")
     {
       setNLStrategy(it_tpL->getImmutableValue<int>());
@@ -256,10 +229,6 @@ bool NLParams::setOptions (const Util::OptionBlock & OB)
     else if (it_tpL->uTag() == "IN_FORCING")
     {
       setForcingFlag(it_tpL->getImmutableValue<int>());
-    }
-    else if (it_tpL->uTag() == "NORMLVL")
-    {
-      setNormLevel(it_tpL->getImmutableValue<int>());
     }
     else if (it_tpL->uTag() == "NOX")
     {
@@ -389,9 +358,7 @@ void NLParams::printParams(std::ostream &os)
     os << "\tsearch method:\t\t" << searchMethod << "\t(Line Search)" << std::endl;
 
   os << "\tmax search steps:\t" << getMaxSearchStep() << std::endl
-     << "\tinexact-Newton forcing:\t" << getForcingFlag() << std::endl
-     << "\tnorm level:\t\t" << getNormLevel() << std::endl
-     << "\tconstraint backtrack:\t" << getConstraintBT() << std::endl;
+     << "\tinexact-Newton forcing:\t" << getForcingFlag() << std::endl;
 
   if (DEBUG_NONLINEAR)
   {
@@ -418,7 +385,6 @@ NLParams & NLParams::operator=(const NLParams & right)
     commandLine_   = right.commandLine_;
     nlStrategy_    = right.nlStrategy_;
     searchMethod_  = right.searchMethod_;
-    direction_     = right.direction_;
     deltaXTol_     = right.deltaXTol_;
     RHSTol_        = right.RHSTol_;
     absTol_        = right.absTol_;
@@ -432,11 +398,6 @@ NLParams & NLParams::operator=(const NLParams & right)
     analysisMode_  = right.analysisMode_;
 
     linearOptimization_ = right.linearOptimization_;
-
-    constraintBT_   = right.constraintBT_;
-    globalBTMax_    = right.globalBTMax_;
-    globalBTMin_    = right.globalBTMin_;
-    globalBTChange_ = right.globalBTChange_;
 
     // Debug output options:
     debugLevel_       = right.debugLevel_;
@@ -481,15 +442,8 @@ void NLParams::populateMetadata(IO::PkgOptionsMgr& options_manager)
   parameters.insert(Util::ParamMap::value_type("RHSTOL", Util::Param("RHSTOL", 1.0E-6)));
   parameters.insert(Util::ParamMap::value_type("MAXSTEP", Util::Param("MAXSTEP", 200)));
   parameters.insert(Util::ParamMap::value_type("MAXSEARCHSTEP", Util::Param("MAXSEARCHSTEP", 0)));
-  parameters.insert(Util::ParamMap::value_type("NORMLVL", Util::Param("NORMLVL", 2)));
-  parameters.insert(Util::ParamMap::value_type("LINOPT", Util::Param("LINOPT", 0)));
-  parameters.insert(Util::ParamMap::value_type("CONSTRAINTBT", Util::Param("CONSTRAINTBT", 0)));
-  parameters.insert(Util::ParamMap::value_type("CONSTRAINTMAX", Util::Param("CONSTRAINTMAX", Util::MachineDependentParams::DoubleMax())));
-  parameters.insert(Util::ParamMap::value_type("CONSTRAINTMIN", Util::Param("CONSTRAINTMIN", -Util::MachineDependentParams::DoubleMax())));
-  parameters.insert(Util::ParamMap::value_type("CONSTRAINTCHANGE", Util::Param("CONSTRAINTCHANGE", 0.0)));
   parameters.insert(Util::ParamMap::value_type("IN_FORCING", Util::Param("IN_FORCING", 0)));
   parameters.insert(Util::ParamMap::value_type("AZ_TOL", Util::Param("AZ_TOL", 1.0E-12)));
-  parameters.insert(Util::ParamMap::value_type("DLSDEBUG", Util::Param("DLSDEBUG", 0)));
   parameters.insert(Util::ParamMap::value_type("MATRIXMARKET", Util::Param("MATRIXMARKET", 0)));
   parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 1)));
   parameters.insert(Util::ParamMap::value_type("DEBUGMINTIMESTEP", Util::Param("DEBUGMINTIMESTEP", 0)));
@@ -500,7 +454,6 @@ void NLParams::populateMetadata(IO::PkgOptionsMgr& options_manager)
   parameters.insert(Util::ParamMap::value_type("USEMASKING", Util::Param("USEMASKING", 0)));
   parameters.insert(Util::ParamMap::value_type("RECOVERYSTEPTYPE", Util::Param("RECOVERYSTEPTYPE", 0)));
   parameters.insert(Util::ParamMap::value_type("RECOVERYSTEP", Util::Param("RECOVERYSTEP", 1.0)));
-  parameters.insert(Util::ParamMap::value_type("MEMORY", Util::Param("MEMORY", 400)));
   parameters.insert(Util::ParamMap::value_type("CONTINUATION", Util::Param("CONTINUATION", 0)));
   parameters.insert(Util::ParamMap::value_type("ENFORCEDEVICECONV", Util::Param("ENFORCEDEVICECONV", 1)));
 }
