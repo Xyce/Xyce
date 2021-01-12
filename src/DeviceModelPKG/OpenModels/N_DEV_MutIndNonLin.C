@@ -1466,6 +1466,8 @@ bool Instance::updateSecondaryState ()
   //
   // need these to calculate H for B-H loops
   //
+  /*
+  Uncertain if this is needed
   double dMdt = staDerivVec[ li_MagVarState ];
   double R = solVector[ li_RVar ];
   double Hfxn = 0.0;
@@ -1500,7 +1502,9 @@ bool Instance::updateSecondaryState ()
   {
     stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
   }
-  stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
+  //stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
+  */
+  stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
   stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
 
   return bsuccess;

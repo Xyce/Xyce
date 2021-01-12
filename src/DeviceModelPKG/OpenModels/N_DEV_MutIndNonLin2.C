@@ -1003,7 +1003,8 @@ bool Instance::updateIntermediateVars ()
     Mirrp = 0.0;
   }
   */
-  P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
+  P = ( C * Manp + (1 - C) * Mirrp)        / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
+  //P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
 #endif
 
 
