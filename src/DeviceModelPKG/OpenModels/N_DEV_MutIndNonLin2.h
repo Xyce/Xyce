@@ -326,6 +326,8 @@ private:
   int outputStateVars;       // flag indicating if user wants M,H and R output
 
   int factorMS;              // flag to factor Ms out of M (not used in level 2)
+  int BHSiUnits;             // flag to indicate that B and H should be output in SI units. Default is CGS
+                             // units for output while SI units are used for calculations
   int includeDeltaM;         // flag to make delta M calculation implicit
   int useRKIntegration;      // flag to use 4th order runga-kutta for dM/dH integration
   int useStateDeriv;         // flag to use state vector for dH/dt calculation

@@ -279,6 +279,11 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to save state variables" );
+   
+  p.addPar("BHSIUNITS",0,&MutIndNonLin2::Model::BHSiUnits)
+  .setUnit(U_NONE)
+  .setCategory(CAT_NONE)
+  .setDescription("Flag to report B and H in SI units");
 }
 
 
@@ -1749,6 +1754,8 @@ Model::Model(
     HCgsFactor( 0.012566370614359 ),  // 4 pi / 1000
     BCgsFactor( 10000.0 ),
     outputStateVars(0),
+    factorMS(0),
+    BHSiUnits(0),
     includeDeltaM(0),
     useRKIntegration(0)
 {
@@ -1765,7 +1772,15 @@ Model::Model(
   Gap *= 1.0e-2;
   Path *= 1.0e-2;
   Area *= 1.0e-4;
-
+  
+  if( BHSiUnits != 0 )
+  {
+    // user requested SI units over the default of CGS units.  Change
+    // conversion factor to unity.
+    BCgsFactor=1.0;
+    HCgsFactor=1.0;
+  }
+  
   // Set any non-constant parameter defaults:
 
   if (!given("TNOM"))
