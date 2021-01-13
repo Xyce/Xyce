@@ -19,7 +19,7 @@ find_package(Trilinos
        AztecOO Belos TrilinosCouplings
   OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL)
 message(STATUS "Looking for required Trilinos packages - found")
-if(Trilinos_VERSION VERSION_LESS "12.12.1")
+if(Trilinos_VERSION VERSION_LESS "12.12")
   message(FATAL_ERROR
     "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12.1. Install a version of Trilinos of 12.12.1 or greater.")
 endif()
