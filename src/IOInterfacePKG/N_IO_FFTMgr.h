@@ -101,6 +101,7 @@ public:
 private:
   std::string           netlistFilename_;
   int                   fft_accurate_;  // comes from .OPTIONS FFT line
+  bool                  fftout_;        // comes from .OPTIONS FFT line
   FFTAnalysisVector     FFTAnalysisList_;
 
   //added to help register lead currents with device manager

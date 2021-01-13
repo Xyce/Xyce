@@ -79,7 +79,8 @@ public:
                           const Util::Op::BuilderManager &op_builder_manager,
                           const double endSimTime,
                           TimeIntg::StepErrorControl & sec,
-                          const int fft_accurate);
+                          const int fft_accurate,
+                          const bool fftout);
 
   // Called during the simulation to update the fft objects held by this class
   void updateFFTData(Parallel::Machine comm,
@@ -122,8 +123,17 @@ private:
   bool calculated_;
   std::string outputVarName_;
   int fft_accurate_;
+  int fftout_;
   int sampleIdx_;
   double sampleTimeTol_;
+  double thd_;
+  double sndr_;
+  double enob_;
+  double sfdr_;
+  int sfdrIndex_;
+  std::vector<double> mag_;
+  std::vector<double> normMag_;
+  std::vector<double> phase_;
 
   int numDepSolVars_;
 

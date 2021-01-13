@@ -66,7 +66,8 @@ namespace IO {
 //-----------------------------------------------------------------------------
 FFTMgr::FFTMgr(const std::string &   netlist_filename )
   : netlistFilename_(netlist_filename),
-    fft_accurate_(1)
+    fft_accurate_(1),
+    fftout_(false)
 {}
 
 //-----------------------------------------------------------------------------
@@ -96,7 +97,7 @@ void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderM
                                 const double endSimTime, TimeIntg::StepErrorControl & sec)
 {
   for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-    (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_);
+    (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
 }
 
 //-----------------------------------------------------------------------------
@@ -196,6 +197,11 @@ bool FFTMgr::registerFFTOptions(const Util::OptionBlock &option_block)
         fft_accurate_ = 1;
 	Report::UserWarning0() << "FFT_ACCURATE values of 0 or 1 are supported.  Setting to default of 1";
       }
+    }
+    else if ((*it).tag() == "FFTOUT")
+    {
+      fftout_ = (*it).getImmutableValue<int>();
+      ++it;
     }
     else
     {
@@ -376,6 +382,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("FFT");
 
     parameters.insert(Util::ParamMap::value_type("FFT_ACCURATE", Util::Param("FFT_ACCURATE", 1)));
+    parameters.insert(Util::ParamMap::value_type("FFTOUT", Util::Param("FFTOUT", 1)));
   }
 }
 

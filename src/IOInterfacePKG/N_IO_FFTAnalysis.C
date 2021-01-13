@@ -82,8 +82,14 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     calculated_(false),
     outputVarName_(""),
     fft_accurate_(1),
+    fftout_(0),
     sampleIdx_(0),
-    sampleTimeTol_(1e-20)
+    sampleTimeTol_(1e-20),
+    thd_(0.0),
+    sndr_(0.0),
+    enob_(0.0),
+    sfdr_(0.0),
+    sfdrIndex_(0)
 {
   // based on what's in the option block passed in, we create the needed fft instance
   Util::ParamList variableList;   // Used to help register lead current requests with device manager.
@@ -263,10 +269,12 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const Util::Op::BuilderManager &op_builder_manager,
   const double endSimTime,
   TimeIntg::StepErrorControl & sec,
-  const int fft_accurate)
+  const int fft_accurate,
+  const bool fftout)
 {
-  // set this to match the value stored in the FFTMgr class.
+  // set these to match the values stored in the FFTMgr class.
   fft_accurate_ = fft_accurate;
+  fftout_ = fftout;
 
   // set some defaults, and additional error checking on in put values from the FFT line
   if (!stopTimeGiven_)
@@ -291,6 +299,10 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   // set up vectors for the sample times and the sampled/interpolated data values.
   sampleTimes_.resize(np_,0.0);
   sampleValues_.resize(np_,0.0);
+
+  mag_.resize(np_,0.0);
+  normMag_.resize(np_,0.0);
+  phase_.resize(np_,0.0);
 
   // Compute new, equally spaced time points.
   double step = (stopTime_ - startTime_)/np_;
@@ -488,6 +500,39 @@ void FFTAnalysis::calculateFFT_()
 {
   ftInterface_->calculateFFT();
 
+  mag_[0] = ftOutData_[0]/np_;
+  double tmpVal;
+  double noisePlusDist=0.0;
+  double convRadDeg = 180.0/M_PI;
+
+  // calculate mag, phase, total harmonic distortion (THD) and spurious free dynamic range (SFDR)
+  for (int i=1;i<=np_/2; i++)
+  {
+    tmpVal = ftOutData_[2*i]*ftOutData_[2*i] + ftOutData_[2*i+1]*ftOutData_[2*i+1];
+    mag_[i] = 2*sqrt(tmpVal)/np_;
+    normMag_[i] = mag_[i]/mag_[1];
+
+    phase_[i] = convRadDeg * atan2(ftOutData_[2*i], ftOutData_[2*i+1]);
+
+    if (i > 1)
+    {
+      noisePlusDist += tmpVal;
+      thd_ += normMag_[i]*normMag_[i];
+      if (normMag_[i] > sfdr_)
+      {
+        sfdr_ = normMag_[i];
+        sfdrIndex_ = i;
+      }
+    }
+  }
+
+  // these metrics are output later if fftout_ =1
+  sfdr_ = -20*log10(sfdr_);                                // units are dB
+  sndr_ = 20*log10(0.5*np_*mag_[1] / sqrt(noisePlusDist)); // units are db
+  enob_ = (sndr_ - 1.76)/6.02;                             // units are bits
+  // don't take 20*log10() for THD, since both the actual value and dB value are output later.
+  thd_ = sqrt(thd_);
+
   //if (DEBUG_IO)
   {
     Xyce::dout() << "FFT coeffs for " << outputVarName_ << " are:" << std::endl;
@@ -513,31 +558,36 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 
   if (calculated_)
   {
-    double mag, phase;
-    double convRadDeg = 180.0/M_PI;
-
     int colWidth1=12, colWidth2 = 16, precision = 6;
     os << "FFT analysis for " << outputVarName_ << ":" << std::endl
-       << "  Window: " << windowType_ << ", First Harmonic: " << freq_
-       << ", Start Freq: " << fmin_ << ", Stop Freq: " << fmax_
-       << ", DC component: " << ftOutData_[0]/np_ << std::endl;
+       << "  Window: " << windowType_ << std::scientific << std::setprecision(precision)
+       << ", First Harmonic: " << freq_ <<", Start Freq: " << fmin_ << ", Stop Freq: " << fmax_
+       << ", DC component: " << mag_[0] << std::endl;
 
-    os << "Index" << std::setw(colWidth2) << "FREQ" << std::setw(colWidth2) << std::endl
-       << std::setw(colWidth1) << "Index" << std::setw(colWidth2) << "Frequency"
-       << std::setw(colWidth2) << "Magnitude" << std::setw(colWidth2) << "Phase"
+    os << std::setw(colWidth1) << "Index" << std::setw(colWidth2) << "Frequency"
+       << std::setw(colWidth2) << "Magnitude" << std::setw(colWidth2) << "Norm. Mag."
+       << std::setw(colWidth2) << "Phase"
        << std::setw(colWidth2) << "Re(FFT Coeff)" << std::setw(colWidth2) << "Im(FFT Coeff)" << std::endl;
 
-    for (int i=1; i<np_/2; i++)
+    for (int i=1; i<=np_/2; i++)
     {
-      mag = sqrt(ftOutData_[2*i]*ftOutData_[2*i] + ftOutData_[2*i+1]*ftOutData_[2*i+1]);
-      phase = convRadDeg * atan2(ftOutData_[2*i], ftOutData_[2*i+1]);
       os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*freq_
-         << std::setw(colWidth2) << mag << std::setw(colWidth2) << phase
+         << std::setw(colWidth2) << mag_[i] << std::setw(colWidth2) << normMag_[i]
+         << std::setw(colWidth2) << phase_[i]
          << std::setw(colWidth2) << ftOutData_[2*i] << std::setw(colWidth2) << ftOutData_[2*i+1] << std::endl;
     }
-  }
 
-  os << std::endl;
+    if (fftout_)
+    {
+      os << std::endl
+         << std::setw(colWidth1) << "THD = " << 20*log10(thd_) << " dB ( " << thd_ << " )" << std::endl
+         << std::setw(colWidth1) << "SNDR = " << sndr_ << " dB" << std::endl
+         << std::setw(colWidth1) << "ENOB = " << enob_ << " bit" << std::endl
+         << std::setw(colWidth1) << "SFDR = " << sfdr_  << " dB at frequency " << sfdrIndex_*freq_ << std::endl;
+    }
+
+    os << std::endl;
+  }
 
   return os;
 }
