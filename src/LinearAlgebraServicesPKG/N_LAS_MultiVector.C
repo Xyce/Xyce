@@ -65,7 +65,6 @@
 
 #include <EpetraExt_View_MultiVector.h>
 #include <EpetraExt_MultiVectorOut.h>
-#include <Teuchos_BLAS.hpp>
 
 namespace Xyce {
 namespace Linear {
@@ -546,60 +545,79 @@ int MultiVector::lpNorm(const int p, double * result) const
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 01/16/01
 //-----------------------------------------------------------------------------
-int MultiVector::infNorm(double * result) const
+int MultiVector::infNorm(double * result, int * index) const
 {
   static const char *methodMsg = "MultiVector::infNorm - ";
-  int PetraError = aMultiVector_->NormInf(result);
 
-  if (DEBUG_LINEAR) 
-    processError(methodMsg, PetraError);
+  int PetraError = 0;
 
-  return PetraError;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::infNormIndex
-// Purpose       : Returns index of the maximum absolute entry in MultiVector
-// Special Notes :
-// Scope         : Public
-// Creator       : Heidi K. Thornquist, SNL, Electrical Systems Modeling
-// Creation Date : 11/21/11
-//-----------------------------------------------------------------------------
-void MultiVector::infNormIndex(int * index) const
-{
-  Teuchos::BLAS<int,double> blas;
-
-  int numProcs = pdsComm_->numProc();
-  int numVectors = aMultiVector_->NumVectors();
-  int myLength = aMultiVector_->MyLength();
-  std::vector<int> indexTemp( numVectors, 0 ), indexTempAll( numVectors*numProcs, 0 );
-  std::vector<double> doubleTemp( numVectors, 0.0 ), doubleTempAll( numVectors*numProcs, 0.0 );
-  double ** pointers = aMultiVector_->Pointers();
-
-  for (int i=0; i < numVectors; i++)
+  if (!index)
   {
-    // Remember that IAMAX returns 1-based indexing, so subtract 1 to get the actual index.
-    int jj = blas.IAMAX(myLength, pointers[i], 1) - 1;
-    if (jj>-1)
+    PetraError = aMultiVector_->NormInf(result);
+
+    if (DEBUG_LINEAR) 
+      processError(methodMsg, PetraError);
+  }
+  else
+  {
+    int numProcs = pdsComm_->numProc();
+    int numVectors = aMultiVector_->NumVectors();
+    int myLength = aMultiVector_->MyLength();
+    std::vector<int> indexTemp( numVectors, 0 ), indexTempAll( numVectors*numProcs, 0 );
+    std::vector<double> doubleTemp( numVectors, 0.0 ), doubleTempAll( numVectors*numProcs, 0.0 );
+    double ** pointers = aMultiVector_->Pointers();
+
+    for (int i=0; i < numVectors; i++)
     {
-      indexTemp[i] = aMultiVector_->Map().GID(jj);
-      doubleTemp[i] = std::abs(pointers[i][jj]);
+      indexTemp[i] = -1;
+      doubleTemp[i] = 0.0;
+      for (int j=0; j < myLength; j++)
+      {
+        double tmp = std::abs(pointers[i][j]);
+        if ( tmp > doubleTemp[i] )
+        {
+          doubleTemp[i] = tmp;
+          indexTemp[i] = j;
+        }
+      }
+      // Convert indexTemp from local to global ID
+      if (indexTemp[i] > -1)
+        indexTemp[i] = aMultiVector_->Map().GID(indexTemp[i]);
+    }
+
+    if (numProcs > 1)
+    {
+      // Use the communicator to gather all the local maximum values and indices
+      Parallel::AllGather( pdsComm_->comm(), indexTemp, indexTempAll );
+      Parallel::AllGather( pdsComm_->comm(), doubleTemp, doubleTempAll );
+
+      // Compute the global infNorm and index
+      for (int i=0; i < numVectors; i++)
+      {
+        result[i] = doubleTempAll[i];
+        index[i] = indexTempAll[i];
+        for (int j=1; j < numProcs; j++)
+        {
+          if ( doubleTempAll[j*numVectors + i] > result[i] )
+          {
+            result[i] = doubleTempAll[j*numVectors + i];
+            index[i] = indexTempAll[j*numVectors + i];
+          }
+        } 
+      }
+    }
+    else
+    {
+      for (int i=0; i < numVectors; i++)
+      {
+        result[i] = doubleTemp[i];
+        index[i] = indexTemp[i];
+      }      
     }
   }
 
-  // Use the Epetra communicator to gather all the local maximum values and indices
-  Parallel::AllGather( pdsComm_->comm(), indexTemp, indexTempAll );
-  Parallel::AllGather( pdsComm_->comm(), doubleTemp, doubleTempAll );
-
-  // Compute the global infNorm and index
-  for (int i=0; i < numVectors; i++)
-  {
-    // Remember that IAMAX returns 1-based indexing, so subtract 1 to get the actual index.
-    int ii = blas.IAMAX( numProcs, &doubleTempAll[i], numVectors ) - 1;
-    index[i] = indexTempAll[ii*numVectors + i];
-  }
+  return PetraError;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : MultiVector::wRMSNorm
@@ -622,7 +640,7 @@ int MultiVector::wRMSNorm(const MultiVector & weights, double * result) const
 
 //-----------------------------------------------------------------------------
 // Function      : MultiVector::wMaxNorm
-// Purpose       : Returns the weighted
+// Purpose       : Returns the weighted inf-norm
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
@@ -652,36 +670,6 @@ int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
   }
 
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::minValue
-// Purpose       : Return the minimum value for the multivector
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 10/16/00
-//-----------------------------------------------------------------------------
-int MultiVector::minValue(double * result) const
-{
-  int PetraError = aMultiVector_->MinValue(result);
-
-  return PetraError;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::maxValue
-// Purpose       : Return the maximum value for the multivector
-// Special Notes :
-// Scope         : Public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 10/16/00
-//-----------------------------------------------------------------------------
-int MultiVector::maxValue(double * result) const
-{
-  int PetraError = aMultiVector_->MaxValue(result);
-
-  return PetraError;
 }
 
 //-----------------------------------------------------------------------------

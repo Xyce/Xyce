@@ -219,15 +219,10 @@ XyceTests::checkStatus(
   }
 
   // Compute a few norms needed by various tests.
-  maxNormF_ = problem.getSolutionGroup().getF()
-    .norm(NOX::Abstract::Vector::MaxNorm);
-
   const Linear::Vector& F = (dynamic_cast<const Vector&>
     (problem.getSolutionGroup().getF())).getNativeVectorRef();
 
-  std::vector<int> index(1, -1);
-  F.infNormIndex( &index[0] );
-  maxNormFindex_ = index[0];
+  F.infNorm( &maxNormF_, &maxNormFindex_ );
 
   // Test 2 - Normal convergence based on rhs residual (2a) and 
   // update norm (2b).

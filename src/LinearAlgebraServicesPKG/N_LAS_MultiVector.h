@@ -132,23 +132,14 @@ public:
   // Compute the l_p norm (e.g., 2-norm is l_2)
   int lpNorm(const int p, double * result) const;
 
-  // Infinity norm
-  int infNorm(double * result) const;
-
-  // Infinity norm index (the index pointer should be allocated by the caller)
-  void infNormIndex(int * index) const;
+  // Infinity norm (with index if allocated by the caller)
+  int infNorm(double * result, int * index = 0) const;
 
   // Weighted root-mean-square norm
   int wRMSNorm(const MultiVector & weights, double * result) const;
 
   // Weighted max-norm
   int wMaxNorm(const MultiVector & weights, double * result) const;
-
-  // maximum value
-  int maxValue(double* result) const;
-
-  // minimum value
-  int minValue(double* result) const;
 
   // Generate random number
   void random();
