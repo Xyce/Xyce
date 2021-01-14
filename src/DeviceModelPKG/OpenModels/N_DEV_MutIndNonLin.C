@@ -1436,6 +1436,7 @@ bool Instance::updateSecondaryState ()
   
   Linear::Vector & solVector = *(extData.nextSolVectorPtr);
   Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
+  Linear::Vector & stoVectorCurr = *(extData.currStoVectorPtr);
 
   // copy derivitive of Mag from result vector into state vector
   staVector[ li_MagVarDerivState ] = staDerivVec[ li_MagVarState ];
@@ -1460,51 +1461,64 @@ bool Instance::updateSecondaryState ()
   }
   stoVector[ li_RVarStore ] = solVector[ li_RVar ];
   
+  
+  //
+  // need these to calculate H for B-H loops and be careful of
+  // potential non-physical turning points in the B-H phase 
+  // in general dB/dH should be >= 0.  If it's less than
+  // zero then we have a non-physical turning point that 
+  // is ok as part of the device model, but not physically
+  // realistic as the change incurrent (dH) is apposing
+  // the magnetic field (dB) will be an irreversible loss.
+  //
+  // So if dB/dH is negative, hold H constant while B 
+  // changes to get the correct path along the B-H curve.
+  // Unless the gap is non-zero then things are slightly 
+  // more complex and we need to look at the dM/dt and dH/dt terms.
   //
   // dM/dt is equivalent to dB/dt within a scalar factor
   // dH/dt = dHapp/dt - (gap/path) dM/dt = R - (gap/path) dM/dt
-  //
-  // need these to calculate H for B-H loops
-  //
-  /*
-  Uncertain if this is needed
-  double dMdt = staDerivVec[ li_MagVarState ];
-  double R = solVector[ li_RVar ];
-  double Hfxn = 0.0;
-  double dHdt = R - (model_.Gap/model_.Path)*dMdt;
   
-  if( dMdt > 0 )
+  double lastB = stoVectorCurr[ li_BVarStore ];
+  double lastH = stoVectorCurr[ li_HVarStore ];
+  
+  double calculatedH = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
+  double calculatedB = model_.BCgsFactor * (4.0e-7 * M_PI * (calculatedH + latestMag));
+
+  double deltaH = calculatedH - lastH;
+  double deltaB = calculatedB - lastB;
+  double dBdH = 0;
+  if( deltaH != 0.0)
   {
-    // B is increasing, so H should be increasing 
-    if( dHdt > 0 )
-    {
-      Hfxn = Happ  - (model_.Gap / model_.Path) * latestMag;
-    }
-    else
-    {
-      Hfxn = Happ;
-    }
+    dBdH = deltaB / deltaH;
   }
-  else if( dMdt < 0 )
-  {
-    // B is decreasing, so H should be decreasing 
-    if( dHdt < 0)
-    {
-      Hfxn = Happ - (model_.Gap / model_.Path) * latestMag;
-    }
-    else
-    {
-      Hfxn = Happ;
-    }
   
+  double Hfxn = Happ  - (model_.Gap / model_.Path) * latestMag;
+  if( (model_.Gap <= 0) && (dBdH < 0))
+  {
+    Hfxn = lastH / model_.HCgsFactor;
   }
   else
   {
-    stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
+    double dMdt = staDerivVec[ li_MagVarState ];
+    double R = solVector[ li_RVar ];
+    double dHdt = R - (model_.Gap/model_.Path)*dMdt;
+  
+    if( (dMdt > 0) && (dHdt < 0) )
+    {
+      // B is increasing, so H should be increasing
+      // ignore the M component. 
+      Hfxn = Happ;
+    }
+    else if( (dMdt < 0) && (dHdt > 0) )
+    {
+      // B is decreasing, so H should be decreasing 
+      // ignore the M component
+      Hfxn = Happ;
+    }
   }
-  //stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
-  */
-  stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
+
+  stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
   stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
 
   return bsuccess;
