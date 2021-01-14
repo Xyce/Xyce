@@ -512,7 +512,7 @@ void FFTAnalysis::calculateFFT_()
     mag_[i] = 2*sqrt(tmpVal)/np_;
     normMag_[i] = mag_[i]/mag_[1];
 
-    phase_[i] = convRadDeg * atan2(ftOutData_[2*i], ftOutData_[2*i+1]);
+    phase_[i] = convRadDeg * atan2(ftOutData_[2*i+1], ftOutData_[2*i]);
 
     if (i > 1)
     {
