@@ -151,13 +151,40 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
   p.addPar ("C",0.2,&MutIndNonLin2::Model::C)
  .setUnit(U_NONE)
    .setCategory(CAT_MATERIAL)
-   .setDescription("Domain flesing parameter");
-
+   .setDescription("Domain flesing parameter"); 
+  
+  /* 
+  p.addPar("CLIM",0.005,&MutIndNonLin::Model::CLim)
+  .setUnit(U_NONE)
+  .setCategory(CAT_MATERIAL)
+  .setDescription("Value below which domain flexing parameter will be treated as zero.");
+  */
+  
+  /*
+  p.addPar("DELVSCALING",1.0e3,&MutIndNonLin::Model::DeltaVScaling)
+  .setUnit(U_VOLT)
+  .setCategory(CAT_NONE)
+  .setDescription("Smoothing coefficient for voltage difference over first inductor");
+  */
+  
   p.addPar ("DELV",0.1,&MutIndNonLin2::Model::DeltaV)
- .setUnit(U_VOLT)
+  .setUnit(U_VOLT)
    .setCategory(CAT_NONE)
    .setDescription("Smoothing coefficient for voltage difference over first inductor");
+   
+  /*
+  p.addPar("CONSTDELVSCALING",false,&MutIndNonLin::Model::UseConstantDeltaVScaling)
+  .setUnit(U_VOLT)
+  .setCategory(CAT_NONE)
+  .setDescription("Use constant scaling factor to smooth voltage difference over first inductor");
 
+  p.addPar("INCLUDEMEQU",true,&MutIndNonLin::Model::includeMEquation)
+  .setGivenMember(&MutIndNonLin::Model::includeMEquationGiven)
+  .setUnit(U_NONE)
+  .setCategory(CAT_NONE)
+  .setDescription("Flag to include the magnetics in the solution.");
+  */
+  
   p.addPar ("GAP",0.0,&MutIndNonLin2::Model::Gap)
  .setUnit(U_CM)
    .setCategory(CAT_GEOMETRY)
@@ -193,6 +220,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setCategory(CAT_GEOMETRY)
    .setDescription("Total mean magnetic path");
 
+  /* not part of level 1 inductor */
   p.addPar ("VINF",1.0,&MutIndNonLin2::Model::Vinf)
  .setUnit(U_VOLT)
    .setCategory(CAT_NONE)
@@ -242,34 +270,40 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to save state variables" );
-
+  
+  /* not part of level 1 inductor */
   p.addPar ("INCLUDEDELTAM",0,&MutIndNonLin2::Model::includeDeltaM)
    .setGivenMember(&MutIndNonLin2::Model::includeDeltaMGiven)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to make M calculation implicit" );
 
+  /* not part of level 1 inductor */
   p.addPar ("USERKINTEGRATION",0,&MutIndNonLin2::Model::useRKIntegration)
    .setGivenMember(&MutIndNonLin2::Model::useRKIntegrationGiven)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use 4th order Runge-Kutta integration for dM/dH" );
 
+  /* not part of level 1 inductor */
   p.addPar ("USESTATEDERIV",0,&MutIndNonLin2::Model::useStateDeriv)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use state vector for derivatives" );
 
+  /* not part of level 1 inductor */
   p.addPar ("VOLTAGELIMITERFLAG",0,&MutIndNonLin2::Model::voltageLimiterFlag)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use voltage limiting on Mag and R internal variables" );
 
+  /* not part of level 1 inductor */
   p.addPar ("MAGLIMITTHRES",0.1,&MutIndNonLin2::Model::magLimitThres)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Threshold over which newton interation changes in Mag are limited." );
 
+  /* not part of level 1 inductor */
   p.addPar ("RLIMITTHRES",0.1,&MutIndNonLin2::Model::rLimitThres)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
