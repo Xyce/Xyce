@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 cmake_policy(SET CMP0076 NEW)
 
-option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?"  )
+option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?")
 if(Xyce_USE_SUPERBUILD)
   include("XyceSuperBuild.cmake")
   return()
@@ -21,7 +21,7 @@ find_package(Trilinos
 message(STATUS "Looking for required Trilinos packages - found")
 if(Trilinos_VERSION VERSION_LESS "12.12")
   message(FATAL_ERROR
-    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12.1. Install a version of Trilinos of 12.12.1 or greater.")
+    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
 endif()
 
 # Set the compilers, so "project" finds the right ones
@@ -50,10 +50,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
-# Don't force a build type in mutli-configuration platforms
+# Set a default build type if none was specified (note that
+# CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   message("Setting the build type to \"Release\", since it was not explicitly set.")
+  # Set the possible values of build type for ccmake and cmake-gui.
+  # If a new build type is ever added to Xyce, then this list should be updated.
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "None" "Debug" "Release"
+     "RelWithDebInfo" "MinSizeRel")
 endif()
 
 include(cmake/config.cmake)

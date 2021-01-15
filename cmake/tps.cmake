@@ -283,22 +283,43 @@ endif()
 ## End Trilinos
 ###################
 
+###################################
+## Find a usable FFT library
+###################################
 
-# Find a usable FFT library
-message(STATUS "Looking for FFT libraries")
+# Both Xyce_USE_INTEL_FFT and Xyce_USE_FFT must be true to force the use of the
+# Intel MKL (see below). If Xyce_USE_INTEL_FFT is true and Xyce_USE_FFT is
+# unspecified or explicitly false, then that is considered a contradiction.
+if(Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
+     set(Xyce_USE_INTEL_FFT FALSE CACHE BOOL "Use the Intel Math Kernel Library FFT capability" FORCE)
+endif()
+
+# Note that the following isn't forced, so it does not override an explicit set
+# of Xyce_USE_FFT=False.
+set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
+if(Xyce_USE_FFT)
+     message(STATUS "Looking for FFT libraries")
+endif()
+
+# If Xyce_USE_FFTW is true and Xyce_USE_FFT is unspecified or explicitly true,
+# then it is taken that the user wants to use FFTW. If Xyce_USE_FFTW is true and
+# Xyce_USE_FFT is explicitly false, then that is considered a contradiction.
+# Note that this is slightly different from the Intel MKL case, so this must be
+# located after the set(Xyce_USE_FFT... command, above.
+if(Xyce_USE_FFTW AND NOT Xyce_USE_FFT)
+     set(Xyce_USE_FFTW FALSE CACHE BOOL "Use FFTW library" FORCE)
+endif()
 
 # Even though Trilinos can leverage the Intel MKL, the Trilinos CMake does not
 # create a record in "Trilinos_TPL_LIST".  However, if used, the MKL
 # information will be listed in the other Trilinos CMake TPL variables.  We are
 # not going to search for the Intel MKL, ourselves; we will simply check to see
 # if the MKL FFT header is available, *and* that its directory is known to
-# Trilinos (indicating Trilinos will supply all needed MKL information).
-#
-# If, for some reason, a user did *not* use the MKL with Trilinos, but *does*
-# want to use the MKL FFT library with Xyce, they will need to set the Xyce
-# CMake variables with the proper flags, link line, etc., in the CMake
-# invocation. They will also have to explicitly set Xyce_USE_INTEL_FFT=TRUE.
-if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
+# Trilinos (indicating Trilinos will supply all the needed MKL information).
+# Note that this is not done on a re-run of the configuration with
+# Xyce_USE_INTEL_FFT=TRUE (as might happen with ccmake). That is not a problem,
+# since no libraries are set up, anyway.
+if(Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
      set(CMAKE_REQUIRED_INCLUDES "${Trilinos_TPL_INCLUDE_DIRS}")
      check_include_file_cxx("mkl_dfti.h" HAVE_MKL_FFT)
      unset(CMAKE_REQUIRED_INCLUDES)
@@ -308,8 +329,7 @@ if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
           set(Tri_KNOWS_MKL TRUE)
      endif()
      if (Tri_KNOWS_MKL AND HAVE_MKL_FFT)
-          message(STATUS "Looking for FFT libraries - using the Intel Math Kernel Library")
-          set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
+          message(STATUS "Looking for FFT libraries - found the Intel Math Kernel Library")
           set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability")
           # Since the MKL is included in the "Trilinos_TPL_LIBRARIES" list, or CMake
           # is already aware of it, specifing it on the link line again is unnecessary.
@@ -317,8 +337,10 @@ if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
      elseif (HAVE_MKL_FFT AND NOT Tri_KNOWS_MKL)
           message("Intel Math Kernel Library found, but it is not known to Trilinos.")
           message("Disabling the Intel Math Kernel Library.")
-          message("If you want to use the Intel MKL FFT capability, set the appriate flags")
-          message("in the Xyce CMake invocation, and set \"Xyce_USE_INTEL_FFT=TRUE\".")
+          message("If you want to force the use of the Intel MKL FFT capability, set")
+          message("\"Xyce_USE_FFT=TRUE\" and \"Xyce_USE_INTEL_FFT=TRUE\", and set")
+          message("the appropriate MKL flags in the Xyce CMake invocation (see")
+          message("<https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor>).")
      elseif (Tri_KNOWS_MKL AND NOT HAVE_MKL_FFT)
           message(STATUS "Looking for FFT libraries - Intel Math Kernel Library not found")
           message("Trilinos seems to be aware of the Intel Math Kernel Library, but the FFT")
@@ -329,11 +351,11 @@ if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
      endif()
 endif()
 
-if(NOT Xyce_USE_INTEL_FFT)
+# If the Intel MKL is not being used, try to find FFTW.
+if(Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
      find_package(FFTW)
      if(FFTW_FOUND)
-          message(STATUS "Looking for FFT libraries - using FFTW")
-          set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
+          message(STATUS "Looking for FFT libraries - found FFTW")
           add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
           set_target_properties(FFTW::FFTW PROPERTIES
                INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
@@ -343,11 +365,14 @@ if(NOT Xyce_USE_INTEL_FFT)
      endif ()
 endif ()
 
-if(NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
-     message("Neither FFTW or Intel MKL found - disabling the FFT capability")
-     set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability")
+if(Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
+     message("Neither FFTW or Intel MKL enabled - disabling the FFT capability")
+     set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability" FORCE)
 endif ()
-# END: Find a usable FFT library
+
+###################################
+## End find a usable FFT library
+###################################
 
 # Find flex and Bison
 message(STATUS "Looking for flex and Bison")
