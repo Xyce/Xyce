@@ -455,25 +455,6 @@ void MultiVector::multiply(const MultiVector &x)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::linearCombo
-// Purpose       : Linear combination of two MultiVectors:
-//                 this = a*x + b*y
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
-// Creation Date : 01/08/01
-//-----------------------------------------------------------------------------
-void MultiVector::linearCombo(const double a, const MultiVector &x,
-                                    const double b, const MultiVector &y)
-{
-  int PetraError = aMultiVector_->Update(a, *(x.aMultiVector_), b,
-                                         *(y.aMultiVector_), 0.0);
-
-  if (DEBUG_LINEAR)
-    processError( "MultiVector::linearCombo - ", PetraError);
-}
-
-//-----------------------------------------------------------------------------
 // Function      : MultiVector::update
 // Purpose       :
 // Special Notes : ERK. From the epetra documentation:
@@ -485,7 +466,7 @@ void MultiVector::linearCombo(const double a, const MultiVector &x,
 // Creation Date : 02/04/02
 //-----------------------------------------------------------------------------
 void MultiVector::update( double a, const MultiVector & A,
-                                double s )
+                          double s )
 {
   aMultiVector_->Update( a, *(A.aMultiVector_), s );
 }
@@ -502,8 +483,8 @@ void MultiVector::update( double a, const MultiVector & A,
 // Creation Date : 02/04/02
 //-----------------------------------------------------------------------------
 void MultiVector::update( double a, const MultiVector & A,
-                                double b, const MultiVector & B,
-                                double s )
+                          double b, const MultiVector & B,
+                          double s )
 {
   aMultiVector_->Update( a, *(A.aMultiVector_),
                          b, *(B.aMultiVector_),

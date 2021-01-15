@@ -160,7 +160,7 @@ void NoTimeIntegration::obtainCorrectorDeriv()
 //-----------------------------------------------------------------------------
 void NoTimeIntegration::obtainResidual ()
 {
-  ds.RHSVectorPtr->linearCombo(+1.0,*ds.daeFVectorPtr,-1.0,*ds.daeBVectorPtr);
+  ds.RHSVectorPtr->update(+1.0,*ds.daeFVectorPtr,-1.0,*ds.daeBVectorPtr,0.0);
 
   // since the nonlinear solver is expecting a -f, scale by -1.0:
   ds.RHSVectorPtr->scale(-1.0);
@@ -189,8 +189,8 @@ void NoTimeIntegration::obtainResidual ()
 //-----------------------------------------------------------------------------
 void NoTimeIntegration::obtainSensitivityResiduals ()
 {
-  ds.sensRHSPtrVector->linearCombo(+1.0, *(ds.nextDfdpPtrVector),
-                                   -1.0, *(ds.nextDbdpPtrVector));
+  ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
+                              -1.0, *(ds.nextDbdpPtrVector),0.0);
  
   // since the nonlinear solver is expecting a -f, scale by -1.0:
   ds.sensRHSPtrVector->scale(-1.0);
@@ -212,8 +212,8 @@ void NoTimeIntegration::obtainSensitivityResiduals ()
 //-----------------------------------------------------------------------------
 void NoTimeIntegration::obtainFunctionDerivativesForTranAdjoint ()
 {
-  ds.sensRHSPtrVector->linearCombo(+1.0, *(ds.nextDfdpPtrVector),
-                                   -1.0, *(ds.nextDbdpPtrVector));
+  ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
+                              -1.0, *(ds.nextDbdpPtrVector),0.0);
 
   // since the nonlinear solver is expecting a -f, scale by -1.0:
   ds.sensRHSPtrVector->scale(-1.0);
@@ -229,8 +229,8 @@ void NoTimeIntegration::obtainFunctionDerivativesForTranAdjoint ()
 //-----------------------------------------------------------------------------
 void NoTimeIntegration::obtainSparseFunctionDerivativesForTranAdjoint ()
 {
-  ds.sensRHSPtrVector->linearCombo(+1.0, *(ds.nextDfdpPtrVector),
-                                   -1.0, *(ds.nextDbdpPtrVector));
+  ds.sensRHSPtrVector->update(+1.0, *(ds.nextDfdpPtrVector),
+                              -1.0, *(ds.nextDbdpPtrVector),0.0);
 
   // since the nonlinear solver is expecting a -f, scale by -1.0:
   ds.sensRHSPtrVector->scale(-1.0);
@@ -314,7 +314,7 @@ void NoTimeIntegration::applyJacobian (const Linear::Vector& input, Linear::Vect
 {
   Linear::Vector & dQdxV = *(ds.dQdxVecVectorPtr);
   Linear::Vector & dFdxV = *(ds.dFdxVecVectorPtr);
-  result.linearCombo( 1.0e-20, dQdxV, 1.0, dFdxV );
+  result.update( 1.0e-20, dQdxV, 1.0, dFdxV, 0.0 );
 }
 
 //-----------------------------------------------------------------------------

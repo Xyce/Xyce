@@ -220,7 +220,7 @@ void OneStep::obtainResidual()
 {
   // output: ds.RHSVectorPtr
   // Note:  ds.nextSolutionPtr is used to get Q,F,B in Analysis::AnalysisManager::loadRHS.
-  ds.RHSVectorPtr->linearCombo(1.0,*ds.daeQVectorPtr,-1.0,*(ds.qHistory[0]));
+  ds.RHSVectorPtr->update(1.0,*ds.daeQVectorPtr,-1.0,*(ds.qHistory[0]),0.0);
 
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))
   {
@@ -292,10 +292,10 @@ void OneStep::obtainSensitivityResiduals()
 {
   if (sec.currentOrder_ == 2)
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
     ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
@@ -303,10 +303,10 @@ void OneStep::obtainSensitivityResiduals()
   }
   else
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
@@ -347,10 +347,10 @@ void OneStep::obtainFunctionDerivativesForTranAdjoint ()
 {
   if (sec.currentOrder_ == 2)
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
     ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
@@ -358,10 +358,10 @@ void OneStep::obtainFunctionDerivativesForTranAdjoint ()
   }
   else
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
@@ -387,10 +387,10 @@ void OneStep::obtainSparseFunctionDerivativesForTranAdjoint ()
 {
   if (sec.currentOrder_ == 2)
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+0.5,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(+0.5,*ds.dfdpHistory[0]);
 
     ds.sensRHSPtrVector->update(-0.5,*ds.nextDbdpPtrVector);
@@ -398,10 +398,10 @@ void OneStep::obtainSparseFunctionDerivativesForTranAdjoint ()
   }
   else
   {
-    ds.nextDqdpDerivPtrVector->linearCombo(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]));
+    ds.nextDqdpDerivPtrVector->update(1.0,*ds.nextDqdpPtrVector,-1.0, *(ds.dqdpHistory[0]),0.0);
     ds.nextDqdpDerivPtrVector->scale(1.0/sec.currentTimeStep);
 
-    ds.sensRHSPtrVector->linearCombo(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector);
+    ds.sensRHSPtrVector->update(1.0,*ds.nextDqdpDerivPtrVector,+1.0,*ds.nextDfdpPtrVector,0.0);
     ds.sensRHSPtrVector->update(-1.0,*ds.nextDbdpPtrVector);
   }
 
@@ -540,7 +540,7 @@ bool OneStep::interpolateSolution(double timepoint,
     // do first order interpolation
     // X_interp = X + delta_t_requested * delta_X/delta_t[last step]
     dtr = dtr / sec.lastTimeStep;
-    tmpSolVectorPtr->linearCombo(1.0,*(historyVec[0]),dtr,*(historyVec[1]));
+    tmpSolVectorPtr->update(1.0,*(historyVec[0]),dtr,*(historyVec[1]),0.0);
   }
   else
   {
@@ -887,10 +887,10 @@ bool OneStep::printMPDEOutputSolution(
       Xyce::dout() << "coeff_sm = " << coeff_sm << std::endl;
       Xyce::dout() << "coeff_sp = " << coeff_sp << std::endl;
     }
-    blockTmpVecPtr->block(0).linearCombo(
+    blockTmpVecPtr->block(0).update(
       coeff_sm/dt, blockTmpSolnVecPtr->block(sm),
-      coeff_sp/dt, blockTmpSolnVecPtr->block(sp)
-                                         );
+      coeff_sp/dt, blockTmpSolnVecPtr->block(sp), 0.0);
+
     outputManagerAdapter.tranOutput(
         timept_, dt, sec.finalTime,
         blockTmpVecPtr->block(0), *ds.tmpStaVectorPtr, *ds.tmpStoVectorPtr, 
@@ -1198,9 +1198,9 @@ bool OneStep::printWaMPDEOutputSolution(
       double coeff1 = (t2-t)*(s-s1)/denom;
       double coeff2 = (t-t1)*(s2-s)/denom;
       double coeff3 = (t-t1)*(s-s1)/denom;
-      (blockTmpSolVectorPtr->block(b1)).linearCombo(
+      (blockTmpSolVectorPtr->block(b1)).update(
           coeff0, blockTmpXn0APtr->block(b1),
-          coeff1, blockTmpXn0APtr->block(b2));
+          coeff1, blockTmpXn0APtr->block(b2), 0.0);
       (blockTmpSolVectorPtr->block(b1)).update(
           coeff2, blockTmpXn0BPtr->block(b1),
           coeff3, blockTmpXn0BPtr->block(b2), 1.0 );
@@ -1419,13 +1419,13 @@ void OneStep::updateHistory()
   if (sec.currentOrder_ == 2)
   {
     *(ds.xHistory[2]) = *(ds.xHistory[1]);
-    (ds.qHistory[2])->linearCombo(1.0, *(ds.daeFVectorPtr), -1.0, *(ds.daeBVectorPtr));
+    (ds.qHistory[2])->update(1.0, *(ds.daeFVectorPtr), -1.0, *(ds.daeBVectorPtr), 0.0);
   }
 
-  (ds.xHistory[1])->linearCombo(1.0, *ds.nextSolutionPtr, -1.0,*(ds.xHistory[0]));
-  (ds.qHistory[1])->linearCombo(1.0, *ds.daeQVectorPtr, -1.0,*(ds.qHistory[0]));
+  (ds.xHistory[1])->update(1.0, *ds.nextSolutionPtr, -1.0,*(ds.xHistory[0]), 0.0);
+  (ds.qHistory[1])->update(1.0, *ds.daeQVectorPtr, -1.0,*(ds.qHistory[0]), 0.0);
 
-  (ds.stoHistory[1])->linearCombo(1.0, *ds.nextStorePtr, -1.0,*(ds.stoHistory[0]));
+  (ds.stoHistory[1])->update(1.0, *ds.nextStorePtr, -1.0,*(ds.stoHistory[0]), 0.0);
 
   *(ds.xHistory[0]) = *ds.nextSolutionPtr;
   *(ds.qHistory[0]) =  *ds.daeQVectorPtr;
@@ -1434,9 +1434,9 @@ void OneStep::updateHistory()
   
   if (ds.leadCurrentSize)
   {
-    (ds.leadCurrentHistory[1])->linearCombo(1.0, *ds.nextLeadCurrentPtr, -1.0,*(ds.leadCurrentHistory[0]));
-    (ds.leadCurrentQHistory[1])->linearCombo(1.0, *ds.nextLeadCurrentQPtr, -1.0,*(ds.leadCurrentQHistory[0]));
-    (ds.leadDeltaVHistory[1])->linearCombo(1.0, *ds.nextLeadDeltaVPtr, -1.0,*(ds.leadDeltaVHistory[0]));
+    (ds.leadCurrentHistory[1])->update(1.0, *ds.nextLeadCurrentPtr, -1.0,*(ds.leadCurrentHistory[0]), 0.0);
+    (ds.leadCurrentQHistory[1])->update(1.0, *ds.nextLeadCurrentQPtr, -1.0,*(ds.leadCurrentQHistory[0]), 0.0);
+    (ds.leadDeltaVHistory[1])->update(1.0, *ds.nextLeadDeltaVPtr, -1.0,*(ds.leadDeltaVHistory[0]), 0.0);
 
     *(ds.leadCurrentHistory[0]) = *ds.nextLeadCurrentPtr;
     *(ds.leadCurrentQHistory[0]) = *ds.nextLeadCurrentQPtr;
@@ -1492,12 +1492,12 @@ void OneStep::updateSensitivityHistory()
   {
     if (sec.currentOrder_ == 2)
     {
-      (ds.dqdpHistory[2])->linearCombo(1.0, *ds.nextDfdpPtrVector, -1.0, *ds.nextDbdpPtrVector);
+      (ds.dqdpHistory[2])->update(1.0, *ds.nextDfdpPtrVector, -1.0, *ds.nextDbdpPtrVector, 0.0);
     }
 
-    (ds.dqdpHistory[1])->linearCombo(1.0, *ds.nextDqdpPtrVector, -1.0, *(ds.dqdpHistory[0]));
-    (ds.dfdpHistory[1])->linearCombo(1.0, *ds.nextDfdpPtrVector, -1.0, *(ds.dfdpHistory[0]));
-    (ds.dbdpHistory[1])->linearCombo(1.0, *ds.nextDbdpPtrVector, -1.0, *(ds.dbdpHistory[0]));
+    (ds.dqdpHistory[1])->update(1.0, *ds.nextDqdpPtrVector, -1.0, *(ds.dqdpHistory[0]), 0.0);
+    (ds.dfdpHistory[1])->update(1.0, *ds.nextDfdpPtrVector, -1.0, *(ds.dfdpHistory[0]), 0.0);
+    (ds.dbdpHistory[1])->update(1.0, *ds.nextDbdpPtrVector, -1.0, *(ds.dbdpHistory[0]), 0.0);
 
     *(ds.dqdpHistory[0]) = *(ds.nextDqdpPtrVector);
     *(ds.dfdpHistory[0]) = *(ds.nextDfdpPtrVector);
@@ -1774,7 +1774,7 @@ void OneStep::initialize(const TIAParams &tia_params)
 
   // q history
   *(ds.qHistory[0]) = *(ds.daeQVectorPtr);
-  (ds.qHistory[1])->linearCombo(1.0, *(ds.daeFVectorPtr), -1.0, *(ds.daeBVectorPtr));
+  (ds.qHistory[1])->update(1.0, *(ds.daeFVectorPtr), -1.0, *(ds.daeBVectorPtr), 0.0);
   (ds.qHistory[1])->scale(-sec.currentTimeStep);
 
   // state history
@@ -1903,7 +1903,7 @@ void OneStep::setTwoLevelTimeInfo()
 
   // q history
   *ds.qHistory[0] = *ds.daeQVectorPtr;
-  ds.qHistory[1]->linearCombo(1.0, *ds.daeFVectorPtr, -1.0, *ds.daeBVectorPtr);
+  ds.qHistory[1]->update(1.0, *ds.daeFVectorPtr, -1.0, *ds.daeBVectorPtr, 0.0);
   ds.qHistory[1]->scale(-sec.currentTimeStep);
 
   // state history
@@ -2377,7 +2377,7 @@ void OneStep::completeAdjointStep(const TIAParams &tia_params)
 void OneStep::updateStateDeriv ()
 {
   // dS/dt = spn0 - (sec.alpha_/hn)(S(x)-sn0)
-  ds.nextStateDerivPtr->linearCombo(1.0,*ds.nextStatePtr,-1.0,*(ds.sHistory[0]));
+  ds.nextStateDerivPtr->update(1.0,*ds.nextStatePtr,-1.0,*(ds.sHistory[0]), 0.0);
 
   if (sec.currentOrder_ == 1)
   {
@@ -2414,7 +2414,7 @@ void OneStep::updateLeadCurrentVec ()
 {
   if (ds.leadCurrentSize)
   {
-    ds.nextLeadCurrentQDerivPtr->linearCombo(1.0,*ds.nextLeadCurrentQPtr,-1.0,*ds.leadCurrentQHistory[0]);
+    ds.nextLeadCurrentQDerivPtr->update(1.0,*ds.nextLeadCurrentQPtr,-1.0,*ds.leadCurrentQHistory[0],0.0);
     if (sec.currentOrder_ == 1)
     {
       ds.nextLeadCurrentQDerivPtr->scale(1.0/sec.currentTimeStep);

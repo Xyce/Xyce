@@ -209,7 +209,7 @@ void Gear12::obtainResidual()
 {
   // output: ds.RHSVectorPtr
   // Note:  ds.nextSolutionPtr is used to get Q,F,B in Analysis::AnalysisManager::loadRHS.
-  ds.RHSVectorPtr->linearCombo(sec.alpha_[0],*ds.daeQVectorPtr, sec.alpha_[1],*(ds.qHistory[0]) );
+  ds.RHSVectorPtr->update(sec.alpha_[0],*ds.daeQVectorPtr, sec.alpha_[1],*(ds.qHistory[0]),0.0);
 
   if (DEBUG_TIME && isActive(Diag::TIME_RESIDUAL))
   {
@@ -272,8 +272,8 @@ void Gear12::obtainResidual()
 //-----------------------------------------------------------------------------
 void Gear12::obtainSensitivityResiduals()
 {
-  ds.sensRHSPtrVector->linearCombo(sec.alpha_[0], *(ds.nextDqdpPtrVector),
-                                   sec.alpha_[1], *(ds.dqdpHistory[0]));
+  ds.sensRHSPtrVector->update(sec.alpha_[0], *(ds.nextDqdpPtrVector),
+                              sec.alpha_[1], *(ds.dqdpHistory[0]), 0.0);
 
   if (sec.currentOrder_  == 2)
   {
@@ -319,8 +319,8 @@ void Gear12::obtainSensitivityResiduals()
 //-----------------------------------------------------------------------------
 void Gear12::obtainFunctionDerivativesForTranAdjoint()
 {
-  ds.sensRHSPtrVector->linearCombo(sec.alpha_[0], *(ds.nextDqdpPtrVector),
-                                   sec.alpha_[1], *(ds.dqdpHistory[0]));
+  ds.sensRHSPtrVector->update(sec.alpha_[0], *(ds.nextDqdpPtrVector),
+                              sec.alpha_[1], *(ds.dqdpHistory[0]), 0.0);
 
   if (sec.currentOrder_  == 2)
   {
@@ -351,8 +351,8 @@ void Gear12::obtainFunctionDerivativesForTranAdjoint()
 //-----------------------------------------------------------------------------
 void Gear12::obtainSparseFunctionDerivativesForTranAdjoint()
 {
-  ds.sensRHSPtrVector->linearCombo(sec.alpha_[0], *(ds.nextDqdpPtrVector),
-                                   sec.alpha_[1], *(ds.dqdpHistory[0]));
+  ds.sensRHSPtrVector->update(sec.alpha_[0], *(ds.nextDqdpPtrVector),
+                              sec.alpha_[1], *(ds.dqdpHistory[0]), 0.0);
 
   if (sec.currentOrder_  == 2)
   {
@@ -536,7 +536,7 @@ bool Gear12::interpolateSolution(double timepoint,
     return false;
   }
 
-  tmpSolVectorPtr->linearCombo(1.0, *(historyVec[0]), -1.0, *(historyVec[1]));
+  tmpSolVectorPtr->update(1.0, *(historyVec[0]), -1.0, *(historyVec[1]), 0.0);
 
   if( sec.usedOrder_ <= 2)
   {
@@ -1904,7 +1904,7 @@ void Gear12::completeAdjointStep(const TIAParams &tia_params)
 void Gear12::updateStateDeriv ()
 {
   ds.nextStateDerivPtr->
-    linearCombo(sec.alpha_[0],*ds.nextStatePtr, sec.alpha_[1],*(ds.sHistory[0]));
+    update(sec.alpha_[0],*ds.nextStatePtr, sec.alpha_[1],*(ds.sHistory[0]),0.0);
 
   if (sec.currentOrder_ == 2)
   {
@@ -1939,9 +1939,9 @@ void Gear12::updateLeadCurrentVec ()
 {
   if (ds.leadCurrentSize)
   {
-    ds.nextLeadCurrentQDerivPtr->linearCombo(
+    ds.nextLeadCurrentQDerivPtr->update(
         sec.alpha_[0], *ds.nextLeadCurrentQPtr, 
-        sec.alpha_[1], *(ds.leadCurrentQHistory[0]));
+        sec.alpha_[1], *(ds.leadCurrentQHistory[0]),0.0);
 
     if (sec.currentOrder_ == 2)
     {

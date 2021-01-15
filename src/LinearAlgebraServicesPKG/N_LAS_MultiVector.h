@@ -120,14 +120,11 @@ public:
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x);
 
-  // Linear combination with two constants and vectors
-  void linearCombo(const double a, const MultiVector & x,
-  	const double b, const MultiVector & y);
-
+  // Linear combination with one and two constants and vectors
   void update(double a, const MultiVector & A, double s = 1.0);
 
   void update(double a, const MultiVector & A, double b,
-  	const MultiVector & B, double s);
+  	      const MultiVector & B, double s = 1.0);
 
   // Compute the l_p norm (e.g., 2-norm is l_2)
   int lpNorm(const int p, double * result) const;

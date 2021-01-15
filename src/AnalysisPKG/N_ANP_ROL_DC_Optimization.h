@@ -768,8 +768,10 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
       Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
       Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
 
-      sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef);
-      sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef);
+      //sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef); saving old code
+      sensRHS.update(+1.0,dfdpRef,0.0);
+      //sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef); saving old code
+      sensRHS.update(-1.0,dbdpRef);
 
       sensRHS.scale(-1.0);
 
@@ -1084,8 +1086,10 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
         Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
         Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
 
-        sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef);
-        sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef);
+        //sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef); saving old code
+        sensRHS.update(+1.0,dfdpRef,0.0);
+        //sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef); saving old code
+        sensRHS.update(-1.0,dbdpRef);
 
         sensRHS.scale(-1.0);
 

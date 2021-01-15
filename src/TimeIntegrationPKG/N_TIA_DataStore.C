@@ -1610,7 +1610,7 @@ double DataStore::partialSum_m1 (int currentOrder)
     if (!delta_x)
       delta_x = builder_.createVector();
 
-    delta_x->linearCombo(1.0,*(xHistory[currentOrder]),1.0,*newtonCorrectionPtr);
+    delta_x->update(1.0,*(xHistory[currentOrder]),1.0,*newtonCorrectionPtr,0.0);
     double norm = 0.0;
     delta_x->wRMSNorm(*errWtVecPtr, &norm);
     sum = norm*norm;
@@ -1647,7 +1647,7 @@ double DataStore::partialSum_p1 (int currentOrder, int maxOrder)
     if (!delta_x)
       delta_x = builder_.createVector();
 
-    delta_x->linearCombo(1.0,*newtonCorrectionPtr,-1.0,*(xHistory[currentOrder+1]));
+    delta_x->update(1.0,*newtonCorrectionPtr,-1.0,*(xHistory[currentOrder+1]),0.0);
     double norm = 0.0;
     delta_x->wRMSNorm(*errWtVecPtr, &norm);
     sum = norm*norm;
@@ -1740,12 +1740,12 @@ void DataStore::stepLinearCombo()
 {
   // 03/16/04 tscoffe:  update the newton correction.  Note:  this should be
   // available from NOX, but for now I'm going to do the difference anyway.
-  newtonCorrectionPtr->linearCombo (1.0,*nextSolutionPtr,-1.0,*xn0Ptr);
+  newtonCorrectionPtr->update(1.0,*nextSolutionPtr,-1.0,*xn0Ptr,0.0);
 
   // We need to compute the correction in Q here
   // I'm assuming dsDaePtr_->daeQVectorPtr will be fresh from the end of the
   // nonlinear solve.
-  qNewtonCorrectionPtr->linearCombo (1.0,*daeQVectorPtr,-1.0,*qn0Ptr);
+  qNewtonCorrectionPtr->update(1.0,*daeQVectorPtr,-1.0,*qn0Ptr,0.0);
 
   if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
   {
