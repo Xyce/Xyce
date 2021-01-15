@@ -470,9 +470,15 @@ bool FFTAnalysis::applyWindowFunction_()
     for (int i=0; i< np_; i++)
       ftInData_[i] = sampleValues_[i] *(0.42 - 0.5*cos(2*M_PI*i/(np_-1)) + 0.08*cos(4*M_PI*i/(np_-1)));
   }
-  else if ((windowType_=="HARRIS") || (windowType_=="GAUSS") || (windowType_=="KAISER"))
+  else if (windowType_ == "HARRIS")
   {
-    Report::UserWarning0() << "HARRIS, GAUSS and KAISER windows not supported yet. Defaulting to RECT";
+    for (int i=0; i< np_; i++)
+      ftInData_[i] = sampleValues_[i] *(0.35875 - 0.48829*cos(2*M_PI*i/(np_-1)) + 0.14128*cos(4*M_PI*i/(np_-1))
+					- 0.01168*cos(6*M_PI*i/(np_-1)));
+  }
+  else if ((windowType_=="GAUSS") || (windowType_=="KAISER"))
+  {
+    Report::UserWarning0() << "GAUSS and KAISER windows not supported yet. Defaulting to RECT";
   }
 
   if (DEBUG_IO)
