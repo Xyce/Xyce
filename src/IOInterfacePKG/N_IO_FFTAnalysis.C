@@ -85,6 +85,8 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     fftout_(0),
     sampleIdx_(0),
     sampleTimeTol_(1e-20),
+    noiseFloor_(1e-10),
+    maxMag_(0.0),
     thd_(0.0),
     sndr_(0.0),
     enob_(0.0),
@@ -301,7 +303,6 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   sampleValues_.resize(np_,0.0);
 
   mag_.resize(np_,0.0);
-  normMag_.resize(np_,0.0);
   phase_.resize(np_,0.0);
 
   // Compute new, equally spaced time points.
@@ -380,7 +381,7 @@ void FFTAnalysis::outputResults(std::ostream& outputStream)
     if (!time_.empty() && (fft_accurate_ == 0))
       interpolateData_();
 
-    //if (DEBUG_IO)
+    if (DEBUG_IO)
     {
       Xyce::dout() << std::endl << "Sample times and sampled/interpolated data values for FFT of " << outputVarName_ <<
                                  " are:" << std::endl;
@@ -474,7 +475,7 @@ bool FFTAnalysis::applyWindowFunction_()
     Report::UserWarning0() << "HARRIS, GAUSS and KAISER windows not supported yet. Defaulting to RECT";
   }
 
-  //if (DEBUG_IO)
+  if (DEBUG_IO)
   {
     Xyce::dout() << std::endl << "Sample times and windowed data values for FFT of " << outputVarName_
 		              << " are:" << std::endl;
@@ -505,41 +506,57 @@ void FFTAnalysis::calculateFFT_()
   double noisePlusDist=0.0;
   double convRadDeg = 180.0/M_PI;
 
+  // handle DC component
+  mag_[0] = abs(ftOutData_[0]/np_);
+  phase_[0] = convRadDeg * atan2(ftOutData_[1], ftOutData_[0]);
+  maxMag_ = mag_[0];
+
   // calculate mag, phase, total harmonic distortion (THD) and spurious free dynamic range (SFDR)
   for (int i=1;i<=np_/2; i++)
   {
     tmpVal = ftOutData_[2*i]*ftOutData_[2*i] + ftOutData_[2*i+1]*ftOutData_[2*i+1];
     mag_[i] = 2*sqrt(tmpVal)/np_;
-    normMag_[i] = mag_[i]/mag_[1];
+    if (mag_[i] > maxMag_)
+      maxMag_ = mag_[i];
+    if (fftout_ && (i>1))
+      harmonicList_.push_back(std::make_pair(i,mag_[i])); // only make this vector, if it will be output
 
-    phase_[i] = convRadDeg * atan2(ftOutData_[2*i+1], ftOutData_[2*i]);
+    // small magnitudes have phase set to 0
+    if (mag_[i] > noiseFloor_)
+      phase_[i] = convRadDeg * atan2(ftOutData_[2*i+1], ftOutData_[2*i]);
 
     if (i > 1)
     {
       noisePlusDist += tmpVal;
-      thd_ += normMag_[i]*normMag_[i];
-      if (normMag_[i] > sfdr_)
+      thd_ += mag_[i]*mag_[i];
+      if (mag_[i] > sfdr_)
       {
-        sfdr_ = normMag_[i];
+        sfdr_ = mag_[i];
         sfdrIndex_ = i;
       }
     }
   }
 
   // these metrics are output later if fftout_ =1
-  sfdr_ = -20*log10(sfdr_);                                // units are dB
+  sfdr_ = 20*log10(mag_[1]/sfdr_);                         // units are dB
   sndr_ = 20*log10(0.5*np_*mag_[1] / sqrt(noisePlusDist)); // units are db
   enob_ = (sndr_ - 1.76)/6.02;                             // units are bits
   // don't take 20*log10() for THD, since both the actual value and dB value are output later.
-  thd_ = sqrt(thd_);
+  thd_ = sqrt(thd_)/mag_[1];
 
-  //if (DEBUG_IO)
+  // only sort the harmonicList_, if it will be output
+  if (fftout_)
+    std::sort(harmonicList_.begin(), harmonicList_.end(), fftMagCompFunc);
+
+  if (DEBUG_IO)
   {
     Xyce::dout() << "FFT coeffs for " << outputVarName_ << " are:" << std::endl;
     for (int i=0; i < np_+2; i++)
+    {
       Xyce::dout() << ftOutData_[i] << std::endl;
+    }
+    Xyce::dout() << std::endl;
   }
-  Xyce::dout() << std::endl;
 
   return;
 }
@@ -559,22 +576,39 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
   if (calculated_)
   {
     int colWidth1=12, colWidth2 = 16, precision = 6;
+    std::string magString1, magString2;
+    double normalization;
+
+    // account for whether the output should be normalized or unnormalized values
+    if (format_ == "NORM")
+    {
+      normalization = maxMag_;
+      magString1 = "Norm. Mag (db)";
+      magString2 = "Norm. Mag";
+    }
+    else
+    {
+      normalization = 1.0;
+      magString1 = "Mag (db)";
+      magString2 = "Mag";
+    }
+
     os << "FFT analysis for " << outputVarName_ << ":" << std::endl
        << "  Window: " << windowType_ << std::scientific << std::setprecision(precision)
-       << ", First Harmonic: " << freq_ <<", Start Freq: " << fmin_ << ", Stop Freq: " << fmax_
-       << ", DC component: " << mag_[0] << std::endl;
+       << ", First Harmonic: " << freq_ <<", Start Freq: " << fmin_ << ", Stop Freq: " << fmax_ << std::endl;
+
+    os << "DC component " << "   " << magString2 << "= " << mag_[0]/normalization
+       << "   " << "Phase= " << phase_[0] << std::endl;
 
     os << std::setw(colWidth1) << "Index" << std::setw(colWidth2) << "Frequency"
-       << std::setw(colWidth2) << "Magnitude" << std::setw(colWidth2) << "Norm. Mag."
-       << std::setw(colWidth2) << "Phase"
-       << std::setw(colWidth2) << "Re(FFT Coeff)" << std::setw(colWidth2) << "Im(FFT Coeff)" << std::endl;
+       << std::setw(colWidth2) << std::setw(colWidth2) << magString2
+       << std::setw(colWidth2) << "Phase" << std::endl;
 
     for (int i=1; i<=np_/2; i++)
     {
       os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*freq_
-         << std::setw(colWidth2) << mag_[i] << std::setw(colWidth2) << normMag_[i]
-         << std::setw(colWidth2) << phase_[i]
-         << std::setw(colWidth2) << ftOutData_[2*i] << std::setw(colWidth2) << ftOutData_[2*i+1] << std::endl;
+         << std::setw(colWidth2) << mag_[i]/normalization
+         << std::setw(colWidth2) << phase_[i] << std::endl;
     }
 
     if (fftout_)

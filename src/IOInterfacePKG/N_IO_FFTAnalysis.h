@@ -107,6 +107,12 @@ private:
 
   std::ostream& printResult_( std::ostream& os );
 
+  // used to sort a vector (in descending order) based on the double value in the pairs
+  static bool fftMagCompFunc(std::pair<int,double>& a, std::pair<int,double>& b)
+  {
+    return a.second > b.second;
+  }
+
 private:
   double startTime_, stopTime_;
   int np_;
@@ -126,14 +132,16 @@ private:
   int fftout_;
   int sampleIdx_;
   double sampleTimeTol_;
+  double noiseFloor_;
+  double maxMag_;
   double thd_;
   double sndr_;
   double enob_;
   double sfdr_;
   int sfdrIndex_;
   std::vector<double> mag_;
-  std::vector<double> normMag_;
   std::vector<double> phase_;
+  std::vector<std::pair<int,double>> harmonicList_;
 
   int numDepSolVars_;
 
