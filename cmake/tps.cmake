@@ -287,6 +287,12 @@ endif()
 ## Find a usable FFT library
 ###################################
 
+# Address the pathalogical case first
+if(Xyce_USE_FFT AND Xyce_USE_INTEL_FFT AND Xyce_USE_FFTW)
+     message(FATAL_ERROR
+"Both \"Xyce_USE_INTEL_FFT\" and \"Xyce_USE_FFTW\" have been set as TRUE. It is recommended to delete all \"FFT\" variables and let CMake determine the configuration.  You may also set either \"Xyce_USE_INTEL_FFT\" or \"Xyce_USE_FFTW\" to TRUE.  However, if you explicitly specify the use of the Intel MKL FFT capability, you must also ensure the appropriate MKL flags are set in the Xyce CMake invocation.")
+endif()
+
 # Both Xyce_USE_INTEL_FFT and Xyce_USE_FFT must be true to force the use of the
 # Intel MKL (see below). If Xyce_USE_INTEL_FFT is true and Xyce_USE_FFT is
 # unspecified or explicitly false, then that is considered a contradiction.
@@ -297,7 +303,12 @@ endif()
 # Note that the following isn't forced, so it does not override an explicit set
 # of Xyce_USE_FFT=False.
 set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
-if(Xyce_USE_FFT)
+
+if(Xyce_USE_FFT AND Xyce_USE_INTEL_FFT)
+     message("\"Xyce_USE_FFT\" and \"Xyce_USE_INTEL_FFT\" are TRUE.  It is assumed the")
+     message("Intel MKL was found in a previous configuration run, or the user is")
+     message("explicitly enabling it.")
+elseif(Xyce_USE_FFT)
      message(STATUS "Looking for FFT libraries")
 endif()
 
@@ -305,7 +316,7 @@ endif()
 # then it is taken that the user wants to use FFTW. If Xyce_USE_FFTW is true and
 # Xyce_USE_FFT is explicitly false, then that is considered a contradiction.
 # Note that this is slightly different from the Intel MKL case, so this must be
-# located after the set(Xyce_USE_FFT... command, above.
+# located after the "set(Xyce_USE_FFT..." command, above.
 if(Xyce_USE_FFTW AND NOT Xyce_USE_FFT)
      set(Xyce_USE_FFTW FALSE CACHE BOOL "Use FFTW library" FORCE)
 endif()
@@ -330,7 +341,7 @@ if(Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
      endif()
      if (Tri_KNOWS_MKL AND HAVE_MKL_FFT)
           message(STATUS "Looking for FFT libraries - found the Intel Math Kernel Library")
-          set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability")
+          set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability" FORCE)
           # Since the MKL is included in the "Trilinos_TPL_LIBRARIES" list, or CMake
           # is already aware of it, specifing it on the link line again is unnecessary.
           set(FFT "")
