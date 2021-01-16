@@ -1154,8 +1154,10 @@ Simulator::RunStatus Simulator::initializeLate()
   {
     return ERROR;
   }
+
+  measureManager_->fixupFFTMeasures(comm_, *fftManager_);
   measureManager_->setMeasureOutputFileSuffix(analysisManager_->getAnalysisMode());
-  
+
   // if we loaded a parameter file from the command line, then the output manager
   // should scan the results as well as such files can specify response functions
   // than need to be reported by the output manager.

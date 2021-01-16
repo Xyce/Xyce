@@ -52,6 +52,7 @@
 #include <N_ANP_RegisterAnalysis.h>
 #include <N_ANP_StepEvent.h>
 #include <N_ANP_SweepParam.h>
+#include <N_IO_FFTMgr.h>
 #include <N_LAS_Vector.h>
 #include <N_UTL_Listener.h>
 #include <N_UTL_NodeSymbols.h>
@@ -105,6 +106,9 @@ public:
 
   // used to check agreement between analysis type and measure mode
   bool checkMeasureModes(const Analysis::Mode analysisMode);
+
+  // used to associate .MEASURE FFT lines with their .FFT line
+  void fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr);
 
   // Called during the simulation to update the measure objects held by this class
   // To keep things obvious, use separate calls for TRAN, DC and AC

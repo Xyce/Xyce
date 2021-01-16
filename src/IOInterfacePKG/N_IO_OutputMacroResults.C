@@ -80,6 +80,24 @@ void outputMacroResults(
   //Teuchos::oblackholestream outputBHS;
   std::ofstream outputFileStream;
 
+  // Output the FFT results to file if an FFT analysis was being performed.
+  // Make sure the function gets called on all processors, but only one outputs it.
+  // ,MEASURE FFT uses the results of the FFT analyses.  So, this block must come first.
+  if (fft_manager.isFFTActive())
+  {
+    if (Parallel::rank(comm) == 0)
+    {
+      std::string filename = netlist_filename + ".fft";
+      outputFileStream.open( filename.c_str() );
+      fft_manager.outputResults(outputFileStream);
+      outputFileStream.close();
+    }
+    else
+    {
+      fft_manager.outputResults( Xyce::lout() );
+    }
+  }
+
   // Output the Measure results only if .measure is being performed on any variables.
   if (measure_manager.isMeasureActive())
   {
@@ -131,23 +149,6 @@ void outputMacroResults(
     }
     else {
       fourier_manager.outputResults( Xyce::lout() );
-    }
-  }
-
-  // Output the FFT results to file if an FFT analysis was being performed.
-  // Make sure the function gets called on all processors, but only one outputs it.
-  if (fft_manager.isFFTActive())
-  {
-    if (Parallel::rank(comm) == 0)
-    {
-      std::string filename = netlist_filename + ".fft";
-      outputFileStream.open( filename.c_str() );
-      fft_manager.outputResults(outputFileStream);
-      outputFileStream.close();
-    }
-    else
-    {
-      fft_manager.outputResults( Xyce::lout() );
     }
   }
 

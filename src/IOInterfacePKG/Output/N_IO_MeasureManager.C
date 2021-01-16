@@ -41,6 +41,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_MeasureExtrema.h>
+#include <N_IO_MeasureFFT.h>
 #include <N_IO_MeasureStats.h>
 #include <N_IO_MeasureTranStats.h>
 #include <N_IO_MeasureAverage.h>
@@ -280,6 +281,8 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   {
     if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
       theMeasureObject = new Measure::FindWhenCont(measureMgr, measureBlock);
+    else if (mode == "FFT")
+      theMeasureObject = new Measure::FFTFind(measureMgr, measureBlock);
     else
       theMeasureObject = new Measure::FindWhen(measureMgr, measureBlock);
   }
@@ -317,6 +320,22 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   else if( type=="FOUR" )
   {
     theMeasureObject = new Measure::Fourier(measureMgr, measureBlock);
+  }
+  else if( type=="ENOB")
+  {
+    theMeasureObject = new Measure::ENOB(measureMgr, measureBlock);
+  }
+  else if( type=="SFDR")
+  {
+    theMeasureObject = new Measure::SFDR(measureMgr, measureBlock);
+  }
+  else if( type=="SNDR")
+  {
+    theMeasureObject = new Measure::SNDR(measureMgr, measureBlock);
+  }
+  else if( type=="THD")
+  {
+    theMeasureObject = new Measure::THD(measureMgr, measureBlock);
   }
   else
   {
@@ -377,7 +396,8 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
       // Check agreement between each measure's specified mode (from the .MEASURE line) and
       // the analysis type.  This could be condensed into one if statement but it seems more
       // readable with the conditions for analysis type broken out.
-      if ( (((*it)->getMeasureMode() == "TRAN") || ((*it)->getMeasureMode() == "TRAN_CONT")) && (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT) )
+      if ( (((*it)->getMeasureMode() == "TRAN") || ((*it)->getMeasureMode() == "TRAN_CONT") || ((*it)->getMeasureMode() == "FFT")) &&
+           (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT) )
       {
         Report::UserError0() << "Netlist analysis statement and measure mode (" << (*it)->getMeasureMode()
                              << ") for measure " << (*it)->getMeasureName() << " do not agree";
@@ -405,6 +425,55 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
   }
 
   return bsuccess ;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Manager::fixupFFTMeasures
+// Purpose       : Used to associate .MEASURE FFT lines with their .FFT line
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 01/18/2021
+//-----------------------------------------------------------------------------
+void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
+{
+  if (!allMeasuresList_.empty())
+  {
+    const IO::FFTAnalysisVector FFTAnalysisList = FFTMgr.getFFTAnalysisList();
+    IO::FFTAnalysisVector::const_reverse_iterator fftal_it;
+
+    // loop over all measure objects
+    for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
+    {
+      if ((*it)->getMeasureMode() == "FFT")
+      {
+        if (FFTAnalysisList.size() == 0)
+        {
+          Report::UserError0() << "No .FFT statement in netlist for measure " << (*it)->getMeasureName();
+        }
+        else
+	{
+          Util::Op::OpList::const_iterator ov_it = (*it)->getOutputVars()->begin();
+	  std::string measureVarName = (*ov_it)->getName();
+          for (fftal_it = FFTAnalysisList.rbegin(); fftal_it != FFTAnalysisList.rend(); fftal_it++)
+	  {
+            if ( (*fftal_it)->getOutputVarName() == measureVarName )
+	    {
+              (*it)->fixupFFTMeasure(*fftal_it);
+              break;
+	    }
+	  }
+          if (fftal_it == FFTAnalysisList.rend())
+	  {
+            Report::UserError0() << "No matching .FFT statement with output variable "
+                                 << measureVarName << " for measure " << (*it)->getMeasureName();
+          }
+        }
+      }
+    }
+  }
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1252,7 +1321,7 @@ extractMEASUREData(
   //
   // .measure mode name type output_var... options...
   //
-  // where mode = AC, DC or TRAN
+  // where mode = AC, DC, FFT, NOISE or TRAN
   //       name = any text string for a name (can't be AC, DC or TRAN)
   //       type = keywords that let us figure out what type of measurement is needed
   //              TRIG and/or TARG = RiseFallDelay
@@ -1283,6 +1352,7 @@ extractMEASUREData(
   std::set<std::string> typeSetTran;
   std::set<std::string> typeSetAc;
   std::set<std::string> typeSetDc;
+  std::set<std::string> typeSetFft;
   std::set<std::string> typeSetNoise;
   std::set<std::string> typeSetCont;
 
@@ -1353,6 +1423,12 @@ extractMEASUREData(
   typeSetDc.insert( std::string("RMS") );
   typeSetDc.insert( std::string("WHEN") );
 
+  typeSetFft.insert( std::string("ENOB") );
+  typeSetFft.insert( std::string("FIND") );
+  typeSetFft.insert( std::string("SFDR") );
+  typeSetFft.insert( std::string("SNDR") );
+  typeSetFft.insert( std::string("THD") );
+
   // allowed types for the NOISE mode
   typeSetNoise.insert( std::string("AVG") );
   typeSetNoise.insert( std::string("DERIVATIVE") );
@@ -1379,12 +1455,14 @@ extractMEASUREData(
   typeSetCont.insert( std::string("WHEN") );
 
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid
-  // for one of the allowed modes (e.g, TRAN, AC, DC or NOSIE).  This happens after we've parsed
+  // for one of the allowed modes (e.g, TRAN, AC, DC, FFT or NOSIE).  This happens after we've parsed
   // the MODE and TYPE fields on the measure line.  In those cases, we just care that the
   // TYPE is in the combined union set.
   set_union( typeSetTran.begin(), typeSetTran.end(), typeSetAc.begin(),
              typeSetAc.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
   set_union( typeSetDc.begin(), typeSetDc.end(), typeSet.begin(),
+             typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
+  set_union( typeSetFft.begin(), typeSetFft.end(), typeSet.begin(),
              typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
   set_union( typeSetNoise.begin(), typeSetNoise.end(), typeSet.begin(),
              typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
@@ -1422,6 +1500,10 @@ extractMEASUREData(
   simpleKeywords.insert( std::string("INDEPVAR2COL") );
   simpleKeywords.insert( std::string("DEPVARCOL") );
   simpleKeywords.insert( std::string("RFC_LEVEL") );
+  simpleKeywords.insert( std::string("BINSIZ") );
+  simpleKeywords.insert( std::string("MINFREQ") );
+  simpleKeywords.insert( std::string("MAXFREQ") );
+  simpleKeywords.insert( std::string("NBHARM") );
 
   // these keywords may contain string, or in some cases (like 
   // RISE, FALL and CROSS) may contain a string or a number
@@ -1468,7 +1550,7 @@ extractMEASUREData(
   // be enabled for selected measure types.
   std::string parsedMode = currentWord;
 
-  if( (currentWord == "TRAN" ) || (currentWord == "AC" ) || (currentWord == "DC") ||
+  if( (currentWord == "TRAN" ) || (currentWord == "AC" ) || (currentWord == "DC") || (currentWord == "FFT") ||
       (currentWord == "NOISE") || (currentWord == "TRAN_CONT" ) || (currentWord == "AC_CONT" ) ||
       (currentWord == "DC_CONT") || (currentWord == "NOISE_CONT"))
   {
@@ -1478,7 +1560,7 @@ extractMEASUREData(
   else
   {
     Report::UserError0().at(netlist_filename, parsed_line[1].lineNumber_) << "Unknown mode in .MEASURE line.  "
-	<< "Should be TRAN/TR, DC, AC, NOISE, TRAN_CONT, DC_CONT, AC_CONT or NOISE_CONT";
+	<< "Should be TRAN/TR, DC, AC, FFT, NOISE, TRAN_CONT, DC_CONT, AC_CONT or NOISE_CONT";
     return false;
   }
 
@@ -1490,8 +1572,10 @@ extractMEASUREData(
   {
     currentWord = "TRAN"; // TR is a synonym for TRAN
   }
-  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" && currentWord != "NOISE" &&
-      currentWord != "DC_CONT" && currentWord != "TRAN_CONT" && currentWord != "AC_CONT" && currentWord != "NOISE_CONT")
+  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" &&
+      currentWord != "NOISE" && currentWord != "FFT" &&
+      currentWord != "DC_CONT" && currentWord != "TRAN_CONT" &&
+      currentWord != "AC_CONT" && currentWord != "NOISE_CONT")
   {
     parameter.set("NAME", std::string(currentWord));
     option_block.addParam(parameter);
@@ -1499,7 +1583,7 @@ extractMEASUREData(
   else
   {
     Report::UserError0().at(netlist_filename, parsed_line[2].lineNumber_) << "Illegal name in .MEASURE line.  "
-       << "Cannot be AC, DC, NOISE, TRAN/TR, AC_CONT, DC_CONT, NOISE_CONT or TRAN_CONT";
+       << "Cannot be AC, DC, FFT, NOISE, TRAN/TR, AC_CONT, DC_CONT, NOISE_CONT or TRAN_CONT";
     return false;
   }
 
@@ -1553,6 +1637,21 @@ extractMEASUREData(
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
 	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for DC measure mode";
+      return false;
+    }
+  }
+  else if (parsedMode == "FFT")
+  {
+    if (typeSetFft.find( currentWord ) != typeSetFft.end()  )
+    {
+      parameter.set("TYPE", std::string(currentWord));
+      option_block.addParam(parameter);
+      parsedType=currentWord;  // used later to enable the VAL= syntax for TRIG and TARG
+    }
+    else
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, FIND, SDFR, SNDR and THD "
+	 << "measure types are supported for FFT measure mode";
       return false;
     }
   }

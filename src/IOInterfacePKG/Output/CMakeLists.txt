@@ -25,6 +25,7 @@ target_sources(XyceLib PRIVATE
      N_IO_MeasureIntegralEvaluation.C
      N_IO_MeasureError.C
      N_IO_MeasureFourier.C
+     N_IO_MeasureFFT.C
      N_IO_Remeasure.C )
 
 # add header files to project

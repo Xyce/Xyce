@@ -169,6 +169,14 @@ public:
       const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
       const Util::Op::RFparamsData *RFparams);
 
+    const Util::Op::OpList* getOutputVars() const
+    {
+      return &outputVars_;
+    }
+
+    // only used by FFT measures
+    virtual void fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr) {};
+
     // used to get the measurement result
     virtual double getMeasureResult() {
       return calculationResult_;
@@ -408,6 +416,15 @@ public:
 
     // This is the default value of the calculation
     double calculationDefaultVal_;
+
+    // only used for FFT measures
+    int binSize_;
+    double minFreq_;
+    double maxFreq_;
+    int nbHarm_;
+    bool minFreqGiven_;
+    bool maxFreqGiven_;
+    bool nbHarmGiven_;
 
     // controls the precision of the displayed results
     int precision_;

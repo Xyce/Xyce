@@ -52,6 +52,8 @@
 namespace Xyce {
 namespace IO {
 
+typedef std::vector<FFTAnalysis *> FFTAnalysisVector;
+
 //-----------------------------------------------------------------------------
 // Class         : FFTMgr
 // Purpose       : This is a manager class for handling analysis objects
@@ -62,8 +64,6 @@ namespace IO {
 //-----------------------------------------------------------------------------
 class FFTMgr
 {
-  typedef std::vector<FFTAnalysis *> FFTAnalysisVector;
-
 public:
   FFTMgr(const std::string &netlist_filename);
 
@@ -76,6 +76,8 @@ public:
 
   // Return true if FFT analysis is being performed on any variables.
   bool isFFTActive() const { return !FFTAnalysisList_.empty(); }
+
+  const FFTAnalysisVector& getFFTAnalysisList() const {return FFTAnalysisList_;}
 
   // add .fft line from netlist to list of things to perform analysis on.
   bool addFFTAnalysis(const Util::OptionBlock & fftLine );
