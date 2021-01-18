@@ -52,6 +52,7 @@
 #include <N_IO_CircuitMetadata.h>
 #include <N_IO_DistributionTool.h>
 #include <N_IO_FourierMgr.h>
+#include <N_IO_FFTMgr.h>
 #include <N_IO_ParsingMgr.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Stats.h>
@@ -156,7 +157,8 @@ public:
     OutputMgr &                                                 output_manager,
     Device::DeviceMgr &                                         device_manager,
     Measure::Manager &                                          measure_manager,
-    FourierMgr &                                                fourier_manager);
+    FourierMgr &                                                fourier_manager,
+    FFTMgr&                                                     fft_manager);
 
   static void populateMetadata(IO::PkgOptionsMgr &   options_manager);
 

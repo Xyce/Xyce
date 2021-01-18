@@ -66,6 +66,8 @@ class CmdParse;
 class DeviceBlock;
 class DistributionTool;
 class FourierMgr;
+class FFTMgr;
+class FFTAnalysis;
 class FunctionBlock;
 class InitialConditionsManager;
 class HangingResistor;

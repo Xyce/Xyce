@@ -42,6 +42,7 @@
 
 #include <N_DEV_DeviceMgr.h>
 #include <N_IO_FourierMgr.h>
+#include <N_IO_FFTMgr.h>
 #include <N_IO_InitialConditions.h>
 #include <N_IO_MeasureManager.h>
 #include <N_IO_OutputMgr.h>
@@ -66,11 +67,13 @@ OutputMgrAdapter::OutputMgrAdapter(
   IO::OutputMgr &                       output_manager,
   IO::Measure::Manager &                measure_manager,
   IO::FourierMgr &                      fourier_manager,
+  IO::FFTMgr &                          fft_manager,
   Device::DeviceMgr &                   device_manager)
   : comm_(comm),
     outputManager_(output_manager),
     measureManager_(measure_manager),
     fourierManager_(fourier_manager),
+    fftManager_(fft_manager),
     deviceManager_(device_manager),
     tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
     stepSweepVector_(),
@@ -199,6 +202,9 @@ void OutputMgrAdapter::tranOutput(
   fourierManager_.updateFourierData(comm_, time, &currSolutionPtr, &stateVecPtr, &storeVecPtr, &lead_current_vector, &junction_voltage_vector, &lead_current_dqdt_vector,
     objectiveVec_, dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_
       );
+
+  fftManager_.updateFFTData(comm_, time, &currSolutionPtr, &stateVecPtr, &storeVecPtr,
+                            &lead_current_vector, &junction_voltage_vector, &lead_current_dqdt_vector);
 
   measureManager_.updateTranMeasures(comm_, time, finalTime, &currSolutionPtr, &stateVecPtr, &storeVecPtr,
                                      &lead_current_vector, &junction_voltage_vector, &lead_current_dqdt_vector);

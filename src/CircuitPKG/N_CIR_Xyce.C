@@ -84,6 +84,7 @@
 #include <N_IO_OpBuilders.h>
 #include <N_IO_MeasureManager.h>
 #include <N_IO_FourierMgr.h>
+#include <N_IO_FFTMgr.h>
 #include <N_IO_InitialConditions.h>
 #include <N_IO_LoadManager.h>
 #include <N_IO_OutputMacroResults.h>
@@ -267,6 +268,7 @@ Simulator::Simulator(Parallel::Machine comm)
     outputManager_(0),
     measureManager_(0),
     fourierManager_(0),
+    fftManager_(0),
     initialConditionsManager_(0),
     outputResponse_(0),
     restartManager_(0),
@@ -311,6 +313,7 @@ Simulator::~Simulator()
   delete outputManager_;
   delete measureManager_;
   delete fourierManager_;
+  delete fftManager_;
   delete loadManager_;
   delete initialConditionsManager_;
   delete outputResponse_;
@@ -405,13 +408,14 @@ bool Simulator::doAllocations_()
   outputResponse_           = new IO::OutputResponse();
   measureManager_           = new IO::Measure::Manager(netlist_filename);
   fourierManager_           = new IO::FourierMgr(netlist_filename);
+  fftManager_               = new IO::FFTMgr(netlist_filename);
   loadManager_              = new IO::LoadManager();
   initialConditionsManager_ = new IO::InitialConditionsManager(netlist_filename);
   restartManager_           = new IO::RestartMgr();
   builder_                  = new Linear::Builder();
   linearSystem_             = new Linear::System();
   outputManagerAdapter_     = new Analysis::OutputMgrAdapter(comm_, *outputManager_, *measureManager_, *fourierManager_,
-                                                             *deviceManager_);
+                                                             *fftManager_, *deviceManager_);
 
   analysisManager_          = newAnalysisManager(commandLine_, *restartManager_, *outputManagerAdapter_, analysisStat_);
   circuitLoader_            = new Loader::CktLoader(*deviceManager_, *builder_);
@@ -461,6 +465,7 @@ bool Simulator::doRegistrations_()
   bs1 = IO::registerPkgOptionsMgr(*loadManager_, *optionsManager_); bsuccess = bsuccess && bs1;
   bs1 = IO::Measure::registerPkgOptionsMgr(*measureManager_, *optionsManager_); bsuccess = bsuccess && bs1;
   bs1 = IO::registerPkgOptionsMgr(*fourierManager_, *optionsManager_); bsuccess = bsuccess && bs1;
+  bs1 = IO::registerPkgOptionsMgr(*fftManager_, *optionsManager_); bsuccess = bsuccess && bs1;
   bs1 = IO::registerPkgOptionsMgr(*initialConditionsManager_, *optionsManager_); bsuccess = bsuccess && bs1;
   bs1 = Analysis::registerPkgOptionsMgr(*analysisManager_, *optionsManager_ ); bsuccess = bsuccess && bs1;
   bs1 = Nonlinear::registerPkgOptionsMgr(*nonlinearManager_, *optionsManager_ ); bsuccess = bsuccess && bs1;
@@ -942,7 +947,8 @@ Simulator::RunStatus Simulator::initializeEarly(
       *outputManager_,
       *deviceManager_,
       *measureManager_,
-      *fourierManager_);
+      *fourierManager_,
+      *fftManager_);
 
     if (netlist_import_tool.getUseMOR())
       return DONE;
@@ -1134,6 +1140,8 @@ Simulator::RunStatus Simulator::initializeLate()
 
   outputManager_->checkPrintParameters(comm_, *opBuilderManager_);
   fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_);
+  fftManager_->fixupFFTParameters(comm_, *opBuilderManager_, analysisManager_->getFinalTime(),
+                                  analysisManager_->getStepErrorControl());
 
   // Make the measure operators, and then check for agreement between the 
   // measures' requested modes (e.g, TRAN) and the analysis type (e.g, .TRAN).
@@ -1719,6 +1727,7 @@ Simulator::RunStatus Simulator::finalize()
   IO::outputMacroResults(comm_,
                          *measureManager_,
                          *fourierManager_,
+                         *fftManager_,
                          outputManager_->getNetlistFilename(),
                          outputResponse_->getResponseFunctions(),
                          outputResponse_->getResponseFilename(),

@@ -47,6 +47,7 @@ void outputMacroResults(
   Parallel::Machine             comm,
   const Measure::Manager &      measure_manager,
   FourierMgr &                  fourier_manager,
+  FFTMgr &                      fft_manager,
   std::string                   netlist_filename,
   const StringPairVector &      response_functions,
   std::string                   outputResponseFilename,

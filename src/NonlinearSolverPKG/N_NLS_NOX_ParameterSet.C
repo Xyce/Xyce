@@ -395,7 +395,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
   double recoveryStep = 1.0;
   int memory = 400;
 
-
   // Loop over all parameters in the option block
   for (Util::ParamList::const_iterator it_tpL = OB.begin();
        it_tpL != OB.end(); ++ it_tpL)
@@ -434,33 +433,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
     {
       statusTestParams_.set("ENFORCEDEVICECONV", it_tpL->getImmutableValue<int>());
     }
-
-    // Unsupported options
-    else if (tag == "LINOPT")
-    {
-      unsupportedOption_(tag);
-    }
-    else if (tag == "CONSTRAINTBT")
-    {
-      unsupportedOption_(tag);
-    }
-    else if (tag == "CONSTRAINTMAX")
-    {
-      unsupportedOption_(tag);
-    }
-    else if (tag == "CONSTRAINTMIN")
-    {
-      unsupportedOption_(tag);
-    }
-    else if (tag == "CONSTRAINTCHANGE")
-    {
-      unsupportedOption_(tag);
-    }
-    else if (tag == "NORMLVL")
-    {
-      if (it_tpL->getImmutableValue<int>() != 2)
-        unsupportedOption_(tag);
-    }
     else if (tag == "DEBUGLEVEL")
     {
       debugLevel_ = it_tpL->getImmutableValue<int>();
@@ -489,8 +461,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
     {
       debugMaxTime_ = it_tpL->getImmutableValue<double>();
     }
-    else if (tag == "DLSDEBUG")
-      unsupportedOption_(tag);
 
     // Nonlinear Strategy
     else if (tag == "NLSTRATEGY")
@@ -756,10 +726,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
     {
       recoveryStep = it_tpL->getImmutableValue<double>();
     }
-    else if (tag == "MEMORY")
-    {
-      memory = it_tpL->getImmutableValue<int>();
-    }
 
     // Parameters that can't be set in the list until all options
     // have been parsed
@@ -783,11 +749,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
     {
       recoveryStep = it_tpL->getImmutableValue<double>();
     }
-    else if (tag == "MEMORY")
-    {
-      memory = it_tpL->getImmutableValue<int>();
-    }
-
     // Warn user about unrecognized solver option
     else
     {

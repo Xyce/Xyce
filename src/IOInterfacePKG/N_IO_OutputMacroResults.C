@@ -44,6 +44,7 @@
 
 #include <N_IO_MeasureManager.h>
 #include <N_IO_FourierMgr.h>
+#include <N_IO_FFTMgr.h>
 #include <N_UTL_ExtendedString.h>
 
 #include <Teuchos_oblackholestream.hpp>
@@ -66,6 +67,7 @@ void outputMacroResults(
   Parallel::Machine             comm,
   const Measure::Manager &      measure_manager,
   FourierMgr &                  fourier_manager,
+  FFTMgr &                      fft_manager,
   std::string                   netlist_filename,
   const StringPairVector &      response_functions,
   std::string                   outputResponseFilename,
@@ -129,6 +131,23 @@ void outputMacroResults(
     }
     else {
       fourier_manager.outputResults( Xyce::lout() );
+    }
+  }
+
+  // Output the FFT results to file if an FFT analysis was being performed.
+  // Make sure the function gets called on all processors, but only one outputs it.
+  if (fft_manager.isFFTActive())
+  {
+    if (Parallel::rank(comm) == 0)
+    {
+      std::string filename = netlist_filename + ".fft";
+      outputFileStream.open( filename.c_str() );
+      fft_manager.outputResults(outputFileStream);
+      outputFileStream.close();
+    }
+    else
+    {
+      fft_manager.outputResults( Xyce::lout() );
     }
   }
 

@@ -355,6 +355,7 @@ class Simulator
   IO::OutputMgr *                       outputManager_;                 ///< Output manager
   IO::Measure::Manager *                measureManager_;                ///< Measure manager
   IO::FourierMgr *                      fourierManager_;                ///< Fourier manager
+  IO::FFTMgr *                          fftManager_;                    ///< FFT manager
   IO::InitialConditionsManager *        initialConditionsManager_;      ///< Initial conditions manager
   IO::OutputResponse *                  outputResponse_;                ///< Response output
   IO::RestartMgr *                      restartManager_;                ///< Restart manager

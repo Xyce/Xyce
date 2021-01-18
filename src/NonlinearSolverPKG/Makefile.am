@@ -11,7 +11,6 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_Sensitivity.C \
   N_NLS_SensitivityResiduals.C \
   N_NLS_ConductanceExtractor.C \
-  N_NLS_ConstraintBT.C \
   N_NLS_NLParams.C \
   N_NLS_ParamMgr.C \
   N_NLS_NOX.C \
@@ -29,14 +28,13 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_NOX_AugmentLinSys_IC.C \
   N_NLS_NOX_AugmentLinSys_IC_Gmin.C \
   N_NLS_ReturnCodes.C \
-  N_NLS_ConstraintBT.h \
   N_NLS_DampedNewton.h \
   N_NLS_TwoLevelNewton.h \
   N_NLS_TwoLevelEnum.h \
   N_NLS_TwoLevelPrintJac.h \
   N_NLS_Sensitivity.h \
   N_NLS_SensitivityResiduals.h \
-	N_NLS_ObjectiveFunctions.h \
+  N_NLS_ObjectiveFunctions.h \
   N_NLS_ConductanceExtractor.h \
   N_NLS_Manager.h \
   N_NLS_NLParams.h \

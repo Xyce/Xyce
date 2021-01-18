@@ -65,28 +65,9 @@ tolerance & 1.0 \\ \hline
 
 \texttt{MAXSEARCHSTEP} & Maximum number of line-search steps & 9 \\ \hline
 
-\texttt{NORMLVL} & Norm level used by the nonlinear solver algorithms
-\textcolor{red}{\emph{(NOTE: not used for convergence tests)}} & 2
-\\ \hline
-
-\texttt{LINOPT} & Linear optimization flag & 0 (FALSE) \\ \hline
-
-\texttt{CONSTRAINTBT} & Constraint backtracking flag & 0 (FALSE) \\ \hline
-
-\texttt{CONSTRAINTMAX} & Global maximum setting for constraint backtracking
-& DBL\_MAX (Machine Dependent Constant) \\ \hline
-
-\texttt{CONSTRAINTMIN} & Global minimum setting for constraint backtracking
-& -DBL\_MAX (Machine Dependent Constant) \\ \hline
-
-\texttt{CONSTRAINTCHANGE} & Global percentage-change setting for constraint
-backtracking & \texttt{sqrt(DBL\_MAX)} (Machine Dependent Constant) \\ \hline
-
-\texttt{IN\_FORCING} & Inexact Newton-Krylov forcing flag & 1 (TRUE) \\ \hline
+\texttt{IN\_FORCING} & Inexact Newton-Krylov forcing flag & 0 (FALSE) \\ \hline
 
 \texttt{AZ\_TOL} &  Sets the minimum allowed linear solver tolerance. Valid only if \texttt{IN\_FORCING}=1.  & 1.0E-12 \\ \hline
-
-\texttt{DLSDEBUG} & Debug output for direct linear solver & 0 (FALSE) \\ \hline
 
 \texttt{DEBUGLEVEL} & The higher this number, the more info is output & 1
 \\ \hline
@@ -110,8 +91,6 @@ time (sec.) instead of step number & 1.0E+99 \\ \hline
 \end{XyceItemize} & 0 \\ \hline
 
 \texttt{RECOVERYSTEP} & Value of the recovery step if a constant step length is selected & 1.0 \\ \hline
-
-%\texttt{MEMORY} & Maximum number of vectors stored for the rank-1 updates during a Broyden method nlstrategy. & 400 \\ \hline
 
 \texttt{CONTINUATION} & Enables the use of Homotopy/Continuation algorithms for the nonlinear solve.  Options are:
 \begin{XyceItemize}

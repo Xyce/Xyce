@@ -8,7 +8,6 @@
 # add class files that should be included in this directory's library
 target_sources(XyceLib PRIVATE
       N_NLS_ConductanceExtractor.C
-      N_NLS_ConstraintBT.C
       N_NLS_DampedNewton.C
       N_NLS_LOCA_Group.C
       N_NLS_Manager.C
