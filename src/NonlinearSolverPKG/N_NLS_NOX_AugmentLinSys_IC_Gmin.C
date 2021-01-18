@@ -73,9 +73,9 @@ AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin(
     node_list_type_(node_list_type),
     scaled_end_value_(scaledEndValue),
     residualConductance_(resCond),
+    op_       (op_in),
     ic_colors_(ic_colors),
     vnodeVec_(vnodeVec),
-    op_       (op_in),
     vecptr1_(0),
     vecptr2_(0)
 {
