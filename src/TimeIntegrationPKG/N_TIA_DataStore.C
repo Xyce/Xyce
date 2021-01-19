@@ -1343,10 +1343,9 @@ void DataStore::setErrorWtVector(
       if (DEBUG_TIME && isActive(Diag::TIME_ERROR)) 
       {
         double currMaxValue = 0.0;
-        currSolutionPtr->infNorm(&currMaxValue);
-        std::vector<int> index(1, -1);
-        currSolutionPtr->infNormIndex( &index[0] );
-        Xyce::dout() << "currMaxValueoldLte = " << currMaxValue << ", currMaxValueIndex = " << index[0]  << std::endl;
+        int currIndex = -1;
+        currSolutionPtr->infNorm(&currMaxValue, &currIndex);
+        Xyce::dout() << "currMaxValueoldLte = " << currMaxValue << ", currMaxValueIndex = " << currIndex  << std::endl;
         
         std::cout << " old LTE rel reference:"  << std::endl;
         relSolutionPtr->print(Xyce::dout());
@@ -1359,14 +1358,18 @@ void DataStore::setErrorWtVector(
     case 1:   //point global
     {  
       double currMaxValue = 0.0;
-      currSolutionPtr->infNorm(&currMaxValue);
+      int currIndex = -1;
+
+      if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
+        currSolutionPtr->infNorm(&currMaxValue, &currIndex);
+      else
+        currSolutionPtr->infNorm(&currMaxValue);
 
       relSolutionPtr->putScalar(currMaxValue);
+
       if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
       {
-        std::vector<int> index(1, -1);
-        currSolutionPtr->infNormIndex( &index[0] );
-        Xyce::dout() << "currMaxValue = " << currMaxValue << ", currMaxValueIndex = " << index[0] << std::endl;
+        Xyce::dout() << "currMaxValue = " << currMaxValue << ", currMaxValueIndex = " << currIndex << std::endl;
 
         std::cout << " lte =1 rel reference:"  << std::endl;
         relSolutionPtr->print(Xyce::dout());
@@ -1381,16 +1384,13 @@ void DataStore::setErrorWtVector(
     case 2:
     {
       double currMaxValue = 0.0;
-      currSolutionPtr->infNorm(&currMaxValue);
+      int currIndex = -1;
+      currSolutionPtr->infNorm(&currMaxValue, &currIndex);
 
-      std::vector<int> currIndex(1, -1);
-      currSolutionPtr->infNormIndex( &currIndex[0] );
-
-//      int index;
       if (currMaxValue > solsMaxValue)
       {
         solsMaxValue = currMaxValue;
-        index = currIndex[0]; 
+        index = currIndex; 
       }
 
       relSolutionPtr->putScalar( solsMaxValue);
@@ -1399,7 +1399,7 @@ void DataStore::setErrorWtVector(
       if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
       {
         Xyce::dout() << "signal global MaxValue = " << solsMaxValue << ", signal global MaxValueIndex = " << index << std::endl;
-        Xyce::dout() << " currMaxValue = " << currMaxValue << ", currMaxValueIndex = " <<  currIndex[0] << std::endl;
+        Xyce::dout() << " currMaxValue = " << currMaxValue << ", currMaxValueIndex = " <<  currIndex << std::endl;
       }
     }
       break;
@@ -1610,7 +1610,7 @@ double DataStore::partialSum_m1 (int currentOrder)
     if (!delta_x)
       delta_x = builder_.createVector();
 
-    delta_x->linearCombo(1.0,*(xHistory[currentOrder]),1.0,*newtonCorrectionPtr);
+    delta_x->update(1.0,*(xHistory[currentOrder]),1.0,*newtonCorrectionPtr,0.0);
     double norm = 0.0;
     delta_x->wRMSNorm(*errWtVecPtr, &norm);
     sum = norm*norm;
@@ -1647,7 +1647,7 @@ double DataStore::partialSum_p1 (int currentOrder, int maxOrder)
     if (!delta_x)
       delta_x = builder_.createVector();
 
-    delta_x->linearCombo(1.0,*newtonCorrectionPtr,-1.0,*(xHistory[currentOrder+1]));
+    delta_x->update(1.0,*newtonCorrectionPtr,-1.0,*(xHistory[currentOrder+1]),0.0);
     double norm = 0.0;
     delta_x->wRMSNorm(*errWtVecPtr, &norm);
     sum = norm*norm;
@@ -1740,12 +1740,12 @@ void DataStore::stepLinearCombo()
 {
   // 03/16/04 tscoffe:  update the newton correction.  Note:  this should be
   // available from NOX, but for now I'm going to do the difference anyway.
-  newtonCorrectionPtr->linearCombo (1.0,*nextSolutionPtr,-1.0,*xn0Ptr);
+  newtonCorrectionPtr->update(1.0,*nextSolutionPtr,-1.0,*xn0Ptr,0.0);
 
   // We need to compute the correction in Q here
   // I'm assuming dsDaePtr_->daeQVectorPtr will be fresh from the end of the
   // nonlinear solve.
-  qNewtonCorrectionPtr->linearCombo (1.0,*daeQVectorPtr,-1.0,*qn0Ptr);
+  qNewtonCorrectionPtr->update(1.0,*daeQVectorPtr,-1.0,*qn0Ptr,0.0);
 
   if (DEBUG_TIME && isActive(Diag::TIME_ERROR))
   {

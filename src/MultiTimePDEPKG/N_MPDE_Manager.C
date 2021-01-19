@@ -1253,14 +1253,10 @@ N_MPDE_Manager::runInitialCondition(
         // Set t = t + (i-1.0)*h2 in MPDE source in bhat
         stLoader.setTimeShift( -fastTimes_[n2-i] );
 
-        interpIcSolVecPtr->putScalar( 0.0 );
-        interpIcStateVecPtr->putScalar( 0.0 );
-        interpIcQVecPtr->putScalar( 0.0 );
-        interpIcStoreVecPtr->putScalar( 0.0 );
-        interpIcSolVecPtr->linearCombo( (1.0-fraction), *dcOpSolVecPtr_, fraction, endIcSolVecPtr_ );
-        interpIcStateVecPtr->linearCombo( (1.0-fraction), *dcOpStateVecPtr_, fraction, endIcStateVecPtr_ );
-        interpIcQVecPtr->linearCombo( (1.0-fraction), *dcOpQVecPtr_, fraction, endIcQVecPtr_ );
-        interpIcStoreVecPtr->linearCombo( (1.0-fraction), *dcOpStoreVecPtr_, fraction, endIcStoreVecPtr_ );
+        interpIcSolVecPtr->update( (1.0-fraction), *dcOpSolVecPtr_, fraction, endIcSolVecPtr_, 0.0 );
+        interpIcStateVecPtr->update( (1.0-fraction), *dcOpStateVecPtr_, fraction, endIcStateVecPtr_, 0.0 );
+        interpIcQVecPtr->update( (1.0-fraction), *dcOpQVecPtr_, fraction, endIcQVecPtr_, 0.0 );
+        interpIcStoreVecPtr->update( (1.0-fraction), *dcOpStoreVecPtr_, fraction, endIcStoreVecPtr_, 0.0 );
 
         // set DAE initial condition to mpdeICVectorPtr_[i-1]
         *(analysisManager_.getDataStore()->nextSolutionPtr) = *interpIcSolVecPtr;
@@ -1380,14 +1376,10 @@ N_MPDE_Manager::runInitialCondition(
             if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS) )
               Xyce::dout() << " fraction = " << fraction << std::endl;
 
-            interpIcSolVecPtr->putScalar( 0.0 );
-            interpIcStateVecPtr->putScalar( 0.0 );
-            interpIcQVecPtr->putScalar( 0.0 );
-            interpIcStoreVecPtr->putScalar( 0.0 );
-            interpIcSolVecPtr->linearCombo( fraction, firstPeriodSolVecPtr, (1.0-fraction), secondPeriodSolVecPtr );
-            interpIcStateVecPtr->linearCombo( fraction, firstPeriodStateVecPtr, (1.0-fraction), secondPeriodStateVecPtr );
-            interpIcQVecPtr->linearCombo( fraction, firstPeriodQVecPtr, (1.0-fraction), secondPeriodQVecPtr );
-            interpIcStoreVecPtr->linearCombo( fraction, firstPeriodStoreVecPtr, (1.0-fraction), secondPeriodStoreVecPtr );
+            interpIcSolVecPtr->update( fraction, firstPeriodSolVecPtr, (1.0-fraction), secondPeriodSolVecPtr, 0.0 );
+            interpIcStateVecPtr->update( fraction, firstPeriodStateVecPtr, (1.0-fraction), secondPeriodStateVecPtr, 0.0 );
+            interpIcQVecPtr->update( fraction, firstPeriodQVecPtr, (1.0-fraction), secondPeriodQVecPtr, 0.0 );
+            interpIcStoreVecPtr->update( fraction, firstPeriodStoreVecPtr, (1.0-fraction), secondPeriodStoreVecPtr, 0.0 );
 
             mpdeICVectorPtr_->block(i) = *interpIcSolVecPtr;
             mpdeICStateVectorPtr_->block(i) = *interpIcStateVecPtr;
@@ -2142,7 +2134,7 @@ bool N_MPDE_Manager::runTests_()
 
   //Pretend to solve DCOP problems
   //-----------------------------------------
-  Res->linearCombo( 1.0, *Res, +1.0, *F );
+  Res->update( +1.0, *F );
   bRes->print(Xyce::dout());
 
   Jac->add( *dFdx );

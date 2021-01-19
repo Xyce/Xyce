@@ -838,7 +838,7 @@ int Sensitivity::solveAdjoint ()
     // lambda * df/dp.
 
     // assuming that this is steady-state, then we need to sum together dfdp and -dbdp.
-    sensRHSPtrVector->linearCombo(1.0,*dfdpPtrVector_,-1.0,*dbdpPtrVector_);
+    sensRHSPtrVector->update(1.0,*dfdpPtrVector_,-1.0,*dbdpPtrVector_,0.0);
 
     // compute final dot products for all params.
     std::vector<double> tmp( numSensParams_ );

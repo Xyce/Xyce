@@ -278,17 +278,17 @@ bool slowNumericalDerivatives( int iparam,
   // calculate the df/dp vector.  
   double rdp=1/dp;
   Teuchos::RCP<Linear::Vector> dfdpPtr = Teuchos::rcp( dfdpPtrVector->getNonConstVectorView(iparam) );
-  dfdpPtr->linearCombo( 1.0, *pertFVector, -1.0, *origFVector );
+  dfdpPtr->update( 1.0, *pertFVector, -1.0, *origFVector, 0.0 );
   dfdpPtr->scale(rdp);
 
   // calculate the dq/dp vector.  
   Teuchos::RCP<Linear::Vector> dqdpPtr = Teuchos::rcp( dqdpPtrVector->getNonConstVectorView(iparam) );
-  dqdpPtr->linearCombo( 1.0, *pertQVector, -1.0, *origQVector );
+  dqdpPtr->update( 1.0, *pertQVector, -1.0, *origQVector, 0.0 );
   dqdpPtr->scale(rdp);
 
   // calculate the db/dp vector.  
   Teuchos::RCP<Linear::Vector> dbdpPtr = Teuchos::rcp( dbdpPtrVector->getNonConstVectorView(iparam) );
-  dbdpPtr->linearCombo( 1.0, *pertBVector, -1.0, *origBVector );
+  dbdpPtr->update( 1.0, *pertBVector, -1.0, *origBVector, 0.0 );
   dbdpPtr->scale(rdp);
 
   if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))

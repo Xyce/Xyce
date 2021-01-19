@@ -982,8 +982,8 @@ bool NOISE::createACLinearSystem_()
   ACMatrix_->assembleGlobalMatrix();
 
   B_->putScalar( 0.0 );
-  B_->block( 0 ).addVec( 1.0, *bVecRealPtr);
-  B_->block( 1 ).addVec( 1.0, *bVecImagPtr);
+  B_->block( 0 ).update( 1.0, *bVecRealPtr);
+  B_->block( 1 ).update( 1.0, *bVecImagPtr);
 
   delete X_;
   X_ = Xyce::Linear::createBlockVector (numBlocks, blockMap, baseMap);
@@ -1129,8 +1129,8 @@ bool NOISE::updateACLinearSystemMagAndPhase_()
   loader_.loadBVectorsforAC (bVecRealPtr, bVecImagPtr);
 
   B_->putScalar( 0.0 );
-  B_->block( 0 ).addVec( 1.0, *bVecRealPtr);
-  B_->block( 1 ).addVec( 1.0, *bVecImagPtr);
+  B_->block( 0 ).update( 1.0, *bVecRealPtr);
+  B_->block( 1 ).update( 1.0, *bVecImagPtr);
 
   return true;
 }
@@ -1279,8 +1279,8 @@ void NOISE::resetAdjointNOISELinearSystem_()
 
   // setup the B_ vector RHS for the adjoint solve:
   B_->putScalar( 0.0 );
-  B_->block( 0 ).addVec( 1.0, *bNoiseVecRealPtr);
-  B_->block( 1 ).addVec( 1.0, *bNoiseVecImagPtr);
+  B_->block( 0 ).update( 1.0, *bNoiseVecRealPtr);
+  B_->block( 1 ).update( 1.0, *bNoiseVecImagPtr);
 
   if (DEBUG_ANALYSIS)
   {
