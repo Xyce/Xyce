@@ -81,7 +81,11 @@
     for(int i=1; i<=n2; ++i)
     { 
       (*(this->dftOutData_))[2*i] = (*outResultTmp_)[i];
-      (*(this->dftOutData_))[2*i+1] = (*outResultTmp_)[signalLength_-i];
+
+      if ( (i == n2) && ( signalLength_ % 2 == 0 ) )
+        (*(this->dftOutData_))[2*i+1] = 0.0;
+      else      
+        (*(this->dftOutData_))[2*i+1] = (*outResultTmp_)[signalLength_-i];
     }
   }
 
@@ -107,7 +111,9 @@
     for(int i=1; i<=n2; ++i)
     {
       (*inDataTmp_)[i] = (*(this->iftInData_))[2*i];
-      (*inDataTmp_)[signalLength_-i] = (*(this->iftInData_))[2*i+1];
+
+      if ( !( (i == n2) && (signalLength_ % 2 == 0 ) ) )
+        (*inDataTmp_)[signalLength_-i] = (*(this->iftInData_))[2*i+1];
     }
 
     // Execute the IFT.
