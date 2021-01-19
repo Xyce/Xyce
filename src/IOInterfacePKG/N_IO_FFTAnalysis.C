@@ -209,7 +209,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 	Report::UserError0() << "Invalid WINDOW type " << windowType_ << " on .FFT line";
       }
     }
-    else if (tag == "ALPHA")
+    else if (tag == "ALFA")
     {
       // Parameter used in GAUSS and KAISER windows.  It is bounded by 1.0 and 20.0
       alpha_ = currentParamIt->getImmutableValue<double>();
