@@ -444,6 +444,28 @@
            c  wb,w,!c?(D,wb,!D) D,wb,!D                                                                                        
            !c wb                wb                                                                                             
       -->
+
+      <!-- This template, like forloop, had broken conditions that can 
+           possibly cause dependency to be called twice on the block with
+           the consequence of reversing the block twice and polluting
+           the datastructure with duplicates.  Let's try to make it less
+           dangerous -->
+
+      <admst:apply-templates select="while" match="e:dependency"/>
+      <admst:choose>
+        <admst:when test="[$globalopdependent='no']">
+          <admst:variable name="globalopdependent" string="yes"/>
+          <admst:apply-templates select="whileblock" match="dependency"/>
+          <admst:variable name="globalopdependent" string="no"/>
+          <admst:apply-templates select="while[dependency='constant']" match="e:dependency"/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:apply-templates select="whileblock" match="dependency"/>
+        </admst:otherwise>
+      </admst:choose>
+
+      <!-- Original -->
+      <!--
       <admst:apply-templates select="while" match="e:dependency"/>
       <admst:apply-templates select="[$globalopdependent='yes' or while/dependency='constant']/whileblock" match="dependency"/>
       <admst:if test="[$globalopdependent='no']">
@@ -454,6 +476,7 @@
           <admst:variable name="globalopdependent" string="no"/>
         </admst:if>
       </admst:if>
+      -->
       <!--
           wl:  w=c          w!=c
                c  np l  nl  np np l  nl                                                             
@@ -477,6 +500,29 @@
       </admst:choose>
     </admst:when>
     <admst:when test="[datatypename='forloop']">
+      <!-- Xyce:  The original code for this had broken conditionals that
+           could, in some cases, allow dependency to be called twice on
+           the "forblock".  This is catastrophic and should not happen.
+           Let's try to accomplish the dependency scanning without that
+           logical hole -->
+      <admst:apply-templates select="initial|update" match="dependency"/>
+      <admst:apply-templates select="condition" match="e:dependency"/>
+      <admst:choose>
+        <admst:when test="[$globalopdependent='no']">
+          <admst:variable name="globalopdependent" string="yes"/>
+          <admst:apply-templates select="forblock" match="dependency"/>
+          <admst:variable name="globalopdependent" string="no"/>
+          <admst:apply-templates select="(initial|update)/[dependency='constant']" match="dependency"/>
+          <admst:apply-templates select="condition[dependency='constant']" match="e:dependency"/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:apply-templates select="forblock" match="dependency"/>
+          <admst:apply-templates select="(initial|update)/[dependency='constant']" match="dependency"/>
+          <admst:apply-templates select="condition[dependency='constant']" match="e:dependency"/>
+        </admst:otherwise>
+      </admst:choose>
+      <!-- Original code: -->
+      <!--
       <admst:apply-templates select="initial|update" match="dependency"/>
       <admst:apply-templates select="condition" match="e:dependency"/>
       <admst:apply-templates select="[$globalopdependent='yes' or nilled((initial|condition|update)/[dependency!='constant'])]/forblock" match="dependency"/>
@@ -489,6 +535,7 @@
           <admst:variable name="globalopdependent" string="no"/>
         </admst:if>
       </admst:if>
+      -->
       <!--
           fl:  f=c          f!=c
                c  np l  nl  np np l  nl                                                             
