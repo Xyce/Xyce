@@ -102,6 +102,7 @@ public:
 
 protected:
   FFTAnalysis* fftAnalysisPtr_;
+  int np_;
 
 private:
   int numOutVars_;
@@ -200,7 +201,7 @@ public:
 public:
   void reset();
   double getMeasureResult();
-
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
 };
 
 } // namespace Measure

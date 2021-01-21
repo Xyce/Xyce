@@ -49,7 +49,8 @@ namespace Measure {
 //-----------------------------------------------------------------------------
 FFT::FFT(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  fftAnalysisPtr_(0)
+  fftAnalysisPtr_(0),
+  np_(0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -109,6 +110,7 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 {
   initialized_ = true;
   fftAnalysisPtr_ = fftAnalysisPtr;
+  np_ = fftAnalysisPtr_->getNP();
 }
 
 //-----------------------------------------------------------------------------
@@ -395,11 +397,66 @@ void THD::reset()
 //-----------------------------------------------------------------------------
 double THD::getMeasureResult()
 {
-  if( initialized_ )
+  if( initialized_  && fftAnalysisPtr_->isCalculated() )
   {
-    calculationResult_ = 20*log10(fftAnalysisPtr_->getTHD());
+    double thd=0;
+
+    if (!nbHarmGiven_ || ((2*nbHarm_ >= np_) || (nbHarm_ <=0)) )
+    {
+      // use THD value calculated with all of the harmonics
+      thd = fftAnalysisPtr_->getTHD();
+    }
+    else if (nbHarm_ == 1)
+    {
+      // to match HSPICE, rather than returning an inf
+      thd = fftAnalysisPtr_->getNoiseFloor();
+    }
+    else
+    {
+      // need to recalculate the THD for the requested number of harmonics
+      std::vector<double> mag = fftAnalysisPtr_->getMagVec();
+      for (int i=2; i<=nbHarm_; i++)
+        thd += mag[i]*mag[i];
+      thd = sqrt(thd)/mag[1];
+    }
+
+    // return measure result in dB
+    calculationResult_ = 20*log10(thd);
   }
+
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : THD::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/21/2021
+//-----------------------------------------------------------------------------
+std::ostream& THD::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
+    if (initialized_ && fftAnalysisPtr_->isCalculated())
+    {
+      os << name_ << " = " << this->getMeasureResult();
+      if (nbHarmGiven_ && (nbHarm_ >=1))
+      {
+        int maxHarm = np_/2;
+        os << " up to the harmonic: " << std::min(nbHarm_, maxHarm);
+      }
+      os << std::endl;
+    }
+    else
+    {
+      os << name_ << " = FAILED" << std::endl;
+    }
+
+    return os;
 }
 
 } // namespace Measure

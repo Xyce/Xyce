@@ -105,7 +105,10 @@ public:
   }
 
   // getters used by .MEASURE FFT objects
-  const bool getCalculated() const {return calculated_;}
+  const int getNP() const {return np_;}
+  const bool isCalculated() const {return calculated_;}
+  const double getNoiseFloor() const {return noiseFloor_;}
+  const std::vector<double>& getMagVec() const {return mag_;}
   const double getENOB() const {return enob_;}
   const double getSFDR() const {return sfdr_;}
   const double getSNDR() const {return sndr_;}

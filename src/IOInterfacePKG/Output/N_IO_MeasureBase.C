@@ -487,7 +487,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "NBHARM" )
     {
-
+      nbHarm_ = (*it).getImmutableValue<int>();
+      nbHarmGiven_ = true;
     }
     else if( tag == "PRECISION" ) 
     {
