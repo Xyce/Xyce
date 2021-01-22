@@ -62,6 +62,7 @@ class interpolator
 {
 public:
   interpolator (){};
+  virtual ~interpolator (){};
 
   virtual void clear (){};
 
@@ -188,6 +189,7 @@ class akima: public interpolator<ScalarT>
 {
 public:
   akima () {};
+  ~akima () { clear(); };
 
   void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
 
@@ -491,6 +493,7 @@ class wodicka: public interpolator<ScalarT>
 {
 public:
   wodicka () {};
+  ~wodicka () { clear(); };
 
   void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
 
@@ -781,6 +784,7 @@ class cubicSpline: public interpolator<ScalarT>
 {
 public:
   cubicSpline () {};
+  ~cubicSpline () { clear(); };
 
   void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
 
@@ -1430,6 +1434,7 @@ class barycentricLagrange: public interpolator<ScalarT>
 {
 public:
   barycentricLagrange () {};
+  ~barycentricLagrange () {clear();};
 
   void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
 
