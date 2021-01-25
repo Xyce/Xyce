@@ -214,11 +214,11 @@ int main(int argc, char* argv[])
   N_LAS_Vector origRHS( dynamic_cast<Epetra_Vector *>(b) );
   N_LAS_Vector origSoln( origRHS );
 
-  // Call addVec directly on the returned block
+  // Call update directly on the returned block
   // Don't save to temporary N_LAS_Vector object, because it would only be a copy.
   blockVector.putScalar( 0.0 );
-  blockVector.block( 0 ).addVec( 1.0, origRHS );
-  blockVector.block( 1 ).addVec(-1.0, origRHS );;
+  blockVector.block( 0 ).update( 1.0, origRHS );
+  blockVector.block( 1 ).update(-1.0, origRHS );;
 
   // -----------------------------------------------------
   // Solve the block system using Amesos.

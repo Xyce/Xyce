@@ -401,10 +401,7 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
   if (VERBOSE_NONLINEAR)
   {
     // Max RHS norm (maxNormRHS_).
-    rhsVectorPtr_->infNorm(&maxNormRHS_);
-    std::vector<int> index(1, -1);
-    rhsVectorPtr_->infNormIndex( &index[0] );
-    maxNormRHSindex_ = index[0];
+    rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
 
     // Print out the starting point information.
     printStepInfo_(Xyce::lout(), nlStep_);
@@ -812,11 +809,11 @@ int DampedNewton::takeOneSolveStep()
 void DampedNewton::updateX_()
 {
   if (!basicNewton_)
-    dsPtr_->nextSolutionPtr->axpy(*dsPtr_->tmpSolVectorPtr,
-                                  stepLength_,
-                                  *searchDirectionPtr_);
+    dsPtr_->nextSolutionPtr->update(1.0, *dsPtr_->tmpSolVectorPtr,
+                                    stepLength_,
+                                    *searchDirectionPtr_, 0.0);
   else
-    dsPtr_->nextSolutionPtr->update(1.0, *searchDirectionPtr_, 1.0);
+    dsPtr_->nextSolutionPtr->update(1.0, *searchDirectionPtr_);
   
 }
 
@@ -1197,11 +1194,7 @@ int DampedNewton::converged_()
 
   // Max RHS norm (maxNormRHS_) is used in converged_() and output by
   // printStepInfo_().
-  rhsVectorPtr_->infNorm(&maxNormRHS_);
-
-  std::vector<int> index(1, -1);
-  rhsVectorPtr_->infNormIndex( &index[0] );
-  maxNormRHSindex_ = index[0];
+  rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
 
   // If the norm is an NaN, then exit.
   if (maxNormRHS_ != 0.0 &&

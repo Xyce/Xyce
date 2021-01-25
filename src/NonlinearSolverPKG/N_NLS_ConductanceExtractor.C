@@ -454,10 +454,10 @@ bool ConductanceExtractor::extract(
   // Save the old rhs and newton vectors.  (This might not be neccessary).
   // first save a copy of the rhs vector, in case we want it later.
   savedRHSVectorPtr_->putScalar(0.0);
-  savedRHSVectorPtr_->addVec(1.0, *(rhsVectorPtr_));
+  savedRHSVectorPtr_->update(1.0, *(rhsVectorPtr_));
 
   savedNewtonVectorPtr_->putScalar(0.0);
-  savedNewtonVectorPtr_->addVec(1.0, *(NewtonVectorPtr_));
+  savedNewtonVectorPtr_->update(1.0, *(NewtonVectorPtr_));
 
   // Before we try to do any linear solves, check that the Jacobian
   // actually has been loaded.  Sometimes, early in the run, the inner
@@ -533,10 +533,10 @@ bool ConductanceExtractor::extract(
 
   // Restore the RHS and Newton vectors. (again, this may not be necessary).
   rhsVectorPtr_->putScalar(0.0);
-  rhsVectorPtr_->addVec(1.0, *(savedRHSVectorPtr_));
+  rhsVectorPtr_->update(1.0, *(savedRHSVectorPtr_));
 
   NewtonVectorPtr_->putScalar(0.0);
-  NewtonVectorPtr_->addVec(1.0, *(savedNewtonVectorPtr_));
+  NewtonVectorPtr_->update(1.0, *(savedNewtonVectorPtr_));
 
   if (VERBOSE_CONDUCTANCE)
     printJacobian_ (inputMap,jacobian);

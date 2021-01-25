@@ -99,6 +99,21 @@ public:
     return depSolVarIterVector_;
   }
 
+  const std::string& getOutputVarName() const
+  {
+    return outputVarName_;
+  }
+
+  // getters used by .MEASURE FFT objects
+  const int getNP() const {return np_;}
+  const bool isCalculated() const {return calculated_;}
+  const double getNoiseFloor() const {return noiseFloor_;}
+  const std::vector<double>& getMagVec() const {return mag_;}
+  const double getENOB() const {return enob_;}
+  const double getSFDR() const {return sfdr_;}
+  const double getSNDR() const {return sndr_;}
+  const double getTHD() const {return thd_;}
+
 private:
   bool interpolateData_();
   bool applyWindowFunction_();

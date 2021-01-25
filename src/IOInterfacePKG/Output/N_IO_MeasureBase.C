@@ -139,6 +139,13 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     calculationInstant_(0.0),
     gotMeasureResult_(false),
     calculationDefaultVal_(-1.0),
+    binSize_(0),
+    minFreq_(0),
+    maxFreq_(0),
+    nbHarm_(0),
+    minFreqGiven_(false),
+    maxFreqGiven_(false),
+    nbHarmGiven_(false),
     precision_(6),
     measurePrintOption_("ALL"),
     measureOutputOption_("VALUE"),
@@ -465,6 +472,23 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         calculationDefaultVal_ = (*it).getImmutableValue<double>();
         calculationResult_ = calculationDefaultVal_;
       }
+    }
+    else if( tag == "BINSIZ" )
+    {
+
+    }
+    else if( tag == "MINFREQ" )
+    {
+
+    }
+    else if( tag == "MAXFREQ" )
+    {
+
+    }
+    else if( tag == "NBHARM" )
+    {
+      nbHarm_ = (*it).getImmutableValue<int>();
+      nbHarmGiven_ = true;
     }
     else if( tag == "PRECISION" ) 
     {

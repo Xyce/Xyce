@@ -110,7 +110,7 @@ public:
 
     // assuming x and this are the same size
     for (int i=0;i<size_;i++){
-      (*xyce_multi_vec_)[i]->addVec( (double)1.0, *( (*ex.getVector())[i] ) );
+      (*xyce_multi_vec_)[i]->update( (double)1.0, *( (*ex.getVector())[i] ) );
     }
   }
 
@@ -187,7 +187,7 @@ public:
   virtual void axpy( const Real alpha, const ::ROL::Vector<Real> &x ) {
     const ROL_XyceVector &ex = Teuchos::dyn_cast<const ROL_XyceVector>(x);
     for (int i=0;i<size_;i++){
-      (*xyce_multi_vec_)[i]->addVec( (double)alpha, *( (*ex.getVector())[i] ) );
+      (*xyce_multi_vec_)[i]->update( (double)alpha, *( (*ex.getVector())[i] ) );
     }
   }
 

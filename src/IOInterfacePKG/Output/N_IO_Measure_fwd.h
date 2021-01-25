@@ -42,6 +42,7 @@ namespace Measure {
 
 class Base;
 class Extrema;
+class FFT;
 class Stats;
 class TranStats;
 class Average;
@@ -68,6 +69,11 @@ class PeakToPeak;
 class RMS;
 class Error;
 class RiseFallDelay;
+class FFTFind;
+class ENOB;
+class SFDR;
+class SNDR;
+class THD;
 
 } // namespace Measure
 } // namespace IO
