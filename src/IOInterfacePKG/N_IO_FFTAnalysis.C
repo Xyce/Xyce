@@ -75,6 +75,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     freq_(0.0),
     fmin_(0.0),
     fmax_(0.0),
+    startTimeGiven_(false),
     stopTimeGiven_(false),
     freqGiven_(false),
     fminGiven_(false),
@@ -153,6 +154,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     else if ( (tag == "START") || (tag == "FROM") )
     {
       startTime_ = currentParamIt->getImmutableValue<double>();
+      startTimeGiven_ = true;
       if ( startTime_ < 0 )
       {
         startTime_ = 0.0;
@@ -307,6 +309,12 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
 
   // Compute new, equally spaced time points.
   double step = (stopTime_ - startTime_)/np_;
+  if (startTimeGiven_)
+  {
+    sampleTimes_[0] = startTime_;
+    sec.setBreakPoint (sampleTimes_[0]);
+  }
+
   for (int i = 1; i < np_; i++)
   {
     sampleTimes_[i] = sampleTimes_[i-1] + step;

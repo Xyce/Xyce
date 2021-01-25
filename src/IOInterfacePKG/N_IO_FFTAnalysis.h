@@ -137,6 +137,7 @@ private:
   double freq_;
   double fmin_;
   double fmax_;
+  bool startTimeGiven_;
   bool stopTimeGiven_;
   bool freqGiven_;
   bool fminGiven_;
