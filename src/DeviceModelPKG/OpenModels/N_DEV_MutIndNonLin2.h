@@ -173,9 +173,13 @@ private:
   //int li_deltaHappVar;
   int li_deltaMagVar;
 
-  // state variable for mag, h and r
+  // variables for which this model needs a time derivatieve
+  // for output of B-H data
+  int li_MagVarState;
+  int li_RVarState;
+  
+  // store variable for mag, h and r
   int li_MagVarStore;
-  //int li_MagVarDerivState;
   int li_RVarStore;
   int li_BVarStore;
   int li_HVarStore;
@@ -201,6 +205,7 @@ private:
   double temp;         // temperature of this instance
   bool tempGiven;      // flag if temp was given
 
+  double Happ;
   double branchCurrentSum;
   double deltaBranchCurrentSum;
   double P;

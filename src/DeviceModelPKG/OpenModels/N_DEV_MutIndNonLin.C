@@ -1500,7 +1500,7 @@ bool Instance::updateSecondaryState ()
   }
   else
   {
-    double dMdt = staDerivVec[ li_MagVarState ];
+    double dMdt = mVarScaling*staDerivVec[ li_MagVarState ];
     double R = solVector[ li_RVar ];
     double dHdt = R - (model_.Gap/model_.Path)*dMdt;
   

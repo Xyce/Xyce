@@ -337,6 +337,7 @@ Instance::Instance(
   : DeviceInstance(IB, configuration.getInstanceParameters(), factory_block),
     model_(Iiter),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    Happ(0.0),
     branchCurrentSum(0.0),
     P(0.0),
     PPreviousStep(0.0),
@@ -363,7 +364,7 @@ Instance::Instance(
   // and one state var (I_branch)
   numExtVars   = 2;
   numIntVars   = 3;
-  numStateVars = 0;
+  numStateVars = 2;
   setNumStoreVars(4);
   tempGiven    = false;
 
@@ -677,9 +678,27 @@ void Instance::registerLIDs(const std::vector<int> & intLIDVecRef,
 //-----------------------------------------------------------------------------
 void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 {
-  for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it)
-    addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
+  //for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it)
+  //  addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
     
+  int indCount=0;
+  std::string baseName = getSubcircuitName(getName());
+  for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it ) {
+    std::string branchInductorName = baseName;
+    if( branchInductorName != "" )
+      branchInductorName += ":";
+    branchInductorName += (*it)->name;
+    InstanceName bInductorIName = InstanceName( branchInductorName );
+    std::string encodedName = spiceInternalName( bInductorIName, "branch");
+    addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
+    addInternalNode(symbol_table, (*it)->li_Branch, encodedName);
+    if (loadLeadCurrent)
+    {
+      addBranchDataNode(symbol_table, (*it)->li_branch_data, bInductorIName, "BRANCH_D");
+    }
+    ++indCount;
+  }
+  
   addStoreNode(symbol_table, li_MagVarStore, getName(), "m");
   addStoreNode(symbol_table, li_MagVarStore, getName().getEncodedName() + "_m");
   addStoreNode(symbol_table, li_RVarStore, getName().getEncodedName() + "_r");
@@ -701,6 +720,9 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
 
   // copy over the global ID lists.
   staLIDVec = staLIDVecRef;
+  
+  li_MagVarState=staLIDVec[0];
+  li_RVarState=staLIDVec[1];
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
@@ -926,6 +948,7 @@ bool Instance::updateIntermediateVars ()
     Xyce::dout() << "Instance::updateIntermediateVars" << std::endl;
   }
   Linear::Vector & solVector = *(extData.nextSolVectorPtr);
+  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
 
   // some parameters in the model class that we will use often
   const double A      = model_.A;
@@ -970,7 +993,7 @@ bool Instance::updateIntermediateVars ()
     tanh_qV = 1.0;
   }
 
-  double Happ = branchCurrentSum / Path;
+  Happ = branchCurrentSum / Path;
   double dHdt=0.0;
 #ifdef MS_FACTORING2
   double H = Happ - (Gap / Path) * latestMag * Ms;
@@ -1127,7 +1150,11 @@ bool Instance::updateIntermediateVars ()
     stoVector[ li_HVarStore ] = lastH;
   lastH=stoVector[ li_HVarStore ];
   */
-  stoVector[li_RVarStore] = 0.0;
+  // when the time derivative is calculated of this we will have R
+  // R = dHapp/dt;
+  
+  staVector[li_RVarState] = Happ;
+  staVector[li_MagVarState] = latestMag;
 
   return true;
 }
@@ -1194,6 +1221,7 @@ bool Instance::updatePrimaryState()
   // udate dependent parameters
   updateIntermediateVars ();
   
+  
   /*
   Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
   stoVector[li_MagVarStore] = latestMag; 
@@ -1241,6 +1269,162 @@ bool Instance::updatePrimaryState()
 bool Instance::updateSecondaryState ()
 {
   bool bsuccess = true;
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+  {
+    Xyce::dout() << "Instance::updateSecondaryState-------------" << std::endl
+         << "\tname = " << getName() << std::endl;
+  }
+
+  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
+  Linear::Vector & staDerivVec = *(extData.nextStaDerivVectorPtr);
+    
+  Linear::Vector & solVector = *(extData.nextSolVectorPtr);
+  Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
+  Linear::Vector & stoVectorCurr = *(extData.currStoVectorPtr);
+
+  // copy derivitive of Mag from result vector into state vector
+  //staVector[ li_MagVarDerivState ] = staDerivVec[ li_MagVarState ];
+  
+  //double mVarScaling = model_.mVarScaling;
+  // place current values of mag, H and R in state vector
+  // must unscale them as the rest of the class assumes
+  // that these aren't scaled yet.
+  double latestMag = stoVector[li_MagVarStore];
+  /*
+  if( model_.includeMEquation ) 
+  {
+    staVector[ li_MagVarState ] = solVector[ li_MagVar ];
+    latestMag = mVarScaling * solVector[ li_MagVar ];
+  }
+  else
+  {
+    latestMag = mVarScaling * staVector[ li_MagVarState ];
+  }
+  if( model_.factorMS )
+  {
+    latestMag *= model_.Ms;
+  }
+  */
+  // place a copy of R in the store vector for lookup for output.
+  stoVector[ li_RVarStore ] = staDerivVec[ li_RVarState ];
+  
+  
+  //
+  // need these to calculate H for B-H loops and be careful of
+  // potential non-physical turning points in the B-H phase 
+  // in general dB/dH should be >= 0.  If it's less than
+  // zero then we have a non-physical turning point that 
+  // is ok as part of the device model, but not physically
+  // realistic as the change incurrent (dH) is apposing
+  // the magnetic field (dB) will be an irreversible loss.
+  //
+  // So if dB/dH is negative, hold H constant while B 
+  // changes to get the correct path along the B-H curve.
+  // Unless the gap is non-zero then things are slightly 
+  // more complex and we need to look at the dM/dt and dH/dt terms.
+  //
+  // dM/dt is equivalent to dB/dt within a scalar factor
+  // dH/dt = dHapp/dt - (gap/path) dM/dt = R - (gap/path) dM/dt
+  
+  double lastB = stoVectorCurr[ li_BVarStore ];
+  double lastH = stoVectorCurr[ li_HVarStore ];
+  
+  double calculatedH = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
+  double calculatedB = model_.BCgsFactor * (4.0e-7 * M_PI * (calculatedH + latestMag));
+
+  double deltaH = calculatedH - lastH;
+  double deltaB = calculatedB - lastB;
+  double deltaM = stoVector[li_MagVarStore] - stoVectorCurr[li_MagVarStore];
+  
+  double dMdt = staDerivVec[ li_MagVarState ];
+  double R = staDerivVec[ li_RVarState ];
+  double dHdt = R - (model_.Gap/model_.Path)*dMdt;
+  double dBdt = model_.BCgsFactor * (4.0e-7 * M_PI * ( dHdt + staDerivVec[ li_MagVarState ] ));
+  
+  double dBdH = dBdt / dHdt;
+  /*
+  if( deltaH != 0.0)
+  {
+    dBdH = deltaB / deltaH;
+  }
+  */
+  
+  double Hfxn = Happ;
+  
+  
+  //Xyce::dout() << "dBdH = " << dBdH << "  deltaB = " << deltaB << "  DeltaH=" << deltaH << " lastH = " << lastH << " Hfxn = " << (model_.HCgsFactor *Hfxn) << std::endl;
+  if( model_.Gap <= 0 )
+  {
+    // this is close but cuts off some of the turning.
+    //if( (dBdH < 0) || ((calculatedB<0)&&(calculatedH>0)) || ((calculatedB>0)&&(calculatedH<0)) )
+    double dhdt = staDerivVec[ li_RVarState ];
+    
+    //Xyce::dout() << " lastH = " << lastH << "  dhdt = " << dhdt << " Hfxn = " << (model_.HCgsFactor *Hfxn) << std::endl;
+    Xyce::dout() << getSolverState().currTime_  << "===> lastH, Hfx, dBdH  " << lastH << " " << (model_.HCgsFactor *Hfxn) << ": " << dBdH << std::endl;
+    if( (dBdH < 0) )
+    {
+      Hfxn = lastH / model_.HCgsFactor;
+    }
+    /*
+    else if( ((deltaH > 0) && (deltaM < 0)) || (deltaH < 0) && (deltaM > 0) )
+    {
+      Hfxn = lastH / model_.HCgsFactor;
+    }
+    */
+    /* this works but requires a constant
+    else if ( fabs(deltaH)>0.2)
+    {
+      
+      Hfxn = lastH / model_.HCgsFactor;
+    }
+    */
+    //else if((((calculatedB<0)&&(calculatedH>0)) || ((calculatedB>0)&&(calculatedH<0))) && (fabs(dhdt) > 100.0 ))
+    //{
+    //  Hfxn = lastH / model_.HCgsFactor;
+    //}
+  }
+  else
+  {
+    double dMdt = staDerivVec[ li_MagVarState ];
+    double R = staDerivVec[ li_RVarState ];
+    double dHdt = R - (model_.Gap/model_.Path)*dMdt;
+    double dHdtcurr = 0;
+    
+    double gapFactor =   - (model_.Gap / model_.Path) * latestMag;
+    /*
+    if( (dMdt > 0) && (dHdt < 0) )
+    {
+      // B is increasing, so H should be increasing
+      // ignore the M component. 
+      Hfxn = Happ;
+    }
+    else if( (dMdt < 0) && (dHdt > 0) )
+    {
+      // B is decreasing, so H should be decreasing 
+      // ignore the M component
+      Hfxn = Happ;
+    }
+    */
+    /*
+    if( ((latestMag > 0.0) && (Hfxn < 0.0)) || ((latestMag < 0.0) && (Hfxn > 0.0)) )
+    {
+      Hfxn = Happ;
+    }
+    
+    double hcorr = Happ  - (model_.Gap / model_.Path) * latestMag;
+    if( ((latestMag > 0.0) && (hcorr > Hfxn)) || ((latestMag < 0.0) && (hcorr < Hfxn)) )
+    {
+      Hfxn = Happ;
+    }
+    */
+    if( (fabs( gapFactor) < fabs( Hfxn )) && ( ((gapFactor < 0) && (Hfxn < 0)) || ((gapFactor > 0) && (Hfxn > 0)) ))
+    {
+      Hfxn += gapFactor;
+    }
+  }
+  stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
+  stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
+  
   return bsuccess;
 }
 
