@@ -455,6 +455,12 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
 	{
           Util::Op::OpList::const_iterator ov_it = (*it)->getOutputVars()->begin();
 	  std::string measureVarName = (*ov_it)->getName();
+          // Need to adjust measure name, if it is an operator like VR(1), to remove the 'R'.
+          // This is need to make FIND measures work.
+          size_t parenIdx = measureVarName.find_first_of('(');
+          if ((measureVarName[0] != '{') && (parenIdx != 1))
+            measureVarName = measureVarName[0] + measureVarName.substr(parenIdx);
+
           for (fftal_it = FFTAnalysisList.rbegin(); fftal_it != FFTAnalysisList.rend(); fftal_it++)
 	  {
             if ( (*fftal_it)->getOutputVarName() == measureVarName )

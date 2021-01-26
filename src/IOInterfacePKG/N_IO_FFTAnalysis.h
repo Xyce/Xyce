@@ -107,8 +107,13 @@ public:
   // getters used by .MEASURE FFT objects
   const int getNP() const {return np_;}
   const bool isCalculated() const {return calculated_;}
+  const double getFreq() const { return freq_;}
   const double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
+  const double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
+  const double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
+  const double getMagVal(const int index) const { return mag_[index];}
+  const double getPhaseVal(const int index) const { return phase_[index];}
   const double getENOB() const {return enob_;}
   const double getSFDR() const {return sfdr_;}
   const double getSNDR() const {return sndr_;}
@@ -161,8 +166,14 @@ private:
 
   int numDepSolVars_;
 
+  // Xyce FFT interface
   Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
+  // these are FFT coefficients as reported by the Xyce FFT interface.
   std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
+
+  // the real and imaginary parts of the FFT coeffs, translated into HSPICE format
+  std::vector<double> fftRealCoeffs_;
+  std::vector<double> fftImagCoeffs_;
 
   std::vector<double> time_;
   std::vector<double> outputVarsValues_;

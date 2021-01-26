@@ -304,8 +304,10 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   sampleTimes_.resize(np_,0.0);
   sampleValues_.resize(np_,0.0);
 
-  mag_.resize(np_,0.0);
-  phase_.resize(np_,0.0);
+  mag_.resize(np_+1,0.0);
+  phase_.resize(np_+1,0.0);
+  fftRealCoeffs_.resize(np_+1,0.0);
+  fftImagCoeffs_.resize(np_+1,0.0);
 
   // Compute new, equally spaced time points.
   double step = (stopTime_ - startTime_)/np_;
@@ -515,21 +517,24 @@ void FFTAnalysis::calculateFFT_()
 {
   ftInterface_->calculateFFT();
 
-  mag_[0] = ftOutData_[0]/np_;
+  fftRealCoeffs_[0] = ftOutData_[0]/np_;
+  fftImagCoeffs_[0] = ftOutData_[1]/np_;
   double tmpVal;
   double noisePlusDist=0.0;
   double convRadDeg = 180.0/M_PI;
 
   // handle DC component
-  mag_[0] = abs(ftOutData_[0]/np_);
-  phase_[0] = convRadDeg * atan2(ftOutData_[1], ftOutData_[0]);
+  mag_[0] = abs(fftRealCoeffs_[0]);
+  phase_[0] = convRadDeg * atan2(fftImagCoeffs_[0], fftRealCoeffs_[0]);
   maxMag_ = mag_[0];
 
   // calculate mag, phase, total harmonic distortion (THD) and spurious free dynamic range (SFDR)
   for (int i=1;i<=np_/2; i++)
   {
-    tmpVal = ftOutData_[2*i]*ftOutData_[2*i] + ftOutData_[2*i+1]*ftOutData_[2*i+1];
-    mag_[i] = 2*sqrt(tmpVal)/np_;
+    fftRealCoeffs_[i] = 2*ftOutData_[2*i]/np_;
+    fftImagCoeffs_[i] = 2*ftOutData_[2*i+1]/np_;
+    tmpVal = fftRealCoeffs_[i]*fftRealCoeffs_[i] + fftImagCoeffs_[i]*fftImagCoeffs_[i];
+    mag_[i] = sqrt(tmpVal);
     if (mag_[i] > maxMag_)
       maxMag_ = mag_[i];
     if (fftout_ && (i>1))
@@ -537,7 +542,7 @@ void FFTAnalysis::calculateFFT_()
 
     // small magnitudes have phase set to 0
     if (mag_[i] > noiseFloor_)
-      phase_[i] = convRadDeg * atan2(ftOutData_[2*i+1], ftOutData_[2*i]);
+      phase_[i] = convRadDeg * atan2(fftImagCoeffs_[i], fftRealCoeffs_[i]);
 
     if (i > 1)
     {
@@ -553,7 +558,7 @@ void FFTAnalysis::calculateFFT_()
 
   // these metrics are output later if fftout_ =1
   sfdr_ = 20*log10(mag_[1]/sfdr_);                         // units are dB
-  sndr_ = 20*log10(0.5*np_*mag_[1] / sqrt(noisePlusDist)); // units are db
+  sndr_ = 20*log10(mag_[1] / sqrt(noisePlusDist)); // units are db
   enob_ = (sndr_ - 1.76)/6.02;                             // units are bits
   // don't take 20*log10() for THD, since both the actual value and dB value are output later.
   thd_ = sqrt(thd_)/mag_[1];
@@ -564,10 +569,13 @@ void FFTAnalysis::calculateFFT_()
 
   if (DEBUG_IO)
   {
-    Xyce::dout() << "FFT coeffs for " << outputVarName_ << " are:" << std::endl;
-    for (int i=0; i < np_+2; i++)
+    std::string signStr;
+    Xyce::dout() << "Coeffs from FFT interface and HSPICE-style coeffs for " << outputVarName_ << " are:" << std::endl;
+    for (int i=0; i <= np_/2; i++)
     {
-      Xyce::dout() << ftOutData_[i] << std::endl;
+      signStr = (ftOutData_[2*i+1] < 0.0) ? "" : "+" ;
+      Xyce::dout() << ftOutData_[2*i] << " " << signStr << ftOutData_[2*i+1] << "i     "
+                   << fftRealCoeffs_[i] << " " << signStr << fftImagCoeffs_[i] << "i" <<std::endl;
     }
     Xyce::dout() << std::endl;
   }
