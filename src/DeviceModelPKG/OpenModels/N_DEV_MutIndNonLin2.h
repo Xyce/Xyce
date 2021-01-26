@@ -44,6 +44,7 @@
 #include <N_DEV_DeviceBlock.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
+#include <N_UTL_FixedQueue.h>
 #include <N_DEV_MutIndLin.h>
 
 #include <N_DEV_MutIndNonLin.h>
@@ -237,7 +238,10 @@ private:
   // output stream for output of internal state if requested by user
   Teuchos::RCP< std::ofstream > outputFileStreamPtr;
   bool outputStateVarsFlag;
-
+  
+  Util::FixedQueue<double> dMdtHistory_;
+  double dMdtAverage_;
+  
   // this is a templated function for a complicated term P(M,I_1... I_n) that relates
   // the magnetic saturation of the mutual indcutor to the individual currents
   // through the inductors.  We'll need dP_dM and this tempated function automates

@@ -353,7 +353,8 @@ Instance::Instance(
     useRKIntegration(false),
     includeDeltaM(false),
     lastH(0.0),
-    outputStateVarsFlag( false )
+    outputStateVarsFlag( false ),
+    dMdtAverage_(0.0)
 {
   if (DEBUG_DEVICE)
   {
@@ -574,6 +575,14 @@ Instance::Instance(
       }
       Xyce::dout() << " }" << std::endl;
     }
+  }
+  
+  // set history buffer size
+  const int dMdtHistoryLength=10;
+  dMdtHistory_.set_size(dMdtHistoryLength);
+  for( int j=0; j<dMdtHistory_.get_size(); j++)
+  {
+    dMdtHistory_.push_back(0.0);
   }
 }
 
@@ -1281,9 +1290,6 @@ bool Instance::updateSecondaryState ()
   Linear::Vector & solVector = *(extData.nextSolVectorPtr);
   Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
   Linear::Vector & stoVectorCurr = *(extData.currStoVectorPtr);
-
-  // copy derivitive of Mag from result vector into state vector
-  //staVector[ li_MagVarDerivState ] = staDerivVec[ li_MagVarState ];
   
   //double mVarScaling = model_.mVarScaling;
   // place current values of mag, H and R in state vector
@@ -1308,7 +1314,6 @@ bool Instance::updateSecondaryState ()
   // place a copy of R in the store vector for lookup for output.
   stoVector[ li_RVarStore ] = staDerivVec[ li_RVarState ];
   
-  
   //
   // need these to calculate H for B-H loops and be careful of
   // potential non-physical turning points in the B-H phase 
@@ -1328,95 +1333,29 @@ bool Instance::updateSecondaryState ()
   
   double lastB = stoVectorCurr[ li_BVarStore ];
   double lastH = stoVectorCurr[ li_HVarStore ];
-  
   double calculatedH = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
-  double calculatedB = model_.BCgsFactor * (4.0e-7 * M_PI * (calculatedH + latestMag));
-
-  double deltaH = calculatedH - lastH;
-  double deltaB = calculatedB - lastB;
-  double deltaM = stoVector[li_MagVarStore] - stoVectorCurr[li_MagVarStore];
-  
   double dMdt = staDerivVec[ li_MagVarState ];
   double R = staDerivVec[ li_RVarState ];
   double dHdt = R - (model_.Gap/model_.Path)*dMdt;
-  double dBdt = model_.BCgsFactor * (4.0e-7 * M_PI * ( dHdt + staDerivVec[ li_MagVarState ] ));
-  
-  double dBdH = dBdt / dHdt;
-  /*
-  if( deltaH != 0.0)
-  {
-    dBdH = deltaB / deltaH;
-  }
-  */
   
   double Hfxn = Happ;
   
-  
-  //Xyce::dout() << "dBdH = " << dBdH << "  deltaB = " << deltaB << "  DeltaH=" << deltaH << " lastH = " << lastH << " Hfxn = " << (model_.HCgsFactor *Hfxn) << std::endl;
   if( model_.Gap <= 0 )
-  {
-    // this is close but cuts off some of the turning.
-    //if( (dBdH < 0) || ((calculatedB<0)&&(calculatedH>0)) || ((calculatedB>0)&&(calculatedH<0)) )
-    double dhdt = staDerivVec[ li_RVarState ];
-    
-    //Xyce::dout() << " lastH = " << lastH << "  dhdt = " << dhdt << " Hfxn = " << (model_.HCgsFactor *Hfxn) << std::endl;
-    Xyce::dout() << getSolverState().currTime_  << "===> lastH, Hfx, dBdH  " << lastH << " " << (model_.HCgsFactor *Hfxn) << ": " << dBdH << std::endl;
-    if( (dBdH < 0) )
+  {    
+    if( ((dMdtAverage_<0.0) && (dHdt>0.0)) || ((dMdtAverage_>0.0) && (dHdt<0.0)) )
     {
+      // derivatives disagree so changes in H are lost.
       Hfxn = lastH / model_.HCgsFactor;
     }
-    /*
-    else if( ((deltaH > 0) && (deltaM < 0)) || (deltaH < 0) && (deltaM > 0) )
+    else if( ((dMdtAverage_<0.0) && (lastH < calculatedH)) || ((dMdtAverage_>0.0) && (lastH > calculatedH)) )
     {
+      // derivatives agree but H calculated may be in wrong direction 
       Hfxn = lastH / model_.HCgsFactor;
     }
-    */
-    /* this works but requires a constant
-    else if ( fabs(deltaH)>0.2)
-    {
-      
-      Hfxn = lastH / model_.HCgsFactor;
-    }
-    */
-    //else if((((calculatedB<0)&&(calculatedH>0)) || ((calculatedB>0)&&(calculatedH<0))) && (fabs(dhdt) > 100.0 ))
-    //{
-    //  Hfxn = lastH / model_.HCgsFactor;
-    //}
   }
   else
   {
-    double dMdt = staDerivVec[ li_MagVarState ];
-    double R = staDerivVec[ li_RVarState ];
-    double dHdt = R - (model_.Gap/model_.Path)*dMdt;
-    double dHdtcurr = 0;
-    
     double gapFactor =   - (model_.Gap / model_.Path) * latestMag;
-    /*
-    if( (dMdt > 0) && (dHdt < 0) )
-    {
-      // B is increasing, so H should be increasing
-      // ignore the M component. 
-      Hfxn = Happ;
-    }
-    else if( (dMdt < 0) && (dHdt > 0) )
-    {
-      // B is decreasing, so H should be decreasing 
-      // ignore the M component
-      Hfxn = Happ;
-    }
-    */
-    /*
-    if( ((latestMag > 0.0) && (Hfxn < 0.0)) || ((latestMag < 0.0) && (Hfxn > 0.0)) )
-    {
-      Hfxn = Happ;
-    }
-    
-    double hcorr = Happ  - (model_.Gap / model_.Path) * latestMag;
-    if( ((latestMag > 0.0) && (hcorr > Hfxn)) || ((latestMag < 0.0) && (hcorr < Hfxn)) )
-    {
-      Hfxn = Happ;
-    }
-    */
     if( (fabs( gapFactor) < fabs( Hfxn )) && ( ((gapFactor < 0) && (Hfxn < 0)) || ((gapFactor > 0) && (Hfxn > 0)) ))
     {
       Hfxn += gapFactor;
@@ -1440,33 +1379,44 @@ void Instance::acceptStep()
 {
   if (!getSolverState().dcopFlag)
   {
-   if(includeDeltaM)
-   {
-     MagVar += MagVarUpdate*model_.Ms;
-   }
-   else
-   {
-     MagVar += MagVarUpdate;
-   }
-   lastMagUpdate = MagVarUpdate;
-   PPreviousStep = P;
-   if( fabs(MagVar) > 2*model_.Ms )
-   {
-     MagVar = 0.0;
-   }
+    if(includeDeltaM)
+    {
+      MagVar += MagVarUpdate*model_.Ms;
+    }
+    else
+    {
+      MagVar += MagVarUpdate;
+    }
+    lastMagUpdate = MagVarUpdate;
+    PPreviousStep = P;
+    if( fabs(MagVar) > 2*model_.Ms )
+    {
+      MagVar = 0.0;
+    }
 
-   if( useRKIntegration )
-   {
-     // fill in history for RK integration of dM/dH
-     for(int i=0; i<2; i++)
-     {
-       branchCurrentSumHistory[i] = branchCurrentSumHistory[i+1];
-       PFunctionHistory[i] = PFunctionHistory[i+1];
-     }
-     branchCurrentSumHistory[2] = branchCurrentSum-oldBranchCurrentSum;
-     PFunctionHistory[2] = PPreviousStep;
-   }
-   oldBranchCurrentSum = branchCurrentSum;
+    if( useRKIntegration )
+    {
+      // fill in history for RK integration of dM/dH
+      for(int i=0; i<2; i++)
+      {
+        branchCurrentSumHistory[i] = branchCurrentSumHistory[i+1];
+        PFunctionHistory[i] = PFunctionHistory[i+1];
+      }
+      branchCurrentSumHistory[2] = branchCurrentSum-oldBranchCurrentSum;
+      PFunctionHistory[2] = PPreviousStep;
+    }
+    oldBranchCurrentSum = branchCurrentSum;
+    Linear::Vector & staDerivVec = *(extData.nextStaDerivVectorPtr);
+    dMdtHistory_.push_back( staDerivVec[ li_MagVarState ] );
+
+    Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
+
+    // update average magnetic gradient.
+    for( int j=0; j< dMdtHistory_.get_size(); j++)
+    {
+      dMdtAverage_ += dMdtHistory_.at_from_head(j);
+    }
+    dMdtAverage_ /= (dMdtHistory_.get_size());
   }
 }
 
