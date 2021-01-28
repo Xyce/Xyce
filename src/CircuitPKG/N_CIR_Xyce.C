@@ -420,6 +420,7 @@ bool Simulator::doAllocations_()
   analysisManager_          = newAnalysisManager(commandLine_, *restartManager_, *outputManagerAdapter_, analysisStat_);
   circuitLoader_            = new Loader::CktLoader(*deviceManager_, *builder_);
 
+  Util::subscribe<Analysis::StepEvent>(*analysisManager_, *fftManager_);
   Util::subscribe<Analysis::StepEvent>(*analysisManager_, *measureManager_);
   Util::subscribe<Analysis::StepEvent>(*analysisManager_, *outputManager_);
   Util::subscribe<Analysis::StepEvent>(*analysisManager_,  *outputManagerAdapter_);

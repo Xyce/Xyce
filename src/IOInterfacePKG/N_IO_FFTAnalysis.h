@@ -70,6 +70,9 @@ public:
   // Destructor
   ~FFTAnalysis();
 
+  // used to reset the FFTanalysis object at the start of each .STEP loop
+  void reset();
+
   enum WindowType {RECT, BART, HANN, HAMM, BLACK, HARRIS, GAUSS, KAISER};
 
   // Return true if FFT analysis is being performed on any variables.
@@ -81,6 +84,8 @@ public:
                           TimeIntg::StepErrorControl & sec,
                           const int fft_accurate,
                           const bool fftout);
+
+  void addSampleTimeBreakpoints();
 
   // Called during the simulation to update the fft objects held by this class
   void updateFFTData(Parallel::Machine comm,
@@ -134,6 +139,7 @@ private:
   }
 
 private:
+  TimeIntg::StepErrorControl* secPtr_;  // ptr to step error control
   double startTime_, stopTime_;
   int np_;
   std:: string format_;
@@ -176,7 +182,7 @@ private:
   std::vector<double> fftImagCoeffs_;
 
   std::vector<double> time_;
-  std::vector<double> outputVarsValues_;
+  std::vector<double> outputVarValues_;
   Util::ParamList depSolVarIterVector_;
   Util::Op::OpList outputVars_;
   std::vector<double> sampleTimes_, sampleValues_;

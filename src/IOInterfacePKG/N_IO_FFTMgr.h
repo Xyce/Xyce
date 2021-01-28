@@ -41,12 +41,15 @@
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_RCP.hpp>
 
+#include <N_ANP_StepEvent.h>
+
 #include <N_IO_fwd.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 
 #include <N_UTL_fwd.h>
+#include <N_UTL_Listener.h>
 #include <N_UTL_Param.h>
 
 namespace Xyce {
@@ -62,13 +65,15 @@ typedef std::vector<FFTAnalysis *> FFTAnalysisVector;
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-class FFTMgr
+class FFTMgr : public Util::Listener<Analysis::StepEvent>
 {
 public:
   FFTMgr(const std::string &netlist_filename);
 
   // Destructor
   ~FFTMgr();
+
+  void notify(const Analysis::StepEvent &step_event);
 
   // register options from .OPTIONS FFT lines
   bool registerFFTOptions(const Util::OptionBlock & option_block);

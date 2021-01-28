@@ -111,7 +111,6 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 {
   if (isOpTypeAllowed())
   {
-    initialized_ = true;
     fftAnalysisPtr_ = fftAnalysisPtr;
     np_ = fftAnalysisPtr_->getNP();
 
@@ -304,8 +303,10 @@ bool FFTFind::isOpTypeAllowed()
 //-----------------------------------------------------------------------------
 double FFTFind::getMeasureResult()
 {
-  if (initialized_ && fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
+  if (fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
   {
+    initialized_ = true;
+
     if (opType_ == "R")
       calculationResult_ = fftAnalysisPtr_->getFFTCoeffRealVal(atRounded_);
     else if (opType_ == "I")
@@ -383,8 +384,9 @@ void ENOB::reset()
 //-----------------------------------------------------------------------------
 double ENOB::getMeasureResult()
 {
-  if( initialized_ )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getENOB();
   }
   return calculationResult_;
@@ -425,8 +427,9 @@ void SFDR::reset()
 //-----------------------------------------------------------------------------
 double SFDR::getMeasureResult()
 {
-  if( initialized_ )
+  if ( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSFDR();
   }
   return calculationResult_;
@@ -467,8 +470,9 @@ void SNDR::reset()
 //-----------------------------------------------------------------------------
 double SNDR::getMeasureResult()
 {
-  if( initialized_ )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSNDR();
   }
   return calculationResult_;
@@ -509,8 +513,9 @@ void THD::reset()
 //-----------------------------------------------------------------------------
 double THD::getMeasureResult()
 {
-  if( initialized_ && fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     double thd=0;
 
     if (!nbHarmGiven_ || ((2*nbHarm_ >= np_) || (nbHarm_ <=0)) )

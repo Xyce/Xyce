@@ -66,7 +66,8 @@ namespace IO {
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
 FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
-  : startTime_(0.0),
+  : secPtr_(0),
+    startTime_(0.0),
     stopTime_(0.0),
     np_(1024),
     format_("NORM"),
@@ -260,6 +261,40 @@ FFTAnalysis::~FFTAnalysis()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::reset
+// Purpose       : Resets the object at the start of a .STEP loop
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/27/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::reset()
+{
+  calculated_ = false;
+  sampleIdx_ = 0;
+  maxMag_ = 0.0;
+  thd_ = 0.0;
+  harmonicList_.clear();
+
+  if (fft_accurate_ == 0)
+  {
+    time_.clear();
+    outputVarValues_.clear();
+  }
+  std::fill(sampleValues_.begin(), sampleValues_.end(),0.0);
+
+  // these variables and vectors might not need to be reset, but this is safer
+  sndr_ = 0.0;
+  enob_ = 0.0;
+  double sfdr_ = 0.0;
+  int sfdrIndex_ = 0;
+  std::fill(mag_.begin(), mag_.end(), 0.0);
+  std::fill(phase_.begin(), phase_.end(), 0.0);
+  std::fill(fftRealCoeffs_.begin(), fftRealCoeffs_.end(), 0.0);
+  std::fill(fftImagCoeffs_.begin(), fftImagCoeffs_.end(), 0.0);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::fixupFFTParameters
 // Purpose       : This function sets private variables that could be not set in
 //                 the constructor, primarily because the end simulation time was
@@ -276,6 +311,8 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const int fft_accurate,
   const bool fftout)
 {
+  secPtr_ = &sec;
+
   // set these to match the values stored in the FFTMgr class.
   fft_accurate_ = fft_accurate;
   fftout_ = fftout;
@@ -309,25 +346,38 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   fftRealCoeffs_.resize(np_+1,0.0);
   fftImagCoeffs_.resize(np_+1,0.0);
 
-  // Compute new, equally spaced time points.
+  // Compute equally-spaced sample points
   double step = (stopTime_ - startTime_)/np_;
   if (startTimeGiven_)
-  {
     sampleTimes_[0] = startTime_;
-    sec.setBreakPoint (sampleTimes_[0]);
-  }
 
   for (int i = 1; i < np_; i++)
-  {
     sampleTimes_[i] = sampleTimes_[i-1] + step;
-    if (fft_accurate_ == 1)
-      sec.setBreakPoint (sampleTimes_[i]);
-  }
 
-  if(!(depSolVarIterVector_.empty())) // no point in calling this if depSolVarIterVector is empty
+  // no point in making the Ops if depSolVarIterVector is empty
+  if(!(depSolVarIterVector_.empty()))
   {
     Util::Op::makeOps(comm, op_builder_manager, NetlistLocation(), depSolVarIterVector_.begin(), depSolVarIterVector_.end(), std::back_inserter(outputVars_));
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::addSampleTimeBreakpoints
+// Purpose       : Add breakpoints at the requested sample times
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/7/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::addSampleTimeBreakpoints()
+{
+  if (startTimeGiven_ && (startTime_ > 0.0))
+    secPtr_->setBreakPoint (sampleTimes_[0]);
+
+  for (int i = 1; i < np_; i++)
+    secPtr_->setBreakPoint (sampleTimes_[i]);
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -344,6 +394,9 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  if ((fft_accurate_ == 1) && (circuitTime == 0.0))
+    addSampleTimeBreakpoints();
+
   // Save the time values, if interpolation is used.
   if (outputVars_.size() && (fft_accurate_ == 0))
     time_.push_back(circuitTime);
@@ -356,7 +409,7 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
     if (fft_accurate_ == 0)
     {
       // save all of the output var values, if interpolation is used.
-      outputVarsValues_.push_back(retVal);
+      outputVarValues_.push_back(retVal);
     }
     else
     {
@@ -425,10 +478,10 @@ bool FFTAnalysis::interpolateData_()
   if (time_.size() > 0)
   {
     Util::akima<double> interp;
-    interp.init( time_, outputVarsValues_ );
+    interp.init( time_, outputVarValues_ );
     for (unsigned int i=0; i < np_; i++)
     {
-      interp.eval( time_, outputVarsValues_, sampleTimes_[i], sampleValues_[i] );
+      interp.eval( time_, outputVarValues_, sampleTimes_[i], sampleValues_[i] );
      }
   }
 

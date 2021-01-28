@@ -87,10 +87,13 @@ void outputMacroResults(
   {
     if (Parallel::rank(comm) == 0)
     {
-      std::string filename = netlist_filename + ".fft";
-      outputFileStream.open( filename.c_str() );
-      fft_manager.outputResults(outputFileStream);
-      outputFileStream.close();
+      if (step_number == 0)
+      {
+        std::string filename = netlist_filename + ".fft0";
+        outputFileStream.open( filename.c_str() );
+        fft_manager.outputResults(outputFileStream);
+        outputFileStream.close();
+      }
     }
     else
     {
