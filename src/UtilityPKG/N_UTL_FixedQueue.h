@@ -100,18 +100,20 @@ public:
   Type at_from_head( int index ) const
   {
     int modIndex = (headIndex_ - index) % queueLength_;
-    //Xyce::dout() << "tailIndex_ = " << tailIndex_ << " headIndex_ = " 
-    //  << headIndex_ << " queueLength_ = " << queueLength_ 
-    //  << " index = " << index << " modIndex = " << modIndex << std::endl;
+    // while the modulus operation keeps the index in the right 
+    // range, the subtraction can make the result negative.  
+    // If the modIndex is negative, add it to queueLength_
+    // to get the right, wrapped around result.
+    if( modIndex < 0)
+    {
+      modIndex += queueLength_;
+    }
     return queueData_[ modIndex ];
   } 
 
   Type at_from_tail( int index ) const
   {
     int modIndex = (index + tailIndex_) % queueLength_;
-    //Xyce::dout() << "tailIndex_ = " << tailIndex_ << " headIndex_ = " 
-    //  << headIndex_ << " queueLength_ = " << queueLength_ 
-    //  << " index = " << index << " modIndex = " << modIndex << std::endl;
     return queueData_[ modIndex ];
   } 
 

@@ -114,6 +114,11 @@ void Traits::loadInstanceParameters(ParametricData<MutIndNonLin2::Instance> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("");
+  
+  p.addPar ("IC",std::vector<double>(),&MutIndNonLin2::Instance::initialCondition)
+   .setUnit(U_AMP)
+   .setCategory(CAT_NONE)
+   .setDescription("Initial current through the inductor.");
 }
 
 void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
@@ -146,13 +151,40 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
   p.addPar ("C",0.2,&MutIndNonLin2::Model::C)
  .setUnit(U_NONE)
    .setCategory(CAT_MATERIAL)
-   .setDescription("Domain flesing parameter");
-
+   .setDescription("Domain flesing parameter"); 
+  
+  /* 
+  p.addPar("CLIM",0.005,&MutIndNonLin::Model::CLim)
+  .setUnit(U_NONE)
+  .setCategory(CAT_MATERIAL)
+  .setDescription("Value below which domain flexing parameter will be treated as zero.");
+  */
+  
+  /*
+  p.addPar("DELVSCALING",1.0e3,&MutIndNonLin::Model::DeltaVScaling)
+  .setUnit(U_VOLT)
+  .setCategory(CAT_NONE)
+  .setDescription("Smoothing coefficient for voltage difference over first inductor");
+  */
+  
   p.addPar ("DELV",0.1,&MutIndNonLin2::Model::DeltaV)
- .setUnit(U_VOLT)
+  .setUnit(U_VOLT)
    .setCategory(CAT_NONE)
    .setDescription("Smoothing coefficient for voltage difference over first inductor");
+   
+  /*
+  p.addPar("CONSTDELVSCALING",false,&MutIndNonLin::Model::UseConstantDeltaVScaling)
+  .setUnit(U_VOLT)
+  .setCategory(CAT_NONE)
+  .setDescription("Use constant scaling factor to smooth voltage difference over first inductor");
 
+  p.addPar("INCLUDEMEQU",true,&MutIndNonLin::Model::includeMEquation)
+  .setGivenMember(&MutIndNonLin::Model::includeMEquationGiven)
+  .setUnit(U_NONE)
+  .setCategory(CAT_NONE)
+  .setDescription("Flag to include the magnetics in the solution.");
+  */
+  
   p.addPar ("GAP",0.0,&MutIndNonLin2::Model::Gap)
  .setUnit(U_CM)
    .setCategory(CAT_GEOMETRY)
@@ -188,6 +220,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setCategory(CAT_GEOMETRY)
    .setDescription("Total mean magnetic path");
 
+  /* not part of level 1 inductor */
   p.addPar ("VINF",1.0,&MutIndNonLin2::Model::Vinf)
  .setUnit(U_VOLT)
    .setCategory(CAT_NONE)
@@ -237,34 +270,40 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to save state variables" );
-
+  
+  /* not part of level 1 inductor */
   p.addPar ("INCLUDEDELTAM",0,&MutIndNonLin2::Model::includeDeltaM)
    .setGivenMember(&MutIndNonLin2::Model::includeDeltaMGiven)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to make M calculation implicit" );
 
+  /* not part of level 1 inductor */
   p.addPar ("USERKINTEGRATION",0,&MutIndNonLin2::Model::useRKIntegration)
    .setGivenMember(&MutIndNonLin2::Model::useRKIntegrationGiven)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use 4th order Runge-Kutta integration for dM/dH" );
 
+  /* not part of level 1 inductor */
   p.addPar ("USESTATEDERIV",0,&MutIndNonLin2::Model::useStateDeriv)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use state vector for derivatives" );
 
+  /* not part of level 1 inductor */
   p.addPar ("VOLTAGELIMITERFLAG",0,&MutIndNonLin2::Model::voltageLimiterFlag)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to use voltage limiting on Mag and R internal variables" );
 
+  /* not part of level 1 inductor */
   p.addPar ("MAGLIMITTHRES",0.1,&MutIndNonLin2::Model::magLimitThres)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Threshold over which newton interation changes in Mag are limited." );
 
+  /* not part of level 1 inductor */
   p.addPar ("RLIMITTHRES",0.1,&MutIndNonLin2::Model::rLimitThres)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
@@ -274,6 +313,11 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
    .setDescription("Flag to save state variables" );
+   
+  p.addPar("BHSIUNITS",0,&MutIndNonLin2::Model::BHSiUnits)
+  .setUnit(U_NONE)
+  .setCategory(CAT_NONE)
+  .setDescription("Flag to report B and H in SI units");
 }
 
 
@@ -293,6 +337,7 @@ Instance::Instance(
   : DeviceInstance(IB, configuration.getInstanceParameters(), factory_block),
     model_(Iiter),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    Happ(0.0),
     branchCurrentSum(0.0),
     P(0.0),
     PPreviousStep(0.0),
@@ -308,7 +353,8 @@ Instance::Instance(
     useRKIntegration(false),
     includeDeltaM(false),
     lastH(0.0),
-    outputStateVarsFlag( false )
+    outputStateVarsFlag( false ),
+    dMdtAverage_(0.0)
 {
   if (DEBUG_DEVICE)
   {
@@ -319,7 +365,7 @@ Instance::Instance(
   // and one state var (I_branch)
   numExtVars   = 2;
   numIntVars   = 3;
-  numStateVars = 0;
+  numStateVars = 2;
   setNumStoreVars(4);
   tempGiven    = false;
 
@@ -530,6 +576,14 @@ Instance::Instance(
       Xyce::dout() << " }" << std::endl;
     }
   }
+  
+  // set history buffer size
+  const int dMdtHistoryLength=10;
+  dMdtHistory_.set_size(dMdtHistoryLength);
+  for( int j=0; j<dMdtHistory_.get_size(); j++)
+  {
+    dMdtHistory_.push_back(0.0);
+  }
 }
 
 
@@ -633,9 +687,27 @@ void Instance::registerLIDs(const std::vector<int> & intLIDVecRef,
 //-----------------------------------------------------------------------------
 void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 {
-  for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it)
-    addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
+  //for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it)
+  //  addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
     
+  int indCount=0;
+  std::string baseName = getSubcircuitName(getName());
+  for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it ) {
+    std::string branchInductorName = baseName;
+    if( branchInductorName != "" )
+      branchInductorName += ":";
+    branchInductorName += (*it)->name;
+    InstanceName bInductorIName = InstanceName( branchInductorName );
+    std::string encodedName = spiceInternalName( bInductorIName, "branch");
+    addInternalNode(symbol_table, (*it)->li_Branch, getName(), (*it)->name + "_branch");
+    addInternalNode(symbol_table, (*it)->li_Branch, encodedName);
+    if (loadLeadCurrent)
+    {
+      addBranchDataNode(symbol_table, (*it)->li_branch_data, bInductorIName, "BRANCH_D");
+    }
+    ++indCount;
+  }
+  
   addStoreNode(symbol_table, li_MagVarStore, getName(), "m");
   addStoreNode(symbol_table, li_MagVarStore, getName().getEncodedName() + "_m");
   addStoreNode(symbol_table, li_RVarStore, getName().getEncodedName() + "_r");
@@ -657,6 +729,9 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
 
   // copy over the global ID lists.
   staLIDVec = staLIDVecRef;
+  
+  li_MagVarState=staLIDVec[0];
+  li_RVarState=staLIDVec[1];
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
@@ -882,6 +957,7 @@ bool Instance::updateIntermediateVars ()
     Xyce::dout() << "Instance::updateIntermediateVars" << std::endl;
   }
   Linear::Vector & solVector = *(extData.nextSolVectorPtr);
+  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
 
   // some parameters in the model class that we will use often
   const double A      = model_.A;
@@ -904,7 +980,7 @@ bool Instance::updateIntermediateVars ()
     branchCurrentSum += solVector[instanceData[i]->li_Branch] * inductanceVals[ i ];
   }
 
-  latestMag = MagVar + MagVarUpdate;
+  latestMag = MagVar  + MagVarUpdate;
 
   // used in voltage drop over first inductor
   double V1Pos = solVector[(instanceData[0])->li_Pos];
@@ -926,7 +1002,7 @@ bool Instance::updateIntermediateVars ()
     tanh_qV = 1.0;
   }
 
-  double Happ = branchCurrentSum / Path;
+  Happ = branchCurrentSum / Path;
   double dHdt=0.0;
 #ifdef MS_FACTORING2
   double H = Happ - (Gap / Path) * latestMag * Ms;
@@ -980,21 +1056,26 @@ bool Instance::updateIntermediateVars ()
 #ifdef MS_FACTORING2
   double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
   double Manp =  Ms * (A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
+  /*
   if( ((dHdt < 0.0) && ((Manp - latestMag)>0.0)) || ((dHdt >= 0.0) && ((Manp - latestMag)<0.0) ) )
   {
     deltaM=1.0;
     Mirrp = 0.0;
   }
+  */
   P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / ((1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp)*Ms);
 #else
   double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
   double Manp =  Ms*(A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
+  /*
   if( ((dHdt < 0.0) && ((Manp - latestMag)>0.0)) || ((dHdt >= 0.0) && ((Manp - latestMag)<0.0) ) )
   {
     deltaM=1.0;
     Mirrp = 0.0;
   }
-  P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
+  */
+  P = ( C * Manp + (1 - C) * Mirrp)        / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
+  //P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
 #endif
 
 
@@ -1078,7 +1159,11 @@ bool Instance::updateIntermediateVars ()
     stoVector[ li_HVarStore ] = lastH;
   lastH=stoVector[ li_HVarStore ];
   */
-  stoVector[li_RVarStore] = 0.0;
+  // when the time derivative is calculated of this we will have R
+  // R = dHapp/dt;
+  
+  staVector[li_RVarState] = Happ;
+  staVector[li_MagVarState] = latestMag;
 
   return true;
 }
@@ -1145,6 +1230,7 @@ bool Instance::updatePrimaryState()
   // udate dependent parameters
   updateIntermediateVars ();
   
+  
   /*
   Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
   stoVector[li_MagVarStore] = latestMag; 
@@ -1192,6 +1278,92 @@ bool Instance::updatePrimaryState()
 bool Instance::updateSecondaryState ()
 {
   bool bsuccess = true;
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+  {
+    Xyce::dout() << "Instance::updateSecondaryState-------------" << std::endl
+         << "\tname = " << getName() << std::endl;
+  }
+
+  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
+  Linear::Vector & staDerivVec = *(extData.nextStaDerivVectorPtr);
+    
+  Linear::Vector & solVector = *(extData.nextSolVectorPtr);
+  Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
+  Linear::Vector & stoVectorCurr = *(extData.currStoVectorPtr);
+  
+  //double mVarScaling = model_.mVarScaling;
+  // place current values of mag, H and R in state vector
+  // must unscale them as the rest of the class assumes
+  // that these aren't scaled yet.
+  double latestMag = stoVector[li_MagVarStore];
+  /*
+  if( model_.includeMEquation ) 
+  {
+    staVector[ li_MagVarState ] = solVector[ li_MagVar ];
+    latestMag = mVarScaling * solVector[ li_MagVar ];
+  }
+  else
+  {
+    latestMag = mVarScaling * staVector[ li_MagVarState ];
+  }
+  if( model_.factorMS )
+  {
+    latestMag *= model_.Ms;
+  }
+  */
+  // place a copy of R in the store vector for lookup for output.
+  stoVector[ li_RVarStore ] = staDerivVec[ li_RVarState ];
+  
+  //
+  // need these to calculate H for B-H loops and be careful of
+  // potential non-physical turning points in the B-H phase 
+  // in general dB/dH should be >= 0.  If it's less than
+  // zero then we have a non-physical turning point that 
+  // is ok as part of the device model, but not physically
+  // realistic as the change incurrent (dH) is apposing
+  // the magnetic field (dB) will be an irreversible loss.
+  //
+  // So if dB/dH is negative, hold H constant while B 
+  // changes to get the correct path along the B-H curve.
+  // Unless the gap is non-zero then things are slightly 
+  // more complex and we need to look at the dM/dt and dH/dt terms.
+  //
+  // dM/dt is equivalent to dB/dt within a scalar factor
+  // dH/dt = dHapp/dt - (gap/path) dM/dt = R - (gap/path) dM/dt
+  
+  double lastB = stoVectorCurr[ li_BVarStore ];
+  double lastH = stoVectorCurr[ li_HVarStore ];
+  double calculatedH = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
+  double dMdt = staDerivVec[ li_MagVarState ];
+  double R = staDerivVec[ li_RVarState ];
+  double dHdt = R - (model_.Gap/model_.Path)*dMdt;
+  
+  double Hfxn = Happ;
+  
+  if( model_.Gap <= 0 )
+  {    
+    if( ((dMdtAverage_<0.0) && (dHdt>0.0)) || ((dMdtAverage_>0.0) && (dHdt<0.0)) )
+    {
+      // derivatives disagree so changes in H are lost.
+      Hfxn = lastH / model_.HCgsFactor;
+    }
+    else if( ((dMdtAverage_<0.0) && (lastH < calculatedH)) || ((dMdtAverage_>0.0) && (lastH > calculatedH)) )
+    {
+      // derivatives agree but H calculated may be in wrong direction 
+      Hfxn = lastH / model_.HCgsFactor;
+    }
+  }
+  else
+  {
+    double gapFactor =   - (model_.Gap / model_.Path) * latestMag;
+    if( (fabs( gapFactor) < fabs( Hfxn )) && ( ((gapFactor < 0) && (Hfxn < 0)) || ((gapFactor > 0) && (Hfxn > 0)) ))
+    {
+      Hfxn += gapFactor;
+    }
+  }
+  stoVector[ li_HVarStore ] = model_.HCgsFactor * Hfxn;
+  stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
+  
   return bsuccess;
 }
 
@@ -1207,33 +1379,44 @@ void Instance::acceptStep()
 {
   if (!getSolverState().dcopFlag)
   {
-   if(includeDeltaM)
-   {
-     MagVar += MagVarUpdate*model_.Ms;
-   }
-   else
-   {
-     MagVar += MagVarUpdate;
-   }
-   lastMagUpdate = MagVarUpdate;
-   PPreviousStep = P;
-   if( fabs(MagVar) > 2*model_.Ms )
-   {
-     MagVar = 0.0;
-   }
+    if(includeDeltaM)
+    {
+      MagVar += MagVarUpdate*model_.Ms;
+    }
+    else
+    {
+      MagVar += MagVarUpdate;
+    }
+    lastMagUpdate = MagVarUpdate;
+    PPreviousStep = P;
+    if( fabs(MagVar) > 2*model_.Ms )
+    {
+      MagVar = 0.0;
+    }
 
-   if( useRKIntegration )
-   {
-     // fill in history for RK integration of dM/dH
-     for(int i=0; i<2; i++)
-     {
-       branchCurrentSumHistory[i] = branchCurrentSumHistory[i+1];
-       PFunctionHistory[i] = PFunctionHistory[i+1];
-     }
-     branchCurrentSumHistory[2] = branchCurrentSum-oldBranchCurrentSum;
-     PFunctionHistory[2] = PPreviousStep;
-   }
-   oldBranchCurrentSum = branchCurrentSum;
+    if( useRKIntegration )
+    {
+      // fill in history for RK integration of dM/dH
+      for(int i=0; i<2; i++)
+      {
+        branchCurrentSumHistory[i] = branchCurrentSumHistory[i+1];
+        PFunctionHistory[i] = PFunctionHistory[i+1];
+      }
+      branchCurrentSumHistory[2] = branchCurrentSum-oldBranchCurrentSum;
+      PFunctionHistory[2] = PPreviousStep;
+    }
+    oldBranchCurrentSum = branchCurrentSum;
+    Linear::Vector & staDerivVec = *(extData.nextStaDerivVectorPtr);
+    dMdtHistory_.push_back( staDerivVec[ li_MagVarState ] );
+
+    Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
+
+    // update average magnetic gradient.
+    for( int j=0; j< dMdtHistory_.get_size(); j++)
+    {
+      dMdtAverage_ += dMdtHistory_.at_from_head(j);
+    }
+    dMdtAverage_ /= (dMdtHistory_.get_size());
   }
 }
 
@@ -1739,6 +1922,8 @@ Model::Model(
     HCgsFactor( 0.012566370614359 ),  // 4 pi / 1000
     BCgsFactor( 10000.0 ),
     outputStateVars(0),
+    factorMS(0),
+    BHSiUnits(0),
     includeDeltaM(0),
     useRKIntegration(0)
 {
@@ -1755,7 +1940,15 @@ Model::Model(
   Gap *= 1.0e-2;
   Path *= 1.0e-2;
   Area *= 1.0e-4;
-
+  
+  if( BHSiUnits != 0 )
+  {
+    // user requested SI units over the default of CGS units.  Change
+    // conversion factor to unity.
+    BCgsFactor=1.0;
+    HCgsFactor=1.0;
+  }
+  
   // Set any non-constant parameter defaults:
 
   if (!given("TNOM"))
@@ -1855,7 +2048,8 @@ void registerDevice()
 {
   Config<Traits>::addConfiguration()
     .registerDevice("min", 2)
-    .registerModelType("min", 2);
+    .registerModelType("min", 2)
+    .registerModelType("core", 2);
 }
 
 } // namespace MutIndNonLin2

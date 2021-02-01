@@ -50,7 +50,8 @@ namespace Measure {
 FFT::FFT(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
   fftAnalysisPtr_(0),
-  np_(0)
+  np_(0),
+  atRounded_(0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -108,9 +109,41 @@ void FFT::resetFFT()
 //-----------------------------------------------------------------------------
 void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 {
-  initialized_ = true;
-  fftAnalysisPtr_ = fftAnalysisPtr;
-  np_ = fftAnalysisPtr_->getNP();
+  if (isOpTypeAllowed())
+  {
+    initialized_ = true;
+    fftAnalysisPtr_ = fftAnalysisPtr;
+    np_ = fftAnalysisPtr_->getNP();
+
+    if (findGiven_ && atGiven_)
+      atRounded_ = std::round(at_/fftAnalysisPtr_->getFreq());
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFT::isOpTypeAllowed
+// Purpose       : Determine if the specified operator type is allowed for a given
+//                 FFT measure type
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/26/2021
+//-----------------------------------------------------------------------------
+bool FFT::isOpTypeAllowed()
+{
+  bool bsuccess = true;
+
+  std::string measureVarName = outputVars_[0]->getName();
+  size_t parenIdx = measureVarName.find_first_of('(');
+  if ((measureVarName[0] != '{') && (parenIdx != 1))
+  {
+    bsuccess = false;
+    Report::UserError0() << "Complex operators such as " << measureVarName.substr(0,parenIdx)
+                         <<  " not allowed for output variable for " << type_ <<  " measure "
+			 << name_ << " for FFT measure mode";
+  }
+
+  return bsuccess;
 }
 
 //-----------------------------------------------------------------------------
@@ -203,8 +236,14 @@ void FFT::updateNoise(
 // Creation Date : 01/18/2021
 //-----------------------------------------------------------------------------
 FFTFind::FFTFind(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  FFT(measureMgr, measureBlock)
-{}
+  FFT(measureMgr, measureBlock),
+  opType_("M")
+{
+  if (!findGiven_ || !atGiven_)
+  {
+    Xyce::Report::UserError0() << "Only FIND-AT supported for FFT measure " << name_;
+  }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : FFTFind::reset()
@@ -220,6 +259,42 @@ void FFTFind::reset()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTFind::isOpTypeAllowed
+// Purpose       : Determine if the specified operator type is allowed for the
+//                 FFTFind measure type
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/26/2021
+//-----------------------------------------------------------------------------
+bool FFTFind::isOpTypeAllowed()
+{
+  bool bsuccess = true;
+
+  std::string measureVarName = outputVars_[0]->getName();
+  size_t parenIdx = measureVarName.find_first_of('(');
+  if (measureVarName[0] == '{')
+  {
+    bsuccess = false;
+    Report::UserError0() << "Expressions not allowed for output variable for FIND measure "
+			 << name_ << " for FFT measure mode";
+  }
+  else if ( !((measureVarName[0] == 'V') || (measureVarName[0] == 'I')) )
+  {
+    bsuccess = false;
+    Report::UserError0() << "Only V and I operators allowed for output variable for FIND measure "
+			 << name_ << " for FFT measure mode";
+  }
+  else if (parenIdx > 1)
+  {
+    // get OpType for VR, IR, etc.
+    opType_ = measureVarName.substr(1,parenIdx-1);
+  }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTFind::getMeasureResult()
 // Purpose       : Return the FFT magnitude at a specified frequency.
 // Special Notes :
@@ -229,11 +304,48 @@ void FFTFind::reset()
 //-----------------------------------------------------------------------------
 double FFTFind::getMeasureResult()
 {
-  if( initialized_ )
+  if (initialized_ && fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
   {
-    calculationResult_ = 1;
+    if (opType_ == "R")
+      calculationResult_ = fftAnalysisPtr_->getFFTCoeffRealVal(atRounded_);
+    else if (opType_ == "I")
+      calculationResult_ = fftAnalysisPtr_->getFFTCoeffImagVal(atRounded_);
+    else if (opType_ == "M")
+      calculationResult_ = fftAnalysisPtr_->getMagVal(atRounded_);
+    else if (opType_ == "P")
+      calculationResult_ = fftAnalysisPtr_->getPhaseVal(atRounded_);
+    else if (opType_ == "DB")
+      calculationResult_ = 20*log10(fftAnalysisPtr_->getMagVal(atRounded_));
   }
+
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTFind::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/21/2021
+//-----------------------------------------------------------------------------
+std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
+    if (initialized_ && fftAnalysisPtr_->isCalculated())
+    {
+      os << name_ << " = " << this->getMeasureResult()
+         << " at " <<  atRounded_ << " Hz (rounded from " << at_ << " Hz)" << std::endl;
+    }
+    else
+    {
+      os << name_ << " = FAILED" << std::endl;
+    }
+
+    return os;
 }
 
 //-----------------------------------------------------------------------------
@@ -397,7 +509,7 @@ void THD::reset()
 //-----------------------------------------------------------------------------
 double THD::getMeasureResult()
 {
-  if( initialized_  && fftAnalysisPtr_->isCalculated() )
+  if( initialized_ && fftAnalysisPtr_->isCalculated() )
   {
     double thd=0;
 

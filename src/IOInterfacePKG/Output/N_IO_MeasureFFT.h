@@ -99,10 +99,12 @@ public:
 
   // used to pass info from associated FFTAnalysis object to this measure object
   void fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr);
+  virtual bool isOpTypeAllowed();
 
 protected:
   FFTAnalysis* fftAnalysisPtr_;
   int np_;
+  int atRounded_;
 
 private:
   int numOutVars_;
@@ -124,7 +126,12 @@ public:
 
 public:
   void reset();
+  bool isOpTypeAllowed();
   double getMeasureResult();
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+private:
+  std::string opType_;
 
 };
 

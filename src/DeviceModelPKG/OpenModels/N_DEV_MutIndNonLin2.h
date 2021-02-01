@@ -44,6 +44,7 @@
 #include <N_DEV_DeviceBlock.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
+#include <N_UTL_FixedQueue.h>
 #include <N_DEV_MutIndLin.h>
 
 #include <N_DEV_MutIndNonLin.h>
@@ -165,15 +166,21 @@ private:
   // and here's the list of ones we are coupling
   std::vector< std::string > couplingInductor;
   std::vector< double > couplingCoefficient;
+  std::vector< double > initialCondition;
+  std::vector< bool > initialConditionGiven;
   //std::vector< std::vector< double > > mutualCouplingCoef;
 
   // local indices for extra equations
   //int li_deltaHappVar;
   int li_deltaMagVar;
 
-  // state variable for mag, h and r
+  // variables for which this model needs a time derivatieve
+  // for output of B-H data
+  int li_MagVarState;
+  int li_RVarState;
+  
+  // store variable for mag, h and r
   int li_MagVarStore;
-  //int li_MagVarDerivState;
   int li_RVarStore;
   int li_BVarStore;
   int li_HVarStore;
@@ -199,6 +206,7 @@ private:
   double temp;         // temperature of this instance
   bool tempGiven;      // flag if temp was given
 
+  double Happ;
   double branchCurrentSum;
   double deltaBranchCurrentSum;
   double P;
@@ -230,7 +238,10 @@ private:
   // output stream for output of internal state if requested by user
   Teuchos::RCP< std::ofstream > outputFileStreamPtr;
   bool outputStateVarsFlag;
-
+  
+  Util::FixedQueue<double> dMdtHistory_;
+  double dMdtAverage_;
+  
   // this is a templated function for a complicated term P(M,I_1... I_n) that relates
   // the magnetic saturation of the mutual indcutor to the individual currents
   // through the inductors.  We'll need dP_dM and this tempated function automates
@@ -324,6 +335,8 @@ private:
   int outputStateVars;       // flag indicating if user wants M,H and R output
 
   int factorMS;              // flag to factor Ms out of M (not used in level 2)
+  int BHSiUnits;             // flag to indicate that B and H should be output in SI units. Default is CGS
+                             // units for output while SI units are used for calculations
   int includeDeltaM;         // flag to make delta M calculation implicit
   int useRKIntegration;      // flag to use 4th order runga-kutta for dM/dH integration
   int useStateDeriv;         // flag to use state vector for dH/dt calculation
