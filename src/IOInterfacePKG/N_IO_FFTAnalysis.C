@@ -181,7 +181,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 
       if (np_ <= 0)
       {
-        Report::UserError0() << "NP value on .FFT line should be a power of 2, and >=4";
+        Report::UserError0() << "NP value on .FFT line must be a power of 2, and >=4";
       }
       else if ((np_ >=1) && (np_ < 4))
       {
