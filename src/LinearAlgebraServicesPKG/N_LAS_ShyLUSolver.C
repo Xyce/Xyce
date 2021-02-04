@@ -57,6 +57,8 @@
 #include <Epetra_LinearProblem.h>
 #include <Epetra_CrsMatrix.h>
 
+#include <N_LAS_EpetraProblem.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_TransformTool.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_Matrix.h>
@@ -103,11 +105,13 @@ ShyLUSolver::ShyLUSolver( Problem & problem,
   outputLS_(0),
   outputBaseLS_(0),
   lasProblem_(problem),
-  problem_(&(problem.epetraObj())),
   updatedParams_(false),
   linearResidual_(1.0),
   tProblem_(0)
 {
+  EpetraProblem& eprob = dynamic_cast<EpetraProblem&>(lasProblem_);
+  problem_ = &(eprob.epetraObj());
+
   options_ = Teuchos::rcp( new Util::OptionBlock( options ) );
   timer_ = Teuchos::rcp( new Util::Timer() );
 

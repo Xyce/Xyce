@@ -42,6 +42,7 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_Report.h>
 
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
@@ -550,9 +551,9 @@ bool MOR::reduceSystem()
   }
 
   // Create multivector for B and R
-  RPtr_ = rcp( new Linear::MultiVector( BaseMap, numPorts_ ) );
+  RPtr_ = rcp( Xyce::Linear::createMultiVector( BaseMap, numPorts_ ) );
   RPtr_->putScalar( 0.0 );
-  BPtr_ = rcp( new Linear::MultiVector( BaseMap, numPorts_ ) );
+  BPtr_ = rcp( Xyce::Linear::createMultiVector( BaseMap, numPorts_ ) );
   for (unsigned int j=0; j < bMatEntriesVec_.size(); ++j)
   {
     BPtr_->setElementByGlobalIndex( BaseMap.localToGlobalIndex(bMatEntriesVec_[j]), -1.0, j );
@@ -596,9 +597,6 @@ bool MOR::reduceSystem()
     bsuccess = false;
   }
 
-  ///  Xyce::dout() << "Printing out R" << std::endl;
-  ///  (RPtr_->epetraObj()).Print(Xyce::dout());
-
   // Create an Epetra_Operator object to apply the operator inv(G + s0*C)*C
   RCP<Epetra_Operator> COpPtr_ = rcp( &CPtr_->epetraObj(), false );
   RCP<Linear::AmesosGenOp> AOp = rcp( new Linear::AmesosGenOp( origSolver_, COpPtr_ ) );
@@ -606,8 +604,6 @@ bool MOR::reduceSystem()
   // Check to see if the requested size of the ROM is valid.
   // An orthogonal basis cannot be generated that is larger than the dimension of the original system
   int kblock = 0;
-
-
 
   if (morAutoSize_)
   {
@@ -665,9 +661,10 @@ bool MOR::reduceSystem()
 
   // Linear Problem.
   // Reuse RPtr_.  We need the basis vectors for K(inv(G + s0*C)*C, R)
-  Linear::MultiVector temp( BaseMap, numPorts_ );
+  Teuchos::RCP<Linear::MultiVector> temp =
+    Teuchos::rcp( Xyce::Linear::createMultiVector( BaseMap, numPorts_ ) );
   Belos::LinearProblem<ST, MV, OP > problem( AOp,
-                                             rcp( &temp.epetraObj(), false ),
+                                             rcp( &temp->epetraObj(), false ),
                                              rcp( &RPtr_->epetraObj(), false ));
   problem.setProblem();
 
@@ -748,19 +745,20 @@ bool MOR::reduceSystem()
 
 // project the system
       Linear::MultiVector xyceV( &*V, false );
-      Linear::MultiVector temp2( BaseMap, mid);
-
+      Teuchos::RCP<Linear::MultiVector> temp2 =
+        Teuchos::rcp( Xyce::Linear::createMultiVector( BaseMap, mid ) );
       Linear::MultiVector xyceW( &*W, false );
+
     // G * V
-      GPtr_->matvec( false, xyceV, temp2 );
+      GPtr_->matvec( false, xyceV, *temp2 );
     // V' * G * V
 
-      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redG_ );
+      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2->epetraObj(), redG_ );
 
     // C * V
-      CPtr_->matvec( false, xyceV, temp2 );
+      CPtr_->matvec( false, xyceV, *temp2 );
     // V' * C * V
-      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redC_ );
+      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2->epetraObj(), redC_ );
     //redC_.print( Xyce::dout() );
 
     // V' * B
@@ -846,18 +844,19 @@ bool MOR::reduceSystem()
   {
 
     Linear::MultiVector xyceV( &*V, false );
-    Linear::MultiVector temp2( BaseMap, k );
+    Teuchos::RCP<Linear::MultiVector> temp2 = 
+      Teuchos::rcp( Xyce::Linear::createMultiVector( BaseMap, k ) );
 
     // G * V
-    GPtr_->matvec( false, xyceV, temp2 );
+    GPtr_->matvec( false, xyceV, *temp2 );
     // V' * G * V
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2.epetraObj(), redG_ );
+    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2->epetraObj(), redG_ );
     //redG_.print( Xyce::dout() );
 
     // C * V
-    CPtr_->matvec( false, xyceV, temp2 );
+    CPtr_->matvec( false, xyceV, *temp2 );
     // V' * C * V
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2.epetraObj(), redC_ );
+    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2->epetraObj(), redC_ );
     //redC_.print( Xyce::dout() );
 
     // V' * B
@@ -970,20 +969,21 @@ if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
   // ---------------------------------------------------------------------
   Linear::MultiVector xyceV( &*V, false );
   Linear::MultiVector xyceW( &*W, false );
-  Linear::MultiVector temp2( BaseMap, k );
+  Teuchos::RCP<Linear::MultiVector> temp2 =
+    Teuchos::rcp( Xyce::Linear::createMultiVector( BaseMap, k ) );
 
   if (!morSparsificationType_)
   {
   // G * V
-    GPtr_->matvec( false, xyceV, temp2 );
+    GPtr_->matvec( false, xyceV, *temp2 );
   // V' * G * V
-    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redG_ );
+    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2->epetraObj(), redG_ );
     //redG_.print( Xyce::dout() );
 
   // C * V
-    CPtr_->matvec( false, xyceV, temp2 );
+    CPtr_->matvec( false, xyceV, *temp2 );
   // V' * C * V
-    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redC_ );
+    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2->epetraObj(), redC_ );
 
   // V' * B
     MVT::MvTransMv( 1.0, xyceW.epetraObj(), BPtr_->epetraObj(), redB_ );
