@@ -60,6 +60,7 @@
 #include <N_UTL_AssemblyTypes.h>
 
 #include <N_DEV_VectorComputeInterface.h>
+#include <N_DEV_VectorComputeInterfaceWithLimiting.h>
 
 namespace Xyce {
 namespace Device {
@@ -366,6 +367,21 @@ Instance::Instance(
   numIntVars=0;
   numStateVars=0;
 
+  // Initially numBranchDataVars is set =0 and 
+  // numBranchDataVarsIfAllocated =numExtVars.
+  //
+  // The order of later calls is:
+  // Xyce::Circuit::Simulator::initializeEarly ->
+  // Xyce::Topo::Topology::instantiateDevices ->
+  // Xyce::Topo::CktNode_Dev::instantiate ->
+  // Xyce::Device::DeviceMgr::addDeviceInstance ->
+  // Xyce::Device::DeviceInstance::enableLeadCurrentCalc
+  //
+  // Where:
+  // numBranchDataVars = numBranchDataVars + numBranchDataVarsIfAllocated;
+  // This has the effect that later:
+  //     numBranchDataVars = numBranchDataVarsIfAllocated = numExtVars
+  
   // Do not allocate lead current vectors by default:
   setNumBranchDataVars(0);
   // but if requested, allocate one for each external node
@@ -536,11 +552,10 @@ void Instance::registerLIDs(const std::vector<int> & intLIDVecRef,
   }
   // now the internals
 
-  for (theVar=0; theVar<+numIntVars; ++theVar)
+  for (theVar=0; theVar<numIntVars; ++theVar)
   {
       li_Nodes_[theVar+numExtVars] = intLIDVec[theVar];
   }
-
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) )
   {
@@ -618,6 +633,31 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
 {
   AssertLIDs(staLIDVecRef.size() == numStateVars);
+  li_States_.resize(numStateVars);
+  staLIDVec = staLIDVecRef;
+  for (int i = 0; i < numStateVars; ++i)
+  {
+    li_States_[i] = staLIDVec[i];
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::registerStoreLIDs
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/14/2020
+//-----------------------------------------------------------------------------
+void Instance::registerStoreLIDs( const std::vector<int> & stoLIDVecRef )
+{
+  AssertLIDs(stoLIDVecRef.size() == numStoreVars);
+  li_Stores_.resize(numStoreVars);
+  stoLIDVec = stoLIDVecRef;
+  for (int i = 0; i < numStoreVars; ++i)
+  {
+    li_Stores_[i] = stoLIDVec[i];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -721,6 +761,10 @@ bool Instance::updateIntermediateVars ()
   {
     if (solutionVars_.empty())
       solutionVars_.resize(numVars);
+    if (nextStoreVars_.empty())
+      nextStoreVars_.resize(numStoreVars);
+    if (currStoreVars_.empty())
+      currStoreVars_.resize(numStoreVars);
 
     // Copy out the solution variables we need.  The ordering
     // is already correct, because of the way we constructed
@@ -728,13 +772,80 @@ bool Instance::updateIntermediateVars ()
     for (int i=0;i<numVars;i++)
       solutionVars_[i] = solVector[li_Nodes_[i]];
 
-    // Call back to the computation object and get this devices
-    // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-    // VECTORS APPROPRIATELY!
-    bsuccess=vciPtr_->computeXyceVectors(solutionVars_,
-                                         getSolverState().currTime_,
-                                         FVec_, QVec_, BVec_,
-                                         dFdXMat_, dQdXMat_);
+    if( getDeviceOptions().voltageLimiterFlag)
+    {
+      Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+          dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
+      if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
+          if (flagSolutionVars_.empty())
+            flagSolutionVars_.resize(numVars);
+          if (dFdXdVpVec_.empty())
+            dFdXdVpVec_.resize(numVars);
+          if (dQdXdVpVec_.empty())
+            dQdXdVpVec_.resize(numVars);
+
+          // Copy out the flag solution variables we need.
+          Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
+          bsuccess = bsuccess && (flagSolVectorPtr != 0);
+          if (!bsuccess)
+          {
+            UserError(*this) << "flagSolVectorPtr is not set.";
+          }
+          for (int i=0;i<numVars;i++)
+            flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
+          double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
+          double * currStoVectorPtr = extData.currStoVectorRawPtr;
+
+          for (int i=0;i<numStoreVars;i++) 
+          {
+            nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
+            currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
+          }
+
+          if (storeVars.empty())
+          {
+            storeVars.resize(2);
+            storeVars[0]=nextStoreVars_;
+            storeVars[1]=currStoreVars_;
+          } 
+
+          // Call back to the computation object and get this devices
+          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+          // VECTORS APPROPRIATELY!
+          bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
+                                               getSolverState().currTime_,
+                                               getDeviceOptions().voltageLimiterFlag,
+                                               getSolverState().newtonIter,
+                                               getSolverState().initJctFlag_,
+                                               getSolverState().inputOPFlag,
+                                               getSolverState().dcopFlag,
+                                               getSolverState().locaEnabledFlag,
+                                               origFlag,
+                                               FVec_, QVec_, BVec_,
+                                               dFdXMat_, dQdXMat_,
+                                               dFdXdVpVec_, dQdXdVpVec_);
+        }
+        else // cast failed, so vciPtr_ doesn't have interface supporting limiting
+        {
+          // Call back to the computation object and get this devices
+          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+          // VECTORS APPROPRIATELY!
+          bsuccess=vciPtr_->computeXyceVectors(solutionVars_,
+                                               getSolverState().currTime_,
+                                               FVec_, QVec_, BVec_,
+                                               dFdXMat_, dQdXMat_);
+        }
+    }
+    else 
+    {
+      // Call back to the computation object and get this devices
+      // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+      // VECTORS APPROPRIATELY!
+      bsuccess=vciPtr_->computeXyceVectors(solutionVars_,
+                                           getSolverState().currTime_,
+                                           FVec_, QVec_, BVec_,
+                                           dFdXMat_, dQdXMat_);
+    }
 
     if (!bsuccess)
     {
@@ -892,6 +1003,18 @@ bool Instance::loadDAEQVector ()
       (*daeQVecPtr)[li_Nodes_[i]] += QVec_[i];
   }
 
+  if( getDeviceOptions().voltageLimiterFlag )
+  {
+    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
+    // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
+    if (vciPtrWLimiting!=NULL) { 
+      double * dQdxdVpVector = extData.dQdxdVpVectorRawPtr;
+      for (int i=0; i<numVars; i++)
+        dQdxdVpVector[li_Nodes_[i]] += dQdXdVpVec_[i];
+    }
+  }
+
   if (loadLeadCurrent)
   {
     double * leadQ = extData.nextLeadCurrQCompRawPtr;
@@ -929,6 +1052,18 @@ bool Instance::loadDAEFVector ()
   {
     for (int i=0; i<numVars; i++)
       (*daeFVecPtr)[li_Nodes_[i]] += FVec_[i];
+  }
+
+  if( getDeviceOptions().voltageLimiterFlag )
+  {
+    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
+    // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
+    if (vciPtrWLimiting!=NULL) { 
+      double * dFdxdVpVector = extData.dFdxdVpVectorRawPtr;
+      for (int i=0; i<numVars; i++)
+        dFdxdVpVector[li_Nodes_[i]] += dFdXdVpVec_[i];
+    }
   }
 
   if (loadLeadCurrent)
@@ -1528,8 +1663,8 @@ Model::Model(
   updateDependentParameters();
 
   // calculate dependent (ie computed) params and check for errors:
-
   processParams ();
+
 }
 
 //-----------------------------------------------------------------------------

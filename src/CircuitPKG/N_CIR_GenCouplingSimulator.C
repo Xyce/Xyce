@@ -131,6 +131,135 @@ bool GenCouplingSimulator::setNumInternalVars(const std::string & deviceName, co
 }
 
 //-----------------------------------------------------------------------------
+// Function      : GenCouplingSimulator::setNumStoreVars
+// Purpose       : Set the number of store vars for named instance
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//-----------------------------------------------------------------------------
+///
+/// Given the name of a GeneralExternal device, set the number of store
+/// variables the device should have.
+///
+/// Must be called in between intializeEarly and intializeLate, since
+/// this information is used during initializeLate to perform final
+/// problem initialization.
+///
+/// @param[in] deviceName   The name of the device as set in the netlist
+/// @param[in] numStore       Number of store variables
+/// @return  true if device of that name found, false if not found
+
+bool GenCouplingSimulator::setNumStoreVars(const std::string & deviceName, const int numStore)
+{
+  bool success=true;
+  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
+  if (genExtPtr)
+    genExtPtr -> setNumStoreVars(numStore);
+  else
+    success=false;
+
+  return success;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : GenCouplingSimulator::setNumStateVars
+// Purpose       : Set the number of state vars for named instance
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//-----------------------------------------------------------------------------
+///
+/// Given the name of a GeneralExternal device, set the number of state
+/// variables the device should have.
+///
+/// Must be called in between intializeEarly and intializeLate, since
+/// this information is used during initializeLate to perform final
+/// problem initialization.
+///
+/// @param[in] deviceName   The name of the device as set in the netlist
+/// @param[in] numState       Number of state variables
+/// @return  true if device of that name found, false if not found
+
+bool GenCouplingSimulator::setNumStateVars(const std::string & deviceName, const int numState)
+{
+  bool success=true;
+  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
+  if (genExtPtr)
+    genExtPtr -> setNumStateVars(numState);
+  else
+    success=false;
+
+  return success;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : GenCouplingSimulator::setNumBranchDataVars
+// Purpose       : Set the number of branch data vars for named instance
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//-----------------------------------------------------------------------------
+///
+/// Given the name of a GeneralExternal device, set the number of branch data
+/// variables the device should have.
+///
+/// Must be called in between intializeEarly and intializeLate, since
+/// this information is used during initializeLate to perform final
+/// problem initialization.
+///
+/// @param[in] deviceName   The name of the device as set in the netlist
+/// @param[in] numBranchData       Number of branch data variables
+/// @return  true if device of that name found, false if not found
+
+bool GenCouplingSimulator::setNumBranchDataVars(const std::string & deviceName, const int numBranchData)
+{
+  bool success=true;
+  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
+  
+  if (genExtPtr)
+    genExtPtr -> setNumBranchDataVars(numBranchData);
+  else
+    success=false;
+
+  return success;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : GenCouplingSimulator::setNumBranchDataVarsIfAllocated
+// Purpose       : Set the number of branch data if allocated vars for named instance
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//-----------------------------------------------------------------------------
+///
+/// Given the name of a GeneralExternal device, set the number of branch data if allocated
+/// variables the device should have.
+///
+/// Must be called in between intializeEarly and intializeLate, since
+/// this information is used during initializeLate to perform final
+/// problem initialization.
+///
+/// @param[in] deviceName   The name of the device as set in the netlist
+/// @param[in] numBranchDataIfAllocated       Number of branch data if allocated variables
+/// @return  true if device of that name found, false if not found
+
+bool GenCouplingSimulator::setNumBranchDataVarsIfAllocated(const std::string & deviceName, const int numBranchDataIfAllocated)
+{
+  bool success=true;
+  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
+  if (genExtPtr)
+    genExtPtr -> setNumBranchDataVarsIfAllocated(numBranchDataIfAllocated);
+  else
+    success=false;
+
+  return success;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : GenCouplingSimulator::getNumVars
 // Purpose       : Query number variables used by named device
 // Special Notes :
@@ -204,6 +333,26 @@ bool GenCouplingSimulator::getSolution(const std::string & deviceName,
   return success;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : GenCouplingSimulator::getVoltageLimiterFlag
+// Purpose       : Return whether voltage limiting is being used
+// Special Notes :
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/13/2020
+//-----------------------------------------------------------------------------
+///
+/// @param[in] deviceName   The name of the device as set in the netlist
+/// @return  True if voltage limiting is being used, false if not
+
+bool GenCouplingSimulator::getVoltageLimiterFlag(const std::string & deviceName)
+{
+  bool limiting=false;
+  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
+  if (genExtPtr)
+    limiting = genExtPtr -> getDeviceOptions().voltageLimiterFlag;
+  return limiting;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : GenCouplingSimulator::setJacStamp
@@ -384,6 +533,16 @@ bool GenCouplingSimulator::getSParams(const std::string & deviceName,
   else
     success=false;
   return success;
+}
+
+std::string GenCouplingSimulator::getNetlistFilePath() const
+{
+  return commandLine_.getArgumentValue("netlist");
+}
+
+std::string GenCouplingSimulator::getXyceFilePath() const
+{
+  return commandLine_.argv()[0];
 }
 
 bool GenCouplingSimulator::addOutputInterface(Xyce::IO::ExternalOutputInterface * extIntPtr)
