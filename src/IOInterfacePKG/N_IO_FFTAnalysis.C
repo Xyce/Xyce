@@ -181,7 +181,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 
       if (np_ <= 0)
       {
-        Report::UserError0() << "NP value on .FFT line should be a power of 2, and >=4";
+        Report::UserError0() << "NP value on .FFT line must be a power of 2, and >=4";
       }
       else if ((np_ >=1) && (np_ < 4))
       {
@@ -477,11 +477,13 @@ bool FFTAnalysis::applyWindowFunction_()
   }
   else if (windowType_ == "BLACK")
   {
+    // "-67 dB Three-Term Blackman-Harris" window.  See SAND2017-4042.
     for (int i=0; i< np_; i++)
-      ftInData_[i] = sampleValues_[i] *(0.42 - 0.5*cos(2*M_PI*i/(np_-1)) + 0.08*cos(4*M_PI*i/(np_-1)));
+      ftInData_[i] = sampleValues_[i] *(0.42323 - 0.49755*cos(2*M_PI*i/(np_-1)) + 0.07922*cos(4*M_PI*i/(np_-1)));
   }
   else if (windowType_ == "HARRIS")
   {
+    // "-92 dB Four-Term Blackman-Harris" window. See SAND2017-4042.
     for (int i=0; i< np_; i++)
       ftInData_[i] = sampleValues_[i] *(0.35875 - 0.48829*cos(2*M_PI*i/(np_-1)) + 0.14128*cos(4*M_PI*i/(np_-1))
 					- 0.01168*cos(6*M_PI*i/(np_-1)));

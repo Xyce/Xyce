@@ -105,19 +105,19 @@ public:
   }
 
   // getters used by .MEASURE FFT objects
-  const int getNP() const {return np_;}
-  const bool isCalculated() const {return calculated_;}
-  const double getFreq() const { return freq_;}
-  const double getNoiseFloor() const {return noiseFloor_;}
+  int getNP() const {return np_;}
+  bool isCalculated() const {return calculated_;}
+  double getFreq() const { return freq_;}
+  double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
-  const double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
-  const double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
-  const double getMagVal(const int index) const { return mag_[index];}
-  const double getPhaseVal(const int index) const { return phase_[index];}
-  const double getENOB() const {return enob_;}
-  const double getSFDR() const {return sfdr_;}
-  const double getSNDR() const {return sndr_;}
-  const double getTHD() const {return thd_;}
+  double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
+  double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
+  double getMagVal(const int index) const { return mag_[index];}
+  double getPhaseVal(const int index) const { return phase_[index];}
+  double getENOB() const {return enob_;}
+  double getSFDR() const {return sfdr_;}
+  double getSNDR() const {return sndr_;}
+  double getTHD() const {return thd_;}
 
 private:
   bool interpolateData_();
@@ -128,7 +128,7 @@ private:
   std::ostream& printResult_( std::ostream& os );
 
   // used to sort a vector (in descending order) based on the double value in the pairs
-  static bool fftMagCompFunc(std::pair<int,double>& a, std::pair<int,double>& b)
+  static bool fftMagCompFunc(const std::pair<int,double>& a, const std::pair<int,double>& b)
   {
     return a.second > b.second;
   }
