@@ -441,7 +441,8 @@ void EpetraBlockMatrix::matvec(bool transA, const MultiVector &x,
 //-----------------------------------------------------------------------------
 void EpetraBlockMatrix::getDiagonal( Vector & diagonal ) const
 {
-  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( diagonal.epetraObj() );
+  Epetra_Vector * ediag = diagonal.epetraObj()(0);
+  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( *ediag );
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMatrix::getDiagonal - ", PetraError );

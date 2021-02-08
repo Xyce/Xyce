@@ -462,7 +462,8 @@ void EpetraMatrix::replaceLocalRow(int row, int length, double *coeffs, int *col
 //-----------------------------------------------------------------------------
 void EpetraMatrix::getDiagonal( Vector & diagonal ) const
 {
-  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( diagonal.epetraObj() );
+  Epetra_Vector * ediag = diagonal.epetraObj()(0);
+  int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( *ediag );
 
   if (DEBUG_LINEAR)
     processError( "EpetraMatrix::getDiagonal - ", PetraError );

@@ -80,13 +80,13 @@ public:
   virtual ~Vector() {}
 
   // Clone operation:
-  Vector* clone() const;
+  virtual Vector* clone() const;
 
   // Clone operation:
-  Vector* cloneCopy() const;
+  virtual Vector* cloneCopy() const;
 
   // Operation: operator []
-  double & operator[] (int index)
+  virtual double & operator[] (int index)
   {
     if (index >= 0)
       return (*oMultiVector_)[0][index];
@@ -95,7 +95,7 @@ public:
   }
 
   // Operation: operator []
-  const double & operator[] (int index) const
+  virtual const double & operator[] (int index) const
   {
     if (index >= 0)
       return (*oMultiVector_)[0][index];
@@ -104,13 +104,7 @@ public:
   }
 
   // Dot product with another vector.
-  double dotProduct(const Vector & y) const;
-
-  Epetra_Vector& epetraObj()
-  { return *(*aMultiVector_)(0); }
-
-  const Epetra_Vector& epetraObj() const
-  { return *(*aMultiVector_)(0); }
+  virtual double dotProduct(const Vector & y) const;
 
 protected:
 

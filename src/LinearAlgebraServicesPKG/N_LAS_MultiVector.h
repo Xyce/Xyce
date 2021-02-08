@@ -98,7 +98,7 @@ public:
   MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned = true );
   
   // Assignment operator
-  MultiVector & operator=(const MultiVector & right);
+  virtual MultiVector & operator=(const MultiVector & right);
 
   //Destructor
   virtual ~MultiVector();
@@ -112,34 +112,34 @@ public:
   // Returns the dot product of "this" vector and another.
   // NOTE:  If *this or y is a single vector, it will return the dot product of each column.
   //        Otherwise, *this and y should have the same number of columns and d[i] = (*this)[i]'*y[i].
-  void dotProduct(const MultiVector & y, std::vector<double>& d) const;
+  virtual void dotProduct(const MultiVector & y, std::vector<double>& d) const;
 
   // Scale every entry in the multi-vector by "a"
-  void scale(const double a);
+  virtual void scale(const double a);
 
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
-  void multiply(const MultiVector & x);
+  virtual void multiply(const MultiVector & x);
 
   // Linear combination with one and two constants and vectors
-  void update(double a, const MultiVector & A, double s = 1.0);
+  virtual void update(double a, const MultiVector & A, double s = 1.0);
 
-  void update(double a, const MultiVector & A, double b,
-  	      const MultiVector & B, double s = 1.0);
+  virtual void update(double a, const MultiVector & A, double b,
+  	              const MultiVector & B, double s = 1.0);
 
   // Compute the l_p norm (e.g., 2-norm is l_2)
-  int lpNorm(const int p, double * result) const;
+  virtual int lpNorm(const int p, double * result) const;
 
   // Infinity norm (with index if allocated by the caller)
-  int infNorm(double * result, int * index = 0) const;
+  virtual int infNorm(double * result, int * index = 0) const;
 
   // Weighted root-mean-square norm
-  int wRMSNorm(const MultiVector & weights, double * result) const;
+  virtual int wRMSNorm(const MultiVector & weights, double * result) const;
 
   // Weighted max-norm
-  int wMaxNorm(const MultiVector & weights, double * result) const;
+  virtual int wMaxNorm(const MultiVector & weights, double * result) const;
 
   // Generate random number
-  void random();
+  virtual void random();
 
   // Fill vector with constant value.
   virtual void putScalar(const double scalar);
@@ -148,13 +148,13 @@ public:
   virtual void addScalar(const double scalar);
 
   // Absolute value element-wise for vector
-  void absValue(const MultiVector & A);
+  virtual void absValue(const MultiVector & A);
 
   // Reciprocal of elements in vector
-  void reciprocal(const MultiVector & A);
+  virtual void reciprocal(const MultiVector & A);
 
   // Index operator
-  double * operator() (int row_lid, int col_lid)
+  virtual double * operator() (int row_lid, int col_lid)
   {
     if (row_lid >= 0 && col_lid >= 0)
       return ((*oMultiVector_)[col_lid]+row_lid);
@@ -163,7 +163,7 @@ public:
   }
 
   // Index operator
-  const double * operator() (int row_lid, int col_lid) const
+  virtual const double * operator() (int row_lid, int col_lid) const
   {
     if (row_lid >= 0 && col_lid >= 0)
       return ((*oMultiVector_)[col_lid]+row_lid);
@@ -172,61 +172,61 @@ public:
   }
 
   // Vector access function
-  const Vector* getVectorView(int index) const;
-  Vector* getNonConstVectorView(int index);
-  const Vector* getVectorViewAssembled(int index) const;
-  Vector* getNonConstVectorViewAssembled(int index);
+  virtual const Vector* getVectorView(int index) const;
+  virtual Vector* getNonConstVectorView(int index);
+  virtual const Vector* getVectorViewAssembled(int index) const;
+  virtual Vector* getNonConstVectorViewAssembled(int index);
 
   // Get the global (across all processors) length of the multi-vector
-  int globalLength() const;
+  virtual int globalLength() const;
   // Get the local (on processor component) length of the multi-vector
-  int localLength() const;
+  virtual int localLength() const;
 
   // Get the number of individual vectors in the multi-vector
-  int numVectors() const;
+  virtual int numVectors() const;
   // Get the external vector size
-  int externVectorSize() const { return externVectorMap_.size(); }
+  virtual int externVectorSize() const { return externVectorMap_.size(); }
 
   // Import/Export capability
-  bool vectorImport(const MultiVector * vec, Importer * importer);
-  bool importOverlap();
+  virtual bool vectorImport(const MultiVector * vec, Importer * importer);
+  virtual bool importOverlap();
 
   // Dump vector entries to file.
   virtual void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
 
   // Get for vector elements by their global index (const version)
-  const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
+  virtual const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
 
   // Set for vector elements by their global index
-  bool setElementByGlobalIndex(const int & global_index, const double & val,
-  	const int & vec_index = 0);
+  virtual bool setElementByGlobalIndex(const int & global_index, const double & val,
+  	                               const int & vec_index = 0);
 
   // Sum vector elements by their global index
-  bool sumElementByGlobalIndex(const int & global_index, const double & val,
-  	const int & vec_index = 0);
+  virtual bool sumElementByGlobalIndex(const int & global_index, const double & val,
+  	                               const int & vec_index = 0);
 
   // Clear the external vector map
-  void clearExternVectorMap() { externVectorMap_.clear(); }
+  virtual void clearExternVectorMap() { externVectorMap_.clear(); }
   // Add an element to the external vector map
-  void addElementToExternVectorMap(const int & global_index,
-  	const double & value);
+  virtual void addElementToExternVectorMap(const int & global_index,
+  	                                   const double & value);
 
   // Print the underlying object.
   virtual void print(std::ostream &os) const;
 
   // Get the parallel map associated with this multi-vector
-  const Parallel::ParMap * pmap() const { return parallelMap_; }
-  const Parallel::ParMap * omap() const { return overlapMap_; }
+  virtual const Parallel::ParMap * pmap() const { return parallelMap_; }
+  virtual const Parallel::ParMap * omap() const { return overlapMap_; }
 
   // Get the parallel communicator associated with this multi-vector
-  const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
+  virtual const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
   Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
   
   const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
 
   //Accumulate off processor fill contributions if necessary
-  void fillComplete();
+  virtual void fillComplete();
 
 protected:
 
