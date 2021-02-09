@@ -380,7 +380,9 @@ bool ParLSUtil::setupRowCol()
       }
       else
       {
-        random_shuffle( intVec.begin(), intVec.end() );
+        //Bug 1239:  Commenting out random shuffle to address non-deterministic
+        //           parallel behavior due to shared voltage node assignment.
+        //random_shuffle( intVec.begin(), intVec.end() );
         inode->pid = *(intVec.begin());
       }
     }
