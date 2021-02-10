@@ -479,6 +479,49 @@ double SNDR::getMeasureResult()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : SNR::SNR()
+// Purpose       : Constructor
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+SNR::SNR(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+  FFT(measureMgr, measureBlock)
+{}
+
+//-----------------------------------------------------------------------------
+// Function      : SNR::reset()
+// Purpose       : Called when restarting a measure function.  Resets any state
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+void SNR::reset()
+{
+  resetFFT();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SNR::getMeasureResult()
+// Purpose       : Return Signal to Noise Ratio (SNR) in dB
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+double SNR::getMeasureResult()
+{
+  if( fftAnalysisPtr_->isCalculated() )
+  {
+    initialized_ = true;
+    calculationResult_ = fftAnalysisPtr_->getSNR();
+  }
+  return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : THD::THD()
 // Purpose       : Constructor
 // Special Notes :

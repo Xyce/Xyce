@@ -73,6 +73,7 @@ class FFTFind;
 class ENOB;
 class SFDR;
 class SNDR;
+class SNR;
 class THD;
 
 } // namespace Measure

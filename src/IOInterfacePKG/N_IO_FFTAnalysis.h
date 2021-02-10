@@ -122,6 +122,7 @@ public:
   double getENOB() const {return enob_;}
   double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
+  double getSNR() const {return snr_;}
   double getTHD() const {return thd_;}
 
 private:

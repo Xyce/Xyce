@@ -193,6 +193,25 @@ public:
 };
 
 //-------------------------------------------------------------------------
+// Class         : SNR
+// Purpose       : Implement SNR measure for .MEASURE FFT
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-------------------------------------------------------------------------
+class SNR : public FFT
+{
+public:
+  SNR(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~SNR() {};
+
+public:
+  void reset();
+  double getMeasureResult();
+
+};
+
+//-------------------------------------------------------------------------
 // Class         : THD
 // Purpose       : Implement THD measure for .MEASURE FFT
 // Special Notes :
