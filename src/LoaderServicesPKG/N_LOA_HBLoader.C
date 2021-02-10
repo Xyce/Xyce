@@ -1021,11 +1021,11 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector * QVecPtr = (bQ->block(i)).clone();
+    Linear::Vector * QVecPtr = (bQ->block(i)).cloneVector();
     Linear::Vector& QVec = *QVecPtr;
     Linear::Vector& freqVec = bQ->block(i);
 
-    Linear::Vector * dQdxdVpVecPtr = (bdQdxdVp->block(i)).clone();
+    Linear::Vector * dQdxdVpVecPtr = (bdQdxdVp->block(i)).cloneVector();
     Linear::Vector& dQdxdVpVec = *dQdxdVpVecPtr;
     Linear::Vector& freqVec1 = bdQdxdVp->block(i);
 
@@ -1081,7 +1081,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector * leadCurrdQdtVecPtr = (bLeadCurrentQVecFreqPtr_->block(i)).clone();
+    Linear::Vector * leadCurrdQdtVecPtr = (bLeadCurrentQVecFreqPtr_->block(i)).cloneVector();
     Linear::Vector& leadCurrdQdtVec = *leadCurrdQdtVecPtr;
     Linear::Vector& leadCurrQVec = bLeadCurrentQVecFreqPtr_->block(i);
 

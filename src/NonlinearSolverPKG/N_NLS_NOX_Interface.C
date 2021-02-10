@@ -323,7 +323,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
   // Save a copy of nextSolutionPtr before stdNewtonSolve, just in case
   // of failure, so we can start gmin and source stepping with the same vector.
   // NOTE:  This is necessary if .IC statements are being enforced.
-  Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopy();
+  Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopyVector();
 
   groupPtr_->setNonContinuationFlag (true);
   int isuccess = stdNewtonSolve (paramsPtr);

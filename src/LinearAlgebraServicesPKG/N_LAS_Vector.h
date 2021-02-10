@@ -80,10 +80,10 @@ public:
   virtual ~Vector() {}
 
   // Clone operation:
-  virtual Vector* clone() const;
+  virtual Vector* cloneVector() const;
 
   // Clone operation:
-  virtual Vector* cloneCopy() const;
+  virtual Vector* cloneCopyVector() const;
 
   // Operation: operator []
   virtual double & operator[] (int index)

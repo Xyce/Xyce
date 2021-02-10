@@ -84,7 +84,7 @@ Vector::Vector( Epetra_Vector * overlapV, const Epetra_BlockMap& parMap, bool is
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
-Vector* Vector::clone() const
+Vector* Vector::cloneVector() const
 {
   Vector* new_vec = 0;
   if ( parallelMap_ )
@@ -110,7 +110,7 @@ Vector* Vector::clone() const
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
-Vector* Vector::cloneCopy() const
+Vector* Vector::cloneCopyVector() const
 {
   return new Vector( *this );
 }

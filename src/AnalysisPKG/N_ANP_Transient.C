@@ -1938,10 +1938,10 @@ bool Transient::doProcessSuccessfulStep()
 
     ds.timeSteps.push_back(currentTime);
     ds.timeStepsBreakpointFlag.push_back(beginningIntegration);
-    ds.fastTimeSolutionVec.push_back( ds.currSolutionPtr->cloneCopy() );
-    ds.fastTimeStateVec.push_back( ds.currStatePtr->cloneCopy() );
-    ds.fastTimeQVec.push_back( ds.daeQVectorPtr->cloneCopy() );
-    ds.fastTimeStoreVec.push_back( ds.currStorePtr->cloneCopy() );
+    ds.fastTimeSolutionVec.push_back( ds.currSolutionPtr->cloneCopyVector() );
+    ds.fastTimeStateVec.push_back( ds.currStatePtr->cloneCopyVector() );
+    ds.fastTimeQVec.push_back( ds.daeQVectorPtr->cloneCopyVector() );
+    ds.fastTimeStoreVec.push_back( ds.currStorePtr->cloneCopyVector() );
   }
 
   // 03/16/04 tscoffe:  This is where the solution pointers are rotated.
@@ -2179,9 +2179,9 @@ bool Transient::saveTransientAdjointSensitivityInfo ()
   ds.orderHistory.push_back(currentOrder);
 
   // save the solution, state, store etc.
-  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopy());
-  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopy());
-  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopy());
+  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopyVector());
+  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopyVector());
+  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopyVector());
 
   if (!newLowMem_)
   {
@@ -2249,9 +2249,9 @@ bool Transient::saveTransientAdjointSensitivityInfoDCOP ()
   ds.orderHistory.push_back(currentOrder);
 
   // save the solution, state, store etc.
-  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopy());
-  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopy());
-  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopy());
+  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopyVector());
+  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopyVector());
+  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopyVector());
 
   if (!newLowMem_)
   {
@@ -2715,10 +2715,10 @@ bool Transient::doFinish()
     TimeIntg::DataStore & ds = * ( analysisManager_.getDataStore() );
     ds.timeSteps.push_back(analysisManager_.getStepErrorControl().currentTime);
     ds.timeStepsBreakpointFlag.push_back(beginningIntegration);
-    ds.fastTimeSolutionVec.push_back(ds.currSolutionPtr->cloneCopy());
-    ds.fastTimeStateVec.push_back(ds.currStatePtr->cloneCopy());
-    ds.fastTimeQVec.push_back(ds.daeQVectorPtr->cloneCopy());
-    ds.fastTimeStoreVec.push_back(ds.currStorePtr->cloneCopy());
+    ds.fastTimeSolutionVec.push_back(ds.currSolutionPtr->cloneCopyVector());
+    ds.fastTimeStateVec.push_back(ds.currStatePtr->cloneCopyVector());
+    ds.fastTimeQVec.push_back(ds.daeQVectorPtr->cloneCopyVector());
+    ds.fastTimeStoreVec.push_back(ds.currStorePtr->cloneCopyVector());
   }
 
   if (!isPaused)

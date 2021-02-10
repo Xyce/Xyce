@@ -68,7 +68,7 @@ AugmentLinSysPseudoTransient::AugmentLinSysPseudoTransient
     colors_(colors),
     tmp_vector_ptr_(0)
 {
-  tmp_vector_ptr_ = cloneVector->clone();
+  tmp_vector_ptr_ = cloneVector->cloneVector();
 }
 
 //-----------------------------------------------------------------------------

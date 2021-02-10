@@ -156,7 +156,7 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
   dQdx->put(0.0);
   dFdx->put(0.0);
 
-  Xyce::Linear::Vector * appdSdt = appNextStaVecPtr_->clone();
+  Xyce::Linear::Vector * appdSdt = appNextStaVecPtr_->cloneVector();
 
   Xyce::Linear::BlockMatrix & bdQdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dQdx);
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
@@ -400,18 +400,18 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   appNextStaVecPtr_->putScalar(0.0);
   appCurrStaVecPtr_->putScalar(0.0);
   appLastStaVecPtr_->putScalar(0.0);
-  Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->clone();
+  Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->cloneVector();
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
 
-  Xyce::Linear::Vector * appQ = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appF = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appB = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appdFdxdVp = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appdQdxdVp = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appQ = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appF = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appB = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appdFdxdVp = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appdQdxdVp = appNextVecPtr_->cloneVector();
 
   // This is a temporary load storage vector.
-  Xyce::Linear::Vector * dQdt2 = appNextVecPtr_->clone(); 
+  Xyce::Linear::Vector * dQdt2 = appNextVecPtr_->cloneVector(); 
 
   // 12/8/06 tscoffe:   Note:  "b" at beginning of variable name means Xyce::Linear::BlockVector
   Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);

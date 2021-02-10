@@ -1987,10 +1987,10 @@ HB::runStartupPeriods()
   // put the dsPtr->currentSolutionPtr into dcOpSol and State Vec so that it
   // is used as our initial condition for the pending fast time scale runs
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  dcOpSolVecPtr_ = rcp( dsPtr->currSolutionPtr->cloneCopy() );
-  dcOpStateVecPtr_ = rcp( dsPtr->currStatePtr->cloneCopy() ); 
-  dcOpQVecPtr_ = rcp( dsPtr->daeQVectorPtr->cloneCopy() );
-  dcOpStoreVecPtr_ = rcp( dsPtr->currStorePtr->cloneCopy() );
+  dcOpSolVecPtr_ = rcp( dsPtr->currSolutionPtr->cloneCopyVector() );
+  dcOpStateVecPtr_ = rcp( dsPtr->currStatePtr->cloneCopyVector() ); 
+  dcOpQVecPtr_ = rcp( dsPtr->daeQVectorPtr->cloneCopyVector() );
+  dcOpStoreVecPtr_ = rcp( dsPtr->currStorePtr->cloneCopyVector() );
 
   return returnValue;
 }
@@ -2094,10 +2094,10 @@ HB::runDCOP()
 
     currentAnalysisObject_ = 0;
 
-  dcOpSolVecPtr_ =  rcp( analysisManager_.getDataStore()->currSolutionPtr->cloneCopy() );
-  dcOpStateVecPtr_ = rcp( analysisManager_.getDataStore()->currStatePtr->cloneCopy() );
-  dcOpQVecPtr_ =  rcp( analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy() );
-  dcOpStoreVecPtr_ = rcp( analysisManager_.getDataStore()->currStorePtr->cloneCopy() );
+  dcOpSolVecPtr_ =  rcp( analysisManager_.getDataStore()->currSolutionPtr->cloneCopyVector() );
+  dcOpStateVecPtr_ = rcp( analysisManager_.getDataStore()->currStatePtr->cloneCopyVector() );
+  dcOpQVecPtr_ =  rcp( analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector() );
+  dcOpStoreVecPtr_ = rcp( analysisManager_.getDataStore()->currStorePtr->cloneCopyVector() );
 
   return returnValue;
 
@@ -2211,10 +2211,10 @@ HB::interpolateIC(
 
     double fraction = (goodTimePoints_[i] -  dsPtr->timeSteps[currentIndex])/(dsPtr->timeSteps[currentIndex+1] -  dsPtr->timeSteps[currentIndex]);
 
-    RCP<Linear::Vector> InterpICSolVecPtr = rcp( secondSolVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICStateVecPtr = rcp( secondStateVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICQVecPtr = rcp( secondQVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( secondStoreVecPtr->cloneCopy() );
+    RCP<Linear::Vector> InterpICSolVecPtr = rcp( secondSolVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICStateVecPtr = rcp( secondStateVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICQVecPtr = rcp( secondQVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( secondStoreVecPtr->cloneCopyVector() );
 
     InterpICSolVecPtr->update(-1.0, *firstSolVecPtr, 1.0);
     InterpICSolVecPtr->update(1.0, *firstSolVecPtr, fraction);

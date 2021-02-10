@@ -211,9 +211,9 @@ bool slowNumericalDerivatives( int iparam,
   getSetParamName(paramName, setParamName); // remove curly braces;
 
   // save a copy of the DAE vectors
-  Linear::Vector * origFVector = ds.daeFVectorPtr->cloneCopy();
-  Linear::Vector * origQVector = ds.daeQVectorPtr->cloneCopy();
-  Linear::Vector * origBVector = ds.daeBVectorPtr->cloneCopy();
+  Linear::Vector * origFVector = ds.daeFVectorPtr->cloneCopyVector();
+  Linear::Vector * origQVector = ds.daeQVectorPtr->cloneCopyVector();
+  Linear::Vector * origBVector = ds.daeBVectorPtr->cloneCopyVector();
 
   double paramOrig = ds.paramOrigVals_[iparam];
 
@@ -267,9 +267,9 @@ bool slowNumericalDerivatives( int iparam,
   nonlinearEquationLoader_.loadRHS();
 
   // save the perturbed DAE vectors
-  Linear::Vector * pertFVector = ds.daeFVectorPtr->cloneCopy();
-  Linear::Vector * pertQVector = ds.daeQVectorPtr->cloneCopy();
-  Linear::Vector * pertBVector = ds.daeBVectorPtr->cloneCopy();
+  Linear::Vector * pertFVector = ds.daeFVectorPtr->cloneCopyVector();
+  Linear::Vector * pertQVector = ds.daeQVectorPtr->cloneCopyVector();
+  Linear::Vector * pertBVector = ds.daeBVectorPtr->cloneCopyVector();
 
   Linear::MultiVector * dfdpPtrVector = ds.nextDfdpPtrVector;
   Linear::MultiVector * dqdpPtrVector = ds.nextDqdpPtrVector;

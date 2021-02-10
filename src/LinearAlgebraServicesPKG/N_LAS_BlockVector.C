@@ -247,7 +247,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
   {
     for( int i = 0; i < numBlocks_; ++i )
     {
-      blocks_[i] =  Teuchos::rcp( rhs.blocks_[i]->cloneCopy() );
+      blocks_[i] =  Teuchos::rcp( rhs.blocks_[i]->cloneCopyVector() );
     }
   }
 }
