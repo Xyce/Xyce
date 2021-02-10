@@ -115,7 +115,7 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
     np_ = fftAnalysisPtr_->getNP();
 
     if (findGiven_ && atGiven_)
-      atRounded_ = std::round(at_/fftAnalysisPtr_->getFreq());
+      atRounded_ = std::round(at_/fftAnalysisPtr_->getFundamentalFreq());
   }
 }
 

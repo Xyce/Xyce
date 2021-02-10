@@ -112,7 +112,7 @@ public:
   // getters used by .MEASURE FFT objects
   int getNP() const {return np_;}
   bool isCalculated() const {return calculated_;}
-  double getFreq() const { return freq_;}
+  double getFundamentalFreq() const { return fundFreq_;}
   double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
   double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
@@ -129,6 +129,10 @@ private:
   bool applyWindowFunction_();
 
   void calculateFFT_();
+  void calculateSFDR_();
+  void calculateSNR_();
+  void calculateSNDRandENOB_();
+  void calculateTHD_();
 
   std::ostream& printResult_( std::ostream& os );
 
@@ -145,9 +149,9 @@ private:
   std:: string format_;
   std::string windowType_;
   double alpha_;
-  double freq_;
-  double fmin_;
-  double fmax_;
+  double fundFreq_; // fundamental frequency
+  double freq_, fmin_, fmax_;  // values from FREQ (first harmonic), FMIN, FMAX qualifiers
+  int fhIdx_, fminIdx_, fmaxIdx_; // values rounded to nearest harmonic index
   bool startTimeGiven_;
   bool stopTimeGiven_;
   bool freqGiven_;
@@ -164,6 +168,7 @@ private:
   double thd_;
   double sndr_;
   double enob_;
+  double snr_;
   double sfdr_;
   int sfdrIndex_;
   std::vector<double> mag_;
