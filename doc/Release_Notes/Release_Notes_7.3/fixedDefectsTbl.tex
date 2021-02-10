@@ -36,6 +36,25 @@
 \textbf{ISSUE NUMBER}:  Placeholder title&
 Placeholder description.
 \\ \hline
+\textbf{Gitlab-ex issue 128}: Fix Xyce/ADMS handling of some while and for loops &
+Xyce/ADMS was emitting improper code for ``for'' or ``while'' loops
+that contained what ADMS flagged as ``nonlinear'' conditions.  This
+turned out to be due to an error in the implicit rules of ADMS that
+has been present for at least 10 years, in which this unusual type of
+condition resulted in an inappropriate double call to an early
+dependency-tracking template.  The result was that contents of the
+code block controlled by the loop construct was in backwards order,
+and all function precomputation was happening twice (due to the
+presence of duplicate entries in the ``function'' data structure).
+
+Xyce/ADMS uses a modified version of ADMS's implicit rules file
+instead of the one that ships with ADMS, and this error has now been
+fixed in Xyce's modified version.
+
+No standard Verilog-A models make use of ``for'' or ``while'' loops
+that would have tripped this bug, but such a usage was found in a
+Verilog-A model inside a proprietary vendor PDK. \\ \hline
+
 \textbf{Gitlab-ex issue 103}: Fix glitches in transmission line at breakpoints &
 The lossless transmission line is an ideal behavioral device that
 operates by keeping a record of the histories of the two ends of the
