@@ -376,7 +376,7 @@ bool ParLSUtil::setupRowCol()
       {
         inode->pid = proc;
         if (DEBUG_TOPOLOGY)
-          std::cout << "pNode: " << id << " " << proc << std::endl;
+          Xyce::dout() << "pNode: " << id << " " << proc << std::endl;
       }
       else
       {

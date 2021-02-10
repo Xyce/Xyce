@@ -269,6 +269,11 @@ bool dumpRestartData(
     node_dataSize += Xyce::packedByteCount(*nodeVec[i]);
 
   int dataSize = node_dataSize;
+
+  if (DEBUG_RESTART)
+    Xyce::dout() << "fProcID: " << procID << std::endl
+                 << "dataSize: " << node_dataSize << std::endl;
+      
   if (procID == 0)
   {
     dataSizeVec.push_back( node_dataSize );
@@ -318,7 +323,7 @@ bool dumpRestartData(
                    << "DUMPING RESTART: " << outName << " version: " << versionString << std::endl
                    << "numProcs: " << numProcs << " maxSize: " << maxSize << std::endl
                    << "proc: " << proc << " dataSize: " << dataSize << std::endl
-                   << "nodeCount: " << nodeCount << " pack: " << pack << std::endl;
+                   << "nodeCount: " << globalNodeCount << " pack: " << pack << std::endl;
 
     int packed = pack?1:0;
     outStreamSt << numProcs << " " << maxSize << " " << packed << " " 
@@ -448,7 +453,7 @@ RestartMgr::restoreRestartData(
   std::ifstream * inStream = 0;
 
   int nodeCount;
-  int TotNumDevs;
+  int totNumNodes;
   int oldNumProcs, maxSize;
   std::string oldVersion;
 
@@ -508,7 +513,7 @@ RestartMgr::restoreRestartData(
     }
 
     int packed;
-    (*inStream) >> oldNumProcs >> maxSize >> packed >> TotNumDevs >> oldIntMethod >> oldVersion;
+    (*inStream) >> oldNumProcs >> maxSize >> packed >> totNumNodes >> oldIntMethod >> oldVersion;
     pack = packed;
 
     if (DEBUG_RESTART)
@@ -517,7 +522,7 @@ RestartMgr::restoreRestartData(
                    << "oldNumProcs: " << oldNumProcs << std::endl
                    << "maxSize: " << maxSize << std::endl
                    << "packed: " << pack << std::endl
-                   << "TotNumDevs: " << TotNumDevs << std::endl
+                   << "totNumNodes: " << totNumNodes << std::endl
                    << "oldIntMethod: " << oldIntMethod << std::endl
                    << "oldVersion: " << oldVersion << std::endl;
 
@@ -565,7 +570,7 @@ RestartMgr::restoreRestartData(
     analysis_manager.setBeginningIntegrationFlag( true );
   }
 
-//Table of restart nodes used by all procs
+  //Table of restart nodes used by all procs
   std::vector<RestartNode*> nodeTable;
 
   //2. Proc 0 reads in data pushing NumDevices/NumProcs to every processor
@@ -575,7 +580,9 @@ RestartMgr::restoreRestartData(
     int    bsize1 = 0;
     int    pos1   = 0;
 
-    unsigned int DevsPerProc = TotNumDevs/numProcs + 1;
+    unsigned int DevsPerProc = totNumNodes/numProcs;
+    if (totNumNodes % numProcs)
+      DevsPerProc++;
 
     RestartNode * nodeP;
     int CurrProc = 1;
@@ -640,6 +647,10 @@ RestartMgr::restoreRestartData(
 
           if (CurrProc < numProcs)
           {
+            if (DEBUG_RESTART)
+              Xyce::dout() << "Sending restart nodes to processor " << CurrProc 
+                           << ", number nodes sent " << i << " of " << nodeCount << std::endl;
+
             comm.send( &Size, 1, CurrProc);
             comm.send( buf1, Size, CurrProc);
             ++CurrProc;
@@ -649,6 +660,13 @@ RestartMgr::restoreRestartData(
           nodeTable.clear();
         }
       }
+    }
+   
+    // If there are processors that weren't assigned nodes, send buffer size 0. 
+    for ( int i=CurrProc; i<numProcs; ++i )
+    { 
+      int Size=0;
+      comm.send( &Size, 1, i );
     }
 
     if (bsize) delete [] buf;
@@ -661,16 +679,30 @@ RestartMgr::restoreRestartData(
   if (procID != 0)
   {
     comm.recv( &bsize, 1, 0);
-    buf = new char[bsize];
-    comm.recv( buf, bsize, 0);
+    if (DEBUG_RESTART)
+      Xyce::dout() << "Proc " << procID << " preparing to receive restart nodes, bsize: " << bsize << std::endl;
+    
+    if (bsize)
+    {
+      buf = new char[bsize];
+      comm.recv( buf, bsize, 0);
+    }
+    else
+    {
+      // Place a zero in the buffer because this processor was not allocated nodes
+      bsize = sizeof(int);
+      buf = new char[bsize];
+      int pos = 0;
+      nodeCount = 0;
+      comm.pack( &nodeCount, 1, buf, bsize, pos);
+    } 
   }
+
   if (DEBUG_RESTART)
     Xyce::dout() << "Finished ReadIn of Restart Node Data on Proc: " << procID << std::endl;
 
   comm.barrier();
-#endif
 
-#ifdef Xyce_PARALLEL_MPI
   //Set Buffers to largest necessary size
   int bsize2 = 0;
   comm.maxAll( &bsize, &bsize2, 1);
@@ -691,7 +723,7 @@ RestartMgr::restoreRestartData(
     comm.unpack( buf, bsize, pos, &nodeCount, 1);
     nodeTable.resize(nodeCount);
 
-    if (DEBUG_RESTART && procID != 0)
+    if (DEBUG_RESTART)
       Xyce::dout() << "Restart Ring Stage: " << i << " " << nodeCount << std::endl;
 
     for( int j = 0; j < nodeCount; ++j)
