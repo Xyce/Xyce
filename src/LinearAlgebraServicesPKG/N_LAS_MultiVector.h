@@ -222,8 +222,10 @@ public:
   virtual const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
   Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
-  
   const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
+
+  Epetra_MultiVector & epetraOverlapObj() { return *oMultiVector_; }
+  const Epetra_MultiVector & epetraOverlapObj() const { return *oMultiVector_; }
 
   //Accumulate off processor fill contributions if necessary
   virtual void fillComplete();
@@ -232,6 +234,8 @@ protected:
 
   // Copy constructor
   MultiVector(const MultiVector & right);
+
+private:
 
   // Pointer to the multi-vector's parallel map object
   const Parallel::ParMap* parallelMap_;

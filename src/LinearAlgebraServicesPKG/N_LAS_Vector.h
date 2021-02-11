@@ -89,7 +89,7 @@ public:
   virtual double & operator[] (int index)
   {
     if (index >= 0)
-      return (*oMultiVector_)[0][index];
+      return epetraOverlapObj()[0][index];
     else
       return groundNode_;
   }
@@ -98,7 +98,7 @@ public:
   virtual const double & operator[] (int index) const
   {
     if (index >= 0)
-      return (*oMultiVector_)[0][index];
+      return epetraOverlapObj()[0][index];
     else
       return groundNode_;
   }
@@ -113,6 +113,7 @@ protected:
   : MultiVector(right)
   {}
 
+  double groundNode_;
 
 };
 

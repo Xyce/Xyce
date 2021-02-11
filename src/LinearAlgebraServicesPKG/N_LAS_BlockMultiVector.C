@@ -87,7 +87,7 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
   double ** Ptrs, ** Loc;
   Loc = (double**)malloc(sizeof(double*) * numVectors);
 
-  aMultiVector_->ExtractView( &Ptrs );
+  epetraObj().ExtractView( &Ptrs );
 
   const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
 
@@ -125,7 +125,7 @@ void BlockMultiVector::print(std::ostream &os) const
     blocks_[i]->print( os );
   }
   os << "Base Object\n";
-  os << *aMultiVector_;
+  os << epetraObj();
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 }
 

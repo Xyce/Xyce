@@ -83,7 +83,7 @@ BlockVector::BlockVector( int numBlocks,
 {
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  aMultiVector_->ExtractView( &Ptrs );
+  epetraObj().ExtractView( &Ptrs );
   double * Loc;
 
   const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
@@ -133,7 +133,7 @@ BlockVector::BlockVector( int blockSize,
 
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  aMultiVector_->ExtractView( &Ptrs );
+  epetraObj().ExtractView( &Ptrs );
   double * Loc = 0;
   if (globalMap->numLocalEntities() > 0)
   {
@@ -209,7 +209,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
 
       // Setup Views of blocks using Block Map
       double ** Ptrs;
-      aMultiVector_->ExtractView( &Ptrs );
+      epetraObj().ExtractView( &Ptrs );
       double * Loc;
 
       const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
@@ -227,7 +227,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
 
       // Setup Views of blocks using Block Map
       double ** Ptrs;
-      aMultiVector_->ExtractView( &Ptrs );
+      epetraObj().ExtractView( &Ptrs );
       double * Loc = Ptrs[0];
 
       for( int i = 0; i < numBlocks_; ++i )
@@ -283,12 +283,11 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
 
   // Create the new maps for each block that places all the entries of the block on one processor.
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
-                                 ( aMultiVector_->Map() ).IndexBase(),
-                                 *right->pdsComm() ) );
+                               epetraObj().Map().IndexBase(), *right->pdsComm() ) );
 
   // Determine where these blocks start and end in the grand scheme of things.
-  int minMyGID = (aMultiVector_->Map()).MinMyGID();
-  int maxMyGID = (aMultiVector_->Map()).MaxMyGID();
+  int minMyGID = (epetraObj().Map()).MinMyGID();
+  int maxMyGID = (epetraObj().Map()).MaxMyGID();
   if ( localAugmentCount )
     maxMyGID -= localAugmentCount;
 
@@ -297,7 +296,7 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
 
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  aMultiVector_->ExtractView( &Ptrs );
+  epetraObj().ExtractView( &Ptrs );
   double * Loc = Ptrs[0];
 
   for( int i = 0; i < numBlocks_; ++i )
@@ -309,7 +308,7 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
       myBlockSize = blockSize;
 
     Teuchos::RCP<Parallel::ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize,
-                                                          ( aMultiVector_->Map() ).IndexBase(), *right->pdsComm() ) );
+                                                                epetraObj().Map().IndexBase(), *right->pdsComm() ) );
  
     Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
@@ -346,7 +345,7 @@ void BlockVector::print(std::ostream &os) const
     blocks_[i]->print( os );
   }
   os << "Base Object\n";
-  os << *aMultiVector_;
+  os << epetraObj();
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 }
 

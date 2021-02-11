@@ -59,7 +59,8 @@ namespace Linear {
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 Vector::Vector( Epetra_Vector * origV, bool isOwned )
-: MultiVector( dynamic_cast<Epetra_MultiVector *>(origV), isOwned )
+: MultiVector( dynamic_cast<Epetra_MultiVector *>(origV), isOwned ),
+  groundNode_(0.0)
 {
 }
 
@@ -72,7 +73,8 @@ Vector::Vector( Epetra_Vector * origV, bool isOwned )
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
 Vector::Vector( Epetra_Vector * overlapV, const Epetra_BlockMap& parMap, bool isOwned )
-: MultiVector( dynamic_cast<Epetra_MultiVector *>(overlapV), parMap, isOwned )
+: MultiVector( dynamic_cast<Epetra_MultiVector *>(overlapV), parMap, isOwned ),
+  groundNode_(0.0)
 {
 }
 
@@ -87,12 +89,12 @@ Vector::Vector( Epetra_Vector * overlapV, const Epetra_BlockMap& parMap, bool is
 Vector* Vector::cloneVector() const
 {
   Vector* new_vec = 0;
-  if ( parallelMap_ )
+  if ( pmap() )
   {
-    if ( parallelMap_ == overlapMap_ )
-      new_vec = new Vector( *parallelMap_ );
+    if ( pmap() == omap() )
+      new_vec = new Vector( *pmap() );
     else
-      new_vec = new Vector( *parallelMap_, *overlapMap_ );
+      new_vec = new Vector( *pmap(), *omap() );
   }
   else
   {
@@ -126,10 +128,7 @@ Vector* Vector::cloneCopyVector() const
 double Vector::dotProduct( const Vector & y ) const
 {
   double result = 0.0;
-  int PetraError = aMultiVector_->Dot(*(y.aMultiVector_), &result);
-
-  if (DEBUG_LINEAR)
-    processError( "Vector::dotProduct - ", PetraError );
+  int PetraError = epetraObj().Dot(y.epetraObj(), &result);
 
   return result;
 }
