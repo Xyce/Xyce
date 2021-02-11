@@ -69,7 +69,6 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
                                     const Teuchos::RCP<const Parallel::ParMap> & subBlockMap
                                   )
 : MultiVector( *globalMap, numVectors ),
-  blocksViewGlobalVec_(true),
   globalBlockSize_(subBlockMap->numGlobalEntities()),
   localBlockSize_(subBlockMap->numLocalEntities()),
   numBlocks_(numBlocks),
@@ -113,7 +112,7 @@ BlockMultiVector::BlockMultiVector( int numBlocks, int numVectors,
 //-----------------------------------------------------------------------------
 void BlockMultiVector::print(std::ostream &os) const
 {
-  os << "BlockMultiVector Object (Number of Blocks =" << numBlocks_ << ", Number of Vectors =" << numVectors() << ", View =" << blocksViewGlobalVec_ << std::endl;
+  os << "BlockMultiVector Object (Number of Blocks =" << numBlocks_ << ", Number of Vectors =" << numVectors() << std::endl;
 
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   for( int i = 0; i < numBlocks_; ++i )

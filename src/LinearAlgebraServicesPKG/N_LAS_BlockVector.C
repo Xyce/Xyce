@@ -70,7 +70,6 @@ BlockVector::BlockVector( int numBlocks,
                           const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                           int augmentRows )
 : Vector( *globalMap ),
-  blocksViewGlobalVec_(true),
   globalBlockSize_(subBlockMap->numGlobalEntities()),
   localBlockSize_(subBlockMap->numLocalEntities()),
   overlapBlockSize_(subBlockMap->numLocalEntities()),
@@ -107,7 +106,6 @@ BlockVector::BlockVector( int blockSize,
                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           int augmentRows )
 : Vector( *globalMap ),
-  blocksViewGlobalVec_( true ),
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -188,7 +186,6 @@ BlockVector & BlockVector::operator=( const BlockVector & right )
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( const BlockVector & rhs )
 : Vector( dynamic_cast<const Vector&>(rhs) ),
-  blocksViewGlobalVec_( rhs.blocksViewGlobalVec_ ),
   globalBlockSize_( rhs.globalBlockSize_ ),
   localBlockSize_( rhs.localBlockSize_ ),
   overlapBlockSize_( rhs.overlapBlockSize_ ),
@@ -199,55 +196,45 @@ BlockVector::BlockVector( const BlockVector & rhs )
   newBlockMap_( rhs.newBlockMap_ ),
   blocks_( rhs.blocks_.size() )
 {
-  if (blocksViewGlobalVec_)
+  // If the startBlock_ and endBlock_ cover every block in this vector than this is a time-domain representation
+  // or serial simulation, in which case a frequency-domain distinction need not be made.
+  if ((startBlock_ == 0) && (endBlock_ == numBlocks_))
   {
-    // If the startBlock_ and endBlock_ cover every block in this vector than this is a time-domain representation
-    // or serial simulation, in which case a frequency-domain distinction need not be made.
-    if ((startBlock_ == 0) && (endBlock_ == numBlocks_))
+    int numBlocks = blocks_.size();
+
+    // Setup Views of blocks using Block Map
+    double ** Ptrs;
+    epetraObj().ExtractView( &Ptrs );
+    double * Loc;
+
+    const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
+
+    for( int i = 0; i < numBlocks; ++i )
     {
-      int numBlocks = blocks_.size();
-
-      // Setup Views of blocks using Block Map
-      double ** Ptrs;
-      epetraObj().ExtractView( &Ptrs );
-      double * Loc;
-
-      const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
-
-      for( int i = 0; i < numBlocks; ++i )
-      {
-        Loc = Ptrs[0] + overlapBlockSize_*i;
-        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
-      }
-    }
-    else
-    {
-      // This is a frequency-domain representation of the block vector, so create views accordingly.
-      int blockSize = globalBlockSize_;
-
-      // Setup Views of blocks using Block Map
-      double ** Ptrs;
-      epetraObj().ExtractView( &Ptrs );
-      double * Loc = Ptrs[0];
-
-      for( int i = 0; i < numBlocks_; ++i )
-      {
-        // Create a Vector that views all the block data that is local.
-        blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, ((rhs.blocks_[i])->epetraObj()).Map(), Loc ), true ) );
-
-        if ( (i >= startBlock_) && (i < endBlock_) )
-        {
-          // Advance the pointer for the local data.
-          Loc += blockSize;
-        }
-      }
+      Loc = Ptrs[0] + overlapBlockSize_*i;
+      blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
     }
   }
   else
   {
+    // This is a frequency-domain representation of the block vector, so create views accordingly.
+    int blockSize = globalBlockSize_;
+
+    // Setup Views of blocks using Block Map
+    double ** Ptrs;
+    epetraObj().ExtractView( &Ptrs );
+    double * Loc = Ptrs[0];
+
     for( int i = 0; i < numBlocks_; ++i )
     {
-      blocks_[i] =  Teuchos::rcp( rhs.blocks_[i]->cloneCopyVector() );
+      // Create a Vector that views all the block data that is local.
+      blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, ((rhs.blocks_[i])->epetraObj()).Map(), Loc ), true ) );
+
+      if ( (i >= startBlock_) && (i < endBlock_) )
+      {
+        // Advance the pointer for the local data.
+        Loc += blockSize;
+      }
     }
   }
 }
@@ -262,7 +249,6 @@ BlockVector::BlockVector( const BlockVector & rhs )
 //-----------------------------------------------------------------------------
 BlockVector::BlockVector( const Vector * right, int blockSize )
 : Vector( (const_cast<Vector*>(right)->epetraObj())(0), false ),
-  blocksViewGlobalVec_( true ), 
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -333,7 +319,7 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
 //-----------------------------------------------------------------------------
 void BlockVector::print(std::ostream &os) const
 {
-  os << "BlockVector Object (Number of Blocks =" << numBlocks_ << ", View =" << blocksViewGlobalVec_ << ", Augmented Rows=" << augmentCount_ << ")" << std::endl;
+  os << "BlockVector Object (Number of Blocks =" << numBlocks_ << ", Augmented Rows=" << augmentCount_ << ")" << std::endl;
 
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   for( int i = 0; i < numBlocks_; ++i )

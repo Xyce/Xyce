@@ -97,10 +97,6 @@ class BlockVector : public Vector
   virtual int endBlock() const
   { return endBlock_; }
 
-  // Return whether the local vector is a view of the global vector.
-  virtual bool isBlockView()
-  { return blocksViewGlobalVec_; }
-
   // Get the ParMap objects for each BLOCK in this block vector.
   virtual const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
