@@ -535,6 +535,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"tan"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_TAN; }
 <INITIAL>"tanh"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_TANH; }
 
+<INITIAL>"nint"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_NINT; }
+<INITIAL>"fmod"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_FMOD; }
 <INITIAL>"ceil"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_CEIL; }
 <INITIAL>"floor"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_FLOOR; }
 <INITIAL>"limit"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_LIMIT; }

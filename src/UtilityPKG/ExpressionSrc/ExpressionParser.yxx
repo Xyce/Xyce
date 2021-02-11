@@ -703,6 +703,8 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_AUNIF	"aunif"
 %token TOK_UNIF	"unif"
 %token TOK_AGAUSS	"agauss"
+%token TOK_FMOD	"fmod"
+%token TOK_NINT	"nint"
 %token TOK_CEIL	"ceil"
 %token TOK_GAUSS	"gauss"
 %token TOK_DDT	"ddt"
@@ -883,6 +885,11 @@ exp:
   | exp TOK_MOD exp
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryModOp<usedType>  ($1,$3));
+      $$ = tmpPtr;
+    }
+  | TOK_FMOD exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new fmodOp<usedType>  ($2,$4));
       $$ = tmpPtr;
     }
 
@@ -1327,6 +1334,11 @@ exp:
   | TOK_TANH exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>($2));
+      $$ = tmpPtr;
+    }
+  | TOK_NINT exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new roundOp<usedType>($2));
       $$ = tmpPtr;
     }
   | TOK_CEIL exp TOK_RIGHTPAREN
