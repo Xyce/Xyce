@@ -1450,12 +1450,6 @@ N_MPDE_Manager::runInitialCondition(
       break;
   }
 
-  // Assemble global block vector
-  mpdeICVectorPtr_->assembleGlobalVector();
-  mpdeICStateVectorPtr_->assembleGlobalVector();
-  mpdeICQVectorPtr_->assembleGlobalVector();
-  mpdeICStoreVectorPtr_->assembleGlobalVector();
-
   if (warpMPDE_)
   {
     //std::cout << "Setting omega = 1 into MPDE solution vector." << std::endl;

@@ -67,35 +67,30 @@ class BlockMultiVector : public MultiVector
   virtual ~BlockMultiVector() {};
 
   // Block accessors
-  MultiVector & block( int Loc ) const
+  virtual MultiVector & block( int Loc ) const
   { return *blocks_[Loc]; }
 
-  int blockSize() const
+  virtual int blockSize() const
   { return globalBlockSize_; }
 
-  int blockCount() const
+  virtual int blockCount() const
   { return numBlocks_; }
 
-  int startBlock() const
+  virtual int startBlock() const
   { return startBlock_; }
 
-  int endBlock() const
+  virtual int endBlock() const
   { return endBlock_; }
 
   // Return whether the local vector is a view of the global vector.
-  bool isBlockView()
+  virtual bool isBlockView()
   { return blocksViewGlobalVec_; }
 
-  // Assemble global vector with blocks
-  // NOTE:  The global vector is not always a view of the local vector, so this function ensures
-  // that the values are sync'ed up.  Call this before using the global vector for computations.
-  void assembleGlobalVector();
-
   // Get the ParMap objects for each BLOCK in this block vector.
-  const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
+  virtual const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Print out the underlying data in this object.
-  void print(std::ostream &os) const;
+  virtual void print(std::ostream &os) const;
 
  private:
 

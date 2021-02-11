@@ -658,19 +658,6 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     }
   }
 
-  // Now that the vector loading is finished, synchronize the global copy of the block vector
-  bX.assembleGlobalVector();
-  bS.assembleGlobalVector();
-  bdSdt.assembleGlobalVector();
-  bStore.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bF.assembleGlobalVector();
-  bdFdxdVp.assembleGlobalVector();
-  bdQdxdVp.assembleGlobalVector();
-  bcurrS.assembleGlobalVector();
-  blastS.assembleGlobalVector();
-  bcurrStore.assembleGlobalVector();
-
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS))
   {
     Xyce::dout() << "MPDE X Vector" << std::endl;

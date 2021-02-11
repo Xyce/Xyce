@@ -325,22 +325,6 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector::assembleGlobalVector
-// Purpose       : Fills global MultiVector with the values in each block.
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/23/00
-//-----------------------------------------------------------------------------
-void BlockVector::assembleGlobalVector()
-{
-  if (!blocksViewGlobalVec_)
-  {
-
-  }
-}
-
-//-----------------------------------------------------------------------------
 // Function      : BlockVector:::print
 // Purpose       : Output
 // Special Notes :
