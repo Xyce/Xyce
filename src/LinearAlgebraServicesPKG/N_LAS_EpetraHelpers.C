@@ -48,7 +48,9 @@
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraImporter.h>
 #include <N_LAS_EpetraGraph.h>
+#include <N_LAS_EpetraBlockMultiVector.h>
 
+#include <Epetra_Comm.h>
 #include <Epetra_Map.h>
 #include <Epetra_BlockMap.h>
 #include <Epetra_CrsGraph.h>
@@ -142,6 +144,58 @@ void writeToFile(const Epetra_LinearProblem& problem, std::string prefix,
   EpetraExt::MultiVectorToMatrixMarketFile( char_file_name, *(problem.GetRHS()) );
 }
 
+void writeToFile( const Epetra_MultiVector& vector, const char * filename, 
+                  bool useLIDs, bool mmFormat )
+{
+  int numProcs = vector.Comm().NumProc();
+  int localRank = vector.Comm().MyPID();
+  int masterRank = 0;
+
+  if (!mmFormat)
+  {
+    for( int p = 0; p < numProcs; ++p )
+    {
+      //A barrier inside the loop so each processor waits its turn.
+      vector.Comm().Barrier();
+
+      if(p == localRank)
+      {
+        FILE *file = NULL;
+
+        if(masterRank == localRank)
+        {
+          //This is the master processor, open a new file.
+          file = fopen(filename,"w");
+
+          //Write the RDP_MultiVector dimension n into the file.
+          fprintf(file,"%d\n",vector.GlobalLength());
+        }
+        else
+        {
+          //This is not the master proc, open file for appending
+          file = fopen(filename,"a");
+        }
+
+        //Now loop over the local portion of the RDP_MultiVector.
+        int length  = vector.MyLength();
+        int numVecs = vector.NumVectors();
+
+        for (int i = 0; i < numVecs; ++i)
+          for (int j = 0; j < length; ++j)
+          {
+            int loc = vector.Map().GID(j);
+            if( useLIDs ) loc = j;
+            fprintf(file,"%d %d %20.13e\n",i,loc,vector[i][j]);
+          } 
+        fclose(file);
+      } 
+    } 
+  } 
+  else
+  {
+    EpetraExt::MultiVectorToMatrixMarketFile( filename, vector );
+  } 
+}
                
 // ///////////////////////////////////////////////////////////////////
 //

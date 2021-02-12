@@ -50,6 +50,7 @@
 
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Operator.h>
+#include <Epetra_MultiVector.h>
 #include <Epetra_LinearProblem.h>
 
 // ---------- Forward Declarations ----------
@@ -61,6 +62,9 @@ namespace Linear {
 void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
                  int file_number, bool write_map);
 
+// Helper function for writing Epetra_MultiVector to file
+void writeToFile( const Epetra_MultiVector& vector, const char * filename, 
+                  bool useLIDs=false, bool mmFormat=false );
 
 //-----------------------------------------------------------------------------
 // Class         : EpetraMatrixAccess
@@ -79,6 +83,27 @@ class EpetraMatrixAccess
 
   virtual Epetra_CrsMatrix & epetraObj() = 0;
   virtual const Epetra_CrsMatrix & epetraObj() const = 0;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : EpetraVectorAccess
+// Purpose       : Class defining epetraObj() methods for vector classes.
+// Special Notes :
+// Creator       : Heidi Thornquist, SNL, Electrical Systems Modeling
+// Creation Date : 1/4/2021
+//-----------------------------------------------------------------------------
+class EpetraVectorAccess
+{
+  public:
+
+  // Empty constructor
+  EpetraVectorAccess() {}
+  virtual ~EpetraVectorAccess() {}
+
+  virtual Epetra_MultiVector& epetraObj() = 0;
+  virtual const Epetra_MultiVector& epetraObj() const = 0;
+  virtual Epetra_MultiVector& epetraOverlapObj() = 0;
+  virtual const Epetra_MultiVector& epetraOverlapObj() const = 0;
 };
 
 //-----------------------------------------------------------------------------

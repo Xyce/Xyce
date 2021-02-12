@@ -49,7 +49,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
-#include <N_LAS_BlockMultiVector.h>
+#include <N_LAS_EpetraBlockMultiVector.h>
 
 #include <N_LAS_EpetraGraph.h>
 #include <N_LAS_Matrix.h>
@@ -102,7 +102,7 @@ BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
                                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                           const Teuchos::RCP<const Parallel::ParMap> & subBlockMap )
 {
-  return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
+  return new EpetraBlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
 }
 
 

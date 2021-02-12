@@ -82,6 +82,9 @@ class MultiVector
 {
 public:
 
+  // Default constructor
+  MultiVector() {}
+
   // Constructors to map to Petra constructors.
   MultiVector( const Parallel::ParMap & map,
                int numVectors = 1 );
@@ -221,11 +224,11 @@ public:
   // Get the parallel communicator associated with this multi-vector
   virtual const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
-  Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
-  const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
+  virtual Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
+  virtual const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
 
-  Epetra_MultiVector & epetraOverlapObj() { return *oMultiVector_; }
-  const Epetra_MultiVector & epetraOverlapObj() const { return *oMultiVector_; }
+  virtual Epetra_MultiVector & epetraOverlapObj() { return *oMultiVector_; }
+  virtual const Epetra_MultiVector & epetraOverlapObj() const { return *oMultiVector_; }
 
   //Accumulate off processor fill contributions if necessary
   virtual void fillComplete();

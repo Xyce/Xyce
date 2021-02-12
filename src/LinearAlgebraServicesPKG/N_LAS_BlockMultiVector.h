@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Block MultiVector access
+// Purpose        : Block MultiVector abstract interface 
 //
 // Special Notes  :
 //
@@ -37,8 +37,6 @@
 
 #ifndef Xyce_N_LAS_BlockMultiVector_h
 #define Xyce_N_LAS_BlockMultiVector_h
-
-#include <vector>
 
 #include <N_LAS_MultiVector.h>
 #include <N_PDS_fwd.h>
@@ -58,50 +56,26 @@ namespace Linear {
 class BlockMultiVector : public MultiVector
 {
  public:
-  BlockMultiVector( int numBlocks, int numVectors,
-                    const Teuchos::RCP<const Parallel::ParMap> & globalMap,
-                    const Teuchos::RCP<const Parallel::ParMap> & subBlockMap
-                  );
+
+  // Default constructor
+  BlockMultiVector() {}
 
   // Destructor
   virtual ~BlockMultiVector() {};
 
   // Block accessors
-  virtual MultiVector & block( int Loc ) const
-  { return *blocks_[Loc]; }
+  virtual MultiVector & block( int Loc ) const = 0;
 
-  virtual int blockSize() const
-  { return globalBlockSize_; }
+  virtual int blockSize() const = 0;
 
-  virtual int blockCount() const
-  { return numBlocks_; }
+  virtual int blockCount() const = 0;
 
-  virtual int startBlock() const
-  { return startBlock_; }
+  virtual int startBlock() const = 0;
 
-  virtual int endBlock() const
-  { return endBlock_; }
+  virtual int endBlock() const = 0;
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  virtual const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
-
-  // Print out the underlying data in this object.
-  virtual void print(std::ostream &os) const;
-
- private:
-
-  const int globalBlockSize_;
-  const int localBlockSize_;
-  const int numBlocks_;
-
-  // In frequency domain, whole blocks may be owned by one processor.
-  // NOTE:  This assumes they are contiguous.  By default these routines
-  //        will return 0 and numBlocks_ (which is sane for the time domain specs).
-  int startBlock_, endBlock_;
-
-  Teuchos::RCP<const Parallel::ParMap> newBlockMap_; 
-
-  std::vector<Teuchos::RCP<MultiVector> > blocks_;
+  virtual const Parallel::ParMap * blockPmap() const = 0;
 
 };
 
