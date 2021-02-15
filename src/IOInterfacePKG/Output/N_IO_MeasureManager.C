@@ -809,6 +809,7 @@ void Manager::remeasure(
   const char& analysisName,
   Util::Op::BuilderManager &op_builder_manager,
   OutputMgr &output_manager,
+  FFTMgr &fft_manager,
   Analysis::AnalysisManager &analysis_manager,
   Analysis::AnalysisCreatorRegistry &analysis_registry,
   Util::SymbolTable &symbol_table)
@@ -969,6 +970,16 @@ void Manager::remeasure(
   }
   setMeasureOutputFileSuffix(remeasureObj->getAnalysisMode());
 
+  // support FFT measure mode
+  if (fft_manager.isFFTActive())
+  {
+    // StepErrorControl is not made by the AnalysisManager during -remeasure
+    TimeIntg::StepErrorControl* sec(NULL);
+    fft_manager.fixupFFTParametersForRemeasure(pds_comm.comm(), op_builder_manager,
+				   analysis_manager.getFinalTimeForRemeasure(), *sec);
+    fixupFFTMeasures(pds_comm.comm(), fft_manager);
+  }
+
   // this safeBarrier will cause remeasure to error out if any of the MeasureOps are invalid.
   Report::safeBarrier(pds_comm.comm());
 
@@ -1054,7 +1065,10 @@ void Manager::remeasure(
         // (or if no .STEP statement is used).  In that case, the data is
         // output near the end of this function.
 	if ( prevIndepVar > remeasureObj->getIndepVar() )
-        {        
+        {
+          // This also re-calculates all of the .FFT analyses for the current step
+          fft_manager.outputResultsToFFTfile(remeasureStepCount);
+
           // Output the measure info to both mt file and stdout.
           // At present, .OPTIONS MEASURE MEASPRINT does not apply to -remeasure
           if( !allMeasuresList_.empty() )
@@ -1064,7 +1078,8 @@ void Manager::remeasure(
             outputVerboseResults(Xyce::lout(), prevIndepVar);
           }
 
-          // reset all of the measures
+          // reset all of the measures and FFT analyses (if any)
+          fft_manager.resetFFTAnalyses();
           for (MeasurementVector::iterator it = allMeasuresList_.begin(); it != allMeasuresList_.end(); ++it) 
           {
             (*it)->reset();
@@ -1084,8 +1099,10 @@ void Manager::remeasure(
         }
         prevIndepVar = remeasureObj->getIndepVar(); 
 
-        // update each measure.
+        // update each measure and FFT analysis object
         remeasureObj->updateMeasures(varValuesVec);
+        fft_manager.updateFFTData(pds_comm.comm(), remeasureObj->getIndepVar(),
+                                  &varValuesVec, 0, 0, &varValuesVec, 0, 0);
 
         // Update the Sweep Vector.  This is currently only used by DC remeasure.
         remeasureObj->updateSweepVars();  
@@ -1105,17 +1122,10 @@ void Manager::remeasure(
   if (remeasureStepCount > 0)
   {
     Xyce::lout() << "***** Processing Data for Step " << remeasureStepCount << std::endl;
-  }   
-  
-  // At present, .OPTIONS MEASURE MEASPRINT does not affect -remeasure
-  if (Parallel::rank(pds_comm.comm()) == 0)
-  {
-    outputVerboseResults( Xyce::lout(), output_manager.getCircuitTime() );
   }
-  else
-  {
-    outputVerboseResults( Xyce::lout(), output_manager.getCircuitTime() );
-  }
+
+  // This also re-calculates the FFT analyses
+  fft_manager.outputResultsToFFTfile(remeasureStepCount);
 
   // Output the Measure results to file.
   if (Parallel::rank(pds_comm.comm()) == 0)
@@ -1128,6 +1138,16 @@ void Manager::remeasure(
   else 
   {
     outputResults( Xyce::lout() );
+  }
+
+  // At present, .OPTIONS MEASURE MEASPRINT does not affect -remeasure
+  if (Parallel::rank(pds_comm.comm()) == 0)
+  {
+    outputVerboseResults( Xyce::lout(), output_manager.getCircuitTime() );
+  }
+  else
+  {
+    outputVerboseResults( Xyce::lout(), output_manager.getCircuitTime() );
   }
 
   fileToReMeasure->closeFileForRead();

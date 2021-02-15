@@ -1003,7 +1003,7 @@ Simulator::RunStatus Simulator::initializeEarly(
       char analysisName = netlist_import_tool.getAnalysisName()[0];
       Parallel::Communicator &pds_comm = *parallelManager_->getPDSComm();
       measureManager_->remeasure(pds_comm, commandLine_.getArgumentValue("netlist"), commandLine_.getArgumentValue("-remeasure"), 
-                                 analysisName, *opBuilderManager_, *outputManager_, *analysisManager_, 
+                                 analysisName, *opBuilderManager_, *outputManager_, *fftManager_, *analysisManager_,
                                  *analysisRegistry_, topology_->getNodeSymbols());
 
       Xyce::lout() << "***** Remeasure analysis complete\n" << std::endl;
