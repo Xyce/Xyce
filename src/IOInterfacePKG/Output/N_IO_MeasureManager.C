@@ -333,6 +333,10 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   {
     theMeasureObject = new Measure::SNDR(measureMgr, measureBlock);
   }
+  else if( type=="SNR")
+  {
+    theMeasureObject = new Measure::SNR(measureMgr, measureBlock);
+  }
   else if( type=="THD")
   {
     theMeasureObject = new Measure::THD(measureMgr, measureBlock);
@@ -1433,6 +1437,7 @@ extractMEASUREData(
   typeSetFft.insert( std::string("FIND") );
   typeSetFft.insert( std::string("SFDR") );
   typeSetFft.insert( std::string("SNDR") );
+  typeSetFft.insert( std::string("SNR") );
   typeSetFft.insert( std::string("THD") );
 
   // allowed types for the NOISE mode
@@ -1656,7 +1661,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, FIND, SDFR, SNDR and THD "
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, FIND, SDFR, SNDR, SNR and THD "
 	 << "measure types are supported for FFT measure mode";
       return false;
     }

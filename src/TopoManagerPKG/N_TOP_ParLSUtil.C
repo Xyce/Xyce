@@ -376,11 +376,13 @@ bool ParLSUtil::setupRowCol()
       {
         inode->pid = proc;
         if (DEBUG_TOPOLOGY)
-          std::cout << "pNode: " << id << " " << proc << std::endl;
+          Xyce::dout() << "pNode: " << id << " " << proc << std::endl;
       }
       else
       {
-        random_shuffle( intVec.begin(), intVec.end() );
+        //Bug 1239:  Commenting out random shuffle to address non-deterministic
+        //           parallel behavior due to shared voltage node assignment.
+        //random_shuffle( intVec.begin(), intVec.end() );
         inode->pid = *(intVec.begin());
       }
     }

@@ -2735,6 +2735,97 @@ class signOp : public astNode<ScalarT>
 };
 
 //-------------------------------------------------------------------------------
+// fmod operator. returns the remainder of the division as a real number
+//
+template <typename ScalarT>
+class fmodOp : public astNode<ScalarT>
+{
+  public:
+    fmodOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+    {
+      rightConst_ = this->rightAst_->numvalType();
+      leftConst_ = this->leftAst_->numvalType();
+    }
+
+    virtual ScalarT val()
+    {
+      return std::fmod ( std::real(this->leftAst_->val()) , std::real(this->rightAst_->val()));
+    }
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      ScalarT retVal = 0.0;
+      return  retVal;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "fmod operator id = " << this->id_ << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "fmod operator id = " << this->id_ << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
+      os << "std::fmod(";
+      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
+      this->leftAst_->codeGen(os);
+      os << ",";
+      this->rightAst_->codeGen(os);
+      os << ")";
+    }
+
+  private:
+    bool rightConst_;
+    bool leftConst_;
+};
+
+//-------------------------------------------------------------------------------
+// nint(x) Rounds x up or down, to the nearest integer
+template <typename ScalarT>
+class roundOp : public astNode<ScalarT>
+{
+  public:
+    roundOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+
+    virtual ScalarT val() { return std::round(std::real(this->leftAst_->val())); }
+
+    // derivative is undefined at integers and 0.0 elsewhere
+    virtual ScalarT dx(int i) { return  0.0; }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "round operator id = " << this->id_ << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+      os << "round operator id = " << this->id_ << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "std::round(";
+      this->leftAst_->codeGen(os);
+      os << ")";
+    }
+};
+
+//-------------------------------------------------------------------------------
 // least integer greater or equal to variable x
 template <typename ScalarT>
 class ceilOp : public astNode<ScalarT>

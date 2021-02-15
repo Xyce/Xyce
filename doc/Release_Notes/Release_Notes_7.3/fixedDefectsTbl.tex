@@ -36,6 +36,34 @@
 \textbf{ISSUE NUMBER}:  Placeholder title&
 Placeholder description.
 \\ \hline
+
+\textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &
+Prior to the rewrite of the expression library, flex and bison were optional;
+however, now they are required. The autotools and CMake build systems have now
+been modified to reflect that. The ability to turn off the reaction parser
+capability with a flag has been retained, however (with the default being
+``on'').
+\\ \hline
+
+\textbf{Gitlab-ex issue 128}: Fix Xyce/ADMS handling of some while and for loops &
+Xyce/ADMS was emitting improper code for ``for'' or ``while'' loops
+that contained what ADMS flagged as ``nonlinear'' conditions.  This
+turned out to be due to an error in the implicit rules of ADMS that
+has been present for at least 10 years, in which this unusual type of
+condition resulted in an inappropriate double call to an early
+dependency-tracking template.  The result was that contents of the
+code block controlled by the loop construct was in backwards order,
+and all function precomputation was happening twice (due to the
+presence of duplicate entries in the ``function'' data structure).
+
+Xyce/ADMS uses a modified version of ADMS's implicit rules file
+instead of the one that ships with ADMS, and this error has now been
+fixed in Xyce's modified version.
+
+No standard Verilog-A models make use of ``for'' or ``while'' loops
+that would have tripped this bug, but such a usage was found in a
+Verilog-A model inside a proprietary vendor PDK. \\ \hline
+
 \textbf{Gitlab-ex issue 103}: Fix glitches in transmission line at breakpoints &
 The lossless transmission line is an ideal behavioral device that
 operates by keeping a record of the histories of the two ends of the
@@ -50,6 +78,7 @@ slope changes signficantly.  Xyce now detects when such
 discontinuities in derivative occur and performs linear interpolation
 instead.  This prevents the small overshoots that have been observed
 in these cases in all prior versions of Xyce. \\ \hline
+
 \textbf{1203-SON}: Issues with temperature-dependent device
 instance-parameters that were expression-based & The values for
 temperature-dependent device instance parameters could be incorrect
@@ -68,8 +97,8 @@ an incorrect answer.  An example is:
 .PARAM ptemp=10
 R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \end{verbatim}
-
 \\ \hline
+
 \textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
 Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
 has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
@@ -77,5 +106,12 @@ syntax to read a file into a table.  A double quoted string is
 now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
 has also been removed as it was used to signify a string.
 \\ \hline
+
+\textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
+To enable improved performance, Xyce now requires a C++11 capable compiler.
+Therefore, all the code conditionals related to C++11 features have been
+removed from the code. 
+\\ \hline
+
 \end{longtable}
 }

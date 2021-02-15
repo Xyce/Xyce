@@ -4413,6 +4413,177 @@ TEST ( Complex_Parser_modulus, test2)
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, 3.0);
 }
 
+TEST ( Complex_Parser_fmod, fmod1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("fmod(1.2,0.31)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=std::fmod(1.2,0.31); // should be 0.27
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_fmod, fmod1, p1) 
+}
+
+TEST ( Complex_Parser_fmod, fmod2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("fmod(5.3,2)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=std::fmod(5.3,2); // should be 1.3
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_fmod, fmod2, p1) 
+}
+
+TEST ( Complex_Parser_fmod, fmod3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("fmod(18.5,4.2)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1);
+  Xyce::Util::newExpression assign_p1;
+  assign_p1 = p1;
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=std::fmod(18.5,4.2);  // should be 1.7
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_fmod, fmod3, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(2.2)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=2.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint1, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(2.5)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=3.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint2, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(2.7)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=3.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint3, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint4)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(-2.2)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=-2.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint4, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint5)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(-2.5)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=-3.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint5, p1) 
+}
+
+TEST ( Complex_Parser_nint, nint6)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("nint(-2.7)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refres=-3.0;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
+  OUTPUT_MACRO2(Complex_Parser_nint, nint6, p1) 
+}
+
 //-------------------------------------------------------------------------------
 // table tests
 //

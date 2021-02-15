@@ -47,8 +47,8 @@
 # search here, BUT some important (and subtle?) aspects setup by project()
 # would likely be missing.
 
-# Fix the library lists, as they contain a lot of duplicates. This is
-# done automatically by Trilinos
+# Fix the library lists, as they contain a lot of duplicates.  This is done
+# automatically by Trilinos
 #    LIST(REVERSE Trilinos_LIBRARIES)
 #    LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
 #    LIST(REVERSE Trilinos_LIBRARIES)
@@ -162,7 +162,7 @@ if (NOT Teuchos_COMPLEX_IN_Trilinos)
 endif()
 
 # After the release of Trilinos 12.12.1, the abstract solver interface in NOX
-# was changed to include a new method that returns solver statistics. This test
+# was changed to include a new method that returns solver statistics.  This test
 # and set of ifdefs can be removed if the minimum version of Trilinos is raised.
 check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
 
@@ -290,11 +290,11 @@ endif()
 # Address the pathalogical case first
 if(Xyce_USE_FFT AND Xyce_USE_INTEL_FFT AND Xyce_USE_FFTW)
      message(FATAL_ERROR
-"Both \"Xyce_USE_INTEL_FFT\" and \"Xyce_USE_FFTW\" have been set as TRUE. It is recommended to delete all \"FFT\" variables and let CMake determine the configuration.  You may also set either \"Xyce_USE_INTEL_FFT\" or \"Xyce_USE_FFTW\" to TRUE.  However, if you explicitly specify the use of the Intel MKL FFT capability, you must also ensure the appropriate MKL flags are set in the Xyce CMake invocation.")
+"Both \"Xyce_USE_INTEL_FFT\" and \"Xyce_USE_FFTW\" have been set as TRUE.  It is recommended to delete all \"FFT\" variables and let CMake determine the configuration.  You may also set either \"Xyce_USE_INTEL_FFT\" or \"Xyce_USE_FFTW\" to TRUE.  However, if you explicitly specify the use of the Intel MKL FFT capability, you must also ensure the appropriate MKL flags are set in the Xyce CMake invocation.")
 endif()
 
 # Both Xyce_USE_INTEL_FFT and Xyce_USE_FFT must be true to force the use of the
-# Intel MKL (see below). If Xyce_USE_INTEL_FFT is true and Xyce_USE_FFT is
+# Intel MKL (see below).  If Xyce_USE_INTEL_FFT is true and Xyce_USE_FFT is
 # unspecified or explicitly false, then that is considered a contradiction.
 if(Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFT)
      set(Xyce_USE_INTEL_FFT FALSE CACHE BOOL "Use the Intel Math Kernel Library FFT capability" FORCE)
@@ -313,7 +313,7 @@ elseif(Xyce_USE_FFT)
 endif()
 
 # If Xyce_USE_FFTW is true and Xyce_USE_FFT is unspecified or explicitly true,
-# then it is taken that the user wants to use FFTW. If Xyce_USE_FFTW is true and
+# then it is taken that the user wants to use FFTW.  If Xyce_USE_FFTW is true and
 # Xyce_USE_FFT is explicitly false, then that is considered a contradiction.
 # Note that this is slightly different from the Intel MKL case, so this must be
 # located after the "set(Xyce_USE_FFT..." command, above.
@@ -321,15 +321,22 @@ if(Xyce_USE_FFTW AND NOT Xyce_USE_FFT)
      set(Xyce_USE_FFTW FALSE CACHE BOOL "Use FFTW library" FORCE)
 endif()
 
-# Even though Trilinos can leverage the Intel MKL, the Trilinos CMake does not
-# create a record in "Trilinos_TPL_LIST".  However, if used, the MKL
-# information will be listed in the other Trilinos CMake TPL variables.  We are
-# not going to search for the Intel MKL, ourselves; we will simply check to see
-# if the MKL FFT header is available, *and* that its directory is known to
-# Trilinos (indicating Trilinos will supply all the needed MKL information).
-# Note that this is not done on a re-run of the configuration with
-# Xyce_USE_INTEL_FFT=TRUE (as might happen with ccmake). That is not a problem,
-# since no libraries are set up, anyway.
+# Trilinos will search for the Intel MKL in the context of leveraging the BLAS
+# and LAPACK capabilities.  If BLAS and LAPACK are enabled via the Intel MKL,
+# then they will be in the Trilinos_TPL_LIST variable (already seached above);
+# but Trilinos_TPL_LIST will not explicitly mention the MKL.  However, the MKL
+# linking information should be in the other Trilinos CMake TPL variables.  We
+# are not going to search for the Intel MKL, ourselves; we will simply check to
+# see if the MKL FFT header is available, *and* that its directory is known to
+# Trilinos (indicating Trilinos will supply all the needed MKL linking
+# information).  This is admittedly a bit hinky.  It could fail if the Trilinos
+# link line is somehow incomplete, and environment variables pointing to the
+# MKL are not in place.  Nevertheless, it should work for most use cases, and
+# I've tried to give the user guidance as to what is going on.
+#
+# Note that the following is not done on a re-run of the configuration, when
+# Xyce_USE_INTEL_FFT=TRUE (as might happen with ccmake).  That should not be a
+# problem, since we're relying on information from Trilinos, anyway.
 if(Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
      set(CMAKE_REQUIRED_INCLUDES "${Trilinos_TPL_INCLUDE_DIRS}")
      check_include_file_cxx("mkl_dfti.h" HAVE_MKL_FFT)
@@ -400,7 +407,7 @@ if (Xyce_USE_CURL)
      if (Xyce_TRACKING_URL)
           message(STATUS "Looking for cURL")
           find_package(CURL REQUIRED)
-          message(STATUS "The usage tracking capability is enabled. Using: ${Xyce_TRACKING_URL}")
+          message(STATUS "The usage tracking capability is enabled.  Using: ${Xyce_TRACKING_URL}")
      else()
           message("Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL.\n"
                   "Changing Xyce_USE_CURL to FALSE - disabling usage tracking")

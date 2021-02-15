@@ -85,6 +85,50 @@ FFTMgr::~FFTMgr()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTMgr::notify
+// Purpose       : Reset each FFTAnalysis object at the start of a STEP iteration,
+//                 and output the FFT results at the end of each STEP iteration.
+//                 Output for the non-step case is currently handled by
+//                 outputMacroResults().
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/27/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::notify( const Analysis::StepEvent & step_event)
+{
+  switch (step_event.state_)
+  {
+    case Analysis::StepEvent::INITIALIZE:
+      break;
+
+    case Analysis::StepEvent::STEP_STARTED:
+      for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+        (*it)->reset();
+
+      break;
+
+    case Analysis::StepEvent::STEP_COMPLETED:
+      if (isFFTActive())
+      {
+        std::ostringstream converterBuff;
+        converterBuff << step_event.count_;
+        std::string filename = netlistFilename_ + ".fft" + converterBuff.str();
+
+        std::ofstream outputFileStream;
+        outputFileStream.open( filename.c_str() );
+        outputResults(outputFileStream);
+        outputFileStream.close();
+      }
+
+      break;
+
+    case Analysis::StepEvent::FINISH:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTMgr::fixupFFTParameters
 // Purpose       : This sets parameters in the FFTAnalysis objects, that could
 //                 not be determined when those objects were constructed.

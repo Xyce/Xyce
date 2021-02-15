@@ -111,12 +111,11 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 {
   if (isOpTypeAllowed())
   {
-    initialized_ = true;
     fftAnalysisPtr_ = fftAnalysisPtr;
     np_ = fftAnalysisPtr_->getNP();
 
     if (findGiven_ && atGiven_)
-      atRounded_ = std::round(at_/fftAnalysisPtr_->getFreq());
+      atRounded_ = std::round(at_/fftAnalysisPtr_->getFundamentalFreq());
   }
 }
 
@@ -304,8 +303,10 @@ bool FFTFind::isOpTypeAllowed()
 //-----------------------------------------------------------------------------
 double FFTFind::getMeasureResult()
 {
-  if (initialized_ && fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
+  if (fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
   {
+    initialized_ = true;
+
     if (opType_ == "R")
       calculationResult_ = fftAnalysisPtr_->getFFTCoeffRealVal(atRounded_);
     else if (opType_ == "I")
@@ -383,8 +384,9 @@ void ENOB::reset()
 //-----------------------------------------------------------------------------
 double ENOB::getMeasureResult()
 {
-  if( initialized_ )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getENOB();
   }
   return calculationResult_;
@@ -425,8 +427,9 @@ void SFDR::reset()
 //-----------------------------------------------------------------------------
 double SFDR::getMeasureResult()
 {
-  if( initialized_ )
+  if ( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSFDR();
   }
   return calculationResult_;
@@ -467,9 +470,53 @@ void SNDR::reset()
 //-----------------------------------------------------------------------------
 double SNDR::getMeasureResult()
 {
-  if( initialized_ )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSNDR();
+  }
+  return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SNR::SNR()
+// Purpose       : Constructor
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+SNR::SNR(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
+  FFT(measureMgr, measureBlock)
+{}
+
+//-----------------------------------------------------------------------------
+// Function      : SNR::reset()
+// Purpose       : Called when restarting a measure function.  Resets any state
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+void SNR::reset()
+{
+  resetFFT();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SNR::getMeasureResult()
+// Purpose       : Return Signal to Noise Ratio (SNR) in dB
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/10/2021
+//-----------------------------------------------------------------------------
+double SNR::getMeasureResult()
+{
+  if( fftAnalysisPtr_->isCalculated() )
+  {
+    initialized_ = true;
+    calculationResult_ = fftAnalysisPtr_->getSNR();
   }
   return calculationResult_;
 }
@@ -509,8 +556,9 @@ void THD::reset()
 //-----------------------------------------------------------------------------
 double THD::getMeasureResult()
 {
-  if( initialized_ && fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_->isCalculated() )
   {
+    initialized_ = true;
     double thd=0;
 
     if (!nbHarmGiven_ || ((2*nbHarm_ >= np_) || (nbHarm_ <=0)) )

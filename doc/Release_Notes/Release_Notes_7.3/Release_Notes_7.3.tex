@@ -93,11 +93,17 @@ supported on .PRINT lines for all analysis modes.
 
 \subsubsection*{Xyce/ADMS Improvements}
 \begin{XyceItemize}
-  \item place holder
+  \item A long-standing, obscure bug in ADMS's handling of ``for'' and
+    ``while'' loops was fixed in Xyce/ADMS's version of ADMS implicit
+    rules.  This bug was only tripped when the condition for these
+    loops was in some way operating point dependent, an unusual usage
+    heretofore unseen in standard Verilog-A models.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
+\item To enable improved performance, \Xyce{} now requires a C++11 capable
+  compiler.
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.

@@ -66,15 +66,20 @@ namespace IO {
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
 FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
-  : startTime_(0.0),
+  : secPtr_(0),
+    startTime_(0.0),
     stopTime_(0.0),
     np_(1024),
     format_("NORM"),
     windowType_("RECT"),
     alpha_(3.0),
+    fundFreq_(0.0),
     freq_(0.0),
     fmin_(0.0),
     fmax_(0.0),
+    fhIdx_(1),
+    fminIdx_(1),
+    fmaxIdx_(512),
     startTimeGiven_(false),
     stopTimeGiven_(false),
     freqGiven_(false),
@@ -91,6 +96,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     thd_(0.0),
     sndr_(0.0),
     enob_(0.0),
+    snr_(0.0),
     sfdr_(0.0),
     sfdrIndex_(0)
 {
@@ -104,6 +110,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 
     if ( tag == "FREQ" )
     {
+      // frequency of the first harmonic
       freq_ = currentParamIt->getImmutableValue<double>();
       freqGiven_ = true;
 
@@ -260,6 +267,41 @@ FFTAnalysis::~FFTAnalysis()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::reset
+// Purpose       : Resets the object at the start of a .STEP loop
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/27/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::reset()
+{
+  calculated_ = false;
+  sampleIdx_ = 0;
+  maxMag_ = 0.0;
+  thd_ = 0.0;
+  harmonicList_.clear();
+
+  if (fft_accurate_ == 0)
+  {
+    time_.clear();
+    outputVarValues_.clear();
+  }
+  std::fill(sampleValues_.begin(), sampleValues_.end(),0.0);
+
+  // these variables and vectors might not need to be reset, but this is safer
+  snr_ = 0.0;
+  sndr_ = 0.0;
+  enob_ = 0.0;
+  sfdr_ = 0.0;
+  sfdrIndex_ = 0;
+  std::fill(mag_.begin(), mag_.end(), 0.0);
+  std::fill(phase_.begin(), phase_.end(), 0.0);
+  std::fill(fftRealCoeffs_.begin(), fftRealCoeffs_.end(), 0.0);
+  std::fill(fftImagCoeffs_.begin(), fftImagCoeffs_.end(), 0.0);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::fixupFFTParameters
 // Purpose       : This function sets private variables that could be not set in
 //                 the constructor, primarily because the end simulation time was
@@ -276,6 +318,8 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const int fft_accurate,
   const bool fftout)
 {
+  secPtr_ = &sec;
+
   // set these to match the values stored in the FFTMgr class.
   fft_accurate_ = fft_accurate;
   fftout_ = fftout;
@@ -291,14 +335,20 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
     Report::UserWarning0() << "Invalid stop time on .FFT line, reset to transient stop time of " << endSimTime;
   }
 
-  if (!freqGiven_)
-    freq_ = 1.0/(stopTime_ - startTime_);
+  // calculate the fundamental frequency and the first harmonic indexes that correspond to the FREQ,
+  // FMIN and FMAX values, now that the corrected values for the start and stop times are known
+  fundFreq_ = 1.0/(stopTime_ - startTime_);
 
-  if (!fminGiven_)
-    fmin_ = 1.0/(stopTime_ - startTime_);
+  if (freqGiven_)
+    fhIdx_ = std::round(freq_/fundFreq_); // index of first harmonic
 
-  if (!fmaxGiven_)
-    fmax_ = 0.5*np_*fmin_;
+  if (fminGiven_)
+    fminIdx_ = std::round(fmin_/fundFreq_);
+
+  if (fmaxGiven_)
+    fmaxIdx_ = std::round(fmax_/fundFreq_);
+  else
+    fmaxIdx_ = 0.5*np_;
 
   // set up vectors for the sample times and the sampled/interpolated data values.
   sampleTimes_.resize(np_,0.0);
@@ -309,25 +359,38 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   fftRealCoeffs_.resize(np_+1,0.0);
   fftImagCoeffs_.resize(np_+1,0.0);
 
-  // Compute new, equally spaced time points.
+  // Compute equally-spaced sample points
   double step = (stopTime_ - startTime_)/np_;
   if (startTimeGiven_)
-  {
     sampleTimes_[0] = startTime_;
-    sec.setBreakPoint (sampleTimes_[0]);
-  }
 
   for (int i = 1; i < np_; i++)
-  {
     sampleTimes_[i] = sampleTimes_[i-1] + step;
-    if (fft_accurate_ == 1)
-      sec.setBreakPoint (sampleTimes_[i]);
-  }
 
-  if(!(depSolVarIterVector_.empty())) // no point in calling this if depSolVarIterVector is empty
+  // no point in making the Ops if depSolVarIterVector is empty
+  if(!(depSolVarIterVector_.empty()))
   {
     Util::Op::makeOps(comm, op_builder_manager, NetlistLocation(), depSolVarIterVector_.begin(), depSolVarIterVector_.end(), std::back_inserter(outputVars_));
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::addSampleTimeBreakpoints
+// Purpose       : Add breakpoints at the requested sample times
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/7/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::addSampleTimeBreakpoints()
+{
+  if (startTimeGiven_ && (startTime_ > 0.0))
+    secPtr_->setBreakPoint (sampleTimes_[0]);
+
+  for (int i = 1; i < np_; i++)
+    secPtr_->setBreakPoint (sampleTimes_[i]);
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -344,6 +407,9 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  if ((fft_accurate_ == 1) && (circuitTime == 0.0))
+    addSampleTimeBreakpoints();
+
   // Save the time values, if interpolation is used.
   if (outputVars_.size() && (fft_accurate_ == 0))
     time_.push_back(circuitTime);
@@ -356,7 +422,7 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
     if (fft_accurate_ == 0)
     {
       // save all of the output var values, if interpolation is used.
-      outputVarsValues_.push_back(retVal);
+      outputVarValues_.push_back(retVal);
     }
     else
     {
@@ -425,10 +491,10 @@ bool FFTAnalysis::interpolateData_()
   if (time_.size() > 0)
   {
     Util::akima<double> interp;
-    interp.init( time_, outputVarsValues_ );
+    interp.init( time_, outputVarValues_ );
     for (unsigned int i=0; i < np_; i++)
     {
-      interp.eval( time_, outputVarsValues_, sampleTimes_[i], sampleValues_[i] );
+      interp.eval( time_, outputVarValues_, sampleTimes_[i], sampleValues_[i] );
      }
   }
 
@@ -521,8 +587,6 @@ void FFTAnalysis::calculateFFT_()
 
   fftRealCoeffs_[0] = ftOutData_[0]/np_;
   fftImagCoeffs_[0] = ftOutData_[1]/np_;
-  double tmpVal;
-  double noisePlusDist=0.0;
   double convRadDeg = 180.0/M_PI;
 
   // handle DC component
@@ -530,13 +594,12 @@ void FFTAnalysis::calculateFFT_()
   phase_[0] = convRadDeg * atan2(fftImagCoeffs_[0], fftRealCoeffs_[0]);
   maxMag_ = mag_[0];
 
-  // calculate mag, phase, total harmonic distortion (THD) and spurious free dynamic range (SFDR)
+  // calculate FFT coeffs, mag and phase
   for (int i=1;i<=np_/2; i++)
   {
     fftRealCoeffs_[i] = 2*ftOutData_[2*i]/np_;
     fftImagCoeffs_[i] = 2*ftOutData_[2*i+1]/np_;
-    tmpVal = fftRealCoeffs_[i]*fftRealCoeffs_[i] + fftImagCoeffs_[i]*fftImagCoeffs_[i];
-    mag_[i] = sqrt(tmpVal);
+    mag_[i] = sqrt(fftRealCoeffs_[i]*fftRealCoeffs_[i] + fftImagCoeffs_[i]*fftImagCoeffs_[i]);
     if (mag_[i] > maxMag_)
       maxMag_ = mag_[i];
     if (fftout_ && (i>1))
@@ -545,25 +608,14 @@ void FFTAnalysis::calculateFFT_()
     // small magnitudes have phase set to 0
     if (mag_[i] > noiseFloor_)
       phase_[i] = convRadDeg * atan2(fftImagCoeffs_[i], fftRealCoeffs_[i]);
-
-    if (i > 1)
-    {
-      noisePlusDist += tmpVal;
-      thd_ += mag_[i]*mag_[i];
-      if (mag_[i] > sfdr_)
-      {
-        sfdr_ = mag_[i];
-        sfdrIndex_ = i;
-      }
-    }
   }
 
-  // these metrics are output later if fftout_ =1
-  sfdr_ = 20*log10(mag_[1]/sfdr_);                         // units are dB
-  sndr_ = 20*log10(mag_[1] / sqrt(noisePlusDist)); // units are db
-  enob_ = (sndr_ - 1.76)/6.02;                             // units are bits
-  // don't take 20*log10() for THD, since both the actual value and dB value are output later.
-  thd_ = sqrt(thd_)/mag_[1];
+  // These metrics are output later if fftout_=1.  However, they are calculated
+  // unconditionally for compatibility with .MEASURE FFT.
+  calculateSFDR_();
+  calculateSNR_();
+  calculateSNDRandENOB_();
+  calculateTHD_();
 
   // only sort the harmonicList_, if it will be output
   if (fftout_)
@@ -586,10 +638,129 @@ void FFTAnalysis::calculateFFT_()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSFDR_()
+// Purpose       : Calculate the Spurious Free Distoration Ratio (SFDR) based
+//                 on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : The SFDR only considers frequencies > the first harmonic.
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/9/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::calculateSFDR_()
+{
+  for (int i=fhIdx_+1; i<=np_/2; i+=fhIdx_)
+  {
+    if (mag_[i] > sfdr_)
+    {
+      sfdr_ = mag_[i];
+      sfdrIndex_ = i;
+    }
+  }
+
+  // units are dB
+  sfdr_ = 20*log10(mag_[fhIdx_]/sfdr_);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSNR_()
+// Purpose       : Calculate the Signal to Noise Ratio (SNR) based on the
+//                 "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : The SNR considers all frequencies that are not a harmonic.
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/9/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::calculateSNR_()
+{
+  double noise=0;
+  bool noiseFreqFound=false;
+
+  for (int i=1; i<=np_/2; i++)
+  {
+    if (i%fhIdx_ !=0)
+    {
+      noise += mag_[i]*mag_[i];
+      noiseFreqFound=true;
+    }
+  }
+
+  // apply noise floor to this calculation
+  if (!noiseFreqFound)
+    snr_ = 1.0/noiseFloor_;
+  else
+    snr_ = mag_[fhIdx_] / sqrt(noise);
+
+  // units are dB
+  snr_ = 20*log10(snr_);
+
+  return;
+}
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSNDRandENOB_()
+// Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
+//                 and Effective Number Of Bits (ENOB)(SFDR) based on the
+//                 "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : The SNDR considers all frequencies not equal to the first
+//                 harmonic.
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/9/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::calculateSNDRandENOB_()
+{
+  double noisePlusDist=0;
+
+  for (int i=1; i<=np_/2; i++)
+  {
+    if (i!=fhIdx_)
+      noisePlusDist += mag_[i]*mag_[i];
+  }
+
+  sndr_ = 20*log10(mag_[fhIdx_] / sqrt(noisePlusDist));  // units are db
+  enob_ = (sndr_ - 1.76)/6.02; // units are bits
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateTHD_()
+// Purpose       : Calculate the Total Harmonic Distortion (THD) based on the
+//                 "first harmonic".  That is the fundamental frequency, if the
+//                 FREQ qualifier is not given.  Otherwise, it is the FREQ value
+//                 rounded to the nearest harmonic of the fundamental frequency.
+// Special Notes : The "distortion" is then summed at the integer multiples of
+//                 the first harmonic.
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/9/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::calculateTHD_()
+{
+  for (int i=2*fhIdx_; i<=np_/2; i+=fhIdx_)
+    thd_ += mag_[i]*mag_[i];
+
+  // don't take 20*log10() for THD, since both the actual value and dB value are output later.
+  thd_ = sqrt(thd_)/mag_[fhIdx_];
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::printResult_( std::ostream& os )
 // Purpose       :
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
@@ -619,7 +790,8 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 
     os << "FFT analysis for " << outputVarName_ << ":" << std::endl
        << "  Window: " << windowType_ << std::scientific << std::setprecision(precision)
-       << ", First Harmonic: " << freq_ <<", Start Freq: " << fmin_ << ", Stop Freq: " << fmax_ << std::endl;
+       << ", First Harmonic: " << fhIdx_*fundFreq_ <<", Start Freq: " << fminIdx_*fundFreq_
+       << ", Stop Freq: " << fmaxIdx_*fundFreq_ << std::endl;
 
     os << "DC component " << "   " << magString2 << "= " << mag_[0]/normalization
        << "   " << "Phase= " << phase_[0] << std::endl;
@@ -628,9 +800,9 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
        << std::setw(colWidth2) << std::setw(colWidth2) << magString2
        << std::setw(colWidth2) << "Phase" << std::endl;
 
-    for (int i=1; i<=np_/2; i++)
+    for (int i=fhIdx_; i<=np_/2; i+=fhIdx_)
     {
-      os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*freq_
+      os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
          << std::setw(colWidth2) << mag_[i]/normalization
          << std::setw(colWidth2) << phase_[i] << std::endl;
     }
@@ -641,7 +813,8 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
          << std::setw(colWidth1) << "THD = " << 20*log10(thd_) << " dB ( " << thd_ << " )" << std::endl
          << std::setw(colWidth1) << "SNDR = " << sndr_ << " dB" << std::endl
          << std::setw(colWidth1) << "ENOB = " << enob_ << " bit" << std::endl
-         << std::setw(colWidth1) << "SFDR = " << sfdr_  << " dB at frequency " << sfdrIndex_*freq_ << std::endl;
+         << std::setw(colWidth1) << "SNR = " << snr_ << " dB" << std::endl
+         << std::setw(colWidth1) << "SFDR = " << sfdr_  << " dB at frequency " << sfdrIndex_*fundFreq_ << std::endl;
     }
 
     os << std::endl;

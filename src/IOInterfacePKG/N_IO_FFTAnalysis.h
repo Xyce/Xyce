@@ -70,6 +70,9 @@ public:
   // Destructor
   ~FFTAnalysis();
 
+  // used to reset the FFTanalysis object at the start of each .STEP loop
+  void reset();
+
   enum WindowType {RECT, BART, HANN, HAMM, BLACK, HARRIS, GAUSS, KAISER};
 
   // Return true if FFT analysis is being performed on any variables.
@@ -81,6 +84,8 @@ public:
                           TimeIntg::StepErrorControl & sec,
                           const int fft_accurate,
                           const bool fftout);
+
+  void addSampleTimeBreakpoints();
 
   // Called during the simulation to update the fft objects held by this class
   void updateFFTData(Parallel::Machine comm,
@@ -107,7 +112,7 @@ public:
   // getters used by .MEASURE FFT objects
   int getNP() const {return np_;}
   bool isCalculated() const {return calculated_;}
-  double getFreq() const { return freq_;}
+  double getFundamentalFreq() const { return fundFreq_;}
   double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
   double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
@@ -117,6 +122,7 @@ public:
   double getENOB() const {return enob_;}
   double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
+  double getSNR() const {return snr_;}
   double getTHD() const {return thd_;}
 
 private:
@@ -124,6 +130,10 @@ private:
   bool applyWindowFunction_();
 
   void calculateFFT_();
+  void calculateSFDR_();
+  void calculateSNR_();
+  void calculateSNDRandENOB_();
+  void calculateTHD_();
 
   std::ostream& printResult_( std::ostream& os );
 
@@ -134,14 +144,15 @@ private:
   }
 
 private:
+  TimeIntg::StepErrorControl* secPtr_;  // ptr to step error control
   double startTime_, stopTime_;
   int np_;
   std:: string format_;
   std::string windowType_;
   double alpha_;
-  double freq_;
-  double fmin_;
-  double fmax_;
+  double fundFreq_; // fundamental frequency
+  double freq_, fmin_, fmax_;  // values from FREQ (first harmonic), FMIN, FMAX qualifiers
+  int fhIdx_, fminIdx_, fmaxIdx_; // values rounded to nearest harmonic index
   bool startTimeGiven_;
   bool stopTimeGiven_;
   bool freqGiven_;
@@ -158,6 +169,7 @@ private:
   double thd_;
   double sndr_;
   double enob_;
+  double snr_;
   double sfdr_;
   int sfdrIndex_;
   std::vector<double> mag_;
@@ -176,7 +188,7 @@ private:
   std::vector<double> fftImagCoeffs_;
 
   std::vector<double> time_;
-  std::vector<double> outputVarsValues_;
+  std::vector<double> outputVarValues_;
   Util::ParamList depSolVarIterVector_;
   Util::Op::OpList outputVars_;
   std::vector<double> sampleTimes_, sampleValues_;
