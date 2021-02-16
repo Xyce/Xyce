@@ -99,7 +99,7 @@ Vector * HBBuilder::createVector() const
 RCP<BlockVector> HBBuilder::createTimeDomainBlockVector( ) const
 {
   RCP<BlockVector> vector = rcp(
-        new BlockVector( numHarmonics_, HBMap_, BaseMap_ ) 
+       Xyce::Linear::createBlockVector( numHarmonics_, HBMap_, BaseMap_ ) 
         );
   return(vector);
 }
@@ -115,7 +115,7 @@ RCP<BlockVector> HBBuilder::createTimeDomainBlockVector( ) const
 RCP<BlockVector> HBBuilder::createTimeDomainStateBlockVector( ) const
 {
   RCP<BlockVector> vector = rcp(
-        new BlockVector( numHarmonics_, HBStateMap_, BaseStateMap_ ) 
+        Xyce::Linear::createBlockVector( numHarmonics_, HBStateMap_, BaseStateMap_ ) 
         );
   return(vector);
 }
@@ -131,7 +131,7 @@ RCP<BlockVector> HBBuilder::createTimeDomainStateBlockVector( ) const
 RCP<BlockVector> HBBuilder::createTimeDomainStoreBlockVector( ) const
 {
   RCP<BlockVector> vector = rcp(
-        new BlockVector( numHarmonics_, HBStoreMap_, BaseStoreMap_ ) 
+        Xyce::Linear::createBlockVector( numHarmonics_, HBStoreMap_, BaseStoreMap_ ) 
         );
   return(vector);
 }
@@ -148,7 +148,7 @@ RCP<BlockVector> HBBuilder::createTimeDomainStoreBlockVector( ) const
 RCP<BlockVector> HBBuilder::createTimeDomainLeadCurrentBlockVector() const
 {
   RCP<BlockVector> vector = rcp(
-        new BlockVector( numHarmonics_, HBLeadCurrentMap_, BaseLeadCurrentMap_) 
+        Xyce::Linear::createBlockVector( numHarmonics_, HBLeadCurrentMap_, BaseLeadCurrentMap_) 
         );
   return(vector);
 }
@@ -165,7 +165,7 @@ RCP<BlockVector> HBBuilder::createTimeDomainLeadCurrentBlockVector() const
 RCP<BlockVector> HBBuilder::createExpandedRealFormBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_, BaseMap_ )
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_, BaseMap_ )
         );
   return(vec);
 }
@@ -184,14 +184,14 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeBlockVector() const
   if(hbOsc_)
   {
     RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_, 1)
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_, 1)
         );
     return(vec);
   }
   else
   {
     RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_ )
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormBVMap_ )
         );
     return(vec);
   }
@@ -209,7 +209,7 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeBlockVector() const
 RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeStateBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormStateBVMap_ )
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormStateBVMap_ )
         );
   return(vec);
 }
@@ -225,7 +225,7 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeStateBlockVector() co
 RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeStoreBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormStoreBVMap_ )
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormStoreBVMap_ )
         );
   return(vec);
 }
@@ -241,7 +241,7 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeStoreBlockVector() co
 RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeLeadCurrentBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( 2*numHarmonics_, HBExpandedRealFormLeadCurrentBVMap_ )
+        Xyce::Linear::createBlockVector( 2*numHarmonics_, HBExpandedRealFormLeadCurrentBVMap_ )
         );
   return(vec);
 }
@@ -258,7 +258,7 @@ RCP<BlockVector> HBBuilder::createExpandedRealFormTransposeLeadCurrentBlockVecto
 Vector * HBBuilder::createStateVector() const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numHarmonics_, HBStateMap_, BaseStateMap_ ) );
+        Xyce::Linear::createBlockVector( numHarmonics_, HBStateMap_, BaseStateMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -272,7 +272,7 @@ Vector * HBBuilder::createStateVector() const
 Vector * HBBuilder::createStoreVector() const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numHarmonics_, HBStoreMap_, BaseStoreMap_ ) );
+        Xyce::Linear::createBlockVector( numHarmonics_, HBStoreMap_, BaseStoreMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -286,7 +286,7 @@ Vector * HBBuilder::createStoreVector() const
 Vector * HBBuilder::createLeadCurrentVector() const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numHarmonics_, HBLeadCurrentMap_, BaseLeadCurrentMap_ ) );
+        Xyce::Linear::createBlockVector( numHarmonics_, HBLeadCurrentMap_, BaseLeadCurrentMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
