@@ -38,12 +38,8 @@
 #ifndef Xyce_N_LAS_BlockVector_h
 #define Xyce_N_LAS_BlockVector_h
 
-#include <vector>
-
 #include <N_LAS_Vector.h>
 #include <N_PDS_fwd.h>
-
-#include <Teuchos_RCP.hpp>
 
 namespace Xyce {
 namespace Linear {
@@ -58,71 +54,50 @@ namespace Linear {
 class BlockVector : public Vector
 {
  public:
-  BlockVector( int numBlocks,
-               const Teuchos::RCP<const Parallel::ParMap> & globalMap,
-               const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
-               int augmentRows = 0 );
 
-  // Constructor that uses the block size to divide up the number of elements on
-  // each processor into vectors whose values are all "owned" by one processor.
-  // NOTE:  This constructor is handy for frequency-domain representations of time-domain vectors.
-  BlockVector( int blockSize,
-               const Teuchos::RCP<const Parallel::ParMap> & globalMap,
-               int augmentRows = 0 );
+  // Default constructor
+  BlockVector() {};
 
-  // View constructor
-  //NOTE:  This constructor assumes that the Vector is divided up into blockSize subvectors,
-  //       whose values are solely owned by one of the processors.
-  BlockVector( const Vector * right, int blockSize );
+  // Constructors to map to Petra constructors.
+  BlockVector( const Parallel::ParMap & map )
+  : Vector(map)
+  {}
+
+  // View constructor.
+  BlockVector( const Vector * right )
+  : Vector( const_cast<Epetra_Vector*>((right->epetraObj())(0)), false )
+  {}
 
   // Destructor
   virtual ~BlockVector() {};
 
   // Assignment operator
-  virtual BlockVector & operator=(const BlockVector & right);
+  virtual BlockVector & operator=(const BlockVector & right)
+  { 
+    Vector::operator=( right );
+    return *this;
+  }
 
   // Block accessors
-  Vector & block( int Loc ) const
-  { return *blocks_[Loc]; }
+  virtual Vector & block( int Loc ) const = 0;
 
-  virtual int blockSize() const
-  { return globalBlockSize_; }
+  virtual int blockSize() const = 0;
 
-  virtual int blockCount() const
-  { return numBlocks_; }
+  virtual int blockCount() const = 0;
 
-  virtual int startBlock() const
-  { return startBlock_; }
+  virtual int startBlock() const = 0;
 
-  virtual int endBlock() const
-  { return endBlock_; }
+  virtual int endBlock() const = 0;
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  virtual const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
+  virtual const Parallel::ParMap * blockPmap() const = 0;
 
-  // Print out the underlying data in this object.
-  virtual void print(std::ostream &os) const;
-
- private:
+ protected:
 
   //Copy constructor
-  BlockVector( const BlockVector & right );
-
-  bool blocksViewGlobalVec_;
-  int globalBlockSize_;
-  int localBlockSize_;
-  int overlapBlockSize_;
-  int numBlocks_;
-  int augmentCount_;
-
-  // In frequency domain, whole blocks may be owned by one processor.
-  // NOTE:  This assumes they are contiguous.  By default these routines
-  //        will return 0 and numBlocks_ (which is sane for the time domain specs).
-  int startBlock_, endBlock_;
-
-  Teuchos::RCP<const Parallel::ParMap> newBlockMap_;
-
-  std::vector<Teuchos::RCP<Vector> > blocks_;
+  BlockVector( const BlockVector & right )
+  : Vector(right)
+  {}
 
 };
 

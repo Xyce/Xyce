@@ -48,7 +48,7 @@
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
-#include <N_LAS_BlockVector.h>
+#include <N_LAS_EpetraBlockVector.h>
 #include <N_LAS_EpetraBlockMultiVector.h>
 
 #include <N_LAS_EpetraGraph.h>
@@ -83,19 +83,19 @@ BlockVector* createBlockVector( int numBlocks,
                                 const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                                 int augmentRows )
 {
-  return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
+  return new EpetraBlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
 }
 
 BlockVector* createBlockVector( int blockSize,
                                 const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                 int augmentRows )
 {
-  return new BlockVector( blockSize, globalMap, augmentRows );
+  return new EpetraBlockVector( blockSize, globalMap, augmentRows );
 }
 
 BlockVector* createBlockVector( const Vector * right, int blockSize )
 {
-  return new BlockVector( right, blockSize );
+  return new EpetraBlockVector( right, blockSize );
 }
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,

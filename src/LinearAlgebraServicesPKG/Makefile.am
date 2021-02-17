@@ -49,10 +49,10 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_Vector.C \
   N_LAS_TransformTool.C \
   N_LAS_TranSolverFactory.C \
-  N_LAS_BlockVector.C \
   N_LAS_BlockSystemHelpers.C \
   N_LAS_EpetraBlockMatrix.C \
   N_LAS_EpetraBlockMultiVector.C \
+  N_LAS_EpetraBlockVector.C \
   N_LAS_EpetraGraph.C \
   N_LAS_EpetraHelpers.C \
   N_LAS_EpetraImporter.C \
@@ -100,6 +100,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockSystemHelpers.h \
   N_LAS_EpetraBlockMatrix.h \
   N_LAS_EpetraBlockMultiVector.h \
+  N_LAS_EpetraBlockVector.h \
   N_LAS_EpetraGraph.h \
   N_LAS_EpetraHelpers.h \
   N_LAS_EpetraImporter.h \

@@ -33,10 +33,10 @@ target_sources(XyceLib PRIVATE
       N_LAS_SimpleSolver.C
       N_LAS_AmesosSolver.C
       N_LAS_AztecOOSolver.C
-      N_LAS_BlockVector.C
       N_LAS_BlockSystemHelpers.C
       N_LAS_EpetraBlockMatrix.C
       N_LAS_EpetraBlockMultiVector.C
+      N_LAS_EpetraBlockVector.C
       N_LAS_EpetraGraph.C
       N_LAS_EpetraHelpers.C
       N_LAS_EpetraImporter.C

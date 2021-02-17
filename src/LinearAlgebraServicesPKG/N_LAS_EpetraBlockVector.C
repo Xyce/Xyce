@@ -40,7 +40,7 @@
 // ----------   Xyce Includes   ----------
 
 
-#include <N_LAS_BlockVector.h>
+#include <N_LAS_EpetraBlockVector.h>
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_ParHelpers.h>
@@ -58,18 +58,18 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector::BlockVector
+// Function      : EpetraBlockVector::EpetraBlockVector
 // Purpose       : constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector( int numBlocks,
+EpetraBlockVector::EpetraBlockVector( int numBlocks,
                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                           int augmentRows )
-: Vector( *globalMap ),
+: BlockVector( *globalMap ),
   globalBlockSize_(subBlockMap->numGlobalEntities()),
   localBlockSize_(subBlockMap->numLocalEntities()),
   overlapBlockSize_(subBlockMap->numLocalEntities()),
@@ -95,17 +95,17 @@ BlockVector::BlockVector( int numBlocks,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector::BlockVector
+// Function      : EpetraBlockVector::EpetraBlockVector
 // Purpose       : constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector( int blockSize,
+EpetraBlockVector::EpetraBlockVector( int blockSize,
                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           int augmentRows )
-: Vector( *globalMap ),
+: BlockVector( *globalMap ),
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -162,30 +162,30 @@ BlockVector::BlockVector( int blockSize,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector::operator=
+// Function      : EpetraBlockVector::operator=
 // Purpose       : assignment
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-BlockVector & BlockVector::operator=( const BlockVector & right )
+EpetraBlockVector & EpetraBlockVector::operator=( const EpetraBlockVector & right )
 {
-  MultiVector::operator=( right ); 
+  BlockVector::operator=( right ); 
 
   return *this;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector::BlockVector
+// Function      : EpetraBlockVector::EpetraBlockVector
 // Purpose       : copy constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector( const BlockVector & rhs )
-: Vector( dynamic_cast<const Vector&>(rhs) ),
+EpetraBlockVector::EpetraBlockVector( const EpetraBlockVector & rhs )
+: BlockVector( dynamic_cast<const BlockVector&>(rhs) ),
   globalBlockSize_( rhs.globalBlockSize_ ),
   localBlockSize_( rhs.localBlockSize_ ),
   overlapBlockSize_( rhs.overlapBlockSize_ ),
@@ -194,7 +194,7 @@ BlockVector::BlockVector( const BlockVector & rhs )
   startBlock_( rhs.startBlock_ ),
   endBlock_( rhs.endBlock_ ),
   newBlockMap_( rhs.newBlockMap_ ),
-  blocks_( rhs.blocks_.size() )
+  blocks_( rhs.numBlocks_ )
 {
   // If the startBlock_ and endBlock_ cover every block in this vector than this is a time-domain representation
   // or serial simulation, in which case a frequency-domain distinction need not be made.
@@ -240,15 +240,15 @@ BlockVector::BlockVector( const BlockVector & rhs )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector:::BlockVector
+// Function      : EpetraBlockVector::EpetraBlockVector
 // Purpose       : view constructor
 // Special Notes : Memory management is assumed to be outside this constructor
 // Scope         : Public
 // Creator       : Heidi Thornquist
 // Creation Date : 11/12/20
 //-----------------------------------------------------------------------------
-BlockVector::BlockVector( const Vector * right, int blockSize )
-: Vector( (const_cast<Vector*>(right)->epetraObj())(0), false ),
+EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
+: BlockVector( right ),
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -310,16 +310,16 @@ BlockVector::BlockVector( const Vector * right, int blockSize )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BlockVector:::print
+// Function      : EpetraBlockVector:::print
 // Purpose       : Output
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 03/19/04
 //-----------------------------------------------------------------------------
-void BlockVector::print(std::ostream &os) const
+void EpetraBlockVector::print(std::ostream &os) const
 {
-  os << "BlockVector Object (Number of Blocks =" << numBlocks_ << ", Augmented Rows=" << augmentCount_ << ")" << std::endl;
+  os << "EpetraBlockVector Object (Number of Blocks =" << numBlocks_ << ", Augmented Rows=" << augmentCount_ << ")" << std::endl;
 
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   for( int i = 0; i < numBlocks_; ++i )
