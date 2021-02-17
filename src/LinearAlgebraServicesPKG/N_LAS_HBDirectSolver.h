@@ -53,7 +53,7 @@
 #include <Teuchos_SerialDenseSolver.hpp>
 #include <Teuchos_RCP.hpp>
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
 #include "Amesos2_Basker_TypeMap.hpp"
 #include "Amesos2_Basker.hpp"
 #endif
@@ -187,7 +187,7 @@ private:
   // Storage for nonlinear entries that may be linear
   std::set<std::pair<int,int> > lin_nldFdx_, lin_nldQdx_;
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
   Basker::Basker<int, std::complex<double> > basker_;
   Basker::Basker<int, Xyce::HBBlockMatrixEntry> blockBasker_;
 #endif

@@ -166,15 +166,6 @@ endif()
 # and set of ifdefs can be removed if the minimum version of Trilinos is raised.
 check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
 
-# Should we be checking if Sacado has complex as well?
-#    check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
-#    if (NOT Sacado_COMPLEX_IN_Trilinos)
-#         message("Trilinos was not built with COMPLEX support in Sacado.\n"
-#              "Enable the following in the Trilinos build:\n"
-#              "  -D Sacado_ENABLE_COMPLEX=ON")
-#         set(Trilinos_IS_MISSING_FEATURES TRUE)
-#    endif()
-
 unset(CMAKE_REQUIRED_INCLUDES)
 
 if (Trilinos_IS_MISSING_FEATURES)
@@ -184,26 +175,32 @@ endif()
 
 # Search for optional Trilinos packages
 
-# THIS IS A GUESS FOR THE PACKAGE NAME FOR ShyLU; IT NEEDS TO BE VERIFIED
 message(STATUS "Looking for ShyLU in Trilinos")
 list(FIND Trilinos_PACKAGE_LIST ShyLU ShyLU_IN_Trilinos)
 if (ShyLU_IN_Trilinos GREATER -1)
      message(STATUS "Looking for ShyLU in Trilinos - found")
-     set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver")
+     set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
 else ()
      message(STATUS "Looking for ShyLU in Trilinos - not found")
-     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver" FORCE)
+     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package" FORCE)
 endif ()
 
-# THIS IS A GUESS FOR THE PACKAGE NAME FOR Basker; IT NEEDS TO BE VERIFIED
-message(STATUS "Looking for Basker in Trilinos")
-list(FIND Trilinos_PACKAGE_LIST Basker Basker_IN_Trilinos)
-if (Basker_IN_Trilinos GREATER -1)
-     message(STATUS "Looking for Basker in Trilinos - found")
-     set(SHYLUBASKER TRUE CACHE BOOL "Enables the Basker linear solver")
-else ()
-     message(STATUS "Looking for Basker in Trilinos - not found")
-     set(SHYLUBASKER FALSE CACHE BOOL "Enables the Basker linear solver" FORCE)
+# Note added 16 Feb 2021:
+#    Xyce_SHYLU_BASKER is not used in Xyce.
+#    This was added in the anticipation that it will be needed soon.
+#    If it is needed, be sure to add
+#cmakedefine Xyce_SHYLU_BASKER
+#    to src/Xyce_config.h.cmake
+if(Xyce_SHYLU)
+     message(STATUS "Looking for multi-threaded Basker in ShyLU")
+     list(FIND Trilinos_PACKAGE_LIST ShyLU_NodeBasker ShyLU_Basker_IN_Trilinos)
+     if (ShyLU_Basker_IN_Trilinos GREATER -1)
+          message(STATUS "Looking for multi-threaded Basker in ShyLU - found")
+          set(Xyce_SHYLU_BASKER TRUE CACHE BOOL "Enables the mulit-threaded Basker linear solver in ShyLU")
+     else ()
+          message(STATUS "Looking for multi-threaded Basker in ShyLU - not found")
+          set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the mulit-threaded Basker linear solver in ShyLU" FORCE)
+     endif ()
 endif ()
 
 message(STATUS "Looking for Amesos2 in Trilinos")
@@ -214,6 +211,17 @@ if (Amesos2_IN_Trilinos GREATER -1)
 else ()
      message(STATUS "Looking for Amesos2 in Trilinos - not found")
      set(Xyce_AMESOS2 FALSE CACHE BOOL "Enables the Amesos2 linear solver" FORCE)
+endif ()
+
+if (Xyce_AMESOS2)
+     set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
+     check_cxx_symbol_exists(HAVE_AMESOS2_BASKER Amesos2_config.h Amesos2_Basker_IN_Trilinos)
+     unset(CMAKE_REQUIRED_INCLUDES)
+     if (Amesos2_Basker_IN_Trilinos)
+          set(Xyce_AMESOS2_BASKER TRUE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")
+     else ()
+          set(Xyce_AMESOS2_BASKER FALSE CACHE BOOL "Enables the templated Basker linear solver in Amesos2" FORCE)
+     endif ()
 endif ()
 
 message(STATUS "Looking for Stokhos in Trilinos")
@@ -236,7 +244,7 @@ else ()
      set(Xyce_ROL FALSE CACHE BOOL "Enables the ROL linear solver" FORCE)
 endif ()
 
-# Search for optional TPL packages in Trilinos (some of these are just informational)
+# Search for optional TPL packages in Trilinos
 
 message(STATUS "Looking for ParMETIS via Trilinos")
 list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
@@ -254,6 +262,9 @@ if (AMD_IN_Trilinos GREATER -1)
 else()
      message(STATUS "Looking for AMD via Trilinos - not found")
 endif()
+
+# The following are just informational; they do not determine whether Trilinos
+# has enabled the solvers such that Xyce can use them.
 
 message(STATUS "Looking for PARDISO_MKL via Trilinos")
 list(FIND Trilinos_TPL_LIST PARDISO_MKL PARDISO_IN_Trilinos)

@@ -13,11 +13,11 @@ message(STATUS "Looking for required Trilinos packages:\n"
   "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
   "        Triutils AztecOO Belos TrilinosCouplings\n"
   "   Also looking for the optional packages:\n"
-  "        Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL")
-find_package(Trilinos
+  "        Isorropia Zoltan ShyLU ShyLU_NodeBasker Amesos2 Stokhos ROL")
+find_package(Trilinos CONFIG
   REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
        AztecOO Belos TrilinosCouplings
-  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL)
+  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_NodeBasker Amesos2 Stokhos ROL)
 message(STATUS "Looking for required Trilinos packages - found")
 if(Trilinos_VERSION VERSION_LESS "12.12")
   message(FATAL_ERROR

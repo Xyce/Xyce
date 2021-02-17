@@ -54,7 +54,7 @@
 #include <Teuchos_SerialDenseSolver.hpp>
 #include <Teuchos_RCP.hpp>
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
 #include "Amesos2_Basker_TypeMap.hpp"
 #include "Amesos2_Basker.hpp"
 #endif
@@ -174,7 +174,7 @@ private:
   std::vector<int> Anewcol_ptr_, Anewrow_idx_;
   std::vector<double> Anewval_;
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
   Basker::Basker<int, double> basker_;
   Basker::Basker<int, Xyce::ESBlockMatrixEntry> blockBasker_;
 #endif

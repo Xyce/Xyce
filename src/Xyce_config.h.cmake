@@ -10,11 +10,10 @@
 
 // Trilinos
 #cmakedefine Xyce_SHYLU
-#cmakedefine SHYLUBASKER
 #cmakedefine Xyce_AMESOS2
+#cmakedefine Xyce_AMESOS2_BASKER
 #cmakedefine01 Xyce_STOKHOS_ENABLE
 #cmakedefine Xyce_ROL
-
 #cmakedefine Xyce_USE_ISORROPIA
 
 // Trilinos TPLs
