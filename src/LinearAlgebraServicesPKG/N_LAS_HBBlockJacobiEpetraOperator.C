@@ -49,6 +49,7 @@
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_Math.h>
+#include <N_LAS_BlockSystemHelpers.h>
 
 // ----------   Trilinos Includes   ----------
 
@@ -453,11 +454,11 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
 
     // Apply one column at a time to the multivector.
     Teuchos::RCP<const Vector> X_col = Teuchos::rcp( X.getVectorViewAssembled( col ) );
-    BlockVector bXf( &*X_col, 2*N_ );
+    Teuchos::RCP<BlockVector> bXf = Teuchos::rcp( Xyce::Linear::createBlockVector( &*X_col, 2*N_ ) );
 
     // Permute the input vector from the frequency to time domain, since this
     // is a time domain preconditioner.
-    hbLoader_->permutedIFT(bXf, &*bXtPtr);
+    hbLoader_->permutedIFT(*bXf, &*bXtPtr);
 
     for( int i = 0; i < blockCount; ++i )
     {
@@ -482,7 +483,7 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
  
     // Put block count in the frequency domain.
     blockCount = bYf->blockCount();
-    int blockSize = bXf.block(0).globalLength();
+    int blockSize = bXf->block(0).globalLength();
 
     for( int i = 0; i < blockCount; ++i )
     {

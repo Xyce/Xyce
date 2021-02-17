@@ -231,7 +231,8 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   // probably used the LinearProblem's maps to create the input
   // vector here.  In this case, Vf is just an Linear::Vector and not a
   // Linear::BlockVector.
-  const Linear::BlockVector bVf(&Vf, bXf.blockSize());
+  Teuchos::RCP<const Linear::BlockVector> bVf = 
+    Teuchos::rcp( Xyce::Linear::createBlockVector(&Vf, bXf.blockSize()) );
 
   if (hbOsc_)
   {
@@ -258,7 +259,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   if (norm[0] > 0.0)
   {
     // Calculate contributions of the portion of the Jacobian relating to the nonlinear devices.
-    permutedIFT(bVf, &*bVtPtr_);
+    permutedIFT(*bVf, &*bVtPtr_);
 
     // Initialize resulting vector, since operations on separated Jacobian may not touch every entry.
     bdFdxV->putScalar( 0.0 );
@@ -401,7 +402,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
 //      (*bdFdxV)[(augmentedLIDs)[0 ]] = Vf[(augmentedLIDs)[0 ]];
     double refValue = 0.0;
     double tmpValue= 0.0;
-    Linear::Vector & freqVec = bVf.block(refID_);
+    Linear::Vector & freqVec = bVf->block(refID_);
 
     if (freqVec.localLength() > 0)
     {
@@ -417,7 +418,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   if (DEBUG_HB)
   {
     Xyce::dout() << "HB bVf:" << std::endl;
-    bVf.print(std::cout);
+    bVf->print(std::cout);
     Xyce::dout() << "HB bdQdxV:" << std::endl;
     bdQdxV->print(std::cout);
     Xyce::dout() << "HB bdFdxV:" << std::endl;
@@ -479,8 +480,9 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
                                     Linear::BlockVector & permlindFdxV )
 {
   int numharms = bVtPtr_->blockCount();
-  const Linear::BlockVector bVf(&Vf, 2*numharms);
-  int first = bVf.startBlock();
+  Teuchos::RCP<const Linear::BlockVector> bVf = 
+    Teuchos::rcp( Xyce::Linear::createBlockVector(&Vf, 2*numharms) );
+  int first = bVf->startBlock();
 
   Teuchos::RCP<const Linear::Vector> Vf_overlap;
   Linear::Vector freqDFDXtVf( *(hbBuilderPtr_->getSolutionMap()) );
@@ -536,18 +538,18 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
 
   if ( !linAppdQdxPtr_->isEmpty() || !linAppdFdxPtr_->isEmpty())
   {
-    Linear::MultiVector lindQdxV( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
-    Linear::MultiVector lindFdxV( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
+    Linear::MultiVector lindQdxV( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
+    Linear::MultiVector lindFdxV( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
 
     int numMyRows = (bVtPtr_->blockPmap())->numLocalEntities();
-    Linear::MultiVector permVf( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
+    Linear::MultiVector permVf( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
 
     // Now copy over data for the blocks that this processor owns.
     // NOTE:  Copy over all rows, some devices like VCVS may refer to columns
     //        which are not in the list of nonzero rows for the linear matrix storage.
     for (int row = 0; row < numMyRows; row++)
     {
-      Linear::Vector & currBlock = bVf.block(first + row);
+      Linear::Vector & currBlock = bVf->block(first + row);
 
       // Insert zero-th value of the Fourier expansion, only need real value.
       (*permVf(row,0)) = currBlock[0];
@@ -601,7 +603,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   }
 
   // Put a barrier here for parallel.
-  //(bVf.pmap()->pdsComm()).barrier();
+  //(bVf->pmap()->pdsComm()).barrier();
 
   return true;
 }
