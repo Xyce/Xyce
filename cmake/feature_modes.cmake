@@ -1,5 +1,4 @@
-# These should always be true, so why are they optional?
-set(Xyce_BELOS TRUE)
+# This should always be true, so why is it optional?
 set(Xyce_SPICE_NORMS TRUE)
 
 # For communicating the exact version of Xyce to the code
