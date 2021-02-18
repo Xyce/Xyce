@@ -73,7 +73,7 @@
 #include <Teuchos_Utils.hpp>
 #include <Teuchos_LAPACK.hpp>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
 #endif
@@ -110,7 +110,7 @@ Sampling::Sampling(AnalysisManager &analysis_manager, Loader::Loader &loader,
       userSeed_(0),
       userSeedGiven_(false),
       hackOutputFormat_("STD"),
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
       projectionPCEenable_(false),
       PCEorder_(4),
@@ -439,7 +439,7 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
     {
       regressionPCEenable_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -476,7 +476,7 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
       userSeed_ = (*it).getImmutableValue<int>();
       userSeedGiven_ = true;
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
       resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -625,7 +625,7 @@ bool Sampling::doInit()
       samplingVector_.begin(), 
       samplingVector_.end());
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   if( !numSamplesGiven_  && !projectionPCEenable_)
   {
     Report::UserFatal0() << "Number of samples not specified, and quadrature PCE isn't being used (quadrature PCE is only method that doesn't need it)";
@@ -665,7 +665,7 @@ for (int jj=0;jj<numProc;jj++)
         numSamples_, samplingVector_, covMatrix_, meanVec_, X_, Y_);
   }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   // determine the samples. 
   //
   // non-intrusive spectral projection(NISP) samples are determined 
@@ -784,7 +784,7 @@ bool Sampling::doLoopProcess()
     Xyce::lout() << "***** Beginning Latin Hypercube Sampling simulation....\n" << std::endl;
   }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   if (projectionPCEenable_)
   {
     Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
@@ -959,7 +959,7 @@ void Sampling::completeEnsembleOutputs()
 {
   if (outputsGiven_)
   {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
     long theSeed=0;
     if (resamplePCE_)
@@ -996,7 +996,7 @@ void Sampling::completeEnsembleOutputs()
         }
       }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
       {
         // set up the lower-case "x" vector.  Capital "X" (or "Y") contains the 
@@ -1118,7 +1118,7 @@ void Sampling::completeEnsembleOutputs()
 
   if (measuresGiven_)
   {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     // the seed is needed for resampling a PCE approximation
     long theSeed=0;
     if (resamplePCE_)
@@ -1155,7 +1155,7 @@ void Sampling::completeEnsembleOutputs()
         }
       }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
       {
         // set up the lower-case "x" vector.  Capital "X" (or "Y") contains the 
@@ -1640,7 +1640,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("MEASURES", Util::Param("MEASURES", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", true)));
     parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", true)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));

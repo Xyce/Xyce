@@ -31,7 +31,7 @@
 //-----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
@@ -94,7 +94,7 @@
 #include <Teuchos_LAPACK.hpp>
 
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
 #endif
@@ -155,7 +155,7 @@ PCE::PCE(
       hackOutputCalledBefore2_(false),
       hackOutputAllSamples_(false),
       outputSampleStats_(false),
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       PCEorder_(4),
       resamplePCE_(false),
       outputPCECoeffs_(false),
@@ -537,7 +537,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
@@ -568,7 +568,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       userSeed_ = (*it).getImmutableValue<int>();
       userSeedGiven_ = true;
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
       resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -710,7 +710,7 @@ void PCE::stepCallBack ()
   outputXvectors(); // temporary
   computePCEOutputs();
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   std::vector< Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > > pceVec;
 
   for (int iout=0;iout<outFuncDataVec_.size();++iout)
@@ -769,7 +769,7 @@ void PCE::stepCallBack ()
   if (outputsGiven_)
   {
     // output for .PRINT PCE
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     outputManagerAdapter_.outputPCE(numQuadPoints_, outFuncDataVec_);
 #endif
 
@@ -949,7 +949,7 @@ void  PCE::setupBlockSystemObjects ()
 //-----------------------------------------------------------------------------
 void PCE::setupStokhosObjects ()
 {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   // determine the samples. 
   //
   // spectral projection samples are determined 
@@ -1484,7 +1484,7 @@ void PCE::hackPCEOutput ()
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
         }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
         std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
         std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
         std::string meanStringMinus = outFunc.outFuncString + "_quad_pce_meanMinus";
@@ -1547,7 +1547,7 @@ void PCE::hackPCEOutput ()
         output_stream << "\t" << outFunc.sm.variance;
       }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
 
       double pce_mean = projectionPCE.mean();
@@ -1997,7 +1997,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_ALL_SAMPLES", Util::Param("OUTPUT_ALL_SAMPLES", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
     //parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 1))); // default=LHS

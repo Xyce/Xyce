@@ -48,7 +48,7 @@
 #include <N_UTL_ExpressionData.h>
 #include <N_UTL_MachDepParams.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 // make sure linking against the correct trilinos!
 #include "Stokhos_Sacado.hpp"
 #include "Stokhos_Sacado_Kokkos.hpp"
@@ -138,7 +138,7 @@ private:
 
   std::string hackOutputFormat_;
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   bool regressionPCEenable_;
   bool projectionPCEenable_;
   int PCEorder_;

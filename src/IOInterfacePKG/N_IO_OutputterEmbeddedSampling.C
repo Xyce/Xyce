@@ -152,7 +152,7 @@ void makeEmbeddedSamplingColumnNames(
       colNames.push_back(outFunc.outFuncString + "_variance");
     }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     if (regressionPCEenable)
     {
       colNames.push_back(outFunc.outFuncString + "_regr_pce_mean");
@@ -242,7 +242,7 @@ void outputEmbeddedSamplingData(
       colIdx++;
     }
 
- #if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     if (regressionPCEenable)
     {
       Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;

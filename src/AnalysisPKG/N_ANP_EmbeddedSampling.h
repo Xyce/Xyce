@@ -48,7 +48,7 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 // make sure linking against the correct trilinos!
 #include "Stokhos_Sacado.hpp"
 #include "Stokhos_Sacado_Kokkos.hpp"
@@ -223,7 +223,7 @@ private:
 
   bool paramsOuterLoop_;
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   bool regressionPCEenable_;
   bool projectionPCEenable_;
   int PCEorder_;
