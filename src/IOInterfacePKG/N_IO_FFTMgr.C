@@ -103,29 +103,31 @@ void FFTMgr::notify( const Analysis::StepEvent & step_event)
       break;
 
     case Analysis::StepEvent::STEP_STARTED:
-      for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-        (*it)->reset();
-
+      resetFFTAnalyses();
       break;
 
     case Analysis::StepEvent::STEP_COMPLETED:
-      if (isFFTActive())
-      {
-        std::ostringstream converterBuff;
-        converterBuff << step_event.count_;
-        std::string filename = netlistFilename_ + ".fft" + converterBuff.str();
-
-        std::ofstream outputFileStream;
-        outputFileStream.open( filename.c_str() );
-        outputResults(outputFileStream);
-        outputFileStream.close();
-      }
-
+      outputResultsToFFTfile(step_event.count_);
       break;
 
     case Analysis::StepEvent::FINISH:
       break;
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::resetFFTAnalyses
+// Purpose       : Resets all of the FFTAnalysis objects.  Typically called at
+//                 the start of a .STEP loop iteration.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/15/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::resetFFTAnalyses()
+{
+  for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+    (*it)->reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -142,6 +144,24 @@ void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderM
 {
   for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
     (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::fixupFFTParametersForRemeasure
+// Purpose       : This sets parameters in the FFTAnalysis objects, that could
+//                 not be determined when those objects were constructed.
+// Special Notes : fft_accurate_ is set to 0 in all of the FFTAnalysis objects
+//                 for remeasure, because StepErrorControl is not instantiated
+//                 during remeasure.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/4/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
+                                const double endSimTime, TimeIntg::StepErrorControl & sec)
+{
+  for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+    (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, 0, fftout_);
 }
 
 //-----------------------------------------------------------------------------
@@ -200,6 +220,29 @@ void FFTMgr::updateFFTData(Parallel::Machine comm, const double circuitTime, con
   {
     (*it)->updateFFTData(comm, circuitTime, solnVec, stateVec, storeVec,
                       lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::outputResultsToFFTFile
+// Purpose       : Output all of the FFT results at end of simulation for the
+//                 .STEP and -remeasure cases
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/15/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::outputResultsToFFTfile(int stepNumber)
+{
+  if (isFFTActive())
+  {
+    std::ostringstream converterBuff;
+    converterBuff << stepNumber;
+    std::string filename = netlistFilename_ + ".fft" + converterBuff.str();
+    std::ofstream outputFileStream;
+    outputFileStream.open( filename.c_str() );
+    outputResults(outputFileStream);
+    outputFileStream.close();
   }
 }
 

@@ -168,6 +168,7 @@ public:
     const char& analysisName,
     Util::Op::BuilderManager &op_builder_manager,
     OutputMgr &output_manager,
+    FFTMgr &fft_manager,
     Analysis::AnalysisManager &analysis_manager,
     Analysis::AnalysisCreatorRegistry &analysis_registry,
     Util::SymbolTable &symbol_table);

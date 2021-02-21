@@ -91,7 +91,7 @@
 #include <Teuchos_LAPACK.hpp>
 
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
 #endif
@@ -152,7 +152,7 @@ EmbeddedSampling::EmbeddedSampling(
       outputtersCalledBefore_(false),
       outputSampleStats_(true),
       paramsOuterLoop_(true),
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
       projectionPCEenable_(false),
       PCEorder_(4),
@@ -545,7 +545,7 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       paramsOuterLoop_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
     {
       regressionPCEenable_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -584,7 +584,7 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
       userSeed_ = (*it).getImmutableValue<int>();
       userSeedGiven_ = true;
     }
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
       resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -712,7 +712,7 @@ void EmbeddedSampling::stepCallBack ()
 {
   computeEnsembleOutputs();
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   if (regressionPCEenable_) 
   {
     const int numParams = paramNameVec_.size();
@@ -830,7 +830,7 @@ void EmbeddedSampling::stepCallBack ()
   // .OPTIONS EMBEDDEDSAMPLES line.
   if (outputsGiven_)
   {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     if (!outputtersCalledBefore_)
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
@@ -869,7 +869,7 @@ void EmbeddedSampling::stepCallBack ()
     }
 #endif
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
                  numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 #else
@@ -923,7 +923,7 @@ bool EmbeddedSampling::doInit()
       samplingVector_.begin(), 
       samplingVector_.end());
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   if( !numSamplesGiven_  && !projectionPCEenable_)
   {
     Report::UserFatal0() << "Number of samples not specified, and quadrature PCE isn't being used (quadrature PCE is only method that doesn't need it)";
@@ -1072,7 +1072,7 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 //-----------------------------------------------------------------------------
 void EmbeddedSampling::setupStokhosObjects ()
 {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   // determine the samples. 
   //
   // non-intrusive spectral projection(NISP) samples are determined 
@@ -1195,7 +1195,7 @@ bool EmbeddedSampling::doLoopProcess()
   }
 
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   if (projectionPCEenable_)
   {
     Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
@@ -1421,7 +1421,7 @@ void EmbeddedSampling::hackEnsembleOutput ()
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
         }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
         if (regressionPCEenable_)
         {
           std::string meanString = outFunc.outFuncString + "_regr_pce_mean";
@@ -1528,7 +1528,7 @@ void EmbeddedSampling::hackEnsembleOutput ()
         output_stream << "\t" << outFunc.sm.variance;
       }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
       {
         Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
@@ -2032,7 +2032,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUT_ALL_SAMPLES", Util::Param("OUTPUT_ALL_SAMPLES", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
     parameters.insert(Util::ParamMap::value_type("PARAMSOUTERLOOP", Util::Param("PARAMSOUTERLOOP", true)));
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", false)));
     parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", false)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
@@ -2114,9 +2114,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("TR_scale_iter", Util::Param("TR_scale_iter", 0)));
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "DEFAULT")));
-#ifdef Xyce_BELOS
     parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
-#endif
     parameters.insert(Util::ParamMap::value_type("KLU_REPIVOT", Util::Param("KLU_REPIVOT", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_BASE_LS", Util::Param("OUTPUT_BASE_LS", 1)));

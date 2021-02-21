@@ -45,7 +45,7 @@
 #include <iostream>
 #include <numeric>
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
 
 #include "Amesos2_config.h"
 #include "Amesos2_Basker_TypeMap.hpp"
@@ -1011,7 +1011,7 @@ inline std::ostream& operator<< (std::ostream& os, const Xyce::genericBlockMatri
 }
 }
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
 
 // Specialization of BASKER_ScalarTraits for block vectors
 template <>

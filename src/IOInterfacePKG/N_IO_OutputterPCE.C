@@ -147,7 +147,7 @@ void makePCEColumnNames(
       colNames.push_back(outFunc.outFuncString + "_variance");
     }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     colNames.push_back(outFunc.outFuncString + "_quad_pce_mean");
     colNames.push_back(outFunc.outFuncString + "_quad_pce_meanPlus");
     colNames.push_back(outFunc.outFuncString + "_quad_pce_meanMinus");
@@ -204,7 +204,7 @@ void outputPCEData(
       colIdx++;
     }
 
- #if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
 
     double pce_mean = projectionPCE.mean();

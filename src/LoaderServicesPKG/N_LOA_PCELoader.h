@@ -38,7 +38,7 @@
 #ifndef Xyce_LOA_PCELoader_H
 #define Xyce_LOA_PCELoader_H
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <vector>
 
 #include <Teuchos_RCP.hpp>
@@ -55,7 +55,7 @@
 #include <N_UTL_AssemblyTypes.h>
 #include <N_UTL_OptionBlock.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <Stokhos_Sacado.hpp>
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sparse3TensorUtilities.hpp>
@@ -270,7 +270,7 @@ private:
   Analysis::SweepVector & samplingVector_;
   const std::vector<double> & Y_; 
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   // many of these objects are copied from the N_ANP_PCE.h header; 
   Teuchos::RCP<const Stokhos::ProductBasis<int,double> > basis_;
 

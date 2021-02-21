@@ -89,6 +89,10 @@ public:
 
   void fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
 			  const double endSimTime, TimeIntg::StepErrorControl & sec);
+  void fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
+			  const double endSimTime, TimeIntg::StepErrorControl & sec);
+
+  void resetFFTAnalyses();
 
   // Called during the simulation to update the fft objects held by this class
   void updateFFTData(Parallel::Machine comm,
@@ -100,6 +104,7 @@ public:
                      const Linear::Vector *junction_voltage_vector,
                      const Linear::Vector *lead_current_dqdt_vector);
 
+  void outputResultsToFFTfile(int stepNumber);
   void outputResults( std::ostream& outputStream );
 
   //added to help register lead currents with device manager

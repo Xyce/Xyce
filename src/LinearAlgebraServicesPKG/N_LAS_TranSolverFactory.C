@@ -56,9 +56,7 @@
 #include <N_LAS_AmesosSolver.h>
 #include <N_LAS_AztecOOSolver.h>
 #include <N_LAS_KSparseSolver.h>
-#ifdef Xyce_BELOS
 #include <N_LAS_BelosSolver.h>
-#endif
 #ifdef Xyce_SHYLU
 #include <N_LAS_ShyLUSolver.h>
 #endif
@@ -136,10 +134,8 @@ TranSolverFactory::create(
 
   if( type == "AZTECOO" )
     return new AztecOOSolver( problem, options);
-#ifdef Xyce_BELOS
   else if( type == "BELOS" )
     return new BelosSolver( problem, options);
-#endif
   else if( type == "KSPARSE" )
     return new KSparseSolver( problem, options);
 #ifdef Xyce_SHYLU

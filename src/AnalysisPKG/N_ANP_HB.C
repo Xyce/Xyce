@@ -2572,9 +2572,7 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("DIRECT_SOLVER", Util::Param("DIRECT_SOLVER", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "BLOCK_JACOBI")));
-#ifdef Xyce_BELOS
     parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
-#endif
     parameters.insert(Util::ParamMap::value_type("BLOCK_JACOBI_CORRECTED", Util::Param("BLOCK_JACOBI_CORRECTED", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
   }

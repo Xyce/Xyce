@@ -134,7 +134,7 @@ void computeStats (const std::vector<double> & values, statisticalMoments & sm)
   sm.kurtosis = kurtosis;
 }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 //-------------------------------------------------------------------------------
 // Function      : solveRegressionPCE
 // Purpose       : solves for the PCE coefficients using regression for a single output 
@@ -233,7 +233,7 @@ void solveRegressionPCE(
 #endif
 
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 //-------------------------------------------------------------------------------
 // Function      : solveProjectionPCE
 // Purpose       : solves for the coefficients of an NISP problem for a single output
@@ -1017,7 +1017,7 @@ void unScaleSampleValues(
   }
 }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 //-----------------------------------------------------------------------------
 // Function      : setupPCEQuadPoints
 // Purpose       :

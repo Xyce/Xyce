@@ -3,11 +3,9 @@ AM_CPPFLAGS = @Xyce_INCS@
 
 noinst_LTLIBRARIES = libLinearAlgebraServices.la
 
-if BUILD_BELOS_SUPPORT
 belos_SOURCES = \
   N_LAS_BelosSolver.C \
   N_LAS_BelosSolver.h
-endif
 
 if BUILD_SHYLU_SUPPORT
 shylu_SOURCES = \

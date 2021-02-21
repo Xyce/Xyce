@@ -96,14 +96,12 @@
 #include <Epetra_LinearProblem.h>
 #include <Amesos.h>
 
-#ifdef Xyce_BELOS
 #include <BelosLinearProblem.hpp>
 #include <BelosBlockGmresIter.hpp>
 #include <BelosDGKSOrthoManager.hpp>
 #include <BelosStatusTestMaxIters.hpp>
 #include <BelosOutputManager.hpp>
 #include <BelosEpetraAdapter.hpp>
-#endif
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_ScalarTraits.hpp>
@@ -639,7 +637,6 @@ bool MOR::reduceSystem()
   redB_.shape(k, numPorts_);
   redL_.shape(k, numPorts_);
 
-#ifdef Xyce_BELOS
   // ---------------------------------------------------------------------
   // Now use Belos to compute the basis vectors for K_k(inv(G + s0*C)*C, R)
   // ---------------------------------------------------------------------
@@ -1018,12 +1015,6 @@ if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
     else
       IO::outputROM(outputManagerAdapter_.getComm(), analysisManager_.getNetlistFilename(), redG_, redC_, redB_, redL_ );  // L = B'
   }
-
-#else
-  Report::UserError0() << "Belos is necessary to compute a reduced-order model, please recompile Xyce with Belos enabled";
-  return false;
-
-#endif // Xyce_BELOS
 
   return bsuccess;
 }

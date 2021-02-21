@@ -37,7 +37,7 @@
 #ifndef Xyce_N_ANP_PCE_h
 #define Xyce_N_ANP_PCE_h
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <N_ANP_fwd.h>
 #include <N_LOA_fwd.h>
 #include <N_PDS_fwd.h>
@@ -49,7 +49,7 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 // make sure linking against the correct trilinos!
 #include "Stokhos_Sacado.hpp"
 #include "Stokhos_Sacado_Kokkos.hpp"
@@ -231,7 +231,7 @@ private:
 
   bool coefsOuterLoop_;
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   int PCEorder_;
 
   Teuchos::Array< Teuchos::RCP<const Stokhos::OneDOrthogPolyBasis<int,double> > > bases; 

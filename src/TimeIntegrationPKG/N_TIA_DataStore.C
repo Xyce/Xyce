@@ -57,7 +57,7 @@
 #include <N_UTL_MachDepParams.h>
 #include <N_MPDE_Builder.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <N_LAS_PCEBuilder.h>
 #endif
 

@@ -144,7 +144,7 @@ bool HBDirectSolver::setOptions( const Util::OptionBlock & OB )
     solver_ = solverDefault_;
   }
 
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
   if ( solver_ != "LAPACK" && solver_ != "BASKER" && solver_ != "BLOCK_BASKER" )
 #else
   if ( solver_ != "LAPACK" )
@@ -1661,7 +1661,7 @@ int HBDirectSolver::numericFactorization()
       lapackSolver_->factorWithEquilibration(true);
       linearStatus = lapackSolver_->factor();
     }
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
     else if ( solver_ == "BASKER" )
     {
       // Create Basker solver and factor block diagonal matrix.
@@ -1732,7 +1732,7 @@ int HBDirectSolver::solve()
           Xyce::dout() << "Linear System Residual (LAPACK) : " << rnorm/bnorm << std::endl; 
         }
       }
-#if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
+#ifdef Xyce_AMESOS2_BASKER
       else if ( solver_ == "BASKER" )
       {
         double bnorm, rnorm;

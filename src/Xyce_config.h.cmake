@@ -2,7 +2,6 @@
 #define  Xyce_CONFIG_H
 
 // This is required (so why is it ifdef'd?)
-#cmakedefine Xyce_BELOS
 #cmakedefine Xyce_SPICE_NORMS
 
 // Compile Xyce for MPI parallelism
@@ -10,11 +9,10 @@
 
 // Trilinos
 #cmakedefine Xyce_SHYLU
-#cmakedefine SHYLUBASKER
 #cmakedefine Xyce_AMESOS2
-#cmakedefine01 Xyce_STOKHOS_ENABLE
+#cmakedefine Xyce_AMESOS2_BASKER
+#cmakedefine Xyce_STOKHOS_ENABLE
 #cmakedefine Xyce_ROL
-
 #cmakedefine Xyce_USE_ISORROPIA
 
 // Trilinos TPLs

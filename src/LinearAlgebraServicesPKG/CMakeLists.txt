@@ -2,10 +2,6 @@
 # -- process files for this library ------------------------------------------
 
 # add option class sources
-if ( Xyce_BELOS )
-  set ( BELOS_SRC N_LAS_BelosSolver.C )
-endif()
-
 if ( Xyce_SHYLU )
   set ( SHYLU_SRC N_LAS_ShyLUSolver.C )
 endif()
@@ -30,10 +26,10 @@ set ( KSPARSE_INC ksparse/ )
 
 # class source list
 target_sources(XyceLib PRIVATE
-      ${BELOS_SRC}
       ${SHYLU_SRC}
       ${AMESOS2_SRC}
       ${KSPARSE_SRC}
+      N_LAS_BelosSolver.C
       N_LAS_SimpleSolver.C
       N_LAS_AmesosSolver.C
       N_LAS_AztecOOSolver.C

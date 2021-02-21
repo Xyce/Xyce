@@ -52,9 +52,7 @@
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_LAS_AztecOOSolver.h>
-#ifdef Xyce_BELOS
 #include <N_LAS_BelosSolver.h>
-#endif
 #include <N_LAS_HBDirectSolver.h>
 
 #include <N_IO_CmdParse.h>
@@ -120,12 +118,10 @@ HBSolverFactory::create(
   {
     return new AztecOOSolver( problem, options);
   }
-#ifdef Xyce_BELOS
   else if( type == "BELOS" )
   {
     return new BelosSolver( problem, options);
   }
-#endif
   else if( type == "DIRECT" )
   {
     HBDirectSolver* newSolver = new HBDirectSolver(builder_, problem, options);

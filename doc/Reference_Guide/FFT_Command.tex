@@ -1,0 +1,160 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+Performs Fast Fourier Transform analysis of transient analysis output.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.FFT <ov> [NP=<value>] [WINDOW=<value>] [ALFA=<value>]
++ [FORMAT=<value>] [START=<value>] [STOP=<value>]
++ [FREQ=value] [FMIN=value] [FMAX=value]
+\end{alltt}
+
+\examples
+\begin{alltt}
+.FFT v(1)
+.FFT v(1,2) NP=512 WINDOW=HANN
+.FFT \{v(3)-v(2)\} START=1 STOP=2
+\end{alltt}
+
+\arguments
+
+\begin {Arguments}
+
+\argument{ov}
+The desired solution output, or outputs, to be analyzed. Only one
+output variable can be specified on a {\tt .FFT} line. However,
+multiple {\tt .FFT} lines with the same output variable but, for
+example, different windowing functions may be used in a netlist.
+The available outputs are:
+
+\begin{itemize}
+  \item \texttt{V(<circuit node>)} the voltage at \texttt{<circuit node>}
+  \item \texttt{V(<circuit node>,<circuit node>)} to output the voltage
+    difference between the first \texttt{<circuit node>} and second
+    \texttt{<circuit node>}
+  \item \texttt{I(<device>)} the current through a two terminal device
+  \item \texttt{I<lead abbreviation>(<device>)} the current into a particular lead
+    of a three or more terminal device (see the Comments, below, for details)
+  \item \texttt{N(<device parameter>)} a specific device parameter (see the
+    individual devices in Section~\ref{Analog_Devices} for syntax)
+\end{itemize}
+
+\argument{NP}
+The number of points in the FFT.  This value must be a power of 2.  If
+the user-entered value is not a power of two then it will be rounded to
+the nearest power of 2.  The minimum allowed value of {\tt NP} is 4.
+The default value is 1024.
+
+\argument{WINDOW}
+The windowing function that will be applied to the sampled waveform
+values.  The allowed values are as follows, where table~\ref{FFT_Window_Funcs}
+gives their exact definitions:
+
+\begin{itemize}
+  \item \texttt{RECT} = rectangular window (default)
+  \item \texttt{BART} = Bartlett (triangular) window
+  \item \texttt{HANN} = Hanning window
+  \item \texttt{HAMM} = Hamming window
+  \item \texttt{BLACK} = Blackman window
+  \item \texttt{HARRIS} = Blackman-Harris window
+\end{itemize}
+
+\argument{ALFA}
+This parameter is supported for HSPICE compatibility. It currently
+has no effect though, since the {\tt GAUSS} and {\tt KAISER} windows
+are not supported.
+
+\argument{FORMAT}
+The allowed values are {\tt NORM} and {\tt UNORM}.  The default
+value is {\tt NORM}. If {\tt NORM} is selected then the magnitude
+values will be normalized to the largest magnitude.  If {\tt UNORM}
+is selected then the actual magnitude values will be output instead.
+
+\argument{START}
+The start time for the FFT analysis.  The default value is the
+start time for the transient analysis. {\tt FROM} is an allowed
+synonym for {\tt START}.
+
+\argument{STOP}
+The end time for the FFT analysis.  The default value is the
+end time for the transient analysis. {\tt TO} is an allowed
+synonym for {\tt STOP}.
+
+\argument{FREQ}
+The ``first harmonic'' of the frequencies provided in the output
+file.  The default value for {\tt FREQ} is {\tt 1/(STOP - START)}.
+If {\tt FREQ} is given then it is rounded to the nearest integer
+multiple of the default value.  The \Xyce{} Users' Guide\UsersGuide
+provides an example.
+
+\argument{FMIN}
+This parameter is supported for HSPICE compatibility. It currently
+has no effect though.
+
+\argument{FMAX}
+This parameter is supported for HSPICE compatibility. It currently
+has no effect though.
+
+\end{Arguments}
+
+\comments
+Multiple \texttt{.FFT} lines may be used in a netlist.  All results from FFT analyses
+will be returned to the user in a file with the same name as the netlist file suffixed
+with a \texttt{.fftX} where {\tt X} is the step number.
+
+\texttt{<lead abbreviation>} is a single character designator for individual
+leads on a device with three or more leads.  For bipolar transistors these are:
+c (collector), b (base), e (emitter), and s (substrate).  For mosfets, lead
+abbreviations are: d (drain), g (gate), s (source), and b (bulk).  SOI
+transistors have: d, g, s, e (bulk), and b (body).  For PDE devices, the nodes
+are numbered according to the order they appear, so lead currents are
+referenced like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.
+
+For this analysis, the phase data is always output in degrees.
+
+\end{Command}
+
+Table~\ref{FFT_Window_Funcs} gives the definitions of the window functions
+implemented in \Xyce{}.  For HSPICE compatibility, the {\tt BLACK} window type
+is actually the ``-67 dB Three-Term Blackman-Harris window''~\cite{Doerry2017}
+rather than the ``Conventional Blackman Window'' used by Matlab and scipy.
+The definition of the {\tt BART} window type ~\cite{oppenheimSchafer} was chosen
+to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
+
+\begin{longtable}[h] {>{\raggedright\small}m{0.75in}|>{\raggedright\let\\\tabularnewline\small}m{1.75in}
+  |>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{.FFT Window Function Definitions (N = Number of Points).} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Value &
+  \color{white}\bf Description &
+  \color{white}\bf Definition \\ \hline \endfirsthead
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Value &
+  \color{white}\bf Description &
+  \color{white}\bf Definition \\ \hline \endhead
+  \label{FFT_Window_Funcs}
+
+  RECT & Rectangular &
+    $w(i)=1, \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+  BART & Barlett~\cite{oppenheimSchafer} &
+    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{N-1},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\ 2-\frac{2 i}{N-1},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
+  HANN & Hanning~\cite{oppenheimSchafer} &
+    $w(i) = sin^2(\frac{\pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+  HAMM & Hamming~\cite{oppenheimSchafer} &
+    $w(i) = 0.54 - 0.46 \cdot cos(\frac{2 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+  BLACK & -67 dB Three-Term Blackman-Harris window~\cite{Doerry2017} &
+    $w(i) = 0.42323-0.49755 \cdot cos(\frac{2 \pi i}{N-1})+0.07922 \cdot cos(\frac{4 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+  HARRIS & -92 dB Four-Term Blackman-Harris window~\cite{Doerry2017} &
+    $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{N-1}) + 0.14128 \cdot cos(\frac{4 \pi i}{N-1}) - 0.01168 \cdot cos(\frac{6 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+\end{longtable}

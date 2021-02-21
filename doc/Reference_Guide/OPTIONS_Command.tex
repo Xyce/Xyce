@@ -426,8 +426,38 @@ the communication will not be minimized by this strategy.
 
 \input{distoptiontbl}
 
+\subsubsection{\texttt{.OPTIONS FFT} (FFT Options)}
+\index{fft!options}\index{\texttt{.OPTIONS}!\texttt{FFT}}
+The parameters listed in Table~\ref{fftPKG} give the available
+options for controlling all of the \texttt{.FFT} statements in
+a given \Xyce{} netlist.
+
+If \texttt{FFT\_ACCURATE} is set to 1 (true), which is the default, then
+\Xyce{} will insert breakpoints at the sample times requested by the
+collection of \texttt{.FFT} lines in the netlist.  This has been found
+to improve the accuracy of the \texttt{.FFT} analyses, at the possible
+expense of simulation speed.  If \texttt{FFT\_ACCURATE} is set to
+0 (false), then interpolation is used to determine the output variable
+values at the specified sample times.  If the \texttt{-remeasure} command
+line option is used to recalculate the \texttt{.MEASURE} statements for
+a \texttt{.TRAN} analysis, then \texttt{FFT\_ACCURATE} is set to 0 during
+the re-measure operation.
+
+If \texttt{FFTOUT} is set to 1 then additional metrics are output for each
+\texttt{.FFT} line.  Those metrics are:
+
+\begin{itemize}
+  \item Effective Number of Bits (ENOB)
+  \item Spurious Free Dynamic Range (SFDR)
+  \item Signal to Noise Ratio (SNR)
+  \item Signal to Noise-and-Distortion Ratio (SNDR)
+  \item Total Harmonic Distorion (THD)
+\end{itemize}
+
+\input{fftoptiontbl}
+
 \subsubsection{\texttt{.OPTIONS MEASURE} (Measure Options)}
-\index{dist!options}\index{\texttt{.OPTIONS}!\texttt{MEASURE}}
+\index{measure!options}\index{\texttt{.OPTIONS}!\texttt{MEASURE}}
 The parameters listed in Table~\ref{measurePKG} give the available
 options for controlling all of the \texttt{.MEASURE} statements in
 a given \Xyce{} netlist.  The \texttt{MEASDGT}, \texttt{MEASFAIL}

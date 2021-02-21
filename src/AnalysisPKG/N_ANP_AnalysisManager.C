@@ -44,7 +44,7 @@
 #include <N_ANP_Step.h>
 #include <N_ANP_Sampling.h>
 #include <N_ANP_EmbeddedSampling.h>
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <N_ANP_PCE.h>
 #endif
 #include <N_ANP_ROL.h>
@@ -441,7 +441,7 @@ bool AnalysisManager::initializeSolverSystem(
 //-----------------------------------------------------------------------------
 bool AnalysisManager::getBlockAnalysisFlag() const
 {
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   // ERK: check this
   return 
     dynamic_cast<Analysis::PCE *>(primaryAnalysisObject_) || 
@@ -535,7 +535,7 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
              (analysisCreatorVector_.front()->isType<Step>() || 
               analysisCreatorVector_.front()->isType<Sampling>() || 
               analysisCreatorVector_.front()->isType<EmbeddedSampling>()
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
               ||
               analysisCreatorVector_.front()->isType<PCE>()
 #endif
@@ -562,7 +562,7 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
     if (!(*it)->isType<Step>() 
         && !(*it)->isType<Sampling>()
         && !(*it)->isType<EmbeddedSampling>()
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
         && !(*it)->isType<PCE>()
 #endif
         ) 
@@ -597,7 +597,7 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
       pushActiveAnalysis(analysisObject_);
     }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
     if ((*it)->isType<PCE>()) 
     {
       analysisObject_ = (*it)->create();

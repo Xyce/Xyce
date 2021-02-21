@@ -33,7 +33,7 @@
 #include <N_UTL_ExpressionData.h>
 #include <N_UTL_MachDepParams.h>
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 #include <Stokhos_Sacado.hpp>
 #include <Sacado_No_Kokkos.hpp>
 #endif
@@ -102,7 +102,7 @@ public:
   bool measureResponseFound;
   statisticalMoments sm;
   std::vector<double> sampleOutputs;
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
   Stokhos::OrthogPolyApprox<int,double> regressionPCE;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > projectionPCE;
 #endif
@@ -139,7 +139,7 @@ inline std::ostream & operator<<(std::ostream & os, const outputFunctionData & o
   return os;
 }
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 void solveRegressionPCE(
     const int numParams, // dimension (number of params)
     const std::vector< std::vector<double> > & x,
@@ -148,7 +148,7 @@ void solveRegressionPCE(
     );
 #endif
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 void solveProjectionPCE(
     const Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & basis,
     const Teuchos::RCP<const Stokhos::Quadrature<int,double> > & quad,
@@ -206,7 +206,7 @@ void unScaleSampleValues(
     std::vector< std::vector<double> > & x
     );
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 void setupPCEQuadPoints (
     const Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & basis,
     const Teuchos::RCP<const Stokhos::Quadrature<int,double> > & quad,
@@ -249,7 +249,7 @@ long getTheSeed(
     bool userSeedGiven,
     bool output=true);
 
-#if Xyce_STOKHOS_ENABLE
+#ifdef Xyce_STOKHOS_ENABLE
 //-----------------------------------------------------------------------------
 // Function      : sampleApproximationPCE
 //

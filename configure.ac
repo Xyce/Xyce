@@ -280,10 +280,6 @@ dnl optionally compile in support for SuperLU and UmfPack.
 XYCE_DEBUG_OPTION(superlu,no,[SuperLU direct solver],Xyce_SUPERLU,SUPERLU)
 XYCE_DEBUG_OPTION(pardiso_mkl,no,[Pardiso direct solver (through MKL)],Xyce_PARDISO_MKL,PARDISO_MKL)
 
-dnl optionally compile in support for Belos (as of Xyce 6.0, this is "yes" by default)
-XYCE_DEBUG_OPTION(belos,yes,[Belos iterative solver support],Xyce_BELOS, USE_BELOS)
-AM_CONDITIONAL(BUILD_BELOS_SUPPORT, test "x$USE_BELOS" = "xyes")
-
 dnl optionally compile in support for ShyLU (we need Trilinos development branch at this time)
 XYCE_DEBUG_OPTION(shylu,no,[ShyLU hybrid solver support],Xyce_SHYLU, USE_SHYLU)
 AM_CONDITIONAL(BUILD_SHYLU_SUPPORT, test "x$USE_SHYLU" = "xyes")
@@ -663,12 +659,10 @@ XYCE_TRILINOS_LIBRARY_OPTION(TrilinosCouplings, USE_TRILINOSCOUPLINGS_MAKEFILE)
 XYCE_TRILINOS_LIBRARY_OPTION(Ifpack, USE_IFPACK_MAKEFILE)
 XYCE_TRILINOS_LIBRARY_OPTION(AztecOO, USE_AZTECOO_MAKEFILE)
 
-dnl If the user enabled Belos, let's add it here:
-if test "x$USE_BELOS" = "xyes"; then
-    XYCE_TRILINOS_LIBRARY_OPTION(Belos, USE_BELOS_MAKEFILE)
-    if test "x$USE_BELOS_MAKEFILE" = "xno"; then
-      XYCE_LIBRARY_OPTION(belosepetra)
-    fi
+dnl Belos, let's add it here:
+XYCE_TRILINOS_LIBRARY_OPTION(Belos, USE_BELOS_MAKEFILE)
+if test "x$USE_BELOS_MAKEFILE" = "xno"; then
+ XYCE_LIBRARY_OPTION(belosepetra)
 fi
 
 dnl If the user enabled ShyLU, let's add it here:
@@ -679,6 +673,7 @@ fi
 dnl If the user enabled Amesos2, let's add it here:
 if test "x$USE_AMESOS2" = "xyes"; then
     XYCE_TRILINOS_LIBRARY_OPTION(Amesos2, USE_AMESOS2_MAKEFILE)
+    AC_CHECK_HEADER([Amesos2_Basker.hpp], AC_DEFINE([Xyce_AMESOS2_BASKER], [1], [Set to use templated Basker solver in Amesos2.]), [])
 fi
 
 dnl If the user enabled ROL, let's add it here:
