@@ -87,10 +87,9 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     fmaxGiven_(false),
     calculated_(false),
     outputVarName_(""),
-    fft_accurate_(1),
-    fftout_(0),
+    fft_accurate_(true),
+    fftout_(false),
     sampleIdx_(0),
-    sampleTimeTol_(1e-20),
     noiseFloor_(1e-10),
     maxMag_(0.0),
     thd_(0.0),
@@ -282,7 +281,7 @@ void FFTAnalysis::reset()
   thd_ = 0.0;
   harmonicList_.clear();
 
-  if (fft_accurate_ == 0)
+  if (!fft_accurate_)
   {
     time_.clear();
     outputVarValues_.clear();
@@ -315,7 +314,7 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const Util::Op::BuilderManager &op_builder_manager,
   const double endSimTime,
   TimeIntg::StepErrorControl & sec,
-  const int fft_accurate,
+  const bool fft_accurate,
   const bool fftout)
 {
   secPtr_ = &sec;
@@ -407,11 +406,11 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
-  if ((fft_accurate_ == 1) && (circuitTime == 0.0))
+  if (fft_accurate_ && (circuitTime == 0.0))
     addSampleTimeBreakpoints();
 
   // Save the time values, if interpolation is used.
-  if (outputVars_.size() && (fft_accurate_ == 0))
+  if (!fft_accurate_ && !outputVars_.empty())
     time_.push_back(circuitTime);
 
   int vecIndex = 0;
@@ -419,7 +418,7 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   {
     double retVal = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, 0, stateVec, storeVec, 0,
                              lead_current_vector, 0, junction_voltage_vector, 0)).real();
-    if (fft_accurate_ == 0)
+    if (!fft_accurate_)
     {
       // save all of the output var values, if interpolation is used.
       outputVarValues_.push_back(retVal);
@@ -427,7 +426,8 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
     else
     {
       // only save the values at the breakpoints, set at the specified sample times.
-      if ( (sampleIdx_ < np_) && (abs( circuitTime - sampleTimes_[sampleIdx_]) <= sampleTimeTol_) )
+      if ( (sampleIdx_ < np_) &&
+           (abs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
       {
         sampleValues_[sampleIdx_] = retVal;
         sampleIdx_++;
@@ -454,7 +454,7 @@ void FFTAnalysis::outputResults(std::ostream& outputStream)
   if ( (numOutVars>0) && !calculated_ )
   {
     // Calculate the fft coefficients for the given output variable.
-    if (!time_.empty() && (fft_accurate_ == 0))
+    if (!fft_accurate_ && !time_.empty())
       interpolateData_();
 
     if (DEBUG_IO)
@@ -481,14 +481,14 @@ void FFTAnalysis::outputResults(std::ostream& outputStream)
 // Function      : FFTAnalysis::interpolateData_()
 // Purpose       : evaluates interpolating polynomial at equidistant time pts
 // Special Notes : In the final version of this class, this function will only
-//                 be called if fft_accurate_ = 0.
+//                 be called if fft_accurate_ is false.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
 bool FFTAnalysis::interpolateData_()
 {
-  if (time_.size() > 0)
+  if (!time_.empty())
   {
     Util::akima<double> interp;
     interp.init( time_, outputVarValues_ );
@@ -610,7 +610,7 @@ void FFTAnalysis::calculateFFT_()
       phase_[i] = convRadDeg * atan2(fftImagCoeffs_[i], fftRealCoeffs_[i]);
   }
 
-  // These metrics are output later if fftout_=1.  However, they are calculated
+  // These metrics are output later if fftout is true.  However, they are calculated
   // unconditionally for compatibility with .MEASURE FFT.
   calculateSFDR_();
   calculateSNR_();

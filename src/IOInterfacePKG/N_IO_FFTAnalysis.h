@@ -82,7 +82,7 @@ public:
                           const Util::Op::BuilderManager &op_builder_manager,
                           const double endSimTime,
                           TimeIntg::StepErrorControl & sec,
-                          const int fft_accurate,
+                          const bool fft_accurate,
                           const bool fftout);
 
   void addSampleTimeBreakpoints();
@@ -144,7 +144,7 @@ private:
   }
 
 private:
-  TimeIntg::StepErrorControl* secPtr_;  // ptr to step error control
+  TimeIntg::StepErrorControl* secPtr_; // ptr to step error control.  Used if FFT_ACCURATE=true
   double startTime_, stopTime_;
   int np_;
   std:: string format_;
@@ -160,10 +160,9 @@ private:
   bool fmaxGiven_;
   bool calculated_;
   std::string outputVarName_;
-  int fft_accurate_;
-  int fftout_;
+  bool fft_accurate_;
+  bool fftout_;
   int sampleIdx_;
-  double sampleTimeTol_;
   double noiseFloor_;
   double maxMag_;
   double thd_;

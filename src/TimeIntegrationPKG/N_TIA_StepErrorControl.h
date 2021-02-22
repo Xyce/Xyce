@@ -144,6 +144,8 @@ class StepErrorControl
   // signal that pause breakpoint has been reached
   void simulationPaused(double initial_time);
 
+  double getBreakPointEqualTolerance() const { return breakPointEqual_.tolerance_;}
+
   // is the current time a pause time?
   bool isPauseTime();
 

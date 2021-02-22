@@ -77,7 +77,7 @@ public:
 
   // register options from .OPTIONS FFT lines
   bool registerFFTOptions(const Util::OptionBlock & option_block);
-  int getfft_accurate() const { return fft_accurate_; }
+  bool getfft_accurate() const { return fft_accurate_; }
 
   // Return true if FFT analysis is being performed on any variables.
   bool isFFTActive() const { return !FFTAnalysisList_.empty(); }
@@ -112,7 +112,7 @@ public:
 
 private:
   std::string           netlistFilename_;
-  int                   fft_accurate_;  // comes from .OPTIONS FFT line
+  bool                  fft_accurate_;  // comes from .OPTIONS FFT line
   bool                  fftout_;        // comes from .OPTIONS FFT line
   FFTAnalysisVector     FFTAnalysisList_;
 
