@@ -4735,6 +4735,41 @@ TEST ( Complex_Parser_table_Test, break2)
   EXPECT_EQ(refRes,assignResult);
 }
 
+//-------------------------------------------------------------------------------
+// fasttable tests
+//
+// adapted from break.cir
+TEST ( Double_Parser_fasttable_Test, break1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("fastTable(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
+
+  // don't compare everything for now, just check parsing.
+  for (int ii=0;ii<times.size();ii++) 
+  {
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+
+  OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
+}
 
 // adapted from power_thermalres_gear.cir
 TEST ( Complex_Parser_table_Test, power_thermalres)
