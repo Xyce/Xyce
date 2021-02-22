@@ -37,6 +37,15 @@
 Placeholder description.
 \\ \hline
 
+\textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
+Xyce is able to leverage some features of Trilinos in a beta mode. Some of
+these were not enabled in the CMake build system, or were not functioning
+correctly. This issue was focused on making those work properly. Specifically,
+it was targeted at the inclusion of Amesos2, Stokhos, ShyLU, the Amesos2 Basker
+(a templated linear solver), and the ShyLU Basker (a multi-threaded linear
+solver). It also made Belos a required Trilinos package.
+\\ \hline
+
 \textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &
 Prior to the rewrite of the expression library, flex and bison were optional;
 however, now they are required. The autotools and CMake build systems have now
