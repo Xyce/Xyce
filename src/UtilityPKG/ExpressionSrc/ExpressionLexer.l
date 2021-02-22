@@ -151,8 +151,6 @@ MIL [mM][iI][lL]
 UNIT [sSvVaAhHfF]
 HZ   [Hh][Zz]
 
-TABLE "fast"?"table"
-
 LEAD I[SDGBEC1-9]
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
@@ -582,7 +580,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"("   |
 <INITIAL>"wodicka"[ \t]*"(" |
 <INITIAL>"bli"[ \t]*"("     |
-<INITIAL>TABLE[ \t]*"("     {
+<INITIAL>"table"[ \t]*"("   |
+<INITIAL>"fasttable"[ \t]*"("     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
@@ -594,7 +593,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"{"   |
 <INITIAL>"wodicka"[ \t]*"{" |
 <INITIAL>"bli"[ \t]*"{"     |
-<INITIAL>TABLE[ \t]*"{"     {
+<INITIAL>"table"[ \t]*"{"   |
+<INITIAL>"fasttable"[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
@@ -606,7 +606,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"("[ \t]*"{"   |
 <INITIAL>"wodicka"[ \t]*"("[ \t]*"{" |
 <INITIAL>"bli"[ \t]*"("[ \t]*"{"     |
-<INITIAL>TABLE[ \t]*"("[ \t]*"{"     {
+<INITIAL>"table"[ \t]*"("[ \t]*"{"   |
+<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
