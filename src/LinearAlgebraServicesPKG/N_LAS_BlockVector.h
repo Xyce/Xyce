@@ -56,7 +56,7 @@ class BlockVector : public Vector
  public:
 
   // Default constructor
-  BlockVector() {};
+  BlockVector() {}
 
   // Constructors to map to Petra constructors.
   BlockVector( const Parallel::ParMap & map )
@@ -69,7 +69,7 @@ class BlockVector : public Vector
   {}
 
   // Destructor
-  virtual ~BlockVector() {};
+  virtual ~BlockVector() {}
 
   // Assignment operator
   virtual BlockVector & operator=(const BlockVector & right)
@@ -91,13 +91,6 @@ class BlockVector : public Vector
 
   // Get the ParMap objects for each BLOCK in this block vector.
   virtual const Parallel::ParMap * blockPmap() const = 0;
-
- protected:
-
-  //Copy constructor
-  BlockVector( const BlockVector & right )
-  : Vector(right)
-  {}
 
 };
 

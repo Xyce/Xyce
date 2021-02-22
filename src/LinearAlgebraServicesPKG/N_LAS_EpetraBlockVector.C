@@ -43,16 +43,21 @@
 #include <N_LAS_EpetraBlockVector.h>
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
+#include <N_PDS_Serial.h>
+#include <N_PDS_MPI.h>
 #include <N_PDS_ParHelpers.h>
 #include <N_PDS_EpetraParMap.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
+
+#include <N_ERH_ErrorMgr.h>
 
 // ---------  Other Includes  -----------
 
 #include <Epetra_Map.h>
 #include <Epetra_Vector.h>
 #include <Epetra_MultiVector.h>
+#include <EpetraExt_MultiVectorOut.h>
 
 namespace Xyce {
 namespace Linear {
@@ -178,69 +183,6 @@ EpetraBlockVector & EpetraBlockVector::operator=( const EpetraBlockVector & righ
 
 //-----------------------------------------------------------------------------
 // Function      : EpetraBlockVector::EpetraBlockVector
-// Purpose       : copy constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Computational Sciences
-// Creation Date : 03/13/04
-//-----------------------------------------------------------------------------
-EpetraBlockVector::EpetraBlockVector( const EpetraBlockVector & rhs )
-: BlockVector( dynamic_cast<const BlockVector&>(rhs) ),
-  globalBlockSize_( rhs.globalBlockSize_ ),
-  localBlockSize_( rhs.localBlockSize_ ),
-  overlapBlockSize_( rhs.overlapBlockSize_ ),
-  numBlocks_( rhs.numBlocks_ ),
-  augmentCount_( rhs.augmentCount_ ),
-  startBlock_( rhs.startBlock_ ),
-  endBlock_( rhs.endBlock_ ),
-  newBlockMap_( rhs.newBlockMap_ ),
-  blocks_( rhs.numBlocks_ )
-{
-  // If the startBlock_ and endBlock_ cover every block in this vector than this is a time-domain representation
-  // or serial simulation, in which case a frequency-domain distinction need not be made.
-  if ((startBlock_ == 0) && (endBlock_ == numBlocks_))
-  {
-    int numBlocks = blocks_.size();
-
-    // Setup Views of blocks using Block Map
-    double ** Ptrs;
-    epetraObj().ExtractView( &Ptrs );
-    double * Loc;
-
-    const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
-
-    for( int i = 0; i < numBlocks; ++i )
-    {
-      Loc = Ptrs[0] + overlapBlockSize_*i;
-      blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
-    }
-  }
-  else
-  {
-    // This is a frequency-domain representation of the block vector, so create views accordingly.
-    int blockSize = globalBlockSize_;
-
-    // Setup Views of blocks using Block Map
-    double ** Ptrs;
-    epetraObj().ExtractView( &Ptrs );
-    double * Loc = Ptrs[0];
-
-    for( int i = 0; i < numBlocks_; ++i )
-    {
-      // Create a Vector that views all the block data that is local.
-      blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, ((rhs.blocks_[i])->epetraObj()).Map(), Loc ), true ) );
-
-      if ( (i >= startBlock_) && (i < endBlock_) )
-      {
-        // Advance the pointer for the local data.
-        Loc += blockSize;
-      }
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : EpetraBlockVector::EpetraBlockVector
 // Purpose       : view constructor
 // Special Notes : Memory management is assumed to be outside this constructor
 // Scope         : Public
@@ -307,6 +249,372 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
       Loc += blockSize;
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : cloneVector
+// Purpose       : vector clone function
+// Special Notes : clones shape, not values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* EpetraBlockVector::cloneVector() const
+{
+  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( pmap(), false ),
+                                                newBlockMap_, augmentCount_ );
+  return new_vec;
+}
+ 
+//-----------------------------------------------------------------------------
+// Function      : cloneCopyVector
+// Purpose       : vector clone function
+// Special Notes : clones shape and values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* EpetraBlockVector::cloneCopyVector() const
+{
+  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( pmap(), false ),
+                                                newBlockMap_, augmentCount_ );
+  *new_vec = *this;  
+
+  return new_vec;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::dotProduct
+// Purpose       : dot product
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+double EpetraBlockVector::dotProduct( const Vector & y ) const
+{
+  double result = 0.0;
+  epetraObj().Dot(y.epetraObj(), &result);
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::dotProduct
+// Purpose       : dot product 
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
+{
+  int ynum = y.numVectors();
+  for (int j=0; j<ynum; ++j)
+  {
+    epetraObj().Dot(*(y.epetraObj()(j)), &d[j]);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::lpNorm
+// Purpose       : Returns lp norms of each vector in MultiVector
+// Special Notes : Only p=1 and p=2 implemented now since this is all Petra
+//                 supports.
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/23/00
+//-----------------------------------------------------------------------------
+int EpetraBlockVector::lpNorm(const int p, double * result) const
+{ 
+  if (p == 1)
+    epetraObj().Norm1(result);
+  else if (p == 2)
+    epetraObj().Norm2(result);
+  else
+    Xyce::Report::DevelFatal0().in("EpetraBlockVector::lpNorm") << "Requested norm is not supported";
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::wRMSNorm
+// Purpose       : Returns weighted root-mean-square of each vector in
+//                 MultiVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 10/12/00
+//-----------------------------------------------------------------------------
+int EpetraBlockVector::wRMSNorm(const MultiVector & weights, double * result) const
+{
+  epetraObj().NormWeighted( weights.epetraObj(), result );
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::infNorm
+// Purpose       : Returns infinity norm of each blockVector
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
+// Creation Date : 01/16/01
+//-----------------------------------------------------------------------------
+int EpetraBlockVector::infNorm(double * result, int * index) const
+{
+  if (!index)
+  {
+    epetraObj().NormInf(result);
+  }
+  else
+  {
+    int numProcs = pdsComm()->numProc();
+    int numVecs = numVectors();
+    int myLength = localLength();
+    std::vector<int> indexTemp( numVecs, 0 ), indexTempAll( numVecs*numProcs, 0 );
+    std::vector<double> doubleTemp( numVecs, 0.0 ), doubleTempAll( numVecs*numProcs, 0.0 );
+    double ** pointers = epetraObj().Pointers();
+
+    for (int i=0; i < numVecs; i++)
+    {
+      indexTemp[i] = -1;
+      doubleTemp[i] = 0.0;
+      for (int j=0; j < myLength; j++)
+      {
+        double tmp = std::abs(pointers[i][j]);
+        if ( tmp > doubleTemp[i] )
+        {
+          doubleTemp[i] = tmp;
+          indexTemp[i] = j;
+        }
+      }
+      // Convert indexTemp from local to global ID
+      if (indexTemp[i] > -1)
+        indexTemp[i] = epetraObj().Map().GID(indexTemp[i]);
+    }
+
+    if (numProcs > 1)
+    {
+      // Use the communicator to gather all the local maximum values and indices
+      Parallel::AllGather( pdsComm()->comm(), indexTemp, indexTempAll );
+      Parallel::AllGather( pdsComm()->comm(), doubleTemp, doubleTempAll );
+
+      // Compute the global infNorm and index
+      for (int i=0; i < numVecs; i++)
+      {
+        result[i] = doubleTempAll[i];
+        index[i] = indexTempAll[i];
+        for (int j=1; j < numProcs; j++)
+        {
+          if ( doubleTempAll[j*numVecs + i] > result[i] )
+          {
+            result[i] = doubleTempAll[j*numVecs + i];
+            index[i] = indexTempAll[j*numVecs + i];
+          }
+        }
+      }
+    }
+    else
+    {
+      for (int i=0; i < numVecs; i++)
+      {
+        result[i] = doubleTemp[i];
+        index[i] = indexTemp[i];
+      }     
+    }
+  }
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::wMaxNorm
+// Purpose       : Returns the weighted inf-norm
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Computational Sciences
+// Creation Date : 03/19/01
+//-----------------------------------------------------------------------------
+int EpetraBlockVector::wMaxNorm(const MultiVector & weights, double * result) const
+{
+  int length  = localLength();
+  int numVecs = numVectors();
+  double tmpVal = 0.0;
+
+  for (int i = 0;  i < numVecs; ++i)
+  {
+    double localMax = 0.0;
+    if (length)
+    {
+      localMax = fabs(*(*this)(0,i)) / (*weights(0,i));
+      for (int j = 1; j < length; ++j)
+      {
+        tmpVal = fabs(*(*this)(j,i)) / (*weights(j,i));
+        if (tmpVal > localMax)
+          localMax = tmpVal;
+      }
+    }
+    // Determine global maximum.
+    pdsComm()->maxAll( &localMax, &(result[i]), 1 );
+  }
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::getElementByGlobalIndex
+// Purpose       : Get element from vector using global index.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 6/6/00
+//-----------------------------------------------------------------------------
+const double & EpetraBlockVector::getElementByGlobalIndex(
+  const int & global_index, const int & vec_index) const
+{
+  if( pmap() == NULL )
+    return epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ];
+  else
+  {
+    int i = pmap()->globalToLocalIndex(global_index);
+
+    if (i != -1)
+      return epetraObj()[vec_index][i];
+    else 
+    {
+      Xyce::Report::DevelFatal().in("getElementByGlobalIndex") 
+        << "Failed to find BlockVector global index: " << global_index;
+      return groundNode_;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::setElementByGlobalIndex
+// Purpose       : Set element from vector using global index.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 6/6/00
+//-----------------------------------------------------------------------------
+bool EpetraBlockVector::setElementByGlobalIndex(const int & global_index,
+                                                const double & val,
+                                                const int & vec_index)
+{
+  if( pmap() == NULL )
+    epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ] = val;
+  else
+  {
+    if (global_index != -1)
+    {
+      int i = pmap()->globalToLocalIndex(global_index);
+
+      if (i != -1)
+        epetraObj()[vec_index][i] = val;
+      else
+      {
+        Xyce::Report::DevelFatal().in("setElementByGlobalIndex") 
+          << "Failed to find BlockVector global index: " << global_index;
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::sumElementByGlobalIndex
+// Purpose       : Set element from vector using global index.
+// Special Notes :
+// Scope         : Public
+// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 6/7/00
+//-----------------------------------------------------------------------------
+bool EpetraBlockVector::sumElementByGlobalIndex(const int & global_index,
+                                                const double & val,
+                                                const int & vec_index)
+{ 
+  if( pmap() == NULL )
+    epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ] += val;
+  else
+  { 
+    if (global_index != -1 )
+    { 
+      int i = pmap()->globalToLocalIndex(global_index);
+      
+      if (i != -1)
+        epetraObj()[vec_index][i] += val;
+      else
+      { 
+        Report::DevelFatal() 
+          << " sumElementByGlobalIndex: failed to find BlockVector global index ";
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::writeToFile
+// Purpose       : Dumps out the multivector entries to a file.
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 06/19/00
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::writeToFile( const char * filename, bool useLIDs, bool mmFormat ) const
+{
+  int numProcs = pdsComm()->numProc();
+  int localRank = pdsComm()->procID();
+  int masterRank = 0;
+
+  if (!mmFormat)
+  {
+    for( int p = 0; p < numProcs; ++p )
+    {
+      //A barrier inside the loop so each processor waits its turn.
+      pdsComm()->barrier();
+
+      if(p == localRank)
+      {
+        FILE *file = NULL;
+
+        if(masterRank == localRank)
+        {
+          //This is the master processor, open a new file.
+          file = fopen(filename,"w");
+
+          //Write the dimension n into the file.
+          fprintf(file,"%d\n",globalLength());
+        }
+        else
+        {
+          //This is not the master proc, open file for appending
+          file = fopen(filename,"a");
+        }
+
+        //Now loop over the local portion of the block vector.
+        int length  = localLength();
+        int numVecs = numVectors();
+
+        for (int i = 0; i < numVecs; ++i)
+          for (int j = 0; j < length; ++j)
+          {
+            int loc = epetraObj().Map().GID(j);
+            if( useLIDs ) loc = j;
+            fprintf(file,"%d %d %20.13e\n",i,loc,epetraObj()[i][j]);
+          } 
+        fclose(file);
+      } 
+    } 
+  } 
+  else
+  {
+    EpetraExt::MultiVectorToMatrixMarketFile( filename, epetraObj() );
+  } 
 }
 
 //-----------------------------------------------------------------------------

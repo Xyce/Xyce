@@ -80,6 +80,8 @@ namespace Linear {
 MultiVector::MultiVector(const Parallel::ParMap & map, int numVectors)
 :  parallelMap_(&map),
    overlapMap_(&map),
+   aMultiVector_(0),
+   oMultiVector_(0),
    importer_(0),
    exporter_(0),
    viewTransform_(0),
@@ -121,6 +123,8 @@ MultiVector::MultiVector(
   int                   numVectors )
   : parallelMap_(&map),
     overlapMap_(&ol_map),
+    aMultiVector_(0),
+    oMultiVector_(0),
     importer_(0),
     exporter_(0),
     viewTransform_(0),
@@ -160,6 +164,7 @@ MultiVector::MultiVector(
 MultiVector::MultiVector( const MultiVector & right )
 : parallelMap_( right.parallelMap_ ),
   overlapMap_( right.overlapMap_ ),
+  aMultiVector_(0),
   oMultiVector_( new Epetra_MultiVector( *(right.oMultiVector_) ) ),
   importer_(0),
   exporter_(0),
@@ -202,6 +207,7 @@ MultiVector::MultiVector( const MultiVector & right )
 MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned )
 : parallelMap_(0),
   overlapMap_(0),
+  aMultiVector_(0),
   oMultiVector_( overlapMV ),
   importer_(0),
   exporter_(0),
