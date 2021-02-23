@@ -519,7 +519,7 @@ inline bool Instance::isConverged()
 //      newBreakPointTime_=t2+TD_;
 //      newBreakPoint_ = true;
     
-      if ( currentTime > t2 + TD_) 
+      if ( (currentTime - (t2 + TD_) ) > getSolverState().bpTol_ )
         converged = false;
     }
   } 
@@ -575,7 +575,9 @@ void Instance::acceptStep()
       // derivative changed dramatically, call it a discontinuity at t2
       // set a breakpoint if we have those enabled
       newBreakPointTime_=t2+TD_;
-      newBreakPoint_ = true;
+
+      if ( fabs(currentTime - newBreakPointTime_) > getSolverState().bpTol_ )
+        newBreakPoint_ = true;
     }   
   }   
 }
