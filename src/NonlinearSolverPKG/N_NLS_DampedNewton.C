@@ -1179,10 +1179,13 @@ int DampedNewton::converged_()
   if (nlParams.getEnforceDeviceConvFlag ()) 
   {
     bool allDevicesConverged_ = nonlinearEquationLoader_->allDevicesConverged(pdsMgrPtr_->getPDSComm()->comm());
-    if (!allDevicesConverged_ && (nlStep_ < nlParams.getMaxNewtonStep() ))
+    if (!allDevicesConverged_ && (nlStep_ <= nlParams.getMaxNewtonStep() ))
     {
       return 0;
     }
+    
+    if (!allDevicesConverged_ && (nlStep_ > nlParams.getMaxNewtonStep() ))
+      return retCodes_.tooManySteps;
   }
 
   // This test is for 2-level solves ONLY.
