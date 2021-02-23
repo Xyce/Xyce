@@ -590,9 +590,9 @@ bool HB::doLoopProcess()
   }
 
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  *(dsPtr->nextSolutionPtr) = *(HBICVectorFreqPtr_.get());
-  *(dsPtr->nextStatePtr) = *(HBICStateVectorPtr_.get());
-  *(dsPtr->nextStorePtr) = *(HBICStoreVectorPtr_.get());
+  *(dsPtr->nextSolutionPtr) = *(HBICVectorFreqPtr_);
+  *(dsPtr->nextStatePtr) = *(HBICStateVectorPtr_);
+  *(dsPtr->nextStorePtr) = *(HBICStoreVectorPtr_);
 
   // try to run the problem
   {
@@ -2015,10 +2015,10 @@ HB::runTransientIC()
 
   // Initial conditions will be set if startup periods were run.
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  *(dsPtr->nextSolutionPtr) = *(dcOpSolVecPtr_.get());
-  *(dsPtr->nextStatePtr) = *(dcOpStateVecPtr_.get());
-  *(dsPtr->daeQVectorPtr) = *(dcOpQVecPtr_.get());
-  *(dsPtr->nextStorePtr) = *(dcOpStoreVecPtr_.get());
+  *(dsPtr->nextSolutionPtr) = *(dcOpSolVecPtr_);
+  *(dsPtr->nextStatePtr) = *(dcOpStateVecPtr_);
+  *(dsPtr->daeQVectorPtr) = *(dcOpQVecPtr_);
+  *(dsPtr->nextStorePtr) = *(dcOpStoreVecPtr_);
 
   // Create a transient analysis object for this section.
   {
