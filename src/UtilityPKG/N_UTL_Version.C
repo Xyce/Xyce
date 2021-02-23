@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -265,18 +265,18 @@ std::string Version::getLicense()
 #ifdef Xyce_RAD_MODELS
   License += "\n EXPORT CONTROLLED SOFTWARE\n";
   License += "\n";
-  License += " Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
-  License += " LLC (NTESS).  Under the terms of Contract DE-NA0003525 with NTESS,\n";
-  License += " there is a non-exclusive license for use of this work by or on behalf\n";
-  License += " of the U.S. Government.  Export of this data may require a license\n";
-  License += " from the United States Government.\n";
+  License += " Copyright 2002-2021 National Technology & Engineering Solutions of\n";
+  License += " Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with\n";
+  License += " NTESS, there is a non-exclusive license for use of this work by or\n";
+  License += " on behalf of the U.S. Government.  Export of this data may require\n";
+  License += " a license from the United States Government.\n";
 
 #elif defined Xyce_NONFREE_MODELS
-  License += "\n Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
-  License += " LLC (NTESS).  Under the terms of Contract DE-NA0003525 with NTESS,\n";
-  License += " there is a non-exclusive license for use of this work by or on behalf\n";
-  License += " of the U.S. Government.  Export of this data may require a license\n";
-  License += " from the United States Government.\n";
+  License += "\n Copyright 2020-2021 National Technology & Engineering Solutions of\n";
+  License += " Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with\n";
+  License += " NTESS, there is a non-exclusive license for use of this work by or\n";
+  License += " on behalf of the U.S. Government.  Export of this data may require\n";
+  License += " a license from the United States Government.\n";
   License += "\n";
   License += " NOTICE:\n";
   License += " For five (5) years from 6/17/2020, the United States Government is\n";
@@ -309,9 +309,9 @@ std::string Version::getLicense()
 #else
 
   License +="\n Xyce(TM) Parallel Electrical Simulator\n";
-  License +=" Copyright 2020 National Technology & Engineering Solutions of Sandia,\n";
-  License +=" LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the\n";
-  License +=" U.S. Government retains certain rights in this software.\n";
+  License +=" Copyright 2002-2021 National Technology & Engineering Solutions of\n";
+  License +=" Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with\n";
+  License +=" NTESS, the U.S. Government retains certain rights in this software.\n";
   License +="\n";
   License +=" This program is free software: you can redistribute it and/or modify\n";
   License +=" it under the terms of the GNU General Public License as published by\n";
