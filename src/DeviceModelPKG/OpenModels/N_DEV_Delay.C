@@ -475,6 +475,61 @@ bool Instance::updateIntermediateVars ()
 
 
 //-----------------------------------------------------------------------------
+// Function      : Instance:isConverged ()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/22/08
+//-----------------------------------------------------------------------------
+
+inline bool Instance::isConverged()
+{ 
+
+  bool converged = true;
+
+  if ((!getSolverState().dcopFlag) && !(getSolverState().initTranFlag_ &&  getSolverState().newtonIter == 0 ))
+  { 
+    double currentTime = getSolverState().currTime_;
+    double currentDeltaV;
+    double d1, d2; // derivatives in history
+    Linear::Vector *theSolVectorPtr = extData.nextSolVectorPtr;
+    std::vector<History>::iterator last = history_.end();
+//    last--;
+    currentDeltaV = (*theSolVectorPtr)[li_ContPos]- (*theSolVectorPtr)[li_ContNeg];
+//    history_.push_back(History(currentTime,currentDeltaV));
+
+//    last = history_.end();
+//    last--;
+    double t3=currentTime;
+    double v3=currentDeltaV;
+    last--;
+    double t2=last->t_;
+    double v2=last->v_;
+    last--;
+    double t1=last->t_;
+    double v1=last->v_;
+    d1 = (v3-v2)/(t3-t2);
+    d2 = (v2-v1)/(t2-t1);
+//    newBreakPoint_=false;
+    if ((fabs(d1-d2) >= .99*std::max(fabs(d1),fabs(d2))+1))
+    {
+      // derivative changed dramatically, call it a discontinuity at t2
+      //       // set a breakpoint if we have those enabled
+//      newBreakPointTime_=t2+TD_;
+//      newBreakPoint_ = true;
+    
+      if ( currentTime > t2 + TD_) 
+        converged = false;
+    }
+  } 
+ 
+  return converged;
+
+//  return (!limitedFlag && (getSolverState().newtonIter > 1));
+} 
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::acceptStep
 // Purpose       : This function saves the value of the control voltage drop
 //                 at the current accepted time.  It is to be called ONLY at the
@@ -521,8 +576,8 @@ void Instance::acceptStep()
       // set a breakpoint if we have those enabled
       newBreakPointTime_=t2+TD_;
       newBreakPoint_ = true;
-    }
-  }
+    }   
+  }   
 }
 
 //-----------------------------------------------------------------------------
@@ -534,6 +589,7 @@ void Instance::acceptStep()
 //-----------------------------------------------------------------------------
 bool Instance::getInstanceBreakPoints ( std::vector<Util::BreakPoint> & breakPointTimes )
 {
+
   bool bsuccess = true;
   double currentTime = getSolverState().currTime_;
   int timeStep = getSolverState().timeStepNumber_;

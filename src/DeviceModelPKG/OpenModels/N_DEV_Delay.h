@@ -137,6 +137,8 @@ public:
   DeviceState * getInternalState();
   bool setInternalState( const DeviceState & state );
 
+  bool isConverged();
+
 private:
   bool interpVoltageFromHistory_(double t, double & voltage,
                                 const double currentT, const double currentV);
@@ -197,6 +199,8 @@ private:
   bool useExtrapolation_;
   bool useOnlyLinearInterpolation_;
   bool lastInterpolationConverged_;  //< True if interpolation obtained solely from converged history
+
+//  double oldStopTime_;
 
   double v_drop_;
 };
