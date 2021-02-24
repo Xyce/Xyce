@@ -303,7 +303,7 @@ bool FFTFind::isOpTypeAllowed()
 //-----------------------------------------------------------------------------
 double FFTFind::getMeasureResult()
 {
-  if (fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
+  if (fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
   {
     initialized_ = true;
 
@@ -336,7 +336,7 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
 
-    if (initialized_ && fftAnalysisPtr_->isCalculated())
+    if (initialized_)
     {
       os << name_ << " = " << this->getMeasureResult()
          << " at " <<  atRounded_ << " Hz (rounded from " << at_ << " Hz)" << std::endl;
@@ -384,7 +384,7 @@ void ENOB::reset()
 //-----------------------------------------------------------------------------
 double ENOB::getMeasureResult()
 {
-  if( fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getENOB();
@@ -427,7 +427,7 @@ void SFDR::reset()
 //-----------------------------------------------------------------------------
 double SFDR::getMeasureResult()
 {
-  if ( fftAnalysisPtr_->isCalculated() )
+  if ( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSFDR();
@@ -470,7 +470,7 @@ void SNDR::reset()
 //-----------------------------------------------------------------------------
 double SNDR::getMeasureResult()
 {
-  if( fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSNDR();
@@ -513,7 +513,7 @@ void SNR::reset()
 //-----------------------------------------------------------------------------
 double SNR::getMeasureResult()
 {
-  if( fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->getSNR();
@@ -556,7 +556,7 @@ void THD::reset()
 //-----------------------------------------------------------------------------
 double THD::getMeasureResult()
 {
-  if( fftAnalysisPtr_->isCalculated() )
+  if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
     double thd=0;

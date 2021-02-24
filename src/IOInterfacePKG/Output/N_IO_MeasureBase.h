@@ -244,8 +244,9 @@ public:
 
     // allows measureManager to access an individual measure's name and mode (e.g., AC, DC or TRAN), 
     // mainly for the purposes of error checking and reporting.
-    std::string getMeasureName() { return name_; }
-    std::string getMeasureMode() { return mode_;}
+    std::string getMeasureName() const { return name_; }
+    std::string getMeasureMode() const { return mode_;}
+    std::string getMeasureType() const { return mode_;}
 
     const Manager & measureMgr_;
 

@@ -406,52 +406,59 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
-  if (fft_accurate_ && (circuitTime == 0.0))
-    addSampleTimeBreakpoints();
-
-  // Save the time values, if interpolation is used.
-  if (!fft_accurate_ && !outputVars_.empty())
-    time_.push_back(circuitTime);
-
-  int vecIndex = 0;
-  for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
+  if (!calculated_)
   {
-    double retVal = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, 0, stateVec, storeVec, 0,
-                             lead_current_vector, 0, junction_voltage_vector, 0)).real();
-    if (!fft_accurate_)
+    if (fft_accurate_ && (circuitTime == 0.0))
+      addSampleTimeBreakpoints();
+
+    // Save the time values, if interpolation is used.
+    if (!fft_accurate_ && !outputVars_.empty())
+      time_.push_back(circuitTime);
+
+    int vecIndex = 0;
+    for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
     {
-      // save all of the output var values, if interpolation is used.
-      outputVarValues_.push_back(retVal);
-    }
-    else
-    {
-      // only save the values at the breakpoints, set at the specified sample times.
-      if ( (sampleIdx_ < np_) &&
-           (abs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
+      double retVal = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, 0, stateVec, storeVec, 0,
+                               lead_current_vector, 0, junction_voltage_vector, 0)).real();
+      if (!fft_accurate_)
       {
-        sampleValues_[sampleIdx_] = retVal;
-        sampleIdx_++;
+        // save all of the output var values, if interpolation is used.
+        outputVarValues_.push_back(retVal);
       }
+      else
+      {
+        // only save the values at the breakpoints, set at the specified sample times.
+        if ( (sampleIdx_ < np_) &&
+             (abs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
+        {
+          sampleValues_[sampleIdx_] = retVal;
+          sampleIdx_++;
+        }
+      }
+
+      vecIndex++;
     }
 
-    vecIndex++;
+    // calcuate the FFT (and related metrics) as soon as possible, so that FFT measures work
+    // within EQN measures
+    if ( (circuitTime >= stopTime_) ||
+         (fft_accurate_ && (abs(circuitTime - stopTime_) <= secPtr_->getBreakPointEqualTolerance())) )
+      calculateResults_();
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::outputResults
-// Purpose       : Output results for this FFT Analysis at end of simulation
+// Function      : FFTAnalysis::calculateResults_
+// Purpose       : Calculate results for this FFT Analysis
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::outputResults(std::ostream& outputStream)
+void FFTAnalysis::calculateResults_()
 {
   // Only calculate something if a .fft line was encountered and transient data was collected.
-  int numOutVars = outputVars_.size();
-
-  if ( (numOutVars>0) && !calculated_ )
+  if ( !outputVars_.empty())
   {
     // Calculate the fft coefficients for the given output variable.
     if (!fft_accurate_ && !time_.empty())
@@ -472,9 +479,6 @@ void FFTAnalysis::outputResults(std::ostream& outputStream)
     calculateFFT_();
     calculated_ = true;
   }
-
-  // Output the information to the outputStream
-  printResult_( outputStream );
 }
 
 //-----------------------------------------------------------------------------
@@ -754,6 +758,22 @@ void FFTAnalysis::calculateTHD_()
   thd_ = sqrt(thd_)/mag_[fhIdx_];
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::outputResults
+// Purpose       : Output results for this FFT Analysis at end of simulation
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/4/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::outputResults( std::ostream& outputStream )
+{
+  if (!calculated_)
+    calculateResults_();
+
+  printResult_( outputStream );
 }
 
 //-----------------------------------------------------------------------------

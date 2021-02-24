@@ -126,6 +126,7 @@ public:
   double getTHD() const {return thd_;}
 
 private:
+  void calculateResults_();
   bool interpolateData_();
   bool applyWindowFunction_();
 

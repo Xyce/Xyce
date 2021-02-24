@@ -50,9 +50,14 @@ EquationEvaluation::EquationEvaluation(const Manager &measureMgr, const Util::Op
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
+  type_ = "EQN";  // change "PARAM" to "EQN"
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
+
+  // change FFT mode EQN/PARAM measure to be a TRAN mode one
+  if (mode_ == "FFT")
+    mode_ = "TRAN";
 }
 
 //-----------------------------------------------------------------------------

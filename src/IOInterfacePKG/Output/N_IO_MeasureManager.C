@@ -434,7 +434,9 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
 //-----------------------------------------------------------------------------
 // Function      : Manager::fixupFFTMeasures
 // Purpose       : Used to associate .MEASURE FFT lines with their .FFT line
-// Special Notes :
+// Special Notes : This function is not used for EQN/PARAM measures, which are
+//                 treated like a TRAN mode measure even if entered on a
+//                 .MEASURE FFT line.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 01/18/2021
@@ -449,7 +451,7 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
     // loop over all measure objects
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
     {
-      if ((*it)->getMeasureMode() == "FFT")
+      if ( ((*it)->getMeasureMode() == "FFT")  && ((*it)->getMeasureType() != "EQN") )
       {
         if (FFTAnalysisList.size() == 0)
         {
@@ -460,7 +462,7 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
           Util::Op::OpList::const_iterator ov_it = (*it)->getOutputVars()->begin();
 	  std::string measureVarName = (*ov_it)->getName();
           // Need to adjust measure name, if it is an operator like VR(1), to remove the 'R'.
-          // This is need to make FIND measures work.
+          // This is needed to make FIND measures work.
           size_t parenIdx = measureVarName.find_first_of('(');
           if ((measureVarName[0] != '{') && (parenIdx != 1))
             measureVarName = measureVarName[0] + measureVarName.substr(parenIdx);
@@ -1099,10 +1101,10 @@ void Manager::remeasure(
         }
         prevIndepVar = remeasureObj->getIndepVar(); 
 
-        // update each measure and FFT analysis object
-        remeasureObj->updateMeasures(varValuesVec);
+        // update each FFT analysis object, and then each measure
         fft_manager.updateFFTData(pds_comm.comm(), remeasureObj->getIndepVar(),
                                   &varValuesVec, 0, 0, &varValuesVec, 0, 0);
+        remeasureObj->updateMeasures(varValuesVec);
 
         // Update the Sweep Vector.  This is currently only used by DC remeasure.
         remeasureObj->updateSweepVars();  
@@ -1453,8 +1455,11 @@ extractMEASUREData(
   typeSetDc.insert( std::string("RMS") );
   typeSetDc.insert( std::string("WHEN") );
 
+  // allowed types for the FFT mode
   typeSetFft.insert( std::string("ENOB") );
+  typeSetFft.insert( std::string("EQN") );
   typeSetFft.insert( std::string("FIND") );
+  typeSetFft.insert( std::string("PARAM") );
   typeSetFft.insert( std::string("SFDR") );
   typeSetFft.insert( std::string("SNDR") );
   typeSetFft.insert( std::string("SNR") );
@@ -1681,7 +1686,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, FIND, SDFR, SNDR, SNR and THD "
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, EQN/PARAM, FIND, SDFR, SNDR, SNR and THD "
 	 << "measure types are supported for FFT measure mode";
       return false;
     }
@@ -1985,7 +1990,7 @@ extractMEASUREData(
         // mistake PAR for P(), and to properly handle the INOISE operator.
         if( ( (nextWord[0] == 'I' && nextWord != "INOISE") || nextWord[0] == 'V' || nextWord[0] == 'N'
              || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'D' || nextWord[0] == 'S' ||
-             nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
+	     nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
             (simpleKeywords.find( nextWord ) == simpleKeywords.end()) )
         {
           // need to do a bit of look ahead here to see if this is a V(a) or V(a,b)
