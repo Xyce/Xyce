@@ -676,6 +676,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 %token TOK_PHASE	"phase"
 %token TOK_REAL	"real"
 %token TOK_IMAG	"imag"
+%token TOK_DB  	"db"
 %token TOK_EXP	"exp"
 %token TOK_EXP_CONST	"exp_const"
 %token TOK_SIN	"sin"
@@ -1220,6 +1221,17 @@ exp:
   | TOK_IMAG exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>($2));
+      $$ = tmpPtr;
+    }
+  | TOK_DB exp TOK_RIGHTPAREN
+    {
+      //Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>($2));
+      //$$ = tmpPtr;
+      // this needs to implement 20.0*std::log10(abs($2))  
+      Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+      Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
       $$ = tmpPtr;
     }
   | TOK_SQRT exp TOK_RIGHTPAREN

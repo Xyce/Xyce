@@ -857,6 +857,46 @@ TEST ( Complex_Parser_Test, complexOps_ABSop)
   EXPECT_EQ( result, std::abs(std::complex<double>(2.0,3.0)));
 }
 
+TEST ( Complex_Parser_Test, complexOps_DBop)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("db(i(vb))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, VBval=std::complex<double>(3.0,2.0);
+  double refRes = 20.0*std::log10(std::abs(VBval)); 
+  solnGroup->setSoln(std::string("vb"),VBval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+}
+
+TEST ( Complex_Parser_Test, complexOps_DBop2)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("db((2.0+3.0J))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0;
+  double refRes = 20.0*std::log10(std::abs(std::complex<double>(2.0,3.0))); 
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+}
 // binary operators
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryAdd, "(1.0+2.0J)+(3.0+4.0J)", (std::complex<double>(1.0,2.0)+std::complex<double>(3.0,4.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryMinus, "(1.0+2.0J)-(3.0+4.0J)", (std::complex<double>(1.0,2.0)-std::complex<double>(3.0,4.0)))

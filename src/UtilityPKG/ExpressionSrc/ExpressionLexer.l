@@ -507,6 +507,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"Re"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
  /* <INITIAL>"Im"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */
 <INITIAL>"Img"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
+<INITIAL>"Db"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_DB; }
 
 <INITIAL>"max"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MAX; }
 <INITIAL>"min"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MIN; }
