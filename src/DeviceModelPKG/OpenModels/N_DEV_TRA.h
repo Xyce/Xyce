@@ -125,6 +125,8 @@ public:
   DeviceState * getInternalState();
   bool setInternalState( const DeviceState & state );
 
+  bool isConverged();
+
 private:
   void pruneHistory(double t);
   void InterpV1V2FromHistory(double t, double * v1p , double * v2p);
