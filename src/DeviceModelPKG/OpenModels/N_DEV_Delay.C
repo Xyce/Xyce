@@ -283,8 +283,8 @@ void Instance::registerStoreLIDs( const std::vector<int> & stoLIDVecRef )
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerBranchDataLIDs
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         : public
 // Creator       : Tom Russo
 // Creation Date : 17 Nov 2020
@@ -484,12 +484,12 @@ bool Instance::updateIntermediateVars ()
 //-----------------------------------------------------------------------------
 
 inline bool Instance::isConverged()
-{ 
+{
 
   bool converged = true;
 
   if ((!getSolverState().dcopFlag) && !(getSolverState().initTranFlag_ &&  getSolverState().newtonIter == 0 ))
-  { 
+  {
     double currentTime = getSolverState().currTime_;
     double currentDeltaV;
     double d1, d2; // derivatives in history
@@ -518,16 +518,16 @@ inline bool Instance::isConverged()
       //       // set a breakpoint if we have those enabled
 //      newBreakPointTime_=t2+TD_;
 //      newBreakPoint_ = true;
-    
+
       if ( (currentTime - (t2 + TD_) ) > getSolverState().bpTol_ )
         converged = false;
     }
-  } 
- 
+  }
+
   return converged;
 
 //  return (!limitedFlag && (getSolverState().newtonIter > 1));
-} 
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::acceptStep
@@ -578,8 +578,8 @@ void Instance::acceptStep()
 
       if ( fabs(currentTime - newBreakPointTime_) > getSolverState().bpTol_ )
         newBreakPoint_ = true;
-    }   
-  }   
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -658,7 +658,7 @@ bool Instance::loadDAEFVector ()
     double * leadF = extData.nextLeadCurrFCompRawPtr;
     leadF[li_branch_data] = i_bra;
     double * junctionV = extData.nextJunctionVCompRawPtr;
-    junctionV[li_branch_data] = src; 
+    junctionV[li_branch_data] = src;
   }
 
   return true;
@@ -918,7 +918,7 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
 
 //-----------------------------------------------------------------------------
 // Function      : Model::forEachInstance
-// Purpose       : 
+// Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Tom Russo
@@ -926,11 +926,11 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
 //-----------------------------------------------------------------------------
 /// Apply a device instance "op" to all instances associated with this
 /// model
-/// 
+///
 /// @param[in] op Operator to apply to all instances.
-/// 
-/// 
-void Model::forEachInstance(DeviceInstanceOp &op) const /* override */ 
+///
+///
+void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 {
   for (std::vector<Instance *>::const_iterator it = instanceContainer.begin(); it != instanceContainer.end(); ++it)
     op(*it);

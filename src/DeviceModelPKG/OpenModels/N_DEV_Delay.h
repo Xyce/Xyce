@@ -146,7 +146,7 @@ private:
 public:
   // iterator reference to the vcvs model which owns this instance.
   // Getters and setters
-  Model &getModel() 
+  Model &getModel()
   {
     return model_;
   }
@@ -261,19 +261,19 @@ public:
 
   virtual std::ostream &printOutInstances(std::ostream &os) const;
 
-  virtual bool processParams() 
+  virtual bool processParams()
   {
     return true;
   }
 
-  virtual bool processInstanceParams() 
+  virtual bool processInstanceParams()
   {
     return true;
   }
 
 
 public:
-  void addInstance(Instance *instance) 
+  void addInstance(Instance *instance)
   {
     instanceContainer.push_back(instance);
   }
