@@ -1852,6 +1852,13 @@ bool Transient::doProcessSuccessfulStep()
   analysisManager_.getStepErrorControl().updateMinTimeStep();
   analysisManager_.getStepErrorControl().updateBreakPoints(loader_, tiaParams_.initialTime);
 
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
+
   if (VERBOSE_TIME && isActive(Diag::TIME_PARAMETERS))
     dout() << "Transient Analysis:  accepting time step" << std::endl;
 
