@@ -495,12 +495,8 @@ inline bool Instance::isConverged()
     double d1, d2; // derivatives in history
     Linear::Vector *theSolVectorPtr = extData.nextSolVectorPtr;
     std::vector<History>::iterator last = history_.end();
-//    last--;
     currentDeltaV = (*theSolVectorPtr)[li_ContPos]- (*theSolVectorPtr)[li_ContNeg];
-//    history_.push_back(History(currentTime,currentDeltaV));
 
-//    last = history_.end();
-//    last--;
     double t3=currentTime;
     double v3=currentDeltaV;
     last--;
@@ -511,13 +507,9 @@ inline bool Instance::isConverged()
     double v1=last->v_;
     d1 = (v3-v2)/(t3-t2);
     d2 = (v2-v1)/(t2-t1);
-//    newBreakPoint_=false;
+
     if ((fabs(d1-d2) >= .99*std::max(fabs(d1),fabs(d2))+1))
     {
-      // derivative changed dramatically, call it a discontinuity at t2
-      //       // set a breakpoint if we have those enabled
-//      newBreakPointTime_=t2+TD_;
-//      newBreakPoint_ = true;
 
       if ( (currentTime - (t2 + TD_) ) > getSolverState().bpTol_ )
         converged = false;
@@ -526,7 +518,6 @@ inline bool Instance::isConverged()
 
   return converged;
 
-//  return (!limitedFlag && (getSolverState().newtonIter > 1));
 }
 
 //-----------------------------------------------------------------------------
