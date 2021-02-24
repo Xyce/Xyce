@@ -2283,6 +2283,8 @@ void OneStep::completeStep(const TIAParams &tia_params)
       sec.nextTime = nextTimePt;
     }
   }
+  else if (sec.stopTime < sec.currentTime)
+    Xyce::Report::UserWarning() << "Current time exceeds stop time!";
 
   if (DEBUG_TIME && isActive(Diag::TIME_STEP))
   {
