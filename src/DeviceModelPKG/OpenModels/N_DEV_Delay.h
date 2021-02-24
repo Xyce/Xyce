@@ -200,8 +200,6 @@ private:
   bool useOnlyLinearInterpolation_;
   bool lastInterpolationConverged_;  //< True if interpolation obtained solely from converged history
 
-//  double oldStopTime_;
-
   double v_drop_;
 };
 
