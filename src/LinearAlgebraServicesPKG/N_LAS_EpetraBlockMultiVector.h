@@ -70,6 +70,7 @@ class EpetraBlockMultiVector : public BlockMultiVector
 
   // Assignment operator
   BlockMultiVector& operator=(const BlockMultiVector& right);
+  BlockMultiVector& operator=(const MultiVector& right);
 
   // Index operator
   double * operator() (int row_lid, int col_lid)

@@ -82,7 +82,8 @@ class EpetraBlockVector : public BlockVector
   virtual ~EpetraBlockVector() {};
 
   // Assignment operator
-  EpetraBlockVector & operator=(const EpetraBlockVector & right);
+  BlockVector & operator=(const BlockVector & right);
+  BlockVector & operator=(const Vector & right);
 
   // Clone operations:
   Vector* cloneVector() const;

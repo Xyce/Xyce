@@ -49,6 +49,7 @@
 #include <N_PDS_EpetraParMap.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_UTL_FeatureTest.h>
 
 #include <N_ERH_ErrorMgr.h>
 
@@ -174,9 +175,47 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-EpetraBlockVector & EpetraBlockVector::operator=( const EpetraBlockVector & right )
+BlockVector & EpetraBlockVector::operator=( const BlockVector & right )
 {
-  BlockVector::operator=( right ); 
+  const EpetraBlockVector* e_right = dynamic_cast<const EpetraBlockVector *>( &right );
+  if ( (this != e_right) && globalLength() )
+  {
+    if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
+    {
+      epetraObj() = e_right->epetraObj();
+    }
+    else
+    {
+      if (VERBOSE_LINEAR)
+        Report::DevelFatal0() <<"BlockVector being assigned with different map";
+    }
+  }
+
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::operator=
+// Purpose       : assignment
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
+BlockVector & EpetraBlockVector::operator=(const Vector & right)
+{
+  if( (this != &right) && globalLength() )
+  {
+    if ( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
+    {
+      epetraObj() = right.epetraObj();
+    }
+    else
+    {
+      if (VERBOSE_LINEAR)
+        Report::DevelFatal0() <<"BlockVector being assigned with different map";
+    }
+  }
 
   return *this;
 }

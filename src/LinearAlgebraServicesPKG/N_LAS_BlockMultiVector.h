@@ -63,6 +63,10 @@ class BlockMultiVector : public MultiVector
   // Destructor
   virtual ~BlockMultiVector() {};
 
+  // Assignment operator
+  virtual BlockMultiVector& operator=(const BlockMultiVector& right) = 0;
+  virtual BlockMultiVector& operator=(const MultiVector& right) = 0;
+
   // Block accessors
   virtual MultiVector & block( int Loc ) const = 0;
 

@@ -203,7 +203,7 @@ EpetraBlockMultiVector::EpetraBlockMultiVector( const EpetraBlockMultiVector & r
 BlockMultiVector& EpetraBlockMultiVector::operator=( const BlockMultiVector & right )
 {
   //const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
-  if ((this != &right) && (&right!=NULL))
+  if ((this != &right) && globalLength())
   {
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     { 
@@ -212,7 +212,34 @@ BlockMultiVector& EpetraBlockMultiVector::operator=( const BlockMultiVector & ri
     else
     {
       if (VERBOSE_LINEAR)
-        Report::DevelFatal0() <<"BlockMultiVector being assigned with different mapping";
+        Report::DevelFatal0() <<"BlockMultiVector being assigned with different map";
+    }
+  }
+
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockMultiVector::operator=
+// Purpose       : assignment
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
+BlockMultiVector& EpetraBlockMultiVector::operator=( const MultiVector & right )
+{
+  //const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
+  if ((this != &right) && globalLength())
+  {
+    if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
+    {
+      *aMultiVector_ = right.epetraObj();
+    }
+    else
+    {
+      if (VERBOSE_LINEAR)
+        Report::DevelFatal0() <<"BlockMultiVector being assigned with different map";
     }
   }
 

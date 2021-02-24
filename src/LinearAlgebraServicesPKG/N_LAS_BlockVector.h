@@ -72,11 +72,8 @@ class BlockVector : public Vector
   virtual ~BlockVector() {}
 
   // Assignment operator
-  virtual BlockVector & operator=(const BlockVector & right)
-  { 
-    Vector::operator=( right );
-    return *this;
-  }
+  virtual BlockVector & operator=(const BlockVector & right) = 0;
+  virtual BlockVector & operator=(const Vector & right) = 0;
 
   // Block accessors
   virtual Vector & block( int Loc ) const = 0;

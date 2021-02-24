@@ -267,7 +267,7 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
 //-----------------------------------------------------------------------------
 MultiVector & MultiVector::operator=( const MultiVector & right )
 {
-  if (this != &right)
+  if ( (this != &right) && globalLength() )
   {
     if( (oMultiVector_->Map().NumGlobalElements() == right.oMultiVector_->Map().NumGlobalElements())
         && (oMultiVector_->Map().NumMyElements() == right.oMultiVector_->Map().NumMyElements()) )
@@ -275,15 +275,14 @@ MultiVector & MultiVector::operator=( const MultiVector & right )
       *oMultiVector_ = *right.oMultiVector_;
     }
 
-    if( (aMultiVector_->Map().NumGlobalElements() == right.aMultiVector_->Map().NumGlobalElements())
-        && (aMultiVector_->Map().NumMyElements() == right.aMultiVector_->Map().NumMyElements()) )
+    if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     {
       *aMultiVector_ = *right.aMultiVector_;
     }
     else
     {
       if (VERBOSE_LINEAR)
-        Report::DevelFatal0() <<"MultiVector being assigned with different Mapping";
+        Report::DevelFatal0() <<"MultiVector being assigned with different map";
     }
   }
 

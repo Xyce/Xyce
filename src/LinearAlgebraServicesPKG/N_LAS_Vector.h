@@ -82,6 +82,12 @@ public:
   // Destructor
   virtual ~Vector() {}
 
+  virtual Vector& operator=( const Vector& right )
+  {
+    MultiVector::operator=(right);
+    return *this;
+  }
+
   // Clone operation:
   virtual Vector* cloneVector() const;
 
