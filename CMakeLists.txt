@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
 
 option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?")

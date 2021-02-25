@@ -2,6 +2,7 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 include(CheckIncludeFileCXX)
 include(CheckCXXSymbolExists)
+include(CheckCXXSourceCompiles)
 include(cmake/feature_modes.cmake)
 include(cmake/tps.cmake)
 include(cmake/check_include_file_cxx.cmake)
