@@ -485,7 +485,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   int first = bVf->startBlock();
 
   Teuchos::RCP<const Linear::Vector> Vf_overlap;
-  Linear::Vector freqDFDXtVf( *(hbBuilderPtr_->getSolutionMap()) );
+  Teuchos::RCP<Linear::Vector> freqDFDXtVf = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()) ) );
   if ( overlapMap_ != Teuchos::null )
   {
     Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
@@ -519,12 +519,12 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
       }
       for (unsigned j = 0; j < freqFVector.size(); j++)
       {
-        freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*i] = freqFVector[j].val.real();
-        freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*i+1] = freqFVector[j].val.imag();
+        (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*i] = freqFVector[j].val.real();
+        (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*i+1] = freqFVector[j].val.imag();
         if (i > 0)
         {
-          freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*(numharms-i)] = freqFVector[j].val.real();
-          freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*(numharms-i)+1] = -freqFVector[j].val.imag();
+          (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*(numharms-i)] = freqFVector[j].val.real();
+          (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*(numharms-i)+1] = -freqFVector[j].val.imag();
         } 
       }
     }
@@ -534,7 +534,7 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   // NOTE: update will add the assembled vector from freqDFDXtVf to 
   //       the underlying multivector of permlindFdxV, which all blocks
   //       view.
-  permlindFdxV.update( 1.0, freqDFDXtVf, 0.0 );
+  permlindFdxV.update( 1.0, *freqDFDXtVf, 0.0 );
 
   if ( !linAppdQdxPtr_->isEmpty() || !linAppdFdxPtr_->isEmpty())
   {
@@ -662,10 +662,11 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
   bXtPtr_->putScalar(0.0);
 
-  Linear::Vector Xf_overlap( *(hbBuilderPtr_->getSolutionMap()), 
-                             *(hbBuilderPtr_->getSolutionOverlapMap()) );
-  Xf_overlap = *Xf;
-  Xf_overlap.importOverlap();
+  Teuchos::RCP<Linear::Vector> Xf_overlap =
+    Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), 
+                                              *(hbBuilderPtr_->getSolutionOverlapMap()) ) );
+  *Xf_overlap = *Xf;
+  Xf_overlap->importOverlap();
 
   Linear::BlockVector & bXf = *dynamic_cast<Linear::BlockVector*>(Xf);
   permutedIFT(bXf, &*bXtPtr_);
@@ -907,7 +908,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       std::vector< std::complex<double> > Xf_complex( localOverlapGndN );
       for (int nB = 0; nB < localOverlapGndN+indexBase; nB++)
       {
-        std::complex<double> val( Xf_overlap[nB*2*BlockCount + 2*i], Xf_overlap[nB*2*BlockCount + 2*i+1] );
+        std::complex<double> val( (*Xf_overlap)[nB*2*BlockCount + 2*i], (*Xf_overlap)[nB*2*BlockCount + 2*i+1] );
         Xf_complex[nB] = val;
       }
       if (indexBase == -1)
@@ -1672,7 +1673,7 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
                                       Teuchos::RCP<Linear::BlockVector>& blockVector )
 {
   int numharms = bVtPtr_->blockCount();
-  Linear::Vector freqB( *(hbBuilderPtr_->getSolutionMap()) );
+  Teuchos::RCP<Linear::Vector> freqB = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()) ) );
 
   int myProc = appVecPtr_->pmap()->pdsComm().procID();
   int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
@@ -1766,12 +1767,12 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
         std::vector<int>::iterator it = std::find(offProcBVecLIDs_.begin(),offProcBVecLIDs_.end(),currEntry.lid);
         if ( it  == offProcBVecLIDs_.end() )
         {
-          freqB[currEntry.lid*2*numharms + 2*i] += currEntry.val.real();
-          freqB[currEntry.lid*2*numharms + 2*i+1] += currEntry.val.imag();
+          (*freqB)[currEntry.lid*2*numharms + 2*i] += currEntry.val.real();
+          (*freqB)[currEntry.lid*2*numharms + 2*i+1] += currEntry.val.imag();
           if (i > 0)
           {
-            freqB[currEntry.lid*2*numharms + 2*(numharms-i)] += currEntry.val.real();
-            freqB[currEntry.lid*2*numharms + 2*(numharms-i)+1] += -currEntry.val.imag();
+            (*freqB)[currEntry.lid*2*numharms + 2*(numharms-i)] += currEntry.val.real();
+            (*freqB)[currEntry.lid*2*numharms + 2*(numharms-i)+1] += -currEntry.val.imag();
           }
           addFreqB = 1;
         }
@@ -1785,7 +1786,7 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
   if (globalFreqB)
   {
     blockVector = hbBuilderPtr_->createExpandedRealFormTransposeBlockVector();
-    blockVector->update( 1.0, freqB, 0.0 );
+    blockVector->update( 1.0, *freqB, 0.0 );
   }
 }
 

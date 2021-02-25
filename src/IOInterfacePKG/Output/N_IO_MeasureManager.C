@@ -33,8 +33,6 @@
 #include <utility>
 #include <sstream>
 
-#include <Teuchos_oblackholestream.hpp>
-
 #include <N_ANP_fwd.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_DEV_DeviceMgr.h>
@@ -71,6 +69,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_PDS_ParHelpers.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
@@ -987,8 +986,8 @@ void Manager::remeasure(
   Report::safeBarrier(pds_comm.comm());
 
   Teuchos::RCP<Parallel::ParMap> aParMap = Teuchos::rcp( Parallel::createPDSParMap(numVars, numLocalVars, lbMap, 0, pds_comm) );
-  Linear::Vector varValuesVec(*aParMap);
-  varValuesVec.putScalar(0);
+  Teuchos::RCP<Linear::Vector> varValuesVec = Teuchos::rcp( Linear::createVector(*aParMap) );
+  varValuesVec->putScalar(0);
   
   // Variables used to handle a STEP in the re-measured data.  For .DC, we need to 
   // handle "steps" from both the .DC line and the .STEP line.  That is done with
@@ -1033,7 +1032,7 @@ void Manager::remeasure(
   {
     if (Parallel::rank(pds_comm.comm()) == 0)
     {  
-      reading[0] = fileToReMeasure->getOutputNextVarValuesParallel(&varValuesVec);
+      reading[0] = fileToReMeasure->getOutputNextVarValuesParallel(varValuesVec.get());
       summedReading[0] = reading[0];
     }
     
@@ -1047,7 +1046,7 @@ void Manager::remeasure(
         sumlt[0] = 0.0;
         if( numLocalVars > 0 )
         {
-          lt[0] = varValuesVec[IndepVarCol];
+          lt[0] = (*varValuesVec)[IndepVarCol];
         }
         pds_comm.sumAll( lt, sumlt,  1);
 
@@ -1104,20 +1103,15 @@ void Manager::remeasure(
 
         // update each FFT analysis object, and then each measure
         fft_manager.updateFFTData(pds_comm.comm(), remeasureObj->getIndepVar(),
-                                  &varValuesVec, 0, 0, &varValuesVec, 0, 0);
-        remeasureObj->updateMeasures(varValuesVec);
+                                  varValuesVec.get(), 0, 0, varValuesVec.get(), 0, 0);
+        remeasureObj->updateMeasures(*varValuesVec);
 
         // Update the Sweep Vector.  This is currently only used by DC remeasure.
         remeasureObj->updateSweepVars();  
       }
 
-      varValuesVec.putScalar(0);
+      varValuesVec->putScalar(0);
   }
-
-  // The use of this black hole stream was replaced with calls to Xyce::lout()
-  // This is a null output stream that helps ensure a function that needs to be called
-  // on every processor in parallel only outputs on one processor.
-  //Teuchos::oblackholestream outputBHS;
 
   // Output the Measure results to Xyce::dout().
   // Make sure the function gets called on all processors, but only one outputs it.
