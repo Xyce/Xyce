@@ -47,6 +47,7 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_ParHelpers.h>
 #include <N_PDS_EpetraParMap.h>
+#include <N_PDS_EpetraHelpers.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_UTL_FeatureTest.h>
@@ -75,28 +76,45 @@ EpetraBlockVector::EpetraBlockVector( int numBlocks,
                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                           int augmentRows )
-: BlockVector( *globalMap ),
-  globalBlockSize_(subBlockMap->numGlobalEntities()),
-  localBlockSize_(subBlockMap->numLocalEntities()),
-  overlapBlockSize_(subBlockMap->numLocalEntities()),
-  numBlocks_(numBlocks),
-  augmentCount_(augmentRows),
-  startBlock_(0),
-  endBlock_(numBlocks),
-  newBlockMap_(subBlockMap),
-  blocks_(numBlocks)
+:  parallelMap_(globalMap.get()),
+   aMultiVector_(0),
+   vecOwned_(true),
+   mapOwned_(false),
+   groundNode_(0.0),
+   globalBlockSize_(subBlockMap->numGlobalEntities()),
+   localBlockSize_(subBlockMap->numLocalEntities()),
+   overlapBlockSize_(subBlockMap->numLocalEntities()),
+   numBlocks_(numBlocks),
+   augmentCount_(augmentRows),
+   startBlock_(0),
+   endBlock_(numBlocks),
+   newBlockMap_(subBlockMap),
+   blocks_(numBlocks)
 {
+  pdsComm_ = rcp( &globalMap->pdsComm(),false );
+
+  if (globalMap->numGlobalEntities() < 0)
+  {
+    Report::DevelFatal().in("EpetraBlockVector::EpetraBlockVector")
+      << "vector length too short. Vectors must be > 0 in length.";
+  }
+
+  // Create a new Petra MultiVector and set the pointer.
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( *globalMap );
+  aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), 1 );
+
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  epetraObj().ExtractView( &Ptrs );
+  aMultiVector_->ExtractView( &Ptrs );
   double * Loc;
 
-  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
+  // Set the e_map to the subBlockMap to set up the views of the vectors within the block vector.
+  const Parallel::EpetraParMap& e_map2 = dynamic_cast<const Parallel::EpetraParMap&>(*newBlockMap_);
 
   for( int i = 0; i < numBlocks; ++i )
   {
     Loc = Ptrs[0] + overlapBlockSize_*i;
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map.petraMap(), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map2.petraMap(), Loc ), true ) );
   }
 }
 
@@ -111,7 +129,11 @@ EpetraBlockVector::EpetraBlockVector( int numBlocks,
 EpetraBlockVector::EpetraBlockVector( int blockSize,
                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                           int augmentRows )
-: BlockVector( *globalMap ),
+: parallelMap_(globalMap.get()),
+  aMultiVector_(0),
+  vecOwned_(true),
+  mapOwned_(false),
+  groundNode_(0.0),
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -121,6 +143,18 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
   endBlock_( (globalMap->numGlobalEntities()-augmentRows) / blockSize ),
   blocks_( (globalMap->numGlobalEntities()-augmentRows) / blockSize )
 {
+  pdsComm_ = rcp( &globalMap->pdsComm(),false );
+
+  if (globalMap->numGlobalEntities() < 0)
+  {
+    Report::DevelFatal().in("EpetraBlockVector::EpetraBlockVector")
+      << "vector length too short. Vectors must be > 0 in length.";
+  }
+
+  // Create a new Petra MultiVector and set the pointer.
+  const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( *globalMap );
+  aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), 1 );
+
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                globalMap->indexBase(), globalMap->pdsComm() ) );
 
@@ -137,7 +171,7 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
 
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  epetraObj().ExtractView( &Ptrs );
+  aMultiVector_->ExtractView( &Ptrs );
   double * Loc = 0;
   if (globalMap->numLocalEntities() > 0)
   {
@@ -229,7 +263,11 @@ BlockVector & EpetraBlockVector::operator=(const Vector & right)
 // Creation Date : 11/12/20
 //-----------------------------------------------------------------------------
 EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
-: BlockVector( right ),
+: parallelMap_(0),
+  aMultiVector_( const_cast<Epetra_Vector*>((right->epetraObj())(0)) ),
+  vecOwned_(false),
+  mapOwned_(false),
+  groundNode_(0.0),
   globalBlockSize_( blockSize ),
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
@@ -239,6 +277,8 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
   endBlock_( right->globalLength() / blockSize ),
   blocks_( right->globalLength() / blockSize )
 {
+  pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &aMultiVector_->Comm() ) );
+
   // If the oscillating HB algorithm is being used then augmentCount_ is probably not zero.
   int localAugmentCount = right->localLength() % blockSize;
   if (augmentCount_)
@@ -250,11 +290,11 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
 
   // Create the new maps for each block that places all the entries of the block on one processor.
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
-                               epetraObj().Map().IndexBase(), *right->pdsComm() ) );
+                               aMultiVector_->Map().IndexBase(), *right->pdsComm() ) );
 
   // Determine where these blocks start and end in the grand scheme of things.
-  int minMyGID = (epetraObj().Map()).MinMyGID();
-  int maxMyGID = (epetraObj().Map()).MaxMyGID();
+  int minMyGID = (aMultiVector_->Map()).MinMyGID();
+  int maxMyGID = (aMultiVector_->Map()).MaxMyGID();
   if ( localAugmentCount )
     maxMyGID -= localAugmentCount;
 
@@ -263,7 +303,7 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
 
   //Setup Views of blocks using Block Map
   double ** Ptrs;
-  epetraObj().ExtractView( &Ptrs );
+  aMultiVector_->ExtractView( &Ptrs );
   double * Loc = Ptrs[0];
 
   for( int i = 0; i < numBlocks_; ++i )
@@ -275,7 +315,7 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
       myBlockSize = blockSize;
 
     Teuchos::RCP<Parallel::ParMap> currBlockMap = Teuchos::rcp( Parallel::createPDSParMap( blockSize, myBlockSize,
-                                                                epetraObj().Map().IndexBase(), *right->pdsComm() ) );
+                                                                aMultiVector_->Map().IndexBase(), *right->pdsComm() ) );
  
     Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
@@ -291,6 +331,22 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::~EpetraBlockVector
+// Purpose       : Default destructor
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
+EpetraBlockVector::~EpetraBlockVector() 
+{
+  if (vecOwned_)
+    delete aMultiVector_; aMultiVector_=0;
+  if (mapOwned_)
+    delete parallelMap_; parallelMap_=0;
+}
+ 
+//-----------------------------------------------------------------------------
 // Function      : cloneVector
 // Purpose       : vector clone function
 // Special Notes : clones shape, not values
@@ -300,7 +356,7 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
 //-----------------------------------------------------------------------------
 Vector* EpetraBlockVector::cloneVector() const
 {
-  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( pmap(), false ),
+  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( parallelMap_, false ),
                                                 newBlockMap_, augmentCount_ );
   return new_vec;
 }
@@ -315,7 +371,7 @@ Vector* EpetraBlockVector::cloneVector() const
 //-----------------------------------------------------------------------------
 Vector* EpetraBlockVector::cloneCopyVector() const
 {
-  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( pmap(), false ),
+  BlockVector* new_vec = new EpetraBlockVector( numBlocks_, Teuchos::rcp( parallelMap_, false ),
                                                 newBlockMap_, augmentCount_ );
   *new_vec = *this;  
 
@@ -333,7 +389,7 @@ Vector* EpetraBlockVector::cloneCopyVector() const
 double EpetraBlockVector::dotProduct( const Vector & y ) const
 {
   double result = 0.0;
-  epetraObj().Dot(y.epetraObj(), &result);
+  aMultiVector_->Dot(y.epetraObj(), &result);
 
   return result;
 }
@@ -351,7 +407,7 @@ void EpetraBlockVector::dotProduct(const MultiVector & y, std::vector<double>& d
   int ynum = y.numVectors();
   for (int j=0; j<ynum; ++j)
   {
-    epetraObj().Dot(*(y.epetraObj()(j)), &d[j]);
+    aMultiVector_->Dot(*(y.epetraObj()(j)), &d[j]);
   }
 }
 
@@ -367,9 +423,9 @@ void EpetraBlockVector::dotProduct(const MultiVector & y, std::vector<double>& d
 int EpetraBlockVector::lpNorm(const int p, double * result) const
 { 
   if (p == 1)
-    epetraObj().Norm1(result);
+    aMultiVector_->Norm1(result);
   else if (p == 2)
-    epetraObj().Norm2(result);
+    aMultiVector_->Norm2(result);
   else
     Xyce::Report::DevelFatal0().in("EpetraBlockVector::lpNorm") << "Requested norm is not supported";
 
@@ -387,7 +443,7 @@ int EpetraBlockVector::lpNorm(const int p, double * result) const
 //-----------------------------------------------------------------------------
 int EpetraBlockVector::wRMSNorm(const MultiVector & weights, double * result) const
 {
-  epetraObj().NormWeighted( weights.epetraObj(), result );
+  aMultiVector_->NormWeighted( weights.epetraObj(), result );
   return 0;
 }
 
@@ -403,7 +459,7 @@ int EpetraBlockVector::infNorm(double * result, int * index) const
 {
   if (!index)
   {
-    epetraObj().NormInf(result);
+    aMultiVector_->NormInf(result);
   }
   else
   {
@@ -412,7 +468,7 @@ int EpetraBlockVector::infNorm(double * result, int * index) const
     int myLength = localLength();
     std::vector<int> indexTemp( numVecs, 0 ), indexTempAll( numVecs*numProcs, 0 );
     std::vector<double> doubleTemp( numVecs, 0.0 ), doubleTempAll( numVecs*numProcs, 0.0 );
-    double ** pointers = epetraObj().Pointers();
+    double ** pointers = aMultiVector_->Pointers();
 
     for (int i=0; i < numVecs; i++)
     {
@@ -429,7 +485,7 @@ int EpetraBlockVector::infNorm(double * result, int * index) const
       }
       // Convert indexTemp from local to global ID
       if (indexTemp[i] > -1)
-        indexTemp[i] = epetraObj().Map().GID(indexTemp[i]);
+        indexTemp[i] = aMultiVector_->Map().GID(indexTemp[i]);
     }
 
     if (numProcs > 1)
@@ -511,14 +567,14 @@ int EpetraBlockVector::wMaxNorm(const MultiVector & weights, double * result) co
 const double & EpetraBlockVector::getElementByGlobalIndex(
   const int & global_index, const int & vec_index) const
 {
-  if( pmap() == NULL )
-    return epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ];
+  if( parallelMap_  == NULL )
+    return (*aMultiVector_)[vec_index][ aMultiVector_->Map().LID(global_index) ];
   else
   {
-    int i = pmap()->globalToLocalIndex(global_index);
+    int i = parallelMap_->globalToLocalIndex(global_index);
 
     if (i != -1)
-      return epetraObj()[vec_index][i];
+      return (*aMultiVector_)[vec_index][i];
     else 
     {
       Xyce::Report::DevelFatal().in("getElementByGlobalIndex") 
@@ -540,16 +596,16 @@ bool EpetraBlockVector::setElementByGlobalIndex(const int & global_index,
                                                 const double & val,
                                                 const int & vec_index)
 {
-  if( pmap() == NULL )
-    epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ] = val;
+  if( parallelMap_ == NULL )
+    (*aMultiVector_)[vec_index][ aMultiVector_->Map().LID(global_index) ] = val;
   else
   {
     if (global_index != -1)
     {
-      int i = pmap()->globalToLocalIndex(global_index);
+      int i = parallelMap_->globalToLocalIndex(global_index);
 
       if (i != -1)
-        epetraObj()[vec_index][i] = val;
+        (*aMultiVector_)[vec_index][i] = val;
       else
       {
         Xyce::Report::DevelFatal().in("setElementByGlobalIndex") 
@@ -574,16 +630,16 @@ bool EpetraBlockVector::sumElementByGlobalIndex(const int & global_index,
                                                 const double & val,
                                                 const int & vec_index)
 { 
-  if( pmap() == NULL )
-    epetraObj()[vec_index][ epetraObj().Map().LID(global_index) ] += val;
+  if( parallelMap_ == NULL )
+    (*aMultiVector_)[vec_index][ aMultiVector_->Map().LID(global_index) ] += val;
   else
   { 
     if (global_index != -1 )
     { 
-      int i = pmap()->globalToLocalIndex(global_index);
+      int i = parallelMap_->globalToLocalIndex(global_index);
       
       if (i != -1)
-        epetraObj()[vec_index][i] += val;
+        (*aMultiVector_)[vec_index][i] += val;
       else
       { 
         Report::DevelFatal() 
@@ -642,9 +698,9 @@ void EpetraBlockVector::writeToFile( const char * filename, bool useLIDs, bool m
         for (int i = 0; i < numVecs; ++i)
           for (int j = 0; j < length; ++j)
           {
-            int loc = epetraObj().Map().GID(j);
+            int loc = aMultiVector_->Map().GID(j);
             if( useLIDs ) loc = j;
-            fprintf(file,"%d %d %20.13e\n",i,loc,epetraObj()[i][j]);
+            fprintf(file,"%d %d %20.13e\n",i,loc,(*aMultiVector_)[i][j]);
           } 
         fclose(file);
       } 
@@ -652,7 +708,7 @@ void EpetraBlockVector::writeToFile( const char * filename, bool useLIDs, bool m
   } 
   else
   {
-    EpetraExt::MultiVectorToMatrixMarketFile( filename, epetraObj() );
+    EpetraExt::MultiVectorToMatrixMarketFile( filename, *aMultiVector_ );
   } 
 }
 
@@ -678,7 +734,7 @@ void EpetraBlockVector::print(std::ostream &os) const
     blocks_[i]->print( os );
   }
   os << "Base Object\n";
-  os << epetraObj();
+  os << *aMultiVector_;
   os << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 }
 

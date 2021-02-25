@@ -58,16 +58,6 @@ class BlockVector : public Vector
   // Default constructor
   BlockVector() {}
 
-  // Constructors to map to Petra constructors.
-  BlockVector( const Parallel::ParMap & map )
-  : Vector(map)
-  {}
-
-  // View constructor.
-  BlockVector( const Vector * right )
-  : Vector( const_cast<Epetra_Vector*>((right->epetraObj())(0)), false )
-  {}
-
   // Destructor
   virtual ~BlockVector() {}
 

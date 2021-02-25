@@ -77,6 +77,27 @@ namespace Linear {
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
+MultiVector::MultiVector()
+:  parallelMap_(0),
+   overlapMap_(0),
+   aMultiVector_(0),
+   oMultiVector_(0),
+   importer_(0),
+   exporter_(0),
+   viewTransform_(0),
+   vecOwned_(false),
+   mapOwned_(false),
+   groundNode_(0.0)
+{}
+
+//-----------------------------------------------------------------------------
+// Function      : MultiVector::MultiVector
+// Purpose       : Constructor
+// Special Notes :
+// Scope         : Public
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/20/00
+//-----------------------------------------------------------------------------
 MultiVector::MultiVector(const Parallel::ParMap & map, int numVectors)
 :  parallelMap_(&map),
    overlapMap_(&map),
@@ -269,15 +290,15 @@ MultiVector & MultiVector::operator=( const MultiVector & right )
 {
   if ( (this != &right) && globalLength() )
   {
-    if( (oMultiVector_->Map().NumGlobalElements() == right.oMultiVector_->Map().NumGlobalElements())
-        && (oMultiVector_->Map().NumMyElements() == right.oMultiVector_->Map().NumMyElements()) )
+    if( (this->epetraOverlapObj().Map().NumGlobalElements() == right.epetraOverlapObj().Map().NumGlobalElements())
+        && (this->epetraOverlapObj().Map().NumMyElements() == right.epetraOverlapObj().Map().NumMyElements()) )
     {
-      *oMultiVector_ = *right.oMultiVector_;
+      this->epetraOverlapObj() = right.epetraOverlapObj();
     }
 
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     {
-      *aMultiVector_ = *right.aMultiVector_;
+      this->epetraObj() = right.epetraObj();
     }
     else
     {
@@ -403,21 +424,21 @@ int MultiVector::numVectors() const
 void MultiVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
 {
   int xnum = aMultiVector_->NumVectors();
-  int ynum = y.aMultiVector_->NumVectors();
+  int ynum = y.numVectors();
   if (xnum == 1 || ynum == 1)
   {
     for (int i=0; i<xnum; ++i)
     {
       for (int j=0; j<ynum; ++j)
       {
-        (*aMultiVector_)(i)->Dot(*(*y.aMultiVector_)(j), &d[i*ynum + j]);
+        (*aMultiVector_)(i)->Dot(*(y.epetraObj()(j)), &d[i*ynum + j]);
       }
     }
   }
   else
   {    
     // Let Epetra handle this.
-    int PetraError = aMultiVector_->Dot(*(y.aMultiVector_), &d[0]);
+    int PetraError = aMultiVector_->Dot(y.epetraObj(), &d[0]);
   
     if (DEBUG_LINEAR)
       processError( "MultiVector::dotProduct - ", PetraError );
@@ -453,7 +474,7 @@ void MultiVector::scale(const double a)
 void MultiVector::multiply(const MultiVector &x)
 {
   int PetraError = aMultiVector_->Multiply(1.0, *aMultiVector_,
-					   *(x.aMultiVector_), 0.0);
+					   x.epetraObj(), 0.0);
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::scale - ", PetraError);
@@ -473,7 +494,7 @@ void MultiVector::multiply(const MultiVector &x)
 void MultiVector::update( double a, const MultiVector & A,
                           double s )
 {
-  aMultiVector_->Update( a, *(A.aMultiVector_), s );
+  aMultiVector_->Update( a, A.epetraObj(), s );
 }
 
 //-----------------------------------------------------------------------------
@@ -491,8 +512,8 @@ void MultiVector::update( double a, const MultiVector & A,
                           double b, const MultiVector & B,
                           double s )
 {
-  aMultiVector_->Update( a, *(A.aMultiVector_),
-                         b, *(B.aMultiVector_),
+  aMultiVector_->Update( a, A.epetraObj(),
+                         b, B.epetraObj(),
                          s );
 }
 
@@ -616,7 +637,7 @@ int MultiVector::infNorm(double * result, int * index) const
 //-----------------------------------------------------------------------------
 int MultiVector::wRMSNorm(const MultiVector & weights, double * result) const
 {
-  int PetraError = aMultiVector_->NormWeighted( *(weights.aMultiVector_), result );
+  int PetraError = aMultiVector_->NormWeighted( weights.epetraObj(), result );
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::wRMSNorm - ", PetraError);
@@ -722,7 +743,7 @@ void MultiVector::addScalar(const double scalar)
 //-----------------------------------------------------------------------------
 void MultiVector::absValue(const MultiVector & A)
 {
-  int PetraError = oMultiVector_->Abs(*(A.oMultiVector_));
+  int PetraError = oMultiVector_->Abs(A.epetraOverlapObj());
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::absValue - ", PetraError);
@@ -738,7 +759,7 @@ void MultiVector::absValue(const MultiVector & A)
 //-----------------------------------------------------------------------------
 void MultiVector::reciprocal(const MultiVector & A)
 {
-  int PetraError = oMultiVector_->Reciprocal(*(A.oMultiVector_));
+  int PetraError = oMultiVector_->Reciprocal(A.epetraOverlapObj());
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::reciprocal - ", PetraError);

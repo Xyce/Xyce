@@ -115,7 +115,7 @@ public:
   // Dot product with another vector.
   virtual double dotProduct(const Vector & y) const;
 
-protected:
+private:
 
   //Copy constructor
   Vector( const Vector & right )

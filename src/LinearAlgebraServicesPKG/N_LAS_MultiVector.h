@@ -83,7 +83,7 @@ class MultiVector
 public:
 
   // Default constructor
-  MultiVector() {}
+  MultiVector();
 
   // Constructors to map to Petra constructors.
   MultiVector( const Parallel::ParMap & map,

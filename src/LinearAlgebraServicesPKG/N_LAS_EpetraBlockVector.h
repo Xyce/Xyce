@@ -46,6 +46,7 @@
 
 #include <Teuchos_RCP.hpp>
 
+
 #include <Epetra_Vector.h>
 
 namespace Xyce {
@@ -79,7 +80,7 @@ class EpetraBlockVector : public BlockVector
   EpetraBlockVector( const Vector * right, int blockSize );
 
   // Destructor
-  virtual ~EpetraBlockVector() {};
+  virtual ~EpetraBlockVector();
 
   // Assignment operator
   BlockVector & operator=(const BlockVector & right);
@@ -127,19 +128,19 @@ class EpetraBlockVector : public BlockVector
   void dotProduct(const MultiVector & y, std::vector<double>& d) const;
 
   // Scale every entry in the multi-vector by "a"
-  void scale(const double a) { epetraObj().Scale( a ); }
+  void scale(const double a) { aMultiVector_->Scale( a ); }
 
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x) 
-  { epetraObj().Multiply(1.0, epetraObj(), x.epetraObj(), 0.0); }
+  { aMultiVector_->Multiply(1.0, *aMultiVector_, x.epetraObj(), 0.0); }
 
   // Linear combination with one and two constants and vectors
   void update(double a, const MultiVector & A, double s = 1.0)
-  { epetraObj().Update( a, A.epetraObj(), s ); }
+  { aMultiVector_->Update( a, A.epetraObj(), s ); }
 
   void update(double a, const MultiVector & A, double b,
                       const MultiVector & B, double s = 1.0)
-  { epetraObj().Update( a, A.epetraObj(), b, B.epetraObj(), s ); }
+  { aMultiVector_->Update( a, A.epetraObj(), b, B.epetraObj(), s ); }
 
   // Compute the l_p norm (e.g., 2-norm is l_2)
   int lpNorm(const int p, double * result) const;
@@ -154,24 +155,24 @@ class EpetraBlockVector : public BlockVector
   int wMaxNorm(const MultiVector & weights, double * result) const;
 
   // Generate random number
-  void random() { epetraObj().Random(); }
+  void random() { aMultiVector_->Random(); }
 
   // Fill vector with constant value.
-  void putScalar(const double scalar) { epetraObj().PutScalar( scalar ); }
+  void putScalar(const double scalar) { aMultiVector_->PutScalar( scalar ); groundNode_ = scalar; }
 
   // Add to vector with constant value.
   void addScalar(const double scalar);
 
   // Absolute value element-wise for vector
-  void absValue(const MultiVector & A) { epetraObj().Abs(A.epetraObj()); }
+  void absValue(const MultiVector & A) { aMultiVector_->Abs(A.epetraObj()); }
 
   // Reciprocal of elements in vector
-  void reciprocal(const MultiVector & A) { epetraObj().Reciprocal(A.epetraObj()); }
+  void reciprocal(const MultiVector & A) { aMultiVector_->Reciprocal(A.epetraObj()); }
 
   // Get the global (across all processors) length of the multi-vector
-  int globalLength() const { return epetraObj().GlobalLength(); }
+  int globalLength() const { return aMultiVector_->GlobalLength(); }
   // Get the local (on processor component) length of the multi-vector
-  int localLength() const { return epetraObj().MyLength(); }
+  int localLength() const { return aMultiVector_->MyLength(); }
 
   // Get the number of individual vectors in the multi-vector
   int numVectors() const { return 1; }
@@ -204,20 +205,18 @@ class EpetraBlockVector : public BlockVector
   // Add an element to the external vector map
   void addElementToExternVectorMap(const int & global_index, const double & value) {}
 
-/*
   // Get the parallel map associated with this multi-vector
-  const Parallel::ParMap * pmap() const { return pmap(); }
-  const Parallel::ParMap * omap() const { return pmap(); }
+  const Parallel::ParMap * pmap() const { return parallelMap_; } 
+  const Parallel::ParMap * omap() const { return parallelMap_; }
 
   // Get the parallel communicator associated with this multi-vector
-  const Parallel::Communicator* pdsComm() const { return pdsComm(); }
+  const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
-  Epetra_MultiVector & epetraObj() { return epetraObj(); }
-  const Epetra_MultiVector & epetraObj() const { return epetraObj(); }
+  Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
+  const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
 
-  Epetra_MultiVector & epetraOverlapObj() { return epetraObj(); }
-  const Epetra_MultiVector & epetraOverlapObj() const { return epetraObj(); }
-*/
+  Epetra_MultiVector & epetraOverlapObj() { return *aMultiVector_; }
+  const Epetra_MultiVector & epetraOverlapObj() const { return *aMultiVector_; }
 
   //Accumulate off processor fill contributions if necessary
   void fillComplete() {}
@@ -232,6 +231,15 @@ class EpetraBlockVector : public BlockVector
 
   // Pointer the Petra multi-vector object.
   Epetra_MultiVector * aMultiVector_;
+
+  // isOwned flags
+  bool vecOwned_, mapOwned_;
+
+  // Communicator object, if one is needed.
+  Teuchos::RCP<const Parallel::Communicator> pdsComm_;
+
+  // Dummy variable for loading ground node contributions.
+  double groundNode_;
 
   bool blocksViewGlobalVec_;
   int globalBlockSize_;
@@ -255,7 +263,7 @@ class EpetraBlockVector : public BlockVector
 inline double * EpetraBlockVector::operator() (int row_lid, int col_lid)
 {
   if (row_lid >= 0 && col_lid >= 0)
-    return epetraObj()[col_lid]+row_lid;
+    return (*aMultiVector_)[col_lid]+row_lid;
   else
     return &groundNode_;
 }
@@ -264,7 +272,7 @@ inline double * EpetraBlockVector::operator() (int row_lid, int col_lid)
 inline const double * EpetraBlockVector::operator() (int row_lid, int col_lid) const
 {
   if (row_lid >= 0 && col_lid >= 0)
-    return epetraObj()[col_lid]+row_lid;
+    return (*aMultiVector_)[col_lid]+row_lid;
   else
     return &groundNode_;
 }
@@ -273,7 +281,7 @@ inline const double * EpetraBlockVector::operator() (int row_lid, int col_lid) c
 inline double & EpetraBlockVector::operator[] (int index)
 {
   if (index >= 0)
-    return epetraObj()[0][index];
+    return (*aMultiVector_)[0][index];
   else
     return groundNode_;
 }
@@ -282,22 +290,22 @@ inline double & EpetraBlockVector::operator[] (int index)
 inline const double & EpetraBlockVector::operator[] (int index) const
 {
   if (index >= 0)
-    return epetraObj()[0][index];
+    return (*aMultiVector_)[0][index];
   else
     return groundNode_;
 }
 
 inline const Vector* EpetraBlockVector::getVectorView(int index) const
 { 
-  const Vector* vec = new Vector(const_cast<Epetra_Vector*>(epetraObj()(index)),
-                                 epetraObj().Map(),false);
+  const Vector* vec = new Vector(const_cast<Epetra_Vector*>((*aMultiVector_)(index)),
+                                 (*aMultiVector_).Map(),false);
   return vec;
 }
 
 inline Vector* EpetraBlockVector::getNonConstVectorView(int index)
 {
-  Vector* vec = new Vector(epetraObj()(index),
-                           epetraObj().Map(),false);
+  Vector* vec = new Vector((*aMultiVector_)(index),
+                           (*aMultiVector_).Map(),false);
   return vec;
 }
 
