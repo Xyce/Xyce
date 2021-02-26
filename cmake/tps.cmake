@@ -157,14 +157,37 @@ if (NOT Teuchos_COMPLEX_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
+# Compilers targeting the MSVC ABI have flags to select the MSVC runtime
+# library.  This is because, with the MSVC, there is a separate runtime library
+# for Debug builds.  (This is related to the CMAKE_BUILD_TYPE discussion in the
+# root "CMakeLists.txt file.  When the minimum CMake version requirement is
+# increased, see CMake policy CMP0091:
+#    <https://cmake.org/cmake/help/latest/policy/CMP0091.html>)
+# Teuchos links to the MSVC runtime library.  Since LOCA.H includes at least one
+# Teuchos header, the test below has to point to the same library as Trilinos.
+# (Note that the debug library is the default for the test.)  The best way to
+# accomplish this is to use the same compiler flags as Trilinos.
+# One might think to use:
+#   set (CMAKE_REQUIRED_FLAGS ${Trilinos_CXX_COMPILER_FLAGS})
+# or
+#   check_include_file_cxx(LOCA.H LOCA_IN_Trilinos ${Trilinos_CXX_COMPILER_FLAGS})
+# However, the test *prepends* those flags, so they get overridden by the
+# debug flags of the check, itself.  The following is probably an abuse of
+# CMAKE_REQUIRED_DEFINITIONS, but it seems to work.
+if (MSVC)
+     set(CMAKE_REQUIRED_DEFINITIONS "${Trilinos_CXX_COMPILER_FLAGS}")
+endif()
 set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
-
 check_include_file_cxx(LOCA.H LOCA_IN_Trilinos)
 if (NOT LOCA_IN_Trilinos)
      message("Trilinos was not built with LOCA support in NOX.\n"
           "Enable the following in the Trilinos build:\n"
           "  -D NOX_ENABLE_LOCA=ON")
      set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+unset(CMAKE_REQUIRED_LIBRARIES)
+if (MSVC)
+     unset(CMAKE_REQUIRED_DEFINITIONS)
 endif()
 
 # After the release of Trilinos 12.12.1, the abstract solver interface in NOX
@@ -173,11 +196,10 @@ endif()
 # required version of Trilinos is raised.
 check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
 
-unset(CMAKE_REQUIRED_LIBRARIES)
 unset(CMAKE_REQUIRED_INCLUDES)
 
 if (Trilinos_IS_MISSING_FEATURES)
-     message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos.\n"
+     message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos."
           "Rebuild Trilinos with the required features, and try again.")
 endif()
 

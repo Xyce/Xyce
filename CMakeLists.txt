@@ -42,17 +42,17 @@ else()
   set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
 endif()
 
-project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
-
-# Set a default build type if none was specified (note that
+# Set a default build type if none was specified (using the fact that
 # CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
+#
+# This has to be before "project" is called, because, for compilers targeting
+# the MSVC ABI on Windows, "project" sets the build type.  This behavior was
+# changed in CMake version 3.15, but was not made the *default* behavior.
+# Since we're compatible with CMake 3.13, we can't use the new behavior. When
+# the minimum CMake version requirement is increased, see CMake policy CMP0091:
+#    <https://cmake.org/cmake/help/latest/policy/CMP0091.html>
+# (Originally, this block was placed right before the
+# "include(cmake/config.cmake)" call, below.)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   message("Setting the build type to \"Release\", since it was not explicitly set.")
@@ -61,6 +61,15 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "None" "Debug" "Release"
      "RelWithDebInfo" "MinSizeRel")
 endif()
+
+project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
 
