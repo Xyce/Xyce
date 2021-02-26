@@ -63,7 +63,7 @@ ParsingMgr::ParsingMgr(
     useHspiceUnits_(false),
     useHspiceMath_(false),
     enableRandomExpression_(true),
-    modelBinningFlag_(false),
+    modelBinningFlag_(true),
     lengthScale_(1.0)
 {
   if (hspiceExtFlag_)
@@ -178,7 +178,7 @@ void populateMetadata(
   IO::PkgOptionsMgr &   options_manager)
 {
    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("PARSER");
-   parameters.insert(Util::ParamMap::value_type("MODEL_BINNING", Util::Param("MODEL_BINNING", 0)));
+   parameters.insert(Util::ParamMap::value_type("MODEL_BINNING", Util::Param("MODEL_BINNING", 1)));
    parameters.insert(Util::ParamMap::value_type("SCALE", Util::Param("SCALE", 1.0)));
 }
 
