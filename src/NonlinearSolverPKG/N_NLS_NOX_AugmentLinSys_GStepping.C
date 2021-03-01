@@ -45,6 +45,7 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
+#include "N_UTL_Math.h"
 #include "N_NLS_NOX_AugmentLinSys_GStepping.h"
 
 namespace Xyce {
@@ -70,7 +71,7 @@ GStepping::GStepping(NodeListType node_list_type,
     scaled_end_value_(scaledEndValue),
     residualConductance_(residCond)
 {
-  tmp_vector_ptr_ = cloneVector->clone();
+  tmp_vector_ptr_ = cloneVector->cloneVector();
 }
 
 //-----------------------------------------------------------------------------

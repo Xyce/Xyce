@@ -40,9 +40,6 @@
 namespace Xyce {
 namespace Linear {
 
-class AmesosSolver;
-class AztecOOSolver;
-
 class BlockMatrix;
 class BlockVector;
 class BlockMultiVector;

@@ -42,8 +42,6 @@
 #include <N_LAS_MultiVector.h>
 #include <N_PDS_fwd.h>
 
-#include <Epetra_Vector.h>
-
 namespace Xyce {
 namespace Linear {
 
@@ -60,65 +58,30 @@ class Vector : public MultiVector
 
 public:
 
-  // Constructors to map to Petra constructors.
-  Vector( const Parallel::ParMap & map )
-  : MultiVector(map, 1)
-  {}
-
-  Vector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map )
-  : MultiVector( map, ol_map, 1 )
-  {}
-
-  // Constructor that wraps an Epetra vector inside a Linear::Vector.
-  // This is used in the nonlinear solver and linear solver interface.
-  Vector( Epetra_Vector * origV, bool isOwned);
-
-  // Constructor takes the overlap Epetra vector and generates the assembled vector.
-  Vector( Epetra_Vector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned = true );
+  // Default constructor
+  Vector() {}
 
   // Destructor
   virtual ~Vector() {}
 
-  // Clone operation:
-  Vector* clone() const;
+  virtual Vector& operator=( const Vector& right ) = 0;
+  MultiVector & operator=(const MultiVector & right)
+  { Vector::operator=( right ); return *this; }
 
   // Clone operation:
-  Vector* cloneCopy() const;
+  virtual Vector* cloneVector() const = 0;
+
+  // Clone operation:
+  virtual Vector* cloneCopyVector() const = 0;
 
   // Operation: operator []
-  double & operator[] (int index)
-  {
-    if (index >= 0)
-      return (*oMultiVector_)[0][index];
-    else
-      return groundNode_;
-  }
+  virtual double & operator[] (int index) = 0;
 
   // Operation: operator []
-  const double & operator[] (int index) const
-  {
-    if (index >= 0)
-      return (*oMultiVector_)[0][index];
-    else
-      return groundNode_;
-  }
+  virtual const double & operator[] (int index) const = 0;
 
   // Dot product with another vector.
-  double dotProduct(const Vector & y) const;
-
-  Epetra_Vector& epetraObj()
-  { return *(*aMultiVector_)(0); }
-
-  const Epetra_Vector& epetraObj() const
-  { return *(*aMultiVector_)(0); }
-
-protected:
-
-  //Copy constructor
-  Vector( const Vector & right )
-  : MultiVector(right)
-  {}
-
+  virtual double dotProduct(const Vector & y) const = 0;
 
 };
 

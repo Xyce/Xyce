@@ -29,9 +29,8 @@
 #include <N_PDS_ParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_ParHelpers.h>
-#include <N_LAS_MultiVector.h>
+#include <N_LAS_EpetraVector.h>
 #include <N_LAS_BlockVector.h>
-#include <N_LAS_Vector.h>
 
 #include <Epetra_SerialComm.h>
 #include <Epetra_Map.h>
@@ -86,10 +85,10 @@ int main(int argc, char* argv[])
   Teuchos::RCP<Xyce::Parallel::ParMap> parMapForComplex = 
     Teuchos::rcp( Xyce::Parallel::createPDSParMap( lengthTransformedSignal, lengthTransformedSignal, complexLbMap, 0, *pdsComm.get() ) );
   
-  Xyce::Linear::Vector timeMV( *parMapForReal );
-  Xyce::Linear::Vector inputSignalMV( *parMapForReal );
-  Xyce::Linear::Vector outputSignalMV( *parMapForComplex );
-  Xyce::Linear::Vector backSignalMV( *parMapForReal );
+  Xyce::Linear::EpetraVector timeMV( *parMapForReal );
+  Xyce::Linear::EpetraVector inputSignalMV( *parMapForReal );
+  Xyce::Linear::EpetraVector outputSignalMV( *parMapForComplex );
+  Xyce::Linear::EpetraVector backSignalMV( *parMapForReal );
   
   // Fill in the vectors
   for(int i=0; i<numPts; i++)

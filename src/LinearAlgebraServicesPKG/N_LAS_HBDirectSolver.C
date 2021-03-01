@@ -49,9 +49,10 @@
 #include <N_LAS_Builder.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_Problem.h>
-#include <N_LAS_Vector.h>
 #include <N_LAS_FilteredMatrix.h>
 #include <N_LAS_TransformTool.h>
+#include <N_LAS_EpetraVector.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
@@ -60,6 +61,7 @@
 #include <N_PDS_EpetraParMap.h>
 
 #include <Epetra_MultiVector.h>
+#include <Epetra_Vector.h>
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Import.h>
 #include <Epetra_Util.h>
@@ -1597,6 +1599,7 @@ void HBDirectSolver::formHBJacobian()
   // form frequency-domain RHS vector
   MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
+  EpetraVectorAccess* e_B = dynamic_cast<EpetraVectorAccess *>( B );
 
   for (int j=0; j<numVectors; j++)
   {
@@ -1604,8 +1607,8 @@ void HBDirectSolver::formHBJacobian()
 
     if (numProcs > 1)
     {
-      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
-      B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
+      serialB_->Import( *((e_B->epetraObj())( j )), *serialImporter_, Insert );
+      B_j = Teuchos::rcp( new EpetraVector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
@@ -1690,6 +1693,7 @@ int HBDirectSolver::solve()
   // Determine number of time-domain variables.
   MultiVector* X = lasProblem_.getLHS();
   MultiVector* B = lasProblem_.getRHS();
+  EpetraVectorAccess* e_X = dynamic_cast<EpetraVectorAccess *>( X );
 
   // Initialize solution vector X.
   X->putScalar( 0.0 );
@@ -1704,7 +1708,7 @@ int HBDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      X_j = Teuchos::rcp( new Vector( &*serialX_, *serialMap_, false ) ); 
+      X_j = Teuchos::rcp( new EpetraVector( &*serialX_, *serialMap_, false ) ); 
     }
     else
     {
@@ -1831,7 +1835,7 @@ int HBDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      (X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
+      (e_X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
     }
   }
 
@@ -1917,6 +1921,7 @@ void HBDirectSolver::printHBResidual( const std::string& fileName )
   // Determine number of time-domain variables.
   MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
+  EpetraVectorAccess* e_B = dynamic_cast<EpetraVectorAccess *>( B );
 
   std::ofstream out;
   out.open( fileName.c_str() );
@@ -1939,8 +1944,8 @@ void HBDirectSolver::printHBResidual( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
-      B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
+      serialB_->Import( *((e_B->epetraObj())( j )), *serialImporter_, Insert );
+      B_j = Teuchos::rcp( new EpetraVector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
@@ -1996,7 +2001,7 @@ void HBDirectSolver::printHBSolution( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      X_j = Teuchos::rcp( new Vector( &*serialX_, *serialMap_, false ) );
+      X_j = Teuchos::rcp( new EpetraVector( &*serialX_, *serialMap_, false ) );
     }
     else
     {

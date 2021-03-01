@@ -2430,12 +2430,10 @@ bool AC::setup_dOdX_(int iobj)
   dOdXreal_->putScalar( 0.0 );
   dOdXreal_->block( 0 ).update( 1.0, *dOdxVecRealPtr);
   dOdXreal_->block( 1 ).update( 1.0, *dOdxVecImagPtr);
-  dOdXreal_->assembleGlobalVector();
 
   dOdXimag_->putScalar( 0.0 );
   dOdXimag_->block( 0 ).update( 1.0, *dOdxVecImagPtr);
   dOdXimag_->block( 1 ).update( 1.0, *dOdxVecRealPtr);
-  dOdXimag_->assembleGlobalVector();
 
   return true;
 }

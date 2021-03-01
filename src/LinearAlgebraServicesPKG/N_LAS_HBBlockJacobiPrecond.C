@@ -61,6 +61,7 @@
 #include <N_LAS_Builder.h>
 #include <N_LAS_System.h>
 #include <N_LAS_SystemHelpers.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LOA_Loader.h>
 
 #include <N_UTL_Timer.h>
@@ -707,6 +708,9 @@ int HBBlockJacobiPrecond::apply( MultiVector & x, MultiVector & y )
 {
   int precStatus = 0;
 
+  EpetraVectorAccess* e_x = dynamic_cast<EpetraVectorAccess *>( &x );
+  EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );
+
   if (VERBOSE_LINEAR)
   {
     Xyce::dout() << "HBBlockJacobiPrecond::apply: " << std::endl;
@@ -716,7 +720,7 @@ int HBBlockJacobiPrecond::apply( MultiVector & x, MultiVector & y )
   if( Teuchos::is_null(epetraPrec_) )
     precStatus = -1;
   else
-    precStatus = epetraPrec_->Apply( x.epetraObj(), y.epetraObj() );
+    precStatus = epetraPrec_->Apply( e_x->epetraObj(), e_y->epetraObj() );
 
   return precStatus;
 }

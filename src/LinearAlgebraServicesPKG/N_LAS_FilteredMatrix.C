@@ -490,13 +490,13 @@ void FilteredMatrix::axpy(const MultiVector & x, MultiVector & y)
     {
       if (Teuchos::is_null(targetX_))
       {
-        targetX_ = Teuchos::rcp( new MultiVector( *targetMap_, x.numVectors() ) );
+        targetX_ = Teuchos::rcp( Linear::createMultiVector( *targetMap_, x.numVectors() ) );
       }
       else
       {
         if (targetX_->numVectors() != x.numVectors())
         {
-          targetX_ = Teuchos::rcp( new MultiVector( *targetMap_, x.numVectors() ) );
+          targetX_ = Teuchos::rcp( Linear::createMultiVector( *targetMap_, x.numVectors() ) );
         }
       }
       targetX_->vectorImport( &x, &*importer_ );
@@ -567,13 +567,13 @@ void FilteredMatrix::matvec(const MultiVector & x, MultiVector & y)
     {
       if (Teuchos::is_null(targetX_))
       {
-        targetX_ = Teuchos::rcp( new MultiVector( *targetMap_, x.numVectors() ) );
+        targetX_ = Teuchos::rcp( Linear::createMultiVector( *targetMap_, x.numVectors() ) );
       }
       else
       {
         if (targetX_->numVectors() != x.numVectors())
         {
-          targetX_ = Teuchos::rcp( new MultiVector( *targetMap_, x.numVectors() ) );
+          targetX_ = Teuchos::rcp( Linear::createMultiVector( *targetMap_, x.numVectors() ) );
         }
       }
       targetX_->vectorImport( &x, &*importer_ );

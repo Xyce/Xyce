@@ -496,22 +496,6 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
 #endif
   }
   
-  // Now that the vector loading is finished, synchronize the global copy of the block vector
-  bX.assembleGlobalVector();
-  bS.assembleGlobalVector();
-  bdSdt.assembleGlobalVector();
-  bStore.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bF.assembleGlobalVector();
-  bdFdxdVp.assembleGlobalVector();
-  bdQdxdVp.assembleGlobalVector();
-  bcurrS.assembleGlobalVector();
-  blastS.assembleGlobalVector();
-  bcurrStore.assembleGlobalVector();
-  bNextLeadF.assembleGlobalVector();
-  bLeadQ.assembleGlobalVector();
-  bNextJunctionV.assembleGlobalVector();
-
   if (DEBUG_ES)
   {
     Xyce::dout() << "ES X Vector" << std::endl;
