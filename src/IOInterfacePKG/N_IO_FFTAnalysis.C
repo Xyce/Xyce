@@ -458,7 +458,8 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
 void FFTAnalysis::calculateResults_()
 {
   // Only calculate something if a .fft line was encountered and transient data was collected.
-  if ( !outputVars_.empty())
+  if ( !outputVars_.empty() && ((fft_accurate_ && sampleIdx_ != 0) ||
+                                (!fft_accurate_ && !time_.empty())) )
   {
     // Calculate the fft coefficients for the given output variable.
     if (!fft_accurate_ && !time_.empty())
@@ -474,6 +475,9 @@ void FFTAnalysis::calculateResults_()
       }
       Xyce::dout() << std::endl;
     }
+
+    if (fft_accurate_ && sampleIdx_ != np_)
+      Report::UserWarning0() << "Incorrect number of sample points found for FFT of " << outputVarName_;
 
     applyWindowFunction_();
     calculateFFT_();

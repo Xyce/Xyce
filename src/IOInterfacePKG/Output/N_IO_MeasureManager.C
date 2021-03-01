@@ -972,7 +972,8 @@ void Manager::remeasure(
   }
   setMeasureOutputFileSuffix(remeasureObj->getAnalysisMode());
 
-  // support FFT measure mode
+  // support remeasure of both FFT lines and FFT measures
+  fft_manager.enableFFTAnalysis(remeasureObj->getAnalysisMode());
   if (fft_manager.isFFTActive())
   {
     // StepErrorControl is not made by the AnalysisManager during -remeasure

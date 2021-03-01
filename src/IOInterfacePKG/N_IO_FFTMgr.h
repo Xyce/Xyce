@@ -80,13 +80,14 @@ public:
   bool getfft_accurate() const { return fft_accurate_; }
 
   // Return true if FFT analysis is being performed on any variables.
-  bool isFFTActive() const { return !FFTAnalysisList_.empty(); }
+  bool isFFTActive() const { return fftAnalysisEnabled_ && !FFTAnalysisList_.empty(); }
 
   const FFTAnalysisVector& getFFTAnalysisList() const {return FFTAnalysisList_;}
 
   // add .fft line from netlist to list of things to perform analysis on.
   bool addFFTAnalysis(const Util::OptionBlock & fftLine );
 
+  void enableFFTAnalysis(const Analysis::Mode analysisMode);
   void fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
 			  const double endSimTime, TimeIntg::StepErrorControl & sec);
   void fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
@@ -112,6 +113,7 @@ public:
 
 private:
   std::string           netlistFilename_;
+  bool                  fftAnalysisEnabled_; // set based on the analysis mode
   bool                  fft_accurate_;  // comes from .OPTIONS FFT line
   bool                  fftout_;        // comes from .OPTIONS FFT line
   FFTAnalysisVector     FFTAnalysisList_;
