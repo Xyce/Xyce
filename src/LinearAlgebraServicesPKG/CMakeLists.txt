@@ -41,7 +41,9 @@ target_sources(XyceLib PRIVATE
       N_LAS_EpetraHelpers.C
       N_LAS_EpetraImporter.C
       N_LAS_EpetraMatrix.C
+      N_LAS_EpetraMultiVector.C
       N_LAS_EpetraProblem.C
+      N_LAS_EpetraVector.C
       N_LAS_MatrixFreeEpetraOperator.C
       N_LAS_Builder.C
       N_LAS_HBDirectSolver.C
@@ -59,7 +61,6 @@ target_sources(XyceLib PRIVATE
       N_LAS_IfpackPrecond.C
       N_LAS_FilteredMatrix.C
       N_LAS_FilteredMultiVector.C
-      N_LAS_MultiVector.C
       N_LAS_MOROperators.C
       N_LAS_Problem.C
       N_LAS_QueryUtil.C
@@ -67,8 +68,7 @@ target_sources(XyceLib PRIVATE
       N_LAS_System.C
       N_LAS_SystemHelpers.C
       N_LAS_TransformTool.C
-      N_LAS_TrilinosPrecondFactory.C
-      N_LAS_Vector.C )
+      N_LAS_TrilinosPrecondFactory.C )
 
 # add header files to project
 target_include_directories(XyceLib PUBLIC

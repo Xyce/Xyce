@@ -328,7 +328,8 @@ void EpetraBlockMatrix::print(std::ostream &os) const
 //-----------------------------------------------------------------------------
 void EpetraBlockMatrix::replaceAugmentedColumn(int colGID, const BlockVector & vec)
 {
-  const Epetra_BlockMap & RowMap = const_cast<BlockVector&>(vec).epetraObj().Map();
+  const EpetraVectorAccess* e_vec = dynamic_cast<const EpetraVectorAccess *>( &vec );
+  const Epetra_BlockMap & RowMap = (e_vec->epetraObj()).Map();
   int NumRows = RowMap.NumMyElements();
 
   int lCol = aDCRSMatrix_->Graph().LCID(colGID);
@@ -425,7 +426,9 @@ void EpetraBlockMatrix::linearCombo( const double a, const Matrix & A,
 void EpetraBlockMatrix::matvec(bool transA, const MultiVector &x,
                           MultiVector &y)
 {
-  int PetraError = aDCRSMatrix_->Multiply(transA, x.epetraObj(), y.epetraObj());
+  const EpetraVectorAccess* e_x= dynamic_cast<const EpetraVectorAccess *>( &x );
+  EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );
+  int PetraError = aDCRSMatrix_->Multiply(transA, e_x->epetraObj(), e_y->epetraObj());
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMatrix::matvec - ", PetraError);
@@ -441,7 +444,8 @@ void EpetraBlockMatrix::matvec(bool transA, const MultiVector &x,
 //-----------------------------------------------------------------------------
 void EpetraBlockMatrix::getDiagonal( Vector & diagonal ) const
 {
-  Epetra_Vector * ediag = diagonal.epetraObj()(0);
+  EpetraVectorAccess* e_diag = dynamic_cast<EpetraVectorAccess *>( &diagonal );
+  Epetra_Vector * ediag = e_diag->epetraObj()(0);
   int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( *ediag );
 
   if (DEBUG_LINEAR)
@@ -458,7 +462,8 @@ void EpetraBlockMatrix::getDiagonal( Vector & diagonal ) const
 //-----------------------------------------------------------------------------
 bool EpetraBlockMatrix::replaceDiagonal( const Vector & vec )
 {
-  const Epetra_Vector * eVec = vec.epetraObj()(0);
+  const EpetraVectorAccess* e_diag = dynamic_cast<const EpetraVectorAccess *>( &vec );
+  const Epetra_Vector * eVec = e_diag->epetraObj()(0);
   int PetraError = aDCRSMatrix_->ReplaceDiagonalValues( *eVec );
 
   if (DEBUG_LINEAR)

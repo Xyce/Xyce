@@ -41,9 +41,8 @@
 #include <N_LAS_EpetraBlockMultiVector.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_EpetraImporter.h>
-#include <N_LAS_Vector.h>
-//#include <N_LAS_EpetraVector.h>
-//#include <N_LAS_EpetraMultiVector.h>
+#include <N_LAS_EpetraVector.h>
+#include <N_LAS_EpetraMultiVector.h>
 
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
@@ -120,7 +119,7 @@ EpetraBlockMultiVector::EpetraBlockMultiVector( int numBlocks, int numVectors,
     {
       Loc[j] = Ptrs[j] + localBlockSize_*i;
     }
-    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, *(e_submap.petraMap()), Loc, numVectors ), true ) );
+    blocks_[i] =  Teuchos::rcp( new EpetraMultiVector( new Epetra_MultiVector( View, *(e_submap.petraMap()), Loc, numVectors ), true ) );
   }
 
   free(Loc);
@@ -186,7 +185,7 @@ EpetraBlockMultiVector::EpetraBlockMultiVector( const EpetraBlockMultiVector & r
     { 
       Loc[j] = Ptrs[j] + localBlockSize_*i;
     }
-    blocks_[i] =  Teuchos::rcp( new MultiVector( new Epetra_MultiVector( View, *(e_submap.petraMap()), Loc, numVectors() ), true ) );
+    blocks_[i] =  Teuchos::rcp( new EpetraMultiVector( new Epetra_MultiVector( View, *(e_submap.petraMap()), Loc, numVectors() ), true ) );
   }
 
   free(Loc);
@@ -202,12 +201,12 @@ EpetraBlockMultiVector::EpetraBlockMultiVector( const EpetraBlockMultiVector & r
 //-----------------------------------------------------------------------------
 BlockMultiVector& EpetraBlockMultiVector::operator=( const BlockMultiVector & right )
 {
-  //const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
   if ((this != &right) && globalLength())
   {
+    const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     { 
-      *aMultiVector_ = right.epetraObj();
+      *aMultiVector_ = e_right->epetraObj();
     }
     else
     {
@@ -229,12 +228,12 @@ BlockMultiVector& EpetraBlockMultiVector::operator=( const BlockMultiVector & ri
 //-----------------------------------------------------------------------------
 BlockMultiVector& EpetraBlockMultiVector::operator=( const MultiVector & right )
 {
-  //const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
   if ((this != &right) && globalLength())
   {
+    const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     {
-      *aMultiVector_ = right.epetraObj();
+      *aMultiVector_ = e_right->epetraObj();
     }
     else
     {
@@ -294,7 +293,7 @@ MultiVector* EpetraBlockMultiVector::cloneCopy() const
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
 {
-  //const EpetraVectorAccess& e_y = dynamic_cast<const EpetraVectorAccess &>( y );
+  const EpetraVectorAccess* e_y = dynamic_cast<const EpetraVectorAccess *>( &y );
   int xnum = numVectors();
   int ynum = y.numVectors();
   if (xnum == 1 || ynum == 1)
@@ -303,14 +302,14 @@ void EpetraBlockMultiVector::dotProduct(const MultiVector & y, std::vector<doubl
     {
       for (int j=0; j<ynum; ++j)
       {
-        (*aMultiVector_)(i)->Dot(*(y.epetraObj())(j), &d[i*ynum + j]);
+        (*aMultiVector_)(i)->Dot(*(e_y->epetraObj())(j), &d[i*ynum + j]);
       }
     }
   }
   else
   {
     // Let Epetra handle this.
-    int PetraError = aMultiVector_->Dot(y.epetraObj(), &d[0]);
+    int PetraError = aMultiVector_->Dot(e_y->epetraObj(), &d[0]);
 
     if (DEBUG_LINEAR)
       processError( "EpetraBlockMultiVector::dotProduct - ", PetraError );
@@ -343,8 +342,8 @@ void EpetraBlockMultiVector::scale(const double a)
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::reciprocal(const MultiVector & A)
 {
-  //const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  int PetraError = aMultiVector_->Reciprocal( A.epetraObj() );
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  int PetraError = aMultiVector_->Reciprocal( e_A->epetraObj() );
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMultiVector::reciprocal - ", PetraError);
@@ -360,7 +359,7 @@ void EpetraBlockMultiVector::reciprocal(const MultiVector & A)
 //-----------------------------------------------------------------------------
 const Vector* EpetraBlockMultiVector::getVectorView(int index) const
 {
-  const Vector* vec = new Vector((*aMultiVector_)(index),
+  const Vector* vec = new EpetraVector((*aMultiVector_)(index),
                                        aMultiVector_->Map(),false);
   return vec;
 }
@@ -375,7 +374,7 @@ const Vector* EpetraBlockMultiVector::getVectorView(int index) const
 //-----------------------------------------------------------------------------
 Vector* EpetraBlockMultiVector::getNonConstVectorView(int index)
 {
-  Vector* vec = new Vector((*aMultiVector_)(index),
+  Vector* vec = new EpetraVector((*aMultiVector_)(index),
                                  aMultiVector_->Map(),false);
   return vec;
 }
@@ -390,7 +389,7 @@ Vector* EpetraBlockMultiVector::getNonConstVectorView(int index)
 //-----------------------------------------------------------------------------
 const Vector* EpetraBlockMultiVector::getVectorViewAssembled(int index) const
 {
-  const Vector* vec = new Vector( new
+  const Vector* vec = new EpetraVector( new
                           Epetra_Vector( View, *aMultiVector_, index ), true );
   return vec;
 }
@@ -405,8 +404,8 @@ const Vector* EpetraBlockMultiVector::getVectorViewAssembled(int index) const
 //-----------------------------------------------------------------------------
 Vector* EpetraBlockMultiVector::getNonConstVectorViewAssembled(int index)
 {
-  Vector* vec = new Vector( new
-                Epetra_Vector( View, *aMultiVector_, index ), true );
+  Vector* vec = new EpetraVector( new
+                    Epetra_Vector( View, *aMultiVector_, index ), true );
   return vec;
 }
 
@@ -422,9 +421,9 @@ Vector* EpetraBlockMultiVector::getNonConstVectorViewAssembled(int index)
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::multiply(const MultiVector &x)
 {
-  //const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
+  const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
   int PetraError = aMultiVector_->Multiply(1.0, *aMultiVector_,
-                                           x.epetraObj(), 0.0);
+                                           e_x->epetraObj(), 0.0);
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMultiVector::multiply - ", PetraError);
@@ -444,8 +443,8 @@ void EpetraBlockMultiVector::multiply(const MultiVector &x)
 void EpetraBlockMultiVector::update( double a, const MultiVector & A,
                                      double s )
 {
-  //const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  aMultiVector_->Update( a, A.epetraObj(), s );
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  aMultiVector_->Update( a, e_A->epetraObj(), s );
 }
 
 //-----------------------------------------------------------------------------
@@ -463,10 +462,10 @@ void EpetraBlockMultiVector::update( double a, const MultiVector & A,
                                      double b, const MultiVector & B,
                                      double s )
 {
-  //const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  //const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
-  aMultiVector_->Update( a, A.epetraObj(),
-                         b, B.epetraObj(),
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+  aMultiVector_->Update( a, e_A->epetraObj(),
+                         b, e_B->epetraObj(),
                          s );
 }
 
@@ -590,8 +589,8 @@ int EpetraBlockMultiVector::infNorm(double * result, int * index) const
 //-----------------------------------------------------------------------------
 int EpetraBlockMultiVector::wRMSNorm(const MultiVector & weights, double * result) const
 {
-  //const EpetraVectorAccess* e_weights = dynamic_cast<const EpetraVectorAccess *>( &weights );
-  int PetraError = aMultiVector_->NormWeighted( weights.epetraObj(), result );
+  const EpetraVectorAccess* e_weights = dynamic_cast<const EpetraVectorAccess *>( &weights );
+  int PetraError = aMultiVector_->NormWeighted( e_weights->epetraObj(), result );
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMultiVector::wRMSNorm - ", PetraError);
@@ -679,8 +678,8 @@ void EpetraBlockMultiVector::addScalar(const double scalar)
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::absValue(const MultiVector & A)
 {
-  //const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  int PetraError = aMultiVector_->Abs( A.epetraObj() );
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  int PetraError = aMultiVector_->Abs( e_A->epetraObj() );
 
   if (DEBUG_LINEAR)
     processError( "EpetraBlockMultiVector::absValue - ", PetraError);
@@ -698,8 +697,8 @@ bool EpetraBlockMultiVector::vectorImport(const MultiVector * vec,
                                           Importer * importer)
 {
   EpetraImporter * e_importer = dynamic_cast<EpetraImporter *>( importer );
-  //const EpetraVectorAccess* e_vec = dynamic_cast<const EpetraVectorAccess *>( vec );
-  aMultiVector_->Import(vec->epetraObj(), e_importer->epetraObj(), Insert);
+  const EpetraVectorAccess* e_vec = dynamic_cast<const EpetraVectorAccess *>( vec );
+  aMultiVector_->Import(e_vec->epetraObj(), e_importer->epetraObj(), Insert);
   return true;
 }
 

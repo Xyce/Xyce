@@ -221,7 +221,9 @@ void EpetraMatrix::fillComplete()
 void EpetraMatrix::matvec(bool transA, const MultiVector &x,
                           MultiVector &y)
 {
-  int PetraError = aDCRSMatrix_->Multiply(transA, x.epetraObj(), y.epetraObj());
+  const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
+  EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );
+  int PetraError = aDCRSMatrix_->Multiply(transA, e_x->epetraObj(), e_y->epetraObj());
 
   if (DEBUG_LINEAR)
     processError( "EpetraMatrix::matvec - ", PetraError);
@@ -462,7 +464,8 @@ void EpetraMatrix::replaceLocalRow(int row, int length, double *coeffs, int *col
 //-----------------------------------------------------------------------------
 void EpetraMatrix::getDiagonal( Vector & diagonal ) const
 {
-  Epetra_Vector * ediag = diagonal.epetraObj()(0);
+  EpetraVectorAccess* e_diag = dynamic_cast<EpetraVectorAccess *>( &diagonal );
+  Epetra_Vector * ediag = e_diag->epetraObj()(0);
   int PetraError = aDCRSMatrix_->ExtractDiagonalCopy( *ediag );
 
   if (DEBUG_LINEAR)
@@ -479,7 +482,8 @@ void EpetraMatrix::getDiagonal( Vector & diagonal ) const
 //-----------------------------------------------------------------------------
 bool EpetraMatrix::replaceDiagonal( const Vector & vec )
 {
-  const Epetra_Vector * eVec = vec.epetraObj()(0);
+  const EpetraVectorAccess* e_diag = dynamic_cast<const EpetraVectorAccess *>( &vec );
+  const Epetra_Vector * eVec = e_diag->epetraObj()(0);
   int PetraError = aDCRSMatrix_->ReplaceDiagonalValues( *eVec );
 
   if (DEBUG_LINEAR)

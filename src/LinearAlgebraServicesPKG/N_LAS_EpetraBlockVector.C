@@ -49,7 +49,9 @@
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_EpetraHelpers.h>
 
+#include <N_LAS_EpetraVector.h>
 #include <N_LAS_BlockSystemHelpers.h>
+
 #include <N_UTL_FeatureTest.h>
 
 #include <N_ERH_ErrorMgr.h>
@@ -59,7 +61,6 @@
 #include <Epetra_Map.h>
 #include <Epetra_Vector.h>
 #include <Epetra_MultiVector.h>
-#include <EpetraExt_MultiVectorOut.h>
 
 namespace Xyce {
 namespace Linear {
@@ -114,7 +115,7 @@ EpetraBlockVector::EpetraBlockVector( int numBlocks,
   for( int i = 0; i < numBlocks; ++i )
   {
     Loc = Ptrs[0] + overlapBlockSize_*i;
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_map2.petraMap(), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new EpetraVector( new Epetra_Vector( View, *e_map2.petraMap(), Loc ), true ) );
   }
 }
 
@@ -191,7 +192,7 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
     Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new EpetraVector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {
@@ -211,9 +212,9 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
 //-----------------------------------------------------------------------------
 BlockVector & EpetraBlockVector::operator=( const BlockVector & right )
 {
-  const EpetraBlockVector* e_right = dynamic_cast<const EpetraBlockVector *>( &right );
-  if ( (this != e_right) && globalLength() )
+  if ( (this != &right) && globalLength() )
   {
+    const EpetraBlockVector* e_right = dynamic_cast<const EpetraBlockVector *>( &right );
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     {
       epetraObj() = e_right->epetraObj();
@@ -240,9 +241,10 @@ BlockVector & EpetraBlockVector::operator=(const Vector & right)
 {
   if( (this != &right) && globalLength() )
   {
+    const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
     if ( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
     {
-      epetraObj() = right.epetraObj();
+      epetraObj() = e_right->epetraObj();
     }
     else
     {
@@ -264,7 +266,7 @@ BlockVector & EpetraBlockVector::operator=(const Vector & right)
 //-----------------------------------------------------------------------------
 EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
 : parallelMap_(0),
-  aMultiVector_( const_cast<Epetra_Vector*>((right->epetraObj())(0)) ),
+  aMultiVector_(0),
   vecOwned_(false),
   mapOwned_(false),
   groundNode_(0.0),
@@ -277,6 +279,9 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
   endBlock_( right->globalLength() / blockSize ),
   blocks_( right->globalLength() / blockSize )
 {
+  const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( right );
+  aMultiVector_ = const_cast<Epetra_Vector*>((e_right->epetraObj())(0));
+
   pdsComm_ = Teuchos::rcp( Xyce::Parallel::createPDSComm( &aMultiVector_->Comm() ) );
 
   // If the oscillating HB algorithm is being used then augmentCount_ is probably not zero.
@@ -320,7 +325,7 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
     Teuchos::RCP<Parallel::EpetraParMap> e_currBlockMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(currBlockMap);
 
     // Create a Vector that views all the block data that is local.
-    blocks_[i] =  Teuchos::rcp( new Vector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
+    blocks_[i] =  Teuchos::rcp( new EpetraVector( new Epetra_Vector( View, *e_currBlockMap->petraMap(), Loc ), true ) );
 
     if ( (i >= startBlock_) && (i < endBlock_) )
     {
@@ -388,8 +393,10 @@ Vector* EpetraBlockVector::cloneCopyVector() const
 //-----------------------------------------------------------------------------
 double EpetraBlockVector::dotProduct( const Vector & y ) const
 {
+  const EpetraVectorAccess* e_y = dynamic_cast<const EpetraVectorAccess *>( &y );
+
   double result = 0.0;
-  aMultiVector_->Dot(y.epetraObj(), &result);
+  aMultiVector_->Dot(e_y->epetraObj(), &result);
 
   return result;
 }
@@ -404,10 +411,12 @@ double EpetraBlockVector::dotProduct( const Vector & y ) const
 //-----------------------------------------------------------------------------
 void EpetraBlockVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
 {
+  const EpetraVectorAccess* e_y = dynamic_cast<const EpetraVectorAccess *>( &y );
+
   int ynum = y.numVectors();
   for (int j=0; j<ynum; ++j)
   {
-    aMultiVector_->Dot(*(y.epetraObj()(j)), &d[j]);
+    aMultiVector_->Dot(*(e_y->epetraObj()(j)), &d[j]);
   }
 }
 
@@ -443,7 +452,9 @@ int EpetraBlockVector::lpNorm(const int p, double * result) const
 //-----------------------------------------------------------------------------
 int EpetraBlockVector::wRMSNorm(const MultiVector & weights, double * result) const
 {
-  aMultiVector_->NormWeighted( weights.epetraObj(), result );
+  const EpetraVectorAccess* e_weights = dynamic_cast<const EpetraVectorAccess *>( &weights );
+
+  aMultiVector_->NormWeighted( e_weights->epetraObj(), result );
   return 0;
 }
 
@@ -653,67 +664,109 @@ bool EpetraBlockVector::sumElementByGlobalIndex(const int & global_index,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EpetraBlockVector::writeToFile
-// Purpose       : Dumps out the multivector entries to a file.
+// Function      : EpetraBlockVector::getVectorView
+// Purpose       : Output
 // Special Notes :
 // Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/19/00
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
 //-----------------------------------------------------------------------------
-void EpetraBlockVector::writeToFile( const char * filename, bool useLIDs, bool mmFormat ) const
+const Vector* EpetraBlockVector::getVectorView(int index) const
 {
-  int numProcs = pdsComm()->numProc();
-  int localRank = pdsComm()->procID();
-  int masterRank = 0;
+  const Vector* vec = new EpetraVector(const_cast<Epetra_Vector*>((*aMultiVector_)(index)),
+                                       (*aMultiVector_).Map(),false);
+  return vec;
+}
 
-  if (!mmFormat)
-  {
-    for( int p = 0; p < numProcs; ++p )
-    {
-      //A barrier inside the loop so each processor waits its turn.
-      pdsComm()->barrier();
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::getNonConstVectorView
+// Purpose       : Output
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+Vector* EpetraBlockVector::getNonConstVectorView(int index)
+{
+  Vector* vec = new EpetraVector((*aMultiVector_)(index),
+                                 (*aMultiVector_).Map(),false);
+  return vec;
+}
 
-      if(p == localRank)
-      {
-        FILE *file = NULL;
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::absValue
+// Purpose       : Absolute value element-wise for vector
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::absValue(const MultiVector & A) 
+{ 
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  aMultiVector_->Abs(e_A->epetraObj()); 
+}
 
-        if(masterRank == localRank)
-        {
-          //This is the master processor, open a new file.
-          file = fopen(filename,"w");
-
-          //Write the dimension n into the file.
-          fprintf(file,"%d\n",globalLength());
-        }
-        else
-        {
-          //This is not the master proc, open file for appending
-          file = fopen(filename,"a");
-        }
-
-        //Now loop over the local portion of the block vector.
-        int length  = localLength();
-        int numVecs = numVectors();
-
-        for (int i = 0; i < numVecs; ++i)
-          for (int j = 0; j < length; ++j)
-          {
-            int loc = aMultiVector_->Map().GID(j);
-            if( useLIDs ) loc = j;
-            fprintf(file,"%d %d %20.13e\n",i,loc,(*aMultiVector_)[i][j]);
-          } 
-        fclose(file);
-      } 
-    } 
-  } 
-  else
-  {
-    EpetraExt::MultiVectorToMatrixMarketFile( filename, *aMultiVector_ );
-  } 
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::reciprocal
+// Purpose       : Reciprocal of elements in vector
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::reciprocal(const MultiVector & A) 
+{ 
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  aMultiVector_->Reciprocal(e_A->epetraObj()); 
 }
 
 //-----------------------------------------------------------------------------
 // Function      : EpetraBlockVector:::print
+// Purpose       : Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::multiply(const MultiVector & x)
+{ 
+  const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
+  aMultiVector_->Multiply(1.0, *aMultiVector_, e_x->epetraObj(), 0.0); 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::update
+// Purpose       : Linear combination with one and two constants and vectors
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::update(double a, const MultiVector & A, double s)
+{ 
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  aMultiVector_->Update( a, e_A->epetraObj(), s ); 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::update
+// Purpose       : update 
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::update(double a, const MultiVector & A, double b,
+                               const MultiVector & B, double s)
+{ 
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+  aMultiVector_->Update( a, e_A->epetraObj(), b, e_B->epetraObj(), s ); 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::print
 // Purpose       : Output
 // Special Notes :
 // Scope         : Public

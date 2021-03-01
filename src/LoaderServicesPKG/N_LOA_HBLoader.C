@@ -538,11 +538,14 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
 
   if ( !linAppdQdxPtr_->isEmpty() || !linAppdFdxPtr_->isEmpty())
   {
-    Linear::MultiVector lindQdxV( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
-    Linear::MultiVector lindFdxV( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
+    Teuchos::RCP<Linear::MultiVector> lindQdxV = 
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
+    Teuchos::RCP<Linear::MultiVector> lindFdxV =
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
 
     int numMyRows = (bVtPtr_->blockPmap())->numLocalEntities();
-    Linear::MultiVector permVf( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 );
+    Teuchos::RCP<Linear::MultiVector> permVf =
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
 
     // Now copy over data for the blocks that this processor owns.
     // NOTE:  Copy over all rows, some devices like VCVS may refer to columns
@@ -552,15 +555,15 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
       Linear::Vector & currBlock = bVf->block(first + row);
 
       // Insert zero-th value of the Fourier expansion, only need real value.
-      (*permVf(row,0)) = currBlock[0];
+      (*(*permVf)(row,0)) = currBlock[0];
       for (int j=1; j<currBlock.localLength()/2; j++) 
       {
-        (*permVf(row,j)) = currBlock[j+1];
+        (*(*permVf)(row,j)) = currBlock[j+1];
       } 
     }
 
-    linAppdQdxPtr_->matvec(permVf, lindQdxV);
-    linAppdFdxPtr_->matvec(permVf, lindFdxV);
+    linAppdQdxPtr_->matvec(*permVf, *lindQdxV);
+    linAppdFdxPtr_->matvec(*permVf, *lindFdxV);
 
     // Now copy over data for the blocks that this processor owns.
     for (std::vector<int>::iterator it = linNZRows_.begin(); it != linNZRows_.end(); it++)
@@ -571,32 +574,32 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
       {
         Linear::Vector & currBlock = permlindQdxV.block(first + row);
 
-        currBlock[0] = (*lindQdxV(row,0));
+        currBlock[0] = (*(*lindQdxV)(row,0));
         currBlock[1] = 0.0;
 
         for (int j=1; j< (numharms + 1)/2; j++)
         {
-          currBlock[2*j] = (*lindQdxV(row,2*j-1));
-          currBlock[2*(numharms-j)] = (*lindQdxV(row,2*j-1));
+          currBlock[2*j] = (*(*lindQdxV)(row,2*j-1));
+          currBlock[2*(numharms-j)] = (*(*lindQdxV)(row,2*j-1));
      
-          currBlock[2*j+1] = (*lindQdxV(row,2*j));
-          currBlock[2*( numharms - j) + 1] = -(*lindQdxV(row,2*j));
+          currBlock[2*j+1] = (*(*lindQdxV)(row,2*j));
+          currBlock[2*( numharms - j) + 1] = -(*(*lindQdxV)(row,2*j));
         }
       }
 
       if (!linAppdFdxPtr_->isEmpty())
       {
         Linear::Vector & currBlockF = permlindFdxV.block(first + row);
-        currBlockF[0] += (*lindFdxV(row,0));
+        currBlockF[0] += (*(*lindFdxV)(row,0));
         currBlockF[1] += 0.0;
 
         for (int j=1; j< (numharms + 1)/2; j++)
         {
-          currBlockF[2*j] += (*lindFdxV(row,2*j-1));
-          currBlockF[2*(numharms-j)] += (*lindFdxV(row,2*j-1));
+          currBlockF[2*j] += (*(*lindFdxV)(row,2*j-1));
+          currBlockF[2*(numharms-j)] += (*(*lindFdxV)(row,2*j-1));
 
-          currBlockF[2*j+1] += (*lindFdxV(row,2*j));
-          currBlockF[2*(numharms-j)+1] -= (*lindFdxV(row,2*j));
+          currBlockF[2*j+1] += (*(*lindFdxV)(row,2*j));
+          currBlockF[2*(numharms-j)+1] -= (*(*lindFdxV)(row,2*j));
         }
       }
     }

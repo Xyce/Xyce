@@ -42,8 +42,6 @@
 #include <N_LAS_MultiVector.h>
 #include <N_PDS_fwd.h>
 
-#include <Epetra_Vector.h>
-
 namespace Xyce {
 namespace Linear {
 
@@ -63,66 +61,27 @@ public:
   // Default constructor
   Vector() {}
 
-  // Constructors to map to Petra constructors.
-  Vector( const Parallel::ParMap & map )
-  : MultiVector(map, 1)
-  {}
-
-  Vector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map )
-  : MultiVector( map, ol_map, 1 )
-  {}
-
-  // Constructor that wraps an Epetra vector inside a Linear::Vector.
-  // This is used in the nonlinear solver and linear solver interface.
-  Vector( Epetra_Vector * origV, bool isOwned);
-
-  // Constructor takes the overlap Epetra vector and generates the assembled vector.
-  Vector( Epetra_Vector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned = true );
-
   // Destructor
   virtual ~Vector() {}
 
-  virtual Vector& operator=( const Vector& right )
-  {
-    MultiVector::operator=(right);
-    return *this;
-  }
+  virtual Vector& operator=( const Vector& right ) = 0;
+  MultiVector & operator=(const MultiVector & right)
+  { Vector::operator=( right ); return *this; }
 
   // Clone operation:
-  virtual Vector* cloneVector() const;
+  virtual Vector* cloneVector() const = 0;
 
   // Clone operation:
-  virtual Vector* cloneCopyVector() const;
+  virtual Vector* cloneCopyVector() const = 0;
 
   // Operation: operator []
-  virtual double & operator[] (int index)
-  {
-    if (index >= 0)
-      return epetraOverlapObj()[0][index];
-    else
-      return groundNode_;
-  }
+  virtual double & operator[] (int index) = 0;
 
   // Operation: operator []
-  virtual const double & operator[] (int index) const
-  {
-    if (index >= 0)
-      return epetraOverlapObj()[0][index];
-    else
-      return groundNode_;
-  }
+  virtual const double & operator[] (int index) const = 0;
 
   // Dot product with another vector.
-  virtual double dotProduct(const Vector & y) const;
-
-private:
-
-  //Copy constructor
-  Vector( const Vector & right )
-  : MultiVector(right)
-  {}
-
-  double groundNode_;
+  virtual double dotProduct(const Vector & y) const = 0;
 
 };
 

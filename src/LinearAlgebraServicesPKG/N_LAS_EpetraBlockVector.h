@@ -46,7 +46,7 @@
 
 #include <Teuchos_RCP.hpp>
 
-
+#include <N_LAS_EpetraHelpers.h>
 #include <Epetra_Vector.h>
 
 namespace Xyce {
@@ -59,7 +59,7 @@ namespace Linear {
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 3/12/04
 //-----------------------------------------------------------------------------
-class EpetraBlockVector : public BlockVector
+class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
 {
  public:
   EpetraBlockVector( int numBlocks,
@@ -131,16 +131,13 @@ class EpetraBlockVector : public BlockVector
   void scale(const double a) { aMultiVector_->Scale( a ); }
 
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
-  void multiply(const MultiVector & x) 
-  { aMultiVector_->Multiply(1.0, *aMultiVector_, x.epetraObj(), 0.0); }
+  void multiply(const MultiVector & x); 
 
   // Linear combination with one and two constants and vectors
-  void update(double a, const MultiVector & A, double s = 1.0)
-  { aMultiVector_->Update( a, A.epetraObj(), s ); }
+  void update(double a, const MultiVector & A, double s = 1.0);
 
   void update(double a, const MultiVector & A, double b,
-                      const MultiVector & B, double s = 1.0)
-  { aMultiVector_->Update( a, A.epetraObj(), b, B.epetraObj(), s ); }
+                      const MultiVector & B, double s = 1.0);
 
   // Compute the l_p norm (e.g., 2-norm is l_2)
   int lpNorm(const int p, double * result) const;
@@ -158,16 +155,17 @@ class EpetraBlockVector : public BlockVector
   void random() { aMultiVector_->Random(); }
 
   // Fill vector with constant value.
-  void putScalar(const double scalar) { aMultiVector_->PutScalar( scalar ); groundNode_ = scalar; }
+  void putScalar(const double scalar) 
+  { aMultiVector_->PutScalar( scalar ); groundNode_ = scalar; }
 
   // Add to vector with constant value.
   void addScalar(const double scalar);
 
   // Absolute value element-wise for vector
-  void absValue(const MultiVector & A) { aMultiVector_->Abs(A.epetraObj()); }
+  void absValue(const MultiVector & A);
 
   // Reciprocal of elements in vector
-  void reciprocal(const MultiVector & A) { aMultiVector_->Reciprocal(A.epetraObj()); }
+  void reciprocal(const MultiVector & A);
 
   // Get the global (across all processors) length of the multi-vector
   int globalLength() const { return aMultiVector_->GlobalLength(); }
@@ -183,7 +181,8 @@ class EpetraBlockVector : public BlockVector
   const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
 
   // Dump vector entries to file.
-  void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const;
+  void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const
+  { Xyce::Linear::writeToFile( *aMultiVector_, filename, useLIDs, mmFormat ); }
 
   // Get for vector elements by their global index (const version)
   const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;
@@ -293,20 +292,6 @@ inline const double & EpetraBlockVector::operator[] (int index) const
     return (*aMultiVector_)[0][index];
   else
     return groundNode_;
-}
-
-inline const Vector* EpetraBlockVector::getVectorView(int index) const
-{ 
-  const Vector* vec = new Vector(const_cast<Epetra_Vector*>((*aMultiVector_)(index)),
-                                 (*aMultiVector_).Map(),false);
-  return vec;
-}
-
-inline Vector* EpetraBlockVector::getNonConstVectorView(int index)
-{
-  Vector* vec = new Vector((*aMultiVector_)(index),
-                           (*aMultiVector_).Map(),false);
-  return vec;
 }
 
 inline void EpetraBlockVector::addScalar(const double scalar)

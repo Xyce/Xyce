@@ -56,7 +56,7 @@ namespace Linear {
 // Creator       : Robert Hoekstra, SNL, Computational Sciences
 // Creation Date : 3/12/04
 //-----------------------------------------------------------------------------
-class EpetraBlockMultiVector : public BlockMultiVector 
+class EpetraBlockMultiVector : public BlockMultiVector, public EpetraVectorAccess 
 {
  public:
 
@@ -194,10 +194,10 @@ class EpetraBlockMultiVector : public BlockMultiVector
   // Get the parallel communicator associated with this multi-vector
   const Parallel::Communicator* pdsComm() const { return pdsComm_.get(); }
 
-  Epetra_MultiVector & epetraObj() { return *this->aMultiVector_; }
-  const Epetra_MultiVector & epetraObj() const { return *this->aMultiVector_; }
-  Epetra_MultiVector & epetraOverlapObj() { return *this->aMultiVector_; }
-  const Epetra_MultiVector & epetraOverlapObj() const { return *this->aMultiVector_; }
+  Epetra_MultiVector & epetraObj() { return *aMultiVector_; }
+  const Epetra_MultiVector & epetraObj() const { return *aMultiVector_; }
+  Epetra_MultiVector & epetraOverlapObj() { return *aMultiVector_; }
+  const Epetra_MultiVector & epetraOverlapObj() const { return *aMultiVector_; }
 
   // Get for vector elements by their global index 
   const double & getElementByGlobalIndex(const int & global_index, const int & vec_index = 0) const;

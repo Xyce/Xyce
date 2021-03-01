@@ -45,6 +45,7 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
+#include "N_UTL_Math.h"
 #include "N_NLS_NOX_AugmentLinSys_GStepping.h"
 
 namespace Xyce {

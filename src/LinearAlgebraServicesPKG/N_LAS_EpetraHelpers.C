@@ -41,14 +41,14 @@
 
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_EpetraHelpers.h>
-#include <N_LAS_MultiVector.h>
-#include <N_LAS_Vector.h>
+#include <N_LAS_EpetraMultiVector.h>
 #include <N_LAS_Operator.h>
 #include <N_LAS_EpetraMatrix.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraImporter.h>
 #include <N_LAS_EpetraGraph.h>
 #include <N_LAS_EpetraBlockMultiVector.h>
+#include <N_LAS_EpetraVector.h>
 
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
@@ -69,24 +69,24 @@ namespace Linear {
 MultiVector* createMultiVector( const Parallel::ParMap & map,
                                 int numVectors )
 {
-  return new MultiVector( map, numVectors );
+  return new EpetraMultiVector( map, numVectors );
 }
 
 MultiVector* createMultiVector( const Parallel::ParMap & map,
                                 const Parallel::ParMap & ol_map,
                                 int numVectors )
 {
-  return new MultiVector( map, ol_map, numVectors );
+  return new EpetraMultiVector( map, ol_map, numVectors );
 }
 
 Vector* createVector( const Parallel::ParMap & map ) 
 {
-  return new Vector( map );
+  return new EpetraVector( map );
 }
 
 Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_map )
 {
-  return new Vector( map, ol_map );
+  return new EpetraVector( map, ol_map );
 }
 
 Matrix* createMatrix( const Graph* overlapGraph,

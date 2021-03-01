@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -23,31 +23,25 @@
 //-------------------------------------------------------------------------
 //
 // Purpose        : Implementation file for the Abstract interface to the
-//                  multi-vector types (RDP, RSP, CDP or CSP).
+//                  vector types (RDP, RSP, CDP or CSP).
 //
 // Special Notes  :
 //
-// Creator        : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creator        : Scott A. Hutchinson, SNL, Computational Sciences
 //
-// Creation Date  : 05/20/00
-//
-//
-//
+// Creation Date  : 10/13/00
 //
 //-------------------------------------------------------------------------
 
 #include <Xyce_config.h>
 
-// ---------- Standard Includes ----------
-#include <cstdio>
-
 // ----------   Xyce Includes   ----------
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_MultiVector.h>
-#include <N_LAS_Vector.h>
+#include <N_LAS_EpetraVector.h>
 #include <N_LAS_EpetraImporter.h>
+#include <N_LAS_EpetraVector.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
@@ -66,43 +60,22 @@
 #include <EpetraExt_View_MultiVector.h>
 #include <EpetraExt_MultiVectorOut.h>
 
+// ---------- Standard Includes ----------
+
 namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
+// Function      : EpetraVector::EpetraVector
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector()
-:  parallelMap_(0),
-   overlapMap_(0),
-   aMultiVector_(0),
-   oMultiVector_(0),
-   importer_(0),
-   exporter_(0),
-   viewTransform_(0),
-   vecOwned_(false),
-   mapOwned_(false),
-   groundNode_(0.0)
-{}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
-// Purpose       : Constructor
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/20/00
-//-----------------------------------------------------------------------------
-MultiVector::MultiVector(const Parallel::ParMap & map, int numVectors)
+EpetraVector::EpetraVector(const Parallel::ParMap & map)
 :  parallelMap_(&map),
    overlapMap_(&map),
-   aMultiVector_(0),
-   oMultiVector_(0),
    importer_(0),
    exporter_(0),
    viewTransform_(0),
@@ -114,38 +87,29 @@ MultiVector::MultiVector(const Parallel::ParMap & map, int numVectors)
 
   if (map.numGlobalEntities() < 0)
   {
-    Report::DevelFatal().in("MultiVector::MultiVector")
+    Report::DevelFatal().in("EpetraVector::EpetraVector")
       << "vector length too short. Vectors must be > 0 in length.";
-  }
-  else if (numVectors < 1)
-  {
-     Report::DevelFatal().in("MultiVector::MultiVector")
-      << "numVectors < 1";
   }
 
   // Create a new Petra MultiVector and set the pointer.
   const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( map );
-  aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), numVectors );
+  aMultiVector_ = new Epetra_MultiVector( *e_map.petraMap(), 1 );
 
   oMultiVector_ = aMultiVector_;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
+// Function      : EpetraVector::EpetraVector
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/06/02
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector(
-  const Parallel::ParMap &        map,
-  const Parallel::ParMap &        ol_map,
-  int                   numVectors )
+EpetraVector::EpetraVector( const Parallel::ParMap &        map,
+                            const Parallel::ParMap &        ol_map )
   : parallelMap_(&map),
     overlapMap_(&ol_map),
-    aMultiVector_(0),
-    oMultiVector_(0),
     importer_(0),
     exporter_(0),
     viewTransform_(0),
@@ -156,13 +120,13 @@ MultiVector::MultiVector(
   pdsComm_ = rcp( &map.pdsComm(),false ); 
 
   if (map.numGlobalEntities() < 0)
-    Report::DevelFatal().in("MultiVector::MultiVector")
+    Report::DevelFatal().in("EpetraVector::EpetraVector")
       << "vector length too short. Vectors must be > 0 in length.";
 
   // Create a new Petra MultiVector and set the pointer.
   const Parallel::EpetraParMap& e_map = dynamic_cast<const Parallel::EpetraParMap&>( map );
   const Parallel::EpetraParMap& e_ol_map = dynamic_cast<const Parallel::EpetraParMap&>( ol_map );
-  oMultiVector_ = new Epetra_MultiVector( *e_ol_map.petraMap(), numVectors);
+  oMultiVector_ = new Epetra_MultiVector( *e_ol_map.petraMap(), 1 );
 
   viewTransform_ = new EpetraExt::MultiVector_View( *e_ol_map.petraMap(), *e_map.petraMap() );
   aMultiVector_ = &((*viewTransform_)(*oMultiVector_));
@@ -175,18 +139,18 @@ MultiVector::MultiVector(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
+// Function      : EpetraVector::EpetraVector
 // Purpose       : Copy Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector( const MultiVector & right )
+EpetraVector::EpetraVector( const EpetraVector& right )
 : parallelMap_( right.parallelMap_ ),
   overlapMap_( right.overlapMap_ ),
   aMultiVector_(0),
-  oMultiVector_( new Epetra_MultiVector( *(right.oMultiVector_) ) ),
+  oMultiVector_(0),
   importer_(0),
   exporter_(0),
   viewTransform_(0),
@@ -195,6 +159,8 @@ MultiVector::MultiVector( const MultiVector & right )
   mapOwned_(false),
   groundNode_(0.0)
 {
+  oMultiVector_ = new Epetra_MultiVector( *right.oMultiVector_ );
+
   if (right.aMultiVector_ == right.oMultiVector_)
     aMultiVector_ = oMultiVector_;
   else
@@ -218,17 +184,16 @@ MultiVector::MultiVector( const MultiVector & right )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
+// Function      : EpetraVector::EpetraVector
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned )
+EpetraVector::EpetraVector( Epetra_Vector * overlapMV, const Epetra_BlockMap& parMap, bool isOwned )
 : parallelMap_(0),
   overlapMap_(0),
-  aMultiVector_(0),
   oMultiVector_( overlapMV ),
   importer_(0),
   exporter_(0),
@@ -256,14 +221,14 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::MultiVector
+// Function      : EpetraVector::EpetraVector
 // Purpose       : Constructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 04/09/03
 //-----------------------------------------------------------------------------
-MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
+EpetraVector::EpetraVector( Epetra_Vector * origMV, bool isOwned )
 : parallelMap_(0),
   overlapMap_(0),
   aMultiVector_( origMV ),
@@ -279,31 +244,75 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::operator=
+// Function      : cloneVector
+// Purpose       : vector clone function 
+// Special Notes : clones shape, not values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* EpetraVector::cloneVector() const
+{
+  EpetraVector* new_vec = 0;
+  if ( parallelMap_ )
+  {
+    if ( parallelMap_ == overlapMap_ )
+      new_vec = new EpetraVector( *parallelMap_ );
+    else
+      new_vec = new EpetraVector( *parallelMap_, *overlapMap_ );
+  }
+  else
+  {
+    // We don't have a map, so perform a cloneCopy
+    new_vec = new EpetraVector( *this );
+  }
+  return new_vec;
+}
+  
+//-----------------------------------------------------------------------------
+// Function      : cloneCopyVector
+// Purpose       : vector clone function 
+// Special Notes : clones shape and values
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 04/09/03
+//-----------------------------------------------------------------------------
+Vector* EpetraVector::cloneCopyVector() const
+{
+  return new EpetraVector( *this );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraVector::operator=
 // Purpose       : assignment
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector & MultiVector::operator=( const MultiVector & right )
+Vector& EpetraVector::operator=( const Vector& right )
 {
-  if ( (this != &right) && globalLength() )
+  if (this != &right && globalLength())
   {
-    if( (this->epetraOverlapObj().Map().NumGlobalElements() == right.epetraOverlapObj().Map().NumGlobalElements())
-        && (this->epetraOverlapObj().Map().NumMyElements() == right.epetraOverlapObj().Map().NumMyElements()) )
+    const EpetraVectorAccess* e_right = dynamic_cast<const EpetraVectorAccess *>( &right );
+    const Epetra_MultiVector & e_aMV = e_right->epetraObj();
+    const Epetra_MultiVector & e_oMV = e_right->epetraOverlapObj();
+
+    if( (oMultiVector_->Map().NumGlobalElements() == e_aMV.Map().NumGlobalElements())
+        && (oMultiVector_->Map().NumMyElements() == e_oMV.Map().NumMyElements()) )
     {
-      this->epetraOverlapObj() = right.epetraOverlapObj();
+      *oMultiVector_ = e_oMV;
     }
 
     if( (globalLength() == right.globalLength()) && (localLength() == right.localLength()) )
+        
     {
-      this->epetraObj() = right.epetraObj();
+      *aMultiVector_ = e_aMV;
     }
     else
     {
       if (VERBOSE_LINEAR)
-        Report::DevelFatal0() <<"MultiVector being assigned with different map";
+        Report::DevelFatal0() <<"EpetraVector being assigned with different map";
     }
   }
 
@@ -311,14 +320,14 @@ MultiVector & MultiVector::operator=( const MultiVector & right )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::~MultiVector
+// Function      : EpetraVector::~EpetraVector
 // Purpose       : Default destructor
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/00
 //-----------------------------------------------------------------------------
-MultiVector::~MultiVector()
+EpetraVector::~EpetraVector()
 {
   delete importer_;
   delete exporter_;
@@ -336,133 +345,61 @@ MultiVector::~MultiVector()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::clone
-// Purpose       : clone multivector
-// Special Notes : clone shape, not values
+// Function      : EpetraVector::dotProduct
+// Purpose       : Returns the dot product of "this" vector and another.
+// Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist, SNL
-// Creation Date : 11/18/20
+// Creation Date : 02/08/17
 //-----------------------------------------------------------------------------
-MultiVector* MultiVector::clone() const
+double EpetraVector::dotProduct( const Vector & y ) const
 {
-  MultiVector* new_vec = 0;
-  if ( parallelMap_ )
-  {
-    if ( parallelMap_ == overlapMap_ )
-      new_vec = new MultiVector( *parallelMap_, this->numVectors() );
-    else
-      new_vec = new MultiVector( *parallelMap_, *overlapMap_, this->numVectors() );
-  }
-  else
-  {
-    // We don't have a map, so perform a cloneCopy
-    new_vec = new MultiVector( *this );
-  }
-  return new_vec;
+  double result = 0.0;
+  const EpetraVectorAccess* e_y = dynamic_cast<const EpetraVectorAccess *>( &y );
+  int PetraError = aMultiVector_->Dot(e_y->epetraObj(), &result);
+
+  if (DEBUG_LINEAR)
+    processError( "EpetraVector::dotProduct - ", PetraError );
+
+  return result;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::cloneCopy
-// Purpose       : clone multivector
-// Special Notes : clone shape and values
-// Scope         : Public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 11/18/20
-//-----------------------------------------------------------------------------
-MultiVector* MultiVector::cloneCopy() const
-{
-  return new MultiVector( *this );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::globalLength
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/22/00
-//-----------------------------------------------------------------------------
-int MultiVector::globalLength() const
-{
-  return aMultiVector_->GlobalLength();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::localLength
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/22/00
-//-----------------------------------------------------------------------------
-int MultiVector::localLength() const
-{
-  return aMultiVector_->MyLength();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::numVectors
-// Purpose       :
-// Special Notes :
-// Scope         : Public
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/22/00
-//-----------------------------------------------------------------------------
-int MultiVector::numVectors() const
-{
-  return aMultiVector_->NumVectors();
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::dotProduct
+// Function      : EpetraVector::dotProduct
 // Purpose       : Returns the dot product of "this" vector and another.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/22/00
 //-----------------------------------------------------------------------------
-void MultiVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
+void EpetraVector::dotProduct(const MultiVector & y, std::vector<double>& d) const
 {
-  int xnum = aMultiVector_->NumVectors();
+  const EpetraVectorAccess* e_y = dynamic_cast<const EpetraVectorAccess *>( &y );
   int ynum = y.numVectors();
-  if (xnum == 1 || ynum == 1)
+  for (int j=0; j<ynum; ++j)
   {
-    for (int i=0; i<xnum; ++i)
-    {
-      for (int j=0; j<ynum; ++j)
-      {
-        (*aMultiVector_)(i)->Dot(*(y.epetraObj()(j)), &d[i*ynum + j]);
-      }
-    }
-  }
-  else
-  {    
-    // Let Epetra handle this.
-    int PetraError = aMultiVector_->Dot(y.epetraObj(), &d[0]);
-  
-    if (DEBUG_LINEAR)
-      processError( "MultiVector::dotProduct - ", PetraError );
+    aMultiVector_->Dot(*(e_y->epetraObj()(j)), &d[j]);
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::scale
+// Function      : EpetraVector::scale
 // Purpose       : Scales a MultiVector by a constant value.
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/23/00
 //-----------------------------------------------------------------------------
-void MultiVector::scale(const double a)
+void EpetraVector::scale(const double a)
 {
   int PetraError = aMultiVector_->Scale(a);
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::scale - ", PetraError);
+    processError( "EpetraVector::scale - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::multiply
+// Function      : EpetraVector::multiply
 // Purpose       : Performs element-wise multiplication of two vectors
 //                 this = this @ x
 //                 where @ represents element-wise multiplication
@@ -471,17 +408,18 @@ void MultiVector::scale(const double a)
 // Creator       : Roger P. Pawlowski, SNL, Parallel Computational Sciences
 // Creation Date : 3/24/03
 //-----------------------------------------------------------------------------
-void MultiVector::multiply(const MultiVector &x)
+void EpetraVector::multiply(const MultiVector &x)
 {
+  const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
   int PetraError = aMultiVector_->Multiply(1.0, *aMultiVector_,
-					   x.epetraObj(), 0.0);
+					   e_x->epetraObj(), 0.0);
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::scale - ", PetraError);
+    processError( "EpetraVector::multiply - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::update
+// Function      : EpetraVector::update
 // Purpose       :
 // Special Notes : ERK. From the epetra documentation:
 //
@@ -491,14 +429,15 @@ void MultiVector::multiply(const MultiVector &x)
 // Creator       : Rob Hoekstra, SNL, Computational Sciences
 // Creation Date : 02/04/02
 //-----------------------------------------------------------------------------
-void MultiVector::update( double a, const MultiVector & A,
+void EpetraVector::update( double a, const MultiVector & A,
                           double s )
 {
-  aMultiVector_->Update( a, A.epetraObj(), s );
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  aMultiVector_->Update( a, e_A->epetraObj(), s );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::update
+// Function      : EpetraVector::update
 // Purpose       :
 // Special Notes : ERK.  From the epetra documentation:
 //
@@ -508,17 +447,19 @@ void MultiVector::update( double a, const MultiVector & A,
 // Creator       : Rob Hoekstra, SNL, Computational Sciences
 // Creation Date : 02/04/02
 //-----------------------------------------------------------------------------
-void MultiVector::update( double a, const MultiVector & A,
+void EpetraVector::update( double a, const MultiVector & A,
                           double b, const MultiVector & B,
                           double s )
 {
-  aMultiVector_->Update( a, A.epetraObj(),
-                         b, B.epetraObj(),
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+  aMultiVector_->Update( a, e_A->epetraObj(),
+                         b, e_B->epetraObj(), 
                          s );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::lpNorm
+// Function      : EpetraVector::lpNorm
 // Purpose       : Returns lp norms of each vector in MultiVector
 // Special Notes : Only p=1 and p=2 implemented now since this is all Petra
 //                 supports.
@@ -526,10 +467,10 @@ void MultiVector::update( double a, const MultiVector & A,
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/23/00
 //-----------------------------------------------------------------------------
-int MultiVector::lpNorm(const int p, double * result) const
+int EpetraVector::lpNorm(const int p, double * result) const
 {
   int PetraError = -1;
-  static const char *methodMsg = "MultiVector::lpNorm - ";
+  static const char *methodMsg = "EpetraVector::lpNorm - ";
 
   if (p == 1)
     PetraError = aMultiVector_->Norm1(result);
@@ -545,16 +486,16 @@ int MultiVector::lpNorm(const int p, double * result) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::infNorm
+// Function      : EpetraVector::infNorm
 // Purpose       : Returns infinity norm of each vector in MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 01/16/01
 //-----------------------------------------------------------------------------
-int MultiVector::infNorm(double * result, int * index) const
+int EpetraVector::infNorm(double * result, int * index) const
 {
-  static const char *methodMsg = "MultiVector::infNorm - ";
+  static const char *methodMsg = "EpetraVector::infNorm - ";
 
   int PetraError = 0;
 
@@ -627,7 +568,7 @@ int MultiVector::infNorm(double * result, int * index) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::wRMSNorm
+// Function      : EpetraVector::wRMSNorm
 // Purpose       : Returns weighted root-mean-square of each vector in
 //                 MultiVector
 // Special Notes :
@@ -635,25 +576,26 @@ int MultiVector::infNorm(double * result, int * index) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 10/12/00
 //-----------------------------------------------------------------------------
-int MultiVector::wRMSNorm(const MultiVector & weights, double * result) const
+int EpetraVector::wRMSNorm(const MultiVector & weights, double * result) const
 {
-  int PetraError = aMultiVector_->NormWeighted( weights.epetraObj(), result );
+  const EpetraVectorAccess* e_weights = dynamic_cast<const EpetraVectorAccess *>( &weights );
+  int PetraError = aMultiVector_->NormWeighted( e_weights->epetraObj(), result );
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::wRMSNorm - ", PetraError);
+    processError( "EpetraVector::wRMSNorm - ", PetraError);
 
   return PetraError;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::wMaxNorm
+// Function      : EpetraVector::wMaxNorm
 // Purpose       : Returns the weighted inf-norm
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 03/19/01
 //-----------------------------------------------------------------------------
-int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
+int EpetraVector::wMaxNorm(const MultiVector & weights, double * result) const
 {
   int length  = aMultiVector_->MyLength();
   int numVecs = numVectors();
@@ -680,7 +622,7 @@ int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::random
+// Function      : EpetraVector::random
 // Purpose       : Generates random numbers drawn from a uniform distribution
 //                 on the interval (-1,1) using a multiplicative congruential
 //                 generator with modulus 2^31 - 1.
@@ -689,41 +631,41 @@ int MultiVector::wMaxNorm(const MultiVector & weights, double * result) const
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/23/00
 //-----------------------------------------------------------------------------
-void MultiVector::random()
+void EpetraVector::random()
 {
   int PetraError = aMultiVector_->Random();
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::random - ", PetraError);
+    processError( "EpetraVector::random - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::putScalar
+// Function      : EpetraVector::putScalar
 // Purpose       : Fills MultiVector with the value "scalar".
 // Special Notes :
 // Scope         : Public
 // Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
 // Creation Date : 05/23/00
 //-----------------------------------------------------------------------------
-void MultiVector::putScalar(const double scalar)
+void EpetraVector::putScalar(const double scalar)
 {
   int PetraError = oMultiVector_->PutScalar(scalar);
 
   groundNode_ = scalar;
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::putScalar - ", PetraError);
+    processError( "EpetraVector::putScalar - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::addScalar
+// Function      : EpetraVector::addScalar
 // Purpose       : Adds to MultiVector with the value "scalar".
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 01/18/01
 //-----------------------------------------------------------------------------
-void MultiVector::addScalar(const double scalar)
+void EpetraVector::addScalar(const double scalar)
 {
   int length  = aMultiVector_->MyLength();
   int numVecs = numVectors();
@@ -734,106 +676,108 @@ void MultiVector::addScalar(const double scalar)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::absValue
+// Function      : EpetraVector::absValue
 // Purpose       : Abs value of elements of MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 01/18/01
 //-----------------------------------------------------------------------------
-void MultiVector::absValue(const MultiVector & A)
+void EpetraVector::absValue(const MultiVector & A)
 {
-  int PetraError = oMultiVector_->Abs(A.epetraOverlapObj());
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  int PetraError = oMultiVector_->Abs(e_A->epetraOverlapObj());
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::absValue - ", PetraError);
+    processError( "EpetraVector::absValue - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::reciprocal
+// Function      : EpetraVector::reciprocal
 // Purpose       : Reciprocal elements of MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/07/01
 //-----------------------------------------------------------------------------
-void MultiVector::reciprocal(const MultiVector & A)
+void EpetraVector::reciprocal(const MultiVector & A)
 {
-  int PetraError = oMultiVector_->Reciprocal(A.epetraOverlapObj());
+  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+  int PetraError = oMultiVector_->Reciprocal(e_A->epetraOverlapObj());
 
   if (DEBUG_LINEAR)
-    processError( "MultiVector::reciprocal - ", PetraError);
+    processError( "EpetraVector::reciprocal - ", PetraError);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::getVectorView
+// Function      : EpetraVector::getVectorView
 // Purpose       : Const view of individual vector in MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-const Vector* MultiVector::getVectorView(int index) const
+const Vector* EpetraVector::getVectorView(int index) const
 {
-  const Vector* vec = new Vector((*oMultiVector_)(index),
-                                  aMultiVector_->Map(),false);
+  const Vector* vec = new EpetraVector((*oMultiVector_)(index),
+                                       aMultiVector_->Map(),false);
   return vec;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::getNonConstVectorView
+// Function      : EpetraVector::getNonConstVectorView
 // Purpose       : NonConst view of individual vector in MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-Vector* MultiVector::getNonConstVectorView(int index)
+Vector* EpetraVector::getNonConstVectorView(int index)
 {
-  Vector* vec = new Vector((*oMultiVector_)(index),
-                            aMultiVector_->Map(),false);
+  Vector* vec = new EpetraVector((*oMultiVector_)(index),
+                                 aMultiVector_->Map(),false);
   return vec;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::getVectorView
+// Function      : EpetraVector::getVectorView
 // Purpose       : Const view of individual vector in MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-const Vector* MultiVector::getVectorViewAssembled(int index) const
+const Vector* EpetraVector::getVectorViewAssembled(int index) const
 {
-  const Vector* vec = new Vector( new 
+  const Vector* vec = new EpetraVector( new 
                       Epetra_Vector( View, *aMultiVector_, index ), true );
   return vec;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::getNonConstVectorView
+// Function      : EpetraVector::getNonConstVectorView
 // Purpose       : NonConst view of individual vector in MultiVector
 // Special Notes :
 // Scope         : Public
 // Creator       : Todd Coffey, 1414
 // Creation Date : 9/11/08
 //-----------------------------------------------------------------------------
-Vector* MultiVector::getNonConstVectorViewAssembled(int index)
+Vector* EpetraVector::getNonConstVectorViewAssembled(int index)
 {
-  Vector* vec = new Vector( new 
+  Vector* vec = new EpetraVector( new 
                 Epetra_Vector( View, *aMultiVector_, index ), true );
   return vec;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::fillComplete
+// Function      : EpetraVector::fillComplete
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 08/29/03
 //-----------------------------------------------------------------------------
-void MultiVector::fillComplete()
+void EpetraVector::fillComplete()
 {
   if ( exporter_ )
   {
@@ -842,30 +786,31 @@ void MultiVector::fillComplete()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::vectorImport
+// Function      : EpetraVector::vectorImport
 // Purpose       : Import using Petra_Import object
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 02/09/01
 //-----------------------------------------------------------------------------
-bool MultiVector::vectorImport(const MultiVector * vec,
+bool EpetraVector::vectorImport(const MultiVector * vec,
                                Importer * importer)
 {
   EpetraImporter * e_importer = dynamic_cast<EpetraImporter *>( importer );
-  aMultiVector_->Import(*(vec->aMultiVector_), e_importer->epetraObj(), Insert);
+  const EpetraVectorAccess* e_vec = dynamic_cast<const EpetraVectorAccess *>( vec );
+  aMultiVector_->Import(e_vec->epetraObj(), e_importer->epetraObj(), Insert);
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::importOverlap
+// Function      : EpetraVector::importOverlap
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert J Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 06/06/02
 //-----------------------------------------------------------------------------
-bool MultiVector::importOverlap()
+bool EpetraVector::importOverlap()
 {
   bool flag = false;
 
@@ -876,99 +821,14 @@ bool MultiVector::importOverlap()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::writeToFile
-// Purpose       : Dumps out the multivector entries to a file.
-// Special Notes :
-// Scope         : Public
-// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
-// Creation Date : 06/19/00
-//-----------------------------------------------------------------------------
-void MultiVector::writeToFile( const char * filename, bool useLIDs, bool mmFormat ) const
-{
-  int numProcs = pdsComm_->numProc();
-  int localRank = pdsComm_->procID();
-  int masterRank = 0;
-
-  if (!mmFormat)
-  {
-    for( int p = 0; p < numProcs; ++p )
-    {
-      //A barrier inside the loop so each processor waits its turn.
-      pdsComm_->barrier();
-
-      if(p == localRank)
-      {
-        FILE *file = NULL;
-
-        if(masterRank == localRank)
-        {
-          //This is the master processor, open a new file.
-          file = fopen(filename,"w");
-
-          //Write the RDP_MultiVector dimension n into the file.
-          fprintf(file,"%d\n",globalLength());
-        }
-        else
-        {
-          //This is not the master proc, open file for appending
-          file = fopen(filename,"a");
-        }
-
-        //Now loop over the local portion of the RDP_MultiVector.
-        int length  = localLength();
-        int numVecs = numVectors();
-
-        for (int i = 0; i < numVecs; ++i)
-          for (int j = 0; j < length; ++j)
-          {
-            int loc = aMultiVector_->Map().GID(j);
-            if( useLIDs ) loc = j;
-            fprintf(file,"%d %d %20.13e\n",i,loc,(*aMultiVector_)[i][j]);
-          }
-        fclose(file);
-      }
-    }
-  }
-  else 
-  {
-    EpetraExt::MultiVectorToMatrixMarketFile( filename, *aMultiVector_ );
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::processError
-// Purpose       : Concrete implementation which processes Petra (in this case)
-//                 error codes taken from the Petra member function returns.
-// Special Notes : Petra specific.  NOTE ALSO - this function is currently
-//                 within the "Xyce_DEBUG_LINEAR" ifdef and so any calls to
-//                 this should also be so bracketed.
-// Scope         : Private
-// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
-// Creation Date : 05/22/00
-//-----------------------------------------------------------------------------
-void MultiVector::processError(const char *methodMsg, int error) const
-{
-  // Process the error
-  switch (error)
-  {
-  case 0:
-    Xyce::dout() << methodMsg << ": Function returned without warnings or errors." << std::endl;
-    break;
-
-  default:
-    Xyce::Report::DevelFatal0().in(methodMsg) << "Function returned with an error.";
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : MultiVector::getElementByGlobalIndex
+// Function      : EpetraVector::getElementByGlobalIndex
 // Purpose       : Get element from vector using global index.
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/6/00
 //-----------------------------------------------------------------------------
-const double & MultiVector::getElementByGlobalIndex(
+const double & EpetraVector::getElementByGlobalIndex(
   const int & global_index, const int & vec_index) const
 {
   if( aMultiVector_ != oMultiVector_ )
@@ -1000,14 +860,14 @@ const double & MultiVector::getElementByGlobalIndex(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::setElementByGlobalIndex
+// Function      : EpetraVector::setElementByGlobalIndex
 // Purpose       : Set element from vector using global index.
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/6/00
 //-----------------------------------------------------------------------------
-bool MultiVector::setElementByGlobalIndex(const int & global_index,
+bool EpetraVector::setElementByGlobalIndex(const int & global_index,
                                                 const double & val,
                                                 const int & vec_index)
 {
@@ -1038,14 +898,14 @@ bool MultiVector::setElementByGlobalIndex(const int & global_index,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : MultiVector::sumElementByGlobalIndex
+// Function      : EpetraVector::sumElementByGlobalIndex
 // Purpose       : Set element from vector using global index.
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 6/7/00
 //-----------------------------------------------------------------------------
-bool MultiVector::sumElementByGlobalIndex(const int & global_index,
+bool EpetraVector::sumElementByGlobalIndex(const int & global_index,
                                                 const double & val,
                                                 const int & vec_index)
 {
@@ -1084,7 +944,7 @@ bool MultiVector::sumElementByGlobalIndex(const int & global_index,
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/14/00
 //-----------------------------------------------------------------------------
-void MultiVector::print(std::ostream &os) const
+void EpetraVector::print(std::ostream &os) const
 {
   if (aMultiVector_ != oMultiVector_)
   {
