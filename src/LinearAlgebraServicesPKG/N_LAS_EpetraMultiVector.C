@@ -394,10 +394,13 @@ void EpetraMultiVector::dotProduct(const MultiVector & y, std::vector<double>& d
 //-----------------------------------------------------------------------------
 void EpetraMultiVector::scale(const double a)
 {
-  int PetraError = aMultiVector_->Scale(a);
+  if (globalLength()) 
+  {
+    int PetraError = aMultiVector_->Scale(a);
 
-  if (DEBUG_LINEAR)
-    processError( "EpetraMultiVector::scale - ", PetraError);
+    if (DEBUG_LINEAR)
+      processError( "EpetraMultiVector::scale - ", PetraError);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -434,8 +437,11 @@ void EpetraMultiVector::multiply(const MultiVector &x)
 void EpetraMultiVector::update( double a, const MultiVector & A,
                           double s )
 {
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  aMultiVector_->Update( a, e_A->epetraObj(), s );
+  if (globalLength()) 
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    aMultiVector_->Update( a, e_A->epetraObj(), s );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -453,11 +459,14 @@ void EpetraMultiVector::update( double a, const MultiVector & A,
                           double b, const MultiVector & B,
                           double s )
 {
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
-  aMultiVector_->Update( a, e_A->epetraObj(),
-                         b, e_B->epetraObj(),
-                         s );
+  if (globalLength())
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+    aMultiVector_->Update( a, e_A->epetraObj(),
+                           b, e_B->epetraObj(),
+                           s );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -651,12 +660,15 @@ void EpetraMultiVector::random()
 //-----------------------------------------------------------------------------
 void EpetraMultiVector::putScalar(const double scalar)
 {
-  int PetraError = oMultiVector_->PutScalar(scalar);
+  if (globalLength()) 
+  {
+    int PetraError = oMultiVector_->PutScalar(scalar);
 
-  groundNode_ = scalar;
+    groundNode_ = scalar;
 
-  if (DEBUG_LINEAR)
-    processError( "EpetraMultiVector::putScalar - ", PetraError);
+    if (DEBUG_LINEAR)
+      processError( "EpetraMultiVector::putScalar - ", PetraError);
+  }
 }
 
 //-----------------------------------------------------------------------------

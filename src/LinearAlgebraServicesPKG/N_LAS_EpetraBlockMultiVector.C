@@ -326,10 +326,13 @@ void EpetraBlockMultiVector::dotProduct(const MultiVector & y, std::vector<doubl
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::scale(const double a)
 {
-  int PetraError = aMultiVector_->Scale(a);
+  if ( globalLength() )
+  {
+    int PetraError = aMultiVector_->Scale(a);
 
-  if (DEBUG_LINEAR)
-    processError( "EpetraBlockMultiVector::scale - ", PetraError);
+    if (DEBUG_LINEAR)
+      processError( "EpetraBlockMultiVector::scale - ", PetraError);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -443,8 +446,11 @@ void EpetraBlockMultiVector::multiply(const MultiVector &x)
 void EpetraBlockMultiVector::update( double a, const MultiVector & A,
                                      double s )
 {
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  aMultiVector_->Update( a, e_A->epetraObj(), s );
+  if ( globalLength() )
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    aMultiVector_->Update( a, e_A->epetraObj(), s );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -462,11 +468,14 @@ void EpetraBlockMultiVector::update( double a, const MultiVector & A,
                                      double b, const MultiVector & B,
                                      double s )
 {
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
-  aMultiVector_->Update( a, e_A->epetraObj(),
-                         b, e_B->epetraObj(),
-                         s );
+  if ( globalLength() )
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+    aMultiVector_->Update( a, e_A->epetraObj(),
+                           b, e_B->epetraObj(),
+                           s );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -642,12 +651,15 @@ int EpetraBlockMultiVector::wMaxNorm(const MultiVector & weights, double * resul
 //-----------------------------------------------------------------------------
 void EpetraBlockMultiVector::putScalar(const double scalar)
 {
-  int PetraError = aMultiVector_->PutScalar(scalar);
+  if ( globalLength() )
+  {
+    int PetraError = aMultiVector_->PutScalar(scalar);
 
-  groundNode_ = scalar;
+    groundNode_ = scalar;
 
-  if (DEBUG_LINEAR)
-    processError( "EpetraBlockMultiVector::putScalar - ", PetraError);
+    if (DEBUG_LINEAR)
+      processError( "EpetraBlockMultiVector::putScalar - ", PetraError);
+  }
 }
 
 //-----------------------------------------------------------------------------

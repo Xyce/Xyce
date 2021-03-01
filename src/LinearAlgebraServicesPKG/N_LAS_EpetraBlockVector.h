@@ -128,7 +128,7 @@ class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
   void dotProduct(const MultiVector & y, std::vector<double>& d) const;
 
   // Scale every entry in the multi-vector by "a"
-  void scale(const double a) { aMultiVector_->Scale( a ); }
+  void scale(const double a);
 
   // Matrix-Matrix multiplication.  this[i] = this[i]*x[i] for each vector
   void multiply(const MultiVector & x); 
@@ -155,8 +155,7 @@ class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
   void random() { aMultiVector_->Random(); }
 
   // Fill vector with constant value.
-  void putScalar(const double scalar) 
-  { aMultiVector_->PutScalar( scalar ); groundNode_ = scalar; }
+  void putScalar(const double scalar);
 
   // Add to vector with constant value.
   void addScalar(const double scalar);
@@ -168,9 +167,11 @@ class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
   void reciprocal(const MultiVector & A);
 
   // Get the global (across all processors) length of the multi-vector
-  int globalLength() const { return aMultiVector_->GlobalLength(); }
+  int globalLength() const 
+  { return aMultiVector_->GlobalLength(); }
   // Get the local (on processor component) length of the multi-vector
-  int localLength() const { return aMultiVector_->MyLength(); }
+  int localLength() const 
+  { return aMultiVector_->MyLength(); }
 
   // Get the number of individual vectors in the multi-vector
   int numVectors() const { return 1; }
@@ -178,7 +179,8 @@ class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
   int externVectorSize() const { return 0; }
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
+  const Parallel::ParMap * blockPmap() const 
+  { return newBlockMap_.get(); }
 
   // Dump vector entries to file.
   void writeToFile( const char * filename, bool useLIDs=false, bool mmFormat=false ) const
@@ -196,8 +198,10 @@ class EpetraBlockVector : public BlockVector, public EpetraVectorAccess
                                const int & vec_index = 0);
 
   // Import/Export capability
-  bool vectorImport(const MultiVector * vec, Importer * importer) { return true; }
-  bool importOverlap() { return true; }
+  bool vectorImport(const MultiVector * vec, Importer * importer)
+  { return true; }
+  bool importOverlap() 
+  { return true; }
 
   // Clear the external vector map
   void clearExternVectorMap() {}

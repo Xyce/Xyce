@@ -745,8 +745,11 @@ void EpetraBlockVector::multiply(const MultiVector & x)
 //-----------------------------------------------------------------------------
 void EpetraBlockVector::update(double a, const MultiVector & A, double s)
 { 
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  aMultiVector_->Update( a, e_A->epetraObj(), s ); 
+  if ( globalLength() )
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    aMultiVector_->Update( a, e_A->epetraObj(), s ); 
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -760,9 +763,45 @@ void EpetraBlockVector::update(double a, const MultiVector & A, double s)
 void EpetraBlockVector::update(double a, const MultiVector & A, double b,
                                const MultiVector & B, double s)
 { 
-  const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
-  const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
-  aMultiVector_->Update( a, e_A->epetraObj(), b, e_B->epetraObj(), s ); 
+  if ( globalLength() )
+  {
+    const EpetraVectorAccess* e_A = dynamic_cast<const EpetraVectorAccess *>( &A );
+    const EpetraVectorAccess* e_B = dynamic_cast<const EpetraVectorAccess *>( &B );
+    aMultiVector_->Update( a, e_A->epetraObj(), b, e_B->epetraObj(), s ); 
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::putScalar
+// Purpose       : Fill vector with constant value. 
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::putScalar(const double scalar)
+{ 
+  if ( globalLength() )
+  {
+    aMultiVector_->PutScalar( scalar ); 
+    groundNode_ = scalar; 
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EpetraBlockVector::putScalar
+// Purpose       : Scale every entry in the multi-vector by "a"
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Computational Sciences
+// Creation Date : 03/19/04
+//-----------------------------------------------------------------------------
+void EpetraBlockVector::scale(const double a) 
+{ 
+  if ( globalLength() )
+  {
+    aMultiVector_->Scale( a ); 
+  }
 }
 
 //-----------------------------------------------------------------------------
