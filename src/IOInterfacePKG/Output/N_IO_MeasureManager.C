@@ -169,7 +169,7 @@ Manager::notify(
 
     case Analysis::StepEvent::STEP_COMPLETED:
       {
-        if( !allMeasuresList_.empty() )
+        if( isMeasureActive() )
         {
           // do output to mt (or ms or ma) file and stdout, based on MEASPRINT option
           if (enableMeasGlobalPrint_)
@@ -391,7 +391,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
 bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
 {
   bool bsuccess = true;
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     // loop over all measure objects
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
@@ -651,20 +651,23 @@ void Manager::updateNoiseMeasures(
 //-----------------------------------------------------------------------------
 void Manager::outputResultsToMTFile(int stepNumber) const
 {
-  // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
-  std::ostringstream converterBuff;
-  converterBuff << stepNumber;
-  std::string filename = netlistFilename_ + measureOutputFileSuffix_ + converterBuff.str();
+  if ( isMeasureActive() )
+  {
+    // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
+    std::ostringstream converterBuff;
+    converterBuff << stepNumber;
+    std::string filename = netlistFilename_ + measureOutputFileSuffix_ + converterBuff.str();
 
-  // open file
-  std::ofstream outputFileStream;
-  outputFileStream.open( filename.c_str() );
+    // open file
+    std::ofstream outputFileStream;
+    outputFileStream.open( filename.c_str() );
 
-  // output the measure values
-  outputResults( outputFileStream );
+    // output the measure values
+    outputResults( outputFileStream );
 
-  // close file
-  outputFileStream.close();
+    // close file
+    outputFileStream.close();
+  }
 
   return;
 }
@@ -682,7 +685,7 @@ void Manager::outputResultsToMTFile(int stepNumber) const
 //-----------------------------------------------------------------------------
 std::ostream &Manager::outputResults( std::ostream& outputStream ) const
 {
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     // loop over active measure objects and get the results
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
@@ -709,7 +712,7 @@ std::ostream &Manager::outputResults( std::ostream& outputStream ) const
 //-----------------------------------------------------------------------------
 std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double endSimTime ) const
 {
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     outputStream << std::endl
                  << " ***** Measure Functions ***** " << std::endl
@@ -848,7 +851,7 @@ void Manager::remeasure(
 
   // output "re-measure header text" to stdout
   Xyce::lout() << "In OutputMgr::remeasure " << std::endl
-               << "file to reprocess through measure functions: " << remeasure_path << std::endl;
+               << "file to reprocess through measure and/or fft functions: " << remeasure_path << std::endl;
 
   // Some error checking on the file name specified by -remeasure command-line option.  
   // Will check for a valid file extension (e.g., .PRN) below.
