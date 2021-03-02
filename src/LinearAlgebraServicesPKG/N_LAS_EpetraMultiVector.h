@@ -276,7 +276,7 @@ protected:
   // Dummy variable for loading ground node contributions.
   double groundNode_;
 
-  void processError(std::string methodMsg, int error) const;
+  void processError(const char *methodMsg, int error) const;
 };
 
 //-----------------------------------------------------------------------------

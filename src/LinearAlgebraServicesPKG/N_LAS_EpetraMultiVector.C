@@ -951,6 +951,31 @@ bool EpetraMultiVector::sumElementByGlobalIndex(const int & global_index,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : EpetraMultiVector::processError
+// Purpose       : Concrete implementation which processes Petra (in this case)
+//                 error codes taken from the Petra member function returns.
+// Special Notes : Petra specific.  NOTE ALSO - this function is currently
+//                 within the "Xyce_DEBUG_LINEAR" ifdef and so any calls to
+//                 this should also be so bracketed.
+// Scope         : Private
+// Creator       : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creation Date : 05/22/00
+//-----------------------------------------------------------------------------
+void EpetraMultiVector::processError(const char *methodMsg, int error) const
+{
+  // Process the error
+  switch (error)
+  {
+  case 0:
+    Xyce::dout() << methodMsg << ": Function returned without warnings or errors." << std::endl;
+    break;
+
+  default:
+    Xyce::Report::DevelFatal0().in(methodMsg) << "Function returned with an error.";
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : print
 // Purpose       :
 // Special Notes :
