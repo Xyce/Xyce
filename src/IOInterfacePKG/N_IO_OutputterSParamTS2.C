@@ -270,12 +270,12 @@ void SParamTS2::doOutputSParams(
         // calculate the pair of values that will be output, for each complex value, based on the requested format
         if (printParameters_.dataFormat_ == DataFormat::MA)
 	{
-          val1 = fabs(Sparams(i, j));
+          val1 = std::abs(Sparams(i, j));
           val2 = 180*(arg(Sparams(i, j)))/M_PI;
         }
         else if (printParameters_.dataFormat_ == DataFormat::DB)
 	{
-          val1 = 20.0*std::log10(fabs(Sparams(i, j)));
+          val1 = 20.0*std::log10(std::abs(Sparams(i, j)));
           val2 = 180*(arg(Sparams(i, j)))/M_PI;
         }
         else
