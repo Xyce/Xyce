@@ -1852,6 +1852,9 @@ bool Transient::doProcessSuccessfulStep()
   analysisManager_.getStepErrorControl().updateMinTimeStep();
   analysisManager_.getStepErrorControl().updateBreakPoints(loader_, tiaParams_.initialTime);
 
+  if (beginningIntegration)
+    beginningIntegration = false;
+
   analysisManager_.getStepErrorControl().updateStopTime(
       comm_,
       tiaParams_.bpEnable,
