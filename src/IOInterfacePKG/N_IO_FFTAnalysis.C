@@ -429,7 +429,7 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
       {
         // only save the values at the breakpoints, set at the specified sample times.
         if ( (sampleIdx_ < np_) &&
-             (abs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
+             (fabs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
         {
           sampleValues_[sampleIdx_] = retVal;
           sampleIdx_++;
@@ -442,7 +442,7 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
     // calcuate the FFT (and related metrics) as soon as possible, so that FFT measures work
     // within EQN measures
     if ( (circuitTime >= stopTime_) ||
-         (fft_accurate_ && (abs(circuitTime - stopTime_) <= secPtr_->getBreakPointEqualTolerance())) )
+         (fft_accurate_ && (fabs(circuitTime - stopTime_) <= secPtr_->getBreakPointEqualTolerance())) )
       calculateResults_();
   }
 }
@@ -598,7 +598,7 @@ void FFTAnalysis::calculateFFT_()
   double convRadDeg = 180.0/M_PI;
 
   // handle DC component
-  mag_[0] = abs(fftRealCoeffs_[0]);
+  mag_[0] = fabs(fftRealCoeffs_[0]);
   phase_[0] = convRadDeg * atan2(fftImagCoeffs_[0], fftRealCoeffs_[0]);
   maxMag_ = mag_[0];
 

@@ -458,7 +458,7 @@ bool FindWhenBase::isATcondition(const double indepVarVal)
   //
   // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
   return ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	   (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) );
+	   (((fabs(backDiff) < minval_) || (fabs(forwardDiff) < minval_))) );
 }
 
 //-----------------------------------------------------------------------------
