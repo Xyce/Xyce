@@ -61,6 +61,8 @@
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_FeatureTest.h>
 
+#include <N_DEV_ExpressionGroupWrapper.h>
+
 namespace Xyce {
 namespace Device {
 
@@ -1209,7 +1211,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "GNDCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1265,7 +1267,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PWRCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1321,7 +1323,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLDOWNTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
                   IB.params.push_back(tbl_param);
 
@@ -1377,7 +1379,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLUPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 

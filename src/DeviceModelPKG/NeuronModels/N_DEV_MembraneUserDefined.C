@@ -48,6 +48,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_Matrix.h>
 #include <N_DEV_SolverState.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 namespace Xyce {
 namespace Device {
@@ -576,7 +577,11 @@ void MembraneUserDefined::convertStringsToExpression( std::vector< std::string >
   for( int i=0; i<numStrings; i++ )
   {
     //Xyce::dout() << "Making expression from :" << stringInput.at(i) << std::endl;
+#if 0
     expRCPOut.push_back( rcp( new Util::Expression( solState.expressionGroup_, stringInput.at(i) ) ) );
+#else
+    expRCPOut.push_back( rcp( new Util::Expression( solState.getGroupWrapper()->expressionGroup_, stringInput.at(i) ) ) );
+#endif
     /*
     int type=0;
     std::vector<string> names;

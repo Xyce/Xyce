@@ -261,6 +261,19 @@ void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getGroup
+// Purpose       : 
+// Special Notes :
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 3/2/2021
+//-----------------------------------------------------------------------------
+Teuchos::RCP<baseExpressionGroup> Expression::getGroup()
+{
+  return newExpPtr_->getGroup();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getUnresolvedParams
 // Purpose       : 
 // Special Notes : 

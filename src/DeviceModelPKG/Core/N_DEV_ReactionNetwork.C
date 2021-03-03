@@ -56,6 +56,8 @@
 
 #include <N_UTL_BreakPoint.h>
 
+#include <N_DEV_ExpressionGroupWrapper.h>
+
 #ifdef Xyce_REACTION_PARSER
 // Grrrr.  Stupid bison 2.4 stopped putting the pre-prologue into the header.
 // need this forward declaration
@@ -877,7 +879,7 @@ void ReactionNetwork::addSourceTerm(const std::string &speciesName, const std::s
     int speciesNum=getSpeciesNum(speciesName);
     if (speciesNum >= 0) // the species exists
     {
-      Util::Expression *foo= new Util::Expression(solState_.expressionGroup_,expressionStr);
+      Util::Expression *foo= new Util::Expression(solState_.getGroupWrapper()->expressionGroup_,expressionStr);
       theSourceTerms.push_back( std::pair<int,Util::Expression *>(speciesNum, foo));
     }
   }

@@ -46,6 +46,7 @@
 #include <N_UTL_Expression.h>
 
 #include <N_DEV_SolverState.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 namespace Xyce {
 namespace Device {
@@ -345,7 +346,7 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr(solState_.expressionGroup_,exprString);
+      Util::Expression expr(solState_.getGroupWrapper()->expressionGroup_,exprString);
       //expr.set(exprString);
 
       for (i=0;i<NX;++i)
@@ -1077,7 +1078,7 @@ void DopeInfo::setupInfo(
       {
         Xyce::dout() << "DopeInfo::setupInfo: exprString = " << exprString << std::endl;
       }
-      Util::Expression expr(solState_.expressionGroup_,exprString);
+      Util::Expression expr(solState_.getGroupWrapper()->expressionGroup_,exprString);
       //expr.set(exprString);
 
       for (i=0;i<NX;++i)

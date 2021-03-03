@@ -829,7 +829,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   // needed for new expression
   {
   const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -906,7 +906,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   // needed for new expressionn
   {
   const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -1342,8 +1342,8 @@ void DeviceEntity::applyDepSolnLIDs()
     int lo = dpIter->lo_var;
     int hi = dpIter->lo_var+dpIter->n_vars;
 
-    const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-      Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>(solState_.expressionGroup_);
+  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
+    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dpIter->expr->getGroup() );
 
     Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
       Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));

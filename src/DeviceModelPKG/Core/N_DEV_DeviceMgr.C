@@ -76,7 +76,9 @@
 #include <N_UTL_OpBuilder.h>
 #include <N_UTL_Expression.h>
 
+#include <Teuchos_RCP.hpp>
 #include <expressionGroup.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 // These are slowly being removed as DeviceMgr should not depend on Devices.  Devices should plug in to DeviceMgr.
 #include <N_DEV_Bsrc.h>
@@ -272,7 +274,7 @@ bool DeviceMgr::registerAnalysisManager(Analysis::AnalysisManager * analysis_man
 bool DeviceMgr::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
 {
   expressionGroup_ = group;
-  solState_.registerExpressionGroup(expressionGroup_);
+  solState_.getGroupWrapper()->expressionGroup_ = group;
   return (!(Teuchos::is_null(expressionGroup_)));
 }
 

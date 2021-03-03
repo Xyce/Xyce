@@ -38,6 +38,9 @@
 #ifndef Xyce_N_DEV_DeviceMgr_h
 #define Xyce_N_DEV_DeviceMgr_h
 
+#include <Teuchos_RCP.hpp>
+
+
 #include <unordered_map>
 using std::unordered_map;
 #include <map>

@@ -58,6 +58,8 @@ using std::unordered_set;
 namespace Xyce {
 namespace Device {
 
+class expressionGroupWrapper;
+
 class CompositeParam;
 class Configuration;
 struct Depend;

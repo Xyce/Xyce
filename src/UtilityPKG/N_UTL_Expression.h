@@ -99,6 +99,7 @@ public:
   bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
+  Teuchos::RCP<baseExpressionGroup> getGroup();
 
   // ERK new expression stuff.  These kind of replace "get_names"
   void getUnresolvedParams    (std::vector<std::string> & params) const;

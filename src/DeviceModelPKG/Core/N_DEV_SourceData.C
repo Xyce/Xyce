@@ -303,12 +303,6 @@ double   SourceData::getTime_()
 // From 3f5:  remember to incorporate this later:
 //
 //-----------------------------------------------------------------------------
-#if 0
-// this is from 3f5:
-#define FREQ  (((here->VSRCfunctionOrder >=3) && (*(here->VSRCcoeffs+2)))? \
-(*(here->VSRCcoeffs+2)):(1/ckt->CKTfinalTime))
-#endif
-
 SinData::SinData(
   const DeviceEntity &          device,
   const std::vector<Param> &    paramRef,

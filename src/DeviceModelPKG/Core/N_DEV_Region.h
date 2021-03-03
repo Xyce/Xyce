@@ -90,9 +90,6 @@ public:
   void addSource(std::string speciesName, Util::Expression *expr);
   void addMasterSource(std::string speciesName);
   inline void setMasterSourceValue(double msv) {theReactions.setMasterSourceValue(msv);};
-#if 0
-  inline void setSimTime(double time) {  theReactions.setSimTime(time);};
-#endif
 
   bool reactantExist(std::string reactantname)
   {

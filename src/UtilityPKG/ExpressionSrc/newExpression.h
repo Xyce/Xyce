@@ -760,6 +760,7 @@ public:
   void setupVariousAstArrays ();
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; }
+  Teuchos::RCP<baseExpressionGroup> getGroup() { return group_; }
 
 private:
   void setupDerivatives_ ();
