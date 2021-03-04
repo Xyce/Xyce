@@ -160,10 +160,24 @@ void HBBlockJacobiEpetraOperator::initialize(
   freqs_ = freqs;
   myN_ = localRange;
   hbOsc_ = hbOsc;
+
+  // Get a sum of all the augmented rows.
+  int tmpSize = (hbBuilder_->getAugmentedLIDs()).size();
+  hbBuilder_->getPDSComm()->sumAll( &tmpSize, &numAugRows_, 1 );
+
   int globalUnk = hbBuilder_->getSolutionMap()->numGlobalEntities();
-  int localUnk = epetraProblems[0]->GetMatrix()->NumGlobalRows();
-  N_ = globalUnk / localUnk;
-  numAugRows_ = (hbBuilder_->getAugmentedLIDs()).size();
+  if ( epetraProblems.size() )
+    N_ = ( globalUnk - numAugRows_ ) / epetraProblems[0]->GetMatrix()->NumGlobalRows();
+  else
+    N_ = 0;
+
+  int tmpN = N_;
+  hbBuilder_->getPDSComm()->maxAll( &tmpN, &N_, 1 );
+  M_ = (freqs.size()-1)/2;
+
+  // Wait for everyone else before moving on.
+  hbBuilder_->getPDSComm()->barrier();
+
 #ifdef Xyce_PARALLEL_MPI
   int numProcs = hbBuilder_->getPDSComm()->numProc();
   if (numProcs > 1)
@@ -176,12 +190,8 @@ void HBBlockJacobiEpetraOperator::initialize(
       serialEpetraMap_[proc] = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_map->petraMap()), proc ) ) );
     }
     
-    // Get a sum of all the augmented rows.
-    int tmpSize = numAugRows_;
-    hbBuilder_->getPDSComm()->sumAll( &tmpSize, &numAugRows_, 1 );
   }
 #endif
-  M_ = (freqs.size()-1)/2;
 
   isInitialized_ = true;
   isCorrected_ = (diffCMatrix.size() > 0) ? true : false;

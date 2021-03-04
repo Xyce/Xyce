@@ -248,13 +248,13 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   epetraGraph_->FillComplete();
   epetraGraph_->OptimizeStorage();
 
+  int numProcs = comm.numProc();
+  int myPID = comm.procID();
+
   // Get the Fourier series information and generate the Epetra_LinearSystems.
   RCP<BlockVector> bXt = hbBuilderPtr_->createTimeDomainBlockVector();
   N_ = bXt->blockCount();
   M_ = (int)((N_-1)/2);
-
-  int numProcs = comm.numProc();
-  int myPID = comm.procID();
 
   if (numProcs > 1)
   {
@@ -266,10 +266,23 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 
     // Determine how many linear systems this processor will manage.
     int nOverP = (M_+1)/numProcs;
-    beginN_ = myPID*nOverP;
-    endN_ = (myPID+1)*nOverP;
-    if ( (M_+1)%numProcs && myPID==(numProcs-1))
-      endN_ += (M_+1)%numProcs;
+    if (nOverP > 0)
+    {
+      beginN_ = myPID*nOverP;
+      endN_ = (myPID+1)*nOverP;
+      if ( (M_+1)%numProcs && myPID==(numProcs-1))
+        endN_ += (M_+1)%numProcs;
+    }
+    else
+    {
+      if (myPID < M_+1)
+      {
+        beginN_ = myPID;
+        endN_ = myPID+1;
+      }
+      else
+        beginN_ = endN_ = -1;
+    }
 
     for (int proc = 0; proc < numProcs; ++proc )
     {
@@ -632,7 +645,9 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
 
       // Migrate the matrix to one processor.
       int nOverP = (M_+1) / numProcs;
-      int proc = nB / nOverP;
+      int proc = nB;
+      if (nOverP > 0)
+        proc = nB / nOverP;
       if (proc >= numProcs)
         proc = numProcs-1;
 
