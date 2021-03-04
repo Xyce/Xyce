@@ -37,6 +37,8 @@
 
 #include <Xyce_config.h>
 
+#include <iomanip> // ERK this had to be added b/c Teuchos_RCP was removed from solver state.
+
 #include <N_DEV_DeviceInstance.h>
 
 #include <N_DEV_Const.h>

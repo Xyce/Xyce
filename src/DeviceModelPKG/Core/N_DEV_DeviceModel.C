@@ -38,6 +38,7 @@
 #include <Xyce_config.h>
 
 #include <iostream>
+#include <iomanip>
 #include <set>
 
 #include <unordered_map>
