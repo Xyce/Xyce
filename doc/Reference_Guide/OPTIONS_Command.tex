@@ -439,9 +439,9 @@ to improve the accuracy of the \texttt{.FFT} analyses, at the possible
 expense of simulation speed.  If \texttt{FFT\_ACCURATE} is set to
 0 (false), then interpolation is used to determine the output variable
 values at the specified sample times.  If the \texttt{-remeasure} command
-line option is used to recalculate the \texttt{.MEASURE} statements for
-a \texttt{.TRAN} analysis, then \texttt{FFT\_ACCURATE} is set to 0 during
-the re-measure operation.
+line option is used to recalculate the \texttt{.MEASURE FFT} and/or
+\texttt{.FFT} statements for a \texttt{.TRAN} analysis, then
+\texttt{FFT\_ACCURATE} is set to 0 during the re-measure operation.
 
 If \texttt{FFTOUT} is set to 1 then additional metrics are output for each
 \texttt{.FFT} line.  Those metrics are:
