@@ -1031,16 +1031,6 @@ bool Transient::doTranOP ()
       analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
     }
 
-    // ------------------------------------------------------------------------
-    // Set the step size, current time and next time.
-
-/*    analysisManager_.getStepErrorControl().updateStopTime(
-      comm_,
-      tiaParams_.bpEnable,
-      tiaParams_.initialTime,
-      tiaParams_.minTimeStepsBPGiven,
-      tiaParams_.minTimeStepsBP);
-*/
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
     {
       dout() << std::endl;
