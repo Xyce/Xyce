@@ -748,6 +748,13 @@ bool Transient::resuming()
   minEstErrorOverTol = 0.0;
   timeStepAtMinEstErrorOverTol = 0.0;
 
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
+
   return bsuccess;
 }
 
@@ -1027,13 +1034,13 @@ bool Transient::doTranOP ()
     // ------------------------------------------------------------------------
     // Set the step size, current time and next time.
 
-    analysisManager_.getStepErrorControl().updateStopTime(
+/*    analysisManager_.getStepErrorControl().updateStopTime(
       comm_,
       tiaParams_.bpEnable,
       tiaParams_.initialTime,
       tiaParams_.minTimeStepsBPGiven,
       tiaParams_.minTimeStepsBP);
-
+*/
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
     {
       dout() << std::endl;
@@ -1110,6 +1117,14 @@ bool Transient::doTranOP ()
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
       AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::TRAN));
 
+
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
+
   return bsuccess;
 }
 
@@ -1153,14 +1168,14 @@ bool Transient::doLoopProcess()
 
     // ------------------------------------------------------------------------
     // Set the step size, current time and next time.
-
+/*
     analysisManager_.getStepErrorControl().updateStopTime(
       comm_,
       tiaParams_.bpEnable,
       tiaParams_.initialTime,
       tiaParams_.minTimeStepsBPGiven,
       tiaParams_.minTimeStepsBP);
-
+*/
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
     {
       dout() << std::endl;
@@ -1830,7 +1845,7 @@ bool Transient::doProcessSuccessfulStep()
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the
   // solution if tiaParams_.saveTimeStepsFlag is set.
-  // This fixes an off by one bug in getting the right time value and
+ // This fixes an off by one bug in getting the right time value and
   // keeps the real solutions associated with that value too.
   double currentTime = analysisManager_.getStepErrorControl().currentTime;
   double suggestedMaxTime = 0.0;
@@ -1919,6 +1934,14 @@ bool Transient::doProcessSuccessfulStep()
   if (analysisManager_.breakPointRestartStep == tranStepNumber)
   {
     beginningIntegration = true;
+
+
+    analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
   }
   else
   {
