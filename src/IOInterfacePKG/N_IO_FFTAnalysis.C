@@ -187,6 +187,9 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 
       if (np_ <= 0)
       {
+        // Set this to a non-zero value, so that the FFT Interface creation doesn't barf
+        // later in the constructor, but still make this a parsing error.
+        np_ = 4; 
         Report::UserError0() << "NP value on .FFT line must be a power of 2, and >=4";
       }
       else if ((np_ >=1) && (np_ < 4))
