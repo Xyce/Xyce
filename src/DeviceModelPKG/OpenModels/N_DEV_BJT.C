@@ -61,6 +61,8 @@ namespace Device {
 
 namespace BJT {
 
+typedef Sacado::Fad::SFad<double, 1> fadType;
+
 void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
 {
   p.addPar ("AREA",1.0,&BJT::Instance::AREA)
@@ -4981,7 +4983,6 @@ bool processParams (
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation1
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation1 (
     const fadType & td,
     const fadType & qB,
@@ -5013,7 +5014,6 @@ void oldDAEExcessPhaseCalculation1 (
   return;
 }
 
-template <>
 void oldDAEExcessPhaseCalculation1 (
     const double & td,
     const double & qB,
@@ -5048,7 +5048,6 @@ void oldDAEExcessPhaseCalculation1 (
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation2
    (const fadType & td,
     const fadType & qB,
@@ -5129,7 +5128,6 @@ void oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation2
    (const double & td,
     const double & qB,
