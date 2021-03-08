@@ -38,8 +38,6 @@
 #ifndef Xyce_N_DEV_Diode_h
 #define Xyce_N_DEV_Diode_h
 
-#include <Sacado_No_Kokkos.hpp>
-
 // ----------   Xyce Includes   ----------
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceMaster.h>
@@ -55,9 +53,6 @@ namespace Diode {
 
 class Model;
 class Instance;
-
-typedef Sacado::Fad::SFad<double, 1> fadType;
-
 
 template <typename ScalarT> 
 inline ScalarT Xycemax ( ScalarT f1, ScalarT f2) { return f1 > f2 ? f1 : f2; }

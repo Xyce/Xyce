@@ -55,6 +55,9 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_ANP_NoiseData.h>
 
+#include <Sacado_No_Kokkos.hpp>
+typedef Sacado::Fad::SFad<double, 1> fadType;
+
 namespace Xyce {
 namespace Device {
 namespace Diode {
