@@ -37,6 +37,21 @@
 Placeholder description.
 \\ \hline
 
+\textbf{Gitlab-ex issue 143}: Fix transmission line breakpoint/discontinuity detection &
+When the transmission line was modified in \Xyce{} 7.2 to stop forcing
+a maximum timestep equal to the transmission line delay, bugs in the
+handling of discontinuity detection and dynamically inserted
+breakpoints were exposed.  As a result, transmission lines with very
+short time delays could cause Xyce to detect a discontinuity at one
+end of the line, but fail to set a breakpoint to catch the
+discontinuity at the other end before the time integration had already
+advanced too far.  The result of this combination of bugs could lead
+to strange interpolation artifacts near the times when breakpoints
+should have occurred.  The bugs in the time integration package's
+timestep selection and in the nonlinear solver have been addressed,
+and circuits involving transmission lines with very short delays will
+no longer miss breakpoints in this manner. \\ \hline
+
 \textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
 Xyce is able to leverage some features of Trilinos in a beta mode. Some of
 these were not enabled in the CMake build system, or were not functioning
