@@ -341,6 +341,7 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   // FMIN and FMAX values, now that the corrected values for the start and stop times are known
   fundFreq_ = 1.0/(stopTime_ - startTime_);
 
+  int maxIdx = 0.5*np_;
   if (freqGiven_)
     fhIdx_ = std::round(freq_/fundFreq_); // index of first harmonic
 
@@ -350,7 +351,15 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   if (fmaxGiven_)
     fmaxIdx_ = std::round(fmax_/fundFreq_);
   else
-    fmaxIdx_ = 0.5*np_;
+    fmaxIdx_ = maxIdx;
+
+  // Error out if the FREQ, FMIN and FMAX combination of values are nonsensical.
+  if ( (fhIdx_ < 1) || (fhIdx_ > maxIdx) || (fminIdx_ > maxIdx) || ((fmaxIdx_ < 1) && (fhIdx_ > 1)) ||
+       ((fmaxIdx_ < 2) && (fhIdx_ == 1)) || (fmaxIdx_ < fminIdx_) )
+  {
+    Report::UserError0() << "Invalid FREQ, FMIN or FMAX value on .FFT line for "
+                         << outputVarName_;
+  }
 
   // set up vectors for the sample times and the sampled/interpolated data values.
   sampleTimes_.resize(np_,0.0);
@@ -655,16 +664,19 @@ void FFTAnalysis::calculateFFT_()
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
 //                 frequency.
-// Special Notes : The SFDR only considers frequencies > the first harmonic.
+// Special Notes : The SFDR only considers frequencies > the first harmonic if
+//                 FMIN is not given.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
 void FFTAnalysis::calculateSFDR_()
 {
-  for (int i=fhIdx_+1; i<=np_/2; i+=fhIdx_)
+  for (int i=1; i<=np_/2; i++)
   {
-    if (mag_[i] > sfdr_)
+    if ( (i!=fhIdx_) && (mag_[i] > sfdr_) &&
+         ( (!fminGiven_ && (i> fhIdx_)) || (fminGiven_&& (i>=fminIdx_)) ) &&
+         (i<=fmaxIdx_) )
     {
       sfdr_ = mag_[i];
       sfdrIndex_ = i;
@@ -696,7 +708,7 @@ void FFTAnalysis::calculateSNR_()
 
   for (int i=1; i<=np_/2; i++)
   {
-    if (i%fhIdx_ !=0)
+    if ( (i%fhIdx_ !=0) || (i > fmaxIdx_) )
     {
       noise += mag_[i]*mag_[i];
       noiseFreqFound=true;
@@ -759,7 +771,10 @@ void FFTAnalysis::calculateSNDRandENOB_()
 void FFTAnalysis::calculateTHD_()
 {
   for (int i=2*fhIdx_; i<=np_/2; i+=fhIdx_)
-    thd_ += mag_[i]*mag_[i];
+  {
+    if (i<=fmaxIdx_)
+      thd_ += mag_[i]*mag_[i];
+  }
 
   // don't take 20*log10() for THD, since both the actual value and dB value are output later.
   thd_ = sqrt(thd_)/mag_[fhIdx_];
@@ -829,9 +844,12 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 
     for (int i=fhIdx_; i<=np_/2; i+=fhIdx_)
     {
-      os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
-         << std::setw(colWidth2) << mag_[i]/normalization
-         << std::setw(colWidth2) << phase_[i] << std::endl;
+      if ( (i>=fminIdx_) && (i<=fmaxIdx_) )
+      {
+        os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
+           << std::setw(colWidth2) << mag_[i]/normalization
+           << std::setw(colWidth2) << phase_[i] << std::endl;
+      }
     }
 
     if (fftout_)
