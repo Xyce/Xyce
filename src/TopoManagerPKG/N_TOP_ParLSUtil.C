@@ -350,6 +350,7 @@ bool ParLSUtil::setupRowCol()
   VNodeContainer OwnedVNodes;
 
   std::string id("");
+  std::vector<int> procBalance( procCnt, 0 );
 
   while( iterVN != endVN )
   {
@@ -382,8 +383,21 @@ bool ParLSUtil::setupRowCol()
       {
         //Bug 1239:  Commenting out random shuffle to address non-deterministic
         //           parallel behavior due to shared voltage node assignment.
-        //random_shuffle( intVec.begin(), intVec.end() );
-        inode->pid = *(intVec.begin());
+        //Gitlab issue #149: more balanced assignment of voltage nodes required
+        int new_pid = *(intVec.begin());
+        int pid_count = procBalance[ new_pid ];
+        std::vector<int>::iterator iV = intVec.begin(); iV++;
+        while ( iV != intVec.end() )
+        {
+          if ( procBalance[ *iV ] < pid_count )
+          {
+            new_pid = *iV;
+            pid_count = procBalance[ new_pid ];
+          }
+          iV++;
+        }
+        inode->pid = new_pid;
+        procBalance[ new_pid ]++;
       }
     }
 
