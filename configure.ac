@@ -677,10 +677,14 @@ if test "x$USE_AMESOS2" = "xyes"; then
     AC_CHECK_HEADER([Amesos2_Basker.hpp], AC_DEFINE([Xyce_AMESOS2_BASKER], [1], [Set to use templated Basker solver in Amesos2.]), [USING_AMESOS2_BASKER=no])
     if test "$USING_AMESOS2_BASKER" != "no"; then
       USING_NEW_BASKER=no
+      USING_OLD_BASKER=no
       XYCE_TEST_USING_NEW_BASKER
       if test "$USING_NEW_BASKER" != "no"; then
         AC_DEFINE([Xyce_NEW_BASKER], [1], [Set to use new templated Basker solver in Amesos2.])
       fi
+      if test "x$USING_OLD_BASKER" = "xno" -a "x$USING_NEW_BASKER" = "xno"; then
+        USING_AMESOS2_BASKER = no;
+      fi 
     fi
 fi
 
