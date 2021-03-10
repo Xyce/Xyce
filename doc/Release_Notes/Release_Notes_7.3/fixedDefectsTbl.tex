@@ -34,11 +34,6 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{ISSUE NUMBER}:  Placeholder title&
-Placeholder description.
-\\ \hline
-
-
 \textbf{Gitlab-ex issue 143}: Fix transmission line breakpoint/discontinuity detection &
 When the transmission line was modified in \Xyce{} 7.2 to stop forcing
 a maximum timestep equal to the transmission line delay, bugs in the
@@ -57,6 +52,13 @@ no longer miss breakpoints in this manner. \\ \hline
 \textbf{Gitlab-ex issue 82}:  Make AC sensitivities work in parallel &
 The initial implementation of AC parameter sensitivities did not work in 
   parallel, but this now works correctly.
+\\ \hline
+
+\textbf{Gitlab-ex issue 115}:  Fix AC sensitivities to be correct for nonlinear 
+  device model parameters & The original implementation of AC sensitivities had 
+  a math mistake that caused the calculation to be incorrect when applied to 
+  parameters from nonlinear devices.  The math error has been fixed and now
+  nonlinear AC sensitivies work correctly.
 \\ \hline
 
 \textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
