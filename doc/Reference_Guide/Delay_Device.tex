@@ -1,0 +1,93 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+An ideal delay device, operating in a manner similar to a
+voltage-controlled voltage source, is provided by the YDELAY device.
+
+\begin{Device}
+
+\device
+\begin{alltt}
+YDELAY <name> <positive node> <negative node>
++ <positive control node> <negative control node>
++ TD=<time delay>
++ [EXTRAPOLATION=<true|false>] [BPENABLED=<true|false>]
++ [LINEARINTERP=<true|false>] 
+\end{alltt}
+
+\examples
+\begin{alltt}
+YDELAY delay1 2 0 1 0 TD=10N
+R1 2 0 1
+YDELAY delay1 3 0 2 0 TD=10N LINEARINTERP=true
+R2 3 0 1
+YDELAY delay1 4 0 3 0 TD=10N BPENABLED=FALSE
+R4 4 0 1
+YDELAY delay1 5 0 4 0 TD=10N EXTRAPOLATION=false
+R5 5 0 1
+\end{alltt}
+
+\comments
+
+The voltage between the positive and negative control nodes is
+reproduced at the positive and negative output nodes delayed by a time
+equal to the specified TD parameter.
+
+The device is equivalent in connectivity to a voltage-controlled
+voltage source --- the device puts no load on the control nodes, and
+its output must be connected to a valid circuit.
+
+Unlike the transmission line, no impedance matching is required, and
+reflections due to impedance mismatch do not occur.
+
+These devices may be chained to create outputs at different delays,
+but each instance must have its output connected to a valid closed
+circuit.  The examples above are chained correctly so that each of the
+output nodes is delayed by 10 nanoseconds from the previous stage.
+
+The device functions by storing a history of its input at each
+accepted time point.  At each new time step, interpolation is
+performed on this history to determine what the signal would have been
+at a time TD in the past.  At each step, the device checks its history
+to determine if the previous three saved steps include a discontinuity
+in the input.  If so, the device assures that \Xyce{} will correctly
+resolve the same discontinuity when it appears on the output.
+
+With no special options specified, three-point quadratic interpolation
+is used except after a discontinuity, when linear interpolation is
+performed.  If \Xyce{} has advanced the time by more than TD and no
+discontinuity has occured, then this interpolation is actually
+extrapolation.
+
+When \texttt{LINEARINTERP=true} is specified, the history
+interpolation used is always linear interpolation.
+
+When \texttt{EXTRAPOLATION=false}, \Xyce{} will never attempt
+extrapolation when it has taken a time step larger than TD.  In this
+case, the current, unconverged value of the solution is used as the
+third interpolation point and the interpolation is recomputed at every
+step of the nonlinear solve.
+
+When \texttt{BPENABLED=false}, the device will not set a simulation
+breakpoint to force the time integrator to stop exactly TD seconds
+after a detected discontinuity on the input.  It will still force a
+maximum time step on the time integrator after such a discontinuity,
+and other techniques will be applied to assure the discontinuity is
+resolved.  This option may result in \Xyce{} rejecting a lot more time
+steps and slower simulation than when it is left at its default.
+
+\end{Device}
+
+\subsubsection{Delay device instance parameters}
+
+The instance parameters for the delay device are shown in
+Table~\ref{Delay_1_Device_Instance_Params}.
+
+\input{Delay_1_Device_Instance_Params}
