@@ -38,6 +38,7 @@
 Placeholder description.
 \\ \hline
 
+
 \textbf{Gitlab-ex issue 143}: Fix transmission line breakpoint/discontinuity detection &
 When the transmission line was modified in \Xyce{} 7.2 to stop forcing
 a maximum timestep equal to the transmission line delay, bugs in the
@@ -52,6 +53,11 @@ should have occurred.  The bugs in the time integration package's
 timestep selection and in the nonlinear solver have been addressed,
 and circuits involving transmission lines with very short delays will
 no longer miss breakpoints in this manner. \\ \hline
+
+\textbf{Gitlab-ex issue 82}:  Make AC sensitivities work in parallel &
+The initial implementation of AC parameter sensitivities did not work in 
+  parallel, but this now works correctly.
+\\ \hline
 
 \textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
 Xyce is able to leverage some features of Trilinos in a beta mode. Some of
