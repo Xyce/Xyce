@@ -462,9 +462,6 @@ public:
   {
     int numVars=sV.size();
 
-    std::cout << " In vccs computeXyceVectors, number vars = " << numVars
-              << std::endl;
-
     F.resize(numVars);
     Q.clear();
     B.clear();
