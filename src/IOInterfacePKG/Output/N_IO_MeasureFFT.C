@@ -51,7 +51,9 @@ FFT::FFT(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
   fftAnalysisPtr_(0),
   np_(0),
-  atRounded_(0)
+  atIdx_(0),
+  minFreqIdx_(1),
+  maxFreqIdx_(0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -115,7 +117,15 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
     np_ = fftAnalysisPtr_->getNP();
 
     if (findGiven_ && atGiven_)
-      atRounded_ = std::round(at_/fftAnalysisPtr_->getFundamentalFreq());
+      atIdx_ = std::round(at_/fftAnalysisPtr_->getFundamentalFreq());
+
+    if (minFreqGiven_)
+      minFreqIdx_ = std::round(minFreq_/fftAnalysisPtr_->getFundamentalFreq());
+
+    if (maxFreqGiven_)
+      maxFreqIdx_ = std::round(maxFreq_/fftAnalysisPtr_->getFundamentalFreq());
+    else
+      maxFreqIdx_ = np_;
   }
 }
 
@@ -303,20 +313,20 @@ bool FFTFind::isOpTypeAllowed()
 //-----------------------------------------------------------------------------
 double FFTFind::getMeasureResult()
 {
-  if (fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() && (atRounded_ >= 0) && (atRounded_ <= np_/2))
+  if (fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() && (atIdx_ >= 0) && (atIdx_ <= np_/2))
   {
     initialized_ = true;
 
     if (opType_ == "R")
-      calculationResult_ = fftAnalysisPtr_->getFFTCoeffRealVal(atRounded_);
+      calculationResult_ = fftAnalysisPtr_->getFFTCoeffRealVal(atIdx_);
     else if (opType_ == "I")
-      calculationResult_ = fftAnalysisPtr_->getFFTCoeffImagVal(atRounded_);
+      calculationResult_ = fftAnalysisPtr_->getFFTCoeffImagVal(atIdx_);
     else if (opType_ == "M")
-      calculationResult_ = fftAnalysisPtr_->getMagVal(atRounded_);
+      calculationResult_ = fftAnalysisPtr_->getMagVal(atIdx_);
     else if (opType_ == "P")
-      calculationResult_ = fftAnalysisPtr_->getPhaseVal(atRounded_);
+      calculationResult_ = fftAnalysisPtr_->getPhaseVal(atIdx_);
     else if (opType_ == "DB")
-      calculationResult_ = 20*log10(fftAnalysisPtr_->getMagVal(atRounded_));
+      calculationResult_ = 20*log10(fftAnalysisPtr_->getMagVal(atIdx_));
   }
 
   return calculationResult_;
@@ -339,7 +349,8 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
     if (initialized_)
     {
       os << name_ << " = " << this->getMeasureResult()
-         << " at " <<  atRounded_ << " Hz (rounded from " << at_ << " Hz)" << std::endl;
+         << " at " <<  atIdx_*fftAnalysisPtr_->getFundamentalFreq()
+         << " Hz (rounded from " << at_ << " Hz)" << std::endl;
     }
     else
     {
@@ -516,9 +527,38 @@ double SNR::getMeasureResult()
   if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->getSNR();
+    calculationResult_ = fftAnalysisPtr_->calculateSNR(maxFreqIdx_);
   }
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTFind::printVerboseMeasureResult()
+// Purpose       : used to print the "verbose" (more descriptive) measurement
+//                 result to an output stream object, which is typically stdout
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/21/2021
+//-----------------------------------------------------------------------------
+std::ostream& SNR::printVerboseMeasureResult(std::ostream& os)
+{
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
+    if (initialized_)
+    {
+      os << name_ << " = " << this->getMeasureResult();
+      if (maxFreqGiven_)
+	os << " up to frequency " <<  maxFreqIdx_*fftAnalysisPtr_->getFundamentalFreq() << " Hz";
+    }
+    else
+    {
+      os << name_ << " = FAILED";
+    }
+    os << std::endl;
+
+    return os;
 }
 
 //-----------------------------------------------------------------------------

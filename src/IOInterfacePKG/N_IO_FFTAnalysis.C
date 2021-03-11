@@ -633,7 +633,7 @@ void FFTAnalysis::calculateFFT_()
   // These metrics are output later if fftout is true.  However, they are calculated
   // unconditionally for compatibility with .MEASURE FFT.
   calculateSFDR_();
-  calculateSNR_();
+  snr_ = calculateSNR(fmaxIdx_);
   calculateSNDRandENOB_();
   calculateTHD_();
 
@@ -695,20 +695,22 @@ void FFTAnalysis::calculateSFDR_()
 //                 "first harmonic".  That is the fundamental frequency,
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
-//                 frequency.
+//                 frequency.  This function is also used by .MEASURE FFT lines
+//                 which have the MAXFREQ qualifier.  So, it is a public function.
 // Special Notes : The SNR considers all frequencies that are not a harmonic.
-// Scope         : private
+// Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::calculateSNR_()
+double FFTAnalysis::calculateSNR(int fmaxIndex) const
 {
   double noise=0;
+  double snrVal=0;
   bool noiseFreqFound=false;
 
   for (int i=1; i<=np_/2; i++)
   {
-    if ( (i%fhIdx_ !=0) || (i > fmaxIdx_) )
+    if ( (i%fhIdx_ !=0) || (i > fmaxIndex) )
     {
       noise += mag_[i]*mag_[i];
       noiseFreqFound=true;
@@ -717,15 +719,13 @@ void FFTAnalysis::calculateSNR_()
 
   // apply noise floor to this calculation
   if (!noiseFreqFound)
-    snr_ = 1.0/noiseFloor_;
+    snrVal = 1.0/noiseFloor_;
   else
-    snr_ = mag_[fhIdx_] / sqrt(noise);
+    snrVal = mag_[fhIdx_] / sqrt(noise);
 
-  // units are dB
-  snr_ = 20*log10(snr_);
-
-  return;
+  return 20*log10(snrVal);
 }
+
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateSNDRandENOB_()
 // Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)

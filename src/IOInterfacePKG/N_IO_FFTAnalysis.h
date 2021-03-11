@@ -122,7 +122,7 @@ public:
   double getENOB() const {return enob_;}
   double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
-  double getSNR() const {return snr_;}
+  double calculateSNR(int fmaxIndex) const;
   double getTHD() const {return thd_;}
 
 private:
@@ -132,7 +132,6 @@ private:
 
   void calculateFFT_();
   void calculateSFDR_();
-  void calculateSNR_();
   void calculateSNDRandENOB_();
   void calculateTHD_();
 

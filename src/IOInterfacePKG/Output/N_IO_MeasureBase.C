@@ -140,8 +140,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     gotMeasureResult_(false),
     calculationDefaultVal_(-1.0),
     binSize_(0),
-    minFreq_(0),
-    maxFreq_(0),
+    minFreq_(0.0),
+    maxFreq_(0.0),
     nbHarm_(0),
     minFreqGiven_(false),
     maxFreqGiven_(false),
@@ -479,11 +479,13 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "MINFREQ" )
     {
-
+      minFreq_ = (*it).getImmutableValue<double>();
+      minFreqGiven_ = true;
     }
     else if( tag == "MAXFREQ" )
     {
-
+      maxFreq_ = (*it).getImmutableValue<double>();
+      maxFreqGiven_ = true;
     }
     else if( tag == "NBHARM" )
     {

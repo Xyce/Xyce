@@ -104,7 +104,9 @@ public:
 protected:
   FFTAnalysis* fftAnalysisPtr_;
   int np_;
-  int atRounded_;
+  int atIdx_; // versions of AT, MINFREQ, MAXFREQ rounded to nearest harmonic index
+  int minFreqIdx_;
+  int maxFreqIdx_;
 
 private:
   int numOutVars_;
@@ -208,6 +210,7 @@ public:
 public:
   void reset();
   double getMeasureResult();
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
 
 };
 
