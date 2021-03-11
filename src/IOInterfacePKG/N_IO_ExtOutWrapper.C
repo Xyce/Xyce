@@ -71,6 +71,7 @@ ExternalOutputWrapper::ExternalOutputWrapper ( ExternalOutputInterface * extIntP
   : extIntPtr_(extIntPtr)
 {
   checkVars_();
+  normalizeVarList_();
 }
 
 //-----------------------------------------------------------------------------
