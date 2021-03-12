@@ -22,9 +22,9 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : Driver for Python Model Interface
+// Purpose        : Driver for Python Model Interpreter
 //
-// Special Notes  : Used by the pythonext test cases
+// Special Notes  : Used by the pymi test cases
 //
 // Creator        : Paul Kuberry
 //
@@ -360,7 +360,7 @@ public:
                 netlist_module_dirname = netlist_dirname + '/' + os.path.dirname(netlist_module_dirname)
             if netlist_module_dirname not in sys.path: sys.path.append(netlist_module_dirname)
 
-            # 4.) install directory (pythonGenExt not currently installable)
+            # 4.) install directory
             # 5.) source directory
             if source_dirname not in sys.path: sys.path.append(source_dirname)
 
