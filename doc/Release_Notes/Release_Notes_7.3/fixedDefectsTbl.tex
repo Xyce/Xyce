@@ -33,6 +33,14 @@
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+\textbf{Gitlab-ex issue 153/Github issue 21}: External Output Interface does not prepend TIME &
+The documentation of the external output interface in an application
+note claimed that if a user created an external output object that did
+not include output of ``TIME'' for a transient run or ``FREQ'' for a
+frequency-domain run, that the outputter would automatically prepend
+that variable to the list of outputs actually delivered.  That was not
+happening due to a simple coding error.  Now the interface performs
+that operation as intended. \\ \hline
 
 \textbf{Gitlab-ex issue 143}: Fix transmission line breakpoint/discontinuity detection &
 When the transmission line was modified in \Xyce{} 7.2 to stop forcing
