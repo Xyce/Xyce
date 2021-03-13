@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -303,12 +303,6 @@ double   SourceData::getTime_()
 // From 3f5:  remember to incorporate this later:
 //
 //-----------------------------------------------------------------------------
-#if 0
-// this is from 3f5:
-#define FREQ  (((here->VSRCfunctionOrder >=3) && (*(here->VSRCcoeffs+2)))? \
-(*(here->VSRCcoeffs+2)):(1/ckt->CKTfinalTime))
-#endif
-
 SinData::SinData(
   const DeviceEntity &          device,
   const std::vector<Param> &    paramRef,

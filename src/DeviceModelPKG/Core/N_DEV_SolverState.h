@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -57,10 +57,10 @@
 #include <N_NLS_TwoLevelEnum.h>
 #include <N_NLS_fwd.h>
 
-#include <Teuchos_RCP.hpp>
-
 namespace Xyce {
 namespace Device {
+
+struct expressionGroupWrapper;
 
 struct Globals 
 {
@@ -82,6 +82,7 @@ class SolverState
 
 public:
   SolverState();
+  ~SolverState();
 
   void initializeHomotopyBlockSize(int numBlocks);
 
@@ -90,7 +91,8 @@ public:
     return const_cast<Globals &>(globals_);
   }
 
-  void registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
+  expressionGroupWrapper * getGroupWrapper () { return groupWrapperPtr_; } 
+  expressionGroupWrapper * getGroupWrapper () const { return groupWrapperPtr_; } 
 
 public:
 
@@ -192,7 +194,7 @@ public:
 
   double                currFreq_;              ///< current frequency
 
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
+  expressionGroupWrapper * groupWrapperPtr_; /// < required for expressions.  Hides an RCP.
 };
 
 bool setupSolverInfo(

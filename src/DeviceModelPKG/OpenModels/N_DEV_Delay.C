@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -283,8 +283,8 @@ void Instance::registerStoreLIDs( const std::vector<int> & stoLIDVecRef )
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerBranchDataLIDs
-// Purpose       : 
-// Special Notes : 
+// Purpose       :
+// Special Notes :
 // Scope         : public
 // Creator       : Tom Russo
 // Creation Date : 17 Nov 2020
@@ -475,6 +475,52 @@ bool Instance::updateIntermediateVars ()
 
 
 //-----------------------------------------------------------------------------
+// Function      : Instance:isConverged ()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/22/08
+//-----------------------------------------------------------------------------
+
+inline bool Instance::isConverged()
+{
+
+  bool converged = true;
+
+  if ((!getSolverState().dcopFlag) && !(getSolverState().initTranFlag_ &&  getSolverState().newtonIter == 0 ))
+  {
+    double currentTime = getSolverState().currTime_;
+    double currentDeltaV;
+    double d1, d2; // derivatives in history
+    Linear::Vector *theSolVectorPtr = extData.nextSolVectorPtr;
+    std::vector<History>::iterator last = history_.end();
+    currentDeltaV = (*theSolVectorPtr)[li_ContPos]- (*theSolVectorPtr)[li_ContNeg];
+
+    double t3=currentTime;
+    double v3=currentDeltaV;
+    last--;
+    double t2=last->t_;
+    double v2=last->v_;
+    last--;
+    double t1=last->t_;
+    double v1=last->v_;
+    d1 = (v3-v2)/(t3-t2);
+    d2 = (v2-v1)/(t2-t1);
+
+    if ((fabs(d1-d2) >= .99*std::max(fabs(d1),fabs(d2))+1))
+    {
+
+      if ( (currentTime - (t2 + TD_) ) > getSolverState().bpTol_ )
+        converged = false;
+    }
+  }
+
+  return converged;
+
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::acceptStep
 // Purpose       : This function saves the value of the control voltage drop
 //                 at the current accepted time.  It is to be called ONLY at the
@@ -520,7 +566,9 @@ void Instance::acceptStep()
       // derivative changed dramatically, call it a discontinuity at t2
       // set a breakpoint if we have those enabled
       newBreakPointTime_=t2+TD_;
-      newBreakPoint_ = true;
+
+      if ( fabs(currentTime - newBreakPointTime_) > getSolverState().bpTol_ )
+        newBreakPoint_ = true;
     }
   }
 }
@@ -534,6 +582,7 @@ void Instance::acceptStep()
 //-----------------------------------------------------------------------------
 bool Instance::getInstanceBreakPoints ( std::vector<Util::BreakPoint> & breakPointTimes )
 {
+
   bool bsuccess = true;
   double currentTime = getSolverState().currTime_;
   int timeStep = getSolverState().timeStepNumber_;
@@ -600,7 +649,7 @@ bool Instance::loadDAEFVector ()
     double * leadF = extData.nextLeadCurrFCompRawPtr;
     leadF[li_branch_data] = i_bra;
     double * junctionV = extData.nextJunctionVCompRawPtr;
-    junctionV[li_branch_data] = src; 
+    junctionV[li_branch_data] = src;
   }
 
   return true;
@@ -860,7 +909,7 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
 
 //-----------------------------------------------------------------------------
 // Function      : Model::forEachInstance
-// Purpose       : 
+// Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Tom Russo
@@ -868,11 +917,11 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
 //-----------------------------------------------------------------------------
 /// Apply a device instance "op" to all instances associated with this
 /// model
-/// 
+///
 /// @param[in] op Operator to apply to all instances.
-/// 
-/// 
-void Model::forEachInstance(DeviceInstanceOp &op) const /* override */ 
+///
+///
+void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 {
   for (std::vector<Instance *>::const_iterator it = instanceContainer.begin(); it != instanceContainer.end(); ++it)
     op(*it);

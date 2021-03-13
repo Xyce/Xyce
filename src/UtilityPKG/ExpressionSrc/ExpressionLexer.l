@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -150,8 +150,6 @@ MIL [mM][iI][lL]
 
 UNIT [sSvVaAhHfF]
 HZ   [Hh][Zz]
-
-TABLE "fast"?"table"
 
 LEAD I[SDGBEC1-9]
 %{
@@ -509,6 +507,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"Re"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
  /* <INITIAL>"Im"[ \t]*"("  { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */
 <INITIAL>"Img"[ \t]*"("   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
+<INITIAL>"Db"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_DB; }
 
 <INITIAL>"max"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MAX; }
 <INITIAL>"min"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_MIN; }
@@ -582,7 +581,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"("   |
 <INITIAL>"wodicka"[ \t]*"(" |
 <INITIAL>"bli"[ \t]*"("     |
-<INITIAL>TABLE[ \t]*"("     {
+<INITIAL>"table"[ \t]*"("   |
+<INITIAL>"fasttable"[ \t]*"("     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
@@ -594,7 +594,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"{"   |
 <INITIAL>"wodicka"[ \t]*"{" |
 <INITIAL>"bli"[ \t]*"{"     |
-<INITIAL>TABLE[ \t]*"{"     {
+<INITIAL>"table"[ \t]*"{"   |
+<INITIAL>"fasttable"[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
@@ -606,7 +607,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"cubic"[ \t]*"("[ \t]*"{"   |
 <INITIAL>"wodicka"[ \t]*"("[ \t]*"{" |
 <INITIAL>"bli"[ \t]*"("[ \t]*"{"     |
-<INITIAL>TABLE[ \t]*"("[ \t]*"{"     {
+<INITIAL>"table"[ \t]*"("[ \t]*"{"   |
+<INITIAL>"fasttable"[ \t]*"("[ \t]*"{"     {
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );

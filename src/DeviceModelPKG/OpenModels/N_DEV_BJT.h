@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -39,8 +39,6 @@
 #ifndef Xyce_N_DEV_BJT_H
 #define Xyce_N_DEV_BJT_H
 
-#include <Sacado_No_Kokkos.hpp>
-
 // ---------- Standard Includes ----------
 
 // ----------   Xyce Includes   ----------
@@ -57,8 +55,6 @@ namespace BJT {
 
 class Model;
 class Instance;
-
-typedef Sacado::Fad::SFad<double, 1> fadType;
 
 template <typename ScalarT> 
 inline ScalarT Xycemax ( ScalarT f1, ScalarT f2) { return f1 > f2 ? f1 : f2; }
@@ -252,115 +248,6 @@ bool processParams(
     ScalarT & f6,
     ScalarT & f7 
     );
-
-template <typename ScalarT>
-void oldDAEExcessPhaseCalculation1 (
-    const ScalarT & td,
-    const ScalarT & qB,
-    const ScalarT & iBE,
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-    double * currStaVec,
-    double * lastStaVec,
-    const int li_istateCEXBC 
-    )
-{};
-
-template <>
-void oldDAEExcessPhaseCalculation1 (
-    const fadType & td,
-    const fadType & qB,
-    const fadType & iBE,
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-    double * currStaVec,
-    double * lastStaVec,
-    const int li_istateCEXBC 
-    );
-
-
-template <>
-void oldDAEExcessPhaseCalculation1 (
-    const double & td,
-    const double & qB,
-    const double & iBE,
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-    double * currStaVec,
-    double * lastStaVec,
-    const int li_istateCEXBC 
-    );
-
-template <typename ScalarT>
-void oldDAEExcessPhaseCalculation2 
-   (const ScalarT & td,
-    const ScalarT & qB,
-    const ScalarT & iBE,
-    const ScalarT & gBE,
-
-    const double dt0, //dt0 = getSolverState().currTimeStep;
-    const double dt1, //dt1 = getSolverState().lastTimeStep;
-
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-
-    double * nextStaVec, // raw pointers fine here
-    const double * currStaVec, // raw pointers fine here
-    const double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC,
-
-    ScalarT & iEX, 
-    ScalarT & gEX, 
-    ScalarT & iC_local)
-{};
-
-
-template <>
-void oldDAEExcessPhaseCalculation2 
-   (const fadType & td,
-    const fadType & qB,
-    const fadType & iBE,
-    const fadType & gBE,
-
-    const double dt0, //dt0 = getSolverState().currTimeStep;
-    const double dt1, //dt1 = getSolverState().lastTimeStep;
-
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-
-    double * nextStaVec, // raw pointers fine here
-    const double * currStaVec, // raw pointers fine here
-    const double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC,
-
-    fadType & iEX, 
-    fadType & gEX, 
-    fadType & iC_local);
-
-template <>
-void oldDAEExcessPhaseCalculation2 
-   (const double & td,
-    const double & qB,
-    const double & iBE,
-    const double & gBE,
-
-    const double dt0, //dt0 = getSolverState().currTimeStep;
-    const double dt1, //dt1 = getSolverState().lastTimeStep;
-
-    bool dcopFlag,
-    bool beginIntegrationFlag,
-
-    double * nextStaVec, // raw pointers fine here
-    const double * currStaVec, // raw pointers fine here
-    const double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC,
-
-    double & iEX, 
-    double & gEX, 
-    double & iC_local);
 
 template <typename ScalarT> 
 void auxDAECalculations (

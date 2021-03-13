@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -176,8 +176,15 @@ private:
   std::vector<double> Anewval_;
 
 #ifdef Xyce_AMESOS2_BASKER
+
+#ifdef Xyce_NEW_BASKER
+  BaskerClassicNS::BaskerClassic<int, double> basker_;
+  BaskerClassicNS::BaskerClassic<int, Xyce::PCEBlockMatrixEntry > blockBasker_;
+#else
   Basker::Basker<int, double> basker_;
   Basker::Basker<int, Xyce::PCEBlockMatrixEntry> blockBasker_;
+#endif
+
 #endif
 
   // Serialized objects for parallel loading.

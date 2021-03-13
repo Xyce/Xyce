@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Block MultiVector access
+// Purpose        : Block MultiVector abstract interface 
 //
 // Special Notes  :
 //
@@ -37,8 +37,6 @@
 
 #ifndef Xyce_N_LAS_BlockMultiVector_h
 #define Xyce_N_LAS_BlockMultiVector_h
-
-#include <vector>
 
 #include <N_LAS_MultiVector.h>
 #include <N_PDS_fwd.h>
@@ -58,60 +56,30 @@ namespace Linear {
 class BlockMultiVector : public MultiVector
 {
  public:
-  BlockMultiVector( int numBlocks, int numVectors,
-                    const Teuchos::RCP<const Parallel::ParMap> & globalMap,
-                    const Teuchos::RCP<const Parallel::ParMap> & subBlockMap
-                  );
+
+  // Default constructor
+  BlockMultiVector() {}
 
   // Destructor
   virtual ~BlockMultiVector() {};
 
+  // Assignment operator
+  virtual BlockMultiVector& operator=(const BlockMultiVector& right) = 0;
+  virtual BlockMultiVector& operator=(const MultiVector& right) = 0;
+
   // Block accessors
-  MultiVector & block( int Loc ) const
-  { return *blocks_[Loc]; }
+  virtual MultiVector & block( int Loc ) const = 0;
 
-  int blockSize() const
-  { return globalBlockSize_; }
+  virtual int blockSize() const = 0;
 
-  int blockCount() const
-  { return numBlocks_; }
+  virtual int blockCount() const = 0;
 
-  int startBlock() const
-  { return startBlock_; }
+  virtual int startBlock() const = 0;
 
-  int endBlock() const
-  { return endBlock_; }
-
-  // Return whether the local vector is a view of the global vector.
-  bool isBlockView()
-  { return blocksViewGlobalVec_; }
-
-  // Assemble global vector with blocks
-  // NOTE:  The global vector is not always a view of the local vector, so this function ensures
-  // that the values are sync'ed up.  Call this before using the global vector for computations.
-  void assembleGlobalVector();
+  virtual int endBlock() const = 0;
 
   // Get the ParMap objects for each BLOCK in this block vector.
-  const Parallel::ParMap * blockPmap() const { return newBlockMap_.get(); }
-
-  // Print out the underlying data in this object.
-  void print(std::ostream &os) const;
-
- private:
-
-  bool blocksViewGlobalVec_;
-  const int globalBlockSize_;
-  const int localBlockSize_;
-  const int numBlocks_;
-
-  // In frequency domain, whole blocks may be owned by one processor.
-  // NOTE:  This assumes they are contiguous.  By default these routines
-  //        will return 0 and numBlocks_ (which is sane for the time domain specs).
-  int startBlock_, endBlock_;
-
-  Teuchos::RCP<const Parallel::ParMap> newBlockMap_; 
-
-  std::vector<Teuchos::RCP<MultiVector> > blocks_;
+  virtual const Parallel::ParMap * blockPmap() const = 0;
 
 };
 

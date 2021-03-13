@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -496,22 +496,6 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
 #endif
   }
   
-  // Now that the vector loading is finished, synchronize the global copy of the block vector
-  bX.assembleGlobalVector();
-  bS.assembleGlobalVector();
-  bdSdt.assembleGlobalVector();
-  bStore.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bF.assembleGlobalVector();
-  bdFdxdVp.assembleGlobalVector();
-  bdQdxdVp.assembleGlobalVector();
-  bcurrS.assembleGlobalVector();
-  blastS.assembleGlobalVector();
-  bcurrStore.assembleGlobalVector();
-  bNextLeadF.assembleGlobalVector();
-  bLeadQ.assembleGlobalVector();
-  bNextJunctionV.assembleGlobalVector();
-
   if (DEBUG_ES)
   {
     Xyce::dout() << "ES X Vector" << std::endl;

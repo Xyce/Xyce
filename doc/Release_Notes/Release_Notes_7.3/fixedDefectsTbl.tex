@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 % Sandia National Laboratories is a multimission laboratory managed and
@@ -13,7 +13,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 
@@ -25,16 +25,62 @@
 
 \begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
      \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
-     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     SON, which is on the open network, and SRN, which is on the restricted network.  We are also 
+     transitioning from bugzilla to gitlab issue tracking.} \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endfirsthead
      \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+\textbf{Gitlab-ex issue 153/Github issue 21}: External Output Interface does not prepend TIME &
+The documentation of the external output interface in an application
+note claimed that if a user created an external output object that did
+not include output of ``TIME'' for a transient run or ``FREQ'' for a
+frequency-domain run, that the outputter would automatically prepend
+that variable to the list of outputs actually delivered.  That was not
+happening due to a simple coding error.  Now the interface performs
+that operation as intended. \\ \hline
 
-\textbf{ISSUE NUMBER}:  Placeholder title&
-Placeholder description.
+\textbf{Gitlab-ex issue 143}: Fix transmission line breakpoint/discontinuity detection &
+When the transmission line was modified in \Xyce{} 7.2 to stop forcing
+a maximum timestep equal to the transmission line delay, bugs in the
+handling of discontinuity detection and dynamically inserted
+breakpoints were exposed.  As a result, transmission lines with very
+short time delays could cause Xyce to detect a discontinuity at one
+end of the line, but fail to set a breakpoint to catch the
+discontinuity at the other end before the time integration had already
+advanced too far.  The result of this combination of bugs could lead
+to strange interpolation artifacts near the times when breakpoints
+should have occurred.  The bugs in the time integration package's
+timestep selection and in the nonlinear solver have been addressed,
+and circuits involving transmission lines with very short delays will
+no longer miss breakpoints in this manner. \\ \hline
+
+\textbf{Gitlab-ex issue 82}:  Make AC sensitivities work in parallel &
+The initial implementation of AC parameter sensitivities did not work in 
+  parallel, but this now works correctly.
+\\ \hline
+
+\textbf{Gitlab-ex issue 115}:  Fix AC sensitivities to be correct for nonlinear 
+  device model parameters & The original implementation of AC sensitivities had 
+  a math mistake that caused the calculation to be incorrect when applied to 
+  parameters from nonlinear devices.  The math error has been fixed and now
+  nonlinear AC sensitivies work correctly.
+\\ \hline
+
+\textbf{Gitlab-ex issue 123}:  POLY in the new expression library has problems 
+  at higer orders ($>$2) & The new expression library had mistakes in the POLY 
+  operator for higher-order polynomials, which have been corrected.  
+\\ \hline
+
+\textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
+Xyce is able to leverage some features of Trilinos in a beta mode. Some of
+these were not enabled in the CMake build system, or were not functioning
+correctly. This issue was focused on making those work properly. Specifically,
+it was targeted at the inclusion of Amesos2, Stokhos, ShyLU, the Amesos2 Basker
+(a templated linear solver), and the ShyLU Basker (a multi-threaded linear
+solver). It also made Belos a required Trilinos package.
 \\ \hline
 
 \textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &

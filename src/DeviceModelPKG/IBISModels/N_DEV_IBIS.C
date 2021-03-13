@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -60,6 +60,8 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_FeatureTest.h>
+
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 namespace Xyce {
 namespace Device {
@@ -1209,7 +1211,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "GNDCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1265,7 +1267,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PWRCLAMPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 
@@ -1321,7 +1323,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLDOWNTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
                   IB.params.push_back(tbl_param);
 
@@ -1377,7 +1379,7 @@ bool Instance::readIbsFile()
                   }
                   Param tbl_param( "", "" );
                   tbl_param.setTag( "PULLUPTBL" );
-                  tbl_param.setVal( Util::Expression(getSolverState().expressionGroup_,expString) );
+                  tbl_param.setVal( Util::Expression(getSolverState().getGroupWrapper()->expressionGroup_,expString) );
                   tbl_param.setGiven( true );
 		  IB.params.push_back(tbl_param);
 

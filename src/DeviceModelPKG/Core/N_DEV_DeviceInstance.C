@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -36,6 +36,8 @@
 //-------------------------------------------------------------------------
 
 #include <Xyce_config.h>
+
+#include <iomanip> // ERK this had to be added b/c Teuchos_RCP was removed from solver state.
 
 #include <N_DEV_DeviceInstance.h>
 

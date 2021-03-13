@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -748,6 +748,13 @@ bool Transient::resuming()
   minEstErrorOverTol = 0.0;
   timeStepAtMinEstErrorOverTol = 0.0;
 
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
+
   return bsuccess;
 }
 
@@ -1024,16 +1031,6 @@ bool Transient::doTranOP ()
       analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
     }
 
-    // ------------------------------------------------------------------------
-    // Set the step size, current time and next time.
-
-    analysisManager_.getStepErrorControl().updateStopTime(
-      comm_,
-      tiaParams_.bpEnable,
-      tiaParams_.initialTime,
-      tiaParams_.minTimeStepsBPGiven,
-      tiaParams_.minTimeStepsBP);
-
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
     {
       dout() << std::endl;
@@ -1110,6 +1107,14 @@ bool Transient::doTranOP ()
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
       AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::TRAN));
 
+
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
+
   return bsuccess;
 }
 
@@ -1150,16 +1155,6 @@ bool Transient::doLoopProcess()
     {
       analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
     }
-
-    // ------------------------------------------------------------------------
-    // Set the step size, current time and next time.
-
-    analysisManager_.getStepErrorControl().updateStopTime(
-      comm_,
-      tiaParams_.bpEnable,
-      tiaParams_.initialTime,
-      tiaParams_.minTimeStepsBPGiven,
-      tiaParams_.minTimeStepsBP);
 
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
     {
@@ -1830,7 +1825,7 @@ bool Transient::doProcessSuccessfulStep()
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the
   // solution if tiaParams_.saveTimeStepsFlag is set.
-  // This fixes an off by one bug in getting the right time value and
+ // This fixes an off by one bug in getting the right time value and
   // keeps the real solutions associated with that value too.
   double currentTime = analysisManager_.getStepErrorControl().currentTime;
   double suggestedMaxTime = 0.0;
@@ -1851,6 +1846,16 @@ bool Transient::doProcessSuccessfulStep()
   analysisManager_.getStepErrorControl().updateMaxTimeStep( comm_, loader_, tiaParams_, suggestedMaxTime );
   analysisManager_.getStepErrorControl().updateMinTimeStep();
   analysisManager_.getStepErrorControl().updateBreakPoints(loader_, tiaParams_.initialTime);
+
+  if (beginningIntegration)
+    beginningIntegration = false;
+
+  analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
 
   if (VERBOSE_TIME && isActive(Diag::TIME_PARAMETERS))
     dout() << "Transient Analysis:  accepting time step" << std::endl;
@@ -1909,6 +1914,14 @@ bool Transient::doProcessSuccessfulStep()
   if (analysisManager_.breakPointRestartStep == tranStepNumber)
   {
     beginningIntegration = true;
+
+
+    analysisManager_.getStepErrorControl().updateStopTime(
+      comm_,
+      tiaParams_.bpEnable,
+      tiaParams_.initialTime,
+      tiaParams_.minTimeStepsBPGiven,
+      tiaParams_.minTimeStepsBP);
   }
   else
   {
@@ -1931,10 +1944,10 @@ bool Transient::doProcessSuccessfulStep()
 
     ds.timeSteps.push_back(currentTime);
     ds.timeStepsBreakpointFlag.push_back(beginningIntegration);
-    ds.fastTimeSolutionVec.push_back( ds.currSolutionPtr->cloneCopy() );
-    ds.fastTimeStateVec.push_back( ds.currStatePtr->cloneCopy() );
-    ds.fastTimeQVec.push_back( ds.daeQVectorPtr->cloneCopy() );
-    ds.fastTimeStoreVec.push_back( ds.currStorePtr->cloneCopy() );
+    ds.fastTimeSolutionVec.push_back( ds.currSolutionPtr->cloneCopyVector() );
+    ds.fastTimeStateVec.push_back( ds.currStatePtr->cloneCopyVector() );
+    ds.fastTimeQVec.push_back( ds.daeQVectorPtr->cloneCopyVector() );
+    ds.fastTimeStoreVec.push_back( ds.currStorePtr->cloneCopyVector() );
   }
 
   // 03/16/04 tscoffe:  This is where the solution pointers are rotated.
@@ -2172,9 +2185,9 @@ bool Transient::saveTransientAdjointSensitivityInfo ()
   ds.orderHistory.push_back(currentOrder);
 
   // save the solution, state, store etc.
-  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopy());
-  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopy());
-  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopy());
+  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopyVector());
+  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopyVector());
+  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopyVector());
 
   if (!newLowMem_)
   {
@@ -2242,9 +2255,9 @@ bool Transient::saveTransientAdjointSensitivityInfoDCOP ()
   ds.orderHistory.push_back(currentOrder);
 
   // save the solution, state, store etc.
-  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopy());
-  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopy());
-  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopy());
+  ds.solutionHistory.push_back(ds.nextSolutionPtr->cloneCopyVector());
+  ds.stateHistory.push_back(ds.nextStatePtr->cloneCopyVector());
+  ds.storeHistory.push_back(ds.nextStorePtr->cloneCopyVector());
 
   if (!newLowMem_)
   {
@@ -2708,10 +2721,10 @@ bool Transient::doFinish()
     TimeIntg::DataStore & ds = * ( analysisManager_.getDataStore() );
     ds.timeSteps.push_back(analysisManager_.getStepErrorControl().currentTime);
     ds.timeStepsBreakpointFlag.push_back(beginningIntegration);
-    ds.fastTimeSolutionVec.push_back(ds.currSolutionPtr->cloneCopy());
-    ds.fastTimeStateVec.push_back(ds.currStatePtr->cloneCopy());
-    ds.fastTimeQVec.push_back(ds.daeQVectorPtr->cloneCopy());
-    ds.fastTimeStoreVec.push_back(ds.currStorePtr->cloneCopy());
+    ds.fastTimeSolutionVec.push_back(ds.currSolutionPtr->cloneCopyVector());
+    ds.fastTimeStateVec.push_back(ds.currStatePtr->cloneCopyVector());
+    ds.fastTimeQVec.push_back(ds.daeQVectorPtr->cloneCopyVector());
+    ds.fastTimeStoreVec.push_back(ds.currStorePtr->cloneCopyVector());
   }
 
   if (!isPaused)

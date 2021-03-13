@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -82,7 +82,7 @@ public:
                           const Util::Op::BuilderManager &op_builder_manager,
                           const double endSimTime,
                           TimeIntg::StepErrorControl & sec,
-                          const int fft_accurate,
+                          const bool fft_accurate,
                           const bool fftout);
 
   void addSampleTimeBreakpoints();
@@ -122,16 +122,16 @@ public:
   double getENOB() const {return enob_;}
   double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
-  double getSNR() const {return snr_;}
+  double calculateSNR(int fmaxIndex) const;
   double getTHD() const {return thd_;}
 
 private:
+  void calculateResults_();
   bool interpolateData_();
   bool applyWindowFunction_();
 
   void calculateFFT_();
   void calculateSFDR_();
-  void calculateSNR_();
   void calculateSNDRandENOB_();
   void calculateTHD_();
 
@@ -144,7 +144,7 @@ private:
   }
 
 private:
-  TimeIntg::StepErrorControl* secPtr_;  // ptr to step error control
+  TimeIntg::StepErrorControl* secPtr_; // ptr to step error control.  Used if FFT_ACCURATE=true
   double startTime_, stopTime_;
   int np_;
   std:: string format_;
@@ -160,10 +160,9 @@ private:
   bool fmaxGiven_;
   bool calculated_;
   std::string outputVarName_;
-  int fft_accurate_;
-  int fftout_;
+  bool fft_accurate_;
+  bool fftout_;
   int sampleIdx_;
-  double sampleTimeTol_;
   double noiseFloor_;
   double maxMag_;
   double thd_;

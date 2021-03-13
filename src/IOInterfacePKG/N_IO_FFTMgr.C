@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -66,7 +66,8 @@ namespace IO {
 //-----------------------------------------------------------------------------
 FFTMgr::FFTMgr(const std::string &   netlist_filename )
   : netlistFilename_(netlist_filename),
-    fft_accurate_(1),
+    fftAnalysisEnabled_(true),
+    fft_accurate_(true),
     fftout_(false)
 {}
 
@@ -131,6 +132,21 @@ void FFTMgr::resetFFTAnalyses()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTMgr::enableFFTAnalysis
+// Purpose       : Determines whether the FFT analysis should actually be done,
+//                 based on the primary analysis mode
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 2/28/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::enableFFTAnalysis(const Analysis::Mode analysisMode)
+{
+  if (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT)
+    fftAnalysisEnabled_ = false;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTMgr::fixupFFTParameters
 // Purpose       : This sets parameters in the FFTAnalysis objects, that could
 //                 not be determined when those objects were constructed.
@@ -142,15 +158,18 @@ void FFTMgr::resetFFTAnalyses()
 void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
                                 const double endSimTime, TimeIntg::StepErrorControl & sec)
 {
-  for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-    (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
+  if (fftAnalysisEnabled_)
+  {
+    for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
+  }
 }
 
 //-----------------------------------------------------------------------------
 // Function      : FFTMgr::fixupFFTParametersForRemeasure
 // Purpose       : This sets parameters in the FFTAnalysis objects, that could
 //                 not be determined when those objects were constructed.
-// Special Notes : fft_accurate_ is set to 0 in all of the FFTAnalysis objects
+// Special Notes : fft_accurate_ is set to false in all of the FFTAnalysis objects
 //                 for remeasure, because StepErrorControl is not instantiated
 //                 during remeasure.
 // Scope         : public
@@ -160,8 +179,11 @@ void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderM
 void FFTMgr::fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
                                 const double endSimTime, TimeIntg::StepErrorControl & sec)
 {
-  for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-    (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, 0, fftout_);
+  if (fftAnalysisEnabled_)
+  {
+    for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, false, fftout_);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -215,11 +237,14 @@ void FFTMgr::updateFFTData(Parallel::Machine comm, const double circuitTime, con
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
-  // loop over FFTAnalysis objects and get them to update themselves.
-  for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+  if (fftAnalysisEnabled_)
   {
-    (*it)->updateFFTData(comm, circuitTime, solnVec, stateVec, storeVec,
-                      lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
+    // loop over FFTAnalysis objects and get them to update themselves.
+    for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+    {
+      (*it)->updateFFTData(comm, circuitTime, solnVec, stateVec, storeVec,
+                        lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
+    }
   }
 }
 
@@ -276,13 +301,17 @@ bool FFTMgr::registerFFTOptions(const Util::OptionBlock &option_block)
   {
     if ((*it).tag() == "FFT_ACCURATE")
     {
-      fft_accurate_ = (*it).getImmutableValue<int>();
+      int fft_accurate_entered = (*it).getImmutableValue<int>();
       // need to point at next parameter
       ++it;
-      if ((fft_accurate_ < 0) || (fft_accurate_ > 1))
+      if ((fft_accurate_entered < 0) || (fft_accurate_entered > 1))
       {
-        fft_accurate_ = 1;
+        fft_accurate_ = true;
 	Report::UserWarning0() << "FFT_ACCURATE values of 0 or 1 are supported.  Setting to default of 1";
+      }
+      else
+      {
+        fft_accurate_ = fft_accurate_entered;
       }
     }
     else if ((*it).tag() == "FFTOUT")

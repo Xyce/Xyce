@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -137,6 +137,8 @@ public:
   DeviceState * getInternalState();
   bool setInternalState( const DeviceState & state );
 
+  bool isConverged();
+
 private:
   bool interpVoltageFromHistory_(double t, double & voltage,
                                 const double currentT, const double currentV);
@@ -144,7 +146,7 @@ private:
 public:
   // iterator reference to the vcvs model which owns this instance.
   // Getters and setters
-  Model &getModel() 
+  Model &getModel()
   {
     return model_;
   }
@@ -257,19 +259,19 @@ public:
 
   virtual std::ostream &printOutInstances(std::ostream &os) const;
 
-  virtual bool processParams() 
+  virtual bool processParams()
   {
     return true;
   }
 
-  virtual bool processInstanceParams() 
+  virtual bool processInstanceParams()
   {
     return true;
   }
 
 
 public:
-  void addInstance(Instance *instance) 
+  void addInstance(Instance *instance)
   {
     instanceContainer.push_back(instance);
   }

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -50,9 +50,14 @@ EquationEvaluation::EquationEvaluation(const Manager &measureMgr, const Util::Op
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
+  type_ = "EQN";  // change "PARAM" to "EQN"
 
   // updateTran() is likely to segfault if the .MEASURE line was incomplete
   checkMeasureLine();
+
+  // change FFT mode EQN/PARAM measure to be a TRAN mode one
+  if (mode_ == "FFT")
+    mode_ = "TRAN";
 }
 
 //-----------------------------------------------------------------------------

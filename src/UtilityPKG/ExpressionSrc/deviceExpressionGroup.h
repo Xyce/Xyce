@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -70,27 +70,27 @@ namespace Util {
 //-----------------------------------------------------------------------------
 // Class         : deviceExpressionGroup
 //
-// Purpose       : This is the "main" group class for connecting the new 
-//                 expression library to Xyce
+// Purpose       : This group class is for expressions owned by devices 
+//                   (usually via parameters)
 //
-// Special Notes : Unlike the "xyceExpressionGroup" this class is not 
-//                 intended to be lightweight.   My intention is for there to 
-//                 be a single instance of this (or possible a small 
-//                 number of copies).
+// Special Notes : Originally, devices used the "mainXyceExprssionGroup" class,
+//                 which was originally designed to be a single monolithic class
+//                 that handled all data retrieval nececssary for Xyce 
+//                 expressions.
 //
-//                 This class will contain all the machinery necessary to provide 
-//                 newExpression with the information it needs to evaluate *any* 
-//                 expression for Xyce.  ie, any external information, such as 
-//                 solution values, global parameter values, etc.
+//                 Using that class in the device package proved to be 
+//                 problematic for several reasons.  The biggest problem
+//                 was that the mainXyceExpressionGroup relied on a lot of 
+//                 "AllReduce" operations in parallel, and this cannot 
+//                 work for devices, since in Xyce's parallel design, 
+//                 devices are only owned by a single processor.  So, 
+//                 especially for solution variables, this needed to be 
+//                 different for device expressions.
 //
-//                 The most significant difference is (intended to be) the handling 
-//                 of user defined functions.  i.e., .funcs.
-//
-//                 The old expression library handled these in a very inefficient 
-//                 way, via string substitutions.
-//
-//                 The new expression library handles them by attaching the node 
-//                 of the .func to the expression that is calling it.
+//                 This class is derived from the mainXyceExpressionGroup, 
+//                 and it takes an RCP of that group as an argument to its 
+//                 constructor.  That way it can re-use most of its structure, 
+//                 and just replace the stuff that didn't work for devices.
 //
 // Creator       : Eric Keiter
 // Creation Date : 8/22/2020

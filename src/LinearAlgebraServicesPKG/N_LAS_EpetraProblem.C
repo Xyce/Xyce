@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -51,7 +51,7 @@
 #include <N_LAS_Operator.h>
 #include <N_LAS_EpetraMatrix.h>
 #include <N_LAS_EpetraBlockMatrix.h>
-#include <N_LAS_MultiVector.h>
+#include <N_LAS_EpetraMultiVector.h>
 #include <N_LAS_MatrixFreeEpetraOperator.h>
 
 #include <Teuchos_RCP.hpp>
@@ -72,12 +72,14 @@ EpetraProblem::EpetraProblem( Matrix* A, MultiVector* x, MultiVector* b )
    isOwned_(false)
 {
   EpetraMatrixAccess* e_A = dynamic_cast<EpetraMatrixAccess *>( A_ );
+  EpetraVectorAccess* e_x = dynamic_cast<EpetraVectorAccess *>( x_ );
+  EpetraVectorAccess* e_b = dynamic_cast<EpetraVectorAccess *>( b_ );
   if (e_A)
   {
     epetraProblem_ = Teuchos::rcp( new Epetra_LinearProblem(
                                    dynamic_cast<Epetra_RowMatrix*>(&(e_A->epetraObj())),
-                                   &(x_->epetraObj()),
-                                   &(b_->epetraObj()) ) );
+                                   &(e_x->epetraObj()),
+                                   &(e_b->epetraObj()) ) );
   }
 }
 
@@ -93,11 +95,13 @@ EpetraProblem::EpetraProblem( Operator* Op, MultiVector* x, MultiVector* b )
  : Problem(Op,x,b),
    isOwned_(false)
 {
+  EpetraVectorAccess* e_x = dynamic_cast<EpetraVectorAccess *>( x_ );
+  EpetraVectorAccess* e_b = dynamic_cast<EpetraVectorAccess *>( b_ );
   epetraOp_ = matrixFreeEpetraOperator( Teuchos::rcp( Op, false ), 
                                         Teuchos::rcp( x->pmap(), false ) );
   epetraProblem_ =  Teuchos::rcp( new Epetra_LinearProblem( &*epetraOp_,
-                                             &(x_->epetraObj()),
-                                             &(b_->epetraObj()) ) ); 
+                                             &(e_x->epetraObj()),
+                                             &(e_b->epetraObj()) ) ); 
 }
 
 //-----------------------------------------------------------------------------
@@ -113,8 +117,8 @@ EpetraProblem::EpetraProblem( const Teuchos::RCP<Epetra_LinearProblem> & epetraP
    isOwned_(true),
    epetraProblem_(epetraProblem)
 {
-  x_ = new MultiVector(epetraProblem->GetLHS(), false);
-  b_ = new MultiVector(epetraProblem->GetRHS(), false);
+  x_ = new EpetraMultiVector(epetraProblem->GetLHS(), false);
+  b_ = new EpetraMultiVector(epetraProblem->GetRHS(), false);
 
   if (epetraProblem_->GetMatrix()) {
     matrixFreeFlag_ = false;

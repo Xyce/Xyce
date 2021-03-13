@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1179,10 +1179,13 @@ int DampedNewton::converged_()
   if (nlParams.getEnforceDeviceConvFlag ()) 
   {
     bool allDevicesConverged_ = nonlinearEquationLoader_->allDevicesConverged(pdsMgrPtr_->getPDSComm()->comm());
-    if (!allDevicesConverged_ && (nlStep_ < nlParams.getMaxNewtonStep() ))
+    if (!allDevicesConverged_ && (nlStep_ <= nlParams.getMaxNewtonStep() ))
     {
       return 0;
     }
+    
+    if (!allDevicesConverged_ && (nlStep_ > nlParams.getMaxNewtonStep() ))
+      return retCodes_.tooManySteps;
   }
 
   // This test is for 2-level solves ONLY.

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -258,6 +258,19 @@ bool Expression::make_var (std::string const & var, enumParamType type)
 void Expression::setGroup( Teuchos::RCP<baseExpressionGroup> & grp )
 {
   newExpPtr_->setGroup(grp);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getGroup
+// Purpose       : 
+// Special Notes :
+// Scope         : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 3/2/2021
+//-----------------------------------------------------------------------------
+Teuchos::RCP<baseExpressionGroup> Expression::getGroup()
+{
+  return newExpPtr_->getGroup();
 }
 
 //-----------------------------------------------------------------------------

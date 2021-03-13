@@ -32,7 +32,7 @@ Performs Fast Fourier Transform analysis of transient analysis output.
 \begin {Arguments}
 
 \argument{ov}
-The desired solution output, or outputs, to be analyzed. Only one
+The desired solution output to be analyzed. Only one
 output variable can be specified on a {\tt .FFT} line. However,
 multiple {\tt .FFT} lines with the same output variable but, for
 example, different windowing functions may be used in a netlist.
@@ -111,7 +111,7 @@ has no effect though.
 \comments
 Multiple \texttt{.FFT} lines may be used in a netlist.  All results from FFT analyses
 will be returned to the user in a file with the same name as the netlist file suffixed
-with a \texttt{.fftX} where {\tt X} is the step number.
+with \texttt{.fftX} where {\tt X} is the step number.
 
 \texttt{<lead abbreviation>} is a single character designator for individual
 leads on a device with three or more leads.  For bipolar transistors these are:

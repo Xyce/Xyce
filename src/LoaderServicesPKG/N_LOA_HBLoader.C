@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -231,7 +231,8 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   // probably used the LinearProblem's maps to create the input
   // vector here.  In this case, Vf is just an Linear::Vector and not a
   // Linear::BlockVector.
-  const Linear::BlockVector bVf(&Vf, bXf.blockSize());
+  Teuchos::RCP<const Linear::BlockVector> bVf = 
+    Teuchos::rcp( Xyce::Linear::createBlockVector(&Vf, bXf.blockSize()) );
 
   if (hbOsc_)
   {
@@ -258,7 +259,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   if (norm[0] > 0.0)
   {
     // Calculate contributions of the portion of the Jacobian relating to the nonlinear devices.
-    permutedIFT(bVf, &*bVtPtr_);
+    permutedIFT(*bVf, &*bVtPtr_);
 
     // Initialize resulting vector, since operations on separated Jacobian may not touch every entry.
     bdFdxV->putScalar( 0.0 );
@@ -401,7 +402,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
 //      (*bdFdxV)[(augmentedLIDs)[0 ]] = Vf[(augmentedLIDs)[0 ]];
     double refValue = 0.0;
     double tmpValue= 0.0;
-    Linear::Vector & freqVec = bVf.block(refID_);
+    Linear::Vector & freqVec = bVf->block(refID_);
 
     if (freqVec.localLength() > 0)
     {
@@ -417,7 +418,7 @@ bool HBLoader::applyDAEMatrices( Linear::Vector * Xf,
   if (DEBUG_HB)
   {
     Xyce::dout() << "HB bVf:" << std::endl;
-    bVf.print(std::cout);
+    bVf->print(std::cout);
     Xyce::dout() << "HB bdQdxV:" << std::endl;
     bdQdxV->print(std::cout);
     Xyce::dout() << "HB bdFdxV:" << std::endl;
@@ -479,11 +480,12 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
                                     Linear::BlockVector & permlindFdxV )
 {
   int numharms = bVtPtr_->blockCount();
-  const Linear::BlockVector bVf(&Vf, 2*numharms);
-  int first = bVf.startBlock();
+  Teuchos::RCP<const Linear::BlockVector> bVf = 
+    Teuchos::rcp( Xyce::Linear::createBlockVector(&Vf, 2*numharms) );
+  int first = bVf->startBlock();
 
   Teuchos::RCP<const Linear::Vector> Vf_overlap;
-  Linear::Vector freqDFDXtVf( *(hbBuilderPtr_->getSolutionMap()) );
+  Teuchos::RCP<Linear::Vector> freqDFDXtVf = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()) ) );
   if ( overlapMap_ != Teuchos::null )
   {
     Teuchos::RCP<Linear::Vector> Vf_overlap_tmp = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), *overlapMap_ ) ); 
@@ -517,12 +519,12 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
       }
       for (unsigned j = 0; j < freqFVector.size(); j++)
       {
-        freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*i] = freqFVector[j].val.real();
-        freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*i+1] = freqFVector[j].val.imag();
+        (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*i] = freqFVector[j].val.real();
+        (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*i+1] = freqFVector[j].val.imag();
         if (i > 0)
         {
-          freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*(numharms-i)] = freqFVector[j].val.real();
-          freqDFDXtVf[freqFVector[j].lid*2*numharms + 2*(numharms-i)+1] = -freqFVector[j].val.imag();
+          (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*(numharms-i)] = freqFVector[j].val.real();
+          (*freqDFDXtVf)[freqFVector[j].lid*2*numharms + 2*(numharms-i)+1] = -freqFVector[j].val.imag();
         } 
       }
     }
@@ -532,33 +534,36 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
   // NOTE: update will add the assembled vector from freqDFDXtVf to 
   //       the underlying multivector of permlindFdxV, which all blocks
   //       view.
-  permlindFdxV.update( 1.0, freqDFDXtVf, 0.0 );
+  permlindFdxV.update( 1.0, *freqDFDXtVf, 0.0 );
 
   if ( !linAppdQdxPtr_->isEmpty() || !linAppdFdxPtr_->isEmpty())
   {
-    Linear::MultiVector lindQdxV( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
-    Linear::MultiVector lindFdxV( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
+    Teuchos::RCP<Linear::MultiVector> lindQdxV = 
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
+    Teuchos::RCP<Linear::MultiVector> lindFdxV =
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
 
     int numMyRows = (bVtPtr_->blockPmap())->numLocalEntities();
-    Linear::MultiVector permVf( *(bVtPtr_->blockPmap()), bVf.blockSize()/2 );
+    Teuchos::RCP<Linear::MultiVector> permVf =
+      Teuchos::rcp( Xyce::Linear::createMultiVector( *(bVtPtr_->blockPmap()), bVf->blockSize()/2 ) );
 
     // Now copy over data for the blocks that this processor owns.
     // NOTE:  Copy over all rows, some devices like VCVS may refer to columns
     //        which are not in the list of nonzero rows for the linear matrix storage.
     for (int row = 0; row < numMyRows; row++)
     {
-      Linear::Vector & currBlock = bVf.block(first + row);
+      Linear::Vector & currBlock = bVf->block(first + row);
 
       // Insert zero-th value of the Fourier expansion, only need real value.
-      (*permVf(row,0)) = currBlock[0];
+      (*(*permVf)(row,0)) = currBlock[0];
       for (int j=1; j<currBlock.localLength()/2; j++) 
       {
-        (*permVf(row,j)) = currBlock[j+1];
+        (*(*permVf)(row,j)) = currBlock[j+1];
       } 
     }
 
-    linAppdQdxPtr_->matvec(permVf, lindQdxV);
-    linAppdFdxPtr_->matvec(permVf, lindFdxV);
+    linAppdQdxPtr_->matvec(*permVf, *lindQdxV);
+    linAppdFdxPtr_->matvec(*permVf, *lindFdxV);
 
     // Now copy over data for the blocks that this processor owns.
     for (std::vector<int>::iterator it = linNZRows_.begin(); it != linNZRows_.end(); it++)
@@ -569,39 +574,39 @@ bool HBLoader::applyLinearMatrices( const Linear::Vector & Vf,
       {
         Linear::Vector & currBlock = permlindQdxV.block(first + row);
 
-        currBlock[0] = (*lindQdxV(row,0));
+        currBlock[0] = (*(*lindQdxV)(row,0));
         currBlock[1] = 0.0;
 
         for (int j=1; j< (numharms + 1)/2; j++)
         {
-          currBlock[2*j] = (*lindQdxV(row,2*j-1));
-          currBlock[2*(numharms-j)] = (*lindQdxV(row,2*j-1));
+          currBlock[2*j] = (*(*lindQdxV)(row,2*j-1));
+          currBlock[2*(numharms-j)] = (*(*lindQdxV)(row,2*j-1));
      
-          currBlock[2*j+1] = (*lindQdxV(row,2*j));
-          currBlock[2*( numharms - j) + 1] = -(*lindQdxV(row,2*j));
+          currBlock[2*j+1] = (*(*lindQdxV)(row,2*j));
+          currBlock[2*( numharms - j) + 1] = -(*(*lindQdxV)(row,2*j));
         }
       }
 
       if (!linAppdFdxPtr_->isEmpty())
       {
         Linear::Vector & currBlockF = permlindFdxV.block(first + row);
-        currBlockF[0] += (*lindFdxV(row,0));
+        currBlockF[0] += (*(*lindFdxV)(row,0));
         currBlockF[1] += 0.0;
 
         for (int j=1; j< (numharms + 1)/2; j++)
         {
-          currBlockF[2*j] += (*lindFdxV(row,2*j-1));
-          currBlockF[2*(numharms-j)] += (*lindFdxV(row,2*j-1));
+          currBlockF[2*j] += (*(*lindFdxV)(row,2*j-1));
+          currBlockF[2*(numharms-j)] += (*(*lindFdxV)(row,2*j-1));
 
-          currBlockF[2*j+1] += (*lindFdxV(row,2*j));
-          currBlockF[2*(numharms-j)+1] -= (*lindFdxV(row,2*j));
+          currBlockF[2*j+1] += (*(*lindFdxV)(row,2*j));
+          currBlockF[2*(numharms-j)+1] -= (*(*lindFdxV)(row,2*j));
         }
       }
     }
   }
 
   // Put a barrier here for parallel.
-  //(bVf.pmap()->pdsComm()).barrier();
+  //(bVf->pmap()->pdsComm()).barrier();
 
   return true;
 }
@@ -660,10 +665,11 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
   bXtPtr_->putScalar(0.0);
 
-  Linear::Vector Xf_overlap( *(hbBuilderPtr_->getSolutionMap()), 
-                             *(hbBuilderPtr_->getSolutionOverlapMap()) );
-  Xf_overlap = *Xf;
-  Xf_overlap.importOverlap();
+  Teuchos::RCP<Linear::Vector> Xf_overlap =
+    Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()), 
+                                              *(hbBuilderPtr_->getSolutionOverlapMap()) ) );
+  *Xf_overlap = *Xf;
+  Xf_overlap->importOverlap();
 
   Linear::BlockVector & bXf = *dynamic_cast<Linear::BlockVector*>(Xf);
   permutedIFT(bXf, &*bXtPtr_);
@@ -905,7 +911,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       std::vector< std::complex<double> > Xf_complex( localOverlapGndN );
       for (int nB = 0; nB < localOverlapGndN+indexBase; nB++)
       {
-        std::complex<double> val( Xf_overlap[nB*2*BlockCount + 2*i], Xf_overlap[nB*2*BlockCount + 2*i+1] );
+        std::complex<double> val( (*Xf_overlap)[nB*2*BlockCount + 2*i], (*Xf_overlap)[nB*2*BlockCount + 2*i+1] );
         Xf_complex[nB] = val;
       }
       if (indexBase == -1)
@@ -1021,11 +1027,11 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector * QVecPtr = (bQ->block(i)).clone();
+    Linear::Vector * QVecPtr = (bQ->block(i)).cloneVector();
     Linear::Vector& QVec = *QVecPtr;
     Linear::Vector& freqVec = bQ->block(i);
 
-    Linear::Vector * dQdxdVpVecPtr = (bdQdxdVp->block(i)).clone();
+    Linear::Vector * dQdxdVpVecPtr = (bdQdxdVp->block(i)).cloneVector();
     Linear::Vector& dQdxdVpVec = *dQdxdVpVecPtr;
     Linear::Vector& freqVec1 = bdQdxdVp->block(i);
 
@@ -1081,7 +1087,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     // Create work vectors from the current frequency block vector
     // NOTE:  This needs to be done for each block to make sure that the
     //        map is the same as the bF block.
-    Linear::Vector * leadCurrdQdtVecPtr = (bLeadCurrentQVecFreqPtr_->block(i)).clone();
+    Linear::Vector * leadCurrdQdtVecPtr = (bLeadCurrentQVecFreqPtr_->block(i)).cloneVector();
     Linear::Vector& leadCurrdQdtVec = *leadCurrdQdtVecPtr;
     Linear::Vector& leadCurrQVec = bLeadCurrentQVecFreqPtr_->block(i);
 
@@ -1670,7 +1676,7 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
                                       Teuchos::RCP<Linear::BlockVector>& blockVector )
 {
   int numharms = bVtPtr_->blockCount();
-  Linear::Vector freqB( *(hbBuilderPtr_->getSolutionMap()) );
+  Teuchos::RCP<Linear::Vector> freqB = Teuchos::rcp( Xyce::Linear::createVector( *(hbBuilderPtr_->getSolutionMap()) ) );
 
   int myProc = appVecPtr_->pmap()->pdsComm().procID();
   int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
@@ -1764,12 +1770,12 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
         std::vector<int>::iterator it = std::find(offProcBVecLIDs_.begin(),offProcBVecLIDs_.end(),currEntry.lid);
         if ( it  == offProcBVecLIDs_.end() )
         {
-          freqB[currEntry.lid*2*numharms + 2*i] += currEntry.val.real();
-          freqB[currEntry.lid*2*numharms + 2*i+1] += currEntry.val.imag();
+          (*freqB)[currEntry.lid*2*numharms + 2*i] += currEntry.val.real();
+          (*freqB)[currEntry.lid*2*numharms + 2*i+1] += currEntry.val.imag();
           if (i > 0)
           {
-            freqB[currEntry.lid*2*numharms + 2*(numharms-i)] += currEntry.val.real();
-            freqB[currEntry.lid*2*numharms + 2*(numharms-i)+1] += -currEntry.val.imag();
+            (*freqB)[currEntry.lid*2*numharms + 2*(numharms-i)] += currEntry.val.real();
+            (*freqB)[currEntry.lid*2*numharms + 2*(numharms-i)+1] += -currEntry.val.imag();
           }
           addFreqB = 1;
         }
@@ -1783,7 +1789,7 @@ void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEnt
   if (globalFreqB)
   {
     blockVector = hbBuilderPtr_->createExpandedRealFormTransposeBlockVector();
-    blockVector->update( 1.0, freqB, 0.0 );
+    blockVector->update( 1.0, *freqB, 0.0 );
   }
 }
 

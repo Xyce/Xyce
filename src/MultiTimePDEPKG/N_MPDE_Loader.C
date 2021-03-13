@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -156,7 +156,7 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
   dQdx->put(0.0);
   dFdx->put(0.0);
 
-  Xyce::Linear::Vector * appdSdt = appNextStaVecPtr_->clone();
+  Xyce::Linear::Vector * appdSdt = appNextStaVecPtr_->cloneVector();
 
   Xyce::Linear::BlockMatrix & bdQdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dQdx);
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
@@ -400,18 +400,18 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   appNextStaVecPtr_->putScalar(0.0);
   appCurrStaVecPtr_->putScalar(0.0);
   appLastStaVecPtr_->putScalar(0.0);
-  Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->clone();
+  Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->cloneVector();
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
 
-  Xyce::Linear::Vector * appQ = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appF = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appB = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appdFdxdVp = appNextVecPtr_->clone();
-  Xyce::Linear::Vector * appdQdxdVp = appNextVecPtr_->clone();
+  Xyce::Linear::Vector * appQ = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appF = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appB = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appdFdxdVp = appNextVecPtr_->cloneVector();
+  Xyce::Linear::Vector * appdQdxdVp = appNextVecPtr_->cloneVector();
 
   // This is a temporary load storage vector.
-  Xyce::Linear::Vector * dQdt2 = appNextVecPtr_->clone(); 
+  Xyce::Linear::Vector * dQdt2 = appNextVecPtr_->cloneVector(); 
 
   // 12/8/06 tscoffe:   Note:  "b" at beginning of variable name means Xyce::Linear::BlockVector
   Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
@@ -657,19 +657,6 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
       bF.setElementByGlobalIndex( phiGID, -omega );
     }
   }
-
-  // Now that the vector loading is finished, synchronize the global copy of the block vector
-  bX.assembleGlobalVector();
-  bS.assembleGlobalVector();
-  bdSdt.assembleGlobalVector();
-  bStore.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bF.assembleGlobalVector();
-  bdFdxdVp.assembleGlobalVector();
-  bdQdxdVp.assembleGlobalVector();
-  bcurrS.assembleGlobalVector();
-  blastS.assembleGlobalVector();
-  bcurrStore.assembleGlobalVector();
 
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PRINT_VECTORS))
   {

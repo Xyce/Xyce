@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -244,8 +244,9 @@ public:
 
     // allows measureManager to access an individual measure's name and mode (e.g., AC, DC or TRAN), 
     // mainly for the purposes of error checking and reporting.
-    std::string getMeasureName() { return name_; }
-    std::string getMeasureMode() { return mode_;}
+    std::string getMeasureName() const { return name_; }
+    std::string getMeasureMode() const { return mode_;}
+    std::string getMeasureType() const { return mode_;}
 
     const Manager & measureMgr_;
 

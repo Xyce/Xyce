@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -61,6 +61,7 @@
 #include <N_LAS_Builder.h>
 #include <N_LAS_System.h>
 #include <N_LAS_SystemHelpers.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LOA_Loader.h>
 
 #include <N_UTL_Timer.h>
@@ -247,13 +248,13 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   epetraGraph_->FillComplete();
   epetraGraph_->OptimizeStorage();
 
+  int numProcs = comm.numProc();
+  int myPID = comm.procID();
+
   // Get the Fourier series information and generate the Epetra_LinearSystems.
   RCP<BlockVector> bXt = hbBuilderPtr_->createTimeDomainBlockVector();
   N_ = bXt->blockCount();
   M_ = (int)((N_-1)/2);
-
-  int numProcs = comm.numProc();
-  int myPID = comm.procID();
 
   if (numProcs > 1)
   {
@@ -265,10 +266,23 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
 
     // Determine how many linear systems this processor will manage.
     int nOverP = (M_+1)/numProcs;
-    beginN_ = myPID*nOverP;
-    endN_ = (myPID+1)*nOverP;
-    if ( (M_+1)%numProcs && myPID==(numProcs-1))
-      endN_ += (M_+1)%numProcs;
+    if (nOverP > 0)
+    {
+      beginN_ = myPID*nOverP;
+      endN_ = (myPID+1)*nOverP;
+      if ( (M_+1)%numProcs && myPID==(numProcs-1))
+        endN_ += (M_+1)%numProcs;
+    }
+    else
+    {
+      if (myPID < M_+1)
+      {
+        beginN_ = myPID;
+        endN_ = myPID+1;
+      }
+      else
+        beginN_ = endN_ = -1;
+    }
 
     for (int proc = 0; proc < numProcs; ++proc )
     {
@@ -631,7 +645,9 @@ bool HBBlockJacobiPrecond::initValues( const Teuchos::RCP<Problem> & problem )
 
       // Migrate the matrix to one processor.
       int nOverP = (M_+1) / numProcs;
-      int proc = nB / nOverP;
+      int proc = nB;
+      if (nOverP > 0)
+        proc = nB / nOverP;
       if (proc >= numProcs)
         proc = numProcs-1;
 
@@ -707,6 +723,9 @@ int HBBlockJacobiPrecond::apply( MultiVector & x, MultiVector & y )
 {
   int precStatus = 0;
 
+  EpetraVectorAccess* e_x = dynamic_cast<EpetraVectorAccess *>( &x );
+  EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );
+
   if (VERBOSE_LINEAR)
   {
     Xyce::dout() << "HBBlockJacobiPrecond::apply: " << std::endl;
@@ -716,7 +735,7 @@ int HBBlockJacobiPrecond::apply( MultiVector & x, MultiVector & y )
   if( Teuchos::is_null(epetraPrec_) )
     precStatus = -1;
   else
-    precStatus = epetraPrec_->Apply( x.epetraObj(), y.epetraObj() );
+    precStatus = epetraPrec_->Apply( e_x->epetraObj(), e_y->epetraObj() );
 
   return precStatus;
 }

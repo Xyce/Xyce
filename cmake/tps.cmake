@@ -149,10 +149,6 @@ if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-# The following flag should also be enabled in the Trilinos build:
-#    -D NOX_ENABLE_LOCA=ON
-# However, I don't see a way to probe Trilinos' CMake for this. (JCV)
-
 check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
 if (NOT Teuchos_COMPLEX_IN_Trilinos)
      message("Trilinos was not built with COMPLEX support in Teuchos.\n"
@@ -161,15 +157,49 @@ if (NOT Teuchos_COMPLEX_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
+# Compilers targeting the MSVC ABI have flags to select the MSVC runtime
+# library.  This is because, with the MSVC, there is a separate runtime library
+# for Debug builds.  (This is related to the CMAKE_BUILD_TYPE discussion in the
+# root "CMakeLists.txt file.  When the minimum CMake version requirement is
+# increased, see CMake policy CMP0091:
+#    <https://cmake.org/cmake/help/latest/policy/CMP0091.html>)
+# Teuchos links to the MSVC runtime library.  Since LOCA.H includes at least one
+# Teuchos header, the test below has to point to the same library as Trilinos.
+# (Note that the debug library is the default for the test.)  The best way to
+# accomplish this is to use the same compiler flags as Trilinos.
+# One might think to use:
+#   set (CMAKE_REQUIRED_FLAGS ${Trilinos_CXX_COMPILER_FLAGS})
+# or
+#   check_include_file_cxx(LOCA.H LOCA_IN_Trilinos ${Trilinos_CXX_COMPILER_FLAGS})
+# However, the test *prepends* those flags, so they get overridden by the
+# debug flags of the check, itself.  The following is probably an abuse of
+# CMAKE_REQUIRED_DEFINITIONS, but it seems to work.
+if (MSVC)
+     set(CMAKE_REQUIRED_DEFINITIONS "${Trilinos_CXX_COMPILER_FLAGS}")
+endif()
+set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
+check_include_file_cxx(LOCA.H LOCA_IN_Trilinos)
+if (NOT LOCA_IN_Trilinos)
+     message("Trilinos was not built with LOCA support in NOX.\n"
+          "Enable the following in the Trilinos build:\n"
+          "  -D NOX_ENABLE_LOCA=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+unset(CMAKE_REQUIRED_LIBRARIES)
+if (MSVC)
+     unset(CMAKE_REQUIRED_DEFINITIONS)
+endif()
+
 # After the release of Trilinos 12.12.1, the abstract solver interface in NOX
-# was changed to include a new method that returns solver statistics.  This test
-# and set of ifdefs can be removed if the minimum version of Trilinos is raised.
+# was changed to include a new method that returns solver statistics.  This
+# test and the Xyce_NOX_SOLVERSTATS ifdefs can be removed if the minimum
+# required version of Trilinos is raised.
 check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
 
 unset(CMAKE_REQUIRED_INCLUDES)
 
 if (Trilinos_IS_MISSING_FEATURES)
-     message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos.\n"
+     message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos."
           "Rebuild Trilinos with the required features, and try again.")
 endif()
 
@@ -216,12 +246,27 @@ endif ()
 if (Xyce_AMESOS2)
      set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
      check_cxx_symbol_exists(HAVE_AMESOS2_BASKER Amesos2_config.h Amesos2_Basker_IN_Trilinos)
-     unset(CMAKE_REQUIRED_INCLUDES)
      if (Amesos2_Basker_IN_Trilinos)
           set(Xyce_AMESOS2_BASKER TRUE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")
      else ()
           set(Xyce_AMESOS2_BASKER FALSE CACHE BOOL "Enables the templated Basker linear solver in Amesos2" FORCE)
      endif ()
+
+     # After the release of Trilinos 12.12 (maybe 12.14?), the Amesos2/Basker
+     # interface was changed.  This check and the Xyce_NEW_BASKER ifdefs can be
+     # removed if the minimum required version of Trilinos is raised.
+     set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
+     check_cxx_source_compiles("
+          #include \"Amesos2_Basker.hpp\"
+          int main(){Basker::Basker<int, double> basker_; return 0;}
+          " Trilinos_USING_OLD_BASKER)
+     if (Trilinos_USING_OLD_BASKER)
+          set(Xyce_NEW_BASKER FALSE)
+     else ()
+          set(Xyce_NEW_BASKER TRUE)
+     endif ()
+     unset(CMAKE_REQUIRED_LIBRARIES)
+     unset(CMAKE_REQUIRED_INCLUDES)
 endif ()
 
 message(STATUS "Looking for Stokhos in Trilinos")

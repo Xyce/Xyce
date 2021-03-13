@@ -15,6 +15,7 @@ if( Xyce_REACTION_PARSER )
 
      include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
 endif()
+
 bison_target( XyceExpressionParser
      "UtilityPKG/ExpressionSrc/ExpressionParser.yxx"
      "${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc/ExpressionParser.cxx")
@@ -28,8 +29,7 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 
 #End bison and Flex non-sense.
 
-# ---- This is the declaration and linking of the desired
-# artifacts ----------------
+# ---- This is the declaration and linking of the desired artifacts ----------------
 
 add_library(XyceLib
  ${BISON_XyceExpressionParser_OUTPUTS}
@@ -39,7 +39,6 @@ add_library(XyceLib
 
 ###
 # add_subdirectories here
-#add_subdirectory()
 
 add_subdirectory(CircuitPKG)
 add_subdirectory(AnalysisPKG)
@@ -68,11 +67,12 @@ add_subdirectory(test)
 target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
-target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES}
+     ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
-# In the case where CURL has been built with CMake, then we have NOT
-# gotten CURL_LIBRARIES or CURL_INCLUDE_DIRS set, we have instead gotten
-# an import library defined.  Let's check for that:
+# In the case where CURL has been built with CMake, then CURL_LIBRARIES and
+# CURL_INCLUDE_DIRS are NOT set; instead, there is an import library defined.
+# Check for that here:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceLib PUBLIC CURL::libcurl)
 endif()
@@ -99,30 +99,32 @@ endif()
 
 
 # ---- And the installation of them. ----------------
-# rename the library		# a word to the wise about Windows
-				# A Static library named "xyce" will produce 
-				# a file named xyce.lib.
-				# A Shared library named "xyce" will produce
-				# two files, one named xyce.dll and another 
-				# named xyce.lib, which is not the same as the
-				# static library. It is an interface library.
-				# Interface libraries may be quite foriegn to
-				# Unix programmers. For right now the only way
-				# I can tell xyce.lib the static library apart
-				# from xyce.lib the interface library is that
-				# the interface library is smaller in size.
-				# Which isn't a very clear distinction. 
-				# MORAL: if you would like to build both a
-				# static and shared library use names such as
-				# xyce-static and xyce-shared to make things
-				# explicit. 
+     # A word to the wise about Windows:
+     # A Static library named "xyce" will produce a file named xyce.lib.
+     # A Shared library named "xyce" will produce two files, one named xyce.dll
+     # and another named xyce.lib, which is not the same as the static library.
+     # It is an interface library.  Interface libraries may be quite foriegn to
+     # Unix programmers. For right now the only way I can tell xyce.lib the
+     # static library apart from xyce.lib the interface library is that the
+     # interface library is smaller in size.  Which isn't a very clear
+     # distinction.  MORAL: if you would like to build both a static and shared
+     # library, use names such as xyce-static and xyce-shared to make things
+     # explicit.
 set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
-					
+
 install(TARGETS XyceLib DESTINATION lib)
 install(TARGETS Xyce DESTINATION bin)
 
+# Add header files needed by other codes to link against libxyce.*
+#
+# We need to do the following because Xyce was not designed to have a clean set
+# of interface header files. It is possible could include *all* .h files using:
+#    install(DIRECTORY src/ DESTINATION include/myproj
+#            FILES_MATCHING PATTERN "*.h")
+# However, that would result in something close to 600 header files being
+# installed (over 500 of which are not needed).
 install(FILES
     AnalysisPKG/N_ANP_fwd.h
     AnalysisPKG/N_ANP_NoiseData.h

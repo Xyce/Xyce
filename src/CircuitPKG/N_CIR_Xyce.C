@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1141,6 +1141,7 @@ Simulator::RunStatus Simulator::initializeLate()
 
   outputManager_->checkPrintParameters(comm_, *opBuilderManager_);
   fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_);
+  fftManager_->enableFFTAnalysis(analysisManager_->getAnalysisMode());
   fftManager_->fixupFFTParameters(comm_, *opBuilderManager_, analysisManager_->getFinalTime(),
                                   analysisManager_->getStepErrorControl());
 

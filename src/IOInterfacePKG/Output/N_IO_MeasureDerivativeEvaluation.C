@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -174,7 +174,7 @@ void DerivativeEvaluationBase::updateTran(
       // Only do this equality test if the simulation time is > 0, since the
       // three-point difference approx. for the derivative needs a "previous point". 
       if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	  (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_)) && circuitTime > 0) )
+	  (((fabs(backDiff) < minval_) || (fabs(forwardDiff) < minval_)) && circuitTime > 0) )
       {
         calculationResult_=getDerivativeValue(circuitTime);
         calculationDone_ = true;
@@ -477,7 +477,7 @@ bool DerivativeEvaluationBase::isATforACDCNoise(const double indepVarVal)
   //
   // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
   return ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
-	   (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) );
+	   (((fabs(backDiff) < minval_) || (fabs(forwardDiff) < minval_))) );
 }
 
 //-----------------------------------------------------------------------------

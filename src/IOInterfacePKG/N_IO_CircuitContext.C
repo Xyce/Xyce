@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -2007,7 +2007,25 @@ bool CircuitContext::fullyResolveParam(Device::Param & param, double & value) co
     {
       if(resolveParameter(param))
       {
-        value = param.getImmutableValue<double>();
+        // ERK. This is to make this (binning) work with L,W params being set via 
+        // global_params.
+        // 
+        // if "param" is L or W, and it is an expression which depends on a global, then 
+        // the "getImmutableValue" function will produce an error.  But, if the the globals
+        // are NOT used to change values (such as via .STEP), then there is nothing wrong
+        // with this.  So, I have decided this use case should issue a warning,
+        // rather than have a fatal error.
+        if (param.hasExpressionValue())
+        {
+          Util::Expression &expression = const_cast<Util::Expression &>(param.getValue<Util::Expression>());
+          double dVal;
+          expression.evaluateFunction (dVal);
+          value = dVal;
+        }
+        else
+        { // if not an expression, do things the old-fashioned way
+          value = param.getImmutableValue<double>();
+        }
         successfullyResolved=true;
       }
     }

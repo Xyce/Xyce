@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -323,7 +323,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
   // Save a copy of nextSolutionPtr before stdNewtonSolve, just in case
   // of failure, so we can start gmin and source stepping with the same vector.
   // NOTE:  This is necessary if .IC statements are being enforced.
-  Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopy();
+  Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopyVector();
 
   groupPtr_->setNonContinuationFlag (true);
   int isuccess = stdNewtonSolve (paramsPtr);

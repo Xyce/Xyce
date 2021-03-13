@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -2283,6 +2283,8 @@ void OneStep::completeStep(const TIAParams &tia_params)
       sec.nextTime = nextTimePt;
     }
   }
+  else if (sec.stopTime < sec.currentTime)
+    Xyce::Report::UserWarning() << "Current time exceeds stop time!";
 
   if (DEBUG_TIME && isActive(Diag::TIME_STEP))
   {

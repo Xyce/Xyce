@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -45,6 +45,7 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
+#include "N_UTL_Math.h"
 #include "N_NLS_NOX_AugmentLinSys_GStepping.h"
 
 namespace Xyce {
@@ -70,7 +71,7 @@ GStepping::GStepping(NodeListType node_list_type,
     scaled_end_value_(scaledEndValue),
     residualConductance_(residCond)
 {
-  tmp_vector_ptr_ = cloneVector->clone();
+  tmp_vector_ptr_ = cloneVector->cloneVector();
 }
 
 //-----------------------------------------------------------------------------

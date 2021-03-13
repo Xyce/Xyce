@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -590,9 +590,9 @@ bool HB::doLoopProcess()
   }
 
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  *(dsPtr->nextSolutionPtr) = *(HBICVectorFreqPtr_.get());
-  *(dsPtr->nextStatePtr) = *(HBICStateVectorPtr_.get());
-  *(dsPtr->nextStorePtr) = *(HBICStoreVectorPtr_.get());
+  *(dsPtr->nextSolutionPtr) = *(HBICVectorFreqPtr_);
+  *(dsPtr->nextStatePtr) = *(HBICStateVectorPtr_);
+  *(dsPtr->nextStorePtr) = *(HBICStoreVectorPtr_);
 
   // try to run the problem
   {
@@ -1987,10 +1987,10 @@ HB::runStartupPeriods()
   // put the dsPtr->currentSolutionPtr into dcOpSol and State Vec so that it
   // is used as our initial condition for the pending fast time scale runs
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  dcOpSolVecPtr_ = rcp( dsPtr->currSolutionPtr->cloneCopy() );
-  dcOpStateVecPtr_ = rcp( dsPtr->currStatePtr->cloneCopy() ); 
-  dcOpQVecPtr_ = rcp( dsPtr->daeQVectorPtr->cloneCopy() );
-  dcOpStoreVecPtr_ = rcp( dsPtr->currStorePtr->cloneCopy() );
+  dcOpSolVecPtr_ = rcp( dsPtr->currSolutionPtr->cloneCopyVector() );
+  dcOpStateVecPtr_ = rcp( dsPtr->currStatePtr->cloneCopyVector() ); 
+  dcOpQVecPtr_ = rcp( dsPtr->daeQVectorPtr->cloneCopyVector() );
+  dcOpStoreVecPtr_ = rcp( dsPtr->currStorePtr->cloneCopyVector() );
 
   return returnValue;
 }
@@ -2015,10 +2015,10 @@ HB::runTransientIC()
 
   // Initial conditions will be set if startup periods were run.
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  *(dsPtr->nextSolutionPtr) = *(dcOpSolVecPtr_.get());
-  *(dsPtr->nextStatePtr) = *(dcOpStateVecPtr_.get());
-  *(dsPtr->daeQVectorPtr) = *(dcOpQVecPtr_.get());
-  *(dsPtr->nextStorePtr) = *(dcOpStoreVecPtr_.get());
+  *(dsPtr->nextSolutionPtr) = *(dcOpSolVecPtr_);
+  *(dsPtr->nextStatePtr) = *(dcOpStateVecPtr_);
+  *(dsPtr->daeQVectorPtr) = *(dcOpQVecPtr_);
+  *(dsPtr->nextStorePtr) = *(dcOpStoreVecPtr_);
 
   // Create a transient analysis object for this section.
   {
@@ -2094,10 +2094,10 @@ HB::runDCOP()
 
     currentAnalysisObject_ = 0;
 
-  dcOpSolVecPtr_ =  rcp( analysisManager_.getDataStore()->currSolutionPtr->cloneCopy() );
-  dcOpStateVecPtr_ = rcp( analysisManager_.getDataStore()->currStatePtr->cloneCopy() );
-  dcOpQVecPtr_ =  rcp( analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy() );
-  dcOpStoreVecPtr_ = rcp( analysisManager_.getDataStore()->currStorePtr->cloneCopy() );
+  dcOpSolVecPtr_ =  rcp( analysisManager_.getDataStore()->currSolutionPtr->cloneCopyVector() );
+  dcOpStateVecPtr_ = rcp( analysisManager_.getDataStore()->currStatePtr->cloneCopyVector() );
+  dcOpQVecPtr_ =  rcp( analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector() );
+  dcOpStoreVecPtr_ = rcp( analysisManager_.getDataStore()->currStorePtr->cloneCopyVector() );
 
   return returnValue;
 
@@ -2211,10 +2211,10 @@ HB::interpolateIC(
 
     double fraction = (goodTimePoints_[i] -  dsPtr->timeSteps[currentIndex])/(dsPtr->timeSteps[currentIndex+1] -  dsPtr->timeSteps[currentIndex]);
 
-    RCP<Linear::Vector> InterpICSolVecPtr = rcp( secondSolVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICStateVecPtr = rcp( secondStateVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICQVecPtr = rcp( secondQVecPtr->cloneCopy() );
-    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( secondStoreVecPtr->cloneCopy() );
+    RCP<Linear::Vector> InterpICSolVecPtr = rcp( secondSolVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICStateVecPtr = rcp( secondStateVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICQVecPtr = rcp( secondQVecPtr->cloneCopyVector() );
+    RCP<Linear::Vector> InterpICStoreVecPtr = rcp( secondStoreVecPtr->cloneCopyVector() );
 
     InterpICSolVecPtr->update(-1.0, *firstSolVecPtr, 1.0);
     InterpICSolVecPtr->update(1.0, *firstSolVecPtr, fraction);

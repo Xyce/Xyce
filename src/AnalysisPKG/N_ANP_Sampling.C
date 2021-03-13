@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -681,11 +681,11 @@ for (int jj=0;jj<numProc;jj++)
 
       if (sp.type == "UNIFORM")
       {
-        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
+        quadBases[i] = Teuchos::rcp(new Stokhos::LegendreBasis<int,double>(p));
       }
       else if (sp.type == "NORMAL") 
       {
-        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
+        quadBases[i] = Teuchos::rcp(new Stokhos::HermiteBasis<int,double>(p,true));
       }
       else
       {
@@ -701,17 +701,17 @@ for (int jj=0;jj<numProc;jj++)
       typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
       typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
 
-      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
-      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
+      quadBasis = Teuchos::rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
+      quadMethod = Teuchos::rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
     }
     else
     {
-      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
-      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
+      quadBasis = Teuchos::rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
+      quadMethod = Teuchos::rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
     }
 
     quadCijk = quadBasis->computeTripleProductTensor();
-    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
+    quadExpn = Teuchos::rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
 
     UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
     numSamples_ = quadMethod->size();
@@ -732,11 +732,11 @@ for (int jj=0;jj<numProc;jj++)
 
       if (sp.type == "UNIFORM")
       {
-        regrBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
+        regrBases[i] = Teuchos::rcp(new Stokhos::LegendreBasis<int,double>(p));
       }
       else if (sp.type == "NORMAL") 
       {
-        regrBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
+        regrBases[i] = Teuchos::rcp(new Stokhos::HermiteBasis<int,double>(p,true));
       }
       else
       {
@@ -744,7 +744,7 @@ for (int jj=0;jj<numProc;jj++)
       }
     }
 
-    regrBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(regrBases));
+    regrBasis = Teuchos::rcp(new Stokhos::CompletePolynomialBasis<int,double>(regrBases));
     int basisSize = regrBasis->size();
 
     if (numSamples_ < basisSize)

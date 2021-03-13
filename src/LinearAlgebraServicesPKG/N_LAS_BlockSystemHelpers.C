@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -48,8 +48,9 @@
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_MultiVector.h>
-#include <N_LAS_BlockVector.h>
-#include <N_LAS_BlockMultiVector.h>
+#include <N_LAS_EpetraBlockVector.h>
+#include <N_LAS_EpetraBlockMultiVector.h>
+#include <N_LAS_EpetraHelpers.h>
 
 #include <N_LAS_EpetraGraph.h>
 #include <N_LAS_Matrix.h>
@@ -83,26 +84,26 @@ BlockVector* createBlockVector( int numBlocks,
                                 const Teuchos::RCP<const Parallel::ParMap> & subBlockMap,
                                 int augmentRows )
 {
-  return new BlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
+  return new EpetraBlockVector( numBlocks, globalMap, subBlockMap, augmentRows );
 }
 
 BlockVector* createBlockVector( int blockSize,
                                 const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                 int augmentRows )
 {
-  return new BlockVector( blockSize, globalMap, augmentRows );
+  return new EpetraBlockVector( blockSize, globalMap, augmentRows );
 }
 
 BlockVector* createBlockVector( const Vector * right, int blockSize )
 {
-  return new BlockVector( right, blockSize );
+  return new EpetraBlockVector( right, blockSize );
 }
 
 BlockMultiVector* createBlockMultiVector( int numBlocks, int numVectors,
                                           const Teuchos::RCP<const Parallel::ParMap> & globalMap,
                                           const Teuchos::RCP<const Parallel::ParMap> & subBlockMap )
 {
-  return new BlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
+  return new EpetraBlockMultiVector( numBlocks, numVectors, globalMap, subBlockMap );
 }
 
 
@@ -496,7 +497,7 @@ Teuchos::RCP<Graph> createBlockGraph( int offset, std::vector<std::vector<int> >
   //Construct block graph based on  [All graphs are the same, so only one needs to be made]
   const Parallel::EpetraParMap& e_blockMap = dynamic_cast<const Parallel::EpetraParMap&>(blockMap);
  
-  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = rcp(new Epetra_CrsGraph( Copy, *e_blockMap.petraMap(), maxNNZs ));
+  Teuchos::RCP<Epetra_CrsGraph> newEpetraGraph = Teuchos::rcp(new Epetra_CrsGraph( Copy, *e_blockMap.petraMap(), maxNNZs ));
   
   for( int j = 0; j < numMyBaseRows; ++j )
   {
@@ -731,7 +732,8 @@ void computePermutedDFT(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int localN = xt.block(0).localLength();
 
   // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
-  Epetra_BlockMap blockMap = xt.block(0).epetraObj().Map();
+  const EpetraVectorAccess* e_xtb = dynamic_cast<const EpetraVectorAccess *>( &xt.block(0) );  
+  Epetra_BlockMap blockMap = e_xtb->epetraObj().Map();
 
   // Obtain registered vectors with the DFT interface.
   Teuchos::RCP< std::vector<double> > inputSignal, outputSignal;
@@ -791,7 +793,8 @@ void computePermutedDFT2(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int localN = xt.block(0).localLength();
 
   // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
-  Epetra_BlockMap blockMap = xt.block(0).epetraObj().Map();
+  const EpetraVectorAccess* e_xtb = dynamic_cast<const EpetraVectorAccess *>( &xt.block(0) );  
+  Epetra_BlockMap blockMap = e_xtb->epetraObj().Map();
 
   // Obtain registered vectors with the DFT interface.
   Teuchos::RCP< std::vector<double> > inputSignal, outputSignal;
@@ -850,7 +853,8 @@ void computePermutedIFT(N_UTL_DFTInterfaceDecl<std::vector<double> > & dft,
   int localBC = xt->block(0).localLength();
 
   // It's necessary to get the blockmap from Epetra because the Parallel::ParMap is not always guaranteed to be valid.
-  Epetra_BlockMap blockMap = (xt->block(0)).epetraObj().Map();
+  const EpetraVectorAccess* e_xtb = dynamic_cast<const EpetraVectorAccess *>( &xt->block(0) );  
+  Epetra_BlockMap blockMap = e_xtb->epetraObj().Map();
 
   // Register input and output signals for the IFT.
   Teuchos::RCP< std::vector<double> > inputSignal, outputSignal;

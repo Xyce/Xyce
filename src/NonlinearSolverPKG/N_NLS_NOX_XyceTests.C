@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -230,7 +230,7 @@ XyceTests::checkStatus(
   // Allocate space if necessary
   if (weightsVectorPtr_ == 0) 
   {
-    weightsVectorPtr_ = x.cloneCopy();
+    weightsVectorPtr_ = x.cloneCopyVector();
     // when we create weightsVectorPtr_ from the latest solution, there
     // is a chance that one of the values will be zero.  If this isn't 
     // the DC op step or the first iteration of a time step, then
@@ -241,7 +241,7 @@ XyceTests::checkStatus(
     {
       (*weightsVectorPtr_)[i] += epsilon_a_;
     }    
-    updateVectorPtr_ = x.cloneCopy();
+    updateVectorPtr_ = x.cloneCopyVector();
   }
 
   // Local references

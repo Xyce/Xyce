@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1171,6 +1171,100 @@ bool Instance::getInstanceBreakPoints ( std::vector<Util::BreakPoint> & breakPoi
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Instance:isConverged ()
+// Purpose       : Allow the transmission line to trump the nonlinear
+//                 solver's convergence test to reject a step
+// Special Notes : The nonlinear solver will not declare a solution converged
+//                 unless all devices return true from this function.
+//
+//                 If the current time step exceeds the time delay *AND*
+//                 a discontinuity occured at the last step (which we couldn't
+//                 have known until now), then we must reject this time step
+//                 and force the time step selection to roll it back.
+//
+//                 The logic here is similar to acceptStep's, only we don't
+//                 need to search history.  The relevant points are always
+//                 the last two out of history and the current step's.
+//
+// Scope         : public
+// Creator       : Tom Russo
+// Creation Date : 02/24/2021
+//-----------------------------------------------------------------------------
+
+inline bool Instance::isConverged()
+{
+  bool converged = true;
+
+  if ((!getSolverState().dcopFlag) &&
+      !(getSolverState().initTranFlag_ &&  getSolverState().newtonIter == 0 ))
+  {
+
+    double currentTime = getSolverState().currTime_;
+
+    Linear::Vector *theSolVectorPtr = extData.nextSolVectorPtr;
+
+    if (theSolVectorPtr == 0)
+    {
+      // we are so early in a restarted run that the solution hasn't even been
+      // set up yet.  So let's just say we're NOT converged?
+      converged=false;
+    }
+    else
+    {
+      std::vector<History>::iterator last = history.end();
+
+      double oVp1,oVp2,oVn1,oVn2,oI1,oI2;
+
+      oVp1 = (*theSolVectorPtr)[li_Pos1];
+      oVn1 = (*theSolVectorPtr)[li_Neg1];
+      oI1  = (*theSolVectorPtr)[li_Ibr1];
+      oVp2 = (*theSolVectorPtr)[li_Pos2];
+      oVn2 = (*theSolVectorPtr)[li_Neg2];
+      oI2  = (*theSolVectorPtr)[li_Ibr2];
+
+      // we now need to see if the current time and the past two times
+      // show a discontinuity.  We do that by computing derivatives and watching
+      // for a dramatic change.
+
+      double t3=currentTime;
+      double v13=(oVp2-oVn2)+Z0*oI2;
+      ;      double v23=(oVp1-oVn1)+Z0*oI1;;
+
+      last--;
+      double t2=last->t;
+      double v12=last->v1;
+      double v22=last->v2;
+      last--;
+      double t1=last->t;
+      double v11=last->v1;
+      double v21=last->v2;
+
+      // slope from last time to this time for both ends of line
+      double d11=(v13-v12)/(t3-t2);
+      double d12=(v23-v22)/(t3-t2);
+
+      // slope from second-to last time to last time for both ends of line
+      double d21=(v12-v11)/(t2-t1);
+      double d22=(v22-v21)/(t2-t1);
+
+      // If either end of the line has shown a dramatic chaing in slope,
+      // we've got a discontinuity.
+      if ((fabs(d11-d21) >= .99*std::max(fabs(d11),fabs(d21))+1) ||
+          (fabs(d12-d22) >= .99*std::max(fabs(d12),fabs(d22))+1))
+      {
+        // And if we have a discontinuity *AND* the current time step is
+        // larger than the time delay of the line, we're not OK with this step.
+        if ( (currentTime - (t2 + td) ) > getSolverState().bpTol_ )
+        {
+          converged = false;
+        }
+      }
+    }
+  }
+  return converged;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::acceptStep
 // Purpose       : This function saves the values of v1 and v2 along with
 //                 the current time.  It is to be called ONLY at the point
@@ -1308,7 +1402,12 @@ void Instance::acceptStep()
         Xyce::dout() << tmp_t+td<<std::endl;
       }
       newBreakPointTime = (tmp_t+td);
-      newBreakPoint = true;
+
+      // Only set a breakpoint if it's not effectively the current time
+      if ( fabs(currentTime - newBreakPointTime) > getSolverState().bpTol_ )
+      {
+        newBreakPoint = true;
+      }
     }
   }
 }

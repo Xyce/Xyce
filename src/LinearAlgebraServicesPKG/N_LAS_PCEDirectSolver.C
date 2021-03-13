@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -42,11 +42,12 @@
 #include <N_LAS_Builder.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_Problem.h>
-#include <N_LAS_Vector.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_FilteredMatrix.h>
+#include <N_LAS_EpetraVector.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_LAS_TransformTool.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
@@ -56,6 +57,7 @@
 #include <N_PDS_EpetraParMap.h>
 
 #include <Epetra_MultiVector.h>
+#include <Epetra_Vector.h>
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Import.h>
 #include <Epetra_Util.h>
@@ -733,6 +735,7 @@ void PCEDirectSolver::formPCEJacobian()
 #endif
 
   MultiVector* B = lasProblem_.getRHS();
+  EpetraVectorAccess* e_B = dynamic_cast<EpetraVectorAccess *>( B );
 
   int numVectors = B->numVectors();
   for (int j=0; j<numVectors; j++)
@@ -741,8 +744,8 @@ void PCEDirectSolver::formPCEJacobian()
 
     if (numProcs > 1)
     {
-      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
-      B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
+      serialB_->Import( *((e_B->epetraObj())( j )), *serialImporter_, Insert );
+      B_j = Teuchos::rcp( new EpetraVector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
@@ -858,6 +861,8 @@ int PCEDirectSolver::solve()
   MultiVector* X = lasProblem_.getLHS();
   MultiVector* B = lasProblem_.getRHS();
 
+  EpetraVectorAccess* e_X = dynamic_cast<EpetraVectorAccess *>( X );
+
   // Initialize solution vector X.
   X->putScalar( 0.0 );
 
@@ -871,7 +876,7 @@ int PCEDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      X_j = Teuchos::rcp( new Vector( &*serialX_, *serialMap_, false ) ); 
+      X_j = Teuchos::rcp( new EpetraVector( &*serialX_, *serialMap_, false ) ); 
     }
     else
     {
@@ -947,7 +952,7 @@ int PCEDirectSolver::solve()
 
     if (numProcs > 1)
     {
-      (X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
+      (e_X->epetraObj())( j )->Export( *serialX_, *serialImporter_, Add );
     }
   }
 
@@ -1045,6 +1050,7 @@ void PCEDirectSolver::printPCEResidual( const std::string& fileName )
   // Determine number of time-domain variables.
   MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
+  EpetraVectorAccess* e_B = dynamic_cast<EpetraVectorAccess *>( B );
 
   std::ofstream out;
   out.open( fileName.c_str() );
@@ -1067,8 +1073,8 @@ void PCEDirectSolver::printPCEResidual( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      serialB_->Import( *((B->epetraObj())( j )), *serialImporter_, Insert );
-      B_j = Teuchos::rcp( new Vector( &*serialB_, *serialMap_, false ) );
+      serialB_->Import( *((e_B->epetraObj())( j )), *serialImporter_, Insert );
+      B_j = Teuchos::rcp( new EpetraVector( &*serialB_, *serialMap_, false ) );
     }
     else
     {
@@ -1131,7 +1137,7 @@ void PCEDirectSolver::printPCESolution( const std::string& fileName )
 
     if (numProcs > 1)
     {
-      X_j = Teuchos::rcp( new Vector( &*serialX_, *serialMap_, false ) );
+      X_j = Teuchos::rcp( new EpetraVector( &*serialX_, *serialMap_, false ) );
     }
     else
     {

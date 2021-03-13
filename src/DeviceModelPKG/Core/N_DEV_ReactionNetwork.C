@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -55,6 +55,8 @@
 #include <N_DEV_SolverState.h>
 
 #include <N_UTL_BreakPoint.h>
+
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 #ifdef Xyce_REACTION_PARSER
 // Grrrr.  Stupid bison 2.4 stopped putting the pre-prologue into the header.
@@ -877,7 +879,7 @@ void ReactionNetwork::addSourceTerm(const std::string &speciesName, const std::s
     int speciesNum=getSpeciesNum(speciesName);
     if (speciesNum >= 0) // the species exists
     {
-      Util::Expression *foo= new Util::Expression(solState_.expressionGroup_,expressionStr);
+      Util::Expression *foo= new Util::Expression(solState_.getGroupWrapper()->expressionGroup_,expressionStr);
       theSourceTerms.push_back( std::pair<int,Util::Expression *>(speciesNum, foo));
     }
   }

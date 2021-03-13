@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -46,6 +46,7 @@
 #include <N_LAS_IfpackPrecond.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Problem.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
@@ -378,11 +379,14 @@ int IfpackPrecond::apply( MultiVector & x, MultiVector & y )
 {
   int precStatus = 0;
 
+  EpetraVectorAccess* e_x = dynamic_cast<EpetraVectorAccess *>( &x );
+  EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );
+
   // If there is no preconditioner to apply return a nonzero code
   if( Teuchos::is_null(epetraPrec_) )
     precStatus = -1;
   else
-    precStatus = epetraPrec_->ApplyInverse( x.epetraObj(), y.epetraObj() );
+    precStatus = epetraPrec_->ApplyInverse( e_x->epetraObj(), e_y->epetraObj() );
 
   return precStatus;
 }

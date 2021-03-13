@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -42,13 +42,15 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_LAS_HBBlockJacobiEpetraOperator.h>
 #include <N_LAS_HBBuilder.h>
-#include <N_LAS_MultiVector.h>
 #include <N_LAS_BlockVector.h>
-#include <N_LAS_Vector.h>
+#include <N_LAS_EpetraMultiVector.h>
+#include <N_LAS_EpetraVector.h>
+#include <N_LAS_EpetraHelpers.h>
 #include <N_PDS_ParMap.h>
 #include <N_PDS_EpetraParMap.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_Math.h>
+#include <N_LAS_BlockSystemHelpers.h>
 
 // ----------   Trilinos Includes   ----------
 
@@ -158,10 +160,24 @@ void HBBlockJacobiEpetraOperator::initialize(
   freqs_ = freqs;
   myN_ = localRange;
   hbOsc_ = hbOsc;
+
+  // Get a sum of all the augmented rows.
+  int tmpSize = (hbBuilder_->getAugmentedLIDs()).size();
+  hbBuilder_->getPDSComm()->sumAll( &tmpSize, &numAugRows_, 1 );
+
   int globalUnk = hbBuilder_->getSolutionMap()->numGlobalEntities();
-  int localUnk = epetraProblems[0]->GetMatrix()->NumGlobalRows();
-  N_ = globalUnk / localUnk;
-  numAugRows_ = (hbBuilder_->getAugmentedLIDs()).size();
+  if ( epetraProblems.size() )
+    N_ = ( globalUnk - numAugRows_ ) / epetraProblems[0]->GetMatrix()->NumGlobalRows();
+  else
+    N_ = 0;
+
+  int tmpN = N_;
+  hbBuilder_->getPDSComm()->maxAll( &tmpN, &N_, 1 );
+  M_ = (freqs.size()-1)/2;
+
+  // Wait for everyone else before moving on.
+  hbBuilder_->getPDSComm()->barrier();
+
 #ifdef Xyce_PARALLEL_MPI
   int numProcs = hbBuilder_->getPDSComm()->numProc();
   if (numProcs > 1)
@@ -174,12 +190,8 @@ void HBBlockJacobiEpetraOperator::initialize(
       serialEpetraMap_[proc] = Teuchos::rcp( new Epetra_Map( Epetra_Util::Create_Root_Map( *(e_map->petraMap()), proc ) ) );
     }
     
-    // Get a sum of all the augmented rows.
-    int tmpSize = numAugRows_;
-    hbBuilder_->getPDSComm()->sumAll( &tmpSize, &numAugRows_, 1 );
   }
 #endif
-  M_ = (freqs.size()-1)/2;
 
   isInitialized_ = true;
   isCorrected_ = (diffCMatrix.size() > 0) ? true : false;
@@ -223,8 +235,8 @@ int HBBlockJacobiEpetraOperator::ApplyInverse(
   if (max > 0.0)
   {
     Epetra_MultiVector* Xptr = const_cast<Epetra_MultiVector*>(&X);
-    MultiVector las_X(Xptr, false);  
-    MultiVector las_Y(&Y, false);
+    EpetraMultiVector las_X(Xptr, false);  
+    EpetraMultiVector las_Y(&Y, false);
 
     status = ApplyInverse(las_X,las_Y);
   }
@@ -345,6 +357,8 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
 
   Epetra_MultiVector *nB_RHS=0;
   double *nB_Soln=0;
+  const EpetraVectorAccess* e_X = dynamic_cast<const EpetraVectorAccess *>( &X );
+  EpetraVectorAccess* e_Y = dynamic_cast<EpetraVectorAccess *>( &Y );
 
   // If this is being run on multiple processors, load into the RHS vectors owned using a local vector.
   if (numProcs > 1)
@@ -354,11 +368,11 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
     {
       serialX_ = Teuchos::rcp( new Epetra_MultiVector( *serialEpetraMap_[myPID], X.numVectors() ) );
       serialY_ = Teuchos::rcp( new Epetra_MultiVector( *serialEpetraMap_[myPID], Y.numVectors() ) );
-      serialImporter_[myPID] = Teuchos::rcp( new Epetra_Import( *(serialEpetraMap_[myPID]), X.epetraObj().Map() ) );
+      serialImporter_[myPID] = Teuchos::rcp( new Epetra_Import( *(serialEpetraMap_[myPID]), e_X->epetraObj().Map() ) );
     }
 
     // Copy all the RHS vectors to X.
-    serialX_->Import( X.epetraObj(), *serialImporter_[myPID], Insert );
+    serialX_->Import( e_X->epetraObj(), *serialImporter_[myPID], Insert );
   }
 
   Teuchos::RCP<const Vector> x;
@@ -375,8 +389,8 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
     {
       if (numProcs > 1)
       {
-        x = Teuchos::rcp( new Vector((*serialX_)(i), false) );
-        y = Teuchos::rcp( new Vector((*serialY_)(i), false) );
+        x = Teuchos::rcp( new EpetraVector((*serialX_)(i), false) );
+        y = Teuchos::rcp( new EpetraVector((*serialY_)(i), false) );
       }
       else
       {
@@ -416,7 +430,7 @@ int HBBlockJacobiEpetraOperator::ApplyBlockJacobi(
     // Make sure the resulting vector is zeros, since this is the target.
     Y.putScalar( 0.0 );
 
-    Y.epetraObj().Export( *serialY_, *serialImporter_[myPID], Add );
+    e_Y->epetraObj().Export( *serialY_, *serialImporter_[myPID], Add );
 
     // Wait for everyone else before moving on.
     hbBuilder_->getPDSComm()->barrier();
@@ -453,11 +467,11 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
 
     // Apply one column at a time to the multivector.
     Teuchos::RCP<const Vector> X_col = Teuchos::rcp( X.getVectorViewAssembled( col ) );
-    BlockVector bXf( &*X_col, 2*N_ );
+    Teuchos::RCP<BlockVector> bXf = Teuchos::rcp( Xyce::Linear::createBlockVector( &*X_col, 2*N_ ) );
 
     // Permute the input vector from the frequency to time domain, since this
     // is a time domain preconditioner.
-    hbLoader_->permutedIFT(bXf, &*bXtPtr);
+    hbLoader_->permutedIFT(*bXf, &*bXtPtr);
 
     for( int i = 0; i < blockCount; ++i )
     {
@@ -482,7 +496,7 @@ int HBBlockJacobiEpetraOperator::ApplyCorrection(
  
     // Put block count in the frequency domain.
     blockCount = bYf->blockCount();
-    int blockSize = bXf.block(0).globalLength();
+    int blockSize = bXf->block(0).globalLength();
 
     for( int i = 0; i < blockCount; ++i )
     {

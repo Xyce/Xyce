@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -129,8 +129,7 @@ Matrix * ESBuilder::createMatrix() const
 //-----------------------------------------------------------------------------
 Vector * ESBuilder::createStateVector() const
 {
-  return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, ESStateMap_, BaseStateMap_ ) );
+  return Xyce::Linear::createBlockVector( numSamples_, ESStateMap_, BaseStateMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -143,8 +142,7 @@ Vector * ESBuilder::createStateVector() const
 //-----------------------------------------------------------------------------
 Vector * ESBuilder::createStoreVector() const
 {
-  return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, ESStoreMap_, BaseStoreMap_ ) );
+  return Xyce::Linear::createBlockVector( numSamples_, ESStoreMap_, BaseStoreMap_ );
 }
 
 //-----------------------------------------------------------------------------
@@ -157,8 +155,7 @@ Vector * ESBuilder::createStoreVector() const
 //-----------------------------------------------------------------------------
 Vector * ESBuilder::createLeadCurrentVector() const
 {
-  return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, ESLeadCurrentMap_, BaseLeadCurrentMap_ ) );
+  return Xyce::Linear::createBlockVector( numSamples_, ESLeadCurrentMap_, BaseLeadCurrentMap_ );
 }
 
 //-----------------------------------------------------------------------------

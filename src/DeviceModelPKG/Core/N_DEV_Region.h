@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -90,9 +90,6 @@ public:
   void addSource(std::string speciesName, Util::Expression *expr);
   void addMasterSource(std::string speciesName);
   inline void setMasterSourceValue(double msv) {theReactions.setMasterSourceValue(msv);};
-#if 0
-  inline void setSimTime(double time) {  theReactions.setSimTime(time);};
-#endif
 
   bool reactantExist(std::string reactantname)
   {

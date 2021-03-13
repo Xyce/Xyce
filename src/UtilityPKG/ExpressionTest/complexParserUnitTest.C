@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -857,6 +857,46 @@ TEST ( Complex_Parser_Test, complexOps_ABSop)
   EXPECT_EQ( result, std::abs(std::complex<double>(2.0,3.0)));
 }
 
+TEST ( Complex_Parser_Test, complexOps_DBop)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("db(i(vb))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, VBval=std::complex<double>(3.0,2.0);
+  double refRes = 20.0*std::log10(std::abs(VBval)); 
+  solnGroup->setSoln(std::string("vb"),VBval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+}
+
+TEST ( Complex_Parser_Test, complexOps_DBop2)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("db((2.0+3.0J))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0;
+  double refRes = 20.0*std::log10(std::abs(std::complex<double>(2.0,3.0))); 
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+}
 // binary operators
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryAdd, "(1.0+2.0J)+(3.0+4.0J)", (std::complex<double>(1.0,2.0)+std::complex<double>(3.0,4.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryMinus, "(1.0+2.0J)-(3.0+4.0J)", (std::complex<double>(1.0,2.0)-std::complex<double>(3.0,4.0)))
@@ -4735,6 +4775,41 @@ TEST ( Complex_Parser_table_Test, break2)
   EXPECT_EQ(refRes,assignResult);
 }
 
+//-------------------------------------------------------------------------------
+// fasttable tests
+//
+// adapted from break.cir
+TEST ( Double_Parser_fasttable_Test, break1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("fastTable(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
+
+  // don't compare everything for now, just check parsing.
+  for (int ii=0;ii<times.size();ii++) 
+  {
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+
+  OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
+}
 
 // adapted from power_thermalres_gear.cir
 TEST ( Complex_Parser_table_Test, power_thermalres)

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -4314,7 +4314,6 @@ TEST ( Double_Parser_table_Test, tablefile_break1)
   OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1, tableExpression) 
 }
 
-
 TEST ( Double_Parser_table_Test, tablefile_break1b)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -4375,7 +4374,6 @@ TEST ( Double_Parser_table_Test, tablefile_break1c)
   OUTPUT_MACRO2(Double_Parser_table_Test, tablefile_break1c, tableExpression) 
 }
 
-
 TEST ( Double_Parser_table_Test, break2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -4404,6 +4402,42 @@ TEST ( Double_Parser_table_Test, break2)
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
   OUTPUT_MACRO2(Double_Parser_table_Test, break2, tableExpression) 
+}
+
+//-------------------------------------------------------------------------------
+// fasttable tests
+//
+// adapted from break.cir
+TEST ( Double_Parser_fasttable_Test, break1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression tableExpression(std::string("fastTable(time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<double> refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<double> result(times.size(),0.0);
+  std::vector<double> copyResult(times.size(),0.0);
+  std::vector<double> assignResult(times.size(),0.0);
+
+  // don't compare everything for now, just check parsing.
+  for (int ii=0;ii<times.size();ii++) 
+  {
+    timeDepGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+
+  OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
 }
 
 // adapted from power_thermalres_gear.cir
@@ -4514,7 +4548,6 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_withoutParens)
     EXPECT_EQ(refRes,result);
   }
 }
-#endif
 
 TEST ( Double_Parser_table_Test, Bsrc_C1_pureArray)
 {
@@ -11118,6 +11151,7 @@ TEST ( Double_Parser_Random, unif0)
   OUTPUT_MACRO(Double_Parser_Random, unif0)
   Xyce::Util::enableRandomExpression = true;
 }
+#endif
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)

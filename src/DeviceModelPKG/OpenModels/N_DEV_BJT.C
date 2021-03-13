@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -56,10 +56,14 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_ANP_NoiseData.h>
 
+#include <Sacado_No_Kokkos.hpp>
+
 namespace Xyce {
 namespace Device {
 
 namespace BJT {
+
+typedef Sacado::Fad::SFad<double, 1> fadType;
 
 void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
 {
@@ -4981,7 +4985,6 @@ bool processParams (
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation1
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation1 (
     const fadType & td,
     const fadType & qB,
@@ -5013,7 +5016,6 @@ void oldDAEExcessPhaseCalculation1 (
   return;
 }
 
-template <>
 void oldDAEExcessPhaseCalculation1 (
     const double & td,
     const double & qB,
@@ -5048,7 +5050,6 @@ void oldDAEExcessPhaseCalculation1 (
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation2
    (const fadType & td,
     const fadType & qB,
@@ -5129,7 +5130,6 @@ void oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
 // Function      : oldDAEExcessPhaseCalculation2
 //-----------------------------------------------------------------------------
-template <>
 void oldDAEExcessPhaseCalculation2
    (const double & td,
     const double & qB,

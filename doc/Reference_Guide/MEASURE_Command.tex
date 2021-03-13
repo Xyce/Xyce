@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 
@@ -254,7 +254,7 @@ The third argument specifies the type of measurement or calculation to
 be done. The only exception is the {\tt TARG} clause which comes later
 in the argument list, after the {\tt TRIG} clause has been specified.
 
-By default, the measurement is perfomed over the entire simulation.
+By default, the measurement is performed over the entire simulation.
 The calculations can be limited to a specific measurement window by
 using the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt
 FALL}, {\tt CROSS} and {\tt MINVAL}, which are explained below.
@@ -786,10 +786,10 @@ statements.
 \subsubsection{Re-Measure}
 \label{Measure_ReMeasure}
 \index{measure!re-measure}
-\Xyce{} can re-calculate (or re-measure) the values for {\tt .MEASURE}
-statements using existing \Xyce{} output files.  This is useful for
-tuning {\tt .MEASURE} statements to better capture response metrics of
-a circuit when the underlying simulation runtime is long.  To use this
+\Xyce{} can re-calculate (or re-measure) the values for {\tt .MEASURE} and/or
+{\tt .FFT} statements using existing \Xyce{} output files.  This is useful for
+tuning {\tt .MEASURE} and/or {\tt .FFT} statements to better capture response
+metrics for a circuit when the underlying simulation runtime is long.  To use this
 functionality, add the command line argument {\tt -remeasure <file>},
 where {\tt <file>} is a \Xyce{}-generated {\tt .prn}, {\tt .csv} or
 {\tt .csd} output file.
@@ -797,12 +797,12 @@ where {\tt <file>} is a \Xyce{}-generated {\tt .prn}, {\tt .csv} or
 There are several important limitations with {\tt -remeasure}:
 \begin{XyceItemize}
 
-  \item The data required by the {\tt .MEASURE} statements must have
-  been output in the simulation output file.  When using {\tt
-  -remeasure}, \Xyce{} does not recalculate the full solution, but
+  \item The data required by the {\tt .MEASURE} and/or {\tt .FFT} statements
+   must have been output in the simulation output file.  When using
+  {\tt -remeasure}, \Xyce{} does not recalculate the full solution, but
   uses the data supplied in the output file instead.  Thus, everything
-  a {\tt .MEASURE} statement needs to calculate its results must be in
-  the output file.  So, the nodal voltages (e.g., node A), lead
+  a {\tt .MEASURE} and/or {\tt .FFT} statement needs to calculate its results
+  must be in the output file.  So, the nodal voltages (e.g., node A), lead
   currents (e.g, for device R1) and branch currrents requested by the
   {\tt .MEASURE} statements must have been used, at least once, on the
   {\tt .PRINT} statement in the form of {\tt V(A)}, {\tt N(a)} or {\tt

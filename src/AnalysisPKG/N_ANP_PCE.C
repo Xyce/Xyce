@@ -1149,7 +1149,6 @@ void PCE::evaluateVector ( Teuchos::RCP<Linear::BlockVector> & bX_quad_ptr_ )
       (bX_quad_ptr_->block(iquad))[isol] = xSamples[0][iquad];
     }
   }
-  bX_quad_ptr_->assembleGlobalVector();
 }
 
 //-----------------------------------------------------------------------------

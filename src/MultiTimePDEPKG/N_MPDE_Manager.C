@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1221,10 +1221,10 @@ N_MPDE_Manager::runInitialCondition(
       // get the time integrator params, and save a copy.
       Xyce::TimeIntg::TIAParams tia_params;
 
-      Xyce::Linear::Vector * interpIcSolVecPtr = endIcSolVecPtr_.clone();
-      Xyce::Linear::Vector * interpIcStateVecPtr = endIcStateVecPtr_.clone();
-      Xyce::Linear::Vector * interpIcQVecPtr = endIcQVecPtr_.clone();
-      Xyce::Linear::Vector * interpIcStoreVecPtr = endIcStoreVecPtr_.clone();
+      Xyce::Linear::Vector * interpIcSolVecPtr = endIcSolVecPtr_.cloneVector();
+      Xyce::Linear::Vector * interpIcStateVecPtr = endIcStateVecPtr_.cloneVector();
+      Xyce::Linear::Vector * interpIcQVecPtr = endIcQVecPtr_.cloneVector();
+      Xyce::Linear::Vector * interpIcStoreVecPtr = endIcStoreVecPtr_.cloneVector();
 
       for (int i=1 ; i<n2 ; ++i)
       {
@@ -1367,10 +1367,10 @@ N_MPDE_Manager::runInitialCondition(
             Xyce::Linear::Vector &secondPeriodQVecPtr = *dsPtr->fastTimeQVec[indicesUsed_[i]];
             Xyce::Linear::Vector &secondPeriodStoreVecPtr = *dsPtr->fastTimeStoreVec[indicesUsed_[i]];
 
-            Xyce::Linear::Vector * interpIcSolVecPtr = secondPeriodSolVecPtr.clone();
-            Xyce::Linear::Vector * interpIcStateVecPtr = secondPeriodStateVecPtr.clone();
-            Xyce::Linear::Vector * interpIcQVecPtr = secondPeriodQVecPtr.clone();
-            Xyce::Linear::Vector * interpIcStoreVecPtr = secondPeriodStoreVecPtr.clone();
+            Xyce::Linear::Vector * interpIcSolVecPtr = secondPeriodSolVecPtr.cloneVector();
+            Xyce::Linear::Vector * interpIcStateVecPtr = secondPeriodStateVecPtr.cloneVector();
+            Xyce::Linear::Vector * interpIcQVecPtr = secondPeriodQVecPtr.cloneVector();
+            Xyce::Linear::Vector * interpIcStoreVecPtr = secondPeriodStoreVecPtr.cloneVector();
 
             double fraction = fastTimes_[i] / period_;
             if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS) )
@@ -1450,12 +1450,6 @@ N_MPDE_Manager::runInitialCondition(
       break;
   }
 
-  // Assemble global block vector
-  mpdeICVectorPtr_->assembleGlobalVector();
-  mpdeICStateVectorPtr_->assembleGlobalVector();
-  mpdeICQVectorPtr_->assembleGlobalVector();
-  mpdeICStoreVectorPtr_->assembleGlobalVector();
-
   if (warpMPDE_)
   {
     //std::cout << "Setting omega = 1 into MPDE solution vector." << std::endl;
@@ -1525,10 +1519,10 @@ N_MPDE_Manager::runDCOP(
     success = false;
 
   // store the dc op results in case we need them later
-  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopy();
-  dcOpStateVecPtr_ = analysisManager_.getDataStore()->currStatePtr->cloneCopy();
-  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy();
-  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopy();
+  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopyVector();
+  dcOpStateVecPtr_ = analysisManager_.getDataStore()->currStatePtr->cloneCopyVector();
+  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector();
+  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopyVector();
 
   return success;
 }
@@ -1585,10 +1579,10 @@ N_MPDE_Manager::runStartupPeriods(
 
   // put the dsPtr->currentSolutionPtr into dcOpSol and State Vec so that it
   // is used as our initial condition for the pending fast time scale runs
-  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopy();
-  dcOpStateVecPtr_ =  analysisManager_.getDataStore()->currStatePtr->cloneCopy();
-  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopy();
-  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopy();
+  dcOpSolVecPtr_ = analysisManager_.getDataStore()->currSolutionPtr->cloneCopyVector();
+  dcOpStateVecPtr_ =  analysisManager_.getDataStore()->currStatePtr->cloneCopyVector();
+  dcOpQVecPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector();
+  dcOpStoreVecPtr_ = analysisManager_.getDataStore()->currStorePtr->cloneCopyVector();
 
   // startUpPeriodsFlag_ = false;
 
@@ -2218,7 +2212,7 @@ double N_MPDE_Manager::checkPeriodicity_()
 
           Xyce::Linear::Vector *thisPeriod = dsPtr->fastTimeSolutionVec[indicesUsed_[i]];
           Xyce::Linear::Vector *lastPeriod = dsPtr->fastTimeSolutionVec[interpolationPoint];
-          Xyce::Linear::Vector *scratchVec = thisPeriod->cloneCopy();
+          Xyce::Linear::Vector *scratchVec = thisPeriod->cloneCopyVector();
           scratchVec->update( -1.0, *lastPeriod, 1.0 );
           scratchVec->infNorm(&returnValue);
           delete scratchVec;

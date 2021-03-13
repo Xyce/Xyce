@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -219,26 +219,10 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
   if( Teuchos::is_null( solver_ ) )
   {
-    Teuchos::ParameterList amesos2_params("Amesos2");
-
     if (type_ == "BASKER") {
-      //amesos2_params.sublist("Basker").set("num_threads", 12);
-      amesos2_params.sublist("Basker").set("matching", true);
-      amesos2_params.sublist("Basker").set("matching_type", 0);
-      amesos2_params.sublist("Basker").set("btf",true);
-      amesos2_params.sublist("Basker").set("amd_btf", true);
-      amesos2_params.sublist("Basker").set("amd_dom", true);
-      amesos2_params.sublist("Basker").set("transpose", false);
-      amesos2_params.sublist("Basker").set("symmetric", false);
-      amesos2_params.sublist("Basker").set("pivot", false);
-      amesos2_params.sublist("Basker").set("pivot_tol", .001);
-      amesos2_params.sublist("Basker").set("realloc", false);
-      //amesos2_params.sublist("Basker").set("verbose", (bool)VERBOSE_LINEAR);
 
-      solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("Basker", 
+      solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("ShyLUBasker", 
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
-
-      solver_->setParameters( rcpFromRef(amesos2_params) );
 
     }
     else if (type_ == "KLU2") {
@@ -246,11 +230,41 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
       solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("klu2", 
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
     }
-      
+    else {
+
+    }
+
     double begSymTime = timer_->elapsedTime();
 
-    // Perform symbolic factorization and check return value for failure
-    solver_->symbolicFactorization();
+    try 
+    {
+      // Perform symbolic factorization and check return value for failure
+      //std::cout << "Performing symbolic factorization!" << std::endl;
+      solver_->symbolicFactorization();
+    }
+    catch (std::runtime_error& e)
+    {
+      if (VERBOSE_LINEAR)
+      {
+        Xyce::dout() << "  Amesos2 (" << type_ << ") error: " << e.what() << std::endl;
+      }
+      linearStatus = -1;
+      solver_ = Teuchos::null;
+
+      // Inform user that singular matrix was found and linear solve has failed.
+      Report::UserWarning0() 
+        << "Symbolically singular matrix found by Amesos2, returning zero solution to nonlinear solver!";
+
+      // Put zeros in the solution since Amesos2 was not able to solve this problem
+      prob->GetLHS()->PutScalar( 0.0 );
+      // Output the singular linear system to a Matrix Market file if outputFailedLS_ > 0
+      if (outputFailedLS_) {
+        failure_number++;
+        Xyce::Linear::writeToFile( *prob, "Failed", failure_number, (failure_number == 1) );
+      }
+
+      return linearStatus;  // return the actual status (see bug 414 SON)
+    }
 
     if (VERBOSE_LINEAR)
     {
@@ -260,18 +274,52 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
     }
   }
 
-  if( !reuse_factors ) {
+  Teuchos::ParameterList amesos2_params("Amesos2");
 
+  if (type_ == "BASKER") {
+    //amesos2_params.sublist("ShyLUBasker").set("pivot", true);
+    //amesos2_params.sublist("ShyLUBasker").set("realloc", true);
+    //amesos2_params.sublist("ShyLUBasker").set("verbose", false );
+  } 
+
+  // Set transpose flag
+  if (transpose) {
+    std::cout << "Solving transpose!" << std::endl;
+    amesos2_params.set("Transpose", true);
+    if (type_ == "BASKER") {
+      amesos2_params.sublist("ShyLUBasker").set("transpose", transpose);
+    }
+    else if (type_ == "KLU2") {
+      amesos2_params.sublist("KLU2").set("Trans","TRANS","Solve with transpose");
+    }
+  }
+
+  solver_->setParameters( rcpFromRef(amesos2_params) );
+
+  if( !reuse_factors ) 
+  {
     double begNumTime = timer_->elapsedTime();
 
-    solver_->numericFactorization();
-    if (VERBOSE_LINEAR)
+    try 
     {
-      double endNumTime = timer_->elapsedTime();
-      Xyce::dout() << "  Amesos2 (" << type_ << ") Numeric Factorization Time: "
-                   << (endNumTime - begNumTime) << std::endl;
-    }  
-  
+      //std::cout << "Performing numeric factorization!" << std::endl;
+      solver_->numericFactorization();
+      if (VERBOSE_LINEAR)
+      {
+        double endNumTime = timer_->elapsedTime();
+        Xyce::dout() << "  Amesos2 (" << type_ << ") Numeric Factorization Time: "
+                     << (endNumTime - begNumTime) << std::endl;
+      }  
+    }
+    catch (std::runtime_error& e)
+    {
+      if (VERBOSE_LINEAR)
+      {
+        Xyce::dout() << "  Amesos2 (" << type_ << ") error: " << e.what() << std::endl;
+      }
+      linearStatus = -1;
+    }
+ 
     if (linearStatus != 0) {
 
       // Inform user that singular matrix was found and linear solve has failed.
@@ -289,6 +337,8 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
       return linearStatus;  // return the actual status (see bug 414 SON)
     }
   }
+  else
+    std::cout << "Reusing factorization!" << std::endl;
 
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
@@ -303,18 +353,43 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
                  << (endSolveTime - begSolveTime) << std::endl;
   }
 
-  if (DEBUG_LINEAR) {
-    double resNorm = 0.0, bNorm = 0.0;
+  if (DEBUG_LINEAR)
+  {
+    int numrhs = prob->GetLHS()->NumVectors();
+    std::vector<double> resNorm(numrhs,0.0), xNorm(numrhs,0.0), bNorm(numrhs,0.0);
     Epetra_MultiVector res( prob->GetLHS()->Map(), prob->GetLHS()->NumVectors() );
+    bool oldTrans = prob->GetOperator()->UseTranspose();
+    prob->GetOperator()->SetUseTranspose( transpose );
     prob->GetOperator()->Apply( *(prob->GetLHS()), res );
+    prob->GetOperator()->SetUseTranspose( false );
     res.Update( 1.0, *(prob->GetRHS()), -1.0 );
-    res.Norm2( &resNorm );
-    prob->GetRHS()->Norm2( &bNorm );
-    Xyce::lout() << "Linear System Residual (AMESOS2_" << type_ << "): "
-                 << (resNorm/bNorm) << std::endl;
+    res.Norm2( &resNorm[0] );
+    prob->GetRHS()->Norm2( &bNorm[0] );
+    prob->GetLHS()->Norm2( &xNorm[0] );
+    Xyce::lout() << "Linear System Residual (AMESOS_" << type_ << "): " << std::endl;
+    for (int i=0; i<numrhs; i++)
+    {
+      if (bNorm[i] != 0.0)
+        std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << ", soln : " << xNorm[i] << std::endl;
+      else
+        std::cout << "  Problem " << i << " : " << resNorm[i] << ", soln : " << xNorm[i] << std::endl;
+    }
   }
 
-  if( !Teuchos::is_null(transform_) ) transform_->rvs();
+  // Unset transpose flag
+  if (transpose) {
+    Teuchos::ParameterList amesos2_params("Amesos2");
+    amesos2_params.set("Transpose", false);
+    if (type_ == "BASKER") {
+      amesos2_params.sublist("ShyLUBasker").set("transpose", false);
+    }
+    else if (type_ == "KLU2") {
+      amesos2_params.sublist("KLU2").set("Trans","NOTRANS","Solve with transpose");
+    }
+    solver_->setParameters( rcpFromRef(amesos2_params) );
+  }
+
+  if( transform_.get() ) transform_->rvs();
 
   // Output computed solution vectors, if requested.
   if (outputLS_) {

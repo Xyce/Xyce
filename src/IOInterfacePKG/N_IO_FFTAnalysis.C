@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -87,10 +87,9 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     fmaxGiven_(false),
     calculated_(false),
     outputVarName_(""),
-    fft_accurate_(1),
-    fftout_(0),
+    fft_accurate_(true),
+    fftout_(false),
     sampleIdx_(0),
-    sampleTimeTol_(1e-20),
     noiseFloor_(1e-10),
     maxMag_(0.0),
     thd_(0.0),
@@ -188,6 +187,9 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
 
       if (np_ <= 0)
       {
+        // Set this to a non-zero value, so that the FFT Interface creation doesn't barf
+        // later in the constructor, but still make this a parsing error.
+        np_ = 4; 
         Report::UserError0() << "NP value on .FFT line must be a power of 2, and >=4";
       }
       else if ((np_ >=1) && (np_ < 4))
@@ -282,7 +284,7 @@ void FFTAnalysis::reset()
   thd_ = 0.0;
   harmonicList_.clear();
 
-  if (fft_accurate_ == 0)
+  if (!fft_accurate_)
   {
     time_.clear();
     outputVarValues_.clear();
@@ -315,7 +317,7 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const Util::Op::BuilderManager &op_builder_manager,
   const double endSimTime,
   TimeIntg::StepErrorControl & sec,
-  const int fft_accurate,
+  const bool fft_accurate,
   const bool fftout)
 {
   secPtr_ = &sec;
@@ -339,6 +341,7 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   // FMIN and FMAX values, now that the corrected values for the start and stop times are known
   fundFreq_ = 1.0/(stopTime_ - startTime_);
 
+  int maxIdx = 0.5*np_;
   if (freqGiven_)
     fhIdx_ = std::round(freq_/fundFreq_); // index of first harmonic
 
@@ -348,7 +351,15 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   if (fmaxGiven_)
     fmaxIdx_ = std::round(fmax_/fundFreq_);
   else
-    fmaxIdx_ = 0.5*np_;
+    fmaxIdx_ = maxIdx;
+
+  // Error out if the FREQ, FMIN and FMAX combination of values are nonsensical.
+  if ( (fhIdx_ < 1) || (fhIdx_ > maxIdx) || (fminIdx_ > maxIdx) || ((fmaxIdx_ < 1) && (fhIdx_ > 1)) ||
+       ((fmaxIdx_ < 2) && (fhIdx_ == 1)) || (fmaxIdx_ < fminIdx_) )
+  {
+    Report::UserError0() << "Invalid FREQ, FMIN or FMAX value on .FFT line for "
+                         << outputVarName_;
+  }
 
   // set up vectors for the sample times and the sampled/interpolated data values.
   sampleTimes_.resize(np_,0.0);
@@ -407,54 +418,63 @@ void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
-  if ((fft_accurate_ == 1) && (circuitTime == 0.0))
-    addSampleTimeBreakpoints();
-
-  // Save the time values, if interpolation is used.
-  if (outputVars_.size() && (fft_accurate_ == 0))
-    time_.push_back(circuitTime);
-
-  int vecIndex = 0;
-  for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
+  if (!calculated_)
   {
-    double retVal = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, 0, stateVec, storeVec, 0,
-                             lead_current_vector, 0, junction_voltage_vector, 0)).real();
-    if (fft_accurate_ == 0)
+    if (fft_accurate_ && (circuitTime == 0.0))
+      addSampleTimeBreakpoints();
+
+    // Save the time values, if interpolation is used.
+    if (!fft_accurate_ && !outputVars_.empty())
+      time_.push_back(circuitTime);
+
+    int vecIndex = 0;
+    for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
     {
-      // save all of the output var values, if interpolation is used.
-      outputVarValues_.push_back(retVal);
-    }
-    else
-    {
-      // only save the values at the breakpoints, set at the specified sample times.
-      if ( (sampleIdx_ < np_) && (abs( circuitTime - sampleTimes_[sampleIdx_]) <= sampleTimeTol_) )
+      double retVal = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, 0, stateVec, storeVec, 0,
+                               lead_current_vector, 0, junction_voltage_vector, 0)).real();
+      if (!fft_accurate_)
       {
-        sampleValues_[sampleIdx_] = retVal;
-        sampleIdx_++;
+        // save all of the output var values, if interpolation is used.
+        outputVarValues_.push_back(retVal);
       }
+      else
+      {
+        // only save the values at the breakpoints, set at the specified sample times.
+        if ( (sampleIdx_ < np_) &&
+             (fabs( circuitTime - sampleTimes_[sampleIdx_]) <= secPtr_->getBreakPointEqualTolerance()) )
+        {
+          sampleValues_[sampleIdx_] = retVal;
+          sampleIdx_++;
+        }
+      }
+
+      vecIndex++;
     }
 
-    vecIndex++;
+    // calcuate the FFT (and related metrics) as soon as possible, so that FFT measures work
+    // within EQN measures
+    if ( (circuitTime >= stopTime_) ||
+         (fft_accurate_ && (fabs(circuitTime - stopTime_) <= secPtr_->getBreakPointEqualTolerance())) )
+      calculateResults_();
   }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::outputResults
-// Purpose       : Output results for this FFT Analysis at end of simulation
+// Function      : FFTAnalysis::calculateResults_
+// Purpose       : Calculate results for this FFT Analysis
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::outputResults(std::ostream& outputStream)
+void FFTAnalysis::calculateResults_()
 {
   // Only calculate something if a .fft line was encountered and transient data was collected.
-  int numOutVars = outputVars_.size();
-
-  if ( (numOutVars>0) && !calculated_ )
+  if ( !outputVars_.empty() && ((fft_accurate_ && sampleIdx_ != 0) ||
+                                (!fft_accurate_ && !time_.empty())) )
   {
     // Calculate the fft coefficients for the given output variable.
-    if (!time_.empty() && (fft_accurate_ == 0))
+    if (!fft_accurate_ && !time_.empty())
       interpolateData_();
 
     if (DEBUG_IO)
@@ -468,27 +488,27 @@ void FFTAnalysis::outputResults(std::ostream& outputStream)
       Xyce::dout() << std::endl;
     }
 
+    if (fft_accurate_ && sampleIdx_ != np_)
+      Report::UserWarning0() << "Incorrect number of sample points found for FFT of " << outputVarName_;
+
     applyWindowFunction_();
     calculateFFT_();
     calculated_ = true;
   }
-
-  // Output the information to the outputStream
-  printResult_( outputStream );
 }
 
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::interpolateData_()
 // Purpose       : evaluates interpolating polynomial at equidistant time pts
 // Special Notes : In the final version of this class, this function will only
-//                 be called if fft_accurate_ = 0.
+//                 be called if fft_accurate_ is false.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
 bool FFTAnalysis::interpolateData_()
 {
-  if (time_.size() > 0)
+  if (!time_.empty())
   {
     Util::akima<double> interp;
     interp.init( time_, outputVarValues_ );
@@ -590,7 +610,7 @@ void FFTAnalysis::calculateFFT_()
   double convRadDeg = 180.0/M_PI;
 
   // handle DC component
-  mag_[0] = abs(fftRealCoeffs_[0]);
+  mag_[0] = fabs(fftRealCoeffs_[0]);
   phase_[0] = convRadDeg * atan2(fftImagCoeffs_[0], fftRealCoeffs_[0]);
   maxMag_ = mag_[0];
 
@@ -610,10 +630,10 @@ void FFTAnalysis::calculateFFT_()
       phase_[i] = convRadDeg * atan2(fftImagCoeffs_[i], fftRealCoeffs_[i]);
   }
 
-  // These metrics are output later if fftout_=1.  However, they are calculated
+  // These metrics are output later if fftout is true.  However, they are calculated
   // unconditionally for compatibility with .MEASURE FFT.
   calculateSFDR_();
-  calculateSNR_();
+  snr_ = calculateSNR(fmaxIdx_);
   calculateSNDRandENOB_();
   calculateTHD_();
 
@@ -644,16 +664,19 @@ void FFTAnalysis::calculateFFT_()
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
 //                 frequency.
-// Special Notes : The SFDR only considers frequencies > the first harmonic.
+// Special Notes : The SFDR only considers frequencies > the first harmonic if
+//                 FMIN is not given.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
 void FFTAnalysis::calculateSFDR_()
 {
-  for (int i=fhIdx_+1; i<=np_/2; i+=fhIdx_)
+  for (int i=1; i<=np_/2; i++)
   {
-    if (mag_[i] > sfdr_)
+    if ( (i!=fhIdx_) && (mag_[i] > sfdr_) &&
+         ( (!fminGiven_ && (i> fhIdx_)) || (fminGiven_&& (i>=fminIdx_)) ) &&
+         (i<=fmaxIdx_) )
     {
       sfdr_ = mag_[i];
       sfdrIndex_ = i;
@@ -672,20 +695,22 @@ void FFTAnalysis::calculateSFDR_()
 //                 "first harmonic".  That is the fundamental frequency,
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
-//                 frequency.
+//                 frequency.  This function is also used by .MEASURE FFT lines
+//                 which have the MAXFREQ qualifier.  So, it is a public function.
 // Special Notes : The SNR considers all frequencies that are not a harmonic.
-// Scope         : private
+// Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::calculateSNR_()
+double FFTAnalysis::calculateSNR(int fmaxIndex) const
 {
   double noise=0;
+  double snrVal=0;
   bool noiseFreqFound=false;
 
   for (int i=1; i<=np_/2; i++)
   {
-    if (i%fhIdx_ !=0)
+    if ( (i%fhIdx_ !=0) || (i > fmaxIndex) )
     {
       noise += mag_[i]*mag_[i];
       noiseFreqFound=true;
@@ -694,15 +719,13 @@ void FFTAnalysis::calculateSNR_()
 
   // apply noise floor to this calculation
   if (!noiseFreqFound)
-    snr_ = 1.0/noiseFloor_;
+    snrVal = 1.0/noiseFloor_;
   else
-    snr_ = mag_[fhIdx_] / sqrt(noise);
+    snrVal = mag_[fhIdx_] / sqrt(noise);
 
-  // units are dB
-  snr_ = 20*log10(snr_);
-
-  return;
+  return 20*log10(snrVal);
 }
+
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateSNDRandENOB_()
 // Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
@@ -748,12 +771,31 @@ void FFTAnalysis::calculateSNDRandENOB_()
 void FFTAnalysis::calculateTHD_()
 {
   for (int i=2*fhIdx_; i<=np_/2; i+=fhIdx_)
-    thd_ += mag_[i]*mag_[i];
+  {
+    if (i<=fmaxIdx_)
+      thd_ += mag_[i]*mag_[i];
+  }
 
   // don't take 20*log10() for THD, since both the actual value and dB value are output later.
   thd_ = sqrt(thd_)/mag_[fhIdx_];
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::outputResults
+// Purpose       : Output results for this FFT Analysis at end of simulation
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/4/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::outputResults( std::ostream& outputStream )
+{
+  if (!calculated_)
+    calculateResults_();
+
+  printResult_( outputStream );
 }
 
 //-----------------------------------------------------------------------------
@@ -802,9 +844,12 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 
     for (int i=fhIdx_; i<=np_/2; i+=fhIdx_)
     {
-      os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
-         << std::setw(colWidth2) << mag_[i]/normalization
-         << std::setw(colWidth2) << phase_[i] << std::endl;
+      if ( (i>=fminIdx_) && (i<=fmaxIdx_) )
+      {
+        os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
+           << std::setw(colWidth2) << mag_[i]/normalization
+           << std::setw(colWidth2) << phase_[i] << std::endl;
+      }
     }
 
     if (fftout_)

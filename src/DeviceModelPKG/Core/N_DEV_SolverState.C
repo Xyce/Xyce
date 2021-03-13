@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -50,6 +50,7 @@
 #include <N_UTL_Diagnostic.h>
 
 #include <expressionGroup.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 
 namespace Xyce {
 namespace Device {
@@ -118,9 +119,16 @@ SolverState::SolverState ()
     nltermScale_(1.0),
     sizeParameterFlag_(false),
     sizeScale_(1.0),
-    currFreq_(0.0)
-{}
+    currFreq_(0.0),
+    groupWrapperPtr_(0)
+{
+  groupWrapperPtr_ = new Xyce::Device::expressionGroupWrapper();
+}
 
+SolverState::~SolverState ()
+{
+  delete groupWrapperPtr_;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : SolverState::InitializeHomotopyBlockSize
@@ -133,19 +141,6 @@ SolverState::SolverState ()
 void SolverState::initializeHomotopyBlockSize(int numBlocks)
 {
   gainScale_.resize(numBlocks, 1.0);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SolverState::registerExpressionGroup
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 08/3/2020
-//-----------------------------------------------------------------------------
-void SolverState::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
-{
-  expressionGroup_ = group;
 }
 
 //-----------------------------------------------------------------------------

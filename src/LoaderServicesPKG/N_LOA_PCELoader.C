@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -491,9 +491,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       (bXLast_quad_ptr_->block(iquad))[isol] = xSamples[2][iquad];
     }
   }
-  bXNext_quad_ptr_->assembleGlobalVector();
-  bXCurr_quad_ptr_->assembleGlobalVector();
-  bXLast_quad_ptr_->assembleGlobalVector();
   }
 
   // This loop is over the number of quadrature points
@@ -665,33 +662,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // For the solution-sized vectors (x,f,q,b), use the PCE block vectors
   // For the state, store and lead current-sized vectors, use the quad versions
   
-  // solution-sized:
-  bQ_quad_ptr_->assembleGlobalVector();
-  bF_quad_ptr_->assembleGlobalVector();
-  bB_quad_ptr_->assembleGlobalVector();
-  if (applyLimit)
-  {
-    b_dV_voltlim_quad_Ptr_->assembleGlobalVector(); 
-  }
-
-  bdFdxdVp_quad_ptr_->assembleGlobalVector();
-  bdQdxdVp_quad_ptr_->assembleGlobalVector();
-
-  // state-sized:
-  bnextS.assembleGlobalVector();
-  bdSdt.assembleGlobalVector();
-  bcurrS.assembleGlobalVector();
-  blastS.assembleGlobalVector();
-
-  // store-sized:
-  bnextStore.assembleGlobalVector();
-  bcurrStore.assembleGlobalVector();
-
-  // lead-current-sized:
-  bNextLeadF.assembleGlobalVector();
-  bLeadQ.assembleGlobalVector();
-  bNextJunctionV.assembleGlobalVector();
-
   // matrices
   bmdQdx_quad_ptr_->assembleGlobalMatrix();
   bmdFdx_quad_ptr_->assembleGlobalMatrix();
@@ -802,25 +772,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         { // do nothing
         }
       }
-    }
-  }
-
-  bF.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bB.assembleGlobalVector();
-  if (applyLimit)
-  {
-    if (voltLimAlgorithm_==1)
-    {
-      bDV.assembleGlobalVector();
-    }
-    else if (voltLimAlgorithm_==2)
-    {
-      bdFdxdVp.assembleGlobalVector();
-      bdQdxdVp.assembleGlobalVector();
-    }
-    else
-    {// do nothing
     }
   }
 

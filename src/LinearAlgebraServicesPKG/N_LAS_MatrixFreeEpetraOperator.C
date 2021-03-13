@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -43,6 +43,7 @@
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_LAS_Operator.h>
+#include <N_LAS_EpetraMultiVector.h>
 #include <N_LAS_MatrixFreeEpetraOperator.h>
 
 #include <N_PDS_Comm.h>
@@ -150,8 +151,8 @@ int MatrixFreeEpetraOperator::Apply(
   // COPY the multi-vector data into new objects on the stack.
   Epetra_MultiVector* Xcopy = new Epetra_MultiVector(X); // This gets deleted by the Linear::MultiVector below
   Epetra_MultiVector* Ycopy = new Epetra_MultiVector(Y); // This gets deleted by the Linear::MultiVector below
-  Linear::MultiVector las_X(Xcopy, true); // this co-ops the Epetra_MultiVector and uses (and owns) its memory
-  Linear::MultiVector las_Y(Ycopy, true); // this co-ops the Epetra_MultiVector and uses (and owns) its memory
+  Linear::EpetraMultiVector las_X(Xcopy, true); // this co-ops the Epetra_MultiVector and uses (and owns) its memory
+  Linear::EpetraMultiVector las_Y(Ycopy, true); // this co-ops the Epetra_MultiVector and uses (and owns) its memory
   int status = Apply(las_X,las_Y);
   // COPY the Ycopy data back into Y
   Y = las_Y.epetraObj();

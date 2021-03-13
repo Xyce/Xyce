@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -105,11 +105,11 @@ void Average::updateMeasureVars(const double indepVarVal, const double signalVal
   // the MIN_THRESH and MAX_THRESH qualifiers are only used by the AVG measure
   if ( withinMinMaxThresh(signalVal) )
   {
-    // The abs() is needed to account for both increasing and decreasing DC sweeps.  The abs() has
+    // The fabs() is needed to account for both increasing and decreasing DC sweeps.  The fabs() has
     // no effect on TRAN, AC or NOISE, since the time and frequency values are monotonically increasing
     // for those two cases.
-    averageValue_ += 0.5 * abs(indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
-    totalAveragingWindow_ += abs(indepVarVal - lastIndepVarValue_);
+    averageValue_ += 0.5 * fabs(indepVarVal - lastIndepVarValue_) * (signalVal + lastSignalValue_);
+    totalAveragingWindow_ += fabs(indepVarVal - lastIndepVarValue_);
   }
 
   return;

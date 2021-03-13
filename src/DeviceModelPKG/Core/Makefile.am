@@ -65,6 +65,7 @@ libDeviceCore_la_SOURCES = \
   N_DEV_Units.C \
   N_DEV_fwd.h \
   N_DEV_RegisterDevices.h \
+  N_DEV_ExpressionGroupWrapper.h \
   N_DEV_Algorithm.h \
   N_DEV_Print.h \
   N_DEV_CompositeParam.h \

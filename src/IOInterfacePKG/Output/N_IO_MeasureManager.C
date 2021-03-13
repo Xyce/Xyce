@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -32,8 +32,6 @@
 
 #include <utility>
 #include <sstream>
-
-#include <Teuchos_oblackholestream.hpp>
 
 #include <N_ANP_fwd.h>
 #include <N_ANP_OutputMgrAdapter.h>
@@ -71,6 +69,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_PDS_ParHelpers.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
@@ -170,7 +169,7 @@ Manager::notify(
 
     case Analysis::StepEvent::STEP_COMPLETED:
       {
-        if( !allMeasuresList_.empty() )
+        if( isMeasureActive() )
         {
           // do output to mt (or ms or ma) file and stdout, based on MEASPRINT option
           if (enableMeasGlobalPrint_)
@@ -392,7 +391,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
 bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
 {
   bool bsuccess = true;
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     // loop over all measure objects
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
@@ -434,7 +433,9 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
 //-----------------------------------------------------------------------------
 // Function      : Manager::fixupFFTMeasures
 // Purpose       : Used to associate .MEASURE FFT lines with their .FFT line
-// Special Notes :
+// Special Notes : This function is not used for EQN/PARAM measures, which are
+//                 treated like a TRAN mode measure even if entered on a
+//                 .MEASURE FFT line.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 01/18/2021
@@ -449,7 +450,7 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
     // loop over all measure objects
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
     {
-      if ((*it)->getMeasureMode() == "FFT")
+      if ( ((*it)->getMeasureMode() == "FFT")  && ((*it)->getMeasureType() != "EQN") )
       {
         if (FFTAnalysisList.size() == 0)
         {
@@ -460,7 +461,7 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
           Util::Op::OpList::const_iterator ov_it = (*it)->getOutputVars()->begin();
 	  std::string measureVarName = (*ov_it)->getName();
           // Need to adjust measure name, if it is an operator like VR(1), to remove the 'R'.
-          // This is need to make FIND measures work.
+          // This is needed to make FIND measures work.
           size_t parenIdx = measureVarName.find_first_of('(');
           if ((measureVarName[0] != '{') && (parenIdx != 1))
             measureVarName = measureVarName[0] + measureVarName.substr(parenIdx);
@@ -650,20 +651,23 @@ void Manager::updateNoiseMeasures(
 //-----------------------------------------------------------------------------
 void Manager::outputResultsToMTFile(int stepNumber) const
 {
-  // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
-  std::ostringstream converterBuff;
-  converterBuff << stepNumber;
-  std::string filename = netlistFilename_ + measureOutputFileSuffix_ + converterBuff.str();
+  if ( isMeasureActive() )
+  {
+    // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
+    std::ostringstream converterBuff;
+    converterBuff << stepNumber;
+    std::string filename = netlistFilename_ + measureOutputFileSuffix_ + converterBuff.str();
 
-  // open file
-  std::ofstream outputFileStream;
-  outputFileStream.open( filename.c_str() );
+    // open file
+    std::ofstream outputFileStream;
+    outputFileStream.open( filename.c_str() );
 
-  // output the measure values
-  outputResults( outputFileStream );
+    // output the measure values
+    outputResults( outputFileStream );
 
-  // close file
-  outputFileStream.close();
+    // close file
+    outputFileStream.close();
+  }
 
   return;
 }
@@ -681,7 +685,7 @@ void Manager::outputResultsToMTFile(int stepNumber) const
 //-----------------------------------------------------------------------------
 std::ostream &Manager::outputResults( std::ostream& outputStream ) const
 {
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     // loop over active measure objects and get the results
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
@@ -708,7 +712,7 @@ std::ostream &Manager::outputResults( std::ostream& outputStream ) const
 //-----------------------------------------------------------------------------
 std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double endSimTime ) const
 {
-  if (!allMeasuresList_.empty())
+  if ( isMeasureActive() )
   {
     outputStream << std::endl
                  << " ***** Measure Functions ***** " << std::endl
@@ -847,7 +851,7 @@ void Manager::remeasure(
 
   // output "re-measure header text" to stdout
   Xyce::lout() << "In OutputMgr::remeasure " << std::endl
-               << "file to reprocess through measure functions: " << remeasure_path << std::endl;
+               << "file to reprocess through measure and/or fft functions: " << remeasure_path << std::endl;
 
   // Some error checking on the file name specified by -remeasure command-line option.  
   // Will check for a valid file extension (e.g., .PRN) below.
@@ -970,7 +974,8 @@ void Manager::remeasure(
   }
   setMeasureOutputFileSuffix(remeasureObj->getAnalysisMode());
 
-  // support FFT measure mode
+  // support remeasure of both FFT lines and FFT measures
+  fft_manager.enableFFTAnalysis(remeasureObj->getAnalysisMode());
   if (fft_manager.isFFTActive())
   {
     // StepErrorControl is not made by the AnalysisManager during -remeasure
@@ -984,8 +989,8 @@ void Manager::remeasure(
   Report::safeBarrier(pds_comm.comm());
 
   Teuchos::RCP<Parallel::ParMap> aParMap = Teuchos::rcp( Parallel::createPDSParMap(numVars, numLocalVars, lbMap, 0, pds_comm) );
-  Linear::Vector varValuesVec(*aParMap);
-  varValuesVec.putScalar(0);
+  Teuchos::RCP<Linear::Vector> varValuesVec = Teuchos::rcp( Linear::createVector(*aParMap) );
+  varValuesVec->putScalar(0);
   
   // Variables used to handle a STEP in the re-measured data.  For .DC, we need to 
   // handle "steps" from both the .DC line and the .STEP line.  That is done with
@@ -1030,7 +1035,7 @@ void Manager::remeasure(
   {
     if (Parallel::rank(pds_comm.comm()) == 0)
     {  
-      reading[0] = fileToReMeasure->getOutputNextVarValuesParallel(&varValuesVec);
+      reading[0] = fileToReMeasure->getOutputNextVarValuesParallel(varValuesVec.get());
       summedReading[0] = reading[0];
     }
     
@@ -1044,7 +1049,7 @@ void Manager::remeasure(
         sumlt[0] = 0.0;
         if( numLocalVars > 0 )
         {
-          lt[0] = varValuesVec[IndepVarCol];
+          lt[0] = (*varValuesVec)[IndepVarCol];
         }
         pds_comm.sumAll( lt, sumlt,  1);
 
@@ -1099,22 +1104,17 @@ void Manager::remeasure(
         }
         prevIndepVar = remeasureObj->getIndepVar(); 
 
-        // update each measure and FFT analysis object
-        remeasureObj->updateMeasures(varValuesVec);
+        // update each FFT analysis object, and then each measure
         fft_manager.updateFFTData(pds_comm.comm(), remeasureObj->getIndepVar(),
-                                  &varValuesVec, 0, 0, &varValuesVec, 0, 0);
+                                  varValuesVec.get(), 0, 0, varValuesVec.get(), 0, 0);
+        remeasureObj->updateMeasures(*varValuesVec);
 
         // Update the Sweep Vector.  This is currently only used by DC remeasure.
         remeasureObj->updateSweepVars();  
       }
 
-      varValuesVec.putScalar(0);
+      varValuesVec->putScalar(0);
   }
-
-  // The use of this black hole stream was replaced with calls to Xyce::lout()
-  // This is a null output stream that helps ensure a function that needs to be called
-  // on every processor in parallel only outputs on one processor.
-  //Teuchos::oblackholestream outputBHS;
 
   // Output the Measure results to Xyce::dout().
   // Make sure the function gets called on all processors, but only one outputs it.
@@ -1453,8 +1453,11 @@ extractMEASUREData(
   typeSetDc.insert( std::string("RMS") );
   typeSetDc.insert( std::string("WHEN") );
 
+  // allowed types for the FFT mode
   typeSetFft.insert( std::string("ENOB") );
+  typeSetFft.insert( std::string("EQN") );
   typeSetFft.insert( std::string("FIND") );
+  typeSetFft.insert( std::string("PARAM") );
   typeSetFft.insert( std::string("SFDR") );
   typeSetFft.insert( std::string("SNDR") );
   typeSetFft.insert( std::string("SNR") );
@@ -1681,7 +1684,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, FIND, SDFR, SNDR, SNR and THD "
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only ENOB, EQN/PARAM, FIND, SDFR, SNDR, SNR and THD "
 	 << "measure types are supported for FFT measure mode";
       return false;
     }
@@ -1985,7 +1988,7 @@ extractMEASUREData(
         // mistake PAR for P(), and to properly handle the INOISE operator.
         if( ( (nextWord[0] == 'I' && nextWord != "INOISE") || nextWord[0] == 'V' || nextWord[0] == 'N'
              || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'D' || nextWord[0] == 'S' ||
-             nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
+	     nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
             (simpleKeywords.find( nextWord ) == simpleKeywords.end()) )
         {
           // need to do a bit of look ahead here to see if this is a V(a) or V(a,b)

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -262,7 +262,7 @@ bool ErrorFunctions::checkMeasureLine()
 //-----------------------------------------------------------------------------
 bool ErrorFunctions::withinYLimits(double mVal)
 {
-  return (abs(mVal) <= ymax_) && (abs(mVal) >= ymin_);
+  return (fabs(mVal) <= ymax_) && (fabs(mVal) >= ymin_);
 }
 
 //-----------------------------------------------------------------------------
@@ -305,7 +305,7 @@ void Err1::reset()
 void Err1::updateErrVars(double mVal, double cVal)
 {
   ++numPts_;
-  double denom = std::max(abs(mVal), minval_);
+  double denom = std::max(fabs(mVal), minval_);
   err1SqSum_ += ((mVal - cVal)/denom) * ((mVal - cVal)/denom);
 
   return;
@@ -368,8 +368,8 @@ void Err2::reset()
 void Err2::updateErrVars(double mVal, double cVal)
 {
   ++numPts_;
-  double denom = std::max(abs(mVal), minval_);
-  err2Sum_ += abs((mVal - cVal)/denom);
+  double denom = std::max(fabs(mVal), minval_);
+  err2Sum_ += fabs((mVal - cVal)/denom);
  
   return;
 }
@@ -432,9 +432,9 @@ void Err3::updateErrVars(double mVal, double cVal)
 {
   ++numPts_;
 
-  double numerator = std::max(abs(mVal/cVal),N_MINLOG);
-  double denom = std::max(abs(mVal), minval_);
-  double err3_subi = log(numerator) / abs(log(denom));
+  double numerator = std::max(fabs(mVal/cVal),N_MINLOG);
+  double denom = std::max(fabs(mVal), minval_);
+  double err3_subi = log(numerator) / fabs(log(denom));
 
   // numPts_ is always incremented, but inf or nan is not
   // added to the sum-squared accumulator.

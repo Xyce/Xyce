@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -99,6 +99,7 @@ public:
   bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
+  Teuchos::RCP<baseExpressionGroup> getGroup();
 
   // ERK new expression stuff.  These kind of replace "get_names"
   void getUnresolvedParams    (std::vector<std::string> & params) const;

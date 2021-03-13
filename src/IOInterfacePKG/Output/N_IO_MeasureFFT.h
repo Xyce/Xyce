@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -104,7 +104,9 @@ public:
 protected:
   FFTAnalysis* fftAnalysisPtr_;
   int np_;
-  int atRounded_;
+  int atIdx_; // versions of AT, MINFREQ, MAXFREQ rounded to nearest harmonic index
+  int minFreqIdx_;
+  int maxFreqIdx_;
 
 private:
   int numOutVars_;
@@ -208,6 +210,7 @@ public:
 public:
   void reset();
   double getMeasureResult();
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
 
 };
 

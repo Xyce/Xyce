@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 \documentclass[letterpaper]{scrartcl}
@@ -76,8 +76,11 @@ please visit the \XyceTM{} web page at
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
   \item The lossless transmission line history interpolation has been
-        improved to better capture discontinuous signals such as those
-        produced by pulsed voltage sources.
+    improved to better capture discontinuous signals such as those
+    produced by pulsed voltage sources.  Various issues related to
+    discontinuity detection and breakpointing were also fixed in this
+    release.
+  \item An ideal delay device has been added.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
@@ -87,8 +90,11 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-  \item The ? wildcard character (meaning ``any single character'') is now
-supported on .PRINT lines for all analysis modes.
+  \item The ? wildcard character (meaning ``any single character'') is
+    now supported on .PRINT lines for all analysis modes.
+  \item The Xyce expression library now recognizes \texttt{TEMPER} and
+    \texttt{HERTZ} as synonyms for \texttt{TEMP} and \texttt{FREQ},
+    respectively.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

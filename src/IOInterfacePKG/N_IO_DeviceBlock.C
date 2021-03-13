@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1645,23 +1645,17 @@ DeviceBlock::extractModelName(
 
   // Start looking for model name right after device name.
   size_t model_search_begin_index = 1;
-
   size_t model_search_end_index = parsedInputLine.size();
 
   ModelFoundState modelFound = MODEL_NOT_SPECIFIED;
+  ParameterBlock* modelPtr;
+  std::string final_model_name;
+  bool foundTheModel = false;
+  bool foundTheBinnedModel = false;
+  size_t savedFieldNo;
 
-
-  // Model Binning stuff:
-  bool LWfound=false;
-  bool LNFINfound=false;
-  double L = 0.0, W = 0.0, NFIN=0.0;
-  if (modelBinning && device_type == "M")
-  {
-    LWfound = getLandW (parsedInputLine, circuitContext_, L, W);
-    LNFINfound = getLandNFIN (parsedInputLine, circuitContext_, L, NFIN);
-    if ( (LWfound || LNFINfound) && scale != 1.0) { L *= scale; W *= scale; }
-  }
-
+  // loop over all the fields on the line, and see if any of them is the model.
+  // If this is a MOS device, then do potentially 2 passes, in case of model binning.
   for (size_t fieldno = model_search_begin_index; fieldno < model_search_end_index; ++fieldno )
   {
     const std::string &model_name = parsedInputLine[fieldno].string_;
@@ -1676,79 +1670,96 @@ DeviceBlock::extractModelName(
         break;
     }
 
-    ParameterBlock* modelPtr;
+    foundTheModel = circuitContext_.findModel(model_name, modelPtr);
 
-    bool foundTheModel = circuitContext_.findModel(model_name, modelPtr);
+    if (foundTheModel) { final_model_name = model_name; savedFieldNo = fieldno; break; }
+  }
 
-    // Model Binning stuff:
-    std::string final_model_name = model_name;
-    bool foundTheBinnedModel = false;
-    if ( modelBinning && !foundTheModel && (LWfound || LNFINfound))
+  // Do model binning pass, if the device is MOSFET and the model hasn't been found yet.
+  if (!foundTheModel && modelBinning && device_type == "M") 
+  {
+    bool LWfound=false;
+    bool LNFINfound=false;
+    double L = 0.0, W = 0.0, NFIN=0.0;
+
+    LWfound = getLandW (parsedInputLine, circuitContext_, L, W);
+    LNFINfound = getLandNFIN (parsedInputLine, circuitContext_, L, NFIN);
+    if ( (LWfound || LNFINfound) && scale != 1.0) { L *= scale; W *= scale; }
+
+    for (size_t fieldno = model_search_begin_index; fieldno < model_search_end_index; ++fieldno )
     {
-      if (device_type == "M")
+      const std::string &model_name = parsedInputLine[fieldno].string_;
+      if ( !foundTheModel && (LWfound || LNFINfound))
       {
-        std::string binNumber;
-        foundTheBinnedModel = circuitContext_.findBinnedModel(model_name, modelPtr, LWfound, LNFINfound, L, W, NFIN, binNumber);
-        final_model_name = model_name + "." + binNumber;
-      }
-    }
+        if (device_type == "M")
+        {
+          std::string binNumber;
+          foundTheBinnedModel = circuitContext_.findBinnedModel(model_name, modelPtr, LWfound, LNFINfound, L, W, NFIN, binNumber);
 
-    if (foundTheModel || foundTheBinnedModel)
-    {
-      if ( device_type != "K")
-      {
-        modelType = modelPtr->getType();
-        modelLevel = modelPtr->getLevel();
-
-        const DeviceMetadata &model_metadata = metadata_.getDeviceMetadata(device_type, modelLevel);
-
-        // Only consider models that are of valid type for this device type!
-        if (model_metadata.isModelLevelValid() &&
-            model_metadata.isModelTypeValid(modelType))
-        {          
-          // Now make absolutely sure that it is even legal for a model
-          // of this type/level to appear at this position!
-          
-          const DeviceMetadata &model_level_metadata = metadata_.getDeviceMetadata(device_type,modelLevel);
-
-          if (fieldno >= model_level_metadata.numNodes+1)
+          if (foundTheBinnedModel)
           {
-
-            modelPtr->addDefaultModelParameters(metadata_);
-            modelFound = MODEL_FOUND;
-            modelNamePosition = fieldno;
-            setModelName(final_model_name);
+            savedFieldNo = fieldno;
+            final_model_name = model_name + "." + binNumber;
             break;
           }
-          else
-          {
-            // Ignore it --- it is not a candidate for this device's model
-            // due to appearing too early on the line
-          }
+        }
+      }
+    }
+  }
+
+  if (foundTheModel || foundTheBinnedModel)
+  {
+    if ( device_type != "K")
+    {
+      modelType = modelPtr->getType();
+      modelLevel = modelPtr->getLevel();
+
+      const DeviceMetadata &model_metadata = metadata_.getDeviceMetadata(device_type, modelLevel);
+
+      // Only consider models that are of valid type for this device type!
+      if (model_metadata.isModelLevelValid() &&
+          model_metadata.isModelTypeValid(modelType))
+      {          
+        // Now make absolutely sure that it is even legal for a model
+        // of this type/level to appear at this position!
+        
+        const DeviceMetadata &model_level_metadata = metadata_.getDeviceMetadata(device_type,modelLevel);
+
+        if (savedFieldNo >= model_level_metadata.numNodes+1)
+        {
+          modelPtr->addDefaultModelParameters(metadata_);
+          modelFound = MODEL_FOUND;
+          modelNamePosition = savedFieldNo;
+          setModelName(final_model_name);
         }
         else
         {
           // Ignore it --- it is not a candidate for this device's model
-          // due to not having the right model type or level.  But if is
-          // the right type and no valid level, error out.
-          if (model_metadata.isModelTypeValid(modelType) &&
-              !model_metadata.isModelLevelValid() )
-          {
-            Report::UserError().at(getNetlistFilename(), getLineNumber())
-              << "Model type \"" << modelType << "\" does not have level " << modelLevel << " defined";
-            return MODEL_NOT_FOUND;
-          }
+          // due to appearing too early on the line
         }
       }
       else
       {
-        // Apparently we just accept any model name here for K devices
-        modelFound = MODEL_FOUND;
-        modelType = modelPtr->getType();
-        modelLevel = modelPtr->getLevel();
-        modelNamePosition = fieldno;
-        setModelName(model_name);
+        // Ignore it --- it is not a candidate for this device's model
+        // due to not having the right model type or level.  But if is
+        // the right type and no valid level, error out.
+        if (model_metadata.isModelTypeValid(modelType) &&
+            !model_metadata.isModelLevelValid() )
+        {
+          Report::UserError().at(getNetlistFilename(), getLineNumber())
+            << "Model type \"" << modelType << "\" does not have level " << modelLevel << " defined";
+          return MODEL_NOT_FOUND;
+        }
       }
+    }
+    else
+    {
+      // Apparently we just accept any model name here for K devices
+      modelFound = MODEL_FOUND;
+      modelType = modelPtr->getType();
+      modelLevel = modelPtr->getLevel();
+      modelNamePosition = savedFieldNo;
+      setModelName(final_model_name);
     }
   }
 

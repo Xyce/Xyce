@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -79,8 +79,8 @@ AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin(
     vecptr1_(0),
     vecptr2_(0)
 {
-  vecptr1_ = cloneVector->clone();
-  vecptr2_ = cloneVector->clone();
+  vecptr1_ = cloneVector->cloneVector();
+  vecptr2_ = cloneVector->cloneVector();
 }
 
 //-----------------------------------------------------------------------------

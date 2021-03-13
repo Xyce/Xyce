@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -462,9 +462,6 @@ public:
   {
     int numVars=sV.size();
 
-    std::cout << " In vccs computeXyceVectors, number vars = " << numVars
-              << std::endl;
-
     F.resize(numVars);
     Q.clear();
     B.clear();
@@ -871,6 +868,7 @@ int main(int argc, char **argv)
   bool iotest=false;
   ioTestInterface * theIOTestInterface=0;
   ioTestInterface * theIOTestInterface2=0;
+  ioTestInterface * theIOTestInterface3=0;
 
   // Here we check for two special command line options (only one of which
   // will ever be respected) that will be used to turn on special output
@@ -903,6 +901,11 @@ int main(int argc, char **argv)
       theIOTestInterface2->addOutputString("TIME");
       theIOTestInterface2->addOutputString("V(*)");
       theIOTestInterface2->addOutputString("I(*)");
+      theIOTestInterface3 = new ioTestInterface("ioTest1_noindex.out");
+      theIOTestInterface3->addOutputString("V(1)");
+      theIOTestInterface3->addOutputString("v(1a)");
+      theIOTestInterface3->addOutputString("i(v1)");
+      theIOTestInterface3->addOutputString("v(2)");
     }
     else if (arg1 == "-iotest2")
     {
@@ -927,6 +930,12 @@ int main(int argc, char **argv)
       theIOTestInterface->addOutputString("v(1a)");
       theIOTestInterface->addOutputString("I(v1)");
       theIOTestInterface->addOutputString("V(2)");
+      theIOTestInterface2 = new ioTestInterface("ioTest3_noindex.out",
+                                               Xyce::IO::OutputType::AC);
+      theIOTestInterface2->addOutputString("v(1)");
+      theIOTestInterface2->addOutputString("v(1a)");
+      theIOTestInterface2->addOutputString("I(v1)");
+      theIOTestInterface2->addOutputString("V(2)");
     }
     else if (arg1 == "-iotest4")
     {
@@ -977,6 +986,10 @@ int main(int argc, char **argv)
   if (theIOTestInterface2)
   {
     xyce.addOutputInterface(theIOTestInterface2);
+  }
+  if (theIOTestInterface3)
+  {
+    xyce.addOutputInterface(theIOTestInterface3);
   }
 
 

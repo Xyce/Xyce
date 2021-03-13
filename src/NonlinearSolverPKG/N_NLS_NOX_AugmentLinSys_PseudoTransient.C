@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -68,7 +68,7 @@ AugmentLinSysPseudoTransient::AugmentLinSysPseudoTransient
     colors_(colors),
     tmp_vector_ptr_(0)
 {
-  tmp_vector_ptr_ = cloneVector->clone();
+  tmp_vector_ptr_ = cloneVector->cloneVector();
 }
 
 //-----------------------------------------------------------------------------

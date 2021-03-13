@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -332,12 +332,12 @@ void SParamTS1::doOutputSParams(
           // calculate the pair of values that will be output, for each complex value, based on the requested format
           if (printParameters_.dataFormat_ == DataFormat::MA)
 	  {
-            val1 = abs(Sparams(i, j));
+            val1 = std::abs(Sparams(i, j));
             val2 = 180*(arg(Sparams(i, j)))/M_PI;
           }
           else if (printParameters_.dataFormat_ == DataFormat::DB)
 	  {
-            val1 = 20.0*std::log10(abs(Sparams(i, j)));
+            val1 = 20.0*std::log10(std::abs(Sparams(i, j)));
             val2 = 180*(arg(Sparams(i, j)))/M_PI;
           }
           else
@@ -363,12 +363,12 @@ void SParamTS1::doOutputSParams(
           // calculate the pair of values that will be output, for each complex value, based on the requested format
           if (printParameters_.dataFormat_ == DataFormat::MA)
 	  {
-            val1 = abs(Sparams(i, j));
+            val1 = std::abs(Sparams(i, j));
             val2 = 180*(arg(Sparams(i, j)))/M_PI;
           }
           else if (printParameters_.dataFormat_ == DataFormat::DB)
 	  {
-            val1 = 20.0*std::log10(abs(Sparams(i, j)));
+            val1 = 20.0*std::log10(std::abs(Sparams(i, j)));
             val2 = 180*(arg(Sparams(i, j)))/M_PI;
           }
           else

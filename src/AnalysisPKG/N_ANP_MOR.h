@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2021 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -50,6 +50,8 @@ using Teuchos::rcp;
 #include <N_PDS_fwd.h>
 
 #include <N_LAS_EpetraMatrix.h>
+#include <N_LAS_EpetraMultiVector.h>
+#include <N_LAS_EpetraBlockVector.h>
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_RegisterAnalysis.h>
 #include <N_IO_OutputMOR.h>
@@ -187,13 +189,13 @@ private:
     RCP<Linear::EpetraMatrix> CPtr_;
     RCP<Linear::EpetraMatrix> GPtr_;
     RCP<Linear::EpetraMatrix> sCpG_MatrixPtr_;
-    RCP<Linear::MultiVector> RPtr_, BPtr_, VPtr_;
+    RCP<Linear::EpetraMultiVector> RPtr_, BPtr_;
     std::vector<int> bMatEntriesVec_, bMatPosEntriesVec_;
 
     // Original system, real-equivalent form
     RCP<Linear::BlockMatrix> sCpG_REFMatrixPtr_;
-    RCP<Linear::BlockVector> REFBPtr_;
-    RCP<Linear::BlockVector> REFXPtr_; // Store solution from Amesos here.
+    RCP<Linear::EpetraBlockVector> REFBPtr_;
+    RCP<Linear::EpetraBlockVector> REFXPtr_; // Store solution from Amesos here.
 
     // Reduced system (dense)
     Teuchos::SerialDenseMatrix<int, double> redC_;
@@ -211,8 +213,8 @@ private:
 
     // Reduced system, real-equivalent form (sparse)
     RCP<Linear::BlockMatrix> sCpG_ref_redMatrixPtr_;
-    RCP<Linear::BlockVector> ref_redBPtr_;
-    RCP<Linear::BlockVector> ref_redXPtr_; // Store solution from Amesos here.
+    RCP<Linear::EpetraBlockVector> ref_redBPtr_;
+    RCP<Linear::EpetraBlockVector> ref_redXPtr_; // Store solution from Amesos here.
 
     // Transfer functions
     Teuchos::SerialDenseMatrix<int, std::complex<double> > origH_;
