@@ -233,6 +233,16 @@ reset_message_count(
   get_message_type_info(message_type).m_count = 0;
 }
 
+void
+reset_message_counts()
+
+{
+  reset_message_count(MSG_WARNING);
+  reset_message_count(MSG_ERROR);
+  reset_message_count(MSG_FATAL);
+  reset_message_count(MSG_EXCEPTION);
+  reset_message_count(MSG_INFORMATION);
+}
 
 const std::string &
 get_message_name(

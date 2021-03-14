@@ -76,6 +76,7 @@
 #include <N_DEV_SolverState.h>
 
 #include <N_ERH_ErrorMgr.h>
+#include <N_ERH_Messenger.h>
 
 #include <N_IO_NetlistImportTool.h>
 
@@ -286,6 +287,7 @@ Simulator::Simulator(Parallel::Machine comm)
     adcDeviceMap_()
 {
   previousReportHandler_ = set_report_handler(report_handler);
+  Xyce::Report::reset_message_counts();
 
   rootStat_.start();
 
