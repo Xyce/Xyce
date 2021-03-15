@@ -635,7 +635,7 @@ void FFTAnalysis::calculateFFT_()
   calculateSFDR_();
   snr_ = calculateSNR(fmaxIdx_);
   calculateSNDRandENOB_();
-  calculateTHD_();
+  thd_ = calculateTHD(fmaxIdx_);
 
   // only sort the harmonicList_, if it will be output
   if (fftout_)
@@ -690,7 +690,7 @@ void FFTAnalysis::calculateSFDR_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::calculateSNR_()
+// Function      : FFTAnalysis::calculateSNR()
 // Purpose       : Calculate the Signal to Noise Ratio (SNR) based on the
 //                 "first harmonic".  That is the fundamental frequency,
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
@@ -757,29 +757,44 @@ void FFTAnalysis::calculateSNDRandENOB_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::calculateTHD_()
+// Function      : FFTAnalysis::calculateTHD()
 // Purpose       : Calculate the Total Harmonic Distortion (THD) based on the
 //                 "first harmonic".  That is the fundamental frequency, if the
 //                 FREQ qualifier is not given.  Otherwise, it is the FREQ value
 //                 rounded to the nearest harmonic of the fundamental frequency.
+//                 This function is also used by .MEASURE FFT lines.  So, it is
+//                 a public function.
 // Special Notes : The "distortion" is then summed at the integer multiples of
 //                 the first harmonic.
-// Scope         : private
+// Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::calculateTHD_()
+double FFTAnalysis::calculateTHD(int fmaxIndex) const
 {
+  double thdVal = 0;
+
   for (int i=2*fhIdx_; i<=np_/2; i+=fhIdx_)
   {
-    if (i<=fmaxIdx_)
-      thd_ += mag_[i]*mag_[i];
+    if (i<=fmaxIndex)
+      thdVal += mag_[i]*mag_[i];
   }
 
-  // don't take 20*log10() for THD, since both the actual value and dB value are output later.
-  thd_ = sqrt(thd_)/mag_[fhIdx_];
+  // Don't take 20*log10() for THD, since both the actual value and dB value are output later.
+  return sqrt(thdVal)/mag_[fhIdx_];
+}
 
-  return;
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::convertTHDtoDB()
+// Purpose       : Take the "noise floor" into account
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/11/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::convertTHDtoDB(double thdVal) const
+{
+  return 20*log10(std::max(thdVal,noiseFloor_));
 }
 
 //-----------------------------------------------------------------------------
@@ -855,7 +870,7 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
     if (fftout_)
     {
       os << std::endl
-         << std::setw(colWidth1) << "THD = " << 20*log10(thd_) << " dB ( " << thd_ << " )" << std::endl
+         << std::setw(colWidth1) << "THD = " << convertTHDtoDB(thd_) << " dB ( " << thd_ << " )" << std::endl
          << std::setw(colWidth1) << "SNDR = " << sndr_ << " dB" << std::endl
          << std::setw(colWidth1) << "ENOB = " << enob_ << " bit" << std::endl
          << std::setw(colWidth1) << "SNR = " << snr_ << " dB" << std::endl
