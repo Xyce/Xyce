@@ -64,6 +64,8 @@ if (Xyce_PYMI)
   
         set_target_properties(Xyce-PyMi PROPERTIES INSTALL_RPATH_USE_LINK_PATH ON)
         install(TARGETS Xyce-PyMi DESTINATION bin)
+        file(GLOB_RECURSE PYMI_PY_FILES ${PROJECT_SOURCE_DIR}/utils/PythonModelInterface/*.py)
+        install(FILES ${PYMI_PY_FILES} DESTINATION include/pymi)
   
         message(STATUS "pybind11 found, Python>=3.4 found")
         message(STATUS "Python_EXECUTABLE: ${Python_EXECUTABLE}")
