@@ -123,8 +123,8 @@ public:
   double getMagVal(const int index) const { return mag_[index];}
   double getPhaseVal(const int index) const { return phase_[index];}
   double getENOB() const {return enob_;}
-  double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
+  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, bool fmaxGivn) const;
 
   // these functions are used by both FFTAnalysis and Measure FFT
   double calculateSNR(int fmaxIndex) const;

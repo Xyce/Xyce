@@ -441,7 +441,8 @@ double SFDR::getMeasureResult()
   if ( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->getSFDR();
+    calculationResult_ = fftAnalysisPtr_->calculateSFDRforMeasFFT(minFreqIdx_, maxFreqIdx_,
+                                              minFreqGiven_, maxFreqGiven_);
   }
   return calculationResult_;
 }

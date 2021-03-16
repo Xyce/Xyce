@@ -690,6 +690,39 @@ void FFTAnalysis::calculateSFDR_()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSFDRforMeasFFT()
+// Purpose       : Calculate the Spurious Free Distoration Ratio (SFDR) based
+//                 on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.  This version is used by MEASURE FFT, and changes
+//                 no private variables.
+// Special Notes : The SFDR only considers frequencies > the first harmonic if
+//                 FMIN is not given.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/15/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex,
+                                            bool fminGivn, bool fmaxGivn) const
+{
+  double sfdrVal = 0;
+
+  for (int i=1; i<=np_/2; i++)
+  {
+    if ( (i!=fhIdx_) && (mag_[i] > sfdrVal) &&
+         ( (!fminGivn && (i> fhIdx_)) || (fminGivn && (i>=fminIndex)) ) &&
+         (i<=fmaxIndex) )
+    {
+      sfdrVal = mag_[i];
+    }
+  }
+
+  // units are dB
+  return 20*log10(mag_[fhIdx_]/sfdrVal);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateSNR()
 // Purpose       : Calculate the Signal to Noise Ratio (SNR) based on the
 //                 "first harmonic".  That is the fundamental frequency,
