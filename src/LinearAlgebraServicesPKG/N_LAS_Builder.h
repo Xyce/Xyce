@@ -38,11 +38,11 @@
 #ifndef  Xyce_LAS_Builder_h
 #define  Xyce_LAS_Builder_h
 
-
 #include <Teuchos_RCP.hpp>
 
 #include <N_LAS_fwd.h>
 #include <N_PDS_fwd.h>
+#include <N_UTL_fwd.h>
 
 #include <N_PDS_Manager.h>
 
@@ -108,6 +108,13 @@ public:
 
   //Coloring Assoc with Variable Types in Solution Vector
   virtual const std::vector<int> & createSolnColoring() const;
+
+  // Convert topology op data to analysis specific op data
+  virtual bool createInitialConditionOp( std::map<int,double> & op ) const
+  { return false; }
+
+  virtual bool createInitialConditionOp( std::vector<int>& op ) const
+  { return false; }
 
   //Coloring needed for imposing .IC and .NODESET
   virtual const std::vector<int> & createInitialConditionColoring() const;

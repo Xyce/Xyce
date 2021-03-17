@@ -48,6 +48,8 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_System.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 #include <N_UTL_CheckIfValidFile.h>
@@ -206,7 +208,7 @@ bool InitialConditionsManager::registerNodeSet(const Util::OptionBlock & OB)
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 05/04/06
 //-----------------------------------------------------------------------------
-InitialConditionsData::NodeNamePairMap & InitialConditionsManager::getICData(
+InitialConditionsData::NodeLidValueMap & InitialConditionsManager::getICData(
   int & op_found, int & icType)
 {
   op_found = icData_.op_found_;
@@ -228,29 +230,29 @@ bool setupIC_or_NODESET(
   const NodeNameMap &                           all_nodes,
   const AliasNodeMap &                          alias_nodes,
   Linear::Vector &                              nextSolnVec,
-  Linear::Vector &                              flagSolnVec,
+  Linear::System &                              linearSystem,
   int                                           icType,
   std::vector<Util::OptionBlock> &              initBlockVec,
-  InitialConditionsData::NodeNamePairMap &      op_data,
-  int &                                         op_found_,
-  int &                                         total_soln_)
+  InitialConditionsData::NodeLidValueMap &      op_data,
+  int &                                         op_found_)
 {
   int lid = 0;
   bool success = false;
 
+  // The all_nodes name map provides the list of nodes on this processor.
   int totalNodes = all_nodes.size();
+
+  Linear::Vector & flagSolnVec = *linearSystem.getFlagSolVector();
+  InitialConditionsData::NodeLidValueMap flag_data;
 
   nextSolnVec.putScalar(0.0);
   flagSolnVec.putScalar(-1.0);
 
-  for (NodeNameMap::const_iterator it = all_nodes.begin(),
-      nodes_end = all_nodes.end(); it != nodes_end ; ++it)
-  {
-    flagSolnVec[(*it).second] = 0;
-  }
+  // Set the solution variables to zero.
+  Linear::setInitialConditions( linearSystem, flagSolnVec, all_nodes, 0 );
 
+  op_found_ = 0; 
   std::set<std::string> notFoundInCkt;
-  std::set<std::string> matched;
   for (std::vector<Util::OptionBlock>::const_iterator it = initBlockVec.begin(), 
       end = initBlockVec.end(); it != end; ++it)
   {
@@ -271,29 +273,23 @@ bool setupIC_or_NODESET(
       double value = 0.0;
       ExtendedString strValueNodeTag((*it_param).tag());
       strValueNodeTag.toUpper();
-      if (strValueNodeTag=="VALUE")
+      if (strValueNodeTag=="VALUE" && !(*it_param).hasExpressionValue())
       {
         value = (*it_param).getImmutableValue<double>();
       }
       else
       {
         Report::UserFatal0() << "Problems processing initial condition for node "
-                             << node << " to " << strValueNodeTag << " value";
+                             << node << " of " << (*it_param).stringValue() << " value to double ";
       }
 
-      int found = false; // will be set to true if the node is found in all_nodes
-      int aliasNodeFound = false; // will be set to true if the node is found in alias_nodes
+      int found = false; // will be set to true if the node is found in all_nodes or alias_nodes
 
       // the real node name (e.g., 2) of a subcircuit interface alias node (e.g., X1:A)
       // found in the alias_nodes map.
-      std::string realNodeName;
-
       NodeNameMap::const_iterator iterCI = all_nodes.find(node);
       if (iterCI != all_nodes.end())
       {
-        lid = iterCI->second;
-        nextSolnVec[lid] = value;
-        flagSolnVec[lid] = 1;
         found = true;
       }
       else
@@ -307,21 +303,24 @@ bool setupIC_or_NODESET(
 	{
           // to be conservative, check that the "real node name" actually exists
           // in the all_nodes map.
-          NodeNameMap::const_iterator iterNode = all_nodes.find(iterAN->second);
-          if (iterNode != all_nodes.end()) 
+          iterCI = all_nodes.find(iterAN->second);
+          if (iterCI != all_nodes.end()) 
           {
-            realNodeName = iterNode->first;
-            lid = iterNode->second;
-	    nextSolnVec[lid] = value;
-            flagSolnVec[lid] = 1;
-            aliasNodeFound = true;
+            found = true;
 	  }
         }
       }
 
+      if (found)
+      {
+        lid = iterCI->second;
+        flag_data[lid] = 1;
+        op_data[lid] = value;
+      }
+
       if (DEBUG_IO) 
       {
-        if (found || aliasNodeFound)
+        if (found)
         {
           Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
           Xyce::dout()
@@ -329,21 +328,13 @@ bool setupIC_or_NODESET(
         }
       }
 
+      // Check with all processors that this node was found.
       Parallel::AllReduce(comm, MPI_SUM, &found, 1);
-      Parallel::AllReduce(comm, MPI_SUM, &aliasNodeFound, 1);
 
-      if (found || aliasNodeFound)
+      if (found)
       {
         success = true;
-
-        if ( found && (matched.find(node) == matched.end()) )
-        {
-          matched.insert(node);
-        }
-        else if ( aliasNodeFound && (matched.find(realNodeName) == matched.end()) )
-        {
-          matched.insert(realNodeName);
-        }
+        op_found_++;
       }
       else
       {
@@ -352,64 +343,16 @@ bool setupIC_or_NODESET(
     }
   }
 
-  nextSolnVec.importOverlap();
-  flagSolnVec.importOverlap();
-
-  op_found_ = matched.size();
-  total_soln_ = totalNodes;
-
-  std::set<std::string>::iterator matched_i = matched.begin();
-  std::set<std::string>::iterator matched_end = matched.end();
-  for (; matched_i != matched_end ; ++matched_i)
-  {
-    // only add this to the opData map if it is local to the processor.
-    // The allNodes object only contains local stuff.  Otherwise there
-    // isn't much point.
-    NodeNameMap::const_iterator iterCI = all_nodes.find(*matched_i);
-    if (iterCI != all_nodes.end())
-    {
-      op_data[*matched_i].first = iterCI->second;
-      op_data[*matched_i].second = nextSolnVec[op_data[*matched_i].first];
-    }
-  }
-
-  if (DEBUG_IO)
-  {
-    // Identify nodes in the circuit which were not set.
-    std::set<std::string> local;
-    for (NodeNameMap::const_iterator it = all_nodes.begin(), end = all_nodes.end(); it != end ; ++it)
-    {
-      if (matched.find((*it).first) == matched.end())
-        local.insert((*it).first);
-    }
-
-    Util::Marshal mout;
-    mout << local;
-
-    std::vector<std::string> dest;
-    Parallel::GatherV(comm, 0, mout.str(), dest);
-
-    std::set<std::string> notSpecified;
-    if (Parallel::rank(comm) == 0) 
-    {
-      for (int p = 0; p < Parallel::size(comm); ++p) 
-      {
-        Util::Marshal min(dest[p]);
-
-        std::vector<std::string> x;
-        min >> x;
-        std::copy(x.begin(), x.end(), std::inserter(notSpecified, notSpecified.begin()));
-      }
-    }
-  }
+  Linear::setInitialConditions( linearSystem, flagSolnVec, flag_data );
+  Linear::setInitialConditions( linearSystem, nextSolnVec, op_data );
 
   if (Parallel::rank(comm) == 0)
   {
     if (DEBUG_IO)
     {
-      if (totalNodes > matched.size())
+      if (totalNodes > op_found_)
       {
-        Xyce::dout() << icType << ":  Initialized " << matched.size() 
+        Xyce::dout() << icType << ":  Initialized " << op_found_
           << " of a possible " << totalNodes << " nodes" << std::endl;
       }
       else
@@ -429,23 +372,6 @@ bool setupIC_or_NODESET(
         lout() << *nm_i << std::endl;
       }
     }
-
-    // if (DEBUG_IO)
-    // {
-    //   // Note: for a typical .IC line, this list of unspecified nodes will be
-    //   // a very long list.  So, don't output except in debug mode.
-    //   if (notSpecified.size() > 0)
-    //   {
-    //     dout() << icType << ":  Nodes present in circuit, but not specified on ." 
-    //            << icType << " line(ignoring):" << std::endl;
-
-    //     for (std::set<std::string>::iterator nm_i = notSpecified.begin(), 
-    //               end = notSpecified.end(); nm_i != end; ++nm_i)
-    //     {
-    //       dout() << *nm_i << std::endl;
-    //     }
-    //   }
-    // }
   }
 
   return success;
@@ -460,11 +386,11 @@ bool setupIC_or_NODESET(
 // Creation Date :
 //-----------------------------------------------------------------------------
 void outputIC_or_NODESET(
-  Parallel::Machine             comm,
-  std::ofstream &               os,
-  const std::string &           saveFileType_,
-  InitialConditionsData::NodeNamePairMap               all_nodes,
-  const Linear::Vector &          solution)
+  Parallel::Machine                        comm,
+  std::ofstream &                          os,
+  const std::string &                      saveFileType_,
+  InitialConditionsData::NodeNamePairMap & all_nodes,
+  const Linear::Vector &                   solution)
 {
   // Collect the local string for all the nodes owned by each processor.
   std::ostringstream localString;
@@ -516,8 +442,8 @@ bool InitialConditionsManager::setupInitialConditions(
   Parallel::Machine             comm,
   const NodeNameMap &           allNodes_,
   const AliasNodeMap &          alias_nodes,
-  Linear::Vector &                solnVec,
-  Linear::Vector &                flagVec)
+  Linear::Vector &              solnVec,
+  Linear::System &              linearSystem)
 {
     bool dotIC = false;
     bool NODESET = false;
@@ -533,9 +459,9 @@ bool InitialConditionsManager::setupInitialConditions(
       // check for .IC
       if (icData_.ICflag_)
       {
-        dotIC = setupIC_or_NODESET(comm, allNodes_, alias_nodes, solnVec, flagVec, 
+        dotIC = setupIC_or_NODESET(comm, allNodes_, alias_nodes, solnVec, linearSystem, 
             InitialConditionsData::IC_TYPE_IC, ICblockVec_, 
-            icData_.opData_, icData_.op_found_, icData_.total_soln_);
+            icData_.opData_, icData_.op_found_);
       }
       if (dotIC)
       {
@@ -547,9 +473,9 @@ bool InitialConditionsManager::setupInitialConditions(
       // check for .NODESET
       if (icData_.nodesetflag_)
       {
-        NODESET = setupIC_or_NODESET(comm, allNodes_, alias_nodes, solnVec, flagVec, 
+        NODESET = setupIC_or_NODESET(comm, allNodes_, alias_nodes, solnVec, linearSystem, 
             InitialConditionsData::IC_TYPE_NODESET, nodesetblockVec_, 
-            icData_.opData_, icData_.op_found_, icData_.total_soln_);
+            icData_.opData_, icData_.op_found_); 
       }
       if (NODESET)
       {
@@ -561,8 +487,6 @@ bool InitialConditionsManager::setupInitialConditions(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : OutputMgr::outputDCOP
-// Purpose       :
 // Special Notes :
 // Scope         : private
 // Creator       : Eric Keiter, SNL
@@ -805,7 +729,6 @@ bool extractICData(
       // node name:
       field = parsed_line[position].string_;
       field.toUpper();
-      std::cout << "field = " << field << std::endl;      
       parameter.setTag( field );
       parameter.setVal( 0.0 );
       option_block.addParam( parameter );

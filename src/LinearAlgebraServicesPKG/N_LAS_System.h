@@ -41,8 +41,6 @@
 #ifndef  Xyce_LAS_System_h
 #define  Xyce_LAS_System_h
 
-#include <list>
-
 #include <N_ANP_fwd.h>
 #include <N_LAS_fwd.h>
 #include <N_PDS_fwd.h>

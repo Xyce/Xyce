@@ -53,6 +53,7 @@ namespace IO {
 struct InitialConditionsData
 {
   typedef std::map<std::string, std::pair<int, double>, LessNoCase > NodeNamePairMap;
+  typedef std::map<int, double> NodeLidValueMap;
 
   enum {IC_TYPE_UNDEFINED, IC_TYPE_IC, IC_TYPE_NODESET};
 
@@ -65,7 +66,6 @@ struct InitialConditionsData
       saveFileType_(".NODESET"),
       saveOutputFile_(""),
       saveTime_(0.0),
-      total_soln_(0),
       op_found_(0)
   {}
 
@@ -77,10 +77,9 @@ struct InitialConditionsData
   std::string saveFileType_;
   std::string saveOutputFile_;
   double saveTime_;
-  int total_soln_;
   int op_found_;
 
-  NodeNamePairMap opData_;
+  NodeLidValueMap opData_;
 };
 
 class InitialConditionsManager 
@@ -89,7 +88,7 @@ public:
   InitialConditionsManager(
     const std::string &         netlist_filename);
 
-  InitialConditionsData::NodeNamePairMap &getICData( int &found, int &ic_type);
+  InitialConditionsData::NodeLidValueMap &getICData( int &found, int &ic_type);
 
   double getSaveTime() const
   {
@@ -110,7 +109,7 @@ public:
     const NodeNameMap &         allNodes_,
     const AliasNodeMap &        alias_nodes,
     Linear::Vector &            solnVec,
-    Linear::Vector &            flagVec);
+    Linear::System &            linearSystem);
 
   void outputDCOP(
     Parallel::Machine           comm,
@@ -130,9 +129,9 @@ private:
 
 bool registerPkgOptionsMgr(InitialConditionsManager & output_manager, PkgOptionsMgr &options_manager);
 
-bool setupIC_or_NODESET(Parallel::Machine comm, const NodeNameMap &all_nodes, const AliasNodeMap &alias_nodes, Linear::Vector & solnVec, Linear::Vector & flagVec, int icType, std::vector<Util::OptionBlock> & initBlockVec, InitialConditionsData::NodeNamePairMap &opData_, int &op_found_, int &total_soln_);
+bool setupIC_or_NODESET(Parallel::Machine comm, const NodeNameMap &all_nodes, const AliasNodeMap &alias_nodes, Linear::Vector & solnVec, Linear::System & linearSystem, int icType, std::vector<Util::OptionBlock> & initBlockVec, InitialConditionsData::NodeLidValueMap &opData_, int &op_found_); 
 
-void outputIC_or_NODESET(Parallel::Machine comm, std::ofstream &os, const std::string &saveFileType_, InitialConditionsData::NodeNamePairMap all_nodes, const Linear::Vector & solution);
+void outputIC_or_NODESET(Parallel::Machine comm, std::ofstream &os, const std::string &saveFileType_, InitialConditionsData::NodeNamePairMap & all_nodes, const Linear::Vector & solution);
 
 } // namespace IO
 } // namespace Xyce

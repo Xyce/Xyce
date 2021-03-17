@@ -211,7 +211,6 @@ void Transient::notify(const StepEvent &event)
       nonlinearManager_.initializeAll(
         analysisManager_,
         analysisManager_.getNonlinearEquationLoader(),
-        //linearSystem_,
         *linearSystemPtr_,
         *analysisManager_.getDataStore(),
         *analysisManager_.getPDSManager(),
@@ -877,7 +876,7 @@ bool Transient::doInit()
                                                          topology_.getSolutionNodeNameMap(),
                                                          outputManagerAdapter_.getAliasNodeMap(),
                                                          *analysisManager_.getDataStore()->nextSolutionPtr,
-                                                         *linearSystem_.getFlagSolVector()));
+                                                         linearSystem_));
 
       if (!dcopFlag_)
       {

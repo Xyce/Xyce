@@ -1913,7 +1913,10 @@ bool Interface::icCont (ParameterSet* paramsPtr)
 #endif
   int found = 0;
   int icType;
-  IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
+  IO::InitialConditionsData::NodeLidValueMap & op = initialConditionsManager_->getICData(found, icType);
+
+  // The builder may need to update op due to analysis type (ex. embedded sampling)
+  (lasSysPtr_->builder()).createInitialConditionOp( op );
 
   usedIC = (icType==IO::InitialConditionsData::IC_TYPE_IC && found > 0);
   if (usedIC)
@@ -1948,7 +1951,10 @@ bool Interface::icCont3 (ParameterSet* paramsPtr)
 #endif
   int found = 0;
   int icType;
-  IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
+  IO::InitialConditionsData::NodeLidValueMap & op = initialConditionsManager_->getICData(found, icType);
+
+  // The builder may need to update op due to analysis type (ex. embedded sampling)
+  (lasSysPtr_->builder()).createInitialConditionOp( op );
 
   usedIC = (icType==IO::InitialConditionsData::IC_TYPE_IC && found > 0);
   if (usedIC)
@@ -1978,7 +1984,10 @@ bool Interface::nodesetCont0 (ParameterSet* paramsPtr)
 #endif
   int found = 0;
   int icType;
-  IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
+  IO::InitialConditionsData::NodeLidValueMap & op = initialConditionsManager_->getICData(found, icType);
+
+  // The builder may need to update op due to analysis type (ex. embedded sampling)
+  (lasSysPtr_->builder()).createInitialConditionOp( op );
 
   usedNODESET = (icType==IO::InitialConditionsData::IC_TYPE_NODESET && found > 0);
   if (usedNODESET)
@@ -2017,7 +2026,10 @@ bool Interface::nodesetCont1 (ParameterSet* paramsPtr)
 
   int found = 0;
   int icType;
-  IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
+  IO::InitialConditionsData::NodeLidValueMap & op = initialConditionsManager_->getICData(found, icType);
+
+  // The builder may need to update op due to analysis type (ex. embedded sampling)
+  (lasSysPtr_->builder()).createInitialConditionOp( op );
 
   usedNODESET = (icType==IO::InitialConditionsData::IC_TYPE_NODESET && found > 0);
   if (usedNODESET)
