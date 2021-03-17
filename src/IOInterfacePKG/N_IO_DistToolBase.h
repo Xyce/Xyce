@@ -78,6 +78,13 @@ protected:
   virtual bool parseIncludeFile(std::string const& includeFiles,
                                 const std::string &libSelect) = 0;
 
+  // helper function for parseIncludeFile()
+  virtual void restorePrevssfInfo(
+    SpiceSeparatedFieldTool* oldssfPtr,
+    const std::string& old_netlistFilename,
+    int oldFilePos,
+    int oldLineNumber) = 0;
+
   // Expand a subcircuit instance by adding the devices and
   // device models that compose the subcircuit to the main
   // (top level) circuit. Prepend device names and nodes with

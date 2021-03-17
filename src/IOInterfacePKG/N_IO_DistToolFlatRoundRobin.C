@@ -557,6 +557,7 @@ bool DistToolFlatRoundRobin::parseIncludeFile(std::string const& includeFile,
   if( !ssfMap_.count( includeFile ) )
   {
     Report::UserError() << "Could not find include file SSF " << includeFile;
+    restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
     return false;
   }
   ssfPtr_ = ssfMap_[includeFile].second;
@@ -580,15 +581,39 @@ bool DistToolFlatRoundRobin::parseIncludeFile(std::string const& includeFile,
   }
 
   // Restore old ssfPtr_ and netlistFilename_.
-  ssfPtr_ = oldssfPtr;
-  setFileName(old_netlistFilename);
-  ssfPtr_->setLocation(oldFilePos);
-  ssfPtr_->setLineNumber(oldLineNumber);
+  restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
 
   if (DEBUG_IO)
     Xyce::dout() << "Done with include file Pass 2: " << includeFile << std::endl;
 */
   return true; // Only get here on success.
+}
+
+//--------------------------------------------------------------------------
+// Function      : DistToolFlatRoundRobin::restorePrevssfInfo
+// Purpose       : This is a helper function for parseIncludeFile(). It
+//                 restores the information about the previous file.   It
+//                 should be called before each return statement in that
+//                 function.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/11/2020
+//--------------------------------------------------------------------------
+void DistToolFlatRoundRobin::restorePrevssfInfo(
+    SpiceSeparatedFieldTool* oldssfPtr,
+    const std::string& old_netlistFilename,
+    int oldFilePos,
+    int oldLineNumber)
+{
+  // Restore old ssfPtr_ and netlistFilename_.
+  ssfPtr_ = oldssfPtr;
+  setFileName(old_netlistFilename);
+
+  // get the location in the file just in case we are re-entering the file (only with .lib)
+  ssfPtr_->setLocation(oldFilePos);
+  ssfPtr_->setLineNumber(oldLineNumber);
+
+  return;
 }
 
 } // namespace IO
