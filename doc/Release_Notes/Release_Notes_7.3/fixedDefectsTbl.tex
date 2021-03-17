@@ -145,6 +145,30 @@ discontinuities in derivative occur and performs linear interpolation
 instead.  This prevents the small overshoots that have been observed
 in these cases in all prior versions of Xyce. \\ \hline
 
+\textbf{Gitlab-ex issue 137}: Address robustness issues in parallel restarting (BUG\_456) &
+Parallel regression testing illustrated failures in restarting.  The parallel hang 
+can be tracked down to the restoration of restart data and bad logic for
+distributing the RestartNode objects. \\ \hline
+
+\textbf{Gitlab-ex issue 149}: The BUG\_507\_SON test is failing on 4-processors in parallel &
+This weekly regression test failure on 4-processors was due to recent changes in the 
+parallel assignment of shared solution nodes.  A balanced assignment strategy was 
+implemented to address the issue. \\ \hline
+
+\textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
+Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
+has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
+syntax to read a file into a table.  A double quoted string is 
+now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
+has also been removed as it was used to signify a string.
+\\ \hline
+
+\textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
+To enable improved performance, Xyce now requires a C++11 capable compiler.
+Therefore, all the code conditionals related to C++11 features have been
+removed from the code. 
+\\ \hline
+
 \textbf{1203-SON}: Issues with temperature-dependent device
 instance-parameters that were expression-based & The values for
 temperature-dependent device instance parameters could be incorrect
@@ -165,19 +189,27 @@ R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \end{verbatim}
 \\ \hline
 
-\textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
-Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
-has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
-syntax to read a file into a table.  A double quoted string is 
-now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
-has also been removed as it was used to signify a string.
+\textbf{1239-SON}: Address failures when parallel regression testing uses up to 4 processors &
+Parallel regression testing illustrated failures when used on more than 2 processors
+. These failures were caused by test and code issues and have been addressed for testing up to 4 processors.
 \\ \hline
 
-\textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
-To enable improved performance, Xyce now requires a C++11 capable compiler.
-Therefore, all the code conditionals related to C++11 features have been
-removed from the code. 
+\textbf{1246-SON}: Supernoding seg faults / fails to remove all nodes in parallel &
+Parallel regression testing illustrated a failure to perform supernoding when run on more than 2
+processors.  This failure was caused by a code issue and has been addressed. 
 \\ \hline
+
+\textbf{1263-SON}: Oscillator HB seg faults when run in parallel using 4 processors or more &
+Parallel regression testing illustrated a failure to use the oscillator HB algorithm when run on 
+4 or more processors.  This failure was caused by a code issue and has been addressed. 
+\\ \hline
+
+\textbf{1311-SON}: PowerGridTransformer tests sometimes hang in parallel on more than 2 processors &
+Parallel regression testing illustrated failures of circuits that have PowerGridTransformer
+models when run on more than 2 processors.  These failures were caused by a code issue and has been
+addressed.
+\\ \hline
+
 
 \end{longtable}
 }
