@@ -53,7 +53,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 + [FROM=<value>] [TO=<value>] [TD=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE TRAN <result name> EQN <expression> 
+.MEASURE TRAN <result name> EQN <variable>
 + [FROM=<value>] [TO=<value>] [TD=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
@@ -159,7 +159,7 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 + [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE <AC|DC|NOISE> <result name> EQN <expression> 
+.MEASURE <AC|DC|NOISE> <result name> EQN <variable>
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
@@ -289,11 +289,11 @@ The supported measure types and their definitions are:
     with the qualifiers {\tt FROM}, {\tt TO}, and {\tt TD} for
    {\tt TRAN} measures.
 
-\item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation.
+\item[\tt EQN] Calculates the value of {\tt <variable>} during the simulation.
     The measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO} and {\tt TD} for {\tt TRAN} measures, and with {\tt FROM}
     and {\tt TO} for {\tt AC}, {\tt DC} and {\tt NOISE} measures.  As noted in the
-    ``Additional Examples'' subsection, the expression can use the
+    ``Additional Examples'' subsection, the variable can use the
     results of other measure statements.
 
 \item[\tt ERRx] Calculates the error between two simulation variables, where
