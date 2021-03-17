@@ -93,7 +93,6 @@ void setInitialConditions( const System& system, Vector& vector,
   BlockVector* b_vector = dynamic_cast< BlockVector* >( &vector );
   if (b_vector)
   {
-    std::cout << "Initial conditions being set on a block vector!" << std::endl;
     std::vector<int> new_op;
     new_op.reserve( vector.globalLength() );
 
