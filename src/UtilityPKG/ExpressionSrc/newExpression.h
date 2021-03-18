@@ -90,6 +90,13 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+
+    isShallowTimeDependent_(false),
+    isShallowTempDependent_(false),
+    isShallowVTDependent_(false),
+    isShallowFreqDependent_(false),
+    isShallowGminDependent_(false),
+
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
     isConstant_(false),
@@ -122,6 +129,13 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+
+    isShallowTimeDependent_(false),
+    isShallowTempDependent_(false),
+    isShallowVTDependent_(false),
+    isShallowFreqDependent_(false),
+    isShallowGminDependent_(false),
+
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
     isConstant_(false),
@@ -165,6 +179,13 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+
+    isShallowTimeDependent_(false),
+    isShallowTempDependent_(false),
+    isShallowVTDependent_(false),
+    isShallowFreqDependent_(false),
+    isShallowGminDependent_(false),
+
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
     isConstant_(false),
@@ -213,6 +234,13 @@ public:
     isVTDependent_(false),
     isFreqDependent_(false),
     isGminDependent_(false),
+
+    isShallowTimeDependent_(false),
+    isShallowTempDependent_(false),
+    isShallowVTDependent_(false),
+    isShallowFreqDependent_(false),
+    isShallowGminDependent_(false),
+
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
     isConstant_(false),
@@ -359,6 +387,13 @@ public:
     isVTDependent_(right.isVTDependent_),
     isFreqDependent_(right.isFreqDependent_),
     isGminDependent_(right.isGminDependent_),
+
+    isShallowTimeDependent_(right.isShallowTimeDependent_),
+    isShallowTempDependent_(right.isShallowTempDependent_),
+    isShallowVTDependent_(right.isShallowVTDependent_),
+    isShallowFreqDependent_(right.isShallowFreqDependent_),
+    isShallowGminDependent_(right.isShallowGminDependent_),
+
     overrideGroupTemperature_(right.overrideGroupTemperature_),
     overrideTemp_(right.overrideTemp_),
     isConstant_(right.isConstant_),
@@ -466,6 +501,12 @@ public:
     isVTDependent_ = right.isVTDependent_;
     isFreqDependent_ = right.isFreqDependent_;
     isGminDependent_ = right.isGminDependent_;
+
+    isShallowTimeDependent_ = right.isShallowTimeDependent_;
+    isShallowTempDependent_ = right.isShallowTempDependent_;
+    isShallowVTDependent_ = right.isShallowVTDependent_;
+    isShallowFreqDependent_ = right.isShallowFreqDependent_;
+    isShallowGminDependent_ = right.isShallowGminDependent_;
 
     overrideGroupTemperature_ = right.overrideGroupTemperature_;
     overrideTemp_ = right.overrideTemp_;
@@ -660,6 +701,21 @@ public:
 
   bool getGminDependent() { return isGminDependent_; }
   void setGminDependent(bool val) { isGminDependent_ = val; }
+
+  bool getShallowTimeDependent() { return isShallowTimeDependent_; }
+  void setShallowTimeDependent(bool val) { isShallowTimeDependent_ = val; }
+
+  bool getShallowTempDependent() { return isShallowTempDependent_; }
+  void setShallowTempDependent(bool val) { isShallowTempDependent_ = val; }
+
+  bool getShallowVTDependent() { return isShallowVTDependent_; }
+  void setShallowVTDependent(bool val) { isShallowVTDependent_ = val; }
+
+  bool getShallowFreqDependent() { return isShallowFreqDependent_; }
+  void setShallowFreqDependent(bool val) { isShallowFreqDependent_ = val; }
+
+  bool getShallowGminDependent() { return isShallowGminDependent_; }
+  void setShallowGminDependent(bool val) { isShallowGminDependent_ = val; }
 
   // this function is only used to determine function arguments of a function prototype
   // So if we have .func abc(x,y) {x+y+10}
@@ -908,6 +964,12 @@ private:
   bool isVTDependent_;
   bool isFreqDependent_;
   bool isGminDependent_;
+
+  bool isShallowTimeDependent_;
+  bool isShallowTempDependent_;
+  bool isShallowVTDependent_;
+  bool isShallowFreqDependent_;
+  bool isShallowGminDependent_;
 
   bool overrideGroupTemperature_;
   double overrideTemp_;
