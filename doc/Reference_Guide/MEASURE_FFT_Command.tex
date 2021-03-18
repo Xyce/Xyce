@@ -163,7 +163,8 @@ parameters on the associated {\tt .FFT} line.  The default value is 1.
 
 \argument{NBHARM=value}
 The maximum (integer) number of harmonics over which to perform a THD measure.
-The default value is {\tt NP/2}.
+The default value is {\tt NP/2}.  The {\tt NBHARM} qualifier has precedence
+over the {\tt MAXFREQ} qualifier if both are given on a {\tt .MEASURE} line.
 
 \argument{PRECISION=value}
 
