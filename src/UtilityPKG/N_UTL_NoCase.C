@@ -30,6 +30,7 @@
  */
 
 #include <N_UTL_NoCase.h>
+#include <cstring>
 
 namespace Xyce {
 
