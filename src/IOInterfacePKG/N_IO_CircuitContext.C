@@ -710,10 +710,13 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         // might still have a "special" in it.  That is not allowed, since .PARAM
         // parameters are supposed to be constant and the user can (for example)
         // .STEP over specials like TEMP.
+        //
+        // ERK.  3/18/2021.  This is allowed now, but only via indirect dependence.
+        // Hence, the call to "getShallowSpecials" rather than "getSpecials".
         if (parameter.getType() ==  Xyce::Util::EXPR)
 	      {
           std::vector<std::string> specials;
-          parameter.getValue<Util::Expression>().getSpecials(specials);
+          parameter.getValue<Util::Expression>().getShallowSpecials(specials);
           if (!specials.empty())
 	        {
 	          Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
