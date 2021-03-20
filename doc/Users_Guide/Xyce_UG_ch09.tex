@@ -1755,11 +1755,66 @@ C1 2 0 {cap}
   {Transient adjoint sensitivity result.
 \label{transientAdjointSensitivityResult}}
 \end{figure}
-Results for the transient adjoint example are given in figure .  The
+Results for the transient adjoint example are given in 
+figure~\ref{transientAdjointSensitivityResult}.  The
 analytic sensitivity solution is given by the dashed line and the
 computed numerical sensitivity is given by the solid line.  The
 results match very well in this case, with the two lines right on top
 of each other.
+
+\paragraph{Guidance for running transient adjoint analysis}
+Transient adjoint sensitivities need to perform a backward time integration, 
+after the original transient forward problem has completed.    So, generally, 
+when running a transient adjoint netlist, the user may notice a pause in the 
+calculation at the very end.  This is normal.
+
+It is also important to understand that if using a point objective, the 
+transient adjoint algorithm will consider every time step to be a unique, 
+separate objective, and will need to perform a backward integration for each one.  
+So, it will usually be important to restrict this to a limited number of time 
+steps, or ideally a single time point.
+
+To perform the adjoint calculation on a range of times, this can be set using 
+the \texttt{.OPTIONS SENSITIVITY} commands \texttt{ADJOINTBEGINTIME} and 
+\texttt{ADJOINTFINALTIME}.  Each of these must be set equal to a floating point
+number in units of seconds.  To perform the adjoint calculation on a discrete 
+set of time points (or a single time point), this can be set using using the 
+\texttt{.OPTIONS SENSITIVITY} command \texttt{ADJOINTTIMEPOINTS} followed by a 
+comma-separated list of times in units of seconds.  An example netlist, which 
+uses this capability is shown in figure~\ref{Tran_Adjoint_Sensitivity_Netlist2}.  
+It is identical to the netlist shown in figure~\ref{Tran_Adjoint_Sensitivity_Netlist} 
+except that this command has been added.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}*Test of transient adjoint sensitivities \color{black}
+.param cap=1e-6
+.param res=1e3
+
+V1 1 0 0.0 sin (0.0 1.0 200 0.0 0.0 0.0 )
+R1 1 2 {res}
+C1 2 0 {cap}
+
+.tran 1.0e-6 0.5e-2
+.print tran format=tecplot V(1) V(2) 
+.print TRANADJOINT format=tecplot
+
+.options timeint method=gear reltol=1.0e-6 abstol=1e-6
+
+* Sensitivity commands
+.SENS objfunc={V(2)} param=R1:R,C1:C
+.options SENSITIVITY direct=0 adjoint=1
+\color{red}+ adjointTimePoints=0.1e-2, 0.2e-2, 0.3e-2, 0.4e-2 \color{black}
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Adjoint Transient Sensitivity Example Netlist for list of time points]
+{Adjoint Transient Sensitivity Example Netlist for list of time points\label{Tran_Adjoint_Sensitivity_Netlist2} }
+\end{centering}
+\end{figure}
 
 \clearpage
 \subsection{AC Sensitivities}
@@ -1769,14 +1824,14 @@ sensitivities are supported.  An example netlist which exercises the
 capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
 
 The netlist commands for AC sensitivities are very similar to those
-for DC, but with some small exceptions.   As of this writing, objective 
-functions for this capability have not been implemented to use the 
-expression library.  As such, the
-\texttt{objfunc} parameter will not work with AC sensitivities, and
-the user should instead specify outputs using \texttt{objvars}
-followed by a list of node names.  The sensitivities that are computed
-will be for the voltages at the listed nodes, with respect to the list
-of sensitivity parameters.
+for DC, but with some small exceptions.   
+
+Objective functions can be set in two ways.  One is to 
+specify outputs using \texttt{objvars}
+followed by a list of node names.    The other is to use the expression library, using the \texttt{acobjfunc} parameter.
+The sensitivities that are computed
+will be for the voltages at the listed nodes, or for the listed objective functions, with respect to the list
+of sensitivity parameters.  It is currently not  possible to specify both types of objectives in the same netlist.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
