@@ -664,19 +664,18 @@ void FFTAnalysis::calculateFFT_()
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
 //                 frequency.
-// Special Notes : The SFDR only considers frequencies > the first harmonic if
-//                 FMIN is not given.
+// Special Notes :
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 2/9/2021
 //-----------------------------------------------------------------------------
 void FFTAnalysis::calculateSFDR_()
 {
-  for (int i=1; i<=np_/2; i++)
+  int lowerLim = getLowerLimforSFDR_(fminIdx_, fmaxIdx_, fminGiven_);
+
+  for (int i=lowerLim; i<=fmaxIdx_; i++)
   {
-    if ( (i!=fhIdx_) && (mag_[i] > sfdr_) &&
-         ( (!fminGiven_ && (i> fhIdx_)) || (fminGiven_&& (i>=fminIdx_)) ) &&
-         (i<=fmaxIdx_) )
+    if ( (i!=fhIdx_) && (mag_[i] > sfdr_) )
     {
       sfdr_ = mag_[i];
       sfdrIndex_ = i;
@@ -697,29 +696,46 @@ void FFTAnalysis::calculateSFDR_()
 //                 FREQ value rounded to the nearest harmonic of the fundamental
 //                 frequency.  This version is used by MEASURE FFT, and changes
 //                 no private variables.
-// Special Notes : The SFDR only considers frequencies > the first harmonic if
-//                 FMIN is not given.
+// Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 3/15/2021
 //-----------------------------------------------------------------------------
-double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex,
-                                            bool fminGivn, bool fmaxGivn) const
+double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const
 {
   double sfdrVal = 0;
+  int lowerLim = getLowerLimforSFDR_(fminIndex, fmaxIndex, fminGivn);
 
-  for (int i=1; i<=np_/2; i++)
+  for (int i=lowerLim; i<=fmaxIndex; i++)
   {
-    if ( (i!=fhIdx_) && (mag_[i] > sfdrVal) &&
-         ( (!fminGivn && (i> fhIdx_)) || (fminGivn && (i>=fminIndex)) ) &&
-         (i<=fmaxIndex) )
-    {
+    if ( (i!=fhIdx_) && (mag_[i] > sfdrVal) )
       sfdrVal = mag_[i];
-    }
   }
 
   // units are dB
   return 20*log10(mag_[fhIdx_]/sfdrVal);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::getLowerLimForSFDR_()
+// Purpose       : Adjust the lower frequency-limit for the SFDR calculation for
+//                 the case where FMAX is given, but FMIN is not.  For that case,
+//                 the effective FMIN is modified if FMAX is greater than, or
+//                 equal to, the first harmonic.
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/20/2021
+//-----------------------------------------------------------------------------
+int FFTAnalysis::getLowerLimforSFDR_(int fminIndex, int fmaxIndex, bool fminGivn) const
+{
+  // this value is correct if FMIN was not given
+  int lowerLim = fminIndex;
+
+  if (!fminGivn && (fmaxIndex >= fhIdx_))
+      lowerLim = fhIdx_;
+
+  return lowerLim;
 }
 
 //-----------------------------------------------------------------------------
@@ -741,9 +757,12 @@ double FFTAnalysis::calculateSNR(int fmaxIndex) const
   double snrVal=0;
   bool noiseFreqFound=false;
 
+  // if FMAX is less than the first harmomic then use the first harmonic instead
+  int signalFreqLim = std::max(fmaxIndex,fhIdx_);
+
   for (int i=1; i<=np_/2; i++)
   {
-    if ( (i%fhIdx_ !=0) || (i > fmaxIndex) )
+    if ( (i%fhIdx_ !=0) || (i > signalFreqLim) )
     {
       noise += mag_[i]*mag_[i];
       noiseFreqFound=true;
@@ -807,11 +826,8 @@ double FFTAnalysis::calculateTHD(int fmaxIndex) const
 {
   double thdVal = 0;
 
-  for (int i=2*fhIdx_; i<=np_/2; i+=fhIdx_)
-  {
-    if (i<=fmaxIndex)
+  for (int i=2*fhIdx_; i<=fmaxIndex; i+=fhIdx_)
       thdVal += mag_[i]*mag_[i];
-  }
 
   // Don't take 20*log10() for THD, since both the actual value and dB value are output later.
   return sqrt(thdVal)/mag_[fhIdx_];
