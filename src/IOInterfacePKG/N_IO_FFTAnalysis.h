@@ -112,7 +112,10 @@ public:
   // getters used by .MEASURE FFT objects
   int getNP() const {return np_;}
   bool isCalculated() const {return calculated_;}
+
+  // these functions are used by Measure FFT
   double getFundamentalFreq() const { return fundFreq_;}
+  double getFirstHarmIdx() const { return fhIdx_;}
   double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
   double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
@@ -120,10 +123,13 @@ public:
   double getMagVal(const int index) const { return mag_[index];}
   double getPhaseVal(const int index) const { return phase_[index];}
   double getENOB() const {return enob_;}
-  double getSFDR() const {return sfdr_;}
   double getSNDR() const {return sndr_;}
+  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, bool fmaxGivn) const;
+
+  // these functions are used by both FFTAnalysis and Measure FFT
   double calculateSNR(int fmaxIndex) const;
-  double getTHD() const {return thd_;}
+  double calculateTHD(int fmaxIndex) const;
+  double convertTHDtoDB(double thdVal) const;
 
 private:
   void calculateResults_();
@@ -133,7 +139,6 @@ private:
   void calculateFFT_();
   void calculateSFDR_();
   void calculateSNDRandENOB_();
-  void calculateTHD_();
 
   std::ostream& printResult_( std::ostream& os );
 

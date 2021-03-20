@@ -61,7 +61,7 @@ class AugmentLinSysIC : public AugmentLinSys {
 
 public:
   //! Ctor.
-  AugmentLinSysIC(Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
+  AugmentLinSysIC(Xyce::IO::InitialConditionsData::NodeLidValueMap & op_in,
                   const std::vector<int>& colors,
                   Xyce::Linear::Vector* cloneVector);
 
@@ -78,7 +78,7 @@ public:
  private:
 
   //! map of specified variables
-  Xyce::IO::InitialConditionsData::NodeNamePairMap & op_;
+  Xyce::IO::InitialConditionsData::NodeLidValueMap & op_;
 
   //! Color 0 are the voltage unknowns.
   const std::vector<int> & colors_;

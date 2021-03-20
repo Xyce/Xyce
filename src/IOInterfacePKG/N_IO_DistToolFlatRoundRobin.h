@@ -99,6 +99,13 @@ protected:
   bool parseIncludeFile(std::string const& includeFiles,
                         const std::string &libSelect);
 
+  // helper function for parseIncludeFile()
+  void restorePrevssfInfo(
+    SpiceSeparatedFieldTool* oldssfPtr,
+    const std::string& old_netlistFilename,
+    int oldFilePos,
+    int oldLineNumber);
+
   bool expandSubcircuitInstance(DeviceBlock & subcircuitInstance,
                                 const std::string &libSelect,
                                 std::vector<std::string> &libInside)

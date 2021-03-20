@@ -476,6 +476,23 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getShallowSpecials
+// Purpose       : 
+// Special Notes : does this need to catch GMIN as well?
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2021
+//-----------------------------------------------------------------------------
+void Expression::getShallowSpecials (std::vector<std::string> & specials) const
+{
+  specials.clear();
+  if (newExpPtr_->getShallowTimeDependent()) { specials.push_back(std::string("TIME")); }
+  if (newExpPtr_->getShallowTempDependent()) { specials.push_back(std::string("TEMP")); }
+  if (newExpPtr_->getShallowVTDependent()) { specials.push_back(std::string("VT")); }
+  if (newExpPtr_->getShallowFreqDependent()) { specials.push_back(std::string("FREQ")); }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getVariables
 //
 // Purpose       : This function returns the names of parameters in the expression 

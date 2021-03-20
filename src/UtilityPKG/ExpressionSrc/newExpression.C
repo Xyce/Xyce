@@ -239,6 +239,15 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
+  // set up the shallow specials flags
+  {
+    isShallowTimeDependent_ = isTimeDependent_;
+    isShallowTempDependent_ = isTempDependent_;
+    isShallowVTDependent_ = isVTDependent_;
+    isShallowFreqDependent_ = isFreqDependent_;
+    isShallowGminDependent_ = isGminDependent_;
+  }
+
   // if dependent on a special, add relevant specials node to the relevant specials vector
   if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
   {

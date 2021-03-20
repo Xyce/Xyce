@@ -35,7 +35,11 @@ else
 endif
 
 # standalone executable
-check_PROGRAMS = testGenCoup
+check_PROGRAMS = testGenCoup TestGH19
 testGenCoup_SOURCES = testGenCoup.C
 testGenCoup_LDADD = $(top_builddir)/src/libxyce.la $(RADLD) $(NONFREELD) $(ADMSLD) $(NEURONLD)
 testGenCoup_LDFLAGS = -static $(AM_LDFLAGS) $(DAKOTA_OBJS)
+
+TestGH19_SOURCES = TestGH19.C
+TestGH19_LDADD = $(top_builddir)/src/libxyce.la $(RADLD) $(NONFREELD) $(ADMSLD) $(NEURONLD)
+TestGH19_LDFLAGS = -static $(AM_LDFLAGS) $(DAKOTA_OBJS)

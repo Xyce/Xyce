@@ -45,6 +45,7 @@
 
 #include <N_LAS_fwd.h>
 #include <N_PDS_fwd.h>
+#include <N_UTL_fwd.h>
 #include <Teuchos_RCP.hpp>
 
 // ---------- Forward Declarations ----------
@@ -78,6 +79,13 @@ Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );
 
 Importer* createImporter( const Parallel::ParMap & target_map, const Parallel::ParMap & source_map );
+
+// Set vector values (used for .IC)
+void setInitialConditions( const System& system, Vector& vector,
+                           const std::map<int, double>& op );
+
+void setInitialConditions( const System& system, Vector& vector,
+                           const NodeNameMap & op, double value );
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues

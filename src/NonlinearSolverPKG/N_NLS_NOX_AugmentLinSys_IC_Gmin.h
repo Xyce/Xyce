@@ -69,7 +69,7 @@ class AugmentLinSysIC_Gmin : public AugmentLinSys {
     //! Ctor.
     AugmentLinSysIC_Gmin
     ( NodeListType node_list_type,
-      Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
+      Xyce::IO::InitialConditionsData::NodeLidValueMap & op_in,
       const std::vector<int>& ic_colors,
       const std::vector<int>& vnodeVec,
       Xyce::Linear::Vector* cloneVector,
@@ -101,7 +101,7 @@ class AugmentLinSysIC_Gmin : public AugmentLinSys {
     double residualConductance_;
 
     //! map of specified variables
-    Xyce::IO::InitialConditionsData::NodeNamePairMap & op_;
+    Xyce::IO::InitialConditionsData::NodeLidValueMap & op_;
 
     //! Color 0 are the voltage unknowns.
     //! For the IC color map, the voltage nodes attached to

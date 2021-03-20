@@ -636,17 +636,12 @@ bool NOISE::doInit()
   loader_.setInitialGuess (analysisManager_.getDataStore()->nextSolutionPtr);
 
   // If available, set initial solution (.IC, .NODESET, etc).
-  // setInputOPFlag(
-  //   outputManagerAdapter_.setupInitialConditions(
-  //     *analysisManager_.getDataStore()->nextSolutionPtr,
-  //     *linearSystem_.getFlagSolVector()));
-
   setInputOPFlag(
     initialConditionsManager_.setupInitialConditions(outputManagerAdapter_.getComm(),
                                                      topology_.getSolutionNodeNameMap(),
                                                      outputManagerAdapter_.getAliasNodeMap(),
                                                      *analysisManager_.getDataStore()->nextSolutionPtr,
-                                                     *linearSystem_.getFlagSolVector()));
+                                                     linearSystem_));
 
   // Set a constant history for operating point calculation
   analysisManager_.getDataStore()->setConstantHistory();

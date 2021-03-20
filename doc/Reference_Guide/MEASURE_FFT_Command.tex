@@ -21,22 +21,24 @@ The syntaxes for the \texttt{.MEASURE FFT} statements are shown below.
 .MEASURE FFT <result name> ENOB <variable>
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> EQN <expression>
+.MEASURE FFT <result name> EQN <variable>
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE FFT <result name> FIND <variable> AT=<value>
 + [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> SFDR <expression>
+.MEASURE FFT <result name> SFDR <variable>
++ [MINFREQ=<value>] [MAXFREQ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> SNDR <expression>
+.MEASURE FFT <result name> SNDR <variable>
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> SNR <expression>
+.MEASURE FFT <result name> SNR <variable> [MAXFREQ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> THD <expression> [NBHARM=<value>]
+.MEASURE FFT <result name> THD <variable>
++ [NBHARM=<value>] [MAXFREQ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 \end{alltt}
@@ -79,9 +81,7 @@ If multiple measures are defined with the same \texttt{<result name>} then
 \texttt{ENOB, EQN, FIND, SFDR, SNDR, SNR, THD}
 
 The third argument specifies the type of measurement or calculation to
-be done.
-
-By default, the measurement is performed over the time window defined
+be done. By default, the measurement is performed over the time window defined
 by the {\tt START} and {\tt STOP} parameters on the associated {\tt .FFT}
 line.  So, the  {\tt FROM}, {\tt TO} and {\tt TD} qualifiers have no
 effect on FFT-based measures.
@@ -92,20 +92,20 @@ The supported measure types are:
   \item[\tt ENOB] Calculates the ``Effective Number of Bits'', where that metric
     is defined further below.
 
-  \item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation.
-    That expression can use the results of other measure statements. {\tt PARAM}
+  \item[\tt EQN] Calculates the value of {\tt <variable>} during the simulation.
+    That variable can use the results of other measure statements. {\tt PARAM}
     is an allowed synonym for {\tt EQN} as a measure type.
 
   \item[\tt FIND] Returns the requested FFT cofficient at the requested
     frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM})
     to FFT cofficients are given below.  {\tt FIND} measures can be
-    used in conjunction with {\tt EQN} measures to generate arbitrary
+    used in conjunction with {\tt EQN} measures to generate fairly arbitrary
     FFT-based measures.  An example of that is also given below.
 
   \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
     is defined further below.
 
-  \item[\tt SFDR] Calculates the ``Signal to Noise-plus-Distortion Ratio'', where that metric
+  \item[\tt SNDR] Calculates the ``Signal to Noise-plus-Distortion Ratio'', where that metric
     is defined further below.
 
   \item[\tt SNR] Calculates the ``Signal to Noise Ratio'', where that metric
@@ -115,15 +115,16 @@ The supported measure types are:
     is defined further below.
 \end{description}
 
-\argument{\vbox{\hbox{variable\hfil}\hbox{variable\(\sb{n}\)\hfil}\hbox{value}}}
+\argument{variable}
 
-These quantities represents the test for the stated
-measurement.  \texttt{<variable>} is a simulation quantity, such as a
+The \texttt{<variable>} is a simulation quantity, such as a
 voltage or current.  Additionally, the \texttt{<variable>} may be
 a \Xyce{} expression delimited by \{ \} brackets.  The only constraint
 is that the \texttt{variable} on the \texttt{.MEASURE FFT} line must
 be an exact match for the \texttt{ov} on at least one \texttt{.FFT} line
-in the netlist.
+in the netlist.  If there are multiple \texttt{.FFT} lines in the netlist
+with the same \texttt{ov} then the corresponding \texttt{.MEASURE FFT}
+statements will use the first such one.
 
 \argument{AT=value}
 A frequency {\em at which} the measurement calculation will occur.  This is
@@ -146,10 +147,24 @@ netlist then those values override the \texttt{DEFAULT\_VAL}
 parameters given on individual \texttt{.MEASURE FFT} lines.
 See Section \ref{Options_Reference} for more details.
 
-\argument{NBHARM}
-The maximum number of harmonics over which to perform a THD measure.
-The default is {\tt NP/2}, where {\tt NP} is the number of points
-specified on the associated {\tt .FFT} line.
+\argument{MAXFREQ=value}
+The maximum frequency over which to perform a {\tt SFDR}, {\tt SNR}
+or {\tt THD} measure. The entered {\tt MAXFREQ} value will be rounded
+to the nearest harmonic frequency, as defined by the {\tt FREQ},
+{\tt START} and {\tt STOP} parameters on the associated {\tt .FFT}
+line.  The default value is {\tt NP/2}, where {\tt NP} is the number
+of points specified on the associated {\tt .FFT} line.
+
+\argument{MINFREQ=value}
+The minimum frequency over which to perform a {\tt THD} measure.
+The entered {\tt MINFREQ} value will be rounded to the nearest harmonic
+frequency, as defined by the {\tt FREQ}, {\tt START} and {\tt STOP}
+parameters on the associated {\tt .FFT} line.  The default value is 1.
+
+\argument{NBHARM=value}
+The maximum (integer) number of harmonics over which to perform a THD measure.
+The default value is {\tt NP/2}.  The {\tt NBHARM} qualifier has precedence
+over the {\tt MAXFREQ} qualifier if both are given on a {\tt .MEASURE} line.
 
 \argument{PRECISION=value}
 

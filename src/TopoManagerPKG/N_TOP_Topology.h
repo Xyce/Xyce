@@ -142,8 +142,6 @@ public:
 
   void regenerateGIDNodeMap();
 
-  bool generateICLoader(Device::DeviceMgr &device_manager);
-
   // Restart capability.
   bool getRestartNodes(Analysis::AnalysisManager &analysis_manager, std::vector< IO::RestartNode * > & nodeVec);
   bool restoreRestartNodes(Analysis::AnalysisManager &analysis_manager, const std::vector< IO::RestartNode * > & nodeVec);

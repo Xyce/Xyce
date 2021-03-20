@@ -441,7 +441,8 @@ double SFDR::getMeasureResult()
   if ( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->getSFDR();
+    calculationResult_ = fftAnalysisPtr_->calculateSFDRforMeasFFT(minFreqIdx_, maxFreqIdx_,
+                                              minFreqGiven_, maxFreqGiven_);
   }
   return calculationResult_;
 }
@@ -601,27 +602,25 @@ double THD::getMeasureResult()
     initialized_ = true;
     double thd=0;
 
-    if (!nbHarmGiven_ || ((2*nbHarm_ >= np_) || (nbHarm_ <=0)) )
+    // this accounts for use of FREQ qualifier on the associated .FFT line
+    int nbHarmAdjusted = nbHarm_*fftAnalysisPtr_->getFirstHarmIdx();
+
+    if (!nbHarmGiven_)
+    {
+      thd = fftAnalysisPtr_->calculateTHD(maxFreqIdx_);
+    }
+    else if ((2*nbHarmAdjusted >= np_) || (nbHarm_ <=0))
     {
       // use THD value calculated with all of the harmonics
-      thd = fftAnalysisPtr_->getTHD();
-    }
-    else if (nbHarm_ == 1)
-    {
-      // to match HSPICE, rather than returning an inf
-      thd = fftAnalysisPtr_->getNoiseFloor();
+      thd = fftAnalysisPtr_->calculateTHD(np_/2);
     }
     else
     {
-      // need to recalculate the THD for the requested number of harmonics
-      std::vector<double> mag = fftAnalysisPtr_->getMagVec();
-      for (int i=2; i<=nbHarm_; i++)
-        thd += mag[i]*mag[i];
-      thd = sqrt(thd)/mag[1];
+      thd = fftAnalysisPtr_->calculateTHD(nbHarmAdjusted);
     }
 
-    // return measure result in dB
-    calculationResult_ = 20*log10(thd);
+    // return measure result in dB, incorporating noise floor from .FFT
+    calculationResult_ = fftAnalysisPtr_->convertTHDtoDB(thd);
   }
 
   return calculationResult_;
@@ -645,10 +644,7 @@ std::ostream& THD::printVerboseMeasureResult(std::ostream& os)
     {
       os << name_ << " = " << this->getMeasureResult();
       if (nbHarmGiven_ && (nbHarm_ >=1))
-      {
-        int maxHarm = np_/2;
-        os << " up to the harmonic: " << std::min(nbHarm_, maxHarm);
-      }
+        os << " up to the harmonic: " << nbHarm_;
       os << std::endl;
     }
     else

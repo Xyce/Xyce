@@ -1861,15 +1861,17 @@ bool CircuitBlock::parseIncludeFile(
     if ( !(Util::checkIfValidFile(includeFile)) )
     {
       Report::UserError0() << "Could not find include file " << includeFile;
+      restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
       return false;
     }
-     
+
     // Using binary to avoid issues with compiler/plat
     // *fstream differences in implementation
     includeIn->open( includeFile.c_str(), std::ios::in | std::ios::binary );
     if ( !includeIn->is_open() )
     {
       Report::UserError0() << "Could not open include file " << includeFile;
+      restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
       return false;
     }
 
@@ -1907,6 +1909,30 @@ bool CircuitBlock::parseIncludeFile(
       break;
   }
 
+  restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
+
+  if (DEBUG_IO)
+    Xyce::dout() << "CircuitBlock::parseIncludeFile: finished with include file: " << includeFile << std::endl;
+
+  return true;
+}
+
+//--------------------------------------------------------------------------
+// Function      : CircuitBlock::restorePrevssfInfo
+// Purpose       : This is a helper function for parseIncludeFile(). It
+//                 restores the information about the previous file. It
+//                 should be called before each return statement in that
+//                 function.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/11/2020
+//--------------------------------------------------------------------------
+void CircuitBlock::restorePrevssfInfo(
+  SpiceSeparatedFieldTool* oldssfPtr,
+  const std::string& old_netlistFilename,
+  int oldFilePos,
+  int oldLineNumber)
+{
   // Restore old ssfPtr_ and netlistFilename_.
   ssfPtr_ = oldssfPtr;
 
@@ -1917,10 +1943,7 @@ bool CircuitBlock::parseIncludeFile(
   ssfPtr_->setLocation(oldFilePos);
   ssfPtr_->setLineNumber(oldLineNumber);
 
-  if (DEBUG_IO)
-    Xyce::dout() << "CircuitBlock::parseIncludeFile: finished with include file: " << includeFile << std::endl;
-
-  return true;
+  return;
 }
 
 //--------------------------------------------------------------------------

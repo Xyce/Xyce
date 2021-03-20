@@ -163,7 +163,7 @@ public:
   // Create augmented linear system, IC version
     Teuchos::RCP<AugmentLinSys>
     createAugmentLinearSystem(Xyce::Linear::System* ls,
-                              Xyce::IO::InitialConditionsData::NodeNamePairMap & op,
+                              Xyce::IO::InitialConditionsData::NodeLidValueMap & op,
                               bool gminStepping=false) const;
 
 private:

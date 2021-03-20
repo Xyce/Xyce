@@ -75,6 +75,14 @@ unsigned get_message_count(unsigned message_type);
 void reset_message_count(unsigned message_type);
 
 /**
+ * @brief Member function <b>reset_message_counts</b> ...
+ *
+ * Reset all message counts
+ *
+ */
+void reset_message_counts();
+
+/**
  * @brief Member function <b>set_max_message_count</b> ...
  *
  * @param message_type		an <b>unsigned int</b> ...

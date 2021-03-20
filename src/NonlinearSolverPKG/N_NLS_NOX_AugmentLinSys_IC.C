@@ -63,7 +63,7 @@ namespace N_NLS_NOX {
 // Creation Date : 9/15/07
 //-----------------------------------------------------------------------------
 AugmentLinSysIC::AugmentLinSysIC
-  (IO::InitialConditionsData::NodeNamePairMap & op_in,
+  (IO::InitialConditionsData::NodeLidValueMap & op_in,
   const std::vector<int>& colors,
   Linear::Vector* cloneVector
   )
@@ -102,11 +102,11 @@ void AugmentLinSysIC::augmentResidual
   dout() << "Inside AugmentLinSysIC::augmentResidual:"  << std::endl;
 #endif
 
-  IO::InitialConditionsData::NodeNamePairMap::iterator op_i = op_.begin();
-  IO::InitialConditionsData::NodeNamePairMap::iterator op_end = op_.end();
+  IO::InitialConditionsData::NodeLidValueMap::iterator op_i = op_.begin();
+  IO::InitialConditionsData::NodeLidValueMap::iterator op_end = op_.end();
   for ( ; op_i != op_end ; ++op_i)
   {
-    int row = (*op_i).second.first;
+    int row = (*op_i).first;
 
     if ( colors_[row] == 0)
     {
@@ -132,14 +132,14 @@ void AugmentLinSysIC::augmentJacobian(Linear::Matrix * jacobian)
 
   std::vector<int> col;
   std::vector<double> val;
-  IO::InitialConditionsData::NodeNamePairMap::iterator op_i = op_.begin();
-  IO::InitialConditionsData::NodeNamePairMap::iterator op_end = op_.end();
+  IO::InitialConditionsData::NodeLidValueMap::iterator op_i = op_.begin();
+  IO::InitialConditionsData::NodeLidValueMap::iterator op_end = op_.end();
 
   jacobian->getDiagonal(*tmp_vector_ptr_);
 
   for ( ; op_i != op_end ; ++op_i)
   {
-    int row = (*op_i).second.first;
+    int row = (*op_i).first;
     int rowLen(0);
     int numEntries(0);
 

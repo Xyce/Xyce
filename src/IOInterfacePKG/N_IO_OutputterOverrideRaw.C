@@ -43,6 +43,7 @@
 #include <N_UTL_DeleteList.h>
 #include <N_UTL_Marshal.h>
 #include <N_UTL_Version.h>
+#include <N_UTL_NoCase.h>
 
 namespace Xyce {
 namespace IO {
@@ -248,12 +249,10 @@ void OverrideRaw::timeHeader(Parallel::Machine comm)
         tmpNodeName = "V(" +(global[i]).first + ")";
       }
 
-      std::string::size_type uPos = tmpNodeName.rfind( "_", tmpNodeName.size());
-      if (uPos != std::string::npos)
+      if (endswith_nocase(tmpNodeName,"_branch"))
       {
-        tmpNodeName.replace( uPos, 1, "#");
+        tmpNodeName.replace(tmpNodeName.end()-7,tmpNodeName.end()-6,"#");
       }
-
       os << "\t" << i + 1 << "\t" << tmpNodeName << "\t";
 
       if (global[i].second == 'I' || global[i].second == 'i')
@@ -443,10 +442,9 @@ void OverrideRaw::frequencyHeader(Parallel::Machine comm)
         tmpNodeName = "V(" + global[i].first + ")";
       }
 
-      uPos = tmpNodeName.rfind( "_", tmpNodeName.size());
-      if (uPos != std::string::npos)
+      if (endswith_nocase(tmpNodeName,"_branch"))
       {
-        tmpNodeName.replace( uPos, 1, "#");
+        tmpNodeName.replace(tmpNodeName.end()-7,tmpNodeName.end()-6,"#");
       }
 
       (*os_) << "\t" << i + 1 << "\t" << tmpNodeName << "\t";

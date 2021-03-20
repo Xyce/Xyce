@@ -24,15 +24,35 @@
 \small
 
 \begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
-     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
-     SON, which is on the open network, and SRN, which is on the restricted network.  We are also 
-     transitioning from bugzilla to gitlab issue tracking.} \\ \hline
+     \caption{Fixed Defects.  Note that we have multiple issue
+     tracking systems for Sandia users.  SON, which bugzilla on the
+     open network, and SRN, which is bugzilla on the restricted
+     network.  We are also transitioning from bugzilla to gitlab issue
+     tracking.  Further, some issues are reported by open source users
+     on GitHub and these issues may be tracked using multiple issue
+     numbers.} \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endfirsthead
      \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+\textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
+If a user code links to the Xyce libraries and allocates objects of
+one of the Xyce simulator classes (either the base class
+Xyce::Circuit::Simulator class or any of its derived classes) more
+than once, the error manager's use of static data to keep count of
+errors caused any failing simulation to cause all subsequent
+simulations to fail.  Now, each simulator object clears the error
+manager's error counts upon construction.
+
+This fix does not eliminate problems related to the use of static data
+in the error handling package.  Specifically, if multiple simulator
+objects were run simultaneously in different threads then any fatal
+error in any object's simulation would cause all to fail.  At this
+time only sequential allocation and operation of simulator objects in
+user code is supported. \\ \hline
+
 \textbf{Gitlab-ex issue 153/Github issue 21}: External Output Interface does not prepend TIME &
 The documentation of the external output interface in an application
 note claimed that if a user created an external output object that did
@@ -125,6 +145,30 @@ discontinuities in derivative occur and performs linear interpolation
 instead.  This prevents the small overshoots that have been observed
 in these cases in all prior versions of Xyce. \\ \hline
 
+\textbf{Gitlab-ex issue 137}: Address robustness issues in parallel restarting (BUG\_456) &
+Parallel regression testing illustrated failures in restarting.  The parallel hang 
+can be tracked down to the restoration of restart data and bad logic for
+distributing the RestartNode objects. \\ \hline
+
+\textbf{Gitlab-ex issue 149}: The BUG\_507\_SON test is failing on 4-processors in parallel &
+This weekly regression test failure on 4-processors was due to recent changes in the 
+parallel assignment of shared solution nodes.  A balanced assignment strategy was 
+implemented to address the issue. \\ \hline
+
+\textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
+Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
+has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
+syntax to read a file into a table.  A double quoted string is 
+now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
+has also been removed as it was used to signify a string.
+\\ \hline
+
+\textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
+To enable improved performance, Xyce now requires a C++11 capable compiler.
+Therefore, all the code conditionals related to C++11 features have been
+removed from the code. 
+\\ \hline
+
 \textbf{1203-SON}: Issues with temperature-dependent device
 instance-parameters that were expression-based & The values for
 temperature-dependent device instance parameters could be incorrect
@@ -145,19 +189,27 @@ R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \end{verbatim}
 \\ \hline
 
-\textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
-Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
-has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
-syntax to read a file into a table.  A double quoted string is 
-now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
-has also been removed as it was used to signify a string.
+\textbf{1239-SON}: Address failures when parallel regression testing uses up to 4 processors &
+Parallel regression testing illustrated failures when used on more than 2 processors
+. These failures were caused by test and code issues and have been addressed for testing up to 4 processors.
 \\ \hline
 
-\textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
-To enable improved performance, Xyce now requires a C++11 capable compiler.
-Therefore, all the code conditionals related to C++11 features have been
-removed from the code. 
+\textbf{1246-SON}: Supernoding seg faults / fails to remove all nodes in parallel &
+Parallel regression testing illustrated a failure to perform supernoding when run on more than 2
+processors.  This failure was caused by a code issue and has been addressed. 
 \\ \hline
+
+\textbf{1263-SON}: Oscillator HB seg faults when run in parallel using 4 processors or more &
+Parallel regression testing illustrated a failure to use the oscillator HB algorithm when run on 
+4 or more processors.  This failure was caused by a code issue and has been addressed. 
+\\ \hline
+
+\textbf{1311-SON}: PowerGridTransformer tests sometimes hang in parallel on more than 2 processors &
+Parallel regression testing illustrated failures of circuits that have PowerGridTransformer
+models when run on more than 2 processors.  These failures were caused by a code issue and has been
+addressed.
+\\ \hline
+
 
 \end{longtable}
 }

@@ -139,7 +139,6 @@ private:
 private:
   AnalysisManager &                     analysisManager_;
   Loader::Loader &                      loader_;
-  //Linear::System &                      linearSystem_;
   Linear::System *                      linearSystemPtr_;
   Nonlinear::Manager &                  nonlinearManager_;
   Topo::Topology &                      topology_;

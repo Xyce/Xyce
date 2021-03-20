@@ -30,25 +30,53 @@
  */
 
 #include <N_UTL_NoCase.h>
+#include <cstring>
 
 namespace Xyce {
 
-int compare_nocase(const char *s0, const char *s1) {
-  while (bit_tolowercorrect(*s0) == bit_tolowercorrect(*s1)) {
+int compare_nocase(const char *s0, const char *s1)
+{
+  while (bit_tolowercorrect(*s0) == bit_tolowercorrect(*s1))
+  {
     if (*s0++ == '\0')
+    {
       return 0;
+    }
     s1++;
   }
   return bit_tolowercorrect(*s0) - bit_tolowercorrect(*s1);
 }
 
-bool startswith_nocase(const char *s0, const char *s1) {
-  while (bit_tolowercorrect(*s0) == bit_tolowercorrect(*s1)) {
+bool startswith_nocase(const char *s0, const char *s1)
+{
+  while (bit_tolowercorrect(*s0) == bit_tolowercorrect(*s1))
+  {
     if (*s1++ == '\0')
+    {
       return true;
+    }
     s0++;
   }
   return *s1 == '\0';
+}
+
+bool endswith_nocase(const char *fullString, const char *ending)
+{
+  if (strlen(fullString) >= strlen(ending))
+  {
+    fullString += strlen(fullString)-strlen(ending);
+    while (bit_tolowercorrect(*fullString) == bit_tolowercorrect(*ending))
+    {
+      if (*ending++ == '\0')
+        return true;
+      fullString++;
+    }
+    return (*fullString == '0');
+  }
+  else
+  {
+    return false;
+  }
 }
 
 } // namepace Xyce

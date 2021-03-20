@@ -51,6 +51,7 @@
 #include <N_IO_DeviceBlock.h>
 #include <N_IO_ParameterBlock.h>
 #include <N_IO_ParsingHelpers.h>
+#include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Expression.h>
@@ -60,6 +61,50 @@
 namespace Xyce {
 namespace IO {
 
+//--------------------------------------------------------------------------
+// Function      : handleIncludeFilePath
+// Purpose       : Translate a relative path for an include file into the
+//                 correct relative path.  See SON Bug 1325 for more details.
+// Special Notes :
+// Creator       : Pete Sholander
+// Creation Date : 11/04/2020
+//--------------------------------------------------------------------------
+void handleIncludeFilePath(
+   const std::string& netlistFileName,
+   std::string& includeFile)
+{
+  if (includeFile.empty())
+    return;
+
+  size_t posLast = netlistFileName.find_last_of('/');
+  size_t posFirst = includeFile.find_first_of('/');
+
+  if ( (posFirst != std::string::npos) && (posFirst == 0) )
+  {
+    // include file path is absolute.  So, use it as is.
+    // Note this only works for Linux.  Additional work is needed to
+    // support Windows.
+  }
+  else if (posLast != std::string::npos)
+  {
+    // netlistFilename_ is not in the same subdirectory as the top-level netlist.
+    // So, make a file name with a path that is relative to the path to netlistFilename_
+    std::string includeFileWithRP = netlistFileName.substr(0,posLast+1) + includeFile;
+
+    // If includeFileWithRP exists then use it.  Otherwise, the fall-back is to
+    // assume that the path of includeFile is relative to the subdirectory of
+    // the top-level netlist.
+    if ( Util::checkIfValidFile(includeFileWithRP) )
+      includeFile = includeFileWithRP;
+  }
+  else
+  {
+    // no op, since netlistFilename_ is in the same subdirectory as the
+    // top-level netlist
+  }
+
+  return;
+}
 
 //--------------------------------------------------------------------------
 // Function      : handleIncludeLine
@@ -98,6 +143,9 @@ void handleIncludeLine(
     {
       includeFile = includeFileTmp;
     }
+
+    // account for relative paths in include file name
+    handleIncludeFilePath(netlistFileName, includeFile);
   }
   else
   {
@@ -133,6 +181,8 @@ void handleIncludeLine(
         << "Extraneous data on .INCLUDE ignored";
     }
   }
+
+  return;
 }
 
 //--------------------------------------------------------------------------

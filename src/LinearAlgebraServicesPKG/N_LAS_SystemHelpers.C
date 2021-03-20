@@ -50,12 +50,75 @@
 #include <N_LAS_Graph.h>
 
 #include <N_LAS_System.h>
+#include <N_LAS_Builder.h>
 #include <N_LAS_QueryUtil.h>
 
 #include <N_ERH_ErrorMgr.h>
 
 namespace Xyce {
 namespace Linear {
+
+// Set vector values (used for .IC)
+void setInitialConditions( const System& system, Vector& vector,
+                           const std::map<int, double>& op )
+{ 
+  BlockVector* b_vector = dynamic_cast< BlockVector* >( &vector );
+  if (b_vector)
+  {
+    std::map<int, double> new_op( op );
+    system.builder().createInitialConditionOp( new_op );
+
+    for (std::map<int, double>::const_iterator it = new_op.begin();
+         it != new_op.end(); ++it)
+    {
+      vector[(*it).first] = (*it).second;
+    }
+  }
+  else
+  {
+    for (std::map<int, double>::const_iterator it = op.begin();
+         it != op.end(); ++it)
+    {
+      vector[(*it).first] = (*it).second;
+    }
+  }
+
+  // Import overlaps for shared nodes
+  vector.importOverlap();
+}
+
+void setInitialConditions( const System& system, Vector& vector,
+                           const NodeNameMap& op, double value )
+{
+  BlockVector* b_vector = dynamic_cast< BlockVector* >( &vector );
+  if (b_vector)
+  {
+    std::vector<int> new_op;
+    new_op.reserve( vector.globalLength() );
+
+    for (NodeNameMap::const_iterator it = op.begin(); it != op.end(); ++it)
+    {
+      new_op.push_back( (*it).second );
+    }
+    system.builder().createInitialConditionOp( new_op );
+
+    for (std::vector<int>::iterator it = new_op.begin(); it != new_op.end(); ++it)
+    {
+      vector[*it] = value;
+    }
+  }
+  else
+  {
+    for (NodeNameMap::const_iterator it = op.begin();
+         it != op.end(); ++it)
+    {
+      vector[(*it).second] = value;
+    }
+  }
+
+  // Import overlaps for shared nodes
+  vector.importOverlap();
+}
 
 //-----------------------------------------------------------------------------
 // Function      : extractValues

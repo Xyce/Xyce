@@ -60,6 +60,11 @@
 namespace Xyce {
 namespace IO {
 
+// translate a relative path for an include file into the correct relative path
+void handleIncludeFilePath(
+   const std::string& netlistFileName,
+   std::string& includeFileName);
+
 // Handle a netlist .include or .lib line, return the include file, and lib strings.
 void handleIncludeLine(
     const std::string& netlistFileName,

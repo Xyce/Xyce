@@ -99,6 +99,11 @@ class ESBuilder : public Builder
   //Coloring needed for imposing .IC and .NODESET
   const std::vector<int> & createInitialConditionColoring() const;
 
+  // Convert topology op data to analysis specific op data
+  bool createInitialConditionOp( std::map<int,double> & op ) const;
+
+  bool createInitialConditionOp( std::vector<int> & op ) const;
+
   bool generateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseMap, 
                      const Teuchos::RCP<Parallel::ParMap>& oBaseMap );
 

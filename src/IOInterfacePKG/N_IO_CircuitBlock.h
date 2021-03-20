@@ -431,6 +431,13 @@ private:
     const std::string & includeFile, const std::string & libSelect, 
     std::map<std::string,int> & fun, ModelMap & modMap);
 
+  // helper function for parseIncludeFile()
+  void restorePrevssfInfo(
+    SpiceSeparatedFieldTool* oldssfPtr,
+    const std::string& old_netlistFilename,
+    int oldFilePos,
+    int oldLineNumber);
+
   // Retrieve separate IC= data from line or external file and temporarily
   // store in CircuitBlock
   void handleInitCond(TokenVector const& parsedLine );

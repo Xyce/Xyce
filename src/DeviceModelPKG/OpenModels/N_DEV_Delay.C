@@ -606,7 +606,7 @@ bool Instance::getInstanceBreakPoints ( std::vector<Util::BreakPoint> & breakPoi
 //-----------------------------------------------------------------------------
 double Instance::getMaxTimeStepSize ()
 {
-  return (newBreakPoint_?TD_:1e99);
+  return 1e99;
 }
 
 //-----------------------------------------------------------------------------

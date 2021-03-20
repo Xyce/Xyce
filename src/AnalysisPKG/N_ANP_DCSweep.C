@@ -86,7 +86,6 @@ DCSweep::DCSweep(
   : AnalysisBase(analysis_manager, "DC Sweep"),
     analysisManager_(analysis_manager),
     loader_(loader),
-    //linearSystem_(linear_system),
     linearSystemPtr_(linear_system_ptr),
     nonlinearManager_(nonlinear_manager),
     topology_(topology),
@@ -338,18 +337,12 @@ void DCSweep::initializeSolution_()
   if ( !hbAnalysis_|| hbAnalysis_->getHBtranFlags())
 
   // If available, set initial solution (.IC, .NODESET, etc).
-  // setInputOPFlag(
-  //   outputManagerAdapter_.setupInitialConditions(
-  //     *analysisManager_.getDataStore()->nextSolutionPtr,
-  //     *linearSystem_.getFlagSolVector()));
-
     setInputOPFlag(
       initialConditionsManager_.setupInitialConditions(outputManagerAdapter_.getComm(),
                                                      topology_.getSolutionNodeNameMap(),
 						     outputManagerAdapter_.getAliasNodeMap(),
                                                      *analysisManager_.getDataStore()->nextSolutionPtr,
-                                                     //*linearSystem_.getFlagSolVector()));
-                                                     *(linearSystemPtr_->getFlagSolVector())));
+                                                     *linearSystemPtr_));
 
   // Set a constant history for operating point calculation
   analysisManager_.getDataStore()->setConstantHistory();
@@ -774,7 +767,6 @@ public:
   ///
   DCSweepFactory(
     Analysis::AnalysisManager &         analysis_manager,
-    //Linear::System &                    linear_system,
     Linear::System *                    linear_system_ptr,
     Nonlinear::Manager &                nonlinear_manager,
     Loader::Loader &                    loader,
@@ -782,7 +774,6 @@ public:
     IO::InitialConditionsManager &      initial_conditions_manager)
     : DCSweepFactoryBase(),
       analysisManager_(analysis_manager),
-      //linearSystem_(linear_system),
       linearSystemPtr_(linear_system_ptr),
       nonlinearManager_(nonlinear_manager),
       loader_(loader),
@@ -889,7 +880,6 @@ public:
 
 public:
   AnalysisManager &                     analysisManager_;
-  //Linear::System &                      linearSystem_;
   Linear::System *                      linearSystemPtr_;
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;

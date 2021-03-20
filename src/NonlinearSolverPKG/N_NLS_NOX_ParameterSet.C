@@ -1380,7 +1380,7 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls) const
 // Creation Date : 03/08/07
 //-----------------------------------------------------------------------------
 Teuchos::RCP<AugmentLinSys>
-ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialConditionsData::NodeNamePairMap & op,
+ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialConditionsData::NodeLidValueMap & op,
    bool gminStepping) const
 {
   Teuchos::RCP<AugmentLinSys> als;

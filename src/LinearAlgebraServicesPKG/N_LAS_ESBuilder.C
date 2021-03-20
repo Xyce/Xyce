@@ -406,6 +406,55 @@ const std::vector<int> & ESBuilder::createInitialConditionColoring() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ESBuilder::createSolnColoring
+// Purpose       : Given a map of lids to values, insert entries for all blocks
+//               : which represent each sample
+// Special Notes : This is the block version
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 03/16/21
+//-----------------------------------------------------------------------------
+bool ESBuilder::createInitialConditionOp( std::map<int,double> & op ) const
+{
+  int op_size = op.size(); 
+  std::map<int, double>::const_iterator it = op.begin(); 
+  for (int i=0 ; i<op_size; ++i, ++it)
+  { 
+    int lid = (*it).first;
+    for (int j=1; j<numSamples_; ++j)
+    {
+      int new_lid = j*numSolVariables_ + lid;
+      op[new_lid] = (*it).second;
+    }
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ESBuilder::createInitialConditionOp
+// Purpose       : Given a vector of  lids, insert entries for all blocks
+//               : which represent each sample
+// Special Notes : This is the block version
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 03/16/21
+//-----------------------------------------------------------------------------
+bool ESBuilder::createInitialConditionOp( std::vector<int>& op ) const
+{
+  int op_size = op.size(); 
+  for (int i=0 ; i<op_size; ++i)
+  { 
+    int lid = op[i];
+    for (int j=1; j<numSamples_; ++j)
+    {
+      int new_lid = j*numSolVariables_ + lid;
+      op.push_back( new_lid );
+    }
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ESBuilder::vnodeGIDVec()
 // Purpose       :
 // Special Notes : This is overridden for blockAnalysis types (like MPDE & HB)

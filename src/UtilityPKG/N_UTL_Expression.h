@@ -108,6 +108,7 @@ public:
   void getLeadCurrents        (std::vector<std::string> & leads) const;
   void getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const;
   void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
+  void getShallowSpecials     (std::vector<std::string> & specials) const;
   void getSpecials            (std::vector<std::string> & specials) const;
   void getVariables           (std::vector<std::string> & variables) const;
   void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
