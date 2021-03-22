@@ -92,7 +92,6 @@
 #include <N_DEV_PowerGridBusShunt.h>
 #include <N_DEV_PowerGridGenBus.h>
 #include <N_DEV_AntiWindupLimiter.h>
-#include <N_DEV_StepDelay.h>
 #include <N_DEV_Delay.h>
 
 namespace Xyce {
@@ -145,7 +144,6 @@ registerOpenDevices(const DeviceCountMap& deviceMap,
   PowerGridBusShunt::registerDevice(deviceMap, levelSet);
   PowerGridGenBus::registerDevice(deviceMap, levelSet);
   AntiWindupLimiter::registerDevice(deviceMap, levelSet);
-  StepDelay::registerDevice(deviceMap, levelSet);
   Delay::registerDevice(deviceMap, levelSet);
   Battery::registerDevice(deviceMap, levelSet);
   GeneralExternal::registerDevice(deviceMap, levelSet);
