@@ -66,7 +66,7 @@ cleanup ()
 
 runadms()
 {
-    admsXml -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
+    admsXml -D__XYCE__ -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
             -e ${xmldir}/xyceAnalogFunction_nosac.xml \
             -e ${xmldir}/xyceHeaderFile_nosac.xml \
             -e ${xmldir}/xyceImplementationFile_nosac.xml $1 \
