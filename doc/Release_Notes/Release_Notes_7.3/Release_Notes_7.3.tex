@@ -105,6 +105,10 @@ please visit the \XyceTM{} web page at
     rules.  This bug was only tripped when the condition for these
     loops was in some way operating point dependent, an unusual usage
     heretofore unseen in standard Verilog-A models.
+  \item The \texttt{buildxyceplugin} script will now define a
+    Xyce-specific symbol ``\_\_XYCE\_\_`` when it runs ADMS to
+    generate C++ code.  This symbol may be used in ifdefs in the
+    Verilog-A source code to isolate Xyce-specific Verilog-A code.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
