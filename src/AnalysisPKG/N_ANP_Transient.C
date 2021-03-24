@@ -2304,6 +2304,9 @@ bool Transient::saveTransientAdjointSensitivityInfoDCOP ()
 //-----------------------------------------------------------------------------
 bool Transient::doTransientAdjointSensitivity ()
 {
+  std::ostream &os = Xyce::lout();
+  os << "***** Beginning Transient Ajoint Sensitivity Calculation (reverse time integration)...\n" << std::endl;
+
   Stats::StatTop _solveTransientAdjointStat("Solve Transient Adjoint Loop");
   Stats::TimeBlock _solveTransientAdjointTimer(_solveTransientAdjointStat);
 
@@ -2439,6 +2442,7 @@ bool Transient::doTransientAdjointSensitivity ()
   transientAdjointSensOutputFooter();
   outputManagerAdapter_.finishSensitivityOutput ();
 
+  os << "***** End of Transient Ajoint Sensitivity Calculation\n" << std::endl;
   return true;
 }
 
@@ -3365,7 +3369,7 @@ void Transient::printProgress(std::ostream &os)
 
             // format and display output
             if (!quiet_)
-	    {
+            {
               if ( ( t != (time_t)-1 ) && ( strftime( timeStr, 255, "%c", now ) != 0 ) )
               {
                 os << "***** Current system time: " << timeStr << std::endl;
@@ -3387,7 +3391,7 @@ void Transient::printProgress(std::ostream &os)
             sprintf(timeStr, "%2d sec.", seconds);
 
           if (!quiet_)
-	  {
+          {
             os << "***** Estimated time to completion: " << timeStr << std::endl << std::endl;
           }
         }
