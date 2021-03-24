@@ -1820,18 +1820,50 @@ C1 2 0 {cap}
 \subsection{AC Sensitivities}
 Sensitivities can also be computed for small-signal AC analysis.  As
 with steady-state (DC) and transient analysis, both direct and adjoint
-sensitivities are supported.  An example netlist which exercises the
-capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
-
+sensitivities are supported.  Two example netlists which exercise the
+capability is shown in figures~\ref{AC_Sensitivity_Netlist} 
+and~\ref{AC_Sensitivity_Netlist2}.
 The netlist commands for AC sensitivities are very similar to those
 for DC, but with some small exceptions.   
 
-Objective functions can be set in two ways.  One is to 
-specify outputs using \texttt{objvars}
-followed by a list of node names.    The other is to use the expression library, using the \texttt{acobjfunc} parameter.
-The sensitivities that are computed
-will be for the voltages at the listed nodes, or for the listed objective functions, with respect to the list
-of sensitivity parameters.  It is currently not  possible to specify both types of objectives in the same netlist.
+\paragraph{Setting the AC sensitivity ojbective function}
+For AC sensitivities, objective functions can be set in two ways.  One option is to 
+specify outputs using \texttt{objvars} followed by a list of node names.      
+An example which  uses this method is given in figure~\ref{AC_Sensitivity_Netlist}.  
+The other option is to specify the objective function as an expression, with 
+the \texttt{acobjfunc} parameter.  
+An example which  uses this method is given in figure~\ref{AC_Sensitivity_Netlist2}.  
+It is currently not  possible to specify both types of objectives in the same netlist.
+
+\paragraph{AC Sensitivities have four objectives per output}
+For each specified output, there are four separate objective functions
+for which sensitivities will be computed; magnitude and phase for the
+polar representation, as well as real and imaginary for the cartesian
+representation of the solution.   These will be computed with respect to 
+the every parameter in the list of sensitivity parameters.   
+
+Example console output results are shown for the netlists in figures~\ref{AC_Sensitivity_Netlist} 
+and ~\ref{AC_Sensitivity_Netlist2} in figures~\ref{AC_Sensitivity_Result} 
+and~\ref{AC_Sensitivity_Result2}, respectively.  The console output shown is what one gets 
+if \texttt{stdoutput=1} is set in the netlist on the \texttt{.options sensitivity} line.
+For file-based output, see section~\ref{SENS_Output}.  
+
+\paragraph{Output of $\Delta P$}
+For AC sensitivities, it is likely that a numerical derivative will be needed
+as part of the calculation.  This is because, unlike DC and transient 
+sensitivities, the AC calculation often requires a matrix derivative.  
+The Xyce source code has not been set up to compute analytical matrix 
+derivatives, so these must always be computed numerically.
+While the numerical derivatives are accurate, some information about 
+them has been added to the AC sensitivity console output.
+
+In the console outputs shown in figures~\ref{AC_Sensitivity_Result} 
+and~\ref{AC_Sensitivity_Result2}, the two right-most columns
+pertain to numerical finite differences.  The ``Delta P'' column 
+gives the delta used by the sensitivity calculation if a numerical derivative was needed.   
+The ``FD used'' or ``FD not used'' column indicates if finite differences were used 
+in part of the calculation.    
+
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1857,31 +1889,94 @@ c1 2 0 47n
 {AC Sensitivity Example Netlist \label{AC_Sensitivity_Netlist} }
 \end{centering}
 \end{figure}
-For each specified output, there are four separate objective functions
-for which sensitivities will be computed; magnitude and phase for the
-polar representation, as well as real and imaginary for the cartesian
-representation of the solution.  The console output for the example
-netlist, for the first frequency, is shown in figure
-~\ref{AC_Sensitivity_Result}.
+
+
+
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
       \begin{minipage}{0.99\textwidth}
         \begin{vquote}
-
+          \fontsize{8pt}{10pt}\selectfont
 Direct Sensitivities for node V(2):
 VR(2) = 1.0000e+01  VI(2) = -1.3880e-02
 VM(2) = 1.0000e+01  VP(2) = -1.3880e-03
 
-Name   Value    Real         Im         Mag        Phase
-R1:R  4.7e+03 -8.1975e-09 -2.9531e-06 -4.0988e-09 -2.9531e-07
-C1:C  4.7e-08 -8.1975e+02 -2.9531e+05 -4.0988e+02 -2.9531e+04
-
+Name        Value    Sens\_Re    Sens\_Im    Sens\_Mag   Sens\_Phase  Delta P
+R1:R     4.7000e+03 -8.1975e-09 -2.9531e-06 -4.0988e-09 -2.9531e-07  7.0035e-05 FD not used
+C1:C     4.7000e-08 -8.1975e+02 -2.9531e+05 -4.0988e+02 -2.9531e+04  7.0035e-16 FD not used
+V1:ACMAG 1.0000e+01  1.0000e+00 -1.3880e-03  1.0000e+00 -2.7105e-20  1.4901e-07 FD not used
 \end{vquote}
 \end{minipage}
 }
 \caption[AC Sensitivity Example Result]
-{AC Sensitivity Example Result\label{AC_Sensitivity_Result} }
+    {AC Sensitivity Example Result.  This result corresponds to the first objective in the netlist given by figure~\ref{AC_Sensitivity_Netlist}.
+    \label{AC_Sensitivity_Result} }
+\end{centering}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+\color{blue}* Operational Amplifier\color{black}
+.param m6w=2u
+.param m6l=1u
+*Operational Amplifier
+M1 bias1 1 cm cm nmos w=10u l=1u
+M2 bias2 in2 cm cm  nmos w=10u l=1u
+M3 vdd bias1 bias1 vdd pmos w=2u l=1u
+M4 bias2 bias1 vdd vdd pmos w=2u l=1u
+m5 cm bias vss vss nmos w=2u l=1u
+mbias bias bias vss vss nmos w=2u l=1u
+rbias 0 bias 195k
+m6 8 bias vss vss  nmos w=\{m6w\} l=\{m6l\}
+m7 8 bias2 vdd out nmos w=2u l=1u
+Cfb bias2 8 2p
+Vid 1 c 0 ac 0.1
+eid in2 c 1 c -1
+vic c 0 dc 0
+vss1 vss 0 -5
+Vdd1 vdd 0 5 
+
+*AC analysis
+.ac dec 10 100 100Meg 
+.print ac v(8)
+\color{red}* Sensitivity commands
+.sens acobjfunc=\{v(8)\} param=m6:w,m6:l
+.options sensitivity direct=1 adjoint=0  stdoutput=1   
+.print sens \color{black}
+
+.model nmos nmos level=9 version=3.2.2
+.model pmos pmos level=9 version=3.2.2
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Netlist, using expression-based objective function]
+{AC Sensitivity Example Netlist, using expression-based objective function\label{AC_Sensitivity_Netlist2} }
+\end{centering}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+          \fontsize{8pt}{10pt}\selectfont
+Direct Sensitivities for \{v(8)\}
+ Re(\{v(8)\}) = 1.7365e+01  Img(\{v(8)\}) = 3.5597e-04
+  M(\{v(8)\}) = 1.7365e+01   Ph(\{v(8)\}) = 6.7295e-02
+Name    Value      Sens\_Re    Sens\_Im    Sens\_Mag   Sens\_Phase  Delta P
+M6:W  2.0000e-06 -2.2615e+05  -1.4915e+02 -2.2615e+05 -4.7680e+02  2.9802e-14 FD used
+M6:L  1.0000e-06  8.6598e+05   1.9292e+02  8.6598e+05  5.7798e+02  1.4901e-14 FD used
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Result]
+    {AC Sensitivity Example Result.  This result is the first sensitivity output produced for the first objective in the netlist given by figure~\ref{AC_Sensitivity_Netlist2}.  
+    \label{AC_Sensitivity_Result2} }
 \end{centering}
 \end{figure}
 
@@ -1971,101 +2066,7 @@ format, there wasn't an easy way to have them use the same outputter.
 \end{table}
 
 \clearpage
-\subsection{Notes about .SENS accuracy and formulation}
-The sensitivity calculation in \Xyce{} is based on a chain rule
-calculation.  Ultimately, the calculation will produce $dO/dp$, where
-$O$ is a user-specified objective function, and $p$ is a
-user-specified parameter.  $dO/dp$ is equal to:
-\begin{equation}
-  \frac{dO}{dp} = \frac{\partial O}{\partial x}\frac{\partial x}{\partial p} + \frac{\partial O}{\partial p}
-  \label{objectiveDerivative}
-\end{equation}
-\noindent where $x$ is a solution vector and $\partial x/\partial p$
-is the sensitivity of that solution vector with respect to the
-parameter.  Evaluating~\ref{objectiveDerivative} requires that
-$\partial x/\partial p$ be computed first.  The direct sensivity
-calculation for $\partial x/\partial p$ can be derived by considering
-the DAE form of the residual equation:
-\begin{equation}
-  F(x,t) = \dot{q}(x,t) + j(x,t) - b(t) = 0
-  \label{residual}
-\end{equation}
-\noindent In this equation, $q$ represents quantities that must be
-differentiated with respect to time (such as capacitor charge), and
-$j$ represents algebraic terms that depend on the solution $x$ (such
-as DC currents), and $b$ are independent sources that only depend on
-time.  Equation~\ref{residual} is solved to obtain the solution, $x$.
-To obtain sensitivities, one must differentiate this equation with
-respect to a parameter, $p$.
-\begin{equation}
-  \frac{dF}{dp} = \frac{d}{dp}\left( \dot{q} + j - b \right) = 0
-  \label{dfdp}
-\end{equation}
-In steady-state, equation~\ref{dfdp} simplifies to:
-\begin{equation}
-  \frac{dF}{dp} = \frac{dj}{dp} - \frac{db}{dp} = 0
-  \label{steady_dfdp}
-\end{equation}
-\noindent As $j$ is dependent upon $x$, the $\frac{dj}{dp}$ term must
-be expanded via chain rule, and the resulting equation must be
-re-arranged to set up a matrix equation that can be solved to obtain
-$\frac{dx}{dp}$:
-\begin{equation}
-  \frac{dj}{dx}\frac{dx}{dp} = - \frac{dj}{dp} + \frac{db}{dp} 
-  \label{finalSens}
-\end{equation}
-\noindent In equation~\ref{finalSens}, the terms on the right hand
-side are computed by the individual device models once the Newton loop
-the circuit analysis has converged.  The Jacobian matrix on the left
-hand side ($dj/dx$) is the same matrix used by the original analysis.
-Once the linear system is solved, then $dx/dp$ is available for the
-given parameter, and it can then be applied to
-equation~\ref{objectiveDerivative}.  For transient, a similar linear
-system is solved, which depends on the specific time integration
-method used.  For Backward-Euler the linear system is:
-\begin{equation}
-  \left[ \frac{1}{h} \frac{dq}{dx} 
-  + \frac{dj}{dx} \right] \frac{dx}{dp}_{n+1} 
- =
-  -\frac{1}{h} \left[ \frac{dq}{dp}_{n+1} - \frac{dq}{dp}_n \right] 
- - \frac{dj}{dp} 
- + \frac{db}{dp} 
- + \frac{1}{h} \left[ \frac{dq}{dx} \right] \frac{dx}{dp}_n 
- \label{finalTransientSens}
-\end{equation}
-\noindent Where $h$ is the time step size.  As with ~\ref{finalSens},
-the left hand side of the equation contains the original Jacobian
-matrix.
-
-In general, the accuracy of the above calculation is dependent on the
-accuracy of the individual derivatives that comprise
-equations~\ref{objectiveDerivative} and~\ref{finalSens}
-or~\ref{finalTransientSens}.  In \Xyce{}, the Jacobian derivatives
-($dj/dx$ and $dq/dx$) are always analytic.  Similarly, the objective
-function derivatives ($dO/dx$) are also always analytic.  However, the
-derivatives on the right hand side of~\ref{finalTransientSens}
-($dj/dp$, $db/dp$ and $dq/dp$) depend on particular device
-implementations.  If the device was implemented with analytic
-parameter sensitivies, then those sensitivities are used.  If analytic
-derivatives were not available, then the $dj/dp$, $dq/dp$ and $db/dp$
-derivatives are computed using finite differences.  A list of \Xyce{}
-devices, and which of them support analytic sensitivities, is given in
-the \Xyce{} Reference Guide\ReferenceGuide{}.
-
-For some problems, finite difference derivatives will work fine, but
-some devices and/or circuit problems have wide ranges of solution
-and/or parameter scalings, and this can render inaccurate finite
-difference derivatives.  As this capability develops, most devices
-should eventually provide analytic derivatives.
-
-The above derivation and arguments were given for direct sensitivities
-(as that is the only form supported for both DC and transient), but
-the same ideas with regard to accuracy apply for adjoint sensitivites.
-
-For transient, note that the transient direct calculation uses the
-same time steps that are used for the original circuit analysis.  It
-does not impose any additional error control that is specific to the
-accuracy of $dx/dp$.
+\input{SENS_notes}
 
 %%%%%%
 % -------------------------------------------------------------------------
