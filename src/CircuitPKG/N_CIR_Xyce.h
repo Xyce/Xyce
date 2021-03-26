@@ -367,7 +367,10 @@ class Simulator
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
 
+  protected:
   IO::CmdParse                          commandLine_;
+
+  private:
   IO::HangingResistor                   hangingResistor_;
 
   // if the user is providing an external file with parameters in it

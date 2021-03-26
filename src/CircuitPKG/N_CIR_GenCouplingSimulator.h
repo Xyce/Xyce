@@ -86,6 +86,21 @@ public:
   /// this *MUST* be called in between initializeEarly and intializeLate
   bool setNumInternalVars(const std::string & deviceName,const int numInt);
 
+  /// Sets the number of store variables of a named device instance
+  /// this *MUST* be called in between initializeEarly and intializeLate
+  bool setNumStoreVars(const std::string & deviceName,const int numStore);
+
+  /// Sets the number of state variables of a named device instance
+  /// this *MUST* be called in between initializeEarly and intializeLate
+  bool setNumStateVars(const std::string & deviceName,const int numState);
+
+  /// Sets the number of branch data variables of a named device instance
+  bool setNumBranchDataVars(const std::string & deviceName,const int numBranchData);
+
+  /// Sets the number of branch data variables if allocated of a named device instance
+  bool setNumBranchDataVarsIfAllocated(const std::string & deviceName,
+                                       const int numBranchDataIfAllocated);
+
   /// Returns the number of variables (external nodes + internal variables)
   /// of a named "GeneralExternal" device instance.
   int getNumVars(const std::string & deviceName);
@@ -97,6 +112,9 @@ public:
   /// Populates a vector with the current values of the solution vector
   /// for the variables associated with a named device.
   bool getSolution(const std::string & deviceName, std::vector<double> & sV);
+
+  /// Return whether limiting is enabled for the device.
+  bool getVoltageLimiterFlag(const std::string & deviceName);
 
   /// Associate a vector loader object pointer with the named device
   bool setJacStamp(const std::string & deviceName, std::vector< std::vector<int> > &jS);
@@ -124,6 +142,12 @@ public:
   bool getSParams(const std::string & deviceName,
                   std::vector<std::string> &pNames,
                   std::vector<std::string> & pValues);
+
+  /// Retrieves Netlist file path
+  std::string getNetlistFilePath() const;
+
+  /// Retrieves Xyce executable file path
+  std::string getXyceFilePath() const;
 
   bool addOutputInterface(Xyce::IO::ExternalOutputInterface * extIntPtr);
 
