@@ -1990,10 +1990,13 @@ M6:L  1.0000e-06  8.6598e+05   1.9292e+02  8.6598e+05  5.7798e+02  1.4901e-14 FD
 \end{figure}
 
 \subsection{Notes about .SENS accuracy and formulation}
+
+The formulation for \Xyce{} sensitivity analysis is briefly described.  For more details, see
+references~\cite{KeiterGradEnhnacedPCE2016,KeiterUQ2019}.
 The sensitivity calculation in \Xyce{} is based on a chain rule
-calculation.  Ultimately, the calculation will produce $dO/dp$, where
-$O$ is a user-specified objective function, and $p$ is a
-user-specified parameter.  $dO/dp$ is equal to:
+calculation, which will produce the sensitivity $dO/dp$, where
+$O$ is a user-specified scalar objective function, and $p$ is a
+user-specified scalar parameter.  $dO/dp$ is equal to:
 \begin{equation}
   \frac{dO}{dp} = \frac{\partial O}{\partial x}\frac{\partial x}{\partial p} + \frac{\partial O}{\partial p}
   \label{objectiveDerivative}
@@ -2001,29 +2004,41 @@ user-specified parameter.  $dO/dp$ is equal to:
 \noindent where $x$ is a solution vector and $\partial x/\partial p$
 is the sensitivity of that solution vector with respect to the
 parameter.  
-\subsubsection{DC and Transient}
-Evaluating~\ref{objectiveDerivative} requires that
-$\partial x/\partial p$ be computed first.  The direct sensivity
-calculation for $\partial x/\partial p$ can be derived by considering
-the DAE form of the residual equation:
+For DC and Transient, the system of equations solved by \Xyce{} is given as a differential algebraic system, given by:
 \begin{equation}
-  F(x,t) = \dot{q}(x,t) + j(x,t) - b(t) = 0
+  F(x,t,p) = \dot{q}(x(t,p),p) + j(x(t,p),p) - b(t,p) = 0,
   \label{residual}
 \end{equation}
-\noindent In this equation, $q$ represents quantities that must be
+where the vector $F$ is the \Xyce{} residual. The derivative of $F$ with 
+respect to the solution $x$ ($\partial F/\partial x$) is the Jacobian matrix.
+The terms $q$, $j$ and $b$ vectors are all standard components of a DAE, and are provided by
+the various device models.  $q$ represents quantities that must be
 differentiated with respect to time (such as capacitor charge), and
 $j$ represents algebraic terms that depend on the solution $x$ (such
 as DC currents), and $b$ are independent sources that only depend on
 time.  Equation~\ref{residual} is solved to obtain the solution, $x$.
-To obtain sensitivities, one must differentiate this equation with
+
+Equation~\ref{objectiveDerivative} can then be expanded as:
+\begin{equation}
+  \frac{dO}{dp} = -\frac{\partial O}{\partial x} \left(\frac{\partial F}{\partial x} \right)^{-1} \frac{\partial F}{\partial p} + \frac{\partial O}{\partial p}, {}  
+  \label{objectiveDerivative2}
+\end{equation}
+All of the terms in equation~\ref{objectiveDerivative2} are available in Xyce, which makes it possible to compute $dO/dp$.   
+Also, most terms in~\ref{objectiveDerivative2} purely analytical, which helps ensure accuracy. 
+The order in which the right-hand-side of equation~\ref{objectiveDerivative2} is evaluated 
+(left-to-right or right-to-left) determines if the method is a direct sensitivty or an 
+adjoint sensitivity.
+
+\subsubsection{Direct Sensivity}
+To obtain direct sensitivities, one must differentiate equation~\ref{residual} with
 respect to a parameter, $p$.
 \begin{equation}
-  \frac{dF}{dp} = \frac{d}{dp}\left( \dot{q} + j - b \right) = 0
+  \frac{dF(x,t,p)}{dp} = \frac{d}{dp}\left[ \frac{d q(x(t),p)}{dt} + j(x(t),p) - b(t,p) \right] = 0 
   \label{dfdp}
 \end{equation}
-\paragraph{DC Sensitivities} In steady-state, equation~\ref{dfdp} simplifies to:
+In steady-state (DC), equation~\ref{dfdp} simplifies to:
 \begin{equation}
-  \frac{dF}{dp} = \frac{dj}{dp} - \frac{db}{dp} = 0
+  \frac{dF(x,t,p)}{dp} = \frac{d}{dp}\left[ j(x(t),p) - b(t,p) \right] = 0 
   \label{steady_dfdp}
 \end{equation}
 \noindent As $j$ is dependent upon $x$, the $dj/dp$ term  
@@ -2034,16 +2049,9 @@ $\frac{\partial x}{\partial p}$:
   \frac{\partial j}{\partial x}\frac{\partial x}{\partial p} = - \frac{\partial j}{\partial p} + \frac{db}{dp}.
   \label{finalSens}
 \end{equation}
-\noindent In equation~\ref{finalSens}, the terms on the right hand
-side are computed by the individual device models once the Newton loop
-the circuit analysis has converged.  The Jacobian matrix on the left
-hand side ($\partial j/\partial x$) is the same matrix used by the original analysis.
-Once the linear system is solved, then $\partial x/\partial p$ is available for the
-given parameter, and it can then be applied to
-equation~\ref{objectiveDerivative}.  
+This linear equation is evaluated by the linear solver at the end of the steady-state solve, using the same LU factors as were used by the final Newton step.
 
-\paragraph{Transient Sensitivities} For transient, a similar linear
-system is solved, which depends on the specific time integration
+For transient, a similar linear system is solved, which depends on the specific time integration
 method used.  For Backward-Euler the linear system is:
 \begin{equation}
   \left[ \frac{1}{h} \frac{\partial q}{\partial x} 
@@ -2057,43 +2065,35 @@ method used.  For Backward-Euler the linear system is:
 \end{equation}
 \noindent Where $h$ is the time step size.  As with ~\ref{finalSens},
 the left hand side of the equation contains the original Jacobian
-matrix.
+matrix.  Similar to the steady-state case, this equation is solved at the end of each converged time step, using the matrix solver with the same LU factors as were used for the final Newton step.
+For both steady state and transient, the final objective sensitivity is obtained by 
+taking the dot product of $\partial O/\partial x$ and $\partial x/\partial p$.
+
+\subsubsection{Adjoint Sensivity}
+The description of adjoint sensitivies is beyond the scope of this document, but the issues affecting accuracy are largely the same.  For a description of the formulation, see references~\cite{KeiterGradEnhnacedPCE2016,KeiterUQ2019}.
 
 \paragraph{Analytical vs Numerical derivatives}
-The accuracy of the above calculation is dependent on the
-accuracy of the individual derivatives that comprise
-equations~\ref{objectiveDerivative} and~\ref{finalSens}
-or~\ref{finalTransientSens}.  In \Xyce{}, most of the derivatives are computed analytically.
-For example, the Jacobian derivatives
-($\partial j/\partial x$ and $\partial q/\partial x$) are always analytic.  Similarly, the objective
-function derivatives ($\partial O/\partial x$) are also always analytic.  
-
-However, the derivatives on the right hand side of~\ref{finalTransientSens}
-($\partial j/\partial p$, $\partial b/\partial p$ and $\partial q/\partial p$) depend on particular device
-implementations.  If the device was implemented with analytic
-parameter sensitivies, then those sensitivities are used.  If analytic
-derivatives were not available, then the $\partial j/\partial p$, $\partial q/\partial p$ and $\partial b/\partial p$
-derivatives are computed using finite differences.  A list of \Xyce{}
+As mentioned above, most of the terms in the sensitivity equations are analytical.  
+The possible exception is with the 
+terms $\partial q/\partial p$, $\partial j/\partial p$ and $\partial b/\partial p$, which 
+depend on device model implementation.  Most devices in \Xyce{} are instrumented to provide 
+these sensitivities analytically, but some devices do not.  For these devices, a numerical derivative is computed instead.
+A list of \Xyce{}
 devices, and which of them support analytic sensitivities, is given in
 the \Xyce{} Reference Guide\ReferenceGuide{}.
 
-For some problems, finite difference derivatives will work fine, but
-some devices and/or circuit problems have wide ranges of solution
-and/or parameter scalings, and this can render inaccurate finite
-difference derivatives.  As this capability develops, most devices
-should eventually provide analytic derivatives.
-
-The above derivation and arguments were given for direct sensitivities, but
-the same ideas apply for adjoint sensitivites.
-
+\paragraph{Time integration error}
 For transient, note that the transient direct calculation uses the
 same time steps that are used for the original circuit analysis.  It
 does not impose any additional error control that is specific to the
-accuracy of $\partial x/\partial p$.
+accuracy of $\partial x/\partial p$.  The adjoint calculation 
+(not described here), is a discrete form of transient adjoints, and thus 
+uses the same time steps as the forward calculation.
 
-\subsubsection{AC}
+\subsubsection{AC Sensitivities}
 
-The math for AC sensitivities is a bit different than DC and transient.
+While many of the accuracy issues pertaining to AC sensitivities are the same as for DC sensitivities, 
+the math different enough to warrrent more discussion.  AC sensitivies are based on small-signal analysis.
 
 
 \clearpage
