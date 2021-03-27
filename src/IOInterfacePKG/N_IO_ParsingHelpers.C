@@ -77,13 +77,22 @@ void handleIncludeFilePath(
     return;
 
   size_t posLast = netlistFileName.find_last_of('/');
-  size_t posFirst = includeFile.find_first_of('/');
 
-  if ( (posFirst != std::string::npos) && (posFirst == 0) )
+  // Also handle the Windows canonical file separator if running on Windows
+  #ifdef HAVE_WINDOWS_H
+  if (posLast == std::string::npos)
+    posLast = netlistFileName.find_last_of('\\');
+  #endif
+
+  if (isAbsolutePath(includeFile))
   {
-    // include file path is absolute.  So, use it as is.
-    // Note this only works for Linux.  Additional work is needed to
-    // support Windows.
+    // Include file path is absolute.  So, use it as is.
+  }
+  else if (hasWinDriveLetter(includeFile))
+  {
+    // Any file path within a Windows drive letter in it should be ignored.
+    // This catches Windows paths of the form C:dirname, which are relative
+    // to the current working directory.
   }
   else if (posLast != std::string::npos)
   {
@@ -104,6 +113,66 @@ void handleIncludeFilePath(
   }
 
   return;
+}
+
+//--------------------------------------------------------------------------
+// Function      : isAbsolutePath
+// Purpose       : Does the includeFile use an absolute path? On Windows,
+//                 this also includes paths that start with C:\ and UNC paths
+//                 that start with \\
+// Special Notes :
+// Creator       : Pete Sholander
+// Creation Date : 03/23/2021
+//--------------------------------------------------------------------------
+bool isAbsolutePath(const std::string& includeFile)
+{
+  bool retVal=false;
+
+  size_t posFirst = includeFile.find_first_of('/');
+
+  #ifdef HAVE_WINDOWS_H
+  if (posFirst == std::string::npos)
+    posFirst = includeFile.find_first_of('\\');
+  #endif
+
+  if (posFirst != std::string::npos)
+  {
+    if (posFirst == 0)
+    {
+      // include file path is absolute
+      retVal=true;
+    }
+    #ifdef HAVE_WINDOWS_H
+    else if ((includeFile.size() >=3) && (posFirst == 3) && hasWinDriveLetter(includeFile))
+      retVal=true;
+    #endif
+  }
+
+  return retVal;
+}
+
+//--------------------------------------------------------------------------
+// Function      : hasWinDriveLetter
+// Purpose       : Does the includeFile start with a Windows drive letter
+//                 such as C:
+// Special Notes :
+// Creator       : Pete Sholander
+// Creation Date : 03/23/2021
+//--------------------------------------------------------------------------
+bool hasWinDriveLetter(const std::string& includeFile)
+{
+  bool retVal=false;
+
+  #ifdef HAVE_WINDOWS_H
+  std::string driveLetters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+  if ( (includeFile.size() >=2) && (includeFile[1] == ':' ) &&
+       (driveLetters.find_first_of(includeFile[0]) != std::string::npos) )
+  {
+     retVal=true;
+  }
+  #endif
+
+  return retVal;
 }
 
 //--------------------------------------------------------------------------

@@ -65,6 +65,10 @@ void handleIncludeFilePath(
    const std::string& netlistFileName,
    std::string& includeFileName);
 
+// helper functions for handleIncludeFilePath()
+bool isAbsolutePath(const std::string& includeFile);
+bool hasWinDriveLetter(const std::string& includeFile);
+
 // Handle a netlist .include or .lib line, return the include file, and lib strings.
 void handleIncludeLine(
     const std::string& netlistFileName,

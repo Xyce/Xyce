@@ -124,7 +124,7 @@ public:
   double getPhaseVal(const int index) const { return phase_[index];}
   double getENOB() const {return enob_;}
   double getSNDR() const {return sndr_;}
-  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, bool fmaxGivn) const;
+  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const;
 
   // these functions are used by both FFTAnalysis and Measure FFT
   double calculateSNR(int fmaxIndex) const;
@@ -138,6 +138,7 @@ private:
 
   void calculateFFT_();
   void calculateSFDR_();
+  int getLowerLimforSFDR_(int fminIndex, int fmaxIndex, bool fminGivn) const;
   void calculateSNDRandENOB_();
 
   std::ostream& printResult_( std::ostream& os );

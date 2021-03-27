@@ -98,9 +98,10 @@ The supported measure types are:
 
   \item[\tt FIND] Returns the requested FFT cofficient at the requested
     frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM})
-    to FFT cofficients are given below.  {\tt FIND} measures can be
-    used in conjunction with {\tt EQN} measures to generate fairly arbitrary
-    FFT-based measures.  An example of that is also given below.
+    to FFT cofficients is given in the ``Additional Examples'' subsection below.
+    {\tt FIND} measures can be also used in conjunction with {\tt EQN} measures
+    to generate fairly arbitrary FFT-based measures.  An example of that is also
+    given below.
 
   \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
     is defined further below.
@@ -197,5 +198,49 @@ statements using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure}
 discusses this topic in more detail for both {\tt .MEASURE} and {\tt .FFT}
 statements.
 
+\subsubsection{Additional Examples}
+\label{Measure_FFT_Additional_Examples}
+\index{measure fft!additional examples}
+This section provides a simple example how to use the {\tt FIND} measure,
+along with the {\tt V()}, {\tt VR()}, {\tt VI()}, {\tt VM()}, {\tt VP()}
+and {\tt VDB()} operators, to obtain the real and imaginary parts of the
+FFT coefficients, along with the magnitude and phase of those coefficients,
+at a specified frequency.  Those coefficient values are unnormalized.
+
+\begin{alltt}
+* Example of obtaining FFT coefficients
+.TRAN 0 1
+.PRINT TRAN V(1)
+.OPTIONS FFT FFT_ACCURATE=1 FFTOUT=1
+V1 1 0 1
+R1 1 0 1
+.FFT V(1) NP=8 WINDOW=HANN
+
+* Unnormalized one-sided FFT cofficients for V(1) at F=1.0
+* Magnitude
+.MEASURE FFT V1AT1 FIND V(1) AT=1.0
+* Real part
+.MEASURE FFT VR1AT1 FIND VR(1) AT=1.0
+* Imaginary part
+.MEASURE FFT VI1AT1 FIND VI(1) AT=1.0
+* Magnitude
+.MEASURE FFT VM1AT1 FIND VM(1) AT=1.0
+* Phase
+.MEASURE FFT VP1AT1 FIND VP(1) AT=1.0
+* Magnitude in dB
+.MEASURE FFT VDB1AT1 FIND VDB(1) AT=1.0
+
+.END
+\end{alltt}
+
+The {\tt .MEASURE} output is then:
+\begin{alltt}
+FINDV1AT1 = 5.200051e-01
+FINDVR1AT1 = -4.804221e-01
+FINDVI1AT1 = -1.989973e-01
+FINDVM1AT1 = 5.200051e-01
+FINDVP1AT1 = -1.575000e+02
+FINDVDB1AT1 = -5.679847e+00
+\end{alltt}
 
 

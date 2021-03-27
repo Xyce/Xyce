@@ -223,6 +223,7 @@ public:
   void registerLIDs( const std::vector<int> & intLIDVecRef,
                      const std::vector<int> & extLIDVecRef );
   void registerStateLIDs( const std::vector<int> & staLIDVecRef );
+  void registerStoreLIDs( const std::vector<int> & stoLIDVecRef );
   void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
 
   void loadNodeSymbols(Util::SymbolTable &symbol_table) const;
@@ -252,6 +253,8 @@ public:
 
   bool setVectorLoader(Xyce::Device::VectorComputeInterface * vciPtr);
   void setNumInternalVars(int numInt);
+  void setNumStateVars(int numState);
+  void setNumBranchDataVarsIfAllocated(int numBranchDataIfAllocated);
   void setJacStamp(std::vector< std::vector<int> > & jS);
   void getSolution(std::vector<double> &sV);
 
@@ -302,6 +305,8 @@ private:
   // This device uses an array of li_ values instead of individually named
   // variables.
   std::vector<int> li_Nodes_;
+  std::vector<int> li_States_;
+  std::vector<int> li_Stores_;
   // these are the LIDs for lead currents
   std::vector<int> li_Branches_;
 
@@ -321,11 +326,17 @@ private:
   /// Q, and B vectors, used for passing to the computeXyceVectors
   /// function of the *vciPtr_ object.
   std::vector<double> solutionVars_;
+  std::vector<double> flagSolutionVars_;
+  std::vector<double> nextStoreVars_;
+  std::vector<double> currStoreVars_;
   std::vector<double> FVec_;
   std::vector<double> QVec_;
   std::vector<double> BVec_;
+  std::vector<double> dFdXdVpVec_;
+  std::vector<double> dQdXdVpVec_;
   std::vector<std::vector<double> > dFdXMat_;
   std::vector<std::vector<double> > dQdXMat_;
+  std::vector<std::vector<double> > storeVars;
 
   std::vector<std::complex<double> > solutionFDVars_;
   std::vector<std::complex<double> >fDFVec_;
@@ -490,6 +501,34 @@ inline bool Instance::setVectorLoader(Xyce::Device::VectorComputeInterface * vci
 inline void Instance::setNumInternalVars(int numInt)
 {
   numIntVars=numInt;
+}
+
+//----------------------------------------------------------------------------
+// Function      : Instance::setNumStateVars
+// Purpose       : Set the number of internal variables for this device
+// Special Notes : For God's sake, make sure to call this before
+//                 topology needs to query the number!
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//----------------------------------------------------------------------------
+inline void Instance::setNumStateVars(int numState)
+{
+  numStateVars=numState;
+}
+
+//----------------------------------------------------------------------------
+// Function      : Instance::setNumBranchDataIfAllocatedVars
+// Purpose       : Set the number of internal variables for this device
+// Special Notes : For God's sake, make sure to call this before
+//                 topology needs to query the number!
+// Scope         : public
+// Creator       : Paul Kuberry, SNL
+// Creation Date : 12/10/2020
+//----------------------------------------------------------------------------
+inline void Instance::setNumBranchDataVarsIfAllocated(int numBranchDataVarsIfAllocated)
+{
+  numBranchDataVarsIfAllocated=numBranchDataVarsIfAllocated;
 }
 
 //----------------------------------------------------------------------------

@@ -125,7 +125,7 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
     if (maxFreqGiven_)
       maxFreqIdx_ = std::round(maxFreq_/fftAnalysisPtr_->getFundamentalFreq());
     else
-      maxFreqIdx_ = np_;
+      maxFreqIdx_ = 0.5*np_;
   }
 }
 
@@ -442,7 +442,7 @@ double SFDR::getMeasureResult()
   {
     initialized_ = true;
     calculationResult_ = fftAnalysisPtr_->calculateSFDRforMeasFFT(minFreqIdx_, maxFreqIdx_,
-                                              minFreqGiven_, maxFreqGiven_);
+                                              minFreqGiven_);
   }
   return calculationResult_;
 }

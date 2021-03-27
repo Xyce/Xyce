@@ -101,15 +101,14 @@ appropriate binned model, based on the \texttt{L} and \texttt{W} parameters of t
 instance.   It will only seach the models with matching name prefixes, and can only work if
 all the binned models have specified all the \texttt{lmin,lmax,wmin,wmax} parameters.
 
-Model binning is not enabled by default.  To enable it, it is necessary to 
-specify \texttt{.options parser model\_binning=true}.
+Model binning is enabled by default.  To disable it, specify \texttt{.options parser model\_binning=false}.
 
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
       \begin{minipage}{0.9\textwidth}
         \begin{vquote}
-\color{blue}* Model binning example adapted from the BSIM4 test suite\color{black}
+\color{blue}* Model binning example adapted from the BSIM4 tests\color{black}
 m1 2 1 0 b nch L=0.11u W=10.1u NF=5 rgeomod=1 geomod=0
 vgs 1 0 1.2
 vds 2 0 1.2
@@ -120,10 +119,12 @@ Vb b 0 0.0
 .print dc v(2) v(1) i(vds)
 
 * model binning
-.model nch.1 nmos(level=14 lmin=0.1u lmax=20u wmin=0.1u wmax=10u)
-.model nch.2 nmos(level=14 lmin=0.1u lmax=20u wmin=10u  wmax=100u)
-
-.options parser model\_binning=true
+.model nch.1 nmos(level=14 
++ lmin=0.1u lmax=20u 
++ wmin=0.1u wmax=10u)
+.model nch.2 nmos(level=14 
++ lmin=0.1u lmax=20u 
++ wmin=10u  wmax=100u)
 
 .end
 \end{vquote}
