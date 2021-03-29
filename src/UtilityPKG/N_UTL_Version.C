@@ -234,7 +234,13 @@ std::string Version::getCapabilities()
 #endif
 
 #ifdef Xyce_AMESOS2
-  capabilities += "Amesos2 (Basker and Klu2) enabled\n";
+  #if defined(Xyce_AMESOS2_KLU2) || defined(Xyce_AMESOS2_BASKER)
+    capabilities += "Amesos2 (Basker and KLU2) enabled\n";
+  #elif defined(Xyce_AMESOS2_KLU2) 
+    capabilities += "Amesos2 (KLU2) enabled\n";
+  #elif defined(Xyce_AMESOS2_BASKER)
+    capabilities += "Amesos2 (Basker) enabled\n";
+  #endif
 #endif
 
   if (VERBOSE_TIME)
