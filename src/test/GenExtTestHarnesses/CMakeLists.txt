@@ -62,7 +62,11 @@ if (Xyce_PYMI)
           set_target_properties(Xyce-PyMi PROPERTIES BUILD_RPATH "${PY_BUILD_RPATH}")
         endif()
   
-        set_target_properties(Xyce-PyMi PROPERTIES INSTALL_RPATH_USE_LINK_PATH ON)
+        # ensures binary is in same folder as Xyce at build time and install time
+        set_target_properties(Xyce-PyMi PROPERTIES 
+            INSTALL_RPATH_USE_LINK_PATH ON
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/src"
+        )
         install(TARGETS Xyce-PyMi DESTINATION bin)
         file(GLOB_RECURSE PYMI_PY_FILES ${PROJECT_SOURCE_DIR}/utils/PythonModelInterface/*.py)
         install(FILES ${PYMI_PY_FILES} DESTINATION include/pymi)
