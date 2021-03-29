@@ -250,14 +250,16 @@ For using a parameter in a circuit, one must:
 \begin{XyceItemize}
 \item \verb+Time+
 \item \verb+Freq+ 
+\item \verb+Hertz+
 \item \verb+Vt+
-\item \verb+Temp+
+\item \verb+Temp+ 
+\item \verb+Temper+
 \item \verb+GMIN+
 \end{XyceItemize}
 
 \texttt{Time}, \texttt{TEMP}, \texttt{Vt}, \texttt{FREQ} and \texttt{GMIN} are
 reserved and defined as ``special variables'', and may be used in
-B source expressions.   Their values are set by the simulator.
+B source expressions.   Their values are set by the simulator.  \texttt{HERTZ} is a synonym for \texttt{FREQ} and \texttt{TEMPER} is a synonym for \texttt{TEMP}.
 
 \subsubsection{Example:  Declaring a parameter}
 \index{Example!declaring parameters}
@@ -294,25 +296,22 @@ R1 1 2 \{res\}
 
 NOTE:	Ensure the value being replaced remains accessible within the current hierarchy level.
 
-\subsubsection{Limitations on parameter definitions}
-
-As chapter~\ref{Behavioral_Modeling} describes, there is considerable flexibility in the use of parameters. They can be set to expressions containing other parameters, and can be passed down the hierarchy into subcircuits. Fundamentally, however, parameters are constants evaluated at the beginning of a run; therefore, all terms in the expression defining the parameter must be constants known at the beginning of the run. It is not legal to use time-dependent or frequency-dependent expressions in parameter declarations (either by including voltage nodes or currents, or by including references to the special variables \texttt{TIME} or \texttt{FREQ}).
-
 \subsection{Global Parameters}
 \index{netlist!global parameterss}
 \index{global parameters}
 \index{parameter!global}
  
-A normal parameter defined at the main circuit level will have global scope.
-Such parameters suffer from limitations, such as: (1) they are constant during the simulation,
-and (2) the parameter may redefined within a subcircuit, which would change the value
-in the subcircuit and below.  Global parameters address these limitations.
+A normal parameter defined using \texttt{.PARAM} at the main circuit level will have global scope.
+However, such parameters may be redefined within a subcircuit, which would change the value
+in the subcircuit and below.  
 
-A global parameter differs from a normal parameter in that it can only be defined
-at the main circuit level, and it is allowed to change during a simulation.  Global parameters
-act as variables rather than constants during the simulation.  Examples of some
+A global parameter, defined using \texttt{.global\_param}, differs from a normal parameter 
+in that it can only be defined
+at the main circuit level.   Also, while both normal and global parameters are allowed to
+change during a simulation, only global parameters can be modified by netlist commands 
+such as \texttt{.STEP} and \texttt{.SAMPLING}.  Examples of some
 global parameter usages are:
-  \begin{vquote}
+\begin{vquote}
 .param dTdt=100
 .global_param T=\{27+dTdt*time\}
 R1  1  2  RMOD TEMP=\{T\}
@@ -324,22 +323,14 @@ R1  1  2  RMOD TEMP=\{T\}
 C1  1  2  CMOD TEMP=\{T\}
 .step T 20 50 10
 \end{vquote}
-
 In these examples, T is used to represent an environmental variable that changes.
-
-NOTE:	Normal parameters may be used in expressions defining global parameters, but the opposite is not allowed.
 
 \subsection{Expressions}
 \index{netlist!expressions}
 \index{expressions}
 
 In \Xyce{}, an expression is a mathematical relationship that may be
-used any place one would use a number (numeric or boolean).  Except in
-the case of expressions used in analog behavioral modeling sources
-(see chapter~\ref{Behavioral_Modeling}) \Xyce{} evaluates the
-expression to a value when it reads in the circuit netlist, not each
-time its value is needed. Therefore, all terms in an expression must be known at the beginning of a run.
-
+used any place one would use a number (numeric or boolean).  
 To use an expression in a circuit netlist:
 \index{netlist!using expressions}
 \index{expressions!using}
