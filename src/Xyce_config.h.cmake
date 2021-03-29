@@ -10,6 +10,7 @@
 // Trilinos
 #cmakedefine Xyce_SHYLU
 #cmakedefine Xyce_AMESOS2
+#cmakedefine Xyce_AMESOS2_KLU2
 #cmakedefine Xyce_AMESOS2_BASKER
 #cmakedefine Xyce_NEW_BASKER
 #cmakedefine Xyce_STOKHOS_ENABLE

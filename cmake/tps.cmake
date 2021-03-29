@@ -245,6 +245,14 @@ endif ()
 
 if (Xyce_AMESOS2)
      set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
+
+     check_cxx_symbol_exists(HAVE_AMESOS2_KLU2 Amesos2_config.h Amesos2_KLU2_IN_Trilinos)
+     if (Amesos2_KLU2_IN_Trilinos)
+          set(Xyce_AMESOS2_KLU2 TRUE CACHE BOOL "Enables the templated KLU2 linear solver in Amesos2")
+     else ()
+          set(Xyce_AMESOS2_KLU2 FALSE CACHE BOOL "Enables the templated KLU2 linear solver in Amesos2" FORCE)
+     endif ()
+
      check_cxx_symbol_exists(HAVE_AMESOS2_BASKER Amesos2_config.h Amesos2_Basker_IN_Trilinos)
      if (Amesos2_Basker_IN_Trilinos)
           set(Xyce_AMESOS2_BASKER TRUE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")

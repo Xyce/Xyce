@@ -673,6 +673,8 @@ fi
 dnl If the user enabled Amesos2, let's add it here:
 if test "x$USE_AMESOS2" = "xyes"; then
     XYCE_TRILINOS_LIBRARY_OPTION(Amesos2, USE_AMESOS2_MAKEFILE)
+    USING_AMESOS2_KLU2=yes 
+    AC_CHECK_HEADER([Amesos2_KLU2.hpp], AC_DEFINE([Xyce_AMESOS2_KLU2], [1], [Set to use templated KLU solver in Amesos2.]), [USING_AMESOS2_KLU2=no])
     USING_AMESOS2_BASKER=yes
     AC_CHECK_HEADER([Amesos2_Basker.hpp], AC_DEFINE([Xyce_AMESOS2_BASKER], [1], [Set to use templated Basker solver in Amesos2.]), [USING_AMESOS2_BASKER=no])
     if test "$USING_AMESOS2_BASKER" != "no"; then
