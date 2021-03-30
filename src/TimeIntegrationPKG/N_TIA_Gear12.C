@@ -1237,6 +1237,10 @@ void Gear12::initialize(const TIAParams &tia_params)
     sec.currentTimeStep = currentTimeStep;
   }
 
+
+  sec.currentTimeStep = std::max(sec.currentTimeStep, sec.minTimeStep);
+  sec.currentTimeStep = std::min(sec.currentTimeStep, sec.maxTimeStep);
+
   sec.currentTimeStepRatio = 1.0;
   sec.currentTimeStepSum   = 2.0*sec.currentTimeStep;
 
