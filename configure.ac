@@ -1089,7 +1089,7 @@ case "$target" in
     *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
         CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
         ;;
-    mpicxx|mpic++)
+    mpicxx*|mpic++*)
         # Handle case where we're relying on PATH and OMPI_CXX to use intel
         case "$CXX" in
         *icpc*)
