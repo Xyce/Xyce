@@ -1091,7 +1091,7 @@ case "$target" in
         ;;
     mpicxx*|mpic++*)
         # Handle case where we're relying on PATH and OMPI_CXX to use intel
-        case "$CXX" in
+        case "$OMPI_CXX" in
         *icpc*)
           CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
           ;;
