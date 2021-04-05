@@ -62,15 +62,18 @@ namespace IO {
 
 // translate a relative path for an include file into the correct relative path
 void handleIncludeFilePath(
+   const std::string& topLevelPath,
    const std::string& netlistFileName,
    std::string& includeFileName);
 
 // helper functions for handleIncludeFilePath()
+size_t getLastSlashPosition(const std::string& fileName);
 bool isAbsolutePath(const std::string& includeFile);
 bool hasWinDriveLetter(const std::string& includeFile);
 
 // Handle a netlist .include or .lib line, return the include file, and lib strings.
 void handleIncludeLine(
+    const std::string& topLevelPath,
     const std::string& netlistFileName,
     TokenVector const& parsedLine,
     const ExtendedString &, std::string& includefile, std::string &libSelect, std::string &libInside);

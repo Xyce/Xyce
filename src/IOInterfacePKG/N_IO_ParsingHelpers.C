@@ -70,13 +70,21 @@ namespace IO {
 // Creation Date : 11/04/2020
 //--------------------------------------------------------------------------
 void handleIncludeFilePath(
+   const std::string& topLevelPath,
    const std::string& netlistFileName,
    std::string& includeFile)
 {
   if (includeFile.empty())
     return;
 
-  size_t posLast = netlistFileName.find_last_of('/');
+  if (DEBUG_IO)
+  {
+    Xyce::dout() << "In IO::handlIncludeFilePath:" << std::endl;
+    Xyce::dout() << "  netlistFileName = " << netlistFileName << std::endl;
+    Xyce::dout() << "  includeFile name = " << includeFile << std::endl;
+  }
+
+  size_t posLast = getLastSlashPosition(netlistFileName);
 
   // Also handle the Windows canonical file separator if running on Windows
   #ifdef HAVE_WINDOWS_H
@@ -90,29 +98,54 @@ void handleIncludeFilePath(
   }
   else if (hasWinDriveLetter(includeFile))
   {
-    // Any file path within a Windows drive letter in it should be ignored.
     // This catches Windows paths of the form C:dirname, which are relative
-    // to the current working directory.
+    // to the current execution directory.
   }
   else if (posLast != std::string::npos)
   {
-    // netlistFilename_ is not in the same subdirectory as the top-level netlist.
-    // So, make a file name with a path that is relative to the path to netlistFilename_
+    // netlistFilename_ has a relative path.  So, make two file names.  The first priority
+    // is the path that is relative to the subdirectory of netlistFilename_.  The second
+    // priority is the path that is relative to the subdirectory of the top-level netlist.
     std::string includeFileWithRP = netlistFileName.substr(0,posLast+1) + includeFile;
+    std::string includeFileWithTLpath = topLevelPath + includeFile;
 
-    // If includeFileWithRP exists then use it.  Otherwise, the fall-back is to
-    // assume that the path of includeFile is relative to the subdirectory of
-    // the top-level netlist.
+    // Modify the include file name if either path exists.  Otherwise, Xyce will
+    // look in its execution subdirectory, by default.
     if ( Util::checkIfValidFile(includeFileWithRP) )
       includeFile = includeFileWithRP;
+    else if ( !topLevelPath.empty() && Util::checkIfValidFile(includeFileWithTLpath) )
+      includeFile = includeFileWithTLpath;
   }
   else
   {
-    // no op, since netlistFilename_ is in the same subdirectory as the
-    // top-level netlist
+    // no op, since netlistFilename_ is in the execution subdirectory, and will
+    // be found by default.
   }
 
+  if (DEBUG_IO)
+    Xyce::dout() << "  Modified includeFile name = " << includeFile << std::endl;
+
   return;
+}
+
+//--------------------------------------------------------------------------
+// Function      : getLastSlashPosition
+// Purpose       : Find the position of the last slash (/ or \) in a file name
+// Special Notes :
+// Creator       : Pete Sholander
+// Creation Date : 04/05/2021
+//--------------------------------------------------------------------------
+size_t getLastSlashPosition(const std::string& fileName)
+{
+  size_t posLast = fileName.find_last_of('/');
+
+  // Also handle the Windows canonical file separator if running on Windows
+  #ifdef HAVE_WINDOWS_H
+  if (posLast == std::string::npos)
+    posLast = fileName.find_last_of('\\');
+  #endif
+
+  return posLast;
 }
 
 //--------------------------------------------------------------------------
@@ -184,6 +217,7 @@ bool hasWinDriveLetter(const std::string& includeFile)
 // Creation Date : 01/10/2001
 //--------------------------------------------------------------------------
 void handleIncludeLine(
+    const std::string& topLevelPath,
     const std::string& netlistFileName,
     TokenVector const& parsedLine, const ExtendedString & ES1,
     std::string& includeFile, std::string& libSelect, std::string& libInside)
@@ -214,7 +248,7 @@ void handleIncludeLine(
     }
 
     // account for relative paths in include file name
-    handleIncludeFilePath(netlistFileName, includeFile);
+    handleIncludeFilePath(topLevelPath, netlistFileName, includeFile);
   }
   else
   {

@@ -102,6 +102,7 @@ CircuitBlock::CircuitBlock(
   bool                                                          modelBinning,
   double                                                        scale)
 : netlistFilename_(fileName),
+  topLevelPath_(""),
   title_(""),
   name_(""),
   analysisName_(""),
@@ -136,6 +137,7 @@ CircuitBlock::CircuitBlock(
   topology_(topology),
   deviceManager_(device_manager)
 {
+  topLevelPath_ = mainCircuitPtr_->getTopLevelPath();
 }
 
 //--------------------------------------------------------------------------
@@ -166,6 +168,7 @@ CircuitBlock::CircuitBlock(
   AliasNodeMap &                                                alias_node_map,
   const std::vector< std::pair< std::string, std::string> > &   externalNetlistParams)
 : netlistFilename_(netlistFilename_In),
+  topLevelPath_(""),
   title_(""),
   name_(""),
   analysisName_(""),
@@ -199,6 +202,11 @@ CircuitBlock::CircuitBlock(
   topology_(topology),
   deviceManager_(device_manager)
 {
+  // Get path to top level netlist.  This may be absolute or relative to the
+  // execution directory.
+  size_t posLast = IO::getLastSlashPosition(netlistFilename_);
+  if (posLast != std::string::npos)
+    topLevelPath_ = netlistFilename_.substr(0,posLast+1);
 }
 
 //--------------------------------------------------------------------------
@@ -1323,7 +1331,7 @@ bool CircuitBlock::handleLinePass1(
     {
       // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
       std::string includeFile, libSelect_new = libSelect, libInside_new;
-      Xyce::IO::handleIncludeLine( netlistFilename_, line, 
+      Xyce::IO::handleIncludeLine( topLevelPath_, netlistFilename_, line,
                                    ES1, includeFile, libSelect_new, libInside_new );
 
       // Check for recursive .INC/.INCLUDE of same file, which will create an infinite loop.
@@ -1605,7 +1613,7 @@ bool CircuitBlock::getLinePassMI()
           // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libInside, libSelect;
-          Xyce::IO::handleIncludeLine( netlistFilename_, line,
+          Xyce::IO::handleIncludeLine( topLevelPath_, netlistFilename_, line,
                                        ES1, includeFile, libSelect, libInside );
           if (includeFile != "")
           {

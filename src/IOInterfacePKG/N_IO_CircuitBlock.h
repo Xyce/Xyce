@@ -134,6 +134,13 @@ public:
     return netlistFilename_;
   }
 
+  // Get the path to the top-level netlist file, which may be either
+  // absolute or relative to the execution subdirectory.
+  const std::string& getTopLevelPath() const
+  {
+    return topLevelPath_;
+  }
+
   AliasNodeMap &getAliasNodeMap()
   {
     return aliasNodeMap_;
@@ -316,6 +323,7 @@ public:
 
 private:
   std::string                           netlistFilename_;
+  std::string                           topLevelPath_;     // path of the top-level netlist. May be absolute, or relative to execution dir
   std::string                           title_;                   // For top level circuit, given by first line of netlist
   std::string                           name_;                    // For subcircuits
   std::string                           analysisName_;
