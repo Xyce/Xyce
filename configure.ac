@@ -673,6 +673,8 @@ fi
 dnl If the user enabled Amesos2, let's add it here:
 if test "x$USE_AMESOS2" = "xyes"; then
     XYCE_TRILINOS_LIBRARY_OPTION(Amesos2, USE_AMESOS2_MAKEFILE)
+    USING_AMESOS2_KLU2=yes 
+    AC_CHECK_HEADER([Amesos2_KLU2.hpp], AC_DEFINE([Xyce_AMESOS2_KLU2], [1], [Set to use templated KLU solver in Amesos2.]), [USING_AMESOS2_KLU2=no])
     USING_AMESOS2_BASKER=yes
     AC_CHECK_HEADER([Amesos2_Basker.hpp], AC_DEFINE([Xyce_AMESOS2_BASKER], [1], [Set to use templated Basker solver in Amesos2.]), [USING_AMESOS2_BASKER=no])
     if test "$USING_AMESOS2_BASKER" != "no"; then
@@ -1084,15 +1086,16 @@ case "$target" in
   *-linux*)
     CPACK_SYSTEM_NAME="Linux"
     case "$CXX" in
-    icpc|*-icc-*mpic++|*-icc-*mpicxx)
+    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
         CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
         ;;
-    mpicxx|mpic++)
+    mpicxx*|mpic++*)
         # Handle case where we're relying on PATH and OMPI_CXX to use intel
-        if test "x$OMPI_CXX" = "xicpc" 
-        then
+        case "$OMPI_CXX" in
+        *icpc*)
           CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
-        fi
+          ;;
+        esac
         ;;
     esac
     ;;
@@ -1100,7 +1103,7 @@ case "$target" in
     CPACK_SYSTEM_NAME="Darwin"
     CPACK_PACKAGING_INSTALL_PREFIX="/"
     case "$CXX" in
-    icpc|*-icc-*mpic++|*-icc-*mpicxx)
+    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
         CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
         ;;
     esac

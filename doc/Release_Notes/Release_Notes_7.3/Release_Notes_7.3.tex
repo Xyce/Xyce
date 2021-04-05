@@ -96,9 +96,19 @@ please visit the \XyceTM{} web page at
   \item The Xyce expression library now recognizes \texttt{TEMPER} and
     \texttt{HERTZ} as synonyms for \texttt{TEMP} and \texttt{FREQ},
     respectively.
-  \item Model binning is now turned on by default.  It is not necessary to 
-    specify the netlist command \texttt{.options parser} \texttt{model\_binning=true} 
-    anymore.
+  \item Model binning is now turned on by default.  It is not
+    necessary to specify the netlist command \texttt{.options parser}
+    \texttt{model\_binning=true} anymore.
+  \item Xyce's rawfile output when invoked with the ``-r'' option was
+    unnecessarily changing the final ``\_'' in any variable name to a
+    ``\#''.  It no longer does so.  This bug was never present in
+    rawfiles produced via ``.print FORMAT=RAW'' lines, only the
+    command-line version that causes all solution variables to be
+    extracted into the rawfile.
+  \item \texttt{.param} parameters are now allowed to depend on ``special'' variables 
+    such as \texttt{TEMP}, \texttt{TIME}, \texttt{FREQ} and \texttt{VT}.  
+    Previously, only \texttt{.global\_param} parameters could depend on special variables. 
+  \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.   
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

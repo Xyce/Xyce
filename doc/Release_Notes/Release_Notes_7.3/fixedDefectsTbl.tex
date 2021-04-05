@@ -37,6 +37,19 @@
      SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
+\textbf{Gitlab-ex issue 8}: Xyce ``Override'' rawfile output unconditionally replaces final ``\_'' in a variable name with ``\#'': &
+A long-standing bug in Xyce's ``override'' rawfile output (that
+produced when the command line option ``-r'' is used) caused all
+variables with underscores in their names to have the last underscore
+(``\_'') replaced with an octothorpe (``\#'').  This was originally done
+to allow Xyce's rawfiles to be readable by IC-CAP, which expects the
+branch current associated with a voltage source to have a ``\#branch''
+suffix, whereas Xyce's internal name for these currents have a
+``\_branch'' suffix.  This bug made rawfile output names of other
+variables incorrect, so the code has been refined to make only
+appropriate changes to variable names rather than blindly replacing
+one character. \\ \hline
+
 \textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
 If a user code links to the Xyce libraries and allocates objects of
 one of the Xyce simulator classes (either the base class

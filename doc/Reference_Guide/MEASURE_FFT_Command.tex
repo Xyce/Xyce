@@ -100,8 +100,9 @@ The supported measure types are:
     frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM})
     to FFT cofficients is given in the ``Additional Examples'' subsection below.
     {\tt FIND} measures can be also used in conjunction with {\tt EQN} measures
-    to generate fairly arbitrary FFT-based measures.  An example of that is also
-    given below.
+    to generate fairly arbitrary FFT-based measures.  The {\tt FIND} measure for
+    {\tt FFT} measure mode does not support expressions, or the {\tt P} and
+    {\tt W} operators.
 
   \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
     is defined further below.
@@ -132,6 +133,13 @@ A frequency {\em at which} the measurement calculation will occur.  This is
 used by the {\tt FIND} measure only.  The entered {\tt AT} value will be
 rounded to the nearest harmonic frequency, as defined by the {\tt FREQ},
 {\tt START} and {\tt STOP} parameters on the associated {\tt .FFT} line.
+An {\tt AT} value that rounds to a harmonic frequency of less than zero,
+or to more than {\tt NP/2}, will produce a failed measure in \Xyce{}.
+The behavior of these ''failed'' cases may differ from commercial simulators.
+
+\argument{BINSIZ=value}
+This parameter is not implemented in \Xyce{}, but is included for compatibility
+with HSPICE netlists.
 
 \argument{DEFAULT\_VAL=value}
 

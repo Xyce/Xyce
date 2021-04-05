@@ -347,15 +347,12 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
     os << std::scientific << std::setprecision(precision_);
 
     if (initialized_)
-    {
-      os << name_ << " = " << this->getMeasureResult()
-         << " at " <<  atIdx_*fftAnalysisPtr_->getFundamentalFreq()
-         << " Hz (rounded from " << at_ << " Hz)" << std::endl;
-    }
+      os << name_ << " = " << this->getMeasureResult();
     else
-    {
-      os << name_ << " = FAILED" << std::endl;
-    }
+      os << name_ << " = FAILED";
+
+    os << " at " <<  atIdx_*fftAnalysisPtr_->getFundamentalFreq()
+       << " Hz (rounded from " << at_ << " Hz)" << std::endl;
 
     return os;
 }

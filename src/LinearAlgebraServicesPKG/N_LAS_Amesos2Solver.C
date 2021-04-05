@@ -225,13 +225,17 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
 
     }
+#ifdef Xyce_AMESOS2_KLU2
     else if (type_ == "KLU2") {
       
       solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("klu2", 
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
     }
+#endif
     else {
-
+      Report::DevelFatal0()
+        << "Unknown or Unavailable Linear Solver: " << type_;
+ 
     }
 
     double begSymTime = timer_->elapsedTime();

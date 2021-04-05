@@ -475,7 +475,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "BINSIZ" )
     {
-
+      binSize_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "MINFREQ" )
     {

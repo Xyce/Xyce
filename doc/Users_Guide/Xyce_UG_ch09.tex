@@ -2072,17 +2072,21 @@ taking the dot product of $\partial O/\partial x$ and $\partial x/\partial p$.
 \subsubsection{Adjoint Sensivity}
 The description of adjoint sensitivies is beyond the scope of this document, but the issues affecting accuracy are largely the same.  For a description of the formulation, see references~\cite{KeiterGradEnhnacedPCE2016,KeiterUQ2019}.
 
-\paragraph{Analytical vs Numerical derivatives}
+\subsubsection{Analytical vs Numerical derivatives}
 As mentioned above, most of the terms in the sensitivity equations are analytical.  
 The possible exception is with the 
 terms $\partial q/\partial p$, $\partial j/\partial p$ and $\partial b/\partial p$, which 
 depend on device model implementation.  Most devices in \Xyce{} are instrumented to provide 
-these sensitivities analytically, but some devices do not.  For these devices, a numerical derivative is computed instead.
-A list of \Xyce{}
+these sensitivities analytically, either with hand-written derivatives or via automatic differentiation.
+But there are exceptions to this, so some devices do not.  For these devices, a numerical 
+derivative is computed instead.  A list of \Xyce{}
 devices, and which of them support analytic sensitivities, is given in
-the \Xyce{} Reference Guide\ReferenceGuide{}.
+the \Xyce{} Reference Guide\ReferenceGuide{}.  When numerical derivatives are used, 
+\Xyce{} automatically selects a small delta just large enough to 
+avoid machine precision, following the  procedure suggested by Dennis and 
+Schnabel~\cite{doi:10.1137/1.9781611971200.ch5}.
 
-\paragraph{Time integration error}
+\subsubsection{Time integration error}
 For transient, note that the transient direct calculation uses the
 same time steps that are used for the original circuit analysis.  It
 does not impose any additional error control that is specific to the
@@ -2091,11 +2095,48 @@ accuracy of $\partial x/\partial p$.  The adjoint calculation
 uses the same time steps as the forward calculation.
 
 \subsubsection{AC Sensitivities}
-
 While many of the accuracy issues pertaining to AC sensitivities are the same as for DC sensitivities, 
-the math different enough to warrrent more discussion.  AC sensitivies are based on small-signal analysis.
+the formulation is different enough to introduce an additional issue.  AC sensitivities will nearly always
+use some numerical derivatives in their evaluation.  AC sensitivies are based on small-signal analysis, 
+so the analysis solves for the response of a circuit to a small sinusoidal signal.  
+It first solves the DC operating point, and then approximates the AC response 
+using a Taylor series expansion.  This exansion approximates a small change in the solution as a 
+function of a small change in the AC stimulus.  The original AC equation is given by:
+\begin{equation}
+J \cdot \Delta x = \Delta b
+  \label{ACeqn1}
+\end{equation}
+where $J$ is the AC Jacobian matrix, $\Delta x$ is the AC change to the solution 
+vector and $\Delta b$ is the AC change to the source vector.  Equation~\ref{ACeqn1} 
+assumes a phasor representation, so $\Delta x = X e^{i\omega t \pm \phi}$ 
+and $\Delta b = B e^{i\omega t \pm \phi}$, where $\omega$ is the frequency 
+and $\phi$ is the phase.  The AC Jacobian is determined from the DC Jacobian matrices for $f$ and $q$ as $J = (\partial f/\partial x + i\omega \partial q/\partial x)$.
 
-
+For AC sensitivities, we want to compute $\Delta x' = \partial (\Delta x)/\partial p$, where $p$ is the sensitivity parameter.  To obtain  this, one takes derivative of equation~\ref{ACeqn1} with respect to a parameter, $p$. This gives the direct sensitivity equation 
+\begin{equation}
+J \cdot \Delta x' = \Delta b' - J' \cdot \Delta x,
+  \label{ACsenseqn1}
+\end{equation}
+where the apostrophe indicates a parameter derivative.  The linear system in 
+equation~\ref{ACsenseqn1} must be solved to  obtain $ \Delta x'$, the sensitivity 
+of $\Delta x$ with respect to a parameter.   This is the equation for the direct 
+method, but a related equation can be obtained for the adjoint method.  To solve 
+equation~\ref{ACsenseqn1}, the terms on the right hand side must be provided by 
+\Xyce{}.  The $\Delta x$ term is the AC solution, which must be computed prior to sensitivity analysis. 
+The term $\Delta b'$ is trivial to provide analytically, as it is generally from ideal independent source models. The matrix derivative $J'$, however, is more complicated so it usually 
+contains numerical derivatives.  To see why, consider that when $J'$ is fully 
+expanded it is given as:
+\begin{equation}
+J' = \frac{\partial J}{\partial p} + \frac{\partial J}{\partial x} \cdot \frac{\partial x}{\partial p}.
+  \label{Jderiv1}
+\end{equation}
+The right hand side terms $\partial J/\partial p$ and $\partial J/\partial x$ of~\ref{Jderiv1} 
+are matrix derivatives, and 
+\Xyce{} is not instrumented to provide these using the usual method of automatic differentiation.
+For complex device models, implementing matrix derivatives manually is prohibitive.  Therefore, 
+with the exception of simple linear devices, the terms in equation~\ref{Jderiv1} are
+evaluated numerically.
+%%%%
 \clearpage
 \subsection{Output}
 \label{SENS_Output}\index{\texttt{.PRINT}!\texttt{.SENS}}
