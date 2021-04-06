@@ -35,8 +35,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_HBBlockMatrixEntry_h
-#define Xyce_N_LAS_HBBlockMatrixEntry_h
+#ifndef Xyce_N_LAS_BlockMatrixEntry_h
+#define Xyce_N_LAS_BlockMatrixEntry_h
 
 #include <Xyce_config.h>
 #include <N_ERH_ErrorMgr.h>
@@ -64,11 +64,10 @@ template<class T>
 struct genericBlockMatrixEntry 
 {
   typedef T val_type;
-  typedef Teuchos::ScalarTraits<std::complex<double> >::magnitudeType mag_type;
+  typedef typename Teuchos::ScalarTraits<val_type>::magnitudeType mag_type;
   typedef Teuchos::SerialDenseMatrix<int, val_type> mtx_type_nonlin;
   typedef Teuchos::SerialDenseSolver<int, val_type> nonlin_solver;
   typedef std::vector<val_type> mtx_type_lin;
-  
 
   // Default constructor
   genericBlockMatrixEntry()
@@ -308,9 +307,7 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator*  (
     {
       if ( (rows == 1) && isDiag() )
       {
-      // ERK. FIX
-        if ( diagVector[0] != 1.0 )
-        //if ( diagVector[0] != val_type( 1.0, 0.0 ) )
+        if ( diagVector[0] != Teuchos::ScalarTraits<val_type>::one() )
         {
           result.expandDiag( Source.rows );
           result *= Source;
@@ -321,9 +318,7 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator*  (
 
       if ( (Source.rows == 1) && Source.isDiag() )
       {
-      // ERK. FIX
-        if ( Source.diagVector[0] !=  1.0 )
-        //if ( Source.diagVector[0] != val_type( 1.0, 0.0 ) )
+        if ( Source.diagVector[0] != Teuchos::ScalarTraits<val_type>::one() )
         {
           genericBlockMatrixEntry newSource( Source );
           newSource.expandDiag( rows );
@@ -391,9 +386,7 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator/  (
 
       if ( (Source.rows == 1) && Source.isDiag() )
       {
-      // ERK. FIX
-        if ( Source.diagVector[0] != 1.0 )
-        //if ( Source.diagVector[0] != val_type( 1.0, 0.0 ) )
+        if ( Source.diagVector[0] != Teuchos::ScalarTraits<val_type>::one() )
         {
           genericBlockMatrixEntry newSource( Source );
           newSource.expandDiag( rows );
@@ -432,9 +425,7 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator/  (
 
       // Now perform row scaling of the inverted matrix.
       val_type alpha = Source.diagVector[0];
-      // ERK. FIX
-      if ( alpha != 1.0 || Source.rows>1 )
-      //if ( alpha != val_type( 1.0, 0.0 ) || Source.rows>1 )
+      if ( alpha != Teuchos::ScalarTraits<val_type>::one() || Source.rows>1 )
       {
         for (int j=0; j<result.cols; j++)
         {
@@ -513,9 +504,7 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator-= (const
     {
       // Copy over dense matrix and then add diagonals.
       denseMtx.reshape( Source.rows, Source.cols );
-      // ERK. FIX THIS
-      denseMtx.putScalar( 0.0 );
-     // denseMtx.putScalar( val_type( 0.0, 0.0 ) );
+      denseMtx.putScalar( Teuchos::ScalarTraits<val_type>::zero() );
       for (int i=0; i<Source.rows; i++)
       {
         denseMtx(i,i) = diagVector[i];
@@ -685,7 +674,6 @@ inline bool genericBlockMatrixEntry<T>::operator==(const genericBlockMatrixEntry
       // This doesn't make a lot of sense, but the abstractions in Basker require that
       // this matrix can be the same as an empty one if it is zero.
       val_type suma = std::accumulate( diagVector.begin(), diagVector.end(), Teuchos::ScalarTraits<val_type>::zero() );
-      //Teuchos::ScalarTraits<val_type>::magnitudeType sumb = denseMtx.normFrobenius();
       mag_type sumb = denseMtx.normFrobenius();
       if ( (suma == Teuchos::ScalarTraits<val_type>::zero()) && (sumb == 0.0) )
         ret = true; 
@@ -741,13 +729,10 @@ inline bool genericBlockMatrixEntry<T>::operator> (const genericBlockMatrixEntry
     }
     else
     {
-      //Teuchos::ScalarTraits<val_type>::magnitudeType mina = Teuchos::ScalarTraits<val_type>::magnitude( diagVector[0] );
-      //Teuchos::ScalarTraits<val_type>::magnitudeType maxa = Teuchos::ScalarTraits<val_type>::magnitude( diagVector[0] );
       mag_type mina = Teuchos::ScalarTraits<val_type>::magnitude( diagVector[0] );
       mag_type maxa = Teuchos::ScalarTraits<val_type>::magnitude( diagVector[0] );
       for (int i=1; i<rows; i++)
       {
-        //Teuchos::ScalarTraits<val_type>::magnitudeType val = 
         mag_type val = Teuchos::ScalarTraits<val_type>::magnitude( diagVector[i] );
         if (val > maxa)
           maxa = val;
@@ -755,13 +740,10 @@ inline bool genericBlockMatrixEntry<T>::operator> (const genericBlockMatrixEntry
           mina = val;
       }
 
-      //Teuchos::ScalarTraits<val_type>::magnitudeType minb = Teuchos::ScalarTraits<val_type>::magnitude( Source.diagVector[0] );
-      //Teuchos::ScalarTraits<val_type>::magnitudeType maxb = Teuchos::ScalarTraits<val_type>::magnitude( Source.diagVector[0] );
       mag_type minb = Teuchos::ScalarTraits<val_type>::magnitude( Source.diagVector[0] );
       mag_type maxb = Teuchos::ScalarTraits<val_type>::magnitude( Source.diagVector[0] );
       for (int i=1; i<Source.rows; i++)
       {
-        //Teuchos::ScalarTraits<val_type>::magnitudeType val = 
         mag_type val = Teuchos::ScalarTraits<val_type>::magnitude( Source.diagVector[i] );
         if (val > maxb)
           maxb = val;
@@ -781,7 +763,6 @@ inline bool genericBlockMatrixEntry<T>::operator> (const genericBlockMatrixEntry
   {
     if ( Source.isDense() )
     {
-      //Teuchos::ScalarTraits<val_type>::magnitudeType condEst, condEst2;
       mag_type condEst, condEst2;
       mtx_type_nonlin inverse( Teuchos::Copy, denseMtx ), inverse2( Teuchos::Copy, Source.denseMtx );
       nonlin_solver denseSolver;
@@ -1063,4 +1044,4 @@ namespace Amesos2 {
 
 #endif
 
-#endif // Xyce_N_LAS_HBBlockMatrixEntry_h
+#endif // Xyce_N_LAS_BlockMatrixEntry_h

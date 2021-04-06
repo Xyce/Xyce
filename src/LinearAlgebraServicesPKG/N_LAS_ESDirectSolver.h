@@ -46,7 +46,7 @@
 
 #include <N_LAS_Solver.h>
 #include <N_LAS_TransformTool.h>
-#include <N_LAS_HBBlockMatrixEntry.h>
+#include <N_LAS_BlockMatrixEntry.h>
 
 #include <N_TIA_DataStore.h>
 

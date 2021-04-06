@@ -46,7 +46,7 @@
 
 #include <N_LAS_Solver.h>
 #include <N_LAS_TransformTool.h>
-#include <N_LAS_HBBlockMatrixEntry.h>
+#include <N_LAS_BlockMatrixEntry.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>
