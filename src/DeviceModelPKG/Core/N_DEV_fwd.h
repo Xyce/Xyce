@@ -94,7 +94,7 @@ class RxnRegion2;
 class RxnRegionData;
 
 class SolverState;
-struct Globals;
+struct UserDefinedParams;
 class SourceInstance;
 class XyceInterface;
 

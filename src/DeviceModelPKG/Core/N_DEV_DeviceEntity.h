@@ -328,7 +328,7 @@ private:
   NetlistLocation             netlistLocation_;
 
   const SolverState &         solState_;
-  Globals &                   globals_;
+  UserDefinedParams &         globals_;
 
   const DeviceOptions &       devOptions_;
   std::vector<Depend>         dependentParams_;

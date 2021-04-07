@@ -112,7 +112,7 @@ bool setParameter(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  Globals &                     globals,
+  UserDefinedParams &           globals,
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,
   const InstanceVector &        extern_device_vector,
@@ -126,7 +126,7 @@ bool setParameterRandomExpressionTerms(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  Globals &                     globals,
+  UserDefinedParams &           globals,
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,
   const InstanceVector &        extern_device_vector,
@@ -901,8 +901,8 @@ void DeviceMgr::notify(const Analysis::StepEvent &event)
     if (!(*iterI)->getDependentParams().empty()) { (*iterI)->setupParamBreakpoints(); }
   }
 
-  std::vector<Util::Expression>::iterator globalExp_i = globals_.global_expressions.begin();
-  std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
+  std::vector<Util::Expression>::iterator globalExp_i = globals_.expressionVec.begin();
+  std::vector<Util::Expression>::iterator globalExp_end = globals_.expressionVec.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
     globalExp_i->setupBreakPoints();
@@ -1997,7 +1997,7 @@ bool DeviceMgr::parameterExists(
 //  return getOp(comm, name);
   
   // double value = 0.0;
-  // return getParameter(artificialParameterMap_, globals_.global_params, *this, *measureManager_, name, value);
+  // return getParameter(artificialParameterMap_, globals_.paramMap, *this, *measureManager_, name, value);
 }
 
 
@@ -2084,16 +2084,16 @@ struct SweepParam_equal
 void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm)
 {
-  std::vector<Util::Expression> & global_expressions  = globals_.global_expressions;
-  std::vector<std::string> & global_exp_names = globals_.global_exp_names;
+  std::vector<Util::Expression> & expressionVec  = globals_.expressionVec;
+  std::vector<std::string> & expNameVec = globals_.expNameVec;
 
   // get random expressions from global parameters first.
   // ERK Q: in parallel, is the order of global params preserved?  This global param 
   // part works in parallel when there is a single parameter.
   // If the order is preserved, then nothing extra has to be done for parallel.
-  for (int ii=0;ii<global_expressions.size();ii++)
+  for (int ii=0;ii<expressionVec.size();ii++)
   {
-    populateSweepParam(global_expressions[ii], global_exp_names[ii], SamplingParams );
+    populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
   }
 
   // now do device params
@@ -2936,7 +2936,7 @@ void DeviceMgr::addGlobalPar(const Util::Param & param)
 const double * DeviceMgr::findGlobalPar(
   const std::string & parName) const
 {
-  return findGlobalParameter(globals_.global_params, parName);
+  return findGlobalParameter(globals_.paramMap, parName);
 }
 
 //-----------------------------------------------------------------------------
@@ -3022,8 +3022,8 @@ bool DeviceMgr::updateSecondaryState_()
 //----------------------------------------------------------------------------
 void DeviceMgr::updateDependentParameters_()
 {
-  GlobalParameterMap & globalParamMap = globals_.global_params;
-  std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
+  GlobalParameterMap & globalParamMap = globals_.paramMap;
+  std::vector<Util::Expression> & globalExpressionsVec = globals_.expressionVec;
 
   bool timeChanged = false;
   bool freqChanged = false;
@@ -3058,7 +3058,7 @@ void DeviceMgr::updateDependentParameters_()
     if (globalExprIter->evaluateFunction(val))
     {
       globalParamChanged = true;
-      globalParamMap[globals_.global_exp_names[pos]] = val;
+      globalParamMap[globals_.expNameVec[pos]] = val;
     }
     ++pos;
   }
@@ -3537,8 +3537,8 @@ void DeviceMgr::setGlobalFlags()
 //-----------------------------------------------------------------------------
 void DeviceMgr::resetBreakPoints()
 {
-  std::vector<Util::Expression>::iterator globalExp_i = globals_.global_expressions.begin();
-  std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
+  std::vector<Util::Expression>::iterator globalExp_i = globals_.expressionVec.begin();
+  std::vector<Util::Expression>::iterator globalExp_end = globals_.expressionVec.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
     globalExp_i->setupBreakPoints();
@@ -3596,8 +3596,8 @@ bool DeviceMgr::getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes,
   }
 
   // Breakpoints for global params:
-  std::vector<Util::Expression>::iterator globalExp_i = globals_.global_expressions.begin();
-  std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
+  std::vector<Util::Expression>::iterator globalExp_i = globals_.expressionVec.begin();
+  std::vector<Util::Expression>::iterator globalExp_end = globals_.expressionVec.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
     globalExp_i->getBreakPoints(breakPointTimes);
@@ -4338,7 +4338,7 @@ void DeviceMgr::acceptStep()
 
   Xyce::Util::Expression::clearProcessSuccessfulTimeStepMap(); // kludge but neccessary for now
 
-  std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
+  std::vector<Util::Expression> & globalExpressionsVec = globals_.expressionVec;
 
   // Update global params for new time and other global params
   std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
@@ -4864,7 +4864,7 @@ bool setParameter(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  Globals &                     globals,               ///< global variables
+  UserDefinedParams &           globals,               ///< global variables
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector, // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
@@ -4873,7 +4873,7 @@ bool setParameter(
   bool                          override_original)
 {
   bool bsuccess = true, success = true;
-  GlobalParameterMap &  global_parameter_map = globals.global_params;
+  GlobalParameterMap &  global_parameter_map = globals.paramMap;
 
   ArtificialParameterMap::iterator artificial_param_it = artificial_parameter_map.find(name);
   if (artificial_param_it != artificial_parameter_map.end())
@@ -5007,7 +5007,7 @@ bool setParameterRandomExpressionTerms(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
   PassthroughParameterSet &     passthrough_parameter_map,
-  Globals &                     globals,               ///< global variables
+  UserDefinedParams &           globals,               ///< global variables
   DeviceMgr &                   device_manager,
   EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
   const InstanceVector &        extern_device_vector,
@@ -5020,9 +5020,9 @@ bool setParameterRandomExpressionTerms(
 {
   bool bsuccess = true, success = true;
 
-  GlobalParameterMap &          global_parameter_map = globals.global_params;
-  std::vector<Util::Expression> & global_expressions = globals.global_expressions;
-  std::vector<std::string> & global_exp_names = globals.global_exp_names;
+  GlobalParameterMap &          global_parameter_map = globals.paramMap;
+  std::vector<Util::Expression> & global_expressions = globals.expressionVec;
+  std::vector<std::string> & global_exp_names = globals.expNameVec;
 
   {
     GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
@@ -5174,23 +5174,23 @@ bool setParameterRandomExpressionTerms(
 void addGlobalParameter(
   SolverState &         solver_state,
   double                temp,
-  Globals &             globals,
+  UserDefinedParams &   globals,
   const Util::Param &   param)
 {
   if (param.getType() == Util::EXPR)
   {
-    globals.global_expressions.push_back(param.getValue<Util::Expression>());
-    globals.global_exp_names.push_back(param.uTag());
+    globals.expressionVec.push_back(param.getValue<Util::Expression>());
+    globals.expNameVec.push_back(param.uTag());
 
-    Util::Expression &expression = globals.global_expressions.back();
+    Util::Expression &expression = globals.expressionVec.back();
     double val;
     expression.evaluateFunction(val);
     expression.clearOldResult();
-    globals.global_params[param.uTag()] = val;
+    globals.paramMap[param.uTag()] = val;
   }
   else
   {
-    globals.global_params[param.uTag()] = param.getImmutableValue<double>();
+    globals.paramMap[param.uTag()] = param.getImmutableValue<double>();
   }
 }
 
