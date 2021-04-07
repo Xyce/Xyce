@@ -203,10 +203,9 @@ CircuitBlock::CircuitBlock(
   deviceManager_(device_manager)
 {
   // Get path to top level netlist.  This may be absolute or relative to the
-  // execution directory.
-  size_t posLast = IO::getLastSlashPosition(netlistFilename_);
-  if (posLast != std::string::npos)
-    topLevelPath_ = netlistFilename_.substr(0,posLast+1);
+  // execution directory.  It will be empty if the top level netlist is in
+  // the execution directory.
+  topLevelPath_ = IO::getPathFromFileName(netlistFilename_);
 }
 
 //--------------------------------------------------------------------------

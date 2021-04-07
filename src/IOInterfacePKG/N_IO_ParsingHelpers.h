@@ -67,7 +67,7 @@ void handleIncludeFilePath(
    std::string& includeFileName);
 
 // helper functions for handleIncludeFilePath()
-size_t getLastSlashPosition(const std::string& fileName);
+std::string getPathFromFileName(const std::string& fileName);
 bool isAbsolutePath(const std::string& includeFile);
 bool hasWinDriveLetter(const std::string& includeFile);
 

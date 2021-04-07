@@ -84,13 +84,7 @@ void handleIncludeFilePath(
     Xyce::dout() << "  includeFile name = " << includeFile << std::endl;
   }
 
-  size_t posLast = getLastSlashPosition(netlistFileName);
-
-  // Also handle the Windows canonical file separator if running on Windows
-  #ifdef HAVE_WINDOWS_H
-  if (posLast == std::string::npos)
-    posLast = netlistFileName.find_last_of('\\');
-  #endif
+  std::string netlistFilePath = getPathFromFileName(netlistFileName);
 
   if (isAbsolutePath(includeFile))
   {
@@ -101,12 +95,12 @@ void handleIncludeFilePath(
     // This catches Windows paths of the form C:dirname, which are relative
     // to the current execution directory.
   }
-  else if (posLast != std::string::npos)
+  else if (!netlistFilePath.empty())
   {
     // netlistFilename_ has a relative path.  So, make two file names.  The first priority
     // is the path that is relative to the subdirectory of netlistFilename_.  The second
     // priority is the path that is relative to the subdirectory of the top-level netlist.
-    std::string includeFileWithRP = netlistFileName.substr(0,posLast+1) + includeFile;
+    std::string includeFileWithRP = netlistFilePath + includeFile;
     std::string includeFileWithTLpath = topLevelPath + includeFile;
 
     // Modify the include file name if either path exists.  Otherwise, Xyce will
@@ -129,14 +123,18 @@ void handleIncludeFilePath(
 }
 
 //--------------------------------------------------------------------------
-// Function      : getLastSlashPosition
-// Purpose       : Find the position of the last slash (/ or \) in a file name
+// Function      : getPathFromFileName
+// Purpose       : Extracts the path portion from a file name. This path
+//                 string may be absolute or relative. It may also be an
+//                 empty string.  If non-empty, then it will be terminated
+//                 with the file separator used in fileName.
 // Special Notes :
 // Creator       : Pete Sholander
 // Creation Date : 04/05/2021
 //--------------------------------------------------------------------------
-size_t getLastSlashPosition(const std::string& fileName)
+std::string getPathFromFileName(const std::string& fileName)
 {
+  std::string path("");
   size_t posLast = fileName.find_last_of('/');
 
   // Also handle the Windows canonical file separator if running on Windows
@@ -145,7 +143,10 @@ size_t getLastSlashPosition(const std::string& fileName)
     posLast = fileName.find_last_of('\\');
   #endif
 
-  return posLast;
+  if (posLast != std::string::npos)
+    path = fileName.substr(0,posLast+1);
+
+  return path;
 }
 
 //--------------------------------------------------------------------------
