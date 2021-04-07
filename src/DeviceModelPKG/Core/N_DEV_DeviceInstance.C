@@ -1707,22 +1707,6 @@ bool DeviceInstance::updateTemperature(const double & temp_tmp)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceInstance::processParams
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 06/03/02
-//-----------------------------------------------------------------------------
-bool DeviceInstance::processParams ()
-{
-  Report::DevelFatal0().in("DeviceInstance::processParams")
-    << "DeviceInstance::processParams() must be implemented for device " << getName();
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DeviceInstance::setInternalState
 // Purpose       :
 // Special Notes :
