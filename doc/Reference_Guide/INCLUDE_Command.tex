@@ -33,4 +33,14 @@ relative path is given as a part of the file name.
 .INCLUDE "path\_to\_library/models.lib"
 \end{alltt}
 
+\comments
+If {\texttt <include file name>} uses an absolute path then that path
+is used.  Otherwise, the search-path order for {\texttt <include file name>} is:
+\begin{XyceItemize}
+  \item Relative to the directory that contains {\texttt <include file name>}.
+  \item Relative to the directory that contains the file with the top-level
+netlist.
+  \item Relative to the \Xyce{} execution directory.
+\end{XyceItemize}
+
 \end{Command}
