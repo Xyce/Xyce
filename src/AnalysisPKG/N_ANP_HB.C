@@ -1505,7 +1505,7 @@ bool HB::setFreqPointsFM_()
     currfreqPoints.print(dout());
   }
 
-/*  std::sort(freqPoints_.begin(), freqPoints_.end() );
+  std::sort(freqPoints_.begin(), freqPoints_.end() );
 
 //  if (DEBUG_HB)
   {
@@ -1519,14 +1519,9 @@ bool HB::setFreqPointsFM_()
   {
     for (int i=0; i< freqPoints_.size(); i++)
       dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
-  }        */
-//  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
-//    posfreqPoints_.erase( posfreqPoints_.begin());
-
-//  freqPoints_ = currfreqPoints;
+  }
 
   size_ = freqPoints_.size();
-
 
   Xyce::dout() << "size = " << size_ << std::endl;
 
