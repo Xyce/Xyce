@@ -318,9 +318,30 @@ bool HB::doInit()
   initializeOscOut( );
   setFreqPoints_();
 
-  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
+//  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
 
-  if (DEBUG_HB)
+  int posFreqSize = (size_ - 1)/2;  
+   
+  std::vector<double> freqPos; 
+
+  freqPos.resize(posFreqSize);
+
+  for (int i=0; i < posFreqSize; i++)
+  {
+//    if (freqP[i] < 0.0)
+    freqPos[i] = fabs( freqPoints_[i + posFreqSize + 1]);
+
+    Xyce::dout() << "freqPos =" <<  freqPos[i] << std::endl;
+
+  }
+
+   double minFreq = *std::min_element( freqPos.begin(), freqPos.end());
+
+   period_ = 1.0/minFreq;
+
+//  if (DEBUG_HB)
+//    Xyce::dout() << "minFreq =" <<  minFreq << std::endl;
+
     Xyce::dout() << "HB period =" <<  period_ << std::endl;
 
   fastTimes_.resize(size_);
@@ -1464,7 +1485,7 @@ bool HB::setFreqPointsFM_()
     numTotalFrequencies *= numFreqs_[i];
   }
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     for (int i=0; i< numAnalysisFreqs; i++)
     {
@@ -1508,7 +1529,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1516,17 +1537,28 @@ bool HB::setFreqPointsFM_()
     currfreqPoints.print(dout());
   }
 
-  std::sort(freqPoints_.begin(), freqPoints_.end() );
+/*  std::sort(freqPoints_.begin(), freqPoints_.end() );
+
+//  if (DEBUG_HB)
+  {
+    for (int i=0; i< freqPoints_.size(); i++)
+      dout() << "frequency point " <<  freqPoints_[i] << std::endl;
+  }
 
   freqPoints_.erase(std::unique(freqPoints_.begin(), freqPoints_.end() ), freqPoints_.end() );
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     for (int i=0; i< freqPoints_.size(); i++)
       dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
-  }
+  }     */
+//  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
+//    posfreqPoints_.erase( posfreqPoints_.begin());
+
+//  freqPoints_ = currfreqPoints;
 
   size_ = freqPoints_.size();
+
 
   Xyce::dout() << "size = " << size_ << std::endl;
 
