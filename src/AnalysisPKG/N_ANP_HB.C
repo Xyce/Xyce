@@ -307,7 +307,7 @@ bool HB::doInit()
 
   period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
     Xyce::dout() << "HB period =" <<  period_ << std::endl;
 
   fastTimes_.resize(size_);
@@ -1453,7 +1453,7 @@ bool HB::setFreqPointsFM_()
     numTotalFrequencies *= numFreqs_[i];
   }
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     for (int i=0; i< numAnalysisFreqs; i++)
     {
@@ -1497,7 +1497,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1507,15 +1507,9 @@ bool HB::setFreqPointsFM_()
 
   std::sort(freqPoints_.begin(), freqPoints_.end() );
 
-//  if (DEBUG_HB)
-  {
-    for (int i=0; i< freqPoints_.size(); i++)
-      dout() << "frequency point " <<  freqPoints_[i] << std::endl;
-  }
-
   freqPoints_.erase(std::unique(freqPoints_.begin(), freqPoints_.end() ), freqPoints_.end() );
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     for (int i=0; i< freqPoints_.size(); i++)
       dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
