@@ -363,6 +363,11 @@ void Traits::loadInstanceParameters(ParametricData<DiodePDE::Instance> &p)
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
+  if (lengthGiven && !widthGiven)
+  {
+    width = length;
+  }
+
   updateTemperature(Temp);
   return true;
 }
@@ -520,11 +525,6 @@ Instance::Instance(
     UserFatal(*this) << "Mesh file was specified.  The 1D device doesn't need a mesh file."
                      << " Either add a model statement of level=2, or get rid of the mesh"
                      << " file specification.";
-  }
-
-  if (lengthGiven && !widthGiven)
-  {
-    width = length;
   }
 
   if (given("GNUPLOTLEVEL") && !given("TECPLOTLEVEL"))
