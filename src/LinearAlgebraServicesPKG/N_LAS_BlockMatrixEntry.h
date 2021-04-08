@@ -349,14 +349,17 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator*  (
       result.denseMtx.assign( Source.denseMtx );
 
       val_type alpha = diagVector[0];
-      for (int j=0; j<result.cols; j++)
+      for (int i=0; i<result.rows; i++)
       {
-        for (int i=0; i<result.rows; i++)
+        if (rows > 1)
+          alpha = diagVector[i];
+      
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
         {
-          if (rows > 1)
-            alpha = diagVector[i];
-
-          result.denseMtx(i,j) *= alpha;
+          for (int j=0; j<result.cols; j++)
+          {
+            result.denseMtx(i,j) *= alpha;
+          }
         }
       }
     }
@@ -425,15 +428,15 @@ inline const genericBlockMatrixEntry<T> genericBlockMatrixEntry<T>::operator/  (
 
       // Now perform row scaling of the inverted matrix.
       val_type alpha = Source.diagVector[0];
-      if ( alpha != Teuchos::ScalarTraits<val_type>::one() || Source.rows>1 )
+      for (int i=0; i<result.rows; i++)
       {
-        for (int j=0; j<result.cols; j++)
-        {
-          for (int i=0; i<result.rows; i++)
-          {
-            if (Source.rows > 1)
-              alpha = Source.diagVector[i];
+        if (Source.rows > 1)
+          alpha = Source.diagVector[i];
 
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
+        {
+          for (int j=0; j<result.cols; j++)
+          {
             result.denseMtx(i,j) /= alpha;
           }
         }
@@ -552,8 +555,11 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator*= (const
       for (int i=0; i<rows; i++)
       {
         val_type alpha = diagVector[i];
-        mtx_type_nonlin row_i( Teuchos::View, denseMtx, 1, cols, i, 0 );
-        row_i.scale( alpha );
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
+        {
+          mtx_type_nonlin row_i( Teuchos::View, denseMtx, 1, cols, i, 0 );
+          row_i.scale( alpha );
+        }
       }
       diagVector.clear();
     }
@@ -566,8 +572,11 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator*= (const
       for (int i=0; i<cols; i++)
       { 
         val_type alpha = Source.diagVector[i];
-        mtx_type_nonlin col_i( Teuchos::View, denseMtx, rows, 1, 0, i );
-	col_i.scale( alpha );
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
+        {
+          mtx_type_nonlin col_i( Teuchos::View, denseMtx, rows, 1, 0, i );
+	  col_i.scale( alpha );
+        }
       }
     }
     else
@@ -618,7 +627,7 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator/= (const
     } 
     else
     {
-      // This is now a dense matrix that is the col scaling of the inv(Source).
+      // This is now a dense matrix that is the row scaling of the inv(Source).
       denseMtx.reshape( Source.rows, Source.cols );
       denseMtx.assign( Source.denseMtx );
       nonlin_solver denseSolver;
@@ -626,12 +635,15 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator/= (const
       denseSolver.factor();
       denseSolver.invert();
 
-      // Now perform col scaling of the inverted matrix.
-      for (int i=0; i<cols; i++)
+      // Now perform row scaling of the inverted matrix.
+      for (int i=0; i<rows; i++)
       {
         val_type alpha = diagVector[i];
-        mtx_type_nonlin col_i( Teuchos::View, denseMtx, rows, 1, 0, i );
-        col_i.scale( alpha );
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
+        {
+          mtx_type_nonlin row_i( Teuchos::View, denseMtx, 1, cols, i, 0 );
+          row_i.scale( alpha );
+        }
       }
       diagVector.clear();
     }
@@ -640,12 +652,15 @@ inline genericBlockMatrixEntry<T>& genericBlockMatrixEntry<T>::operator/= (const
   {
     if ( isDense() )
     {
-      // Scale rows.
-      for (int i=0; i<rows; i++)
+      // Scale cols.
+      for (int i=0; i<cols; i++)
       {
         val_type alpha = Source.diagVector[i];
-        mtx_type_nonlin row_i( Teuchos::View, denseMtx, 1, cols, i, 0 );
-        row_i.scale( Teuchos::ScalarTraits<val_type>::one() / alpha );
+        if ( alpha != Teuchos::ScalarTraits<val_type>::one() )
+        {
+          mtx_type_nonlin col_i( Teuchos::View, denseMtx, rows, 1, 0, i );
+          col_i.scale( Teuchos::ScalarTraits<val_type>::one() / alpha );
+        }
       }
     }
     else

@@ -123,6 +123,11 @@ private:
   // Jacobian, filling out Ap_, Ai_, and Av_.
   void createBlockStructures();
 
+  // Create the Basker solver object.
+  // Due to memory leaks of the L and U factors, this needs to be done for every solve.
+  // The object does not reuse memory right now, so nothing is really lost.
+  void createBaskerSolver();
+
   // This function will use the matrices from the HB loader to form the HB Jacobian.
   void formHBJacobian();
 
@@ -190,11 +195,11 @@ private:
 #ifdef Xyce_AMESOS2_BASKER
 
 #ifdef Xyce_NEW_BASKER
-  BaskerClassicNS::BaskerClassic<int, std::complex<double> > basker_;
-  BaskerClassicNS::BaskerClassic<int, Xyce::HBBlockMatrixEntry > blockBasker_;
+  Teuchos::RCP<BaskerClassicNS::BaskerClassic<int, std::complex<double> > > basker_;
+  Teuchos::RCP<BaskerClassicNS::BaskerClassic<int, Xyce::HBBlockMatrixEntry > > blockBasker_;
 #else
-  Basker::Basker<int, std::complex<double> > basker_;
-  Basker::Basker<int, Xyce::HBBlockMatrixEntry> blockBasker_;
+  Teuchos::RCP<Basker::Basker<int, std::complex<double> > > basker_;
+  Teuchos::RCP<Basker::Basker<int, Xyce::HBBlockMatrixEntry> > blockBasker_;
 #endif
 
 #endif
