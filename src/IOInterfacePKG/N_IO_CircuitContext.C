@@ -1444,15 +1444,28 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
       else
       {
         parameterFound = getResolvedGlobalParameter(expressionParameter);
-        if (DEBUG_IO)
-        {
-          Xyce::dout() << "CircuitContext::resolveStrings attempting to resolve parameter " << expressionParameter.uTag() << std::endl;
-          if (parameterFound) { Xyce::dout() << "Found it." << std::endl; }
-          else { Xyce::dout() << " Did not find a resolved global parameter named " << expressionParameter.uTag()	<< std::endl; }
-        }
-
         if (parameterFound)
         {
+          if (DEBUG_IO)
+          {
+            Xyce::dout() <<" CircuitContext::resolveStrings string " << strings[i] << " is a resolved global parameter " << expressionParameter.uTag() << " with type "
+                         << expressionParameter.getType() << " and value ";
+            switch (expressionParameter.getType()) {
+              case Xyce::Util::STR:
+                Xyce::dout() << expressionParameter.stringValue();
+                break;
+              case Xyce::Util::DBLE:
+                Xyce::dout() << expressionParameter.getImmutableValue<double>();
+                break;
+              case Xyce::Util::EXPR:
+                Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
+                break;
+              default:
+                Xyce::dout() << expressionParameter.stringValue();
+            }
+            Xyce::dout() << std::endl;
+          }
+
           // ERK right thing to do, but won't work until set_vars/order_vars, etc are removed, 
           // and a better group is set up.
           if (expressionParameter.getType() == Xyce::Util::EXPR)
