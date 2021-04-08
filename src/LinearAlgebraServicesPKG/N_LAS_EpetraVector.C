@@ -965,7 +965,7 @@ void EpetraVector::processError(const char *methodMsg, int error) const
   switch (error)
   {
   case 0:
-    Xyce::dout() << methodMsg << ": Function returned without warnings or errors." << std::endl;
+    //Xyce::dout() << methodMsg << ": Function returned without warnings or errors." << std::endl;
     break;
 
   default:
