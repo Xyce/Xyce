@@ -473,6 +473,22 @@ The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \textt
 and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supported for
 \texttt{TRAN} measure mode.
 
+For transient analyses, that also have \texttt{.FFT} analysis statements, \Xyce{} also
+supports \texttt{FFT} measure mode.  In that case, the following additional measure
+types can be associated with those \texttt{.FFT} lines.  In addition, \texttt{FFT}
+mode measures, such as \texttt{FIND-AT} measures, can be used in \texttt{EQN} measures
+to create more customized metrics from the \texttt{.FFT} results.
+
+\begin{XyceItemize}
+  \item \texttt{ENOB}: computes the Effective Number of Bits.
+  \item \texttt{FIND-AT}: returns the requested FFT cofficient at the
+     requested frequency, which is rounded to the nearest harmonic.
+  \item \texttt{SFDR}: computes the Spurious Free Dynamic Range.
+  \item \texttt{SNDR}: computes the Signal to Noise-plus-Distortion Ratio.
+  \item \texttt{SNR}: computes the Signal to Noise Ratio.
+  \item \texttt{THD}: computes the Total Harmonic Distortion.
+\end{XyceItemize}
+
 The \texttt{<simulation variable>} specifies a voltage or current node that
 will be used in this measure, such as \texttt{V(a)}.  The measure \texttt{WHEN}
 is different from the other measures in that it can take one or two solution
