@@ -32,24 +32,35 @@ models, such as neuron and reaction network models. Xyce also supports Harmonic
 Balance analysis (`.HB`), random sampling analysis, sensitivity calculations,
 and post processing of the simulation metrics (`.FOUR` and `.MEASURE`).
 
-## Binaries, building and more
+## Binaries Installers, Building and More
 
-For more information about Xyce&mdash;including documentation, build
-instructions and binary executables&mdash;see the [Xyce
-Homepage](https://xyce.sandia.gov) at [Sandia National
+Binary installers for Windows, Mac and Red Hat Linux are made available with
+every release. The installers include proprietary compact models that are not
+available as open source, so they are slightly more capable than the GPLv3
+variant of Xyce available on GitHub. However, they will lag the master branch,
+which is always considered stable (the master branch is only pushed to when
+all of the regression tests have passed.)
+
+For the binary installers and other information about Xyce&mdash;including
+[documentation](https://xyce.sandia.gov/documentation), and [autotools build
+instructions](https://xyce.sandia.gov/documentation/BuildingGuide.html)&mdash;see
+the [Xyce Homepage](https://xyce.sandia.gov) at [Sandia National
 Laboratories](https://www.sandia.gov).
+
+For CMake build instructions, see the [INSTALL.md](./INSTALL.md) file.
 
 ## Support
 
-Do not file an issue to ask a use question. Support for Open Source Community
-users is available at our [Google
+Support for members of the Open Source Community is available at our [Google
 Groups](https://groups.google.com/forum/#!forum/xyce-users) web forum, which is
-actively monitored by the Xyce developers. Other ways to contact the Xyce
-project can be found on the [Xyce
-Homepage](https://xyce.sandia.gov/contact_us.html). See the
-"[CONTRIBUTING](./CONTRIBUTING.md)" document for more information.
+actively monitored by the Xyce developers. We are also able to answer questions
+in the [Discussions](https://github.com/Xyce/Xyce/discussions) section of the
+repository, though the Google Group is the preferred platform. (Do not file an
+issue to ask a use question.) Other ways to contact the Xyce project team can
+be found on the [Xyce Homepage](https://xyce.sandia.gov/contact_us.html). See
+the "[CONTRIBUTING](./CONTRIBUTING.md)" document for more information.
 
-## Copyright and license
+## Copyright and License
 
 Copyright 2002-2021 National Technology & Engineering Solutions of Sandia, LLC
 (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.

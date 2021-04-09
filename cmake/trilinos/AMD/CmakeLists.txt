@@ -1,0 +1,106 @@
+# This file is designed to build and install the AMD library (and *only* the
+# AMD library), which is part of SuiteSparse.
+#
+# The recommended usage is to first clone the SuiteSparse repository. Then use
+# the following invocation from a build directory, making the install directory
+# the same one as the Trilinos installlation target. Do this *before* Trilinos
+# is installed.
+#
+# cmake \
+# -D SuiteSparsePath=path/to/SuiteSparse \
+# -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
+# path/to/this_file
+#
+# Then use the following flags with the Trilnos CMake invocation:
+#
+# -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
+# -D AMD_LIBRARY_DIRS=/trilinos/install/path/lib \
+# -D AMD_INCLUDE_DIRS=/trilinos/install/path/include \
+
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+
+if(NOT DEFINED SuiteSparsePath)
+     message(FATAL_ERROR "Must supply the path to SuiteSparse using \"-D SuiteSparsePath=path/to/SuiteSparse\"")
+endif()
+
+set(SuiteSparsePath "" CACHE FILEPATH "Path to the SuiteSparse repository")
+
+project(AMD LANGUAGES C)
+
+add_library(suitesparseconfig
+  STATIC
+    ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.h
+    ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.c
+  )
+
+add_library(amd
+  STATIC
+    ${SuiteSparsePath}/AMD/Source/amd_aat.c
+    ${SuiteSparsePath}/AMD/Source/amd_1.c
+    ${SuiteSparsePath}/AMD/Source/amd_2.c
+    ${SuiteSparsePath}/AMD/Source/amd_dump.c
+    ${SuiteSparsePath}/AMD/Source/amd_postorder.c
+    ${SuiteSparsePath}/AMD/Source/amd_defaults.c
+    ${SuiteSparsePath}/AMD/Source/amd_post_tree.c
+    ${SuiteSparsePath}/AMD/Source/amd_order.c
+    ${SuiteSparsePath}/AMD/Source/amd_control.c
+    ${SuiteSparsePath}/AMD/Source/amd_info.c
+    ${SuiteSparsePath}/AMD/Source/amd_valid.c
+    ${SuiteSparsePath}/AMD/Source/amd_preprocess.c
+  )
+
+target_include_directories(amd PRIVATE
+     ${SuiteSparsePath}/AMD/Include/
+     ${SuiteSparsePath}/SuiteSparse_config/)
+
+target_link_libraries(amd suitesparseconfig)
+
+install(TARGETS amd DESTINATION lib)
+install(FILES ${SuiteSparsePath}/AMD/Include/amd.h DESTINATION include)
+
+
+# NOTE:
+#
+# The following fragments would more faithfully reproduce what the Makefiles
+# do. However, the AMD package has no ifdef's with DINT or DLONG, so it doesn't
+# seem to make sense to do all the extra compiling with those flags. However,
+# if AMD is ever updated to preferentially use ints vs longs, then the
+# following will need to be done.
+#
+#    add_library(amd_integer
+#      STATIC
+#        amd_aat.c
+#        amd_1.c
+#        amd_2.c
+#        amd_dump.c
+#        amd_postorder.c
+#        amd_defaults.c
+#        amd_post_tree.c
+#        amd_order.c
+#        amd_control.c
+#        amd_info.c
+#        amd_valid.c
+#        amd_preprocess.c
+#      )
+#    then use a configure file to define DINT
+#
+#
+#    add_library(amd_long
+#      STATIC
+#        amd_aat.c
+#        amd_1.c
+#        amd_2.c
+#        amd_dump.c
+#        amd_postorder.c
+#        amd_defaults.c
+#        amd_post_tree.c
+#        amd_order.c
+#        amd_control.c
+#        amd_info.c
+#        amd_valid.c
+#        amd_preprocess.c
+#      )
+#    then use a configure file to define DLONG
+#
+#    target_link_libraries(amd suitesparseconfig amd_integer amd_long)
+
