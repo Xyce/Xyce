@@ -88,10 +88,15 @@ public:
   bool addFFTAnalysis(const Util::OptionBlock & fftLine );
 
   void enableFFTAnalysis(const Analysis::Mode analysisMode);
-  void fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
-			  const double endSimTime, TimeIntg::StepErrorControl & sec);
-  void fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
-			  const double endSimTime, TimeIntg::StepErrorControl & sec);
+  void fixupFFTParameters(Parallel::Machine comm,
+                          const IO::OutputMgr &output_manager,
+                          const Util::Op::BuilderManager &op_builder_manager,
+			  const double endSimTime,
+                          TimeIntg::StepErrorControl & sec);
+  void fixupFFTParametersForRemeasure(Parallel::Machine comm,
+                          const Util::Op::BuilderManager &op_builder_manager,
+			  const double endSimTime,
+                          TimeIntg::StepErrorControl & sec);
 
   void resetFFTAnalyses();
 

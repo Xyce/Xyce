@@ -41,6 +41,7 @@
 #include <N_IO_FFTAnalysis.h>
 #include <N_IO_NetlistImportTool.h>
 #include <N_IO_OptionBlock.h>
+#include <N_IO_OutputMgr.h>
 #include <N_IO_PkgOptionsMgr.h>
 
 #include <N_UTL_ExtendedString.h>
@@ -66,7 +67,7 @@ namespace IO {
 //-----------------------------------------------------------------------------
 FFTMgr::FFTMgr(const std::string &   netlist_filename )
   : netlistFilename_(netlist_filename),
-    fftAnalysisEnabled_(true),
+    fftAnalysisEnabled_(false),
     fft_accurate_(true),
     fftout_(false)
 {}
@@ -142,24 +143,38 @@ void FFTMgr::resetFFTAnalyses()
 //-----------------------------------------------------------------------------
 void FFTMgr::enableFFTAnalysis(const Analysis::Mode analysisMode)
 {
-  if (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT)
-    fftAnalysisEnabled_ = false;
+  if ( (analysisMode == Xyce::Analysis::ANP_MODE_TRANSIENT) && !FFTAnalysisList_.empty() )
+    fftAnalysisEnabled_ = true;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : FFTMgr::fixupFFTParameters
 // Purpose       : This sets parameters in the FFTAnalysis objects, that could
-//                 not be determined when those objects were constructed.
+//                 not be determined when those objects were constructed.  It
+//                 may also modify the fft_accurate_ setting if it is incompatible
+//                 with the .OPTIONS OUTPUT settings.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
-                                const double endSimTime, TimeIntg::StepErrorControl & sec)
+void FFTMgr::fixupFFTParameters(
+  Parallel::Machine comm,
+  const IO::OutputMgr &output_manager,
+  const Util::Op::BuilderManager &op_builder_manager,
+  const double endSimTime,
+  TimeIntg::StepErrorControl & sec)
 {
   if (fftAnalysisEnabled_)
   {
+    // coordinate settings between OutputMgr and FFTMgr
+    if ( (fft_accurate_ == 1) && (output_manager.getInitialOutputInterval() > 0.0) )
+    {
+      fft_accurate_=0;
+      Report::UserWarning0() << "FFT_ACCURATE reset to 0, because .OPTIONS OUTPUT INITIAL_INTERVAL used";
+    }
+
+    // now fixup the individual FFTAnalysis objects
     for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
       (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
   }
@@ -176,8 +191,11 @@ void FFTMgr::fixupFFTParameters(Parallel::Machine comm, const Util::Op::BuilderM
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTMgr::fixupFFTParametersForRemeasure(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager,
-                                const double endSimTime, TimeIntg::StepErrorControl & sec)
+void FFTMgr::fixupFFTParametersForRemeasure(
+  Parallel::Machine comm,
+  const Util::Op::BuilderManager &op_builder_manager,
+  const double endSimTime,
+  TimeIntg::StepErrorControl & sec)
 {
   if (fftAnalysisEnabled_)
   {

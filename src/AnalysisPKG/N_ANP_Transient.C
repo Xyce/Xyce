@@ -3511,6 +3511,25 @@ void Transient::tranopOutputs ()
                                                outputTimePointsGiven_);
     analysisManager_.setNextOutputTime(next_output_time);
   }
+  else
+  {
+    if ( !firstDoubleDCOPStep() )
+    {
+      bool skipPrintLineOutput = true;
+      outputManagerAdapter_.tranOutput(analysisManager_.getStepErrorControl().currentTime,
+                                       analysisManager_.getStepErrorControl().currentTimeStep,
+                                       analysisManager_.getStepErrorControl().finalTime,
+                                       *analysisManager_.getDataStore()->currSolutionPtr,
+                                       *analysisManager_.getDataStore()->currStatePtr,
+                                       *analysisManager_.getDataStore()->currStorePtr,
+                                       *analysisManager_.getDataStore()->currLeadCurrentPtr,
+                                       *analysisManager_.getDataStore()->currLeadDeltaVPtr,
+                                       *analysisManager_.getDataStore()->currLeadCurrentQDerivPtr,
+                                       objectiveVec_,
+                                       dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_,
+                                       skipPrintLineOutput);
+    }
+  }
 
   // SAVE
   if ( testSaveOutputTime(analysisManager_, initialConditionsManager_))
