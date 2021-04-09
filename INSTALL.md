@@ -130,6 +130,14 @@ libraries might have "developer" packages that will need to be installed in
 addition to the primary packages. Anything not available via a package manager
 will need to be built from source.
 
+#### Building SuiteSparse
+
+Building SuiteSparse is not difficult. However, the only part of SuiteSparse
+used by Xyce is AMD. As an alternative building process, we have provided a
+"CMakeLists.txt" file in the `Xyce/cmake/trilinos/AMD/` directory. Using CMake,
+the file will allow you to compile and install _only_ the AMD library. See the
+comment block at the top of the file for instructions on its use.
+
 ### Building Trilinos
 
 While [Trilinos](https://trilinos.github.io/) is available in some package
@@ -363,19 +371,15 @@ try compiling with oneAPI, we welcome feedback on your experience.
 
 On Windows, Bison and flex are available via the
 [WinFlexBison](https://github.com/lexxmark/winflexbison) package, leaving
-SuiteSparse as the remaining (non-Trilinos) requirement.
+SuiteSparse as the remaining (non-Trilinos) requirement. For SuiteSparse, see
+the [Building SuiteSparse](#building-suitesparse) section above, under
+[Obtaining the TPLs](obtaining-the-tpls). Once all the TPLs are in place,
+continue with the standard Trilinos and Xyce build processes.
 
-The only part of SuiteSparse needed by Xyce is
-[AMD](https://github.com/DrTimothyAldenDavis/SuiteSparse/tree/master/AMD). The
-SuiteSparse build system is built around Makefiles, which should work fine with
-NMAKE. As an alternative, however, we have provided a "CMakeLists.txt" file in
-the `Xyce/cmake/trilinos/AMD/` directory, which will compile and install _only_
-the AMD library. Instructions on how to use it are in a comment block at the
-top of the file.
-
-The Xyce regression suite must be run in a Unix-like environment with Perl. To
-use it, you will need to install Cygwin. It is likely possible to use the
-Windows Subsystem for Linux (WSL), instead, but we have no experience with it.
+The Xyce regression suite must be run in a Unix-like environment with Perl.
+Therefore, to use it in Windows, you will need to install Cygwin. It is likely
+possible to use the Windows Subsystem for Linux (WSL), instead, but we have no
+experience with it.
 
 ### Cygwin
 
@@ -450,6 +454,6 @@ Trilinos CMake invocation:
 ```sh
 -D CMAKE_C_COMPILER=clang \
 -D CMAKE_CXX_COMPILER=clang++ \
--D BLAS_LIBRARY_NAMES="-Wl,-framework,Accelerate" \
--D LAPACK_LIBRARY_NAMES="-Wl,-framework,Accelerate" \
+-D TPL_BLAS_LIBRARIES="-Wl,-framework,Accelerate" \
+-D TPL_LAPACK_LIBRARIES="-Wl,-framework,Accelerate" \
 ```

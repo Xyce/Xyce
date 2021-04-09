@@ -1,15 +1,18 @@
-# This file is designed to build and install the AMD library (and *only* the
-# AMD library), which is part of SuiteSparse.
+# The only part of SuiteSparse used by Xyce is AMD.
+# When pointed to a SuiteSparse repository, this file is designed to build and
+# install *only* the AMD library into a specified location.
 #
-# The recommended usage is to first clone the SuiteSparse repository. Then use
+# The recommended usage is to first clone the SuiteSparse repository.  Then use
 # the following invocation from a build directory, making the install directory
-# the same one as the Trilinos installlation target. Do this *before* Trilinos
-# is installed.
+# the *same one* as the Trilinos installlation target.
 #
 # cmake \
 # -D SuiteSparsePath=path/to/SuiteSparse \
 # -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
-# path/to/this_file
+# path/to/Xyce/cmake/trilinos/AMD
+#
+# Build and install AMD in the usual way.  From the AMD build directory, run:
+# cmake --build . -t install
 #
 # Then use the following flags with the Trilnos CMake invocation:
 #
@@ -19,19 +22,13 @@
 
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
+project(AMD LANGUAGES C)
+
 if(NOT DEFINED SuiteSparsePath)
      message(FATAL_ERROR "Must supply the path to SuiteSparse using \"-D SuiteSparsePath=path/to/SuiteSparse\"")
 endif()
 
 set(SuiteSparsePath "" CACHE FILEPATH "Path to the SuiteSparse repository")
-
-project(AMD LANGUAGES C)
-
-add_library(suitesparseconfig
-  STATIC
-    ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.h
-    ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.c
-  )
 
 add_library(amd
   STATIC
@@ -47,19 +44,35 @@ add_library(amd
     ${SuiteSparsePath}/AMD/Source/amd_info.c
     ${SuiteSparsePath}/AMD/Source/amd_valid.c
     ${SuiteSparsePath}/AMD/Source/amd_preprocess.c
+    ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.c
   )
 
-target_include_directories(amd PRIVATE
+target_include_directories(amd
+  PUBLIC
      ${SuiteSparsePath}/AMD/Include/
-     ${SuiteSparsePath}/SuiteSparse_config/)
+     ${SuiteSparsePath}/SuiteSparse_config/
+  )
 
-target_link_libraries(amd suitesparseconfig)
+# set_property(TARGET amd PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(TARGETS amd DESTINATION lib)
-install(FILES ${SuiteSparsePath}/AMD/Include/amd.h DESTINATION include)
+install(FILES
+     ${SuiteSparsePath}/AMD/Include/amd.h
+     ${SuiteSparsePath}/SuiteSparse_config/SuiteSparse_config.h
+     DESTINATION include
+  )
 
 
-# NOTE:
+# NOTE 1:
+#
+# This could probably be combined with the Xyce/cmake/Patch_suitesparse.cmake
+# file at some point, maybe as part of a modified superbuild?
+# Also, note that this file does not include amd_global.c, which just contains
+# a comment block stating the functions it provided are now in
+# SuiteSparse_config/SuiteSparse_config.c.
+#
+#
+# NOTE 2:
 #
 # The following fragments would more faithfully reproduce what the Makefiles
 # do. However, the AMD package has no ifdef's with DINT or DLONG, so it doesn't
