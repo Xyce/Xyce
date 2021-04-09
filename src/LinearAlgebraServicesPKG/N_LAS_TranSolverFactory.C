@@ -143,10 +143,8 @@ TranSolverFactory::create(
     return new ShyLUSolver( problem, options);
 #endif
 #ifdef Xyce_AMESOS2
-  else if( type == "BASKER" )
-    return new Amesos2Solver( "BASKER", problem, options );
-  else if( type == "KLU2" )
-    return new Amesos2Solver( "KLU2", problem, options );
+  else if( type == "BASKER" || type == "SHYLU_BASKER" || type == "KLU2" )
+    return new Amesos2Solver( type, problem, options );
 #endif
   else
     return new AmesosSolver( type, problem, options);

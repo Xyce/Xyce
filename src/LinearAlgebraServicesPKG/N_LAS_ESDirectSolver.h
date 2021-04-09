@@ -177,10 +177,8 @@ private:
 #ifdef Xyce_AMESOS2_BASKER
 
 #ifdef Xyce_NEW_BASKER
-  BaskerClassicNS::BaskerClassic<int, double> basker_;
   BaskerClassicNS::BaskerClassic<int, Xyce::ESBlockMatrixEntry > blockBasker_;
 #else
-  Basker::Basker<int, double> basker_;
   Basker::Basker<int, Xyce::ESBlockMatrixEntry> blockBasker_;
 #endif
 
