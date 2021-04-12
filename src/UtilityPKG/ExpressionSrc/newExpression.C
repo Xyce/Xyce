@@ -100,17 +100,9 @@ namespace Util {
 
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
-// IO::ParsingMgr class.  If set to false then AGAUSS() and GAUSS() will
-// just return the mean rather than a random number.  The default is true.
-bool enableRandomExpression;
-
-// This value is derived from the -hspice-ext command line option.  It is
-// set, based on that command line option, in the constructor for the
 // IO::ParsingMgr class.  If set to true then logical AND is &&, logical
 // OR is || and ^ is a synonym for exponentiation.  The default is false.
 bool useHspiceMath;
-
-
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::lexAndParseExpression
@@ -1777,91 +1769,6 @@ bool newExpression::getValuesFromGroup_()
     {
       Teuchos::RCP<phaseOp<usedType> > phOp = Teuchos::rcp_static_cast<phaseOp<usedType> > (phaseOpVec_[ii]);
       phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
-    }
-  }
-
-  // Get values for random number operators.    Only do this 1x.
-  // The following is for the non-sampling case, which is an arguably
-  // obsolete way of using the expression random operators.  It dates back
-  // to the old expression library and a period of time when Xyce didn't
-  // have any built-in UQ methods.
-  if (Xyce::Util::enableRandomExpression)
-  {
-    for (int ii=0;ii<agaussOpVec_.size();ii++)
-    {
-      Teuchos::RCP<agaussOp<usedType> > agOp = Teuchos::rcp_static_cast<agaussOp<usedType> > (agaussOpVec_[ii]);
-      if ( !(agOp->getSetValueCalledBefore()) ) // key line for the non-sampling case; can only be updated 1x
-      {
-        double value;
-        std::vector<double> args;
-        args.push_back(std::real( agOp->getMu() ));
-        args.push_back(std::real( agOp->getAlpha() ));
-        args.push_back(std::real( agOp->getN() ));
-        group_->getRandomOpValue (Util::AST_AGAUSS, args, value);
-        usedType val = value;
-        agOp->setValue(val);
-      }
-    }
-
-    for (int ii=0;ii<gaussOpVec_.size();ii++)
-    {
-      Teuchos::RCP<gaussOp<usedType> > gaOp = Teuchos::rcp_static_cast<gaussOp<usedType> > (gaussOpVec_[ii]);
-      if ( !(gaOp->getSetValueCalledBefore()) )
-      {
-        double value;
-        std::vector<double> args;
-        args.push_back(std::real( gaOp->getMu() ));
-        args.push_back(std::real( gaOp->getAlpha() ));
-        args.push_back(std::real( gaOp->getN() ));
-        group_->getRandomOpValue (Util::AST_GAUSS, args, value);
-        usedType val = value;
-        gaOp->setValue(val);
-      }
-    }
-
-    for (int ii=0;ii<aunifOpVec_.size();ii++)
-    {
-      Teuchos::RCP<aunifOp<usedType> > auOp = Teuchos::rcp_static_cast<aunifOp<usedType> > (aunifOpVec_[ii]);
-      if ( !(auOp->getSetValueCalledBefore()) )
-      {
-        double value;
-        std::vector<double> args;
-        args.push_back(std::real( auOp->getMu() ));
-        args.push_back(std::real( auOp->getAlpha() ));
-        //args.push_back(std::real( auOp->getN() ));  // not supported yet
-        group_->getRandomOpValue (Util::AST_AUNIF, args, value);
-        usedType val = value;
-        auOp->setValue(val);
-      }
-    }
-
-    for (int ii=0;ii<unifOpVec_.size();ii++)
-    {
-      Teuchos::RCP<unifOp<usedType> > unOp = Teuchos::rcp_static_cast<unifOp<usedType> > (unifOpVec_[ii]);
-      if ( !(unOp->getSetValueCalledBefore()) )
-      {
-        double value;
-        std::vector<double> args;
-        args.push_back(std::real( unOp->getMu() ));
-        args.push_back(std::real( unOp->getAlpha() ));
-        //args.push_back(std::real( unOp->getN() ));  // not supported yet
-        group_->getRandomOpValue (Util::AST_UNIF, args, value);
-        usedType val = value;
-        unOp->setValue(val);
-      }
-    }
-
-    for (int ii=0;ii<randOpVec_.size();ii++)
-    {
-      Teuchos::RCP<randOp<usedType> > raOp = Teuchos::rcp_static_cast<randOp<usedType> > (randOpVec_[ii]);
-      if ( !(raOp->getSetValueCalledBefore()) )
-      {
-        double value;
-        std::vector<double> args;
-        group_->getRandomOpValue (Util::AST_RAND, args, value);
-        usedType val = value;
-        raOp->setValue(val);
-      }
     }
   }
 

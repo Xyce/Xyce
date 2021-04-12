@@ -66,6 +66,7 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
+#if 0
 // this assumes seed is generated externally
 // this uses functions from N_ANP_UQSupport
 class randomSamplesGenerator
@@ -95,6 +96,7 @@ class randomSamplesGenerator
 };
 
 static randomSamplesGenerator *theRandomSamplesGenerator=0;
+#endif
 
 //-----------------------------------------------------------------------------
 // Class         : mainXyceExpressionGroup
@@ -172,8 +174,6 @@ public:
 
   virtual bool getPhaseOutputUsesRadians();
 
-  virtual void getRandomOpValue (  Util::astRandTypes type, std::vector<double> args, double & value);
-
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
   int getSolutionGID_(const std::string & nodeName);
@@ -181,9 +181,6 @@ public:
   Parallel::Communicator & getComm() { return comm_; }
 
 private:
-
-  void setupRandom_ ();
-
   Parallel::Communicator & comm_;
 
   Topo::Topology & top_;
@@ -197,8 +194,6 @@ private:
 
   double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
-  long randomSeed_;
-  bool randomSetup_;
 };
 
 }

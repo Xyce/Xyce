@@ -27,11 +27,13 @@
 namespace Xyce {
 namespace Util {
 
+#if 0
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
 // IO::ParsingMgr class.  If set to false then AGAUSS() and GAUSS() will
 // just return the mean rather than a random number.
 extern bool enableRandomExpression;
+#endif
 
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
