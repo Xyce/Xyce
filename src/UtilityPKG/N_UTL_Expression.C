@@ -558,6 +558,90 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getVariableDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getVariableDependent() 
+{
+  return newExpPtr_->getVariableDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodeDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getVoltageNodeDependent() 
+{
+  return newExpPtr_->getVoltageNodeDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDeviceCurrentDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getDeviceCurrentDependent() 
+{
+  return newExpPtr_->getDeviceCurrentDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getLeadCurrentDependent() 
+{
+  return newExpPtr_->getLeadCurrentDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentDependentExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getLeadCurrentDependentExcludeBsrc() 
+{
+  return newExpPtr_->getLeadCurrentDependentExcludeBsrc();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getSpecialsDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getSpecialsDependent() 
+{
+  bool retval =   
+    (newExpPtr_->getTimeDependent()) ||
+    (newExpPtr_->getTempDependent()) ||
+    (newExpPtr_->getVTDependent()) ||
+    (newExpPtr_->getFreqDependent()) ;
+
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getIsConstant
 // Purpose       : 
 // Special Notes : 

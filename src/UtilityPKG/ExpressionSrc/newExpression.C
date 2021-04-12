@@ -231,7 +231,7 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
-  // set up the shallow specials flags
+  // set up shallow dependence flags.
   {
     isShallowTimeDependent_ = isTimeDependent_;
     isShallowTempDependent_ = isTempDependent_;
@@ -239,6 +239,12 @@ bool newExpression::lexAndParseExpression()
     isShallowFreqDependent_ = isFreqDependent_;
     isShallowGminDependent_ = isGminDependent_;
   }
+
+  isVariableDependent_ = !(globalParamNameVec_.empty()); // this is not reliable this stage, because the globalParamNameVec is always empty at this point.
+  isVoltageNodeDependent_ = !(voltNameVec_.empty());
+  isDeviceCurrentDependent_ = !(currentNameVec_.empty());
+  isLeadCurrentDependent_ = !(leadCurrentNameVec_.empty());
+  isLeadCurrentDependentExcludeBsrc_ = !(leadCurrentExcludeBsrcNameVec_.empty());
 
   // if dependent on a special, add relevant specials node to the relevant specials vector
   if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
@@ -345,6 +351,17 @@ bool newExpression::attachFunctionNode(
       }
       externalDependencies_ = true;
       astArraysSetup_ = false;
+
+      isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
+      isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
+      isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();
+      isLeadCurrentDependent_   = isLeadCurrentDependent_ || expPtr->getLeadCurrentDependent();
+      isLeadCurrentDependentExcludeBsrc_ = isLeadCurrentDependentExcludeBsrc_ || expPtr->getLeadCurrentDependentExcludeBsrc();
+
+      isTimeDependent_ = isTimeDependent_ || expPtr->getTimeDependent();
+      isTempDependent_ = isTempDependent_ || expPtr->getTempDependent();
+      isVTDependent_ = isVTDependent_ || expPtr->getVTDependent();
+      isFreqDependent_ = isFreqDependent_ || expPtr->getFreqDependent();
     }
     else { retval=false; }
   }
@@ -398,6 +415,45 @@ bool newExpression::attachParameterNode(
           externalDependencies_ = true;
           astArraysSetup_ = false;
           retval=true;
+
+#if 1
+          std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
+          if (it != unresolvedParamNameVec_.end())
+          {
+            int index = std::distance(unresolvedParamNameVec_.begin(),it);
+            unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+          }
+
+          if (type == DOT_GLOBAL_PARAM)
+          {
+            it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+            if (it == globalParamNameVec_.end())
+            {
+              globalParamNameVec_.push_back(paramNameUpper);
+              isVariableDependent_ = !(globalParamNameVec_.empty());
+            }
+          }
+          else
+          {
+            it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+            if (it != globalParamNameVec_.end())
+            {
+              int index = std::distance(globalParamNameVec_.begin(),it);
+              globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+              isVariableDependent_ = !(globalParamNameVec_.empty());
+            }
+          }
+#endif
+          isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
+          isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
+          isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();
+          isLeadCurrentDependent_   = isLeadCurrentDependent_ || expPtr->getLeadCurrentDependent();
+          isLeadCurrentDependentExcludeBsrc_ = isLeadCurrentDependentExcludeBsrc_ || expPtr->getLeadCurrentDependentExcludeBsrc();
+
+          isTimeDependent_ = isTimeDependent_ || expPtr->getTimeDependent();
+          isTempDependent_ = isTempDependent_ || expPtr->getTempDependent();
+          isVTDependent_ = isVTDependent_ || expPtr->getVTDependent();
+          isFreqDependent_ = isFreqDependent_ || expPtr->getFreqDependent();
         }
       }
     }
@@ -533,7 +589,10 @@ bool newExpression::make_constant (
     usedType const & val,
     enumParamType type)
 {
+#if 0
+  // should not be necessary.  If we are doing this, we already found the variable.
   setupVariousAstArrays();
+#endif
   std::string paramNameUpper = var;
   Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
@@ -565,6 +624,7 @@ bool newExpression::make_constant (
       if (it == globalParamNameVec_.end())
       {
         globalParamNameVec_.push_back(paramNameUpper);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     else
@@ -574,6 +634,7 @@ bool newExpression::make_constant (
       {
         int index = std::distance(globalParamNameVec_.begin(),it);
         globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     checkIsConstant_();
@@ -705,6 +766,7 @@ bool newExpression::make_var (
       if (it == globalParamNameVec_.end())
       {
         globalParamNameVec_.push_back(paramNameUpper);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     else
@@ -714,6 +776,7 @@ bool newExpression::make_var (
       {
         int index = std::distance(globalParamNameVec_.begin(),it);
         globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     checkIsConstant_();

@@ -97,6 +97,12 @@ public:
     isShallowFreqDependent_(false),
     isShallowGminDependent_(false),
 
+    isVariableDependent_(false),
+    isVoltageNodeDependent_(false),
+    isDeviceCurrentDependent_(false),
+    isLeadCurrentDependent_(false),
+    isLeadCurrentDependentExcludeBsrc_(false),
+
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
     isConstant_(false),
@@ -135,6 +141,12 @@ public:
     isShallowVTDependent_(false),
     isShallowFreqDependent_(false),
     isShallowGminDependent_(false),
+
+    isVariableDependent_(false),
+    isVoltageNodeDependent_(false),
+    isDeviceCurrentDependent_(false),
+    isLeadCurrentDependent_(false),
+    isLeadCurrentDependentExcludeBsrc_(false),
 
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
@@ -185,6 +197,12 @@ public:
     isShallowVTDependent_(false),
     isShallowFreqDependent_(false),
     isShallowGminDependent_(false),
+
+    isVariableDependent_(false),
+    isVoltageNodeDependent_(false),
+    isDeviceCurrentDependent_(false),
+    isLeadCurrentDependent_(false),
+    isLeadCurrentDependentExcludeBsrc_(false),
 
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
@@ -240,6 +258,12 @@ public:
     isShallowVTDependent_(false),
     isShallowFreqDependent_(false),
     isShallowGminDependent_(false),
+
+    isVariableDependent_(false),
+    isVoltageNodeDependent_(false),
+    isDeviceCurrentDependent_(false),
+    isLeadCurrentDependent_(false),
+    isLeadCurrentDependentExcludeBsrc_(false),
 
     overrideGroupTemperature_(false),
     overrideTemp_(27.0),
@@ -394,6 +418,12 @@ public:
     isShallowFreqDependent_(right.isShallowFreqDependent_),
     isShallowGminDependent_(right.isShallowGminDependent_),
 
+    isVariableDependent_(right.isVariableDependent_),
+    isVoltageNodeDependent_(right.isVoltageNodeDependent_),
+    isDeviceCurrentDependent_(right.isDeviceCurrentDependent_),
+    isLeadCurrentDependent_(right.isLeadCurrentDependent_),
+    isLeadCurrentDependentExcludeBsrc_(right.isLeadCurrentDependentExcludeBsrc_),
+
     overrideGroupTemperature_(right.overrideGroupTemperature_),
     overrideTemp_(right.overrideTemp_),
     isConstant_(right.isConstant_),
@@ -507,6 +537,12 @@ public:
     isShallowVTDependent_ = right.isShallowVTDependent_;
     isShallowFreqDependent_ = right.isShallowFreqDependent_;
     isShallowGminDependent_ = right.isShallowGminDependent_;
+
+    isVariableDependent_ = right.isVariableDependent_;
+    isVoltageNodeDependent_ = right.isVoltageNodeDependent_;
+    isDeviceCurrentDependent_ = right.isDeviceCurrentDependent_;
+    isLeadCurrentDependent_ = right.isLeadCurrentDependent_;
+    isLeadCurrentDependentExcludeBsrc_ = right.isLeadCurrentDependentExcludeBsrc_;
 
     overrideGroupTemperature_ = right.overrideGroupTemperature_;
     overrideTemp_ = right.overrideTemp_;
@@ -715,6 +751,12 @@ public:
 
   bool getShallowGminDependent() { return isShallowGminDependent_; }
   void setShallowGminDependent(bool val) { isShallowGminDependent_ = val; }
+
+  bool getVariableDependent() { return isVariableDependent_; }
+  bool getVoltageNodeDependent() { return isVoltageNodeDependent_; }
+  bool getDeviceCurrentDependent() { return isDeviceCurrentDependent_; }
+  bool getLeadCurrentDependent() { return isLeadCurrentDependent_; }
+  bool getLeadCurrentDependentExcludeBsrc() { return isLeadCurrentDependentExcludeBsrc_; }
 
   // this function is only used to determine function arguments of a function prototype
   // So if we have .func abc(x,y) {x+y+10}
@@ -969,6 +1011,12 @@ private:
   bool isShallowVTDependent_;
   bool isShallowFreqDependent_;
   bool isShallowGminDependent_;
+
+  bool isVariableDependent_;
+  bool isVoltageNodeDependent_;
+  bool isDeviceCurrentDependent_;
+  bool isLeadCurrentDependent_;
+  bool isLeadCurrentDependentExcludeBsrc_;
 
   bool overrideGroupTemperature_;
   double overrideTemp_;

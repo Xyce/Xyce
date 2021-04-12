@@ -120,6 +120,13 @@ public:
   const std::vector<std::string> & getLeadCurrents        () const;
   const std::vector<std::string> & getLeadCurrentsExcludeBsrc () const;
 
+  bool getVariableDependent() ;
+  bool getVoltageNodeDependent() ;
+  bool getDeviceCurrentDependent() ;
+  bool getLeadCurrentDependent() ;
+  bool getLeadCurrentDependentExcludeBsrc() ;
+  bool getSpecialsDependent() ;
+
   bool getIsConstant ();
 
   bool setTemperature   (const double & temp);
