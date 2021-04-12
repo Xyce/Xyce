@@ -161,7 +161,7 @@ endif()
 # library.  This is because, with the MSVC, there is a separate runtime library
 # for Debug builds.  (This is related to the CMAKE_BUILD_TYPE discussion in the
 # root "CMakeLists.txt file.  When the minimum CMake version requirement is
-# increased, see CMake policy CMP0091:
+# increased to 3.15 or above, see CMake policy CMP0091:
 #    <https://cmake.org/cmake/help/latest/policy/CMP0091.html>)
 # Teuchos links to the MSVC runtime library.  Since LOCA.H includes at least one
 # Teuchos header, the test below has to point to the same library as Trilinos.
@@ -178,6 +178,16 @@ if (MSVC)
      set(CMAKE_REQUIRED_DEFINITIONS "${Trilinos_CXX_COMPILER_FLAGS}")
 endif()
 set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
+
+# Perform an initial check to see if we can compile against Trilinos at all.
+# This could reveal compiler setup problems and/or Trilinos setup problems.
+check_include_file_cxx(Teuchos_SerialDenseMatrix.hpp Trilinos_COMPILE_SUCCESS)
+if (NOT Trilinos_COMPILE_SUCCESS)
+     message(FATAL_ERROR "Unable to compile against Trilinos. It is possible\
+     Trilinos was not properly configured, or the environment has changed since\
+     Trilinos was installed. See the CMake log files for more information.")
+endif()
+
 check_include_file_cxx(LOCA.H LOCA_IN_Trilinos)
 if (NOT LOCA_IN_Trilinos)
      message("Trilinos was not built with LOCA support in NOX.\n"
@@ -185,6 +195,7 @@ if (NOT LOCA_IN_Trilinos)
           "  -D NOX_ENABLE_LOCA=ON")
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
+
 unset(CMAKE_REQUIRED_LIBRARIES)
 if (MSVC)
      unset(CMAKE_REQUIRED_DEFINITIONS)
@@ -299,10 +310,15 @@ endif ()
 
 # Search for optional TPL packages in Trilinos
 
+# Because of the way the autotools script works, it is not trivial to change
+# HAVE_LIBPARMETIS to something like Xyce_USE_PARMETIS.  We will simply use the
+# autotools variable for now (which comes from Trilinos), and change this some
+# time in the future to help with consistency.
 message(STATUS "Looking for ParMETIS via Trilinos")
 list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
 if (ParMETIS_IN_Trilinos GREATER -1)
      message(STATUS "Looking for ParMETIS via Trilinos - found")
+     set(HAVE_LIBPARMETIS TRUE CACHE BOOL "Enables the ParMETIS partitioning library")
 else()
      message(STATUS "Looking for ParMETIS via Trilinos - not found")
 endif()
@@ -316,8 +332,8 @@ else()
      message(STATUS "Looking for AMD via Trilinos - not found")
 endif()
 
-# The following are just informational; they do not determine whether Trilinos
-# has enabled the solvers such that Xyce can use them.
+# The following are simply for reporting purposes; no build variables need to
+# be defined.
 
 message(STATUS "Looking for PARDISO_MKL via Trilinos")
 list(FIND Trilinos_TPL_LIST PARDISO_MKL PARDISO_IN_Trilinos)
@@ -354,7 +370,13 @@ endif()
 # Address the pathalogical case first
 if(Xyce_USE_FFT AND Xyce_USE_INTEL_FFT AND Xyce_USE_FFTW)
      message(FATAL_ERROR
-"Both \"Xyce_USE_INTEL_FFT\" and \"Xyce_USE_FFTW\" have been set as TRUE.  It is recommended to delete all \"FFT\" variables and let CMake determine the configuration.  You may also set either \"Xyce_USE_INTEL_FFT\" or \"Xyce_USE_FFTW\" to TRUE.  However, if you explicitly specify the use of the Intel MKL FFT capability, you must also ensure the appropriate MKL flags are set in the Xyce CMake invocation.")
+          "Both \"Xyce_USE_INTEL_FFT\" and \"Xyce_USE_FFTW\" have been set as\
+          TRUE.  It is recommended to delete all \"FFT\" variables and let\
+          CMake determine the configuration.  You may also set either\
+          \"Xyce_USE_INTEL_FFT\" or \"Xyce_USE_FFTW\" to TRUE.  However, if you\
+          explicitly specify the use of the Intel MKL FFT capability, you must\
+          also ensure the appropriate MKL flags are set in the Xyce CMake\
+          invocation.")
 endif()
 
 # Both Xyce_USE_INTEL_FFT and Xyce_USE_FFT must be true to force the use of the
