@@ -600,6 +600,8 @@ dnl errors.  Let's check that NOW instead of at compile time.
 
 AC_CHECK_DECL([HAVE_TEUCHOS_COMPLEX],,[AC_MSG_ERROR([Your Trilinos was not built with the correct options and does not have COMPLEX support built into Teuchos.  Please rebuild Trilinos using the options specified in the Xyce building guide.])],[[#include <Teuchos_config.h>]])
 
+AC_CHECK_HEADER([Teuchos_SerialDenseMatrix.hpp],,[AC_MSG_ERROR([Unable to compile a test program against Trilinos that includes Teuchos_Serial_DenseMatrix.hpp.  It is possible Trilinos was not properly configured or the environment has changed since Trilinos was installed.  See config.log for more information.])]) 
+
 dnl Now we must check for whether EpetraExt defines HAVE_PARMETIS, in which
 dnl case we must also link to parmetis and metis libraries if we're building
 dnl parallel
