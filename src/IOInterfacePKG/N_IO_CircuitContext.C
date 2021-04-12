@@ -934,6 +934,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         if (parameter.getType() == Xyce::Util::EXPR)
         {
+
+#if 0
           const std::vector<std::string> & nodes = parameter.getValue<Util::Expression>().getVoltageNodes();
           const std::vector<std::string> & instances = parameter.getValue<Util::Expression>().getDeviceCurrents();
           const std::vector<std::string> & variables = parameter.getValue<Util::Expression>().getVariables();
@@ -943,30 +945,57 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
           if (!nodes.empty() || !instances.empty() || !leads.empty())
           {
+#else
+          bool isVoltDep = parameter.getValue<Util::Expression>().getVoltageNodeDependent();
+          bool isDevCurDep = parameter.getValue<Util::Expression>().getDeviceCurrentDependent();
+          bool isLeadCurDep= parameter.getValue<Util::Expression>().getLeadCurrentDependent();
+
+          if (isVoltDep || isDevCurDep || isLeadCurDep)
+          {
+#endif
             Report::UserError0 message;
             message << "The following are not allowed in global param expression: " << parameter.getValue<Util::Expression>().get_expression();
             
             // This should be caught earlier, but just in case it is checked here
+#if 0 
             if (!nodes.empty())
             {
+#else
+            if(isVoltDep)
+            {
+              const std::vector<std::string> & nodes = parameter.getValue<Util::Expression>().getVoltageNodes();
+#endif
+
               message << std::endl << "node(s):";
               for (std::vector<std::string>::const_iterator s_i=nodes.begin() ; s_i!=nodes.end() ; ++s_i)
               {
                 message << " " << *s_i;
               }
             }
+#if 0
             if (!instances.empty())
             {
+#else
+            if(isDevCurDep)
+            {
+              const std::vector<std::string> & instances = parameter.getValue<Util::Expression>().getDeviceCurrents();
+#endif
               message << std::endl << "instance(s): ";
               for (std::vector<std::string>::const_iterator s_i=instances.begin() ; s_i!=instances.end() ; ++s_i)
               {
                 message << " " << *s_i;
               }
             }
+
+#if 0
             if (!leads.empty())
             {
+#else
+            if (isLeadCurDep)
+            {
+              const std::vector<std::string> & leads = parameter.getValue<Util::Expression>().getLeadCurrents();
+#endif
               message << std::endl << "lead(s): ";
-              //for (std::vector<std::string>::iterator s_i=leads.begin() ; s_i!=leads.end() ; ++s_i)
               for (std::vector<std::string>::const_iterator s_i=leads.begin() ; s_i!=leads.end() ; ++s_i)
               {
                 message << " " << *s_i;
@@ -974,10 +1003,16 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             }
           }
 
+#if 0
           if (!variables.empty())
           {
+#else
+          bool isVarDep = parameter.getValue<Util::Expression>().getVariableDependent();
+          if (isVarDep)
+          {
+            const std::vector<std::string> & variables = parameter.getValue<Util::Expression>().getVariables();
+#endif
             // If variables are found, they must be previously defined global params
-            //for (std::vector<std::string>::iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             for (std::vector<std::string>::const_iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             {
               Util::Param parameter( *s_i, "");
@@ -989,8 +1024,17 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
               }
             }
           }
+
+#if 0
           if (!specials.empty())
           {
+#else
+          bool isSpecialsDep = parameter.getValue<Util::Expression>().getSpecialsDependent();
+          if (isSpecialsDep)
+          {
+            std::vector<std::string> specials;
+            parameter.getValue<Util::Expression>().getSpecials(specials);
+#endif
             // This block is "conservative". TIME, TEMP and VT now work in global parameters that use
             // expressions.  If additional "specials" are added to Xyce then this check ensures
             // that they must also be enabled for use in expressions in global parameters.
@@ -1349,6 +1393,86 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
 }
 
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void testExpressionBools(  Util::Expression & expression, const std::string & expressionString  )
+{
+  const std::vector<std::string> & nodes = expression.getVoltageNodes();
+  const std::vector<std::string> & instances = expression.getDeviceCurrents();
+  const std::vector<std::string> & variables = expression.getVariables();
+  const std::vector<std::string> & leads = expression.getLeadCurrents();
+  std::vector<std::string> specials;
+  expression.getSpecials(specials);
+
+
+  bool isVoltDep = expression.getVoltageNodeDependent();
+  bool isDevCurDep = expression.getDeviceCurrentDependent();
+  bool isVarDep = expression.getVariableDependent();
+  bool isLeadCurDep= expression.getLeadCurrentDependent();
+  bool isSpecialsDep = expression.getSpecialsDependent();
+  bool isRandom = expression.isRandomDependent();
+
+  bool success=true;
+
+  // voltage nodes
+  if (nodes.empty() && isVoltDep)
+  {
+    Xyce::dout() << "ERROR.  isVoltDep=true but nodes is empty for expression = " << expressionString << std::endl;  success = false;
+  }
+  if ( !(nodes.empty()) && !isVoltDep)
+  {
+    Xyce::dout() << "ERROR.  isVoltDep=false but nodes is not empty for expression = " << expressionString << std::endl;  success = false;
+  }
+
+  // device currents
+  if (instances.empty() && isDevCurDep)
+  {
+    Xyce::dout() << "ERROR.  isDevCurDep=true but instances is empty for expression = " << expressionString << std::endl;  success = false;
+  }
+  if ( !(instances.empty()) && !isDevCurDep)
+  {
+    Xyce::dout() << "ERROR.  isDevCurDep=false but instances is not empty for expression = " << expressionString << std::endl;  success = false;
+  }
+
+  // "variables" (global params, mostly)
+  if (variables.empty() && isVarDep)
+  {
+    Xyce::dout() << "ERROR.  isVarDep=true but variables is empty for expression = " << expressionString << std::endl;  success = false;
+  }
+  if ( !(variables.empty()) && !isVarDep)
+  {
+    Xyce::dout() << "ERROR.  isVarDep=false but variables is not empty for expression = " << expressionString << std::endl;  success = false;
+  }
+
+  // lead currents
+  if (leads.empty() && isLeadCurDep)
+  {
+    Xyce::dout() << "ERROR.  isLeadCurDep=true but leads is empty for expression = " << expressionString << std::endl;  success = false;
+  }
+  if ( !(leads.empty()) && !isLeadCurDep)
+  {
+    Xyce::dout() << "ERROR.  isLeadCurDep=false but leads is not empty for expression = " << expressionString << std::endl;  success = false;
+  }
+
+  // specials
+  if (specials.empty() && isSpecialsDep)
+  {
+    Xyce::dout() << "ERROR.  isSpecials=true but specials is empty for expression = " << expressionString << std::endl;  success = false;
+  }
+  if ( !(specials.empty()) && !isSpecialsDep)
+  {
+    Xyce::dout() << "ERROR.  isSpecials=false but specials is not empty for expression = " << expressionString << std::endl;  success = false;
+  }
+
+  if (!success)
+  {
+    exit(0);
+  }
+
+  return;
+}
+
+
+//----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameter
 // Purpose        : Simpler version, excluding exception strings.
 // Special Notes  :
@@ -1393,16 +1517,29 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
 
 #if 0
     parameter.setVal(expression); 
+
+    if (!stringsResolved) { return false; }
+    if (!functionsResolved) { return false; }
+#if 0
     if ( !(expression.getLeadCurrents().empty()) ) { return false; }
+#else
+    if ( expression.getLeadCurrentDependent() ) { return false; }
+#endif
 
     if (DEBUG_IO) 
     {
        Xyce::dout() << "CircuitContext::resolveParameter: right before returns " << std::endl;
        debugResolveParameterOutput2(parameter); 
     }
-    return stringsResolved && functionsResolved;
+    return true;
+    //return stringsResolved && functionsResolved;
 #else
+
+#if 0
     if ( !(expression.getLeadCurrents().empty()) )
+#else
+    if ( expression.getLeadCurrentDependent() ) 
+#endif
     {
       parameter.setVal(expression);
       return false;
@@ -1414,19 +1551,38 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       // expression, in which case the parameter value should be
       // expressionString. Also check for "specials", the only special
       // allowed is "time" for time dependent parameters.
+  
+#if 0
+      testExpressionBools(expression,expressionString);
+#endif
+
+#if 0
       const std::vector<std::string> & nodes = expression.getVoltageNodes();
       const std::vector<std::string> & instances = expression.getDeviceCurrents();
       const std::vector<std::string> & variables = expression.getVariables();
       const std::vector<std::string> & leads = expression.getLeadCurrents();
       std::vector<std::string> specials;
       expression.getSpecials(specials);
-      bool isRandom = expression.isRandomDependent();
 
+      bool isRandom = expression.isRandomDependent();
       if (!nodes.empty() || !instances.empty() || !leads.empty() ||
           !variables.empty() || !specials.empty() || isRandom)
       {
         if (DEBUG_IO) { debugResolveParameterOutput1( nodes, instances, variables, leads, specials, isRandom ); }
+#else
+      bool isVoltDep = expression.getVoltageNodeDependent();
+      bool isDevCurDep = expression.getDeviceCurrentDependent();
+      bool isVarDep = expression.getVariableDependent();
+      bool isLeadCurDep= expression.getLeadCurrentDependent();
+      bool isSpecialsDep = expression.getSpecialsDependent();
+      bool isRandom = expression.isRandomDependent();
 
+      if (isVoltDep || isDevCurDep || isLeadCurDep ||
+          isVarDep
+          || isSpecialsDep 
+          || isRandom)
+      {
+#endif
         parameter.setVal(expression);
 
         if (DEBUG_IO) 
@@ -1637,11 +1793,16 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
           //                         << " as substitute for " << parameterName << " in expression " << expression.get_expression();
-          const std::vector<std::string> & variables = expressionParameter.getValue<Util::Expression>().getVariables ();
-
           enumParamType paramType=DOT_PARAM;
+#if 0 
+          const std::vector<std::string> & variables = expressionParameter.getValue<Util::Expression>().getVariables ();
           if (variables.empty()) paramType=DOT_PARAM;
           else paramType=SUBCKT_ARG_PARAM;
+#else
+          bool isVarDep = expressionParameter.getValue<Util::Expression>().getVariableDependent ();
+          if (isVarDep) paramType=SUBCKT_ARG_PARAM;
+          else          paramType=DOT_PARAM;
+#endif
           expression.attachParameterNode(strings[i], expressionParameter.getValue<Util::Expression>(),paramType); 
         }
       }
@@ -1670,8 +1831,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
             Xyce::dout() << std::endl;
           }
 
-          // ERK right thing to do, but won't work until set_vars/order_vars, etc are removed, 
-          // and a better group is set up.
           if (expressionParameter.getType() == Xyce::Util::EXPR)
           {
             Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();

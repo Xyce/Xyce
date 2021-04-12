@@ -982,14 +982,23 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     dependentParam.storeOriginal=false;
   }
 
+  std::vector<std::string> names;
+#if 0
   const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
   const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
   const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
   const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
-  std::vector<std::string> names;
+#else
+  bool isVoltDep = dependentParam.expr->getVoltageNodeDependent();
+  bool isDevCurDep = dependentParam.expr->getDeviceCurrentDependent();
+#endif
   if (!(depend & ParameterType::SOLN_DEP))
   {
+#if 0
     if (nodes.size() > 0 || instances.size() > 0)
+#else
+    if(isVoltDep || isDevCurDep)
+#endif
     {
       UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
@@ -1004,11 +1013,27 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     }
   }
 
-  names.insert( names.end(), nodes.begin(), nodes.end() );
-  std::vector<int> types(nodes.size(), XEXP_NODE);
+  std::vector<int> types;
+#if 1
+  if(isVoltDep)
+  {
+    const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
+#endif
+    names.insert( names.end(), nodes.begin(), nodes.end() );
+    types.resize(nodes.size(), XEXP_NODE);
+#if 1
+  }
+#endif
 
+#if 0
   if (leads.size() > 0)
   {
+#else
+  bool isLeadCurDep= dependentParam.expr->getLeadCurrentDependentExcludeBsrc();
+  if (isLeadCurDep)
+  {
+    const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
+#endif
     char type;
     int index;
     for (std::vector<std::string>::const_iterator n_i=leads.begin(); n_i != leads.end(); ++n_i)
@@ -1031,9 +1056,17 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     types.resize(oldSize+leads.size(), XEXP_LEAD);
   }
 
-  names.insert( names.end(), instances.begin(), instances.end() );
-  int oldSize=types.size();
-  types.resize(oldSize+instances.size(), XEXP_INSTANCE);
+#if 1
+  if(isDevCurDep)
+  {
+    const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
+#endif
+    names.insert( names.end(), instances.begin(), instances.end() );
+    int oldSize=types.size();
+    types.resize(oldSize+instances.size(), XEXP_INSTANCE);
+#if 1
+  }
+#endif
 
   dependentParam.lo_var = expVarNames.size();
   dependentParam.n_vars = names.size();
@@ -1063,8 +1096,15 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   dependentParam.global_params.clear();
+#if 0
   if (!variables.empty())
   {
+#else
+  bool isVarDep = dependentParam.expr->getVariableDependent();
+  if (isVarDep)
+  {
+    const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
+#endif
     std::vector<std::string>::const_iterator iterVariable;
     for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
