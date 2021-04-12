@@ -396,6 +396,7 @@ be \texttt{acFile} and \texttt{acFile.TD.prn}.
 
 \subsection{.MEASURE}
 \index{results!measure} \index{\texttt{.MEASURE}}
+\label{measure}
 \Xyce{} supports analysis of the data from a simulation through the
 \texttt{.MEASURE} command.  Using \texttt{.MEASURE} one can locate extrema in a
 voltage or current node, calculate integrals, derivatives, Fourier transforms,
@@ -733,6 +734,22 @@ end time for the transient analysis.
 
 The \Xyce{} Reference Guide\ReferenceGuide{} provides more details on these
 optional parameters, as well as additional ones.
+
+For maximum accuracy of the FFT analysis, it is recommended that the default
+setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1} be used.  This setting instructs
+\Xyce{} to insert breakpoints at the sample times requested by the collection of
+\texttt{.FFT} statements in the netlist.  In addition, the optional metrics for
+each \texttt{.FFT} line can be sent to stdout by setting \texttt{.OPTIONS FFT FFTOUT=1}.
+Those metrics include the Effective Number of Bits (ENOB), Spurious Free Dynamic
+Range (SFDR), Signal to Noise Ratio (SNR), Signal to Noise-and-Distortion Ratio (SNDR)
+and Total Harmonic Distorion (THD).  The \Xyce{} Reference Guide\ReferenceGuide{}
+provides detailed definitions for these metrics.  It also discusses the compatibility
+of various \texttt{.OPTIONS OUTPUT} and \texttt{.OPTIONS FFT} settings.
+
+\Xyce{} also supports an ability to {\it re-measure} results from a prior run of \Xyce{}.
+In this mode, one can modify \texttt{.MEASURE} and/or \texttt{.FFT} statements and have
+\Xyce{} recalculate the results based on existing simulation data.  Section \ref{measure}
+and the \Xyce{} Reference Guide\ReferenceGuide{} provides more details on this capability.
 
 \section{Graphical Display of Solution Results}
 \label{Results}

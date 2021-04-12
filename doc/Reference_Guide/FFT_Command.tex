@@ -7,7 +7,7 @@
 % Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
-
+\label{FFT}
 
 Performs Fast Fourier Transform analysis of transient analysis output.
 
@@ -158,3 +158,25 @@ to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
   HARRIS & -92 dB Four-Term Blackman-Harris window~\cite{Doerry2017} &
     $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{N-1}) + 0.14128 \cdot cos(\frac{4 \pi i}{N-1}) - 0.01168 \cdot cos(\frac{6 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
 \end{longtable}
+
+\subsubsection{Additional FFT Metrics}
+\label{FFT_metrics}
+The following additional metrics will be sent to stdout if
+\texttt{.OPTIONS FFT FFTOUT=1} is used in the netlist.
+
+\subsubsection{Re-Measure}
+\label{Measure_FFT_ReMeasure}
+\index{measure fft!re-measure}
+\Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
+using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
+this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
+additional caveat is that \texttt{FFT\_ACCURATE} is set to 0 during the re-measure
+operation.  This should have no impact of the accuracy of the re-measured results
+if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
+
+\subsubsection{Compatibility Between OUTPUT and FFT Options}
+Some \texttt{.OPTIONS OUTPUT} settings are incompatible with using the default
+setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1}.  The use of
+\texttt{.OPTIONS OUTPUT OUTPUTTIMEPOINTS} is compatible.  However, the use of
+\texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is not.  In that latter case,
+\texttt{.OPTIONS FFT FFT\_ACCURATE} will be automatically set to 0.

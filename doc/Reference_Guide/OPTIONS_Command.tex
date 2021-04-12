@@ -441,10 +441,13 @@ expense of simulation speed.  If \texttt{FFT\_ACCURATE} is set to
 values at the specified sample times.  If the \texttt{-remeasure} command
 line option is used to recalculate the \texttt{.MEASURE FFT} and/or
 \texttt{.FFT} statements for a \texttt{.TRAN} analysis, then
-\texttt{FFT\_ACCURATE} is set to 0 during the re-measure operation.
+\texttt{FFT\_ACCURATE} is set to 0 during the re-measure operation.  Finally,
+if \texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is used in the netlist
+then \texttt{.OPTIONS FFT FFT\_ACCURATE} will also be set to 0.
 
 If \texttt{FFTOUT} is set to 1 then additional metrics are output for each
-\texttt{.FFT} line.  Those metrics are:
+\texttt{.FFT} line.  Those metrics are as follows, where Section \ref{FFT_metrics}
+provides detailed definitions for these metrics:
 
 \begin{itemize}
   \item Effective Number of Bits (ENOB)
