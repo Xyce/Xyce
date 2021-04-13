@@ -4,9 +4,8 @@ import numpy as np
 class GMLS(object):
 
     def __init__(self, source_sites, polynomial_order, weighting_power = 2, epsilon_multiplier = 1.5):
-        self.last_target_site = np.zeros((1,))
 
-        self.kokkos_obj=pycompadre.KokkosParser()
+        self.last_target_site = np.zeros((1,))
 
         assert len(source_sites.shape)==2, "2D array must be given to GMLS for source_sites (#sites x spatial dimension)"
         self.input_dimensions = source_sites.shape[1]
@@ -30,7 +29,6 @@ class GMLS(object):
     def __del__(self):
         del self.gmls_obj
         del self.gmls_helper
-        del self.kokkos_obj
 
     def predict(self, target_site, data_vector):
         assert target_site.shape[1]==self.input_dimensions, "Wrong dimensions for target site (%d vs %d)" % (target_site.shape[1], self.input_dimensions)
