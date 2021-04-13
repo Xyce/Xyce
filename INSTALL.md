@@ -28,6 +28,9 @@ approach. The [Standard Build Approach](#standard-build-approach) section
 covers the more traditional method. For either method, a certain minimal set of
 dependencies are required, which is covered first.
 
+Note that the install/uninstall commands may require the use of `sudo` on
+Unix-like systems.
+
 If many flags are being given to CMake on the command line (for Trilinos or
 Xyce), you might want to create a configuration script. See the [Configuration
 Scripts](#configuration-scripts) section for more detail.
@@ -51,7 +54,7 @@ You will need to obtain the following tools:
   later)\
   (These might be in separate packages on your system.)
 - Fortran compiler (e.g., gfortran)
-  + some packages will include Fortran with the C and C++ compilers \
+  + some packages will include Fortran with the C and C++ compilers
   + Trilinos has Fortran code; but leveraging it is technically
     [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#id43).
     Not using the Fortran code, though, may result in slightly worse performance.
@@ -153,7 +156,8 @@ with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 First, download Trilinos version 12.12.1 from the [Trilinos GitHub
 Page](https://github.com/trilinos/trilinos), or use this [direct
 link](https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-12-12-1.tar.gz).
-You can also use git to clone just the 12.12.1 release using:
+For a substantially faster git clone, you can obtain just the 12.12.1 files by
+running:
 ```sh
 git clone --depth 1 --branch trilinos-release-12-12-1 https://github.com/trilinos/Trilinos.git
 ```
@@ -176,19 +180,19 @@ As with Xyce, both a parallel and serial build of Trilinos can exist on the
 same system, but they must be in different directories. (We recommend
 specifying unique sub-directories in `/usr/local`, such as
 `/usr/local/trilinos_serial`.) If you install Trilinos in a temporary location,
-you will need to rebuild when building a new version of Xyce. (The recommended
-version of Trilinos has historically not changed often.)
+you will need to rebuild it when building a new version of Xyce. (The
+recommended version of Trilinos has historically not changed often.)
 
 If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
 
-To build Trilinos (and install it in the default location, `/usr/local`), enter
+To configure Trilinos (using the default `/usr/local` install location), enter
 the build directory and run:
 ```sh
 cmake -C path/to/Xyce/cmake/trilinos/trilinos-config.cmake <path/to/Trilinos>
 ```
 Once the configuration step has completed, run the following in the build
-directory:
+directory to build and install Trilinos:
 ```sh
 cmake --build . -j 2 -t install
 ```
@@ -212,10 +216,11 @@ invocation:
 -D CMAKE_CXX_COMPILER=<C++-compiler> \
 -D CMAKE_Fortran_COMPILER=<Fortran-compiler> \
 ```
-You may need to use a full path, if they are not in your `$PATH`.
+You may need to use a full path if they are not visible in your default paths.
 
-Similarly, if the third-party libraries (AMD, BLAS and LAPACK) are not in your
-`$PATH`, use the following flags to help CMake find the libraries:
+Similarly, if the third-party libraries (AMD, BLAS and LAPACK) are not visible
+in your default paths, use the following flags to help CMake find the
+libraries:
 ```sh
 -D AMD_LIBRARY_DIRS=</path/to/AMD/lib> \
 -D AMD_INCLUDE_DIRS=</path/to/AMD/include> \
@@ -291,25 +296,25 @@ following flag to the Xyce CMake invocation:
 See the [Xyce/ADMS Users
 Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
 information on running Xyce/ADMS. (At the moment, the CMake support for the
-plugin capability should be considered beta.)
+plugin capability is considered beta.)
 
 ## Uninstalling Xyce
 
 The Xyce CMake does not create an uninstall script. However, on installation it
-does produce an "install manifest" file, which lists the path to every
-installed file. To remove a Xyce installation from a Unix-like system, simply
+does produce an "install manifest" file, which lists every installed file with
+their full path. To remove a Xyce installation from a Unix-like system, simply
 run:
 ```sh
 xargs rm < install_manifest.txt
 ```
-You may also want to uninstall Trilinos. As with Xyce, an
-`install_manifest.txt` file is produced when Trilinos is installed.
+Note that the above method is immediate and permanent. You may also want to
+uninstall Trilinos. As with Xyce, an `install_manifest.txt` file is produced
+when Trilinos is installed.
 
 If you do not want to keep the build directories, simply copy the
 `install_manifest.txt` file(s) to a safe location (the file name can be
 changed). Then Xyce and/or Trilinos can be uninstalled at any time using the
-`xarg` command, above (be sure to specify the correct filename). Note that the
-uninstall method is immediate and permanent.
+`xarg` command, above (be sure to specify the correct filename).
 
 ## Running the Test Suite
 
@@ -322,8 +327,11 @@ documentation on the Xyce home page.
 
 If many flags are being applied as part of a CMake invocation, you might want
 to create a configuration script. This is essentially a shell script with the
-CMake invocation. For example, to configure an MPI-enabled Trilinos build one
-might create a file containing:
+CMake invocation. The following commands are for Unix-like systems. Analogous
+scripts can be created for Windows systems.
+
+As an example, to configure an MPI-enabled Trilinos build, one might create a
+file containing:
 ```sh
 #!/bin/sh
 
@@ -354,7 +362,7 @@ Compiling Xyce on Windows is not a small task at the moment, since Windows does
 not have a package manager equivalent. Internally, we use the Intel compiler
 suite with the Intel [Math Kernel
 Library](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html)
-(MKL), which provides the BLAS, LAPACK and FFT capabilities (removing the need
+(MKL). The MKL provides the BLAS, LAPACK and FFT capabilities (removing the need
 for FFTW). At the beginning of 2021, Intel rebranded their tool chains as the
 [oneAPI](https://software.intel.com/content/www/us/en/develop/tools/oneapi.html)
 Toolkits, and now make them available for free.
@@ -413,16 +421,16 @@ For Xyce, add the following to the CMake invocation:
 
 ### Ubuntu
 
-Ubuntu releases 17.10 through the 19.x (including 18.04), have a broken version
-of Open MPI in their package repositories. The broken Open MPI was fixed in
-Ubuntu 20.04.
+Ubuntu releases 17.10 through the 19.x series (including 18.04), have a broken
+version of Open MPI in their package repositories. The broken Open MPI was
+fixed in Ubuntu 20.04.
 
-On the problem releases, the packaged version of Open MPI in the package
-repositories is compiled with the `--enable-heterogeneous` option, which breaks
-MPI's standard compliance and causes Xyce to fail on some problems.
+In the problem releases, the packaged version of Open MPI in the repositories
+is compiled with the `--enable-heterogeneous` option, which breaks MPI's
+standard compliance and causes Xyce to fail on some problems.
 
 If you are running a version of Ubuntu that has this issue, the only workaround
-is to uninstall the OpenMPI package and build OpenMPI from source yourself,
+is to uninstall the OpenMPI package and build OpenMPI from source, yourself,
 without the `--enable-heterogeneous` option. Comment 11 of the [Launchpad bug
 report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11)
 contains instructions for how to rebuild and install Open MPI using the Debian

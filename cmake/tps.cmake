@@ -41,6 +41,7 @@
 # Also see the directories:
 #    Trilinos/commonTools/importing/
 #    Trilinos/demos/buildAgainstTrilinos/
+# Some of that information is out-of-date, though.
 
 # Trilinos recommends it be found BEFORE project() is called.  Therefore, it is
 # done in the CMakeLists.txt in the Xyce root directory.  One might put the
@@ -149,6 +150,9 @@ if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
+# When updating to a new version of Trilinos, the following message will need
+# to be updated. Post 12.12.1, the flag should be:
+#         -D Trilinos_ENABLE_COMPLEX_DOUBLE=ON
 check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
 if (NOT Teuchos_COMPLEX_IN_Trilinos)
      message("Trilinos was not built with COMPLEX support in Teuchos.\n"

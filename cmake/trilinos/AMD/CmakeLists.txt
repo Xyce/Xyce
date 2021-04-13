@@ -11,11 +11,10 @@
 # -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
 # path/to/Xyce/cmake/trilinos/AMD
 #
-# Build and install AMD in the usual way.  From the AMD build directory, run:
+# Build/install AMD in the usual way; e.g., from the AMD build directory, run:
 # cmake --build . -t install
 #
-# Then use the following flags with the Trilnos CMake invocation:
-#
+# Then be sure to use the following flags with the Trilnos CMake invocation:
 # -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
 # -D AMD_LIBRARY_DIRS=/trilinos/install/path/lib \
 # -D AMD_INCLUDE_DIRS=/trilinos/install/path/include \
@@ -53,7 +52,7 @@ target_include_directories(amd
      ${SuiteSparsePath}/SuiteSparse_config/
   )
 
-# set_property(TARGET amd PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET amd PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(TARGETS amd DESTINATION lib)
 install(FILES
@@ -76,9 +75,10 @@ install(FILES
 #
 # The following fragments would more faithfully reproduce what the Makefiles
 # do. However, the AMD package has no ifdef's with DINT or DLONG, so it doesn't
-# seem to make sense to do all the extra compiling with those flags. However,
-# if AMD is ever updated to preferentially use ints vs longs, then the
-# following will need to be done.
+# seem to make sense to do all the extra compiling with those flags.
+# (SuiteSparse_config doesn't use them either.) However, if AMD is ever updated
+# to preferentially use ints vs longs, then something like the following will
+# need to be done.
 #
 #    add_library(amd_integer
 #      STATIC
@@ -95,7 +95,7 @@ install(FILES
 #        amd_valid.c
 #        amd_preprocess.c
 #      )
-#    then use a configure file to define DINT
+#    target_compile_definitions(amd_integer PUBLIC DINT)
 #
 #
 #    add_library(amd_long
@@ -113,7 +113,7 @@ install(FILES
 #        amd_valid.c
 #        amd_preprocess.c
 #      )
-#    then use a configure file to define DLONG
+#    target_compile_definitions(amd_integer PUBLIC DLONG)
 #
 #    target_link_libraries(amd suitesparseconfig amd_integer amd_long)
 
