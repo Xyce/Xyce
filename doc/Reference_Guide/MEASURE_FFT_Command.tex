@@ -90,11 +90,13 @@ The supported measure types are:
 
 \begin{description}
   \item[\tt ENOB] Calculates the ``Effective Number of Bits'', where that metric
-    is defined further below.
+    is defined in Section \ref{FFT_metrics} which covers the \texttt{.FFT} command.
 
   \item[\tt EQN] Calculates the value of {\tt <variable>} during the simulation.
     That variable can use the results of other measure statements. {\tt PARAM}
-    is an allowed synonym for {\tt EQN} as a measure type.
+    is an allowed synonym for {\tt EQN} as a measure type.  For {\tt FFT} measure
+    mode, an {\tt EQN} measure will be reported as ``failed'' until the associated
+    FFT has been calculated.
 
   \item[\tt FIND] Returns the requested FFT cofficient at the requested
     frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM})
@@ -105,16 +107,16 @@ The supported measure types are:
     {\tt W} operators.
 
   \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
-    is defined further below.
+    is defined in Section \ref{FFT_metrics}.
 
   \item[\tt SNDR] Calculates the ``Signal to Noise-plus-Distortion Ratio'', where that metric
-    is defined further below.
+    is defined in Section \ref{FFT_metrics}.
 
   \item[\tt SNR] Calculates the ``Signal to Noise Ratio'', where that metric
-    is defined further below.
+    is defined in Section \ref{FFT_metrics}.
 
   \item[\tt THD] Calculates the ``Total Harmonic Distortion'', where that metric
-    is defined further below.
+    is defined further below and also in in Section \ref{FFT_metrics}.
 \end{description}
 
 \argument{variable}
@@ -134,7 +136,8 @@ used by the {\tt FIND} measure only.  The entered {\tt AT} value will be
 rounded to the nearest harmonic frequency, as defined by the {\tt FREQ},
 {\tt START} and {\tt STOP} parameters on the associated {\tt .FFT} line.
 An {\tt AT} value that rounds to a harmonic frequency of less than zero,
-or to more than {\tt NP/2}, will produce a failed measure in \Xyce{}.
+or to more than {\tt NP/2}, will produce a failed measure in \Xyce{}, where
+{\tt NP} is the number of points specified on the associated {\tt .FFT} line..
 The behavior of these ''failed'' cases may differ from commercial simulators.
 
 \argument{BINSIZ=value}
@@ -165,7 +168,7 @@ line.  The default value is {\tt NP/2}, where {\tt NP} is the number
 of points specified on the associated {\tt .FFT} line.
 
 \argument{MINFREQ=value}
-The minimum frequency over which to perform a {\tt THD} measure.
+The minimum frequency over which to perform a {\tt SFDR} or {\tt THD} measure.
 The entered {\tt MINFREQ} value will be rounded to the nearest harmonic
 frequency, as defined by the {\tt FREQ}, {\tt START} and {\tt STOP}
 parameters on the associated {\tt .FFT} line.  The default value is 1.
@@ -197,6 +200,24 @@ file and standard output.
 \end{Arguments}
 
 \end {Command}
+
+\subsubsection{Measure Definitions}
+The \texttt{ENOB}, \texttt{SNDR}, \texttt{SNR} and \texttt{SFDR} measure
+types use the same definitions as the metrics produced by \texttt{.FFT} lines.
+Section \ref{FFT_metrics} provides more details on those definitions.  (Note: The
+\texttt{MAXFREQ} and \texttt{MINFREQ} qualifiers from the \texttt{.MEASURE FFT}
+lines are mapped into the \texttt{FMAX} and \texttt{FMIN} parameters used in those
+equations.)
+
+The only exception is the \texttt{THD} measure.  If the optional \texttt{NBHARM}
+qualifier is not used then the definition given in Section \ref{FFT_metrics} is
+used.  If the \texttt{NBHARM} qualifier is used then it takes precedence over the
+\texttt{MAXFREQ} qualifier.  The \texttt{THD} measure definition is then as follow.
+Let $f_{0}$ be the integer index of the ``first harmonic'' ($f_{0}$), as defined in
+Section \ref{FFT_metrics}, from the associated \texttt{.FFT} line.  Then the
+effective value of the upper frequency limit ($f_{2}$) in the THD calculation
+is \texttt{NBHARM}$\cdot f_{0}$, with the caveat that all of the harmomics will
+be used if \texttt{NBHARM} < 0 or \texttt{NBHARM} > \texttt{NP/2}
 
 \subsubsection{Re-Measure}
 \label{Measure_FFT_ReMeasure}
