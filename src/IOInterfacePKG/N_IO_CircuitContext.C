@@ -418,6 +418,153 @@ void CircuitContext::addGlobalParams(
 }
 
 //----------------------------------------------------------------------------
+// Function       : CircuitContext::categorizeParams
+// Purpose        : move params to globals, or vice-versa, as necessary.  This
+//                  should only ever be called on the top-level circuit context.
+//
+//                  This function was added to address issue #167, "Make
+//                  globally-scoped .params available to the device package,
+//                  so globally scoped normal params will be equivalent to
+//                  .global_param"
+//
+// Special Notes  : As of this writing, this function only elevates (as
+//                  needed) certain params from normal .param to .global_param.
+//                  It does not currently lower .global_params down to .param,
+//                  but this should be added.
+//
+//                  .param and .global_param are very similar, since the
+//                  develoment of the new expression library, they can
+//                  both change during calculation.  Earlier in Xyce development
+//                  this was not true, and .param was treated as a constant.
+//
+//                  At this point, one of the biggest ways in which they are
+//                  different is how they are treated by the device package.
+//                  The device package tracks all parameters that depend
+//                  on .global_params, which makes it possible to do "setParam"
+//                  calls on them.  These calls are typically made to support
+//                  things like STEP or SAMPLING.
+//
+//                  I experimented with converting all top-level .param
+//                  be .global_params.  This "worked" but it caused efficiency
+//                  problems in modern PDK netlists.  So, best solution is to keep
+//                  as many parameters in the ".param" state as possible, and
+//                  keep an absolute minimum of params in the ".global_param"
+//                  state.
+// Scope          :
+// Creator        : Eric Keiter
+// Creation Date  : 04/13/2021
+//----------------------------------------------------------------------------
+void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsTable)
+{
+  if (DEBUG_IO)
+    std::cout << "CircuitContext::categorizeParams.  ERK:DEBUG option table contents:" <<std::endl;
+
+  {
+  std::list<Util::OptionBlock>::iterator  iter = optionsTable.begin();
+  std::list<Util::OptionBlock>::iterator  end = optionsTable.end();
+  bool sortingNeeded=false;
+  for ( ; iter != end; ++iter)
+  {
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "Options name: ";
+      Xyce::dout() << iter->getName() << std::endl;
+    }
+
+    if (
+        (iter->getName() == "STEP") ||
+        (iter->getName() == "DC") ||
+        (iter->getName() == "SAMPLING") ||
+        (iter->getName() == "EMBEDDEDSAMPLING") ||
+        (iter->getName() == "PCE") ||
+        (iter->getName() == "LOCA"))
+        { sortingNeeded=true; break;}
+  }
+  if (!sortingNeeded) return;
+  }
+
+  {
+  std::list<Util::OptionBlock>::iterator  iter = optionsTable.begin();
+  std::list<Util::OptionBlock>::iterator  end = optionsTable.end();
+  bool sortingNeeded=false;
+  for ( ; iter != end; ++iter)
+  {
+    if ( (iter->getName() == "STEP") || (iter->getName() == "DC") )
+    {
+      Util::ParamList::iterator iterPar = iter->begin();
+      Util::ParamList::iterator endPar  = iter->end ();
+      for ( ; iterPar != endPar; ++iterPar)
+      {
+        if (DEBUG_IO)
+        {
+        Xyce::dout() << "STEP/DC param " << iterPar->tag() <<std::endl;
+        }
+        if (iterPar->tag() == "PARAM")
+        {
+          Util::Param parameter(iterPar->stringValue(), "");
+          Util::UParamList::const_iterator urParamIter = unresolvedParams_.find( parameter );
+          if ( urParamIter != unresolvedParams_.end() )
+          {
+            parameter = *urParamIter;
+            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedParams_.erase(urParamIter);
+          }
+        }
+      }
+    }
+    else if ( (iter->getName() == "SAMPLING")
+           || (iter->getName() == "EMBEDDEDSAMPLING")
+           || (iter->getName() == "PCE"))
+    {
+      Util::ParamList::iterator iterPar = iter->begin();
+      Util::ParamList::iterator endPar  = iter->end ();
+      for ( ; iterPar != endPar; ++iterPar)
+      {
+        if (DEBUG_IO)
+        {
+        Xyce::dout() << "SAMPLING/UQ param " << iterPar->tag() <<std::endl;
+        }
+        if ( std::string( iterPar->tag() ,0,5) == "PARAM")
+        {
+          Util::Param parameter(iterPar->stringValue(), "");
+          Util::UParamList::const_iterator urParamIter = unresolvedParams_.find( parameter );
+          if ( urParamIter != unresolvedParams_.end() )
+          {
+            parameter = *urParamIter;
+            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedParams_.erase(urParamIter);
+          }
+        }
+      }
+    }
+    else if ( (iter->getName() == "LOCA"))
+    {
+      Util::ParamList::iterator iterPar = iter->begin();
+      Util::ParamList::iterator endPar  = iter->end ();
+      for ( ; iterPar != endPar; ++iterPar)
+      {
+        if (DEBUG_IO)
+        {
+        Xyce::dout() << "LOCA param " << iterPar->tag() <<std::endl;
+        }
+        if ( std::string( iterPar->tag() ,0,8) == "CONPARAM")
+        {
+          Util::Param parameter(iterPar->stringValue(), "");
+          Util::UParamList::const_iterator urParamIter = unresolvedParams_.find( parameter );
+          if ( urParamIter != unresolvedParams_.end() )
+          {
+            parameter = *urParamIter;
+            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedParams_.erase(urParamIter);
+          }
+        }
+      }
+    }
+  }
+  }
+}
+
+//----------------------------------------------------------------------------
 // Function       : CircuitContext::addGlobalNode
 // Purpose        : Add a global node from a .GLOBAL line
 // Special Notes  :

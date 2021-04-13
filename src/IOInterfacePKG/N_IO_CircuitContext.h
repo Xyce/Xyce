@@ -150,6 +150,9 @@ public:
   // Add a global node
   void addGlobalNode (std::string &gnode);
 
+  // move params to globals, or vice-versa, as necessary.
+  void  categorizeParams( std::list<Util::OptionBlock> &  optionsTable);
+
   // Add a .FUNC function to the current context.
   void addFunction(FunctionBlock const& function);
 
