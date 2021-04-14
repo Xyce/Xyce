@@ -106,8 +106,13 @@ class ExpressionLexer;
 
  /* ID is used for a variety of random strings, including function and 
     parameter names.  So, it cannot have characters in it that could 
-    also be interpretted as operators, such as '!', '+' and '-'. This 
-    distinguishes ID from DEV, below. */
+    also be interpretted as operators, such as '+' and '-'. This 
+    distinguishes ID from DEV, below.  There is one exception to this
+    which is the '!' character.  This is needed to support Y device
+    parameter names in Xyce.  But '!' cannot be allowed as the first 
+    or last character of a parameter name, otherwise it conflicts 
+    with the TOK_NE operator !=.  To get around this, there is also 
+    ID2, which allows a '!' in the middle of the string. */
 
  /* DEV is used for device instance names, particularly inside of current vars.  I(DEV) */
  /* NODE is used for voltage node names, particularly inside of voltage vars  V(NODE) and V(NODE,NODE) */
@@ -117,6 +122,7 @@ class ExpressionLexer;
  /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
 ID [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*
+ID2 [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*[!][a-zA-Z0-9_:`@#\.\$]+
 
  /* this is to support table files */
 FILENAME [a-zA-Z0-9_:`@#\.\$\/]*
@@ -761,7 +767,8 @@ LEAD I[SDGBEC1-9]
 <INITIAL>"spice_sffm"[ \t]*"(" {return XyceExpression::ExpressionParser::token::TOK_SPICE_SFFM; }
 
  /* letters */
-<INITIAL>{ID}+ { 
+<INITIAL>{ID}+ | 
+<INITIAL>{ID2}+ { 
   std::string tmp = std::string(YYText());
   Xyce::Util::toUpper(tmp);
   lvalp->build<std::string *>()=new std::string( tmp );
