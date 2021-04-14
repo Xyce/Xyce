@@ -111,6 +111,7 @@ please visit the \XyceTM{} web page at
     such as \texttt{TEMP}, \texttt{TIME}, \texttt{FREQ} and \texttt{VT}.  
     Previously, only \texttt{.global\_param} parameters could depend on special variables. 
   \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.
+  \item \texttt{.param} parameters in the top level scope can now be modified by commands such as \texttt{.STEP}, \texttt{.DC}, \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and \texttt{LOCA}.  Previously, only \texttt{.global\_param} parameters could be modified by these commands.
   \item The search-path algorithm for files given on \texttt{.INC} and
      \texttt{.LIB} lines has been improved.  It should be more compatible
      with both commercial and open-source Process Design Kits (PDKs) now.
