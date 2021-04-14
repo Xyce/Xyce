@@ -132,7 +132,8 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 //-----------------------------------------------------------------------------
 // Function      : FFT::isOpTypeAllowed
 // Purpose       : Determine if the specified operator type is allowed for a given
-//                 FFT measure type
+//                 FFT measure type.  Multi-terminal lead currents are allowed
+//                 for everything but FIND
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -144,7 +145,7 @@ bool FFT::isOpTypeAllowed()
 
   std::string measureVarName = outputVars_[0]->getName();
   size_t parenIdx = measureVarName.find_first_of('(');
-  if ((measureVarName[0] != '{') && (parenIdx != 1))
+  if ((measureVarName[0] != '{') && (parenIdx != 1) && isComplexCurrentOp(measureVarName,parenIdx))
   {
     bsuccess = false;
     Report::UserError0() << "Complex operators such as " << measureVarName.substr(0,parenIdx)
@@ -270,7 +271,8 @@ void FFTFind::reset()
 //-----------------------------------------------------------------------------
 // Function      : FFTFind::isOpTypeAllowed
 // Purpose       : Determine if the specified operator type is allowed for the
-//                 FFTFind measure type
+//                 FFTFind measure type.  Multi-terminal lead currents are not
+//                 allowed for this measure type.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
@@ -296,8 +298,19 @@ bool FFTFind::isOpTypeAllowed()
   }
   else if (parenIdx > 1)
   {
-    // get OpType for VR, IR, etc.
-    opType_ = measureVarName.substr(1,parenIdx-1);
+    if (isComplexCurrentOp(measureVarName,parenIdx))
+    {
+      // get OpType for VR, IR, etc.
+      opType_ = measureVarName.substr(1,parenIdx-1);
+    }
+    else
+    {
+      bsuccess = false;
+      Report::UserError0() << "Multi-terminal lead current designator "
+			   << measureVarName.substr(0,parenIdx) << " not allowed "
+                           << "for output variable for FIND measure " << name_
+                           << " for FFT measure mode";
+    }
   }
 
   return bsuccess;
