@@ -596,7 +596,7 @@ TEST ( Complex_Parser_Test, singleParam_J)
 
 // this test is to ensure that a parameter name can include a period "."
 //INVALIDLINES.S2P
-TEST ( Complex_Parser_Test, singleParam_INVALIDLINES_dot_S2PJ)
+TEST ( Complex_Parser_Test, param_INVALIDLINES_dot_S2PJ)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("INVALIDLINES.S2P"), testGroup);
@@ -606,6 +606,17 @@ TEST ( Complex_Parser_Test, singleParam_INVALIDLINES_dot_S2PJ)
   EXPECT_EQ( result, 0.0);
 }
 
+// this test is to ensure that a parameter name can include a period "!"
+// See issue 191 on gitlab-ex.
+TEST ( Complex_Parser_Test, param_exclamationPoint)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("YCAP!CAP2F:R"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
 
 // these next 3 tests are for the single-character operators, which are mostly relevant to complex numbers
 // In some codes, R(number) means "real part" of number.

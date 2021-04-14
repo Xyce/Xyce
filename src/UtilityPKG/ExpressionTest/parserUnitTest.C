@@ -533,10 +533,22 @@ TEST ( Double_Parser_Test, singleParam_J)
 
 // this test is to ensure that a parameter name can include a period "."
 //INVALIDLINES.S2P
-TEST ( Double_Parser_Test, singleParam_INVALIDLINES_dot_S2PJ)
+TEST ( Double_Parser_Test, param_INVALIDLINES_dot_S2PJ)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("INVALIDLINES.S2P"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 0.0);
+}
+
+// this test is to ensure that a parameter name can include a period "!"
+// See issue 191 on gitlab-ex.
+TEST ( Double_Parser_Test, param_exclamationPoint)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("YCAP!CAP2F:R"), testGroup);
   testExpression.lexAndParseExpression();
   double result(0.0);
   testExpression.evaluateFunction(result);
@@ -4422,6 +4434,7 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_withoutParens)
     EXPECT_EQ(refRes,result);
   }
 }
+#endif
 
 TEST ( Double_Parser_table_Test, Bsrc_C1_pureArray)
 {
@@ -10989,7 +11002,6 @@ TEST ( Double_Parser_Random, unif0)
 
   OUTPUT_MACRO(Double_Parser_Random, unif0)
 }
-#endif
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
