@@ -308,132 +308,6 @@ class noiseExpressionGroup : public Xyce::Util::baseExpressionGroup
 };
 
 //-------------------------------------------------------------------------------
-class testRandExpressionGroup : public Xyce::Util::baseExpressionGroup
-{
-  public:
-      testRandExpressionGroup () : 
-        Xyce::Util::baseExpressionGroup(), 
-        randomSeed_(0), mtPtr(0),
-        uniformDistribution(0.0,1.0),
-        normalDistribution(0.0,1.0)
-      {
-        std::random_device rd;
-        randomSeed_ = rd();
-        mtPtr = new std::mt19937(randomSeed_);
-      };
-
-      ~testRandExpressionGroup ()  { delete mtPtr; };
-
-  void getRandomOpValue ( Xyce::Util::astRandTypes type, std::vector<double> args, double & value) 
-  {
-    if (type==Xyce::Util::AST_AGAUSS)
-    {
-      double mean, stddev, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; stddev=args[1]; }
-
-      if(argSize ==3) { n=args[2];  stddev /= n; }
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = normalDistribution(*mtPtr);
-        value = prob*stddev;
-        value += mean;
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_GAUSS)
-    {
-      double mean, stddev, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; stddev=args[1]*mean; }
-
-      if(argSize ==3) { n=args[2];  stddev /= n; }
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = normalDistribution(*mtPtr);
-        value = prob*stddev;
-        value += mean;
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_AUNIF)
-    {
-      double mean, variation, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; variation=std::abs(std::real(args[1])); }
-
-      if(argSize ==3) { n=args[2];  variation /= n; }
-
-      double min   = std::real(mean) - std::real(variation);
-      double max   = std::real(mean) + std::real(variation);
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = uniformDistribution(*mtPtr);
-        double dv = fabs(max-min);
-        value = (dv*prob + min);
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_UNIF)
-    {
-      double mean, variation, n;
-      int argSize = args.size();
-      if (argSize < 2) { Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl; }
-      else { mean=args[0]; variation=std::abs(std::real(args[1]*mean)); }
-
-      if(argSize ==3) { n=args[2];  variation /= n; }
-
-      double min   = std::real(mean) - std::real(variation);
-      double max   = std::real(mean) + std::real(variation);
-      if (Xyce::Util::enableRandomExpression)
-      {
-        double prob = uniformDistribution(*mtPtr);
-        double dv = fabs(max-min);
-        value = (dv*prob + min);
-      }
-      else
-      {
-        value = mean;
-      }
-    }
-    else if (type==Xyce::Util::AST_RAND)
-    {
-      if (Xyce::Util::enableRandomExpression)
-      {
-        value = uniformDistribution(*mtPtr);
-      }
-      else
-      {
-        value = 0.5;
-      }
-    }
-    else
-    {
-      Xyce::Report::DevelFatal() << "Error.  getRandomOpValue" <<std::endl;
-    }
-
-    return; 
-  }
-
-  long randomSeed_;
-  std::mt19937 * mtPtr;
-  std::uniform_real_distribution<double> uniformDistribution;
-  std::normal_distribution<double> normalDistribution;
-};
-
-//-------------------------------------------------------------------------------
 class rfParamGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
@@ -11396,10 +11270,8 @@ TEST ( Complex_Parser_Random, agauss0)
   Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> result(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
-  Xyce::Util::enableRandomExpression = true; // restore default
 
   OUTPUT_MACRO(Complex_Parser_Random, agauss0)
 }
@@ -11413,15 +11285,12 @@ TEST ( Complex_Parser_Random, agauss1)
 
   std::complex<double> result1(0.0);
   std::complex<double> result2(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
   ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
 
   OUTPUT_MACRO(Complex_Parser_Random, agauss1)
-
-  Xyce::Util::enableRandomExpression = true; // restore default
 }
 
 //-------------------------------------------------------------------------------
@@ -11442,37 +11311,12 @@ TEST ( Complex_Parser_Random, agauss1_func)
 
   std::complex<double> result1(0.0);
   std::complex<double> result2(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
   ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
 
   OUTPUT_MACRO(Complex_Parser_Random, agauss_func)
-
-  Xyce::Util::enableRandomExpression = true; // restore default
-}
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss2)
-{
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testRandExpressionGroup() );
-
-  Xyce::Util::newExpression testExpression1(std::string("agauss(1.0,0.1,1.0)"), testGroup);
-  testExpression1.lexAndParseExpression();
-  Xyce::Util::newExpression testExpression2(std::string("agauss(1.0,0.1,1.0)"), testGroup);
-  testExpression2.lexAndParseExpression();
-
-  std::complex<double> result1(0.0);
-  std::complex<double> result2(0.0);
-  Xyce::Util::enableRandomExpression = true;
-  testExpression1.evaluateFunction(result1);
-  testExpression2.evaluateFunction(result2);
-
-  ASSERT_NE( result1, result2); // these should NOT match, because it is 2 separate expressions.
-
-  OUTPUT_MACRO2(Complex_Parser_Random, agauss2,testExpression1)
 }
 
 TEST ( Complex_Parser_Random, gauss0)
@@ -11481,12 +11325,10 @@ TEST ( Complex_Parser_Random, gauss0)
   Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1,1.0)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> result(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
   OUTPUT_MACRO(Complex_Parser_Random, gauss0)
-  Xyce::Util::enableRandomExpression = true;
 }
 
 TEST ( Complex_Parser_Random, aunif0)
@@ -11495,12 +11337,10 @@ TEST ( Complex_Parser_Random, aunif0)
   Xyce::Util::newExpression testExpression(std::string("aunif(1.0,0.1)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> result(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
   OUTPUT_MACRO(Complex_Parser_Random, aunif0)
-  Xyce::Util::enableRandomExpression = true;
 }
 
 TEST ( Complex_Parser_Random, unif0)
@@ -11509,12 +11349,10 @@ TEST ( Complex_Parser_Random, unif0)
   Xyce::Util::newExpression testExpression(std::string("unif(1.0,0.1)"), testGroup);
   testExpression.lexAndParseExpression();
   std::complex<double> result(0.0);
-  Xyce::Util::enableRandomExpression = false;
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
   OUTPUT_MACRO(Complex_Parser_Random, unif0)
-  Xyce::Util::enableRandomExpression = true;
 }
 
 
