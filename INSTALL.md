@@ -3,7 +3,7 @@
 This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).
-(For instructions on building Xyce with the autotools system, see the
+(For instructions on building Xyce with the Autotools system, see the
 [Xyce Building Guide](https://xyce.sandia.gov/documentation/BuildingGuide.html).)
 
 If you do not want to build from source, binary installers for Windows, Mac and

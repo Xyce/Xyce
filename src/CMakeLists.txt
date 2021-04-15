@@ -113,6 +113,22 @@ endif()
 set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
+# The above was first added in 2008.
+#
+# According to <https://gitlab.kitware.com/cmake/community/-/wikis/FAQ>, the
+# above is not needed: "One more detail is needed with CMake 2.6.x and lower
+# (but not CMake 2.8 or higher). If you are building your shared and static
+# libraries in the same directory, you will also need the following to keep
+# your shared and static libraries from clobbering each other during the
+# build."
+#
+# From <https://cmake.org/cmake/help/cmake2.6docs.html>:
+# "When a library is built, CMake by default generates code to remove any
+# existing library using all possible names. This is needed to support
+# libraries that switch between STATIC and SHARED by a user option. However
+# when using OUTPUT_NAME to build a static and shared library of the same name
+# using different logical target names the two targets will remove each other's
+# files. This can be prevented by setting the CLEAN_DIRECT_OUTPUT property to 1."
 
 install(TARGETS XyceLib DESTINATION lib)
 install(TARGETS Xyce DESTINATION bin)

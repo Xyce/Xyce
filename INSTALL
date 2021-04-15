@@ -9,7 +9,7 @@ of the autoconf documentation.
 They may be useful to advanced users, but they are NOT specific
 instructions for building Xyce.
 
-Complete instructions for building Xyce using autotools are found in
+Complete instructions for building Xyce using Autotools are found in
 the Building Guide on the Xyce web site:
      https://xyce.sandia.gov/documentation/BuildingGuide.html
 Users interested in building Xyce should refer to that web page first,

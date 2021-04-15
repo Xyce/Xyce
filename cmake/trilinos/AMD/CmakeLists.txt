@@ -24,7 +24,8 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(AMD LANGUAGES C)
 
 if(NOT DEFINED SuiteSparsePath)
-     message(FATAL_ERROR "Must supply the path to SuiteSparse using \"-D SuiteSparsePath=path/to/SuiteSparse\"")
+     message(FATAL_ERROR "Must supply the path to SuiteSparse using:
+     -D SuiteSparsePath=path/to/SuiteSparse")
 endif()
 
 set(SuiteSparsePath "" CACHE FILEPATH "Path to the SuiteSparse repository")

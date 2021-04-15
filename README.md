@@ -42,12 +42,14 @@ which is always considered stable (the master branch is only pushed to when
 all of the regression tests have passed.)
 
 For the binary installers and other information about Xyce&mdash;including
-[documentation](https://xyce.sandia.gov/documentation), and [autotools build
+[documentation](https://xyce.sandia.gov/documentation), and [Autotools build
 instructions](https://xyce.sandia.gov/documentation/BuildingGuide.html)&mdash;see
 the [Xyce Homepage](https://xyce.sandia.gov) at [Sandia National
 Laboratories](https://www.sandia.gov).
 
 For CMake build instructions, see the [INSTALL.md](./INSTALL.md) file.
+
+Xyce is also available via the [Spack](https://spack.io/) package manager.
 
 ## Support
 
