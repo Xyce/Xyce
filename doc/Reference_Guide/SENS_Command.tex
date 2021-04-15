@@ -36,15 +36,21 @@ with respect to a user-specified list of circuit parameters.
 .global\_param res=2
 .SENS objfunc=\{res*I(V1)\} param=R1:R
 
-* AC example
+.global\_param res=3.0k
+.SENS objfunc=\{res*I(V1)\} param=res
+
+* AC example using objvars
 .sens objvars=2,3 param=r1:r,c1:c,v1:acmag
+
+* AC example using acobjfunc
+.sens acobjfunc=\{2.0*V(2)\},\{I(VM)\} param=r1:r,c1:c
 \end{alltt}
 
 \comments
 
 This capability can be applied to either DC, transient or AC analysis.  
-Both direct and adjoint sensitivities are supported, 
-and the user can optionally request either direct or adjoint sensitivities, 
+Both direct and adjoint sensitivities are supported. 
+The user can optionally request either direct or adjoint sensitivities, 
 or both.  
 
 Although \Xyce{} will allow the user to specify both direct and 
@@ -85,9 +91,13 @@ sensitivities. For many practical problems, the sensitivies at only one or a
 handful of points is needed, so this is a good way to mitigate the computational 
 cost of adjoints.
 
-If performing a sensitivity calculation with AC analysis, the specification of the 
-objective function is different.  Instead of using the options parameter \texttt{objfunc}, 
-one should use \texttt{objvars}, followed by a comma-separated list of node names instead.  The reason 
-for this is that the expression library in Xyce doesn't yet support complex numbers.
+If performing a sensitivity calculation with AC analysis, 
+there are two options for the specification of the 
+objective function. These options are both different from the DC and TRAN method.
+Instead of specifying objective functions with the parameter \texttt{objfunc},
+one should either use \texttt{objvars} or \texttt{acobjfunc}.  
+\texttt{objvars} should be followed by a comma separated list of voltage nodes.  
+\texttt{acobjfunc} shoudl be followed by a comma separated list of objective functions.  
+It is not possible to use both specifications in the same netlist.
 
 \end{Command}
