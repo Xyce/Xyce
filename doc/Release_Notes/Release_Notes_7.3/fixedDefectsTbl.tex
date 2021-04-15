@@ -50,6 +50,13 @@ variables incorrect, so the code has been refined to make only
 appropriate changes to variable names rather than blindly replacing
 one character. \\ \hline
 
+\textbf{Gitlab-ex issue 191}: Exclamation point character is not allowed in parameter names, in the new expression library &
+This was supported in previous versions of \Xyce{} but was inadvertantly broken 
+with the new expression library for \Xyce{} 7.2. This mainly affected printing 
+  of ``Y'' device parameters on the \texttt{.PRINT} line, but only inside of 
+  \texttt{.PRINT} line expressions.  This was due to a minor parsing mistake 
+  and has been addressed.  \\ \hline
+
 \textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
 If a user code links to the Xyce libraries and allocates objects of
 one of the Xyce simulator classes (either the base class
