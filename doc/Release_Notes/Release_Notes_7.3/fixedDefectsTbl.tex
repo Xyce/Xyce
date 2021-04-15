@@ -250,6 +250,11 @@ models when run on more than 2 processors.  These failures were caused by a code
 addressed.
 \\ \hline
 
+\textbf{Gitlab-ex Issue 130}: The FFTW interface does not work properly for even number of samples  &
+The results from .HB and .FFT analysis were wrong for the N/2 harmonic when the number of samples N
+is even. The real part of the result was incorrectly copied to the imaginary part for the N/2 harmonic.
+This led to the wrong results. This is fixed now.
+\\ \hline
 
 \end{longtable}
 }
