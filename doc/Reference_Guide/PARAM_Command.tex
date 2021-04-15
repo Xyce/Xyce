@@ -30,20 +30,37 @@ User defined parameter that can be used in expressions throughout the netlist.
 \begin{Arguments}
 \argument{\vbox{\hbox{name\hfil}\hbox{value}}}
 
-The name of a parameter and its value.
+The name of a parameter and its value.  The value may be an expression.
 \medskip
 
 \end{Arguments}
 
 \comments
-Parameters defined using \verb+.PARAM+ are evaluated when the netlist is read in, and therefore must evaluate to constants at the time the netlist is parsed.  It is therefore illegal to use any time- or solution-dependent terms in parameter definitions, including the TIME, FREQ, TEMP and VT variables or any nodal voltages.   Since they must be constants, these parameters may also not be used in \texttt{.STEP} loops.
+Parameters defined using \texttt{.PARAM} only have a few restrictions on their 
+  usage.  In earlier versions of \Xyce{} they were handled as constants that 
+  were evaluated during parsing.  This is no longer the case, and parameters 
+  can now have their values change throughout the calculation.   A \texttt{.PARAM} 
+  defined in the top level netlist is equivalent to 
+  a \texttt{.GLOBAL\_PARAM}, and they can be combined as needed.
+Thus, you may use parameters defined by \texttt{.PARAM} in expressions used to
+define global parameters, and you may also use global parameters in
+\texttt{.PARAM} definitions.  
 
-There are several reserved words that may not be used as names for parameters.  These parameters are:
+It is legal for parameters to depend on special variabls such as 
+  TIME, FREQ, TEMP and VT variables.  However, it is not legal for parameters 
+  to depend on solution variables such as voltage nodes or independent source currents.
+
+Parameters defined using \texttt{.PARAM} can be modified directly by various analyses, such as \texttt{.DC},   
+  \texttt{.STEP}, \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}, subject to scoping rules. 
+
+There are several reserved words that may not be used as names for parameters.  These reserved words are:
 \begin{XyceItemize}
 \item \verb+Time+
 \item \verb+Freq+ 
+\item \verb+Hertz+ 
 \item \verb+Vt+
 \item \verb+Temp+
+\item \verb+Temper+
 \item \verb+GMIN+
 \end{XyceItemize}
 
@@ -55,6 +72,12 @@ netlist, then it is accessible from the main circuit and all subcircuits.
 to that subciruit definition.  So, their parameters are only accessible within 
 that subcircuit definition, as well as within ``nested subcircuits'' also 
 defined within that subcircuit definition.
+\item Parameters defined via \texttt{.PARAM} statements can be modified by the 
+  various UQ analysis techniques (\texttt{.STEP}, \texttt{.SAMPLING}, etc) but
+  this only works for \texttt{.PARAM} that have been defined in the top level netlist.
+  Parameters defined inside of subcircuits cannot be modified directly 
+  by these analyes, but they can be modified indirectly via dependence on other 
+  globally scoped parameter.
 \end{XyceItemize}
 
 Additional illustative examples of scoping are given in the

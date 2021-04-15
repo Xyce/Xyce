@@ -55,6 +55,10 @@ The sweep variables are swept over the rows of a table.
 V1 1 0 DC \{v1_val\}
 .STEP v1_val 20 10 -1
 
+.param v2_val=10
+V2 2 0 DC \{v2_val\}
+.STEP v2_val 20 10 -1
+
 .data table
 + c1 r1
 + 1e-8  1k
@@ -72,8 +76,7 @@ V1 1 0 DC \{v1_val\}
 Name of the parameter to be swept.  This may be the special parameter
 name \texttt{TEMP} (the ambient simulation temperature), a device
 name, device instance or model parameter name, or global parameter
-name as defined in a \texttt{.global\_param} statement.  It may not be
-the name of a parameter defined in a \texttt{.param} statement.
+name as defined in a \texttt{.global\_param} or globally-scoped \texttt{.param} statement.  
 
 If a device name is given, the primary parameter for that device is
 taken as the parameter; in the first two examples above, the primary

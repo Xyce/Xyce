@@ -7,9 +7,7 @@
 % Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
-
-User-defined global parameter, which can be time dependent, or can be used in \texttt{.STEP} loops.
-
+User-defined global parameter that can be used in expressions throughout the netlist.
 \begin{Command}
 
 \format
@@ -29,16 +27,20 @@ Global parameter value.  An expression is used for the value when specified with
 
 \comments
 
-You may use parameters defined by \texttt{.PARAM} in expressions used to
-define global parameters, but you may {\em not} use global parameters in
-\texttt{.PARAM} definitions.
+A \texttt{.PARAM} 
+defined in the top level netlist is equivalent to 
+a \texttt{.GLOBAL\_PARAM}, and they can be combined as needed.
+Thus, you may use parameters defined by \texttt{.PARAM} in expressions used to
+define global parameters, and you may also use global parameters in
+\texttt{.PARAM} definitions.    However, a \texttt{.GLOBAL\_PARAM} 
+  can only depend on \texttt{.PARAM} parameter from the top level circuit scope.
 
-Unlike \texttt{.PARAM} parameters, global parameters are evaluated at
-the time they are needed. They may, therefore, be time dependent, and may
-depend on other time dependent quantities in the circuit.  They may also
-be frequency dependent.
+Like \texttt{.PARAM} parameters, \texttt{.GLOBAL\_PARAM} may
+depend on time dependent quantities in the circuit.  They may also
+be frequency dependent.  They cannot, however, be 
+dependent on solution variaables such as voltage nodes.
 
-For example to load an external data file with time voltage pairs of data on each 
+To load an external data file with time voltage pairs of data on each 
 line into a global parameter, use this syntax:
 
 \texttt{.GLOBAL\_PARAM extdata = \{tablefile("filename")\}}
@@ -46,8 +48,21 @@ line into a global parameter, use this syntax:
 where \texttt{filename} would be the name of the file to load.  See \ref{ExpressionDocumentation} for 
 further information.
 
+There are several reserved words that may not be used as names for parameters.  These reserved words are:
+\begin{XyceItemize}
+\item \verb+Time+
+\item \verb+Freq+ 
+\item \verb+Hertz+ 
+\item \verb+Vt+
+\item \verb+Temp+
+\item \verb+Temper+
+\item \verb+GMIN+
+\end{XyceItemize}
+
 Global parameters are accessible, and have the same value, throughout all
 levels of the netlist hierarchy.  It is not legal to redefine global parameters
-in different levels of the netlist hierarchy.
+in different levels of the netlist hierarchy.  Also, global parameters can only 
+  be defined in the top level circuit scope.   Parameters defined inside of 
+  subcircuits must be of the \texttt{.PARAM} type.
 
 \end{Command}

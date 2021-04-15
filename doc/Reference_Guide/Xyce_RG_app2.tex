@@ -287,29 +287,6 @@ The implementation of \textrmb{.STEP} in \Xyce{} is not the
 same as that of PSpice.  See section~\ref{.STEP} for the syntax and
 function of the \textrmb{.STEP} function in \Xyce{}.
 
-\subsubsection{Global \textrmb{.PARAM} Sweeps}
-
-PSpice also supports sweeps over variables specified in \textrmb{.PARAM} lines.
-This is not supported in \Xyce{}.  For example, this block of text will not
-work in \Xyce{}:
-\begin{vquote}
-VAB 2 0 5
-VAC 1 0 \{variable\}
-.param variable=0
-.step param variable 0 5 1
-.dc VAB 4 5 1
-\end{vquote}
-An equivalent block of code that will work in \Xyce{} replaces the
-\texttt{.param} with a \texttt{.global\_param}, and removes the
-\texttt{param} keyword from the \texttt{.step} line:
-\begin{vquote}
-VAB 2 0 5
-VAC 1 0 \{variable\}
-.global\_param variable=0
-.step variable 0 5 1
-.dc VAB 4 5 1
-\end{vquote}
-
 \subsubsection{Model Parameter Sweeps}
 
 PSpice requires extra keywords to apply a \textrmb{.STEP} statement to a
@@ -547,8 +524,6 @@ For the .cir file:
 \item Change \texttt{PROBE} and \texttt{PROBE64} statements to \texttt{PRINT <Sim Type>}
 \item Find cases where the PSpice netlist used \texttt{N()} rather
    than \texttt{V()}.
-\item \texttt{.PARAM} statements need to be replaced with 
-   \texttt{.GLOBAL\_PARAM} statements in \Xyce{}.
 \item \texttt{.DC} has the keyword \texttt{PARAM} in PSpice.  If it
    exists then remove it in the \Xyce{} netlist.
 \item \texttt{.OPTIONS TNOM=X} is changed to \texttt{.OPTIONS
