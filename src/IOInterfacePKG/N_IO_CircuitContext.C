@@ -474,8 +474,10 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
     if (
         (iter->getName() == "STEP") ||
         (iter->getName() == "DC") ||
+        (iter->getName() == "DATA") ||
         (iter->getName() == "SAMPLING") ||
         (iter->getName() == "EMBEDDEDSAMPLING") ||
+        (iter->getName() == "SENS") ||
         (iter->getName() == "PCE") ||
         (iter->getName() == "LOCA"))
         { sortingNeeded=true; break;}
@@ -489,7 +491,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
   bool sortingNeeded=false;
   for ( ; iter != end; ++iter)
   {
-    if ( (iter->getName() == "STEP") || (iter->getName() == "DC") )
+    if ( (iter->getName() == "STEP") || (iter->getName() == "DC") || (iter->getName() == "DATA") )
     {
       Util::ParamList::iterator iterPar = iter->begin();
       Util::ParamList::iterator endPar  = iter->end ();
@@ -514,6 +516,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
     }
     else if ( (iter->getName() == "SAMPLING")
            || (iter->getName() == "EMBEDDEDSAMPLING")
+           || (iter->getName() == "SENS")
            || (iter->getName() == "PCE"))
     {
       Util::ParamList::iterator iterPar = iter->begin();
