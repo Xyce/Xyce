@@ -24,11 +24,10 @@ parameters (such as mean and standard deviation), and the total number of
 sample points.  The primary analysis is then executed sequentially for each sample point.
 
 \Xyce{}  can use \verb|.SAMPLING| to modify any device instance or device
-model parameter, as well as the circuit temperature.  It is not legal to use 
-parameters defined in \texttt{.PARAM} statements, but it is legal to use global 
-parameters defined in \texttt{.global\_param} statements.  
-Section~\ref{Parameters_Expressions} discusses the differences 
-between \texttt{.param} and \texttt{.global\_param} in more detail.
+model parameter, as well as the circuit temperature.  It can also be used 
+to sweep over any user-defined parameter (either \texttt{.GLOBAL\_PARAM} 
+or \texttt{.PARAM} ) , as long as that parameter is  defined in the 
+global scope.
 
 The \verb|.SAMPLING| capability uses a lot of the same code base as \verb|.STEP|, 
 so most of the guidance for \verb|.STEP|, including legal parameters, output 
@@ -212,18 +211,20 @@ Sampling commands are in \color{XyceRed}red\color{black}.
 \end{centering}
 \end{figure}
 
-\subsection{Sampling a Global Parameter}
+\subsection{Sampling a User-Defined Parameter}
 \label{sampling_GlobalParam}
 
-Sampling can be applied to global parameters.  An example of such usage is given 
-in figure~\ref{Sampling_Netlist_3}, which is identical to the circuit in 
-figure~\ref{Sampling_Netlist_1}, except that it uses global parameters.
+Sampling can be applied to user-defined parameters, as long as they are declared in the top level netlist (global scope).  
+It cannot be applied to user-defined parameters which are defined in a subcircuit.  An example of such usage, with a global parameter, is given 
+in figure~\ref{Sampling_Netlist_3}. This circuit identical to the circuit in 
+figure~\ref{Sampling_Netlist_1}, except that it uses global parameters.  
+If the global parameters in this netlist are changed to normal parameters (\texttt{.PARAM}), this circuit will also work.
 \begin{figure}[htbp]
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
 \begin{vquote}
-\color{blue}Voltage Divider with sampling, using global parameters\color{black}
+\color{blue}Voltage Divider, sampling global params\color{black}
 .global\_param Vmax=1000.0
 .global\_param testNorm=1.5k
 .global\_param R1value=\{testNorm*2.0\}
@@ -244,7 +245,7 @@ VS1  2  0  SIN(0 \{Vmax\} 1KHZ 0 0)
 \end{minipage}
 }
 \caption{Voltage divider circuit netlist with sampling of a global parameter.
-Sampling commands are in \color{XyceRed}red\color{black}.
+  Sampling commands are in \color{XyceRed}red\color{black}.  This circuit will also work if the \texttt{.global\_param} statements are changed to \texttt{.param}.
 \label{Sampling_Netlist_3}}
 \end{centering}
 \end{figure}

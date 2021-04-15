@@ -306,11 +306,11 @@ However, such parameters may be redefined within a subcircuit, which would chang
 in the subcircuit and below.  
 
 A global parameter, defined using \texttt{.global\_param}, differs from a normal parameter 
-in that it can only be defined
-at the main circuit level.   Also, while both normal and global parameters are allowed to
-change during a simulation, only global parameters can be modified by netlist commands 
-such as \texttt{.STEP} and \texttt{.SAMPLING}.  Examples of some
-global parameter usages are:
+in that it can only be defined at the main circuit level.   
+Both types of parameters can be modified by netlist commands 
+such as \texttt{.STEP} and \texttt{.SAMPLING}, as long as they are globally scoped.  
+
+Examples of some global parameter usages are:
 \begin{vquote}
 .param dTdt=100
 .global_param T=\{27+dTdt*time\}
