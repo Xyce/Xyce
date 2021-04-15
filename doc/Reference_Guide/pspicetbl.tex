@@ -38,19 +38,19 @@ not support these commands.  \\ \hline
 \texttt{.AUTOCONVERGE} is not supported. & \Xyce{} does not support this command.  
 \\ \hline
 
-\texttt{.SENS} analysis is supported, but has a different syntax than PSpice. & The \Xyce{} version of \texttt{.SENS} requires that the user specify exactly which parameters are the subject of the sensitivity analysis.  Additionally, \Xyce{} can compute sensitivities in transient as well as the \texttt{.DC} case (unlike PSpice).
+\texttt{.SENS} analysis is supported, but has a different syntax than PSpice. & The \Xyce{} version of \texttt{.SENS} requires that the user specify exactly which parameters are the subject of the sensitivity analysis.  Additionally, \Xyce{} can compute sensitivities in transient and \texttt{.AC} as well as the \texttt{.DC} case (unlike PSpice).
 \\ \hline
 
 \texttt{.NOISE} analysis is supported, but not all devices supported. & The \Xyce{} version of \texttt{.NOISE} is new enough that not all noise models have been implemented.
 \\ \hline
 
 \texttt{.MC} and \texttt{.WCASE} statistical analyses are not supported.  
-& \Xyce{} does not support these commands.  
+  & \Xyce{} does not support these commands directly. However, \Xyce{} does support a variety of UQ methods, including \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING} and various polynomial chaos expansion methods.
 \\ \hline
 
 \texttt{.DISTRIBUTION}, which defines a user distribution for tolerances, is not supported.  
 & \Xyce{} does not support this command.  This command goes along with 
-\texttt{.MC} and \texttt{.WCASE} statistical analyses, which are also not supported. \\ \hline
+\texttt{.MC} and \texttt{.WCASE} statistical analyses, which are also not directly supported. \\ \hline
 
 \texttt{.LOADBIAS} and \texttt{.SAVEBIAS} initial condition commands are not supported.  
 & \Xyce{} does not support these commands.  \\ \hline
