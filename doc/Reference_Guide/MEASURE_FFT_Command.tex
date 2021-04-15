@@ -99,12 +99,13 @@ The supported measure types are:
     FFT has been calculated.
 
   \item[\tt FIND] Returns the requested FFT cofficient at the requested
-    frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM})
+    frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM} and {\tt IM})
     to FFT cofficients is given in the ``Additional Examples'' subsection below.
     {\tt FIND} measures can be also used in conjunction with {\tt EQN} measures
     to generate fairly arbitrary FFT-based measures.  The {\tt FIND} measure for
     {\tt FFT} measure mode does not support expressions, or the {\tt P} and
-    {\tt W} operators.
+    {\tt W} operators.  It also does not support multi-terminal lead current
+    operators, such as {\tt IC()}.
 
   \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
     is defined in Section \ref{FFT_metrics}.
