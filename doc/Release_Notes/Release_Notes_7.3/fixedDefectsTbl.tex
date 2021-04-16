@@ -262,5 +262,12 @@ The max time step can be specified by a user or come from some special devices. 
 applied to the first step out of a break point. This is fixed now.
 \\ \hline
 
+\textbf{Gitlab-ex Issue 122}: The dynamically inserted break points from delay device were not handled correctly &
+The devices that use history information can dynamacally insert break points during the transient simulation. This
+was not handled correctly and led to accuracy issues, discontinuous behavior, wrong results and convergence issues.
+This is fixed now.
+\\ \hline
+
+
 \end{longtable}
 }
