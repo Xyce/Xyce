@@ -5169,239 +5169,129 @@ TEST ( Complex_Parser_spline_Test, power_thermalres)
   }
 }
 
-
-#if 0
-// adapted from Bsrc_C1.cir.
-// See the Complex_Parser_Param_Test.test2  test below,
-// which also tests the first-argument expression and uses
-// some of the same machinery.
-//
-// the mechanics of the spline seem to work here, but I haven't generated a good gold standard yet
-// so, disabling for now
-TEST ( Complex_Parser_spline_Test, Bsrc_C1_withoutParens)
+#if 1
+TEST ( Complex_Parser_spline_Test, akima1)
 {
-  Bsrc_C1_ExpressionGroup grp;
-  {
-    // this is a nice test b/c it has curly braces around the first expression, which is one of the supported formats
-    Xyce::Util::newExpression BE_Dig(std::string("TABLE({ V(2) * (V(1) + 30) / 60 } 0.0000000, 0,0.0312500, 0,0.0312813, 1,0.0625000, 1,0.0625313, 2,0.0937500, 2,0.0937813, 3,0.1250000, 3,0.1250313, 4,0.1562500, 4,0.1562813, 5,0.1875000, 5,0.1875313, 6,0.2187500, 6,0.2187813, 7,0.2500000, 7,0.2500313, 8,0.2812500, 8,0.2812813, 9,0.3125000, 9,0.3125313, 10,0.3437500, 10,0.3437813, 11,0.3750000, 11,0.3750313, 12,0.4062500, 12,0.4062813, 13,0.4375000, 13,0.4375313, 14,0.4687500, 14,0.4687813, 15,0.5000000, 15,0.5000313, 16,0.5312500, 16,0.5312813, 17,0.5625000, 17,0.5625313, 18,0.5937500, 18,0.5937813, 19,0.6250000, 19,0.6250313, 20,0.6562500, 20,0.6562813, 21,0.6875000, 21,0.6875313, 22,0.7187500, 22,0.7187813, 23,0.7500000, 23,0.7500313, 24,0.7812500, 24,0.7812813, 25,0.8125000, 25,0.8125313, 26,0.8437500, 26,0.8437813, 27,0.8750000, 27,0.8750313, 28,0.9062500, 28,0.9062813, 29,0.9375000, 29,0.9375313, 30,0.9687500, 30,0.9687813, 31,1.0000000, 31)"), grp);
-    BE_Dig.lexAndParseExpression();
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression splineExpression(std::string("akima (time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  splineExpression.lexAndParseExpression();
 
-    Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp); v1exp.lexAndParseExpression();
-    Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
+  Xyce::Util::newExpression copy_splineExpression(splineExpression); 
+  Xyce::Util::newExpression assign_splineExpression; 
+  assign_splineExpression = splineExpression; 
 
-    // in the original test,
-    // V(1) is a sinewave that goes between +20 and -20
-    // V(2) is a pulsed source that goes between 0 and 1.  PW is short.
-    // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled shape of V(1) but is spiked/digitized.
-    // When V(2) is zero, so is the expression.  When V(2) is 1, then expression is (V(1)+30)/60  max = 50/60, min=10/60
-    //
-    // The spline itself is a digitized signal; like stairsteps, with 64 points.  It goes from 0 to 31 in increments of 1
-    // The result is that the interpolated final output is really similar to the expression.
-    int numpoints=2000;
-    std::complex<double>  tfinal = 0.0005;
-    std::complex<double>  dt = tfinal/(numpoints-1), time=0.0;
-    std::vector<std::complex<double> > refRes(numpoints), result(numpoints);
-    for (int ii=0;ii<numpoints;ii++,time+=dt)
-    {
-      grp.setTime(time);
-      std::complex<double>  v1Value(0.0),v2Value(0.0);
-      v1exp.evaluateFunction(v1Value);
-      v2exp.evaluateFunction(v2Value);
-      grp.setSoln(std::string("1"),v1Value);
-      grp.setSoln(std::string("2"),v2Value);
-      BE_Dig.evaluateFunction(result[ii]);
-      //std::cout.setf(std::ios::scientific);
-      std::complex<double>  firstExpVal = (v2Value * (v1Value + 30.0) / 60.0);
-      //std::cout << time << "\t" << v1Value << "\t" << v2Value << "\t" << firstExpVal << "\t" << result[ii] <<std::endl;
-    }
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
 
-    EXPECT_EQ(refRes,result);
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    splineExpression.evaluateFunction(result[ii]); 
+    copy_splineExpression.evaluateFunction(copyResult[ii]); 
+    assign_splineExpression.evaluateFunction(assignResult[ii]); 
+
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(result[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-}
-#endif
-
-TEST ( Complex_Parser_spline_Test, Bsrc_C1_pureArray)
-{
-  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
-  {
-    // this is a nice test b/c it has curly braces around the first expression, which is one of the supported formats
-    Xyce::Util::newExpression BE_Dig(std::string("TABLE({ V(2) * (V(1) + 30) / 60 } 0.0000000, 0,0.0312500, 0,0.0312813, 1,0.0625000, 1,0.0625313, 2,0.0937500, 2,0.0937813, 3,0.1250000, 3,0.1250313, 4,0.1562500, 4,0.1562813, 5,0.1875000, 5,0.1875313, 6,0.2187500, 6,0.2187813, 7,0.2500000, 7,0.2500313, 8,0.2812500, 8,0.2812813, 9,0.3125000, 9,0.3125313, 10,0.3437500, 10,0.3437813, 11,0.3750000, 11,0.3750313, 12,0.4062500, 12,0.4062813, 13,0.4375000, 13,0.4375313, 14,0.4687500, 14,0.4687813, 15,0.5000000, 15,0.5000313, 16,0.5312500, 16,0.5312813, 17,0.5625000, 17,0.5625313, 18,0.5937500, 18,0.5937813, 19,0.6250000, 19,0.6250313, 20,0.6562500, 20,0.6562813, 21,0.6875000, 21,0.6875313, 22,0.7187500, 22,0.7187813, 23,0.7500000, 23,0.7500313, 24,0.7812500, 24,0.7812813, 25,0.8125000, 25,0.8125313, 26,0.8437500, 26,0.8437813, 27,0.8750000, 27,0.8750313, 28,0.9062500, 28,0.9062813, 29,0.9375000, 29,0.9375313, 30,0.9687500, 30,0.9687813, 31,1.0000000, 31)"), grp);
-    BE_Dig.lexAndParseExpression();
-
-    Xyce::Util::newExpression copy_BE_Dig(BE_Dig); 
-    Xyce::Util::newExpression assign_BE_Dig; 
-    assign_BE_Dig = BE_Dig; 
-
-    Xyce::Util::newExpression BE_Dig_leftArg(std::string("V(2) * (V(1) + 30) / 60"),grp);
-    BE_Dig_leftArg.lexAndParseExpression();
-
-    std::vector<std::complex<double> > xa = { 0.0000000, 0.0312500, 0.0312813, 0.0625000, 0.0625313, 0.0937500, 0.0937813, 0.1250000, 0.1250313, 0.1562500, 0.1562813, 0.1875000, 0.1875313, 0.2187500, 0.2187813, 0.2500000, 0.2500313, 0.2812500, 0.2812813, 0.3125000, 0.3125313, 0.3437500, 0.3437813, 0.3750000, 0.3750313, 0.4062500, 0.4062813, 0.4375000, 0.4375313, 0.4687500, 0.4687813, 0.5000000, 0.5000313, 0.5312500, 0.5312813, 0.5625000, 0.5625313, 0.5937500, 0.5937813, 0.6250000, 0.6250313, 0.6562500, 0.6562813, 0.6875000, 0.6875313, 0.7187500, 0.7187813, 0.7500000, 0.7500313, 0.7812500, 0.7812813, 0.8125000, 0.8125313, 0.8437500, 0.8437813, 0.8750000, 0.8750313, 0.9062500, 0.9062813, 0.9375000, 0.9375313, 0.9687500, 0.9687813, 1.0000000 };
-
-    std::vector<std::complex<double> > ya = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31 };
-
-    Xyce::Util::newExpression BE_Dig_pureArray(BE_Dig_leftArg.getAst(),xa,ya,grp);
-    BE_Dig_pureArray.lexAndParseExpression();
-
-    Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp); v1exp.lexAndParseExpression();
-    Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
-
-    // in the original test,
-    // V(1) is a sinewave that goes between +20 and -20
-    // V(2) is a pulsed source that goes between 0 and 1.  PW is short.
-    // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled shape of V(1) but is spiked/digitized.
-    // When V(2) is zero, so is the expression.  When V(2) is 1, then expression is (V(1)+30)/60  max = 50/60, min=10/60
-    //
-    // The spline itself is a digitized signal; like stairsteps, with 64 points.  It goes from 0 to 31 in increments of 1
-    // The result is that the interpolated final output is really similar to the expression.
-    int numpoints=10;
-    double tfinal = 0.0005;
-    double dt = tfinal/(numpoints-1), time=0.0;
-    std::vector<std::complex<double> > refRes(numpoints), result(numpoints);
-    std::vector<std::complex<double> > copyResult(numpoints), assignResult(numpoints);
-    for (int ii=0;ii<numpoints;ii++,time+=dt)
-    {
-      bsrc_C1_grp->setTime(time);
-      std::complex<double>  v1Value(0.0),v2Value(0.0);
-      v1exp.evaluateFunction(v1Value);
-      v2exp.evaluateFunction(v2Value);
-      bsrc_C1_grp->setSoln(std::string("1"),v1Value);
-      bsrc_C1_grp->setSoln(std::string("2"),v2Value);
-      BE_Dig.evaluateFunction(result[ii]);
-      copy_BE_Dig.evaluateFunction(copyResult[ii]);
-      assign_BE_Dig.evaluateFunction(assignResult[ii]);
-      BE_Dig_pureArray.evaluateFunction(refRes[ii]);
-    }
-
-    EXPECT_EQ(refRes,result);
-    EXPECT_EQ(refRes,copyResult);
-    EXPECT_EQ(refRes,assignResult);
-  }
+  OUTPUT_MACRO2(Complex_Parser_spline_Test, akima1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, Bsrc_C1_pairsWithParens)
+TEST ( Complex_Parser_spline_Test, cubic1)
 {
-  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
-  {
-    // this is a nice test b/c it has curly braces around the first expression, which is one of the supported formats
-    Xyce::Util::newExpression BE_Dig(std::string("TABLE { V(2) * (V(1) + 30) / 60 }  (0.0000000, 0)  (0.0312500, 0)  (0.0312813, 1)  (0.0625000, 1)  (0.0625313, 2)  (0.0937500, 2)  (0.0937813, 3)  (0.1250000, 3)  (0.1250313, 4)  (0.1562500, 4)  (0.1562813, 5)  (0.1875000, 5)  (0.1875313, 6)  (0.2187500, 6)  (0.2187813, 7)  (0.2500000, 7)  (0.2500313, 8)  (0.2812500, 8)  (0.2812813, 9)  (0.3125000, 9)  (0.3125313, 10)  (0.3437500, 10)  (0.3437813, 11)  (0.3750000, 11)  (0.3750313, 12)  (0.4062500, 12)  (0.4062813, 13)  (0.4375000, 13)  (0.4375313, 14)  (0.4687500, 14)  (0.4687813, 15)  (0.5000000, 15)  (0.5000313, 16)  (0.5312500, 16)  (0.5312813, 17)  (0.5625000, 17)  (0.5625313, 18)  (0.5937500, 18)  (0.5937813, 19)  (0.6250000, 19)  (0.6250313, 20)  (0.6562500, 20)  (0.6562813, 21)  (0.6875000, 21)  (0.6875313, 22)  (0.7187500, 22)  (0.7187813, 23)  (0.7500000, 23)  (0.7500313, 24)  (0.7812500, 24)  (0.7812813, 25)  (0.8125000, 25)  (0.8125313, 26)  (0.8437500, 26)  (0.8437813, 27)  (0.8750000, 27)  (0.8750313, 28)  (0.9062500, 28)  (0.9062813, 29)  (0.9375000, 29)  (0.9375313, 30)  (0.9687500, 30)  (0.9687813, 31)  (1.0000000, 31)"), grp);
-    BE_Dig.lexAndParseExpression();
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression splineExpression(std::string("cubic (time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  splineExpression.lexAndParseExpression();
 
-    Xyce::Util::newExpression copy_BE_Dig(BE_Dig); 
-    Xyce::Util::newExpression assign_BE_Dig; 
-    assign_BE_Dig = BE_Dig; 
+  Xyce::Util::newExpression copy_splineExpression(splineExpression); 
+  Xyce::Util::newExpression assign_splineExpression; 
+  assign_splineExpression = splineExpression; 
 
-    Xyce::Util::newExpression BE_Dig_leftArg(std::string("V(2) * (V(1) + 30) / 60"),grp);
-    BE_Dig_leftArg.lexAndParseExpression();
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
 
-    std::vector<std::complex<double> > xa = { 0.0000000, 0.0312500, 0.0312813, 0.0625000, 0.0625313, 0.0937500, 0.0937813, 0.1250000, 0.1250313, 0.1562500, 0.1562813, 0.1875000, 0.1875313, 0.2187500, 0.2187813, 0.2500000, 0.2500313, 0.2812500, 0.2812813, 0.3125000, 0.3125313, 0.3437500, 0.3437813, 0.3750000, 0.3750313, 0.4062500, 0.4062813, 0.4375000, 0.4375313, 0.4687500, 0.4687813, 0.5000000, 0.5000313, 0.5312500, 0.5312813, 0.5625000, 0.5625313, 0.5937500, 0.5937813, 0.6250000, 0.6250313, 0.6562500, 0.6562813, 0.6875000, 0.6875313, 0.7187500, 0.7187813, 0.7500000, 0.7500313, 0.7812500, 0.7812813, 0.8125000, 0.8125313, 0.8437500, 0.8437813, 0.8750000, 0.8750313, 0.9062500, 0.9062813, 0.9375000, 0.9375313, 0.9687500, 0.9687813, 1.0000000 };
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    splineExpression.evaluateFunction(result[ii]); 
+    copy_splineExpression.evaluateFunction(copyResult[ii]); 
+    assign_splineExpression.evaluateFunction(assignResult[ii]); 
 
-    std::vector<std::complex<double> > ya = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31 };
-
-    Xyce::Util::newExpression BE_Dig_pureArray(BE_Dig_leftArg.getAst(),xa,ya,grp);
-    BE_Dig_pureArray.lexAndParseExpression();
-
-    Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp); v1exp.lexAndParseExpression();
-    Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
-
-    // in the original test,
-    // V(1) is a sinewave that goes between +20 and -20
-    // V(2) is a pulsed source that goes between 0 and 1.  PW is short.
-    // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled shape of V(1) but is spiked/digitized.
-    // When V(2) is zero, so is the expression.  When V(2) is 1, then expression is (V(1)+30)/60  max = 50/60, min=10/60
-    //
-    // The spline itself is a digitized signal; like stairsteps, with 64 points.  It goes from 0 to 31 in increments of 1
-    // The result is that the interpolated final output is really similar to the expression.
-    int numpoints=10;
-    double tfinal = 0.0005;
-    double dt = tfinal/(numpoints-1), time=0.0;
-    std::vector<std::complex<double> > refRes(numpoints), result(numpoints);
-    std::vector<std::complex<double> > copyResult(numpoints), assignResult(numpoints);
-    for (int ii=0;ii<numpoints;ii++,time+=dt)
-    {
-      bsrc_C1_grp->setTime(time);
-      std::complex<double>  v1Value(0.0),v2Value(0.0);
-      v1exp.evaluateFunction(v1Value);
-      v2exp.evaluateFunction(v2Value);
-      bsrc_C1_grp->setSoln(std::string("1"),v1Value);
-      bsrc_C1_grp->setSoln(std::string("2"),v2Value);
-      BE_Dig.evaluateFunction(result[ii]);
-      copy_BE_Dig.evaluateFunction(copyResult[ii]);
-      assign_BE_Dig.evaluateFunction(assignResult[ii]);
-      BE_Dig_pureArray.evaluateFunction(refRes[ii]);
-    }
-
-    EXPECT_EQ(refRes,result);
-    EXPECT_EQ(refRes,copyResult);
-    EXPECT_EQ(refRes,assignResult);
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(result[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
+  OUTPUT_MACRO2(Complex_Parser_spline_Test, cubic1, splineExpression) 
 }
 
-#if 0
-// ERK. Turning these off for now b/c they don't pass, but that is b/c they 
-// are using a "table" gold standard to test spline.
-//
-TEST ( Complex_Parser_spline_Test, power_e_gear)
+TEST ( Complex_Parser_spline_Test, barycentric1)
 {
-  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
-  {
-    Xyce::Util::newExpression eTable(std::string("SPLINE {V(1,0)} = ( 0 , 1 ) ( 1 , 2 )"), grp);
-    eTable.lexAndParseExpression();
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression splineExpression(std::string("bli (time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  splineExpression.lexAndParseExpression();
 
-    Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
-    eTable_leftArg.lexAndParseExpression();
+  Xyce::Util::newExpression copy_splineExpression(splineExpression); 
+  Xyce::Util::newExpression assign_splineExpression; 
+  assign_splineExpression = splineExpression; 
 
-    // v1:
-    std::vector<std::complex<double> > v1 = { -5.00000000e-01, -4.00000000e-01, -3.00000000e-01, -2.00000000e-01, -1.00000000e-01, 0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00};
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
 
-    // spline output
-    std::vector<std::complex<double> > refArray = {1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00 };
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    splineExpression.evaluateFunction(result[ii]); 
+    copy_splineExpression.evaluateFunction(copyResult[ii]); 
+    assign_splineExpression.evaluateFunction(assignResult[ii]); 
 
-    int size = v1.size();
-
-    std::vector<std::complex<double> > result;
-    result.resize(size,0.0);
-
-    for (int ii=0;ii<size;ii++)
-    {
-      bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
-      eTable.evaluateFunction(result[ii]);
-      ASSERT_FLOAT_EQ (refArray[ii],result[ii]);
-    }
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(result[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
+  OUTPUT_MACRO2(Complex_Parser_spline_Test, barycentric1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, power_endcomma)
+TEST ( Complex_Parser_spline_Test, wodicka1)
 {
-  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
-  {
-    Xyce::Util::newExpression eTable(std::string("SPLINE(V(1,0),0,1,1,2,)"), grp);
-    eTable.lexAndParseExpression();
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
+  Xyce::Util::newExpression splineExpression(std::string("wodicka (time, 0, 0, 0.3, 0, 0.301, 2, 0.302, 2, 0.6, 1, 1, 1)"), grp);
+  splineExpression.lexAndParseExpression();
 
-    Xyce::Util::newExpression eTable_leftArg(std::string("V(1,0)"),grp);
-    eTable_leftArg.lexAndParseExpression();
+  Xyce::Util::newExpression copy_splineExpression(splineExpression); 
+  Xyce::Util::newExpression assign_splineExpression; 
+  assign_splineExpression = splineExpression; 
 
-    // v1:
-    std::vector<std::complex<double> > v1 = { -5.00000000e-01, -4.00000000e-01, -3.00000000e-01, -2.00000000e-01, -1.00000000e-01, 0.00000000e+00, 1.00000000e-01, 2.00000000e-01, 3.00000000e-01, 4.00000000e-01, 5.00000000e-01, 6.00000000e-01, 7.00000000e-01, 8.00000000e-01, 9.00000000e-01, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00};
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
 
-    // spline output
-    std::vector<std::complex<double> > refArray = {1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.10000000e+00, 1.20000000e+00, 1.30000000e+00, 1.40000000e+00, 1.50000000e+00, 1.60000000e+00, 1.70000000e+00, 1.80000000e+00, 1.90000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00, 2.00000000e+00 };
+  for (int ii=0;ii<times.size();ii++) 
+  { 
+    timeDepGroup->setTime(times[ii]); 
+    splineExpression.evaluateFunction(result[ii]); 
+    copy_splineExpression.evaluateFunction(copyResult[ii]); 
+    assign_splineExpression.evaluateFunction(assignResult[ii]); 
 
-    int size = v1.size();
-
-    std::vector<std::complex<double> > result;
-    result.resize(size,0.0);
-
-    for (int ii=0;ii<size;ii++)
-    {
-      bsrc_C1_grp->setSoln(std::string("1"),v1[ii]);
-      eTable.evaluateFunction(result[ii]);
-      ASSERT_FLOAT_EQ (refArray[ii],result[ii]);
-    }
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(result[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
+    EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
+  OUTPUT_MACRO2(Complex_Parser_spline_Test, wodicka1, splineExpression) 
 }
 #endif
 
