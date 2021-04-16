@@ -123,6 +123,13 @@ it was targeted at the inclusion of Amesos2, Stokhos, ShyLU, the Amesos2 Basker
 solver). It also made Belos a required Trilinos package.
 \\ \hline
 
+\textbf{Gitlab-ex issue 108}:  Fix various problems in the limit operator in 
+the new expression librarys &
+The ``limit'' function in the new expression library had mistakes in both the 
+derivative calculation and also in the breakpointing function.  Both issues 
+have been fixed.
+\\ \hline
+
 \textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &
 Prior to the rewrite of the expression library, flex and bison were optional;
 however, now they are required. The autotools and CMake build systems have now
