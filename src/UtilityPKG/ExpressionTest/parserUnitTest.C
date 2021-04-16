@@ -3506,6 +3506,63 @@ TEST ( Double_Parser_ifstatement, limit)
   OUTPUT_MACRO2(Double_Parser_ifstatement,limit, e5) 
 }
 
+TEST ( Double_Parser_ifstatement, limit2)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  // these expressions uses limit AST node
+  Xyce::Util::newExpression e5(std::string("limit(-2.0*I(V2),3.0,5.0)"), baseGroup);
+  e5.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e5(e5); 
+  Xyce::Util::newExpression assign_e5; 
+  assign_e5 = e5; 
+
+  std::vector<double> v2Vals(5,0.0);
+  v2Vals[0] =  0.0;
+  v2Vals[1] = -1.0;
+  v2Vals[2] = -2.0;
+  v2Vals[3] = -3.0;
+  v2Vals[4] = -4.0;
+
+  for(int ii=0;ii<v2Vals.size();++ii)
+  {
+    double v2 = v2Vals[ii];
+    ifGroup->setSoln(std::string("v2"),v2);
+
+    double result;
+    double refRes = std::max(std::min((-2.0*v2),5.0),3.0);
+    std::vector<double> derivs;
+    std::vector<double> refDerivs(1,0.0);
+
+    // derivative is the derivative of the first limit argument, 
+    // but only if it is between the bounds set by the other 2 args.
+    if(ii==2) refDerivs[0] = -2.0;
+    else      refDerivs[0] = 0.0;
+
+    e5.evaluate(result,derivs);
+
+    //std::cout << "v2 = " << v2 
+      //<< "  refRes = " << refRes << "  refDerivs[0] = " << refDerivs[0] 
+      //<< "  result = " << result << "     derivs[0] = " << derivs[0] 
+      //<< std::endl;
+
+    ASSERT_EQ( result, refRes);
+    ASSERT_EQ( derivs, refDerivs);
+
+    copy_e5.evaluate(result,derivs);
+    ASSERT_EQ( result, refRes);
+    ASSERT_EQ( derivs, refDerivs);
+
+    assign_e5.evaluate(result,derivs);
+    ASSERT_EQ( result, refRes);
+    ASSERT_EQ( derivs, refDerivs);
+  }
+
+  OUTPUT_MACRO2(Double_Parser_ifstatement,limit2, e5) 
+}
+
 TEST ( Double_Parser_ifstatement, or_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
