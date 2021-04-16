@@ -840,6 +840,7 @@ void  PCE::setupBlockSystemObjects ()
   analysisManager_.resetSolverSystem();
 
   pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numQuadPoints_));
+  pceBuilderPtr_->registerQueryUtil(topology_.getLinearSolverUtility());
 
   if (DEBUG_ANALYSIS)
   {

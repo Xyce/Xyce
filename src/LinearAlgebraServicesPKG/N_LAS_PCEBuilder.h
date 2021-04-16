@@ -109,6 +109,27 @@ class PCEBuilder : public Builder
   Matrix * createMatrix() const;
   BlockMatrix * createQuadMatrix() const;
 
+#if 0
+  // ERK. The following functions need to be implemented to support 
+  // various solver methods with intrusive PCE.  Without them, things
+  // like .IC and gmin stepping will not work.
+
+  //Coloring Assoc with Variable Types in Solution Vector
+  const std::vector<int> & createSolnColoring() const;
+
+  //Coloring needed for imposing .IC and .NODESET
+  const std::vector<int> & createInitialConditionColoring() const;
+
+  // Convert topology op data to analysis specific op data
+  bool createInitialConditionOp( std::map<int,double> & op ) const;
+
+  bool createInitialConditionOp( std::vector<int> & op ) const;
+
+  const std::vector<int> & vnodeGIDVec() const;
+#else
+  const std::vector<int> & vnodeGIDVec() const;
+#endif
+
   bool generateMaps( const Teuchos::RCP<Parallel::ParMap>& BaseMap, 
                      const Teuchos::RCP<Parallel::ParMap>& oBaseMap );
 
@@ -169,6 +190,8 @@ private:
   int offset_, stateOffset_;
   int storeOffset_;
   int leadCurrentOffset_;
+
+  mutable std::vector<int> vnodeVec_;
 
   // PCE maps for block vectors (BV):
   Teuchos::RCP<Parallel::ParMap> BaseMap_, oBaseMap_;
