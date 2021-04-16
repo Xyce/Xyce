@@ -295,8 +295,13 @@ following flag to the Xyce CMake invocation:
 ```
 See the [Xyce/ADMS Users
 Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
-information on running Xyce/ADMS. (At the moment, the CMake support for the
-plugin capability is considered beta.)
+information on running Xyce/ADMS. The CMake support for the plugin capability
+is still being developed. As such, there are some differences from the website:
+- The "toys" example is installed in `/path/to/install/share/examples/toys`.
+- The `buildxyceplugin.sh` script requires the absolute path to the `.va`
+  files.
+- The name of the plugin file can vary by system (e.g., on a Mac, the "toys"
+  library will be called, "libtoys.dylib", not "toys.so").
 
 ## Uninstalling Xyce
 
@@ -465,3 +470,9 @@ Trilinos CMake invocation:
 -D TPL_BLAS_LIBRARIES="-Wl,-framework,Accelerate" \
 -D TPL_LAPACK_LIBRARIES="-Wl,-framework,Accelerate" \
 ```
+
+Note on the __Xyce/ADMS capability__:\
+The `buildxyceplugin.sh` script script relies on the behavior of Gnu
+"readlink", which is very different than BSD readlink (the default installed on
+Macs). The Gnu readlink is available via the coreutils package in MacPorts or
+Homebrew.
