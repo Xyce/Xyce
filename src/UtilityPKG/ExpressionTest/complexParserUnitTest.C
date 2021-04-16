@@ -4719,7 +4719,7 @@ TEST ( Complex_Parser_table_Test, break2)
 // fasttable tests
 //
 // adapted from break.cir
-TEST ( Double_Parser_fasttable_Test, break1)
+TEST ( Complex_Parser_fasttable_Test, break1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -4748,7 +4748,7 @@ TEST ( Double_Parser_fasttable_Test, break1)
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
 
-  OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
+  OUTPUT_MACRO2(Complex_Parser_table_Test, break1, tableExpression) 
 }
 
 // adapted from power_thermalres_gear.cir
@@ -10782,6 +10782,111 @@ TEST ( Complex_Parser_Breakpoint_Test, stp2)
   EXPECT_EQ( bpVals[0], 0.5 );
 
   OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, stp2)
+}
+
+//-------------------------------------------------------------------------------
+// limitOp breakpoint tests.  These are very similar to the STP breakpoint tests
+// as they rely on the same computeBreakpoints function.
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Breakpoint_Test, limit1)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func limitTest.
+  Xyce::Util::newExpression testExpression(std::string("limitTest(time)*0.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func limitTest(t) {t-0.5}
+  std::string limitTestName;
+  Teuchos::RCP<Xyce::Util::newExpression> limitTestExpression;
+  std::string lhs=std::string("limitTest(t)");
+  std::string rhs=std::string("limit(T-0.5,0,1)");
+  createFunc(lhs,rhs,testGroup,limitTestName,limitTestExpression);
+
+  testExpression.attachFunctionNode(limitTestName, limitTestExpression);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  timeDepGroup->setTime(0.4);
+  std::complex<double> result = 0.0;
+
+  {
+  testExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(numBp,0.0);
+  for (int ii=0;ii<numBp;ii++) { bpVals[ii] = breakPointTimes[ii].value(); }
+  EXPECT_EQ( numBp, 2 ); EXPECT_EQ( bpVals[0], 0.5 ); EXPECT_EQ( bpVals[1], 1.5 );
+  }
+
+  {
+  copyExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  copyExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(numBp,0.0);
+  for (int ii=0;ii<numBp;ii++) { bpVals[ii] = breakPointTimes[ii].value(); }
+  EXPECT_EQ( numBp, 2 ); EXPECT_EQ( bpVals[0], 0.5 ); EXPECT_EQ( bpVals[1], 1.5 );
+  }
+
+  {
+  assignExpression.evaluateFunction(result);
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  assignExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(numBp,0.0);
+  for (int ii=0;ii<numBp;ii++) { bpVals[ii] = breakPointTimes[ii].value(); }
+  EXPECT_EQ( numBp, 2 ); EXPECT_EQ( bpVals[0], 0.5 ); EXPECT_EQ( bpVals[1], 1.5 );
+  }
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, limit1)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Breakpoint_Test, limit2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // this expression will use the .func f1.
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)*limit(time-0.5,0,1)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func f1(x) {5.0*x}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("f1(x)");
+  std::string rhs=std::string("5.0*x");
+  createFunc(lhs,rhs,testGroup,f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  timeDepGroup->setTime(0.4);
+  std::complex<double> result = 0.0;
+  testExpression.evaluateFunction(result);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+  int numBp = breakPointTimes.size();
+  std::vector<double> bpVals(numBp,0.0);
+  for (int ii=0;ii<numBp;ii++) { bpVals[ii] = breakPointTimes[ii].value(); }
+  EXPECT_EQ( numBp, 2);
+  EXPECT_EQ( bpVals[0], 0.5 );
+  EXPECT_EQ( bpVals[1], 1.5 );
+
+  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, limit2)
 }
 
 //-------------------------------------------------------------------------------
