@@ -28,7 +28,6 @@
 
     CEIL(x) & $\lceil x \rceil$ & least integer greater or equal to variable $x$  \\ \hline
 
-
     DDT(x)
     &  $\frac{d}{dt} x(t)$ & time derivative of $x$ \\ \hline
 
@@ -36,6 +35,8 @@
     &  $\frac{\partial}{\partial x} f(x)$ & partial derivative of $f(x)$ with respect to $x$ \\ \hline
 
     FLOOR(x) & $\lfloor x \rfloor$ & greatest integer less than or equal to variable $x$  \\ \hline
+
+    FMOD(x,y) &   & returns the remainder of x/y as a real number \\ \hline
 
     IF(t,x,y)
     & $x$ if $t$ is true, & $t$ is an expression using the relational
@@ -70,6 +71,7 @@
 
     MAX(x,y) & $\max(x,y)$ & maximum of $x$ and $y$  \\ \hline
 
+    NINT(x) &            & rounds $x$ up or down, to the nearest integer  \\ \hline
 
     PWR(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
     POW(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
@@ -107,6 +109,8 @@
     & 0 otherwise &  \\ \hline
 
     \category{Operators related to complex numbers} \\ \hline
+
+    DB (x) &     & output the magnitude of $x$ in decibels \\ \hline
 
     IMG(x) &     & imaginary part of variable $x$ \\ \hline
 
