@@ -87,15 +87,25 @@ please visit the \XyceTM{} web page at
 \begin{XyceItemize}
   \item Increased parallel stability and robustness for simulation algorithms and models
         on increasing numbers of processors.
+  \item Improved handling of dynamically inserted break points from devices that use history information,
+	such as delay device. This resolved various accuracy issues, discontinuous behavior and convergence issues.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
+  \item Support for \texttt{.FFT} and \texttt{.MEASURE FFT} has been
+    added for \texttt{.TRAN} analyses.
   \item The ? wildcard character (meaning ``any single character'') is
     now supported on .PRINT lines for all analysis modes.
   \item The Xyce expression library now recognizes \texttt{TEMPER} and
     \texttt{HERTZ} as synonyms for \texttt{TEMP} and \texttt{FREQ},
     respectively.
+  \item The Xyce expression library now recognizes the  operators \texttt{nint()}, \texttt{fmod()} and \texttt{db()}.
+  \item The default behavior of the random expression operators \texttt{GAUSS}, \texttt{AGAUSS},
+    \texttt{RAND}, \texttt{UNIF} and \texttt{AUNIF} has been
+    changed so that they return the mean of the operator.   They now only return random values if one the various
+    uncertainty quantification (UQ) analyses options (\texttt{.SAMPLING},
+    \texttt{.EMBEDDEDSAMPLING} or \texttt{.PCE}) is specified in the netlist.
   \item Model binning is now turned on by default.  It is not
     necessary to specify the netlist command \texttt{.options parser}
     \texttt{model\_binning=true} anymore.
@@ -108,7 +118,12 @@ please visit the \XyceTM{} web page at
   \item \texttt{.param} parameters are now allowed to depend on ``special'' variables 
     such as \texttt{TEMP}, \texttt{TIME}, \texttt{FREQ} and \texttt{VT}.  
     Previously, only \texttt{.global\_param} parameters could depend on special variables. 
-  \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.   
+  \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.
+  \item \texttt{.param} parameters in the top level scope can now be modified by commands such as \texttt{.STEP}, \texttt{.DC}, \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and \texttt{LOCA}.  Previously, only \texttt{.global\_param} parameters could be modified by these commands.
+  \item The search-path algorithm for files given on \texttt{.INC} and
+     \texttt{.LIB} lines has been improved.  It should be more compatible
+     with both commercial and open-source Process Design Kits (PDKs) now.
+  \item Objective functions for \texttt{.AC} sensitivities can now be specified as expressions using the \texttt{acobjfunc} parameter.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

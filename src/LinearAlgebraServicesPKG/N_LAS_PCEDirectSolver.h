@@ -46,7 +46,7 @@
 
 #include <N_LAS_Solver.h>
 #include <N_LAS_TransformTool.h>
-#include <N_LAS_HBBlockMatrixEntry.h>
+#include <N_LAS_BlockMatrixEntry.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseSolver.hpp>
@@ -178,10 +178,8 @@ private:
 #ifdef Xyce_AMESOS2_BASKER
 
 #ifdef Xyce_NEW_BASKER
-  BaskerClassicNS::BaskerClassic<int, double> basker_;
   BaskerClassicNS::BaskerClassic<int, Xyce::PCEBlockMatrixEntry > blockBasker_;
 #else
-  Basker::Basker<int, double> basker_;
   Basker::Basker<int, Xyce::PCEBlockMatrixEntry> blockBasker_;
 #endif
 

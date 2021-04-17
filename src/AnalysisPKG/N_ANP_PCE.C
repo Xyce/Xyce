@@ -840,6 +840,7 @@ void  PCE::setupBlockSystemObjects ()
   analysisManager_.resetSolverSystem();
 
   pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numQuadPoints_));
+  pceBuilderPtr_->registerQueryUtil(topology_.getLinearSolverUtility());
 
   if (DEBUG_ANALYSIS)
   {
@@ -2085,9 +2086,6 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_BASE_LS", Util::Param("OUTPUT_BASE_LS", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_FAILED_LS", Util::Param("OUTPUT_FAILED_LS", 1)));
-
-    parameters.insert(Util::ParamMap::value_type("DIRECT_SOLVER", Util::Param("DIRECT_SOLVER", "DEFAULT")));
-    parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
   }
 }
 

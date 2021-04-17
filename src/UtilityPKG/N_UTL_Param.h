@@ -447,6 +447,9 @@ public:
   }
 
   template<class T>
+  T getMutableValue() const;
+
+  template<class T>
   T getImmutableValue() const;
 
   // Methods to get tag.

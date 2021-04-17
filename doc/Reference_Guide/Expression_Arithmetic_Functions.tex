@@ -28,7 +28,6 @@
 
     CEIL(x) & $\lceil x \rceil$ & least integer greater or equal to variable $x$  \\ \hline
 
-
     DDT(x)
     &  $\frac{d}{dt} x(t)$ & time derivative of $x$ \\ \hline
 
@@ -36,6 +35,8 @@
     &  $\frac{\partial}{\partial x} f(x)$ & partial derivative of $f(x)$ with respect to $x$ \\ \hline
 
     FLOOR(x) & $\lfloor x \rfloor$ & greatest integer less than or equal to variable $x$  \\ \hline
+
+    FMOD(x,y) &   & returns the remainder of x/y as a real number \\ \hline
 
     IF(t,x,y)
     & $x$ if $t$ is true, & $t$ is an expression using the relational
@@ -70,6 +71,7 @@
 
     MAX(x,y) & $\max(x,y)$ & maximum of $x$ and $y$  \\ \hline
 
+    NINT(x) &            & rounds $x$ up or down, to the nearest integer  \\ \hline
 
     PWR(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
     POW(x,y) & $x^{y}$ & $x$ raised to $y$ power  \\ \hline
@@ -107,6 +109,8 @@
     & 0 otherwise &  \\ \hline
 
     \category{Operators related to complex numbers} \\ \hline
+
+    DB (x) &     & output the magnitude of $x$ in decibels \\ \hline
 
     IMG(x) &     & imaginary part of variable $x$ \\ \hline
 
@@ -182,9 +186,12 @@
 
   \end{longtable}
 \footnotetext[1]{The default behavior of the random number functions \texttt{RAND}, \texttt{GAUSS},
-  and \texttt{AGAUSS} is to return a unique number per use in an expression, but once evaluated 
-  this number is constant for the entire run.  These functions can be connected to \texttt{.SAMPLING}, but only 
-  if so specified in the netlist by the command \texttt{.SAMPLING USEEXPR=TRUE}
-  Unless a specific seed is specified using the \texttt{-randseed} command line option, the random number generator will be seeded internally.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}  
+  and \texttt{AGAUSS}, if there are not any UQ commands such as \texttt{.SAMPLING} in the netlist, 
+  is to return the mean value of the operator.  If a UQ command is present, then these operators 
+  can be used to define the distribution of random inputs to the UQ analysis.  However, this
+  will only happen if the UQ analysis specifically requests it using the command \texttt{.SAMPLING USEEXPR=TRUE}
+  Unless a specific random seed is specified using either the \texttt{-randseed} command line option, or from the netlist, 
+  the random number generator will be seeded internally.  In all cases, \Xyce{} will output text to the 
+  console indicating what seed is being used.}  
 \footnotetext[2]{Use of the \texttt{IF} function to create an expression that has step-function-like behavior as a function of a solution variable is highly likely to produce convergence errors in simulation.  \texttt{IF} statements that have step-like behavior with an explicit time dependence are the exception, as the code will insert breakpoints at the discontinuities.  Do not use step-function or other infinite-slope transitions dependent on variables other than time. Smooth the transition so that it is more easily integrated through. See the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User’s Guide for guidance on using the \texttt{IF} function with the B-source device.}
 }

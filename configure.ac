@@ -586,11 +586,6 @@ XYCE_TRILINOS_LIBRARY_OPTION(Triutils, USE_TRIUTILS_MAKEFILE)
 XYCE_TRILINOS_LIBRARY_OPTION(Epetra, USE_EPETRA_MAKEFILE)
 XYCE_TRILINOS_LIBRARY_OPTION(EpetraExt, USE_EPETRAEXT_MAKEFILE)
 
-dnl Check whether an essential AMD-related Trilinos header exists
-if test "x$AMD" = "xyes"; then
-  AC_CHECK_HEADER(EpetraExt_AMD_CrsGraph.h,,[AC_MSG_ERROR([Sorry, you have requested AMD, but EpetraExt_AMD_CrsGraph.h was not found.  Either recompile Trilinos with AMD support (recommended), or use '--disable-amd' (not recommended).])],)
-fi
-
 dnl Xyce depends on Teuchos having been built with COMPLEX enabled.  In
 dnl old days, this happened automatically, but now you have to specify
 dnl special cmake options to make it happen.  When users reuse an old
@@ -599,6 +594,13 @@ dnl sometimes miss this.  And when they do, they get cryptic compilation
 dnl errors.  Let's check that NOW instead of at compile time.
 
 AC_CHECK_DECL([HAVE_TEUCHOS_COMPLEX],,[AC_MSG_ERROR([Your Trilinos was not built with the correct options and does not have COMPLEX support built into Teuchos.  Please rebuild Trilinos using the options specified in the Xyce building guide.])],[[#include <Teuchos_config.h>]])
+
+AC_CHECK_HEADER([Teuchos_SerialDenseMatrix.hpp],,[AC_MSG_ERROR([Unable to compile a test program against Trilinos that includes Teuchos_Serial_DenseMatrix.hpp.  It is possible Trilinos was not properly configured or the environment has changed since Trilinos was installed.  See config.log for more information.])]) 
+
+dnl Check whether an essential AMD-related Trilinos header exists
+if test "x$AMD" = "xyes"; then
+  AC_CHECK_HEADER(EpetraExt_AMD_CrsGraph.h,,[AC_MSG_ERROR([Sorry, you have requested AMD, but EpetraExt_AMD_CrsGraph.h was not found.  Either recompile Trilinos with AMD support (recommended), or use '--disable-amd' (not recommended).])],)
+fi
 
 dnl Now we must check for whether EpetraExt defines HAVE_PARMETIS, in which
 dnl case we must also link to parmetis and metis libraries if we're building

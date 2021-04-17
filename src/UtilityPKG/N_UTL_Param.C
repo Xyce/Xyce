@@ -181,6 +181,12 @@ std::string Param::getImmutableValue<std::string>() const
   return stringValue();
 }
 
+template<>
+std::string Param::getMutableValue<std::string>() const
+{
+  return stringValue();
+}
+
 //-----------------------------------------------------------------------------
 // Function      : isExpressionConstant
 //
@@ -471,6 +477,288 @@ bool Param::getImmutableValue<bool>() const
     {
       Report::UserError() << "Attempt to evaluate expression " << expression.get_expression() << ", which contains unknowns";
     }
+  }
+  return rVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getMutableValue<double>
+// Purpose       : Alternative functions to getImmutableValue
+//
+// Special Notes : This function is very similar to getImmutableValue, except 
+//                 that it will not set the type, and it will not exit with
+//                 error when it depends on a non-constant expression.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 04/08/2021
+//-----------------------------------------------------------------------------
+template<>
+double Param::getMutableValue<double>() const
+{
+  double val;
+
+  if (data_->enumType() != DBLE)
+  {
+    if (data_->enumType() == STR)
+    {
+      const std::string & tmp = getValue<std::string>();
+      if (isValue(tmp))
+      {
+        val = Value(tmp);
+      }
+      else
+      {
+        if (Util::isBool(tmp))
+        {
+          val = (Bval(tmp))?1.0:0.0;
+        }
+        else
+        {
+          Report::UserError() << "Cannot convert '" << tmp << "' to double for expression " <<  tag_;
+        }
+      }
+    }
+    else if (data_->enumType() == INT)
+    {
+      val = getValue<int>();
+    }
+    else if (data_->enumType() == LNG)
+    {
+      val = getValue<long>();
+    }
+    else if (data_->enumType() == BOOL)
+    {
+      Report::UserError() << "Cannot convert boolean to double for expression " <<  tag_;
+    }
+    else if (data_->enumType() == EXPR) 
+    {
+      // unlike the "getImmutableValue" version of this function, 
+      // here we don't care if the expression is constant
+      Expression &expression = const_cast<Expression &>(getValue<Expression>());
+      expression.evaluateFunction(val);
+    }
+    else
+    {
+      val = 0;
+    }
+
+    // unlike the "getImmutableValue" version of this function, 
+    // we don't want to force this param to have a different type
+    //const_cast<Param &>(*this).setVal(val);
+  }
+  else
+  {
+    val = getValue<double>();
+  }
+  
+  return val;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getMutableValue<int>
+// Purpose       : Alternative functions to getImmutableValue
+//
+// Special Notes : This function is very similar to getImmutableValue, except 
+//                 that it will not set the type, and it will not exit with
+//                 error when it depends on a non-constant expression.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 04/08/2021
+//-----------------------------------------------------------------------------
+template<>
+int Param::getMutableValue<int>() const
+{
+  int val;
+  double dVal;
+
+  if (data_->enumType() != INT)
+  {
+    if (data_->enumType() == STR)
+    {
+      const std::string & tmp = getValue<std::string>();
+      if (isInt(tmp))
+      {
+        val = Ival(tmp);
+      }
+      else if (isValue(tmp))
+      {
+        val = static_cast<int>(Value(tmp));
+      }
+      else
+      {
+        if (Util::isBool(tmp))
+        {
+          val = (Bval(tmp))?1:0;
+        }
+        else
+        {
+          Report::UserError() << "Cannot convert '" << tmp << "' to integer for expression " <<  tag_;
+        }
+      }
+    }
+    else if (data_->enumType() == DBLE)
+    {
+      val = static_cast<int> (getValue<double>());
+    }
+    else if (data_->enumType() == LNG)
+    {
+      val = static_cast<int> (getValue<long>());
+    }
+    else if (data_->enumType() == BOOL)
+    {
+      Report::UserError() << "Cannot convert boolean to integer for expression " <<  tag_;
+    }
+    else if (data_->enumType() == EXPR)
+    {
+      // unlike the "getImmutableValue" version of this function, 
+      // here we don't care if the expression is constant
+      Expression &expression = const_cast<Expression &>(getValue<Expression>());
+      expression.evaluateFunction(dVal);
+      val = dVal;
+    }
+    else
+    {
+      val = 0;
+    }
+    // unlike the "getImmutableValue" version of this function, 
+    // we don't want to force this param to have a different type
+    //const_cast<Param &>(*this).setVal(val);
+  }
+  else
+  {
+    val = getValue<int>();
+  }
+  return val;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getMutableValue<long>
+// Purpose       : Alternative functions to getImmutableValue
+//
+// Special Notes : This function is very similar to getImmutableValue, except 
+//                 that it will not set the type, and it will not exit with
+//                 error when it depends on a non-constant expression.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 04/08/2021
+//-----------------------------------------------------------------------------
+template<>
+long Param::getMutableValue<long>() const
+{
+  long val;
+  double dVal;
+
+  if (data_->enumType() != LNG)
+  {
+    if (data_->enumType() == STR)
+    {
+      const std::string & tmp = getValue<std::string>();
+      if (isInt(tmp))
+      {
+        val = Ival(tmp);
+      }
+      else if (isValue(tmp))
+      {
+        val = static_cast<long>(Value(tmp));
+      }
+      else
+      {
+        if (Util::isBool(tmp))
+        {
+          val = (Bval(tmp))?1:0;
+        }
+        else
+        {
+          Report::UserError() << "Cannot convert '" << tmp << "' to long integer for expression " <<  tag_;
+        }
+      }
+    }
+    else if (data_->enumType() == DBLE)
+    {
+      val = static_cast<long> (getValue<double>());
+    }
+    else if (data_->enumType() == INT)
+    {
+      val = static_cast<long> (getValue<int>());
+    }
+    else if (data_->enumType() == BOOL)
+    {
+      Report::UserError() << "Cannot convert boolean to long integer for expression " <<  tag_;
+    }
+    else if (data_->enumType() == EXPR)
+    {
+      // unlike the "getImmutableValue" version of this function, 
+      // here we don't care if the expression is constant
+      Expression &expression = const_cast<Expression &>(getValue<Expression>());
+      expression.evaluateFunction (dVal);
+      val = dVal;
+    }
+    else
+    {
+      val = 0;
+    }
+    // unlike the "getImmutableValue" version of this function, 
+    // we don't want to force this param to have a different type
+    //const_cast<Param &>(*this).setVal(val);
+  }
+  else
+  {
+    val = getValue<long>();
+  }
+  return val;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getMutableValue<bool>
+// Purpose       : Alternative functions to getImmutableValue
+//
+// Special Notes : This function is very similar to getImmutableValue, except 
+//                 that it will not set the type, and it will not exit with
+//                 error when it depends on a non-constant expression.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 04/08/2021
+//-----------------------------------------------------------------------------
+template<>
+bool Param::getMutableValue<bool>() const
+{
+  bool rVal;
+  if (data_->enumType() == DBLE)
+  {
+    rVal = (getValue<double>() != 0.0);
+  }
+  else if (data_->enumType() == INT)
+  {
+    rVal = (getValue<int>() != 0);
+  }
+  else if (data_->enumType() == LNG)
+  {
+    rVal = (getValue<long>() != 0);
+  }
+  else if (data_->enumType() == BOOL)
+  {
+    rVal = getValue<bool>();
+  }
+  else if (data_->enumType() == STR)
+  {
+    const std::string & tmp = getValue<std::string>();
+    if (Util::isBool(tmp))
+    {
+      rVal = Bval(tmp);
+    }
+    else
+    {
+      Report::UserError() << "Cannot convert '" << tmp << "' to boolean for expression " <<  tag_;
+    }
+  }
+  else if (data_->enumType() == EXPR)
+  {
+    // unlike the "getImmutableValue" version of this function, 
+    // here we don't care if the expression is constant
+    Expression &expression = const_cast<Expression &>(getValue<Expression>());
+    double dVal;
+    expression.evaluateFunction (dVal);
+    rVal = (dVal != 0); 
   }
   return rVal;
 }

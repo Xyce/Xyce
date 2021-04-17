@@ -70,19 +70,25 @@ class TFModel(object):
         custom_layers_module = importlib.util.module_from_spec(custom_layers_spec)
         custom_losses_module = importlib.util.module_from_spec(custom_losses_spec)
         data_transform_module = importlib.util.module_from_spec(data_transform_spec)
-        exec(custom_layers_data, custom_layers_module.__dict__)
-        exec(custom_losses_data, custom_losses_module.__dict__)
-        exec(data_transform_data, data_transform_module.__dict__)
+        if 'custom_layers_data' in locals() and 'custom_losses_data' in locals() \
+                and 'data_transform_data' in locals() and 'parameter_data' in locals():
+            exec(custom_layers_data, custom_layers_module.__dict__)
+            exec(custom_losses_data, custom_losses_module.__dict__)
+            exec(data_transform_data, data_transform_module.__dict__)
 
         prms_spec = importlib.util.spec_from_loader('prms', loader=None)
         prms = importlib.util.module_from_spec(prms_spec)
         prms.__dict__.update(custom_layers_module.__dict__)
         prms.__dict__.update(custom_losses_module.__dict__)
         prms.__dict__.update(data_transform_module.__dict__)
-        exec(parameter_data, globals(), prms.__dict__)
-
-        if (prms.PRECISION.lower()=="double"):
+        if 'custom_layers_data' in locals() and 'custom_losses_data' in locals() \
+                and 'data_transform_data' in locals() and 'parameter_data' in locals():
+            exec(parameter_data, globals(), prms.__dict__)
+            if (prms.PRECISION.lower()=="double"):
+                K.set_floatx('float64')
+        else:
             K.set_floatx('float64')
+
 
         customLayersClasses = dict([(name, cls) for name, cls in custom_layers_module.__dict__.items() if isinstance(cls, type)])
         customLossesClasses = dict([(name, cls) for name, cls in custom_losses_module.__dict__.items() if isinstance(cls, type)])
@@ -95,7 +101,11 @@ class TFModel(object):
         self.loss = self.tf_model.output
         self.inputs = self.tf_model.input
         self.grads = tf.keras.backend.gradients(self.loss, self.inputs)
-        self.transform = prms.DATA_TRANSFORM
+        if 'custom_layers_data' in locals() and 'custom_losses_data' in locals() \
+                and 'data_transform_data' in locals() and 'parameter_data' in locals():
+            self.transform = prms.DATA_TRANSFORM
+        else:
+            self.transform = None
 
         # for storing last evaluated value
         self.last_input_value = sys.float_info.max
@@ -105,7 +115,10 @@ class TFModel(object):
     def eval_if_needed(self, input_value):
         if (input_value!=self.last_input_value):
             input_array = np.ndarray([1,1],dtype='f8')
-            input_array[0][0] = self.transform.transformInput(input_value)
+            if self.transform is not None:
+                input_array[0][0] = self.transform.transformInput(input_value)
+            else:
+                input_array[0][0] = input_value
             self.last_input_value = input_value
             self.last_output_value = self.tf_model.predict(input_array)
             self.last_output_gradient = self.sess.run(self.grads, {self.inputs:input_array})
@@ -114,12 +127,18 @@ class TFModel(object):
 
     def predict(self, input_value):
         (output_array, blah) = self.eval_if_needed(input_value)
-        return self.transform.invertOutput(output_array[0][0], input_value)
+        if self.transform is not None:
+            return self.transform.invertOutput(output_array[0][0], input_value)
+        else:
+            return output_array[0][0]
 
     def gradient(self, input_value, output_comp=0):
         #return 0
         (prediction, out) = self.eval_if_needed(input_value)
         #out_val = self.transform.invertOutput(prediction[0][0], input_value)
-        deriv = self.transform.derivativeOfRawOutputWithRespectToRawInput(self.last_input_value, prediction[0][0], out[0][0][0], self.last_input_value)
+        if self.transform is not None:
+            deriv = self.transform.derivativeOfRawOutputWithRespectToRawInput(self.last_input_value, prediction[0][0], out[0][0][0], self.last_input_value)
+        else:
+            deriv = out[0][0][0]
         return deriv
 

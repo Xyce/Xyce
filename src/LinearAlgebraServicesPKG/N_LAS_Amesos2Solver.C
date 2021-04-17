@@ -219,12 +219,20 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
   if( Teuchos::is_null( solver_ ) )
   {
-    if (type_ == "BASKER") {
+    if (type_ == "SHYLU_BASKER") {
 
       solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("ShyLUBasker", 
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
 
     }
+#ifdef Xyce_AMESOS2_BASKER
+    else if (type_ == "BASKER") {
+
+      solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("Basker", 
+                                                                     Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
+
+    }
+#endif
 #ifdef Xyce_AMESOS2_KLU2
     else if (type_ == "KLU2") {
       

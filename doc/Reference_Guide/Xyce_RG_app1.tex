@@ -344,25 +344,27 @@ is given in the subsections that follow.
 
 \subsection{Expressions in \texttt{.PARAM} or \texttt{.GLOBAL\_PARAM} Statements}
 
-Expressions used in \texttt{.PARAM} statements are the most highly
-constrained.  They must evaluate to a constant at the beginning of a
-run, and therefore must involve only numerical constants and other
-previously defined \texttt{.PARAM}s.  The value of the parameter will
-be computed when the netlist is parsed, and will replace the name
-wherever it is used.
+Parameters defined using \texttt{.PARAM} and \texttt{.GLOBAL\_PARAM} are 
+mostly synonymous and subject to most of the same constraints.
+Both types are 
+allowed to depend on parameters defined in \texttt{.PARAM} or
+\texttt{.GLOBAL\_PARAM} statements, and both may contain special variables
+such as \textrm{TIME}, \textrm{FREQ}, \textrm{TEMP} or \textrm{VT}.  Neither type
+may contain any references to solution variables or lead currents.
 
 \Example{.PARAM SQUARES=5.0}
 \Example{.PARAM SHEETRES=25}
 \Example{.PARAM RESISTANCE=\{SQUARES*SHEETRES\}}
 
-Global parameters are somewhat less constrained.  These parameters are
-allowed to depend on parameters defined in \texttt{.PARAMS} or
-\texttt{.GLOBAL\_PARAMS} statements, and may contain special variables
-such as \textrm{TIME}, \textrm{FREQ}, \textrm{TEMP} or \textrm{VT}.  They
-may not contain any references to solution variables or lead currents.
-
 \Example{.PARAM dTdt=.01}
 \Example{.GLOBAL\_PARAM Temperature=\{27+dTdt*TIME\}}
+
+Both types of parameter are subject to extra constraints if used inside of subcircuits.  
+\texttt{.PARAM} parameters may be defined inside of a subcircuit, while \texttt{.GLOBAL\_PARAM} 
+parameters may not.  Parameters inside of subcircuits may not be swept by 
+analysis commands such as \texttt{.STEP} or \texttt{.SAMPLING}.  Only globally 
+scoped user-defined parameters can be swept in this manner.  Note, this restriction 
+does not apply to device parameters, just user-defined parameters.
 
 \subsection{Expressions in \texttt{.PRINT} Lines}
 
@@ -418,14 +420,13 @@ complex-valued voltage nodes:
 
 \subsection{Expressions for Device Instance and Model Parameters}
 
-Expressions of constants and \texttt{.PARAM} parameters may be used
+Expressions of constants, \texttt{.PARAM} and \texttt{.GLOBAL\_PARAM} parameters may be used
 for the values of any device parameters in instance and model lines.
 
 Except in very specific devices, expressions used for device parameter
 values must evaluate to a time-independent constant, and must not
 contain dependence on solution variables such as nodal voltages or
-currents.  In these cases, \texttt{.GLOBAL\_PARAM} parameters may also
-be used as long as they are not time-dependent.
+currents.  
 
 \begin{centering}
 \shadowbox{

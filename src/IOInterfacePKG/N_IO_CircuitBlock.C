@@ -102,6 +102,7 @@ CircuitBlock::CircuitBlock(
   bool                                                          modelBinning,
   double                                                        scale)
 : netlistFilename_(fileName),
+  topLevelPath_(""),
   title_(""),
   name_(""),
   analysisName_(""),
@@ -136,6 +137,7 @@ CircuitBlock::CircuitBlock(
   topology_(topology),
   deviceManager_(device_manager)
 {
+  topLevelPath_ = mainCircuitPtr_->getTopLevelPath();
 }
 
 //--------------------------------------------------------------------------
@@ -166,6 +168,7 @@ CircuitBlock::CircuitBlock(
   AliasNodeMap &                                                alias_node_map,
   const std::vector< std::pair< std::string, std::string> > &   externalNetlistParams)
 : netlistFilename_(netlistFilename_In),
+  topLevelPath_(""),
   title_(""),
   name_(""),
   analysisName_(""),
@@ -199,6 +202,10 @@ CircuitBlock::CircuitBlock(
   topology_(topology),
   deviceManager_(device_manager)
 {
+  // Get path to top level netlist.  This may be absolute or relative to the
+  // execution directory.  It will be empty if the top level netlist is in
+  // the execution directory.
+  topLevelPath_ = IO::getPathFromFileName(netlistFilename_);
 }
 
 //--------------------------------------------------------------------------
@@ -431,6 +438,23 @@ bool CircuitBlock::parseNetlistFilePass1(
 
       optionsTable_.insert( optionsTable_.end(), icNodesetOB.begin(), icNodesetOB.end() );
     }
+
+    // ERK. Categorize the top-level context parameters
+    // (.param or .global_param)
+    //
+    // This call was added to address issue #167, "Make globally-scoped .params
+    // available to the device package, so globally scoped normal params
+    // will be equivalent to .global_param"
+    //
+    // For this categorization to work,  it is necessary for all the
+    // globals and normal params from netlist to already have been
+    // passed into the context and for various "dot" commands
+    // such as .STEP to have been added to the optionsTable_.
+    // This will have happened during the "handleLinePass1" function
+    // call, above.
+    //
+    // This categorization must happen before the resolve(params) function is called, below.
+    circuitContext_.categorizeParams(optionsTable_);
 
     // Resolve current context parameters.
     std::vector<Device::Param> params;
@@ -1323,7 +1347,7 @@ bool CircuitBlock::handleLinePass1(
     {
       // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
       std::string includeFile, libSelect_new = libSelect, libInside_new;
-      Xyce::IO::handleIncludeLine( netlistFilename_, line, 
+      Xyce::IO::handleIncludeLine( topLevelPath_, netlistFilename_, line,
                                    ES1, includeFile, libSelect_new, libInside_new );
 
       // Check for recursive .INC/.INCLUDE of same file, which will create an infinite loop.
@@ -1605,7 +1629,7 @@ bool CircuitBlock::getLinePassMI()
           // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libInside, libSelect;
-          Xyce::IO::handleIncludeLine( netlistFilename_, line,
+          Xyce::IO::handleIncludeLine( topLevelPath_, netlistFilename_, line,
                                        ES1, includeFile, libSelect, libInside );
           if (includeFile != "")
           {

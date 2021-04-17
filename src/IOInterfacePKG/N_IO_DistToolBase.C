@@ -582,7 +582,7 @@ bool DistToolBase::getLine( TokenVector &line,
           // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libSelect_new = libSelect, libInside_new;
-          Xyce::IO::handleIncludeLine( netlistFilename_, line,
+          Xyce::IO::handleIncludeLine( mainCircuitPtr_->getTopLevelPath(), netlistFilename_, line,
                                        ES1, includeFile, libSelect_new, libInside_new);
           if (includeFile != "")
           {

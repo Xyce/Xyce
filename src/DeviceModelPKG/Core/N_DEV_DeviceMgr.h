@@ -564,7 +564,7 @@ private:
   ExternData                    externData_;
   MatrixLoadData                matrixLoadData_;        ///< temporary jacobian load structures:
   SolverState                   solState_;              ///< real time solver data:
-  Globals &                     globals_;               ///< global variables
+  UserDefinedParams &           globals_;               ///< global variables
   bool                          externalInitJctFlag_;
   bool                          externalStateFlag_;
 
@@ -679,7 +679,7 @@ getParamAndReduce(
   const DeviceMgr &     device_manager,
   const std::string &   name);
 
-void addGlobalParameter(SolverState &solver_state, double temp, Globals &global, const Util::Param &param);
+void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param);
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device

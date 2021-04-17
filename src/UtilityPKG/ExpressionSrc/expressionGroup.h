@@ -126,7 +126,9 @@ public:
 
   virtual void setRFParamsRequested(std::string type) {}
 
+#if 0
   virtual void getRandomOpValue (  Util::astRandTypes type, std::vector<double> args, double & value) { return; }
+#endif
 
 private:
 

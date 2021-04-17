@@ -223,6 +223,8 @@ private:
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
+bool isComplexCurrentOp(const std::string& name, const int parenIdx);
+
 bool registerPkgOptionsMgr(Manager &manager, PkgOptionsMgr &options_manager);
 
 } // namespace Measure

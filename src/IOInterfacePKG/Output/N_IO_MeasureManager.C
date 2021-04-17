@@ -463,7 +463,7 @@ void Manager::fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr)
           // Need to adjust measure name, if it is an operator like VR(1), to remove the 'R'.
           // This is needed to make FIND measures work.
           size_t parenIdx = measureVarName.find_first_of('(');
-          if ((measureVarName[0] != '{') && (parenIdx != 1))
+          if ((measureVarName[0] != '{') && (parenIdx != 1) && isComplexCurrentOp(measureVarName,parenIdx))
             measureVarName = measureVarName[0] + measureVarName.substr(parenIdx);
 
           for (fftal_it = FFTAnalysisList.rbegin(); fftal_it != FFTAnalysisList.rend(); fftal_it++)
@@ -2129,6 +2129,21 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
 }
 
 } // namespace <unnamed>
+
+//-----------------------------------------------------------------------------
+// Function      : isComplexCurrentOp
+// Purpose       : Determine if name is a "complex current operator" of the
+//                 form IR, II, IM, IP or IDB
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 4/14/2021
+//-----------------------------------------------------------------------------
+bool isComplexCurrentOp(const std::string& name, const int parenIdx)
+{
+  return ( ((parenIdx == 2) && ((name[1] == 'R') || (name[1] == 'I') || (name[1] == 'M') || (name[1] == 'P')))
+           || ((parenIdx == 3) && (name.substr(1,2) == "DB")) );
+}
 
 //-----------------------------------------------------------------------------
 // Function      : registerPkgOptionsMgr

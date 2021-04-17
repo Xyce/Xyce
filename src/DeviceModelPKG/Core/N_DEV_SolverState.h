@@ -62,11 +62,11 @@ namespace Device {
 
 struct expressionGroupWrapper;
 
-struct Globals 
+struct UserDefinedParams
 {
-  GlobalParameterMap global_params;
-  std::vector<Util::Expression> global_expressions;
-  std::vector<std::string>global_exp_names;
+  GlobalParameterMap paramMap;
+  std::vector<Util::Expression> expressionVec;
+  std::vector<std::string> expNameVec;
 };
 
 //-----------------------------------------------------------------------------
@@ -86,9 +86,9 @@ public:
 
   void initializeHomotopyBlockSize(int numBlocks);
 
-  Globals &getGlobals() const
+  UserDefinedParams &getGlobals() const
   {
-    return const_cast<Globals &>(globals_);
+    return const_cast<UserDefinedParams &>(globals_);
   }
 
   expressionGroupWrapper * getGroupWrapper () { return groupWrapperPtr_; } 
@@ -190,7 +190,7 @@ public:
   bool                  sizeParameterFlag_;     ///< ArtificialParameters, not sure these are really used
   double                sizeScale_;             ///< ArtificialParameters
 
-  Globals               globals_;
+  UserDefinedParams     globals_;
 
   double                currFreq_;              ///< current frequency
 

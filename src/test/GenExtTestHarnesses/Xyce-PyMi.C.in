@@ -22,9 +22,9 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : Driver for Python Model Interface
+// Purpose        : Driver for Python Model Interpreter
 //
-// Special Notes  : Used by the pythonext test cases
+// Special Notes  : Used by the Python Model Interpreter test cases
 //
 // Creator        : Paul Kuberry
 //
@@ -325,7 +325,7 @@ public:
                 "netlist_module_dirname"_a=modulename_, 
                 "netlist_dirname"_a=netlist_filepath_,
                 "install_dirname"_a=
-                    "@CMAKE_INSTALL_PREFIX@", 
+                    "@CMAKE_INSTALL_PREFIX@/include/pymi", 
                 "source_dirname"_a=
                     "@CMAKE_SOURCE_DIR@/utils/PythonModelInterface", 
                 "system_string"_a="");
@@ -336,17 +336,20 @@ public:
             cwd_dirname = os.getcwd()
 
             ## priority for python files is 
-            # 1.) directory of executable
+            # 1.) install directory
+            if install_dirname not in sys.path: sys.path.append(install_dirname)
+
+            # 2.) directory of executable
             if os.path.isabs(executable_dirname):
                 executable_dirname = os.path.dirname(executable_dirname)
             else:
                 executable_dirname = cwd_dirname + '/' + os.path.dirname(executable_dirname)
             if executable_dirname not in sys.path: sys.path.append(executable_dirname)
 
-            # 2.) current working directory
+            # 3.) current working directory
             if cwd_dirname not in sys.path: sys.path.append(cwd_dirname)
 
-            # 3.) directory of the module netlist is referencing
+            # 4.) directory of the module netlist is referencing
             if os.path.isabs(netlist_dirname):
                 netlist_dirname = os.path.dirname(netlist_dirname)
             else:
@@ -360,7 +363,6 @@ public:
                 netlist_module_dirname = netlist_dirname + '/' + os.path.dirname(netlist_module_dirname)
             if netlist_module_dirname not in sys.path: sys.path.append(netlist_module_dirname)
 
-            # 4.) install directory (pythonGenExt not currently installable)
             # 5.) source directory
             if source_dirname not in sys.path: sys.path.append(source_dirname)
 

@@ -50,6 +50,13 @@ variables incorrect, so the code has been refined to make only
 appropriate changes to variable names rather than blindly replacing
 one character. \\ \hline
 
+\textbf{Gitlab-ex issue 191}: Exclamation point character is not allowed in parameter names, in the new expression library &
+This was supported in previous versions of \Xyce{} but was inadvertantly broken 
+with the new expression library for \Xyce{} 7.2. This mainly affected printing 
+  of ``Y'' device parameters on the \texttt{.PRINT} line, but only inside of 
+  \texttt{.PRINT} line expressions.  This was due to a minor parsing mistake 
+  and has been addressed.  \\ \hline
+
 \textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
 If a user code links to the Xyce libraries and allocates objects of
 one of the Xyce simulator classes (either the base class
@@ -114,6 +121,13 @@ correctly. This issue was focused on making those work properly. Specifically,
 it was targeted at the inclusion of Amesos2, Stokhos, ShyLU, the Amesos2 Basker
 (a templated linear solver), and the ShyLU Basker (a multi-threaded linear
 solver). It also made Belos a required Trilinos package.
+\\ \hline
+
+\textbf{Gitlab-ex issue 108}:  Fix various problems in the limit operator in 
+the new expression librarys &
+The ``limit'' function in the new expression library had mistakes in both the 
+derivative calculation and also in the breakpointing function.  Both issues 
+have been fixed.
 \\ \hline
 
 \textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &
@@ -182,6 +196,17 @@ Therefore, all the code conditionals related to C++11 features have been
 removed from the code. 
 \\ \hline
 
+\textbf{1085-SON}: Expression library mishandled \texttt{.FUNC} 
+definitions of functions that began with ``I'' and were two characters long &
+\Xyce{}'s expression library previously assumed that all terms of the form
+``\texttt{Ix(<arguments>)}'' are lead current expressions, where ``x'' is
+either a lead designator such as ``D'', ``G'' , or ''S'' for a MOSFET
+or ``C'', ``B'', ``E'' for a BJT, or a digit indicating the pin number
+of the device associated with the lead.  This assumption made it
+impossible for users to define a function with a two-character name
+starts with ``I''.  
+\\ \hline
+
 \textbf{1203-SON}: Issues with temperature-dependent device
 instance-parameters that were expression-based & The values for
 temperature-dependent device instance parameters could be incorrect
@@ -207,6 +232,15 @@ Parallel regression testing illustrated failures when used on more than 2 proces
 . These failures were caused by test and code issues and have been addressed for testing up to 4 processors.
 \\ \hline
 
+\textbf{1241-SON}: Expression library parsing bottleneck on large expressions &
+It was previously determined that the expression library in Xyce could be the
+source of a severe parsing bottleneck when expressions are large and
+complex.  Expressions of this sort show up most often when parsing
+large PDKs with complex use of the \texttt{.FUNC} feature, and when
+using the ``tablefile'' feature to import a large file of time/voltage
+pairs for use in a \texttt{B} source.  These issues were addressed by the new expression library.
+\\ \hline
+
 \textbf{1246-SON}: Supernoding seg faults / fails to remove all nodes in parallel &
 Parallel regression testing illustrated a failure to perform supernoding when run on more than 2
 processors.  This failure was caused by a code issue and has been addressed. 
@@ -221,6 +255,24 @@ Parallel regression testing illustrated a failure to use the oscillator HB algor
 Parallel regression testing illustrated failures of circuits that have PowerGridTransformer
 models when run on more than 2 processors.  These failures were caused by a code issue and has been
 addressed.
+\\ \hline
+
+\textbf{Gitlab-ex Issue 130}: The FFTW interface does not work properly for even number of samples  &
+The results from .HB and .FFT analysis were wrong for the N/2 harmonic when the number of samples N
+is even. The real part of the result was incorrectly copied to the imaginary part for the N/2 harmonic.
+This led to the wrong results. This is fixed now.
+\\ \hline
+
+
+\textbf{Gitlab-ex Issue 159}: The max time step is ignored for the first step out of a break point &
+The max time step can be specified by a user or come from some special devices. Some of them are not
+applied to the first step out of a break point. This is fixed now.
+\\ \hline
+
+\textbf{Gitlab-ex Issue 122}: The dynamically inserted break points from delay device were not handled correctly &
+The devices that use history information can dynamacally insert break points during the transient simulation. This
+was not handled correctly and led to accuracy issues, discontinuous behavior, wrong results and convergence issues.
+This is fixed now.
 \\ \hline
 
 

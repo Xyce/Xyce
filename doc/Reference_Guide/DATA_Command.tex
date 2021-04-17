@@ -32,7 +32,8 @@ User-defined data table, which can be used to specify sweep points for \texttt{.
 Name of the data table.
 
 \argument{parameter name}
-Name of sweep parameter.  This can be a device instance parameter, a device model parameter or a global parameter specified using \texttt{.global\_param}.
+Name of sweep parameter.  This can be a device instance parameter, 
+  a device model parameter or a user-defined parameter specified using \texttt{.GLOBAL\_PARAM} or a globally scoped \texttt{.PARAM} statement.
 
 \argument{parameter value}
 Value of sweep parameter for the given sweep point.  This must be a double precision number.  Each row of the table corresponds to a different sweep step, so multiple parameters can be changed simultaneously.
@@ -43,7 +44,8 @@ Value of sweep parameter for the given sweep point.  This must be a double preci
 
 Each column of a data table corresponds to a different parameter, and each row corresponds to a different sweep point.
 
-If using \texttt{.DATA} with \texttt{.DC} or \texttt{.STEP}, then any instance parameter, model parameter, or global parameter is allowed.
+If using \texttt{.DATA} with \texttt{.DC} or \texttt{.STEP}, then any instance parameter, model parameter, 
+or user-defined parameter in the global scope.
 
 However, if using \texttt{.DATA} with \texttt{.AC} or \texttt{.NOISE}, then one can sweep the magnitude and phase of an AC source, and linear model parameters (such as resistance and capacitance) in addition to the traditional AC sweep variable, frequency.  Parameters associated with nonlinear models (like transistors) are not allowed.  This is because AC analysis is a linear analysis, performed after the DCOP calculation.  Changing nonlinear device model parameters would result in a different DCOP solution, so changing them during the AC (or NOISE) analysis phase is not valid.
 

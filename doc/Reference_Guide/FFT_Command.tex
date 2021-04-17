@@ -7,7 +7,7 @@
 % Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
-
+\label{FFT}
 
 Performs Fast Fourier Transform analysis of transient analysis output.
 
@@ -99,12 +99,14 @@ multiple of the default value.  The \Xyce{} Users' Guide\UsersGuide
 provides an example.
 
 \argument{FMIN}
-This parameter is supported for HSPICE compatibility. It currently
-has no effect though.
+This parameter can use to adjust the harmonics included in the
+``additional metrics'' defined in Section \ref{FFT_metrics}.  It
+has a default value of 1.
 
 \argument{FMAX}
-This parameter is supported for HSPICE compatibility. It currently
-has no effect though.
+This parameter can use to adjust the harmonics included in the
+``additional metrics'' defined in Section \ref{FFT_metrics}.  It
+has a default value of \texttt{NP/2}.
 
 \end{Arguments}
 
@@ -148,7 +150,8 @@ to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
   RECT & Rectangular &
     $w(i)=1, \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
   BART & Barlett~\cite{oppenheimSchafer} &
-    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{N-1},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\ 2-\frac{2 i}{N-1},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
+    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{N-1},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\
+                                     2-\frac{2 i}{N-1},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
   HANN & Hanning~\cite{oppenheimSchafer} &
     $w(i) = sin^2(\frac{\pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
   HAMM & Hamming~\cite{oppenheimSchafer} &
@@ -158,3 +161,82 @@ to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
   HARRIS & -92 dB Four-Term Blackman-Harris window~\cite{Doerry2017} &
     $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{N-1}) + 0.14128 \cdot cos(\frac{4 \pi i}{N-1}) - 0.01168 \cdot cos(\frac{6 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
 \end{longtable}
+
+\subsubsection{Additional FFT Metrics}
+\label{FFT_metrics}
+The following additional metrics will be sent to stdout if \texttt{.OPTIONS FFT FFTOUT=1}
+is used in the netlist.  These definitions are also used by the corresponding measure
+types on \texttt{.MEASURE FFT} lines.
+
+Define the integer index of the ``first harmonic'' ($f_{0}$) as follows (where it has a
+default value of 1 and the $ROUND()$ function rounds to the nearest integer):
+
+$f_{0}=\left\{\begin{array}{ll}ROUND(\frac{FREQ}{STOP-START}),\hspace*{0.1in}\textrm{if FREQ given} \\
+ 1,\hspace*{1.4in}\textrm{otherwise}\end{array}\right.$
+
+Finally, define $mag[i]$ as the magnitude of the FFT coefficient at index $i$, and $N$ as
+the number of points in the FFT.
+
+The Signal to Noise-plus-Distortion Ratio (SNDR) is calculated as follows, where the summation
+in the denominator includes all of the frequencies except for the first harmonic frequency $f_{0}$:
+
+$SNDR = 20 \cdot log10(\frac{mag[f_{0}]}{sqrt(\sum mag[i]*mag[i])}),\hspace*{0.1in}\textrm{for}~1 \leq i \leq 0.5 \cdot N ~\textrm{, and}~i \neq f_{0}$
+
+The Effective Number of Bits (ENOB) is calculated as follows, where the units is ``bits'':
+
+$ENOB = \frac{SNDR - 1.76}{6.02}$
+
+For the Signal to Noise Ratio (SNR) metric define the upper frequency limit for the SNR metric as follows,
+with the caveat that if $f_{2}$ is less than $f_{0}$ then its value is set to $f_{0}$:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given}\\
+   0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+The SNR is then calculated as follows, where the summation in the denominator only uses indexes that
+are either not an integer-multiple of $f_{0}$ or that are greater than the upper frequency limit of $f_{2}$.
+(Note: for the default case of $f_{0}$ = 1 and \texttt{FMAX} not given there are no ``noise frequencies''.)
+
+$SNR = 20 \cdot log10(\frac{mag[f_{0}]}{sqrt(\sum mag[i]*mag[i])}),\hspace*{0.1in}\textrm{for}~i > f_{2} ~\textrm{ or }~i\%f_{0} \ne 0$
+
+For the Total Harmonic Distortion (THD) metric define the upper frequency limit ($f_{2}$) in
+the summation in the numerator as:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given} \\ 0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+The THD is then calculated using only the indexes that are multiples of $f_{0}$.  So, if $f_{0}$=2
+then the summation in the numerator would only include indexes 4,6,8,etc.
+
+$THD = 20 \cdot log10(\frac{sqrt(\sum mag[i]*mag[i])}{mag[f_{0}]}),\hspace*{0.1in}\textrm{for}~2 \cdot f_{0} \leq i \leq f_{2} ~\textrm{, and}~i\%f_{0}=0$
+
+For Spurious Free Distortion Ratio (SFDR) metric define the upper and lower frequency
+limits ($f_{2}$ and $f_{1}$) considered in the denominator of the calculation as:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given} \\
+ 0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+and:
+
+$f_{1}=\left\{\begin{array}{ll}ROUND(\frac{FMIN}{STOP-START}),\hspace*{0.1in}\textrm{if FMIN given} \\
+ f_{0},\hspace*{1.35in}\textrm{if FMIN not given, and}~f_{2} \geq f_{0}\\
+ 1,\hspace*{1.4in}\textrm{if FMIN not given, and}~f_{2} < f_{0}\end{array}\right.$
+
+The SFDR is then calculated as:
+
+$SFDR = 20 \cdot log10(\frac{mag[f_{0}]}{MAX(mag[i])}), \hspace*{0.1in}\textrm{for}~f_{1} \leq i \leq f_{2}~\textrm{, and}~i \neq f_{0}$
+
+\subsubsection{Re-Measure}
+\label{Measure_FFT_ReMeasure}
+\index{measure fft!re-measure}
+\Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
+using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
+this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
+additional caveat is that \texttt{FFT\_ACCURATE} is set to 0 during the re-measure
+operation.  This should have no impact of the accuracy of the re-measured results
+if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
+
+\subsubsection{Compatibility Between OUTPUT and FFT Options}
+Some \texttt{.OPTIONS OUTPUT} settings are incompatible with using the default
+setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1}.  The use of
+\texttt{.OPTIONS OUTPUT OUTPUTTIMEPOINTS} is compatible.  However, the use of
+\texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is not.  In that latter case,
+\texttt{.OPTIONS FFT FFT\_ACCURATE} will be automatically set to 0.

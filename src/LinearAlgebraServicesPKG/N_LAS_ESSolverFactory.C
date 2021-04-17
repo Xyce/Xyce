@@ -126,35 +126,20 @@ ESSolverFactory::create(
   }
 #endif  
  
-#if 0 
-  std::cout << "ESSolverFactory::create about to output the linsol options, if they exist" << std::endl;
-#endif
-
   Util::ParamList::const_iterator itPI = options.begin();
   Util::ParamList::const_iterator endPI = options.end();
   for( ; itPI != endPI; ++itPI )
   {
     if( itPI->uTag() == "TYPE" && itPI->usVal() != "DEFAULT" )
     {
-#if 0
-      std::cout << "tag = " << itPI->uTag() ;
-      std::cout << "val = " << itPI->usVal() ;
-      std::cout <<std::endl;
-#endif
-
       type = itPI->usVal();
     }
   }
 
- //Support for resetting linear solver from command line
-  Xyce::ExtendedString CLType = command_line.getArgumentValue( "-linsolv" );
-  CLType.toUpper();
-  if( CLType != "" ) type = CLType;
-
   // If the linear problem is matrix free, make sure an iterative method is being used.
   if (problem.matrixFree())
   {
-    if ((type != "AZTECOO") && (type != "BELOS") && (type != "DIRECT"))
+    if ((type != "AZTECOO") && (type != "BELOS"))
     {
       std::string msg = "The linear solver option that was specified is not compatible with a matrix free analysis type, changing to AZTECOO";
       Report::UserWarning0() << msg;
@@ -181,16 +166,12 @@ ESSolverFactory::create(
   }
 #endif
 #ifdef Xyce_AMESOS2
-  else if( type == "BASKER" )
+  else if( type == "SHYLU_BASKER" || type == "BASKER" || type == "KLU2" ) 
   {
-    return new Amesos2Solver( "BASKER", problem, options );
+    return new Amesos2Solver( type, problem, options );
   }
-  else if( type == "KLU2" )
-  {
-    return new Amesos2Solver( "KLU2", problem, options );
-  }
-#endif
-  else if( type == "DIRECT" )
+#ifdef Xyce_AMESOS2_BASKER
+  else if( type == "BLOCK_BASKER" || type == "LAPACK" ) 
   {
     ESDirectSolver* newSolver = new ESDirectSolver(builder_, problem, options);
 
@@ -201,6 +182,8 @@ ESSolverFactory::create(
 
     return newSolver;
   } 
+#endif
+#endif
   else
   {
     return new AmesosSolver( type, problem, options);

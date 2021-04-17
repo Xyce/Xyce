@@ -1154,7 +1154,7 @@ void HB::accumulateStatistics_(AnalysisBase &analysis)
 // Creator       : Ting Mei, SNL
 // Creation Date : 03/03/2014
 //-----------------------------------------------------------------------------
-bool HB::setFreqPoints_()
+bool HB::setFreqPointsAPFT_()
 {
   if ( !intmodMaxGiven_)
   {
@@ -1390,6 +1390,138 @@ bool HB::setFreqPoints_()
 
   return true;
 }
+
+//-----------------------------------------------------------------------------
+// Function      : HB::setFreqPoints_
+// Purpose       : Set frequency spectrum for HB analysis.
+// Special Notes :
+// Scope         : private
+// Creator       : Ting Mei, SNL
+// Creation Date : 04/02/2021
+//-----------------------------------------------------------------------------
+bool HB::setFreqPoints_()
+{
+  if ( method_ == "APFT" )
+  {
+
+    setFreqPointsAPFT_();
+  }
+  else if ( method_ == "AFM" )
+  {
+    setFreqPointsFM_();
+  }
+  else
+  {
+    Report::UserError() << "Unsupported method for HB";
+    return false;
+  }
+
+  return true;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Function      : HB::setFreqPoints_
+// Purpose       : Set frequency spectrum for HB analysis.
+// Special Notes :
+// Scope         : private
+// Creator       : Ting Mei, SNL
+// Creation Date : 04/02/2021
+//-----------------------------------------------------------------------------
+bool HB::setFreqPointsFM_()
+{
+
+  std::vector<int> k;
+
+  int numAnalysisFreqs = freqs_.size();
+
+//  numPosFreqs.resize(numAnalysisFreqs);
+
+  k.resize(numAnalysisFreqs);
+
+  k[0] = 1;
+
+  int numTotalFrequencies;
+
+  numTotalFrequencies = numFreqs_[0];
+
+  for (int i=1; i < numAnalysisFreqs; i++)
+  {
+    k[i] = k[i-1] * numFreqs_[i -1 ];
+
+    numTotalFrequencies *= numFreqs_[i];
+  }
+
+  if (DEBUG_HB)
+  {
+    for (int i=0; i< numAnalysisFreqs; i++)
+    {
+      Xyce::dout() << "HB index " << i << std::endl;
+      Xyce::dout() << "HB k =" << k[i] << std::endl;
+    }
+    Xyce::dout() << "HB numTotalFrequencies =" << numTotalFrequencies<< std::endl;
+  }
+
+  int numIndex = numTotalFrequencies;
+
+  Teuchos::SerialDenseMatrix<int,double> indexMatrix(numAnalysisFreqs, numTotalFrequencies);
+
+  int nextIndex;
+
+  int idxMod,  idxValues;
+
+  for (int i=0; i < numIndex; i++)      //  column
+  {
+    nextIndex = i;
+
+    for (int j= (numAnalysisFreqs - 1); j >= 0;  j-- )       // row
+    {
+      idxMod = nextIndex%k[j];
+      idxValues =  (nextIndex - idxMod)/k[j];
+
+      indexMatrix (j, i) = static_cast<double>(idxValues - (numFreqs_[j] - 1)/2 );
+      nextIndex = idxMod;
+
+    }
+
+  }
+
+
+  freqPoints_.resize(numTotalFrequencies);
+
+  Teuchos::SerialDenseVector<int,double> currfreqPoints( Teuchos::View, &freqPoints_[0], numTotalFrequencies );
+
+  Teuchos::SerialDenseVector<int,double> hbFreqs( Teuchos::View, &freqs_[0], numAnalysisFreqs);
+//    Teuchos::SerialDenseVector<int,double> currWeightVector( Teuchos::View, &weightVector[i], oversampleRate*size_-(i+1) );
+  currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
+
+
+  if (DEBUG_HB)
+  {
+    dout() << "checking frequencies" << std::endl;
+    indexMatrix.print(dout());
+    hbFreqs.print(dout());
+    currfreqPoints.print(dout());
+  }
+
+  std::sort(freqPoints_.begin(), freqPoints_.end() );
+
+  freqPoints_.erase(std::unique(freqPoints_.begin(), freqPoints_.end() ), freqPoints_.end() );
+
+  if (DEBUG_HB)
+  {
+    for (int i=0; i< freqPoints_.size(); i++)
+      dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
+  }
+
+  size_ = freqPoints_.size();
+
+  Xyce::dout() << "size = " << size_ << std::endl;
+
+  return true;
+}
+
 //-----------------------------------------------------------------------------
 // Function      : N_MPDE_Manager::initializeOscOut
 // Purpose       : Sets up the warpMPDEOSCOUT_  global id (GID) index.

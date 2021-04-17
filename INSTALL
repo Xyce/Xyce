@@ -9,12 +9,15 @@ of the autoconf documentation.
 They may be useful to advanced users, but they are NOT specific
 instructions for building Xyce.
 
-Complete instructions for building Xyce are found in the Building
-Guide on the Xyce web site,
-https://xyce.sandia.gov/documentation/BuildingGuide.html Users
-interested in building Xyce should refer to that web page first, and
-only continue with this file for advanced questions about the
+Complete instructions for building Xyce using Autotools are found in
+the Building Guide on the Xyce web site:
+     https://xyce.sandia.gov/documentation/BuildingGuide.html
+Users interested in building Xyce should refer to that web page first,
+and only continue with this file for advanced questions about the
 operation of "configure".
+
+For instructions on how to use the CMake build system, see the
+INSTALL.md file.
 
 
 Installation Instructions

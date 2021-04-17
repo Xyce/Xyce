@@ -220,12 +220,12 @@ int HBDirectSolver::doSolve( bool reuse_factors, bool transpose )
     // Get the number of frequencies and the number of time-domain unknowns.
     N_ = freqs_.size();
     M_ = (int)((N_-1)/2);
-    n_ = (lasProblem_.getRHS())->globalLength() / (2*N_);
 
     if (hbOsc_)
     {
       numAugRows_ = (hbBuilderPtr_->getAugmentedLIDs()).size();
     }
+    n_ = ((lasProblem_.getRHS())->globalLength()-numAugRows_) / (2*N_);
 
     // Create the block structure of the HB Jacobian.
     createBlockStructures();
@@ -316,6 +316,27 @@ int HBDirectSolver::doSolve( bool reuse_factors, bool transpose )
   }
 
   return 0;
+}
+
+void HBDirectSolver::createBaskerSolver()
+{
+#ifdef Xyce_AMESOS2_BASKER
+  basker_ = Teuchos::null;
+  blockBasker_ = Teuchos::null;
+
+#ifdef Xyce_NEW_BASKER
+  if (solver_ == "BASKER")
+    basker_ = Teuchos::rcp( new BaskerClassicNS::BaskerClassic<int, std::complex<double> >() );
+  if (solver_ == "BLOCK_BASKER")
+    blockBasker_ = Teuchos::rcp( new BaskerClassicNS::BaskerClassic<int, Xyce::HBBlockMatrixEntry >() );
+#else
+  if (solver_ == "BASKER" )
+    basker_ = Teuchos::rcp( new Basker::Basker<int, std::complex<double> >() );
+  if (solver_ == "BLOCK_BASKER")
+    blockBasker_ = Teuchos::rcp( new Basker::Basker<int, Xyce::HBBlockMatrixEntry>() );
+#endif
+
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1641,7 +1662,6 @@ void HBDirectSolver::formHBJacobian()
       }
     }
   }
-
 }
 
 //---------------------------------------------------------------------------
@@ -1655,7 +1675,7 @@ int HBDirectSolver::numericFactorization()
     if ( solver_ == "LAPACK" )
     {
       // Compute numeric factorization of dense Jacobian matrix.
-      //if (DEBUG_LINEAR)
+      if (DEBUG_LINEAR)
       {
         A_ = denseHBJacobian_.denseMtx;
       }
@@ -1667,13 +1687,31 @@ int HBDirectSolver::numericFactorization()
 #ifdef Xyce_AMESOS2_BASKER
     else if ( solver_ == "BASKER" )
     {
+      // Create new solver each time due to memory leaks
+      createBaskerSolver();
+
       // Create Basker solver and factor block diagonal matrix.
-      basker_.factor(N_*n_, N_*n_, Anewcol_ptr_[N_*n_], &Anewcol_ptr_[0], &Anewrow_idx_[0], &Anewval_[0]);
+      basker_->factor(N_*n_, N_*n_, Anewcol_ptr_[N_*n_], &Anewcol_ptr_[0], &Anewrow_idx_[0], &Anewval_[0]);
+
+      if (DEBUG_LINEAR)
+      {
+        std::cout << "Basker factor: nnzA = " << Anewcol_ptr_[N_*n_] << ", nnzL = " << basker_->get_NnzL() 
+                  << ", nnzU = " << basker_->get_NnzU() << ", nnzLU = " << basker_->get_NnzLU() << std::endl;
+      }
     }
     else if ( solver_ == "BLOCK_BASKER" )
     {
+      // Create new solver each time due to memory leaks
+      createBaskerSolver();
+
       // Create Basker solver and factor block diagonal matrix.
-      blockBasker_.factor(n_, n_, Acol_ptr_[n_], &Acol_ptr_[0], &Arow_idx_[0], &(Aval_[0]));
+      blockBasker_->factor(n_, n_, Acol_ptr_[n_], &Acol_ptr_[0], &Arow_idx_[0], &(Aval_[0]));
+
+      if (DEBUG_LINEAR)
+      {
+        std::cout << "Basker factor: nnzA = " << Acol_ptr_[n_] << ", nnzL = " << blockBasker_->get_NnzL() 
+                  << ", nnzU = " << blockBasker_->get_NnzU() << ", nnzLU = " << blockBasker_->get_NnzLU() << std::endl;
+      }
     }
 #endif
   }
@@ -1721,7 +1759,7 @@ int HBDirectSolver::solve()
       {
         // Solve the dense Jacobian in the frequency domain, complex-valued.
         double bnorm, rnorm;
-        //if (DEBUG_LINEAR)
+        if (DEBUG_LINEAR)
         {
           R_ = B_;
           bnorm = R_.normFrobenius();
@@ -1740,12 +1778,12 @@ int HBDirectSolver::solve()
       else if ( solver_ == "BASKER" )
       {
         double bnorm, rnorm;
-        //if (DEBUG_LINEAR)
+        if (DEBUG_LINEAR)
         {
           bnorm = B_.normFrobenius();
         }
 
-        basker_.solve(B_.values(), X_.values());
+        basker_->solve(B_.values(), X_.values());
 
         if (DEBUG_LINEAR)
         {
@@ -1758,7 +1796,10 @@ int HBDirectSolver::solve()
           }
 
           rnorm = B_.normFrobenius();
-          Xyce::dout() << "Linear System Residual (BASKER) : " << rnorm/bnorm << std::endl; 
+          if (bnorm > 0.0)
+            Xyce::dout() << "Linear System Residual (BASKER) : " << rnorm/bnorm << std::endl; 
+          else
+            Xyce::dout() << "Linear System Residual (BASKER) : " << rnorm << std::endl;
         }
       }
       else if ( solver_ == "BLOCK_BASKER" )
@@ -1775,7 +1816,7 @@ int HBDirectSolver::solve()
                     Teuchos::ScalarTraits<double>::squareroot( bnorm ) );
         }
 
-        blockBasker_.solve(&bB_[0], &bX_[0]);
+        blockBasker_->solve(&bB_[0], &bX_[0]);
 
         if (DEBUG_LINEAR)
         {
@@ -1789,13 +1830,21 @@ int HBDirectSolver::solve()
 
           for (int j=0; j<n_; j++)
           {
-            double bjnorm = bB_[j].normFrobenius();
-            Xyce::dout() << "Residual norm of block " << j << " is " << bjnorm << std::endl;
-            rnorm += ( bjnorm*bjnorm );
+            double rjnorm = bB_[j].normFrobenius();
+            rnorm += ( rjnorm*rjnorm );
+
+            if (bnorm > 0.0)
+              Xyce::dout() << "Residual norm of block " << j << " is " << rjnorm/bnorm << std::endl;
+            else
+              Xyce::dout() << "Residual norm of block " << j << " is " << rjnorm << std::endl;
           }
           rnorm = Teuchos::ScalarTraits<double>::magnitude(
                     Teuchos::ScalarTraits<double>::squareroot( rnorm ) );
-          Xyce::dout() << "Linear System Residual (BLOCK BASKER) : " << rnorm/bnorm << std::endl; 
+
+          if ( bnorm > 0.0 )
+            Xyce::dout() << "Linear System Residual (BLOCK BASKER) : " << rnorm/bnorm << std::endl; 
+          else
+            Xyce::dout() << "Linear System Residual (BLOCK BASKER) : " << rnorm << std::endl;
         }
       }
 #endif
@@ -1851,14 +1900,14 @@ void HBDirectSolver::printHBJacobian( const std::string& fileName )
 {
   int myProc = (builder_.getPDSComm())->procID();
 
-  std::ofstream out;
-  out.open( fileName.c_str() );
-
-  // Write out banner.
-  out << "%%MatrixMarket matrix ";
-
   if (myProc == 0)
   {
+    std::ofstream out;
+    out.open( fileName.c_str() );
+
+    // Write out banner.
+    out << "%%MatrixMarket matrix ";
+
     if (solver_ == "LAPACK")
     {
       // Output dense format.
@@ -1905,124 +1954,103 @@ void HBDirectSolver::printHBJacobian( const std::string& fileName )
         }
       }
     }
+    // Close the file.
+    out.close(); 
   }
-
-  // Close the file.
-  out.close(); 
 }
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void HBDirectSolver::printHBResidual( const std::string& fileName )
 {
-  int numProcs = (builder_.getPDSComm())->numProc();
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
   MultiVector* B = lasProblem_.getRHS();
   int numVectors = B->numVectors();
-  EpetraVectorAccess* e_B = dynamic_cast<EpetraVectorAccess *>( B );
 
-  std::ofstream out;
-  out.open( fileName.c_str() );
-
-  // Write out banner.
-  out << "%%MatrixMarket matrix array complex general" << std::endl;
-
-  // Write the dimensions of the sparse matrix: (# rows, #
-  // columns, # matrix entries (counting duplicates as
-  // separate entries)).
-  out << n_*N_ << " " << numVectors << std::endl;
-
-  // Set precision.
-  out.precision( 16 );
-  out << std::scientific;
-
-  for (int j=0; j<numVectors; j++)
+  if ( myProc == 0 )
   {
-    Teuchos::RCP<Linear::Vector> B_j;
+    std::ofstream out;
+    out.open( fileName.c_str() );
 
-    if (numProcs > 1)
-    {
-      serialB_->Import( *((e_B->epetraObj())( j )), *serialImporter_, Insert );
-      B_j = Teuchos::rcp( new EpetraVector( &*serialB_, *serialMap_, false ) );
-    }
-    else
-    {
-      B_j = Teuchos::rcp( B->getNonConstVectorView( j ) );
-    }
+    // Write out banner.
+    out << "%%MatrixMarket matrix array complex general" << std::endl;
 
-    if ( myProc == 0 )
+    // Write the dimensions of the sparse matrix: (# rows, #
+    // columns, # matrix entries (counting duplicates as
+    // separate entries)).
+    out << n_*N_ << " " << numVectors << std::endl;
+
+    // Set precision.
+    out.precision( 16 );
+    out << std::scientific;
+
+    for (int j=0; j<numVectors; j++)
     {
       for (int nB = 0; nB < n_; nB++)
       {
-        // Copy values from B_j to B_ vector for solver.
         for (int i = 0; i < N_; i++)
         {
-          out << (*B_j)[nB*2*N_ + 2*i] << " " << (*B_j)[nB*2*N_ + 2*i+1] << std::endl;
+          if (solver_ == "LAPACK" || solver_ == "BASKER")
+            out << B_( nB*N_ + i, 0 ).real() << " " << B_( nB*N_ + i, 0 ).imag() << std::endl;
+          else
+            out << bB_[nB].denseMtx(i,0).real() << " " << bB_[nB].denseMtx(i,0).imag() << std::endl;
         }
       }
     }
+    // Close the file.
+    out.close();
   }
-
-  // Close the file.
-  out.close();
 }
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void HBDirectSolver::printHBSolution( const std::string& fileName )
 {
-  int numProcs = (builder_.getPDSComm())->numProc();
   int myProc = (builder_.getPDSComm())->procID();
 
   // Determine number of time-domain variables.
   MultiVector* X = lasProblem_.getLHS();
   int numVectors = X->numVectors();
 
-  std::ofstream out;
-  out.open( fileName.c_str() );
-
-  // Write out banner.
-  out << "%%MatrixMarket matrix array complex general" << std::endl;
-
-  // Write the dimensions of the sparse matrix: (# rows, #
-  // columns, # matrix entries (counting duplicates as
-  // separate entries)).
-  out << n_*N_ << " " << numVectors << std::endl;
-
-  // Set precision.
-  out.precision( 16 );
-  out << std::scientific;
-
-  for (int j=0; j<numVectors; j++)
+  if ( myProc == 0 )
   {
-    Teuchos::RCP<Linear::Vector> X_j;
+    std::ofstream out;
+    out.open( fileName.c_str() );
 
-    if (numProcs > 1)
-    {
-      X_j = Teuchos::rcp( new EpetraVector( &*serialX_, *serialMap_, false ) );
-    }
-    else
-    {
-      X_j = Teuchos::rcp( X->getNonConstVectorView( j ) );
-    }
+    // Write out banner.
+    out << "%%MatrixMarket matrix array complex general" << std::endl;
 
-    if ( myProc == 0 )
+    // Write the dimensions of the sparse matrix: (# rows, #
+    // columns, # matrix entries (counting duplicates as
+    // separate entries)).
+    out << n_*N_ << " " << numVectors << std::endl;
+
+    // Set precision.
+    out.precision( 16 );
+    out << std::scientific;
+
+    for (int j=0; j<numVectors; j++)
     {
       for (int nB = 0; nB < n_; nB++)
       {
-        // Copy values from B_j to B_ vector for solver.
         for (int i = 0; i < N_; i++)
         {
-          out << (*X_j)[nB*2*N_ + 2*i] << " " << (*X_j)[nB*2*N_ + 2*i+1] << std::endl;
+          if (solver_ == "LAPACK" || solver_ == "BASKER")
+          {
+            out << X_(nB*N_ + i, 0).real() << " " << X_(nB*N_ + i, 0).imag() << std::endl;
+          }
+          else
+          {
+            out << bX_[nB].denseMtx(i,0).real() << " " << bX_[nB].denseMtx(i,0).imag() << std::endl;
+          }
         }
       }
     }
+    // Close the file.
+    out.close();
   }
-
-  // Close the file.
-  out.close();
 }
 
 } // namespace Linear

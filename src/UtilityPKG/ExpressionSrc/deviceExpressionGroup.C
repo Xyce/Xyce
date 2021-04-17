@@ -54,15 +54,11 @@
 #include <N_PDS_Serial.h>
 
 #include <N_ANP_AnalysisManager.h>
-//#include <N_ANP_UQSupport.h>
-//#include <N_ANP_SweepParam.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_Op.h>
 #include <N_DEV_Const.h>
 
 #include <N_ERH_ErrorMgr.h>
-
-//#include <N_UTL_DeviceNameConverters.h>
 
 namespace Xyce {
 namespace Util {
@@ -177,9 +173,9 @@ bool deviceExpressionGroup::getSolutionVal(const std::string & nodeName, std::co
 bool deviceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
 {
   bool success=true;
-  Xyce::Device::Globals & globals = deviceManager_.getSolverState().getGlobals();
-  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.global_params.find(paramName);
-  if (global_param_it == globals.global_params.end()) 
+  Xyce::Device::UserDefinedParams & globals = deviceManager_.getSolverState().getGlobals();
+  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.paramMap.find(paramName);
+  if (global_param_it == globals.paramMap.end()) 
   { Xyce::Report::UserError() << "Global parameter " << paramName << " not found"; }
   else { retval = (*global_param_it).second; }
   return success;
@@ -201,9 +197,9 @@ bool deviceExpressionGroup::getGlobalParameterVal (const std::string & paramName
 {
   bool success=true;
   double tmpval;
-  Xyce::Device::Globals & globals = deviceManager_.getSolverState().getGlobals();
-  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.global_params.find(paramName);
-  if (global_param_it == globals.global_params.end()) 
+  Xyce::Device::UserDefinedParams & globals = deviceManager_.getSolverState().getGlobals();
+  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.paramMap.find(paramName);
+  if (global_param_it == globals.paramMap.end()) 
   { Xyce::Report::UserError() << "Global parameter " << paramName << " not found"; }
   else { tmpval = (*global_param_it).second; }
   retval = std::complex<double>(tmpval,0.0);

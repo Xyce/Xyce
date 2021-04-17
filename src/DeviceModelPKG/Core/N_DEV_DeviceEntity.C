@@ -1068,8 +1068,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     std::vector<std::string>::const_iterator iterS;
     for (iterS=variables.begin() ; iterS!=variables.end() ; ++iterS)
     {
-      GlobalParameterMap::iterator global_param_it = globals_.global_params.find(*iterS);
-      if (global_param_it == globals_.global_params.end())
+      GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterS);
+      if (global_param_it == globals_.paramMap.end())
       {
         UserError(*this) << "Global parameter " << *iterS << " in " <<
             dependentParam.expr->get_expression() << " not found";

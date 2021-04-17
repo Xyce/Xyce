@@ -96,6 +96,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_BlockVector.h \
   N_LAS_BlockMultiVector.h \
   N_LAS_BlockMatrix.h \
+  N_LAS_BlockMatrixEntry.h \
   N_LAS_BlockSystemHelpers.h \
   N_LAS_EpetraBlockMatrix.h \
   N_LAS_EpetraBlockMultiVector.h \
@@ -118,7 +119,6 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_PCEDirectSolver.h \
   N_LAS_PCESolverFactory.h \
   N_LAS_HBDirectSolver.h \
-  N_LAS_HBBlockMatrixEntry.h \
   N_LAS_HBBlockJacobiPrecond.h \
   N_LAS_HBBlockJacobiEpetraOperator.h \
   N_LAS_PrecondFactory.h \

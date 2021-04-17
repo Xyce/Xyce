@@ -135,14 +135,12 @@ bool ESDirectSolver::setOptions( const Util::OptionBlock & OB )
   {
     setParam( *it_tpL );
   }
-
-  if ( solver_ == "DEFAULT" )
-  {
+  
+  if (solver_ == "")
     solver_ = solverDefault_;
-  }
 
 #ifdef Xyce_AMESOS2_BASKER
-  if ( solver_ != "LAPACK" && solver_ != "BASKER" && solver_ != "BLOCK_BASKER" )
+  if ( solver_ != "LAPACK" && solver_ != "BLOCK_BASKER" )
 #else
   if ( solver_ != "LAPACK" )
 #endif
@@ -186,7 +184,7 @@ bool ESDirectSolver::setParam( const Util::Param & param )
   std::string tag = param.tag();
   std::string uTag = param.uTag();
 
-  if( uTag == "DIRECT_SOLVER" )
+  if( uTag == "TYPE" ) 
     solver_ = param.usVal();
 
   if( uTag == "OUTPUT_LS" ) 
@@ -350,7 +348,7 @@ void ESDirectSolver::createBlockStructures()
   int myProc = (builder_.getPDSComm())->procID();
 
   // Allocate space for the solution and RHS vectors. 
-  if (solver_ == "LAPACK" || solver_ == "BASKER")
+  if (solver_ == "LAPACK")
   {
     X_.reshape(N_*n_, 1);
     B_.reshape(N_*n_, 1);
@@ -382,11 +380,11 @@ void ESDirectSolver::createBlockStructures()
       lapackSolver_ = Teuchos::rcp( new Teuchos::SerialDenseSolver<int, double>() );
     }
   }
-  else if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER") 
+  else if (solver_ == "BLOCK_BASKER") 
   {
     if (paramsOuterLoop_) // not implemented yet for block_basker
     {
-      Report::UserFatal0() << "This ordering is not supported for the specialized BASKER and BLOCK_BASKER solvers" <<std::endl;
+      Report::UserFatal0() << "This ordering is not supported for the specialized BLOCK_BASKER solver" <<std::endl;
     }
     else
     {
@@ -606,7 +604,7 @@ void ESDirectSolver::formESJacobian()
     // Initialize values of ES jacobian to zero.
     denseESJacobian_.putScalar( 0.0 );
   }
-  else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+  else if ( solver_ == "BLOCK_BASKER" )
   {
     initializeBlockCRS( double(0.0) );
   }
@@ -638,9 +636,9 @@ void ESDirectSolver::formESJacobian()
         }
       }
     }
-    else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+    else if ( solver_ == "BLOCK_BASKER" )
     {
-      Report::UserFatal0() << "Specialized ES solver for conventional ordering not set up for BASKER or BLOCK_BASKER yet" <<std::endl;
+      Report::UserFatal0() << "Specialized ES solver for conventional ordering not set up for BLOCK_BASKER yet" <<std::endl;
     }
   }
   else
@@ -675,7 +673,7 @@ void ESDirectSolver::formESJacobian()
             int Col= jj*N_ + ipar;
             denseESJacobian_.denseMtx(Row,Col) = coeffs[icol];
           }
-          else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+          else if ( solver_ == "BLOCK_BASKER" )
           {
             int jj=colIndices[icol];
             int AvalIndex = Acol_ptr_[ii] + icol;
@@ -699,7 +697,7 @@ void ESDirectSolver::formESJacobian()
     }
   }
 
-  if ( solver_ == "BASKER" || ( solver_ == "BLOCK_BASKER"  && outputLS_ ) )
+  if ( solver_ == "BLOCK_BASKER"  && outputLS_ )
   {
     // Copy over matrix into non-block data structures for Basker.
     if (myProc == 0)
@@ -750,7 +748,7 @@ void ESDirectSolver::formESJacobian()
     std::cout << std::endl;
   }
 
-  if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+  if ( solver_ == "BLOCK_BASKER" )
   {
     std::cout << "Aval_ array:" << std::endl;
     int size=Aval_.size();
@@ -789,7 +787,7 @@ void ESDirectSolver::formESJacobian()
         for (int ii=0;ii<size;++ii)
         {
           // Copy values from B_j to B_ vector for solver.
-          if (solver_ == "LAPACK" || solver_ == "BASKER")
+          if (solver_ == "LAPACK")
           {
               B_( ii, 0 ) =  (*B_j)[ii];
           }
@@ -806,7 +804,7 @@ void ESDirectSolver::formESJacobian()
           for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
           {
             // Copy values from B_j to B_ vector for solver.
-            if (solver_ == "LAPACK" || solver_ == "BASKER")
+            if (solver_ == "BASKER")
             {
               int B_Row   = ii*N_ + ipar;
               int B_j_Row = ipar*n_ + ii;
@@ -855,11 +853,6 @@ int ESDirectSolver::numericFactorization()
       linearStatus = lapackSolver_->factor();
     }
 #ifdef Xyce_AMESOS2_BASKER
-    else if ( solver_ == "BASKER" )
-    {
-      // Create Basker solver and factor block diagonal matrix.
-      basker_.factor(N_*n_, N_*n_, Anewcol_ptr_[N_*n_], &Anewcol_ptr_[0], &Anewrow_idx_[0], &Anewval_[0]);
-    }
     else if ( solver_ == "BLOCK_BASKER" )
     {
       // Create Basker solver and factor block diagonal matrix.
@@ -918,10 +911,6 @@ int ESDirectSolver::solve()
         linearStatus = lapackSolver_->solve();
       }
 #ifdef Xyce_AMESOS2_BASKER
-      else if ( solver_ == "BASKER" )
-      {
-        basker_.solve(B_.values(), X_.values());
-      }
       else if ( solver_ == "BLOCK_BASKER" )
       {
         blockBasker_.solve(&bB_[0], &bX_[0]);
@@ -934,7 +923,7 @@ int ESDirectSolver::solve()
       {
         for (int ii=0;ii<size;++ii)
         {
-          if (solver_ == "LAPACK" || solver_ == "BASKER")
+          if (solver_ == "LAPACK")
           {
             (*X_j)[ii] = X_(ii,0);
           }
@@ -951,7 +940,7 @@ int ESDirectSolver::solve()
           for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
           {
             // Copy values from X_j to X_ vector for solver.
-            if (solver_ == "LAPACK" || solver_ == "BASKER")
+            if (solver_ == "LAPACK")
             {
               int X_Row   = ii*N_ + ipar;
               int X_j_Row = ipar*n_ + ii;
@@ -1034,7 +1023,7 @@ void ESDirectSolver::printESJacobian( const std::string& fileName )
       }
     }
   
-    if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER")
+    if (solver_ == "BLOCK_BASKER")
     {
       // Output sparse format.
       out << "coordinate real general" << std::endl;

@@ -135,14 +135,12 @@ bool PCEDirectSolver::setOptions( const Util::OptionBlock & OB )
   {
     setParam( *it_tpL );
   }
-
-  if ( solver_ == "DEFAULT" )
-  {
+ 
+  if (solver_ == "")
     solver_ = solverDefault_;
-  }
 
 #ifdef Xyce_AMESOS2_BASKER
-  if ( solver_ != "LAPACK" && solver_ != "BASKER" && solver_ != "BLOCK_BASKER" )
+  if ( solver_ != "LAPACK" && solver_ != "BLOCK_BASKER" )
 #else
   if ( solver_ != "LAPACK" )
 #endif
@@ -186,7 +184,7 @@ bool PCEDirectSolver::setParam( const Util::Param & param )
   std::string tag = param.tag();
   std::string uTag = param.uTag();
 
-  if( uTag == "DIRECT_SOLVER" )
+  if( uTag == "TYPE" )
     solver_ = param.usVal();
 
   if( uTag == "OUTPUT_LS" ) 
@@ -350,7 +348,7 @@ void PCEDirectSolver::createBlockStructures()
   int myProc = (builder_.getPDSComm())->procID();
 
   // Allocate space for the solution and RHS vectors. 
-  if (solver_ == "LAPACK" || solver_ == "BASKER")
+  if (solver_ == "LAPACK")
   {
     X_.reshape(N_*n_, 1);
     B_.reshape(N_*n_, 1);
@@ -382,7 +380,7 @@ void PCEDirectSolver::createBlockStructures()
       lapackSolver_ = Teuchos::rcp( new Teuchos::SerialDenseSolver<int, double>() );
     }
   }
-  else if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER") 
+  else if (solver_ == "BLOCK_BASKER") 
   {
     // ERK. The only difference between embedded sampling and intrusive PCE analysis 
     // is that PCE analysis is currently formed with the inverted ordering in the 
@@ -393,7 +391,7 @@ void PCEDirectSolver::createBlockStructures()
 
     if (coefsOuterLoop_) // not implemented yet for block_basker
     {
-      Report::UserFatal0() << "This ordering is not supported for the specialized BASKER and BLOCK_BASKER solvers" <<std::endl;
+      Report::UserFatal0() << "This ordering is not supported for the specialized BLOCK_BASKER solver" <<std::endl;
     }
     else
     {
@@ -611,7 +609,7 @@ void PCEDirectSolver::formPCEJacobian()
     // Initialize values of PCE jacobian to zero.
     densePCEJacobian_.putScalar( 0.0 );
   }
-  else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+  else if ( solver_ == "BLOCK_BASKER" )
   {
     initializeBlockCRS( double(0.0) );
   }
@@ -632,7 +630,7 @@ void PCEDirectSolver::formPCEJacobian()
     {
       Report::UserFatal0() << "Specialized PCE solver for LAPACK not set up yet" <<std::endl;
     }
-    else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+    else if ( solver_ == "BLOCK_BASKER" )
     {
       Report::UserFatal0() << "Specialized PCE solver for conventional ordering not set up for BASKER or BLOCK_BASKER yet" <<std::endl;
     }
@@ -663,7 +661,7 @@ void PCEDirectSolver::formPCEJacobian()
           {
             Report::UserFatal0() << "Specialized PCE solver for LAPACK not set up yet" <<std::endl;
           }
-          else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+          else if ( solver_ == "BLOCK_BASKER" )
           {
             int jj=colIndices[icol];
             int AvalIndex = Acol_ptr_[ii] + icol;
@@ -679,7 +677,7 @@ void PCEDirectSolver::formPCEJacobian()
     }
   }
 
-  if ( solver_ == "BASKER" || outputLS_ )
+  if ( outputLS_ )
   {
     // Copy over matrix into non-block data structures for Basker.
     if (myProc == 0)
@@ -722,7 +720,7 @@ void PCEDirectSolver::formPCEJacobian()
     std::cout << std::endl;
   }
 
-  if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
+  if ( solver_ == "BLOCK_BASKER" )
   {
     std::cout << "Aval_ array:" << std::endl;
     int size=Aval_.size();
@@ -761,7 +759,7 @@ void PCEDirectSolver::formPCEJacobian()
         for (int ii=0;ii<size;++ii)
         {
           // Copy values from B_j to B_ vector for solver.
-          if (solver_ == "LAPACK" || solver_ == "BASKER")
+          if (solver_ == "LAPACK")
           {
               B_( ii, 0 ) =  (*B_j)[ii];
           }
@@ -778,7 +776,7 @@ void PCEDirectSolver::formPCEJacobian()
           for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
           {
             // Copy values from B_j to B_ vector for solver.
-            if (solver_ == "LAPACK" || solver_ == "BASKER")
+            if (solver_ == "LAPACK")
             {
               int B_Row   = ii*N_ + ipar;
               int B_j_Row = ipar*n_ + ii;
@@ -827,12 +825,7 @@ int PCEDirectSolver::numericFactorization()
       linearStatus = lapackSolver_->factor();
     }
 #ifdef Xyce_AMESOS2_BASKER
-    else if ( solver_ == "BASKER" )
-    {
-      // Create Basker solver and factor block diagonal matrix.
-      basker_.factor(N_*n_, N_*n_, Anewcol_ptr_[N_*n_], &Anewcol_ptr_[0], &Anewrow_idx_[0], &Anewval_[0]);
-    }
-    else if ( solver_ == "BLOCK_BASKER" )
+    if ( solver_ == "BLOCK_BASKER" )
     {
       // Create Basker solver and factor block diagonal matrix.
       blockBasker_.factor(n_, n_, Acol_ptr_[n_], &Acol_ptr_[0], &Arow_idx_[0], &(Aval_[0]));
@@ -890,10 +883,6 @@ int PCEDirectSolver::solve()
         linearStatus = lapackSolver_->solve();
       }
 #ifdef Xyce_AMESOS2_BASKER
-      else if ( solver_ == "BASKER" )
-      {
-        basker_.solve(B_.values(), X_.values());
-      }
       else if ( solver_ == "BLOCK_BASKER" )
       {
         blockBasker_.solve(&bB_[0], &bX_[0]);
@@ -906,7 +895,7 @@ int PCEDirectSolver::solve()
       {
         for (int ii=0;ii<size;++ii)
         {
-          if (solver_ == "LAPACK" || solver_ == "BASKER")
+          if (solver_ == "LAPACK")
           {
             (*X_j)[ii] = X_(ii,0);
           }
@@ -923,7 +912,7 @@ int PCEDirectSolver::solve()
           for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
           {
             // Copy values from X_j to X_ vector for solver.
-            if (solver_ == "LAPACK" || solver_ == "BASKER")
+            if (solver_ == "LAPACK")
             {
               int X_Row   = ii*N_ + ipar;
               int X_j_Row = ipar*n_ + ii;
@@ -1005,7 +994,7 @@ void PCEDirectSolver::printPCEJacobian( const std::string& fileName )
       }
     }
   
-    if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER")
+    if (solver_ == "BLOCK_BASKER")
     {
       // Output sparse format.
       out << "coordinate real general" << std::endl;

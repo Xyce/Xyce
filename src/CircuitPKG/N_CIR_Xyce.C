@@ -1144,7 +1144,7 @@ Simulator::RunStatus Simulator::initializeLate()
   outputManager_->checkPrintParameters(comm_, *opBuilderManager_);
   fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_);
   fftManager_->enableFFTAnalysis(analysisManager_->getAnalysisMode());
-  fftManager_->fixupFFTParameters(comm_, *opBuilderManager_, analysisManager_->getFinalTime(),
+  fftManager_->fixupFFTParameters(comm_, *outputManager_, *opBuilderManager_, analysisManager_->getFinalTime(),
                                   analysisManager_->getStepErrorControl());
 
   // Make the measure operators, and then check for agreement between the 

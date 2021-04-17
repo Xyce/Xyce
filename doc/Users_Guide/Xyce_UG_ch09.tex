@@ -639,11 +639,10 @@ performed for each value of the stepped parameter.
 This capability is very similar, but not identical, to the \verb|STEP|
 capability in PSpice~\cite{PSpiceUG:1998}.  \Xyce{} can use
 \verb|.STEP| to sweep over any device instance or device model
-parameter, as well as the circuit temperature.  It is not legal to
-sweep parameters defined in \texttt{.PARAM} statements, but it is
-legal to sweep global parameters defined in \texttt{.global\_param}
-statements.  Section~\ref{Parameters_Expressions}) discusses these two
-distinct parameter definitions.
+parameter, as well as the circuit temperature.    It can also be used 
+to sweep over any user-defined parameter (either \texttt{.GLOBAL\_PARAM} 
+or \texttt{.PARAM} ) , as long as that parameter is  defined in the 
+global scope.
 
 \subsection{.STEP Statement}
 

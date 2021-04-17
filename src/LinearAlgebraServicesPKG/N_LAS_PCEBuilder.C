@@ -35,9 +35,11 @@
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_LAS_QueryUtil.h>
 #include <N_LAS_Graph.h>
 
 #include <N_PDS_ParMap.h>
+#include <N_PDS_Comm.h>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_UTL_fwd.h>
@@ -347,6 +349,26 @@ bool PCEBuilder::generateGraphs(
   quadBlockGraph_ = Linear::createBlockGraph(offset_, quadBlockPattern_, *quadMap_, *baseFullGraph_ );
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// ERK.  4/16/2021. This function is only here to serve as an error trap and
+// prevent a seg fault.
+//
+// The intrusive PCE method, which this class supports, cannot support gmin 
+// stepping without this function.  But, if this function isn't implemented
+// present, then gmin stepping will cause a seg fault.  This is a bit of a
+// problem because gmin stepping is attempted automatically in Xyce when 
+// standard Newton fails the DCOP.
+//
+// There is an implemented vnodeGILDVec function for in the ESBuilder,
+// but naively copying that function to this class won't work.  Doing it right
+// will require a little thought.
+//-----------------------------------------------------------------------------
+const std::vector<int> & PCEBuilder::vnodeGIDVec() const
+{
+  Report::DevelFatal().in("PCEBuilder::vnodeGIDVec")
+  << "This function is not implemented yet.";
 }
 
 } // namespace Linear
