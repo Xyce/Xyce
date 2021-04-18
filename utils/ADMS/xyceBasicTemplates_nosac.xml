@@ -448,7 +448,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
     </admst:choose>
 
     <admst:text format="  static const char *name() {return &quot;%($theDeviceName)&quot;;}\n"/>
-    <admst:text format="  static const char *deviceTypeName() {return &quot;%($theSpiceDevice) level %($theLevelNumber)&quot;;}\n"/>
+    <admst:text format="  static const char *deviceTypeName() {return &quot;%(upper-case($theSpiceDevice)) level %($theLevelNumber)&quot;;}\n"/>
   static int numNodes() {return <admst:text format="%(xyceNumberRequiredNodes(.))"/>;}
 
   <admst:if test="[exists(@optnodes)]">
