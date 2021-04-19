@@ -817,6 +817,92 @@ void readExternalParamsFromFile( Parallel::Communicator& comm,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : combineParamValueFields
+// Purpose       :
+// Special Notes : 
+//
+// This function  sets up the combinedString, which is the concatenation of
+// one or more fields/tokens from the parsed line.  Expressions that were 
+// specified inside of curly braces or single quotes have already 
+// been put into a single field string, but any expressions that don't 
+// have these delimeters are potentially in a bunch of separate 
+// fields.  To parse these properly, they need to be combined 
+// into a single string.  
+//
+// This is to support issue 195.  It was prompted by this use 
+// case, which happens a lot in industrial netlists:  
+//
+// .param PA=AGAUSS(1,1,1)
+//
+// Note that there is also an attempt to catch expressions without 
+// curly braces earlier in the parsing process, in the 
+// SpiceSeparatedFieldTool::getLine function.  That was added to address 
+// bug 1692 on bugzilla.  However, that function is basically a lexer, 
+// and doesn't have enough context to handle a lot of use cases.  
+// As such, it does not attempt to operate on "." lines like .PARAM.
+//
+// When this function is called linePosition is at the first "value" 
+// token for a parameter.  The value will ultimately be comprised of one 
+// or more string tokens starting with this one.
+//
+// If there is more than one parameter on this line, the only 
+// reliable delimeter between parameters is the equal sign.  
+// Commas are not reliable, as they can be used inside of expressions.
+//
+// Creator       : Eric Keiter
+// Creation Date : 04/18/2021
+//-----------------------------------------------------------------------------
+void combineParamValueFields(
+    const TokenVector & parsed_line, 
+    int & linePosition, 
+    std::string & combinedString)
+{
+  int numFields = parsed_line.size();
+
+  combinedString = parsed_line[ linePosition ].string_ ;
+
+  // search for the next equal signs.  If one is found, then
+  // that means that there is more than one parameter defined
+  // on this line.  The next equals sign is associated with 
+  // the next parameter, rather than the current one being processed.
+  bool foundEquals=false; bool foundComma=false; int equalsIndex=linePosition;
+  for (;equalsIndex<numFields;equalsIndex++)
+  {
+    if ( parsed_line[ equalsIndex ].string_ == "=") { foundEquals=true; break; }
+  }
+  if (foundEquals) { if ( parsed_line[ equalsIndex-2 ].string_ == ",") { foundComma=true; } }
+
+  bool modified=false;
+  if( (linePosition < parsed_line.size()-1) )
+  {
+    int end = parsed_line.size();
+    if(foundEquals)
+    {
+      if (foundComma) { end = equalsIndex-2; }
+      else { end = equalsIndex-1; }
+    }
+    
+    for (int lp1 = linePosition+1;lp1<end;lp1++) { modified=true; combinedString += parsed_line[lp1].string_; }
+
+    //if (modified) combinedString = std::string("{" + combinedString + "}");
+  }
+  combinedString = std::string("{" + combinedString + "}"); // always do this for now.  
+
+  if (foundEquals) linePosition=equalsIndex-1;
+  else linePosition = parsed_line.size();
+
+  if (DEBUG_IO)
+  {
+    for (int ii=0;ii<parsed_line.size();ii++)
+    {
+      std::cout << "parsed_line["<<ii<<"].string_ = " << parsed_line[ii].string_ <<std::endl;
+    }
+    std::cout << "combinedString = " << combinedString << std::endl;
+    std::cout << "linePosition = " << linePosition <<std::endl;
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : extractParamData
 // Purpose       : Extract the parameters from a netlist .PARAM line held in
 //                 parsed_line.
@@ -871,9 +957,12 @@ bool extractParamData(
 
     linePosition += 2;   // Advance to parameter value field.
 
-    if (parsed_line[linePosition].string_[0] == '{')
+    std::string combinedString;
+    combineParamValueFields(parsed_line,linePosition,combinedString); // this will update the linePosition
+
+    if (combinedString[0] == '{')
     {
-      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), combinedString);
 
       std::string msg;
       if (!(expPtr.getVoltageNodes().empty()) )
@@ -887,30 +976,21 @@ bool extractParamData(
         Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
           << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
       }
-      parameter.setVal(parsed_line[linePosition].string_);
-//DNS: It should be this?      parameter.setVal(expPtr);
-//        parameter.setVal(expPtr);
+      parameter.setVal(combinedString);
     }
     else
     {
-      ExtendedString tmp ( parsed_line[linePosition].string_ );
+      // if we get here, that means that the 
+      // (1) the user did not apply delimiters  (curly braces or single quotes)
+      // (2) the above code did not add any delimeters.
+      ExtendedString tmp ( combinedString );
       if (tmp.possibleParam())
-        parameter.setVal(std::string("{" + parsed_line[linePosition].string_ + "}"));
-//DNS: this expr should be parsed here?
-//        parameter.setVal(Util::Expression(std::string("{" + parsed_line[linePosition].string_ + "}")));
+        parameter.setVal(std::string("{" + combinedString + "}")); // if this might be a parameter, and we don't already have "{", add them
       else
-        parameter.setVal(parsed_line[linePosition].string_);
+        parameter.setVal(combinedString); // if we get here, this should be a pure number, and we don't want to involve the expr library.  ERK.  Note, check that this line ever happens now.  We may be at a stage where curly braces are always added.
     }
 
     option_block.addParam( parameter );
-
-    ++linePosition;     // Advance to next parameter.
-
-    if ( linePosition < numFields && parsed_line[linePosition].string_ == "," )
-    {
-      // Skip past comma separator.
-      ++linePosition;
-    }
   }
 
   for (Util::ParamList::const_iterator paramIter = option_block.begin(), paramEnd = option_block.end(); paramIter != paramEnd; ++paramIter)
@@ -992,10 +1072,13 @@ bool extractGlobalParamData(
     
     linePosition += 2;   // Advance to parameter value field.
 
-    if (parsed_line[linePosition].string_[0] == '{')
-    { 
-      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
-      
+    std::string combinedString;
+    combineParamValueFields(parsed_line,linePosition,combinedString); // this will update the linePosition
+
+    if (combinedString[0] == '{')
+    {
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), combinedString);
+
       std::string msg;
       if (!(expPtr.getVoltageNodes().empty()) )
         msg = "Node Voltage";
@@ -1004,34 +1087,25 @@ bool extractGlobalParamData(
       if (!(expPtr.getLeadCurrents().empty()) )
         msg = "Lead Current";
       if (msg != "")
-      { 
+      {
         Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
           << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
       }
-      parameter.setVal(parsed_line[linePosition].string_);
-//DNS: It should be this?      parameter.setVal(expPtr);
-//        parameter.setVal(expPtr);
+      parameter.setVal(combinedString);
     }
     else
     {
-      ExtendedString tmp ( parsed_line[linePosition].string_ );
+      // if we get here, that means that the 
+      // (1) the user did not apply delimiters  (curly braces or single quotes)
+      // (2) the above code did not add any delimeters.
+      ExtendedString tmp ( combinedString );
       if (tmp.possibleParam())
-        parameter.setVal(std::string("{" + parsed_line[linePosition].string_ + "}"));
-//DNS: this expr should be parsed here?
-//        parameter.setVal(Util::Expression(std::string("{" + parsed_line[linePosition].string_ + "}")));
+        parameter.setVal(std::string("{" + combinedString + "}")); // if this might be a parameter, and we don't already have "{", add them
       else
-        parameter.setVal(parsed_line[linePosition].string_);
+        parameter.setVal(combinedString); // if we get here, this should be a pure number, and we don't want to involve the expr library.  ERK.  Note, check that this line ever happens now.  We may be at a stage where curly braces are always added.
     }
 
     option_block.addParam( parameter );
-
-    ++linePosition;     // Advance to next parameter.
-
-    if ( linePosition < numFields && parsed_line[linePosition].string_ == "," )
-    {
-      // Skip past comma separator.
-      ++linePosition;
-    }
   }
 
   Util::ParamList::const_iterator paramIter = option_block.begin(), paramEnd = option_block.end();

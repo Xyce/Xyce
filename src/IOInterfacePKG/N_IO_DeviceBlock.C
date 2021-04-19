@@ -606,7 +606,8 @@ bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , 
              !primaryParameter.hasExpressionValue() )
         {
           Report::UserError().at(getNetlistFilename(), parsedInputLine[getNumberOfNodes()+1+offsetUntaggedParamAfterModel].lineNumber_)
-            << "Illegal value found for device " <<  getInstanceName();
+            << "Illegal value found for device " <<  getInstanceName() 
+            << " for parameter = " << primaryParameter.tag() << " value = " << primaryParameter.stringValue();
         }
 
         if ( modelFound == MODEL_FOUND)
