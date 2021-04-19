@@ -57,6 +57,32 @@ with the new expression library for \Xyce{} 7.2. This mainly affected printing
   \texttt{.PRINT} line expressions.  This was due to a minor parsing mistake 
   and has been addressed.  \\ \hline
 
+
+\textbf{Gitlab-ex issue 157/Gitlab-ex issue 167/SON BUG 1190}: Parameters that are defined using \texttt{.param} must be constant and non-constant parameters must be defined using \texttt{.global\_param} & 
+
+  \Xyce{} was originally designed with two keywords for setting 
+  user-defined parameters in the nelist; \texttt{.param} and \texttt{.global\_param}.  
+  The keyword \texttt{.param} is also used in many 
+  other simulators, but the behavior in \Xyce{} differed in that \texttt{.param}
+  parameters were unconditionally treated as constants.  This was because 
+  they were handled as string substitutions during parsing.
+  \Xyce{} parameters that needed to change during a calculation had to 
+  be set using the other keyword, \texttt{.global\_param}.
+
+  This design caused incompatibilities with other simulators, and 
+  proved confusing to users.   However, it became possible to address 
+  this issue with the advent of a new expression library in \Xyce{} 7.2 .
+
+  Starting in this release, all \texttt{.param} parameters in \Xyce{} 
+  are allowed to change during a simulation. This means they are allowed to
+  depend on special variables such as \texttt{TIME} and are allowed to depend 
+  on \texttt{.global\_param} parameters.  Also, \texttt{.param} parameters that are 
+  defined in the top level circuit netlist are functionally identical to 
+  \texttt{.global\_param} parameters, and can be swept using 
+  analysis statements such as \texttt{.DC}, \texttt{.STEP} and \texttt{.SAMPLING}.
+  
+  \\ \hline
+
 \textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
 If a user code links to the Xyce libraries and allocates objects of
 one of the Xyce simulator classes (either the base class
