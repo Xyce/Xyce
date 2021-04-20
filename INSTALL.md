@@ -21,7 +21,7 @@ release tarballs either from GitHub or the [Xyce website](https://xyce.sandia.go
 
 The main challenge in building Xyce involves properly obtaining and/or building
 the third-party libraries (TPLs), particularly
-[Trilinos](https://trilinos.github.io/).  We are in the process of developing a
+[Trilinos](https://trilinos.github.io/). We are in the process of developing a
 CMake "superbuild" capability that can automatically download and build many of
 the TPLs. The [Using the Superbuild](#using-the-superbuild) section covers that
 approach. The [Standard Build Approach](#standard-build-approach) section
@@ -49,16 +49,17 @@ Most of the software needed to build Xyce is available via package management
 systems. (See the Modifications section for [MacOS](#macos) and
 [Windows](#windows) systems.)
 
-You will need to obtain the following tools:
-- C/C++ compiler suite - C++11-compatible (e.g., gcc 4.9 or later, Clang 3.3 or
+You will need to obtain the following tools if they aren't already loaded on
+your system:
+- C/C++ compiler suite — C++11-compatible (e.g., gcc 4.9 or later, Clang 3.3 or
   later)\
-  (These might be in separate packages on your system.)
+  (These could be in separate packages on your system.)
 - Fortran compiler (e.g., gfortran)
-  + some packages will include Fortran with the C and C++ compilers
-  + Trilinos has Fortran code; but leveraging it is technically
-    [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#id43).
-    Not using the Fortran code, though, may result in slightly worse performance.
-  + Xyce, itself, does not require Fortran
+  + Some package managers bundle Fortran with the C and C++ compilers.
+  + Trilinos has the Fortran requirement, but leveraging it is technically
+    [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code).
+    Not leveraging the Fortran code, though, could result in slightly lower performance.
+  + Xyce, itself, does not use Fortran.
 - Build system (e.g., [make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom))
 - [CMake](https://cmake.org) (3.13 or later)
@@ -70,8 +71,8 @@ You will also need the following libraries:
 - [LAPACK](http://www.netlib.org/lapack)
 
 On some systems, some of the tools and/or libraries also have "developer"
-library packages that will need to be installed in addition to the primary
-packages.
+library packages associated with the primary packages. Those will also need to
+be installed.
 
 ## Using the Superbuild
 
@@ -104,7 +105,7 @@ To perform a superbuild, follow this procedure:
   ```sh
   cmake --build . -j 2
   ```
-  The "-j 2" designates the number of processors being used for compiling.
+  The "-j 2" designates the number of processors to be used for compiling.
   Choose an appropriate number for your system.
 
 ## Standard Build Approach
@@ -144,9 +145,10 @@ comment block at the top of the file for instructions on its use.
 ### Building Trilinos
 
 While [Trilinos](https://trilinos.github.io/) is available in some package
-managers, the particular build may not have all the features required by Xyce.
-If Trilinos is available, you can try skipping to the Xyce section to see if
-Xyce configures and builds. If not, continue with these instructions.
+managers, the particular installation may not have all the features required by
+Xyce. If you find Trilinos is available, you can try skipping to the Xyce
+section to see if Xyce configures and builds. If not, continue with these
+instructions.
 
 The following process will provide a serial Trilinos installation that will
 contain only the libraries needed by Xyce. For the parallel version, be sure to
@@ -181,7 +183,7 @@ same system, but they must be in different directories. (We recommend
 specifying unique sub-directories in `/usr/local`, such as
 `/usr/local/trilinos_serial`.) If you install Trilinos in a temporary location,
 you will need to rebuild it when building a new version of Xyce. (The
-recommended version of Trilinos has historically not changed often.)
+recommended version of Trilinos does not change often.)
 
 If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
@@ -196,11 +198,11 @@ directory to build and install Trilinos:
 ```sh
 cmake --build . -j 2 -t install
 ```
-The "-j 2" designates the number of processors being used for compiling
+The "-j 2" designates the number of processors to be used for compiling
 Trilinos. Choose an appropriate number for your system. After the Xyce
 installation is successful, you may delete the Trilinos build directory if you
 do not plan on building Trilinos again (see the [Uninstalling
-Xyce](#uninstalling-xyce) section below first, however).
+Xyce](#uninstalling-xyce) section first, however).
 
 #### Other Trilinos Options
 
@@ -281,7 +283,7 @@ Then, to build and install Xyce, run:
 ```sh
 cmake --build . -j 2 -t install
 ```
-The "-j 2" designates the number of processors being used for compiling Xyce.
+The "-j 2" designates the number of processors to be used for compiling Xyce.
 Choose an appropriate number for your system.
 
 #### Adding the Xyce/ADMS capability
@@ -390,15 +392,15 @@ the [Building SuiteSparse](#building-suitesparse) section above, under
 continue with the standard Trilinos and Xyce build processes.
 
 The Xyce regression suite must be run in a Unix-like environment with Perl.
-Therefore, to use it in Windows, you will need to install Cygwin. It is likely
-possible to use the Windows Subsystem for Linux (WSL), instead, but we have no
+Therefore, to use it in Windows, you will need to install Cygwin. It is also
+likely possible to use the Windows Subsystem for Linux (WSL), but we have no
 experience with it.
 
 ### Cygwin
 
-First, Cygwin installs a minimal set of packages by default, so all of the
-dependencies will have to be explicitly added, including the AMD library (which
-is part of SuiteSparse). As of this writing the required packages are:
+Cygwin installs a minimal set of packages by default, so all of the
+dependencies will have to be explicitly added, including the AMD library. As of
+this writing the required packages are:
 - git (optional)
 - gcc-core
 - gcc-g++
@@ -426,26 +428,24 @@ For Xyce, add the following to the CMake invocation:
 
 ### Ubuntu
 
-Ubuntu releases 17.10 through the 19.x series (including 18.04), have a broken
-version of Open MPI in their package repositories. The broken Open MPI was
-fixed in Ubuntu 20.04.
-
-In the problem releases, the packaged version of Open MPI in the repositories
-is compiled with the `--enable-heterogeneous` option, which breaks MPI's
-standard compliance and causes Xyce to fail on some problems.
+Ubuntu releases starting with 17.10 and through the 19.x series (including
+18.04), have a broken version of Open MPI in their package repositories. Open
+MPI is functional in Ubuntu 20.04. (In the problem releases, the version of
+Open MPI in the repositories is compiled with the `--enable-heterogeneous`
+option, which breaks MPI's standard compliance and causes Xyce to fail on some
+problems.)
 
 If you are running a version of Ubuntu that has this issue, the only workaround
-is to uninstall the OpenMPI package and build OpenMPI from source, yourself,
-without the `--enable-heterogeneous` option. Comment 11 of the [Launchpad bug
+is to uninstall the OpenMPI package and build OpenMPI from source, without the
+`--enable-heterogeneous` option. Comment 11 of the [Launchpad bug
 report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11)
 contains instructions for how to rebuild and install Open MPI using the Debian
 package building system.
 
-You can determine whether your system's install of OpenMPI has this issue by
-running a small test program that exists in the Xyce source tree. To test your
-OpenMPI package prior to building Trilinos, copy the file
-`Xyce/src/test/MPITest/testBUG967.c` into a temporary directory; then compile
-and run it using the following commands:
+If you wish to check whether your system's install of OpenMPI has this issue,
+you can run a small test program from the Xyce source tree. To test your
+OpenMPI package, copy the file `Xyce/src/test/MPITest/testBUG967.c` into a
+temporary directory; then compile and run it using the following commands:
 ```sh
 mpicc -o testBUG967 testBUG967.c
 mpirun -np 2 ./testBUG967
@@ -459,20 +459,18 @@ MacOS does not have a native package manager, but there are several third-party
 package managers available. We have had success with
 [MacPorts](https://www.macports.org/) and [Homebrew](https://brew.sh/).
 
-Using the BLAS and LAPACK provided by the Xcode Accelerate framework should
-give slightly better performance than the BLAS and LAPACK libraries provided by
-the package managers. If specifying the Accelerate framework, it is prudent to
-specify the XCode Clang compilers as well. To use it, add the following to the
-Trilinos CMake invocation:
-```sh
--D CMAKE_C_COMPILER=clang \
--D CMAKE_CXX_COMPILER=clang++ \
--D TPL_BLAS_LIBRARIES="-Wl,-framework,Accelerate" \
--D TPL_LAPACK_LIBRARIES="-Wl,-framework,Accelerate" \
-```
+BLAS and LAPACK are provided by Xcode and should give slightly better
+performance than the BLAS and LAPACK libraries provided by the package
+managers. Therefore, you should not need to install those libraries,
+explicitly.
 
-Note on the __Xyce/ADMS capability__:\
+We have seen a rare failure when compiling on MacOS using the native Clang
+compilers, when not using a Fortran compiler. If the Trilinos build fails while
+compiling AztecOO, then you will need to use a different compiler, or install
+gfortran with a package manager (probably via a gcc package).
+
+__Xyce/ADMS__:\
 The `buildxyceplugin.sh` script script relies on the behavior of Gnu
-"readlink", which is very different than BSD readlink (the default installed on
-Macs). The Gnu readlink is available via the coreutils package in MacPorts or
-Homebrew.
+"readlink", which is very different than BSD readlink (MacOS is based on BSD
+Unix). The Gnu readlink can be made available by installing the "coreutils"
+package via MacPorts or Homebrew.
