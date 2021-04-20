@@ -959,6 +959,9 @@ void PCE::setupStokhosObjects ()
   const int d = paramNameVec_.size();
   const int p = PCEorder_;
   bases.resize(d); 
+
+  if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
   for (int i=0; i<d; i++)
   {
     SweepParam & sp = samplingVector_[i];

@@ -934,7 +934,8 @@ bool EmbeddedSampling::doInit()
     Report::UserFatal0() << "Number of samples not specified";
   }
 #endif
-  else
+
+  if (!projectionPCEenable_)
   {
     // Deal with the random number seed, and set up random samples.
     // Don't bother with this is projection PCE has been specified.
@@ -1082,6 +1083,9 @@ void EmbeddedSampling::setupStokhosObjects ()
     const int d = paramNameVec_.size();
     const int p = PCEorder_;
     quadBases.resize(d); 
+
+    if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
     for (int i=0; i<d; i++)
     {
       SweepParam & sp = samplingVector_[i];

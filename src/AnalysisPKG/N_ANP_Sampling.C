@@ -636,30 +636,14 @@ bool Sampling::doInit()
     Report::UserFatal0() << "Number of samples not specified";
   }
 #endif
-  else
+
+  if (!projectionPCEenable_)
   {
     // Deal with the random number seed, and set up random samples.
     // Don't bother with this if projection PCE has been specified.
     long theSeed = UQ::getTheSeed(
         analysisManager_.getComm(), 
         analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
-#if 0
-Parallel::Machine comm = analysisManager_.getComm();
-N_ERH_ErrorMgr::safeBarrier(comm);
-
-Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
-Parallel::Communicator &pdsComm = *(pds_manager.getPDSComm());
-int myPID = pdsComm.procID();
-int numProc = pdsComm.numProc();
-
-for (int jj=0;jj<numProc;jj++)
-{
-  if (jj == myPID)
-  {
-    std::cout << "proc ID = " << myPID << " theSeed = " << theSeed << std::endl;
-  }
-}
-#endif
 
     UQ::setupSampleValues(theSeed, sampleType_,
         numSamples_, samplingVector_, covMatrix_, meanVec_, X_, Y_);
@@ -675,6 +659,9 @@ for (int jj=0;jj<numProc;jj++)
     const int d = paramNameVec_.size();
     const int p = PCEorder_;
     quadBases.resize(d); 
+
+    if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
     for (int i=0; i<d; i++)
     {
       SweepParam & sp = samplingVector_[i];
