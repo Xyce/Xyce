@@ -1,0 +1,197 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% -------------------------------------------------------------------------
+% Sampling Analysis Section ---------------------------------------------------
+% -------------------------------------------------------------------------
+
+\clearpage
+\section{Polynomial Chaos Expansion methods}
+\label{PCE_Analysis}
+\label{pce_Overview}
+\index{analysis!PCE} \index{PCE analysis} 
+\index{\texttt{.SAMPLING}}
+
+\Xyce{} supports several styles of Polynomial Chaos expansion (PCE) methods, which are 
+stochastic expansion methods that approximate the functional dependence
+of a simulation response on uncertain model parameters by expansion
+in a polynomial basis~\cite{XiuKarn02,Xiu2010}.   
+In \Xyce{} the Stokhos library~\cite{stokhos} has been used to implement 
+generalized PCE methods using the Wiener-Askey scheme\cite{XiuKarn02}.   
+
+To propagate input uncertainty through a model using PCE, \Xyce{}
+performs the following steps: (1) input uncertainties are transformed
+to a set of uncorrelated random variables, (2) a basis such
+as Hermite polynomials is selected, and (3) the parameters of the
+functional approximation are determined.  The general PCE 
+for a response $O$ has the form:
+\begin{equation}
+  O(p) \approx \hat{O}(p) = \sum_{i=0}^{P} \alpha^i \varPsi^i(p),
+  \label{eq:genPCEresponse}
+\end{equation}
+where each multivariate basis polynomial $\varPsi^i(p)$ involves products of univariate
+polynomials that are tailored to the individual random variables. 
+More details about these methods and their \Xyce{} implementation can be found in
+reference~\cite{xyceAdvancedUQ} and the references therein.
+
+\Xyce{} supports three versions of polynomial chaos.  They mainly differ in how the coefficients $\alpha$ in equation~\ref{eq:genPCEresponse} are computed.  These three methods are:
+\begin{itemize}
+  \item Non-intrusive regression polynomial chaos
+  \item Non-intrusive spectral projection  (NISP)
+  \item Fully intrusive spectral projection
+\end{itemize}
+The first two versions are non-intrusive, meaning that they don't directly modify the forward problem being solved.  
+Instead, they are augmentations to the \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING} analysis methods.
+The fully intrusive method is a separate analysis type, and is invoked using the \texttt{.PCE} command.
+
+\subsection{Regression-based Polynomial Chaos}
+\label{regressionPCE}
+
+Regression-based PCE is briefly described here.
+Regression-based PCE approaches aim to solve the linear system:
+\begin{equation}
+\boldsymbol{\varPsi} \boldsymbol{\alpha} \approx \boldsymbol{R} \label{eq:regression}
+\end{equation}
+for a set of PCE coefficients $\boldsymbol{\alpha}$ that best
+reproduce a set of response values $\boldsymbol{R}$.  
+The regression approach finds a set of PCE coefficients $\alpha^i$ which best fit a set of response
+values obtained from a sampling study on the density function of the uncertain 
+parameters~\cite{pt_colloc1}.  One advantage of regression-based methods is that
+they are very flexible with respect to the exact sample points used to evaluate the responses, 
+and can readily be used with standard sampling methods such as Monte Carlo and Latin Hypercube Sampling.
+For this project, the method for solving 
+Eq. \eqref{eq:regression} that has been implemented in \Xyce{} is 
+least squares regression.
+
+Regression-based PCE can be applied as a post-process step 
+to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
+\texttt{regression\_pce=true} to the \texttt{.options SAMPLES} 
+or \texttt{.options EMBEDDEDSAMPLES} command lines.
+
+\subsection{Non-Intrusive Spectral Projection (NISP)}
+\label{nisp}
+
+The spectral projection PCE approach projects the response
+against each basis function $\Psi_j(p)$ using inner
+products and employs the polynomial orthogonality properties to
+extract each coefficient. Each inner product involves a
+multidimensional integral over the support range of the weighting
+function, which can be evaluated numerically using sampling,
+tensor-product quadrature, Smolyak sparse grid \cite{Smolyak_63}, or
+cubature \cite{stroud} approaches.   For the \Xyce{} implementation 
+this means evaluating the following equation for each coefficient using 
+quadrature rules:
+\begin{equation}
+\alpha^{i} = \frac{\langle O\varPsi ^{i}\rangle} {\langle (\varPsi ^{i})^{2}\rangle} = \frac{1} {\langle (\varPsi^{i})^{2}\rangle}\int _{\varGamma}O(p ;y)\varPsi ^{i}(y)\rho (y)dy = 0,\quad i = 0,\ldots,P.
+  \label{nispProjection}
+\end{equation}
+In this equation $\rho$ is the joint density function, with respect to which the polynomials $\varPsi^i$ are orthogonal.
+Stokhos supports several quadrature methods, and supplies the necessary quadrature points 
+to \Xyce{} for the specified details.  Similar to the regression methods 
+described in section~\ref{regressionPCE}, in which \Xyce{} must provide function 
+evaluations a specified sample points, for this method \Xyce{} provides 
+function evaluations at each specified quadrature point, and then Eq. \eqref{nispProjection}
+is evaluated for each requested output response.
+
+Regression-based PCE can be applied as a post-process step 
+to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
+\texttt{projection\_pce=true} to the \texttt{.options SAMPLES} 
+or \texttt{.options EMBEDDEDSAMPLES} command lines.  
+
+Regression PCE will use the samples selected by the sampling algorithm (Monte Carlo or Latin Hypercube).  
+The regression PCE algorithm will estimate the optimal number of samples to use, and so this must 
+be set by the user.   For regression PCE, the number of samples needed for an accurate answer
+should be smaller than the number that would have been required by conventional sampling.
+For regression problems, to get an accurate answer it is considered good practice to oversample 
+the basis size by at least a factor of 2. 
+
+A simple example netlist, which uses regression PCE 
+with \texttt{.SAMPLING} is given in figure~\ref{regressionPCE_Netlist1}.
+
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}Regression PCE example \color{black}
+.param testNorm=\{aunif(2k,1k)\}
+.param R1value=\{testNorm*2.0\}
+R2 1 0 6K
+R1 1 2 \{R1value\}
+v1 2 0 1000V
+
+.dc v1 1000 1000 1
+.print dc format=tecplot v(1)
+*
+.SAMPLING useExpr=true
+
+.options SAMPLES numsamples=10
++ regression\_pce=true
++ order=5
++ outputs=\{v(1)\}
++ sample\_type=lhs
++ stdoutput=true
++ resample=true
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption{Voltage divider regression PCE netlist.
+\label{regressionPCE_Netlist1}}
+\end{centering}
+\end{figure}
+
+\begin{figure}[htbp]
+\fontsize{9pt}{10pt}
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.99\textwidth}
+\begin{vquote}
+***** Number of sample points = 10
+
+Seeding random number generator with 3355129392
+
+LHS sampling mean of {V(1)} = 594.262
+LHS sampling stddev of {V(1)} = 81.8265
+LHS sampling variance of {V(1)} = 6695.58
+LHS sampling skew of {V(1)} = 0.548949
+LHS sampling kurtosis of {V(1)} = 1.96246
+LHS sampling max of {V(1)} = 749.366
+LHS sampling min of {V(1)} = 509.557
+
+(traditional sampling) regression PCE mean of {V(1)} = 608.198
+(traditional sampling) regression PCE stddev of {V(1)} = 71.3839
+
+Statistics from re-sampling regression PCE approximation of {V(1)}:
+mean     = 607.045
+stddev   = 72.5006
+variance = 5256.34
+skew     = 0.256431
+kurtosis = 1.8671
+max      = 749.815
+min      = 499.999
+\end{vquote}
+\end{minipage}
+}
+\caption{Voltage divider regression PCE result.
+\label{regressionPCE_Result1}}
+\end{centering}
+\end{figure}
+
+\subsection{Fully Intrusive Spectral Projection}
+\label{intrusivePCE}
+The fully intrusive form of PCE involves solving a system of equations which is constructed by 
+applying the orthogonal polynomial expansion defined by 
+Eq. \eqref{eq:genPCEresponse} to all the terms of the differential-algebraic 
+system of equations solved by \Xyce{}.  The details of this construction are given in 
+reference~\cite{xyceAdvancedUQ}.
+
+
+\clearpage

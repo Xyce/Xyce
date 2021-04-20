@@ -29,6 +29,7 @@ available in \Xyce{}.  It includes the following sections:
 \item Section~\ref{Transient_Analysis}, {\em Transient Analysis}
 \item Section~\ref{STEP_Analysis},      {\em STEP Parametric Analysis}
 \item Section~\ref{SAMPLING_Analysis},  {\em Sampling Analysis}
+\item Section~\ref{PCE_Analysis},      {\em Polynomial Chaos Expansion Analysis}
 \item Section~\ref{HB_Analysis},        {\em Harmonic Balance Analysis}
 \item Section~\ref{AC_Analysis},        {\em AC Analysis}
 \item Section~\ref{NOISE_Analysis},     {\em Noise Analysis}
@@ -54,8 +55,14 @@ apply an outer parametric loop to any type of analysis. This allows
 one (for example) to sweep a model parameter and perform a transient
 simulation for each parameter value.
 
-Using \texttt{.SAMPLING}(section~\ref{SAMPLING_Analysis}), \Xyce{} can
+Using \texttt{.SAMPLING} or \texttt{.EMBEDDEDSAMPLING} 
+(section~\ref{SAMPLING_Analysis}), \Xyce{} can
 apply random sampling loop to any type of analysis.  This will compute
+statistical moments for various circuit outputs.
+
+Alternatively, one can use several types of Polynomial Chaos Expansion (PCE) 
+methods in \Xyce{} to propagate uncertainty thru a calculation (section~\ref{PCE_Analysis}).
+Similar to the sampling methods, these methods can also be used to compute
 statistical moments for various circuit outputs.
 
 There are some analysis types typically found in SPICE-style
@@ -875,6 +882,8 @@ zone. Finally, format=raw will place the results for each
 \texttt{.STEP} simulation in a distinct ``plot'' region.
 
 \input{sampling}
+
+\input{pce}
 
 \section{Harmonic Balance Analysis}
 \label{HB_Analysis}
