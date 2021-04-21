@@ -1051,6 +1051,9 @@ bool PCE::doLoopProcess()
   // is handled in the child process.
   Xyce::lout() << "***** Beginning Intrusive PCE simulation....\n" << std::endl;
   Xyce::lout() << "***** Number of quadrature points = " << numQuadPoints_ << "\n" << std::endl;
+#ifdef Xyce_STOKHOS_ENABLE
+  Xyce::lout() << "***** PCE Basis size = " << basis->size() << "\n" << std::endl;
+#endif
   Xyce::lout() << "***** Number of linear system block rows = " << numBlockRows_ << "\n" << std::endl;
 
   // test:

@@ -1139,6 +1139,9 @@ void EmbeddedSampling::setupStokhosObjects ()
     const int d = paramNameVec_.size();
     const int p = PCEorder_;
     regrBases.resize(d); 
+
+    if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
     for (int i=0; i<d; i++)
     {
       SweepParam & sp = samplingVector_[i];
@@ -1205,6 +1208,12 @@ bool EmbeddedSampling::doLoopProcess()
   if (projectionPCEenable_)
   {
     Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+    Xyce::lout() << "***** PCE Basis size = " << quadBasis->size() << "\n" << std::endl;
+  }
+  else if (regressionPCEenable_)
+  {
+    Xyce::lout() << "***** Regression PCE enabled.  Number of sample points = " << numSamples_ << "\n" << std::endl;
+    Xyce::lout() << "***** PCE Basis size = " << regrBasis->size() << "\n" << std::endl;
   }
   else
 #endif
