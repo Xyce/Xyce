@@ -516,7 +516,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
     }
     else if ( (iter->getName() == "SAMPLING")
            || (iter->getName() == "EMBEDDEDSAMPLING")
-           || (iter->getName() == "SENS")
            || (iter->getName() == "PCE"))
     {
       Util::ParamList::iterator iterPar = iter->begin();
@@ -526,6 +525,57 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
         if (DEBUG_IO)
         {
         Xyce::dout() << "SAMPLING/UQ param " << iterPar->tag() <<std::endl;
+        }
+        if ( std::string( iterPar->tag() ,0,5) == "PARAM")
+        {
+          Util::Param parameter(iterPar->stringValue(), "");
+          Util::UParamList::const_iterator urParamIter = unresolvedParams_.find( parameter );
+          if ( urParamIter != unresolvedParams_.end() )
+          {
+            parameter = *urParamIter;
+            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedParams_.erase(urParamIter);
+          }
+        }
+      }
+
+      // this block of code was added to support Issue #200, which is about
+      // random operators (like AGAUSS) inside of .param parameters.  It was a use 
+      // case that fell thru the cracks in the first implementation of this function.
+      Util::UParamList::const_iterator paramIter = unresolvedParams_.begin();
+      Util::UParamList::const_iterator end = unresolvedParams_.end();
+      while (paramIter != unresolvedParams_.end())
+      {
+        Util::Param parameter = *paramIter;
+        bool increment=false;
+        if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
+        {
+          // Create and parse the expression to see if it contains a random operator
+          Util::Expression expression(expressionGroup_, parameter.stringValue());
+          if (expression.parsed()) 
+          { 
+            bool isRandom = expression.isRandomDependent();
+            if (isRandom)
+            {
+              unresolvedGlobalParams_.push_back(parameter);
+              //unresolvedParams_.erase(paramIter++);
+              paramIter = unresolvedParams_.erase(paramIter);
+              increment=true;
+            }
+          }
+        }
+        if (!increment) { increment=true; paramIter++; }
+      }
+    }
+    else if (  (iter->getName() == "SENS") )
+    {
+      Util::ParamList::iterator iterPar = iter->begin();
+      Util::ParamList::iterator endPar  = iter->end ();
+      for ( ; iterPar != endPar; ++iterPar)
+      {
+        if (DEBUG_IO)
+        {
+        Xyce::dout() << "Sensitivity param " << iterPar->tag() <<std::endl;
         }
         if ( std::string( iterPar->tag() ,0,5) == "PARAM")
         {
