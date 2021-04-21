@@ -935,7 +935,9 @@ bool EmbeddedSampling::doInit()
   }
 #endif
 
+#ifdef Xyce_STOKHOS_ENABLE
   if (!projectionPCEenable_)
+#endif
   {
     // Deal with the random number seed, and set up random samples.
     // Don't bother with this is projection PCE has been specified.
