@@ -74,30 +74,6 @@ to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding
 \texttt{regression\_pce=true} to the \texttt{.options SAMPLES} 
 or \texttt{.options EMBEDDEDSAMPLES} command lines.
 
-\subsection{Non-Intrusive Spectral Projection (NISP)}
-\label{nisp}
-
-The spectral projection PCE approach projects the response
-against each basis function $\Psi_j(p)$ using inner
-products and employs the polynomial orthogonality properties to
-extract each coefficient. Each inner product involves a
-multidimensional integral over the support range of the weighting
-function, which can be evaluated numerically using sampling,
-tensor-product quadrature, Smolyak sparse grid \cite{Smolyak_63}, or
-cubature \cite{stroud} approaches.   For the \Xyce{} implementation 
-this means evaluating the following equation for each coefficient using 
-quadrature rules:
-\begin{equation}
-\alpha^{i} = \frac{\langle O\varPsi ^{i}\rangle} {\langle (\varPsi ^{i})^{2}\rangle} = \frac{1} {\langle (\varPsi^{i})^{2}\rangle}\int _{\varGamma}O(p ;y)\varPsi ^{i}(y)\rho (y)dy = 0,\quad i = 0,\ldots,P.
-  \label{nispProjection}
-\end{equation}
-In this equation $\rho$ is the joint density function, with respect to which the polynomials $\varPsi^i$ are orthogonal.
-Stokhos supports several quadrature methods, and supplies the necessary quadrature points 
-to \Xyce{} for the specified details.  Similar to the regression methods 
-described in section~\ref{regressionPCE}, in which \Xyce{} must provide function 
-evaluations a specified sample points, for this method \Xyce{} provides 
-function evaluations at each specified quadrature point, and then Eq. \eqref{nispProjection}
-is evaluated for each requested output response.
 
 Regression-based PCE can be applied as a post-process step 
 to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
@@ -111,9 +87,8 @@ should be smaller than the number that would have been required by conventional 
 For regression problems, to get an accurate answer it is considered good practice to oversample 
 the basis size by at least a factor of 2. 
 
-A simple example netlist, which uses regression PCE 
-with \texttt{.SAMPLING} is given in figure~\ref{regressionPCE_Netlist1}.
-
+A simple example netlist, which uses regression PCE with \texttt{.SAMPLING} is given in figure~\ref{regressionPCE_Netlist1}.  
+Results from this calculation, which are sent to terminal output are given in figure~\ref{regressionPCE_Result1}.
 
 \begin{figure}[htbp]
 \begin{centering}
@@ -185,6 +160,33 @@ min      = 499.999
 \end{centering}
 \end{figure}
 
+\clearpage
+\subsection{Non-Intrusive Spectral Projection (NISP)}
+\label{nisp}
+
+The spectral projection PCE approach projects the response
+against each basis function $\Psi_j(p)$ using inner
+products and employs the polynomial orthogonality properties to
+extract each coefficient. Each inner product involves a
+multidimensional integral over the support range of the weighting
+function, which can be evaluated numerically using sampling,
+tensor-product quadrature, Smolyak sparse grid \cite{Smolyak_63}, or
+cubature \cite{stroud} approaches.   For the \Xyce{} implementation 
+this means evaluating the following equation for each coefficient using 
+quadrature rules:
+\begin{equation}
+\alpha^{i} = \frac{\langle O\varPsi ^{i}\rangle} {\langle (\varPsi ^{i})^{2}\rangle} = \frac{1} {\langle (\varPsi^{i})^{2}\rangle}\int _{\varGamma}O(p ;y)\varPsi ^{i}(y)\rho (y)dy = 0,\quad i = 0,\ldots,P.
+  \label{nispProjection}
+\end{equation}
+In this equation $\rho$ is the joint density function, with respect to which the polynomials $\varPsi^i$ are orthogonal.
+Stokhos supports several quadrature methods, and supplies the necessary quadrature points 
+to \Xyce{} for the specified details.  Similar to the regression methods 
+described in section~\ref{regressionPCE}, in which \Xyce{} must provide function 
+evaluations a specified sample points, for this method \Xyce{} provides 
+function evaluations at each specified quadrature point, and then Eq. \eqref{nispProjection}
+is evaluated for each requested output response.
+
+
 \subsection{Fully Intrusive Spectral Projection}
 \label{intrusivePCE}
 The fully intrusive form of PCE involves solving a system of equations which is constructed by 
@@ -193,5 +195,136 @@ Eq. \eqref{eq:genPCEresponse} to all the terms of the differential-algebraic
 system of equations solved by \Xyce{}.  The details of this construction are given in 
 reference~\cite{xyceAdvancedUQ}.
 
+\clearpage
+%% -----------------------------------------------------------------------------------
+\subsection{Gilbert Cell Mixer PCE example}
+\label{xyceGilbertCell}
+A Gilbert cell mixer circuit is given in figure~\ref{gilbert}~\cite{1049925}.
+In this version, the LO voltage is given by \texttt{v(6,2)} and \texttt{v(15,10)} is the input. 
+The output is the difference between collector voltages of Q4/Q6 and Q3/Q5 (\texttt{V(5,3)}), 
+and should be the approximate product of the LO and input voltages.
+\begin{figure}[hbt]
+\centering
+\resizebox{.9\linewidth}{!}{ \input cktFigs/gilbert}
+  \caption[Gilbert cell mixer schematic]
+  {Gilbert cell mixer schematic.}
+\label{gilbert}
+\end{figure}
+In this exmaple, all eight 
+resistors are given uncertain resistances, distributed with the following normal distributions:  R1 and R2 are N(10,1), 
+R5 and R6 are N(100,5), and R3, R4, R7, and R8 are N(1500,50).  These large standard deviations of the resistances are 
+not realistic, but are chosen for demonstration purposes.
+
+Ensemble and PCE results for the Gilbert cell mixer are shown in figure~\ref{gilbert_compare}.   
+As this calculation was concerned with the transient behavior, only \texttt{.EMBEDDEDSAMPLING} 
+and \texttt{.PCE} are used in this example.  For \texttt{.EMBEDDEDSAMPLING}, both types of 
+non-intrusive PCE are used.
+The light grey lines in Fig.~\ref{gilbert_compare} are for all the sample points 
+of an embedded LHS study with 1000 samples.    The red lines (which are obscured 
+by other results) show the meanand the mean +/- the standard deviation for the 
+1000 sample study.  This can be considered the ``gold'' standard for this simulation.
+The moments for all three of the \Xyce{} PCE calculations lie right on top of the 
+1000 LHS sample moments.  
+
+One of the Gilbert cell netlists used in this example is given in Fig.~\ref{NISP_gilbert_netlist}.  This version of the netlist
+is using non-intrusive projection PCE as an augmentation to \texttt{.EMBEDDEDSAMPLING}.  To convert this netlist to 
+use the fully intrusive method, change \texttt{.EMBEDDEDSAMPLING} to \texttt{.PCE}, and 
+change \texttt{.options EMBEDDEDSAMPLES} to \texttt{.options PCES}.   Otherwise, the commands are completely the same.
+As the number of uncertain parameters is a little bit larger (8), for the projection-based methods a 
+Smolyak sparse grid~\cite{Smolyak_63} method is used.  This is set with the  \texttt{sparse\_grid=true} parameter. 
+Using the sparse grid, the number of 
+required quadrature points for this problem is 129.  Using the non-sparse Gaussian quadtrature 
+would have required 6561 quadtrature points. This would have rendered the method much 
+less efficient than sampling, and basically not usable, especially for the \texttt{.PCE} method.
+
+To change the netlist to use non-intrusive regression PCE, change \texttt{projection\_pce=true} 
+to \texttt{regression\_pce=true}.  Delete the \texttt{sparse\_grid=true} parameter, as 
+it isn't relevant to regression PCE.  
+
+For regression PCE, the number of parameters needs to be set.  Unlike projection-based methods, 
+regression PCE does not have a rigid requirement for the number of samples.  For this 
+problem the size of the polynomial basis is 45, and for regression problems it 
+is considered good practice to oversample by at least a factor of 2, which implies that
+a good choice for this circuit is 90 sample points.   
+To set this, add \texttt{numsamples=90} on the \texttt{.options EMBEDDEDSAMPLES} line.  
+It appears that 90 sampling points was 
+adequate for the regression form of PCE, as the all the statistical moments 
+match well throughout the transient.
+
+\begin{figure}[htbp]
+\fontsize{10pt}{11pt}
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.95\textwidth}
+  \begin{vquote}\color{blue}
+* Gilbert cell mixer\color{black}
+R5 1 2 \color{red}\{agauss(100,5,1)\}\color{black}
+Q3 3 2 4 QB2T2222
+Q4 5 6 4 QB2T2222
+Q5 3 6 8 QB2T2222
+Q6 5 2 8 QB2T2222
+R6 2 1 \color{red}\{agauss(100,5,1)\}\color{black}
+*the local oscillator
+VLO 6 2 DC 0 SIN(0 .05V 4e7 0 0)
+Q1 4 10 11 QB2T2222
+R1 11 12 \color{red}\{agauss(10,1,1)\}\color{black}
+R2 12 13 \color{red}\{agauss(10,1,1)\}\color{black}
+* input bias current
+I1 12 0 DC 1.8mA
+Q2 8 15 13 QB2T2222
+R4 15 16 \color{red}\{agauss(1500,50,1)\}\color{black}
+R3 16 10 \color{red}\{agauss(1500,50,1)\}\color{black}
+V1 16 0 DC 1.8V
+*the input voltage to be mixed with the LO
+V5 15 10 DC 0 sin(0 .05V 3e6 0 0)
+R7 5 17 \color{red}\{agauss(1500,50,1)\}\color{black}
+R8 3 17 \color{red}\{agauss(1500,50,1)\}\color{black}
+V3 17 0 DC 8V
+V2 1 0 DC 6V
+
+.MODEL QB2T2222  NPN (
++ IS=3.136905E-14 BF=189 NF=0.9977664 VAF=29.7280913
++ IKF=0.7405619 ISE=8.49314E-15 NE=1.3186316 BR=38.9531224
++ NR=0.9833179 VAR=28.5119855 IKR=4.632395E-3 ISC=4.624043E-14
++ NC=1.225899 RB=2.0158781 IRB=0.0227681 RBM=0.9730261
++ RE=0.0501513 RC=0.6333 CJE=2.369655E-11 VJE=0.6884357
++ MJE=0.3054743 TF=5.3E-10 XTF=48.5321578 VTF=5.3020062
++ ITF=1.1 PTF=14.6099207 CJC=8.602583E-12 VJC=0.4708887
++ MJC=0.3063885 XCJC=1 TR=74E-9 CJS=1e-12 VJS=.75
++ MJS=0 XTB=0.87435 EG=1.11 XTI=5.825
++ KF=0 AF=1 FC=0.5)
+
+.TRAN 1ns 3e-7
+.PRINT TRAN format=tecplot v(6,2) v(15,10) v(5,3)
+.options timeint reltol=1.0e-5 
+    \color{red}
+.EMBEDDEDSAMPLING useExpr=true
+.options EMBEDDEDSAMPLES projection\_pce=true 
++ outputs={v(5,3)} order=2 sparse\_grid=true \color{black}
+.end
+\color{blue}\end{vquote}
+\end{minipage}
+}
+\caption{Gilbert Cell Non-Instrusive Specetral Project (NISP) netlist.  
+  UQ commands are in \color{red}red\color{black}, and NISP is specified using the \texttt{projection\_pce} parameter.
+\label{NISP_gilbert_netlist}}
+\end{centering}
+\end{figure}
+
+NISP is used in conjunction with embedded sampling, 
+and as noted requires 129 sample points if using sparse grid quadrature.  Fully 
+intrusive PCE, which uses all the same machinery as NISP also requires 129 
+quadrature points.  
+
+
+
+\begin{figure}[hbt]
+\centering
+\includegraphics[width=5in]{gilbert_compare2.pdf}
+\caption
+  [Gilbert Cell Mixer Output for several \Xyce{} embedded UQ methods]
+  {Gilbert Cell Mixer Output for several \Xyce{} embedded UQ methods.  The mean and standard deviations for all the methods (Embedded LHS sampling, NISP, Regression PCE and fully intrusive PCE) all match very well.}
+\label{gilbert_compare}
+\end{figure}
 
 \clearpage

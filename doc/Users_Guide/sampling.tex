@@ -141,6 +141,10 @@ The other type of output is specified using the keyword \texttt{MEASURES}, and
 this is used to specify a comma-separated list of netlist \texttt{.MEASURE} commands.
 This type of output is only available to \texttt{.SAMPLING} and not to \texttt{.EMBEDDEDSAMPLING}.
 
+The example sets the \texttt{SAMPLE\_TYPE=LHS}, for Latin Hypercube Sampling~\cite{HELTON200323}.  
+The other options is \texttt{SAMPLE\_TYPE=MC} for Monte Carlo~\cite{Fishman1996}.  
+LHS is the default option for this parameter, and will generally be a better choice.
+
 \subsection{Sampling a Device Instance Parameter}
 \label{sampling_InstanceParam}
 Figure~\ref{Sampling_Netlist_1} provides a simple application of \verb|.SAMPLING| 

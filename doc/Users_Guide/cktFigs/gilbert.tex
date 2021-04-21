@@ -1,0 +1,712 @@
+% gilbert.m4
+%
+% 
+%
+\begin{tikzpicture}[scale=2.54]
+% dpic version 2014.Jan.01 option -g for TikZ and PGF 1.01
+\ifx\dpiclw\undefined\newdimen\dpiclw\fi
+\global\def\dpicdraw{\draw[line width=\dpiclw]}
+\global\def\dpicstop{;}
+\dpiclw=0.8bp
+\dpiclw=0.8bp
+\definecolor{lcspec}{rgb}{0.00000,0.00000,1.00000}%
+\color[rgb]{0.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (0,0)
+ --(0,-0.125)\dpicstop
+\dpicdraw (0.083333,-0.125)
+ --(-0.083333,-0.125)\dpicstop
+\dpicdraw (0.055556,-0.15625)
+ --(-0.055556,-0.15625)\dpicstop
+\dpicdraw (0.035714,-0.1875)
+ --(-0.035714,-0.1875)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\dpicdraw (0,0)
+ --(0,0.25)\dpicstop
+\dpicdraw (0,0.375) circle (0.049213in)\dpicstop
+\draw (0,0.3125) node{$_-$};
+\draw (0,0.4375) node{$_+$};
+\dpicdraw (0,0.5)
+ --(0,0.75)\dpicstop
+\draw (-0.125,0.375) node[left=-1.5bp]{$ V_2$};
+\draw (0.125,0.375) node[right=-1.5bp]{$ 6V$};
+\dpicdraw (0,0.75)
+ --(0.375,0.75)\dpicstop
+\dpicdraw[fill=black](0.375,0.75) circle (0.007874in)\dpicstop
+\draw (0.375,0.77) node[above=-1.5bp]{$ \texttt{\color{red}1}$};
+\dpicdraw (0.375,0.75)
+ --(0.8125,0.75)
+ --(0.833333,0.791667)
+ --(0.875,0.708333)
+ --(0.916667,0.791667)
+ --(0.958333,0.708333)
+ --(1,0.791667)
+ --(1.041667,0.708333)
+ --(1.0625,0.75)
+ --(1.5,0.75)\dpicstop
+\draw (0.9375,0.791667) node[above=-1.5bp]{$ R_5$};
+\draw (0.9375,0.708333) node[below=-1.5bp]{$ 100 \Omega$};
+\dpicdraw[fill=black](1.5,0.75) circle (0.007874in)\dpicstop
+\draw (1.5,0.77) node[above=-1.5bp]{$ \texttt{\color{red}2}$};
+\dpicdraw (1.5,0.75)
+ --(1.6875,0.75)\dpicstop
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (2.0125,0.375)
+ --(2.0125,0.6)
+ --(2.008796,0.601667)\dpicstop
+\dpicdraw (2.0125,1.125)
+ --(2.0125,0.9)
+ --(2.008796,0.898333)\dpicstop
+\dpicdraw (1.8125,0.65)
+ --(1.8125,0.85)\dpicstop
+\dpicdraw (1.6875,0.75)
+ --(1.8125,0.75)\dpicstop
+\dpicdraw (2.0125,0.6)
+ --(1.8125,0.69)\dpicstop
+\filldraw[line width=0bp](1.875108,0.631366)
+ --(1.9625,0.6225)
+ --(1.897906,0.682028) --cycle
+\dpicstop
+\dpicdraw (1.946479,0.629709)
+ --(1.8625,0.6675)\dpicstop
+\dpicdraw (2.0125,0.9)
+ --(1.8125,0.81)\dpicstop
+\dpicdraw (1.6875,0.75)
+ ..controls (1.6875,0.860457) and (1.777043,0.95)
+ ..(1.8875,0.95)
+ ..controls (1.997957,0.95) and (2.0875,0.860457)
+ ..(2.0875,0.75)\dpicstop
+\dpicdraw (2.0875,0.75)
+ --(2.0875,0.75)\dpicstop
+\dpicdraw (2.0875,0.75)
+ ..controls (2.0875,0.639543) and (1.997957,0.55)
+ ..(1.8875,0.55)
+ ..controls (1.777043,0.55) and (1.6875,0.639543)
+ ..(1.6875,0.75)\dpicstop
+\dpicdraw (1.6875,0.75)
+ --(1.6875,0.75)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (2.0875,0.75) node[right=-1.5bp]{$ Q_3$};
+\dpicdraw (2.0125,0.375)
+ --(2.3875,0.375)\dpicstop
+\dpicdraw[fill=black](2.3875,0.375) circle (0.007874in)\dpicstop
+\dpicdraw (2.3875,0.375)
+ --(2.7625,0.375)\dpicstop
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (2.7625,0.375)
+ --(2.7625,0.6)
+ --(2.766204,0.601667)\dpicstop
+\dpicdraw (2.7625,1.125)
+ --(2.7625,0.9)
+ --(2.766204,0.898333)\dpicstop
+\dpicdraw (2.9625,0.65)
+ --(2.9625,0.85)\dpicstop
+\dpicdraw (3.0875,0.75)
+ --(2.9625,0.75)\dpicstop
+\dpicdraw (2.7625,0.6)
+ --(2.9625,0.69)\dpicstop
+\filldraw[line width=0bp](2.877094,0.682028)
+ --(2.8125,0.6225)
+ --(2.899892,0.631366) --cycle
+\dpicstop
+\dpicdraw (2.828521,0.629709)
+ --(2.9125,0.6675)\dpicstop
+\dpicdraw (2.7625,0.9)
+ --(2.9625,0.81)\dpicstop
+\dpicdraw (3.0875,0.75)
+ ..controls (3.0875,0.860457) and (2.997957,0.95)
+ ..(2.8875,0.95)
+ ..controls (2.777043,0.95) and (2.6875,0.860457)
+ ..(2.6875,0.75)\dpicstop
+\dpicdraw (2.6875,0.75)
+ --(2.6875,0.75)\dpicstop
+\dpicdraw (2.6875,0.75)
+ ..controls (2.6875,0.483333) and (3.0875,0.483333)
+ ..(3.0875,0.75)\dpicstop
+\dpicdraw (3.0875,0.75)
+ --(3.0875,0.75)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (2.6875,0.75) node[left=-1.5bp]{$ Q_4$};
+\dpicdraw (3.0875,0.75)
+ --(3.4625,0.75)\dpicstop
+\dpicdraw[fill=black](3.4625,0.75) circle (0.007874in)\dpicstop
+\draw (3.4625,0.77) node[above=-1.5bp]{$ \texttt{\color{red}6}$};
+\dpicdraw (3.4625,0.75)
+ --(3.8375,0.75)\dpicstop
+\dpicdraw (3.4625,0.75)
+ --(3.4625,0.59375)\dpicstop
+\dpicdraw (3.4625,0.46875) circle (0.049213in)\dpicstop
+\dpicdraw (3.4,0.46875)
+ ..controls (3.401018,0.471939) and (3.402822,0.477545)
+ ..(3.404023,0.481256)
+ ..controls (3.405225,0.484968) and (3.407208,0.490909)
+ ..(3.408448,0.494511)
+ ..controls (3.409688,0.498113) and (3.411872,0.503952)
+ ..(3.413321,0.507539)
+ ..controls (3.41477,0.511125) and (3.417104,0.516218)
+ ..(3.418529,0.518901)
+ ..controls (3.419954,0.521584) and (3.422253,0.525102)
+ ..(3.423657,0.526752)
+ ..controls (3.425062,0.528401) and (3.427334,0.530192)
+ ..(3.428726,0.530747)
+ ..controls (3.430119,0.531302) and (3.432381,0.531302)
+ ..(3.433774,0.530747)
+ ..controls (3.435166,0.530192) and (3.437438,0.528401)
+ ..(3.438843,0.526752)
+ ..controls (3.440247,0.525102) and (3.442546,0.521584)
+ ..(3.443971,0.518901)
+ ..controls (3.445396,0.516218) and (3.44773,0.511125)
+ ..(3.449179,0.507539)
+ ..controls (3.450628,0.503952) and (3.452998,0.497571)
+ ..(3.454468,0.493302)
+ ..controls (3.455937,0.489033) and (3.458334,0.481797)
+ ..(3.459815,0.477157)
+ ..controls (3.461297,0.472518) and (3.463703,0.464982)
+ ..(3.465185,0.460343)
+ ..controls (3.466666,0.455703) and (3.469063,0.448467)
+ ..(3.470532,0.444198)
+ ..controls (3.472002,0.439929) and (3.474372,0.433548)
+ ..(3.475821,0.429961)
+ ..controls (3.47727,0.426375) and (3.479604,0.421282)
+ ..(3.481029,0.418599)
+ ..controls (3.482454,0.415916) and (3.484753,0.412398)
+ ..(3.486157,0.410748)
+ ..controls (3.487562,0.409099) and (3.489834,0.407308)
+ ..(3.491226,0.406753)
+ ..controls (3.492619,0.406198) and (3.494881,0.406198)
+ ..(3.496274,0.406753)
+ ..controls (3.497666,0.407308) and (3.499938,0.409099)
+ ..(3.501343,0.410748)
+ ..controls (3.502747,0.412398) and (3.505046,0.415916)
+ ..(3.506471,0.418599)
+ ..controls (3.507896,0.421282) and (3.51023,0.426375)
+ ..(3.511679,0.429961)
+ ..controls (3.513128,0.433548) and (3.515312,0.439387)
+ ..(3.516552,0.442989)
+ ..controls (3.517792,0.446591) and (3.519775,0.452532)
+ ..(3.520977,0.456244)
+ ..controls (3.522178,0.459955) and (3.523982,0.465561)
+ ..(3.525,0.46875)\dpicstop
+\dpicdraw (3.4625,0.34375)
+ --(3.4625,0.1875)\dpicstop
+\draw (3.4625,0.59375) node[above right=-1.5bp]{$ +$};
+\draw (3.4625,0.34375) node[below right=-1.5bp]{$ -$};
+\draw (3.3375,0.46875) node[left=-1.5bp]{$ V_{LO}$};
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (4.1625,0.375)
+ --(4.1625,0.6)
+ --(4.158796,0.601667)\dpicstop
+\dpicdraw (4.1625,1.125)
+ --(4.1625,0.9)
+ --(4.158796,0.898333)\dpicstop
+\dpicdraw (3.9625,0.65)
+ --(3.9625,0.85)\dpicstop
+\dpicdraw (3.8375,0.75)
+ --(3.9625,0.75)\dpicstop
+\dpicdraw (4.1625,0.6)
+ --(3.9625,0.69)\dpicstop
+\filldraw[line width=0bp](4.025108,0.631366)
+ --(4.1125,0.6225)
+ --(4.047906,0.682028) --cycle
+\dpicstop
+\dpicdraw (4.096479,0.629709)
+ --(4.0125,0.6675)\dpicstop
+\dpicdraw (4.1625,0.9)
+ --(3.9625,0.81)\dpicstop
+\dpicdraw (3.8375,0.75)
+ ..controls (3.8375,0.860457) and (3.927043,0.95)
+ ..(4.0375,0.95)
+ ..controls (4.147957,0.95) and (4.2375,0.860457)
+ ..(4.2375,0.75)\dpicstop
+\dpicdraw (4.2375,0.75)
+ --(4.2375,0.75)\dpicstop
+\dpicdraw (4.2375,0.75)
+ ..controls (4.2375,0.639543) and (4.147957,0.55)
+ ..(4.0375,0.55)
+ ..controls (3.927043,0.55) and (3.8375,0.639543)
+ ..(3.8375,0.75)\dpicstop
+\dpicdraw (3.8375,0.75)
+ --(3.8375,0.75)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (4.2375,0.75) node[right=-1.5bp]{$ Q_5$};
+\dpicdraw (4.1625,0.375)
+ --(4.5375,0.375)\dpicstop
+\dpicdraw[fill=black](4.5375,0.375) circle (0.007874in)\dpicstop
+\dpicdraw (4.5375,0.375)
+ --(4.9125,0.375)\dpicstop
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (4.9125,0.375)
+ --(4.9125,0.6)
+ --(4.916204,0.601667)\dpicstop
+\dpicdraw (4.9125,1.125)
+ --(4.9125,0.9)
+ --(4.916204,0.898333)\dpicstop
+\dpicdraw (5.1125,0.65)
+ --(5.1125,0.85)\dpicstop
+\dpicdraw (5.2375,0.75)
+ --(5.1125,0.75)\dpicstop
+\dpicdraw (4.9125,0.6)
+ --(5.1125,0.69)\dpicstop
+\filldraw[line width=0bp](5.027094,0.682028)
+ --(4.9625,0.6225)
+ --(5.049892,0.631366) --cycle
+\dpicstop
+\dpicdraw (4.978521,0.629709)
+ --(5.0625,0.6675)\dpicstop
+\dpicdraw (4.9125,0.9)
+ --(5.1125,0.81)\dpicstop
+\dpicdraw (5.2375,0.75)
+ ..controls (5.2375,0.860457) and (5.147957,0.95)
+ ..(5.0375,0.95)
+ ..controls (4.927043,0.95) and (4.8375,0.860457)
+ ..(4.8375,0.75)\dpicstop
+\dpicdraw (4.8375,0.75)
+ --(4.8375,0.75)\dpicstop
+\dpicdraw (4.8375,0.75)
+ ..controls (4.8375,0.483333) and (5.2375,0.483333)
+ ..(5.2375,0.75)\dpicstop
+\dpicdraw (5.2375,0.75)
+ --(5.2375,0.75)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (4.8375,0.75) node[left=-1.5bp]{$ Q_6$};
+\dpicdraw (5.2375,0.75)
+ --(5.425,0.75)\dpicstop
+\dpicdraw[fill=black](5.425,0.75) circle (0.007874in)\dpicstop
+\draw (5.425,0.77) node[above=-1.5bp]{$ \texttt{\color{red}2}$};
+\dpicdraw (5.425,0.75)
+ --(5.8625,0.75)
+ --(5.883333,0.791667)
+ --(5.925,0.708333)
+ --(5.966667,0.791667)
+ --(6.008333,0.708333)
+ --(6.05,0.791667)
+ --(6.091667,0.708333)
+ --(6.1125,0.75)
+ --(6.55,0.75)\dpicstop
+\draw (5.9875,0.791667) node[above=-1.5bp]{$ R_6$};
+\draw (5.9875,0.708333) node[below=-1.5bp]{$ 100 \Omega$};
+\dpicdraw (0.375,0.75)
+ --(0.375,-2.0625)\dpicstop
+\dpicdraw (6.55,0.75)
+ --(6.55,-2.0625)\dpicstop
+\dpicdraw (0.375,-2.0625)
+ --(6.55,-2.0625)\dpicstop
+\dpicdraw (2.3875,0.375)
+ --(2.3875,0)\dpicstop
+\dpicdraw[fill=black](2.3875,0) circle (0.007874in)\dpicstop
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (2.3875,-0.75)
+ --(2.3875,-0.525)
+ --(2.383796,-0.523333)\dpicstop
+\dpicdraw (2.3875,0)
+ --(2.3875,-0.225)
+ --(2.383796,-0.226667)\dpicstop
+\dpicdraw (2.1875,-0.475)
+ --(2.1875,-0.275)\dpicstop
+\dpicdraw (2.0625,-0.375)
+ --(2.1875,-0.375)\dpicstop
+\dpicdraw (2.3875,-0.525)
+ --(2.1875,-0.435)\dpicstop
+\filldraw[line width=0bp](2.250108,-0.493634)
+ --(2.3375,-0.5025)
+ --(2.272906,-0.442972) --cycle
+\dpicstop
+\dpicdraw (2.321479,-0.495291)
+ --(2.2375,-0.4575)\dpicstop
+\dpicdraw (2.3875,-0.225)
+ --(2.1875,-0.315)\dpicstop
+\dpicdraw (2.0625,-0.375)
+ ..controls (2.0625,-0.264543) and (2.152043,-0.175)
+ ..(2.2625,-0.175)
+ ..controls (2.372957,-0.175) and (2.4625,-0.264543)
+ ..(2.4625,-0.375)\dpicstop
+\dpicdraw (2.4625,-0.375)
+ --(2.4625,-0.375)\dpicstop
+\dpicdraw (2.4625,-0.375)
+ ..controls (2.4625,-0.485457) and (2.372957,-0.575)
+ ..(2.2625,-0.575)
+ ..controls (2.152043,-0.575) and (2.0625,-0.485457)
+ ..(2.0625,-0.375)\dpicstop
+\dpicdraw (2.0625,-0.375)
+ --(2.0625,-0.375)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (2.4625,-0.375) node[right=-1.5bp]{$ Q_1$};
+\dpicdraw (2.0625,-0.375)
+ --(1.875,-0.375)\dpicstop
+\dpicdraw[fill=black](1.875,-0.375) circle (0.007874in)\dpicstop
+\draw (1.875,-0.355) node[above=-1.5bp]{$ \texttt{\color{red}10}$};
+\dpicdraw (1.875,-0.375)
+ --(1.625,-0.375)
+ --(1.604167,-0.416667)
+ --(1.5625,-0.333333)
+ --(1.520833,-0.416667)
+ --(1.479167,-0.333333)
+ --(1.4375,-0.416667)
+ --(1.395833,-0.333333)
+ --(1.375,-0.375)
+ --(1.125,-0.375)\dpicstop
+\draw (1.5,-0.333333) node[above=-1.5bp]{$ R_3$};
+\draw (1.5,-0.416667) node[below=-1.5bp]{$ 1500 \Omega$};
+\dpicdraw (1.125,-0.375)
+ --(1.125,-0.9375)\dpicstop
+\dpicdraw[fill=black](1.125,-0.9375) circle (0.007874in)\dpicstop
+\draw (1.105,-0.9375) node[above left=-1.5bp]{$ \texttt{\color{red}16}$};
+\dpicdraw (1.125,-0.9375)
+ --(1.125,-1.875)\dpicstop
+\dpicdraw (1.125,-0.9375)
+ --(0.75,-0.9375)\dpicstop
+\dpicdraw (0.75,-1.6875)
+ --(0.75,-1.4375)\dpicstop
+\dpicdraw (0.75,-1.3125) circle (0.049213in)\dpicstop
+\draw (0.75,-1.375) node{$_-$};
+\draw (0.75,-1.25) node{$_+$};
+\dpicdraw (0.75,-1.1875)
+ --(0.75,-0.9375)\dpicstop
+\draw (0.75,-1.4375) node[below right=-1.5bp]{$ 1.8V$};
+\draw (0.625,-1.3125) node[left=-1.5bp]{$ V_1$};
+\definecolor{lcspec}{rgb}{0.00000,0.00000,1.00000}%
+\color[rgb]{0.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (0.75,-1.6875)
+ --(0.75,-1.8125)\dpicstop
+\dpicdraw (0.833333,-1.8125)
+ --(0.666667,-1.8125)\dpicstop
+\dpicdraw (0.805556,-1.84375)
+ --(0.694444,-1.84375)\dpicstop
+\dpicdraw (0.785714,-1.875)
+ --(0.714286,-1.875)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\dpicdraw (4.5375,0.375)
+ --(4.5375,0)\dpicstop
+\dpicdraw[fill=black](4.5375,0) circle (0.007874in)\dpicstop
+\definecolor{lcspec}{rgb}{1.00000,0.00000,1.00000}%
+\color[rgb]{1.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (4.5375,-0.75)
+ --(4.5375,-0.525)
+ --(4.541204,-0.523333)\dpicstop
+\dpicdraw (4.5375,0)
+ --(4.5375,-0.225)
+ --(4.541204,-0.226667)\dpicstop
+\dpicdraw (4.7375,-0.475)
+ --(4.7375,-0.275)\dpicstop
+\dpicdraw (4.8625,-0.375)
+ --(4.7375,-0.375)\dpicstop
+\dpicdraw (4.5375,-0.525)
+ --(4.7375,-0.435)\dpicstop
+\filldraw[line width=0bp](4.652094,-0.442972)
+ --(4.5875,-0.5025)
+ --(4.674892,-0.493634) --cycle
+\dpicstop
+\dpicdraw (4.603521,-0.495291)
+ --(4.6875,-0.4575)\dpicstop
+\dpicdraw (4.5375,-0.225)
+ --(4.7375,-0.315)\dpicstop
+\dpicdraw (4.8625,-0.375)
+ ..controls (4.8625,-0.264543) and (4.772957,-0.175)
+ ..(4.6625,-0.175)
+ ..controls (4.552043,-0.175) and (4.4625,-0.264543)
+ ..(4.4625,-0.375)\dpicstop
+\dpicdraw (4.4625,-0.375)
+ --(4.4625,-0.375)\dpicstop
+\dpicdraw (4.4625,-0.375)
+ ..controls (4.4625,-0.641667) and (4.8625,-0.641667)
+ ..(4.8625,-0.375)\dpicstop
+\dpicdraw (4.8625,-0.375)
+ --(4.8625,-0.375)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\draw (4.4625,-0.375) node[left=-1.5bp]{$ Q_2$};
+\dpicdraw (4.8625,-0.375)
+ --(5.05,-0.375)\dpicstop
+\dpicdraw[fill=black](5.05,-0.375) circle (0.007874in)\dpicstop
+\draw (5.05,-0.355) node[above=-1.5bp]{$ \texttt{\color{red}15}$};
+\dpicdraw (5.05,-0.375)
+ --(5.3,-0.375)
+ --(5.320833,-0.333333)
+ --(5.3625,-0.416667)
+ --(5.404167,-0.333333)
+ --(5.445833,-0.416667)
+ --(5.4875,-0.333333)
+ --(5.529167,-0.416667)
+ --(5.55,-0.375)
+ --(5.8,-0.375)\dpicstop
+\draw (5.425,-0.333333) node[above=-1.5bp]{$ R_4$};
+\draw (5.425,-0.416667) node[below=-1.5bp]{$ 1500 \Omega$};
+\dpicdraw (5.8,-0.375)
+ --(5.8,-1.875)\dpicstop
+\dpicdraw (1.5,0.75)
+ --(1.5,0.1875)\dpicstop
+\dpicdraw (1.5,0.1875)
+ --(2.351389,0.1875)\dpicstop
+\dpicdraw (2.345833,0.1875)
+ ..controls (2.345833,0.210512) and (2.364488,0.229167)
+ ..(2.3875,0.229167)
+ ..controls (2.410512,0.229167) and (2.429167,0.210512)
+ ..(2.429167,0.1875)\dpicstop
+\dpicdraw (2.423611,0.1875)
+ --(3.4625,0.1875)\dpicstop
+\dpicdraw[fill=black](3.4625,0.1875) circle (0.007874in)\dpicstop
+\draw (3.4625,0.1675) node[below=-1.5bp]{$ \texttt{\color{red}2}$};
+\dpicdraw (5.425,0.75)
+ --(5.425,0.1875)\dpicstop
+\dpicdraw (5.425,0.1875)
+ --(4.573611,0.1875)\dpicstop
+\dpicdraw (4.579167,0.1875)
+ ..controls (4.579167,0.243056) and (4.495833,0.243056)
+ ..(4.495833,0.1875)\dpicstop
+\dpicdraw (4.501389,0.1875)
+ --(3.4625,0.1875)\dpicstop
+\dpicdraw (1.875,-0.375)
+ --(1.875,-1.6875)\dpicstop
+\dpicdraw (5.05,-0.375)
+ --(5.05,-0.9375)\dpicstop
+\dpicdraw (5.05,-0.9375)
+ --(5.05,-1.1875)\dpicstop
+\dpicdraw (5.05,-1.3125) circle (0.049213in)\dpicstop
+\dpicdraw (4.9875,-1.3125)
+ ..controls (4.988518,-1.309311) and (4.990322,-1.303705)
+ ..(4.991523,-1.299994)
+ ..controls (4.992725,-1.296282) and (4.994708,-1.290341)
+ ..(4.995948,-1.286739)
+ ..controls (4.997188,-1.283137) and (4.999372,-1.277298)
+ ..(5.000821,-1.273711)
+ ..controls (5.00227,-1.270125) and (5.004604,-1.265032)
+ ..(5.006029,-1.262349)
+ ..controls (5.007454,-1.259666) and (5.009753,-1.256148)
+ ..(5.011157,-1.254498)
+ ..controls (5.012562,-1.252849) and (5.014834,-1.251058)
+ ..(5.016226,-1.250503)
+ ..controls (5.017619,-1.249948) and (5.019881,-1.249948)
+ ..(5.021274,-1.250503)
+ ..controls (5.022666,-1.251058) and (5.024938,-1.252849)
+ ..(5.026343,-1.254498)
+ ..controls (5.027747,-1.256148) and (5.030046,-1.259666)
+ ..(5.031471,-1.262349)
+ ..controls (5.032896,-1.265032) and (5.03523,-1.270125)
+ ..(5.036679,-1.273711)
+ ..controls (5.038128,-1.277298) and (5.040498,-1.283679)
+ ..(5.041968,-1.287948)
+ ..controls (5.043437,-1.292217) and (5.045834,-1.299453)
+ ..(5.047315,-1.304093)
+ ..controls (5.048797,-1.308732) and (5.051203,-1.316268)
+ ..(5.052685,-1.320907)
+ ..controls (5.054166,-1.325547) and (5.056563,-1.332783)
+ ..(5.058032,-1.337052)
+ ..controls (5.059502,-1.341321) and (5.061872,-1.347702)
+ ..(5.063321,-1.351289)
+ ..controls (5.06477,-1.354875) and (5.067104,-1.359968)
+ ..(5.068529,-1.362651)
+ ..controls (5.069954,-1.365334) and (5.072253,-1.368852)
+ ..(5.073657,-1.370502)
+ ..controls (5.075062,-1.372151) and (5.077334,-1.373942)
+ ..(5.078726,-1.374497)
+ ..controls (5.080119,-1.375052) and (5.082381,-1.375052)
+ ..(5.083774,-1.374497)
+ ..controls (5.085166,-1.373942) and (5.087438,-1.372151)
+ ..(5.088843,-1.370502)
+ ..controls (5.090247,-1.368852) and (5.092546,-1.365334)
+ ..(5.093971,-1.362651)
+ ..controls (5.095396,-1.359968) and (5.09773,-1.354875)
+ ..(5.099179,-1.351289)
+ ..controls (5.100628,-1.347702) and (5.102812,-1.341863)
+ ..(5.104052,-1.338261)
+ ..controls (5.105292,-1.334659) and (5.107275,-1.328718)
+ ..(5.108477,-1.325006)
+ ..controls (5.109678,-1.321295) and (5.111482,-1.315689)
+ ..(5.1125,-1.3125)\dpicstop
+\dpicdraw (5.05,-1.4375)
+ --(5.05,-1.6875)\dpicstop
+\draw (5.05,-1.1875) node[above right=-1.5bp]{$ +$};
+\draw (5.05,-1.4375) node[below right=-1.5bp]{$ -$};
+\draw (4.925,-1.3125) node[left=-1.5bp]{$ V_5$};
+\dpicdraw (5.05,-1.6875)
+ --(1.875,-1.6875)\dpicstop
+\dpicdraw (5.8,-1.875)
+ --(1.125,-1.875)\dpicstop
+\dpicdraw[fill=black](2.3875,-0.75) circle (0.007874in)\dpicstop
+\draw (2.3875,-0.73) node[above right=-1.5bp]{$ \texttt{\color{red}11}$};
+\dpicdraw (2.3875,-0.75)
+ --(2.8,-0.75)
+ --(2.820833,-0.708333)
+ --(2.8625,-0.791667)
+ --(2.904167,-0.708333)
+ --(2.945833,-0.791667)
+ --(2.9875,-0.708333)
+ --(3.029167,-0.791667)
+ --(3.05,-0.75)
+ --(3.4625,-0.75)\dpicstop
+\draw (2.925,-0.708333) node[above=-1.5bp]{$ R_1$};
+\draw (2.925,-0.791667) node[below=-1.5bp]{$ 10 \Omega$};
+\dpicdraw[fill=black](3.4625,-0.75) circle (0.007874in)\dpicstop
+\draw (3.4625,-0.73) node[above=-1.5bp]{$ \texttt{\color{red}12}$};
+\dpicdraw (3.4625,-0.75)
+ --(3.875,-0.75)
+ --(3.895833,-0.708333)
+ --(3.9375,-0.791667)
+ --(3.979167,-0.708333)
+ --(4.020833,-0.791667)
+ --(4.0625,-0.708333)
+ --(4.104167,-0.791667)
+ --(4.125,-0.75)
+ --(4.5375,-0.75)\dpicstop
+\draw (4,-0.708333) node[above=-1.5bp]{$ R_2$};
+\draw (4,-0.791667) node[below=-1.5bp]{$ 10 \Omega$};
+\dpicdraw[fill=black](4.5375,-0.75) circle (0.007874in)\dpicstop
+\draw (4.5175,-0.75) node[above left=-1.5bp]{$ \texttt{\color{red}13}$};
+\dpicdraw (3.4625,-0.75)
+ --(3.4625,-0.90625)\dpicstop
+\dpicdraw (3.4625,-1.03125) circle (0.049213in)\dpicstop
+\dpicdraw (3.4625,-0.9375)
+ --(3.4625,-1.025)\dpicstop
+\filldraw[line width=0bp](3.4375,-1.025)
+ --(3.4625,-1.125)
+ --(3.4875,-1.025) --cycle
+\dpicstop
+\dpicdraw (3.4625,-1.15625)
+ --(3.4625,-1.3125)\dpicstop
+\draw (3.3375,-1.03125) node[left=-1.5bp]{$ I_1$};
+\draw (3.5875,-1.03125) node[right=-1.5bp]{$ 1.8mA$};
+\definecolor{lcspec}{rgb}{0.00000,0.00000,1.00000}%
+\color[rgb]{0.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (3.4625,-1.3125)
+ --(3.4625,-1.4375)\dpicstop
+\dpicdraw (3.545833,-1.4375)
+ --(3.379167,-1.4375)\dpicstop
+\dpicdraw (3.518056,-1.46875)
+ --(3.406944,-1.46875)\dpicstop
+\dpicdraw (3.498214,-1.5)
+ --(3.426786,-1.5)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\dpicdraw (2.0125,1.125)
+ --(2.0125,1.6875)\dpicstop
+\dpicdraw[fill=black](2.0125,1.6875) circle (0.007874in)\dpicstop
+\draw (2.0125,1.7075) node[above right=-1.5bp]{$ \texttt{\color{red}3}$};
+\dpicdraw (4.1625,1.125)
+ --(4.1625,1.6875)\dpicstop
+\dpicdraw[fill=black](4.1625,1.6875) circle (0.007874in)\dpicstop
+\draw (4.1625,1.7075) node[above right=-1.5bp]{$ \texttt{\color{red}3}$};
+\dpicdraw (2.0125,1.6875)
+ --(4.1625,1.6875)\dpicstop
+\dpicdraw (2.7625,1.125)
+ --(2.7625,1.3125)\dpicstop
+\dpicdraw[fill=black](2.7625,1.3125) circle (0.007874in)\dpicstop
+\draw (2.7625,1.3325) node[above right=-1.5bp]{$ \texttt{\color{red}5}$};
+\dpicdraw (4.9125,1.125)
+ --(4.9125,1.3125)\dpicstop
+\dpicdraw[fill=black](4.9125,1.3125) circle (0.007874in)\dpicstop
+\draw (4.9125,1.3325) node[above right=-1.5bp]{$ \texttt{\color{red}5}$};
+\dpicdraw (2.7625,1.3125)
+ --(4.126389,1.3125)\dpicstop
+\dpicdraw (4.120833,1.3125)
+ ..controls (4.120833,1.335512) and (4.139488,1.354167)
+ ..(4.1625,1.354167)
+ ..controls (4.185512,1.354167) and (4.204167,1.335512)
+ ..(4.204167,1.3125)\dpicstop
+\dpicdraw (4.198611,1.3125)
+ --(4.9125,1.3125)\dpicstop
+\dpicdraw (2.0125,1.6875)
+ --(2.0125,1.84375)
+ --(1.970833,1.864583)
+ --(2.054167,1.90625)
+ --(1.970833,1.947917)
+ --(2.054167,1.989583)
+ --(1.970833,2.03125)
+ --(2.054167,2.072917)
+ --(2.0125,2.09375)
+ --(2.0125,2.25)\dpicstop
+\draw (1.970833,1.96875) node[left=-1.5bp]{$ R_8$};
+\draw (2.054167,1.96875) node[right=-1.5bp]{$ 1500 \Omega$};
+\dpicdraw[fill=black](2.0125,2.25) circle (0.007874in)\dpicstop
+\draw (2.0125,2.27) node[above right=-1.5bp]{$ \texttt{\color{red}17}$};
+\dpicdraw (2.0125,2.25)
+ --(1.2625,2.25)\dpicstop
+\dpicdraw (1.2625,2.25)
+ --(1.2625,2)\dpicstop
+\dpicdraw (1.2625,1.875) circle (0.049213in)\dpicstop
+\dpicdraw (1.2625,1.75)
+ --(1.2625,1.5)\dpicstop
+\draw (1.2625,2) node[above right=-1.5bp]{$ +$};
+\draw (1.2625,1.75) node[below right=-1.5bp]{$ -$};
+\draw (1.2625,2) node[above left=-1.5bp]{$ V_{3}$};
+\draw (1.2625,1.75) node[below left=-1.5bp]{$ 8V$};
+\definecolor{lcspec}{rgb}{0.00000,0.00000,1.00000}%
+\color[rgb]{0.00000,0.00000,1.00000}%
+\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw
+\global\def\dpicdraw{\dpiclidraw[color=lcspec]}
+\global\def\filldraw{\dpicfidraw[color=lcspec]}
+\dpicdraw (1.2625,1.5)
+ --(1.2625,1.375)\dpicstop
+\dpicdraw (1.345833,1.375)
+ --(1.179167,1.375)\dpicstop
+\dpicdraw (1.318056,1.34375)
+ --(1.206944,1.34375)\dpicstop
+\dpicdraw (1.298214,1.3125)
+ --(1.226786,1.3125)\dpicstop
+\color{black}\global\let\dpicdraw=\dpiclidraw%
+\global\let\filldraw=\dpicfidraw
+\dpicdraw (4.9125,1.3125)
+ --(4.9125,1.6875)\dpicstop
+\dpicdraw (4.9125,1.6875)
+ --(4.9125,1.84375)
+ --(4.870833,1.864583)
+ --(4.954167,1.90625)
+ --(4.870833,1.947917)
+ --(4.954167,1.989583)
+ --(4.870833,2.03125)
+ --(4.954167,2.072917)
+ --(4.9125,2.09375)
+ --(4.9125,2.25)\dpicstop
+\draw (4.870833,1.96875) node[left=-1.5bp]{$ R_7$};
+\draw (4.954167,1.96875) node[right=-1.5bp]{$ 1500 \Omega$};
+\dpicdraw (4.9125,2.25)
+ --(2.0125,2.25)\dpicstop
+\dpicdraw (4.1625,1.6875)
+ --(4.876389,1.6875)\dpicstop
+\dpicdraw (4.870833,1.6875)
+ ..controls (4.870833,1.710512) and (4.889488,1.729167)
+ ..(4.9125,1.729167)
+ ..controls (4.935512,1.729167) and (4.954167,1.710512)
+ ..(4.954167,1.6875)\dpicstop
+\dpicdraw (4.948611,1.6875)
+ --(5.6625,1.6875)\dpicstop
+\dpicdraw (4.9125,1.3125)
+ --(5.6625,1.3125)\dpicstop
+\end{tikzpicture}
