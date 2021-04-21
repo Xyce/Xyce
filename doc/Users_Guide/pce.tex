@@ -72,16 +72,10 @@ least squares regression.
 Regression-based PCE can be applied as a post-process step 
 to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
 \texttt{regression\_pce=true} to the \texttt{.options SAMPLES} 
-or \texttt{.options EMBEDDEDSAMPLES} command lines.
-
-
-Regression-based PCE can be applied as a post-process step 
-to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
-\texttt{projection\_pce=true} to the \texttt{.options SAMPLES} 
 or \texttt{.options EMBEDDEDSAMPLES} command lines.  
 
 Regression PCE will use the samples selected by the sampling algorithm (Monte Carlo or Latin Hypercube).  
-The regression PCE algorithm will estimate the optimal number of samples to use, and so this must 
+The regression PCE algorithm will \emph{not} estimate the optimal number of samples to use, and so this must 
 be set by the user.   For regression PCE, the number of samples needed for an accurate answer
 should be smaller than the number that would have been required by conventional sampling.
 For regression problems, to get an accurate answer it is considered good practice to oversample 
@@ -91,12 +85,13 @@ A simple example netlist, which uses regression PCE with \texttt{.SAMPLING} is g
 Results from this calculation, which are sent to terminal output are given in figure~\ref{regressionPCE_Result1}.
 
 \begin{figure}[htbp]
+\fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
 \begin{vquote}
 \color{blue}Regression PCE example \color{black}
-.param testNorm=\{aunif(2k,1k)\}
+.param testNorm=\{\color{red}aunif(2k,1k)\color{black}\}
 .param R1value=\{testNorm*2.0\}
 R2 1 0 6K
 R1 1 2 \{R1value\}
@@ -105,20 +100,20 @@ v1 2 0 1000V
 .dc v1 1000 1000 1
 .print dc format=tecplot v(1)
 *
-.SAMPLING useExpr=true
+\color{red}.SAMPLING useExpr=true
 
-.options SAMPLES numsamples=10
+.options SAMPLES numsamples=12
 + regression\_pce=true
 + order=5
 + outputs=\{v(1)\}
 + sample\_type=lhs
 + stdoutput=true
-+ resample=true
++ resample=true\color{black}
 .end
 \end{vquote}
 \end{minipage}
 }
-\caption{Voltage divider regression PCE netlist.
+\caption{Voltage divider regression PCE netlist.  The sampling-related commands are in \color{red}red\color{black}.
 \label{regressionPCE_Netlist1}}
 \end{centering}
 \end{figure}
@@ -127,31 +122,35 @@ v1 2 0 1000V
 \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
-\begin{minipage}{0.99\textwidth}
+\begin{minipage}{0.8\textwidth}
 \begin{vquote}
-***** Number of sample points = 10
+***** Beginning Latin Hypercube Sampling simulation....
 
-Seeding random number generator with 3355129392
+***** Regression PCE enabled.  Number of sample points = 12
 
-LHS sampling mean of {V(1)} = 594.262
-LHS sampling stddev of {V(1)} = 81.8265
-LHS sampling variance of {V(1)} = 6695.58
-LHS sampling skew of {V(1)} = 0.548949
-LHS sampling kurtosis of {V(1)} = 1.96246
-LHS sampling max of {V(1)} = 749.366
-LHS sampling min of {V(1)} = 509.557
+***** PCE Basis size = 6
 
-(traditional sampling) regression PCE mean of {V(1)} = 608.198
-(traditional sampling) regression PCE stddev of {V(1)} = 71.3839
+Seeding random number generator with 2412823737
+
+LHS sampling mean of {V(1)} = 614.666
+LHS sampling stddev of {V(1)} = 71.4563
+LHS sampling variance of {V(1)} = 5106
+LHS sampling skew of {V(1)} = 0.299928
+LHS sampling kurtosis of {V(1)} = 2.07869
+LHS sampling max of {V(1)} = 733.936
+LHS sampling min of {V(1)} = 503.315
+
+(traditional sampling) regression PCE mean of {V(1)} = 608.197
+(traditional sampling) regression PCE stddev of {V(1)} = 71.3831
 
 Statistics from re-sampling regression PCE approximation of {V(1)}:
-mean     = 607.045
-stddev   = 72.5006
-variance = 5256.34
-skew     = 0.256431
-kurtosis = 1.8671
-max      = 749.815
-min      = 499.999
+mean     = 608.071
+stddev   = 70.8532
+variance = 5020.18
+skew     = 0.298245
+kurtosis = 1.93151
+max      = 749.652
+min      = 500.054
 \end{vquote}
 \end{minipage}
 }
@@ -179,13 +178,30 @@ quadrature rules:
   \label{nispProjection}
 \end{equation}
 In this equation $\rho$ is the joint density function, with respect to which the polynomials $\varPsi^i$ are orthogonal.
+Evaluating this equation requires solving the integral on the right hand side.  
+While many methods for solving this integral could be used, for the NISP algorithm 
+the integral is solved using Gaussian Quadrature and related methods.  For this 
+reason, these methods are sometimes referred to as ``quadrature PCE'' methods.
 Stokhos supports several quadrature methods, and supplies the necessary quadrature points 
-to \Xyce{} for the specified details.  Similar to the regression methods 
-described in section~\ref{regressionPCE}, in which \Xyce{} must provide function 
-evaluations a specified sample points, for this method \Xyce{} provides 
-function evaluations at each specified quadrature point, and then Eq. \eqref{nispProjection}
-is evaluated for each requested output response.
+to \Xyce{} for the specified details.  
 
+To solve the integral using quadrature, \Xyce{} has to evaluate the forward problem at 
+the various quadrature points. In this reguard, this is similar to the
+regression methods described in section~\ref{regressionPCE}, which has to do 
+forward evaluations at randomly sampled points.
+Since NISP uses quadrature points, the points are completely deterministic, 
+and there are no random numbers involved.
+The number of quadrature points can increase exponentially for larger numbers of uncertain 
+parameters, but this can be mitigated by using sparse grid techniques.  
+
+Non-intrusive spectral projection PCE can be applied as a post-process step 
+to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
+\texttt{projection\_pce=true} to the \texttt{.options SAMPLES} 
+or \texttt{.options EMBEDDEDSAMPLES} command lines.
+
+As noted, when using NISP it is not necessary to specify the number of sample points, as they will
+be set by the quadrature algorithm.  To enable quadrature on a sparse grid, set the 
+option \texttt{sparse\_grid=true} on the \texttt{.options EMBEDDEDSAMPLES} command line.
 
 \subsection{Fully Intrusive Spectral Projection}
 \label{intrusivePCE}
@@ -199,8 +215,9 @@ reference~\cite{xyceAdvancedUQ}.
 %% -----------------------------------------------------------------------------------
 \subsection{Gilbert Cell Mixer PCE example}
 \label{xyceGilbertCell}
-A Gilbert cell mixer circuit is given in figure~\ref{gilbert}~\cite{1049925}.
-In this version, the LO voltage is given by \texttt{v(6,2)} and \texttt{v(15,10)} is the input. 
+A Gilbert cell mixer circuit is given in figure~\ref{gilbert}~\cite{1049925}.  A corresponding netlist 
+is given in Fig.~\ref{NISP_gilbert_netlist}.
+In this circuit, the LO voltage is given by \texttt{v(6,2)} and \texttt{v(15,10)} is the input. 
 The output is the difference between collector voltages of Q4/Q6 and Q3/Q5 (\texttt{V(5,3)}), 
 and should be the approximate product of the LO and input voltages.
 \begin{figure}[hbt]
@@ -221,13 +238,14 @@ and \texttt{.PCE} are used in this example.  For \texttt{.EMBEDDEDSAMPLING}, bot
 non-intrusive PCE are used.
 The light grey lines in Fig.~\ref{gilbert_compare} are for all the sample points 
 of an embedded LHS study with 1000 samples.    The red lines (which are obscured 
-by other results) show the mean and the mean +/- the standard deviation for the 
+by other results) show the mean and the mean +/- twice the standard deviation for the 
 1000 sample study.  This can be considered the ``gold'' standard for this simulation.
-The moments for all three of the \Xyce{} PCE calculations lie right on top of the 
-1000 LHS sample moments.  
+The other solid lines show the moments from the various PCE calculations, and they 
+lie on top of the 1000 LHS sample moments.  
 
-One of the Gilbert cell netlists used in this example is given in Fig.~\ref{NISP_gilbert_netlist}.  This version of the netlist
-is using non-intrusive projection PCE as an augmentation to \texttt{.EMBEDDEDSAMPLING}.  To convert this netlist to 
+This version of the netlistgiven in Fig.~\ref{NISP_gilbert_netlist}
+is using non-intrusive projection PCE as an augmentation to \texttt{.EMBEDDEDSAMPLING}.  
+To convert this netlist to 
 use the fully intrusive method, change \texttt{.EMBEDDEDSAMPLING} to \texttt{.PCE}, and 
 change \texttt{.options EMBEDDEDSAMPLES} to \texttt{.options PCES}.   Otherwise, the commands are completely the same.
 As the number of uncertain parameters is a little bit larger (8), for the projection-based methods a 
@@ -241,7 +259,7 @@ To change the netlist to use non-intrusive regression PCE, change \texttt{projec
 to \texttt{regression\_pce=true}.  Delete the \texttt{sparse\_grid=true} parameter, as 
 it isn't relevant to regression PCE.  
 
-For regression PCE, the number of parameters needs to be set.  Unlike projection-based methods, 
+As noted, for regression PCE the number of parameters needs to be set.  Unlike projection-based methods, 
 regression PCE does not have a rigid requirement for the number of samples.  For this 
 problem the size of the polynomial basis is 45, and for regression problems it 
 is considered good practice to oversample by at least a factor of 2, which implies that
