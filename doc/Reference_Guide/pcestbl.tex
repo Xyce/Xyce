@@ -8,18 +8,15 @@
 % LLC (NTESS).
 
 %%
-%% Embedded Sampling Table
+%% Fully intrusive PCE Table
 %%
-\index{solvers!embeddedsampling!options}
-\begin{OptionTable}{Options for Embedded Sampling Package.} \label{EmbeddedSamplesPKG}
-NUMSAMPLES   & Total number of samples & 0 \\ \hline
-SAMPLE\_TYPE & Sampling type (MC or LHS) & MC \\ \hline
+\index{solvers!pce!options}
+\begin{OptionTable}{Options for PCE Package.} \label{PCEPKG}
 OUTPUTS      & Comma separated list of outputs (anything that would be a valid \texttt{.PRINT} output variable) & -- \\ \hline
 COVMATRIX    & Covariance matrix specified in row major form as comma-separated double precision numbers. & -- \\ \hline
-SEED         & Random seed & See footnote.\footnotemark[1] \\ \hline
+SAMPLE\_TYPE & Sampling type (MC or LHS). This is only used if resampling is enabled. & MC \\ \hline
+SEED         & Random seed. This is only used if resampling is enabled. & See footnote.\footnotemark[1] \\ \hline
 OUTPUT\_SAMPLE\_STATS   &  Compute and outputs statistics for specified outputs. & -- \\ \hline
-REGRESSION\_PCE    & Enable regression based PCE.  If this is enabled, the randomly sampled points will be used to produce a PCE approximation using regression methods.     & -- \\ \hline
-PROJECTION\_PCE    & Enable projection based PCE (quadrature).  If this is enabled, a PCE approximation will be created using quadrature methods.  The NUMSAMPLES parameter will be ignored, and the samples will be the quadrature points used by projection PCE.     & -- \\ \hline
 RESAMPLE    & Once the PCE coefficients are obtained, perform sampling on the PCE approximation & -- \\ \hline
 OUTPUT\_PCE\_COEFFS    & Output the PCE coefficients & -- \\ \hline
 SPARSE\_GRID    &  Use sparse grid methods if using projection PCE.    & -- \\ \hline
