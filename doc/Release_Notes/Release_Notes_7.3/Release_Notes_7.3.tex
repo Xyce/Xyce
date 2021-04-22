@@ -89,6 +89,14 @@ please visit the \XyceTM{} web page at
         on increasing numbers of processors.
   \item Improved handling of dynamically inserted break points from devices that use history information,
 	such as delay device. This resolved various accuracy issues, discontinuous behavior and convergence issues.
+  \item \Xyce{} now supports non-intrusive Polynomial Chaos Expansion (PCE) methods as an augmentation to 
+    the \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING} analyses.   This includes both the 
+    regression and projection forms of non-intrusive PCE. These PCE capabilities allow 
+    uncertainty to be accurately propagated thru a \Xyce{} calculation with a relatively 
+    small number of sample points.
+  \item \Xyce{} now supports fully intrusive Polynomial Chaos Expansion (PCE) methods 
+    using the new \texttt{.PCE} command.  This is mostly an experimental method, and is an 
+    alternative to the non-intrusive forms of PCE that are also available in \Xyce{}.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
