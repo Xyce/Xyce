@@ -97,16 +97,64 @@
 
     SQRT(x) & $\sqrt{x}$ & square root of $x$ \\ \hline
 
-    TABLE(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & piecewise linear interpolation, multiple ($y$,$z$) pairs can be specified \\ \hline
-    
-    TABLEFILE(``filename'') &  
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space saprated, is 
-      read from disk and put into a \texttt{TABLE} for use as function lookup table. \\ \hline
-
     URAMP(x)
     & $x$ if $x > 0$ & ramp function \\
     & 0 otherwise &  \\ \hline
+
+    \category{Operators related to interpolating tabular data} \\ \hline
+
+    TABLE(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & piecewise linear interpolation, multiple ($y$,$z$) pairs can be specified \\ \hline
+
+    TABLE(``filename'') &  
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{TABLE} for use as function lookup table. Synonymous with TABLEFILE. \\ \hline
+
+    FASTTABLE(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & piecewise linear interpolation without breakpoints, multiple ($y$,$z$) pairs can be specified \\ \hline
+
+    FASTTABLE(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{FASTTABLE} for use as breakpoint-free function lookup table. \\ \hline
+
+    SPLINE(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & Akima spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
+
+    SPLINE(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{SPLINE} for use in an Akima spline. \\ \hline
+
+    AKIMA(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & Akima spline interpolation~\cite{10.1145/321607.321609}, multiple ($y$,$z$) pairs should be specified (synonymous with SPLINE) \\ \hline
+
+    AKIMA(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{AKIMA} for use in an Akima spline. \\ \hline
+
+    CUBIC(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & Cubic spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
+
+    CUBIC(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{CUBIC} for use in an Cubic spline. \\ \hline
+
+    WODICKA(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & Wodicka spline interpolation~\cite{Engeln1996}, multiple ($y$,$z$) should be specified \\ \hline
+
+    WODICKA(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{WODICKA} for use in a Wodicka spline. \\ \hline
+
+    BLI(x,y,z,*)
+    & $f(x)$ where $f(y)=z$ & Barycentric Lagrange interpolation~\cite{Berrut_barycentriclagrange}, multiple ($y$,$z$) pairs should be specified \\ \hline
+
+    BLI(``filename'') &
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{BLI} for use in Barycentric Lagrance Interpolation. \\ \hline
+    
+    TABLEFILE(``filename'') &  
+    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
+      read from disk and put into a \texttt{TABLE} for use as function lookup table. \\ \hline
 
     \category{Operators related to complex numbers} \\ \hline
 

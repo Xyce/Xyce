@@ -97,6 +97,14 @@ please visit the \XyceTM{} web page at
   \item \Xyce{} now supports fully intrusive Polynomial Chaos Expansion (PCE) methods 
     using the new \texttt{.PCE} command.  This is mostly an experimental method, and is an 
     alternative to the non-intrusive forms of PCE that are also available in \Xyce{}.
+  \item The \Xyce{} expression library now supports a fast piecewise linear table, \texttt{FASTTABLE}.  
+    This feature is the same as \texttt{TABLE}, except that it only has time integration breakpoints
+    at the first and last time point.  For very large tables this can result in a significant 
+    speedup.
+  \item The \Xyce{} expression library now supports a variety of higher-order interpolators including 
+    \texttt{SPLINE}, \texttt{AKIMA}, \texttt{WODICKA} and \texttt{CUBIC} splines.  Another 
+    supported interpolator is \texttt{BLI} for Barycentric Lagrange Interpolation.  All of these
+    interpolators use the same syntax as \texttt{TABLE} and \texttt{TABLEFILE}.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -165,12 +173,14 @@ please visit the \XyceTM{} web page at
  \item Support for the deprecated conversion of quoted-sting file 
   names to a table of data has been removed.  The supported method
   for reading a data file into a table is to use the \texttt{tablefile("")} keyword. 
-  For example this would set the parameter, \texttt{PARAMETER} to a table 
-  of data read from a file \texttt{"file.dat"}
-  \texttt{PARAMETER=\{tablefile("file.dat")\}} 
-  Using \texttt{PARAMETER="file.dat"} will set \texttt{PARAMETER} to the
+  Inside of expressions, \texttt{table("")} also works.
+  For example, to set the parameter \texttt{PARAMETER} to a table 
+  of data read from a file named \texttt{"file.dat"} one can use either
+  \texttt{PARAMETER=\{tablefile("file.dat")\}}  or
+  \texttt{PARAMETER=\{table("file.dat")\}}.
+  Using \texttt{PARAMETER="file.dat"}, the old convention, will set \texttt{PARAMETER} to the
   string value \texttt{"file.dat"}.  See the \Xyce{} Reference Guide
-  under \texttt{GLOBAL\_PARAM} and Expressions for more details.  Device
+  under \texttt{.GLOBAL\_PARAM}, \texttt{.PARAM} and Expressions for more details.  Device
   models that can take tables of data as parameters are documented
   under the appropriate device. 
 \end{XyceItemize}

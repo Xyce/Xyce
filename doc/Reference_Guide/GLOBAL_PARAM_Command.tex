@@ -45,8 +45,15 @@ line into a global parameter, use this syntax:
 
 \texttt{.GLOBAL\_PARAM extdata = \{tablefile("filename")\}}
 
-where \texttt{filename} would be the name of the file to load.  See \ref{ExpressionDocumentation} for 
-further information.
+or
+
+\texttt{.GLOBAL\_PARAM extdata = \{table("filename")\}}
+
+where \texttt{filename} would be the name of the file to load.  
+Other interpolators that can read in a data table from a file 
+include \texttt{fasttable},\texttt{spline}, \texttt{akima}, \texttt{cubic}, 
+\texttt{wodicka} and \texttt{bli}.  See \ref{ExpressionDocumentation} 
+for further information. 
 
 There are several reserved words that may not be used as names for parameters.  These reserved words are:
 \begin{XyceItemize}
