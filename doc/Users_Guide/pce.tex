@@ -337,7 +337,7 @@ The fully intrusive form of PCE involves solving a system of equations which is 
 applying the orthogonal polynomial expansion defined by 
 Eq. \eqref{eq:genPCEresponse} to all the terms of the differential-algebraic 
 system of equations solved by \Xyce{}.  The details of this construction are given in 
-reference~\cite{xyceAdvancedUQ}.  This method is mostly an experimental method at this point
+reference~\cite{xyceAdvancedUQ}.  This method is mostly an experimental method at this point, and is inherently more expensive
 so it is not the best choice of PCE method in \Xyce{}.   Most use \texttt{.PCE} use cases of
 interest can be computed much more cheaply and robustly using \texttt{.EMBEDDEDSAMPLING} 
 combined with one of the non-intrusive PCE methods (regression PCE or NISP).
@@ -346,7 +346,7 @@ PCE coefficients at every stage of the calculation.
 
 An example netlist, for a diode clipper circuit which uses intrusive PCE, is given in figure~\ref{Fully_Intrusive_PCE_netlist1}.
 For this type of analysis, it is not necessary to specify \texttt{projection\_pce=true}.  The result for this circuit 
-is given in figure~\ref{Fully_Intrusive_PCE_result1}.
+is given in figure~\ref{Fully_Intrusive_PCE_result1}.  
 \begin{figure}[htbp]
 \fontsize{9pt}{10pt}
 \begin{centering}
