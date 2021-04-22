@@ -384,7 +384,7 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     else
     {
       Xyce::Report::UserWarning() << iter->uTag() 
-        << " is not a recognized sampling option.\n" << std::endl;
+        << " is not a recognized intrusive PCE option.\n" << std::endl;
     }
   }
 
@@ -559,7 +559,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       else
       {
         Xyce::Report::UserWarning() << (*it).uTag() 
-          << " = " << p << " is not a recognized sampling option.  Setting " << (*it).uTag() << " = MC.\n" << std::endl;
+          << " = " << p << " is not a recognized intrusive PCE option.  Setting " << (*it).uTag() << " = MC.\n" << std::endl;
         sampleType_ = UQ::MC;
       }
     }
@@ -618,7 +618,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() 
-        << " is not a recognized sampling option.\n" << std::endl;
+        << " is not a recognized intrusive PCE option.\n" << std::endl;
     }
   }
 

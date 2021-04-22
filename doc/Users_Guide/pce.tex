@@ -12,7 +12,7 @@
 % -------------------------------------------------------------------------
 
 \clearpage
-\section{Polynomial Chaos Expansion methods}
+\section{Polynomial Chaos Expansion (PCE) methods}
 \label{PCE_Analysis}
 \label{pce_Overview}
 \index{analysis!PCE} \index{PCE analysis} 
@@ -42,32 +42,34 @@ reference~\cite{xyceAdvancedUQ} and the references therein.
 
 \Xyce{} supports three versions of polynomial chaos.  They mainly differ in how the coefficients $\alpha$ in equation~\ref{eq:genPCEresponse} are computed.  These three methods are:
 \begin{itemize}
-  \item Non-intrusive regression polynomial chaos
-  \item Non-intrusive spectral projection  (NISP)
-  \item Fully intrusive spectral projection
+  \item Non-intrusive regression polynomial chaos (section~\ref{regressionPCE})
+  \item Non-intrusive spectral projection  (NISP) (section~\ref{nisp})
+  \item Fully intrusive spectral projection (section~\ref{intrusivePCE})
 \end{itemize}
 The first two versions are non-intrusive, meaning that they don't directly modify the forward problem being solved.  
 Instead, they are augmentations to the \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING} analysis methods.
 The fully intrusive method is a separate analysis type, and is invoked using the \texttt{.PCE} command.
-
+\clearpage
 \subsection{Regression-based Polynomial Chaos}
 \label{regressionPCE}
 
-Regression-based PCE is briefly described here.
-Regression-based PCE approaches aim to solve the linear system:
+Regression-based PCE is briefly described in this section.
+Regression-based PCE approaches aim to find the best fit for the linear system:
 \begin{equation}
 \boldsymbol{\varPsi} \boldsymbol{\alpha} \approx \boldsymbol{R} \label{eq:regression}
 \end{equation}
 for a set of PCE coefficients $\boldsymbol{\alpha}$ that best
-reproduce a set of response values $\boldsymbol{R}$.  
+reproduce a set of response values $\boldsymbol{R}$.   The orthogonal polynomials used in the  
+PCE approximation are represented by the matrix $\varPsi$.  This matrix is usually a rectangular
+matrix.
+
 The regression approach finds a set of PCE coefficients $\alpha^i$ which best fit a set of response
 values obtained from a sampling study on the density function of the uncertain 
 parameters~\cite{pt_colloc1}.  One advantage of regression-based methods is that
 they are very flexible with respect to the exact sample points used to evaluate the responses, 
 and can readily be used with standard sampling methods such as Monte Carlo and Latin Hypercube Sampling.
-For this project, the method for solving 
-Eq. \eqref{eq:regression} that has been implemented in \Xyce{} is 
-least squares regression.
+For this project, the method for solving Eq. \eqref{eq:regression} that has been implemented 
+in \Xyce{} is least squares regression.
 
 Regression-based PCE can be applied as a post-process step 
 to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
@@ -77,12 +79,26 @@ or \texttt{.options EMBEDDEDSAMPLES} command lines.
 Regression PCE will use the samples selected by the sampling algorithm (Monte Carlo or Latin Hypercube).  
 The regression PCE algorithm will \emph{not} estimate the optimal number of samples to use, and so this must 
 be set by the user.   For regression PCE, the number of samples needed for an accurate answer
-should be smaller than the number that would have been required by conventional sampling.
+can be smaller than the number that would have been required by conventional sampling.
 For regression problems, to get an accurate answer it is considered good practice to oversample 
 the basis size by at least a factor of 2. 
 
-A simple example netlist, which uses regression PCE with \texttt{.SAMPLING} is given in figure~\ref{regressionPCE_Netlist1}.  
+An example netlist, which uses regression PCE with \texttt{.SAMPLING} is given in figure~\ref{regressionPCE_Netlist1}.  
 Results from this calculation, which are sent to terminal output are given in figure~\ref{regressionPCE_Result1}.
+In this calculation, the polynomial order has been set to \texttt{5}, the output which is subject to the PCE analysis 
+is \texttt{v(1)}, the type of sampling used is Latin Hypercube Sampling (LHS), and the results of the analysis are 
+sent to terminal output.    For this example, the uncertain parameter is \texttt{testNorm}, which is
+set by the \texttt{.param testNorm=\{aunif(2k,1k)\}} statement.  On the \texttt{.SAMPLING} line, 
+the command \texttt{useExpr=true} instructs the sampling method to rely on expression-based 
+random expressions.  Without this line, the sampling algorithm would ignore \texttt{testNorm}.
+
+The parameter \texttt{resample=true} is a PCE-specific command.   Once the PCE approximation 
+has been completed, the resulting polynomial can be thought of as a surrogate model, and this
+surrogate can then be sampled, much like the original forward problem.  When the surrogate is 
+sampled, it uses 1000 samples.    Since this calculation is sampling a polynomial, it can do 
+a really large number of evaluations without incurring much computational expense.
+The result of this resampling is (in the example) also sent to the console, as can be 
+seen at the bottom of figure~\ref{regressionPCE_Result1}.
 
 \begin{figure}[htbp]
 \fontsize{9pt}{10pt}
@@ -154,7 +170,10 @@ min      = 500.054
 \end{vquote}
 \end{minipage}
 }
-\caption{Voltage divider regression PCE result.
+\caption{Voltage divider regression PCE result.  There are 3 sets of statistics in this ouptut.  
+  The first set is computed from the 12 LHS sample points.  As this is a PCE calculation, the number of points is small and so the statistics based on them are probably not very accurate.
+  The second set is computed from the PCE approximation, which are purely analytical.
+  The third set is from running 1000 samples on the PCE approximation.  This output is enabled by \texttt{resample=true}.
 \label{regressionPCE_Result1}}
 \end{centering}
 \end{figure}
@@ -162,7 +181,6 @@ min      = 500.054
 \clearpage
 \subsection{Non-Intrusive Spectral Projection (NISP)}
 \label{nisp}
-
 The spectral projection PCE approach projects the response
 against each basis function $\Psi_j(p)$ using inner
 products and employs the polynomial orthogonality properties to
@@ -203,17 +221,182 @@ As noted, when using NISP it is not necessary to specify the number of sample po
 be set by the quadrature algorithm.  To enable quadrature on a sparse grid, set the 
 option \texttt{sparse\_grid=true} on the \texttt{.options EMBEDDEDSAMPLES} command line.
 
+An example netlist, which uses NISP with \texttt{.EMBEDDEDSAMPLING} is given in figure~\ref{NISP_netlist1}.  
+Results from this calculation, which are output using the \texttt{.PRINT ES} command 
+are given in figure~\ref{NISP_result1}.  The \texttt{.PRINT ES} command 
+will automatically output several moments of the specified PCE outputs (in this 
+case \texttt{V(drain)} and \texttt{V(gate)}) without any additional arguments 
+on the \texttt{.PRINT ES} line.  In the example, additional information is 
+requested using the \texttt{OUTPUT\_PCE\_COEFFS=TRUE} command, which will result 
+in all of the PCE coefficients (the various $\alpha^{i}$ given by equation~\ref{nispProjection}).
+
+A \texttt{.SAMPLING} version of the netlist given in figure~\ref{NISP_netlist1} can also be 
+constructed, by simply replacing \texttt{.EMBEDDEDSAMPLING} with \texttt{.SAMPLING} and 
+replacing \texttt{.options EMBEDDEDSAMPLES} with \texttt{.SAMPLES}.    However, the behavior
+of \texttt{.SAMPLING} analysis will be a bit different.  As \texttt{.SAMPLING} 
+performs the calculation for each quadrature point sequentially, rather than 
+simultaneously, there is no equivalent of \texttt{.PRINT ES} for 
+conventional sampling.  All of the \texttt{.SAMPLING} output is handled 
+by the \texttt{.PRINT TRAN} command.  
+
+Additionally, since the PCE analysis cannot be performed until the end of a 
+\texttt{.SAMPLING} analysis, it is more  useful to have the analysis applied 
+to \texttt{.MEASURE} commands which produce metrics for the entire simulation.  
+Applying the PCE analysis to voltage node values in this case is less useful, 
+as it will  simply use the final values for each voltage node (which will be 
+mostly invariant in this example).
+
+\begin{figure}[htbp]
+\fontsize{9pt}{10pt}
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.95\textwidth}
+  \begin{vquote}\color{blue}
+* embedded sampling with NISP, CMOS inverter\color{black}
+.param inFreq=1e6, inPer=\{1/inFreq\}
+.param td=\{inPer/2-inPer/10\}
+.param tr=\{inPer/10\}, tf=\{inPer/10\}
+.param pw=\{inPer/2-inPer/10\}, per=\{inPer\}
+
+VS\_VDD vdd 0 DC 1.0
+Vin gate 0 pulse( 0.0 1.0 \{td\} \{tr\} \{tf\} \{pw\} \{per\} )
+M1 drain gate 0 0 NMOS w=0.18e-6 l=0.18e-6
+M2 drain gate vdd vdd PMOS  w =0.54e-6 
+
+.model nmos nmos (level=9 tnom=27 nch=2.3549e17 \color{red}vth0=\{aunif(0.55,0.15)\}\color{black} 
++ uc=5.105195e-11 ags=0.4044483 keta=-2.730673e-3 rdsw=105 wr=1 
++ dwg=-3.773529e-9 dwb=5.239518e-9 cit=0 cdscb=0 dsub=0.0167866 
++ pdiblc2=3.38377e-3 pscbe1=8e10 delta=0.01 prt=0 kt1l=0 ub1=-7.61e-18 
++ wl=0 wwn=1 lln=1 lwl=0 cgdo=7.9e-10 cj=9.539798e-4 
++ cjsw=2.53972e-10 cjswg=3.3e-10 cf=0 pk2=-4.42044e-4 pu0=10.8203648 
++ pvsat=1.388017e3 tox=4.1e-9 k2=1.63871e-3 w0=1e-7 dvt1w=0 
++ dvt1=0.3683763 ua=-1.504141e-9 vsat=9.896282e4 b0=-4.706134e-8 
++ a1=5.916677e-4 prwg=0.5 wint=0 voff=-0.0883818 cdsc=2.4e-4 
++ eta0=2.470369e-3 pclm=0.7326932 pdiblcb=-0.1 pscbe2=1.254966e-9 
++ rsh=6.5 ute=-1.5 kt2=0.022 uc1=-5.6e-11 wln=1 wwl=0 lw=0 
++ capmod=2 cgso=7.9e-10 pb=0.8 pbsw=0.8 pbswg=0.8 pvth0=7.505753e-4 
++ wketa=3.100384e-3 pua=2.896652e-11 peta0=8.758549e-5 toxm=4.1e-9 
++ xj=1e-7 k1=0.6064385 k3b=2.763267 dvt0w=0 dvt0=1.3330881 u0=258.9066683 
++ nlx=1.71872e-7 dvt2w=0 dvt2=0.0540199 ub=2.428646e-18 a0=1.8904342 
++ k3=1e-3 b1=1.294942e-6 a2=0.9069159 prwb=-0.2 lint=1.69494e-8 
++ nfactor=2.1821266 cdscd=0 etab=1.047744e-5 pdiblc1=0.1823102 
++ drout=0.7469045 pvag=0 mobmod=1 kt1=-0.11 ua1=4.31e-9 at=3.3e4 
++ ww=0 ll=0 lwn=1 xpart=0.5 cgbo=1e-12 mj=0.380768 mjsw=0.1061193 
++ mjswg=0.1061193 prdsw=-2.7650517 lketa=-0.0104103 
++ pub=1.684125e-23 pketa=1.549791e-3)
+
+.model pmos pmos (level=9 tnom=27 nch=4.1589e17 \color{red}vth0=\{-aunif(0.55,0.15)\}\color{black} 
++ k2=0.0258663 w0=1e-6 dvt1w=0 dvt0=0.6117215 u0=106.5280265 uc=-1e-10 
++ ags=0.3667554 keta=0.0237092 rdsw=304.9893888 wr=1 dwg=-2.44019e-8 
++ dwb=-9.06003e-10 cit=0 cdscb=0 dsub=1.0998181 pdiblc2=0.0420477 
++ pscbe1=1.073111e10 delta=0.01 prt=0 kt1l=0 ub1=-7.61e-18 
++ wl=0 wwn=1 lln=1 lwl=0 cgdo=6.41e-10 cj=1.200422e-3 
++ cjsw=2.001802e-10 cjswg=4.22e-10 cf=0 pk2=1.799383e-3 pu0=-1.3399122 
++ pvsat=-50 l=0.18e-6 tox=4.1e-9 k3=0 nlx=1.20187e-7 
++ dvt2w=0 dvt1=0.2286816 ua=1.125454e-9 vsat=1.593712e5 b0=5.263128e-7 
++ a1=0.2276342 prwg=0.5 wint=0 voff=-0.0878287 cdsc=2.4e-4 eta0=0.1672562 
++ pclm=2.2249148 pdiblcb=-1e-3 pscbe2=3.099395e-9 rsh=7.4 ute=-1.5 
++ kt2=0.022 uc1=-5.6e-11 wln=1 wwl=0 lw=0 capmod=2 cgso=6.41e-10 
++ pb=0.8478616 pbsw=0.8483594 pbswg=0.8483594 pvth0=2.098588e-3 
++ wketa=0.0295614 pua=-5.27759e-11 peta0=1.003159e-4 toxm=4.1e-9 
++ xj=1e-7 k1=0.59111 k3b=7.9143108 dvt0w=0 dvt2=0.1 ub=1e-21 a0=1.6904754 
++ b1=1.496707e-6 a2=0.6915706 prwb=0.2553725 lint=3.217673e-8 
++ nfactor=1.8560303 cdscd=0 etab=-0.1249603 pdiblc1=8.275696e-4 
++ drout=0 pvag=15 mobmod=1 kt1=-0.11 ua1=4.31e-9 at=3.3e4 ww=0 ll=0 
++ lwn=1 xpart=0.5 cgbo=1e-12 mj=0.4105254 mjsw=0.3400571 
++ mjswg=0.3400571 prdsw=4.4771801 lketa=-1.935751e-3 
++ pub=1e-21 pketa=-3.434535e-3)
+
+\color{red}.EMBEDDEDSAMPLING useExpr=true
+.options EMBEDDEDSAMPLES outputs=\{v(drain)\},\{V(gate)\} projection\_pce=true
+.PRINT ES OUTPUT\_PCE\_COEFFS=TRUE FORMAT=tecplot \color{black}
+.tran 1ns 0.75e-6
+.PRINT TRAN v(drain) V(gate)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption{CMOS Inverter Non-intrusive Spectral Projection (NISP) netlist. 
+ The NISP-related commands are in \color{red}red\color{black}.
+\label{NISP_netlist1}}
+\end{centering}
+\end{figure}
+
+\begin{figure}[hbt]
+\centering
+\includegraphics[width=5in]{cmos_inverter_result.pdf}
+\caption
+  [CMOS Inverter NISP Output] {CMOS Inverter NISP Output}
+\label{NISP_result1}
+\end{figure}
+
+\clearpage
 \subsection{Fully Intrusive Spectral Projection}
 \label{intrusivePCE}
 The fully intrusive form of PCE involves solving a system of equations which is constructed by 
 applying the orthogonal polynomial expansion defined by 
 Eq. \eqref{eq:genPCEresponse} to all the terms of the differential-algebraic 
 system of equations solved by \Xyce{}.  The details of this construction are given in 
-reference~\cite{xyceAdvancedUQ}.
+reference~\cite{xyceAdvancedUQ}.  This method is mostly an experimental method at this point
+so it is not the best choice of PCE method in \Xyce{}.   Most use \texttt{.PCE} use cases of
+interest can be computed much more cheaply and robustly using \texttt{.EMBEDDEDSAMPLING} 
+combined with one of the non-intrusive PCE methods (regression PCE or NISP).
+Similar to \texttt{.EMBEDDEDSAMPLING} based calculations, \texttt{.PCE} is computing 
+PCE coefficients at every stage of the calculation.   
+
+An example netlist, for a diode clipper circuit which uses intrusive PCE, is given in figure~\ref{Fully_Intrusive_PCE_netlist1}.
+For this type of analysis, it is not necessary to specify \texttt{projection\_pce=true}.  The result for this circuit 
+is given in figure~\ref{Fully_Intrusive_PCE_result1}.
+\begin{figure}[htbp]
+\fontsize{9pt}{10pt}
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.95\textwidth}
+  \begin{vquote}\color{blue}Transient Diode Clipper with intrusive PCE analysis\color{black}
+
+.tran 2ns 2.0ms
+
+\color{red}.PCE useExpr=true
+.options PCES 
++ OUTPUTS=R4:R,D1N3940:IS outputs=\{V(4)\}
+.print pce format=tecplot \color{black}
+
+VCC 1 0 5V
+VIN 3 0 SIN(0V 10V 1kHz)
+D1 2 1 D1N3940
+D2 0 2 D1N3940
+R1 2 3 1K
+R2 1 2 3.3K
+R3 2 0 3.3K
+R4 4 0 \color{red} \{aunif(9.0k,6.0k)\} \color{black}
+C1 2 4 0.47u
+
+.MODEL D1N3940 D(
++ \color{red} IS=\{aunif(4.0e-10,2.0e-10)\} \color{black}
++ RS=.105 N=1.48 TT=8E-7
++ CJO=1.95E-11 VJ=.4 M=.38 EG=1.36
++ XTI=-8 KF=0 AF=1 FC=.9 BV=600 IBV=1E-4)
+.END 
+\end{vquote}
+\end{minipage}
+}
+\caption{Diode clipper fully intrusive PCE netlist.
+ The PCE-related commands are in \color{red}red\color{black}.
+\label{Fully_Intrusive_PCE_netlist1}}
+\end{centering}
+\end{figure}
+
+\begin{figure}[hbt]
+\centering
+\includegraphics[width=5in]{clipperPce2.pdf}
+\caption
+  [Diode clipper fully intrusive PCE Output] {Diode clipper fully intrusive PCE Output}
+\label{Fully_Intrusive_PCE_result1}
+\end{figure}
 
 \clearpage
 %% -----------------------------------------------------------------------------------
-\subsection{Gilbert Cell Mixer PCE example}
+\subsection{Comparing PCE methods: Gilbert Cell Mixer PCE example}
 \label{xyceGilbertCell}
 A Gilbert cell mixer circuit is given in figure~\ref{gilbert}~\cite{1049925}.  A corresponding netlist 
 is given in Fig.~\ref{NISP_gilbert_netlist}.
