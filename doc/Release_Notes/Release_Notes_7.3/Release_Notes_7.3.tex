@@ -85,26 +85,34 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item Increased parallel stability and robustness for simulation algorithms and models
-        on increasing numbers of processors.
-  \item Improved handling of dynamically inserted break points from devices that use history information,
-	such as delay device. This resolved various accuracy issues, discontinuous behavior and convergence issues.
-  \item \Xyce{} now supports non-intrusive Polynomial Chaos Expansion (PCE) methods as an augmentation to 
-    the \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING} analyses.   This includes both the 
-    regression and projection forms of non-intrusive PCE. These PCE capabilities allow 
-    uncertainty to be accurately propagated thru a \Xyce{} calculation with a relatively 
-    small number of sample points.
-  \item \Xyce{} now supports fully intrusive Polynomial Chaos Expansion (PCE) methods 
-    using the new \texttt{.PCE} command.  This is mostly an experimental method, and is an 
-    alternative to the non-intrusive forms of PCE that are also available in \Xyce{}.
-  \item The \Xyce{} expression library now supports a fast piecewise linear table, \texttt{FASTTABLE}.  
-    This feature is the same as \texttt{TABLE}, except that it only has time integration breakpoints
-    at the first and last time point.  For very large tables this can result in a significant 
-    speedup.
-  \item The \Xyce{} expression library now supports a variety of higher-order interpolators including 
-    \texttt{SPLINE}, \texttt{AKIMA}, \texttt{WODICKA} and \texttt{CUBIC} splines.  Another 
-    supported interpolator is \texttt{BLI} for Barycentric Lagrange Interpolation.  All of these
-    interpolators use the same syntax as \texttt{TABLE} and \texttt{TABLEFILE}.
+  \item Increased parallel stability and robustness for simulation
+    algorithms and models on increasing numbers of processors.
+  \item Improved handling of dynamically inserted break points from
+    devices that use history information, such as delay device. This
+    resolved various accuracy issues, discontinuous behavior and
+    convergence issues.
+  \item \Xyce{} now supports non-intrusive Polynomial Chaos Expansion
+    (PCE) methods as an augmentation to the \texttt{.SAMPLING} and
+    \texttt{.EMBEDDEDSAMPLING} analyses.  This includes both the
+    regression and projection forms of non-intrusive PCE. These PCE
+    capabilities allow uncertainty to be accurately propagated thru a
+    \Xyce{} calculation with a relatively small number of sample
+    points.
+  \item \Xyce{} now supports fully intrusive Polynomial Chaos
+    Expansion (PCE) methods using the new \texttt{.PCE} command.  This
+    is mostly an experimental method, and is an alternative to the
+    non-intrusive forms of PCE that are also available in \Xyce{}.
+  \item The \Xyce{} expression library now supports a fast piecewise
+    linear table, \texttt{FASTTABLE}.  This feature is the same as
+    \texttt{TABLE}, except that it only has time integration
+    breakpoints at the first and last time point.  For very large
+    tables this can result in a significant speedup.
+  \item The \Xyce{} expression library now supports a variety of
+    higher-order interpolators including \texttt{SPLINE},
+    \texttt{AKIMA}, \texttt{WODICKA} and \texttt{CUBIC} splines.
+    Another supported interpolator is \texttt{BLI} for Barycentric
+    Lagrange Interpolation.  All of these interpolators use the same
+    syntax as \texttt{TABLE} and \texttt{TABLEFILE}.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -116,12 +124,15 @@ please visit the \XyceTM{} web page at
   \item The Xyce expression library now recognizes \texttt{TEMPER} and
     \texttt{HERTZ} as synonyms for \texttt{TEMP} and \texttt{FREQ},
     respectively.
-  \item The Xyce expression library now recognizes the  operators \texttt{nint()}, \texttt{fmod()} and \texttt{db()}.
-  \item The default behavior of the random expression operators \texttt{GAUSS}, \texttt{AGAUSS},
-    \texttt{RAND}, \texttt{UNIF} and \texttt{AUNIF} has been
-    changed so that they return the mean of the operator.   They now only return random values if one the various
-    uncertainty quantification (UQ) analyses options (\texttt{.SAMPLING},
-    \texttt{.EMBEDDEDSAMPLING} or \texttt{.PCE}) is specified in the netlist.
+  \item The Xyce expression library now recognizes the operators
+    \texttt{nint()}, \texttt{fmod()} and \texttt{db()}.
+  \item The default behavior of the random expression operators
+    \texttt{GAUSS}, \texttt{AGAUSS}, \texttt{RAND}, \texttt{UNIF} and
+    \texttt{AUNIF} has been changed so that they return the mean of
+    the operator.  They now only return random values if one the
+    various uncertainty quantification (UQ) analyses options
+    (\texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING} or \texttt{.PCE})
+    is specified in the netlist.
   \item Model binning is now turned on by default.  It is not
     necessary to specify the netlist command \texttt{.options parser}
     \texttt{model\_binning=true} anymore.
@@ -131,15 +142,24 @@ please visit the \XyceTM{} web page at
     rawfiles produced via ``.print FORMAT=RAW'' lines, only the
     command-line version that causes all solution variables to be
     extracted into the rawfile.
-  \item \texttt{.param} parameters are now allowed to depend on ``special'' variables 
-    such as \texttt{TEMP}, \texttt{TIME}, \texttt{FREQ} and \texttt{VT}.  
-    Previously, only \texttt{.global\_param} parameters could depend on special variables. 
-  \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.
-  \item \texttt{.param} parameters in the top level scope can now be modified by commands such as \texttt{.STEP}, \texttt{.DC}, \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and \texttt{LOCA}.  Previously, only \texttt{.global\_param} parameters could be modified by these commands.
+  \item \texttt{.param} parameters are now allowed to depend on
+    ``special'' variables such as \texttt{TEMP}, \texttt{TIME},
+    \texttt{FREQ} and \texttt{VT}.  Previously, only
+    \texttt{.global\_param} parameters could depend on special
+    variables.
+  \item \texttt{.param} parameters are now allowed to depend on
+    \texttt{.global\_param} parameters.
+  \item \texttt{.param} parameters in the top level scope can now be
+    modified by commands such as \texttt{.STEP}, \texttt{.DC},
+    \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and
+    \texttt{LOCA}.  Previously, only \texttt{.global\_param}
+    parameters could be modified by these commands.
   \item The search-path algorithm for files given on \texttt{.INC} and
-     \texttt{.LIB} lines has been improved.  It should be more compatible
-     with both commercial and open-source Process Design Kits (PDKs) now.
-  \item Objective functions for \texttt{.AC} sensitivities can now be specified as expressions using the \texttt{acobjfunc} parameter.
+    \texttt{.LIB} lines has been improved.  It should be more
+    compatible with both commercial and open-source Process Design
+    Kits (PDKs) now.
+  \item Objective functions for \texttt{.AC} sensitivities can now be
+    specified as expressions using the \texttt{acobjfunc} parameter.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
@@ -157,8 +177,8 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
-\item To enable improved performance, \Xyce{} now requires a C++11 capable
-  compiler.
+\item To enable improved performance, \Xyce{} now requires a C++11
+  capable compiler.
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
@@ -170,19 +190,21 @@ please visit the \XyceTM{} web page at
   package on those operating systems.  Please see commentary in the
   ``Known Defects'' section of these release notes under bug number
   ``967-SON''.
- \item Support for the deprecated conversion of quoted-sting file 
-  names to a table of data has been removed.  The supported method
-  for reading a data file into a table is to use the \texttt{tablefile("")} keyword. 
-  Inside of expressions, \texttt{table("")} also works.
-  For example, to set the parameter \texttt{PARAMETER} to a table 
-  of data read from a file named \texttt{"file.dat"} one can use either
-  \texttt{PARAMETER=\{tablefile("file.dat")\}}  or
-  \texttt{PARAMETER=\{table("file.dat")\}}.
-  Using \texttt{PARAMETER="file.dat"}, the old convention, will set \texttt{PARAMETER} to the
-  string value \texttt{"file.dat"}.  See the \Xyce{} Reference Guide
-  under \texttt{.GLOBAL\_PARAM}, \texttt{.PARAM} and Expressions for more details.  Device
-  models that can take tables of data as parameters are documented
-  under the appropriate device. 
+ \item Support for the deprecated conversion of quoted-sting file
+   names to a table of data has been removed.  The supported method
+   for reading a data file into a table is to use the
+   \texttt{tablefile("")} keyword.  Inside of expressions,
+   \texttt{table("")} also works.  For example, to set the parameter
+   \texttt{PARAMETER} to a table of data read from a file named
+   \texttt{"file.dat"} one can use either
+   \texttt{PARAMETER=\{tablefile("file.dat")\}} or
+   \texttt{PARAMETER=\{table("file.dat")\}}.  Using
+   \texttt{PARAMETER="file.dat"}, the old convention, will set
+   \texttt{PARAMETER} to the string value \texttt{"file.dat"}.  See
+   the \Xyce{} Reference Guide under \texttt{.GLOBAL\_PARAM},
+   \texttt{.PARAM} and Expressions for more details.  Device models
+   that can take tables of data as parameters are documented under the
+   appropriate device.
 \end{XyceItemize}
 
 \newpage
