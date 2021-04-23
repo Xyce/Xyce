@@ -37,6 +37,9 @@
 #include <N_CIR_GenCouplingSimulator.h>
 #include <N_DEV_VectorComputeInterfaceWithLimiting.h>
 #include <N_IO_ExtOutInterface.h>
+#include <N_DEV_DeviceOptions.h>
+#include <N_DEV_SolverState.h>
+#include <N_UTL_Expression.h>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -46,6 +49,20 @@
 #include <pybind11/numpy.h>
 namespace py = pybind11;
 using namespace py::literals;
+
+// pybind11 wrapper for DeviceOptions and SolverState
+PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
+    m.attr("__version__") = "7.3";
+    py::class_<Xyce::Device::DeviceOptions>(m, "DeviceOptions")
+    .def_readonly("voltageLimiterFlag", &Xyce::Device::DeviceOptions::voltageLimiterFlag);
+    py::class_<Xyce::Device::SolverState>(m, "SolverState")
+    .def_readonly("currTime_", &Xyce::Device::SolverState::currTime_)
+    .def_readonly("newtonIter", &Xyce::Device::SolverState::newtonIter)
+    .def_readonly("initJctFlag_", &Xyce::Device::SolverState::initJctFlag_)
+    .def_readonly("inputOPFlag", &Xyce::Device::SolverState::inputOPFlag)
+    .def_readonly("dcopFlag", &Xyce::Device::SolverState::dcopFlag)
+    .def_readonly("locaEnabledFlag", &Xyce::Device::SolverState::locaEnabledFlag);
+}
 
 // creates py::list of py::memoryviews to wrap std::vector of std::vector
 template <typename T>
@@ -123,11 +140,9 @@ public:
   {}
 
   virtual bool computeXyceVectorsWithLimiting(std::vector<double> & solV, std::vector<double> & fSV, std::vector<std::vector<double> > & stoV,
-                          double t, bool voltageLimiterFlag,
-                          int newtonIter, bool initJctFlag, 
-                          bool inputOPFlag, 
-                          bool dcopFlag, 
-                          bool locaEnabledFlag,
+                          double t, 
+                          const Xyce::Device::DeviceOptions & xyceDeviceOptions,
+                          const Xyce::Device::SolverState & xyceSolverState,
                           bool& origFlag_,
                           std::vector<double> & F,
                           std::vector<double> & Q,
@@ -246,17 +261,15 @@ public:
                 s_params);
     }
 
+    auto py_xyceDeviceOptions = const_cast<Xyce::Device::DeviceOptions*>(&xyceDeviceOptions);
+    auto py_xyceSolverState = const_cast<Xyce::Device::SolverState*>(&xyceSolverState);
     py::object result = device.attr("computeXyceVectors")(
             py_solV, 
             py_fSV,
             py_stoV,
             t, 
-            voltageLimiterFlag,
-            newtonIter,
-            initJctFlag,
-            inputOPFlag, 
-            dcopFlag, 
-            locaEnabledFlag,
+            py_xyceDeviceOptions,
+            py_xyceSolverState,
             py_origFlag,
             py_F, 
             py_Q, 

@@ -1,3 +1,4 @@
+from XyceObjects import DeviceOptions, SolverState
 # specifies functions that must be defined
 class BaseDevice(object):
 
@@ -76,8 +77,8 @@ class BaseDevice(object):
     def setJacStamp(self, jacStamp, b_params, d_params, i_params, s_params):
         return 1 
 
-    def computeXyceVectors(self, solV, fSV, stoV, t, voltageLimiterFlag, newtonIter, initJctFlag, inputOPflag,
-            dcopFlag, locaEnabledFlag, origFlag, F, Q, B, dFdX, dQdX, dFdXdVp, dQdXdVp, 
+    def computeXyceVectors(self, solV, fSV, stoV, t, deviceOptions, solverState,
+            origFlag, F, Q, B, dFdX, dQdX, dFdXdVp, dQdXdVp, 
             b_params, d_params, i_params, s_params):
         raise NotImplementedError
 

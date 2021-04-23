@@ -772,69 +772,70 @@ bool Instance::updateIntermediateVars ()
     for (int i=0;i<numVars;i++)
       solutionVars_[i] = solVector[li_Nodes_[i]];
 
-    if( getDeviceOptions().voltageLimiterFlag)
-    {
-      Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
-          dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-      if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-          if (flagSolutionVars_.empty())
-            flagSolutionVars_.resize(numVars);
-          if (dFdXdVpVec_.empty())
-            dFdXdVpVec_.resize(numVars);
-          if (dQdXdVpVec_.empty())
-            dQdXdVpVec_.resize(numVars);
+    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
+    if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
 
-          // Copy out the flag solution variables we need.
-          Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
-          bsuccess = bsuccess && (flagSolVectorPtr != 0);
-          if (!bsuccess)
-          {
-            UserError(*this) << "flagSolVectorPtr is not set.";
-          }
-          for (int i=0;i<numVars;i++)
-            flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
-          double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
-          double * currStoVectorPtr = extData.currStoVectorRawPtr;
+      // Copy out the flag solution variables we need.
+      if (flagSolutionVars_.empty())
+        flagSolutionVars_.resize(numVars);
+      Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
+      bsuccess = bsuccess && (flagSolVectorPtr != 0);
+      if (!bsuccess)
+      {
+        UserError(*this) << "flagSolVectorPtr is not set.";
+      }
+      for (int i=0;i<numVars;i++)
+        flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
+ 
+      // Copy out the storage variables we need.
+      double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
+      double * currStoVectorPtr = extData.currStoVectorRawPtr;
+      for (int i=0;i<numStoreVars;i++) 
+      {
+        nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
+        currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
+      }
+      if (storeVars.empty())
+      {
+        storeVars.resize(2);
+        storeVars[0]=nextStoreVars_;
+        storeVars[1]=currStoreVars_;
+      } 
 
-          for (int i=0;i<numStoreVars;i++) 
-          {
-            nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
-            currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
-          }
+      if( getDeviceOptions().voltageLimiterFlag)
+      {
+        if (dFdXdVpVec_.empty())
+          dFdXdVpVec_.resize(numVars);
+        if (dQdXdVpVec_.empty())
+          dQdXdVpVec_.resize(numVars);
 
-          if (storeVars.empty())
-          {
-            storeVars.resize(2);
-            storeVars[0]=nextStoreVars_;
-            storeVars[1]=currStoreVars_;
-          } 
-
-          // Call back to the computation object and get this devices
-          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-          // VECTORS APPROPRIATELY!
-          bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
-                                               getSolverState().currTime_,
-                                               getDeviceOptions().voltageLimiterFlag,
-                                               getSolverState().newtonIter,
-                                               getSolverState().initJctFlag_,
-                                               getSolverState().inputOPFlag,
-                                               getSolverState().dcopFlag,
-                                               getSolverState().locaEnabledFlag,
-                                               origFlag,
-                                               FVec_, QVec_, BVec_,
-                                               dFdXMat_, dQdXMat_,
-                                               dFdXdVpVec_, dQdXdVpVec_);
+        // Call back to the computation object and get this devices
+        // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+        // VECTORS APPROPRIATELY!
+        bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
+                                             getSolverState().currTime_,
+                                             getDeviceOptions(),
+                                             getSolverState(),
+                                             origFlag,
+                                             FVec_, QVec_, BVec_,
+                                             dFdXMat_, dQdXMat_,
+                                             dFdXdVpVec_, dQdXdVpVec_);
         }
-        else // cast failed, so vciPtr_ doesn't have interface supporting limiting
-        {
-          // Call back to the computation object and get this devices
-          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-          // VECTORS APPROPRIATELY!
-          bsuccess=vciPtr_->computeXyceVectors(solutionVars_,
-                                               getSolverState().currTime_,
-                                               FVec_, QVec_, BVec_,
-                                               dFdXMat_, dQdXMat_);
-        }
+      else // cast failed, so vciPtr_ doesn't have interface supporting limiting
+      {
+        // Call back to the computation object and get this devices
+        // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+        // VECTORS APPROPRIATELY!
+        bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
+                                             getSolverState().currTime_,
+                                             getDeviceOptions(),
+                                             getSolverState(),
+                                             origFlag,
+                                             FVec_, QVec_, BVec_,
+                                             dFdXMat_, dQdXMat_,
+                                             dFdXdVpVec_, dQdXdVpVec_);
+      }
     }
     else 
     {
