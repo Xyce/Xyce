@@ -135,6 +135,13 @@ The initial implementation of AC parameter sensitivities did not work in
   nonlinear AC sensitivies work correctly.
 \\ \hline
 
+\textbf{Gitlab-ex issue 119}:  using \texttt{.sens} with \texttt{.four} can result in an indexing mistake & 
+  It was observed that when using .sens with \texttt{.four}, it was possible under some circumstances 
+  that the order of outputs got mixed up.  In other words, some outputs in the \texttt{*.four}
+  file would be given the wrong label.  This was due to an indexing mistake 
+  and has been fixed.
+\\ \hline
+
 \textbf{Gitlab-ex issue 123}:  POLY in the new expression library has problems 
   at higer orders ($>$2) & The new expression library had mistakes in the POLY 
   operator for higher-order polynomials, which have been corrected.  
