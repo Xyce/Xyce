@@ -96,6 +96,7 @@ Manager::Manager(
   const std::string &   netlist_filename)
   : netlistFilename_(netlist_filename),
     measureOutputFileSuffix_(".mt"),
+    use_cont_files_(true),
     enableMeasGlobalPrint_(true),
     enableMeasGlobalVerbosePrint_(true),
     measDgt_(6),
@@ -211,6 +212,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   // here's the base data we should pull from the option block while
   std::string type;
   std::string mode;
+  bool contMode = false;
 
   Util::ParamList::const_iterator it = std::find_if(measureBlock.begin(), measureBlock.end(), Util::EqualParam("TYPE"));
   if (it != measureBlock.end())
@@ -227,6 +229,8 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   if (it != measureBlock.end())
   {
     mode = (*it).stringValue();
+    if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
+      contMode = true;
   }
   else
   {
@@ -278,7 +282,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="FIND" || type=="WHEN" )
   {
-    if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
+    if (contMode)
       theMeasureObject = new Measure::FindWhenCont(measureMgr, measureBlock);
     else if (mode == "FFT")
       theMeasureObject = new Measure::FFTFind(measureMgr, measureBlock);
@@ -291,7 +295,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="DERIVATIVE" || type=="DERIV" )
   {
-    if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
+    if (contMode)
       theMeasureObject = new Measure::DerivativeEvaluationCont(measureMgr, measureBlock);
     else
       theMeasureObject = new Measure::DerivativeEvaluation(measureMgr, measureBlock);
@@ -350,22 +354,55 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   if (theMeasureObject && theMeasureObject->typeSupported_ )
   {
     // Check for previous measure definition with this object's name.  If found then
-    // remove the previous definition and issue a warning message.
+    // remove the previous definitions, from all of the lists, and issue a warning message.
     int offset=0;
+    int offset1=0;
+    int offset2=0;
     for (MeasurementVector::iterator it = allMeasuresList_.begin(); it!=allMeasuresList_.end(); ++it, ++offset)
     {
       if (theMeasureObject->name_ == (*it)->name_)
       {
+        // check both output lists
+	MeasurementVector::iterator itOL;
+        int offsetOL=0;
+        for (itOL = measureOutputList_.begin(); itOL!=measureOutputList_.end(); ++itOL, ++offsetOL)
+        {
+          if (theMeasureObject->name_ == (*itOL)->name_)
+	  {
+            measureOutputList_.erase(measureOutputList_.begin()+offsetOL);
+	    break;
+          }
+        }
+
+        offsetOL=0;
+        for (itOL = contMeasureOutputList_.begin(); itOL!=contMeasureOutputList_.end(); ++itOL, ++offsetOL)
+        {
+          if (theMeasureObject->name_ == (*itOL)->name_)
+	  {
+            contMeasureOutputList_.erase(contMeasureOutputList_.begin()+offsetOL);
+            break;
+          }
+        }
+
         delete (*it);
         allMeasuresList_.erase(allMeasuresList_.begin()+offset);
         activeMeasuresList_.erase(activeMeasuresList_.begin()+offset);
         Report::UserWarning0() << "Measure \"" << theMeasureObject->name_ << "\" redefined, ignoring any previous definitions";
+
         break;
       }
     }
 
     allMeasuresList_.push_back( theMeasureObject );
     activeMeasuresList_.push_back( theMeasureObject );
+
+    // Make list of continuous mode measures, if they will use separate output files.
+    // The measureOutputList_ will use the <netlistName>.mtX files.
+    if (contMode && use_cont_files_)
+      contMeasureOutputList_.push_back( theMeasureObject );
+    else
+      measureOutputList_.push_back( theMeasureObject );
+
     // Used to help register lead current requests with device manager.
     // Measure manager keeps the combined list, based on parsing of
     // dependent solution variable vector for each measure.
@@ -642,8 +679,9 @@ void Manager::updateNoiseMeasures(
 //-----------------------------------------------------------------------------
 // Function      : Manager::outputResultsToMTFile
 // Purpose       : Opens the .mt (or .ms or .ma) file, at end of simulation
-//                 or at the end of each step.  It then calls outputResults
-//                 and closes the file.
+//                 or at the end of each step.  It also makes the separate
+//                 .mt (or .ms or .ma) files for the continuous measures, if
+//                 requested.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical and Microsystem Modeling
@@ -651,7 +689,8 @@ void Manager::updateNoiseMeasures(
 //-----------------------------------------------------------------------------
 void Manager::outputResultsToMTFile(int stepNumber) const
 {
-  if ( isMeasureActive() )
+  // output non-continuous mode measures
+  if ( !measureOutputList_.empty() )
   {
     // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
     std::ostringstream converterBuff;
@@ -667,6 +706,33 @@ void Manager::outputResultsToMTFile(int stepNumber) const
 
     // close file
     outputFileStream.close();
+  }
+
+  // output continuous mode measures
+  if ( !contMeasureOutputList_.empty() )
+  {
+    for (MeasurementVector::const_iterator it = contMeasureOutputList_.begin(), end = contMeasureOutputList_.end(); it != end; ++it)
+    {
+      if ( (*it)->getMeasurePrintOption() == "ALL")
+      {
+        // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
+        ExtendedString measNameLowerCase((*it)->getMeasureName());
+        measNameLowerCase.toLower();
+        std::ostringstream converterBuff;
+        converterBuff << stepNumber;
+        std::string filename = netlistFilename_ + "_" + measNameLowerCase + measureOutputFileSuffix_ + converterBuff.str();
+
+        // open file
+        std::ofstream outputFileStream;
+        outputFileStream.open( filename.c_str() );
+
+        // output the measure values
+        (*it)->printMeasureResult( outputFileStream );
+
+        // close file
+        outputFileStream.close();
+      }
+    }
   }
 
   return;
@@ -687,8 +753,8 @@ std::ostream &Manager::outputResults( std::ostream& outputStream ) const
 {
   if ( isMeasureActive() )
   {
-    // loop over active measure objects and get the results
-    for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
+    // loop over measure objects and get the results
+    for (MeasurementVector::const_iterator it = measureOutputList_.begin(), end = measureOutputList_.end(); it != end; ++it)
     {
       // only output results to .mt file if measurePrintOption_ for that
       // measure is set to "ALL"
@@ -1171,7 +1237,12 @@ bool Manager::registerMeasureOptions(const Util::OptionBlock &option_block)
 {
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; )
   {
-    if ((*it).tag() == "MEASPRINT")
+    if ( (*it).tag() == "USE_CONT_FILES")
+    {
+      use_cont_files_ = (*it).getImmutableValue<int>();
+      ++it;
+    }
+    else if ((*it).tag() == "MEASPRINT")
     {
       // Note both of the variables were set to true, by default, in the
       // constructor for the measure manager.  This option is specific to Xyce.
@@ -2125,6 +2196,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
     parameters.insert(Util::ParamMap::value_type("MEASDGT", Util::Param("MEASDGT", 4)));
     parameters.insert(Util::ParamMap::value_type("MEASFAIL", Util::Param("MEASFAIL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEFAULT_VAL", Util::Param("DEFAULT_VAL", -1)));
+    parameters.insert(Util::ParamMap::value_type("USE_CONT_FILES", Util::Param("USE_CONT_FILES", 1)));
   }
 }
 
