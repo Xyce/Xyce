@@ -265,10 +265,11 @@ is followed by a \verb|+| symbol, in which case it treats the line as a continua
 
 In all contexts where expressions are allowed, they should be enclosed
 in braces (\{\}).  For netlist compatibility with other simulators
-they may be enclosed in single quotation marks instead (\texttt{'}),
-but these are simply replaced with braces at a very early stage of
-netlist parsing.  It is recommended that the braces be used in
-netlists written specifically for \Xyce{}.
+they may be enclosed in single quotation marks instead (\texttt{'}), and in
+some circumstances (such as \texttt{.param} and \texttt{.global\_param} expressions), \Xyce{} will accept 
+expressions that are not surrounded by either braces or single quotes. 
+However, it is recommended that the braces be used in netlists written specifically for \Xyce{}, as this will
+be the most reliable option.
 
 The expression package in \Xyce{} supports all standard arithmetic
 operators, trigonometric functions, a collection of arithmetic
@@ -329,10 +330,20 @@ that \texttt{R1:R} means the R parameter of device R1, and
 necessary to put at least one character that is invalid in parameter names
 in between the colon and the parameter.  It is sufficient to use a space.
 \begin{alltt}
-    {\color{red} (A==B)?C:D}  ; this expression will generate a syntax error
-    {(A==B)?C :D}  ; this expression is acceptable
-    {(A==B)?C+0:D}  ; this expression is acceptable
-    {(A==B)?(C):D}  ; this expression is acceptable
+  \color{red}  \{(A==B)?C:D\} ; this expression will generate a syntax error
+    \{(A==B)?C :D\} ; this expression is acceptable
+    \{(A==B)?C+0:D\} ; this expression is acceptable
+    \{(A==B)?(C):D\} ; this expression is acceptable
+\end{alltt}
+Note that if using expressions without curly braces or single quotes 
+(something that is allowed on \texttt{.param} and \texttt{.global\_param} lines)
+this becomes even more restrictive because the parser eats up whitespace.  In
+this case, the only option is to use parenthesis.
+\begin{alltt}
+  \color{red}  (A==B)?C:D ; this expression will generate a syntax error
+    (A==B)?C :D ; parser eliminates whitespace, causing syntax error
+    (A==B)?C+0:D ; this expression is acceptable
+    (A==B)?(C):D ; this expression is acceptable
 \end{alltt}
 
 \paragraph{Arithmetic Functions}
