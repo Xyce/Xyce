@@ -263,9 +263,9 @@ is followed by a \verb|+| symbol, in which case it treats the line as a continua
 \item for output on \texttt{.PRINT} lines.
 \end{XyceItemize}
 
-In all contexts where expressions are allowed, they should be enclosed
-in braces (\{\}).  For netlist compatibility with other simulators
-they may be enclosed in single quotation marks instead (\texttt{'}), and in
+In all contexts where expressions are allowed, it is best practice to enclose them
+in curly braces (\{\}).  For netlist compatibility with other simulators,
+expressions may be enclosed in single quotation marks instead (\texttt{'}). Also, in
 some circumstances (such as \texttt{.param} and \texttt{.global\_param} expressions), \Xyce{} will accept 
 expressions that are not surrounded by either braces or single quotes. 
 However, it is recommended that the braces be used in netlists written specifically for \Xyce{}, as this will
@@ -338,7 +338,7 @@ in between the colon and the parameter.  It is sufficient to use a space.
 Note that if using expressions without curly braces or single quotes 
 (something that is allowed on \texttt{.param} and \texttt{.global\_param} lines)
 this becomes even more restrictive because the parser eats up whitespace.  In
-this case, the only option is to use parenthesis.
+this case, the expression needs to be fixed another way, such as with parenthesis.
 \begin{alltt}
   \color{red}  (A==B)?C:D ; this expression will generate a syntax error
     (A==B)?C :D ; parser eliminates whitespace, causing syntax error
