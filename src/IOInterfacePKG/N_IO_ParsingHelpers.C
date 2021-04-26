@@ -868,7 +868,25 @@ void combineParamValueFields(
   bool foundEquals=false; bool foundComma=false; int equalsIndex=linePosition;
   for (;equalsIndex<numFields;equalsIndex++)
   {
-    if ( parsed_line[ equalsIndex ].string_ == "=") { foundEquals=true; break; }
+    if ( parsed_line[ equalsIndex ].string_ == "=")
+    { 
+      // check if this is a comparison operator "==",">=" or "<="
+      bool compOp=false;
+      if (equalsIndex > 0 && !(parsed_line[ equalsIndex-1 ].string_.empty())  )
+      {
+        if (parsed_line[ equalsIndex-1 ].string_.back() == '<' || 
+            parsed_line[ equalsIndex-1 ].string_.back() == '>' || 
+            parsed_line[ equalsIndex-1 ].string_.back() == '=') { compOp=true; }
+      }
+      if (!compOp)
+      {
+        if (equalsIndex < numFields-1 &&  !(parsed_line[ equalsIndex+1 ].string_.empty()))
+        { 
+          if (parsed_line[ equalsIndex+1 ].string_.front() == '=') {compOp=true; }
+        }
+      }
+      if (!compOp) { foundEquals=true; break; }
+    }
   }
   if (foundEquals) { if ( parsed_line[ equalsIndex-2 ].string_ == ",") { foundComma=true; } }
 
