@@ -494,6 +494,11 @@ on individual \texttt{.MEASURE} lines.  The \texttt{DEFAULT\_VAL} option and the
 \texttt{DEFAULT\_VAL} qualifiers can be set to any real number.  For all of these 
 cases, \Xyce{} will print ``FAILED'' to the standard output for a failed measure. 
 
+The \texttt{USE\_CONT\_FILES} option controls whether each \texttt{AC\_CONT},
+\texttt{DC\_CONT}, \texttt{NOISE\_CONT} or \texttt{TRAN\_CONT} mode measure uses
+a separate output file for its results, or not. Section~\ref{Measure_CONT_Measurement_Output}
+provides more details and an example netlist for this options setting.
+
 \input{measureoptiontbl}
 
 \subsubsection{\texttt{.OPTIONS PARSER} (Parser Options)}
