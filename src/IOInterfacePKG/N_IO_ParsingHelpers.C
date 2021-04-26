@@ -870,12 +870,13 @@ void combineParamValueFields(
   {
     if ( parsed_line[ equalsIndex ].string_ == "=")
     { 
-      // check if this is a comparison operator "==",">=" or "<="
+      // check if this is a comparison operator "==",">=", "<=" or "!="
       bool compOp=false;
       if (equalsIndex > 0 && !(parsed_line[ equalsIndex-1 ].string_.empty())  )
       {
         if (parsed_line[ equalsIndex-1 ].string_.back() == '<' || 
             parsed_line[ equalsIndex-1 ].string_.back() == '>' || 
+            parsed_line[ equalsIndex-1 ].string_.back() == '!' || 
             parsed_line[ equalsIndex-1 ].string_.back() == '=') { compOp=true; }
       }
       if (!compOp)
