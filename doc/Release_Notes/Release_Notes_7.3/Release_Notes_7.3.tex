@@ -70,7 +70,52 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+    \item Fixed bug where relative path names to files in .lib statements were
+        incorrect.
+    \item XDM allows the undocumented PSpice syntax of having trailing
+        commas in entries of ``TABLE'' statements.
+    \item if/else/endif statements in HSPICE are now commented out
+      since Xyce doesn't currently support this.
+
+    \item Node names containing brackets, as seen in HSPICE, are
+      now allowed.
+
+    \item Forward slashes in HSPICE device and subckt names are now
+      allowed.
+    \item XDM now translates transient Spectre ``sine'' specifications.
+
+    \item XDM comments out Spectre dc analysis statements with no parameters
+        as it is not clear what the Xyce equivalent should be.
+
+    \item XDM can now identify Spectre device instantiations of models
+        defined in SPICE format.
+
+    \item XDM removes Spectre ``trise'' parameter for R and C devices
+        since this isn't available in \Xyce{}.
+
+    \item Fixed bug in Spectre translation where sometimes the model name
+        would not appear for a instantiation of a device of that model.
+
+    \item Fixed XDM crash when processing some Spectre subcircuit
+        definitions.
+
+    \item Fixed bug in translation of Spectre “include” statements that have
+        the parameter “section”. These will now be translated into “.LIB”
+        statements in Xyce.”
+
+    \item Added support for translation of Spectre “port” device
+        instantiations. Not all instance parameters are translated at this
+        time.
+
+    \item Translate the ``M'' unit prefix (mega) in Spectre ``AC'' statements
+        to the \Xyce{} equivalent ``X''.
+
+    \item XDM comments out Spectre dc analysis statements with no
+        parameters as it is not clear what the \Xyce{} equivalent should be.
+
+    \item Fixed bug where XDM aborted when translating Spectre “include”
+        files with paths containing hyphens.
+
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
