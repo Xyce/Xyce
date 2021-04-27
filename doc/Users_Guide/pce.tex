@@ -68,8 +68,8 @@ values obtained from a sampling study on the density function of the uncertain
 parameters~\cite{pt_colloc1}.  One advantage of regression-based methods is that
 they are very flexible with respect to the exact sample points used to evaluate the responses, 
 and can readily be used with standard sampling methods such as Monte Carlo and Latin Hypercube Sampling.
-For this project, the method for solving Eq. \eqref{eq:regression} that has been implemented 
-in \Xyce{} is least squares regression.
+The method that has been implemented in \Xyce{} for solving Eq.
+\eqref{eq:regression} is least squares regression.
 
 Regression-based PCE can be applied as a post-process step 
 to \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.  It is invoked by adding 
@@ -337,11 +337,12 @@ The fully intrusive form of PCE involves solving a system of equations which is 
 applying the orthogonal polynomial expansion defined by 
 Eq. \eqref{eq:genPCEresponse} to all the terms of the differential-algebraic 
 system of equations solved by \Xyce{}.  The details of this construction are given in 
-reference~\cite{xyceAdvancedUQ}.  This method is mostly an experimental method at this point, and is inherently more expensive
-so it is not the best choice of PCE method in \Xyce{}.   Most use \texttt{.PCE} use cases of
+reference~\cite{xyceAdvancedUQ}.  This method is primarily experimental at this
+point, and is inherently more expensive,
+so it is not the best choice of PCE method in \Xyce{}.   Most \texttt{.PCE} use cases of
 interest can be computed much more cheaply and robustly using \texttt{.EMBEDDEDSAMPLING} 
 combined with one of the non-intrusive PCE methods (regression PCE or NISP).
-Similar to \texttt{.EMBEDDEDSAMPLING} based calculations, \texttt{.PCE} is computing 
+Similar to \texttt{.EMBEDDEDSAMPLING} based calculations, \texttt{.PCE} computes
 PCE coefficients at every stage of the calculation.   
 
 An example netlist, for a diode clipper circuit which uses intrusive PCE, is given in figure~\ref{Fully_Intrusive_PCE_netlist1}.
@@ -403,6 +404,11 @@ is given in Fig.~\ref{NISP_gilbert_netlist}.
 In this circuit, the LO voltage is given by \texttt{v(6,2)} and \texttt{v(15,10)} is the input. 
 The output is the difference between collector voltages of Q4/Q6 and Q3/Q5 (\texttt{V(5,3)}), 
 and should be the approximate product of the LO and input voltages.
+In this example, all eight resistors are given uncertain resistances,
+distributed with the following normal distributions:  R1 and R2 are N(10,1), R5
+and R6 are N(100,5), and R3, R4, R7, and R8 are N(1500,50).  These large
+standard deviations of the resistances are not realistic, but are chosen for
+demonstration purposes.
 \begin{figure}[hbt]
 \centering
 \resizebox{.9\linewidth}{!}{ \input cktFigs/gilbert}
@@ -410,10 +416,6 @@ and should be the approximate product of the LO and input voltages.
   {Gilbert cell mixer schematic.}
 \label{gilbert}
 \end{figure}
-In this example, all eight 
-resistors are given uncertain resistances, distributed with the following normal distributions:  R1 and R2 are N(10,1), 
-R5 and R6 are N(100,5), and R3, R4, R7, and R8 are N(1500,50).  These large standard deviations of the resistances are 
-not realistic, but are chosen for demonstration purposes.
 
 Ensemble and PCE results for the Gilbert cell mixer are shown in figure~\ref{gilbert_compare}.   
 As this calculation was concerned with the transient behavior, only \texttt{.EMBEDDEDSAMPLING} 
