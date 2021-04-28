@@ -56,11 +56,11 @@ your system:
   (These could be in separate packages on your system.)
 - Fortran compiler (e.g., gfortran)
   + Some package managers bundle Fortran with the C and C++ compilers.
-  + Trilinos has the Fortran requirement, but leveraging it is technically
+  + Trilinos has Fortran code, but leveraging it is technically
     [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code).
     Not leveraging the Fortran code, though, could result in slightly lower performance.
   + Xyce, itself, does not use Fortran.
-- Build system (e.g., [make](https://www.gnu.org/software/make/),
+- Build system (e.g., [Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom))
 - [CMake](https://cmake.org) (3.13 or later)
 - [Bison](https://www.gnu.org/software/bison) (3.0.4 or later)
@@ -74,40 +74,6 @@ On some systems, some of the tools and/or libraries also have "developer"
 library packages associated with the primary packages. Those will also need to
 be installed.
 
-## Using the Superbuild
-
-While easy, this approach has not been thoroughly tested, so should be
-considered a "beta" capability. Also, it currently installs everything into an
-"install" directory in the build directory, which may not be ideal for most
-users. Therefore, we encourage people to use the [standard build
-approach](#standard-build-approach), which involves only a few more steps.
-
-Assuming the dependencies have been installed, CMake will automatically build
-the following components:
-- ADMS
-- FFTW (or uses MKL?)
-- SuiteSparse
-- Trilinos
-
-Then CMake will compile a serial build of Xyce that enables the (optional)
-[Xyce/ADMS](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) model
-plugin capability. Note that, since CMake is building several packages, the
-process could take a long time.
-
-To perform a superbuild, follow this procedure:
-- Create a "build" directory somewhere on your system (the location and
-  directory name are not important)
-- From the build directory, run the following command:
-  ```sh
-  cmake -D Xyce_USE_SUPERBUILD=ON <path/to/Xyce>
-  ```
-- Then run
-  ```sh
-  cmake --build . -j 2
-  ```
-  The "-j 2" designates the number of processors to be used for compiling.
-  Choose an appropriate number for your system.
-
 ## Standard Build Approach
 
 The standard build approach requires all the third-party software to be in
@@ -118,6 +84,31 @@ three steps:
 - Obtaining the TPLs (except Trilinos)
 - Building Trilinos
 - Building Xyce
+
+We encourage you to understand the steps below; but, _after obtaining the
+TPLs_, the TL;DR steps for a serial build on a Unix-like system are:
+```sh
+cd <your-build-directory>
+mkdir trilinos-build
+cd trilinos-build
+
+cmake \
+-D CMAKE_INSTALL_PREFIX=/path/to/install \
+-C path/to/Xyce/cmake/trilinos/trilinos-config.cmake \
+path/to/Trilinos
+
+cmake --build . -j 2 -t install
+cd ..
+mkdir xyce-build
+cd xyce-build
+
+cmake \
+-D CMAKE_INSTALL_PREFIX=/path/to/install \
+-D Trilinos_ROOT=/path/to/Trilinos_install \
+path/to/Xyce
+
+cmake --build . -j 2 -t install
+```
 
 ### Obtaining the TPLs
 
@@ -166,17 +157,13 @@ git clone --depth 1 --branch trilinos-release-12-12-1 https://github.com/trilino
 Be sure to compile version 12.12.1. Other versions will not work with this
 process, as they require slightly different build options.
 
-An "initial cache" file is included in the Xyce repository with a typical set
-of settings for a Xyce-oriented serial Trilinos build. The file,
-`trilinos-config.cmake` is located in the Xyce `cmake/trilinos` directory.
-
-Prior to building Trilinos, create a "build" directory in a convenient
+In order to build Trilinos, first create a "build" directory in a convenient
 location. (The name does not matter, and can be something simple like
 `trilinos_build`.) On Unix-like systems, the default Trilinos installation
 location is `/usr/local`. This can be changed by adding the following flag to
 the CMake invocation.
 ```sh
--D CMAKE_INSTALL_PREFIX=</path/to/install>
+-D CMAKE_INSTALL_PREFIX=/path/to/install
 ```
 As with Xyce, both a parallel and serial build of Trilinos can exist on the
 same system, but they must be in different directories. (We recommend
@@ -188,10 +175,14 @@ recommended version of Trilinos does not change often.)
 If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
 
+A CMake "initial cache" file called `trilinos-config.cmake` is included in the
+Xyce repository in the `cmake/trilinos` directory. The file contains a typical
+set of options for a Xyce-oriented serial Trilinos build.
+
 To configure Trilinos (using the default `/usr/local` install location), enter
 the build directory and run:
 ```sh
-cmake -C path/to/Xyce/cmake/trilinos/trilinos-config.cmake <path/to/Trilinos>
+cmake -C path/to/Xyce/cmake/trilinos/trilinos-config.cmake path/to/Trilinos
 ```
 Once the configuration step has completed, run the following in the build
 directory to build and install Trilinos:
@@ -224,10 +215,10 @@ Similarly, if the third-party libraries (AMD, BLAS and LAPACK) are not visible
 in your default paths, use the following flags to help CMake find the
 libraries:
 ```sh
--D AMD_LIBRARY_DIRS=</path/to/AMD/lib> \
--D AMD_INCLUDE_DIRS=</path/to/AMD/include> \
--D BLAS_LIBRARY_DIRS=</path/to/BLAS/lib> \
--D LAPACK_LIBRARY_DIRS=</path/to/LAPACK/lib> \
+-D AMD_LIBRARY_DIRS=/path/to/AMD/lib \
+-D AMD_INCLUDE_DIRS=/path/to/AMD/include \
+-D BLAS_LIBRARY_DIRS=/path/to/BLAS/lib \
+-D LAPACK_LIBRARY_DIRS=/path/to/LAPACK/lib \
 ```
 See the [Trilinos Build
 Reference](https://docs.trilinos.org/files/TrilinosBuildReference.html) for
@@ -246,7 +237,7 @@ cmake \
 -D CMAKE_C_COMPILER=mpicc \
 -D CMAKE_CXX_COMPILER=mpicxx \
 -D CMAKE_Fortran_COMPILER=mpifort \
-<path/to/Trilinos>
+path/to/Trilinos
 ```
 Note that the exact compiler names may be different on your system. Also, the
 above invocation will install Trilinos in `/usr/local`.
@@ -263,7 +254,7 @@ Once Trilinos is built, you can build and install Xyce. By default, Xyce will
 be installed in the `/usr/local/` directory. To specify a different
 installation location, add the following flag to the CMake invocation:
 ```sh
--D CMAKE_INSTALL_PREFIX=</path/to/install>
+-D CMAKE_INSTALL_PREFIX=/path/to/install
 ```
 Again, if you plan to have both a parallel and serial build of Xyce on your
 system, they must be in different directories. (We recommend specifying unique
@@ -272,7 +263,7 @@ sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.)
 If Trilinos is not located in your path, add the following flag to the CMake
 invocation:
 ```sh
--D Trilinos_ROOT=</path/to/Trilinos_install>
+-D Trilinos_ROOT=/path/to/Trilinos_install
 ```
 Create a build directory for Xyce (such as `xyce_build`) and go into that
 directory. Then run CMake using:
@@ -304,6 +295,40 @@ is still being developed. As such, there are some differences from the website:
   files.
 - The name of the plugin file can vary by system (e.g., on a Mac, the "toys"
   library will be called, "libtoys.dylib", not "toys.so").
+
+## Using the Superbuild
+
+While easy, this approach has not been thoroughly tested, so should be
+considered a "beta" capability. Also, it currently installs everything into an
+"install" directory in the build directory, which may not be ideal for most
+users. Therefore, we encourage people to use the [standard build
+approach](#standard-build-approach), which involves only a few more steps.
+
+Assuming the dependencies have been installed, CMake will automatically build
+the following components:
+- ADMS
+- FFTW (or uses MKL?)
+- SuiteSparse
+- Trilinos
+
+Then CMake will compile a serial build of Xyce that enables the (optional)
+[Xyce/ADMS](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) model
+plugin capability. Note that, since CMake is building several packages, the
+process could take a long time.
+
+To perform a superbuild, follow this procedure:
+- Create a "build" directory somewhere on your system (the location and
+  directory name are not important)
+- From the build directory, run the following command:
+  ```sh
+  cmake -D Xyce_USE_SUPERBUILD=ON path/to/Xyce
+  ```
+- Then run
+  ```sh
+  cmake --build . -j 2
+  ```
+  The "-j 2" designates the number of processors to be used for compiling.
+  Choose an appropriate number for your system.
 
 ## Uninstalling Xyce
 
@@ -348,7 +373,7 @@ cmake \
 -D CMAKE_CXX_COMPILER=mpicxx \
 -D CMAKE_Fortran_COMPILER=mpifort \
 -D CMAKE_INSTALL_PREFIX=$HOME/install/Trilinos/mpi/ \
-<path/to/Trilinos>
+path/to/Trilinos
 ```
 More options can be added as needed. The file can be made executable by running
 the following on the command line:
@@ -392,8 +417,8 @@ the [Building SuiteSparse](#building-suitesparse) section above, under
 continue with the standard Trilinos and Xyce build processes.
 
 The Xyce regression suite must be run in a Unix-like environment with Perl.
-Therefore, to use it in Windows, you will need to install Cygwin. It is also
-likely possible to use the Windows Subsystem for Linux (WSL), but we have no
+Therefore, to use it in Windows, you will need to install Cygwin. It might also
+be possible to use the Windows Subsystem for Linux (WSL), but we have no
 experience with it.
 
 ### Cygwin
@@ -459,18 +484,17 @@ MacOS does not have a native package manager, but there are several third-party
 package managers available. We have had success with
 [MacPorts](https://www.macports.org/) and [Homebrew](https://brew.sh/).
 
-BLAS and LAPACK are provided by Xcode and should give slightly better
-performance than the BLAS and LAPACK libraries provided by the package
-managers. Therefore, you should not need to install those libraries,
-explicitly.
+BLAS and LAPACK are provided by Xcode and should give better performance than
+the BLAS and LAPACK libraries provided by the package managers. Therefore, you
+do not need to install those libraries, explicitly.
 
-We have seen a rare failure when compiling on MacOS using the native Clang
-compilers, when not using a Fortran compiler. If the Trilinos build fails while
-compiling AztecOO, then you will need to use a different compiler, or install
-gfortran with a package manager (probably via a gcc package).
+We have seen a rare failure when using the Apple Clang compilers _and not_
+using a Fortran compiler. If the Trilinos build fails while compiling AztecOO,
+then you will either need to use different C/C++ compilers, or install gfortran
+with a package manager (it is usually supplied with the gcc package).
 
 __Xyce/ADMS__:\
 The `buildxyceplugin.sh` script script relies on the behavior of Gnu
 "readlink", which is very different than BSD readlink (MacOS is based on BSD
-Unix). The Gnu readlink can be made available by installing the "coreutils"
-package via MacPorts or Homebrew.
+Unix). You can obtain Gnu readlink by installing the "coreutils" package from
+MacPorts or Homebrew.
