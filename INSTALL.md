@@ -141,7 +141,7 @@ Xyce. If you find Trilinos is available, you can try skipping to the Xyce
 section to see if Xyce configures and builds. If not, continue with these
 instructions.
 
-The following process will provide a serial Trilinos installation that will
+The following process will produce a serial Trilinos installation that will
 contain only the libraries needed by Xyce. For the parallel version, be sure to
 understand the serial build process prior to reading the [Building Trilinos
 with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
@@ -170,14 +170,15 @@ same system, but they must be in different directories. (We recommend
 specifying unique sub-directories in `/usr/local`, such as
 `/usr/local/trilinos_serial`.) If you install Trilinos in a temporary location,
 you will need to rebuild it when building a new version of Xyce. (The
-recommended version of Trilinos does not change often.)
+recommended version of Trilinos does not change often, so it can save time to
+have an installed Trilinos library.)
 
 If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
 
-A CMake "initial cache" file called `trilinos-config.cmake` is included in the
-Xyce repository in the `cmake/trilinos` directory. The file contains a typical
-set of options for a Xyce-oriented serial Trilinos build.
+A CMake "initial cache" file, called `trilinos-config.cmake`, is included in
+the Xyce repository in the `cmake/trilinos` directory. The file contains a
+typical set of options for a Xyce-oriented serial Trilinos build.
 
 To configure Trilinos (using the default `/usr/local` install location), enter
 the build directory and run:
@@ -190,10 +191,11 @@ directory to build and install Trilinos:
 cmake --build . -j 2 -t install
 ```
 The "-j 2" designates the number of processors to be used for compiling
-Trilinos. Choose an appropriate number for your system. After the Xyce
-installation is successful, you may delete the Trilinos build directory if you
-do not plan on building Trilinos again (see the [Uninstalling
-Xyce](#uninstalling-xyce) section first, however).
+Trilinos. Choose an appropriate number for your system.
+
+After the Xyce installation is successful, and if you do not plan on building
+Trilinos again, you may delete the Trilinos build directory (see the
+[Uninstalling Xyce](#uninstalling-xyce) section first, however).
 
 #### Other Trilinos Options
 
@@ -201,9 +203,8 @@ The following are various flags that might be needed when building Trilinos.
 These can be added to the command line, or put in a [configuration
 script](#configuration-scripts).
 
-CMake will use the first compiler set it finds on your system. Alternatively,
-you can specify the compilers by adding the following flags to the CMake
-invocation:
+CMake will use the first compiler set it finds on your system. You can specify
+the compilers by adding the following flags to the CMake invocation:
 ```sh
 -D CMAKE_C_COMPILER=<C-compiler> \
 -D CMAKE_CXX_COMPILER=<C++-compiler> \
@@ -226,11 +227,11 @@ more details on the Trilinos build options.
 
 #### Building Trilinos with MPI Parallelism
 
-To enable MPI parallelism in Xyce, Trilinos must be built with MPI enabled. A
-second "initial cache" file, called `trilinos-config-MPI.cmake`, is provided
-for MPI builds. In addition to using the alternate cache file, the MPI
-compilers must be explicitly specified to CMake. The following CMake invocation
-should work on most systems:
+To enable MPI parallelism in Xyce, Trilinos must be built with MPI enabled. An
+"initial cache" file, called `trilinos-config-MPI.cmake`, is provided for MPI
+builds. In addition to using the MPI-oriented cache file, the MPI compilers
+must be explicitly specified to CMake. The following CMake invocation should
+work on most systems:
 ```sh
 cmake \
 -C path/to/Xyce/cmake/trilinos/trilinos-config-MPI.cmake \
@@ -268,7 +269,7 @@ invocation:
 Create a build directory for Xyce (such as `xyce_build`) and go into that
 directory. Then run CMake using:
 ```sh
-cmake path/to/Xyce
+cmake [flags] path/to/Xyce
 ```
 Then, to build and install Xyce, run:
 ```sh
@@ -277,19 +278,21 @@ cmake --build . -j 2 -t install
 The "-j 2" designates the number of processors to be used for compiling Xyce.
 Choose an appropriate number for your system.
 
-#### Adding the Xyce/ADMS capability
+#### Adding the Xyce/ADMS Verilog-A Model Compiler
 
-To enable the ability to compile Verilog-A models using the "Xyce/ADMS"
-compiler tool, [ADMS](https://github.com/Qucs/ADMS) must be installed prior to
+Xyce has an Verilog-A model compiler capability, using the "Xyce/ADMS" compiler
+tool.  See the [Xyce/ADMS Users
+Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
+information on the capability and for instructions on using Xyce/ADMS.
+
+To enable the feature, install [ADMS](https://github.com/Qucs/ADMS) prior to
 building Xyce. Then, to enable the capability in the Xyce build, add the
 following flag to the Xyce CMake invocation:
 ```sh
 -D Xyce_PLUGIN_SUPPORT=ON
 ```
-See the [Xyce/ADMS Users
-Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
-information on running Xyce/ADMS. The CMake support for the plugin capability
-is still being developed. As such, there are some differences from the website:
+The CMake support for the plugin capability is still being developed. As such,
+there are some differences from the website:
 - The "toys" example is installed in `/path/to/install/share/examples/toys`.
 - The `buildxyceplugin.sh` script requires the absolute path to the `.va`
   files.
@@ -307,7 +310,7 @@ approach](#standard-build-approach), which involves only a few more steps.
 Assuming the dependencies have been installed, CMake will automatically build
 the following components:
 - ADMS
-- FFTW (or uses MKL?)
+- FFTW
 - SuiteSparse
 - Trilinos
 
@@ -390,17 +393,17 @@ for specific systems are added below as we become aware of them.
 
 ### Windows
 
-Compiling Xyce on Windows is not a small task at the moment, since Windows does
-not have a package manager equivalent. Internally, we use the Intel compiler
-suite with the Intel [Math Kernel
+Compiling Xyce on Windows is not a small task at the moment, primarily because
+Windows does not have a package manager equivalent. Internally, we use the
+Intel compiler suite with the Intel [Math Kernel
 Library](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html)
 (MKL). The MKL provides the BLAS, LAPACK and FFT capabilities (removing the need
 for FFTW). At the beginning of 2021, Intel rebranded their tool chains as the
 [oneAPI](https://software.intel.com/content/www/us/en/develop/tools/oneapi.html)
 Toolkits, and now make them available for free.
 
-We have not yet tried using oneAPI, so we cannot yet give advice on how to use
-it. One should be able to use the [oneAPI Base
+We have not yet tried using oneAPI, so we cannot give advice on how to use it.
+One should be able to use the [oneAPI Base
 Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html),
 which supplies C, C++ and Fortran compilers, along with the MKL. Installing the
 standalone [Microsoft C++ Build
@@ -457,8 +460,8 @@ Ubuntu releases starting with 17.10 and through the 19.x series (including
 18.04), have a broken version of Open MPI in their package repositories. Open
 MPI is functional in Ubuntu 20.04. (In the problem releases, the version of
 Open MPI in the repositories is compiled with the `--enable-heterogeneous`
-option, which breaks MPI's standard compliance and causes Xyce to fail on some
-problems.)
+option, which breaks MPI's standard compliance and causes Xyce to fail in some
+situations.)
 
 If you are running a version of Ubuntu that has this issue, the only workaround
 is to uninstall the OpenMPI package and build OpenMPI from source, without the
@@ -493,8 +496,8 @@ using a Fortran compiler. If the Trilinos build fails while compiling AztecOO,
 then you will either need to use different C/C++ compilers, or install gfortran
 with a package manager (it is usually supplied with the gcc package).
 
-__Xyce/ADMS__:\
-The `buildxyceplugin.sh` script script relies on the behavior of Gnu
-"readlink", which is very different than BSD readlink (MacOS is based on BSD
-Unix). You can obtain Gnu readlink by installing the "coreutils" package from
-MacPorts or Homebrew.
+__Xyce/ADMS on MacOS__\
+The `buildxyceplugin.sh` script relies on the behavior of Gnu "readlink", which
+is very different than BSD readlink (MacOS is based on BSD Unix). You can
+obtain Gnu readlink by installing the "coreutils" package from MacPorts or
+Homebrew.
