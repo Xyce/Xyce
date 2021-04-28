@@ -461,8 +461,6 @@ bool HB::doInit()
       if ( augmentedLIDs.size() )
         (*HBICVectorFreqPtr_)[(augmentedLIDs)[0 ]] = 1.0;
     }
-
-
   }
 
   if (DEBUG_HB && isActive(Diag::HB_PRINT_VECTORS))

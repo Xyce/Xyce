@@ -273,14 +273,10 @@ bool setupIC_or_NODESET(
       double value = 0.0;
       ExtendedString strValueNodeTag((*it_param).tag());
       strValueNodeTag.toUpper();
-      if (strValueNodeTag=="VALUE" && !(*it_param).hasExpressionValue())
+
+      if (strValueNodeTag=="VALUE")
       {
-        value = (*it_param).getImmutableValue<double>();
-      }
-      else
-      {
-        Report::UserFatal0() << "Problems processing initial condition for node "
-                             << node << " of " << (*it_param).stringValue() << " value to double ";
+        value = (*it_param).getMutableValue<double>(); // NOT immutable, if we want to use global_param and sweep this.
       }
 
       int found = false; // will be set to true if the node is found in all_nodes or alias_nodes
@@ -300,14 +296,14 @@ bool setupIC_or_NODESET(
         // node name", we can then look up its lid on this processor. 
         AliasNodeMap::const_iterator iterAN = alias_nodes.find(node);
         if (iterAN != alias_nodes.end())
-	{
+        {
           // to be conservative, check that the "real node name" actually exists
           // in the all_nodes map.
           iterCI = all_nodes.find(iterAN->second);
           if (iterCI != all_nodes.end()) 
           {
             found = true;
-	  }
+          }
         }
       }
 

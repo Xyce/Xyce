@@ -874,22 +874,20 @@ bool AC::doInit()
       for (int i=0; i< numPorts_;  ++i)
       {
         if ( portPID_[i] == -1 )
-	{
+        {
           Report::UserFatal() << "Did not find port " << i + 1 << " for .LIN analysis";
         }
 
         if ( Z0sVec_[i] < 0.0 )
-	{
+        {
           Report::UserFatal() << " The negative impedance " << Z0sVec_[i] << " for port " << i + 1
                               <<  " is not supported for .LIN analysis";
         }
       }
     }
 
-
     for (int i=0; i<len; ++i)
     {
-
       portMap_[portNumVec_[i]] = std::pair<int, double> ( tempVec[i], tempZ0s[i]);
     }
 
