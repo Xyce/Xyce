@@ -244,6 +244,8 @@ private:
 
   bool extractSwitchDeviceData( const TokenVector & parsedInputLine );
 
+  int checkIfModelValid (const std::string & modelType, int modelLevel, int fieldNo);
+
   ModelFoundState extractModelName( const TokenVector & parsedInputLine,
                                     std::string& modelType, 
                                     int & modelLevel, 
