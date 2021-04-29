@@ -77,6 +77,12 @@ the argument to be differentiated by ddx().
 
 \\ \hline
 
+\textbf{Gitlab issue 138} Oscillator HB tests fail in parallel on 8 processors &
+This is due to bad memory access in the solution vector by the expression library.
+\textbf{\textit{Workaround}}:
+There is none.
+\\ \hline
+
 \textbf{Gitlab issue 28} Limitations on allowed parameter names is not fully documented &
 The exact limitations on allowed parameter names is not clear in the
 documentation, nor is any exhaustive list available.  Single-character

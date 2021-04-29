@@ -279,9 +279,10 @@ Parallel regression testing illustrated a failure to perform supernoding when ru
 processors.  This failure was caused by a code issue and has been addressed. 
 \\ \hline
 
-\textbf{1263-SON}: Oscillator HB seg faults when run in parallel using 4 processors or more &
-Parallel regression testing illustrated a failure to use the oscillator HB algorithm when run on 
-4 or more processors.  This failure was caused by a code issue and has been addressed. 
+\textbf{1263-SON}: Oscillator HB seg faults in linear solver when run in parallel using 4 processors &
+Parallel regression testing illustrated a failure in oscillator HB algorithm due to the linear
+solver and builder, when run on 4 or more processors.  This failure was caused by a code issue and 
+has been addressed. 
 \\ \hline
 
 \textbf{1311-SON}: PowerGridTransformer tests sometimes hang in parallel on more than 2 processors &
