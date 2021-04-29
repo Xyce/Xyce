@@ -189,12 +189,104 @@ would be \texttt{circuitFileName\_resultname.mt0} where the result (measure) nam
 always output in lower-case. This default matches HSPICE. The second option uses
 \texttt{.OPTIONS MEASURE USE\_CONT\_FILES=0}. In that case, the results for all
 of the continuous mode measures are sent to the \texttt{circuitFileName.mt\#} file.
+
 An example is as follows.
+
+\begin{alltt}
+VPWL1 1 0 pwl(0 0 2.5m 1 5m 0 7.5m 1 10m 0)
+R1 1 0 1
+
+.TRAN 0 10ms
+.PRINT TRAN V(1)
+
+.MEASURE TRAN MAXV1 MAX V(1)
+.MEASURE TRAN_CONT FindV1 WHEN V(1)=0.5
+.MEASURE TRAN_CONT FindV1AT FIND V(1) AT=0.6ms
+
+.END
+\end{alltt}
+
+The result for measure \texttt{MAXV1} is sent to \texttt{<netlistName>.mt0}. The
+results for measures \texttt{FindV1} and \texttt{FindV1AT} are then sent to individual
+files, named \texttt{<netlistName>\_findv1.mt0} and \texttt{<netlistName>\_findv1at.mt0}.
+Note that the measure names have been lower-cased in the output file names.  The contents
+of those files are then as follows.
+
+\begin{alltt}
+FINDV1 = 1.250000e-03
+FINDV1 = 3.750000e-03
+FINDV1 = 6.250000e-03
+FINDV1 = 8.750000e-03
+\end{alltt}
+
+and:
+
+\begin{alltt}
+FINDV1AT = 2.400000e-01
+\end{alltt}
+
+Note that \texttt{FIND-AT} measures will still only return one measure value, even for
+\texttt{TRAN\_CONT} measure mode.  However, in this simple example, the specified
+\texttt{FIND-WHEN} measure returns all four times where \texttt{V(1)} equals 0.5.
+The next subsection will describe how the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS}
+qualifiers can used to return only a subset of those four crossings.
 
 \subsubsection{RISE, FALL and CROSS Qualifiers}
 \label{Measure_CONT_RFC}
 \index{measure continuous!rise, fall and cross qualifiers}
-TBD
+\Xyce{} supports both positive and negative values for the \texttt{RISE}, \texttt{FALL}
+and \texttt{CROSS} qualifiers.  However, their interpretation is slightly different for
+\texttt{TRAN} and \texttt{TRAN\_CONT} measure modes, as illustrated by the following
+netlist for the \texttt{TRAN\_CONT} measure mode and \texttt{WHEN} measure. The rules
+are then the same for the other continuous measures modes and the \texttt{RISE} and
+\texttt{FALL} qualifiers.
+
+\begin{alltt}
+VPWL1 1 0 pwl(0 0 2.5m 1 5m 0 7.5m 1 10m 0)
+R1 1 0 1
+
+.TRAN 0 10ms
+.PRINT TRAN V(1)
+
+.MEASURE TRAN FindV1_CROSS3 WHEN V(1)=0.5 CROSS=3
+.MEASURE TRAN_CONT FindV1_CONT_CROSS3 WHEN V(1)=0.5 CROSS=3
+
+.MEASURE TRAN FindV1_CROSS_NEG3 WHEN V(1)=0.5 CROSS=-3
+.MEASURE TRAN_CONT FindV1_CONT_CROSS_NEG3 WHEN V(1)=0.5 CROSS=-3
+
+.END
+\end{alltt}
+
+The \texttt{<netlistName>.mt0} file will contain the results for both
+\texttt{TRAN} mode measures.  The result for the \texttt{FindV1\_CROSS3}
+is the time of the third crossing.  The result for the \texttt{FindV1\_CROSS\_NEG3}
+is the time of the second crossing, which is also the ``third to last'' (or
+negative third) crossing in this case.
+
+\begin{alltt}
+FINDV1_CROSS3 = 6.250000e-03
+FINDV1_CROSS_NEG3 = 3.750000e-03
+\end{alltt}
+
+The \texttt{<netlistName>\_findv1\_cont\_cross3.mt0} output file will have two
+values.  For non-negative values of \texttt{CROSS}, a \texttt{TRAN\_CONT} measure
+will return all crossings, starting with the specified value.  This is the third
+and fourth crossings in this case.
+
+\begin{alltt}
+FINDV1_CONT_CROSS3 = 6.250000e-03
+FINDV1_CONT_CROSS3 = 8.750000e-03
+\end{alltt}
+
+For negative values of \texttt{CROSS}, a \texttt{TRAN\_CONT} measure will only
+return one value.  That is the third-to-last crossing in this case.  So, the
+\texttt{<netlistName>\_findv1\_cont\_cross3\_neg3.mt0} file only has one
+value in it.  As a final note, a \texttt{CROSS} value of either 5 or -5 would
+produce failed measures in this example.
+
+\begin{alltt}
+FINDV1_CONT_CROSS_NEG3 = 3.750000e-03
+\end{alltt}
 
 \subsubsection{HSPICE Compatibility}
 \label{Measure_CONT__HSpice_Compatibility}
