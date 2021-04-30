@@ -2087,8 +2087,11 @@ bool CircuitContext::findBinnedModel(
           {
             if (InBinRange(L, Lmin, Lmax) && InBinRange(W, Wmin, Wmax)) 
             {
-              binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
-              done=true;
+              if ((tmpName.size()+1)<=key.size())
+              {
+                binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
+                done=true;
+              }
             }
           }
         }
@@ -2118,8 +2121,11 @@ bool CircuitContext::findBinnedModel(
           {
             if (InBinRange(L, Lmin, Lmax) && InBinRange(NFIN, NFINmin, NFINmax)) 
             {
-              binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
-              done=true;
+              if ((tmpName.size()+1)<=key.size())
+              {
+                binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
+                done=true;
+              }
             }
           }
         }
