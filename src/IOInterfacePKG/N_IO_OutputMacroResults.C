@@ -134,7 +134,7 @@ void outputMacroResults(
       // Also enable .MEASURE output to log files, based on MEASPRINT option.
       if (measure_manager.isMeasGlobalPrintEnabled())
       {  
-        measure_manager.outputResults( Xyce::lout() );
+        measure_manager.outputAllResultsToLogFile();
       }
     }
   }

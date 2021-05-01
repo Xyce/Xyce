@@ -154,7 +154,7 @@ public:
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec_);
 
   void outputResultsToMTFile(int stepNumber) const;
-  std::ostream & outputResults(std::ostream& outputStream) const;
+  void outputAllResultsToLogFile() const;
   std::ostream & outputVerboseResults(std::ostream& outputStream, double endSimTime=0) const;
 
   void recordStartEndSweepVals(const double sweepVal);

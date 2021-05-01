@@ -702,7 +702,16 @@ void Manager::outputResultsToMTFile(int stepNumber) const
     outputFileStream.open( filename.c_str() );
 
     // output the measure values
-    outputResults( outputFileStream );
+    // loop over measure objects and get the results
+    for (MeasurementVector::const_iterator it = measureOutputList_.begin(), end = measureOutputList_.end(); it != end; ++it)
+    {
+      // only output results to .mt file if measurePrintOption_ for that
+      // measure is set to "ALL"
+      if ( (*it)->getMeasurePrintOption() == "ALL")
+      {
+        (*it)->printMeasureResult( outputFileStream );
+      }
+    }
 
     // close file
     outputFileStream.close();
@@ -739,33 +748,34 @@ void Manager::outputResultsToMTFile(int stepNumber) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Manager::outputResults
+// Function      : Manager::outputAllResultsToLogFile
 // Purpose       : Output measure results.  This function is intended to output
-//                 to the .mt (or .ms or .ma) files, at end of simulation or at 
-//                 the end of each step.
+//                 all of the measure values to the log file.  It is most useful
+//                 for parallel debugging with the -per-processor command line
+//                 option.
 // Special Notes : outputVerboseResults() is used to output measure info to stdout.
 //                 outputResultsToMTFile also handles opening/closing the .mt file.
 // Scope         : public
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-std::ostream &Manager::outputResults( std::ostream& outputStream ) const
+void Manager::outputAllResultsToLogFile() const
 {
   if ( isMeasureActive() )
   {
     // loop over measure objects and get the results
-    for (MeasurementVector::const_iterator it = measureOutputList_.begin(), end = measureOutputList_.end(); it != end; ++it)
+    for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
     {
       // only output results to .mt file if measurePrintOption_ for that
       // measure is set to "ALL"
       if ( (*it)->getMeasurePrintOption() == "ALL")
       {
-        (*it)->printMeasureResult( outputStream );
+        (*it)->printMeasureResult(Xyce::lout());
       }
     }
   }
-  
-  return outputStream;
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1203,7 +1213,7 @@ void Manager::remeasure(
   }
   else 
   {
-    outputResults( Xyce::lout() );
+    outputAllResultsToLogFile();
   }
 
   // At present, .OPTIONS MEASURE MEASPRINT does not affect -remeasure
