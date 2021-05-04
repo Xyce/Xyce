@@ -51,36 +51,38 @@ appropriate changes to variable names rather than blindly replacing
 one character. \\ \hline
 
 \textbf{Gitlab-ex issue 191}: Exclamation point character is not allowed in parameter names, in the new expression library &
-This was supported in previous versions of \Xyce{} but was inadvertantly broken 
-with the new expression library for \Xyce{} 7.2. This mainly affected printing 
-  of ``Y'' device parameters on the \texttt{.PRINT} line, but only inside of 
-  \texttt{.PRINT} line expressions.  This was due to a minor parsing mistake 
-  and has been addressed.  \\ \hline
+This was supported in previous versions of \Xyce{} but was
+inadvertantly broken with the new expression library for \Xyce{}
+7.2. This mainly affected printing of ``Y'' device parameters on
+the \texttt{.PRINT} line, but only inside of \texttt{.PRINT} line
+expressions.  This was due to a minor parsing mistake and has been
+addressed.  \\ \hline
 
 
-\textbf{Gitlab-ex issue 157/Gitlab-ex issue 167/SON BUG 1190}: Parameters that are defined using \texttt{.param} must be constant and non-constant parameters must be defined using \texttt{.global\_param} & 
+\textbf{Gitlab-ex issue 157/Gitlab-ex issue 167/SON BUG 1190}: Parameters that are defined using \texttt{.param} must be constant and non-constant parameters must be defined using \texttt{.global\_param} &
+\Xyce{} was originally designed with two keywords for setting
+user-defined parameters in the nelist; \texttt{.param}
+and \texttt{.global\_param}.  The keyword \texttt{.param} is also used
+in many other simulators, but the behavior in \Xyce{} differed in
+that \texttt{.param} parameters were unconditionally treated as
+constants.  This was because they were handled as string substitutions
+during parsing.  \Xyce{} parameters that needed to change during a
+calculation had to be set using the other
+keyword, \texttt{.global\_param}.
 
-  \Xyce{} was originally designed with two keywords for setting 
-  user-defined parameters in the nelist; \texttt{.param} and \texttt{.global\_param}.  
-  The keyword \texttt{.param} is also used in many 
-  other simulators, but the behavior in \Xyce{} differed in that \texttt{.param}
-  parameters were unconditionally treated as constants.  This was because 
-  they were handled as string substitutions during parsing.
-  \Xyce{} parameters that needed to change during a calculation had to 
-  be set using the other keyword, \texttt{.global\_param}.
+This design caused incompatibilities with other simulators, and proved
+confusing to users.  However, it became possible to address this issue
+with the advent of a new expression library in \Xyce{} 7.2 .
 
-  This design caused incompatibilities with other simulators, and 
-  proved confusing to users.   However, it became possible to address 
-  this issue with the advent of a new expression library in \Xyce{} 7.2 .
-
-  Starting in this release, all \texttt{.param} parameters in \Xyce{} 
-  are allowed to change during a simulation. This means they are allowed to
-  depend on special variables such as \texttt{TIME} and are allowed to depend 
-  on \texttt{.global\_param} parameters.  Also, \texttt{.param} parameters that are 
-  defined in the top level circuit netlist are functionally identical to 
-  \texttt{.global\_param} parameters, and can be swept using 
-  analysis statements such as \texttt{.DC}, \texttt{.STEP} and \texttt{.SAMPLING}.
-  
+Starting in this release, all \texttt{.param} parameters in \Xyce{}
+are allowed to change during a simulation. This means they are allowed
+to depend on special variables such as \texttt{TIME} and are allowed
+to depend on \texttt{.global\_param} parameters.
+Also, \texttt{.param} parameters that are defined in the top level
+circuit netlist are functionally identical to
+\texttt{.global\_param} parameters, and can be swept using
+analysis statements such as \texttt{.DC}, \texttt{.STEP}
+and \texttt{.SAMPLING}.
   \\ \hline
 
 \textbf{Gitlab-ex issue 150/Github issue 19}: Error Manager does not play well with repeatedly declared simulator API objects &
@@ -124,27 +126,29 @@ and circuits involving transmission lines with very short delays will
 no longer miss breakpoints in this manner. \\ \hline
 
 \textbf{Gitlab-ex issue 82}:  Make AC sensitivities work in parallel &
-The initial implementation of AC parameter sensitivities did not work in 
-  parallel, but this now works correctly.
+The initial implementation of AC parameter sensitivities did not work
+in parallel, but this now works correctly.
 \\ \hline
 
-\textbf{Gitlab-ex issue 115}:  Fix AC sensitivities to be correct for nonlinear 
-  device model parameters & The original implementation of AC sensitivities had 
-  a math mistake that caused the calculation to be incorrect when applied to 
-  parameters from nonlinear devices.  The math error has been fixed and now
-  nonlinear AC sensitivies work correctly.
+\textbf{Gitlab-ex issue 115}:  Fix AC sensitivities to be correct for nonlinear
+device model parameters & The original implementation of AC
+sensitivities had a math mistake that caused the calculation to be
+incorrect when applied to parameters from nonlinear devices.  The math
+error has been fixed and now nonlinear AC sensitivies work correctly.
 \\ \hline
 
-\textbf{Gitlab-ex issue 119}:  using \texttt{.sens} with \texttt{.four} can result in an indexing mistake & 
-  It was observed that when using .sens with \texttt{.four}, it was possible under some circumstances 
-  that the order of outputs got mixed up.  In other words, some outputs in the \texttt{*.four}
-  file would be given the wrong label.  This was due to an indexing mistake 
-  and has been fixed.
+\textbf{Gitlab-ex issue 119}:  using \texttt{.sens} with \texttt{.four} can result in an indexing mistake &
+It was observed that when using .sens with \texttt{.four}, it was
+possible under some circumstances that the order of outputs got
+mixed up.  In other words, some outputs in the \texttt{*.four} file
+would be given the wrong label.  This was due to an indexing mistake
+and has been fixed.
 \\ \hline
 
-\textbf{Gitlab-ex issue 123}:  POLY in the new expression library has problems 
-  at higer orders ($>$2) & The new expression library had mistakes in the POLY 
-  operator for higher-order polynomials, which have been corrected.  
+\textbf{Gitlab-ex issue 123}:  POLY in the new expression library has problems
+at higer orders ($>$2) & The new expression library had mistakes in
+the POLY operator for higher-order polynomials, which have been
+corrected.
 \\ \hline
 
 \textbf{Gitlab-ex issue 99}:  Fix build flags associated with Trilinos &
@@ -156,11 +160,10 @@ it was targeted at the inclusion of Amesos2, Stokhos, ShyLU, the Amesos2 Basker
 solver). It also made Belos a required Trilinos package.
 \\ \hline
 
-\textbf{Gitlab-ex issue 108}:  Fix various problems in the limit operator in 
-the new expression librarys &
-The ``limit'' function in the new expression library had mistakes in both the 
-derivative calculation and also in the breakpointing function.  Both issues 
-have been fixed.
+\textbf{Gitlab-ex issue 108}:  Fix various problems in the limit operator in
+the new expression library & The ``limit'' function in the new
+expression library had mistakes in both the derivative calculation and
+also in the breakpointing function.  Both issues have been fixed.
 \\ \hline
 
 \textbf{Gitlab-ex issue 113}:  Make flex/bison a required capability &
@@ -206,38 +209,41 @@ instead.  This prevents the small overshoots that have been observed
 in these cases in all prior versions of Xyce. \\ \hline
 
 \textbf{Gitlab-ex issue 137}: Address robustness issues in parallel restarting (BUG\_456) &
-Parallel regression testing illustrated failures in restarting.  The parallel hang 
-can be tracked down to the restoration of restart data and bad logic for
-distributing the RestartNode objects. \\ \hline
+Parallel regression testing illustrated failures in restarting.  The
+parallel hang can be tracked down to the restoration of restart data
+and bad logic for distributing the RestartNode objects. \\ \hline
 
 \textbf{Gitlab-ex issue 149}: The BUG\_507\_SON test is failing on 4-processors in parallel &
-This weekly regression test failure on 4-processors was due to recent changes in the 
-parallel assignment of shared solution nodes.  A balanced assignment strategy was 
-implemented to address the issue. \\ \hline
+This weekly regression test failure on 4-processors was due to recent
+changes in the parallel assignment of shared solution nodes.  A
+balanced assignment strategy was implemented to address the
+issue. \\ \hline
 
 \textbf{Gitlab-ex Issue 101, SON BUG 274}:  Remove deprecated parsing of quoted filename to table &
-Double quoted strings were once parsed as filenames into a lookup table.  That syntax 
-has been deprecated for some time and has now been removed. Use the \texttt{tablefile(``filename'')}
-syntax to read a file into a table.  A double quoted string is 
-now only interpreted as a string.  Additionally, the syntax \texttt{string(``'')} 
-has also been removed as it was used to signify a string.
+Double quoted strings were once parsed as filenames into a lookup
+table.  That syntax has been deprecated for some time and has now been
+removed. Use the \texttt{tablefile(``filename'')} syntax to read a
+file into a table.  A double quoted string is now only interpreted as
+a string.  Additionally, the syntax \texttt{string(``'')} has also
+been removed as it was used to signify a string.
 \\ \hline
 
 \textbf{Gitlab-ex Issue 27}:  Clear out C++11 conditionals&
-To enable improved performance, Xyce now requires a C++11 capable compiler.
-Therefore, all the code conditionals related to C++11 features have been
-removed from the code. 
+To enable improved performance, Xyce now requires a C++11 capable
+compiler.  Therefore, all the code conditionals related to C++11
+features have been removed from the code.
 \\ \hline
 
-\textbf{1085-SON}: Expression library mishandled \texttt{.FUNC} 
-definitions of functions that began with ``I'' and were two characters long &
+\textbf{1085-SON}: Expression library mishandled \texttt{.FUNC}
+definitions of functions that began with ``I'' and were two characters
+long &
 \Xyce{}'s expression library previously assumed that all terms of the form
 ``\texttt{Ix(<arguments>)}'' are lead current expressions, where ``x'' is
 either a lead designator such as ``D'', ``G'' , or ''S'' for a MOSFET
 or ``C'', ``B'', ``E'' for a BJT, or a digit indicating the pin number
 of the device associated with the lead.  This assumption made it
 impossible for users to define a function with a two-character name
-starts with ``I''.  
+starts with ``I''.
 \\ \hline
 
 \textbf{1203-SON}: Issues with temperature-dependent device
@@ -261,52 +267,59 @@ R2 2 0 1  TC=0.1 temp={temp+ptemp}
 \\ \hline
 
 \textbf{1239-SON}: Address failures when parallel regression testing uses up to 4 processors &
-Parallel regression testing illustrated failures when used on more than 2 processors
-. These failures were caused by test and code issues and have been addressed for testing up to 4 processors.
+Parallel regression testing illustrated failures when used on more
+than 2 processors . These failures were caused by test and code issues
+and have been addressed for testing up to 4 processors.
 \\ \hline
 
 \textbf{1241-SON}: Expression library parsing bottleneck on large expressions &
-It was previously determined that the expression library in Xyce could be the
-source of a severe parsing bottleneck when expressions are large and
-complex.  Expressions of this sort show up most often when parsing
-large PDKs with complex use of the \texttt{.FUNC} feature, and when
-using the ``tablefile'' feature to import a large file of time/voltage
-pairs for use in a \texttt{B} source.  These issues were addressed by the new expression library.
+It was previously determined that the expression library in Xyce could
+be the source of a severe parsing bottleneck when expressions are
+large and complex.  Expressions of this sort show up most often when
+parsing large PDKs with complex use of the \texttt{.FUNC} feature, and
+when using the ``tablefile'' feature to import a large file of
+time/voltage pairs for use in a \texttt{B} source.  These issues were
+addressed by the new expression library.
 \\ \hline
 
 \textbf{1246-SON}: Supernoding seg faults / fails to remove all nodes in parallel &
-Parallel regression testing illustrated a failure to perform supernoding when run on more than 2
-processors.  This failure was caused by a code issue and has been addressed. 
+Parallel regression testing illustrated a failure to perform
+supernoding when run on more than 2 processors.  This failure was
+caused by a code issue and has been addressed.
 \\ \hline
 
 \textbf{1263-SON}: Oscillator HB seg faults in linear solver when run in parallel using 4 processors &
-Parallel regression testing illustrated a failure in oscillator HB algorithm due to the linear
-solver and builder, when run on 4 or more processors.  This failure was caused by a code issue and 
-has been addressed. 
-\\ \hline
-
-\textbf{1311-SON}: PowerGridTransformer tests sometimes hang in parallel on more than 2 processors &
-Parallel regression testing illustrated failures of circuits that have PowerGridTransformer
-models when run on more than 2 processors.  These failures were caused by a code issue and has been
+Parallel regression testing illustrated a failure in oscillator HB
+algorithm due to the linear solver and builder, when run on 4 or more
+processors.  This failure was caused by a code issue and has been
 addressed.
 \\ \hline
 
+\textbf{1311-SON}: PowerGridTransformer tests sometimes hang in parallel on more than 2 processors &
+Parallel regression testing illustrated failures of circuits that have
+PowerGridTransformer models when run on more than 2 processors.  These
+failures were caused by a code issue and has been addressed.
+\\ \hline
+
 \textbf{Gitlab-ex Issue 130}: The FFTW interface does not work properly for even number of samples  &
-The results from .HB and .FFT analysis were wrong for the N/2 harmonic when the number of samples N
-is even. The real part of the result was incorrectly copied to the imaginary part for the N/2 harmonic.
-This led to the wrong results. This is fixed now.
+The results from .HB and .FFT analysis were wrong for the N/2 harmonic
+when the number of samples N is even. The real part of the result was
+incorrectly copied to the imaginary part for the N/2 harmonic.  This
+led to the wrong results. This is fixed now.
 \\ \hline
 
 
 \textbf{Gitlab-ex Issue 159}: The max time step is ignored for the first step out of a break point &
-The max time step can be specified by a user or come from some special devices. Some of them are not
-applied to the first step out of a break point. This is fixed now.
+The max time step can be specified by a user or come from some special
+devices. Some of them are not applied to the first step out of a break
+point. This is fixed now.
 \\ \hline
 
 \textbf{Gitlab-ex Issue 122}: The dynamically inserted break points from delay device were not handled correctly &
-The devices that use history information can dynamacally insert break points during the transient simulation. This
-was not handled correctly and led to accuracy issues, discontinuous behavior, wrong results and convergence issues.
-This is fixed now.
+The devices that use history information can dynamacally insert break
+points during the transient simulation. This was not handled correctly
+and led to accuracy issues, discontinuous behavior, wrong results and
+convergence issues.  This is fixed now.
 \\ \hline
 
 
