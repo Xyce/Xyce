@@ -187,17 +187,17 @@ please visit the \XyceTM{} web page at
         would not appear for a instantiation of a device of that model.
     \item Fixed XDM crash when processing some Spectre subcircuit
         definitions.
-    \item Fixed bug in translation of Spectre “include” statements that have
-        the parameter “section”. These will now be translated into “.LIB”
-        statements in Xyce.”
-    \item Added support for translation of Spectre “port” device
+    \item Fixed bug in translation of Spectre ``include'' statements that have
+        the parameter ``section''. These will now be translated into ``.LIB''
+        statements in Xyce.
+    \item Added support for translation of Spectre ``port'' device
         instantiations. Not all instance parameters are translated at this
         time.
     \item Translate the ``M'' unit prefix (mega) in Spectre ``AC'' statements
         to the \Xyce{} equivalent ``X''.
     \item XDM comments out Spectre dc analysis statements with no
         parameters as it is not clear what the \Xyce{} equivalent should be.
-    \item Fixed bug where XDM aborted when translating Spectre “include”
+    \item Fixed bug where XDM aborted when translating Spectre ``include''
         files with paths containing hyphens.
 \end{XyceItemize}
 
