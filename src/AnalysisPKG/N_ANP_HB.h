@@ -121,6 +121,8 @@ public:
   bool useStartupICs() const
   { return useStartupICs_ ; }
 
+  void finalExpressionBasedSetup();
+
 protected:
   bool doRun(); 
   bool doInit(); 

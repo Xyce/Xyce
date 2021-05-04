@@ -74,6 +74,7 @@ public:
       const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup_,
       const Util::OptionBlock &option_block);
 
+  void finalExpressionBasedSetup();
   void setup(Parallel::Machine comm, OutputMgr &output_manager);
 
   void output(

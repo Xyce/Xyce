@@ -111,15 +111,16 @@ public:
     parentAnalysisPtrVec_.push_back(parentPtr);
   };
 
+  void finalExpressionBasedSetup();
 
 protected:
-  bool doRun(); // override;
-  bool doInit(); // override;
-  bool doLoopProcess(); // override;
-  bool doProcessSuccessfulStep(); // override;
-  bool doProcessFailedStep(); // override;
-  bool doFinish(); // override;
-  bool doHandlePredictor(); // override;
+  bool doRun(); 
+  bool doInit(); 
+  bool doLoopProcess(); 
+  bool doProcessSuccessfulStep(); 
+  bool doProcessFailedStep();
+  bool doFinish();
+  bool doHandlePredictor();
 
 public:
   // Two Level specific

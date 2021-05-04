@@ -152,6 +152,8 @@ public:
 
   void resetSolverSystem();
 
+  void finalExpressionBasedSetup();
+
   // Execute the control loop for the set analysis type.
   bool run();
 
@@ -579,6 +581,7 @@ private:
   AnalysisBase *        analysisObject_;                ///< .STEP, Dakota
   AnalysisBase *        primaryAnalysisObject_;         ///< .TRAN, .AC, .HB, ...
 
+  std::vector<ProcessorBase *> processorVector_;
   std::vector<ProcessorBase *> analysisVector_;
   std::vector<AnalysisBase *> currentAnalysisStack_;
 

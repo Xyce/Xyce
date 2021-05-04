@@ -504,6 +504,196 @@ inline bool testAndSet(S &s, const T &t)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgr::earlyPrepareOutput
+// Purpose       : initialize a set of outputters
+//
+// Special Notes : This stuff used to be in the function "prepareOutput".  It got
+//                 moved here to make it easier to clear the 
+//                 mainContextFunctionMap_, mainContextParamMap_, 
+//                 and the mainContextGlobalParamMap_, as early as possible.
+//                 
+//                 The information in those maps is ONLY needed to resolve
+//                 some expressions, and once that resolution is done, the 
+//                 information should not be kept around.
+//
+//                 So, this function contains all the "enable" function 
+//                 calls of the original function, but excludes all of 
+//                 the "addActiveOutputter" calls, which aren't appropriate 
+//                 at this stage.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 05/03/2021
+//-----------------------------------------------------------------------------
+void OutputMgr::earlyPrepareOutput(
+  Parallel::Machine             comm,
+  Analysis::Mode                analysis_mode)
+{
+  // Setup rawfile if requested
+  if (defaultPrintParameters_.overrideRaw_)
+  {
+    // This is a temporary fix until the -r and FORMAT=RAW outputs
+    // are defined for LIN and HB analyses.  Note that the enableSparCalcFlag_
+    // is set via the AC object, during that object's parsing of the ACLIN
+    // option block.
+    if (analysis_mode == Analysis::ANP_MODE_HB || enableSparCalcFlag_ ||
+        enableEmbeddedSamplingFlag_ || enablePCEFlag_)
+    {
+      Report::UserFatal0() << "-r and -a outputs are not supported for Embedded Sampling, .HB, .LIN or .PCE analyses";
+    }
+
+    // This conditional is needed because, for .MPDE analysis, this
+    // function is called for both Analysis::ANP_MODE_MPDE and
+    // Analysis::ANP_MODE_TRANSIENT.  Only make the -r output for
+    // ANP_MODE_TRANSIENT in that case.
+    if (analysis_mode != Analysis::ANP_MODE_MPDE)
+    {
+      Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
+    }
+
+    // also make SENS and Homotopy output files, since they don't support
+    // RAW output.
+    if (enableHomotopyFlag_)
+    {
+      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 100)))
+        Outputter::enableHomotopyOutput(comm, *this, analysis_mode);
+    }
+
+    if (enableSensitivityFlag_)
+    {
+      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 101)))
+      {
+        if (analysis_mode == Analysis::ANP_MODE_AC)
+          Outputter::enableSensitivityACOutput(comm, *this, analysis_mode);
+        else
+          Outputter::enableSensitivityOutput(comm, *this, analysis_mode);
+      }
+
+      // allocate an adjoint output object, but do not add to the active list.
+      // Need to re-think the INVALID+102 thing.
+      if ( adjointSensitivityFlag_ )
+      {
+        if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 102)))
+          Outputter::enableAdjointSensitivityOutput(comm, *this, analysis_mode);
+
+        // ERK.  NOT putting the transient adjoint outputters on the stack.  
+        // Accessing them (for now) directly from the outputterMap.  I am punting 
+        // on making the active outputter structure work for transient adjoints.
+      }
+    }
+  }
+  else if (enableEmbeddedSamplingFlag_)
+  {
+    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 103)))
+      Outputter::enableEmbeddedSamplingOutput(comm, *this, analysis_mode);
+
+    if (!defaultPrintParameters_.dashoRequested_)
+    {
+      // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
+      // output is not made.
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+        Outputter::enableDCOutput(comm, *this, analysis_mode);
+    }
+  }
+  else if (enablePCEFlag_)
+  {
+    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 104)))
+      Outputter::enablePCEOutput(comm, *this, analysis_mode);
+
+    if (!defaultPrintParameters_.dashoRequested_)
+    {
+      // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
+      // output is not made.
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+        Outputter::enableDCOutput(comm, *this, analysis_mode);
+    }
+  }
+  else
+  {
+    switch (analysis_mode)
+    {
+      case Analysis::ANP_MODE_INVALID:
+      case Analysis::ANP_MODE_DC_OP:
+      case Analysis::ANP_MODE_MOR:
+        break;
+
+      case Analysis::ANP_MODE_DC_SWEEP:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+          Outputter::enableDCOutput(comm, *this, analysis_mode);
+        break;
+
+      case Analysis::ANP_MODE_TRANSIENT:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+          Outputter::enableTransientOutput(comm, *this, analysis_mode);
+        break;
+
+      case Analysis::ANP_MODE_MPDE:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_MPDE))
+          Outputter::enableMPDEOutput(comm, *this, analysis_mode);
+        break;
+
+      case Analysis::ANP_MODE_HB:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_HB))
+          Outputter::enableHBOutput(comm, *this, analysis_mode);
+        break;
+
+      case Analysis::ANP_MODE_AC:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_AC))
+        {
+          // if -o was requested then either SPARAM or AC output is made
+          // depending on whether a .LIN analysis is being done, or not
+          if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
+          {
+            Outputter::enableACOutput(comm, *this, analysis_mode);
+          }
+          Outputter::enableSParamOutput(comm, *this, analysis_mode);
+        }
+        break;
+
+      case Analysis::ANP_MODE_NOISE:
+        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_NOISE))
+          Outputter::enableNoiseOutput(comm, *this, analysis_mode);
+        break;
+    }
+
+    if (enableHomotopyFlag_)
+    {
+      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 100)))
+        Outputter::enableHomotopyOutput(comm, *this, analysis_mode);
+    }
+
+    if (enableSensitivityFlag_)
+    {
+      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 101)))
+      {
+        if (analysis_mode == Analysis::ANP_MODE_AC)
+          Outputter::enableSensitivityACOutput(comm, *this, analysis_mode);
+        else
+          Outputter::enableSensitivityOutput(comm, *this, analysis_mode);
+      }
+
+      // allocate an adjoint output object, but do not add to the active list.
+      // Need to re-think the INVALID+102 thing.
+      if ( adjointSensitivityFlag_ )
+      {
+        if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 102)))
+          Outputter::enableAdjointSensitivityOutput(comm, *this, analysis_mode);
+
+        // ERK.  NOT putting the transient adjoint outputters on the stack.  
+        // Accessing them (for now) directly from the outputterMap.  I am punting 
+        // on making the active outputter structure work for transient adjoints.
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::prepareOutput
 // Purpose       : Select a set of outputtters appropriate for analysis type
 // Special Notes : 
@@ -532,6 +722,13 @@ inline bool testAndSet(S &s, const T &t)
 /// map.
 /// @author David Baur
 /// @date 06/28/2013
+//
+//-----------------------------------------------------------------------------
+// ERK.  Re-hacked this on 5/4/2021, to separate the activation 
+// process from the enable calls.  The enable function calls are now in 
+// the OutputMgr::earlyPrepareOutput function.
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void OutputMgr::prepareOutput(
   Parallel::Machine             comm,
   Analysis::Mode                analysis_mode)
@@ -555,8 +752,6 @@ void OutputMgr::prepareOutput(
     // ANP_MODE_TRANSIENT in that case.
     if (analysis_mode != Analysis::ANP_MODE_MPDE)
     {
-      Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
-
       if (activeOutputterStack_.empty())
         pushActiveOutputters();
 
@@ -567,70 +762,35 @@ void OutputMgr::prepareOutput(
     // RAW output.
     if (enableHomotopyFlag_)
     {
-      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 100)))
-        Outputter::enableHomotopyOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::HOMOTOPY, analysis_mode);
     }
 
     if (enableSensitivityFlag_)
     {
-      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 101)))
-      {
-        if (analysis_mode == Analysis::ANP_MODE_AC)
-          Outputter::enableSensitivityACOutput(comm, *this, analysis_mode);
-        else
-          Outputter::enableSensitivityOutput(comm, *this, analysis_mode);
-      }
       addActiveOutputter(PrintType::SENS, analysis_mode);
-
-      // allocate an adjoint output object, but do not add to the active list.
-      // Need to re-think the INVALID+102 thing.
-      if ( adjointSensitivityFlag_ )
-      {
-        if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 102)))
-          Outputter::enableAdjointSensitivityOutput(comm, *this, analysis_mode);
-
-        // ERK.  NOT putting the transient adjoint outputters on the stack.  
-        // Accessing them (for now) directly from the outputterMap.  I am punting 
-        // on making the active outputter structure work for transient adjoints.
-      }
     }
   }
   else if (enableEmbeddedSamplingFlag_)
   {
-    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 103)))
-      Outputter::enableEmbeddedSamplingOutput(comm, *this, analysis_mode);
     addActiveOutputter(PrintType::ES, analysis_mode);
 
     if (!defaultPrintParameters_.dashoRequested_)
     {
       // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
       // output is not made.
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
-        Outputter::enableTransientOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::TRAN, analysis_mode);
-
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
-        Outputter::enableDCOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::TRAN, analysis_mode);
     }
   }
   else if (enablePCEFlag_)
   {
-    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 104)))
-      Outputter::enablePCEOutput(comm, *this, analysis_mode);
     addActiveOutputter(PrintType::PCE, analysis_mode);
 
     if (!defaultPrintParameters_.dashoRequested_)
     {
       // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
       // output is not made.
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
-        Outputter::enableTransientOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::TRAN, analysis_mode);
-
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
-        Outputter::enableDCOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::TRAN, analysis_mode);
     }
   }
@@ -644,28 +804,20 @@ void OutputMgr::prepareOutput(
         break;
 
       case Analysis::ANP_MODE_DC_SWEEP:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
-          Outputter::enableDCOutput(comm, *this, analysis_mode);
         addActiveOutputter(PrintType::TRAN, analysis_mode);
         break;
 
       case Analysis::ANP_MODE_TRANSIENT:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
-          Outputter::enableTransientOutput(comm, *this, analysis_mode);
         addActiveOutputter(PrintType::TRAN, analysis_mode);
         break;
 
       case Analysis::ANP_MODE_MPDE:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_MPDE))
-          Outputter::enableMPDEOutput(comm, *this, analysis_mode);
         addActiveOutputter(PrintType::MPDE, analysis_mode);
         addActiveOutputter(PrintType::MPDE_IC, analysis_mode);
         addActiveOutputter(PrintType::MPDE_STARTUP, analysis_mode);
         break;
 
       case Analysis::ANP_MODE_HB:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_HB))
-          Outputter::enableHBOutput(comm, *this, analysis_mode);
         addActiveOutputter(PrintType::HB_FD, analysis_mode);
         addActiveOutputter(PrintType::HB_TD, analysis_mode);
         addActiveOutputter(PrintType::HB_IC, analysis_mode);
@@ -673,18 +825,8 @@ void OutputMgr::prepareOutput(
         break;
 
       case Analysis::ANP_MODE_AC:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_AC))
-	{
-          // if -o was requested then either SPARAM or AC output is made
-          // depending on whether a .LIN analysis is being done, or not
-          if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
-	  {
-            Outputter::enableACOutput(comm, *this, analysis_mode);
-          }
-          Outputter::enableSParamOutput(comm, *this, analysis_mode);
-        }
         if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
-	{
+        {
           addActiveOutputter(PrintType::AC, analysis_mode);
           addActiveOutputter(PrintType::AC_IC, analysis_mode);
         }
@@ -692,41 +834,18 @@ void OutputMgr::prepareOutput(
         break;
 
       case Analysis::ANP_MODE_NOISE:
-        if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_NOISE))
-          Outputter::enableNoiseOutput(comm, *this, analysis_mode);
         addActiveOutputter(PrintType::NOISE, analysis_mode);
         break;
     }
 
     if (enableHomotopyFlag_)
     {
-      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 100)))
-        Outputter::enableHomotopyOutput(comm, *this, analysis_mode);
       addActiveOutputter(PrintType::HOMOTOPY, analysis_mode);
     }
 
     if (enableSensitivityFlag_)
     {
-      if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 101)))
-      {
-        if (analysis_mode == Analysis::ANP_MODE_AC)
-          Outputter::enableSensitivityACOutput(comm, *this, analysis_mode);
-        else
-          Outputter::enableSensitivityOutput(comm, *this, analysis_mode);
-      }
       addActiveOutputter(PrintType::SENS, analysis_mode);
-
-      // allocate an adjoint output object, but do not add to the active list.
-      // Need to re-think the INVALID+102 thing.
-      if ( adjointSensitivityFlag_ )
-      {
-        if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 102)))
-          Outputter::enableAdjointSensitivityOutput(comm, *this, analysis_mode);
-
-        // ERK.  NOT putting the transient adjoint outputters on the stack.  
-        // Accessing them (for now) directly from the outputterMap.  I am punting 
-        // on making the active outputter structure work for transient adjoints.
-      }
     }
   }
 }

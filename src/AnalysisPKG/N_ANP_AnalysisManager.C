@@ -457,6 +457,33 @@ bool AnalysisManager::getBlockAnalysisFlag() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::finalExpressionBasedSetup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void AnalysisManager::finalExpressionBasedSetup()
+{
+  // This performs the early setup for the outputters for this analysis mode.
+  (outputManagerAdapter_.getOutputManager()).earlyPrepareOutput
+      (parallelManager_->getPDSComm()->comm(), analysisMode_);
+
+  // now inform the analysis to complete expression setup.  After this, the 
+  // maps will be deleted.
+  analysisObject_->finalExpressionBasedSetup();
+
+  // ERK "processors" are basically .RESULT statements AFAIK.  Set them up here
+  for(int ii=0;ii<processorVector_.size();ii++)
+  {
+    processorVector_[ii]->finalExpressionBasedSetup();
+  }
+
+  Report::safeBarrier(parallelManager_->getPDSComm()->comm());
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::run
 // Purpose       : Execute the control loop for the set analysis type.
 // Special Notes :
@@ -632,10 +659,17 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
   }
 #endif
 
-  for(CreatorSet::const_iterator it = processorCreatorSet_.begin(), 
+  // ERK "processors" are basically .RESULT statements AFAIK.
+  // I have no idea why someone thought it was a good idea to add
+  // them to the analysis vector, or to have processors and
+  // analyses be derived from the same base class, but that is
+  // what happens.
+  for(CreatorSet::const_iterator it = processorCreatorSet_.begin(),
       end = processorCreatorSet_.end(); it != end; ++it)
   {
-    analysisVector_.push_back((*it)->create());
+    ProcessorBase * procPtr  = (*it)->create();
+    processorVector_.push_back(procPtr);
+    analysisVector_.push_back(procPtr);
   }
 
   if (!primaryAnalysisObject_)

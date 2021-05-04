@@ -653,7 +653,30 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Transient::run()
+// Function      : Transient::finalExpressionBasedSetup()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void Transient::finalExpressionBasedSetup()
+{
+  if (sensFlag_)
+  {
+    Stats::StatTop _sensitivityStat("Sensitivity");
+
+    nonlinearManager_.enableSensitivity(
+        *analysisManager_.getDataStore(), 
+        analysisManager_.getStepErrorControl(),
+        *analysisManager_.getPDSManager(), topology_, 
+        outputManagerAdapter_.getOutputManager(),
+        numSensParams_);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Transient::doRun()
 // Purpose       :
 // Special Notes :
 // Scope         : public
@@ -694,19 +717,6 @@ bool Transient::doRun()
 bool Transient::resuming()
 {
   bool bsuccess = true;
-
-  if (sensFlag_)
-  {
-    Stats::StatTop _sensitivityStat("Sensitivity");
-
-    // FIX THIS:  don't need numSensParams this way anymore!
-    nonlinearManager_.enableSensitivity(
-        *analysisManager_.getDataStore(), 
-        analysisManager_.getStepErrorControl(),
-        *analysisManager_.getPDSManager(), topology_, 
-        outputManagerAdapter_.getOutputManager(),
-        numSensParams_);
-  }
 
   initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
 
@@ -772,14 +782,6 @@ bool Transient::doInit()
   if (sensFlag_)
   {
     Stats::StatTop _sensitivityStat("Sensitivity");
-
-    // FIX THIS:  don't need numSensParams this way anymore!
-    nonlinearManager_.enableSensitivity(
-        *analysisManager_.getDataStore(), 
-        analysisManager_.getStepErrorControl(),
-        *analysisManager_.getPDSManager(), topology_, 
-        outputManagerAdapter_.getOutputManager(),
-        numSensParams_);
 
     if (solveAdjointSensitivityFlag_ && adjointBeginTimeGiven_ && adjointFinalTimeGiven_)
     {

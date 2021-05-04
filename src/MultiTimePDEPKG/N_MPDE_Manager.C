@@ -180,6 +180,25 @@ N_MPDE_Manager::~N_MPDE_Manager()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : N_MPDE_Manager::finalExpressionBasedSetup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void N_MPDE_Manager::finalExpressionBasedSetup()
+{
+  // This performs the early setup for the outputters for this analysis mode.
+  (analysisManager_.getOutputManagerAdapter().getOutputManager()).earlyPrepareOutput
+      (pdsManager_.getPDSComm()->comm(), Xyce::Analysis::ANP_MODE_TRANSIENT);
+
+  (analysisManager_.getOutputManagerAdapter().getOutputManager()).earlyPrepareOutput
+      (pdsManager_.getPDSComm()->comm(), Xyce::Analysis::ANP_MODE_MPDE);
+
+}
+
+//-----------------------------------------------------------------------------
 // Function      : N_MPDE_Manager::run
 // Purpose       :
 // Special Notes :

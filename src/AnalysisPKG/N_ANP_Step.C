@@ -129,9 +129,21 @@ bool Step::getDCOPFlag() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Step::finalExpressionBasedSetup()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void Step::finalExpressionBasedSetup()
+{
+  childAnalysis_.finalExpressionBasedSetup();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Step::run()
 // Purpose       : This is the main controlling loop for Step analysis.
-//
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL

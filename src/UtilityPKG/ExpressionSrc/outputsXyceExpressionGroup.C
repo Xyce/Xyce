@@ -248,12 +248,6 @@ bool outputsXyceExpressionGroup::getCurrentVal(
     std::complex<double> & retval )
 {
   bool success=true;
-
-#if 0
-  double tmpval;
-  getCurrentVal(deviceName, designator, tmpval);
-  retval = std::complex<double>(tmpval,0.0);
-#else
   ParamList paramList;
   paramList.push_back(Param(designator,1));
   paramList.push_back(Param(deviceName,0.0));
@@ -285,7 +279,6 @@ bool outputsXyceExpressionGroup::getCurrentVal(
   {
     success=false;
   }
-#endif
 
   return success;
 }

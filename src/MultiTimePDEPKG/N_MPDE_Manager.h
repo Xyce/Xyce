@@ -115,6 +115,8 @@ public:
     const Xyce::IO::CmdParse &                  command_line);
   ~N_MPDE_Manager();
 
+  void finalExpressionBasedSetup();
+
   //Runs MPDE analysis
   bool run(Xyce::Linear::System &linear_system, Xyce::Nonlinear::Manager &nonlinear_manager, Xyce::Topo::Topology &topology);
 

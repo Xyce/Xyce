@@ -107,6 +107,8 @@ class NOISE: public AnalysisBase, public Util::ListenerAutoSubscribe<StepEvent>
 
   bool getDCOPFlag() const;
 
+  void finalExpressionBasedSetup() {};
+
 protected:
   bool doRun();
   bool doInit();

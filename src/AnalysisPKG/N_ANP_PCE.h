@@ -141,6 +141,7 @@ public:
   }
 
 protected:
+  virtual void finalExpressionBasedSetup() {};
   virtual bool doRun();
 
   virtual bool doInit();

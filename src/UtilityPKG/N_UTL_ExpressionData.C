@@ -159,7 +159,6 @@ void ExpressionData::evaluate(
   return;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : ExpressionData::evaluate
 // Purpose       : Evaluate result and derivatives

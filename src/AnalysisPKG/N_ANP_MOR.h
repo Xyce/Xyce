@@ -107,6 +107,7 @@ public:
     bool processSuccessfulStep(bool origSys);
 
 protected:
+    void finalExpressionBasedSetup() {};
     bool doRun();
     bool doInit();
     virtual bool doProcessSuccessfulStep() { return true; }

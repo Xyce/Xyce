@@ -268,7 +268,20 @@ bool HB::getDCOPFlag() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : HB::run()
+// Function      : HB::finalExpressionBasedSetup()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void HB::finalExpressionBasedSetup()
+{
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : HB::doRun()
 // Purpose       :
 // Special Notes :
 // Scope         : public

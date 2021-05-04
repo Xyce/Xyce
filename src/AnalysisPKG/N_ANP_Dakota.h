@@ -63,6 +63,7 @@ class Dakota : public AnalysisBase
     virtual bool getDCOPFlag () const {return true;}
 
 protected:
+    virtual void finalExpressionBasedSetup() {};
     virtual bool doRun();
     virtual bool doInit() { return true; }
     virtual bool doLoopProcess() { return true; }

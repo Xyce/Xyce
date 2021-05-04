@@ -86,6 +86,7 @@ public:
   bool getDCOPFlag() const;
 
 protected:
+  void finalExpressionBasedSetup();
   bool doRun();
   bool doInit();
   bool doLoopProcess();
