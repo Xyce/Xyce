@@ -26,7 +26,7 @@ module diode_simple(a,c) `attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D" xy
   analog 
   begin
 
-    vcrit = $vt/ln($vt/(`CONSTroot2*Is));
+    vcrit = $vt*ln($vt/(`CONSTroot2*Is));
 
     Vd = $limit(V(ci,a),"pnjlim",$vt,vcrit);
     exparg=Vd/26e-3;
