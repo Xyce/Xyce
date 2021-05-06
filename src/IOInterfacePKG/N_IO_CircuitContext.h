@@ -365,7 +365,7 @@ public:
     return resolvedParams_;
   }
 
-  const Util::ParamList &getGlobals() const
+  const Util::UParamList &getGlobals() const
   {
     return resolvedGlobalParams_;
   }
@@ -421,7 +421,7 @@ private:
 
   Util::UParamList unresolvedParams_;
   std::set<std::string> globalNodes_;
-  Util::ParamList unresolvedGlobalParams_;
+  Util::UParamList unresolvedGlobalParams_;
   std::vector<FunctionBlock> unresolvedFunctions_;
 
   std::vector<MutualInductance> mutualInductances_;
@@ -440,7 +440,7 @@ private:
   unordered_map<std::string, std::string> nodeMap_; // note: does not need to be serialized.
   bool resolved_;
   Util::UParamList resolvedParams_;
-  Util::ParamList resolvedGlobalParams_;
+  Util::UParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions

@@ -413,7 +413,7 @@ void CircuitContext::addGlobalParams(
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    currentContextPtr_->unresolvedGlobalParams_.push_back(parameter);
+    currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
   }
 }
 
@@ -508,7 +508,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
           if ( urParamIter != unresolvedParams_.end() )
           {
             parameter = *urParamIter;
-            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedGlobalParams_.insert(parameter);
             unresolvedParams_.erase(urParamIter);
           }
         }
@@ -534,7 +534,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
           if ( urParamIter != unresolvedParams_.end() )
           {
             parameter = *urParamIter;
-            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedGlobalParams_.insert(parameter);
             unresolvedParams_.erase(urParamIter);
           }
         }
@@ -557,7 +557,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
           if ( urParamIter != unresolvedParams_.end() )
           {
             parameter = *urParamIter;
-            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedGlobalParams_.insert(parameter);
             unresolvedParams_.erase(urParamIter);
           }
         }
@@ -699,7 +699,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
   Util::ParamList asYetUnresolvedSubcircuitParameters=currentContextPtr_->subcircuitParameters_;
   Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
-  Util::ParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
+  Util::UParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
   std::vector<FunctionBlock> asYetUnresolvedFunctions=currentContextPtr_->unresolvedFunctions_;
 
   bool resolvedSomethingThisLoop=true;
@@ -865,11 +865,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
     // Resolve any .GLOBAL_PARAM parameters in the current context and add to
     // the resolvedGlobalParams_.
-    start = asYetUnresolvedGlobalParameters.begin();
-    end = asYetUnresolvedGlobalParameters.end();
-    for (paramIter = start; paramIter != end; ++paramIter)
+    ustart = asYetUnresolvedGlobalParameters.begin();
+    uend = asYetUnresolvedGlobalParameters.end();
+    for (uparamIter = ustart; uparamIter != uend; ++uparamIter)
     {
-      parameter = *paramIter;
+      parameter = *uparamIter;
       if (DEBUG_IO)
       {
         Xyce::dout() << " CircuitContext::resolve Attempting to resolve global parameter " << parameter.uTag() <<std::endl;
@@ -877,7 +877,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
       if (!resolveParameter(parameter))
       {
-        retryParams.push_back(parameter);
+        uretryParams.insert(parameter);
         somethingLeftToDo = true;
       }
       else
@@ -930,7 +930,9 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             //for (std::vector<std::string>::iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             for (std::vector<std::string>::const_iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             {
-              if (findParameter(currentContextPtr_->resolvedGlobalParams_.begin(), currentContextPtr_->resolvedGlobalParams_.end(), *s_i) == NULL)
+              Util::Param parameter( *s_i, "");
+              Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
+              if ( urGParamIter == currentContextPtr_->resolvedGlobalParams_.end() )
               {
                 Report::UserError0() << "Unknown parameter (" << *s_i << ") found in global param expression: "
                                      << parameter.getValue<Util::Expression>().get_expression();
@@ -958,12 +960,12 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             }
           }
         }
-        currentContextPtr_->resolvedGlobalParams_.push_back(parameter);
+        currentContextPtr_->resolvedGlobalParams_.insert(parameter);
         resolvedSomethingThisLoop=true;
       }
     }
-    asYetUnresolvedGlobalParameters=retryParams;
-    retryParams.clear();
+    asYetUnresolvedGlobalParameters=uretryParams;
+    uretryParams.clear();
 
     // Resolve functions in the current context.
     // ERK.  new expression code to follow.
@@ -1007,7 +1009,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       Report::UserError0() << "Unable to resolve parameter " << (*it).uTag() << " found in .PARAM statement";
     }
 
-    for (Util::ParamList::iterator it = asYetUnresolvedGlobalParameters.begin(); it != asYetUnresolvedGlobalParameters.end(); ++it)
+    for (Util::UParamList::iterator it = asYetUnresolvedGlobalParameters.begin(); it != asYetUnresolvedGlobalParameters.end(); ++it)
     {
       Report::UserError0() << "Unable to resolve global parameter " << (*it).uTag() << " found in .PARAM statement";
     }
@@ -1030,10 +1032,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         const std::vector<std::string> & strings = functionBodyExpression.getUnresolvedParams();
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
         {
-          if (find(functionArgs.begin(), functionArgs.end(), *it) == functionArgs.end()
-              && findParameter(currentContextPtr_->resolvedGlobalParams_.begin(), currentContextPtr_->resolvedGlobalParams_.end(), *it) == NULL)
+          if (find(functionArgs.begin(), functionArgs.end(), *it) == functionArgs.end() )
           {
-            Report::UserError0() << functionNameAndArgs << " contains unknown parameter " << (*it);
+            Util::Param parameter( *it, "");
+            Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
+            if ( urGParamIter == currentContextPtr_->resolvedGlobalParams_.end() )
+            {
+              Report::UserError0() << functionNameAndArgs << " contains unknown parameter " << (*it);
+            }
           }
         }
       }
@@ -1577,12 +1583,10 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         }
         else if (expressionParameter.getType() == Xyce::Util::EXPR)
         {
-          std::string expressionString=expression.get_expression();
-
           // ERK.  Add an error test for nodes that cannot be attached below.  Something like:
           //
           //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
-          //                         << " as substitute for " << parameterName << " in expression " << expressionString;
+          //                         << " as substitute for " << parameterName << " in expression " << expression.get_expression();
           const std::vector<std::string> & variables = expressionParameter.getValue<Util::Expression>().getVariables ();
 
           enumParamType paramType=DOT_PARAM;
@@ -1749,12 +1753,12 @@ bool CircuitContext::getResolvedGlobalParameter(Util::Param & parameter) const
 {
   bool success = false;
 
-  const Util::Param* parameterPtr = findParameter(currentContextPtr_->resolvedGlobalParams_.begin(), currentContextPtr_->resolvedGlobalParams_.end(), parameter.tag());
-  if (parameterPtr != NULL)
+  Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
+  if ( urGParamIter != currentContextPtr_->resolvedGlobalParams_.end() )
   {
     // Found a parameter with given name, set the value
     // of parameter and return.
-    parameter.setVal(*parameterPtr);
+    parameter.setVal(*urGParamIter);
     success = true;
   }
   else if (currentContextPtr_->parentContextPtr_ != NULL)
@@ -2701,7 +2705,7 @@ int Pack<IO::CircuitContext>::packedByteCount(
   // count global params
   size = circuit_context.unresolvedGlobalParams_.size();
   byteCount += sizeof( int );
-  for (Util::ParamList::const_iterator it = circuit_context.unresolvedGlobalParams_.begin(), end = circuit_context.unresolvedGlobalParams_.end(); it != end; ++it)
+  for (Util::UParamList::const_iterator it = circuit_context.unresolvedGlobalParams_.begin(), end = circuit_context.unresolvedGlobalParams_.end(); it != end; ++it)
   {
     byteCount += Pack<Util::Param>::packedByteCount(*it);
   }
@@ -2861,7 +2865,7 @@ Pack<IO::CircuitContext>::pack(
   // pack global params
   size = circuit_context.unresolvedGlobalParams_.size();
   comm->pack( &size, 1, buf, bsize, pos );
-  for (Util::ParamList::const_iterator it = circuit_context.unresolvedGlobalParams_.begin(), end = circuit_context.unresolvedGlobalParams_.end(); it != end; ++it)
+  for (Util::UParamList::const_iterator it = circuit_context.unresolvedGlobalParams_.begin(), end = circuit_context.unresolvedGlobalParams_.end(); it != end; ++it)
   {
     Pack<Util::Param>::pack(*it, buf, bsize, pos, comm );
   }
@@ -3027,7 +3031,7 @@ Pack<IO::CircuitContext>::unpack(
   {
     Util::Param aParam;
     Pack<Util::Param>::unpack(aParam, pB, bsize, pos, comm );
-    circuit_context.unresolvedGlobalParams_.push_back( aParam );
+    circuit_context.unresolvedGlobalParams_.insert( aParam );
   }
 
   // unpack mutual inductances vector
