@@ -809,35 +809,21 @@ bool Instance::updateIntermediateVars ()
           dFdXdVpVec_.resize(numVars);
         if (dQdXdVpVec_.empty())
           dQdXdVpVec_.resize(numVars);
-
-        // Call back to the computation object and get this devices
-        // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-        // VECTORS APPROPRIATELY!
-        bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
-                                             getSolverState().currTime_,
-                                             getDeviceOptions(),
-                                             getSolverState(),
-                                             origFlag,
-                                             FVec_, QVec_, BVec_,
-                                             dFdXMat_, dQdXMat_,
-                                             dFdXdVpVec_, dQdXdVpVec_);
-        }
-      else // cast failed, so vciPtr_ doesn't have interface supporting limiting
-      {
-        // Call back to the computation object and get this devices
-        // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-        // VECTORS APPROPRIATELY!
-        bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
-                                             getSolverState().currTime_,
-                                             getDeviceOptions(),
-                                             getSolverState(),
-                                             origFlag,
-                                             FVec_, QVec_, BVec_,
-                                             dFdXMat_, dQdXMat_,
-                                             dFdXdVpVec_, dQdXdVpVec_);
       }
+
+      // Call back to the computation object and get this devices
+      // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+      // VECTORS APPROPRIATELY!
+      bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
+                                           getSolverState().currTime_,
+                                           getDeviceOptions(),
+                                           getSolverState(),
+                                           origFlag,
+                                           FVec_, QVec_, BVec_,
+                                           dFdXMat_, dQdXMat_,
+                                           dFdXdVpVec_, dQdXdVpVec_);
     }
-    else 
+    else // device doesn't support computeXyceVectorsWithLimiting
     {
       // Call back to the computation object and get this devices
       // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
