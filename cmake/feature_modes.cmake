@@ -44,10 +44,6 @@ set(Xyce_PARALLEL_MPI              FALSE CACHE BOOL "Build Xyce with MPI enabled
 set(Xyce_USE_CURL                  FALSE CACHE BOOL "Enable the usage tracking capability using CURL")
 set(Xyce_TRACKING_URL              ""  CACHE STRING "The URL for the usage tracking capability")
 
-# Speed up compiles by disabling the analytic sensitivities in the
-# ADMS-generated devices
-set(Xyce_ADMS_SENSITIVITIES        TRUE CACHE BOOL "Enable analytic sensitivities in ADMS-generated devices")
-
 # Self-explanatory: Enable the chemical reaction parsing capability
 set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction parsing capability")
 
@@ -100,6 +96,11 @@ set(Xyce_TEST_SOLN_VAR_MAP         FALSE CACHE BOOL "Enable debug output for the
 if ((Xyce_ADMS_MODELS OR NOT DEFINED Xyce_ADMS_MODELS) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/ADMS")
      set (Xyce_ADMS_MODELS TRUE CACHE BOOL "Include the ADMS directory, if it exists")
      message(STATUS "Including the src/DeviceModelPKG/ADMS model directory")
+
+     # Compilation can be sped up by disabling the analytic sensitivities in
+     # the ADMS-generated devices. Default to enabling the capability.
+     # ADMS improvements may have made this unneeded.
+     set(Xyce_ADMS_SENSITIVITIES TRUE CACHE BOOL "Enable analytic sensitivities in ADMS-generated devices")
 elseif (NOT DEFINED Xyce_ADMS_MODELS)
      # The flag was not set, and the directory does not exist
      # Silently add the flag
@@ -111,7 +112,7 @@ elseif (NOT Xyce_ADMS_MODELS)
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_ADMS_MODELS FALSE CACHE BOOL "Include the ADMS directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/ADMS directory is not in place - "
+     message("The src/DeviceModelPKG/ADMS directory does not exist - "
           "changing Xyce_ADMS_MODELS to FALSE")
 endif ()
 
@@ -129,7 +130,7 @@ elseif (NOT Xyce_NEURON_MODELS)
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_NEURON_MODELS FALSE CACHE BOOL "Include the Neuron directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/NeuronModels directory is not in place - "
+     message("The src/DeviceModelPKG/NeuronModels directory does not exist - "
           "changing Xyce_NEURON_MODELS to FALSE.")
 endif ()
 
@@ -147,7 +148,7 @@ elseif (NOT Xyce_NONFREE_MODELS)
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_NONFREE_MODELS FALSE CACHE BOOL "Include the NonFree directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/NonFree directory is not in place - "
+     message("The src/DeviceModelPKG/NonFree directory does not exist - "
           "changing Xyce_NONFREE_MODELS to FALSE.")
 endif ()
 
@@ -165,7 +166,7 @@ elseif (NOT Xyce_RAD_MODELS)
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_RAD_MODELS FALSE CACHE BOOL "Include the SandiaModels directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/SandiaModels directory is not in place - "
+     message("The src/DeviceModelPKG/SandiaModels directory does not exist - "
           "changing Xyce_RAD_MODELS to FALSE.")
 endif ()
 
@@ -194,7 +195,7 @@ if (Xyce_RAD_MODELS)
      else ()
           # The flag was set to TRUE, but the directory doesn't exist
           set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists" FORCE)
-          message("The src/DeviceModelPKG/SandiaModels/ATHENA directory is not in place - "
+          message("The src/DeviceModelPKG/SandiaModels/ATHENA directory does not exist - "
                "changing Xyce_ATHENA to FALSE.")
      endif ()
 endif ()
