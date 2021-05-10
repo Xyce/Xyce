@@ -1679,7 +1679,15 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           }
           else
           {
-            if (!expression.make_var(strings[i])) 
+
+            double val=0.0;
+            if ( expressionParameter.getType() == Xyce::Util::STR ||
+                 expressionParameter.getType() == Xyce::Util::DBLE )
+            {
+              val = expressionParameter.getMutableValue<double>();
+            }
+
+            if (!expression.make_var(strings[i],val)) 
             {
               Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
             }

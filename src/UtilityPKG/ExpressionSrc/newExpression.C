@@ -668,7 +668,10 @@ bool newExpression::make_constant (
 // Creator       : Eric Keiter
 // Creation Date : ??
 //-------------------------------------------------------------------------------
-bool newExpression::make_var (std::string const & var, enumParamType type)
+bool newExpression::make_var (
+    std::string const & var,
+    usedType const & val,
+    enumParamType type)
 {
   std::string paramNameUpper = var;
   Xyce::Util::toUpper(paramNameUpper);
@@ -682,7 +685,8 @@ bool newExpression::make_var (std::string const & var, enumParamType type)
     {
       Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
-      parOp->unsetValue(); // just to be safe "unset" the value
+      //parOp->unsetValue(); // just to be safe "unset" the value
+      parOp->setValue(val);
       parOp->setIsVar();
       parOp->setParamType(type);
     }
@@ -1450,34 +1454,20 @@ bool newExpression::getValuesFromGroup_()
     }
   }
 
-  // ERK: I plan to refactor the code to get rid of the "make_var" function.
+  // ERK: I hope to refactor the code to get rid of the "make_var" function.
   // Once I've done that, then this block of code for paramOps can probably be deleted.
   // This loop only sets values for parameters that have been tagged as "isVar" via the
   // "make_var" function call.  That function is a holdover from the old expression
   // library.
   //
-  // The parser is set up  so that it can only resolve params in an expression that have
-  // been previously "resolved".  If an expression contains an unresolvable parameters
-  // (and it is only unresolvable because of the order of operations in the parser) then
-  // it gets the "make_var" treatment.
-  //
-  // For the old expression library this was necessary, b/c if a parameter hasn't been
-  // processed yet, then you can't use it as a string substitution.  But the new
-  // expression library doesn't have this problem.  It just needs to attach the parameter
-  // node.  So, if the parameter exists, resolved or not, it is attachable.
-  //
-  // ERK. 10/2/2020 - my initial explanation for why "make_var" exists isn't correct.
-  //
-  // parameters get set via "make_var" when they are parameters that are not 
+  // parameters get set via "make_var" when they are GLOBAL parameters that are not 
   // expression-typed parameters.  A parameter specified as .global_param fred=4.0 
   // will not be considered as an expression-valued param, but a param specified 
-  // as .global_param barney={5*fred} will be considered an expression-valued param.
+  // as .global_param barney={5*fred} will be considered an expression-valued param, 
+  // and be handled via an attachment.
   //
-  // I came up with the above explanation (resolved vs. unresolved) 
-  // because I got confused about some nested if-statements in the circuit context class.
-  //
-  // So, possibly we don't want to get rid of "make_var".  Or possibly we still do, but
-  // one of the imagined benefits (more efficient parsing) probably isn't true.
+  // A parameter declared as a .param, which is not an expression-valued parameter, 
+  // will be set as a constant via "make_const".
   if ( !(paramOpVec_.empty()) )
   {
     for (int ii=0;ii<paramOpVec_.size();++ii)
@@ -1486,8 +1476,8 @@ bool newExpression::getValuesFromGroup_()
 
       if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) )
       {
-        usedType val;
         usedType oldval = parOp->getValue();
+        usedType val = oldval;
         group_->getGlobalParameterVal(parOp->getName(),val);
         parOp->setValue(val);
 

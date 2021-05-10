@@ -882,7 +882,7 @@ void MembraneUserDefined::convertSymbolsToVars( std::vector<RCP<Util::Expression
       if( findResult != endName )
       {
         // found this one in the set so make it a variable
-        expRCP.at(i)->make_var( expNamesTmp.at(j) );
+        expRCP.at(i)->make_var( expNamesTmp.at(j), 0.0 );
         // save it in a std::vector<std::string> so we can quickly load values into a std::vector<double> to evaluate the expression.
         expNamesVec[i].push_back( expNamesTmp.at(j) );
       }

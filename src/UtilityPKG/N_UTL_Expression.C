@@ -242,9 +242,9 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::make_var (std::string const & var, enumParamType type)
+bool Expression::make_var (const std::string & var, const double & val, enumParamType type)
 { 
-  return newExpPtr_->make_var(var, type);
+  return newExpPtr_->make_var(var, val, type);
 }
 
 //-----------------------------------------------------------------------------
