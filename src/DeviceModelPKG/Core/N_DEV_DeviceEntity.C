@@ -1065,18 +1065,18 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.global_params.clear();
   if (!variables.empty())
   {
-    std::vector<std::string>::const_iterator iterS;
-    for (iterS=variables.begin() ; iterS!=variables.end() ; ++iterS)
+    std::vector<std::string>::const_iterator iterVariable;
+    for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
-      GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterS);
+      GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterVariable);
       if (global_param_it == globals_.paramMap.end())
       {
-        UserError(*this) << "Global parameter " << *iterS << " in " <<
+        UserError(*this) << "Global parameter " << *iterVariable << " in " <<
             dependentParam.expr->get_expression() << " not found";
       }
       else 
       {
-        dependentParam.global_params.push_back(*iterS);
+        dependentParam.global_params.push_back(*iterVariable);
       }
     }
   }
@@ -1829,7 +1829,8 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
     {
       if (p.isType<double>())
       {
-        p.value<double>(composite_param) = ndParam.getImmutableValue<double>();
+        //p.value<double>(composite_param) = ndParam.getImmutableValue<double>();
+        p.value<double>(composite_param) = ndParam.getMutableValue<double>();
         if (isTempParam(pName) && p.getAutoConvertTemperature())
           p.value<double>(composite_param) += CONSTCtoK;
         if (p.hasOriginalValueStored())
@@ -1841,19 +1842,22 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
       }
       else if (p.isType<int>())
       {
-        p.value<int>(composite_param) = ndParam.getImmutableValue<int>();
+        //p.value<int>(composite_param) = ndParam.getImmutableValue<int>();
+        p.value<int>(composite_param) = ndParam.getMutableValue<int>();
         if (p.hasOriginalValueStored())
           Xyce::Device::setOriginalValue(composite_param, p.getSerialNumber(), static_cast<double>(p.value<int>(composite_param)));
       }
       else if (p.isType<long>())
       {
-        p.value<long>(composite_param) = ndParam.getImmutableValue<long>();
+        //p.value<long>(composite_param) = ndParam.getImmutableValue<long>();
+        p.value<long>(composite_param) = ndParam.getMutableValue<long>();
         if (p.hasOriginalValueStored())
           Xyce::Device::setOriginalValue(composite_param, p.getSerialNumber(), static_cast<double>(p.value<long>(composite_param)));
       }
       else if (p.isType<bool>())
       {
-        p.value<bool>(composite_param) = (ndParam.getImmutableValue<double>() != 0.0);
+        //p.value<bool>(composite_param) = (ndParam.getImmutableValue<double>() != 0.0);
+        p.value<bool>(composite_param) = (ndParam.getMutableValue<double>() != 0.0);
         if (p.hasOriginalValueStored())
         {
           if (p.value<bool>(composite_param))
@@ -1864,7 +1868,8 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
       }
       else if (p.isType<std::vector<double> >())
       {
-       (p.value<std::vector<double> >(composite_param)).push_back(ndParam.getImmutableValue<double>());
+       //(p.value<std::vector<double> >(composite_param)).push_back(ndParam.getImmutableValue<double>());
+       (p.value<std::vector<double> >(composite_param)).push_back(ndParam.getMutableValue<double>());
       }
       else if (p.isType<std::vector<std::string> >())
       {
