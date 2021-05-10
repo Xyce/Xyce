@@ -18,8 +18,8 @@ libExpressionSrc_la_SOURCES = \
   newExpression.C \
   deviceExpressionGroup.C \
   mainXyceExpressionGroup.C \
+  sensXyceExpressionGroup.C \
   outputsXyceExpressionGroup.C \
-  xyceExpressionGroup.C \
   ExpressionLexer.h \
   ExpressionType.h \
   ast.h \
@@ -34,8 +34,8 @@ libExpressionSrc_la_SOURCES = \
   deviceExpressionGroup.h \
   deviceExpressionGroup.h \
   mainXyceExpressionGroup.h \
+  sensXyceExpressionGroup.h \
   outputsXyceExpressionGroup.h \
-  xyceExpressionGroup.h  \
 	expressionParamTypes.h
 
 # these can't be in "SOURCES" above or automake screams about YACC.

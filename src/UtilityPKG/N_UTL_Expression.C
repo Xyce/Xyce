@@ -52,7 +52,6 @@
 #include <N_UTL_Expression.h>
 
 #include <newExpression.h>
-#include <xyceExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
 
 namespace Xyce {

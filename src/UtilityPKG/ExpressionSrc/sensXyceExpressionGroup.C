@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Expression group for sensitivity objective functions
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -40,7 +40,7 @@
 #include <string>
 #include <random>
 
-#include <mainXyceExpressionGroup.h>
+#include <sensXyceExpressionGroup.h>
 #include <ast.h>
 #include <newExpression.h>
 
@@ -70,14 +70,14 @@ namespace Xyce {
 namespace Util {
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Function      : sensXyceExpressionGroup::sensXyceExpressionGroup 
 // Purpose       : constructor
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
 //-------------------------------------------------------------------------------
-mainXyceExpressionGroup::mainXyceExpressionGroup ( 
+sensXyceExpressionGroup::sensXyceExpressionGroup ( 
  Parallel::Communicator & comm, Topo::Topology & top,
  Analysis::AnalysisManager &analysis_manager,
  Device::DeviceMgr & device_manager,
@@ -93,26 +93,26 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Function      : sensXyceExpressionGroup::sensXyceExpressionGroup 
 // Purpose       : destructor
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 
 //-------------------------------------------------------------------------------
-mainXyceExpressionGroup::~mainXyceExpressionGroup ()
+sensXyceExpressionGroup::~sensXyceExpressionGroup ()
 {
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionGID_
+// Function      : sensXyceExpressionGroup::getSolutionGID_
 // Purpose       : 
 // Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
+int sensXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 {
   int tmpGID=-1;
   std::vector<int> svGIDList1, dummyList;
@@ -167,14 +167,14 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionVal
+// Function      : sensXyceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : double precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
+bool sensXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
   retval = 0.0;
   int tmpGID = -1;
@@ -191,14 +191,14 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getSolutionVal
+// Function      : sensXyceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : std::complex<double> precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
+bool sensXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
 {
   double real_val=0.0;
   double imag_val=0.0;
@@ -225,29 +225,70 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
   return (tmpGID>=0);
 }
 
+
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTimeStep
+// Function      : sensXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : double precision version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool sensXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+{
+  bool success=true;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
+  return success;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : sensXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : std::complex<double> version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool sensXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+{
+  bool success=true;
+  double tmpval;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, tmpval);
+  retval = std::complex<double>(tmpval,0.0);
+  return success;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : sensXyceExpressionGroup::getTimeStep
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTimeStep ()
+double sensXyceExpressionGroup::getTimeStep ()
 {
   dt_ = deviceManager_.getSolverState().currTimeStep_;
   return dt_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTime
+// Function      : sensXyceExpressionGroup::getTime
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTime() 
+double sensXyceExpressionGroup::getTime() 
 { 
   // I would have preferred to use this but as the code is currently written it
   // is not safe.  The earliest call I would need to make to getTime happens before 
@@ -263,123 +304,123 @@ double mainXyceExpressionGroup::getTime()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTemp
+// Function      : sensXyceExpressionGroup::getTemp
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTemp() 
+double sensXyceExpressionGroup::getTemp() 
 { 
   temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>() - CONSTCtoK;
   return temp_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : sensXyceExpressionGroup::
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getVT  () 
+double sensXyceExpressionGroup::getVT  () 
 { 
   VT_ = (deviceManager_.getDeviceOptions().temp.getImmutableValue<double>())*CONSTKoverQ;
   return VT_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : sensXyceExpressionGroup::
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getFreq() 
+double sensXyceExpressionGroup::getFreq() 
 { 
   freq_ = deviceManager_.getSolverState().currFreq_;
   return freq_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getGmin
+// Function      : sensXyceExpressionGroup::getGmin
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getGmin() 
+double sensXyceExpressionGroup::getGmin() 
 { 
   gmin_ = deviceManager_.getGmin();
   return gmin_;
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getBpTol()
+// Function      : sensXyceExpressionGroup::getBpTol()
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getBpTol()
+double sensXyceExpressionGroup::getBpTol()
 {
   return deviceManager_.getSolverState().bpTol_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getStartingTimeStep
+// Function      : sensXyceExpressionGroup::getStartingTimeStep
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/27/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getStartingTimeStep()
+double sensXyceExpressionGroup::getStartingTimeStep()
 {
   return deviceManager_.getSolverState().startingTimeStep_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getFinalTime()
+// Function      : sensXyceExpressionGroup::getFinalTime()
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 4/27/2020 
 //-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getFinalTime()
+double sensXyceExpressionGroup::getFinalTime()
 {
   return deviceManager_.getSolverState().finalTime_;
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getStepNumber()
+// Function      : sensXyceExpressionGroup::getStepNumber()
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 6/9/2020 
 //-------------------------------------------------------------------------------
-unsigned int mainXyceExpressionGroup::getStepNumber()
+unsigned int sensXyceExpressionGroup::getStepNumber()
 {
   //return deviceManager_.getSolverState().timeStepNumber_; // either of these should work
   return analysisManager_.getStepNumber();
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getPhaseOutputUsesRadians
+// Function      : sensXyceExpressionGroup::getPhaseOutputUsesRadians
 // Purpose       : 
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 6/13/2020 
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getPhaseOutputUsesRadians()
+bool sensXyceExpressionGroup::getPhaseOutputUsesRadians()
 {
   return outputManager_.getPhaseOutputUsesRadians();
 }

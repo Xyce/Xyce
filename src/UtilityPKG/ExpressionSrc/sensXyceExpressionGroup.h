@@ -22,21 +22,21 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Expression group for sensitivity objective functions
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef mainXyceExpressionGroup_H
-#define mainXyceExpressionGroup_H
+#ifndef sensXyceExpressionGroup_H
+#define sensXyceExpressionGroup_H
 #include <Xyce_config.h>
 
 #include<string>
@@ -66,40 +66,9 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-#if 0
-// this assumes seed is generated externally
-// this uses functions from N_ANP_UQSupport
-class randomSamplesGenerator
-{
-  public:
-   randomSamplesGenerator(long seed=0):
-     randomSeed(seed),
-     mt(randomSeed),
-     uniformDistribution(0.0,1.0)
-  {};
-
-   double generateNormalSample(const double mean, const double stddev)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupNormal(prob,mean,stddev);
-   }
-
-   double generateUniformSample(const double min, const double max)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupUniform(prob, min, max);
-   }
-
-   long randomSeed;
-   std::mt19937 mt;
-   std::uniform_real_distribution<double> uniformDistribution;
-};
-
-static randomSamplesGenerator *theRandomSamplesGenerator=0;
-#endif
 
 //-----------------------------------------------------------------------------
-// Class         : mainXyceExpressionGroup
+// Class         : sensXyceExpressionGroup
 //
 // Purpose       : This is the "main" group class for connecting the new 
 //                 expression library to Xyce
@@ -126,7 +95,7 @@ static randomSamplesGenerator *theRandomSamplesGenerator=0;
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
 //-----------------------------------------------------------------------------
-class mainXyceExpressionGroup : public baseExpressionGroup
+class sensXyceExpressionGroup : public baseExpressionGroup
 {
 friend class Xyce::Analysis::ACExpressionGroup;
 friend class outputsXyceExpressionGroup;
@@ -135,14 +104,14 @@ friend class ExpressionData;
 
 public:
 
-  mainXyceExpressionGroup ( 
+  sensXyceExpressionGroup ( 
       Parallel::Communicator & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
       ) ;
 
-  ~mainXyceExpressionGroup ();
+  ~sensXyceExpressionGroup ();
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
@@ -153,8 +122,8 @@ public:
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
   { return getSolutionVal(deviceName,retval); }
 
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval ) {return true;}
-  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
+  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
