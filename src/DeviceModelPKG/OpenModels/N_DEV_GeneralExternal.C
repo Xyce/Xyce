@@ -803,14 +803,6 @@ bool Instance::updateIntermediateVars ()
         storeVars[1]=currStoreVars_;
       } 
 
-      if( getDeviceOptions().voltageLimiterFlag)
-      {
-        if (dFdXdVpVec_.empty())
-          dFdXdVpVec_.resize(numVars);
-        if (dQdXdVpVec_.empty())
-          dQdXdVpVec_.resize(numVars);
-      }
-
       // Call back to the computation object and get this devices
       // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
       // VECTORS APPROPRIATELY!
@@ -995,7 +987,7 @@ bool Instance::loadDAEQVector ()
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL) { 
+    if (vciPtrWLimiting!=NULL && !dQdXdVpVec_.empty()) { 
       double * dQdxdVpVector = extData.dQdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dQdxdVpVector[li_Nodes_[i]] += dQdXdVpVec_[i];
@@ -1046,7 +1038,7 @@ bool Instance::loadDAEFVector ()
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL) { 
+    if (vciPtrWLimiting!=NULL && !dFdXdVpVec_.empty()) { 
       double * dFdxdVpVector = extData.dFdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dFdxdVpVector[li_Nodes_[i]] += dFdXdVpVec_[i];
