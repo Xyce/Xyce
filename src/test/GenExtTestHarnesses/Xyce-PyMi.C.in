@@ -157,6 +157,9 @@ public:
     assert(p_params_loaded);
     assert(jacStampSet);
 
+    auto py_xyceDeviceOptions = const_cast<Xyce::Device::DeviceOptions*>(&xyceDeviceOptions);
+    auto py_xyceSolverState = const_cast<Xyce::Device::SolverState*>(&xyceSolverState);
+
     if (F_Q_B_dFdX_dQdX_sizes.size()==0) {
 
         // get sizes from Python module
@@ -255,14 +258,14 @@ public:
         py_stoV = get_list_of_memoryviews(stoV);
 
         py::object result = device.attr("initialize")(
+                py_xyceDeviceOptions,
+                py_xyceSolverState,
                 b_params, 
                 d_params, 
                 i_params, 
                 s_params);
     }
 
-    auto py_xyceDeviceOptions = const_cast<Xyce::Device::DeviceOptions*>(&xyceDeviceOptions);
-    auto py_xyceSolverState = const_cast<Xyce::Device::SolverState*>(&xyceSolverState);
     py::object result = device.attr("computeXyceVectors")(
             py_solV, 
             py_fSV,
@@ -422,17 +425,6 @@ public:
 
     // propagate this to python dictionaries
     device.attr("setNumExternalVars")(i_params, numExternalVars); 
-
-  }
-
-  void setVoltageLimiterFlag(const bool limiting)
-  {
-      
-    // parameters should be processed first
-    assert(p_params_loaded);
-
-    // propagate this to python dictionaries
-    device.attr("setVoltageLimiterFlag")(b_params, limiting); 
 
   }
 
@@ -632,8 +624,14 @@ int main(int argc, char **argv)
 
   // We now must query Xyce for any general external devices present in the
   // netlist we just parsed.
+  std::vector<std::string> deviceNames_YGENEXT;
+  std::vector<std::string> deviceNames_YPY;
   std::vector<std::string> deviceNames;
-  bool bsuccess=xyce.getDeviceNames("YGENEXT",deviceNames);
+
+  bool bsuccess=xyce.getDeviceNames("YGENEXT",deviceNames_YGENEXT);
+  // bsuccess|=xyce.getDeviceNames("YPY",deviceNames_YPY);
+  deviceNames.insert( deviceNames.end(), deviceNames_YGENEXT.begin(), deviceNames_YGENEXT.end() );
+  //deviceNames.insert( deviceNames.end(), deviceNames_YPY.begin(), deviceNames_YPY.end() );
   if (!bsuccess && debug)
   {
     std::cout << " No external devices found.. regular xyce netlist." << std::endl;
@@ -651,143 +649,142 @@ int main(int argc, char **argv)
   for (int i =0; i<deviceNames.size(); i++)
   {
     std::cout << "GenExt Device " << i << " name is " << deviceNames[i] << std::endl;
-    if (deviceNames[i].rfind("YGENEXT!PY", 0) == 0)
-    // devicename starts with "YGENEXT!P"
+
+    // Retrieve any double precision parameters that may be on the instance line
+    std::vector<std::string> pNames;
+    std::vector<double> dValues;
+    bsuccess=xyce.getDParams(deviceNames[i],pNames,dValues);
+    if (!bsuccess)
     {
-      printf("matching pvcs[%d] with %s\n", i, deviceNames[i].c_str());
-      // We found a resistor
-      // Retrieve any double precision parameters that may be on the instance line
-      std::vector<std::string> pNames;
-      std::vector<double> dValues;
-      bsuccess=xyce.getDParams(deviceNames[i],pNames,dValues);
+      std::cerr << " getDParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processDoubleParams(pNames,dValues);
+
+    std::vector<int> iValues;
+    bsuccess=xyce.getIParams(deviceNames[i],pNames,iValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getIParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processIntegerParams(pNames,iValues);
+
+    std::vector<bool> bValues;
+    bsuccess=xyce.getBParams(deviceNames[i],pNames,bValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getBParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processBoolParams(pNames,bValues);
+
+    // set filepaths for xyce and the netlist file
+    pvcs[i].setFilePaths(xyce_filepath, netlist_filepath);
+
+    std::vector<std::string> sValues;
+    bsuccess=xyce.getSParams(deviceNames[i],pNames,sValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getSParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processStringParams(pNames,sValues);
+
+    // have our object retrieve python dictionary
+    pvcs[i].processPythonParams();
+
+    // populate number of external variables
+    pvcs[i].setNumExternalVars(xyce.getNumExtVars(deviceNames[i]));
+
+    // populate number of internal variables from python
+    pvcs[i].processVars();
+
+    bsuccess=xyce.setNumInternalVars(deviceNames[i],pvcs[i].numInternalVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set internal vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    bsuccess=xyce.setNumStateVars(deviceNames[i],pvcs[i].numStateVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set state vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    bsuccess=xyce.setNumStoreVars(deviceNames[i],pvcs[i].numStoreVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set store vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    // numBranchDataVars and numBranchDataVarsIfAllocated are set during initializeEarly
+    // they can not be set here
+    //
+    // setting numBranches is problematic, because it would likely be set to 0
+    // and then the vars if allocated would give it the amount to increment by
+    // however, the DeviceMgr::addDeviceInstance Enabling lead current load for device
+    // DeviceInstance::enableLeadCurrentCalc() being called much earlier
+    // (won't be recalculated)
+    //bsuccess=xyce.setNumBranchDataVars(deviceNames[i],pvcs[i].numBranchDataVars);
+    //if (!bsuccess)
+    //{
+    //  std::cerr << " Failed to set branch data vars for" << deviceNames[i]
+    //            << std::endl;
+    //  exit(1);
+    //}
+
+    //bsuccess=xyce.setNumBranchDataVarsIfAllocated(deviceNames[i],pvcs[i].numBranchDataVarsIfAllocated);
+    //if (!bsuccess)
+    //{
+    //  std::cerr << " Failed to set branch data vars if allocated for" << deviceNames[i]
+    //            << std::endl;
+    //  exit(1);
+    //}
+
+    // generate jacStamp, if defined
+    pvcs[i].processJacStamp();
+
+    if (pvcs[i].jacStamp.size() > 0) {
+      printf("jacStamp > 0, setting larger for %s\n", deviceNames[i].c_str());
+      // If we have implemented this device so it can use a sparse jacobian stamp, tell
+      // Xyce what that stamp is.
+      bsuccess=xyce.setJacStamp(deviceNames[i],pvcs[i].jacStamp);
       if (!bsuccess)
       {
-        std::cerr << " getDParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processDoubleParams(pNames,dValues);
-
-      std::vector<int> iValues;
-      bsuccess=xyce.getIParams(deviceNames[i],pNames,iValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getIParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processIntegerParams(pNames,iValues);
-
-      std::vector<bool> bValues;
-      bsuccess=xyce.getBParams(deviceNames[i],pNames,bValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getBParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processBoolParams(pNames,bValues);
-
-      // set filepaths for xyce and the netlist file
-      pvcs[i].setFilePaths(xyce_filepath, netlist_filepath);
-
-      std::vector<std::string> sValues;
-      bsuccess=xyce.getSParams(deviceNames[i],pNames,sValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getSParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processStringParams(pNames,sValues);
-
-      // have our object retrieve python dictionary
-      pvcs[i].processPythonParams();
-
-      // populate number of external variables
-      pvcs[i].setNumExternalVars(xyce.getNumExtVars(deviceNames[i]));
-
-      // populate voltage limiter flag
-      pvcs[i].setVoltageLimiterFlag(xyce.getVoltageLimiterFlag(deviceNames[i]));
-
-      // populate number of internal variables from python
-      pvcs[i].processVars();
-
-      bsuccess=xyce.setNumInternalVars(deviceNames[i],pvcs[i].numInternalVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set internal vars for" << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
-
-      bsuccess=xyce.setNumStateVars(deviceNames[i],pvcs[i].numStateVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set state vars for" << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
-
-      bsuccess=xyce.setNumStoreVars(deviceNames[i],pvcs[i].numStoreVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set store vars for" << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
-
-      // numBranchDataVars and numBranchDataVarsIfAllocated are set during initializeEarly
-      // they can not be set here
-      //
-      // setting numBranches is problematic, because it would likely be set to 0
-      // and then the vars if allocated would give it the amount to increment by
-      // however, the DeviceMgr::addDeviceInstance Enabling lead current load for device
-      // DeviceInstance::enableLeadCurrentCalc() being called much earlier
-      // (won't be recalculated)
-      //bsuccess=xyce.setNumBranchDataVars(deviceNames[i],pvcs[i].numBranchDataVars);
-      //if (!bsuccess)
-      //{
-      //  std::cerr << " Failed to set branch data vars for" << deviceNames[i]
-      //            << std::endl;
-      //  exit(1);
-      //}
-
-      //bsuccess=xyce.setNumBranchDataVarsIfAllocated(deviceNames[i],pvcs[i].numBranchDataVarsIfAllocated);
-      //if (!bsuccess)
-      //{
-      //  std::cerr << " Failed to set branch data vars if allocated for" << deviceNames[i]
-      //            << std::endl;
-      //  exit(1);
-      //}
-
-      // generate jacStamp, if defined
-      pvcs[i].processJacStamp();
-
-      if (pvcs[i].jacStamp.size() > 0) {
-        printf("jacStamp > 0, setting larger for %s\n", deviceNames[i].c_str());
-        // If we have implemented this device so it can use a sparse jacobian stamp, tell
-        // Xyce what that stamp is.
-        bsuccess=xyce.setJacStamp(deviceNames[i],pvcs[i].jacStamp);
-        if (!bsuccess)
-        {
-          std::cerr << " Failed to set Jacobian Stamp for " << deviceNames[i]
-                    << std::endl;
-          exit(1);
-        }
-      }
-
-      // Now tell Xyce to use the vector loader
-      bsuccess=xyce.setVectorLoader(deviceNames[i],&pvcs[i]);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set vector loader for " << deviceNames[i]
+        std::cerr << " Failed to set Jacobian Stamp for " << deviceNames[i]
                   << std::endl;
         exit(1);
       }
     }
 
+    // Now tell Xyce to use the vector loader
+    bsuccess=xyce.setVectorLoader(deviceNames[i],&pvcs[i]);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set vector loader for " << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
   }
+
+  //py::module pstats = py::module::import("pstats");
+  //auto stat = pstats.attr("Stats")();
+  ////stat.attr("init")(profiler);
+  //stat.attr("sort_stats")("ncalls");
+  //stat.attr("print_stats");
+  //profiler.attr("print_stats");
 
   // All of our recognized general external devices are completely set up, it is now
   // safe to finish initialization

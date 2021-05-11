@@ -3,6 +3,8 @@ from XyceObjects import DeviceOptions, SolverState
 class BaseDevice(object):
 
     # intended if no p_params to store in b,d,i,s params
+    # otherwise, override and be sure last call inside
+    # processPythonParams is to call pythonParamsMerge
     def processPythonParams(self, b_params, d_params, i_params, s_params):
         pass
 
@@ -11,7 +13,6 @@ class BaseDevice(object):
         # merges p_params into b,d,i,s params
         # gives priority to existing values in b,d,i, and s since these were
         # specified in the netlist by the user, default back to p_params
-        #print('before:',b_params, d_params, i_params, s_params, p_params)
         for item in p_params.items():
             print(item)
             if (item[0] not in d_params.keys()):
@@ -23,17 +24,8 @@ class BaseDevice(object):
                     i_params[item[0]] = item[1]
                 elif isinstance(item[1], str): 
                     s_params[item[0]] = item[1]
-        #print('after:',b_params, d_params, i_params, s_params, p_params)
 
-    # do not override, only called from pythonGenExt
-    def setNumExternalVars(self, i_params, num_external_vars):
-        i_params["numExternalVars"]=num_external_vars
-
-    # do not override, only called from pythonGenExt
-    def setVoltageLimiterFlag(self, b_params, voltage_limiter_flag):
-        b_params["voltageLimiterFlag"]=voltage_limiter_flag
-
-    # do not override, only called from pythonGenExt
+    # do not override, only called from Xyce-PyMi
     def processTotalVars(self, i_params):
         try:
             num_external_vars = i_params["numExternalVars"]
@@ -44,6 +36,11 @@ class BaseDevice(object):
         except:
             assert False, "processTotalVars() called before processNumInternalVars()"
         i_params["numVars"] = num_external_vars + num_internal_vars
+
+    # do not override, only called from Xyce-PyMi
+    # and determined by topology
+    def setNumExternalVars(self, i_params, num_external_vars):
+        i_params["numExternalVars"]=num_external_vars
 
     def processNumInternalVars(self, b_params, d_params, i_params, s_params):
         i_params["numInternalVars"]=0
@@ -65,21 +62,26 @@ class BaseDevice(object):
         i_params["numBranchDataVarsIfAllocated"]=i_params["numExternalVars"]
         return i_params["numBranchDataVarsIfAllocated"]
 
-    def initialize(self, b_params, d_params, i_params, s_params):
-        return 1
-    
     def get_F_Q_B_dfDx_dQdx_sizes(self, b_params, d_params, i_params, s_params):
         raise NotImplementedError
     
+    # tell Xyce-PyMi Jacobian stamp (nonzeros per row) size
+    # if not overridden, a dense Jacobian will be created
     def getJacStampSize(self, b_params, d_params, i_params, s_params):
         return np.zeros(shape=(0,),dtype='i4')
     
+    # only needs overridden if getJacStampSize is overridden
     def setJacStamp(self, jacStamp, b_params, d_params, i_params, s_params):
         return 1 
 
+    # called prior to computeXyceVectors, computed results should be
+    # store in self.* so that they persist for future 
+    # computeXyceVectors calls
+    def initialize(self, deviceOptions, solverState, b_params, d_params, i_params, s_params):
+        return 1
+
+    # this function must be overridden to provide device definition
     def computeXyceVectors(self, solV, fSV, stoV, t, deviceOptions, solverState,
             origFlag, F, Q, B, dFdX, dQdX, dFdXdVp, dQdXdVp, 
             b_params, d_params, i_params, s_params):
         raise NotImplementedError
-
-    
