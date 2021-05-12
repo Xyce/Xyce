@@ -62,8 +62,15 @@ class BaseDevice(object):
         i_params["numBranchDataVarsIfAllocated"]=i_params["numExternalVars"]
         return i_params["numBranchDataVarsIfAllocated"]
 
-    def get_F_Q_B_dfDx_dQdx_sizes(self, b_params, d_params, i_params, s_params):
-        raise NotImplementedError
+    def getArraySizes(self, b_params, d_params, i_params, s_params):
+        num_vars = i_params["numVars"]
+        size_dict = {}
+        size_dict['F']=[num_vars,]
+        size_dict['Q']=[num_vars,]
+        size_dict['B']=[num_vars,]
+        size_dict['dFdX']=[num_vars,num_vars]
+        size_dict['dQdX']=[num_vars,num_vars]
+        return size_dict
     
     # tell Xyce-PyMi Jacobian stamp (nonzeros per row) size
     # if not overridden, a dense Jacobian will be created

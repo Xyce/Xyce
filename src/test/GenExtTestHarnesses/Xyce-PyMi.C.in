@@ -163,7 +163,7 @@ public:
     if (F_Q_B_dFdX_dQdX_sizes.size()==0) {
 
         // get sizes from Python module
-        F_Q_B_dFdX_dQdX_sizes = device.attr("get_F_Q_B_dfDx_dQdx_sizes")(
+        F_Q_B_dFdX_dQdX_sizes = device.attr("getArraySizes")(
             b_params, 
             d_params, 
             i_params, 
