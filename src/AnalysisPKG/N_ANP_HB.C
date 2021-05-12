@@ -318,6 +318,12 @@ bool HB::doInit()
   initializeOscOut( );
   setFreqPoints_();
 
+
+
+  if (method_ == "AFM")
+     mapFreqs_();
+
+
 //  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
 
   int posFreqSize = (size_ - 1)/2;  
@@ -340,7 +346,7 @@ bool HB::doInit()
    period_ = 1.0/minFreq;
 
 //  if (DEBUG_HB)
-//    Xyce::dout() << "minFreq =" <<  minFreq << std::endl;
+    Xyce::dout() << "minFreq =" <<  minFreq << std::endl;
 
     Xyce::dout() << "HB period =" <<  period_ << std::endl;
 
@@ -422,7 +428,7 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
-  if (freqs_.size() == 1)
+  if ((freqs_.size() == 1) || (method_ == "AFM") )
   {
     if (ftInterface_ == Teuchos::null)
     {
@@ -1178,6 +1184,37 @@ void HB::accumulateStatistics_(AnalysisBase &analysis)
   hbStatCounts_ += analysis.stats_;
 }
 
+
+ 
+//-----------------------------------------------------------------------------
+// Function      : HB::mapFreqs_
+// Purpose       : Map frequency spectrum for HB analysis.
+// Special Notes :
+// Scope         : private
+// Creator       : Ting Mei, SNL
+// Creation Date : 04/09/2021
+//-----------------------------------------------------------------------------
+bool HB::mapFreqs_()
+{
+  int numAnalysisFreqs = freqs_.size();
+  
+  mappedFreqs_.resize(numAnalysisFreqs);
+
+  mappedFreqs_[0] = 1.0;
+
+  for (int i=1; i < numAnalysisFreqs; i++)
+  {
+    mappedFreqs_[i] = numFreqs_[i-1] * mappedFreqs_[i-1];
+
+    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+    
+  }
+
+
+  return true;
+}
+
+
 //-----------------------------------------------------------------------------
 // Function      : HB::setFreqPoints_
 // Purpose       : Set frequency spectrum for HB analysis.
@@ -1438,7 +1475,7 @@ bool HB::setFreqPoints_()
 
     setFreqPointsAPFT_();
   }
-  else if ( method_ == "AFM" )
+  else if ( ( method_ == "AFM"   ) || (method_ == "HYBRID") )
   {
     setFreqPointsFM_();
   }
@@ -1551,7 +1588,7 @@ bool HB::setFreqPointsFM_()
   {
     for (int i=0; i< freqPoints_.size(); i++)
       dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
-  }     */
+  }        */
 //  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
 //    posfreqPoints_.erase( posfreqPoints_.begin());
 
