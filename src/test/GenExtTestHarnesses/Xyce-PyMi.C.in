@@ -175,36 +175,68 @@ public:
         auto py_str_dFdX = py::str("dFdX");
         auto py_str_dQdX = py::str("dQdX");
 
-        // resize F, Q, B, dFdX, and dQdX, if needed
-        if (F.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>()) {
-            F.resize((F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>());
+        auto F_size = (F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>();
+        auto Q_size = (F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>();
+        auto B_size = (F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>();
+
+        // user can only set F size to numVars, while Q and B can be set to 
+        // either 0 or numVars
+        //
+        // if Q,B sizes !=0, then N_DEV_GeneralExternal.C expects them to be of size
+        // numVars, which is the same size as the length of solV
+        //
+        // check sizes for validity
+        assert(F_size==solV.size());
+        if (Q_size!=0) {
+            assert(Q_size==solV.size());
         }
-        if (dFdXdVp.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>()) {
-            dFdXdVp.resize((F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>());
+        if (B_size!=0) {
+            assert(B_size==solV.size());
         }
-        if (Q.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>()) {
-            Q.resize((F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>());
-        }
-        if (dQdXdVp.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>()) {
-            dQdXdVp.resize((F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>());
-        }
-        if (B.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>()) {
-            B.resize((F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>());
-        }
-        if (dFdX.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>()) {
-            dFdX.resize((F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>());
-        }
-        if (dQdX.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>()) {
-            dQdX.resize((F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>());
-        }
-        for (size_t i=0; i<(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>(); ++i) {
-            if (dFdX[i].size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[1].cast<int>()) {
-                dFdX[i].resize((F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[1].cast<int>());
+
+        // resize vectors, if needed 
+        {
+            // F
+            if (F.size()!=F_size) {
+                F.resize(F_size);
+            }
+            // limited variable F
+            if (dFdXdVp.size()!=F_size) {
+                dFdXdVp.resize(F_size);
+            }
+
+            // Q
+            if (Q.size()!=Q_size) {
+                Q.resize(Q_size);
+            }
+            // limited Q
+            if (dQdXdVp.size()!=Q_size) {
+                dQdXdVp.resize(Q_size);
+            }
+
+            // B
+            if (B.size()!=B_size) {
+                B.resize(B_size);
             }
         }
-        for (size_t i=0; i<(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>(); ++i) {
-            if (dQdX[i].size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[1].cast<int>()) {
-                dQdX[i].resize((F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[1].cast<int>());
+
+        // resize gradients, if needed
+        {
+            if (dFdX.size()!=F_size) {
+                dFdX.resize(F_size);
+            }
+            if (dQdX.size()!=Q_size) {
+                dQdX.resize(Q_size);
+            }
+            for (size_t i=0; i<F_size; ++i) {
+                if (dFdX[i].size()!=F_size) {
+                    dFdX[i].resize(F_size);
+                }
+            }
+            for (size_t i=0; i<Q_size; ++i) {
+                if (dQdX[i].size()!=Q_size) {
+                    dQdX[i].resize(Q_size);
+                }
             }
         }
 
@@ -285,10 +317,7 @@ public:
             d_params, 
             i_params, 
             s_params);
-
     origFlag_ = (bool)(origFlag);
-
-    bool bsuccess = result.cast<int>();
 
     return true;
   };
