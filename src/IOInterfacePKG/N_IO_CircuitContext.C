@@ -557,7 +557,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
             bool isRandom = expression.isRandomDependent();
             if (isRandom)
             {
-              unresolvedGlobalParams_.push_back(parameter);
+              unresolvedGlobalParams_.insert(parameter);
               //unresolvedParams_.erase(paramIter++);
               paramIter = unresolvedParams_.erase(paramIter);
               increment=true;
@@ -584,7 +584,7 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
           if ( urParamIter != unresolvedParams_.end() )
           {
             parameter = *urParamIter;
-            unresolvedGlobalParams_.push_back(parameter);
+            unresolvedGlobalParams_.insert(parameter);
             unresolvedParams_.erase(urParamIter);
           }
         }
