@@ -188,6 +188,10 @@ Marks the end of a subcircuit definition.
 \index{\texttt{.PARAM}}
 \input{PARAM_Command}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.PCE} (Fully Intrusive Polynomial Chaos Expansion (PCE) Analysis)}\label{.PCE}
+\input{PCE_Command}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{PREPROCESS_Command}
@@ -259,12 +263,13 @@ is followed by a \verb|+| symbol, in which case it treats the line as a continua
 \item for output on \texttt{.PRINT} lines.
 \end{XyceItemize}
 
-In all contexts where expressions are allowed, they should be enclosed
-in braces (\{\}).  For netlist compatibility with other simulators
-they may be enclosed in single quotation marks instead (\texttt{'}),
-but these are simply replaced with braces at a very early stage of
-netlist parsing.  It is recommended that the braces be used in
-netlists written specifically for \Xyce{}.
+In all contexts where expressions are allowed, it is best practice to enclose them
+in curly braces (\{\}).  For netlist compatibility with other simulators,
+expressions may be enclosed in single quotation marks instead (\texttt{'}). Also, in
+some circumstances (such as \texttt{.param} and \texttt{.global\_param} expressions), \Xyce{} will accept 
+expressions that are not surrounded by either braces or single quotes. 
+However, it is recommended that the braces be used in netlists written specifically for \Xyce{}, as this will
+be the most reliable option.
 
 The expression package in \Xyce{} supports all standard arithmetic
 operators, trigonometric functions, a collection of arithmetic
@@ -325,10 +330,20 @@ that \texttt{R1:R} means the R parameter of device R1, and
 necessary to put at least one character that is invalid in parameter names
 in between the colon and the parameter.  It is sufficient to use a space.
 \begin{alltt}
-    {\color{red} (A==B)?C:D}  ; this expression will generate a syntax error
-    {(A==B)?C :D}  ; this expression is acceptable
-    {(A==B)?C+0:D}  ; this expression is acceptable
-    {(A==B)?(C):D}  ; this expression is acceptable
+  \color{red}  \{(A==B)?C:D\} ; this expression will generate a syntax error
+    \{(A==B)?C :D\} ; this expression is acceptable
+    \{(A==B)?C+0:D\} ; this expression is acceptable
+    \{(A==B)?(C):D\} ; this expression is acceptable
+\end{alltt}
+Note that if using expressions without curly braces or single quotes 
+(something that is allowed on \texttt{.param} and \texttt{.global\_param} lines)
+this becomes even more restrictive because the parser eats up whitespace.  In
+this case, the expression needs to be fixed another way, such as with parenthesis.
+\begin{alltt}
+  \color{red}  (A==B)?C:D ; this expression will generate a syntax error
+    (A==B)?C :D ; parser eliminates whitespace, causing syntax error
+    (A==B)?C+0:D ; this expression is acceptable
+    (A==B)?(C):D ; this expression is acceptable
 \end{alltt}
 
 \paragraph{Arithmetic Functions}

@@ -136,6 +136,14 @@ as the ABM device, or in a subcircuit instantiated by that subcircuit.
 \index{behavioral model!lookup table}
 \index{behavioral model!examples}
 \index{expressions!lookup table}
+\index{behavioral model!spline}
+\index{expressions!spline}
+\index{behavioral model!interpolation}
+\index{expressions!interpolation}
+\index{behavioral model!BLI}
+\index{expressions!BLI}
+\index{behavioral model!Barycentric Lagrange Interpolation}
+\index{expressions!Barycentric Lagrange Interpolation}
 A variety of examples of legal usage of analog behavioral modeling is
 probably the most effective means of demonstrating what is
 allowed. The following netlist fragment shows the range of 
@@ -200,6 +208,8 @@ used at times in between those tabulated values.
 It is also possible to create ABM sources from files of time-value pairs by providing the name of the file containing the pairs between quotation marks \texttt{(")}:
 
 \Example{Bfile 1 0 V=tablefile("myfile")}
+\Example{Bfile 1 0 V=\{tablefile("myfile")\}}
+\Example{Bfile 1 0 V=\{table("myfile")\}}
 
 The file provided must have one time-voltage pair per line, separated
 by spaces.  Comma-separated files are not supported, and will not be
@@ -216,11 +226,34 @@ internally to precisely the same TABLE format as the first B1 example,
 with an independent variable of TIME and the given time-value pairs
 inserted.\footnote{The use of a B source in this manner is similar to using the \texttt{FILE} option to the piecewise linear (\texttt{PWL}) voltage source as documented in the \Xyce{} Reference Guide\ReferenceGuide, but unlike the PWL source, the file-based table function does {\em NOT\/} support reading comma-separated files.}
 
-Finally, the independent variable of the table source does not have to be a
+The independent variable of the table source does not have to be a
 simple expression.  In the example shown below, the independent variable is
 a function of voltages and currents throughout the circuit.
 
 \Example{Bcomplicated 1 0 V=\{TABLE \{V(5)-V(3)/4+I(V6)*Res1\} = (0, 0) (1, 2) (2, 4) (3, 6)\}}
+
+There is also a version of the table capability which can run significantly faster 
+for really large tables.  That capability is the \texttt{fasttable} capability, 
+which is available in the \Xyce{} expression library.
+It has the same format as \texttt{table}, and behaves very similarly.  However, 
+whereas \texttt{table} will apply time integration breakpoints at every entry in 
+the table, the \texttt{fasttable} capability will only apply breakpoints at 
+the first and last time point in the table.
+
+Another alternative to \texttt{table} is to use one of the spline and/or interpolator functions that are 
+available in the \Xyce{} expression library.   All of these methods use higher-order 
+interpolation methods and (in theory) will produce a smoother result.  As they 
+tend to be very smooth, the interpolators do not produce any time integration 
+breakpoints, except for the first and last time point.  In this regard 
+(breakpoints) they behave the same as \texttt{fasttable}.
+The spline options include \texttt{spline}, \texttt{cubic}, 
+\texttt{akima}~\cite{10.1145/321607.321609}, and \texttt{wodicka}~\cite{Engeln1996}. 
+Another high-order interpolator is \texttt{BLI}, which is for Barycentric Lagrange 
+Interpolation~\cite{Berrut_barycentriclagrange}.  All of these interpolators use the same 
+syntax as the \texttt{table} function in the expression library.  For example:
+
+\Example{Bfile 1 0 V=\{spline("myfile")\}}
+\Example{Bfile 1 0 V=\{bli("myfile")\}}
 
 \subsection{Alternate behavioral modeling sources}
 

@@ -16,29 +16,58 @@
 \label{sampling_Overview}
 \index{analysis!Sampling} \index{Sampling analysis} \index{Random Sampling}
 \index{\texttt{.SAMPLING}}
+\index{\texttt{.EMBEDDEDSAMPLING}}
+\Xyce{} supports two different styles of random sampling analysis.  One is specified 
+with the \verb|.SAMPLING| 
+command, and the other is specified with the \verb|.EMBEDDEDSAMPLING| commmand.  
+These are relatively new capabilities and are still under development.  
 
-The \verb|.SAMPLING| command causes \Xyce{} execute the primary analysis (\verb|.DC|,
+The \verb|.SAMPLING| command causes \Xyce{} to execute the primary analysis (\verb|.DC|,
 \verb|.AC|, \verb|.TRAN|, etc.) inside a loop over randomly distributed parameters.  
-The user specifies a list of random parameters , their distributions, distribution 
+The user specifies a list of random parameters, their distributions, distribution 
 parameters (such as mean and standard deviation), and the total number of 
 sample points.  The primary analysis is then executed sequentially for each sample point.
-
-\Xyce{}  can use \verb|.SAMPLING| to modify any device instance or device
-model parameter, as well as the circuit temperature.  It can also be used 
-to sweep over any user-defined parameter (either \texttt{.GLOBAL\_PARAM} 
-or \texttt{.PARAM} ) , as long as that parameter is  defined in the 
-global scope.
-
 The \verb|.SAMPLING| capability uses a lot of the same code base as \verb|.STEP|, 
 so most of the guidance for \verb|.STEP|, including legal parameters, output 
 file formats, supported analyses types, etc., also applies to \verb|.SAMPLING|.
 
-\subsection{.SAMPLING Statement}
+The \verb|.EMBEDDEDSAMPLING| command also causes \Xyce{} to create a loop over 
+randomly distributed parameters, but unlike \verb|.SAMPLING|, this loop is 
+implemented inside the solver loop rather than outside of it.  As such, it 
+creates a block linear system, in which each matrix block has the structure 
+of the original matrix, and the number of blocks is equal to the number of sample points.
+As such, all the parameters are propagated simultaneously, rather than sequentially.
+Unlike \verb|.SAMPLING|, which can be applied to all types of \Xyce{} analysis, 
+\verb|.EMBEDDEDSAMPLING| can only be applied to \verb|.DC| and \verb|.TRAN|.
+
+Both types of sampling methods can be applied to a variety of inputs and outputs.
+For inputs,
+\Xyce{}  can use \verb|.SAMPLING| or \verb|.EMBEDDEDSAMPLING| to modify 
+any device instance or device
+model parameter, as well as the circuit temperature.  It can also be used 
+to sweep over any user-defined parameter (either \texttt{.GLOBAL\_PARAM} 
+or \texttt{.PARAM} ), as long as that parameter is  defined in the 
+global scope.
+
+For outputs, both \verb|.SAMPLING| and \verb|.EMBEDDEDSAMPLING| 
+can apply statistical analysis (computing moments such as mean and standard deviation) 
+to most outputs that appear on the \verb|.PRINT| line.
+However, the two analysis types have some differences.    \verb|.SAMPLING| will only 
+apply statistical analysis at the end of the calculation, while \verb|.EMBEDDEDSAMPLING| 
+can apply statistical analysis at each time step.  Relatedly, 
+\verb|.SAMPLING| can also be applied to any \verb|.MEASURE|, but 
+\verb|.EMBEDDEDSAMPLING| lacks this capability. 
+
+\subsection{.SAMPLING and .EMBEDDEDSAMPLING Statements}
 \label{sampling_statement}
 Sampling analysis may be specified by simply adding a \verb|.SAMPLING| 
-line to a netlist.  Unlike \verb|.DC|, \verb|.SAMPLING| by itself is not an 
-adequate analysis specification, as it merely specifies an outer loop around the 
-normal analysis.  A standard analysis line, specifying \verb|.TRAN|, \verb|.AC|, \verb|.HB|, 
+or a \verb|.EMBEDDEDSAMPLING| line to a netlist.    The format for the two commands is nearly 
+identical.
+
+Sampling analysis such as \verb|.SAMPLING| or \verb|.EMBEDDEDSAMPLING| is not considered a ``primary'' analysis type.
+This means that such a command by itself is not an 
+adequate analysis specification, as it merely specifies an additional parametric loop to augment the
+primary analysis.  A standard analysis line, specifying \verb|.TRAN|, \verb|.AC|, \verb|.HB|, 
 and \verb|.DC| analysis, is still required.
 
 Examples of typical \verb|.SAMPLING| lines:
@@ -77,7 +106,7 @@ For any list of parameters, all the required fields must be provided in comma-se
 lists.  \Xyce{} will throw an error if the length of any of the lists is different 
 than that of the parameter list.
 
-\subsection{.options SAMPLES Statement}
+\subsection{.options SAMPLES and EMBEDDEDSAMPLES Statements}
 \label{options_samples_statement}
 
 To specify the number of samples, use the netlist command \texttt{.options 
@@ -103,7 +132,22 @@ The random seed can be set either in the \texttt{.options SAMPLES} statement, or
 it can be set from the command line using the \texttt{-randseed} option.  If it 
 is not set either way, then the random seed is generated internally.
 
-\subsection{Sampling a Device Instance Parameter}
+In the example there are two different types of outputs specified.  One is using 
+the keyword \texttt{OUTPUTS}, and this is used to specify a comma-separated list 
+of outputs corresponding to typical \texttt{.PRINT} line outputs.  Solution 
+variables, user defined parameters, and expressions depending on both are typical.  
+
+The other type of output is specified using the keyword \texttt{MEASURES}, and 
+this is used to specify a comma-separated list of netlist \texttt{.MEASURE} commands.
+This type of output is only available to \texttt{.SAMPLING} and not to \texttt{.EMBEDDEDSAMPLING}.
+
+The example sets the \texttt{SAMPLE\_TYPE=LHS}, for Latin Hypercube Sampling~\cite{HELTON200323}.  
+The other options is \texttt{SAMPLE\_TYPE=MC} for Monte Carlo~\cite{Fishman1996}.  
+LHS is the default option for this parameter, and will generally be a better choice.
+
+\subsection{Specifying Uncertain Inputs}
+
+\subsubsection{Sampling a Device Instance Parameter}
 \label{sampling_InstanceParam}
 Figure~\ref{Sampling_Netlist_1} provides a simple application of \verb|.SAMPLING| 
 to a device instance parameter.  The circuit is a simple voltage divider driven 
@@ -123,6 +167,7 @@ and \texttt{MEASURES} on the \texttt{.options SAMPLES} line.  For these outputs,
 moments such as mean and variance are computed and sent to standard output.  More 
 details of this type of output, as well as examples, are given in section~\ref{statistical_outputs}.
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
@@ -139,7 +184,7 @@ VS1  2  0  SIN(0 1.0e3 1KHZ 0 0)
 + type=normal means=1K std\_deviations=0.1K\color{black}
 
 \color{XyceRed}.options SAMPLES numsamples=1000 OUTPUTS=\{R1:R\} 
-+ MEASURES=maxSine SAMPLE\_TYPE=MC\color{black}
++ MEASURES=maxSine SAMPLE\_TYPE=MC stdoutput=true\color{black} 
 
 \end{vquote}
 \end{minipage}
@@ -150,7 +195,7 @@ Sampling commands are in \color{XyceRed}red\color{black}.
 \end{centering}
 \end{figure}
 
-\subsection{Sampling a Device Model Parameter}
+\subsubsection{Sampling a Device Model Parameter}
 \label{sampling_ModelParam}
 
 Sampling a model parameter can be done in an identical manner to an instance parameter.  
@@ -163,11 +208,12 @@ The sampling commands will cause \Xyce{} to sample the model parameter, \verb|D1
 resistance of the resistor, R4. Both of the parameters are randomly sampled using uniform distributions 
 with specified lower and upper bounds.
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
 \begin{vquote}
-\color{blue}Transient Diode Clipper Circuit with Sampling Analysis\color{black}
+\color{blue}Transient Diode Clipper with Sampling Analysis\color{black}
 
 \color{blue}* Primary Analysis Command\color{black}
 .tran 2ns 0.5ms
@@ -183,7 +229,7 @@ with specified lower and upper bounds.
 + upper\_bounds=15.0k,6.0e-10
 
 .options SAMPLES numsamples=10 SAMPLE\_TYPE=LHS
-+ OUTPUTS={R4:R},{D1N3940:IS} MEASURES=maxSine\color{black}
++ OUTPUTS={R4:R},{D1N3940:IS} MEASURES=maxSine stdoutput=true\color{black}
 \color{blue}* Voltage Sources\color{black}
 VCC 1 0 5V
 VIN 3 0 SIN(0V 10V 1kHz)
@@ -211,7 +257,7 @@ Sampling commands are in \color{XyceRed}red\color{black}.
 \end{centering}
 \end{figure}
 
-\subsection{Sampling a User-Defined Parameter}
+\subsubsection{Sampling a User-Defined Parameter}
 \label{sampling_GlobalParam}
 
 Sampling can be applied to user-defined parameters, as long as they are declared in the top level netlist (global scope).  
@@ -220,6 +266,7 @@ in figure~\ref{Sampling_Netlist_3}. This circuit identical to the circuit in
 figure~\ref{Sampling_Netlist_1}, except that it uses global parameters.  
 If the global parameters in this netlist are changed to normal parameters (\texttt{.PARAM}), this circuit will also work.
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
@@ -250,7 +297,7 @@ VS1  2  0  SIN(0 \{Vmax\} 1KHZ 0 0)
 \end{centering}
 \end{figure}
 
-\subsection{Sampling over Temperature}
+\subsubsection{Sampling over Temperature}
 \label{sampling_Temperature}
 
 It is also possible to sample temperature.  To do so, simply 
@@ -258,7 +305,7 @@ specify \verb|temp| as the parameter name.  It will work in the
 same manner as \verb|.SAMPLING| when applied to model and instance 
 parameters.
 
-\subsection{Special cases: Sampling Independent Sources, Resistors, Capacitors and Inductors}
+\subsubsection{Special cases: Sampling Independent Sources, Resistors, Capacitors and Inductors}
 \label{sampling_SpecialCases}
 
 For some devices, there is generally only one parameter that one would
@@ -282,6 +329,7 @@ voltage source \texttt{VCC}.  In the remaining lines, parameter names are all
 implicit, and the default parameters of the associated devices are used.
 
 \Example{ \\
+          \fontsize{10pt}{11pt}
 \begin{tabular}{lllll}
   \texttt{.SAMPLING param=R4:R,C1:C} &\texttt{type=normal,normal}  &\texttt{means=3k,1u}  &\texttt{std\_deviations=1k,0.1u} \\ 
   \texttt{.SAMPLING param=R4,C1} &\texttt{type=normal,normal}  &\texttt{means=3k,1u}  &\texttt{std\_deviations=1k,0.1u} \\ 
@@ -297,11 +345,11 @@ parameter, DCV0, only applies to \texttt{.DC} analyses.  They do not have
 default parameters for their transient forms, such as \texttt{SIN}
 or \texttt{PULSE}.
 
-\subsection{Sampling using random operators from expressions}
+\subsubsection{Sampling using random operators from expressions}
 
 The \Xyce{} expression library supports random operators in expressions, 
 including \texttt{AGAUSS}, \texttt{GAUSS}, \texttt{AUNIF}, \texttt{UNIF} and \texttt{RAND}.
-The \Xyce{} \texttt{.SAMPLING} analysis is able to use these, but they are not
+\Xyce{} \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING} analyses are able to use these, but they are not
 connected by default.  In order to use random expression operators with \texttt{.SAMPLING}, 
 the following commend must be present in the netlist:
 
@@ -310,12 +358,17 @@ the following commend must be present in the netlist:
 .SAMPLING  useExpr=true
 }
 }
-
 This capability is potentially very powerful, as the random operators can 
-act as operators within complex expressions.  A simple example of this feature can be 
-seen in figure~\ref{Sampling_Netlist_4}.
+act as operators within complex expressions.  
+As expressions can be applied to \texttt{.param}, \texttt{.global\_param}, 
+device instance parameters  and device model parameters, this capability 
+naturally can be applied to any of these types of input parameters.
+A simple example of this feature, applied to several instance parameters, 
+can be seen in figure~\ref{Sampling_Netlist_4}.  Other examples of this capability can be found 
+in the netlists given in figures~\ref{regressionPCE_Netlist1},~\ref{NISP_netlist1} 
+and~\ref{NISP_gilbert_netlist}.
 
-Note that currently, this feature cannot be used in the same netlist as the 
+This feature cannot be used in the same netlist as the 
 specification described in section~\ref{sampling_statement}.  If 
 \texttt{useExpr=true}, \Xyce{} will ignore the comma-separated lists such as 
 \texttt{param}.  Likewise, if \texttt{useExpr=false} (the default), then 
@@ -323,6 +376,7 @@ specification described in section~\ref{sampling_statement}.  If
 It will only sample the parameters listed by comma-separated lists.
 
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
@@ -354,30 +408,27 @@ v1 2 0 10V
 \end{centering}
 \end{figure}
 
-
-
 \subsection{Output files}
 \label{sampling_output_files}
+
+The two types of sampling produce different types of output files.  This is 
+related to the fact that for \texttt{.SAMPLING} the calculations for each sample 
+point are performed sequentially, while for \texttt{.EMBEDDEDSAMPLING} the 
+calculations for each sample point are performed simultaneously.  As such, 
+for \texttt{.SAMPLING} statistical moments can only be computed at the end 
+of the calculation, once all the sample points are avaible.  In contrast, 
+for \texttt{.EMBEDDEDSAMPLING}, statistical moments can be computed throughout 
+the calculation, as all the sample points are available for each step.
+
+\subsubsection{\texttt{.SAMPLING} output files}
 \index{output!\texttt{.SAMPLING}}
+Users can think of \texttt{.SAMPLING} simulations as being very similar 
+to \texttt{.STEP} and thus comprised of a sequential set of distinct executions
+of the same circuit netlist. The main difference is the source of the specific sample points.
 
-Users can think of \texttt{.SAMPLING} simulations as a large number of distinct executions
-of the same circuit netlist.  The output data, as specified by a \texttt{.PRINT}
-line, however, goes to a single output file.  
-\Xyce{} also creates a second auxilliary file with the \texttt{*.res} 
-suffix, which just contains the parameter values.  Statistical outputs 
-can also be produced (see section~\ref{statistical_outputs}).
-
-Figure~\ref{Sampling_Netlist_1} shows an example file named \verb+clip.cir+, which when run will produce files
-\verb+clip.cir.res+ and \verb+clip.cir.prn+.  The file \verb+clip.cir.res+
-contains one line for each step, showing what parameter value was used
-on that step.  \verb+clip.cir.prn+ is the familiar output format, but
-the \verb+INDEX+ field recycles to zero each time a new step begins.
-As the default behavior distinguishes each step's output only by recycling 
-the \verb+INDEX+ field to zero, it can be beneficial to add the sampling
-parameters to the \verb+.PRINT+ line.   For the default file format 
-(\texttt{format=std}), \Xyce{} will not automatically include these sampling parameters,
-so for plotting it is usually best to specify them by hand.
-
+Similar to \texttt{.STEP}, the output data can be requested by a standard \texttt{.PRINT} command, for the underlying primary analsis.
+For example, if applying \texttt{.SAMPLING} to a transient analysis, then the appropriate \texttt{.PRINT} command will be \texttt{.PRINT TRAN}.
+The output data will go to a single file, with each sample point in a different section of the output file.
 If using the default \texttt{.prn} file format (\texttt{format=std}), the 
 resulting \texttt{.SAMPLING} simulation output file will be a simple concatenation of
 each step's underlying analysis output.
@@ -388,6 +439,26 @@ the results of each \texttt{.SAMPLING} simulation will be in a distinct
 Tecplot zone. Finally, format=raw will place the results for each \texttt{.SAMPLING} 
 simulation in a distinct ``plot'' region. 
 
+Another similarity to \texttt{.STEP} is that \Xyce{} creates a second auxilliary file with the \texttt{*.res} 
+suffix, which contains the parameter values.    This can be useful for seeing the exact sampling parameter values in a compact file.
+
+Statistical outputs can also be produced (see section~\ref{statistical_outputs}) 
+for \texttt{.SAMPLING} in the form of moments, but these can only be computed 
+at the end of the calculation once all the samples are available.  These statistical outputs will not
+be present in the \texttt{.PRINT} specified output file, since it is output on-the-fly.
+
+Figure~\ref{Sampling_Netlist_2} shows an example file named \verb+clip.cir+, which when run will produce files
+\verb+clip.cir.res+ and \verb+clip.cir.prn+.  The file \verb+clip.cir.res+
+contains one line for each step, showing what parameter value was used
+on that step.  \verb+clip.cir.prn+ is the familiar output format, but
+the \verb+INDEX+ field recycles to zero each time a new step begins.
+As the default behavior distinguishes each step's output only by recycling 
+the \verb+INDEX+ field to zero, it can be beneficial to add the sampling
+parameters to the \verb+.PRINT+ line.   For the default file format 
+(\texttt{format=std}), \Xyce{} will not automatically include these sampling parameters,
+so for plotting it is usually best to specify them by hand.
+
+
 Note that for sampling calculations involving a really large number of sample 
 points, the single output file can become prohibitively large.  Be careful when 
 using \verb|.PRINT| if the number of samples is large.   If the number is really 
@@ -395,6 +466,24 @@ large (thousands) consider excluding any \verb|.PRINT| output statements and
 just rely on statistical outputs, described next in section~\ref{statistical_outputs}.
 Similarly, the generation of the measure output can be suppressed with 
 \texttt{.OPTIONS MEASURE MEASPRINT}.
+
+\subsubsection{\texttt{.EMBEDDEDSAMPLING} output files}
+\index{output!\texttt{.EMBEDDEDSAMPLING}}
+
+As \texttt{.EMBEDDEDSAMPLING} computes all the sample points simultaneously, outputs for all 
+sample points are also available simulataneously.  For transient simulations, this means that 
+all samples are available at every time step, and all statistical outputs are available 
+at every time step.  This is very useful if the interest is in seeing statistical moments 
+with respect to time   
+
+The output command used to produce this kind of output is \texttt{.PRINT ES}, where \texttt{ES} 
+stands for  ``embedded sampling''.
+The \texttt{.PRINT ES} command will automatically output several moments of the 
+specified PCE outputs without any additional arguments on the \texttt{.PRINT ES} line.  
+Also, the \texttt{.PRINT ES} statement will result in a file that has ``ES'' as part of the file name suffix.
+Otherwise, \texttt{.PRINT ES} behaves very similarly to any other type of \texttt{.PRINT} 
+command, and supports all of the same file formats and options.  For a full description see the
+\Xyce{} Reference Guide.
 
 \subsection{Statistical Outputs}
 \label{statistical_outputs}
@@ -415,6 +504,7 @@ by figure~\ref{Sampling_Netlist_2} will produce the result given by
 figure~\ref{Sampling_Netlist_2_output}.  In both examples, the number of samples 
 is relatively small, so the exact quantities computed will vary somewhat from run to run.
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
@@ -443,6 +533,7 @@ MC sampling min of maxSine = 842.547
 \end{figure}
 
 \begin{figure}[htbp]
+  \fontsize{9pt}{10pt}
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
@@ -477,6 +568,45 @@ LHS sampling min of maxSine = 4.28396
 \label{Sampling_Netlist_2_output}
 \end{centering}
 \end{figure}
+
+\subsection{Random Sampling and Running in Parallel}
+
+It is well known that sampling is a good opportunity to apply parallelism, as zero communication is required between sample points.
+However, it has only been applied to a limited degree to random sampling in \Xyce{}.  
+This is mostly because sampling methods 
+are a relatively new feature to \Xyce{}. To get the full benefit of parallel sampling, where each 
+sample can be launched and executed on a different unique processor, it is
+recommended that \Xyce{} users instead use the Dakota library~\cite{DakotaTheoMan},~\cite{DakotaUsersMan}.
+However, despite the limitations of \Xyce{} sampling in parallel, note that:
+\begin{XyceItemize}
+\item Sampling in \Xyce{} does have \emph{some} available parallelism, just not applied on a sample basis.
+\item The cost of sampling can be significantly mitigated using non-intrusive Polynomial Chaos 
+  Expansion (PCE) methods, described in section~\ref{PCE_Analysis}
+\item \Xyce{} sampling is performed entirely internal to the \Xyce{} binary.  So unlike the black-box form of Dakota, it does not involve any file I/O. Also it does not require any scripting, which can be error-prone.    Finally, the netlist parsing and setup only happens once, rather than for every sample point, and this mitigates some of the computational cost.
+\end{XyceItemize}
+
+\subsubsection{\texttt{.SAMPLING} in Parallel}
+The \texttt{.SAMPLING} analysis will execute the underlying analysis sequentially, once 
+for each sample point.    If using parallel \Xyce{}, then each of these sequential 
+calculations will have the same parallel methods applied to them as would be 
+applied to a single forward calculation.    For example, if running a calculation
+of 100 samples on a large parallel transient calculation, \Xyce{} would perform 
+the first transient simulation in parallel, followed by the second transient 
+simulation in parallel, etc, until all 100 samples were complete.
+This means that if the underlying analysis is 
+large enough to get a benefit from parallel, then the \texttt{.SAMPLING} 
+analysis will get this same benefit.  The parallel scaling for the underlying 
+analysis is unlikely to be perfect, as there are communication costs involved 
+in the forward calculation.  However, one of the main parallel bottlenecks, 
+the parsing and setup phase, is substantially reduced as it only happens one time.
+
+\subsubsection{\texttt{.EMBEDDEDSAMPLING} in Parallel}
+The \texttt{.EMBEDDEDSAMPLING} algorithm sets up a large block matrix system, 
+where each block represents a different sample point.  This means that for each 
+step of the calcalculation, all the samples are computed simultaneously.  This block system 
+can be solved in parallel.   However, as this method is  less mature in \Xyce{}, 
+more refinements to the algorithm are needed for this
+\texttt{.EMBEDDEDSAMPLING} to fully benefit from running in parallel.
 
 \clearpage
 

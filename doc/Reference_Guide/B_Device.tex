@@ -24,6 +24,12 @@ B3 4 2 I=\{I(V1) + V(4,2)/100\}
 B4 5 0 V=\{Table \{V(5)\}=(0,0) (1.0,2.0) (2.0,3.0) (3.0,10.0)\}
 B5 6 0 V=tablefile("file.dat")
 B6 7 0 I=tablefile("file.dat")
+B5 6 0 V=table("file.dat")
+B6 7 0 I=table("file.dat")
+B5 6 0 V=\{table("file.dat")\}
+B5 6 0 V=\{spline("file.dat")\}
+B5 6 0 V=\{BLI("file.dat")\}
+B5 6 0 V=\{fasttable("file.dat")\}
 \end{alltt}
 
 \comments
@@ -43,7 +49,17 @@ The syntax involving the \texttt{tablefile} keyword internally attempts to load 
 data in \texttt{"file.dat"} into a \texttt{TABLE} expression.  The data file must
 be in plain-text and contain just two pairs of data per line.  For an example see 
 the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User's
-Guide.
+Guide.  
+Either \texttt{table} or \texttt{tablefile} can be used to read a table in 
+from a file.  They are synonyms.
+
+Other related table-based features include \texttt{fasttable}, which is the same as \texttt{table} 
+but without many breakpoints, and \texttt{bli} for Barycentric Lagrange 
+Interpolation~\cite{Berrut_barycentriclagrange}.  Various splines are also supported,
+including \texttt{spline}, \texttt{cubic}, \texttt{akima}~\cite{10.1145/321607.321609} 
+and \texttt{wodicka}~\cite{Engeln1996}.  \texttt{spline} and \texttt{akima} are synonymous.    
+All of these methods use the same syntax as \texttt{table}, and all of them support 
+reading tables in from files.
 
 It is important to note that the B-source allows the user to specify
 expressions that could have infinite-slope transitions, such as the
@@ -80,7 +96,7 @@ separated \texttt{<parameter>=<value>} specifications as needed. The default val
 is 0 and the default for \texttt{rcconst} is 1e-9.
 
 See the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User's
-Guide for guidance on using the B-source device and ABM expressions,
+Guide~\UsersGuide{} for guidance on using the B-source device and ABM expressions,
 and the Expressions Section (\ref{ExpressionDocumentation}) for
 complete documentation of expressions and expression operators.
 One important note is that time-dependent expressions are supported

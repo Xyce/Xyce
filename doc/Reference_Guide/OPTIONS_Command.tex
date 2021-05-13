@@ -43,8 +43,9 @@ and output parameters.  In general, they use the following format:
   \item[\tt LINSOL-AC]    AC Linear Solver
   \item[\tt OUTPUT]       Output
   \item[\tt RESTART]      Restart
-  \item[\tt SAMPLES]      Sampling analysis
-  \item[\tt EMBEDDEDSAMPLES]  EmbeddedSampling
+  \item[\tt SAMPLES]      Sampling analysis and non-intrusive Polynomial Chaos (PCE)
+  \item[\tt EMBEDDEDSAMPLES]  EmbeddedSampling and non-intrusive Polynomial Chaos (PCE) 
+  \item[\tt PCES]         Fully intrusive Polynomial Chaos (PCE)
   \item[\tt SENSITIVITY]  Direct and Adjoint sensitivities
   \item[\tt HBINT]        Harmonic Balance (HB)
   \item[\tt DIST]         Distribution
@@ -372,6 +373,19 @@ netlist also includes a \texttt{.EMBEDDEDSAMPLING} statement.
 
 \input{embeddedsamplestbl}
 
+\subsubsection{\texttt{.OPTIONS PCES} (Fully intrusive PCE options)}
+\index{solvers!pce!options}
+\index{solvers!PCE!options}
+
+The sampling selections listed in Table~\ref{PCEPKG}
+provide methods for controlling Embedded Sampling methods.
+
+PCES options are set using the \texttt{.OPTIONS PCES}
+command.\index{\texttt{.OPTIONS}!\texttt{PCES}}  They are only used if the
+netlist also includes a \texttt{.PCE} statement.
+
+\input{pcestbl}
+
 \subsubsection{\texttt{.OPTIONS SENSITIVITY} (Direct and Adjoint Sensitivity Options)}
 \index{solvers!sensitivty!options}
 
@@ -382,7 +396,6 @@ SENSITIVITY options are set using the \texttt{.OPTIONS SENSITIVITY} command.\ind
 They are only used if the netlist also includes a \texttt{.SENS} statement. 
 
 \input{sensitivitytbl}
-
 
 \subsubsection{\texttt{.OPTIONS HBINT} (Harmonic Balance Options)}
 \index{solvers!hb!options}\index{\texttt{.OPTIONS}!\texttt{HBINT}}

@@ -44,17 +44,16 @@
 \textbf{Gitlab issue 85} Complex-valued parameters are not handed correctly &
 The \Xyce{} expression library was rewritten for the 7.2 release, and
 has added support for complex numbers in expressions.  However, the
-use of complex-valued parameters and global parameters is not correct yet. 
-This is because parameters and global parameters are still assumed to
-always be real numbers.
-An example is:
+use of complex-valued parameters and global parameters is not correct
+yet.  This is because parameters and global parameters are still
+assumed to always be real numbers.  An example is:
 \begin{verbatim}
 .PARAM P1={log10(-2)}
 V1  1 0 1
 R1  1 0 1
 .OP
-.PRINT DC 
-+ {Re(P1)} {Img(P1)} 
+.PRINT DC
++ {Re(P1)} {Img(P1)}
 + {Re(log10(-2))} {Img(log10(-2))}
 .END
 \end{verbatim}
@@ -66,7 +65,18 @@ The output will have \texttt{RE(P2)} equal 3.01e-01 and \texttt{IMG(P2)}
 \\ \hline
 
 \textbf{Gitlab issue 60} Xyce/ADMS omits derivative code for output arguments of analog functions if return value derivatives are not needed &
-Verilog-A permits analog functions (user defined functions) to have arguments that can be used to return values in addition to the return value of the function.  These output arguments have their values calculated as a ``side effect'' of the function call.  Due to a difficulty with bookkeeping, if the return value of the function is neither used in sources nor ddx() calls, Xyce/ADMS will not emit any code that calls the function in such a way that the derivatives of the output arguments would be computed.  This can lead to incorrect results if the output arguments are later used in any way where their derivatives are required (e.g. on the right-hand side of non-noise contributions, or as the argument to be differentiated in a ddx() call).
+Verilog-A permits analog functions (user defined functions) to have
+arguments that can be used to return values in addition to the return
+value of the function.  These output arguments have their values
+calculated as a ``side effect'' of the function call.  Due to a
+difficulty with bookkeeping, if the return value of the function is
+neither used in sources nor ddx() calls, Xyce/ADMS will not emit any
+code that calls the function in such a way that the derivatives of the
+output arguments would be computed.  This can lead to incorrect
+results if the output arguments are later used in any way where their
+derivatives are required (e.g. on the right-hand side of non-noise
+contributions, or as the argument to be differentiated in a ddx()
+call).
 
 \textbf{\textit{Workaround}}:
 Either do not write analog functions with output arguments (thereby
@@ -75,6 +85,13 @@ return value of the function is always used in a manner such that its
 derivatives will be required (use in non-noise contributions or as
 the argument to be differentiated by ddx().
 
+\\ \hline
+
+\textbf{Gitlab issue 138} Oscillator HB tests fail in parallel on 8 processors &
+This is due to bad memory access in the solution vector by the
+expression library.
+\textbf{\textit{Workaround}}:
+There is none.
 \\ \hline
 
 \textbf{Gitlab issue 28} Limitations on allowed parameter names is not fully documented &
@@ -86,7 +103,8 @@ limitations.  These invalid parameter names will generally cause Xyce
 to exit with an appropriate error message.  \\ \hline
 
 \textbf{1309-SON}: Incorrect results for AVG, INTEG, RMS measures when FROM
-and/or TO values are not equal to a time-step or sweep value & The \texttt{AVG},
+and/or TO values are not equal to a time-step or sweep value &
+The \texttt{AVG},
 \texttt{INTEG} and \texttt{RMS} measures can return an incorrect value if
 the \texttt{FROM} or \texttt{TO} qualifiers are given on the measure line
 and those values are not equal to an accepted time-step value, or one of
@@ -100,9 +118,9 @@ The answer will be correct if \texttt{FROM}=100e3, which is a requested
 AC sweep value. It will be incorrect for \texttt{FROM}=70e3.
 
 \textbf{\textit{Workaround}}:
-A workaround is less obvious for TRAN measures.  However, this \texttt{.OPTIONS}
-line can be used to force Xyce to take a time-step at the requested \texttt{FROM}
-and/or \texttt{TO} values:
+A workaround is less obvious for TRAN measures.  However,
+this \texttt{.OPTIONS} line can be used to force Xyce to take a
+time-step at the requested \texttt{FROM} and/or \texttt{TO} values:
 \begin{verbatim}
 .OPTIONS TIMEINT BREAKPOINTS=<fromValue>, <toValue>
 \end{verbatim}
@@ -131,75 +149,76 @@ K1 L1 L2 0.75
 There is none.
 \\ \hline
 
+\textbf{1031-SON}: .OP output is incomplete in parallel &
+When \Xyce{} is run in parallel, the \texttt{.OP} output may be
+incomplete.
 
-
-\textbf{1037-SON}: The use of non-constant values in .PARAM
-statements may lead to unexpected results &  This netlist line
-(\texttt{.PARAM PA = \{TEMP\}}) is forbidden in Xyce since
-the special variable \texttt{TEMP} is not constant.  However,
-that netlist line will not produce a \Xyce{} parsing error, and
-the value of \texttt{PA} in the simulation may then be set to 
-zero in some contexts.
-
-\textbf{\textit{Workaround}}: Non-constant values should only
-be used in \texttt{.GLOBAL PARAM} statements in \Xyce{}. This
-restriction may be different than in other Spice-like 
-simulators.
-\\ \hline
-
-\textbf{1031-SON}: .OP output is incomplete in parallel & When \Xyce{}
-is run in parallel, the \texttt{.OP} output may be incomplete. 
-
-\textbf{\textit{Workaround}}: One workaround is to run the netlist in 
+\textbf{\textit{Workaround}}: One workaround is to run the netlist in
 serial.  Another one is to use these command line options: \texttt{
--per-processor -l output}.  In that case, the per-processor log files 
-will have the \texttt{.OP} information for the devices that were 
+-per-processor -l output}.  In that case, the per-processor log files
+will have the \texttt{.OP} information for the devices that were
 instantiated on each processor.
-\\ \hline 
+\\ \hline
 
-  \textbf{1009-SON}:  Transient adjoint sensitivities don't work with \texttt{.STEP}
-  & Transient adjoint sensitivities require backward integrations to be performed after the primary transient forward integration.  Doing this properly requires information to be stored during the forward solve, and for certain bookkeeping to be performed.  Currently, these extra operations to support transient adjoints are not properly set up for \texttt{.STEP} analysis.
+  \textbf{1009-SON}: Transient adjoint sensitivities don't work
+  with \texttt{.STEP} & Transient adjoint sensitivities require
+  backward integrations to be performed after the primary transient
+  forward integration.  Doing this properly requires information to be
+  stored during the forward solve, and for certain bookkeeping to be
+  performed.  Currently, these extra operations to support transient
+  adjoints are not properly set up for \texttt{.STEP} analysis.
 
 \textbf{\textit{Workaround}}: None
 \\ \hline
 
-  \textbf{1006-SON}:   SDT (expression library time integration) derivatives are not supported, so SDT can't be used for sensitivity analysis objective functions &
-  SDT is a function supported by the \Xyce{} expression library to compute numerical time integration.  When this function is used, the expression library does not produce correct derivatives.  This impacts Jacobian matrix entries, when SDT is used with a Bsrc, and it also impacts sensitivity analysis, when SDT is used in an objective function.  For the former case, this can result in a lack of robustness for circuits that contain SDT-Bsrc devices.  For the latter case, the objective function will simply be incorrect.
+\textbf{1006-SON}: SDT (expression library time integration)
+  derivatives are not supported, so SDT can't be used for sensitivity
+  analysis objective functions &
+SDT is a function supported by the \Xyce{} expression library to
+compute numerical time integration.  When this function is used, the
+expression library does not produce correct derivatives.  This
+impacts Jacobian matrix entries, when SDT is used with a Bsrc, and
+it also impacts sensitivity analysis, when SDT is used in an
+objective function.  For the former case, this can result in a lack
+of robustness for circuits that contain SDT-Bsrc devices.  For the
+latter case, the objective function will simply be incorrect.
 
 \textbf{\textit{Workaround}}: None
 \\ \hline
 
-\textbf{1004-SON}: Ill-defined .STEP behavior for "default parameters" for 
-transient sources (SIN, EXP, PWL, PULSE and SFFM) & If, for example,
-these netlist lines are used in a transient (\texttt{.TRAN}) simulation:
+\textbf{1004-SON}: Ill-defined .STEP behavior for "default parameters" for
+transient sources (SIN, EXP, PWL, PULSE and SFFM) &
+If, for example, these netlist lines are used in a transient
+(\texttt{.TRAN}) simulation:
 \begin{verbatim}
 V1 1 0 SIN(0 1 1)
 .STEP V1 1 2 1
 \end{verbatim}
 then \Xyce{} will run the simulation without warnings or errors, but
-no instance parameter of source \texttt{V1} will be stepped.  
+no instance parameter of source \texttt{V1} will be stepped.
 
 \textbf{\textit{Workaround}}: Explicitly use the desired stepped parameter
-(e.g., \texttt{V0}) on the \texttt{.STEP} line.  For example, 
+(e.g., \texttt{V0}) on the \texttt{.STEP} line.  For example,
 \texttt{.STEP V1:V0 1 2 1} would work correctly.
 \\ \hline
 
 \textbf{991-SON}: Non-physical BH Loops in non-linear mutual inductor &
-Nonlinear mutual inductors that have high coupling coefficients (i.e. 
-model parameter \texttt{ALPHA} over 1.0e-4) and low loss characteristics 
-(i.e. zero \texttt{GAP}) can produce B-H loops with nonphysical hysteresis.
+Nonlinear mutual inductors that have high coupling coefficients (i.e.
+model parameter \texttt{ALPHA} over 1.0e-4) and low loss
+characteristics (i.e. zero \texttt{GAP}) can produce B-H loops with
+nonphysical hysteresis.
 
-\textbf{\textit{Workaround}}: Lower \texttt{ALPHA} values or larger 
-\texttt{GAP} values can ameliorate this issue, but the root cause is 
-still under investigation. 
+\textbf{\textit{Workaround}}: Lower \texttt{ALPHA} values or larger
+\texttt{GAP} values can ameliorate this issue, but the root cause is
+still under investigation.
 \\ \hline
 
 \textbf{800-SON}: Use of global parameters in expressions on .MEASURE lines
-will yield incorrect results & The use of global parameters in expressions
-on .MEASURE lines is not allowed, as documented in the \Xyce{} Reference Guide.
-However, instead of producing a parsing error the measure statement will be
-evaluated with the specified qualifier value (e.g., \texttt{FROM}) being left
-at its default value.
+will yield incorrect results & The use of global parameters in
+expressions on .MEASURE lines is not allowed, as documented in
+the \Xyce{} Reference Guide.  However, instead of producing a parsing
+error the measure statement will be evaluated with the specified
+qualifier value (e.g., \texttt{FROM}) being left at its default value.
 
 \textbf{\textit{Workaround}}: None, other than not doing this.
 \\ \hline
@@ -247,7 +266,8 @@ If this test fails, your system has a broken OpenMPI build that cannot
 be used with \Xyce{}.
 
 At the time of this writing, this issue is present in Ubuntu Linux
-versions 17.10 and later, and there is an open bug report for it
+versions 17.10 up to (but not including) 20.04 LTS, and there is an
+open bug report for it
 at \url{https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938}.
 
 The issue may be present in other distros of Linux that are derived
@@ -336,25 +356,25 @@ for the switch's ``on'' value.  A small value of resistance such as
 1e-15 or smaller will generally work well as a substitute. \\ \hline
 
 
-\textbf{469-SON}: Belos memory consumption on FreeBSD and excessive CPU on other
-platforms & Memory or thread bloat can result when using multithreaded
-dense linear algebra libraries, which are employed by Belos.  If this
+\textbf{469-SON}: Belos memory consumption on FreeBSD and excessive CPU on other platforms &
+Memory or thread bloat can result when using multithreaded dense
+linear algebra libraries, which are employed by Belos.  If this
 situation is observed, either build
 \Xyce{} with a serial dense linear algebra library or use environment variables
 to control the number of spawned threads in a multithreaded library.
 \\ \hline
 
 
-\textbf{468-SON}: It should be legal to have two model cards with the same model
-name, but different model types. & SPICE3F5 and ngspice only require
-that model cards of the same type have unique model names. They accept
-model cards of different types with the same name.  \Xyce{} requires
-that all model card names be unique.
+\textbf{468-SON}: It should be legal to have two model cards with the same model name, but different model types. &
+SPICE3F5 and ngspice only require that model cards of the same type
+have unique model names. They accept model cards of different types
+with the same name.  \Xyce{} requires that all model card names be
+unique.
 \\ \hline
 
 
-\textbf{250-SON}: NODESET in \Xyce{} is not equivalent to NODESET in SPICE & As
-currently implemented, \texttt{.NODESET} applies the initial
+\textbf{250-SON}: NODESET in \Xyce{} is not equivalent to NODESET in SPICE &
+As currently implemented, \texttt{.NODESET} applies the initial
 conditions given throughout a full nonlinear solve for the operating
 point, then uses the result as an initial guess for a second nonlinear
 solve with no constraints.  This is not the same as SPICE, which
@@ -381,11 +401,11 @@ parameter TNOM.  \Xyce{} does not support this.
 \\ \hline
 
 
-\textbf{27-SON}: Fix handling of .options parameters & When specifying .options
-for a particular package, what gets applied as the non-specified
-default options might change.  \\ \hline
+\textbf{27-SON}: Fix handling of .options parameters &
+When specifying .options for a particular package, what gets applied
+as the non-specified default options might change.  \\ \hline
 
-\textbf{2119-SRN}: Voltages from interface nodes for subcircuits do not 
+\textbf{2119-SRN}: Voltages from interface nodes for subcircuits do not
 work in expressions used in device instance parameters & This bug can be
 illustrated with this netlist fragment:
 \begin{alltt}
@@ -396,9 +416,9 @@ R2   b c 0.5
 .ENDS
 B1 3 0 V=\{V(X1:a)\}
 \end{alltt}
-This fragment will produce the netlist parsing error \texttt{Directory 
-node not found: X1:A}.  The workaround is to use \texttt{V=\{V(1)\}} 
-in the B-source expression instead.  This bug also affects the 
+This fragment will produce the netlist parsing error \texttt{Directory
+node not found: X1:A}.  The workaround is to use \texttt{V=\{V(1)\}}
+in the B-source expression instead.  This bug also affects the
 solution-dependent capacitor.
 \\ \hline
 

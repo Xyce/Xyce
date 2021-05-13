@@ -34,7 +34,7 @@ module diode2(anode,cathode) `attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D
              f3 = 1 - fc*(1 + m);
              fcp = fc*phi;
              ibv = is*bv/$vt;
-             vcrit = $vt/ln($vt/(`CONSTroot2*is));
+             vcrit = $vt*ln($vt/(`CONSTroot2*is));
           end
         
         Vd = $limit(V(anode,cathode_internal),"pnjlim",$vt,vcrit);

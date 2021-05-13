@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{tikz}
+\usepackage[empty]{fullpage}
+\usepackage{fancybox,graphicx}
+
+\RequirePackage{alltt}
+
+\newenvironment{vquote}{\begin{quote}\begin{alltt}}
+    {\end{alltt}\end{quote}}
+
+\begin{document}
+
+\begin{figure}[hbt]
+\centering
+\resizebox{.98\linewidth}{!}{ \input quick }
+\caption{Gilbert Cell Mixer.  The netlist is given in figure~\ref{Netlist}, and has previously appeared in figure 7.7 of~\cite{Xyce_Users_Guide_5_2}.  There are many possible variations, and the original Gilbert cell reference is~\cite{1049925}.  In this version, the LO voltage is given by \texttt{v(6,2)} and \texttt{v(15,10)} is the input. The output is the difference between collector voltages of Q4/Q6 and Q3/Q5 (\texttt{V(5,3)}), and should be the approximate product of the LO and input voltages.}
+
+\label{Symbolic_label}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.8\textwidth}
+        \begin{vquote}
+\color{blue}* A gilbert cell mixer\color{black}
+R5 1 2 100
+Q3 3 2 4 DEFAULTS
+Q4 5 6 4 DEFAULTS
+Q5 3 6 8 DEFAULTS
+Q6 5 2 8 DEFAULTS
+R6 2 1 100
+\color{blue}*the local oscillator\color{black}
+VLO 6 2 DC 0 SIN(0 .05V 4e6 0 0)
+Q1 4 10 11 DEFAULTS
+R1 11 12 10
+R2 12 13 10
+\color{blue}* input bias current\color{black}
+I1 12 0 DC 1.8mA
+Q2 8 15 13 DEFAULTS
+R4 15 16 1500
+R3 16 10 1500
+V1 16 0 DC 1.8V
+\color{blue}*the input voltage to be mixed with the LO\color{black}
+V5 15 10 DC 0 sin(0 .05V 3e6 0 0)
+R7 5 17 1500
+R8 3 17 1500
+V3 17 0 DC 8V
+V2 1 0 DC 6V
+.MODEL DEFAULTS NPN
+
+.TRAN 1ns 1us 
+.PRINT TRAN v(6,2) v(15,10) v(5,3)
+
+.SENS objfunc={v(5)} param=DEFAULTS:IS
+.options sensitivity adjoint=0 direct=1
+.print SENS format=tecplot v(5)
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Gilbert Cell Mixer netlist]
+{Gilbert Cell Mixer netlist \label{Netlist} }
+\end{centering}
+\end{figure}
+
+\bibliographystyle{unsrt}
+\bibliography{gilbert}
+
+\end{document}

@@ -53,6 +53,21 @@ It is legal for parameters to depend on special variabls such as
 Parameters defined using \texttt{.PARAM} can be modified directly by various analyses, such as \texttt{.DC},   
   \texttt{.STEP}, \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}, subject to scoping rules. 
 
+To load an external data file with time voltage pairs of data on each 
+line into a global parameter, use this syntax:
+
+\texttt{.GLOBAL\_PARAM extdata = \{tablefile("filename")\}}
+
+or
+
+\texttt{.GLOBAL\_PARAM extdata = \{table("filename")\}}
+
+where \texttt{filename} would be the name of the file to load.  
+Other interpolators that can read in a data table from a file 
+include \texttt{fasttable},\texttt{spline}, \texttt{akima}, \texttt{cubic}, 
+\texttt{wodicka} and \texttt{bli}.  See \ref{ExpressionDocumentation} 
+for further information.  
+
 There are several reserved words that may not be used as names for parameters.  These reserved words are:
 \begin{XyceItemize}
 \item \verb+Time+

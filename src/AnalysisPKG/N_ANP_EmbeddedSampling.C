@@ -934,7 +934,10 @@ bool EmbeddedSampling::doInit()
     Report::UserFatal0() << "Number of samples not specified";
   }
 #endif
-  else
+
+#ifdef Xyce_STOKHOS_ENABLE
+  if (!projectionPCEenable_)
+#endif
   {
     // Deal with the random number seed, and set up random samples.
     // Don't bother with this is projection PCE has been specified.
@@ -1082,6 +1085,9 @@ void EmbeddedSampling::setupStokhosObjects ()
     const int d = paramNameVec_.size();
     const int p = PCEorder_;
     quadBases.resize(d); 
+
+    if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
     for (int i=0; i<d; i++)
     {
       SweepParam & sp = samplingVector_[i];
@@ -1133,6 +1139,9 @@ void EmbeddedSampling::setupStokhosObjects ()
     const int d = paramNameVec_.size();
     const int p = PCEorder_;
     regrBases.resize(d); 
+
+    if (d==0) { Report::UserFatal0() << "Number of uncertain parameters is zero" << std::endl; }
+
     for (int i=0; i<d; i++)
     {
       SweepParam & sp = samplingVector_[i];
@@ -1199,6 +1208,12 @@ bool EmbeddedSampling::doLoopProcess()
   if (projectionPCEenable_)
   {
     Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+    Xyce::lout() << "***** PCE Basis size = " << quadBasis->size() << "\n" << std::endl;
+  }
+  else if (regressionPCEenable_)
+  {
+    Xyce::lout() << "***** Regression PCE enabled.  Number of sample points = " << numSamples_ << "\n" << std::endl;
+    Xyce::lout() << "***** PCE Basis size = " << regrBasis->size() << "\n" << std::endl;
   }
   else
 #endif

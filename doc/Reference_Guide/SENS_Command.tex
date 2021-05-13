@@ -89,15 +89,15 @@ separate objective function.  As such, this isn't the best use of adjoints.
 One can specify  a list of time points for which to compute transient adjoint
 sensitivities. For many practical problems, the sensitivies at only one or a 
 handful of points is needed, so this is a good way to mitigate the computational 
-cost of adjoints.
+cost of adjoints.  The \Xyce{} Users' Guide~\UsersGuide{} provides an example.
 
 If performing a sensitivity calculation with AC analysis, 
 there are two options for the specification of the 
 objective function. These options are both different from the DC and TRAN method.
 Instead of specifying objective functions with the parameter \texttt{objfunc},
 one should either use \texttt{objvars} or \texttt{acobjfunc}.  
-\texttt{objvars} should be followed by a comma separated list of voltage nodes.  
-\texttt{acobjfunc} shoudl be followed by a comma separated list of objective functions.  
+The parameter \texttt{objvars} should be followed by a comma separated list of voltage nodes.
+The parameter \texttt{acobjfunc} should be followed by a comma separated list of objective functions.
 It is not possible to use both specifications in the same netlist.
 
 \end{Command}
