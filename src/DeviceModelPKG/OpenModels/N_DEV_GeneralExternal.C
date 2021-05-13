@@ -814,6 +814,13 @@ bool Instance::updateIntermediateVars ()
                                            FVec_, QVec_, BVec_,
                                            dFdXMat_, dQdXMat_,
                                            dFdXdVpVec_, dQdXdVpVec_);
+
+      // update store vars with changes made in Python
+      for (int i=0;i<numStoreVars;i++) 
+      {
+        nextStoVectorPtr[li_Stores_[i]] = nextStoreVars_[i];
+      }
+
     }
     else // device doesn't support computeXyceVectorsWithLimiting
     {
