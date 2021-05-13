@@ -22,21 +22,21 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Expression group for sensitivity objective functions
+// Purpose        :
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 5/10/2021
+// Creation Date  : 10/xx/2019
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef sensXyceExpressionGroup_H
-#define sensXyceExpressionGroup_H
+#ifndef paramParsingExpressionGroup_H
+#define paramParsingExpressionGroup_H
 #include <Xyce_config.h>
 
 #include<string>
@@ -66,55 +66,37 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-
 //-----------------------------------------------------------------------------
-// Class         : sensXyceExpressionGroup
+// Class         : paramParsingExpressionGroup
 //
-// Purpose       : This is the "main" group class for connecting the new 
-//                 expression library to Xyce
+// Purpose       : 
 //
-// Special Notes : Unlike the "xyceExpressionGroup" this class is not 
-//                 intended to be lightweight.   My intention is for there to 
-//                 be a single instance of this (or possible a small 
-//                 number of copies).
-//
-//                 This class will contain all the machinery necessary to provide 
-//                 newExpression with the information it needs to evaluate *any* 
-//                 expression for Xyce.  ie, any external information, such as 
-//                 solution values, global parameter values, etc.
-//
-//                 The most significant difference is (intended to be) the handling 
-//                 of user defined functions.  i.e., .funcs.
-//
-//                 The old expression library handled these in a very inefficient 
-//                 way, via string substitutions.
-//
-//                 The new expression library handles them by attaching the node 
-//                 of the .func to the expression that is calling it.
+// Special Notes : 
 //
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
 //-----------------------------------------------------------------------------
-class sensXyceExpressionGroup : public baseExpressionGroup
+class paramParsingExpressionGroup : public baseExpressionGroup
 {
 friend class Xyce::Analysis::ACExpressionGroup;
 friend class outputsXyceExpressionGroup;
 friend class deviceExpressionGroup;
 friend class ExpressionData;
+friend class mainXyceExpressionGroup;
 
 public:
 
-  sensXyceExpressionGroup ( 
+  paramParsingExpressionGroup ( 
       Parallel::Communicator & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
       ) ;
 
-  ~sensXyceExpressionGroup ();
+  ~paramParsingExpressionGroup ();
 
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval );
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval ) { return true; }
+  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { return true; }
 
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ) 
   { return getSolutionVal(deviceName,retval); }
@@ -122,8 +104,8 @@ public:
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
   { return getSolutionVal(deviceName,retval); }
 
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
-  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval ) {return true;}
+  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
@@ -145,11 +127,9 @@ public:
 
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
-  int getSolutionGID_(const std::string & nodeName);
-
   Parallel::Communicator & getComm() { return comm_; }
 
-private:
+protected:
   Parallel::Communicator & comm_;
 
   Topo::Topology & top_;

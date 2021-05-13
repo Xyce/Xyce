@@ -53,7 +53,9 @@ using std::unordered_map;
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_Expression.h>
 #include <N_UTL_FeatureTest.h>
+#include <paramParsingExpressionGroup.h>
 #include <deviceExpressionGroup.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 #include <N_UTL_Interface_Enum_Types.h>
 
 namespace Xyce {
@@ -828,8 +830,8 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   // needed for new expression
   {
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -905,8 +907,8 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   // needed for new expressionn
   {
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -983,22 +985,11 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   std::vector<std::string> names;
-#if 0
-  const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
-  const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
-  const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
-  const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
-#else
   bool isVoltDep = dependentParam.expr->getVoltageNodeDependent();
   bool isDevCurDep = dependentParam.expr->getDeviceCurrentDependent();
-#endif
   if (!(depend & ParameterType::SOLN_DEP))
   {
-#if 0
-    if (nodes.size() > 0 || instances.size() > 0)
-#else
     if(isVoltDep || isDevCurDep)
-#endif
     {
       UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
@@ -1014,26 +1005,17 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   std::vector<int> types;
-#if 1
   if(isVoltDep)
   {
     const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
-#endif
     names.insert( names.end(), nodes.begin(), nodes.end() );
     types.resize(nodes.size(), XEXP_NODE);
-#if 1
   }
-#endif
 
-#if 0
-  if (leads.size() > 0)
-  {
-#else
   bool isLeadCurDep= dependentParam.expr->getLeadCurrentDependentExcludeBsrc();
   if (isLeadCurDep)
   {
     const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
-#endif
     char type;
     int index;
     for (std::vector<std::string>::const_iterator n_i=leads.begin(); n_i != leads.end(); ++n_i)
@@ -1056,17 +1038,13 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     types.resize(oldSize+leads.size(), XEXP_LEAD);
   }
 
-#if 1
   if(isDevCurDep)
   {
     const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
-#endif
     names.insert( names.end(), instances.begin(), instances.end() );
     int oldSize=types.size();
     types.resize(oldSize+instances.size(), XEXP_INSTANCE);
-#if 1
   }
-#endif
 
   dependentParam.lo_var = expVarNames.size();
   dependentParam.n_vars = names.size();
@@ -1076,19 +1054,6 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   expVarLIDs.resize(expVarLen);
   expVarVals.resize(expVarLen);
 
-#if 0
-  // ERK.  Does this "variables" insert matter at all?  
-  // names is a local variable, and it doesn't look like this 
-  // part of the array (the part that goes beyond n_vars) is ever 
-  // accessed after this.
-  if (!variables.empty())
-  {
-    names.insert( names.end(), variables.begin(), variables.end() ); 
-    int oldSize=types.size();
-    types.resize(oldSize+variables.size(), XEXP_VARIABLE);
-  }
-#endif
-
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
   {
     expVarNames.push_back(names[i]);
@@ -1096,15 +1061,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   dependentParam.global_params.clear();
-#if 0
-  if (!variables.empty())
-  {
-#else
   bool isVarDep = dependentParam.expr->getVariableDependent();
   if (isVarDep)
   {
     const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
-#endif
     std::vector<std::string>::const_iterator iterVariable;
     for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
@@ -1382,11 +1342,11 @@ void DeviceEntity::applyDepSolnLIDs()
     int lo = dpIter->lo_var;
     int hi = dpIter->lo_var+dpIter->n_vars;
 
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dpIter->expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
-    Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
-      Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
 
     devGroup->setSolutionLIDs ( expVarNames, expVarLIDs, lo, hi );
 

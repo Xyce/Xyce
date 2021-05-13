@@ -141,7 +141,7 @@
 
 #include <N_DEV_DeviceSupport.h>
 #include <mainXyceExpressionGroup.h>
-#include <sensXyceExpressionGroup.h>
+#include <paramParsingExpressionGroup.h>
 #include <N_DEV_DeviceSupport.h>
 
 namespace Xyce {
@@ -916,22 +916,19 @@ Simulator::RunStatus Simulator::initializeEarly(
   if (DEBUG_CIRCUIT)
     dout() << "Registration was successful" << std::endl;
 
-
-
   // ERK.  Allocate up the main expression group
   Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
     *parallelManager_->getPDSComm(),
     *topology_, *analysisManager_, *deviceManager_, *outputManager_));
 
-  // The sens group is essentially what the "main" group used to be.  The "main" group is just for parsing.
-  Teuchos::RCP<Util::sensXyceExpressionGroup>  sensExprGroup_ =  Teuchos::rcp(new Xyce::Util::sensXyceExpressionGroup (
+  Teuchos::RCP<Util::paramParsingExpressionGroup>  parseExprGroup_ =  Teuchos::rcp(new Xyce::Util::paramParsingExpressionGroup (
     *parallelManager_->getPDSComm(),
     *topology_, *analysisManager_, *deviceManager_, *outputManager_));
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCastFromSens = sensExprGroup_;
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCastFromParseGroup = parseExprGroup_;
 
-  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);
+  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCastFromParseGroup);
   IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
 
   // ERK. these could be in "doRegistrations" but the mainXyceGroup must be allocated after netlist_import_tool, which happens after ...
@@ -950,9 +947,9 @@ Simulator::RunStatus Simulator::initializeEarly(
   // leads to a lot of circular logic and (probably) inefficient code.  For parsing, it is better to
   // use a very minimal group that doesn't do much for that use case.
   bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast); // the device package will mostly replace this group with the "device" group.  Arguably, there isn't must value in passing this in to the device package, as it should not use this group.
-  bool bs2=analysisManager_->registerExpressionGroup(baseGroupCastFromSens);
-  bool bs3=measureManager_->registerExpressionGroup(baseGroupCastFromSens); // check if measure manager better served with different group.  The "main" group is really just appropriate for parsing.  Consider the "outputs" group here also.
-  bool bs4=nonlinearManager_->registerExpressionGroup(baseGroupCastFromSens);
+  bool bs2=analysisManager_->registerExpressionGroup(baseGroupCast);
+  bool bs3=measureManager_->registerExpressionGroup(baseGroupCast); // check if measure manager better served with different group.  The "main" group is really just appropriate for parsing.  Consider the "outputs" group here also.
+  bool bs4=nonlinearManager_->registerExpressionGroup(baseGroupCast);
 
   runState_ = PARSE_NETLIST;
   Xyce::lout() << "***** Reading and parsing netlist..." << std::endl;
@@ -1001,7 +998,7 @@ Simulator::RunStatus Simulator::initializeEarly(
     }
 
     mainExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
-    sensExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
+    parseExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());

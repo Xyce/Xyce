@@ -856,7 +856,7 @@ public:
 
   void setupVariousAstArrays ();
 
-  void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; }
+  void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; } 
   Teuchos::RCP<baseExpressionGroup> getGroup() { return group_; }
 
 private:
@@ -864,7 +864,7 @@ private:
   void checkIsConstant_();
   bool getValuesFromGroup_();
 
-  Teuchos::RCP<baseExpressionGroup> group_;
+  mutable Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
   bool parsed_;
   bool derivsSetup_;

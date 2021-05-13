@@ -51,7 +51,7 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_ExpressionSymbolTable.h>
 
-#include <sensXyceExpressionGroup.h>
+#include <mainXyceExpressionGroup.h>
 #include <outputsXyceExpressionGroup.h>
 
 namespace Xyce {
@@ -74,15 +74,15 @@ ExpressionData::ExpressionData (
     sensitivitiesPossible_(true)
 {
 
-  Teuchos::RCP<sensXyceExpressionGroup> sensGroup = Teuchos::rcp_dynamic_cast<sensXyceExpressionGroup>(group);
+  Teuchos::RCP<mainXyceExpressionGroup> mainGroup = Teuchos::rcp_dynamic_cast<mainXyceExpressionGroup>(group);
 
   Teuchos::RCP<outputsXyceExpressionGroup> outputsGroup = 
     Teuchos::rcp(new outputsXyceExpressionGroup(
-      sensGroup->comm_,
-      sensGroup->top_,
-      sensGroup->analysisManager_,
-      sensGroup->deviceManager_,
-      sensGroup->outputManager_
+      mainGroup->comm_,
+      mainGroup->top_,
+      mainGroup->analysisManager_,
+      mainGroup->deviceManager_,
+      mainGroup->outputManager_
         ) );
 
   expressionGroup_ = outputsGroup;

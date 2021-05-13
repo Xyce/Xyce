@@ -2922,7 +2922,7 @@ void DeviceMgr::addGlobalPar(const Util::Param & param)
   // get the device manager's current temp
   double temp = getDeviceOptions().temp.getImmutableValue<double>();
 
-  addGlobalParameter(solState_, temp, globals_, param);
+  addGlobalParameter(solState_, temp, globals_, param, expressionGroup_);
 }
 
 //-----------------------------------------------------------------------------
@@ -5202,17 +5202,19 @@ void addGlobalParameter(
   SolverState &         solver_state,
   double                temp,
   UserDefinedParams &   globals,
-  const Util::Param &   param)
+  const Util::Param &   param,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup
+  )
 {
   if (param.getType() == Util::EXPR)
   {
     globals.expressionVec.push_back(param.getValue<Util::Expression>());
+    Util::Expression &expression = globals.expressionVec.back();
     globals.expNameVec.push_back(param.uTag());
     globals.paramMap[param.uTag()] = 0.0; 
-    // this value will get set later, probably in a 
+    // this value will get set properly later in a 
     // updateDependentParameters_ function call.  
-    // It is dangerous to evalaute the expression now, b/c it 
-    // may depend on global params that haven't yet been added to this map.
+    expression.setGroup(expressionGroup);
   }
   else
   {

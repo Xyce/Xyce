@@ -67,6 +67,8 @@
 #include <N_IO_fwd.h>
 
 #include <expressionGroup.h>
+#include <paramParsingExpressionGroup.h>
+#include <mainXyceExpressionGroup.h>
 
 namespace Xyce {
 namespace IO {
@@ -1753,8 +1755,22 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         {
           break;
         }
-        
-        circuitContext_.resolveParameter((*iterPar));
+
+        Util::Param& parameter = (*iterPar);
+        circuitContext_.resolveParameter(parameter);
+        if(parameter.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & expressionToModify = parameter.getValue<Util::Expression>();
+
+          const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> group = 
+            Teuchos::rcp_dynamic_cast<Xyce::Util::paramParsingExpressionGroup>( expressionToModify.getGroup() );
+
+          Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup>  mainGroup = 
+            Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup(group));
+
+          Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = mainGroup;
+            expressionToModify.setGroup( newGroup );
+        }
       }
     } 
   }

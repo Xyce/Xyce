@@ -5,7 +5,7 @@ target_sources(XyceLib PRIVATE
   newExpression.C
   deviceExpressionGroup.C
   mainXyceExpressionGroup.C
-  sensXyceExpressionGroup.C
+  paramParsingExpressionGroup.C
   outputsXyceExpressionGroup.C)
 
 target_include_directories(XyceLib PUBLIC

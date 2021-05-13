@@ -56,6 +56,7 @@
 #include<newExpression.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
+#include <paramParsingExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
 #include <deviceExpressionGroup.h>
 #include <N_UTL_ExtendedString.h>
@@ -102,6 +103,9 @@ friend class ExpressionData;
 
 public:
   deviceExpressionGroup ( const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> & mainGroup);
+#if 0
+  deviceExpressionGroup ( const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> & ppGroup);
+#endif
   ~deviceExpressionGroup ();
 
   void setSolutionLIDs( 

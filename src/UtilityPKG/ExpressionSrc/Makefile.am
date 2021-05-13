@@ -18,7 +18,7 @@ libExpressionSrc_la_SOURCES = \
   newExpression.C \
   deviceExpressionGroup.C \
   mainXyceExpressionGroup.C \
-  sensXyceExpressionGroup.C \
+  paramParsingExpressionGroup.C \
   outputsXyceExpressionGroup.C \
   ExpressionLexer.h \
   ExpressionType.h \
@@ -34,7 +34,7 @@ libExpressionSrc_la_SOURCES = \
   deviceExpressionGroup.h \
   deviceExpressionGroup.h \
   mainXyceExpressionGroup.h \
-  sensXyceExpressionGroup.h \
+  paramParsingExpressionGroup.h \
   outputsXyceExpressionGroup.h \
 	expressionParamTypes.h
 

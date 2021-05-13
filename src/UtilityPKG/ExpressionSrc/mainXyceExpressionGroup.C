@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : 
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -83,12 +83,27 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
  Device::DeviceMgr & device_manager,
  IO::OutputMgr &output_manager
  ) :
- comm_(comm),
- top_(top),
- analysisManager_(analysis_manager),
- deviceManager_(device_manager),
- outputManager_(output_manager),
- time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), gmin_(0.0), dt_(0.0), alpha_(0.0)
+  paramParsingExpressionGroup(comm,top, analysis_manager, device_manager, output_manager)
+{
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Purpose       : constructor
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+mainXyceExpressionGroup::mainXyceExpressionGroup (
+    const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> & ppGroup)
+  :
+  paramParsingExpressionGroup(
+      ppGroup->comm_, ppGroup->top_,
+      ppGroup->analysisManager_,
+      ppGroup->deviceManager_,
+      ppGroup->outputManager_
+      )
 {
 }
 
@@ -225,6 +240,48 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
   return (tmpGID>=0);
 }
 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : double precision version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+{
+  bool success=true;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
+  return success;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : std::complex<double> version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+{
+  bool success=true;
+  double tmpval;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, tmpval);
+  retval = std::complex<double>(tmpval,0.0);
+  return success;
+}
+
+#if 0
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getTimeStep
 // Purpose       : 
@@ -383,6 +440,7 @@ bool mainXyceExpressionGroup::getPhaseOutputUsesRadians()
 {
   return outputManager_.getPhaseOutputUsesRadians();
 }
+#endif
 
 } // Util
 } // Xyce

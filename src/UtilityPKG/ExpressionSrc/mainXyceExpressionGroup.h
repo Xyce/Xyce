@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Expression group for sensitivity objective functions
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -58,6 +58,7 @@
 
 #include <ExpressionType.h>
 #include <expressionGroup.h>
+#include <paramParsingExpressionGroup.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_IO_OutputMgr.h>
 
@@ -66,37 +67,6 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-#if 0
-// this assumes seed is generated externally
-// this uses functions from N_ANP_UQSupport
-class randomSamplesGenerator
-{
-  public:
-   randomSamplesGenerator(long seed=0):
-     randomSeed(seed),
-     mt(randomSeed),
-     uniformDistribution(0.0,1.0)
-  {};
-
-   double generateNormalSample(const double mean, const double stddev)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupNormal(prob,mean,stddev);
-   }
-
-   double generateUniformSample(const double min, const double max)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupUniform(prob, min, max);
-   }
-
-   long randomSeed;
-   std::mt19937 mt;
-   std::uniform_real_distribution<double> uniformDistribution;
-};
-
-static randomSamplesGenerator *theRandomSamplesGenerator=0;
-#endif
 
 //-----------------------------------------------------------------------------
 // Class         : mainXyceExpressionGroup
@@ -126,7 +96,7 @@ static randomSamplesGenerator *theRandomSamplesGenerator=0;
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
 //-----------------------------------------------------------------------------
-class mainXyceExpressionGroup : public baseExpressionGroup
+class mainXyceExpressionGroup : public paramParsingExpressionGroup
 {
 friend class Xyce::Analysis::ACExpressionGroup;
 friend class outputsXyceExpressionGroup;
@@ -142,6 +112,8 @@ public:
       IO::OutputMgr &output_manager
       ) ;
 
+  mainXyceExpressionGroup (const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> & ppGroup);
+
   ~mainXyceExpressionGroup ();
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
@@ -153,47 +125,13 @@ public:
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
   { return getSolutionVal(deviceName,retval); }
 
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval ) {return true;}
-  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
-
-  virtual double getTimeStep ();
-  virtual double getTimeStepAlpha () { return alpha_; }
-  virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
-
-  virtual double getTime();
-  virtual double getTemp();
-  virtual double getVT  ();
-  virtual double getFreq();
-  virtual double getGmin();
-
-  virtual double getBpTol();
-  virtual double getStartingTimeStep();
-  virtual double getFinalTime();
-
-  virtual unsigned int getStepNumber ();
-
-  virtual bool getPhaseOutputUsesRadians();
-
-  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
+  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   int getSolutionGID_(const std::string & nodeName);
 
-  Parallel::Communicator & getComm() { return comm_; }
-
 private:
-  Parallel::Communicator & comm_;
-
-  Topo::Topology & top_;
-
-  Analysis::AnalysisManager & analysisManager_;
-  Device::DeviceMgr & deviceManager_;
-
-  IO::AliasNodeMap aliasNodeMap_;
-
-  IO::OutputMgr &outputManager_;
-
-  double time_, temp_, VT_, freq_, gmin_;
-  double dt_, alpha_;
+ 
 };
 
 }

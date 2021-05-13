@@ -83,6 +83,28 @@ deviceExpressionGroup::deviceExpressionGroup (
 {
 }
 
+#if 0
+//-------------------------------------------------------------------------------
+// Function      : deviceExpressionGroup::deviceExpressionGroup 
+// Purpose       : constructor
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/10/2021
+//-------------------------------------------------------------------------------
+deviceExpressionGroup::deviceExpressionGroup ( 
+   const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> & ppGroup
+    ):
+  mainXyceExpressionGroup(
+      ppGroup->comm_, ppGroup->top_,
+      ppGroup->analysisManager_,
+      ppGroup->deviceManager_,
+      ppGroup->outputManager_
+      )
+{
+}
+#endif
+
 //-------------------------------------------------------------------------------
 // Function      : deviceExpressionGroup::deviceExpressionGroup 
 // Purpose       : destructor

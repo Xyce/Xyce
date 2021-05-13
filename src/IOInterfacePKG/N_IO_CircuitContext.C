@@ -385,6 +385,14 @@ void CircuitContext::addParams(
   Util::ParamList::const_iterator paramIter, 
   Util::ParamList::const_iterator paramEnd)
 {
+#if 0
+  // experiment
+  if (currentContextPtr_->parentContextPtr_ == NULL)
+  {
+    addGlobalParams(paramIter,paramEnd);
+    return;
+  }
+#endif
   Util::Param parameter;
   for ( ; paramIter != paramEnd; ++paramIter)
   {
@@ -1640,7 +1648,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
 // Creator        : Eric Keiter
 // Creation Date  : 04/11/2020
 //----------------------------------------------------------------------------
-bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
+bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
                                       std::vector<std::string> funcArgs) const
 {
   if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )

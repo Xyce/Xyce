@@ -55,7 +55,7 @@ class newExpression;
 
 //-----------------------------------------------------------------------------
 // Class         : baseExpressionGroup
-// Purpose       : this is purely virtual class
+// Purpose       : 
 // Special Notes :
 // Creator       : Eric Keiter
 // Creation Date : 10/28/2019
