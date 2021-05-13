@@ -56,6 +56,11 @@ PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
     py::class_<Xyce::Device::DeviceOptions>(m, "DeviceOptions")
     .def_readonly("voltageLimiterFlag", &Xyce::Device::DeviceOptions::voltageLimiterFlag);
     py::class_<Xyce::Device::SolverState>(m, "SolverState")
+    .def_readonly("pdt_", &Xyce::Device::SolverState::pdt_)
+    .def_readonly("currentOrder_", &Xyce::Device::SolverState::currentOrder_)
+    .def_readonly("usedOrder_", &Xyce::Device::SolverState::usedOrder_)
+    .def_readonly("currTimeStep_", &Xyce::Device::SolverState::currTimeStep_)
+    .def_readonly("lastTimeStep_", &Xyce::Device::SolverState::lastTimeStep_)
     .def_readonly("currTime_", &Xyce::Device::SolverState::currTime_)
     .def_readonly("newtonIter", &Xyce::Device::SolverState::newtonIter)
     .def_readonly("initJctFlag_", &Xyce::Device::SolverState::initJctFlag_)
@@ -807,13 +812,6 @@ int main(int argc, char **argv)
     }
 
   }
-
-  //py::module pstats = py::module::import("pstats");
-  //auto stat = pstats.attr("Stats")();
-  ////stat.attr("init")(profiler);
-  //stat.attr("sort_stats")("ncalls");
-  //stat.attr("print_stats");
-  //profiler.attr("print_stats");
 
   // All of our recognized general external devices are completely set up, it is now
   // safe to finish initialization
