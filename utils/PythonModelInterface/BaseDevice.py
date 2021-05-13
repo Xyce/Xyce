@@ -14,7 +14,6 @@ class BaseDevice(object):
         # gives priority to existing values in b,d,i, and s since these were
         # specified in the netlist by the user, default back to p_params
         for item in p_params.items():
-            print(item)
             if (item[0] not in d_params.keys()):
                 if isinstance(item[1], bool):
                     b_params[item[0]] = 1 if item[1] else 0
@@ -59,11 +58,17 @@ class BaseDevice(object):
         return i_params["numBranchDataVars"]
 
     def processNumBranchDataVarsIfAllocated(self, b_params, d_params, i_params, s_params):
-        i_params["numBranchDataVarsIfAllocated"]=i_params["numExternalVars"]
+        try:
+            i_params["numBranchDataVarsIfAllocated"]=i_params["numExternalVars"]
+        except:
+            assert False, "processNumBranchDataVarsIfAllocated(...) called before setNumExternalVars(...)"
         return i_params["numBranchDataVarsIfAllocated"]
 
     def getArraySizes(self, b_params, d_params, i_params, s_params):
-        num_vars = i_params["numVars"]
+        try:
+            num_vars = i_params["numVars"]
+        except:
+            assert False, "getArraySizes(...) called before processTotalVars(...)"
         size_dict = {}
         size_dict['F']=[num_vars,]
         size_dict['Q']=[num_vars,]
@@ -79,13 +84,13 @@ class BaseDevice(object):
     
     # only needs overridden if getJacStampSize is overridden
     def setJacStamp(self, jacStamp, b_params, d_params, i_params, s_params):
-        return 1 
+        pass
 
     # called prior to computeXyceVectors, computed results should be
     # store in self.* so that they persist for future 
     # computeXyceVectors calls
     def initialize(self, deviceOptions, solverState, b_params, d_params, i_params, s_params):
-        return 1
+        pass
 
     # this function must be overridden to provide device definition
     def computeXyceVectors(self, solV, fSV, stoV, t, deviceOptions, solverState,
