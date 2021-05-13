@@ -326,18 +326,17 @@ bool HB::doInit()
 
 //  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
 
-  int posFreqSize = (size_ - 1)/2;  
+  int posFreqSize = (size_ - 1)/2;
    
-  std::vector<double> freqPos; 
+  std::vector<double> freqPos;
 
   freqPos.resize(posFreqSize);
 
   for (int i=0; i < posFreqSize; i++)
   {
-//    if (freqP[i] < 0.0)
     freqPos[i] = fabs( freqPoints_[i + posFreqSize + 1]);
 
-    Xyce::dout() << "freqPos =" <<  freqPos[i] << std::endl;
+//    Xyce::dout() << "freqPos =" <<  freqPos[i] << std::endl;
 
   }
 
@@ -345,9 +344,7 @@ bool HB::doInit()
 
    period_ = 1.0/minFreq;
 
-//  if (DEBUG_HB)
-    Xyce::dout() << "minFreq =" <<  minFreq << std::endl;
-
+  if (DEBUG_HB)
     Xyce::dout() << "HB period =" <<  period_ << std::endl;
 
   fastTimes_.resize(size_);
