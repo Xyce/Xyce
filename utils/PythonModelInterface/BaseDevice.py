@@ -99,7 +99,7 @@ class BaseDevice(object):
         pass
 
     # this function must be overridden to provide device definition
-    def computeXyceVectors(self, solV, fSV, stoV, t, deviceOptions, solverState,
+    def computeXyceVectors(self, fSV, solV, stoV, staV, deviceOptions, solverState,
             origFlag, F, Q, B, dFdX, dQdX, dFdXdVp, dQdXdVp, 
             b_params, d_params, i_params, s_params):
         raise NotImplementedError

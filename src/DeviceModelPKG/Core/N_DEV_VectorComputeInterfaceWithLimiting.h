@@ -95,10 +95,10 @@ public:
   /// @param[out] dFdxdVp   Derivative of F with respect to limited solution
   /// @param[out] dQdxdVp   Derivative of Q with respect to limited solution
   ///
-  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & solutionVars,
-                                  std::vector<double> & flagSolutionVars,
+  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & flagSolutionVars,
+                                  std::vector<std::vector<double> > & solutionVars,
                                   std::vector<std::vector<double> > & storeVars,
-                                  double time,
+                                  std::vector<std::vector<double> > & stateVars,
                                   const DeviceOptions & deviceOptions,
                                   const SolverState & solverState,
                                   bool & origFlag,

@@ -98,8 +98,7 @@ private:
 
   py::dict F_Q_B_dFdX_dQdX_sizes;
 
-  py::memoryview py_solV;
-  py::memoryview py_fSV;
+  py::memoryview py_flagSolV;
   py::memoryview py_F;
   py::memoryview py_Q;
   py::memoryview py_dFdXdVp;
@@ -107,9 +106,11 @@ private:
   py::memoryview py_B;
   py::memoryview py_origFlag;
 
+  py::list py_solV;
+  py::list py_stoV;
+  py::list py_staV;
   py::list py_dFdX;
   py::list py_dQdX;
-  py::list py_stoV;
   py::list py_jacStamp;
 
   bool s_params_loaded;
@@ -131,8 +132,7 @@ public:
 
   pythonVectorCompute() :       
         // py::memoryview has no default constructor so we initialize from a scalar
-        py_solV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
-        py_fSV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
+        py_flagSolV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_F(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_Q(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_dFdXdVp(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
@@ -144,8 +144,11 @@ public:
         numBranchDataVars(0), numBranchDataVarsIfAllocated(0), origFlag(0), nullValue(0)
   {}
 
-  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & solV, std::vector<double> & fSV, std::vector<std::vector<double> > & stoV,
-                          double t, 
+  virtual bool computeXyceVectorsWithLimiting(
+                          std::vector<double>& flagSolV,
+                          std::vector<std::vector<double> >& solV, 
+                          std::vector<std::vector<double> >& stoV, 
+                          std::vector<std::vector<double> >& staV, 
                           const Xyce::Device::DeviceOptions & xyceDeviceOptions,
                           const Xyce::Device::SolverState & xyceSolverState,
                           bool& origFlag_,
@@ -191,12 +194,13 @@ public:
         // numVars, which is the same size as the length of solV
         //
         // check sizes for validity
-        assert(F_size==solV.size());
+        auto numVars = solV[0].size();
+        assert(F_size==numVars);
         if (Q_size!=0) {
-            assert(Q_size==solV.size());
+            assert(Q_size==numVars);
         }
         if (B_size!=0) {
-            assert(B_size==solV.size());
+            assert(B_size==numVars);
         }
 
         // resize vectors, if needed 
@@ -246,8 +250,7 @@ public:
         }
 
         double null_value = 0;
-        double* data_solV = (solV.data()) ? solV.data() : &null_value;
-        double* data_fSV = (fSV.data()) ? fSV.data() : &null_value;
+        double* data_flagSolV = (flagSolV.data()) ? flagSolV.data() : &null_value;
         double* data_F  = ( F.data()) ?  F.data() : &null_value;
         double* data_Q  = ( Q.data()) ?  Q.data() : &null_value;
         double* data_dFdXdVp  = ( dFdXdVp.data()) ?  dFdXdVp.data() : &null_value;
@@ -256,13 +259,9 @@ public:
         origFlag = origFlag_;
         int* data_origFlag = &origFlag;
 
-        py_solV = py::memoryview::from_buffer(
-                data_solV,
-                {solV.size()}, 
-                {sizeof(double)});
-        py_fSV = py::memoryview::from_buffer(
-                data_fSV,
-                {fSV.size()}, 
+        py_flagSolV = py::memoryview::from_buffer(
+                data_flagSolV,
+                {flagSolV.size()}, 
                 {sizeof(double)}); 
         py_F = py::memoryview::from_buffer(
                 data_F,
@@ -290,9 +289,11 @@ public:
                 {sizeof(int)}); 
 
         // allocates new buffers for each row from heap
+        py_solV = get_list_of_memoryviews(solV);
+        py_stoV = get_list_of_memoryviews(stoV);
+        py_staV = get_list_of_memoryviews(staV);
         py_dFdX = get_list_of_memoryviews(dFdX);
         py_dQdX = get_list_of_memoryviews(dQdX);
-        py_stoV = get_list_of_memoryviews(stoV);
 
         py::object result = device.attr("initialize")(
                 py_xyceDeviceOptions,
@@ -304,10 +305,10 @@ public:
     }
 
     py::object result = device.attr("computeXyceVectors")(
+            py_flagSolV,
             py_solV, 
-            py_fSV,
             py_stoV,
-            t, 
+            py_staV,
             py_xyceDeviceOptions,
             py_xyceSolverState,
             py_origFlag,

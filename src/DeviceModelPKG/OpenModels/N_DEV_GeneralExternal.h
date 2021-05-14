@@ -325,10 +325,19 @@ private:
   /// Vectors and matrices for storing local representations of F,
   /// Q, and B vectors, used for passing to the computeXyceVectors
   /// function of the *vciPtr_ object.
-  std::vector<double> solutionVars_;
   std::vector<double> flagSolutionVars_;
+
+  std::vector<double> solutionVars_;
+  std::vector<double> currSolutionVars_;
+  std::vector<double> lastSolutionVars_;
+
   std::vector<double> nextStoreVars_;
   std::vector<double> currStoreVars_;
+
+  std::vector<double> nextStateVars_;
+  std::vector<double> currStateVars_;
+  std::vector<double> lastStateVars_;
+
   std::vector<double> FVec_;
   std::vector<double> QVec_;
   std::vector<double> BVec_;
@@ -336,7 +345,9 @@ private:
   std::vector<double> dQdXdVpVec_;
   std::vector<std::vector<double> > dFdXMat_;
   std::vector<std::vector<double> > dQdXMat_;
+  std::vector<std::vector<double> > solVars;
   std::vector<std::vector<double> > storeVars;
+  std::vector<std::vector<double> > stateVars;
 
   std::vector<std::complex<double> > solutionFDVars_;
   std::vector<std::complex<double> >fDFVec_;
