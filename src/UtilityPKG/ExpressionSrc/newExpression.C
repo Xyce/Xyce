@@ -824,25 +824,14 @@ void newExpression::setupDerivatives_ ()
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-        // 2-node specification is now handled with expression tree.
-        // (see ExpressionParser.yxx)
-        // So, nodes.size should always == 1
-        if (nodes.size() == 1)
-        {
-          std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
-          std::unordered_map<std::string, int>::iterator mapIter;
-          mapIter = derivNodeIndexMap_.find(tmp);
-          if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-          derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
-        }
-        else
-        {
-          Xyce::dout()
-            << "ERROR. derivatives not correct for 2-node V(A,B) specification"
-            <<std::endl;
-        }
+        std::string & node = voltOp->getVoltageNode();
+
+        std::string tmp = node; Xyce::Util::toUpper(tmp);
+        std::unordered_map<std::string, int>::iterator mapIter;
+        mapIter = derivNodeIndexMap_.find(tmp);
+        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
@@ -1119,21 +1108,18 @@ void newExpression::setupVariousAstArrays()
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+        std::string & node = voltOp->getVoltageNode();
 
-        for (int jj=0;jj<tmp.size();++jj)
+        if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
-          if ( voltOpMap_.find(tmp[jj]) == voltOpMap_.end() )
-          {
-            std::vector<Teuchos::RCP<astNode<usedType> > > vec;
-            vec.push_back(voltOpVec_[ii]);
-            voltOpMap_[tmp[jj]] = vec;
-            voltNameVec_.push_back( tmp[jj] );
-          }
-          else
-          {
-            voltOpMap_[tmp[jj]].push_back(voltOpVec_[ii]);
-          }
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+          vec.push_back(voltOpVec_[ii]);
+          voltOpMap_[node] = vec;
+          voltNameVec_.push_back( node );
+        }
+        else
+        {
+          voltOpMap_[node].push_back(voltOpVec_[ii]);
         }
       }
 
@@ -1449,25 +1435,12 @@ bool newExpression::getValuesFromGroup_()
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-      std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-      std::vector<usedType> & vals = voltOp->getVoltageVals();
-      oldSolVals_ = vals;
 
-      for (int jj=0;jj<nodes.size();jj++)
-      {
-#if 0
-        std::cout
-          << "newExpression::getValuesFromGroup_() About to get: V("<<nodes[jj]<<")"
-          << std::endl;
-#endif
-        group_->getSolutionVal(nodes[jj], vals[jj]);
-        if(vals[jj] != oldSolVals_[jj]) noChange=false;
-#if 0
-        std::cout
-          << "newExpression::getValuesFromGroup_() V("<<nodes[jj]<<") = "
-          << vals[jj] <<std::endl;
-#endif
-      }
+      std::string & node = voltOp->getVoltageNode();
+      usedType & val = voltOp->getVoltageVal();
+      usedType oldval = val;
+      group_->getSolutionVal(node, val);
+      if(val != oldval) noChange=false;
     }
   }
 
@@ -2129,8 +2102,8 @@ bool newExpression::replaceName (
       for(int ii=0;ii<astVec.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-        for(int jj=0;jj<nodes.size();++jj) { if(nodes[jj]==old_name) { nodes[jj] = new_name; } }
+        std::string & node = voltOp->getVoltageNode();
+        if(node == old_name) { node = new_name; } 
       }
 
       if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors

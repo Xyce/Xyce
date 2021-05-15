@@ -844,37 +844,14 @@ TEST ( Double_Ast_Param_Test, voltageOp1 )
   RCP<astNode<double> > valA = rcp(new numval<double> (A));
   RCP<astNode<double> > valB = rcp(new numval<double> (B));
 
-  RCP<voltageOp<double> > voltageA = rcp(new voltageOp<double> ( ( std::vector<std::string> (1,std::string("A")) )) );
-  RCP<voltageOp<double> > voltageB = rcp(new voltageOp<double> ( ( std::vector<std::string> (1,std::string("B")) )) );
+  RCP<voltageOp<double> > voltageA = rcp(new voltageOp<double> ( std::string("A")) );
+  RCP<voltageOp<double> > voltageB = rcp(new voltageOp<double> ( std::string("B")) );
 
-  voltageA->setVals(std::vector<double>(1,A));
-  voltageB->setVals(std::vector<double>(1,B));
+  voltageA->setVal(A);
+  voltageB->setVal(B);
 
   EXPECT_EQ(voltageA->val()-A, 0.0);
   EXPECT_EQ(voltageB->val()-B, 0.0);
-}
-
-TEST ( Double_Ast_Param_Test, voltageOp2 )
-{
-  double A=7.0, B=4.0, C=3.0, D=2.0;
-  RCP<astNode<double> > valA = rcp(new numval<double> (A));
-  RCP<astNode<double> > valB = rcp(new numval<double> (B));
-  RCP<astNode<double> > valC = rcp(new numval<double> (C));
-  RCP<astNode<double> > valD = rcp(new numval<double> (D));
-
-  std::vector<std::string> names1 = { std::string("A"), std::string("B") };
-  std::vector<std::string> names2 = { std::string("C"), std::string("D") };
-
-  RCP<voltageOp<double> > voltage1 = rcp(new voltageOp<double> ( ( names1)) );
-  RCP<voltageOp<double> > voltage2 = rcp(new voltageOp<double> ( ( names2)) );
-
-  std::vector<double>vals1 = {A,B};
-  std::vector<double>vals2 = {C,D};
-  voltage1->setVals(vals1);
-  voltage2->setVals(vals2);
-
-  EXPECT_EQ(voltage1->val()-(A-B), 0.0);
-  EXPECT_EQ(voltage2->val()-(C-D), 0.0);
 }
 
 //-------------------------------------------------------------------------------
