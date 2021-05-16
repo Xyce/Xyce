@@ -22,16 +22,16 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Base expression group class.  
 //
-// Special Notes  :
+// Special Notes  : This is used during netlist parsing.  
+//                  During parsing, the rest of the problem isn't set up yet, 
+//                  so there isn't anything meaningful for a group to do.  
+//                  As such, this group is nearly empty.
 //
 // Creator        : Eric R. Keiter, SNL
 //
 // Creation Date  : 10/xx/2019
-//
-//
-//
 //
 //-----------------------------------------------------------------------------
 
@@ -67,10 +67,15 @@ public:
   baseExpressionGroup () {};
   virtual ~baseExpressionGroup () {};
 
-  virtual bool getSolutionVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
+  // these do not set a value at all, they just pass thru and return true.
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval ) { return true; }
+  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { return true; }
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ) { return true; }
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) { return true; }
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval ) {return true;}
+  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
 
-  virtual bool getCurrentVal  ( const std::string & deviceName, const std::string & designator, double & retval ) { retval=0.0; return false; }
-
+  // these do set a value, and return false.  Rethink?  
   virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval ) { retval=0.0; return false; }
   virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval ) {retval=std::complex<double>(0.0,0.0); return false; }
 
@@ -88,13 +93,6 @@ public:
 
   virtual bool getPower(const std::string & tag, const std::string & deviceName, double & retval) { retval=0.0; return false; }
   virtual bool getPower(const std::string & tag, const std::string & deviceName, std::complex<double> & retval) {retval=std::complex<double>(0.0,0.0); return false; }
-
-  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
-
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
-
-  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
-  virtual bool getGlobalParameterVal (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
 
   virtual bool getSparam (const std::vector<int> & args, double & retval ) { retval=0.0; return false; }
   virtual bool getSparam (const std::vector<int> & args, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }

@@ -67,7 +67,6 @@
 #include <N_IO_fwd.h>
 
 #include <expressionGroup.h>
-#include <paramParsingExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
 
 namespace Xyce {
@@ -99,6 +98,7 @@ CircuitBlock::CircuitBlock(
   unordered_set<std::string>  &                                 nNames,
   AliasNodeMap &                                                alias_node_map,
   const std::vector< std::pair< std::string, std::string> >  &  externalNetlistParams,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> &               group,
   std::vector<bool> &                                           pFilter,
   bool                                                          removeRedundant,
   bool                                                          modelBinning,
@@ -137,7 +137,8 @@ CircuitBlock::CircuitBlock(
   model_binning_flag_(modelBinning),
   lengthScale_(scale),
   topology_(topology),
-  deviceManager_(device_manager)
+  deviceManager_(device_manager),
+  expressionGroup_(group)
 {
   topLevelPath_ = mainCircuitPtr_->getTopLevelPath();
 }
@@ -168,7 +169,9 @@ CircuitBlock::CircuitBlock(
   unordered_set<std::string> &                                  dNames,
   unordered_set<std::string> &                                  nNames,
   AliasNodeMap &                                                alias_node_map,
-  const std::vector< std::pair< std::string, std::string> > &   externalNetlistParams)
+  const std::vector< std::pair< std::string, std::string> > &   externalNetlistParams,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> &               group
+  )
 : netlistFilename_(netlistFilename_In),
   topLevelPath_(""),
   title_(""),
@@ -183,6 +186,7 @@ CircuitBlock::CircuitBlock(
   circuitContext_(cc),
   metadata_(md),
   externalNetlistParams_(externalNetlistParams),
+  expressionGroup_(group),
   netlistSave_(true),
   morFlag_(false),
   devProcessedNumber_(0),
@@ -1469,6 +1473,7 @@ bool CircuitBlock::handleLinePass1(
           nodeNames_,
           aliasNodeMap_,
           externalNetlistParams_,
+          expressionGroup_,
           preprocessFilter_,
           remove_any_redundant_,
           model_binning_flag_,
@@ -1761,15 +1766,7 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         if(parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expressionToModify = parameter.getValue<Util::Expression>();
-
-          const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> group = 
-            Teuchos::rcp_dynamic_cast<Xyce::Util::paramParsingExpressionGroup>( expressionToModify.getGroup() );
-
-          Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup>  mainGroup = 
-            Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup(group));
-
-          Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = mainGroup;
-            expressionToModify.setGroup( newGroup );
+          expressionToModify.setGroup( expressionGroup_ );
         }
       }
     } 

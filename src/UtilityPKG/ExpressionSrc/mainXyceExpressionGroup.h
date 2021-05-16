@@ -58,7 +58,6 @@
 
 #include <ExpressionType.h>
 #include <expressionGroup.h>
-#include <paramParsingExpressionGroup.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_IO_OutputMgr.h>
 
@@ -96,7 +95,7 @@ namespace Util {
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
 //-----------------------------------------------------------------------------
-class mainXyceExpressionGroup : public paramParsingExpressionGroup
+class mainXyceExpressionGroup : public baseExpressionGroup
 {
 friend class Xyce::Analysis::ACExpressionGroup;
 friend class outputsXyceExpressionGroup;
@@ -111,8 +110,6 @@ public:
       Device::DeviceMgr & device_manager,
       IO::OutputMgr &output_manager
       ) ;
-
-  mainXyceExpressionGroup (const Teuchos::RCP<Xyce::Util::paramParsingExpressionGroup> & ppGroup);
 
   ~mainXyceExpressionGroup ();
 
@@ -129,6 +126,39 @@ public:
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   int getSolutionGID_(const std::string & nodeName);
+
+  virtual double getTimeStep ();
+  virtual double getTimeStepAlpha () { return alpha_; }
+  virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
+
+  virtual double getTime();
+  virtual double getTemp();
+  virtual double getVT  ();
+  virtual double getFreq();
+  virtual double getGmin();
+
+  virtual double getBpTol();
+  virtual double getStartingTimeStep();
+  virtual double getFinalTime();
+
+  virtual unsigned int getStepNumber ();
+
+  virtual bool getPhaseOutputUsesRadians();
+
+  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
+
+  Parallel::Communicator & getComm() { return comm_; }
+
+protected:
+  Parallel::Communicator & comm_;
+  Topo::Topology & top_;
+  Analysis::AnalysisManager & analysisManager_;
+  Device::DeviceMgr & deviceManager_;
+  IO::AliasNodeMap aliasNodeMap_;
+  IO::OutputMgr &outputManager_;
+
+  double time_, temp_, VT_, freq_, gmin_;
+  double dt_, alpha_;
 
 private:
  

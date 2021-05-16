@@ -83,7 +83,8 @@ public:
      unordered_set<std::string> &                               dNames,
      unordered_set<std::string> &                                       nNames,
      AliasNodeMap &                                                     alias_node_map,
-     const std::vector< std::pair< std::string, std::string> > &        externalNetlistParams);
+     const std::vector< std::pair< std::string, std::string> > &        externalNetlistParams,
+     Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   CircuitBlock(
      const std::string &                                                fileName,
@@ -102,6 +103,7 @@ public:
      unordered_set<std::string> &                                       nNames,
      AliasNodeMap &                                                     alias_node_map,
      const std::vector< std::pair< std::string, std::string> > &        externalNetlistParams,
+     Teuchos::RCP<Xyce::Util::baseExpressionGroup> &                    group,
      std::vector<bool> &                                                pFilter,
      bool                                                               removeRedundant,
      bool                                                               modelBinning,
