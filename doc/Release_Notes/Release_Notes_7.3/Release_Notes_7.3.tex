@@ -68,11 +68,6 @@ please visit the \XyceTM{} web page at
 \newpage
 \section{New Features and Enhancements}
 
-\subsubsection*{XDM}
-\begin{XyceItemize}
-  \item place holder
-\end{XyceItemize}
-
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
   \item The lossless transmission line history interpolation has been
@@ -80,15 +75,43 @@ please visit the \XyceTM{} web page at
     produced by pulsed voltage sources.  Various issues related to
     discontinuity detection and breakpointing were also fixed in this
     release.
-  \item An ideal delay device has been added.
+  \item An ideal delay device has been added. Designated the YDELAY device, it
+    operates in a manner similar to a voltage-controlled voltage source, in
+    that The voltage between the positive and negative control nodes is
+    reproduced at the positive and negative output nodes delayed by a specified
+    time.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item Increased parallel stability and robustness for simulation algorithms and models
-        on increasing numbers of processors.
-  \item Improved handling of dynamically inserted break points from devices that use history information,
-	such as delay device. This resolved various accuracy issues, discontinuous behavior and convergence issues.
+  \item Increased parallel stability and robustness for simulation
+    algorithms and models on increasing numbers of processors.
+  \item Improved handling of dynamically inserted break points from
+    devices that use history information, such as delay device. This
+    resolved various accuracy issues, discontinuous behavior and
+    convergence issues.
+  \item \Xyce{} now supports non-intrusive Polynomial Chaos Expansion
+    (PCE) methods as an augmentation to the \texttt{.SAMPLING} and
+    \texttt{.EMBEDDEDSAMPLING} analyses.  This includes both the
+    regression and projection forms of non-intrusive PCE. These PCE
+    capabilities allow uncertainty to be accurately propagated thru a
+    \Xyce{} calculation with a relatively small number of sample
+    points.
+  \item \Xyce{} now supports fully intrusive Polynomial Chaos
+    Expansion (PCE) methods using the new \texttt{.PCE} command.  This
+    is mostly an experimental method, and is an alternative to the
+    non-intrusive forms of PCE that are also available in \Xyce{}.
+  \item The \Xyce{} expression library now supports a fast piecewise
+    linear table, \texttt{FASTTABLE}.  This feature is the same as
+    \texttt{TABLE}, except that it only has time integration
+    breakpoints at the first and last time point.  For very large
+    tables this can result in a significant speedup.
+  \item The \Xyce{} expression library now supports a variety of
+    higher-order interpolators including \texttt{SPLINE},
+    \texttt{AKIMA}, \texttt{WODICKA} and \texttt{CUBIC} splines.
+    Another supported interpolator is \texttt{BLI} for Barycentric
+    Lagrange Interpolation.  All of these interpolators use the same
+    syntax as \texttt{TABLE} and \texttt{TABLEFILE}.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -100,12 +123,15 @@ please visit the \XyceTM{} web page at
   \item The Xyce expression library now recognizes \texttt{TEMPER} and
     \texttt{HERTZ} as synonyms for \texttt{TEMP} and \texttt{FREQ},
     respectively.
-  \item The Xyce expression library now recognizes the  operators \texttt{nint()}, \texttt{fmod()} and \texttt{db()}.
-  \item The default behavior of the random expression operators \texttt{GAUSS}, \texttt{AGAUSS},
-    \texttt{RAND}, \texttt{UNIF} and \texttt{AUNIF} has been
-    changed so that they return the mean of the operator.   They now only return random values if one the various
-    uncertainty quantification (UQ) analyses options (\texttt{.SAMPLING},
-    \texttt{.EMBEDDEDSAMPLING} or \texttt{.PCE}) is specified in the netlist.
+  \item The Xyce expression library now recognizes the operators
+    \texttt{nint()}, \texttt{fmod()} and \texttt{db()}.
+  \item The default behavior of the random expression operators
+    \texttt{GAUSS}, \texttt{AGAUSS}, \texttt{RAND}, \texttt{UNIF} and
+    \texttt{AUNIF} has been changed so that they return the mean of
+    the operator.  They now only return random values if one the
+    various uncertainty quantification (UQ) analyses options
+    (\texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING} or \texttt{.PCE})
+    is specified in the netlist.
   \item Model binning is now turned on by default.  It is not
     necessary to specify the netlist command \texttt{.options parser}
     \texttt{model\_binning=true} anymore.
@@ -115,15 +141,64 @@ please visit the \XyceTM{} web page at
     rawfiles produced via ``.print FORMAT=RAW'' lines, only the
     command-line version that causes all solution variables to be
     extracted into the rawfile.
-  \item \texttt{.param} parameters are now allowed to depend on ``special'' variables 
-    such as \texttt{TEMP}, \texttt{TIME}, \texttt{FREQ} and \texttt{VT}.  
-    Previously, only \texttt{.global\_param} parameters could depend on special variables. 
-  \item \texttt{.param} parameters are now allowed to depend on \texttt{.global\_param} parameters.
-  \item \texttt{.param} parameters in the top level scope can now be modified by commands such as \texttt{.STEP}, \texttt{.DC}, \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and \texttt{LOCA}.  Previously, only \texttt{.global\_param} parameters could be modified by these commands.
+  \item \texttt{.param} parameters are now allowed to depend on
+    ``special'' variables such as \texttt{TEMP}, \texttt{TIME},
+    \texttt{FREQ} and \texttt{VT}.  Previously, only
+    \texttt{.global\_param} parameters could depend on special
+    variables.
+  \item \texttt{.param} parameters are now allowed to depend on
+    \texttt{.global\_param} parameters.
+  \item \texttt{.param} parameters in the top level scope can now be
+    modified by commands such as \texttt{.STEP}, \texttt{.DC},
+    \texttt{.SAMPLING}, \texttt{.EMBEDDEDSAMPLING}, \texttt{.PCE} and
+    \texttt{LOCA}.  Previously, only \texttt{.global\_param}
+    parameters could be modified by these commands.
+  \item Expressions on the right-hand-side of \texttt{.param} 
+    and \texttt{.global\_param} statements no longer need to be 
+    surrounded by curly braces or single quotes.
   \item The search-path algorithm for files given on \texttt{.INC} and
-     \texttt{.LIB} lines has been improved.  It should be more compatible
-     with both commercial and open-source Process Design Kits (PDKs) now.
-  \item Objective functions for \texttt{.AC} sensitivities can now be specified as expressions using the \texttt{acobjfunc} parameter.
+    \texttt{.LIB} lines has been improved.  It should be more
+    compatible with both commercial and open-source Process Design
+    Kits (PDKs) now.
+  \item Objective functions for \texttt{.AC} sensitivities can now be
+    specified as expressions using the \texttt{acobjfunc} parameter.
+\end{XyceItemize}
+
+\subsubsection*{XDM}
+\begin{XyceItemize}
+    \item Fixed bug where relative path names to files in .lib statements were
+        incorrect.
+    \item XDM allows the undocumented PSpice syntax of having trailing
+        commas in entries of ``TABLE'' statements.
+    \item if/else/endif statements in HSPICE are now commented out
+      since Xyce doesn't currently support this.
+    \item Node names containing brackets, as seen in HSPICE, are
+      now allowed.
+    \item Forward slashes in HSPICE device and subckt names are now
+      allowed.
+    \item XDM now translates transient Spectre ``sine'' specifications.
+    \item XDM comments out Spectre dc analysis statements with no parameters
+        as it is not clear what the Xyce equivalent should be.
+    \item XDM can now identify Spectre device instantiations of models
+        defined in SPICE format.
+    \item XDM removes Spectre ``trise'' parameter for R and C devices
+        since this isn't available in \Xyce{}.
+    \item Fixed bug in Spectre translation where sometimes the model name
+        would not appear for a instantiation of a device of that model.
+    \item Fixed XDM crash when processing some Spectre subcircuit
+        definitions.
+    \item Fixed bug in translation of Spectre ``include'' statements that have
+        the parameter ``section''. These will now be translated into ``.LIB''
+        statements in Xyce.
+    \item Added support for translation of Spectre ``port'' device
+        instantiations. Not all instance parameters are translated at this
+        time.
+    \item Translate the ``M'' unit prefix (mega) in Spectre ``AC'' statements
+        to the \Xyce{} equivalent ``X''.
+    \item XDM comments out Spectre dc analysis statements with no
+        parameters as it is not clear what the \Xyce{} equivalent should be.
+    \item Fixed bug where XDM aborted when translating Spectre ``include''
+        files with paths containing hyphens.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
@@ -141,12 +216,15 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
-\item To enable improved performance, \Xyce{} now requires a C++11 capable
-  compiler.
+\item The CMake build system is now available in addition to the Autotools
+     build system. See the \texttt{INSTALL.md} file for the CMake build
+     instructions.
+\item To enable improved performance, \Xyce{} now requires a C++11
+  capable compiler.
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
-\item It has been determined that some distributions of Linux have
+\item Some distributions of Linux have
   broken builds of OpenMPI in their package repositories.  Building
   \Xyce{} from source code in parallel with these OpenMPI installs
   will result in a version of \Xyce{} that may crash on some problems.
@@ -154,17 +232,21 @@ please visit the \XyceTM{} web page at
   package on those operating systems.  Please see commentary in the
   ``Known Defects'' section of these release notes under bug number
   ``967-SON''.
- \item Support for the deprecated conversion of quoted-sting file 
-  names to a table of data has been removed.  The supported method
-  for reading a data file into a table is to use the \texttt{tablefile("")} keyword. 
-  For example this would set the parameter, \texttt{PARAMETER} to a table 
-  of data read from a file \texttt{"file.dat"}
-  \texttt{PARAMETER=\{tablefile("file.dat")\}} 
-  Using \texttt{PARAMETER="file.dat"} will set \texttt{PARAMETER} to the
-  string value \texttt{"file.dat"}.  See the \Xyce{} Reference Guide
-  under \texttt{GLOBAL\_PARAM} and Expressions for more details.  Device
-  models that can take tables of data as parameters are documented
-  under the appropriate device. 
+ \item Support for the deprecated conversion of quoted-sting file
+   names to a table of data has been removed.  The supported method
+   for reading a data file into a table is to use the
+   \texttt{tablefile("")} keyword.  Inside of expressions,
+   \texttt{table("")} also works.  For example, to set the parameter
+   \texttt{PARAMETER} to a table of data read from a file named
+   \texttt{"file.dat"} one can use either
+   \texttt{PARAMETER=\{tablefile("file.dat")\}} or
+   \texttt{PARAMETER=\{table("file.dat")\}}.  Using
+   \texttt{PARAMETER="file.dat"}, the old convention, will set
+   \texttt{PARAMETER} to the string value \texttt{"file.dat"}.  See
+   the \Xyce{} Reference Guide under \texttt{.GLOBAL\_PARAM},
+   \texttt{.PARAM} and Expressions for more details.  Device models
+   that can take tables of data as parameters are documented under the
+   appropriate device.
 \end{XyceItemize}
 
 \newpage
@@ -185,9 +267,9 @@ please visit the \XyceTM{} web page at
 The following platforms have been subject to certification testing for the
 \Xyce{} version 7.3 release.
 \begin{XyceItemize}
-  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
-  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
-  \item Apple${}^{\mbox{\textregistered}}$ macOS 10.14 and 10.15, x86-64 (serial and parallel)
+  \item Red Hat Enterprise Linux 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 10, x86-64 (serial)
+  \item Apple macOS 10.14 and 10.15, x86-64 (serial and parallel)
 \end{XyceItemize}
 
 
@@ -209,6 +291,7 @@ form.
   \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
   \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
   \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item XDM Users Guide
   \item \Xyce{} Mathematical Formulation
   \item Power Grid Modeling with \Xyce{}
   \item Application Note: Coupled Simulation with the \Xyce{} General
@@ -218,7 +301,8 @@ form.
 Also included at the \Xyce{} website as web pages are the following.
 \begin{XyceItemize}
   \item Frequently Asked Questions
-  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Autotools Building Guide (instructions for building \Xyce{} from the
+       source code)
   \item Running the \Xyce{} Regression Test Suite
   \item \Xyce{}/ADMS Users' Guide
   \item Tutorial:  Adding a new compact model to \Xyce{}
@@ -249,6 +333,6 @@ LLC, a wholly owned subsidiary of Honeywell International, Inc., for
 the U.S. Department of Energy's National Nuclear Security
 Administration under contract DE-NA0003525.
 
-SAND2020-11776 O
+SAND2021-5533 O
 \end{document}
 

@@ -1,0 +1,147 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\label{PCE_section}
+\index{\texttt{.PCE}}
+\index{analysis!pce} 
+Calculates a fully intrusive Polynommial Chaos Expansion (PCE) analysis 
+(for \verb|.DC| or \verb|.TRAN| only) 
+to propagate uncertainty from a set of uncertain inputs to uncertain outputs.
+This involves evaluating the circuit at a set of parameter values corresponding to
+quadrature points used by the PCE algorithm.
+The loop over parameter values happens at the inner-most part of the calculation, 
+so all samples are propagated simultaneously.
+
+This fully-intrusive form of PCE is an experimental analysis method.  Non-intrusive 
+methods of PCE are also available in \Xyce{} and will usually be a better choice.  
+The non-intrusive methods are used in combination with \texttt{.SAMPLING} 
+and/or \texttt{.EMBEDDEDSAMPLING}.  Of those other methods, the behavior of \texttt{.PCE} 
+most closely resembles that of \texttt{.EMBEDDEDSAMPLING} with \texttt{projection\_pce=true}.
+\index{analysis!PCE}
+\index{PCE analysis}
+
+\index{analysis!PCE}
+\index{PCE analysis}
+
+\begin{Command}
+\format
+.PCE  \\
++ param=<parameter name>,[parameter name]*  \\
++ type=<parameter type>,[parameter type]*  \\
++ means=<mean>,[mean]*  \\
++ std\_deviations=<standard deviation>,[standard deviation]* \\
++ lower\_bounds=<lower bound>,[lower bound]*  \\
++ upper\_bounds=<upper bound>,[upper bound]* \\
++ alpha=<alpha>,[alpha]*  \\
++ beta=<beta>,[beta]*
+
+\examples
+\begin{alltt}
+.PCE
++ param=R1
++ type=normal
++ means=3K
++ std\_deviations=1K
+
+.PCE
++ param=R1,R2
++ type=uniform,uniform
++ lower\_bounds=1K,2K
++ upper\_bounds=5K,6K
+
+.PCE useExpr=true
+
+.options PCES 
++ OUTPUTS=\{R1:R\},\{V(1)\}
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{param}
+Names of the parameters to be sampled.  This may be any of the parameters
+that are valid for \verb|.STEP|, including device instance, device model,
+or global parameters.  If more than one parameter, then specify as a
+comma-separated list.
+
+\argument{type}
+Distribution type for each parameter.  This may be uniform, normal or gamma.
+If more than one parameter, then specify as a comma-separated list.
+
+\argument{means}
+If using normal distributions, the mean for each parameter must be specified.
+If more than one parameter, then specify as a comma-separated list.
+
+\argument{std\_deviations}
+If using normal distributions, the standard deviation for each parameter
+must be specified.  If more than one parameter, then specify as a
+comma-separated list.
+
+\argument{lower\_bounds}
+If using uniform distributions, the lower bound must be specified.
+This is optional for normal distributions.  If used with normal
+distributions, may alter the mean and standard deviation.
+If more than one parameter, then specify as a comma-separated list.
+
+\argument{upper\_bounds}
+If using uniform distributions, the upper bound must be specified.
+This is optional for normal distributions.  If used with normal
+distributions, may alter the mean and standard deviation.
+If more than one parameter, then specify as a comma-separated list.
+
+\argument{alpha}
+If using gamma distributions, the alpha value for each parameter
+must be specified.  If more than one parameter, then specify as a
+comma-separated list.
+
+\argument{beta}
+If using gamma distributions, the beta value for each parameter
+must be specified.  If more than one parameter, then specify as a
+comma-separated list.
+
+\argument{useExpr}
+If this argument is set to true, then the sampling algorithm will set up random 
+  inputs from expression operators such as \verb|AGAUSS| and \verb|AUNIF|.  In 
+  this case it will also ignore the list of parameters on the \verb|.PCE| command line.
+  For a complete description of expression-based random operators, see the expression
+  documentation in section~\ref{ExpressionDocumentation}.
+
+\end{Arguments}
+
+\comments
+
+In addition to the \verb|.PCE| command, this analysis
+requires a \verb|.options PCES| command as well.  The
+\verb|.PCE| command specifies parameters and their
+attributes, either using the \verb|useExpr| option, or with 
+comma-separated lists.  The \verb|.options PCES| command specifies
+the outputs for which to compute statistics.
+To see the details of the \verb|.options PCES| command , see table~\ref{PCEPKG}.
+
+On the \verb|.PCE| command line, if not using \verb|useExpr|, 
+parameters and their
+attributes must be specified using comma-separated lists. The
+comma-separated lists must all be the same length.
+
+The \texttt{.PRINT PCE} command provides output based on the contents
+of those print-lines, and also the \texttt{OUTPUT}
+arguments on the \texttt{.OPTIONS PCES} line. 
+
+If the \texttt{OUTPUT\_SAMPLE\_STATS} argument on a \texttt{.PRINT PCE} line is
+set to ``true'' then the statistics for the \texttt{MEAN}, \texttt{MEANPLUS},
+\texttt{MEANMINUS}, \texttt{STDDEV} and \texttt{VARIANCE} will be output for each
+variable in the \texttt{OUTPUT} argument.  
+If the \texttt{OUTPUT\_ALL\_SAMPLES}
+argument on a \texttt{.PRINT PCE} line is set to ``true'' then the values
+of all quadrature points, for each variable requested
+in the \texttt{OUTPUTS} argument, will be output.
+
+\end{Command}
+

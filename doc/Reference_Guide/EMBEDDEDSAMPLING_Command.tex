@@ -13,12 +13,20 @@
 Calculates a full analysis (for \verb|.DC| or \verb|.TRAN| only) over
 a distribution of parameter values.  Embedded sampling operates
 similarly to \verb|.STEP|, except that the parameter values are
-generated from random distributions rather than sweeps.
+generated from random distributions rather than sweeps, and that the 
+loop over parameters happens at the inner-most part of the calculation, 
+so all samples are propagated simultaneously.
+If used in conjunction 
+with projection-based PCE methods, then the sample points are not based on random samples.  
+Instead they are based on the quadrature points.
 
 \index{analysis!SAMPLING}
-\index{SAMPLING analysis}
+\index{analysis!EMBEDDEDSAMPLING}
+\index{EMBEDDEDSAMPLING analysis}
 \index{analysis!MC}
 \index{MC analysis}
+\index{analysis!PCE}
+\index{PCE analysis}
 \index{analysis!Monte Carlo}
 \index{Monte Carlo analysis}
 \index{analysis!LHS}
@@ -135,7 +143,10 @@ attributes, either using the \verb|useExpr| option, or with
 comma-separated lists.  The \verb|.options EMBEDDEDSAMPLES| command specifies
 analysis options, including the number of samples, the type of
 sampling (LHS or MC) 
-and the outputs and/or measures for which to compute statistics.
+and the outputs and/or measures for which to compute statistics.  
+This line also allows one to specify a non-intrusive Polynomial Chaos 
+Expansion (PCE) method (either regression or projection PCE).
+To see the details of the \verb|.options EMBEDDEDSAMPLES| command , see table~\ref{EmbeddedSamplesPKG}.
 
 On the \verb|.EMBEDDEDSAMPLING| command line, if not using \verb|useExpr|, 
 parameters and their

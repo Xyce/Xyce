@@ -13,11 +13,16 @@
 Calculates a full analysis (\verb|.DC|, \verb|.TRAN|, \verb|.AC|, etc.) over a distribution of
 parameter values.  Sampling operates similarly to \verb|.STEP|, except that the parameter
 values are generated from random distributions rather than sweeps.  
+If used in conjunction 
+with projection-based PCE methods, then the sample points are not based on random samples.  
+Instead they are based on the quadrature points.
 
 \index{analysis!SAMPLING} 
 \index{SAMPLING analysis}
 \index{analysis!MC} 
 \index{MC analysis}
+\index{analysis!PCE}
+\index{PCE analysis}
 \index{analysis!Monte Carlo} 
 \index{Monte Carlo analysis}
 \index{analysis!LHS} 
@@ -112,6 +117,9 @@ In addition to the \verb|.SAMPLING| command, this analysis requires a
   with comma-separated lists.  The \verb|.options SAMPLES| command specifies 
   analysis options, including the number of samples, the type of sampling (LHS or MC)
   and the outputs and/or measures for which to compute statistics.
+This line also allows one to specify a non-intrusive Polynomial Chaos 
+Expansion (PCE) method (either regression or projection PCE).  
+To see the details of the \verb|.options SAMPLES| command , see table~\ref{SamplesPKG}.
 
 On the \verb|.SAMPLING| command line, if not using \verb|useExpr|, 
   parameters and their attributes must be specified 

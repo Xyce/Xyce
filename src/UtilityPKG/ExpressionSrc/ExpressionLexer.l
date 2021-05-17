@@ -154,7 +154,7 @@ SUFFIX [tTgGkKmMxXuUnNpPfF]
 MEG [mM][eE][gG]
 MIL [mM][iI][lL]
 
-UNIT [sSvVaAhHfF]
+UNIT [sSvVaAhHfFmM]
 HZ   [Hh][Zz]
 
 LEAD I[SDGBEC1-9]

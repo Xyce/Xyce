@@ -351,7 +351,15 @@ following:\index{expressions!valid constructs}
 \item Literal operands.
 \end{XyceItemize}
 The braces (\texttt{\{\}}) instruct \Xyce{} to evaluate the expression and use
-the resulting value. Additional time-dependent constructs are available in expressions used in analog behavioral modeling sources (see chapter~\ref{Behavioral_Modeling}).    Complete documentation of supported functions and operators may be found in the \Xyce{} Reference Guide\ReferenceGuide{}.
+the resulting value.   Alternatively,  for netlist compatibility with other simulators
+expressions may be enclosed in single quotation marks instead (\texttt{'}).  In some circumstances, (also for compatibility)
+expressions don't need to be surrounded by either braces or single quotes at all.   These circumstances
+include \texttt{.param} and \texttt{.global\_param} expressions, as well as device instance 
+parameters that use an equals sign.   Curly braces are the original expression delimeter used by \Xyce{} 
+and it is recommended that the braces be used in
+netlists written specifically for \Xyce{}.
+
+Additional time-dependent constructs are available in expressions used in analog behavioral modeling sources (see chapter~\ref{Behavioral_Modeling}).    Complete documentation of supported functions and operators may be found in the \Xyce{} Reference Guide\ReferenceGuide{}.
 
 \index{analog behavioral modeling (ABM)}
 \index{behavioral model} 

@@ -918,6 +918,12 @@ bool AC::doInit()
     if ( objVarGiven_  && objFuncGiven_)
     {
       Report::UserError() << "AC sensitivities cannot use both ACOBJFUNC and OBJVARS specification";
+      return false;
+    }
+    else if ( !objVarGiven_  && !objFuncGiven_)
+    {
+      Report::UserError() << "No objective functions specified for .SENS";
+      return false;
     }
 
     if ( objVarGiven_ )
@@ -1375,17 +1381,6 @@ bool AC::solveSensitivity_()
   ds.scaled_dOdpAdjVec_.clear();
 
   Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
-
-  // for now, implementing separate functions for this stuff.
-  if ( objVarGiven_  && objFuncGiven_)
-  {
-    Report::UserError0() << "AC sensitivities cannot use both ACOBJFUNC and OBJVARS specification";
-  }
-
-  if ( !objVarGiven_  && !objFuncGiven_)
-  {
-    Report::UserError0() << "No objective functions specified";
-  }
 
   if ( objVarGiven_ )
   {
