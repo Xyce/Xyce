@@ -458,7 +458,7 @@ const std::vector<std::string> & Expression::getUnresolvedFunctions () const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getSpecials
 // Purpose       : 
-// Special Notes : does this need to catch GMIN as well?
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -472,6 +472,7 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
   if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
   if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
   if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
+  if (newExpPtr_->getGminDependent()) { specials.push_back(std::string("GMIN")); }
 }
 
 //-----------------------------------------------------------------------------
@@ -636,7 +637,8 @@ bool Expression::getSpecialsDependent()
     (newExpPtr_->getTimeDependent()) ||
     (newExpPtr_->getTempDependent()) ||
     (newExpPtr_->getVTDependent()) ||
-    (newExpPtr_->getFreqDependent()) ;
+    (newExpPtr_->getFreqDependent()) ||
+    (newExpPtr_->getGminDependent());
 
   return retval;
 }
