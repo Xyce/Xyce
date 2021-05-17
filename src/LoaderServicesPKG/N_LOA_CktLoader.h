@@ -130,7 +130,12 @@ public:
     std::complex<double>* freqSolVec,
     std::vector<Util::FreqVecEntry>& FVecEntries,
     std::vector<Util::FreqVecEntry>& BVecEntries);
-  
+
+  bool loadFreqBVectorsforSources( 
+    double frequency,
+//    std::complex<double>* freqSolVec,
+    std::vector<Util::FreqVecEntry>& BVecEntries);
+
   // Method is called to load the mask to be used in calculating error norms.
   bool loadDeviceErrorWeightMask(Linear::Vector * deviceMask) const;
 

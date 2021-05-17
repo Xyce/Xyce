@@ -3191,6 +3191,33 @@ bool DeviceMgr::loadBVectorsforSources()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::loadFreqBVectorsforSources
+// Purpose       : This function loads the B-vector contributions for sources.
+// Special Notes : This is only done for linear sources.
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool DeviceMgr::loadFreqBVectorsforSources(double frequency,
+                                           std::vector<Util::FreqVecEntry>& BVecEntries)
+
+{
+  bool bsuccess = true;
+
+  IndependentSourceVector::iterator it = independentSourceVector_.begin();
+  IndependentSourceVector::iterator end = independentSourceVector_.end();
+  for ( ; it != end; ++it)
+  {
+    if ( (*it)->isLinearDevice() )
+    {
+      (*it)->loadFreqBVector(frequency, BVecEntries);
+    }
+  }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getNumNoiseDevices
 // Purpose       :
 // Special Notes :

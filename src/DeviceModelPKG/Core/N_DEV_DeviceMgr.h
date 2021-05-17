@@ -396,6 +396,9 @@ public:
 
   bool getBMatrixEntries(std::vector<int>& bMatEntriesVec, std::vector<int>& portsVec, std::vector<double> * Z0sVec  = NULL); 
 
+  bool loadFreqBVectorsforSources(double frequency,
+                                  std::vector<Util::FreqVecEntry>& BVecEntries);
+
   int getNumNoiseDevices ();
   int getNumNoiseSources ();
   void setupNoiseSources(std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec);
