@@ -185,6 +185,8 @@ public:
 
   bool getDCOPFlag() const;
 
+  void finalExpressionBasedSetup();
+
 protected:
   bool doRun();
   bool doInit();

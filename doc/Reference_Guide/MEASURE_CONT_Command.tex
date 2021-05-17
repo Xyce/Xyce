@@ -1,0 +1,300 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2021 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\label{Measure_CONT_section}
+
+``Continuous'' measure results are supported for \texttt{DERIV-AT},
+\texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and \texttt{WHEN}
+measures, for \texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE}
+analyses.  They are identical to the ``non-continuous'' versions, except that
+they can return more than one measured value in some cases.  Continuous
+measure mode is not supported for \texttt{TRIG} or \texttt{TARG} measures.
+
+\begin{Command}
+\format
+\begin{alltt}
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT|TRAN_CONT> <result name>
++ DERIV <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN_CONT <result name>
++ DERIV <variable> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [MINVAL=<value>] [FROM=<value>] [TO=<value>] [TD=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
++ DERIV <variable> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [MINVAL=<value>] [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT|TRAN_CONT> <result name>
++ FIND <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN_CONT <result name>
++ FIND <variable> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>] [TD=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
++ FIND <variable> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN_CONT <result name>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>] [TD=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+\end{alltt}
+\index{results!measure continuous}
+
+\examples
+\begin{alltt}
+.MEASURE TRAN_CONT DERIV1At5 DERIV V(1) AT=5
+.MEASURE DC_CONT deriv2 DERIV WHEN V(2)=0.75
+.MEASURE AC_CONT find1at5 FIND V(1) AT=5
+.MEASURE NOISE_CONT find1 FIND V(1) WHEN V(2)=1 RISE=2
+.MEASURE TRAN_CONT whenv1 WHEN V(1)=5
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+\argument{result name}
+
+Measured results are reported to the log file and (possibly) multiple
+output files. Section~\ref{Measure_CONT_Measurement_Output} below gives more
+information on the output files produced by continuous mode measures.
+
+The \texttt{<result name>} must be a legal \Xyce{} character string.
+If multiple measures are defined with the same \texttt{<result name>} then
+\Xyce{} uses the last such definition, and issues warning messages about
+(and discards) any previous measure definitions with the same
+\texttt{<result name>}.
+
+\argument{measure type}
+
+\texttt{DERIV, FIND, WHEN}
+
+The third argument specifies the type of measurement or calculation to
+be done.
+
+By default, the measurement is performed over the entire simulation.
+The calculations can be limited to a specific measurement window by
+using the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt
+FALL}, {\tt CROSS} and {\tt MINVAL}, which are explained below and in
+section~\ref{Measure_section}..
+
+The supported ``continuous'' measure types and their definitions are:
+
+\begin{description}
+ \item[\tt DERIV] Computes the derivative of {\tt <variable>} at a
+    user-specified time (by using the {\tt AT} qualifier) or when a
+    user-specified condition occurs (by using the {\tt WHEN}
+    qualifier). If the {\tt WHEN} qualifier is used then the
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for all measure
+    modes.  In addition, the {\tt TD} qualifier is supported for
+    {\tt TRAN\_CONT} measures. The {\tt MINVAL} qualifier is used as a
+    comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE
+    compatibility, {\tt DERIVATIVE} is an allowed synonym for {\tt
+    DERIV}.
+
+   \item[\tt FIND-AT] Returns the value of {\tt <variable>} at the
+    time when the {\tt AT} clause is satisfied.  The {\tt AT}
+    clause is described in more detail later in this list.
+
+  \item[\tt FIND-WHEN] Returns the value of {\tt <variable>} at the
+    time when the {\tt WHEN} clause is satisfied.  The {\tt WHEN}
+    clause is described in more detail later in this list.
+
+  \item[\tt WHEN] Returns the time (or frequency or DC sweep value) when
+    {\tt <variable>} reaches {\tt <variable\(\sb{2}\)>} or the constant
+    value, {\tt value}.  The measurement window can be limited with the
+    qualifiers {\tt FROM}, {\tt TO}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
+    for all measure modes.  In addition, the {\tt TD} qualifier is supported
+    for {\tt TRAN\_CONT} measures. The qualifier {\tt MINVAL} acts as a
+    tolerance for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
+    is specified, the comparison used is when {\tt <variable>} $=$
+    {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
+    {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt
+    MINVAL}.  If the conditions specified for finding a given value
+    were not found during the simulation then the measure will return
+    the default value of {\tt -1}.  The user may change this default
+    value with the {\tt DEFAULT\_VAL} qualifier.  Note: The use of
+    {\tt FIND} and {\tt WHEN} in one measure statement is also supported.
+\end{description}
+
+\argument{\vbox{\hbox{variable\hfil}\hbox{variable\(\sb{n}\)\hfil}\hbox{value}}}
+
+These quantities represents the test for the stated
+measurement.  \texttt{<variable>} is a simulation quantity, such as a
+voltage or current.  One can compare it to another simulation variable
+or a fixed quantity.  Additionally, the \texttt{<variable>} may be
+a \Xyce{} expression delimited by \{ \} brackets.  As noted above, an
+example is {\tt V(2)=0.75}
+\end{Arguments}
+
+Additional information on the \texttt{TO}, \texttt{FROM}, \texttt{TD},
+\texttt{RISE}, \texttt{FALL}, \texttt{CROSS}, \texttt{MINVAL},
+\texttt{DEFAUAL\_VAL}, \texttt{PRECISION} and \texttt{PRINT} qualifiers
+is given in section~\ref{Measure_section}.
+
+\end {Command}
+
+\subsubsection{Measure Output}
+\label{Measure_CONT_Measurement_Output}
+\index{measure continuous!measurement output}
+As discussed in section~\ref{Measure_Measurement_Output}, measured results
+for \texttt{AC}, \texttt{DC}, \texttt{NOISE} and \texttt{TRAN} mode measures
+are reported to the log file.  Additionally, for \texttt{TRAN} measures, the
+results are stored in files called \texttt{circuitFileName.mt\#}, where the
+suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation. For \texttt{DC}
+measures, the results are stored in the files \texttt{circuitFileName.ms\#},
+while \texttt{AC} and \texttt{NOISE} measures use the files
+\texttt{circuitFileName.ma\#}.
+
+For \texttt{AC\_CONT}, \texttt{DC\_CONT}, \texttt{NOISE\_CONT} and
+\texttt{TRAN\_CONT} mode measures, the output for successful and failed
+measures is sent to the standard output (and log files), as described in
+section ~\ref{Measure_Measurement_Output}.  There are two options for the
+output files though. The default is for each continuous mode measure to generate its
+own output file where, for example for a non-step transient analysis, the file name
+would be \texttt{circuitFileName\_resultname.mt0} where the result (measure) name is
+always output in lower-case. This default matches HSPICE. The second option uses
+\texttt{.OPTIONS MEASURE USE\_CONT\_FILES=0}. In that case, the results for all
+of the continuous mode measures are sent to the \texttt{circuitFileName.mt\#} file.
+
+An example is as follows.
+
+\begin{alltt}
+VPWL1 1 0 pwl(0 0 2.5m 1 5m 0 7.5m 1 10m 0)
+R1 1 0 1
+
+.TRAN 0 10ms
+.PRINT TRAN V(1)
+
+.MEASURE TRAN MAXV1 MAX V(1)
+.MEASURE TRAN_CONT FindV1 WHEN V(1)=0.5
+.MEASURE TRAN_CONT FindV1AT FIND V(1) AT=0.6ms
+
+.END
+\end{alltt}
+
+The result for measure \texttt{MAXV1} is sent to \texttt{<netlistName>.mt0}. The
+results for measures \texttt{FindV1} and \texttt{FindV1AT} are then sent to individual
+files, named \texttt{<netlistName>\_findv1.mt0} and \texttt{<netlistName>\_findv1at.mt0}.
+Note that the measure names have been lower-cased in the output file names.  The contents
+of those files are then as follows.
+
+\begin{alltt}
+FINDV1 = 1.250000e-03
+FINDV1 = 3.750000e-03
+FINDV1 = 6.250000e-03
+FINDV1 = 8.750000e-03
+\end{alltt}
+
+and:
+
+\begin{alltt}
+FINDV1AT = 2.400000e-01
+\end{alltt}
+
+Note that \texttt{FIND-AT} measures will still only return one measure value, even for
+\texttt{TRAN\_CONT} measure mode.  However, in this simple example, the specified
+\texttt{FIND-WHEN} measure returns all four times where \texttt{V(1)} equals 0.5.
+The next subsection will describe how the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS}
+qualifiers can used to return only a subset of those four crossings.
+
+\subsubsection{RISE, FALL and CROSS Qualifiers}
+\label{Measure_CONT_RFC}
+\index{measure continuous!rise, fall and cross qualifiers}
+\Xyce{} supports both positive and negative values for the \texttt{RISE}, \texttt{FALL}
+and \texttt{CROSS} qualifiers.  However, their interpretation is slightly different for
+\texttt{TRAN} and \texttt{TRAN\_CONT} measure modes, as illustrated by the following
+netlist for the \texttt{TRAN\_CONT} measure mode and \texttt{WHEN} measure. The rules
+are then the same for the other continuous measures modes and the \texttt{RISE} and
+\texttt{FALL} qualifiers.
+
+\begin{alltt}
+VPWL1 1 0 pwl(0 0 2.5m 1 5m 0 7.5m 1 10m 0)
+R1 1 0 1
+
+.TRAN 0 10ms
+.PRINT TRAN V(1)
+
+.MEASURE TRAN FindV1_CROSS3 WHEN V(1)=0.5 CROSS=3
+.MEASURE TRAN_CONT FindV1_CONT_CROSS3 WHEN V(1)=0.5 CROSS=3
+
+.MEASURE TRAN FindV1_CROSS_NEG3 WHEN V(1)=0.5 CROSS=-3
+.MEASURE TRAN_CONT FindV1_CONT_CROSS_NEG3 WHEN V(1)=0.5 CROSS=-3
+
+.END
+\end{alltt}
+
+The \texttt{<netlistName>.mt0} file will contain the results for both
+\texttt{TRAN} mode measures.  The result for the \texttt{FindV1\_CROSS3}
+is the time of the third crossing.  The result for the \texttt{FindV1\_CROSS\_NEG3}
+is the time of the second crossing, which is also the ``third to last'' (or
+negative third) crossing in this case.
+
+\begin{alltt}
+FINDV1_CROSS3 = 6.250000e-03
+FINDV1_CROSS_NEG3 = 3.750000e-03
+\end{alltt}
+
+The \texttt{<netlistName>\_findv1\_cont\_cross3.mt0} output file will have two
+values.  For non-negative values of \texttt{CROSS}, a \texttt{TRAN\_CONT} measure
+will return all crossings, starting with the specified value.  This is the third
+and fourth crossings in this case.
+
+\begin{alltt}
+FINDV1_CONT_CROSS3 = 6.250000e-03
+FINDV1_CONT_CROSS3 = 8.750000e-03
+\end{alltt}
+
+For negative values of \texttt{CROSS}, a \texttt{TRAN\_CONT} measure will only
+return one value.  That is the third-to-last crossing in this case.  So, the
+\texttt{<netlistName>\_findv1\_cont\_cross3\_neg3.mt0} file only has one
+value in it.  As a final note, a \texttt{CROSS} value of either 5 or -5 would
+produce failed measures in this example.
+
+\begin{alltt}
+FINDV1_CONT_CROSS_NEG3 = 3.750000e-03
+\end{alltt}
+
+\subsubsection{HSPICE Compatibility}
+\label{Measure_CONT__HSpice_Compatibility}
+\index{measure continuous!HSPICE compatibility}
+There are known incompatibilities between the \Xyce{} and HSPICE implementation
+of {\tt .MEASURE}.  They include the following:
+
+\begin{XyceItemize}
+  \item TBD
+\end{XyceItemize}
+

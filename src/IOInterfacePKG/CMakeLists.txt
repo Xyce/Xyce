@@ -1,6 +1,7 @@
 
 # required source subdirectories
 add_subdirectory( Output )
+add_subdirectory( Tests )
 # -- process files for this library ------------------------------------------
 
 # class source list

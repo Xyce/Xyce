@@ -8,39 +8,47 @@ if(Xyce_USE_SUPERBUILD)
   return()
 endif()
 
-# Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
-# loaded before "project" is called.
-message(STATUS "Looking for required Trilinos packages:\n"
+# Xyce should use the same compilers as Trilinos.  To ensure this, Trilinos
+# should be loaded before "project" is called.  However, "project" probes the
+# system and sets up some critical variables.  Therefore, make an initial call
+# to "project" with "NONE" as the compiler set, then find Trilinos, then set up
+# the compilers and call project again.
+project(Xyce NONE)
+
+message(STATUS "Looking for Trilinos\n"
+  "   Required packages:\n"
   "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
   "        Triutils AztecOO Belos TrilinosCouplings\n"
-  "   Also looking for the optional packages:\n"
+  "   Optional packages:\n"
   "        Isorropia Zoltan ShyLU ShyLU_NodeBasker Amesos2 Stokhos ROL")
 find_package(Trilinos CONFIG
   REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
        AztecOO Belos TrilinosCouplings
   OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_NodeBasker Amesos2 Stokhos ROL)
-message(STATUS "Looking for required Trilinos packages - found")
+message(STATUS "Looking for Trilinos - found")
 if(Trilinos_VERSION VERSION_LESS "12.12")
   message(FATAL_ERROR
     "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
 endif()
 
-# Set the compilers, so "project" finds the right ones
-# if the trilinos ones don't exist fall back on
-# environment defaults
-if( DEFINED CMAKE_CXX_COMPILER )
-  message( "Using user-defined CXX ${CMAKE_CXX_COMPILER}" )
+# If the user explicitly set the compilers, use those; otherwise use the same
+# compilers as Trilinos.
+if( DEFINED CMAKE_C_COMPILER )
+  message( "Using the user-defined C compiler: ${CMAKE_C_COMPILER}" )
 else()
-  message( STATUS "Using Trilinos CXX compiler" )
+  message( STATUS "Using the Trilinos C compiler: ${Trilinos_C_COMPILER}" )
+  set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+endif()
+
+if( DEFINED CMAKE_CXX_COMPILER )
+  message( "Using the user-defined C++ compiler: ${CMAKE_CXX_COMPILER}" )
+else()
+  message( STATUS "Using the Trilinos C++ compiler: ${Trilinos_CXX_COMPILER}" )
   set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
 endif()
 
-if( DEFINED CMAKE_C_COMPILER )
-  message( "Using user-defined CC ${CMAKE_C_COMPILER}" )
-else()
-  message( STATUS "Using Trilinos C compiler" )
-  set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
-endif()
+enable_language(C)
+enable_language(CXX)
 
 # Set a default build type if none was specified (using the fact that
 # CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
@@ -62,7 +70,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
      "RelWithDebInfo" "MinSizeRel")
 endif()
 
-project(Xyce VERSION 7.3.0 LANGUAGES CXX C)
+project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

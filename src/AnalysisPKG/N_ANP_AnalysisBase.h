@@ -85,6 +85,8 @@ public:
 
   virtual ~ProcessorBase()
   {}
+
+  virtual void finalExpressionBasedSetup() = 0;
 };
 
 
@@ -152,6 +154,8 @@ public:
 
   virtual void stepCallBack() {};
   virtual void registerParentAnalysis(AnalysisBase * parentPtr) {};
+
+  virtual void finalExpressionBasedSetup() = 0;
 
 protected:
   virtual bool doRun() = 0;

@@ -18,7 +18,7 @@ SUBDIRS = \
   MultiTimePDEPKG \
   test
 
-XYCELINK = \
+XYCELINK_BASE = \
   $(top_builddir)/src/CircuitPKG/libCircuit.la \
   $(top_builddir)/src/DakotaLinkPKG/libDakotaLink.la \
   $(top_builddir)/src/DeviceModelPKG/Core/libDeviceCore.la \
@@ -43,41 +43,41 @@ XYCELINK = \
 
 # conditionally link in radiation-aware device models.
 if RADMODELS
-    RADLD = $(top_builddir)/src/DeviceModelPKG/SandiaModels/libSandiaModels.la
+    RADLINK = $(XYCELINK_BASE) $(top_builddir)/src/DeviceModelPKG/SandiaModels/libSandiaModels.la
 else
-    RADLD =
+    RADLINK = $(XYCELINK_BASE)
 endif
 
 # conditionally link in ADMS device models.
 if ADMSMODELS
-    ADMSLD = $(top_builddir)/src/DeviceModelPKG/ADMS/libADMS.la 
+    ADMSLINK = $(RADLINK) $(top_builddir)/src/DeviceModelPKG/ADMS/libADMS.la
 else
-    ADMSLD =
+    ADMSLINK = $(RADLINK)
 endif
 
 # conditionally link in Neuron device models.
 if NEURONMODELS
-    NEURONLD = $(top_builddir)/src/DeviceModelPKG/NeuronModels/libNeuronModels.la 
+    NEURONLINK = $(ADMSLINK) $(top_builddir)/src/DeviceModelPKG/NeuronModels/libNeuronModels.la
 else
-    NEURONLD =
+    NEURONLINK = $(ADMSLINK)
 endif
 
 # conditionally link in radiation-aware device models.
 if NONFREEMODELS
-    NONFREELD = $(top_builddir)/src/DeviceModelPKG/Xyce_NonFree/libNonFree.la
+    NFLINK = $(NEURONLINK) $(top_builddir)/src/DeviceModelPKG/Xyce_NonFree/libNonFree.la
 else
-    NONFREELD =
+    NFLINK = $(NEURONLINK)
 endif
 
 # conditionally link in Berkeley device models.
 if MODSPECMODELS
-    MODSPECLD =   $(top_builddir)/src/DeviceModelPKG/BERKELEY/libBERKELEY.la \
-                  $(top_builddir)/src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/libModSpec.la 
+    MSLINK = $(NFLINK)  $(top_builddir)/src/DeviceModelPKG/BERKELEY/libBERKELEY.la \
+                  $(top_builddir)/src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/libModSpec.la
 else
-    MODSPECLD =
+    MSLINK = $(NFLINK)
 endif
 
-
+XYCELINK = $(MSLINK)
 
 # build library (static & shared) for linking (w/libtool) into other codes
 lib_LTLIBRARIES = libxyce.la
@@ -92,7 +92,7 @@ if BUILD_XYCE_SHAREABLE
 # standalone Xyce executable (shareable object)
 bin_PROGRAMS = Xyce
 Xyce_SOURCES = Xyce.C
-Xyce_LDADD = libxyce.la $(NONFREELD) $(RADLD) $(MODSPECLD) $(ADMSLD) $(NEURONLD)
+Xyce_LDADD = libxyce.la
 Xyce_LDFLAGS = $(AM_LDFLAGS)
 
 else
@@ -100,7 +100,7 @@ else
 # standalone Xyce executable (monolithic)
 bin_PROGRAMS = Xyce
 Xyce_SOURCES = Xyce.C
-Xyce_LDADD = libxyce.la $(NONFREELD) $(RADLD) $(MODSPECLD) $(ADMSLD) $(NEURONLD)
+Xyce_LDADD = libxyce.la
 Xyce_LDFLAGS = -static $(AM_LDFLAGS)
 
 endif

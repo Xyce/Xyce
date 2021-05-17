@@ -158,6 +158,7 @@ public:
 
 public:
   void checkPrintParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
+  void earlyPrepareOutput(Parallel::Machine comm, Analysis::Mode analysis_mode);
   void prepareOutput(Parallel::Machine comm, Analysis::Mode analysis_mode);
   void setStepSweepVector(const Analysis::SweepVector &sweep_vector);
   void setDCSweepVector(const Analysis::SweepVector &sweep_vector);
@@ -375,6 +376,7 @@ public:
   {
     mainContextFunctionMap_ = function_map;
   }
+  void deleteMainContextFunctionMap() { mainContextFunctionMap_.clear(); }
 
   const Util::ParamMap &getMainContextFunctionMap() const
   {
@@ -387,6 +389,7 @@ public:
     for (; first != last; ++first)
       mainContextParamMap_.insert(Util::ParamMap::value_type((*first).tag(), *first));
   }
+  void deleteMainContextParamMap() { mainContextParamMap_.clear(); }
 
   const Util::ParamMap &getMainContextParamMap() const
   {
@@ -399,6 +402,7 @@ public:
     for (; first != last; ++first)
       mainContextGlobalParamMap_.insert(Util::ParamMap::value_type((*first).tag(), *first));
   }
+  void deleteMainContextGlobalParamMap() { mainContextGlobalParamMap_.clear(); }
 
   const Util::ParamMap &getMainContextGlobalParamMap() const
   {
@@ -607,7 +611,7 @@ public:
     return std::pair<OutputParameterMap::const_iterator, bool>(it, it != outputParameterMap_.end());
   }
 
-    std::pair<ExternalOutputWrapperMap::const_iterator, bool> findExternalOutputWrapper(OutputType::OutputType output_type) const
+  std::pair<ExternalOutputWrapperMap::const_iterator, bool> findExternalOutputWrapper(OutputType::OutputType output_type) const
   {
     ExternalOutputWrapperMap::const_iterator it = externalOutputWrapperMap_.find(output_type);
     return std::pair<ExternalOutputWrapperMap::const_iterator, bool>(it, it != externalOutputWrapperMap_.end());

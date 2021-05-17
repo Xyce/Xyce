@@ -579,6 +579,18 @@ bool Sampling::getDCOPFlag() const
 {
   return childAnalysis_.getDCOPFlag();
 }
+//-----------------------------------------------------------------------------
+// Function      : Sampling::finalExpressionBasedSetup()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void Sampling::finalExpressionBasedSetup()
+{
+  childAnalysis_.finalExpressionBasedSetup();
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Sampling::doRun()

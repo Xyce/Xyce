@@ -153,16 +153,32 @@ bool OutputResults::addResultParams(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputResults::finalExpressionBasedSetup
+//
+// Purpose       : This function serves to initialize the expressions
+//                 early enough to resolve things like global_params.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void OutputResults::finalExpressionBasedSetup()
+{
+  setup(comm_, outputManager_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputResults::setup
-// Purpose       :
+// Purpose       : This initializes the expressions in the RESULT statements
 // Special Notes :
 // Scope         : public
 // Creator       : 
 // Creation Date : 
 //-----------------------------------------------------------------------------
 void OutputResults::setup(
-  Parallel::Machine             comm,
-  OutputMgr &                   output_manager)
+  Parallel::Machine  comm,
+  OutputMgr &        output_manager)
 {
   for (ResultVector::const_iterator it = resultVector_.begin(), 
       end = resultVector_.end(); it != end; ++it)
@@ -277,13 +293,11 @@ void OutputResults::output(
 // Creator       : 
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void OutputResults::notify(
-  const Analysis::StepEvent &   step_event)
+void OutputResults::notify(const Analysis::StepEvent & step_event)
 {
   switch (step_event.state_) 
   {
     case Analysis::StepEvent::INITIALIZE:
-      setup(comm_, outputManager_);
       break;
 
     case Analysis::StepEvent::STEP_STARTED:

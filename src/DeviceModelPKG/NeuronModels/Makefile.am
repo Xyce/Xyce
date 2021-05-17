@@ -1,7 +1,7 @@
 
 AM_CPPFLAGS = @Xyce_INCS@
 
-lib_LTLIBRARIES = libNeuronModels.la
+noinst_LTLIBRARIES = libNeuronModels.la
 
 libNeuronModels_la_SOURCES = \
   N_DEV_RegisterNeuronDevices.C \

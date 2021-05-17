@@ -121,6 +121,8 @@ public:
     parentAnalysisPtrVec_.push_back(parentPtr);
   };
 
+  void finalExpressionBasedSetup();
+
 protected:
   bool doRun();
   bool doInit();

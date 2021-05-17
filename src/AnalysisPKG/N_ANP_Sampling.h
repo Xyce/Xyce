@@ -80,6 +80,8 @@ public:
 
   virtual bool getDCOPFlag() const;
 
+  virtual void finalExpressionBasedSetup();
+
 protected:
   virtual bool doRun();
   virtual bool doInit();

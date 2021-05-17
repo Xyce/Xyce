@@ -154,7 +154,7 @@ public:
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec_);
 
   void outputResultsToMTFile(int stepNumber) const;
-  std::ostream & outputResults(std::ostream& outputStream) const;
+  void outputAllResultsToLogFile() const;
   std::ostream & outputVerboseResults(std::ostream& outputStream, double endSimTime=0) const;
 
   void recordStartEndSweepVals(const double sweepVal);
@@ -192,6 +192,9 @@ private:
   std::string           netlistFilename_;
   std::string           measureOutputFileSuffix_;
 
+  // controls where a separate .mt0 file is made for each continuous mode measure
+  bool use_cont_files_;
+
   // Controls where the measure output appears, as a global option for all .MEASURE statements.  
   // Both .mt0 file and stdout, only stdout, or neither.
   bool enableMeasGlobalPrint_;
@@ -216,6 +219,10 @@ private:
 
   MeasurementVector     allMeasuresList_;
   MeasurementVector     activeMeasuresList_;
+
+  // used to select the right output path for the measure file output
+  MeasurementVector     measureOutputList_;      // list of all "non-continuous" measures
+  MeasurementVector     contMeasureOutputList_;  // list of all "continuous" measures
 
   //added to help register lead currents with device manager
   std::set<std::string> devicesNeedingLeadCurrents_;   

@@ -5181,12 +5181,11 @@ void addGlobalParameter(
   {
     globals.expressionVec.push_back(param.getValue<Util::Expression>());
     globals.expNameVec.push_back(param.uTag());
-
-    Util::Expression &expression = globals.expressionVec.back();
-    double val;
-    expression.evaluateFunction(val);
-    expression.clearOldResult();
-    globals.paramMap[param.uTag()] = val;
+    globals.paramMap[param.uTag()] = 0.0; 
+    // this value will get set later, probably in a 
+    // updateDependentParameters_ function call.  
+    // It is dangerous to evalaute the expression now, b/c it 
+    // may depend on global params that haven't yet been added to this map.
   }
   else
   {

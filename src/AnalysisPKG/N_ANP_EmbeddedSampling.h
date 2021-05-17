@@ -138,6 +138,8 @@ public:
     return childAnalysis_.getTranStepNumber();
   }
 
+  virtual void finalExpressionBasedSetup() {};
+
 protected:
   virtual bool doRun();
 

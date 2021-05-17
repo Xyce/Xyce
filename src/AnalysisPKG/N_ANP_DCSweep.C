@@ -214,7 +214,31 @@ bool DCSweep::outputFailureStats(std::ostream &os)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DCSweep::run()
+// Function      : DCSweep::finalExpressionBasedSetup()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void DCSweep::finalExpressionBasedSetup()
+{
+  if (sensFlag_)
+  {
+    Stats::StatTop _sensitivityStat("Sensitivity");
+
+    nonlinearManager_.enableSensitivity(
+        *analysisManager_.getDataStore(), 
+        analysisManager_.getStepErrorControl(),
+        *analysisManager_.getPDSManager(), 
+        topology_, 
+        outputManagerAdapter_.getOutputManager(),
+        numSensParams_);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DCSweep::doRun()
 // Purpose       : This is the main controlling loop for DC sweep analysis.
 //                 This loop calls a series of operating point calculations
 //                 (ie calculations in which there is no time integration,
@@ -230,7 +254,7 @@ bool DCSweep::doRun()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DCSweep::init()
+// Function      : DCSweep::doInit()
 // Purpose       :
 // Special Notes :
 // Scope         : public
@@ -240,19 +264,6 @@ bool DCSweep::doRun()
 bool DCSweep::doInit()
 {
   bool bsuccess = true;
-
-  if (sensFlag_)
-  {
-    Stats::StatTop _sensitivityStat("Sensitivity");
-
-    nonlinearManager_.enableSensitivity(
-        *analysisManager_.getDataStore(), 
-        analysisManager_.getStepErrorControl(),
-        *analysisManager_.getPDSManager(), 
-        topology_, 
-        outputManagerAdapter_.getOutputManager(),
-        numSensParams_);
-  }
 
   // check if the "DATA" specification was used.  If so, create a new vector of 
   // SweepParams, in the "TABLE" style.

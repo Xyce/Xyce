@@ -248,7 +248,17 @@ inline bool evaluateObjFuncs (
 }
 
 //-----------------------------------------------------------------------------
-template <typename ScalarT>
+// Function      : setupObjectiveFunctions
+// Purpose       : Allocate, parse and resolve objective func expressions
+//
+// Special Notes : templated so it can be used by both frequency domain 
+//                 and time domain sensitivities.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 12/16/20
+//-----------------------------------------------------------------------------
+  template <typename ScalarT>
 inline void setupObjectiveFunctions (
     Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
     std::vector<objectiveFunctionData<ScalarT> *> & objVec,
@@ -329,17 +339,6 @@ inline void setupObjectiveFunctions (
     }
     }
 
-#if 0
-    objVec[iobj]->numDdt = objVec[iobj]->expPtr->getNumDdt();
-    if ( checkTimeDeriv )
-    {
-      if (objVec[iobj]->numDdt > 0)
-      {
-        Report::DevelFatal() <<  "Objective function contains a time derivative, which cannot be processed.";
-      }
-    }
-#endif
-
     // setup the names:
     objVec[iobj]->expVarNames.clear();
 
@@ -387,17 +386,8 @@ inline void setupObjectiveFunctions (
         }
         else if (replacement_param.getType() == Xyce::Util::EXPR)
         {
-#if 0
-          if (objVec[iobj]->expPtr->replace_var(strings[istring], replacement_param.getValue<Util::Expression>()) != 0)
-          {
-            std::string expressionString=objVec[iobj]->expPtr->get_expression();
-            Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-                                   << " as substitute for " << strings[istring] << " in expression " << expressionString;
-          }
-#else
           enumParamType paramType=DOT_PARAM;
           objVec[iobj]->expPtr->attachParameterNode (strings[istring], replacement_param.getValue<Util::Expression>(),paramType);
-#endif
         }
       }
       else
@@ -429,10 +419,7 @@ inline void setupObjectiveFunctions (
       }
     }
 
-    objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), globalParams.begin(), globalParams.end());
-
     objVec[iobj]->numExpVars = objVec[iobj]->expVarNames.size();
-
     if (objVec[iobj]->numExpVars<=0)
     {
       Report::UserFatal0()
@@ -445,6 +432,17 @@ inline void setupObjectiveFunctions (
 }
 
 //-----------------------------------------------------------------------------
+// Function      : setupObjectiveFuncGIDs
+// Purpose       : setup the expVarGIDs vector object.
+// Special Notes : expVarNames was set up in setupObjectiveFunctions.  
+//                 It should ONLY contain voltage and current variables.  
+//                 It should not contain any .param or .global_params.
+//                 With the old expression library, that would not have been 
+//                 the case, but the newer one is better than that.
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 12/16/20
+//-----------------------------------------------------------------------------
 template <typename ScalarT>
 inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *> & objVec, 
     Parallel::Machine & comm,
@@ -452,19 +450,10 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
 {
   int found(0);
   int found2(0);
-  int found3(0);
   int foundAliasNode(0);
   bool foundLocal(false);
   bool foundLocal2(false);
-  bool foundLocal3(false);
   bool foundAliasNodeLocal(false);
-
-
-  // ERK. this code is pretty silly, in at least one respect.  We already know (or could know) 
-  // what type of variable each member of the expVarNames is.  This was figured out already in the 
-  // setupObjectiveFunctions function, as we pulled "nodes" and "instances" and "strings" out of 
-  // the expression and did specific things based on what they were.
-
 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
@@ -479,7 +468,6 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
       // look for this variable as a node first.
       foundLocal = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_VNODE), svGIDList1, dummyList, type1);
       found = static_cast<int>(foundLocal);
-      //Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found, 1);
       Xyce::Parallel::AllReduce(comm, MPI_LOR, &found, 1);
 
       // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
@@ -489,27 +477,7 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
         foundLocal2 = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_DNODE), svGIDList1, dummyList, type1);
       }
       found2 = static_cast<int>(foundLocal2);
-      //Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found2, 1);
       Xyce::Parallel::AllReduce(comm, MPI_LOR, &found2, 1);
-
-      // check global param list.  If it is a global parameter, then we don't need the GID. 
-      // The expression library, treats global parameters as variables.  
-      // It treats non-global parameters as constants.  In the way the expression library
-      // operates, if something is considered a variable, then it will compute derivatives of the
-      // expression with respect to it.  
-      //
-      // However, as the sensitivity calculation only cares about derivatives that can be propagated thru
-      // the Jacobian, these derivatives aren't needed for sensitivity calculations.
-      foundLocal3 = false;
-      if (!found && !found2)
-      {
-        const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
-        Util::ParamMap::const_iterator param_it = context_global_param_map.find(objVec[iobj]->expVarNames[i] ); 
-        foundLocal3 = (param_it != context_global_param_map.end());
-      }
-      found3 = static_cast<int>(foundLocal3);
-      //Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &found3, 1);
-      Xyce::Parallel::AllReduce(comm, MPI_LOR, &found3, 1);
 
       // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
       // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
@@ -523,7 +491,7 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
       //
       // would produce key-value pairs of <"X1:C","2"> and <"X1:A","1"> in the aliasNodeMap 
       foundAliasNodeLocal = false;
-      if (!found && !found2 && !found3)
+      if (!found && !found2)
       {
         IO::AliasNodeMap::const_iterator alias_it = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
         if (alias_it != output_manager.getAliasNodeMap().end())
@@ -532,10 +500,9 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
         }
       }
       foundAliasNode = static_cast<int>(foundAliasNodeLocal);
-      //Xyce::Parallel::AllReduce(comm.comm(), MPI_LOR, &foundAliasNode, 1);
       Xyce::Parallel::AllReduce(comm, MPI_LOR, &foundAliasNode, 1);
 
-      if (!found && !found2 && !found3 && !foundAliasNode)
+      if (!found && !found2 && !foundAliasNode)
       {
         Report::UserFatal() << "objective function variable not found!  Cannot find " << objVec[iobj]->expVarNames[i] ;
       }
@@ -546,8 +513,6 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
         if(svGIDList1.size()==1) { tmpGID = svGIDList1.front(); }
         objVec[iobj]->expVarGIDs[i] = tmpGID;
       }
-
-      if (found3) { objVec[iobj]->expVarGIDs[i] = -100; } // does this make sense
     }
   }
 }

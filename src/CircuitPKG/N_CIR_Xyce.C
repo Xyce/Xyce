@@ -1191,6 +1191,21 @@ Simulator::RunStatus Simulator::initializeLate()
     outputResponse_->setResponseFilename(responseFilename);
   }
 
+  // initialize all the outputters and other objects (like sensitivity objective 
+  // functions) which depend on expressions.   Expressions can depend on .global_params,  
+  // .params as well as .funcs, and this is the last chance to resolve them before the 
+  // maps get deleted.
+  //
+  // Also, the outputters must be set up after "allocateAnalysisObject", 
+  // which is called from "doInitializations".  
+  analysisManager_->finalExpressionBasedSetup();
+
+  // at this point, since setup is complete, the maps for 
+  // .global_param, .param and .func can be deleted.
+  outputManager_->deleteMainContextFunctionMap();
+  outputManager_->deleteMainContextParamMap();
+  outputManager_->deleteMainContextGlobalParamMap();
+
   // Start the Xyce solver timer, now that the setup is complete.
   XyceTimerPtr_ = new Util::Timer();
 

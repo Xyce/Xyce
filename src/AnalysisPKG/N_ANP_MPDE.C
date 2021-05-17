@@ -141,6 +141,19 @@ bool MPDE::doRun()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MPDE::finalExpressionBasedSetup()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void MPDE::finalExpressionBasedSetup()
+{
+  mpdeManager_->finalExpressionBasedSetup();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MPDE::init()
 // Purpose       :
 // Special Notes :

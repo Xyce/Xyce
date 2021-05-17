@@ -268,7 +268,20 @@ bool HB::getDCOPFlag() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : HB::run()
+// Function      : HB::finalExpressionBasedSetup()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+void HB::finalExpressionBasedSetup()
+{
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : HB::doRun()
 // Purpose       :
 // Special Notes :
 // Scope         : public
@@ -305,7 +318,31 @@ bool HB::doInit()
   initializeOscOut( );
   setFreqPoints_();
 
-  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
+
+
+  if (method_ == "AFM")
+     mapFreqs_();
+
+
+//  period_ = 1.0/freqPoints_[(size_ - 1)/2 + 1];
+
+  int posFreqSize = (size_ - 1)/2;
+   
+  std::vector<double> freqPos;
+
+  freqPos.resize(posFreqSize);
+
+  for (int i=0; i < posFreqSize; i++)
+  {
+    freqPos[i] = fabs( freqPoints_[i + posFreqSize + 1]);
+
+//    Xyce::dout() << "freqPos =" <<  freqPos[i] << std::endl;
+
+  }
+
+   double minFreq = *std::min_element( freqPos.begin(), freqPos.end());
+
+   period_ = 1.0/minFreq;
 
   if (DEBUG_HB)
     Xyce::dout() << "HB period =" <<  period_ << std::endl;
@@ -388,7 +425,7 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
-  if (freqs_.size() == 1)
+  if ((freqs_.size() == 1) || (method_ == "AFM") )
   {
     if (ftInterface_ == Teuchos::null)
     {
@@ -461,8 +498,6 @@ bool HB::doInit()
       if ( augmentedLIDs.size() )
         (*HBICVectorFreqPtr_)[(augmentedLIDs)[0 ]] = 1.0;
     }
-
-
   }
 
   if (DEBUG_HB && isActive(Diag::HB_PRINT_VECTORS))
@@ -1146,6 +1181,37 @@ void HB::accumulateStatistics_(AnalysisBase &analysis)
   hbStatCounts_ += analysis.stats_;
 }
 
+
+ 
+//-----------------------------------------------------------------------------
+// Function      : HB::mapFreqs_
+// Purpose       : Map frequency spectrum for HB analysis.
+// Special Notes :
+// Scope         : private
+// Creator       : Ting Mei, SNL
+// Creation Date : 04/09/2021
+//-----------------------------------------------------------------------------
+bool HB::mapFreqs_()
+{
+  int numAnalysisFreqs = freqs_.size();
+  
+  mappedFreqs_.resize(numAnalysisFreqs);
+
+  mappedFreqs_[0] = 1.0;
+
+  for (int i=1; i < numAnalysisFreqs; i++)
+  {
+    mappedFreqs_[i] = numFreqs_[i-1] * mappedFreqs_[i-1];
+
+    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+    
+  }
+
+
+  return true;
+}
+
+
 //-----------------------------------------------------------------------------
 // Function      : HB::setFreqPoints_
 // Purpose       : Set frequency spectrum for HB analysis.
@@ -1406,7 +1472,7 @@ bool HB::setFreqPoints_()
 
     setFreqPointsAPFT_();
   }
-  else if ( method_ == "AFM" )
+  else if ( ( method_ == "AFM"   ) || (method_ == "HYBRID") )
   {
     setFreqPointsFM_();
   }
@@ -1453,7 +1519,7 @@ bool HB::setFreqPointsFM_()
     numTotalFrequencies *= numFreqs_[i];
   }
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     for (int i=0; i< numAnalysisFreqs; i++)
     {
@@ -1497,7 +1563,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1505,17 +1571,28 @@ bool HB::setFreqPointsFM_()
     currfreqPoints.print(dout());
   }
 
-  std::sort(freqPoints_.begin(), freqPoints_.end() );
+/*  std::sort(freqPoints_.begin(), freqPoints_.end() );
+
+//  if (DEBUG_HB)
+  {
+    for (int i=0; i< freqPoints_.size(); i++)
+      dout() << "frequency point " <<  freqPoints_[i] << std::endl;
+  }
 
   freqPoints_.erase(std::unique(freqPoints_.begin(), freqPoints_.end() ), freqPoints_.end() );
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     for (int i=0; i< freqPoints_.size(); i++)
       dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
-  }
+  }        */
+//  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
+//    posfreqPoints_.erase( posfreqPoints_.begin());
+
+//  freqPoints_ = currfreqPoints;
 
   size_ = freqPoints_.size();
+
 
   Xyce::dout() << "size = " << size_ << std::endl;
 

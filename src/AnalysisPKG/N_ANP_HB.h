@@ -121,6 +121,8 @@ public:
   bool useStartupICs() const
   { return useStartupICs_ ; }
 
+  void finalExpressionBasedSetup();
+
 protected:
   bool doRun(); 
   bool doInit(); 
@@ -169,7 +171,7 @@ private:
   bool setInitialGuess();
 
 
-//  bool mapFreqs_();
+  bool mapFreqs_();
   bool setFreqPointsAPFT_();
   bool setFreqPointsFM_();
 
@@ -211,7 +213,7 @@ private:
   std::vector<double>   freqs_;
   bool                  freqsGiven_;
 
-//  std::vector<double>   mappedFreqs_;
+  std::vector<double>   mappedFreqs_;
 
   std::vector<int>      numPosFreqs;
   std::vector<int>      numFreqs_;
