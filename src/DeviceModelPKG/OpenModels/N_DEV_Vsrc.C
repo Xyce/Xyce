@@ -860,6 +860,9 @@ bool Instance::loadFreqBVector (double frequency,
 
       double freq = par3;
 
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0);
+
       if (frequency == freq)
         tmpVal = std::complex<double> (0, -0.5*mag);
 
