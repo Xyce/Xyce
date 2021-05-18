@@ -97,7 +97,7 @@ deviceExpressionGroup::~deviceExpressionGroup ()
 
 //-------------------------------------------------------------------------------
 // Function      : deviceExpressionGroup::setSolutionLIDs 
-// Purpose       : 
+// Purpose       : Order of expVarNames:  nodes, leads, instances
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter

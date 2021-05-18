@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : Expression group for sensitivity objective functions
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -66,37 +66,6 @@ namespace Util {
 
 #define CONSTCtoK    (273.15)  
 
-#if 0
-// this assumes seed is generated externally
-// this uses functions from N_ANP_UQSupport
-class randomSamplesGenerator
-{
-  public:
-   randomSamplesGenerator(long seed=0):
-     randomSeed(seed),
-     mt(randomSeed),
-     uniformDistribution(0.0,1.0)
-  {};
-
-   double generateNormalSample(const double mean, const double stddev)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupNormal(prob,mean,stddev);
-   }
-
-   double generateUniformSample(const double min, const double max)
-   {
-     double prob = uniformDistribution(mt);
-     return Analysis::UQ::setupUniform(prob, min, max);
-   }
-
-   long randomSeed;
-   std::mt19937 mt;
-   std::uniform_real_distribution<double> uniformDistribution;
-};
-
-static randomSamplesGenerator *theRandomSamplesGenerator=0;
-#endif
 
 //-----------------------------------------------------------------------------
 // Class         : mainXyceExpressionGroup
@@ -156,6 +125,8 @@ public:
   virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
 
+  int getSolutionGID_(const std::string & nodeName);
+
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
   virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
@@ -176,24 +147,21 @@ public:
 
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
-  int getSolutionGID_(const std::string & nodeName);
-
   Parallel::Communicator & getComm() { return comm_; }
 
-private:
+protected:
   Parallel::Communicator & comm_;
-
   Topo::Topology & top_;
-
   Analysis::AnalysisManager & analysisManager_;
   Device::DeviceMgr & deviceManager_;
-
   IO::AliasNodeMap aliasNodeMap_;
-
   IO::OutputMgr &outputManager_;
 
   double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
+
+private:
+ 
 };
 
 }

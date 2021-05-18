@@ -2088,12 +2088,21 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   std::vector<std::string> & expNameVec = globals_.expNameVec;
 
   // get random expressions from global parameters first.
-  // ERK Q: in parallel, is the order of global params preserved?  This global param 
-  // part works in parallel when there is a single parameter.
-  // If the order is preserved, then nothing extra has to be done for parallel.
-  for (int ii=0;ii<expressionVec.size();ii++)
+  if (! (expressionVec.empty()) ) 
   {
-    populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
+    for (int ii=0;ii<expressionVec.size();ii++)
+    {
+      populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
+    }
+
+    // in parallel, the order is not guaranteed from processor to processor
+    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    {
+      if ( !(SamplingParams.empty()) )
+      {
+        std::sort(SamplingParams.begin(), SamplingParams.end(), SweepParam_greater());
+      }
+    }
   }
 
   // now do device params
@@ -2116,10 +2125,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
     }
 
-    // this sort appears to matter for the latch_embedded_nisp_norm.cir when running in parallel.
     std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
 
-    //
     // if parallel, get a combined vector of random model params from all processors.
     // ERK Note: this parallel reduction may be unneccessary.  As of this writing,
     // I am not 100% sure what the distribution strategy is for device models.
@@ -2922,7 +2929,7 @@ void DeviceMgr::addGlobalPar(const Util::Param & param)
   // get the device manager's current temp
   double temp = getDeviceOptions().temp.getImmutableValue<double>();
 
-  addGlobalParameter(solState_, temp, globals_, param);
+  addGlobalParameter(solState_, temp, globals_, param, expressionGroup_);
 }
 
 //-----------------------------------------------------------------------------
@@ -5202,17 +5209,19 @@ void addGlobalParameter(
   SolverState &         solver_state,
   double                temp,
   UserDefinedParams &   globals,
-  const Util::Param &   param)
+  const Util::Param &   param,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup
+  )
 {
   if (param.getType() == Util::EXPR)
   {
     globals.expressionVec.push_back(param.getValue<Util::Expression>());
+    Util::Expression &expression = globals.expressionVec.back();
     globals.expNameVec.push_back(param.uTag());
     globals.paramMap[param.uTag()] = 0.0; 
-    // this value will get set later, probably in a 
+    // this value will get set properly later in a 
     // updateDependentParameters_ function call.  
-    // It is dangerous to evalaute the expression now, b/c it 
-    // may depend on global params that haven't yet been added to this map.
+    expression.setGroup(expressionGroup);
   }
   else
   {

@@ -503,7 +503,7 @@ class astNode : public staticsContainer
     virtual void unsetFunctionArgType() {};
 
     virtual std::string getName () { return std::string(""); };
-    virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
+    //virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -1344,24 +1344,18 @@ template <typename ScalarT>
 class voltageOp: public astNode<ScalarT>
 {
   public:
-    voltageOp (const std::vector<std::string> & voltageNodes):
+    voltageOp (const std::string & voltageNode):
       astNode<ScalarT>(),
-      voltageNodes_(voltageNodes),
-      voltageVals_(voltageNodes.size(),0.0),
-      number_(0.0),
+      voltageNode_(voltageNode),
+      voltageVal_(0.0),
       derivIndex_(-1)
     {
-      int voltNodeSize = voltageNodes_.size();
-      for (int ii=0;ii<voltNodeSize;++ii)
-      {
-        Xyce::Util::toUpper(voltageNodes_[ii]);
-      }
+      Xyce::Util::toUpper(voltageNode_);
     };
 
     virtual ScalarT val()
     {
-      number_ = (voltageNodes_.size() == 2)?(voltageVals_[0]-voltageVals_[1]):voltageVals_[0];
-      return number_;
+      return voltageVal_;
     }
 
     virtual ScalarT dx(int i)
@@ -1374,15 +1368,10 @@ class voltageOp: public astNode<ScalarT>
     {
       os << std::setw(indent) << " ";
       os << "Voltage node:" << " id = " << this->id_ << std::endl;
-      int voltNodeSize = voltageNodes_.size();
-      if (voltNodeSize > 0)
-      {
-        for (int ii=0;ii<voltNodeSize;++ii)
-        {
-          os << std::setw(indent) << " ";
-          os << "node " << ii << ":  V(" << voltageNodes_[ii] << ") = " << voltageVals_[ii] <<std::endl;
-        }
-      }
+     
+      os << std::setw(indent) << " ";
+      os << "V(" << voltageNode_ << ") = " << voltageVal_ <<std::endl;
+    
       os << std::setw(indent) << " ";
       os << "value = " << val() << std::endl;
     }
@@ -1394,62 +1383,28 @@ class voltageOp: public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-      if (voltageNodes_.size() == 1)
-      {
-        os << "V_";
-        os << voltageNodes_[0];
-      }
-      else if (voltageNodes_.size() == 2)
-      {
-        os << "(V_";
-        os << voltageNodes_[0];
-        os << "-V_";
-        os << voltageNodes_[1];
-        os << ")";
-      }
+      os << "V_";
+      os << voltageNode_;
     }
 
-    virtual std::string getName () 
+    virtual void setVal(const ScalarT & val)
     {
-      std::string name = std::string("V(");
-      if (voltageNodes_.size() == 1) { name += voltageNodes_[0]; }
-      else if (voltageNodes_.size() == 2) { name += voltageNodes_[0]; name += std::string(","); name += voltageNodes_[1]; }
-      name+= std::string(")");
-      return name;
-    }
-
-    virtual void setVals(const std::vector<ScalarT> & vals)
-    {
-      int size = voltageVals_.size();
-      if (vals.size() != size)
-      {
-        std::string tmp = "Voltage Args size don't match for V(";
-        tmp+= (size > 0)?(voltageNodes_[0]):"";
-        tmp+= (size > 1)?(","+voltageNodes_[1]):"";
-        tmp += "). ";
-        //tmp += "Size = " + size;
-        std::vector<std::string> errStr(1,tmp);
-        yyerror(errStr);
-      }
-
-      for (int ii=0;ii<voltageVals_.size();ii++) { voltageVals_[ii] = vals[ii]; }
+      voltageVal_ = val;
     }
 
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() { derivIndex_=-1; };
 
-    std::vector<std::string> & getVoltageNodes() { return voltageNodes_; }
-    std::vector<ScalarT> & getVoltageVals() { return voltageVals_; }
+    std::string & getVoltageNode() { return voltageNode_; }
+    ScalarT & getVoltageVal() { return voltageVal_; }
 
     virtual bool voltageType() { return true; };
 
-    virtual std::vector<std::string> getNodeNames() { return voltageNodes_; }
+    virtual std::string getName () { return voltageNode_; }
 
   private:
-    // data:
-    std::vector<std::string> voltageNodes_;
-    std::vector<ScalarT> voltageVals_;
-    ScalarT number_;
+    std::string voltageNode_;
+    ScalarT voltageVal_;
     int derivIndex_;
     std::string name_;
 };
@@ -1510,7 +1465,6 @@ class currentOp: public astNode<ScalarT>
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
   private:
-// data:
     ScalarT number_;
     std::string currentDevice_;
     int derivIndex_;
@@ -2654,11 +2608,7 @@ class sgnOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-#if 0
-      return (-(this->leftAst_->dx(i)));
-#else
       return ScalarT(0.0);
-#endif
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -4533,22 +4483,17 @@ class ddxOp : public astNode<ScalarT>
 
         this->leftAst_->getVoltageOps(voltOpVector);
 
-        std::vector<std::string> tmp = this->rightAst_->getNodeNames();
+        std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))
         {
-          for (int jj=0;jj<tmp.size();jj++) Xyce::Util::toUpper(tmp[jj]);
-
+          Xyce::Util::toUpper(tmp);
           for (int ii=0;ii<voltOpVector.size();ii++)
           {
-            std::vector<std::string> tmp2 = this->rightAst_->getNodeNames();
+            std::string tmp2 = this->rightAst_->getName();
             if (!(tmp2.empty()))
             {
-              for (int jj=0;jj<tmp2.size();jj++) Xyce::Util::toUpper(tmp2[jj]);
-
-              if (tmp.size() == tmp2.size())
-              {
-                if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; }
-              }
+              Xyce::Util::toUpper(tmp2);
+              if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; }
             }
           }
         }
@@ -4604,17 +4549,10 @@ class ddxOp : public astNode<ScalarT>
         }
         else if (this->rightAst_->voltageType())
         {
-          std::vector<std::string> tmpVec = this->rightAst_->getNodeNames();
-          if (!(tmpVec.empty()))
-          {
-            tmp = "V(";
-            for (int ii=0;ii<tmpVec.size();ii++)
-            {
-              tmp += tmpVec[ii];
-              if (tmpVec.size() > 1 && ii > 0 &&  ii < tmpVec.size()-1) { tmp+= ","; }
-            }
-            tmp += ")";
-          }
+          std::string name = this->rightAst_->getName();
+          tmp = "V(";
+          tmp += name;
+          tmp += ")";
         }
         msg += tmp + " not resolved";
 

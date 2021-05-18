@@ -107,7 +107,7 @@ public:
 
   // Constructors.
   CircuitContext(
-    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+    //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
     Util::Op::BuilderManager &          op_builder_manager,
     std::list<CircuitContext*> &        context_list,
     CircuitContext *&                   current_circuit_context);

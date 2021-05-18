@@ -367,7 +367,7 @@ Teuchos::RCP<astNode<usedType> > createVoltageOp(
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
       {
-        Teuchos::RCP<voltageOp<usedType> > voltPtr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes));
+        Teuchos::RCP<voltageOp<usedType> > voltPtr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[0]));
         tmpPtr = Teuchos::RCP<astNode<usedType> >(voltPtr);
         newExp.getVoltOpVec ().push_back(voltPtr);
         voltNameVec.push_back( voltageNodes[0] );
@@ -402,9 +402,7 @@ Teuchos::RCP<astNode<usedType> > createVoltageOp(
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
       {
-        std::vector<std::string> nodes1;
-        nodes1.push_back(voltageNodes[0]);
-        Teuchos::RCP<voltageOp<usedType> > volt1Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes1));
+        Teuchos::RCP<voltageOp<usedType> > volt1Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[0]));
         tmp1Ptr = Teuchos::RCP<astNode<usedType> >(volt1Ptr);
         voltOpVec.push_back(volt1Ptr);
         voltNameVec.push_back( voltageNodes[0] );
@@ -430,9 +428,7 @@ Teuchos::RCP<astNode<usedType> > createVoltageOp(
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[1] ) == voltOpMap.end() )
       {
-        std::vector<std::string> nodes2;
-        nodes2.push_back(voltageNodes[1]);
-        Teuchos::RCP<voltageOp<usedType> > volt2Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes2));
+        Teuchos::RCP<voltageOp<usedType> > volt2Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[1]));
         tmp2Ptr = Teuchos::RCP<astNode<usedType> >(volt2Ptr);
         voltOpVec.push_back(volt2Ptr);
         voltNameVec.push_back( voltageNodes[1] );

@@ -5,8 +5,7 @@ target_sources(XyceLib PRIVATE
   newExpression.C
   deviceExpressionGroup.C
   mainXyceExpressionGroup.C
-  outputsXyceExpressionGroup.C
-  xyceExpressionGroup.C)
+  outputsXyceExpressionGroup.C)
 
 target_include_directories(XyceLib PUBLIC
  "${CMAKE_CURRENT_SOURCE_DIR}"

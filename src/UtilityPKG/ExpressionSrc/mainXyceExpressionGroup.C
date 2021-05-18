@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : 
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -225,10 +225,11 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
   return (tmpGID>=0);
 }
 
+
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getGlobalParameterVal
 //
-// Purpose       : retrieve the value of a parameter that has been 
+// Purpose       : retrieve the value of a parameter that has been
 //                 declared to be a "var" via the make_var function.
 //
 // Special Notes : double precision version
@@ -247,7 +248,7 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getGlobalParameterVal
 //
-// Purpose       : retrieve the value of a parameter that has been 
+// Purpose       : retrieve the value of a parameter that has been
 //                 declared to be a "var" via the make_var function.
 //
 // Special Notes : std::complex<double> version
@@ -317,7 +318,7 @@ double mainXyceExpressionGroup::getTemp()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getVT
 // Purpose       : 
 // Special Notes :
 // Scope         :
@@ -331,7 +332,7 @@ double mainXyceExpressionGroup::getVT  ()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getFreq
 // Purpose       : 
 // Special Notes :
 // Scope         :

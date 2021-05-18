@@ -682,7 +682,8 @@ getParamAndReduce(
   const DeviceMgr &     device_manager,
   const std::string &   name);
 
-void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param);
+void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device
