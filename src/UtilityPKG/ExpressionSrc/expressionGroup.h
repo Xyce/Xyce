@@ -72,8 +72,8 @@ public:
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { return true; }
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ) { return true; }
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval ) { return true; }
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval ) {return true;}
-  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
+  virtual bool getParameterVal (const std::string & paramName, double & retval ) {return true;}
+  virtual bool getParameterVal (const std::string & paramName, std::complex<double> & retval ) {return true;}
 
   // these do set a value, and return false.  Rethink?  
   virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval ) { retval=0.0; return false; }

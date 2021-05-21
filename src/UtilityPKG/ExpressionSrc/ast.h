@@ -437,8 +437,8 @@ class astNode : public staticsContainer
     virtual void unsetDerivIndex() {};
 
     virtual ScalarT getValue() { return 0.0; }
-    virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
-    virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
+    virtual void setValue(ScalarT val) {}; // supports specialsOp, paramOp and globalParamLayerOp otherwise no-op
+    virtual void unsetValue() {};          // supports specialsOp, paramOp and globalParamLayerOp otherwise no-op
 
     // base class no-ops.  Derived functions only in paramOp, base class version only called from ddx.
     virtual void setIsVar() {};
@@ -1153,6 +1153,114 @@ class unaryPlusOp : public astNode<ScalarT>
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
+
+//-------------------------------------------------------------------------------
+// This class is designed to help process global parameters.  
+//
+// It is part of a refactor to get rid of the "make_var" function in the 
+// newExpression class, which is used to set certain parameters as "variable". 
+// These were generally .global_params that were likely to be reset by a .STEP or 
+// .SAMPLING, or some other analysis that modifies params.
+//
+// This is used on expressions that are the RHS of a global_param statement.  
+// If an expression is a global_param, then it needs to optionally be 
+// replaced with a value.  This class makes it possible for that to happen.
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class globalParamLayerOp: public astNode<ScalarT>
+{
+  public:
+    globalParamLayerOp ():
+      astNode<ScalarT>()
+    {
+      numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
+      paramNode_ = numvalNode_;
+      savedParamNode_ = numvalNode_;
+    };
+
+    virtual ScalarT val() { return paramNode_->val(); }
+    virtual ScalarT dx(int i)
+    {
+      ScalarT retval=0.0;
+      retval = paramNode_->dx(i);
+      return retval;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "globalParamLayer Op  val = " << val() 
+        << " id = " << this->id_ 
+        << " node_id = " << paramNode_->getId()
+        << std::endl;
+        paramNode_->output(os,indent+2);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+       os << "globalParamLayer Op  val = " << val() << " id = " << this->id_ << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os ) { }
+
+    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
+    virtual void unsetNode() { paramNode_ = numvalNode_; };
+
+    virtual ScalarT getValue() { return numvalNode_->number; };
+    virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
+    virtual void unsetValue() { paramNode_ = savedParamNode_; };
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS(paramNode_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(paramNode_)
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(paramNode_)
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(paramNode_)
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(paramNode_)
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(paramNode_)
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(paramNode_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(paramNode_)
+    }
+
+    virtual void processSuccessfulTimeStep () 
+    {
+      paramNode_->processSuccessfulTimeStep ();
+    };
+
+  private:
+    Teuchos::RCP<astNode<ScalarT> > paramNode_;
+    Teuchos::RCP<astNode<ScalarT> > savedParamNode_;
+    Teuchos::RCP<numval<ScalarT> > numvalNode_;
+};
+
 //-------------------------------------------------------------------------------
 //
 // This is the parameter Op class.
@@ -1282,13 +1390,14 @@ AST_GET_TIME_OPS(paramNode_)
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
-    // isVar_, isAttached_, and isConstant_ are all checked by the
+    // isAttached_, and isConstant_ are all checked by the
     // Expression::getUnresolvedParams function.
     //
-    // the variable "isVar_" is to support the old expression library API.
-    // If true, it means that this parameter is one of the variables included
-    // in the "vars" array that is passed into the functions expression::evalauate
-    // and expression::evaluateFunction.
+    // isVar used to mean either:
+    // (1) this is a global param of Util::DBLE type
+    // or:
+    // (2) we want the derivatives w.r.t. to this parameter.
+    // Now it ONLY means (2).
     void setIsVar() { isVar_ = true; }
     void unsetIsVar() { isVar_ = false; }
     bool getIsVar() { return isVar_; }

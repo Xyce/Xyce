@@ -396,7 +396,7 @@ inline void setupObjectiveFunctions (
         if (param_it != context_global_param_map.end())
         {
           const Util::Param &replacement_param = param_it->second;
-
+#if 0
           if(replacement_param.getType() == Xyce::Util::EXPR)
           {
             Util::Expression & expToBeAttached = const_cast<Util::Expression &> (replacement_param.getValue<Util::Expression>());
@@ -416,6 +416,33 @@ inline void setupObjectiveFunctions (
               Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
             }
           }
+#else
+          if (replacement_param.getType() == Xyce::Util::EXPR)
+          {
+            const Util::Expression & expToBeAttached = replacement_param.getValue<Util::Expression>();
+            objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+          }
+          else
+          {
+#if 0
+            // this can't work b/c the replacement_param is const.  But I don't think it is needed, because global params are always type Util::EXPR anyway.
+            //
+            if ( replacement_param.getType() == Xyce::Util::STR ||
+                 replacement_param.getType() == Xyce::Util::DBLE )
+            {
+
+              // Since this parameter has already been processed, and is NOT considered 
+              // to be type EXPR, we want to change it back to EXPR.  This is a hack but 
+              // necessary for now.  Better solution is to change the upstream processing, 
+              // rather than fix it here.
+
+              Util::Expression expToBeAttached( exprGroup, replacement_param.stringValue() );
+              replacement_param.setVal(expToBeAttached);  // this forces the param to be type = Util::EXPR 
+              objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+            }
+#endif
+          }
+#endif
         }
         else
         {

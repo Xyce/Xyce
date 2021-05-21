@@ -937,7 +937,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         Xyce::dout() << " CircuitContext::resolve Attempting to resolve global parameter " << parameter.uTag() <<std::endl;
       }
 
-      if (!resolveParameter(parameter))
+      if (!resolveGlobalParameter(parameter))
       {
         uretryParams.insert(parameter);
         somethingLeftToDo = true;
@@ -1446,7 +1446,6 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
   return;
 }
 
-
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameter
 // Purpose        : Simpler version, excluding exception strings.
@@ -1558,6 +1557,73 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
   
   return true;
 }
+
+#if 1
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::resolveGlobalParameter
+// Purpose        : Simpler version, excluding exception strings.
+// Special Notes  :
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 5/19/2021
+//----------------------------------------------------------------------------
+bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
+{
+  if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
+  {
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
+                   << " has expression value " << std::endl;
+    }
+
+    // Extract the expression from the parameter value by stripping off
+    // the enclosing braces.  Only strip if it's there!
+    std::string expressionString;
+    if (parameter.stringValue()[0] == '{')
+    {
+      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
+    }
+    else
+    {
+      expressionString = parameter.stringValue();
+    }
+
+    // Parse the expression:
+    Util::Expression expression(expressionGroup_, expressionString);
+
+    if (!expression.parsed()) { return false; }
+
+    expression.setAsGlobal();
+
+    // Resolve the strings in the expression. Unresolved strings
+    // may be parameters defined in a .PARAM statement or global
+    // parameters defined in .GLOBAL_PARAM statement.
+    bool stringsResolved = resolveStrings(expression);
+
+    // Resolve functions in the expression.
+    bool functionsResolved = resolveFunctions(expression);
+
+    parameter.setVal(expression);
+
+    if (DEBUG_IO) 
+    {
+       Xyce::dout() << "CircuitContext::resolveGlobalParameter: right before returns " << std::endl;
+       debugResolveParameterOutput2(parameter); 
+    }
+
+    if ( expression.getLeadCurrentDependent() ) { return false; }
+
+    return stringsResolved && functionsResolved;
+  }
+
+  // Handle quoted string parameters e.g. "some text" by removing quotes.
+  resolveQuote(parameter);
+  resolveTableFileType(parameter);
+  
+  return true;
+}
+#endif
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameterThatIsAdotFunc
@@ -1755,26 +1821,10 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
             Xyce::dout() << std::endl;
           }
 
-          if (expressionParameter.getType() == Xyce::Util::EXPR)
-          {
-            Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
-            expression.attachParameterNode(strings[i], expToBeAttached);
-          }
-          else
-          {
-
-            double val=0.0;
-            if ( expressionParameter.getType() == Xyce::Util::STR ||
-                 expressionParameter.getType() == Xyce::Util::DBLE )
-            {
-              val = expressionParameter.getMutableValue<double>();
-            }
-
-            if (!expression.make_var(strings[i],val)) 
-            {
-              Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
-            }
-          }
+          // the param to be attached is a global, which means it is always Util::EXPR type, 
+          // which means it can always be attached.
+          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
+          expression.attachParameterNode(strings[i], expToBeAttached);
         }
         else
         {
