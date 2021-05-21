@@ -234,16 +234,45 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::make_var
-// Purpose       : Convert a 'string' placeholder into a variable
+// Function      : Expression::setAsGlobal
+//
+// Purpose       : Add extra layer to the AST to make it easier to handle 
+//                 as a global param.
+//
 // Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 5/20/2021
 //-----------------------------------------------------------------------------
-bool Expression::make_var (const std::string & var, const double & val, enumParamType type)
+void Expression::setAsGlobal ()
 { 
-  return newExpPtr_->make_var(var, val, type);
+  return newExpPtr_->setAsGlobal();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/20/2021
+//-----------------------------------------------------------------------------
+void Expression::setValue(double val)
+{ 
+  return newExpPtr_->setValue(val);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/20/2021
+//-----------------------------------------------------------------------------
+void Expression::setValue(std::complex<double> val)
+{ 
+  return newExpPtr_->setValue(val);
 }
 
 //-----------------------------------------------------------------------------

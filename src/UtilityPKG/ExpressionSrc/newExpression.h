@@ -577,9 +577,11 @@ public:
   bool astArraysSetup () const { return astArraysSetup_; }
 
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
-  bool make_var      (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
+
+  void setAsGlobal();
+  void setValue(usedType val);
 
   bool evaluate (usedType &result, std::vector< usedType > &derivs);
   bool evaluateFunction (usedType &result, bool efficiencyOn=false);

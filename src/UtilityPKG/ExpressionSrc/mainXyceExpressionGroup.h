@@ -122,8 +122,8 @@ public:
   virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
   { return getSolutionVal(deviceName,retval); }
 
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
-  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
+  virtual bool getParameterVal (const std::string & paramName, double & retval );
+  virtual bool getParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   int getSolutionGID_(const std::string & nodeName);
 

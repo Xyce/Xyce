@@ -881,8 +881,12 @@ void MembraneUserDefined::convertSymbolsToVars( std::vector<RCP<Util::Expression
       std::vector<std::string>::iterator findResult = find( userDefinedNames_.begin(), userDefinedNames_.end(), expNamesTmp.at(j) );
       if( findResult != endName )
       {
+#if 0
         // found this one in the set so make it a variable
         expRCP.at(i)->make_var( expNamesTmp.at(j), 0.0 );
+#else
+        expRCP.at(i)->make_constant( expNamesTmp.at(j), 0.0 );  // ERK will this work?
+#endif
         // save it in a std::vector<std::string> so we can quickly load values into a std::vector<double> to evaluate the expression.
         expNamesVec[i].push_back( expNamesTmp.at(j) );
       }

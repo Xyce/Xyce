@@ -284,7 +284,7 @@ bool outputsXyceExpressionGroup::getCurrentVal(
 }
 
 //-------------------------------------------------------------------------------
-// Function      : outputsXyceExpressionGroup::getGlobalParameterVal
+// Function      : outputsXyceExpressionGroup::getParameterVal
 //
 // Purpose       : retrieve the value of a parameter that has been 
 //                 declared to be a "var" via the make_var function.
@@ -295,7 +295,7 @@ bool outputsXyceExpressionGroup::getCurrentVal(
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+bool outputsXyceExpressionGroup::getParameterVal(const std::string &paramName, double & retval)
 {
   bool success=true;
   Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
@@ -303,7 +303,7 @@ bool outputsXyceExpressionGroup::getGlobalParameterVal(const std::string &paramN
 }
 
 //-------------------------------------------------------------------------------
-// Function      : outputsXyceExpressionGroup::getGlobalParameterVal
+// Function      : outputsXyceExpressionGroup::getParameterVal
 //
 // Purpose       : retrieve the value of a parameter that has been 
 //                 declared to be a "var" via the make_var function.
@@ -314,7 +314,7 @@ bool outputsXyceExpressionGroup::getGlobalParameterVal(const std::string &paramN
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool outputsXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+bool outputsXyceExpressionGroup::getParameterVal (const std::string & paramName, std::complex<double> & retval)
 {
   bool success=true;
   double tmpval;
