@@ -236,34 +236,34 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "TD" )
     {
-      td_ = (*it).getMutableValue<double>();
+      td_ = (*it).getImmutableValue<double>();
       tdGiven_ = true;
     }
     else if( ( tag == "GOAL" ) || ( tag == "VALUE" ) )
     {
-      goal_ = (*it).getMutableValue<double>();
+      goal_ = (*it).getImmutableValue<double>();
     }
     else if( tag == "WEIGHT" )
     {
-      weight_ = (*it).getMutableValue<double>();
+      weight_ = (*it).getImmutableValue<double>();
     }
     else if( tag == "MAX_THRESH" )
     {
-      maxThresh_ = (*it).getMutableValue<double>();
+      maxThresh_ = (*it).getImmutableValue<double>();
       maxThreshGiven_ = true;
     }
     else if( tag == "MIN_THRESH" )
     {
-      minThresh_ = (*it).getMutableValue<double>();
+      minThresh_ = (*it).getImmutableValue<double>();
       minThreshGiven_ = true;
     }
     else if( tag == "MINVAL" )
     {
-      minval_ = (*it).getMutableValue<double>();
+      minval_ = (*it).getImmutableValue<double>();
     }
     else if( tag == "AT" )
     {
-      at_ = (*it).getMutableValue<double>();
+      at_ = (*it).getImmutableValue<double>();
       atGiven_ = true;
       outputValueTargetGiven_ = true;
       if ( inTargBlock )
@@ -273,17 +273,17 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "FROM" )
     {
-      from_ = (*it).getMutableValue<double>();
+      from_ = (*it).getImmutableValue<double>();
       fromGiven_ = true;
     }
     else if( tag == "TO" )
     {
-      to_ = (*it).getMutableValue<double>();
+      to_ = (*it).getImmutableValue<double>();
       toGiven_ = true;
     }
     else if( (tag == "IGNORE") || (tag == "IGNOR") || (tag == "YMIN") )
     {
-      ymin_ = (*it).getMutableValue<double>();
+      ymin_ = (*it).getImmutableValue<double>();
       if (ymin_ < 0)
       {
         Report::UserError0() << "YMIN or IGNORE keyword for measure " << name_ << " must be non-negative";
@@ -292,7 +292,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "YMAX" )
     {
-      ymax_ = (*it).getMutableValue<double>();
+      ymax_ = (*it).getImmutableValue<double>();
       if (ymax_ <= 0)
       {
         Report::UserError0() << "YMAX keyword for measure " << name_ << " must be positive";
@@ -345,19 +345,19 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "RFC_LEVEL" )
     {
-      rfcLevel_ = (*it).getMutableValue<double>();
+      rfcLevel_ = (*it).getImmutableValue<double>();
       rfcLevelGiven_ = true;
     }
     else if( tag == "FRAC_MAX" )
     {
       if( inTrigBlock )
       {
-        trigFracMax_ = (*it).getMutableValue<double>();
+        trigFracMax_ = (*it).getImmutableValue<double>();
         trigFracMaxGiven_ = true;
       }
       else if( inTargBlock )
       {
-        targFracMax_ = (*it).getMutableValue<double>();
+        targFracMax_ = (*it).getImmutableValue<double>();
         targFracMaxGiven_ = true;
       }
     }
@@ -417,21 +417,21 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "ON" )
     {
-      onValue_ = (*it).getMutableValue<double>();
+      onValue_ = (*it).getImmutableValue<double>();
       onValueGiven_ = true;
     }
     else if( tag == "OFF" )
     {
-      offValue_ = (*it).getMutableValue<double>();
+      offValue_ = (*it).getImmutableValue<double>();
       offValueGiven_ = true;
     }
     else if( tag == "NUMFREQ" )
     {
-      numFreq_ = (*it).getMutableValue<int>();
+      numFreq_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "GRIDSIZE" )
     {
-      gridSize_ = (*it).getMutableValue<int>();
+      gridSize_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "FILE" )
     {
@@ -464,11 +464,11 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "INDEPVARCOL" )
     {
-      independentVarColumn_ = (*it).getMutableValue<int>();
+      independentVarColumn_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "DEPVARCOL" )
     {
-      dependentVarColumn_ = (*it).getMutableValue<int>();
+      dependentVarColumn_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "DEFAULT_VAL" )
     {
@@ -477,27 +477,27 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       // are in the netlist
       if ( !(measureMgr_.isMeasFailGiven() || measureMgr_.isMeasGlobalDefaultValGiven()) )
       {
-        calculationDefaultVal_ = (*it).getMutableValue<double>();
+        calculationDefaultVal_ = (*it).getImmutableValue<double>();
         calculationResult_ = calculationDefaultVal_;
       }
     }
     else if( tag == "BINSIZ" )
     {
-      binSize_ = (*it).getMutableValue<int>();
+      binSize_ = (*it).getImmutableValue<int>();
     }
     else if( tag == "MINFREQ" )
     {
-      minFreq_ = (*it).getMutableValue<double>();
+      minFreq_ = (*it).getImmutableValue<double>();
       minFreqGiven_ = true;
     }
     else if( tag == "MAXFREQ" )
     {
-      maxFreq_ = (*it).getMutableValue<double>();
+      maxFreq_ = (*it).getImmutableValue<double>();
       maxFreqGiven_ = true;
     }
     else if( tag == "NBHARM" )
     {
-      nbHarm_ = (*it).getMutableValue<int>();
+      nbHarm_ = (*it).getImmutableValue<int>();
       nbHarmGiven_ = true;
     }
     else if( tag == "PRECISION" ) 
@@ -506,7 +506,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       // unless .OPTION MEASURE MEASDGT=<val> is in the netlist
       if ( !measureMgr_.isMeasDgtGiven() )
       {
-        precision_ = (*it).getMutableValue<int>();
+        precision_ = (*it).getImmutableValue<int>();
       }
     }
     else if( tag == "PRINT" )
@@ -552,8 +552,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       // this if clause must come last because we are only checking the 
       // first letter and don't with to get confused with kewords 
       // that happen to start with V, I, N, P, W or D.
-      //int nodes = (*it).getImmutableValue<int>();
-      int nodes = (*it).getMutableValue<int>();
+      int nodes = (*it).getImmutableValue<int>();
       Util::Param aParam;
       aParam.set( tag, nodes );
 
@@ -579,11 +578,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       for( int i=0; i<nodes; i++ )
       {
         it++;
-        //aParam.set( (*it).tag(), (*it).getImmutableValue<double>() );
-        //aParam.set( (*it).tag(), (*it).getMutableValue<double>() );
-        double tmp1 = (*it).getMutableValue<double>();
-        double tmp2 = (*it).getImmutableValue<double>();
-        aParam.set( (*it).tag(), tmp1);
+        aParam.set( (*it).tag(), (*it).getImmutableValue<double>() );
         depSolVarIterVector_.push_back( aParam );
       }
     }
@@ -595,8 +590,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       // dependent solution variable becomes the expression {SR(1,1)}
       // in this case.
       std::string expString('{'+tag+'(');
-      //int nodes = (*it).getImmutableValue<int>();
-      int nodes = (*it).getMutableValue<int>();
+      int nodes = (*it).getImmutableValue<int>();
 
       for( int i=0; i< nodes; i++)
       {
@@ -1393,7 +1387,7 @@ void Base::setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, i
   }
   else
   {
-    rfcVal = currentParamIt->getMutableValue<int>();
+    rfcVal = currentParamIt->getImmutableValue<int>();
   }
   rfcFlag = true;
 }
