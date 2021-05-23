@@ -362,7 +362,6 @@ inline void setupObjectiveFunctions (
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), instances.begin(), instances.end());
 
     // now handle params and global params
-    std::vector<std::string> globalParams;
     const std::vector<std::string> & strings = objVec[iobj]->expPtr->getUnresolvedParams();
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
@@ -373,7 +372,7 @@ inline void setupObjectiveFunctions (
 
       if (param_it != context_param_map.end())
       {
-        const Util::Param &replacement_param = (*param_it).second;
+        const Util::Param &replacement_param = param_it->second;
 
         if ( replacement_param.getType() == Xyce::Util::STR ||
              replacement_param.getType() == Xyce::Util::DBLE )
@@ -396,20 +395,54 @@ inline void setupObjectiveFunctions (
         param_it = context_global_param_map.find(strings[istring]);
         if (param_it != context_global_param_map.end())
         {
-          globalParams.push_back(strings[istring]);
-
-          if(param_it->second.getType() == Xyce::Util::EXPR)
+          const Util::Param &replacement_param = param_it->second;
+#if 0
+          if(replacement_param.getType() == Xyce::Util::EXPR)
           {
-            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (replacement_param.getValue<Util::Expression>());
             objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
           }
           else
           {
-            if (!objVec[iobj]->expPtr->make_var(strings[istring]))
+            double val=0.0;
+            if ( replacement_param.getType() == Xyce::Util::STR ||
+                 replacement_param.getType() == Xyce::Util::DBLE )
+            {
+              val = replacement_param.getMutableValue<double>();
+            }
+
+            if (!objVec[iobj]->expPtr->make_var(strings[istring],val))
             {
               Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
             }
           }
+#else
+          if (replacement_param.getType() == Xyce::Util::EXPR)
+          {
+            const Util::Expression & expToBeAttached = replacement_param.getValue<Util::Expression>();
+            objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+          }
+          else
+          {
+#if 0
+            // this can't work b/c the replacement_param is const.  But I don't think it is needed, because global params are always type Util::EXPR anyway.
+            //
+            if ( replacement_param.getType() == Xyce::Util::STR ||
+                 replacement_param.getType() == Xyce::Util::DBLE )
+            {
+
+              // Since this parameter has already been processed, and is NOT considered 
+              // to be type EXPR, we want to change it back to EXPR.  This is a hack but 
+              // necessary for now.  Better solution is to change the upstream processing, 
+              // rather than fix it here.
+
+              Util::Expression expToBeAttached( exprGroup, replacement_param.stringValue() );
+              replacement_param.setVal(expToBeAttached);  // this forces the param to be type = Util::EXPR 
+              objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+            }
+#endif
+          }
+#endif
         }
         else
         {

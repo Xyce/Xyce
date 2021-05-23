@@ -231,7 +231,7 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
-  // set up the shallow specials flags
+  // set up shallow dependence flags.
   {
     isShallowTimeDependent_ = isTimeDependent_;
     isShallowTempDependent_ = isTempDependent_;
@@ -239,6 +239,12 @@ bool newExpression::lexAndParseExpression()
     isShallowFreqDependent_ = isFreqDependent_;
     isShallowGminDependent_ = isGminDependent_;
   }
+
+  isVariableDependent_ = !(globalParamNameVec_.empty()); // this is not reliable this stage, because the globalParamNameVec is always empty at this point.
+  isVoltageNodeDependent_ = !(voltNameVec_.empty());
+  isDeviceCurrentDependent_ = !(currentNameVec_.empty());
+  isLeadCurrentDependent_ = !(leadCurrentNameVec_.empty());
+  isLeadCurrentDependentExcludeBsrc_ = !(leadCurrentExcludeBsrcNameVec_.empty());
 
   // if dependent on a special, add relevant specials node to the relevant specials vector
   if(isTimeDependent_) // ERK:  should there be a separate boolean for dtDependent?
@@ -268,6 +274,16 @@ bool newExpression::lexAndParseExpression()
 
   checkIsConstant_();
   astArraysSetup_ = true;
+
+#if 0
+  // this is a test to ensure that adding a "global" AST layer works for all use cases.  
+  // I turn this on for unit tests, optionally.  But it should only be "on" for unit 
+  // testing and not otherwise.
+  if(parsed_)
+  {
+    setAsGlobal();
+  }
+#endif
 
   return parsed_;
 }
@@ -345,6 +361,17 @@ bool newExpression::attachFunctionNode(
       }
       externalDependencies_ = true;
       astArraysSetup_ = false;
+
+      isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
+      isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
+      isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();
+      isLeadCurrentDependent_   = isLeadCurrentDependent_ || expPtr->getLeadCurrentDependent();
+      isLeadCurrentDependentExcludeBsrc_ = isLeadCurrentDependentExcludeBsrc_ || expPtr->getLeadCurrentDependentExcludeBsrc();
+
+      isTimeDependent_ = isTimeDependent_ || expPtr->getTimeDependent();
+      isTempDependent_ = isTempDependent_ || expPtr->getTempDependent();
+      isVTDependent_ = isVTDependent_ || expPtr->getVTDependent();
+      isFreqDependent_ = isFreqDependent_ || expPtr->getFreqDependent();
     }
     else { retval=false; }
   }
@@ -398,6 +425,45 @@ bool newExpression::attachParameterNode(
           externalDependencies_ = true;
           astArraysSetup_ = false;
           retval=true;
+
+#if 1
+          std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
+          if (it != unresolvedParamNameVec_.end())
+          {
+            int index = std::distance(unresolvedParamNameVec_.begin(),it);
+            unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+          }
+
+          if (type == DOT_GLOBAL_PARAM)
+          {
+            it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+            if (it == globalParamNameVec_.end())
+            {
+              globalParamNameVec_.push_back(paramNameUpper);
+              isVariableDependent_ = !(globalParamNameVec_.empty());
+            }
+          }
+          else
+          {
+            it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+            if (it != globalParamNameVec_.end())
+            {
+              int index = std::distance(globalParamNameVec_.begin(),it);
+              globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+              isVariableDependent_ = !(globalParamNameVec_.empty());
+            }
+          }
+#endif
+          isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
+          isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
+          isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();
+          isLeadCurrentDependent_   = isLeadCurrentDependent_ || expPtr->getLeadCurrentDependent();
+          isLeadCurrentDependentExcludeBsrc_ = isLeadCurrentDependentExcludeBsrc_ || expPtr->getLeadCurrentDependentExcludeBsrc();
+
+          isTimeDependent_ = isTimeDependent_ || expPtr->getTimeDependent();
+          isTempDependent_ = isTempDependent_ || expPtr->getTempDependent();
+          isVTDependent_ = isVTDependent_ || expPtr->getVTDependent();
+          isFreqDependent_ = isFreqDependent_ || expPtr->getFreqDependent();
         }
       }
     }
@@ -533,7 +599,6 @@ bool newExpression::make_constant (
     usedType const & val,
     enumParamType type)
 {
-  setupVariousAstArrays();
   std::string paramNameUpper = var;
   Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
@@ -565,6 +630,7 @@ bool newExpression::make_constant (
       if (it == globalParamNameVec_.end())
       {
         globalParamNameVec_.push_back(paramNameUpper);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     else
@@ -574,6 +640,7 @@ bool newExpression::make_constant (
       {
         int index = std::distance(globalParamNameVec_.begin(),it);
         globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
       }
     }
     checkIsConstant_();
@@ -584,141 +651,6 @@ bool newExpression::make_constant (
       << "newExpression::make_constant  ERROR.  Could not find parameter "
       << paramNameUpper
       << " in expression: " << expressionString_ <<std::endl;
-  }
-
-  return retval;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : newExpression::make_var
-//
-// Purpose       : Needed for the old API.   This sets the "var" boolean flag on
-//                 a specified parameter. In the old API, this means two things:
-//                   (1) it is a global parameter rather than a regular parameter.
-//                   (2) it should have derivatives computed.
-//
-//                 In the new code, it doesn't mean that. See special notes.
-//
-// Special Notes : As the code is currently written, this function doesn't
-//                 serve a legitimate purpose.  Once I can figure out a way to
-//                 safely remove it, I plan to do that.  It is currently used,
-//                 so I can't just rip it out; some code will need refactoring.
-//
-//                 Very few applications in the code require derivatives to be
-//                 computed, and generally make_var parameters don't actually
-//                 need derivatives associated with them.    So, the (2) purpose,
-//                 above, is a bad idea.  It overloads the purpose of make_var
-//                 in a silly way.  But that isn't the worst part.
-//
-//                 make_var is called in the N_IO_CircuitContext class.  It
-//                 is also called from sensitivities, but in exactly the same
-//                 pattern as the circuit constext.   So, it is really only needed
-//                 in one scenario - parameter is not found during parsing, but
-//                 is (hopefully) still a valid parameter.
-//
-//                 make_var is only called when an unresolved parameter in the
-//                 expression cannot be resolved.  ie, Xyce cannot find a .param
-//                 or a .global_param of that name.  So, it doesn't attach
-//                 anything.  (if it found one of these parameters, it would attach
-//                 it)
-//
-//                 If a parameter has a make_var called on it, that means that
-//                 it is very similar to a parameter which has make_const.  Both
-//                 are "unattached", and just have values assigned to them.
-//                 Generally, make_const can be either a .param or a .global_param,
-//                 but a make_var has to be a .global_param.
-//
-//                 when make_const is called, a value is passed in, and the parameter
-//                 henceforth has that value.
-//
-//                 when make_var is called, no value is passed in.
-//
-//                 In the group classes, this funciton is called for any parameter
-//                 which has been designated by make_var:
-//
-//                    group_->getGlobalParameterVal(parOp->getName(),val)
-//
-//                 But here is the mystery.  For "getGlobalParameterVal" to work, it is
-//                 necessary that the parameter be "findable" by the group. ie, it must
-//                 exist.
-//
-//                 In the Xyce groups that implement this function (main, device
-//                 and outputs groups), they all query the device manager for the value
-//                 of a global parameter.  So, more confirmation that the "make_var"
-//                 parameter exists, and was specified as a global parameter.
-//
-//                 So, if it exists and was specified as a global parameter, it should have
-//                 simply been attached.  The make_var call should not have been necessary.
-//
-//                 UPDATE:  the reason that make_var is necessary at all is that
-//                 the "attach" function calls (attachParameter and attachFunction)
-//                 only search thru the lists of resolved parameters, global parameters
-//                 and functions.  They do NOT search the unresolved ones.  It seems
-//                 to me that there is no reason to do this with the new expression
-//                 library.  Just attach what you find.   It doesn't matter if it gets
-//                 resolved before or after the attachment.  This makes me wonder
-//                 how many of these things that could get attached never get
-//                 attached, and how much time is wasted on the getGlobalParameterVal
-//                 calls.
-//
-//                 This might make the "changed" logic more tricky, if I make
-//                 this change, but that should be OK.
-//
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : ??
-//-------------------------------------------------------------------------------
-bool newExpression::make_var (std::string const & var, enumParamType type)
-{
-  std::string paramNameUpper = var;
-  Xyce::Util::toUpper(paramNameUpper);
-  bool retval=false;
-
-  if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
-  {
-    std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
-    int size = nodeVec.size();
-    for (int ii=0;ii<size;ii++)
-    {
-      Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
-      parOp->unsetValue(); // just to be safe "unset" the value
-      parOp->setIsVar();
-      parOp->setParamType(type);
-    }
-    retval = true;
-
-    std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
-    if (it != unresolvedParamNameVec_.end())
-    {
-      int index = std::distance(unresolvedParamNameVec_.begin(),it);
-      unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
-    }
-
-    if (type == DOT_GLOBAL_PARAM)
-    {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
-      if (it == globalParamNameVec_.end())
-      {
-        globalParamNameVec_.push_back(paramNameUpper);
-      }
-    }
-    else
-    {
-      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
-      if (it != globalParamNameVec_.end())
-      {
-        int index = std::distance(globalParamNameVec_.begin(),it);
-        globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
-      }
-    }
-    checkIsConstant_();
-  }
-  else
-  {
-    Xyce::dout()
-      << "newExpression::make_var  ERROR.  Could not find parameter "
-      << paramNameUpper <<std::endl;
   }
 
   return retval;
@@ -757,25 +689,14 @@ void newExpression::setupDerivatives_ ()
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
-        // 2-node specification is now handled with expression tree.
-        // (see ExpressionParser.yxx)
-        // So, nodes.size should always == 1
-        if (nodes.size() == 1)
-        {
-          std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
-          std::unordered_map<std::string, int>::iterator mapIter;
-          mapIter = derivNodeIndexMap_.find(tmp);
-          if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-          derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
-        }
-        else
-        {
-          Xyce::dout()
-            << "ERROR. derivatives not correct for 2-node V(A,B) specification"
-            <<std::endl;
-        }
+        std::string & node = voltOp->getVoltageNode();
+
+        std::string tmp = node; Xyce::Util::toUpper(tmp);
+        std::unordered_map<std::string, int>::iterator mapIter;
+        mapIter = derivNodeIndexMap_.find(tmp);
+        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
@@ -1052,21 +973,18 @@ void newExpression::setupVariousAstArrays()
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+        std::string & node = voltOp->getVoltageNode();
 
-        for (int jj=0;jj<tmp.size();++jj)
+        if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
-          if ( voltOpMap_.find(tmp[jj]) == voltOpMap_.end() )
-          {
-            std::vector<Teuchos::RCP<astNode<usedType> > > vec;
-            vec.push_back(voltOpVec_[ii]);
-            voltOpMap_[tmp[jj]] = vec;
-            voltNameVec_.push_back( tmp[jj] );
-          }
-          else
-          {
-            voltOpMap_[tmp[jj]].push_back(voltOpVec_[ii]);
-          }
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+          vec.push_back(voltOpVec_[ii]);
+          voltOpMap_[node] = vec;
+          voltNameVec_.push_back( node );
+        }
+        else
+        {
+          voltOpMap_[node].push_back(voltOpVec_[ii]);
         }
       }
 
@@ -1197,7 +1115,7 @@ void newExpression::setupVariousAstArrays()
 
         paramNameVec_.push_back(tmp);
 
-        if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) )
+        if( !(parPtr->getIsConstant())  && !(parPtr->getIsAttached()) )
         {
           std::string tmpName = paramOpVec_[ii]->getName();
           std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), tmpName);
@@ -1382,25 +1300,12 @@ bool newExpression::getValuesFromGroup_()
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-      std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-      std::vector<usedType> & vals = voltOp->getVoltageVals();
-      oldSolVals_ = vals;
 
-      for (int jj=0;jj<nodes.size();jj++)
-      {
-#if 0
-        std::cout
-          << "newExpression::getValuesFromGroup_() About to get: V("<<nodes[jj]<<")"
-          << std::endl;
-#endif
-        group_->getSolutionVal(nodes[jj], vals[jj]);
-        if(vals[jj] != oldSolVals_[jj]) noChange=false;
-#if 0
-        std::cout
-          << "newExpression::getValuesFromGroup_() V("<<nodes[jj]<<") = "
-          << vals[jj] <<std::endl;
-#endif
-      }
+      std::string & node = voltOp->getVoltageNode();
+      usedType & val = voltOp->getVoltageVal();
+      usedType oldval = val;
+      group_->getSolutionVal(node, val);
+      if(val != oldval) noChange=false;
     }
   }
 
@@ -1450,65 +1355,26 @@ bool newExpression::getValuesFromGroup_()
     }
   }
 
-  // ERK: I plan to refactor the code to get rid of the "make_var" function.
-  // Once I've done that, then this block of code for paramOps can probably be deleted.
-  // This loop only sets values for parameters that have been tagged as "isVar" via the
-  // "make_var" function call.  That function is a holdover from the old expression
-  // library.
+  // This block of code was originally conceived of for retrieving global parameters.
+  // However, it also is used for retrieving anything that is basically of "unknown" status.  
+  // For .print line outputs, that includes things like device parameters (for example ISRC:mag)
   //
-  // The parser is set up  so that it can only resolve params in an expression that have
-  // been previously "resolved".  If an expression contains an unresolvable parameters
-  // (and it is only unresolvable because of the order of operations in the parser) then
-  // it gets the "make_var" treatment.
-  //
-  // For the old expression library this was necessary, b/c if a parameter hasn't been
-  // processed yet, then you can't use it as a string substitution.  But the new
-  // expression library doesn't have this problem.  It just needs to attach the parameter
-  // node.  So, if the parameter exists, resolved or not, it is attachable.
-  //
-  // ERK. 10/2/2020 - my initial explanation for why "make_var" exists isn't correct.
-  //
-  // parameters get set via "make_var" when they are parameters that are not 
-  // expression-typed parameters.  A parameter specified as .global_param fred=4.0 
-  // will not be considered as an expression-valued param, but a param specified 
-  // as .global_param barney={5*fred} will be considered an expression-valued param.
-  //
-  // I came up with the above explanation (resolved vs. unresolved) 
-  // because I got confused about some nested if-statements in the circuit context class.
-  //
-  // So, possibly we don't want to get rid of "make_var".  Or possibly we still do, but
-  // one of the imagined benefits (more efficient parsing) probably isn't true.
+  // Originally, this block would also handle parameters that had been labled "isVar" via 
+  // the "make_vars" function.  This was generally global_param of type Util::DBLE and Util::STR.
+  // However,  that is not the case any more as .global_params are now handled 100% with 
+  // attachments, and the make_var function is gone.
   if ( !(paramOpVec_.empty()) )
   {
     for (int ii=0;ii<paramOpVec_.size();++ii)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
 
-      if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) )
+      if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) ) // if the param is a constant, or attached, then it already has its value
       {
-        usedType val;
         usedType oldval = parOp->getValue();
-        group_->getGlobalParameterVal(parOp->getName(),val);
+        usedType val = oldval;
+        group_->getParameterVal(parOp->getName(),val);
         parOp->setValue(val);
-
-#if 0
-        std::cout << " getting a parameter value from the group! for expression =  " << expressionString_
-          << " param = " << parOp->getName() << " value = " << val;
-
-        std::cout << " type = ";
-        if (parOp->getParamType() == DOT_GLOBAL_PARAM) { std::cout << "DOT_GLOBAL_PARAM"; }
-        else if (parOp->getParamType() == DOT_PARAM) { std::cout << "DOT_PARAM"; }
-        else if (parOp->getParamType() == SUBCKT_ARG_PARAM) { std::cout << "SUBCKT_ARG_PARAM"; }
-        else { std::cout << " unknown type "; }
-
-        std::cout << " isVar = ";
-        if (parOp->getIsVar()) { std::cout << " true"; }
-        else { std::cout << "false"; }
-
-        std::cout << " class ID = " << parOp->getId() << std::endl;
-        //parOp->output(std::cout);
-        dumpParseTree(std::cout);
-#endif
 
         if (val != oldval) noChange=false;
       }
@@ -1780,6 +1646,41 @@ bool newExpression::getValuesFromGroup_()
 #endif
 
   return noChange;
+}
+
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setAsGlobal
+// Purpose       : Adds an extra layer to the AST.  
+//
+// Special Notes : It is mostly harmless to call this on *any* expression.  
+//                 However, it does add an extra layer of indirection to the AST, 
+//                 so it is best to only apply this when it is really needed.  
+//                 The main use case is when the expression is the RHS of a 
+//                 .global_param statement.  Global params are variables, and can 
+//                 be "set" by various operations in Xyce.  When they are set, the 
+//                 new value needs to override whatever the RHS expression originally 
+//                 was.  There is no guarentee that the RHS was a simple number; 
+//                 it might have originally been a whole other expression.  
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/20/2021
+//-------------------------------------------------------------------------------
+void newExpression::setAsGlobal()
+{
+  Teuchos::RCP<globalParamLayerOp<usedType> > paramLayerPtr = Teuchos::RCP<globalParamLayerOp<usedType> >(new globalParamLayerOp<usedType>());
+  paramLayerPtr->setNode(astNodePtr_);
+  Teuchos::RCP<astNode<usedType> > newAstNodePtr = paramLayerPtr;
+  setAstPtr(newAstNodePtr);
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void newExpression::setValue(usedType val)
+{
+  Teuchos::RCP<globalParamLayerOp<usedType> > paramLayerPtr = Teuchos::rcp_static_cast<globalParamLayerOp<usedType> > (astNodePtr_);
+  paramLayerPtr->setValue(val);
 }
 
 //-------------------------------------------------------------------------------
@@ -2076,8 +1977,8 @@ bool newExpression::replaceName (
       for(int ii=0;ii<astVec.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
-        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
-        for(int jj=0;jj<nodes.size();++jj) { if(nodes[jj]==old_name) { nodes[jj] = new_name; } }
+        std::string & node = voltOp->getVoltageNode();
+        if(node == old_name) { node = new_name; } 
       }
 
       if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors

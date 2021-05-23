@@ -97,7 +97,7 @@ deviceExpressionGroup::~deviceExpressionGroup ()
 
 //-------------------------------------------------------------------------------
 // Function      : deviceExpressionGroup::setSolutionLIDs 
-// Purpose       : 
+// Purpose       : Order of expVarNames:  nodes, leads, instances
 // Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
@@ -155,55 +155,6 @@ bool deviceExpressionGroup::getSolutionVal(const std::string & nodeName, std::co
     return true;
   }
   else { return false; }
-}
-
-
-//-------------------------------------------------------------------------------
-// Function      : deviceExpressionGroup::getGlobalParameterVal
-//
-// Purpose       : retrieve the value of a parameter that has been 
-//                 declared to be a "var" via the make_var function.
-//
-// Special Notes : double precision version
-//
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 4/20/2020
-//-------------------------------------------------------------------------------
-bool deviceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
-{
-  bool success=true;
-  Xyce::Device::UserDefinedParams & globals = deviceManager_.getSolverState().getGlobals();
-  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.paramMap.find(paramName);
-  if (global_param_it == globals.paramMap.end()) 
-  { Xyce::Report::UserError() << "Global parameter " << paramName << " not found"; }
-  else { retval = (*global_param_it).second; }
-  return success;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : deviceExpressionGroup::getGlobalParameterVal
-//
-// Purpose       : retrieve the value of a parameter that has been 
-//                 declared to be a "var" via the make_var function.
-//
-// Special Notes : std::complex<double> version
-//
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 4/20/2020
-//-------------------------------------------------------------------------------
-bool deviceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
-{
-  bool success=true;
-  double tmpval;
-  Xyce::Device::UserDefinedParams & globals = deviceManager_.getSolverState().getGlobals();
-  Xyce::Device::GlobalParameterMap::iterator global_param_it = globals.paramMap.find(paramName);
-  if (global_param_it == globals.paramMap.end()) 
-  { Xyce::Report::UserError() << "Global parameter " << paramName << " not found"; }
-  else { tmpval = (*global_param_it).second; }
-  retval = std::complex<double>(tmpval,0.0);
-  return success;
 }
 
 } // Util

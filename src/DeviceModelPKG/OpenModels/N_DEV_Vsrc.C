@@ -40,6 +40,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_DeviceMgr.h>
+#include <N_UTL_AssemblyTypes.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_MatrixLoadData.h>
@@ -817,6 +818,75 @@ bool Instance::loadBVectorsforAC(double * bVecReal, double * bVecImag )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Instance::loadFreqBVector
+//
+// Purpose       : Loads the B-vector contributions for a single
+//                 vsrc instance.
+//
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool Instance::loadFreqBVector (double frequency,
+                                std::vector<Util::FreqVecEntry>& bVec)
+{
+
+//  InstanceVector::const_iterator it, end;
+
+//  it = linearInstances_.begin();
+//  end = linearInstances_.end();
+
+  Util::FreqVecEntry tmpEntry;
+
+//  for ( ; it != end; ++it )
+  {
+//    Instance & vi = *(*it);
+
+    std::complex<double> tmpVal = 0.0;
+
+    SourceData *dataPtr  = dcSourceData_;
+    if ( HBSpecified_ && tranSourceData_ != 0 )
+    {
+      dataPtr =  tranSourceData_;
+    }
+
+    if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _SIN_DATA))
+    {
+      double v0 = par0;
+
+      double mag = par1;
+
+      double freq = par3;
+
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0);
+
+      if (frequency == freq)
+        tmpVal = std::complex<double> (0, -0.5*mag);
+
+    }
+    else
+    {
+
+      double v0 = DCV0;
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0 );
+    }
+
+     // Add RHS vector element for the positive circuit node KCL equ.
+    tmpEntry.val = tmpVal;
+    tmpEntry.lid = li_Bra;
+    bVec.push_back(tmpEntry);
+     
+  }        
+     
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::loadDAEdFdx ()
 //
 // Purpose       : Loads the F-vector contributions for a single
@@ -1126,6 +1196,76 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx, int 
   }
   return true;
 }
+
+
+bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
+                                std::vector<Util::FreqVecEntry>& fVec,
+                                std::vector<Util::FreqVecEntry>& bVec)
+{
+
+/*  InstanceVector::const_iterator it, end;
+
+  it = linearInstances_.begin();
+  end = linearInstances_.end();
+
+  Util::FreqVecEntry tmpEntry;
+
+  for ( ; it != end; ++it )
+  {
+    Instance & vi = *(*it);
+
+    std::complex<double> tmpVal = 0.0;
+         
+    SourceData *dataPtr  = vi.dcSourceData_;
+    if ( HBSpecified_ && vi.tranSourceData_ != 0 )
+    {
+      dataPtr =  vi.tranSourceData_;
+    }
+
+    if  ( (dataPtr != 0)  && (vi.TRANSIENTSOURCETYPE == _SIN_DATA))
+    {
+      double v0 = vi.par0;
+
+      double mag = vi.par1;
+
+      double freq = vi.par3;
+
+      if (frequency == freq)
+        tmpVal = std::complex<double> (0, -0.5*mag);
+      
+    }
+    else
+    {
+
+      double v0 = vi.DCV0;
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0 );
+    }
+
+     // Add RHS vector element for the positive circuit node KCL equ.
+     tmpEntry.val = tmpVal;
+     tmpEntry.lid = vi.li_Bra;
+     bVec.push_back(tmpEntry);
+
+   }         */
+
+  return true;
+}
+
+
+bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
+                                 std::vector<Util::FreqMatEntry>& dFdx)
+{
+/*  InstanceVector::const_iterator it, end;
+
+ it = linearInstances_.begin();
+ end = linearInstances_.end();  */
+ 
+
+  return true;
+}
+
+
 
 Device *
 Traits::factory(const Configuration &configuration, const FactoryBlock &factory_block)

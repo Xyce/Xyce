@@ -396,6 +396,9 @@ public:
 
   bool getBMatrixEntries(std::vector<int>& bMatEntriesVec, std::vector<int>& portsVec, std::vector<double> * Z0sVec  = NULL); 
 
+  bool loadFreqBVectorsforSources(double frequency,
+                                  std::vector<Util::FreqVecEntry>& BVecEntries);
+
   int getNumNoiseDevices ();
   int getNumNoiseSources ();
   void setupNoiseSources(std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec);
@@ -679,7 +682,8 @@ getParamAndReduce(
   const DeviceMgr &     device_manager,
   const std::string &   name);
 
-void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param);
+void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device

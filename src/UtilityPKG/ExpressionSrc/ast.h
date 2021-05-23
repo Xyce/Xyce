@@ -437,8 +437,8 @@ class astNode : public staticsContainer
     virtual void unsetDerivIndex() {};
 
     virtual ScalarT getValue() { return 0.0; }
-    virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
-    virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
+    virtual void setValue(ScalarT val) {}; // supports specialsOp, paramOp and globalParamLayerOp otherwise no-op
+    virtual void unsetValue() {};          // supports specialsOp, paramOp and globalParamLayerOp otherwise no-op
 
     // base class no-ops.  Derived functions only in paramOp, base class version only called from ddx.
     virtual void setIsVar() {};
@@ -503,7 +503,7 @@ class astNode : public staticsContainer
     virtual void unsetFunctionArgType() {};
 
     virtual std::string getName () { return std::string(""); };
-    virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
+    //virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -1153,6 +1153,114 @@ class unaryPlusOp : public astNode<ScalarT>
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
+
+//-------------------------------------------------------------------------------
+// This class is designed to help process global parameters.  
+//
+// It is part of a refactor to get rid of the "make_var" function in the 
+// newExpression class, which is used to set certain parameters as "variable". 
+// These were generally .global_params that were likely to be reset by a .STEP or 
+// .SAMPLING, or some other analysis that modifies params.
+//
+// This is used on expressions that are the RHS of a global_param statement.  
+// If an expression is a global_param, then it needs to optionally be 
+// replaced with a value.  This class makes it possible for that to happen.
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+class globalParamLayerOp: public astNode<ScalarT>
+{
+  public:
+    globalParamLayerOp ():
+      astNode<ScalarT>()
+    {
+      numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
+      paramNode_ = numvalNode_;
+      savedParamNode_ = numvalNode_;
+    };
+
+    virtual ScalarT val() { return paramNode_->val(); }
+    virtual ScalarT dx(int i)
+    {
+      ScalarT retval=0.0;
+      retval = paramNode_->dx(i);
+      return retval;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "globalParamLayer Op  val = " << val() 
+        << " id = " << this->id_ 
+        << " node_id = " << paramNode_->getId()
+        << std::endl;
+        paramNode_->output(os,indent+2);
+    }
+
+    virtual void compactOutput(std::ostream & os)
+    {
+       os << "globalParamLayer Op  val = " << val() << " id = " << this->id_ << std::endl;
+    }
+
+    virtual void codeGen (std::ostream & os ) { }
+
+    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
+    virtual void unsetNode() { paramNode_ = numvalNode_; };
+
+    virtual ScalarT getValue() { return numvalNode_->number; };
+    virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
+    virtual void unsetValue() { paramNode_ = savedParamNode_; };
+
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_INTERESTING_OPS(paramNode_)
+    }
+
+    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
+    {
+AST_GET_STATE_OPS(paramNode_)
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+AST_GET_PARAM_OPS(paramNode_)
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+AST_GET_FUNC_ARG_OPS(paramNode_)
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+AST_GET_FUNC_OPS(paramNode_)
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+AST_GET_VOLT_OPS(paramNode_)
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+AST_GET_CURRENT_OPS(paramNode_)
+    }
+
+    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
+    {
+AST_GET_TIME_OPS(paramNode_)
+    }
+
+    virtual void processSuccessfulTimeStep () 
+    {
+      paramNode_->processSuccessfulTimeStep ();
+    };
+
+  private:
+    Teuchos::RCP<astNode<ScalarT> > paramNode_;
+    Teuchos::RCP<astNode<ScalarT> > savedParamNode_;
+    Teuchos::RCP<numval<ScalarT> > numvalNode_;
+};
+
 //-------------------------------------------------------------------------------
 //
 // This is the parameter Op class.
@@ -1282,13 +1390,14 @@ AST_GET_TIME_OPS(paramNode_)
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
-    // isVar_, isAttached_, and isConstant_ are all checked by the
+    // isAttached_, and isConstant_ are all checked by the
     // Expression::getUnresolvedParams function.
     //
-    // the variable "isVar_" is to support the old expression library API.
-    // If true, it means that this parameter is one of the variables included
-    // in the "vars" array that is passed into the functions expression::evalauate
-    // and expression::evaluateFunction.
+    // isVar used to mean either:
+    // (1) this is a global param of Util::DBLE type
+    // or:
+    // (2) we want the derivatives w.r.t. to this parameter.
+    // Now it ONLY means (2).
     void setIsVar() { isVar_ = true; }
     void unsetIsVar() { isVar_ = false; }
     bool getIsVar() { return isVar_; }
@@ -1344,24 +1453,18 @@ template <typename ScalarT>
 class voltageOp: public astNode<ScalarT>
 {
   public:
-    voltageOp (const std::vector<std::string> & voltageNodes):
+    voltageOp (const std::string & voltageNode):
       astNode<ScalarT>(),
-      voltageNodes_(voltageNodes),
-      voltageVals_(voltageNodes.size(),0.0),
-      number_(0.0),
+      voltageNode_(voltageNode),
+      voltageVal_(0.0),
       derivIndex_(-1)
     {
-      int voltNodeSize = voltageNodes_.size();
-      for (int ii=0;ii<voltNodeSize;++ii)
-      {
-        Xyce::Util::toUpper(voltageNodes_[ii]);
-      }
+      Xyce::Util::toUpper(voltageNode_);
     };
 
     virtual ScalarT val()
     {
-      number_ = (voltageNodes_.size() == 2)?(voltageVals_[0]-voltageVals_[1]):voltageVals_[0];
-      return number_;
+      return voltageVal_;
     }
 
     virtual ScalarT dx(int i)
@@ -1374,15 +1477,10 @@ class voltageOp: public astNode<ScalarT>
     {
       os << std::setw(indent) << " ";
       os << "Voltage node:" << " id = " << this->id_ << std::endl;
-      int voltNodeSize = voltageNodes_.size();
-      if (voltNodeSize > 0)
-      {
-        for (int ii=0;ii<voltNodeSize;++ii)
-        {
-          os << std::setw(indent) << " ";
-          os << "node " << ii << ":  V(" << voltageNodes_[ii] << ") = " << voltageVals_[ii] <<std::endl;
-        }
-      }
+     
+      os << std::setw(indent) << " ";
+      os << "V(" << voltageNode_ << ") = " << voltageVal_ <<std::endl;
+    
       os << std::setw(indent) << " ";
       os << "value = " << val() << std::endl;
     }
@@ -1394,62 +1492,28 @@ class voltageOp: public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-      if (voltageNodes_.size() == 1)
-      {
-        os << "V_";
-        os << voltageNodes_[0];
-      }
-      else if (voltageNodes_.size() == 2)
-      {
-        os << "(V_";
-        os << voltageNodes_[0];
-        os << "-V_";
-        os << voltageNodes_[1];
-        os << ")";
-      }
+      os << "V_";
+      os << voltageNode_;
     }
 
-    virtual std::string getName () 
+    virtual void setVal(const ScalarT & val)
     {
-      std::string name = std::string("V(");
-      if (voltageNodes_.size() == 1) { name += voltageNodes_[0]; }
-      else if (voltageNodes_.size() == 2) { name += voltageNodes_[0]; name += std::string(","); name += voltageNodes_[1]; }
-      name+= std::string(")");
-      return name;
-    }
-
-    virtual void setVals(const std::vector<ScalarT> & vals)
-    {
-      int size = voltageVals_.size();
-      if (vals.size() != size)
-      {
-        std::string tmp = "Voltage Args size don't match for V(";
-        tmp+= (size > 0)?(voltageNodes_[0]):"";
-        tmp+= (size > 1)?(","+voltageNodes_[1]):"";
-        tmp += "). ";
-        //tmp += "Size = " + size;
-        std::vector<std::string> errStr(1,tmp);
-        yyerror(errStr);
-      }
-
-      for (int ii=0;ii<voltageVals_.size();ii++) { voltageVals_[ii] = vals[ii]; }
+      voltageVal_ = val;
     }
 
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() { derivIndex_=-1; };
 
-    std::vector<std::string> & getVoltageNodes() { return voltageNodes_; }
-    std::vector<ScalarT> & getVoltageVals() { return voltageVals_; }
+    std::string & getVoltageNode() { return voltageNode_; }
+    ScalarT & getVoltageVal() { return voltageVal_; }
 
     virtual bool voltageType() { return true; };
 
-    virtual std::vector<std::string> getNodeNames() { return voltageNodes_; }
+    virtual std::string getName () { return voltageNode_; }
 
   private:
-    // data:
-    std::vector<std::string> voltageNodes_;
-    std::vector<ScalarT> voltageVals_;
-    ScalarT number_;
+    std::string voltageNode_;
+    ScalarT voltageVal_;
     int derivIndex_;
     std::string name_;
 };
@@ -1510,7 +1574,6 @@ class currentOp: public astNode<ScalarT>
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
   private:
-// data:
     ScalarT number_;
     std::string currentDevice_;
     int derivIndex_;
@@ -2654,11 +2717,7 @@ class sgnOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-#if 0
-      return (-(this->leftAst_->dx(i)));
-#else
       return ScalarT(0.0);
-#endif
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -4533,22 +4592,17 @@ class ddxOp : public astNode<ScalarT>
 
         this->leftAst_->getVoltageOps(voltOpVector);
 
-        std::vector<std::string> tmp = this->rightAst_->getNodeNames();
+        std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))
         {
-          for (int jj=0;jj<tmp.size();jj++) Xyce::Util::toUpper(tmp[jj]);
-
+          Xyce::Util::toUpper(tmp);
           for (int ii=0;ii<voltOpVector.size();ii++)
           {
-            std::vector<std::string> tmp2 = this->rightAst_->getNodeNames();
+            std::string tmp2 = this->rightAst_->getName();
             if (!(tmp2.empty()))
             {
-              for (int jj=0;jj<tmp2.size();jj++) Xyce::Util::toUpper(tmp2[jj]);
-
-              if (tmp.size() == tmp2.size())
-              {
-                if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; }
-              }
+              Xyce::Util::toUpper(tmp2);
+              if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; }
             }
           }
         }
@@ -4604,17 +4658,10 @@ class ddxOp : public astNode<ScalarT>
         }
         else if (this->rightAst_->voltageType())
         {
-          std::vector<std::string> tmpVec = this->rightAst_->getNodeNames();
-          if (!(tmpVec.empty()))
-          {
-            tmp = "V(";
-            for (int ii=0;ii<tmpVec.size();ii++)
-            {
-              tmp += tmpVec[ii];
-              if (tmpVec.size() > 1 && ii > 0 &&  ii < tmpVec.size()-1) { tmp+= ","; }
-            }
-            tmp += ")";
-          }
+          std::string name = this->rightAst_->getName();
+          tmp = "V(";
+          tmp += name;
+          tmp += ")";
         }
         msg += tmp + " not resolved";
 

@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : 
 //
 // Special Notes  :
 //
 // Creator        : Eric R. Keiter, SNL
 //
-// Creation Date  : 10/xx/2019
+// Creation Date  : 5/10/2021
 //
 //
 //
@@ -225,10 +225,11 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
   return (tmpGID>=0);
 }
 
+
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+// Function      : mainXyceExpressionGroup::getParameterVal
 //
-// Purpose       : retrieve the value of a parameter that has been 
+// Purpose       : retrieve the value of a parameter that has been
 //                 declared to be a "var" via the make_var function.
 //
 // Special Notes : double precision version
@@ -237,7 +238,7 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+bool mainXyceExpressionGroup::getParameterVal(const std::string &paramName, double & retval)
 {
   bool success=true;
   Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
@@ -245,9 +246,9 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 }
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+// Function      : mainXyceExpressionGroup::getParameterVal
 //
-// Purpose       : retrieve the value of a parameter that has been 
+// Purpose       : retrieve the value of a parameter that has been
 //                 declared to be a "var" via the make_var function.
 //
 // Special Notes : std::complex<double> version
@@ -256,7 +257,7 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 // Creator       : Eric Keiter
 // Creation Date : 4/20/2020
 //-------------------------------------------------------------------------------
-bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+bool mainXyceExpressionGroup::getParameterVal (const std::string & paramName, std::complex<double> & retval)
 {
   bool success=true;
   double tmpval;
@@ -317,7 +318,7 @@ double mainXyceExpressionGroup::getTemp()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getVT
 // Purpose       : 
 // Special Notes :
 // Scope         :
@@ -331,7 +332,7 @@ double mainXyceExpressionGroup::getVT  ()
 } 
 
 //-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
+// Function      : mainXyceExpressionGroup::getFreq
 // Purpose       : 
 // Special Notes :
 // Scope         :

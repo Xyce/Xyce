@@ -388,10 +388,18 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       }
       else if ( (*it).getType() == Xyce::Util::EXPR )
       {
-        Util::Param aParam;
-        aParam.set( '{' + (*it).stringValue() + '}', 0 );
-        numDepSolVars_++;
-        depSolVarIterVector_.push_back(aParam);
+        if( inTrigBlock || inTargBlock )
+        {
+          outputValueTarget_ = (*it).getMutableValue<double>();
+          outputValueTargetGiven_ = true;
+        }
+        else
+        {
+          Util::Param aParam;
+          aParam.set( '{' + (*it).stringValue() + '}', 0 );
+          numDepSolVars_++;
+          depSolVarIterVector_.push_back(aParam);
+        }
       }
 
       if( inTrigBlock )

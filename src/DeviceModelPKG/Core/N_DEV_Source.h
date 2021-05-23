@@ -79,6 +79,10 @@ public:
 
   virtual bool loadBVectorsforAC(double * bVecReal, double * bVecImag ) { return true; }
 
+
+  virtual bool loadFreqBVector(double frequency,
+                               std::vector<Util::FreqVecEntry>& BVecEntries) { return true; }
+
 protected:
   int                   sourceType;             ///< type of source data
   SourceData *          tranSourceData_;

@@ -54,6 +54,7 @@ using std::unordered_map;
 #include <N_UTL_Expression.h>
 #include <N_UTL_FeatureTest.h>
 #include <deviceExpressionGroup.h>
+#include <N_DEV_ExpressionGroupWrapper.h>
 #include <N_UTL_Interface_Enum_Types.h>
 
 namespace Xyce {
@@ -828,8 +829,8 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   // needed for new expression
   {
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -905,8 +906,8 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   // needed for new expressionn
   {
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dependentParam.expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
@@ -982,14 +983,12 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     dependentParam.storeOriginal=false;
   }
 
-  const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
-  const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
-  const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
-  const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
   std::vector<std::string> names;
+  bool isVoltDep = dependentParam.expr->getVoltageNodeDependent();
+  bool isDevCurDep = dependentParam.expr->getDeviceCurrentDependent();
   if (!(depend & ParameterType::SOLN_DEP))
   {
-    if (nodes.size() > 0 || instances.size() > 0)
+    if(isVoltDep || isDevCurDep)
     {
       UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
@@ -1004,11 +1003,18 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     }
   }
 
-  names.insert( names.end(), nodes.begin(), nodes.end() );
-  std::vector<int> types(nodes.size(), XEXP_NODE);
-
-  if (leads.size() > 0)
+  std::vector<int> types;
+  if(isVoltDep)
   {
+    const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
+    names.insert( names.end(), nodes.begin(), nodes.end() );
+    types.resize(nodes.size(), XEXP_NODE);
+  }
+
+  bool isLeadCurDep= dependentParam.expr->getLeadCurrentDependentExcludeBsrc();
+  if (isLeadCurDep)
+  {
+    const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
     char type;
     int index;
     for (std::vector<std::string>::const_iterator n_i=leads.begin(); n_i != leads.end(); ++n_i)
@@ -1031,9 +1037,13 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     types.resize(oldSize+leads.size(), XEXP_LEAD);
   }
 
-  names.insert( names.end(), instances.begin(), instances.end() );
-  int oldSize=types.size();
-  types.resize(oldSize+instances.size(), XEXP_INSTANCE);
+  if(isDevCurDep)
+  {
+    const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
+    names.insert( names.end(), instances.begin(), instances.end() );
+    int oldSize=types.size();
+    types.resize(oldSize+instances.size(), XEXP_INSTANCE);
+  }
 
   dependentParam.lo_var = expVarNames.size();
   dependentParam.n_vars = names.size();
@@ -1043,19 +1053,6 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   expVarLIDs.resize(expVarLen);
   expVarVals.resize(expVarLen);
 
-#if 0
-  // ERK.  Does this "variables" insert matter at all?  
-  // names is a local variable, and it doesn't look like this 
-  // part of the array (the part that goes beyond n_vars) is ever 
-  // accessed after this.
-  if (!variables.empty())
-  {
-    names.insert( names.end(), variables.begin(), variables.end() ); 
-    int oldSize=types.size();
-    types.resize(oldSize+variables.size(), XEXP_VARIABLE);
-  }
-#endif
-
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
   {
     expVarNames.push_back(names[i]);
@@ -1063,20 +1060,22 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   dependentParam.global_params.clear();
-  if (!variables.empty())
+  bool isVarDep = dependentParam.expr->getVariableDependent();
+  if (isVarDep)
   {
-    std::vector<std::string>::const_iterator iterS;
-    for (iterS=variables.begin() ; iterS!=variables.end() ; ++iterS)
+    const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
+    std::vector<std::string>::const_iterator iterVariable;
+    for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
-      GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterS);
+      GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterVariable);
       if (global_param_it == globals_.paramMap.end())
       {
-        UserError(*this) << "Global parameter " << *iterS << " in " <<
+        UserError(*this) << "Global parameter " << *iterVariable << " in " <<
             dependentParam.expr->get_expression() << " not found";
       }
       else 
       {
-        dependentParam.global_params.push_back(*iterS);
+        dependentParam.global_params.push_back(*iterVariable);
       }
     }
   }
@@ -1342,11 +1341,11 @@ void DeviceEntity::applyDepSolnLIDs()
     int lo = dpIter->lo_var;
     int hi = dpIter->lo_var+dpIter->n_vars;
 
-  const Teuchos::RCP<Xyce::Util::mainXyceExpressionGroup> group = 
-    Teuchos::rcp_dynamic_cast<Xyce::Util::mainXyceExpressionGroup>( dpIter->expr->getGroup() );
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
 
-    Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
-      Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
 
     devGroup->setSolutionLIDs ( expVarNames, expVarLIDs, lo, hi );
 
@@ -1829,7 +1828,8 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
     {
       if (p.isType<double>())
       {
-        p.value<double>(composite_param) = ndParam.getImmutableValue<double>();
+        //p.value<double>(composite_param) = ndParam.getImmutableValue<double>();
+        p.value<double>(composite_param) = ndParam.getMutableValue<double>();
         if (isTempParam(pName) && p.getAutoConvertTemperature())
           p.value<double>(composite_param) += CONSTCtoK;
         if (p.hasOriginalValueStored())
@@ -1841,19 +1841,22 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
       }
       else if (p.isType<int>())
       {
-        p.value<int>(composite_param) = ndParam.getImmutableValue<int>();
+        //p.value<int>(composite_param) = ndParam.getImmutableValue<int>();
+        p.value<int>(composite_param) = ndParam.getMutableValue<int>();
         if (p.hasOriginalValueStored())
           Xyce::Device::setOriginalValue(composite_param, p.getSerialNumber(), static_cast<double>(p.value<int>(composite_param)));
       }
       else if (p.isType<long>())
       {
-        p.value<long>(composite_param) = ndParam.getImmutableValue<long>();
+        //p.value<long>(composite_param) = ndParam.getImmutableValue<long>();
+        p.value<long>(composite_param) = ndParam.getMutableValue<long>();
         if (p.hasOriginalValueStored())
           Xyce::Device::setOriginalValue(composite_param, p.getSerialNumber(), static_cast<double>(p.value<long>(composite_param)));
       }
       else if (p.isType<bool>())
       {
-        p.value<bool>(composite_param) = (ndParam.getImmutableValue<double>() != 0.0);
+        //p.value<bool>(composite_param) = (ndParam.getImmutableValue<double>() != 0.0);
+        p.value<bool>(composite_param) = (ndParam.getMutableValue<double>() != 0.0);
         if (p.hasOriginalValueStored())
         {
           if (p.value<bool>(composite_param))
@@ -1864,7 +1867,8 @@ void DeviceEntity::setParamFromVCParam(CompositeParam &composite_param,
       }
       else if (p.isType<std::vector<double> >())
       {
-       (p.value<std::vector<double> >(composite_param)).push_back(ndParam.getImmutableValue<double>());
+       //(p.value<std::vector<double> >(composite_param)).push_back(ndParam.getImmutableValue<double>());
+       (p.value<std::vector<double> >(composite_param)).push_back(ndParam.getMutableValue<double>());
       }
       else if (p.isType<std::vector<std::string> >())
       {

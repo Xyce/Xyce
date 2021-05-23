@@ -915,19 +915,17 @@ Simulator::RunStatus Simulator::initializeEarly(
   if (DEBUG_CIRCUIT)
     dout() << "Registration was successful" << std::endl;
 
-
-
   // ERK.  Allocate up the main expression group
   Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
     *parallelManager_->getPDSComm(),
     *topology_, *analysisManager_, *deviceManager_, *outputManager_));
-
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
+
   IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);
   IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
 
   // ERK. these could be in "doRegistrations" but the mainXyceGroup must be allocated after netlist_import_tool, which happens after ...
-  bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast);
+  bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast); 
   bool bs2=analysisManager_->registerExpressionGroup(baseGroupCast);
   bool bs3=measureManager_->registerExpressionGroup(baseGroupCast);
   bool bs4=nonlinearManager_->registerExpressionGroup(baseGroupCast);

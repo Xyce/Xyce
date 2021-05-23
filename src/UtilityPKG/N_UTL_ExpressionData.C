@@ -427,17 +427,29 @@ ExpressionData::setup(
       param_it = context_global_param_map.find(varName);
       if (param_it != context_global_param_map.end())
       {
-        if(param_it->second.getType() == Xyce::Util::EXPR)
+        const Util::Param &replacement_param = param_it->second;
+
+        if(replacement_param.getType() == Xyce::Util::EXPR)
         {
-          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (replacement_param.getValue<Util::Expression>());
           expression_->attachParameterNode(varName, expToBeAttached);
         }
         else
         {
-          if (!expression_->make_var(varName))
+          // this should never happen now.
+#if 0
+          double val=0.0;
+          if ( replacement_param.getType() == Xyce::Util::STR ||
+               replacement_param.getType() == Xyce::Util::DBLE )
+          {
+            val = replacement_param.getMutableValue<double>();
+          }
+
+          if (!expression_->make_var(varName,val))
           {
             Report::UserWarning0() << "Problem setting global parameter " << varName;
           }
+#endif
         }
       }
       else

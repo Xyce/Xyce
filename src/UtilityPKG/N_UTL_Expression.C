@@ -52,7 +52,6 @@
 #include <N_UTL_Expression.h>
 
 #include <newExpression.h>
-#include <xyceExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
 
 namespace Xyce {
@@ -235,16 +234,45 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::make_var
-// Purpose       : Convert a 'string' placeholder into a variable
+// Function      : Expression::setAsGlobal
+//
+// Purpose       : Add extra layer to the AST to make it easier to handle 
+//                 as a global param.
+//
 // Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 5/20/2021
 //-----------------------------------------------------------------------------
-bool Expression::make_var (std::string const & var, enumParamType type)
+void Expression::setAsGlobal ()
 { 
-  return newExpPtr_->make_var(var, type);
+  return newExpPtr_->setAsGlobal();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/20/2021
+//-----------------------------------------------------------------------------
+void Expression::setValue(double val)
+{ 
+  return newExpPtr_->setValue(val);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setValue
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/20/2021
+//-----------------------------------------------------------------------------
+void Expression::setValue(std::complex<double> val)
+{ 
+  return newExpPtr_->setValue(val);
 }
 
 //-----------------------------------------------------------------------------
@@ -459,7 +487,7 @@ const std::vector<std::string> & Expression::getUnresolvedFunctions () const
 //-----------------------------------------------------------------------------
 // Function      : Expression::getSpecials
 // Purpose       : 
-// Special Notes : does this need to catch GMIN as well?
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
@@ -473,6 +501,7 @@ void Expression::getSpecials (std::vector<std::string> & specials) const
   if (newExpPtr_->getTempDependent()) { specials.push_back(std::string("TEMP")); }
   if (newExpPtr_->getVTDependent()) { specials.push_back(std::string("VT")); }
   if (newExpPtr_->getFreqDependent()) { specials.push_back(std::string("FREQ")); }
+  if (newExpPtr_->getGminDependent()) { specials.push_back(std::string("GMIN")); }
 }
 
 //-----------------------------------------------------------------------------
@@ -556,6 +585,91 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
       powerCalcs.push_back( tmpName );
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVariableDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getVariableDependent() 
+{
+  return newExpPtr_->getVariableDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodeDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getVoltageNodeDependent() 
+{
+  return newExpPtr_->getVoltageNodeDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getDeviceCurrentDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getDeviceCurrentDependent() 
+{
+  return newExpPtr_->getDeviceCurrentDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getLeadCurrentDependent() 
+{
+  return newExpPtr_->getLeadCurrentDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getLeadCurrentDependentExcludeBsrc
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getLeadCurrentDependentExcludeBsrc() 
+{
+  return newExpPtr_->getLeadCurrentDependentExcludeBsrc();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getSpecialsDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+bool Expression::getSpecialsDependent() 
+{
+  bool retval =   
+    (newExpPtr_->getTimeDependent()) ||
+    (newExpPtr_->getTempDependent()) ||
+    (newExpPtr_->getVTDependent()) ||
+    (newExpPtr_->getFreqDependent()) ||
+    (newExpPtr_->getGminDependent());
+
+  return retval;
 }
 
 //-----------------------------------------------------------------------------

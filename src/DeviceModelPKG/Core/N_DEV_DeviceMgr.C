@@ -2088,12 +2088,21 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   std::vector<std::string> & expNameVec = globals_.expNameVec;
 
   // get random expressions from global parameters first.
-  // ERK Q: in parallel, is the order of global params preserved?  This global param 
-  // part works in parallel when there is a single parameter.
-  // If the order is preserved, then nothing extra has to be done for parallel.
-  for (int ii=0;ii<expressionVec.size();ii++)
+  if (! (expressionVec.empty()) ) 
   {
-    populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
+    for (int ii=0;ii<expressionVec.size();ii++)
+    {
+      populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
+    }
+
+    // in parallel, the order is not guaranteed from processor to processor
+    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    {
+      if ( !(SamplingParams.empty()) )
+      {
+        std::sort(SamplingParams.begin(), SamplingParams.end(), SweepParam_greater());
+      }
+    }
   }
 
   // now do device params
@@ -2116,10 +2125,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
     }
 
-    // this sort appears to matter for the latch_embedded_nisp_norm.cir when running in parallel.
     std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
 
-    //
     // if parallel, get a combined vector of random model params from all processors.
     // ERK Note: this parallel reduction may be unneccessary.  As of this writing,
     // I am not 100% sure what the distribution strategy is for device models.
@@ -2922,7 +2929,7 @@ void DeviceMgr::addGlobalPar(const Util::Param & param)
   // get the device manager's current temp
   double temp = getDeviceOptions().temp.getImmutableValue<double>();
 
-  addGlobalParameter(solState_, temp, globals_, param);
+  addGlobalParameter(solState_, temp, globals_, param, expressionGroup_);
 }
 
 //-----------------------------------------------------------------------------
@@ -3184,6 +3191,33 @@ bool DeviceMgr::loadBVectorsforSources()
     if ( (*it)->isLinearDevice() )
     {
       (*it)->loadDAEBVector();
+    }
+  }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::loadFreqBVectorsforSources
+// Purpose       : This function loads the B-vector contributions for sources.
+// Special Notes : This is only done for linear sources.
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool DeviceMgr::loadFreqBVectorsforSources(double frequency,
+                                           std::vector<Util::FreqVecEntry>& BVecEntries)
+
+{
+  bool bsuccess = true;
+
+  IndependentSourceVector::iterator it = independentSourceVector_.begin();
+  IndependentSourceVector::iterator end = independentSourceVector_.end();
+  for ( ; it != end; ++it)
+  {
+    if ( (*it)->isLinearDevice() )
+    {
+      (*it)->loadFreqBVector(frequency, BVecEntries);
     }
   }
 
@@ -4874,6 +4908,8 @@ bool setParameter(
 {
   bool bsuccess = true, success = true;
   GlobalParameterMap &  global_parameter_map = globals.paramMap;
+  std::vector<Util::Expression> & global_expressions = globals.expressionVec;
+  std::vector<std::string> & global_exp_names = globals.expNameVec;
 
   ArtificialParameterMap::iterator artificial_param_it = artificial_parameter_map.find(name);
   if (artificial_param_it != artificial_parameter_map.end())
@@ -4885,34 +4921,59 @@ bool setParameter(
     GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
     if (global_param_it != global_parameter_map.end())
     {
-      if ((*global_param_it).second != value)
+
+#if 1
+      // find the expression.  ERK.  This should be the "real" place to update.
+      std::string tmpName = name; Util::toUpper(tmpName);
+      std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), tmpName);
+
+      if (name_it == global_exp_names.end())
       {
-        (*global_param_it).second = value;
-        EntityVector::iterator it = dependent_entity_vector.begin();
-        EntityVector::iterator end = dependent_entity_vector.end();
-        for ( ; it != end; ++it)
+        Report::UserError() << "Unable to find parameter " << name;
+      }
+      else
+      {
+        int globalIndex = std::distance (global_exp_names.begin(), name_it );
+        Util::Expression &expression = global_expressions[globalIndex];
+        double exprValue(0.0);
+        expression.evaluateFunction(exprValue);
+
+        if ((*global_param_it).second != value || exprValue != value)
+#else
+        if ((*global_param_it).second != value)
+#endif
         {
-          bool globalParamChangedLocal=true;
-          bool timeChangedLocal=false;
-          bool freqChangedLocal=false;
-          if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+          (*global_param_it).second = value;
+
+#if 1
+          expression.setValue(value);
+#endif
+          EntityVector::iterator it = dependent_entity_vector.begin();
+          EntityVector::iterator end = dependent_entity_vector.end();
+          for ( ; it != end; ++it)
           {
-            (*it)->processParams();
-            (*it)->processInstanceParams();
+            bool globalParamChangedLocal=true;
+            bool timeChangedLocal=false;
+            bool freqChangedLocal=false;
+            if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+            {
+              (*it)->processParams();
+              (*it)->processInstanceParams();
+            }
           }
         }
-      }
 
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-        Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
-        if (override_original)
+        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
-          Xyce::dout()  << " overriding original";
+          Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
+          if (override_original)
+          {
+            Xyce::dout()  << " overriding original";
+          }
+          Xyce::dout() << std::endl;
         }
-        Xyce::dout() << std::endl;
-      }
 
+      }
     }
     else
     {
@@ -5030,66 +5091,74 @@ bool setParameterRandomExpressionTerms(
     if (global_param_it != global_parameter_map.end())
     {
       // find the expression:
-      std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), name);
-      int globalIndex = std::distance (global_exp_names.begin(), name_it );
+      std::string tmpName = name; Util::toUpper(tmpName);
+      std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), tmpName);
 
-      Util::Expression &expression = global_expressions[globalIndex];
-
-      // set value .  The variable "value" was determined in one of the UQ classes.  
-      // It represents the value of a particular operator within the expression.  
-      // Use the opIndex to identify exactly which operator receives this value.
-      switch(astType)
+      if (name_it == global_exp_names.end())
       {
-        case Util::AST_AGAUSS:
-          expression.setAgaussValue(opIndex,value);
-          break;
-        case Util::AST_GAUSS:
-          expression.setGaussValue(opIndex,value);
-          break;
-        case Util::AST_AUNIF:
-          expression.setAunifValue(opIndex,value);
-          break;
-        case Util::AST_UNIF:
-          expression.setUnifValue(opIndex,value);
-          break;
-        case Util::AST_RAND:
-          expression.setRandValue(opIndex,value);
-          break;
-        case Util::AST_LIMIT:
-          expression.setLimitValue(opIndex,value);
-          break;
+        Report::UserError() << "Unable to find parameter " << name;
       }
-      double paramValue=0.0;
-      expression.evaluateFunction(paramValue);
-
-      if ((*global_param_it).second != value)
+      else
       {
-        (*global_param_it).second = value;
-        EntityVector::iterator it = dependent_entity_vector.begin();
-        EntityVector::iterator end = dependent_entity_vector.end();
-        for ( ; it != end; ++it)
+        int globalIndex = std::distance (global_exp_names.begin(), name_it );
+        Util::Expression &expression = global_expressions[globalIndex];
+
+        // set value .  The variable "value" was determined in one of the UQ classes.  
+        // It represents the value of a particular operator within the expression.  
+        // Use the opIndex to identify exactly which operator receives this value.
+        switch(astType)
         {
-          bool globalParamChangedLocal=true;
-          bool timeChangedLocal=false;
-          bool freqChangedLocal=false;
-          if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+          case Util::AST_AGAUSS:
+            expression.setAgaussValue(opIndex,value);
+            break;
+          case Util::AST_GAUSS:
+            expression.setGaussValue(opIndex,value);
+            break;
+          case Util::AST_AUNIF:
+            expression.setAunifValue(opIndex,value);
+            break;
+          case Util::AST_UNIF:
+            expression.setUnifValue(opIndex,value);
+            break;
+          case Util::AST_RAND:
+            expression.setRandValue(opIndex,value);
+            break;
+          case Util::AST_LIMIT:
+            expression.setLimitValue(opIndex,value);
+            break;
+        }
+        double paramValue=0.0;
+        expression.evaluateFunction(paramValue);
+
+        if ((*global_param_it).second != value)
+        {
+          (*global_param_it).second = value;
+          EntityVector::iterator it = dependent_entity_vector.begin();
+          EntityVector::iterator end = dependent_entity_vector.end();
+          for ( ; it != end; ++it)
           {
-            (*it)->processParams();
-            (*it)->processInstanceParams();
+            bool globalParamChangedLocal=true;
+            bool timeChangedLocal=false;
+            bool freqChangedLocal=false;
+            if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+            {
+              (*it)->processParams();
+              (*it)->processInstanceParams();
+            }
           }
         }
-      }
 
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-        Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
-        if (override_original)
+        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
-          Xyce::dout()  << " overriding original";
+          Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
+          if (override_original)
+          {
+            Xyce::dout()  << " overriding original";
+          }
+          Xyce::dout() << std::endl;
         }
-        Xyce::dout() << std::endl;
-      }
 
+      }
     }
     else
     {
@@ -5175,17 +5244,19 @@ void addGlobalParameter(
   SolverState &         solver_state,
   double                temp,
   UserDefinedParams &   globals,
-  const Util::Param &   param)
+  const Util::Param &   param,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup
+  )
 {
   if (param.getType() == Util::EXPR)
   {
     globals.expressionVec.push_back(param.getValue<Util::Expression>());
+    Util::Expression &expression = globals.expressionVec.back();
     globals.expNameVec.push_back(param.uTag());
     globals.paramMap[param.uTag()] = 0.0; 
-    // this value will get set later, probably in a 
+    // this value will get set properly later in a 
     // updateDependentParameters_ function call.  
-    // It is dangerous to evalaute the expression now, b/c it 
-    // may depend on global params that haven't yet been added to this map.
+    expression.setGroup(expressionGroup);
   }
   else
   {

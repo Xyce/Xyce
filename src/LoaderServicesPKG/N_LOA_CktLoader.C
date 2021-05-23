@@ -1002,6 +1002,23 @@ bool CktLoader::loadBVectorsforSources()
   return deviceManager_.loadBVectorsforSources();
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : CktLoader::loadFreqBVectorsforSources
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool CktLoader::loadFreqBVectorsforSources(         
+    double frequency,
+//    std::complex<double>* freqSolVec,
+    std::vector<Util::FreqVecEntry>& BVecEntries)
+{
+  return deviceManager_.loadFreqBVectorsforSources(frequency, BVecEntries);
+}
+
 //-----------------------------------------------------------------------------
 // Function      : CktLoader::getNumNoiseSources
 // Purpose       :

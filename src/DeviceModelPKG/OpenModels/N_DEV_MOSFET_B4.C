@@ -4429,13 +4429,41 @@ bool Instance::processParams ()
   // apply scale
   if (getDeviceOptions().lengthScale != 1.0)
   {
+#if 0
     if (given("L")) { l *= getDeviceOptions().lengthScale; }
     if (given("W")) { w *= getDeviceOptions().lengthScale; }
+#else
+    if (given("L")) { setParam(std::string("L"), l * getDeviceOptions().lengthScale); }
+    if (given("W")) { setParam(std::string("W"), w * getDeviceOptions().lengthScale); }
+#endif
     if (sourceAreaGiven) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
     if (drainAreaGiven) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
     if (drainPerimeterGiven) { drainPerimeter *= getDeviceOptions().lengthScale; }
     if (sourcePerimeterGiven) { sourcePerimeter *= getDeviceOptions().lengthScale; }
+
+#if 0
+    std::cout << "Length Scale given = " << getDeviceOptions().lengthScale <<std::endl;
+    std::cout << "L = " << l <<std::endl;
+    std::cout << "W = " << w <<std::endl;
+    std::cout << "sourceArea = " << sourceArea <<std::endl;
+    std::cout << "drainArea = " << drainArea <<std::endl;
+    std::cout << "drainPerimeter = " << drainPerimeter <<std::endl;
+    std::cout << "sourcePerimeter = " << sourcePerimeter <<std::endl;
+#endif
   }
+  else
+  {
+#if 0
+    std::cout << "Length Scale not given" << std::endl;
+    std::cout << "L = " << l <<std::endl;
+    std::cout << "W = " << w <<std::endl;
+    std::cout << "sourceArea = " << sourceArea <<std::endl;
+    std::cout << "drainArea = " << drainArea <<std::endl;
+    std::cout << "drainPerimeter = " << drainPerimeter <<std::endl;
+    std::cout << "sourcePerimeter = " << sourcePerimeter <<std::endl;
+#endif
+  }
+
 
   // Set any non-constant parameter defaults:
   if (!RBDBgiven)

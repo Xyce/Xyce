@@ -94,9 +94,11 @@ public:
 
   const std::vector<std::string> & getFunctionArgStringVec ();
 
-  // ERK some old expressionstuff.  
   bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
-  bool make_var (std::string const & var, enumParamType type=DOT_GLOBAL_PARAM);
+
+  void setAsGlobal();
+  void setValue(double val);
+  void setValue(std::complex<double> val);
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp );
   Teuchos::RCP<baseExpressionGroup> getGroup();
@@ -120,6 +122,13 @@ public:
   const std::vector<std::string> & getVariables() const;
   const std::vector<std::string> & getLeadCurrents        () const;
   const std::vector<std::string> & getLeadCurrentsExcludeBsrc () const;
+
+  bool getVariableDependent() ;
+  bool getVoltageNodeDependent() ;
+  bool getDeviceCurrentDependent() ;
+  bool getLeadCurrentDependent() ;
+  bool getLeadCurrentDependentExcludeBsrc() ;
+  bool getSpecialsDependent() ;
 
   bool getIsConstant ();
 

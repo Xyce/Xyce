@@ -107,7 +107,7 @@ public:
 
   // Constructors.
   CircuitContext(
-    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+    //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
     Util::Op::BuilderManager &          op_builder_manager,
     std::list<CircuitContext*> &        context_list,
     CircuitContext *&                   current_circuit_context);
@@ -221,6 +221,9 @@ public:
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveParameter(Util::Param& parameter) const;
+
+  // ERK. new version, with no exceptions strings (i.e. function arguments)
+  bool resolveGlobalParameter(Util::Param& parameter) const;
 
   // ERK. new function for new expression.
   bool resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs) const; 

@@ -287,7 +287,7 @@ NetlistImportTool::NetlistImportTool(
     distributionTool_(NULL),
     currentContextPtr_(NULL),
     metadata_(),
-    circuitContext_(group, op_builder_manager, contextList_, currentContextPtr_),
+    circuitContext_(op_builder_manager, contextList_, currentContextPtr_),
     useMOR_(false),
     expressionGroup_(group)
 {}
@@ -366,7 +366,9 @@ int NetlistImportTool::constructCircuitFromNetlist(
     device_names,
     nodeNames_,
     aliasNodeMap_,
-    externalNetlistParams );
+    externalNetlistParams,
+    expressionGroup_
+    );
 
   // Register the mutual inductors here, they are handled differently than every other 
   // device right now.
