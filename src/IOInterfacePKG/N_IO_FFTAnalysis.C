@@ -614,7 +614,6 @@ bool FFTAnalysis::applyWindowFunction_()
   }
   else if (windowType_ == "HALFCYCLESINE")
   {
-    Xyce::dout() << "here" << std::endl;
     double factor;
     for (int i=0; i< np_; i++)
     {
