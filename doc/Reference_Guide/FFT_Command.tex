@@ -8,6 +8,7 @@
 % LLC (NTESS).
 
 \label{FFT}
+\index{fft}\index{results!fft}
 
 Performs Fast Fourier Transform analysis of transient analysis output.
 
@@ -76,10 +77,13 @@ has no effect though, since the {\tt GAUSS} and {\tt KAISER} windows
 are not supported.
 
 \argument{FORMAT}
-The allowed values are {\tt NORM} and {\tt UNORM}.  The default
-value is {\tt NORM}. If {\tt NORM} is selected then the magnitude
-values will be normalized to the largest magnitude.  If {\tt UNORM}
-is selected then the actual magnitude values will be output instead.
+The allowed values are {\tt NORM} and {\tt UNORM}.  If {\tt NORM} is
+selected then the magnitude values will be normalized to the largest
+magnitude.  If {\tt UNORM} is selected then the actual magnitude values
+will be output instead.  The default value for this parameter depends
+on the \texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0},
+which is the default options setting, then the default value is {\tt NORM}.
+If \texttt{FFT\_MODE=1} then the default value is {\tt UNORM}.
 
 \argument{START}
 The start time for the FFT analysis.  The default value is the
@@ -127,6 +131,31 @@ For this analysis, the phase data is always output in degrees.
 
 \end{Command}
 
+\subsubsection{.OPTIONS FFT FFT\_MODE}
+\label{FFT_MODE}
+\index{fft!options}
+The setting for \texttt{.OPTIONS FFT FFT\_MODE} is used to control whether the
+\Xyce{} FFT processing and output format area more compatible with HSPICE (0) or
+Spectre (1).  This setting affects the format of the window functions, the
+conversion from two-sided to one-sided results, and whether the default output
+for the magnitude values is normalized, or not.  The default setting for
+\texttt{FFT\_MODE} is 0.
+
+If \texttt{FFT\_MODE=0} then symmetric window functions are used.  If
+\texttt{FFT\_MODE=1} then periodic window functions are used.  The next
+section provides more details on that difference.
+
+If \texttt{FFT\_MODE=0} then the two-sided to one-sided conversion doubles
+the magnitudes of the 1,2,...,NP harmonics. If \texttt{FFT\_MODE=1} then that
+conversion only doubles the magnitudes of 1,2,...,(NP-1) harmonics.
+
+The default value for the \texttt{FORMAT} parameter depends on the
+\texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0} then
+the default value for that parameter is {\tt NORM}. If \texttt{FFT\_MODE=1}
+then the default value is {\tt UNORM}.
+
+\subsubsection{Window Functions}
+\index{fft!window functions}
 Table~\ref{FFT_Window_Funcs} gives the definitions of the window functions
 implemented in \Xyce{}.  For HSPICE compatibility, the {\tt BLACK} window type
 is actually the ``-67 dB Three-Term Blackman-Harris window''~\cite{Doerry2017}
@@ -163,6 +192,7 @@ to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
 \end{longtable}
 
 \subsubsection{Additional FFT Metrics}
+\index{fft!additional metrics}
 \label{FFT_metrics}
 The following additional metrics will be sent to stdout if \texttt{.OPTIONS FFT FFTOUT=1}
 is used in the netlist.  These definitions are also used by the corresponding measure
@@ -226,7 +256,7 @@ $SFDR = 20 \cdot log10(\frac{mag[f_{0}]}{MAX(mag[i])}), \hspace*{0.1in}\textrm{f
 
 \subsubsection{Re-Measure}
 \label{Measure_FFT_ReMeasure}
-\index{measure fft!re-measure}
+\index{measure fft!re-measure}\index{fft!remeasure}
 \Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
 using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
 this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
@@ -235,6 +265,7 @@ operation.  This should have no impact of the accuracy of the re-measured result
 if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
 
 \subsubsection{Compatibility Between OUTPUT and FFT Options}
+\index{fft!options}
 Some \texttt{.OPTIONS OUTPUT} settings are incompatible with using the default
 setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1}.  The use of
 \texttt{.OPTIONS OUTPUT OUTPUTTIMEPOINTS} is compatible.  However, the use of
