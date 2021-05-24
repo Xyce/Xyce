@@ -1559,9 +1559,9 @@ class currentOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setCurrentDevice(const std::string & devName) { currentDevice_ = devName; }
-    std::string getCurrentDevice() { return currentDevice_; }
+    std::string & getCurrentDevice() { return currentDevice_; }
 
-    ScalarT getCurrentVal () { return number_; }
+    ScalarT & getCurrentVal () { return number_; }
     void setCurrentVal (ScalarT n) { number_ = n; }
 
     virtual bool currentType() { return true; };

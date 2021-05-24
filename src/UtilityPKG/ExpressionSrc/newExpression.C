@@ -1186,6 +1186,7 @@ void newExpression::setupVariousAstArrays()
 
     checkIsConstant_();
     astArraysSetup_ = true;
+    groupSetup_ = false;
   }
 };
 
@@ -1293,207 +1294,8 @@ bool newExpression::getValuesFromGroup_()
     << expressionString_ << std::endl;
 #endif
 
-  // get solution values we need from the group
-  if ( !(voltOpVec_.empty()) )
-  {
-    for (int ii=0;ii<voltOpVec_.size();ii++)
-    {
-      Teuchos::RCP<voltageOp<usedType> > voltOp
-        = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-
-      std::string & node = voltOp->getVoltageNode();
-      usedType & val = voltOp->getVoltageVal();
-      usedType oldval = val;
-      group_->getSolutionVal(node, val);
-      if(val != oldval) noChange=false;
-    }
-  }
-
-  if ( !(currentOpVec_.empty()) )
-  {
-    for (int ii=0;ii<currentOpVec_.size();ii++)
-    {
-      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-      usedType val;
-      usedType oldval = currOp->getCurrentVal();
-
-      std::string simple("I");
-      group_->getCurrentVal(currOp->getCurrentDevice(),simple,val);
-      currOp->setCurrentVal ( val );
-
-      if (val != oldval) noChange=false;
-    }
-  }
-
-  if ( !(leadCurrentOpVec_.empty()) )
-  {
-    for (int ii=0;ii<leadCurrentOpVec_.size();ii++)
-    {
-      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (leadCurrentOpVec_[ii]);
-
-      usedType val;
-      usedType oldval = leadCurrOp->val();
-      group_->getCurrentVal(leadCurrOp->getLeadCurrentDevice(), leadCurrOp->getLeadCurrentDesignator() , val);
-      leadCurrOp->setLeadCurrentVar ( val );
-
-      if (val != oldval) noChange=false;
-    }
-  }
-
-  if ( !(internalDevVarOpVec_.empty()) )
-  {
-    for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
-    {
-      Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);
-
-      usedType val;
-      usedType oldval = intVarOp->val();
-      group_->getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
-      intVarOp->setInternalDeviceVar ( val );
-
-      if (val != oldval) noChange=false;
-    }
-  }
-
-  // This block of code was originally conceived of for retrieving global parameters.
-  // However, it also is used for retrieving anything that is basically of "unknown" status.  
-  // For .print line outputs, that includes things like device parameters (for example ISRC:mag)
-  //
-  // Originally, this block would also handle parameters that had been labled "isVar" via 
-  // the "make_vars" function.  This was generally global_param of type Util::DBLE and Util::STR.
-  // However,  that is not the case any more as .global_params are now handled 100% with 
-  // attachments, and the make_var function is gone.
-  if ( !(paramOpVec_.empty()) )
-  {
-    for (int ii=0;ii<paramOpVec_.size();++ii)
-    {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-
-      if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) ) // if the param is a constant, or attached, then it already has its value
-      {
-        usedType oldval = parOp->getValue();
-        usedType val = oldval;
-        group_->getParameterVal(parOp->getName(),val);
-        parOp->setValue(val);
-
-        if (val != oldval) noChange=false;
-      }
-    }
-  }
-
-  if ( !(dnoNoiseDevVarOpVec_.empty()) )
-  {
-    for (int ii=0;ii<dnoNoiseDevVarOpVec_.size();ii++)
-    {
-      Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (dnoNoiseDevVarOpVec_[ii]);
-
-      usedType val;
-      usedType oldval=dnoOp->val();
-      group_->getDnoNoiseDeviceVar(dnoOp->getNoiseDevices(),val);
-      dnoOp->setNoiseVar ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(dniNoiseDevVarOpVec_.empty()) )
-  {
-    for (int ii=0;ii<dniNoiseDevVarOpVec_.size();ii++)
-    {
-      Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (dniNoiseDevVarOpVec_[ii]);
-      usedType val;
-      usedType oldval=dniOp->val();
-      group_->getDniNoiseDeviceVar(dniOp->getNoiseDevices(),val);
-      dniOp->setNoiseVar ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(oNoiseOpVec_.empty()) )
-  {
-    for (int ii=0;ii<oNoiseOpVec_.size();ii++)
-    {
-      Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (oNoiseOpVec_[ii]);
-      usedType val;
-      usedType oldval=onoiseOp->val();
-      group_->getONoise(val);
-      onoiseOp->setNoiseVar ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(iNoiseOpVec_.empty()) )
-  {
-    for (int ii=0;ii<iNoiseOpVec_.size();ii++)
-    {
-      Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (iNoiseOpVec_[ii]);
-      usedType val;
-      usedType oldval=inoiseOp->val();
-      group_->getINoise(val);
-      inoiseOp->setNoiseVar ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(powerOpVec_.empty()) )
-  {
-    for (int ii=0;ii<powerOpVec_.size();ii++)
-    {
-      Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (powerOpVec_[ii]);
-      usedType val;
-      usedType oldval=pwrOp->val();
-      group_->getPower ( pwrOp->getPowerTag(), pwrOp->getPowerDevice(), val);
-      pwrOp->setPowerVal ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(sparamOpVec_.empty()) )
-  {
-    for (int ii=0;ii<sparamOpVec_.size();ii++)
-    {
-      Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (sparamOpVec_[ii]);
-      usedType val;
-      usedType oldval=sparOp->val();
-      group_->getSparam (sparOp->getSparamArgs(), val);
-      sparOp->setValue ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(yparamOpVec_.empty()) )
-  {
-    for (int ii=0;ii<yparamOpVec_.size();ii++)
-    {
-      Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (yparamOpVec_[ii]);
-      usedType val;
-      usedType oldval=yparOp->val();
-      group_->getYparam (yparOp->getYparamArgs(), val);
-      yparOp->setValue ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
-  if ( !(zparamOpVec_.empty()) )
-  {
-    for (int ii=0;ii<zparamOpVec_.size();ii++)
-    {
-      Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (zparamOpVec_[ii]);
-      usedType val;
-      usedType oldval=zparOp->val();
-      group_->getZparam (zparOp->getZparamArgs(), val);
-      zparOp->setValue ( val );
-
-      if (val != oldval) noChange = false;
-    }
-  }
-
+  // this function will get nearly everything, including voltages, currents, parameters, etc.
+  noChange = group_->putValues(*this);
 
   // specials:
   if ( !(timeOpVec_.empty()) )
@@ -1703,6 +1505,11 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     setupVariousAstArrays ();
     setupDerivatives_ ();
 
+    if (!groupSetup_)
+    {
+      groupSetup_=group_->setupGroup(*this);
+    }
+
 #if 0
     Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
     dumpParseTree(Xyce::dout());
@@ -1751,6 +1558,11 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
   if (parsed_)
   {
     setupVariousAstArrays ();
+
+    if (!groupSetup_)
+    {
+      groupSetup_=group_->setupGroup(*this);
+    }
 
 #if 0
     Xyce::dout() << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;

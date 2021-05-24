@@ -71,7 +71,12 @@ Expression::Expression(
     const std::vector<std::string> & functionArgStringVec)
   :
    newExpPtr_(NULL),
-   grp_(baseGrp_)
+   grp_(baseGrp_),
+#ifdef USE_TYPE_DOUBLE
+  result_(0.0)
+#else
+  result_(std::complex<double>(0.0,0.0))
+#endif
 {
   newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(exp,grp_) );
 
@@ -754,12 +759,10 @@ bool Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::comp
 {
   bool retVal=true;
 #ifdef USE_TYPE_DOUBLE
-  double result;
-  std::vector<double> derivs;
-  retVal = newExpPtr_->evaluate( result, derivs );
-  exp_r = std::complex<double>(result,0.0);
-  deriv_r.resize(derivs.size(),0.0);
-  for(int ii=0;ii<derivs.size();ii++) { deriv_r[ii] = std::complex<double>(derivs[ii],0.0); } // could use a lambda here
+  retVal = newExpPtr_->evaluate( result_, derivs_ );
+  exp_r = std::complex<double>(result_,0.0);
+  if (derivs_.size() != deriv_r.size()) {deriv_r.clear(); deriv_r.resize(derivs_.size());}
+  for(int ii=0;ii<derivs_.size();ii++) { deriv_r[ii] = std::complex<double>(derivs_[ii],0.0); } 
 #else
   retVal = newExpPtr_->evaluate( exp_r, deriv_r );
 #endif
@@ -778,9 +781,8 @@ bool Expression::evaluateFunction ( std::complex<double> & exp_r, bool efficienc
 {
   bool retVal=true; 
 #ifdef USE_TYPE_DOUBLE
-  double result;
-  retVal = newExpPtr_->evaluateFunction( result, efficiencyOn );
-  exp_r = std::complex<double>(result,0.0);
+  retVal = newExpPtr_->evaluateFunction( result_, efficiencyOn );
+  exp_r = std::complex<double>(result_,0.0);
 #else
   retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
 #endif
@@ -801,13 +803,10 @@ bool Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 #ifdef USE_TYPE_DOUBLE
   retVal = newExpPtr_->evaluate( exp_r, deriv_r );
 #else
-  std::complex<double> result;
-  std::vector<std::complex<double> > derivs;
-  retVal = newExpPtr_->evaluate( result, derivs );
-
-  exp_r = std::real(result);
-  deriv_r.resize(derivs.size(),0.0);
-  for(int ii=0;ii<derivs.size();ii++) {  deriv_r[ii] = std::real(derivs[ii]); } // could use a lambda here
+  retVal = newExpPtr_->evaluate( result_, derivs_ );
+  exp_r = std::real(result_);
+  if (derivs_.size() != deriv_r.size()) {deriv_r.clear(); deriv_r.resize(derivs_.size());}
+  for(int ii=0;ii<derivs_.size();ii++) {  deriv_r[ii] = std::real(derivs_[ii]); }
 #endif
   return retVal;
 }
@@ -826,9 +825,8 @@ bool Expression::evaluateFunction ( double & exp_r, bool efficiencyOn )
 #ifdef USE_TYPE_DOUBLE
   retVal = newExpPtr_->evaluateFunction ( exp_r, efficiencyOn );
 #else
-  std::complex<double> result;
-  retVal = newExpPtr_->evaluateFunction ( result, efficiencyOn );
-  exp_r = std::real(result);
+  retVal = newExpPtr_->evaluateFunction ( result_, efficiencyOn );
+  exp_r = std::real(result_);
 #endif
   return retVal;
 }

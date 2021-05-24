@@ -114,6 +114,98 @@ void deviceExpressionGroup::setSolutionLIDs(
 }
 
 //-------------------------------------------------------------------------------
+// Function      : deviceExpressionGroup::setupGroup
+// Purpose       : This group mostly sets up the order.
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/23/2021
+//-------------------------------------------------------------------------------
+bool deviceExpressionGroup::setupGroup(newExpression &expr)
+{
+  lidVec_.clear();
+
+  bool success = true;
+
+  if (lidMap_.empty() && !(expr.voltOpVec_.empty())) { success = false; }
+  if (lidMap_.empty() && !(expr.currentOpVec_.empty())) { success = false; }
+
+  if (!(lidMap_.empty()))
+  {
+    if ( !(expr.voltOpVec_.empty()) )
+    {
+      for (int ii=0;ii<expr.voltOpVec_.size();ii++)
+      {
+        Teuchos::RCP<voltageOp<usedType> > voltOp
+          = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
+        std::string & node = voltOp->getVoltageNode();
+        if (lidMap_.find(node) != lidMap_.end()) { lidVec_.push_back( lidMap_[node] ); }
+        else { success = false; }
+      }
+    }
+
+    if ( !(expr.currentOpVec_.empty()) )
+    {
+      for (int ii=0;ii<expr.currentOpVec_.size();ii++)
+      {
+        Teuchos::RCP<currentOp<usedType> > currOp 
+          = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
+        std::string & name = currOp->getCurrentDevice();
+        if (lidMap_.find(name) != lidMap_.end()) { lidVec_.push_back( lidMap_[name] ); }
+        else { success = false; }
+      }
+    }
+  }
+
+  return success;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : deviceExpressionGroup::putValues
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/23/2021
+//-------------------------------------------------------------------------------
+bool deviceExpressionGroup::putValues(newExpression & expr)
+{
+  bool noChange=true;
+
+  int index=0;
+  const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+
+  if ( !(expr.voltOpVec_.empty()) )
+  {
+    for (int ii=0;ii<expr.voltOpVec_.size();ii++)
+    {
+      Teuchos::RCP<voltageOp<usedType> > voltOp
+        = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
+
+      usedType & val = voltOp->getVoltageVal();
+      usedType oldval = val;
+      if (nextSolVector && index < lidVec_.size()) { val = (*nextSolVector)[lidVec_[index]]; index++; }
+      if(val != oldval) noChange=false;
+    }
+  }
+
+  if ( !(expr.currentOpVec_.empty()) )
+  {
+    for (int ii=0;ii<expr.currentOpVec_.size();ii++)
+    {
+      Teuchos::RCP<currentOp<usedType> > currOp 
+        = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
+      usedType & val = currOp->getCurrentVal();
+      usedType oldval = val;
+      if (nextSolVector && index < lidVec_.size()) { val = (*nextSolVector)[lidVec_[index]]; index++; }
+      if (val != oldval) noChange=false;
+    }
+  }
+
+  return noChange;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : deviceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : double precision version

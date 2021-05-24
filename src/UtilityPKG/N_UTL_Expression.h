@@ -198,6 +198,14 @@ private:
 
   Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
+
+#ifdef USE_TYPE_DOUBLE
+  double result_;
+  std::vector<double> derivs_;
+#else
+  std::complex<double> result_;
+  std::vector<std::complex<double> > derivs_;
+#endif
 };
 
 } // namespace Util
