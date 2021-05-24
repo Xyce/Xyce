@@ -71,6 +71,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     stopTime_(0.0),
     np_(1024),
     format_("NORM"),
+    formatGiven_(false),
     windowType_("RECT"),
     alpha_(3.0),
     fundFreq_(0.0),
@@ -89,6 +90,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     outputVarName_(""),
     fft_accurate_(true),
     fftout_(false),
+    fft_mode_(0),
     sampleIdx_(0),
     noiseFloor_(1e-10),
     maxMag_(0.0),
@@ -176,6 +178,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     {
       ExtendedString tmpStr(currentParamIt->stringValue());
       format_ = tmpStr.toUpper();
+      formatGiven_ = true;
       if ( !( (format_ == "NORM") || (format_ == "UNORM") ) )
       {
 	Report::UserError0() << "Invalid FORMAT type " << format_ << " on .FFT line";
@@ -213,9 +216,14 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     {
       ExtendedString tmpStr(currentParamIt->stringValue());
       windowType_ = tmpStr.toUpper();
-      if ( !( (windowType_ == "RECT") || (windowType_ == "BART") || (windowType_ == "HANN") ||
-              (windowType_ == "HAMM") || (windowType_ == "BLACK") || (windowType_ == "HARRIS") ||
-              (windowType_ == "GAUSS") || (windowType_ == "KAISER") ) )
+      if ( !( (windowType_ == "RECT") || (windowType_ == "RECTANGULAR") ||
+              (windowType_ == "BART") || (windowType_ == "BARTLETT") || (windowType_ == "BARTLETTHANN") ||
+              (windowType_ == "HAMM") || (windowType_ == "HAMMING") ||
+              (windowType_ == "HANN") || (windowType_ == "HANNING") ||
+              (windowType_ == "BLACK") || (windowType_ == "BLACKMAN") ||
+              (windowType_ == "HARRIS") || (windowType_ == "BLACKMANHARRIS") || (windowType_ == "NUTTALL") ||
+              (windowType_ == "HALFCYCLESINE") || (windowType_ == "HALFCYCLESINE3") ||
+              (windowType_ == "HALFCYCLESINE6") ) )
       {
 	Report::UserError0() << "Invalid WINDOW type " << windowType_ << " on .FFT line";
       }
@@ -318,13 +326,18 @@ void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const double endSimTime,
   TimeIntg::StepErrorControl & sec,
   const bool fft_accurate,
-  const bool fftout)
+  const bool fftout,
+  const int fft_mode)
 {
   secPtr_ = &sec;
 
   // set these to match the values stored in the FFTMgr class.
   fft_accurate_ = fft_accurate;
   fftout_ = fftout;
+  fft_mode_ = fft_mode;
+
+  if ((fft_mode_ == 1) && !formatGiven_)
+    format_="UNORM";
 
   // set some defaults, and additional error checking on in put values from the FFT line
   if (!stopTimeGiven_)
@@ -500,8 +513,7 @@ void FFTAnalysis::calculateResults_()
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::interpolateData_()
 // Purpose       : evaluates interpolating polynomial at equidistant time pts
-// Special Notes : In the final version of this class, this function will only
-//                 be called if fft_accurate_ is false.
+// Special Notes : This function will only be called if fft_accurate_ is false.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
@@ -525,54 +537,108 @@ bool FFTAnalysis::interpolateData_()
 // Function      : FFTAnalysis::applyWindowFunction_()
 // Purpose       : applies specified Windowing function to the interpolated
 //                 data values.
-// Special Notes :
+// Special Notes : The fft_mode_ setting impacts this function.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
 bool FFTAnalysis::applyWindowFunction_()
 {
-  if (windowType_ == "RECT")
+  // default is symmetric windows for HSPICE compatibility.  Periodic is more
+  // compatibile with Spectre.
+  int length=np_-1;
+  if (fft_mode_ == 1)
+    length = np_;
+
+  if ((windowType_ == "RECT") || (windowType_ == "RECTANGULAR"))
   {
     for (int i=0; i< np_; i++)
       ftInData_[i] = sampleValues_[i];
   }
-  else if (windowType_ == "BART")
+  else if ((windowType_ == "BART") || (windowType_ == "BARTLETT"))
   {
-
     double weight;
     for (int i=0; i< np_; i++)
     {
-      if (i < 0.5*(np_-1))
-	weight = 2.0*i/(np_-1);
+      if (i < 0.5*length)
+	weight = 2.0*i/length;
       else
-        weight = 2.0 - 2.0*i/(np_-1);
+        weight = 2.0 - 2.0*i/length;
 
       ftInData_[i] = sampleValues_[i]*weight;
     }
   }
-  else if (windowType_ == "HANN")
+  else if (windowType_ == "BARTLETTHANN")
   {
     for (int i=0; i< np_; i++)
-      ftInData_[i] = sampleValues_[i]*sin(M_PI*i/(np_-1))*sin(M_PI*i/(np_-1));
+    {
+      double factor = double(i)/length;
+      ftInData_[i] = sampleValues_[i]*(0.62 - 0.48*fabs(factor - 0.5) + 0.38*cos(2*M_PI*(factor - 0.5)));
+    }
   }
-  else if (windowType_ == "HAMM")
+  else if ((windowType_ == "HANN") || (windowType_ == "HANNING"))
   {
     for (int i=0; i< np_; i++)
-      ftInData_[i] = sampleValues_[i] * (0.54 - 0.46*cos(2*M_PI*i/(np_-1)));
+      ftInData_[i] = sampleValues_[i]*sin(M_PI*i/length)*sin(M_PI*i/length);
+  }
+  else if ((windowType_ == "HAMM") || (windowType_ == "HAMMING"))
+  {
+    for (int i=0; i< np_; i++)
+      ftInData_[i] = sampleValues_[i] * (0.54 - 0.46*cos(2*M_PI*i/length));
+  }
+  else if (windowType_ == "BLACKMAN")
+  {
+    // The "conventional Blackman window".  See SAND2017-4042.
+    for (int i=0; i< np_; i++)
+      ftInData_[i] = sampleValues_[i] *(0.42 - 0.5*cos(2*M_PI*i/length) + 0.08*cos(4*M_PI*i/length));
   }
   else if (windowType_ == "BLACK")
   {
     // "-67 dB Three-Term Blackman-Harris" window.  See SAND2017-4042.
     for (int i=0; i< np_; i++)
-      ftInData_[i] = sampleValues_[i] *(0.42323 - 0.49755*cos(2*M_PI*i/(np_-1)) + 0.07922*cos(4*M_PI*i/(np_-1)));
+      ftInData_[i] = sampleValues_[i] *(0.42323 - 0.49755*cos(2*M_PI*i/length) + 0.07922*cos(4*M_PI*i/length));
   }
-  else if (windowType_ == "HARRIS")
+  else if ((windowType_ == "HARRIS") || (windowType_ == "BLACKMANHARRIS"))
   {
     // "-92 dB Four-Term Blackman-Harris" window. See SAND2017-4042.
     for (int i=0; i< np_; i++)
-      ftInData_[i] = sampleValues_[i] *(0.35875 - 0.48829*cos(2*M_PI*i/(np_-1)) + 0.14128*cos(4*M_PI*i/(np_-1))
-					- 0.01168*cos(6*M_PI*i/(np_-1)));
+      ftInData_[i] = sampleValues_[i] *(0.35875 - 0.48829*cos(2*M_PI*i/length) + 0.14128*cos(4*M_PI*i/length)
+					- 0.01168*cos(6*M_PI*i/length));
+  }
+  else if (windowType_ == "NUTTALL")
+  {
+    // "Four-Term Nuttall, Minimum Sidelobe (a.k.a. Blackman-Nuttall). See SAND2017-4042.
+    for (int i=0; i< np_; i++)
+      ftInData_[i] = sampleValues_[i]*(0.3635819 - 0.4891775*cos(2*M_PI*i/length) + 0.1365995*cos(4*M_PI*i/length)
+					- 0.0106411*cos(6*M_PI*i/length));
+  }
+  else if (windowType_ == "HALFCYCLESINE")
+  {
+    Xyce::dout() << "here" << std::endl;
+    double factor;
+    for (int i=0; i< np_; i++)
+    {
+      factor = sin(M_PI*i/length);
+      ftInData_[i] = sampleValues_[i]*factor;
+    }
+  }
+  else if (windowType_ == "HALFCYCLESINE3")
+  {
+    double factor;
+    for (int i=0; i< np_; i++)
+    {
+      factor = sin(M_PI*i/length);
+      ftInData_[i] = sampleValues_[i]*std::pow(factor,3);
+    }
+  }
+  else if (windowType_ == "HALFCYCLESINE6")
+  {
+    double factor;
+    for (int i=0; i< np_; i++)
+    {
+      factor = sin(M_PI*i/length);
+      ftInData_[i] = sampleValues_[i]*std::pow(factor,6);
+    }
   }
   else if ((windowType_=="GAUSS") || (windowType_=="KAISER"))
   {
@@ -596,7 +662,7 @@ bool FFTAnalysis::applyWindowFunction_()
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateFFT_()
 // Purpose       : performs FFT analysis
-// Special Notes :
+// Special Notes : The fft_mode_ setting impacts this function.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
@@ -617,8 +683,19 @@ void FFTAnalysis::calculateFFT_()
   // calculate FFT coeffs, mag and phase
   for (int i=1;i<=np_/2; i++)
   {
-    fftRealCoeffs_[i] = 2*ftOutData_[2*i]/np_;
-    fftImagCoeffs_[i] = 2*ftOutData_[2*i+1]/np_;
+    // account for differing ways that Spectre and HSPICE do the 2-sided to
+    // 1-sided conversion.
+    if ((i == np_/2) && (fft_mode_ == 1))
+    {
+      fftRealCoeffs_[i] = ftOutData_[2*i]/np_;
+      fftImagCoeffs_[i] = ftOutData_[2*i+1]/np_;
+    }
+    else
+    {
+      fftRealCoeffs_[i] = 2*ftOutData_[2*i]/np_;
+      fftImagCoeffs_[i] = 2*ftOutData_[2*i+1]/np_;
+    }
+
     mag_[i] = sqrt(fftRealCoeffs_[i]*fftRealCoeffs_[i] + fftImagCoeffs_[i]*fftImagCoeffs_[i]);
     if (mag_[i] > maxMag_)
       maxMag_ = mag_[i];

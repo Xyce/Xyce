@@ -121,6 +121,7 @@ private:
   bool                  fftAnalysisEnabled_; // set based on the analysis mode
   bool                  fft_accurate_;  // comes from .OPTIONS FFT line
   bool                  fftout_;        // comes from .OPTIONS FFT line
+  int                   fft_mode_;      // comes from .OPTIONS FFT line
   FFTAnalysisVector     FFTAnalysisList_;
 
   //added to help register lead currents with device manager

@@ -69,7 +69,8 @@ FFTMgr::FFTMgr(const std::string &   netlist_filename )
   : netlistFilename_(netlist_filename),
     fftAnalysisEnabled_(false),
     fft_accurate_(true),
-    fftout_(false)
+    fftout_(false),
+    fft_mode_(0)
 {}
 
 //-----------------------------------------------------------------------------
@@ -176,7 +177,7 @@ void FFTMgr::fixupFFTParameters(
 
     // now fixup the individual FFTAnalysis objects
     for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_);
+      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, fft_accurate_, fftout_, fft_mode_);
   }
 }
 
@@ -200,7 +201,7 @@ void FFTMgr::fixupFFTParametersForRemeasure(
   if (fftAnalysisEnabled_)
   {
     for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
-      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, false, fftout_);
+      (*it)->fixupFFTParameters(comm, op_builder_manager, endSimTime, sec, false, fftout_, fft_mode_);
   }
 }
 
@@ -336,6 +337,21 @@ bool FFTMgr::registerFFTOptions(const Util::OptionBlock &option_block)
     {
       fftout_ = (*it).getImmutableValue<int>();
       ++it;
+    }
+    else if ((*it).tag() == "FFT_MODE")
+    {
+      int fft_mode_entered = (*it).getImmutableValue<int>();
+      // need to point at next parameter
+      ++it;
+      if ((fft_mode_entered < 0) || (fft_mode_entered > 1))
+      {
+        fft_mode_ = 0;
+	Report::UserWarning0() << "FFT_MODE values of 0 or 1 are supported.  Setting to default of 0";
+      }
+      else
+      {
+        fft_mode_ = fft_mode_entered;
+      }
     }
     else
     {
@@ -517,6 +533,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
 
     parameters.insert(Util::ParamMap::value_type("FFT_ACCURATE", Util::Param("FFT_ACCURATE", 1)));
     parameters.insert(Util::ParamMap::value_type("FFTOUT", Util::Param("FFTOUT", 1)));
+    parameters.insert(Util::ParamMap::value_type("FFT_MODE", Util::Param("FFT_MODE", 1)));
   }
 }
 
