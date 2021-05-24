@@ -322,8 +322,7 @@ Instance::Instance(
       {
         Depend dpTmp;
         dpTmp.name = model_dp[i].name;
-        dpTmp.vals = model_dp[i].vals;
-        dpTmp.global_params = model_dp[i].global_params;
+        dpTmp.n_global = model_dp[i].n_global;
         dpTmp.n_vars = model_dp[i].n_vars;
         dpTmp.lo_var = model_dp[i].lo_var;
         dpTmp.vectorIndex = -1;
