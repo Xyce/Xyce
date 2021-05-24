@@ -848,7 +848,7 @@ class phaseOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (phase) is not differntiable"));
+      std::vector<std::string> errStr(1,std::string("AST node (phase) is not differentiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -896,7 +896,7 @@ class realOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (real) is not differntiable"));
+      std::vector<std::string> errStr(1,std::string("AST node (real) is not differentiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -936,7 +936,7 @@ class imagOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (imag) is not differntiable"));
+      std::vector<std::string> errStr(1,std::string("AST node (imag) is not differentiable"));
       yyerror(errStr);
       ScalarT ret = 0.0;
       return ret;
@@ -3686,7 +3686,7 @@ class tableOp : public astNode<ScalarT>
         // the original table, so it has one extra entry.
         //
         // I initially tried to use the evalDeriv function in the yInterpolator object.
-        // That method doen't use midpoints, it just differntiates the the linear
+        // That method doen't use midpoints, it just differentiates the the linear
         // interpolation device.  That approach failed at least one regression test.
         //
         if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
