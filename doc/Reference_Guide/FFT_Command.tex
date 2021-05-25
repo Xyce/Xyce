@@ -135,6 +135,10 @@ referenced like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.
 
 For this analysis, the phase data is always output in degrees.
 
+In \Xyce{}, \texttt{WINDOW=TRIANGULAR} is not an allowed synonym for
+\texttt{WINDOW=BART}.  This is to avoid confusion with other analysis
+packages such as SciPy and Matlab.
+
 \end{Command}
 
 \subsubsection{.OPTIONS FFT FFT\_MODE}
@@ -165,10 +169,10 @@ then the default value is {\tt UNORM}.
 Table~\ref{FFT_Window_Funcs} gives the definitions of the window functions
 implemented in \Xyce{}.  For HSPICE compatibility, the {\tt BLACK} window type
 is actually the ``-67 dB Three-Term Blackman-Harris window''~\cite{Doerry2017}
-rather than the ``Conventional Blackman Window'' used by Spectre, Matlab and scipy.
+rather than the ``Conventional Blackman Window'' used by Spectre, Matlab and SciPy.
 The Convential Blackman Window can be selected with the {\tt BlACKMAN} window
 type instead.  The definition of the {\tt BART} window type ~\cite{oppenheimSchafer}
-was chosen to match Spectre, Matlab and scipy.  The \Xyce{} definition may differ
+was chosen to match Spectre, Matlab and SciPy.  The \Xyce{} definition may differ
 from HSPICE.
 
 As mentioned in in the previous subsection, the choice of symmetric vs. periodic
