@@ -764,6 +764,7 @@ Teuchos::RCP<astNode<usedType> > createCurrentOp(
 
 %destructor { delete $$; } TOK_VOLTAGENODE
 %destructor { delete $$; } TOK_NOISE_DEV_VAR
+%destructor { delete $$; } TOK_TABLEFILE
 
 // Operator Precedence tokens
 %left   TOK_COMMA ","

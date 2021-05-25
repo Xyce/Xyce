@@ -103,7 +103,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     {
       Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (expr.leadCurrentOpVec_[ii]);
 
-      usedType val;
+      usedType val=0.0;
       usedType oldval = leadCurrOp->val();
       getCurrentVal(leadCurrOp->getLeadCurrentDevice(), leadCurrOp->getLeadCurrentDesignator() , val);
       leadCurrOp->setLeadCurrentVar ( val );
@@ -118,7 +118,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     {
       Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (expr.internalDevVarOpVec_[ii]);
 
-      usedType val;
+      usedType val=0.0;
       usedType oldval = intVarOp->val();
       getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
       intVarOp->setInternalDeviceVar ( val );
@@ -159,7 +159,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     {
       Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (expr.dnoNoiseDevVarOpVec_[ii]);
 
-      usedType val;
+      usedType val=0.0;
       usedType oldval=dnoOp->val();
       getDnoNoiseDeviceVar(dnoOp->getNoiseDevices(),val);
       dnoOp->setNoiseVar ( val );
@@ -173,7 +173,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.dniNoiseDevVarOpVec_.size();ii++)
     {
       Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (expr.dniNoiseDevVarOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=dniOp->val();
       getDniNoiseDeviceVar(dniOp->getNoiseDevices(),val);
       dniOp->setNoiseVar ( val );
@@ -187,7 +187,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.oNoiseOpVec_.size();ii++)
     {
       Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (expr.oNoiseOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=onoiseOp->val();
       getONoise(val);
       onoiseOp->setNoiseVar ( val );
@@ -201,7 +201,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.iNoiseOpVec_.size();ii++)
     {
       Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (expr.iNoiseOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=inoiseOp->val();
       getINoise(val);
       inoiseOp->setNoiseVar ( val );
@@ -215,7 +215,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.powerOpVec_.size();ii++)
     {
       Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (expr.powerOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=pwrOp->val();
       getPower ( pwrOp->getPowerTag(), pwrOp->getPowerDevice(), val);
       pwrOp->setPowerVal ( val );
@@ -229,7 +229,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.sparamOpVec_.size();ii++)
     {
       Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (expr.sparamOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=sparOp->val();
       getSparam (sparOp->getSparamArgs(), val);
       sparOp->setValue ( val );
@@ -243,7 +243,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.yparamOpVec_.size();ii++)
     {
       Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (expr.yparamOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=yparOp->val();
       getYparam (yparOp->getYparamArgs(), val);
       yparOp->setValue ( val );
@@ -257,7 +257,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
     for (int ii=0;ii<expr.zparamOpVec_.size();ii++)
     {
       Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (expr.zparamOpVec_[ii]);
-      usedType val;
+      usedType val=0.0;
       usedType oldval=zparOp->val();
       getZparam (zparOp->getZparamArgs(), val);
       zparOp->setValue ( val );
