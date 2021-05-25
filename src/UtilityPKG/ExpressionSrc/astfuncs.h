@@ -47,7 +47,23 @@ class NAME ## Op : public astNode<ScalarT>                                      
                                                                                        \
     virtual ScalarT val() { return std::NAME(this->leftAst_->val()); }                 \
                                                                                        \
-    virtual ScalarT dx(int i) { return DX; }                                           \
+    virtual ScalarT dx(int i)                                                          \
+    {                                                                                  \
+      ScalarT leftVal=this->leftAst_->val();                                           \
+      ScalarT leftDx =this->leftAst_->dx(i);                                           \
+      return DX;                                                                       \
+    }                                                                                  \
+                                                                                       \
+    virtual std::vector<ScalarT> dx2 (int numDerivs)                                   \
+    {                                                                                  \
+      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }          \
+      ScalarT leftVal=this->leftAst_->val();                                           \
+      for (int i=0;i<numDerivs;i++)                                                    \
+      {                                                                                \
+        ScalarT leftDx =this->leftAst_->dx(i);                                         \
+        this->derivVec_[i] = DX; }                                                     \
+      return this->derivVec_;                                                          \
+    }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
@@ -68,24 +84,21 @@ class NAME ## Op : public astNode<ScalarT>                                      
     }                                                                                  \
 };
 
-AST_OP_MACRO( sqrt, (this->leftAst_->dx(i)/(2.*std::sqrt(this->leftAst_->val()))))
-AST_OP_MACRO( exp, (this->leftAst_->dx(i)*std::exp(this->leftAst_->val())))
-AST_OP_MACRO( abs, (std::real(this->leftAst_->val()) >= 0 ? this->leftAst_->dx(i) : ScalarT(-this->leftAst_->dx(i))))
-AST_OP_MACRO( sin, (this->leftAst_->dx(i)*std::cos(this->leftAst_->val())))
-AST_OP_MACRO( cos, (-this->leftAst_->dx(i)*std::sin( this->leftAst_->val())))
-AST_OP_MACRO( acos, ( -this->leftAst_->dx(i)/std::sqrt(1.-this->leftAst_->val()*this->leftAst_->val()) ))
-AST_OP_MACRO( acosh, (this->leftAst_->dx(i)/std::sqrt((this->leftAst_->val()-1.)*(this->leftAst_->val()+1.))))
-AST_OP_MACRO( asin, (this->leftAst_->dx(i)/std::sqrt(1.-this->leftAst_->val()*this->leftAst_->val())))
-AST_OP_MACRO( asinh, (this->leftAst_->dx(i)/std::sqrt(1.+this->leftAst_->val()*this->leftAst_->val())))
-AST_OP_MACRO( cosh, (this->leftAst_->dx(i)*std::sinh(this->leftAst_->val())))
-AST_OP_MACRO( log, (this->leftAst_->dx(i)/this->leftAst_->val()))
-AST_OP_MACRO( log10, (this->leftAst_->dx(i)/(std::log(ScalarT(10))*this->leftAst_->val())))
-AST_OP_MACRO( sinh, (this->leftAst_->dx(i)*std::cosh(this->leftAst_->val())))
-AST_OP_MACRO( tan, (this->leftAst_->dx(i)*(1.+std::tan(this->leftAst_->val())*std::tan(this->leftAst_->val()))))
-AST_OP_MACRO( atan, (this->leftAst_->dx(i)/(1.+this->leftAst_->val()*this->leftAst_->val())))
-
-//AST_OP_MACRO( tanh, (this->leftAst_->dx(i)/(std::cosh(this->leftAst_->val())*std::cosh(this->leftAst_->val()))))
-//AST_OP_MACRO( atanh, (this->leftAst_->dx(i)/(1.-this->leftAst_->val()*this->leftAst_->val())))
+AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))))
+AST_OP_MACRO( exp, (leftDx*std::exp(leftVal)))
+AST_OP_MACRO( abs, (std::real(leftVal) >= 0 ? leftDx : ScalarT(-leftDx)))
+AST_OP_MACRO( sin, (leftDx*std::cos(leftVal)))
+AST_OP_MACRO( cos, (-leftDx*std::sin( leftVal)))
+AST_OP_MACRO( acos, ( -leftDx/std::sqrt(1.-leftVal*leftVal) ))
+AST_OP_MACRO( acosh, (leftDx/std::sqrt((leftVal-1.)*(leftVal+1.))))
+AST_OP_MACRO( asin, (leftDx/std::sqrt(1.-leftVal*leftVal)))
+AST_OP_MACRO( asinh, (leftDx/std::sqrt(1.+leftVal*leftVal)))
+AST_OP_MACRO( cosh, (leftDx*std::sinh(leftVal)))
+AST_OP_MACRO( log, (leftDx/leftVal))
+AST_OP_MACRO( log10, (leftDx/(std::log(ScalarT(10))*leftVal)))
+AST_OP_MACRO( sinh, (leftDx*std::cosh(leftVal)))
+AST_OP_MACRO( tan, (leftDx*(1.+std::tan(leftVal)*std::tan(leftVal))))
+AST_OP_MACRO( atan, (leftDx/(1.+leftVal*leftVal)))
 
 template <typename ScalarT> 
 class tanhOp : public astNode<ScalarT> 
@@ -109,7 +122,8 @@ class tanhOp : public astNode<ScalarT>
     ScalarT arg = this->leftAst_->val();
     if (std::real(arg) <= 20 && std::real(arg) >= -20)
     {
-      retdx = (this->leftAst_->dx(i)/(std::cosh(this->leftAst_->val())*std::cosh(this->leftAst_->val())));
+      ScalarT cosh_arg = std::cosh(this->leftAst_->val());
+      retdx = (this->leftAst_->dx(i)/(cosh_arg*cosh_arg));
     }
     return retdx;
   } 
@@ -158,10 +172,9 @@ class atanhOp : public astNode<ScalarT>
     ScalarT Epsilon = 1.e-12;
     ScalarT retdx=0.0;
     ScalarT arg = this->leftAst_->val();
-
     if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
-      retdx = (this->leftAst_->dx(i)/(1.-this->leftAst_->val()*this->leftAst_->val()));
+      retdx = (this->leftAst_->dx(i)/(1.- arg*arg));
     }
 
     return retdx;
