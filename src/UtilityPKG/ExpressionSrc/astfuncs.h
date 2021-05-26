@@ -54,10 +54,11 @@ class NAME ## Op : public astNode<ScalarT>                                      
       return DX;                                                                       \
     }                                                                                  \
                                                                                        \
-    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
-      int numDerivs=derivs.size();                                                     \
       ScalarT leftVal=this->leftAst_->val();                                           \
+      result = std::NAME(leftVal);                                                     \
+      int numDerivs=derivs.size();                                                     \
       for (int i=0;i<numDerivs;i++)                                                    \
       {                                                                                \
         ScalarT leftDx =this->leftAst_->dx(i);                                         \
@@ -121,11 +122,37 @@ class tanhOp : public astNode<ScalarT>
     ScalarT arg = this->leftAst_->val();
     if (std::real(arg) <= 20 && std::real(arg) >= -20)
     {
-      ScalarT cosh_arg = std::cosh(this->leftAst_->val());
+      ScalarT cosh_arg = std::cosh(arg);
       retdx = (this->leftAst_->dx(i)/(cosh_arg*cosh_arg));
     }
     return retdx;
   } 
+
+  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+  {
+    int numDerivs = derivs.size();
+    if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+
+    ScalarT arg;
+    this->leftAst_->dx2(arg,lefDerivs_);
+
+    if      (std::real(arg) > +20) { result = +1.0; }
+    else if (std::real(arg) < -20) { result = -1.0; }
+    else                           { result = std::tanh(arg); }
+
+    if (std::real(arg) <= 20 && std::real(arg) >= -20)
+    {
+      ScalarT cosh_arg = std::cosh(arg);
+      for (int i=0;i<numDerivs;i++)
+      {
+        derivs[i] = (lefDerivs_[i]/(cosh_arg*cosh_arg));
+      }
+    }
+    else
+    {
+      std::fill(derivs.begin(),derivs.end(),0.0);
+    }
+  }
 
   virtual void output(std::ostream & os, int indent=0) 
   { 
@@ -146,6 +173,7 @@ class tanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
+  std::vector<ScalarT> lefDerivs_;
 };
 
 template <typename ScalarT> 
@@ -179,6 +207,31 @@ class atanhOp : public astNode<ScalarT>
     return retdx;
   } 
 
+  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+  {
+    ScalarT Epsilon = 1.e-12;
+
+
+    // derivs
+    int numDerivs = derivs.size();
+    if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+
+    ScalarT arg;
+    this->leftAst_->dx2(arg,lefDerivs_);
+    if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
+    {
+      for (int i=0;i<numDerivs;i++) { derivs[i] = (lefDerivs_[i]/(1.- arg*arg)); }
+    }
+    else { std::fill(derivs.begin(),derivs.end(),0.0); }
+
+    // result (this changes arg, so do second)
+    if      (std::real(arg) < std::real(Epsilon) - 1.0) { arg = Epsilon - 1.0; }
+    else if (std::real(arg) > 1.0 - std::real(Epsilon)) { arg = 1.0 - Epsilon; }
+
+    result = std::atanh(arg);
+
+  }
+
   virtual void output(std::ostream & os, int indent=0) 
   { 
    os << std::setw(indent) << " ";
@@ -198,6 +251,7 @@ class atanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
+  std::vector<ScalarT> lefDerivs_;
 };
 
 #endif

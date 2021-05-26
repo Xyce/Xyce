@@ -46,14 +46,31 @@ class NAME : public astNode<ScalarT>                                            
     NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
         astNode<ScalarT>(left,right) {};                                               \
                                                                                        \
-    virtual ScalarT val(){return VAL; }                                                \
+    virtual ScalarT val(){                                                             \
+      ScalarT leftVal=this->leftAst_->val();                                           \
+      ScalarT rightVal=this->rightAst_->val();                                         \
+      return VAL; }                                                                    \
                                                                                        \
-    virtual ScalarT dx(int i) { return DX; }                                           \
+    virtual ScalarT dx(int i) {                                                        \
+      ScalarT leftVal=this->leftAst_->val();                                           \
+      ScalarT rightVal=this->rightAst_->val();                                         \
+      ScalarT leftDx =this->leftAst_->dx(i);                                           \
+      ScalarT rightDx =this->rightAst_->dx(i);                                         \
+      return DX; }                                                                     \
                                                                                        \
-    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
-      int numDerivs=derivs.size();                                                     \
-      for (int i=0;i<numDerivs;i++) { derivs[i] = DX; }                                \
+      int numDerivs = derivs.size();                                                   \
+      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                    \
+      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }                    \
+      ScalarT leftVal, rightVal;                                                       \
+      this->leftAst_->dx2(leftVal,lefDerivs_);                                         \
+      this->rightAst_->dx2(rightVal,rigDerivs_);                                       \
+      result=VAL;                                                                      \
+      for (int i=0;i<numDerivs;i++) { \
+      ScalarT leftDx = lefDerivs_[i]; \
+      ScalarT rightDx = rigDerivs_[i]; \
+        derivs[i] = DX; } \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -76,95 +93,43 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                    \
       os << ")";                                                                       \
     }                                                                                  \
+    std::vector<ScalarT> lefDerivs_;                                                   \
+    std::vector<ScalarT> rigDerivs_;                                                   \
 };                          
 
 AST_BIN_OP_MACRO(
     binaryAddOp,
     "binary add ",
 	  "+",
-	  (this->leftAst_->val() + this->rightAst_->val()),
-	  (this->leftAst_->dx (i) + this->rightAst_->dx (i))
+	  (leftVal + rightVal),
+	  (leftDx + rightDx)
     )
 AST_BIN_OP_MACRO(
     binaryMinusOp,
     "binary minus ",
 	  "-",
-	  (this->leftAst_->val() - this->rightAst_->val()),
-	  (this->leftAst_->dx (i) - this->rightAst_->dx (i))
+	  (leftVal - rightVal),
+	  (leftDx - rightDx)
     )
 AST_BIN_OP_MACRO(
     binaryModOp,
     "modulus operator ",
 	  "%",
-	  (static_cast<int>(std::real(this->leftAst_->val())) % static_cast<int>(std::real(this->rightAst_->val()))),
+	  (static_cast<int>(std::real(leftVal)) % static_cast<int>(std::real(rightVal))),
 	  (0.0)
     )
-
-#define AST_BIN_OP_MACRO2(NAME,FCTQUOTE,FCTCODE,VAL,DX)                                \
-template <typename ScalarT>                                                            \
-class NAME : public astNode<ScalarT>                                                   \
-{                                                                                      \
-  public:                                                                              \
-    NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
-        astNode<ScalarT>(left,right) {};                                               \
-                                                                                       \
-    virtual ScalarT val(){return VAL; }                                                \
-                                                                                       \
-    virtual ScalarT dx(int i)                                                          \
-    {                                                                                  \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      ScalarT rightVal=this->rightAst_->val();                                         \
-      ScalarT leftDx =this->leftAst_->dx(i);                                           \
-      ScalarT rightDx =this->rightAst_->dx(i);                                         \
-      return DX;                                                                       \
-    }                                                                                  \
-    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
-    {                                                                                  \
-      int numDerivs=derivs.size();                                                     \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      ScalarT rightVal=this->rightAst_->val();                                         \
-      for (int i=0;i<numDerivs;i++)                                                    \
-      {                                                                                \
-        ScalarT leftDx =this->leftAst_->dx(i);                                         \
-        ScalarT rightDx =this->rightAst_->dx(i);                                       \
-        derivs[i] = DX;                                                                \
-      }                                                                                \
-    }                                                                                  \
-                                                                                       \
-    virtual void output(std::ostream & os, int indent=0)                               \
-    {                                                                                  \
-      os << std::setw(indent) << " ";                                                  \
-      os << FCTQUOTE << " id = " << this->id_ << std::endl;                            \
-      ++indent;                                                                        \
-      this->leftAst_->output(os,indent+1);                                             \
-      this->rightAst_->output(os,indent+1);                                            \
-    }                                                                                  \
-                                                                                       \
-    virtual void compactOutput(std::ostream & os)                                      \
-    { os << FCTQUOTE << " id = " << this->id_ << std::endl; }                          \
-                                                                                       \
-    virtual void codeGen (std::ostream & os )                                          \
-    {                                                                                  \
-      os << "(";                                                                       \
-      this->leftAst_->codeGen(os);                                                     \
-      os << FCTCODE;                                                                   \
-      this->rightAst_->codeGen(os);                                                    \
-      os << ")";                                                                       \
-    }                                                                                  \
-};  
-
-AST_BIN_OP_MACRO2(
+AST_BIN_OP_MACRO(
     binaryMulOp,
     "binary multiply ",
 	  "*",
-	  (this->leftAst_->val() * this->rightAst_->val()),
+	  (leftVal * rightVal),
 	  (leftDx * rightVal + rightDx * leftVal)
     )
-AST_BIN_OP_MACRO2(
+AST_BIN_OP_MACRO(
     binaryDivOp,
     "binary division ",
 	  "/",
-	  (this->leftAst_->val() / this->rightAst_->val()),
+	  (leftVal / rightVal),
 	  ((leftDx * rightVal - rightDx * leftVal) / (rightVal * rightVal))
     )
 

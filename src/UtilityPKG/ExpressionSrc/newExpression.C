@@ -1515,8 +1515,8 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     dumpParseTree(Xyce::dout());
 #endif
 
-
 #if 0
+    // old, slower way
     retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
 
@@ -1527,19 +1527,24 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
     }
 #else
-    retVal = evaluateFunction (result); // want to get rid of this
+    //  new faster way, using dx2().  This allows all the calculations to be performed in a single AST traversal.
+    bool noChange = getValuesFromGroup_(); // this was inside of evaluateFunction
+    
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
     if ( !(Teuchos::is_null(astNodePtr_)) )
     {
       for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
 
-      // This (dx2) is a new way of computing derivatives in expressions, where the 
-      // whole array is propagated, including the function value.  
-      // It is still a work in progress, so commenting out.
-      astNodePtr_->dx2(derivs);
+      astNodePtr_->dx2(result,derivs);
+
+      // this block was in evaluateFunction
+      Util::fixNan(result);
+      Util::fixInf(result);
+      retVal = (result != savedResult_);
+      savedResult_ = result;
+
       for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
     }
-
 #endif
   }
   else
@@ -1549,7 +1554,6 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       << " was not successfully parsed." << std::endl;
   }
 
-  // fix these properly for std::complex later.
   for(int ii=0;ii<derivs.size();++ii)
   {
     Util::fixNan(derivs[ii]);// this was previously set to return 0.0, but the function returns 1.0e+50.  check this
@@ -1605,7 +1609,13 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     {
       if ( !(Teuchos::is_null(astNodePtr_)) )
       {
+#if 1
         result = astNodePtr_->val();
+#else
+        // this is a test, to use with unit tests to ensure that the "result" evaluation in dx2 matches that of val().
+        std::vector<usedType> derivs; // if empty, then dx2 should run OK.
+        astNodePtr_->dx2(result, derivs);
+#endif
         Util::fixNan(result);
         Util::fixInf(result);
       }

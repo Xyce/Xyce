@@ -69,6 +69,12 @@ class agaussOp : public astNode<ScalarT>
       return ret;
     };
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -183,6 +189,12 @@ class gaussOp : public astNode<ScalarT>
       return ret;
     };
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -295,6 +307,12 @@ class aunifOp : public astNode<ScalarT>
       return ret;
     };
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -402,6 +420,12 @@ class unifOp : public astNode<ScalarT>
       return ret;
     };
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -502,6 +526,12 @@ class randOp : public astNode<ScalarT>
       return ret;
     };
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -554,6 +584,13 @@ class twoArgLimitOp : public astNode<ScalarT>
 
       return (x->dx (i) + y->dx (i));
     };
+
+    // ERK check this
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
+    { 
+      result = value_;
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {

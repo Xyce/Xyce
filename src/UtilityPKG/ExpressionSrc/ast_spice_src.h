@@ -166,6 +166,12 @@ class spicePulseOp : public astNode<ScalarT>
       return 0.0;
     }
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    {
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       ScalarT time = std::real(this->time_->val());
@@ -362,14 +368,20 @@ class spiceSinOp : public astNode<ScalarT>
       double mpi = M_PI;
       ScalarT SourceValue = 0.0;
 
+      ScalarT v0Val = this->v0_->val();
+      ScalarT vaVal = this->va_->val();
+      ScalarT freqVal = this->freq_->val();
+      ScalarT phaseVal = this->phase_->val();
+      ScalarT thetaVal = this->theta_->val();
+
       if (std::real(time) <= 0)
       {
-        SourceValue = (this->v0_->val()) + (this->va_->val()) * std::sin (2.0*mpi*((std::real(this->phase_->val()))/360)) ;
+        SourceValue = (v0Val) + (vaVal) * std::sin (2.0*mpi*((std::real(phaseVal))/360)) ;
       }
       else
       {
         // 2PI to convert from hz to radians/sec
-        SourceValue = (this->v0_->val()) + (this->va_->val()) * std::sin (2.0*mpi*((std::real(this->freq_->val()))*std::real(time) + (std::real(this->phase_->val()))/360)) * std::exp( -(std::real(time)*(std::real(this->theta_->val()))));
+        SourceValue = (v0Val) + (vaVal) * std::sin (2.0*mpi*((std::real(freqVal))*std::real(time) + (std::real(phaseVal))/360)) * std::exp( -(std::real(time)*(std::real(thetaVal))));
       }
       return SourceValue;
     }
@@ -390,16 +402,65 @@ class spiceSinOp : public astNode<ScalarT>
 
         if (std::real(time) <= 0)
         {
-          ScalarT dSource_dt = 0.0;
+          dSource_dt = 0.0;
         }
         else
         {
           // time derivative computed via Maple:
-          dSource_dt = 2.0*this->va_->val()*mpi*std::real(this->freq_->val())*cos(2.0*mpi*(std::real(this->freq_->val())*time+1/360*std::real(this->phase_->val())))*exp(-time*std::real(this->theta_->val()))-this->va_->val()*sin(2.0*mpi*(std::real(this->freq_->val())*time+1/360*std::real(this->phase_->val())))*std::real(this->theta_->val())*exp(-time*std::real(this->theta_->val()));
+          ScalarT vaVal = this->va_->val();
+          ScalarT freqVal = this->freq_->val();
+          ScalarT phaseVal = this->phase_->val();
+          ScalarT thetaVal = this->theta_->val();
+
+          dSource_dt = 2.0*vaVal*mpi*std::real(freqVal)*cos(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*exp(-time*std::real(thetaVal))-vaVal*sin(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*std::real(thetaVal)*exp(-time*std::real(thetaVal));
           dSource_dt *= dTime_dt;
         }
       }
       return dSource_dt;
+    }
+
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    {
+      ScalarT dSource_dt = 0.0;
+      if (!freqGiven_ && finalTime_ != 0.0)  
+      {
+        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (freq_);
+        freqTmpOp->number = 1.0/finalTime_;
+      }
+
+      //ScalarT time = std::real(this->time_->val());
+      ScalarT time;
+      this->time_->dx2(time,derivs); // ERK check this!
+      time = std::real(time);
+
+      time -= std::real(this->td_->val());
+      double mpi = M_PI;
+
+      ScalarT v0Val = this->v0_->val();
+      ScalarT vaVal = this->va_->val();
+      ScalarT freqVal = this->freq_->val();
+      ScalarT phaseVal = this->phase_->val();
+      ScalarT thetaVal = this->theta_->val();
+      if (std::real(time) <= 0)
+      {
+        dSource_dt = 0.0;
+        result = (v0Val) + (vaVal) * std::sin (2.0*mpi*((std::real(phaseVal))/360)) ;
+        if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+      }
+      else
+      {
+        // 2PI to convert from hz to radians/sec
+        result = (v0Val) + (vaVal) * std::sin (2.0*mpi*((std::real(freqVal))*std::real(time) + (std::real(phaseVal))/360)) * std::exp( -(std::real(time)*(std::real(thetaVal))));
+
+          // time derivative computed via Maple:
+        dSource_dt = 2.0*vaVal*mpi*std::real(freqVal)*cos(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*exp(-time*std::real(thetaVal))-vaVal*sin(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*std::real(thetaVal)*exp(-time*std::real(thetaVal));
+      
+        int numDerivs = derivs.size();
+        for (int i=0;i<numDerivs;i++)
+        {
+          derivs[i] *= dSource_dt;
+        }
+      }
     }
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
@@ -577,6 +638,12 @@ class spiceExpOp : public astNode<ScalarT>
       return 0.0;
     }
 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    {
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
+    }
+
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       if (td1Given_)
@@ -737,6 +804,12 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual ScalarT dx (int i)
     {
       return 0.0;
+    } 
+ 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    {
+      result = val();
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
