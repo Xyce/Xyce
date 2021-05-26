@@ -1514,23 +1514,33 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
     dumpParseTree(Xyce::dout());
 #endif
+
+
+#if 0
     retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
-   
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
 
     if ( !(Teuchos::is_null(astNodePtr_)) )
     {
       for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
-
-#if 1
       for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
-#else
-      // This (dx2) is a new way of computing derivatives in expressions, where the 
-      // whole array is propagated.  It is still a work in progress, so commenting out.
-      derivs = astNodePtr_->dx2(numDerivs_);
-#endif
       for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
     }
+#else
+    retVal = evaluateFunction (result); // want to get rid of this
+    if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
+    if ( !(Teuchos::is_null(astNodePtr_)) )
+    {
+      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
+
+      // This (dx2) is a new way of computing derivatives in expressions, where the 
+      // whole array is propagated, including the function value.  
+      // It is still a work in progress, so commenting out.
+      astNodePtr_->dx2(derivs);
+      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+    }
+
+#endif
   }
   else
   {

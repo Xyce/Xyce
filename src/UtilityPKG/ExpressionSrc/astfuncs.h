@@ -54,15 +54,14 @@ class NAME ## Op : public astNode<ScalarT>                                      
       return DX;                                                                       \
     }                                                                                  \
                                                                                        \
-    virtual std::vector<ScalarT> dx2 (int numDerivs)                                   \
+    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
     {                                                                                  \
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }          \
+      int numDerivs=derivs.size();                                                     \
       ScalarT leftVal=this->leftAst_->val();                                           \
       for (int i=0;i<numDerivs;i++)                                                    \
       {                                                                                \
         ScalarT leftDx =this->leftAst_->dx(i);                                         \
-        this->derivVec_[i] = DX; }                                                     \
-      return this->derivVec_;                                                          \
+        derivs[i] = DX; }                                                              \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \

@@ -416,11 +416,10 @@ class astNode : public staticsContainer
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2(std::vector<ScalarT> & derivs)
     {
-      if (derivVec_.empty()) { derivVec_.resize(numDerivs,0.0); }
-      else { std::fill(derivVec_.begin(),derivVec_.end(),0.0); }
-      return derivVec_;
+      std::fill(derivs.begin(),derivs.end(),0.0);
+      return;
     };
 
     virtual void output(std::ostream & os, int indent=0) = 0;
@@ -576,8 +575,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     ddtStateData<ScalarT> ddtState_;
     sdtStateData<ScalarT> sdtState_;
 
-    std::vector<ScalarT> derivVec_;
-
     unsigned long int id_;
 };
 
@@ -593,11 +590,10 @@ class numval : public astNode<ScalarT>
 
     virtual ScalarT dx(int i) {return 0.0;}
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      else { std::fill(this->derivVec_.begin(),this->derivVec_.end(),0.0); }
-      return this->derivVec_;
+      std::fill(derivs.begin(),derivs.end(),0.0);
+      return;
     };
 
     ScalarT number;
@@ -631,11 +627,10 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     virtual std::complex<double> val() {return number;}
     virtual std::complex<double> dx(int i) {return (std::complex<double>(0.0,0.0));}
 
-    virtual std::vector<std::complex<double> > dx2(int numDerivs)
+    virtual void dx2( std::vector<std::complex<double> > & derivs)
     {
-      if (derivVec_.empty()) { derivVec_.resize(numDerivs,std::complex<double>(0.0,0.0)); }
-      else { std::fill(derivVec_.begin(),derivVec_.end(),std::complex<double>(0.0,0.0)); }
-      return derivVec_;
+      std::fill(derivs.begin(),derivs.end(),std::complex<double>(0.0,0.0));
+      return;
     }
 
     std::complex<double> number;
@@ -656,8 +651,6 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     }
 
     virtual bool numvalType() { return true; };
-
-    std::vector<std::complex<double> > derivVec_;
 };
 
 #include "astbinary.h"
@@ -777,22 +770,22 @@ class powOp : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
       Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
 
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & retVal = this->derivVec_;
+      std::vector<ScalarT> & retVal = derivs;
 
       ScalarT leftVal=lef->val();
       ScalarT righVal=rig->val();
 
+      int numDerivs = derivs.size();
       if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
       if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
 
-      lefDerivs_ = lef->dx2(numDerivs);
-      rigDerivs_ = rig->dx2(numDerivs);
+      lef->dx2(lefDerivs_);
+      rig->dx2(rigDerivs_);
 
       if (rightConst_ && !leftConst_) 
       {
@@ -824,7 +817,6 @@ class powOp : public astNode<ScalarT>
           }
         }
       }
-      return  retVal;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -888,21 +880,22 @@ class atan2Op : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
       Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
 
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & retVal = this->derivVec_;
+      std::vector<ScalarT> & retVal = derivs;
 
       ScalarT leftVal=lef->val();
       ScalarT righVal=rig->val();
 
+      int numDerivs = derivs.size();
       if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
       if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
-      lefDerivs_ = lef->dx2(numDerivs);
-      rigDerivs_ = rig->dx2(numDerivs);
+
+      lef->dx2(lefDerivs_);
+      rig->dx2(rigDerivs_);
 
       if (rightConst_ && !leftConst_) 
       {
@@ -925,8 +918,6 @@ class atan2Op : public astNode<ScalarT>
           retVal[ii] = (righVal*lefDerivs_[ii] - leftVal*rigDerivs_[ii])/ (leftVal*leftVal + righVal*righVal) ; 
         }
       }
-
-      return  retVal;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1439,16 +1430,13 @@ class paramOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      else { std::fill(this->derivVec_.begin(),this->derivVec_.end(),0.0); }
-      std::vector<ScalarT> & retval = this->derivVec_;
-
-      if (isVar_) { retval[derivIndex_] = 1.0; }
-      else        { retval = paramNode_->dx2(numDerivs); }
-
-      return retval;
+      if (isVar_) 
+      { 
+        std::fill(derivs.begin(),derivs.end(),0.0); derivs[derivIndex_] = 1.0; 
+      }
+      else { paramNode_->dx2(derivs); }
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1613,13 +1601,10 @@ class voltageOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2(std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      else { std::fill(this->derivVec_.begin(),this->derivVec_.end(),0.0); }
-      std::vector<ScalarT> & retval = this->derivVec_;
-      retval[derivIndex_] = 1.0;
-      return retval;
+      std::fill(derivs.begin(),derivs.end(),0.0);
+      derivs[derivIndex_] = 1.0;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1686,13 +1671,10 @@ class currentOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      else { std::fill(this->derivVec_.begin(),this->derivVec_.end(),0.0); }
-      std::vector<ScalarT> & retval = this->derivVec_;
-      retval[derivIndex_] = 1.0;
-      return retval;
+      std::fill(derivs.begin(),derivs.end(),0.0); 
+      derivs[derivIndex_] = 1.0;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -2527,16 +2509,15 @@ class funcOp: public astNode<ScalarT>
     }
 
     //-------------------------------------------------------------------------------
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & dfdx = this->derivVec_;
+      std::vector<ScalarT> & dfdx = derivs;
+      int numDerivs = derivs.size();
 
       if (nodeResolved_ && argsResolved_)
       {
         if (funcArgs_.size() == dummyFuncArgs_.size())
         {
-
           // Two phases, do do a complete chain rule calculation:
           //
           // all the "d" symbols should be partials:
@@ -2547,7 +2528,7 @@ class funcOp: public astNode<ScalarT>
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
           setArgs(); 
-          dfdx = functionNode_->dx2(numDerivs);
+          functionNode_->dx2(dfdx);
           unsetArgs();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
@@ -2574,7 +2555,7 @@ class funcOp: public astNode<ScalarT>
             int index=-ii-1;
 
             if (dpdx_.empty()) { dpdx_.resize(numDerivs,0.0); }
-            dpdx_ = funcArgs_[ii]->dx2(numDerivs); // usually zero ...
+            funcArgs_[ii]->dx2(dpdx_); // usually zero ...
 
             for (int jj=0;jj<numDerivs;jj++)
             {
@@ -2591,7 +2572,6 @@ class funcOp: public astNode<ScalarT>
           } // restore
         }
       }
-      return dfdx;
     }
 
     //-------------------------------------------------------------------------------
@@ -2895,23 +2875,24 @@ class pwrsOp : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
       Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
 
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & retVal = this->derivVec_;
+      std::vector<ScalarT> & retVal = derivs;
 
       ScalarT leftVal=lef->val();
       ScalarT righVal=rig->val();
+
+      int numDerivs=derivs.size();
 
       if (leftVal != 0.0) 
       {
         if (rightConst_ && !leftConst_) 
         {
           if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-          lefDerivs_ = lef->dx2(numDerivs);
+          lef->dx2(lefDerivs_);
           if (std::real(leftVal) >= 0)
           {
             for (int ii=0;ii<numDerivs;ii++)
@@ -2930,7 +2911,7 @@ class pwrsOp : public astNode<ScalarT>
         else if (!rightConst_ && leftConst_) 
         {
           if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
-          rigDerivs_ = rig->dx2(numDerivs);
+          rig->dx2(rigDerivs_);
           if (std::real(leftVal) >= 0)
           {
             for (int ii=0;ii<numDerivs;ii++)
@@ -2950,8 +2931,8 @@ class pwrsOp : public astNode<ScalarT>
         {
           if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
           if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
-          lefDerivs_ = lef->dx2(numDerivs);
-          rigDerivs_ = rig->dx2(numDerivs);
+          lef->dx2(lefDerivs_);
+          rig->dx2(rigDerivs_);
           if (std::real(leftVal) >= 0)
           {
             for (int ii=0;ii<numDerivs;ii++)
@@ -2968,7 +2949,6 @@ class pwrsOp : public astNode<ScalarT>
           }
         }
       }
-      return  retVal;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -3338,19 +3318,19 @@ class ifStatementOp : public astNode<ScalarT>
       return ((std::real(x->val()))?(dyFixed):(dzFixed));
     };
 
-    virtual std::vector<ScalarT> dx2(int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
+      int numDerivs=derivs.size();
       if (yDerivs_.empty()) { yDerivs_.resize(numDerivs,0.0); }
       if (zDerivs_.empty()) { zDerivs_.resize(numDerivs,0.0); }
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
 
       ScalarT xVal = x->val();
-      yDerivs_ = y->dx2(numDerivs);
-      zDerivs_ = z->dx2(numDerivs);
+      y->dx2(yDerivs_);
+      z->dx2(zDerivs_);
 
       // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
       // The correct place to fix this is in the comparison operators.  Fix later.
@@ -3358,9 +3338,8 @@ class ifStatementOp : public astNode<ScalarT>
       {
         ScalarT dyFixed = yDerivs_[ii];  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
         ScalarT dzFixed = zDerivs_[ii];  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
-        this->derivVec_[ii] = ((std::real(xVal))?(dyFixed):(dzFixed));
+        derivs[ii] = ((std::real(xVal))?(dyFixed):(dzFixed));
       }
-      return this->derivVec_;
     };
 
     virtual void output(std::ostream & os, int indent=0)
@@ -3481,29 +3460,27 @@ class limitOp : public astNode<ScalarT>
       return ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
     };
 
-    virtual std::vector<ScalarT> dx2 (int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
+      int numDerivs = derivs.size();
       if (xDerivs_.empty()) { xDerivs_.resize(numDerivs,0.0); }
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
       ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
 
-      xDerivs_ = x->dx2(numDerivs);
+      x->dx2(xDerivs_);
 
-      std::vector<ScalarT> & retDerivs = this->derivVec_;
+      std::vector<ScalarT> & retDerivs = derivs;
       for (int ii=0;ii<numDerivs;ii++)
       {
         ScalarT dxFixed = xDerivs_[ii]; Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
         retDerivs[ii] = ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
       }
-
-      return retDerivs;
     };
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
@@ -4745,7 +4722,7 @@ class sdtOp : public astNode<ScalarT>
       return dIdx;
     }
 
-    virtual std::vector<ScalarT> dx2 (int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
       ScalarT time = 0.0;
       double deltaT = 0.0;
@@ -4767,12 +4744,11 @@ class sdtOp : public astNode<ScalarT>
         }
       }
 
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & dIdx = this->derivVec_;
-      dIdx = this->leftAst_->dx2(numDerivs);
+      int numDerivs = derivs.size();
+      std::vector<ScalarT> & dIdx = derivs;
+      this->leftAst_->dx2(dIdx);
       ScalarT dIdVal2 = 0.5*deltaT;
       for(int ii=0;ii<numDerivs;ii++) { dIdx[ii] *= dIdVal2; }
-      return dIdx;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -4889,10 +4865,10 @@ class ddtOp : public astNode<ScalarT>
       return ddt_dx;
     };
 
-    virtual std::vector<ScalarT> dx2 (int numDerivs)
+    virtual void dx2( std::vector<ScalarT> & derivs)
     {
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }
-      std::vector<ScalarT> & ddt_dx = this->derivVec_;
+      int numDerivs =  derivs.size();
+      std::vector<ScalarT> & ddt_dx = derivs;
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
 
@@ -4908,7 +4884,7 @@ class ddtOp : public astNode<ScalarT>
           else
           { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
-          ddt_dx = this->leftAst_->dx2(numDerivs);
+          this->leftAst_->dx2(ddt_dx);
           for(int ii=0;ii<numDerivs;ii++)
           {
             ScalarT ddt_dVal2 = 1.0/deltaT;
@@ -4917,7 +4893,6 @@ class ddtOp : public astNode<ScalarT>
           }
         }
       }
-      return ddt_dx;
     };
 
     virtual void output(std::ostream & os, int indent=0)

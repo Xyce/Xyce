@@ -50,11 +50,10 @@ class NAME : public astNode<ScalarT>                                            
                                                                                        \
     virtual ScalarT dx(int i) { return DX; }                                           \
                                                                                        \
-    virtual std::vector<ScalarT> dx2 (int numDerivs)                                   \
+    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
     {                                                                                  \
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }          \
-      for (int i=0;i<numDerivs;i++) { this->derivVec_[i] = DX; }                       \
-      return this->derivVec_;                                                          \
+      int numDerivs=derivs.size();                                                     \
+      for (int i=0;i<numDerivs;i++) { derivs[i] = DX; }                                \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -119,19 +118,17 @@ class NAME : public astNode<ScalarT>                                            
       ScalarT rightDx =this->rightAst_->dx(i);                                         \
       return DX;                                                                       \
     }                                                                                  \
-                                                                                       \
-    virtual std::vector<ScalarT> dx2 (int numDerivs)                                   \
+    virtual void dx2( std::vector<ScalarT> & derivs)                                   \
     {                                                                                  \
-      if (this->derivVec_.empty()) { this->derivVec_.resize(numDerivs,0.0); }          \
+      int numDerivs=derivs.size();                                                     \
       ScalarT leftVal=this->leftAst_->val();                                           \
       ScalarT rightVal=this->rightAst_->val();                                         \
       for (int i=0;i<numDerivs;i++)                                                    \
       {                                                                                \
         ScalarT leftDx =this->leftAst_->dx(i);                                         \
         ScalarT rightDx =this->rightAst_->dx(i);                                       \
-        this->derivVec_[i] = DX;                                                       \
+        derivs[i] = DX;                                                                \
       }                                                                                \
-      return this->derivVec_;                                                          \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
