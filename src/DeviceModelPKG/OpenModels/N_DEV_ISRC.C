@@ -42,6 +42,8 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_DeviceMgr.h>
+
+#include <N_UTL_AssemblyTypes.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_ISRC.h>
@@ -532,6 +534,82 @@ const std::vector< std::vector<int> > & Instance::jacobianStamp() const
 
   return jacStamp;
 }
+
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::loadFreqBVector
+//
+// Purpose       : Loads the B-vector contributions for a single
+//                 vsrc instance.
+//
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool Instance::loadFreqBVector (double frequency,
+                                std::vector<Util::FreqVecEntry>& bVec)
+{
+
+//  InstanceVector::const_iterator it, end;
+
+//  it = linearInstances_.begin();
+//  end = linearInstances_.end();
+
+  Util::FreqVecEntry tmpEntry;
+
+//  for ( ; it != end; ++it )
+  {
+//    Instance & vi = *(*it);
+
+    std::complex<double> tmpVal = 0.0;
+
+    SourceData *dataPtr  = dcSourceData_;
+    if ( HBSpecified_ && tranSourceData_ != 0 )
+    {
+      dataPtr =  tranSourceData_;
+    }
+
+    if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _SIN_DATA))
+    {
+      double v0 = par0;
+
+      double mag = par1;
+
+      double freq = par3;
+
+      double phase = M_PI * par5/180;
+
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0);
+
+      if (frequency == freq)
+        tmpVal = std::complex<double> ( 0.5 * mag *sin(phase), -0.5*mag*cos(phase) );
+
+    }
+    else
+    {
+
+      double v0 = DCV0;
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( v0, 0 );
+    }
+
+     // Add RHS vector element for the positive circuit node KCL equ.
+    tmpEntry.val = -tmpVal;
+    tmpEntry.lid = li_Pos;
+    bVec.push_back(tmpEntry);
+
+    tmpEntry.val = tmpVal;
+    tmpEntry.lid = li_Neg;
+    bVec.push_back(tmpEntry);
+  }        
+     
+  return true;
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::loadBVectorsforAC
