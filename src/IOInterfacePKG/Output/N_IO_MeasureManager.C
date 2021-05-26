@@ -316,10 +316,6 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   {
     theMeasureObject = new Measure::Err2(measureMgr, measureBlock);
   }
-  else if( type=="ERR3" )
-  {
-    theMeasureObject = new Measure::Err3(measureMgr, measureBlock);
-  }
   else if( type=="FOUR" )
   {
     theMeasureObject = new Measure::Fourier(measureMgr, measureBlock);
@@ -1445,7 +1441,6 @@ extractMEASUREData(
   //              ERR = Err function
   //              ERR1 = Err1 function
   //              ERR2 = Err2 function
-  //              ERR3 = Err3 function
   //              FOUR = Fourier analysis (similar to .FOUR)
   //       output_var = simulation variale to be measured.  This can be any of the following
   //              v(a), v(a,b), v(a)=number v(a)=v(b), i(a) ix(a) or an expression.
@@ -1492,7 +1487,6 @@ extractMEASUREData(
   typeSetTran.insert( std::string("ERR") );
   typeSetTran.insert( std::string("ERR1") );
   typeSetTran.insert( std::string("ERR2") );
-  typeSetTran.insert( std::string("ERR3") );
 
   // allowed types for the AC mode
   typeSetAc.insert( std::string("AVG") );
@@ -1503,7 +1497,6 @@ extractMEASUREData(
   typeSetAc.insert( std::string("ERR") );
   typeSetAc.insert( std::string("ERR1") );
   typeSetAc.insert( std::string("ERR2") );
-  typeSetAc.insert( std::string("ERR3") );
   typeSetAc.insert( std::string("FIND") );
   typeSetAc.insert( std::string("INTEGRAL") );
   typeSetAc.insert( std::string("INTEG") );
@@ -1523,7 +1516,6 @@ extractMEASUREData(
   typeSetDc.insert( std::string("ERR") );
   typeSetDc.insert( std::string("ERR1") );
   typeSetDc.insert( std::string("ERR2") );
-  typeSetDc.insert( std::string("ERR3") );
   typeSetDc.insert( std::string("FIND") );
   typeSetDc.insert( std::string("INTEGRAL") );
   typeSetDc.insert( std::string("INTEG") );
@@ -1552,7 +1544,6 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("ERR") );
   typeSetNoise.insert( std::string("ERR1") );
   typeSetNoise.insert( std::string("ERR2") );
-  typeSetNoise.insert( std::string("ERR3") );
   typeSetNoise.insert( std::string("FIND") );
   typeSetNoise.insert( std::string("INTEGRAL") );
   typeSetNoise.insert( std::string("INTEG") );
@@ -1720,8 +1711,8 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Illegal type in .MEASURE line for TRAN mode.  "
-	   << "Must be one of: AVG, DERIV/DERIVATIVE, DUTY, EQN/PARAM, ERR, ERR1, ERR2, ERR3, ERROR, FIND, WHEN, "
-           << "FOUR, INTEG/INTEGRAL, MIN, MAX, OFF_TIME, ON_TIME, PP, RMS, TRIG, TARG";
+	   << "Must be one of: AVG, DERIV/DERIVATIVE, DUTY, EQN/PARAM, ERR, ERR1, ERR2, ERROR, FIND, WHEN, FOUR, "
+           << "INTEG/INTEGRAL, MIN, MAX, OFF_TIME, ON_TIME, PP, RMS, TRIG, TARG";
       return false;
     }
   } 
