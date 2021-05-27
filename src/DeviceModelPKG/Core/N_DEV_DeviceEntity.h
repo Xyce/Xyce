@@ -331,10 +331,10 @@ private:
   const DeviceOptions &       devOptions_;
   std::vector<Depend>         dependentParams_;
 
+protected:
   std::unordered_map <std::string, int> dependentParamExcludeMap_;
   std::unordered_map <std::string, int> dependentScaleParamExcludeMap_;
 
-protected:
   std::vector<int>            expVarGIDs;
   std::vector<int>            expVarLIDs;
   std::vector<int>            expVarTypes;

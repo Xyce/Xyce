@@ -1173,7 +1173,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // Don't re-evaluate if this parameter has been overridden by a setParam call.
+    // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
     if ( !(dependentParamExcludeMap_.empty()) ) 
     {
       // check for a setParam call
