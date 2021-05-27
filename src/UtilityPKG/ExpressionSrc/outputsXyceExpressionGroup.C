@@ -100,6 +100,13 @@ outputsXyceExpressionGroup::outputsXyceExpressionGroup (
 //-------------------------------------------------------------------------------
 outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 {
+  clearOps();
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void outputsXyceExpressionGroup::clearOps()
+{
   for (Util::Op::OpList::const_iterator it = voltageOps_.begin(); it != voltageOps_.end(); ++it) { delete *it; }
   for (Util::Op::OpList::const_iterator it = currentOps_.begin(); it != currentOps_.end(); ++it) { delete *it; }
   for (Util::Op::OpList::const_iterator it = leadCurrentOps_.begin(); it != leadCurrentOps_.end(); ++it) { delete *it; }
@@ -113,6 +120,18 @@ outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
   for (Util::Op::OpList::const_iterator it = yparamOps_.begin(); it != yparamOps_.end(); ++it) { delete *it; }
   for (Util::Op::OpList::const_iterator it = zparamOps_.begin(); it != zparamOps_.end(); ++it) { delete *it; }
 
+  voltageOps_.clear();
+  currentOps_.clear();
+  leadCurrentOps_.clear();
+  internalDevVarOps_.clear();
+  dnoNoiseDevVarOps_.clear();
+  dniNoiseDevVarOps_.clear();
+  oNoiseOps_.clear();
+  iNoiseOps_.clear();
+  powerOps_.clear();
+  sparamOps_.clear();
+  yparamOps_.clear();
+  zparamOps_.clear();
 }
 
 //-------------------------------------------------------------------------------
@@ -130,11 +149,11 @@ outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
 {
   const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  clearOps();
 
   if ( !(expr.voltOpVec_.empty()) )
   {
     ParamList paramList;
-    voltageOps_.clear();
 
     for (int ii=0;ii<expr.voltOpVec_.size();ii++)
     {
@@ -153,7 +172,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.currentOpVec_.empty()) )
   {
     ParamList paramList;
-    currentOps_.clear();
 
     for (int ii=0;ii<expr.currentOpVec_.size();ii++)
     {
@@ -171,7 +189,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.leadCurrentOpVec_.empty()) )
   {
     ParamList paramList;
-    leadCurrentOps_.clear();
 
     for (int ii=0;ii<expr.leadCurrentOpVec_.size();ii++)
     {
@@ -189,7 +206,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.internalDevVarOpVec_.empty()) )
   {
     ParamList paramList;
-    internalDevVarOps_.clear();
     for (int ii=0;ii<expr.internalDevVarOpVec_.size();ii++)
     {
       Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (expr.internalDevVarOpVec_[ii]);
@@ -204,7 +220,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.dnoNoiseDevVarOpVec_.empty()) )
   {
     ParamList paramList;
-    dnoNoiseDevVarOps_.clear();
     for (int ii=0;ii<expr.dnoNoiseDevVarOpVec_.size();ii++)
     {
       Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (expr.dnoNoiseDevVarOpVec_[ii]);
@@ -219,7 +234,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.dniNoiseDevVarOpVec_.empty()) )
   {
     ParamList paramList;
-    dniNoiseDevVarOps_.clear();
     for (int ii=0;ii<expr.dniNoiseDevVarOpVec_.size();ii++)
     {
       Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (expr.dniNoiseDevVarOpVec_[ii]);
@@ -234,7 +248,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.oNoiseOpVec_.empty()) )
   {
     ParamList paramList;
-    oNoiseOps_.clear();
     for (int ii=0;ii<expr.oNoiseOpVec_.size();ii++)
     {
       Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (expr.oNoiseOpVec_[ii]);
@@ -246,7 +259,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.iNoiseOpVec_.empty()) )
   {
     ParamList paramList;
-    iNoiseOps_.clear();
     for (int ii=0;ii<expr.iNoiseOpVec_.size();ii++)
     {
       Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (expr.iNoiseOpVec_[ii]);
@@ -258,7 +270,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.powerOpVec_.empty()) )
   {
     ParamList paramList;
-    powerOps_.clear();
     for (int ii=0;ii<expr.powerOpVec_.size();ii++)
     {
       Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (expr.powerOpVec_[ii]);
@@ -277,7 +288,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.sparamOpVec_.empty()) )
   {
     ParamList paramList;
-    sparamOps_.clear();
     for (int ii=0;ii<expr.sparamOpVec_.size();ii++)
     {
       Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (expr.sparamOpVec_[ii]);
@@ -291,7 +301,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.yparamOpVec_.empty()) )
   {
     ParamList paramList;
-    yparamOps_.clear();
     for (int ii=0;ii<expr.yparamOpVec_.size();ii++)
     {
       Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (expr.yparamOpVec_[ii]);
@@ -305,7 +314,6 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
   if ( !(expr.zparamOpVec_.empty()) )
   {
     ParamList paramList;
-    zparamOps_.clear();
     for (int ii=0;ii<expr.zparamOpVec_.size();ii++)
     {
       Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (expr.zparamOpVec_[ii]);

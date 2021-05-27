@@ -176,6 +176,7 @@ public:
 
   void setOpData (const Util::Op::OpData & opData) { opData_ = opData; }
 
+  void clearOps();
 
 private:
   Parallel::Communicator & comm_;
