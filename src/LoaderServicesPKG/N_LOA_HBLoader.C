@@ -717,6 +717,10 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
   int BlockCount = bX.blockCount();
 
+
+
+  bool  loadTimeB = true;
+
   if ((int)vecNLAppdQdxPtr_.size() != BlockCount)
   {
     vecNLAppdQdxPtr_.resize( BlockCount );
@@ -804,6 +808,8 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
         Xyce::Device::NONLINEAR_FREQ );
 
     // Load the sources into appB.   
+
+    if (loadTimeB)
     appLoaderPtr_->loadBVectorsforSources();
 
     appB->fillComplete();
@@ -927,6 +933,10 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       // Call application loader for frequency-domain contributions
       Teuchos::rcp_dynamic_cast<CktLoader>(appLoaderPtr_)->loadFreqDAEVectors( freq, &Xf_complex[0], 
                                                            tmpFreqFVector, freqBVector_[i] );
+
+      if (!loadTimeB)
+        Teuchos::rcp_dynamic_cast<CktLoader>(appLoaderPtr_)->loadFreqBVectorsforSources( freq,
+                                                             freqBVector_[i] );
 
       // Perform some analysis of nonzero entries for the first harmonic, reuse for other harmonics.
       // This method will determine local and nonlocal nonzero rows, as well as communication PIDs.
