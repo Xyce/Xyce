@@ -324,6 +324,7 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
     Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(zparamOps_));
   }
 
+  return true;
 }
 
 //-------------------------------------------------------------------------------
