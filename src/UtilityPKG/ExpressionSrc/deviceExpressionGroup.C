@@ -138,7 +138,7 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
-        std::string & node = voltOp->getVoltageNode();
+        const std::string & node = voltOp->getVoltageNode();
         if (lidMap_.find(node) != lidMap_.end()) { lidVec_.push_back( lidMap_[node] ); }
         else { success = false; }
       }
@@ -150,7 +150,7 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
       {
         Teuchos::RCP<currentOp<usedType> > currOp 
           = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
-        std::string & name = currOp->getCurrentDevice();
+        const std::string & name = currOp->getCurrentDevice();
         if (lidMap_.find(name) != lidMap_.end()) { lidVec_.push_back( lidMap_[name] ); }
         else { success = false; }
       }

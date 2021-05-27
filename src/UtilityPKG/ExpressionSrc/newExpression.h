@@ -73,6 +73,7 @@ class newExpression
 {
 friend class baseExpressionGroup;
 friend class deviceExpressionGroup;
+friend class outputsXyceExpressionGroup;
 
 public:
   newExpression () :

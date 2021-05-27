@@ -1743,7 +1743,8 @@ class voltageOp: public astNode<ScalarT>
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() { derivIndex_=-1; };
 
-    std::string & getVoltageNode() { return voltageNode_; }
+    const std::string & getVoltageNode() { return voltageNode_; }
+    void setVoltageNode(const std::string & name) { voltageNode_ = name; }
     ScalarT & getVoltageVal() { return voltageVal_; }
 
     virtual bool voltageType() { return true; };
@@ -1808,7 +1809,7 @@ class currentOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setCurrentDevice(const std::string & devName) { currentDevice_ = devName; }
-    std::string & getCurrentDevice() { return currentDevice_; }
+    const std::string & getCurrentDevice() { return currentDevice_; }
 
     ScalarT & getCurrentVal () { return number_; }
     void setCurrentVal (ScalarT n) { number_ = n; }
@@ -1890,6 +1891,7 @@ class sparamOp: public astNode<ScalarT>
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
+    ScalarT & getSparamValue () { return number_; }
     virtual void setValue(ScalarT val) { number_ = val; };
 
     std::vector<int> & getSparamArgs () { return sparamArgs_; }
@@ -1964,6 +1966,7 @@ class yparamOp: public astNode<ScalarT>
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
+    ScalarT & getYparamValue () { return number_; }
     virtual void setValue(ScalarT val) { number_ = val; };
 
     std::vector<int> & getYparamArgs () { return yparamArgs_; }
@@ -2038,6 +2041,7 @@ class zparamOp: public astNode<ScalarT>
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
+    ScalarT & getZparamValue () { return number_; }
     virtual void setValue(ScalarT val) { number_ = val; };
 
     std::vector<int> & getZparamArgs () { return zparamArgs_; }
@@ -2103,12 +2107,12 @@ class leadCurrentOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setLeadCurrentDevice(const std::string & devName) { leadCurrentDevice_ = devName; }
-    std::string getLeadCurrentDevice() { return leadCurrentDevice_; }
+    const std::string & getLeadCurrentDevice() { return leadCurrentDevice_; }
 
     void setLeadCurrentDesignator(const std::string & desName) { leadCurrentDesignator_ = desName; }
-    std::string getLeadCurrentDesignator() { return leadCurrentDesignator_; }
+    const std::string & getLeadCurrentDesignator() { return leadCurrentDesignator_; }
 
-    ScalarT getLeadCurrentVar () { return number_; }
+    ScalarT & getLeadCurrentVar () { return number_; }
     void setLeadCurrentVar (ScalarT n) { number_ = n; }
 
     virtual bool leadCurrentType() { return true; };
@@ -2174,9 +2178,9 @@ class powerOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setPowerDevice(const std::string & devName) { powerDevice_ = devName; }
-    std::string getPowerTag   () { return tag_; }
-    std::string getPowerDevice() { return powerDevice_; }
-    ScalarT getPowerVal () { return number_; }
+    const std::string & getPowerTag   () { return tag_; }
+    const std::string & getPowerDevice() { return powerDevice_; }
+    ScalarT & getPowerVal () { return number_; }
     void setPowerVal (ScalarT n) { number_ = n; }
 
     virtual bool powerType() { return true; };
@@ -2241,8 +2245,8 @@ class internalDevVarOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     void setInternalVarDevice(const std::string & devName) { internalDevVarDevice_ = devName; }
-    std::string getInternalVarDevice() { return internalDevVarDevice_; }
-    ScalarT getInternalDeviceVar () { return number_; }
+    const std::string & getInternalVarDevice() { return internalDevVarDevice_; }
+    ScalarT & getInternalDeviceVar () { return number_; }
     void setInternalDeviceVar (ScalarT n) { number_ = n; }
 
     virtual bool internalDeviceVarType()  { return true; };
@@ -2320,7 +2324,7 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     void setNoiseDevices (const std::vector<std::string> & devNames) { noiseDevices_ = devNames; }
     std::vector<std::string> getNoiseDevices () { return noiseDevices_; }
 
-    ScalarT getNoiseVar () { return number_; }
+    ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
     virtual bool dnoNoiseVarType()  { return true; };
@@ -2394,7 +2398,7 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     void setNoiseDevices (const std::vector<std::string> & devNames) { noiseDevices_ = devNames; }
     std::vector<std::string> getNoiseDevices () { return noiseDevices_; }
-    ScalarT getNoiseVar () { return number_; }
+    ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
     virtual bool dniNoiseVarType()  { return true; };
@@ -2442,7 +2446,7 @@ class oNoiseOp: public astNode<ScalarT>
 
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
-    ScalarT getNoiseVar () { return number_; }
+    ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
     virtual bool oNoiseType()  { return true; };
 
@@ -2485,7 +2489,7 @@ class iNoiseOp: public astNode<ScalarT>
 
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
-    ScalarT getNoiseVar () { return number_; }
+    ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
     virtual bool iNoiseType()  { return true; };
 

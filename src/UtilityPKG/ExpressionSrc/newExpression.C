@@ -690,7 +690,7 @@ void newExpression::setupDerivatives_ ()
         Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
 
-        std::string & node = voltOp->getVoltageNode();
+        const std::string & node = voltOp->getVoltageNode();
 
         std::string tmp = node; Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
@@ -973,7 +973,7 @@ void newExpression::setupVariousAstArrays()
       for (int ii=0;ii<voltOpVec_.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
-        std::string & node = voltOp->getVoltageNode();
+        const std::string & node = voltOp->getVoltageNode();
 
         if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
@@ -1816,8 +1816,8 @@ bool newExpression::replaceName (
       for(int ii=0;ii<astVec.size();++ii)
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
-        std::string & node = voltOp->getVoltageNode();
-        if(node == old_name) { node = new_name; } 
+        const std::string & node = voltOp->getVoltageNode();
+        if(node == old_name) { voltOp->setVoltageNode(new_name); } 
       }
 
       if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors

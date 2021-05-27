@@ -76,7 +76,7 @@ bool baseExpressionGroup::putValues(newExpression & expr)
       Teuchos::RCP<voltageOp<usedType> > voltOp
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
 
-      std::string & node = voltOp->getVoltageNode();
+      const std::string & node = voltOp->getVoltageNode();
       usedType & val = voltOp->getVoltageVal();
       usedType oldval = val;
       getSolutionVal(node, val);
