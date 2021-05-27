@@ -425,6 +425,7 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
+   
   if ((freqs_.size() == 1) || (method_ == "AFM") )
   {
     if (ftInterface_ == Teuchos::null)
@@ -1009,8 +1010,17 @@ void HB::prepareHBOutput(
   if (numTimePts_== size_ )
   {
     timePoints = fastTimes_;
-  }
 
+    if ( method_ == "AFM" )
+    {
+      updateIFT_( timePoints);
+//      iftInData_.resize( size_+1 );
+
+      dftInterface_ = Teuchos::rcp( new N_UTL_APFT<std::vector<double> >( idftMatrix_, dftMatrix_ ) );
+      dftInterface_->registerVectors( Teuchos::rcp( &ftInData_, false ), Teuchos::rcp( &ftOutData_, false ), Teuchos::rcp( &iftInData_, false ), Teuchos::rcp( &iftOutData_, false ) );
+      hbLoaderPtr_->registerDFTInterface( dftInterface_ ); 
+    }
+  }
   else
   {
 
@@ -1085,10 +1095,12 @@ void HB::prepareHBOutput(
 
       if (lid >= 0)
       {
+
         realVecRef_neg[lid] = solBlock[ 2*(size_-i) ];
         imagVecRef_neg[lid] = solBlock[ 2*(size_-i) + 1 ];
         realVecRef_pos[lid] = solBlock[ 2*i ];
         imagVecRef_pos[lid] = solBlock[ 2*i+1 ];
+
       }
     }
   }
