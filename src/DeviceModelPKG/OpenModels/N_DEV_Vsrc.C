@@ -55,6 +55,8 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_FeatureTest.h>
 
+#include <N_UTL_Math.h>
+
 namespace Xyce {
 namespace Device {
 

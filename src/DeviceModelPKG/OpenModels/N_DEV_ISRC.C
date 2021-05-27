@@ -57,6 +57,9 @@
 #include <N_LAS_Matrix.h>
 #include <N_UTL_FeatureTest.h>
 
+
+#include <N_UTL_Math.h>
+
 namespace Xyce {
 namespace Device {
 namespace ISRC {
