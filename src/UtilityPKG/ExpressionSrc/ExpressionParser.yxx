@@ -862,22 +862,50 @@ exp:
     }
   | exp TOK_PLUS exp
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  ($1,$3));
+      Teuchos::RCP<astNode<usedType> > tmpPtr;
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())+($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  ($1,$3)); }
       $$ = tmpPtr;
     }
   | exp TOK_MINUS exp
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  ($1,$3));
+      Teuchos::RCP<astNode<usedType> > tmpPtr;
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())-($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  ($1,$3)); }
       $$ = tmpPtr;
     }
   | exp TOK_MULTIPLY exp
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  ($1,$3));
+      Teuchos::RCP<astNode<usedType> > tmpPtr;
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())*($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  ($1,$3)); }
       $$ = tmpPtr;
     }
   | exp TOK_DIVIDE exp
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryDivOp<usedType>  ($1,$3));
+      Teuchos::RCP<astNode<usedType> > tmpPtr;
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())/($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryDivOp<usedType>  ($1,$3)); }
       $$ = tmpPtr;
     }
   | exp TOK_MOD exp
