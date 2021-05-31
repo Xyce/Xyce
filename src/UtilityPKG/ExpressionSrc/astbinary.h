@@ -44,7 +44,10 @@ class NAME : public astNode<ScalarT>                                            
 {                                                                                      \
   public:                                                                              \
     NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
-        astNode<ScalarT>(left,right) {};                                               \
+        astNode<ScalarT>(left,right) {                                                 \
+          rightConst_ = this->rightAst_->numvalType();                                 \
+          leftConst_ = this->leftAst_->numvalType();                                   \
+        };                                                                             \
                                                                                        \
     virtual ScalarT val(){                                                             \
       ScalarT leftVal=this->leftAst_->val();                                           \
@@ -54,23 +57,28 @@ class NAME : public astNode<ScalarT>                                            
     virtual ScalarT dx(int i) {                                                        \
       ScalarT leftVal=this->leftAst_->val();                                           \
       ScalarT rightVal=this->rightAst_->val();                                         \
-      ScalarT leftDx =this->leftAst_->dx(i);                                           \
-      ScalarT rightDx =this->rightAst_->dx(i);                                         \
+      ScalarT leftDx, rightDx;                                                         \
+      if (!leftConst_) { leftDx =this->leftAst_->dx(i); } else { leftDx=0.0; }         \
+      if (!rightConst_) { rightDx =this->rightAst_->dx(i); } else {rightDx=0.0; }      \
       return DX; }                                                                     \
                                                                                        \
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
       int numDerivs = derivs.size();                                                   \
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                    \
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }                    \
-      ScalarT leftVal, rightVal;                                                       \
-      this->leftAst_->dx2(leftVal,lefDerivs_);                                         \
-      this->rightAst_->dx2(rightVal,rigDerivs_);                                       \
+      ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;                              \
+      if (leftConst_) { leftVal = this->leftAst_->val(); }                             \
+      else {                                                                           \
+        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                  \
+        this->leftAst_->dx2(leftVal,lefDerivs_); }                                     \
+      if (rightConst_) { rightVal = this->rightAst_->val(); }                          \
+      else {                                                                           \
+        if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }                  \
+        this->rightAst_->dx2(rightVal,rigDerivs_); }                                   \
       result=VAL;                                                                      \
-      for (int i=0;i<numDerivs;i++) { \
-      ScalarT leftDx = lefDerivs_[i]; \
-      ScalarT rightDx = rigDerivs_[i]; \
-        derivs[i] = DX; } \
+      for (int i=0;i<numDerivs;i++) {                                                  \
+        if (!leftConst_)  { leftDx = lefDerivs_[i]; }                                  \
+        if (!rightConst_) { rightDx = rigDerivs_[i]; }                                \
+        derivs[i] = DX; }                                                              \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -93,23 +101,25 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                    \
       os << ")";                                                                       \
     }                                                                                  \
+    bool rightConst_;                                                                  \
+    bool leftConst_;                                                                   \
     std::vector<ScalarT> lefDerivs_;                                                   \
     std::vector<ScalarT> rigDerivs_;                                                   \
-};                          
+};
 
 AST_BIN_OP_MACRO(
     binaryAddOp,
     "binary add ",
 	  "+",
 	  (leftVal + rightVal),
-	  (leftDx + rightDx)
+   (rightConst_)? (leftConst_?(0.0):(leftDx)) : (leftConst_?(rightDx):(leftDx+rightDx))
     )
 AST_BIN_OP_MACRO(
     binaryMinusOp,
     "binary minus ",
 	  "-",
 	  (leftVal - rightVal),
-	  (leftDx - rightDx)
+    (rightConst_)?(leftConst_?(0.0):(leftDx)):(leftConst_?(-rightDx):(leftDx-rightDx))
     )
 AST_BIN_OP_MACRO(
     binaryModOp,
@@ -123,14 +133,14 @@ AST_BIN_OP_MACRO(
     "binary multiply ",
 	  "*",
 	  (leftVal * rightVal),
-	  (leftDx * rightVal + rightDx * leftVal)
+    (rightConst_)?(leftConst_?(0.0):(leftDx * rightVal)):(leftConst_?(rightDx * leftVal):(leftDx*rightVal+rightDx*leftVal))
     )
 AST_BIN_OP_MACRO(
     binaryDivOp,
     "binary division ",
 	  "/",
 	  (leftVal / rightVal),
-	  ((leftDx * rightVal - rightDx * leftVal) / (rightVal * rightVal))
+    (rightConst_)?(leftConst_?(0.0):((leftDx*rightVal)/(rightVal*rightVal))):(leftConst_?((-rightDx*leftVal)/(rightVal*rightVal)):((leftDx*rightVal-rightDx*leftVal)/(rightVal*rightVal)))
     )
 
 #endif
