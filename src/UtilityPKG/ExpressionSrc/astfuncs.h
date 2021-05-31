@@ -56,13 +56,12 @@ class NAME ## Op : public astNode<ScalarT>                                      
                                                                                        \
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      result = std::NAME(leftVal);                                                     \
+      ScalarT leftVal, leftDx;                                                         \
       int numDerivs=derivs.size();                                                     \
-      for (int i=0;i<numDerivs;i++)                                                    \
-      {                                                                                \
-        ScalarT leftDx =this->leftAst_->dx(i);                                         \
-        derivs[i] = DX; }                                                              \
+      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                    \
+      this->leftAst_->dx2(leftVal,lefDerivs_);                                         \
+      result= std::NAME(leftVal);                                                      \
+      for (int i=0;i<numDerivs;i++) { ScalarT leftDx=lefDerivs_[i]; derivs[i]=DX; }    \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -82,6 +81,7 @@ class NAME ## Op : public astNode<ScalarT>                                      
       this->leftAst_->codeGen(os);                                                     \
       os << ")";                                                                       \
     }                                                                                  \
+    std::vector<ScalarT> lefDerivs_;                                                   \
 };
 
 AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))))
