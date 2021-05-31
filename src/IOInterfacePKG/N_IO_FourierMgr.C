@@ -108,6 +108,62 @@ FourierMgr::~FourierMgr()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FourierMgr::notify
+// Purpose       : Reset the Fourier analyses at the start of a STEP iteration,
+//                 and output the Fourier results at the end of each STEP iteration.
+//                 Output for the non-step case is currently handled by
+//                 outputMacroResults().
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 6/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::notify( const Analysis::StepEvent & step_event)
+{
+  switch (step_event.state_)
+  {
+    case Analysis::StepEvent::INITIALIZE:
+      break;
+
+    case Analysis::StepEvent::STEP_STARTED:
+      reset();
+      break;
+
+    case Analysis::StepEvent::STEP_COMPLETED:
+      outputResultsToFourFile(step_event.count_);
+      break;
+
+    case Analysis::StepEvent::FINISH:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FourierMgr::reset
+// Purpose       : Resets the object at the start of a .STEP loop
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::reset()
+{
+  calculated_ = false;
+  time_.clear();
+  outputVarsValues_.clear();
+  newTime_.clear();
+  newValues_.clear();
+  prdStart_.clear();
+  lastPrdStart_.clear();
+
+  mag_.clear();
+  phase_.clear();
+  nmag_.clear();
+  nphase_.clear();
+  thd_.clear();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FourierMgr::fixupSensFourierParameters
 //
 // Purpose       : This function aguments the fixupFourerParameters function,
@@ -583,6 +639,30 @@ void FourierMgr::updateFourierData(Parallel::Machine comm, const double circuitT
     vecIndex++;
   }
 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::outputResultsToFourFile
+// Purpose       : Output all of the Fourier results at end of simulation
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::outputResultsToFourFile(int stepNumber)
+{
+  int numOutVars = outputVars_.size();
+
+  if ( numOutVars && !time_.empty() && !calculated_ )
+  {
+    std::ostringstream converterBuff;
+    converterBuff << stepNumber;
+    std::string filename = netlistFilename_ + ".four" + converterBuff.str();
+    std::ofstream outputFileStream;
+    outputFileStream.open( filename.c_str() );
+    outputResults(outputFileStream);
+    outputFileStream.close();
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -41,11 +41,14 @@
 #include <list>
 #include <string>
 
+#include <N_ANP_StepEvent.h>
+
 #include <N_IO_fwd.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_fwd.h>
 #include <N_UTL_fwd.h>
 
+#include <N_UTL_Listener.h>
 #include <N_UTL_Param.h>
 
 namespace Xyce {
@@ -59,13 +62,16 @@ namespace IO {
 // Creator       : Heidi Thornquist, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-class FourierMgr
+class FourierMgr : public Util::Listener<Analysis::StepEvent>
 {
 public:
   FourierMgr(const std::string &netlist_filename);
 
   // Destructor
   ~FourierMgr();
+
+  void notify(const Analysis::StepEvent &step_event);
+  void reset();
 
   // Return true if Fourier analysis is being performed on any variables.
   bool isFourierActive() const { return (!freqNumOutputVarsMap_.empty() && !time_.empty()); }
@@ -91,8 +97,9 @@ public:
                          const std::vector<double> &         scaled_dOdpVec,
                          const std::vector<double> &         scaled_dOdpAdjVec);
 
+  void outputResultsToFourFile(int stepNumber);
   void outputResults( std::ostream& outputStream );
-  
+
   //added to help register lead currents with device manager
   std::set<std::string> getDevicesNeedingLeadCurrents() { return devicesNeedingLeadCurrents_; }
 
