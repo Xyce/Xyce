@@ -856,7 +856,7 @@ exp:
       if ($1->numvalType() && $3->numvalType())
       {
         usedType tmp = ($1->val())+($3->val());
-        /* Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp); */
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
         $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
       }
       else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  ($1,$3)); }
@@ -866,7 +866,7 @@ exp:
       if ($1->numvalType() && $3->numvalType())
       {
         usedType tmp = ($1->val())-($3->val());
-        /* Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp); */
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
         $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
       }
       else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  ($1,$3)); }
@@ -876,7 +876,7 @@ exp:
       if ($1->numvalType() && $3->numvalType())
       {
         usedType tmp = ($1->val())*($3->val());
-        /* Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp); */
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
         $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
       }
       else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  ($1,$3)); }
@@ -1211,22 +1211,36 @@ exp:
     }
   | TOK_DB exp TOK_RIGHTPAREN
     {
-      //Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>($2));
-      //$$ = tmpPtr;
-      // this needs to implement 20.0*std::log10(abs($2))  
       Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
       Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
       Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
-      $$ = tmpPtr;
+      $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
     }
   | TOK_SQRT exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new sqrtOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sqrt($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new sqrtOp<usedType>($2));
+      }
     }
   | TOK_EXP exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::exp($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>($2));
+      }
     }
   | TOK_EXP_CONST
     {
@@ -1235,35 +1249,107 @@ exp:
     }
   | TOK_SIN exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new sinOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sin($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new sinOp<usedType>($2));
+      }
     }
   | TOK_COS exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new cosOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::cos($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new cosOp<usedType>($2));
+      }
     }
   | TOK_MABS exp TOK_RIGHTPAREN 
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::abs($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      }
     }
   | TOK_ABS exp TOK_RIGHTPAREN 
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::abs($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      }
     }
   | TOK_ACOS exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new acosOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::acos($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new acosOp<usedType>($2));
+      }
     }
   | TOK_ACOSH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new acoshOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::acosh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new acoshOp<usedType>($2));
+      }
     }
   | TOK_ASIN exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new asinOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::asin($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new asinOp<usedType>($2));
+      }
     }
   | TOK_ASINH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new asinhOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::asinh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new asinhOp<usedType>($2));
+      }
     }
   | TOK_ATAN2 exp TOK_COMMA exp TOK_RIGHTPAREN
     {
@@ -1271,46 +1357,118 @@ exp:
     }
   | TOK_ATAN exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::atan($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>($2));
+      }
     }
   | TOK_ATANH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new atanhOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::atanh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new atanhOp<usedType>($2));
+      }
     }
   | TOK_COSH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new coshOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::cosh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new coshOp<usedType>($2));
+      }
     }
   | TOK_LN exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::log($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2));
+      }
     }
   | TOK_LOG exp TOK_RIGHTPAREN
     {
       if (Xyce::Util::useHspiceMath)
       {
-        $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2));
+        if ($2->numvalType())
+        {
+          usedType tmp = std::log($2->val());
+          Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+          $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        }
+        else { $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2)); }
       }
       else
       {
-        $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2));
+        if ($2->numvalType())
+        {
+          usedType tmp = std::log10($2->val());
+          Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+          $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        }
+        else { $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2)); }
       }
     }
   | TOK_LOG10 exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::log10($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2)); }
     }
   | TOK_SINH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new sinhOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sinh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new sinhOp<usedType>($2)); }
     }
   | TOK_TAN exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new tanOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::tan($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new tanOp<usedType>($2)); }
     }
   | TOK_TANH exp TOK_RIGHTPAREN
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>($2));
+      if ($2->numvalType())
+      {
+        usedType tmp = std::tanh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>($2)); }
     }
   | TOK_NINT exp TOK_RIGHTPAREN
     {
@@ -1337,8 +1495,7 @@ exp:
     }
   | TOK_LIMIT exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>($2,$4,$6));
-      $$ = tmpPtr;
+      $$ = Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>($2,$4,$6));
     }
   | TOK_STP exp TOK_RIGHTPAREN
     {
