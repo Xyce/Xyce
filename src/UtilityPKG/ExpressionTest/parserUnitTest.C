@@ -2154,6 +2154,32 @@ TEST ( Double_Parser_VoltDeriv_Test, test9)
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test9)
 }
 
+TEST ( Double_Parser_VoltDeriv_Test, test10)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.3*V(A)/V(B)-7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3, Bval=2.1;
+  double refRes = 12.3*Aval/Bval-7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+  std::vector<double> refDer;
+  refDer.push_back(12.3/Bval);
+  refDer.push_back(-12.3*Aval/(Bval*Bval));
+  std::vector<double> derivs;
+
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test1)
+}
+
 //-------------------------------------------------------------------------------
 
 TEST ( Double_Parser_CurrSoln_Test, test1)
