@@ -81,16 +81,14 @@ struct Depend
   } resultU;                            ///< Holds a pointer to where the
                                         ///< parameter is stored.
   int                         vectorIndex; ///< Used if parameter is in a vector
-  std::vector<double>         vals;     ///< values on which expression depends
-  std::vector<std::string>    global_params; ///< global params on which
-                                             ///< expression depends
-  int                         n_vars, lo_var; 
+
+  int                         n_vars, lo_var, n_global; 
   bool                     storeOriginal;    ///< true if original value stored
   int                      serialNumber;     ///< used if original value stored
 
   // Constructor
   Depend()
-    : vectorIndex(-1), n_vars(0), lo_var(0)
+    : vectorIndex(-1), n_vars(0), lo_var(0), n_global(0)
   {};
 
 };
@@ -333,10 +331,10 @@ private:
   const DeviceOptions &       devOptions_;
   std::vector<Depend>         dependentParams_;
 
+protected:
   std::unordered_map <std::string, int> dependentParamExcludeMap_;
   std::unordered_map <std::string, int> dependentScaleParamExcludeMap_;
 
-protected:
   std::vector<int>            expVarGIDs;
   std::vector<int>            expVarLIDs;
   std::vector<int>            expVarTypes;

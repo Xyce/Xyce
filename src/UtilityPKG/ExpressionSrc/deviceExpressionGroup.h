@@ -108,6 +108,9 @@ public:
     const std::vector<std::string> & expVarNames, 
     const std::vector<int> & expVarLIDs, int lo, int hi);
 
+  virtual bool setupGroup(newExpression &expr);
+  virtual bool putValues(newExpression & expr);
+
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
@@ -119,6 +122,7 @@ public:
 
 private:
   std::unordered_map<std::string,int> lidMap_;
+  std::vector<int> lidVec_;
 };
 
 }

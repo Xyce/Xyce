@@ -113,6 +113,9 @@ public:
 
   ~outputsXyceExpressionGroup ();
 
+  virtual bool setupGroup(newExpression &expr);
+  virtual bool putValues(newExpression & expr);
+
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
@@ -173,6 +176,7 @@ public:
 
   void setOpData (const Util::Op::OpData & opData) { opData_ = opData; }
 
+  void clearOps();
 
 private:
   Parallel::Communicator & comm_;
@@ -189,6 +193,19 @@ private:
   double dt_, alpha_;
 
   Util::Op::OpData opData_;
+
+  Op::OpList voltageOps_;
+  Op::OpList currentOps_;
+  Op::OpList leadCurrentOps_;
+  Op::OpList internalDevVarOps_;
+  Op::OpList dnoNoiseDevVarOps_;
+  Op::OpList dniNoiseDevVarOps_;
+  Op::OpList oNoiseOps_;
+  Op::OpList iNoiseOps_;
+  Op::OpList powerOps_;
+  Op::OpList sparamOps_;
+  Op::OpList yparamOps_;
+  Op::OpList zparamOps_;
 };
 
 }

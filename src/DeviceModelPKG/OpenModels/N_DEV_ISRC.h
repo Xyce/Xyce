@@ -125,6 +125,9 @@ public:
 
   bool loadBVectorsforAC (double * bVecReal, double * bVecImag);
 
+  bool loadFreqBVector(double frequency,
+                       std::vector<Util::FreqVecEntry>& bVec);
+
 protected:
 private:
 

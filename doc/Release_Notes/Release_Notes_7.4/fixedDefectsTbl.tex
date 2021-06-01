@@ -49,6 +49,13 @@
      previously placed into the other libraries.  If you are building
      codes to be linked against Xyce libraries, you must simplify your
      link line to link in just ``-lxyce''.\\ \hline
+
+  \textbf{Gitlab-ex issue 204}: \texttt{.OPTIONS MEASURE MEASFAIL=1} does not work
+properly for successful \texttt{TRIG-TARG} measures  & If \texttt{.OPTIONS MEASURE MEASFAIL=1}
+was used in a netlist then the results for a successful \texttt{TRIG-TARG} measure
+would be correct in the descriptive information sent to stdout.  However, the measure's
+value would be shown as FAILED in the \texttt{<netlistName>.mt0} file. \\ \hline
+
   \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work in \texttt{.IC} statements &  
       This has been resolved and global parameters can be used to set the 
       value of an \texttt{.IC} statement.\\ \hline

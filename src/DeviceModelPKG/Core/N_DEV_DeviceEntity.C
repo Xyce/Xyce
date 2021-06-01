@@ -1047,7 +1047,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 
   dependentParam.lo_var = expVarNames.size();
   dependentParam.n_vars = names.size();
-  dependentParam.vals.resize(dependentParam.n_vars);
+
   int expVarLen = dependentParam.lo_var+dependentParam.n_vars;
   expVarGIDs.resize(expVarLen);
   expVarLIDs.resize(expVarLen);
@@ -1059,7 +1059,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     expVarTypes.push_back(types[i]);
   }
 
-  dependentParam.global_params.clear();
+  dependentParam.n_global=0;
   bool isVarDep = dependentParam.expr->getVariableDependent();
   if (isVarDep)
   {
@@ -1075,7 +1075,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
       else 
       {
-        dependentParam.global_params.push_back(*iterVariable);
+       dependentParam.n_global++;
       }
     }
   }
@@ -1173,7 +1173,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // Don't re-evaluate if this parameter has been overridden by a setParam call.
+    // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
     if ( !(dependentParamExcludeMap_.empty()) ) 
     {
       // check for a setParam call
@@ -1186,7 +1186,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( (!(dpIter->global_params.empty()) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
+    if ( ((dpIter->n_global > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
         // ERK: check if the time and freq booleans are reliable.
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
@@ -1224,7 +1224,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
         if (changed==true) { std::cout << " changed=true"; }
         else { std::cout << " changed=false"; }
 
-        if ( (!(dpIter->global_params.empty()) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
         else { std::cout << " globalParDep=false"; }
 
         if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }

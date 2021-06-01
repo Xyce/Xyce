@@ -83,7 +83,8 @@ public:
                           const double endSimTime,
                           TimeIntg::StepErrorControl & sec,
                           const bool fft_accurate,
-                          const bool fftout);
+                          const bool fftout,
+                          const int fft_mode);
 
   void addSampleTimeBreakpoints();
 
@@ -153,7 +154,8 @@ private:
   TimeIntg::StepErrorControl* secPtr_; // ptr to step error control.  Used if FFT_ACCURATE=true
   double startTime_, stopTime_;
   int np_;
-  std:: string format_;
+  std::string format_;
+  bool formatGiven_;
   std::string windowType_;
   double alpha_;
   double fundFreq_; // fundamental frequency
@@ -168,6 +170,7 @@ private:
   std::string outputVarName_;
   bool fft_accurate_;
   bool fftout_;
+  int fft_mode_;
   int sampleIdx_;
   double noiseFloor_;
   double maxMag_;

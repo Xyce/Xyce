@@ -563,8 +563,13 @@ TD} values for a given measure that yields an empty measurement
 interval.  If either \texttt{.OPTIONS MEASURE MEASFAIL=<val>}
 or \texttt{.OPTIONS MEASURE DEFAULT\_VAL=<val>} are given in the
 netlist then those values override the \texttt{DEFAULT\_VAL}
-parameters given on individual
-\texttt{.MEASURE} lines.  See Section \ref{Options_Reference} for more details.
+parameters given on individual \texttt{.MEASURE} lines.  See Section
+\ref{Options_Reference} for more details.  As a final note, the \texttt{FOUR}
+measure is a special case since it produces multiline output.  Failed
+\texttt{FOUR} measures will be reported as FAILED in the
+\texttt{circuitFileName.mt\#} ( or \texttt{circuitFileName.ms\#} or
+\texttt{circuitFileName.ma\#}) files, irrespective of the various
+\texttt{MEASFAIL} and \texttt{DEFAULT\_VAL} settings.
 
 \argument{PRECISION=value}
 

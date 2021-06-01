@@ -1466,15 +1466,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
 
     // Extract the expression from the parameter value by stripping off
     // the enclosing braces.  Only strip if it's there!
-    std::string expressionString;
-    if (parameter.stringValue()[0] == '{')
-    {
-      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
-    }
-    else
-    {
-      expressionString = parameter.stringValue();
-    }
+    std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
     Util::Expression expression(expressionGroup_, expressionString);
@@ -1579,15 +1571,7 @@ bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
 
     // Extract the expression from the parameter value by stripping off
     // the enclosing braces.  Only strip if it's there!
-    std::string expressionString;
-    if (parameter.stringValue()[0] == '{')
-    {
-      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
-    }
-    else
-    {
-      expressionString = parameter.stringValue();
-    }
+    std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
     Util::Expression expression(expressionGroup_, expressionString);
@@ -1647,15 +1631,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
 
     // Extract the expression from the parameter value by stripping off
     // the enclosing braces.  Only strip if it's there!
-    std::string expressionString;
-    if (parameter.stringValue()[0] == '{')
-    {
-      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
-    }
-    else
-    {
-      expressionString = parameter.stringValue();
-    }
+    std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
     Util::Expression expression(expressionGroup_, expressionString,funcArgs);
@@ -1673,7 +1649,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
     bool functionsResolved = resolveFunctions(expression);
 
     parameter.setVal(expression); 
-    if ( !(expression.getLeadCurrents().empty()) ) { return false; }
+    if (expression.getLeadCurrentDependent()) { return false; }
 
     if (DEBUG_IO)
     {

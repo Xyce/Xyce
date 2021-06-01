@@ -211,8 +211,21 @@ Instance::Instance(
       li_ddt.resize(expNumDdt);
       numStateVars += expNumDdt;
 
-      expVarDerivs.resize(expNumVars);
-      myVarVals.resize(expNumVars);
+      if (expNumVars>0)
+      {
+        expVarDerivs.resize(expNumVars);
+        myVarVals.resize(expNumVars);
+
+        // this tells the device entity class NOT to call evaluateFunction on 
+        // this expression, as that will be redundant with the evaluate call that 
+        // is done from the Bsrc.  The exception is if the expression contains the 
+        // ddt operator.  Then, it needs to call both  evaluateFunction and later 
+        // evaluate for it to work properly.
+        if (expNumDdt<=0)
+        {
+          dependentParamExcludeMap_[d->name] = 1;
+        }
+      }
       break;
     }
   }

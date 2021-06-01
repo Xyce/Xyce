@@ -341,7 +341,7 @@ bool Instance::isLinearDevice() const
     for (d=begin; d!=end; ++d)
     {
       int expNumVars = d->n_vars;
-      int expNumGlobal = d->global_params.size();
+      int expNumGlobal = d->n_global;
       Util::Expression* expPtr = d->expr;
 
       if (expNumVars > 0 || expPtr->isTimeDependent() || expNumGlobal > 0 )

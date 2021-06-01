@@ -54,6 +54,13 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                       \
                                                                                             \
     virtual ScalarT dx(int i) { return DX; }                                                \
+                                                                                            \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  \
+    { \
+      result = val(); \
+      std::fill(derivs.begin(),derivs.end(),0.0); \
+    } \
+                                                                                            \
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)      \
     {                                                                                       \
       if(!(bpTimes_.empty()))                                                               \
@@ -103,6 +110,12 @@ class NAME : public astNode<ScalarT>                                            
     virtual ScalarT val(){return VAL; }                                                \
                                                                                        \
     virtual ScalarT dx(int i) { return DX; }                                           \
+                                                                                       \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
+    {                                                                                  \
+      result = val();                                                                  \
+      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }        \
+    }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \

@@ -470,6 +470,13 @@ provides detailed definitions for these metrics:
   \item Total Harmonic Distorion (THD)
 \end{itemize}
 
+The setting for \texttt{FFT\_MODE} is used to control whether the \Xyce{} FFT
+processing and output format are more compatible with HSPICE (0) or Spectre (1).
+This setting affects the format of the window functions, the conversion from
+two-sided to one-sided results, and whether the default output for the
+magnitude values is normalized, or not.  Section~\ref{FFT_MODE} gives
+more details.
+
 \input{fftoptiontbl}
 
 \subsubsection{\texttt{.OPTIONS MEASURE} (Measure Options)}
@@ -505,7 +512,11 @@ files for a failed measure.  If given in the netlist, the setting for the
 \texttt{DEFAULT\_VAL} option overrides the \texttt{DEFAULT\_VAL} qualifiers given 
 on individual \texttt{.MEASURE} lines.  The \texttt{DEFAULT\_VAL} option and the 
 \texttt{DEFAULT\_VAL} qualifiers can be set to any real number.  For all of these 
-cases, \Xyce{} will print ``FAILED'' to the standard output for a failed measure. 
+cases, \Xyce{} will print ``FAILED'' to the standard output for a failed measure.
+As a final note, the \texttt{FOUR} measure is a special case since it produces multiline
+output.  Failed \texttt{FOUR} measures will be reported as ``FAILED'' in the
+\texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) files, irrespective of the various
+\texttt{MEASFAIL} and \texttt{DEFAULT\_VAL} settings.
 
 The \texttt{USE\_CONT\_FILES} option controls whether each \texttt{AC\_CONT},
 \texttt{DC\_CONT}, \texttt{NOISE\_CONT} or \texttt{TRAN\_CONT} mode measure uses

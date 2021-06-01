@@ -46,7 +46,7 @@ namespace Measure {
 // Class         : ErrorFunctions
 // Purpose       : Implement the ERRx measures
 // Special Notes : This class contains the functions that are common to
-//                 the Err1, Err2 and Err3 measure classes
+//                 the Err1 and Err2 measure classes
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/08/2020
 //-------------------------------------------------------------------------
@@ -156,29 +156,6 @@ public:
 private:
   double err2Sum_;
   int numPts_;
-};
-
-//-------------------------------------------------------------------------
-// Class         : Err3
-// Purpose       : Implement ERR3 measure
-// Special Notes :
-// Creator       : Pete Sholander, SNL
-// Creation Date : 11/17/2020
-//-------------------------------------------------------------------------
-class Err3 : public ErrorFunctions
-{
-public:
-  Err3(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~Err3() {};
-
-public:
-  void reset();
-  void updateErrVars(double mVal, double cVal);
-  double getMeasureResult();
-
-private:
-  double err3SqSum_;
-  double numPts_;
 };
 
 } // namespace Measure

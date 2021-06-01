@@ -9209,8 +9209,8 @@ TEST ( Double_Parser_Integral_Test, sdt12)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  std::vector<double> derivs(2);
-  std::vector<double> refDerivs(2);
+  std::vector<double> derivs(1);
+  std::vector<double> refDerivs(1);
   double result = 0.0, refRes = 0.0, time=0.0, finalTime=1.0;
   int numSteps = NUM_SDT_STEPS2;
   double dt = finalTime/(numSteps-1);
@@ -9238,7 +9238,6 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     if(!(derivs.empty()))
     {
     ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
     }
 
     copyExpression.evaluate(result,derivs);   
@@ -9246,7 +9245,6 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     if(!(derivs.empty()))
     {
     ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
     }
 
     assignExpression.evaluate(result,derivs);   
@@ -9254,7 +9252,6 @@ TEST ( Double_Parser_Integral_Test, sdt12)
     if(!(derivs.empty()))
     {
     ASSERT_FLOAT_EQ( derivs[0], refDerivs[0]);
-    ASSERT_FLOAT_EQ( derivs[1], refDerivs[1]);
     }
 
     time += dt;

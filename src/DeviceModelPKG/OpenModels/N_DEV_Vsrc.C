@@ -55,6 +55,8 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_FeatureTest.h>
 
+#include <N_UTL_Math.h>
+
 namespace Xyce {
 namespace Device {
 
@@ -860,11 +862,13 @@ bool Instance::loadFreqBVector (double frequency,
 
       double freq = par3;
 
+      double phase = M_PI * par5/180;
+
       if (frequency == 0.0 )
         tmpVal = std::complex<double> ( v0, 0);
 
       if (frequency == freq)
-        tmpVal = std::complex<double> (0, -0.5*mag);
+        tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
 
     }
     else

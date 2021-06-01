@@ -67,6 +67,10 @@ public:
   baseExpressionGroup () {};
   virtual ~baseExpressionGroup () {};
 
+  // do everything
+  virtual bool setupGroup(newExpression &expr) {return true;};
+  virtual bool putValues(newExpression & expr);
+
   // these do not set a value at all, they just pass thru and return true.
   virtual bool getSolutionVal(const std::string & nodeName, double & retval ) { return true; }
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { return true; }

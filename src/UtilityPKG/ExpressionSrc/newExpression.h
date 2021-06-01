@@ -71,11 +71,16 @@ namespace Util {
 //-----------------------------------------------------------------------------
 class newExpression
 {
+friend class baseExpressionGroup;
+friend class deviceExpressionGroup;
+friend class outputsXyceExpressionGroup;
+
 public:
   newExpression () :
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -121,6 +126,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -177,6 +183,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -238,6 +245,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
     timeStep_(0.0),
@@ -331,6 +339,7 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
+    groupSetup_(right.groupSetup_),
     functionArgStringVec_(right.functionArgStringVec_),
     functionArgOpVec_ (right.functionArgOpVec_),
     paramNameVec_(right.paramNameVec_),
@@ -452,6 +461,7 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
+    groupSetup_ = right.groupSetup_;
     functionArgStringVec_ = right.functionArgStringVec_;
     functionArgOpVec_  = right.functionArgOpVec_;
     paramNameVec_ = right.paramNameVec_;
@@ -575,6 +585,7 @@ public:
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
+  bool groupSetup () const { return groupSetup_; }
 
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
@@ -871,6 +882,7 @@ private:
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
+  bool groupSetup_;
 
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
 

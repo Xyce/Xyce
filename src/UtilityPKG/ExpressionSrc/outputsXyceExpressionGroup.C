@@ -100,6 +100,430 @@ outputsXyceExpressionGroup::outputsXyceExpressionGroup (
 //-------------------------------------------------------------------------------
 outputsXyceExpressionGroup::~outputsXyceExpressionGroup ()
 {
+  clearOps();
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void outputsXyceExpressionGroup::clearOps()
+{
+  for (Util::Op::OpList::const_iterator it = voltageOps_.begin(); it != voltageOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = currentOps_.begin(); it != currentOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = leadCurrentOps_.begin(); it != leadCurrentOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = internalDevVarOps_.begin(); it != internalDevVarOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = dnoNoiseDevVarOps_.begin(); it != dnoNoiseDevVarOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = dniNoiseDevVarOps_.begin(); it != dniNoiseDevVarOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = oNoiseOps_.begin(); it != oNoiseOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = iNoiseOps_.begin(); it != iNoiseOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = powerOps_.begin(); it != powerOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = sparamOps_.begin(); it != sparamOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = yparamOps_.begin(); it != yparamOps_.end(); ++it) { delete *it; }
+  for (Util::Op::OpList::const_iterator it = zparamOps_.begin(); it != zparamOps_.end(); ++it) { delete *it; }
+
+  voltageOps_.clear();
+  currentOps_.clear();
+  leadCurrentOps_.clear();
+  internalDevVarOps_.clear();
+  dnoNoiseDevVarOps_.clear();
+  dniNoiseDevVarOps_.clear();
+  oNoiseOps_.clear();
+  iNoiseOps_.clear();
+  powerOps_.clear();
+  sparamOps_.clear();
+  yparamOps_.clear();
+  zparamOps_.clear();
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::setupGroup
+//
+// Purpose       : This group sets up all the output Ops.  Not to be confused with
+//                 AST ops, which are a different sort of thing, but share the Op
+//                 name.
+//
+// Special Notes : work in progress
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/23/2021
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
+{
+  const Util::Op::BuilderManager & op_builder_manager = outputManager_.getOpBuilderManager();
+  clearOps();
+
+  if ( !(expr.voltOpVec_.empty()) )
+  {
+    ParamList paramList;
+
+    for (int ii=0;ii<expr.voltOpVec_.size();ii++)
+    {
+      Teuchos::RCP<voltageOp<usedType> > voltOp
+        = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
+
+      const std::string & node = voltOp->getVoltageNode();
+      paramList.push_back(Param(std::string("V"),1  ));
+      paramList.push_back(Param(node,0.0));
+    }
+
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(voltageOps_));
+  }
+
+
+  if ( !(expr.currentOpVec_.empty()) )
+  {
+    ParamList paramList;
+
+    for (int ii=0;ii<expr.currentOpVec_.size();ii++)
+    {
+      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
+
+      const std::string & deviceName = currOp->getCurrentDevice();
+      std::string designator("I");
+      paramList.push_back(Param(designator,1));
+      paramList.push_back(Param(deviceName,0.0));
+    }
+
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(currentOps_));
+  }
+
+  if ( !(expr.leadCurrentOpVec_.empty()) )
+  {
+    ParamList paramList;
+
+    for (int ii=0;ii<expr.leadCurrentOpVec_.size();ii++)
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (expr.leadCurrentOpVec_[ii]);
+
+      const std::string & deviceName = leadCurrOp->getLeadCurrentDevice();
+      const std::string & designator = leadCurrOp->getLeadCurrentDesignator();
+      paramList.push_back(Param(designator,1));
+      paramList.push_back(Param(deviceName,0.0));
+    }
+
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(leadCurrentOps_));
+  }
+
+  if ( !(expr.internalDevVarOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.internalDevVarOpVec_.size();ii++)
+    {
+      Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (expr.internalDevVarOpVec_[ii]);
+
+      const std::string & deviceName = intVarOp->getInternalVarDevice();
+      paramList.push_back(Param(std::string("N"),1  ));
+      paramList.push_back(Param(      deviceName,0.0));
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(internalDevVarOps_));
+  }
+
+  if ( !(expr.dnoNoiseDevVarOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.dnoNoiseDevVarOpVec_.size();ii++)
+    {
+      Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (expr.dnoNoiseDevVarOpVec_[ii]);
+
+      const std::vector<std::string> & deviceNames = dnoOp->getNoiseDevices();
+      paramList.push_back(Param(std::string("DNO"), static_cast<int>(deviceNames.size())));
+      for(int ii=0;ii<deviceNames.size();ii++) { paramList.push_back(Param(deviceNames[ii],0.0)); }
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(dnoNoiseDevVarOps_));
+  }
+
+  if ( !(expr.dniNoiseDevVarOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.dniNoiseDevVarOpVec_.size();ii++)
+    {
+      Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (expr.dniNoiseDevVarOpVec_[ii]);
+
+      const std::vector<std::string> & deviceNames = dniOp->getNoiseDevices();
+      paramList.push_back(Param(std::string("DNI"), static_cast<int>(deviceNames.size())));
+      for(int ii=0;ii<deviceNames.size();ii++) { paramList.push_back(Param(deviceNames[ii],0.0)); }
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(dniNoiseDevVarOps_));
+  }
+
+  if ( !(expr.oNoiseOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.oNoiseOpVec_.size();ii++)
+    {
+      Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (expr.oNoiseOpVec_[ii]);
+      paramList.push_back(Param(std::string("ONOISE"),0.0));
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(oNoiseOps_));
+  }
+
+  if ( !(expr.iNoiseOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.iNoiseOpVec_.size();ii++)
+    {
+      Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (expr.iNoiseOpVec_[ii]);
+      paramList.push_back(Param(std::string("INOISE"),0.0));
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(iNoiseOps_));
+  }
+
+  if ( !(expr.powerOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.powerOpVec_.size();ii++)
+    {
+      Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (expr.powerOpVec_[ii]);
+
+      const std::string & tag = pwrOp->getPowerTag(); 
+      std::string tmpTag = tag;
+      Xyce::Util::toUpper(tmpTag);
+      const std::string & deviceName = pwrOp->getPowerDevice();
+
+      paramList.push_back(Param(    tmpTag, 1  ));
+      paramList.push_back(Param(deviceName,0.0));
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(powerOps_));
+  }
+
+  if ( !(expr.sparamOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.sparamOpVec_.size();ii++)
+    {
+      Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (expr.sparamOpVec_[ii]);
+      const std::vector<int> & args = sparOp->getSparamArgs();
+      paramList.push_back(Param(std::string("S"),static_cast<int>(args.size())));
+      for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(sparamOps_));
+  }
+
+  if ( !(expr.yparamOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.yparamOpVec_.size();ii++)
+    {
+      Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (expr.yparamOpVec_[ii]);
+      const std::vector<int> & args = yparOp->getYparamArgs();
+      paramList.push_back(Param(std::string("Y"),static_cast<int>(args.size())));
+      for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(yparamOps_));
+  }
+
+  if ( !(expr.zparamOpVec_.empty()) )
+  {
+    ParamList paramList;
+    for (int ii=0;ii<expr.zparamOpVec_.size();ii++)
+    {
+      Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (expr.zparamOpVec_[ii]);
+      const std::vector<int> & args = zparOp->getZparamArgs();
+      paramList.push_back(Param(std::string("Z"),static_cast<int>(args.size())));
+      for(int ii=0;ii<args.size();ii++) { paramList.push_back(Param(std::to_string(args[ii]),0.0)); }
+    }
+    Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(zparamOps_));
+  }
+
+  return true;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : outputsXyceExpressionGroup::putValues
+// Purpose       : 
+// Special Notes : work in progress
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 5/23/2021
+//-------------------------------------------------------------------------------
+bool outputsXyceExpressionGroup::putValues(newExpression & expr)
+{
+  bool noChange=true;
+
+  if ( !(expr.voltOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = voltageOps_.begin();
+    for (int ii=0;ii<expr.voltOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<voltageOp<usedType> > voltOp
+        = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
+      usedType & val = voltOp->getVoltageVal();
+      usedType oldval = val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
+      if(val != oldval) noChange=false;
+    }
+  }
+
+  if ( !(expr.currentOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = currentOps_.begin();
+    for (int ii=0;ii<expr.currentOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
+      usedType & val = currOp->getCurrentVal();
+      usedType oldval = val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
+      if (val != oldval) noChange=false;
+    }
+  }
+
+  if ( !(expr.leadCurrentOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = leadCurrentOps_.begin();
+    for (int ii=0;ii<expr.leadCurrentOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrOp = Teuchos::rcp_static_cast<leadCurrentOp<usedType> > (expr.leadCurrentOpVec_[ii]);
+      usedType & val = leadCurrOp->getLeadCurrentVar();
+      usedType oldval = val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
+      if (val != oldval) noChange=false;
+    }
+  }
+
+  if ( !(expr.internalDevVarOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = internalDevVarOps_.begin();
+    for (int ii=0;ii<expr.internalDevVarOpVec_.size();ii++,it++)
+    {
+      Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (expr.internalDevVarOpVec_[ii]);
+
+      usedType & val = intVarOp->getInternalDeviceVar();
+      usedType oldval = val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
+      if (val != oldval) noChange=false;
+    }
+  }
+
+  // This block of code was originally conceived of for retrieving global parameters.
+  // However, it also is used for retrieving anything that is basically of "unknown" status.  
+  // For .print line outputs, that includes things like device parameters (for example ISRC:mag)
+  //
+  // Originally, this block would also handle parameters that had been labled "isVar" via 
+  // the "make_vars" function.  This was generally global_param of type Util::DBLE and Util::STR.
+  // However,  that is not the case any more as .global_params are now handled 100% with 
+  // attachments, and the make_var function is gone.
+  if ( !(expr.paramOpVec_.empty()) )
+  {
+    for (int ii=0;ii<expr.paramOpVec_.size();++ii)
+    {
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (expr.paramOpVec_[ii]);
+
+      if ( !(parOp->getIsAttached()) && !(parOp->getIsConstant()) ) // if the param is a constant, or attached, then it already has its value
+      {
+        usedType oldval = parOp->getValue();
+        usedType val = oldval;
+        getParameterVal(parOp->getName(),val);
+        parOp->setValue(val);
+
+        if (val != oldval) noChange=false;
+      }
+    }
+  }
+
+  if ( !(expr.dnoNoiseDevVarOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = dnoNoiseDevVarOps_.begin();
+    for (int ii=0;ii<expr.dnoNoiseDevVarOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoOp = Teuchos::rcp_static_cast<dnoNoiseVarOp<usedType> > (expr.dnoNoiseDevVarOpVec_[ii]);
+      usedType & val=dnoOp->getNoiseVar ();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.dniNoiseDevVarOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = dniNoiseDevVarOps_.begin();
+    for (int ii=0;ii<expr.dniNoiseDevVarOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<dniNoiseVarOp<usedType> > dniOp = Teuchos::rcp_static_cast<dniNoiseVarOp<usedType> > (expr.dniNoiseDevVarOpVec_[ii]);
+      usedType & val=dniOp->getNoiseVar ();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.oNoiseOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = oNoiseOps_.begin();
+    for (int ii=0;ii<expr.oNoiseOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<oNoiseOp<usedType> > onoiseOp = Teuchos::rcp_static_cast<oNoiseOp<usedType> > (expr.oNoiseOpVec_[ii]);
+      usedType & val=onoiseOp->getNoiseVar();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.iNoiseOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = iNoiseOps_.begin();
+    for (int ii=0;ii<expr.iNoiseOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<iNoiseOp<usedType> > inoiseOp = Teuchos::rcp_static_cast<iNoiseOp<usedType> > (expr.iNoiseOpVec_[ii]);
+      usedType & val=inoiseOp->getNoiseVar();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.powerOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = powerOps_.begin();
+    for (int ii=0;ii<expr.powerOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<powerOp<usedType> > pwrOp = Teuchos::rcp_static_cast<powerOp<usedType> > (expr.powerOpVec_[ii]);
+      usedType & val=pwrOp->getPowerVal();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.sparamOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = sparamOps_.begin();
+    for (int ii=0;ii<expr.sparamOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<sparamOp<usedType> > sparOp = Teuchos::rcp_static_cast<sparamOp<usedType> > (expr.sparamOpVec_[ii]);
+      usedType & val=sparOp->getSparamValue();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.yparamOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = yparamOps_.begin();
+    for (int ii=0;ii<expr.yparamOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<yparamOp<usedType> > yparOp = Teuchos::rcp_static_cast<yparamOp<usedType> > (expr.yparamOpVec_[ii]);
+      usedType & val=yparOp->getYparamValue();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  if ( !(expr.zparamOpVec_.empty()) )
+  {
+    Util::Op::OpList::const_iterator it = zparamOps_.begin();
+    for (int ii=0;ii<expr.zparamOpVec_.size();ii++,++it)
+    {
+      Teuchos::RCP<zparamOp<usedType> > zparOp = Teuchos::rcp_static_cast<zparamOp<usedType> > (expr.zparamOpVec_[ii]);
+      usedType & val=zparOp->getZparamValue();
+      usedType oldval=val;
+      val = Util::Op::getValue(comm_.comm(), *(*it), opData_);
+      if (val != oldval) noChange = false;
+    }
+  }
+
+  return noChange;
 }
 
 //-------------------------------------------------------------------------------

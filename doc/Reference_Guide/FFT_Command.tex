@@ -8,6 +8,7 @@
 % LLC (NTESS).
 
 \label{FFT}
+\index{fft}\index{results!fft}
 
 Performs Fast Fourier Transform analysis of transient analysis output.
 
@@ -62,12 +63,18 @@ values.  The allowed values are as follows, where table~\ref{FFT_Window_Funcs}
 gives their exact definitions:
 
 \begin{itemize}
-  \item \texttt{RECT} = rectangular window (default)
-  \item \texttt{BART} = Bartlett (triangular) window
-  \item \texttt{HANN} = Hanning window
-  \item \texttt{HAMM} = Hamming window
+  \item \texttt{RECT} (or \texttt{RECTANGULAR}) = rectangular window (default)
+  \item \texttt{BART} (or \texttt{BARTLETT}) = Bartlett (triangular) window
+  \item \texttt{BARTLETTHANN} = Bartlett-Hann window
   \item \texttt{BLACK} = Blackman window
-  \item \texttt{HARRIS} = Blackman-Harris window
+  \item \texttt{BLACKMAN} = ``Conventional Blackman'' window
+  \item \texttt{HAMM} (or \texttt{HAMMING}) = Hamming window
+  \item \texttt{HANN} (or \texttt{HANNING}) = Hanning window
+  \item \texttt{HARRIS} (or \texttt{BLACKMANHARRIS}) = Blackman-Harris window
+  \item \texttt{NUTTALL} = Nuttall window
+  \item \texttt{HALFCYCLESINE} = Half-cycle sine window
+  \item \texttt{HALFCYCLESINE3} = Half-cycle sine window, with exponent 3.
+  \item \texttt{HALFCYCLESINE6} = Half-cycle sine window, with exponent 6.
 \end{itemize}
 
 \argument{ALFA}
@@ -76,10 +83,13 @@ has no effect though, since the {\tt GAUSS} and {\tt KAISER} windows
 are not supported.
 
 \argument{FORMAT}
-The allowed values are {\tt NORM} and {\tt UNORM}.  The default
-value is {\tt NORM}. If {\tt NORM} is selected then the magnitude
-values will be normalized to the largest magnitude.  If {\tt UNORM}
-is selected then the actual magnitude values will be output instead.
+The allowed values are {\tt NORM} and {\tt UNORM}.  If {\tt NORM} is
+selected then the magnitude values will be normalized to the largest
+magnitude.  If {\tt UNORM} is selected then the actual magnitude values
+will be output instead.  The default value for this parameter depends
+on the \texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0},
+which is the default options setting, then the default value is {\tt NORM}.
+If \texttt{FFT\_MODE=1} then the default value is {\tt UNORM}.
 
 \argument{START}
 The start time for the FFT analysis.  The default value is the
@@ -125,16 +135,53 @@ referenced like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.
 
 For this analysis, the phase data is always output in degrees.
 
+In \Xyce{}, \texttt{WINDOW=TRIANGULAR} is not an allowed synonym for
+\texttt{WINDOW=BART}.  This is to avoid confusion with other analysis
+packages such as SciPy and Matlab.
+
 \end{Command}
 
+\subsubsection{.OPTIONS FFT FFT\_MODE}
+\label{FFT_MODE}
+\index{fft!options}
+The setting for \texttt{.OPTIONS FFT FFT\_MODE} is used to control whether the
+\Xyce{} FFT processing and output format area more compatible with HSPICE (0) or
+Spectre (1).  This setting affects the format of the window functions, the
+conversion from two-sided to one-sided results, and whether the default output
+for the magnitude values is normalized, or not.  The default setting for
+\texttt{FFT\_MODE} is 0.
+
+If \texttt{FFT\_MODE=0} then symmetric window functions are used.  If
+\texttt{FFT\_MODE=1} then periodic window functions are used.  The next
+subsection provides more details on that difference.
+
+If \texttt{FFT\_MODE=0} then the two-sided to one-sided conversion doubles
+the magnitudes of the 1,2,...,NP harmonics. If \texttt{FFT\_MODE=1} then that
+conversion only doubles the magnitudes of 1,2,...,(NP-1) harmonics.
+
+The default value for the \texttt{FORMAT} parameter depends on the
+\texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0} then
+the default value for that parameter is {\tt NORM}. If \texttt{FFT\_MODE=1}
+then the default value is {\tt UNORM}.
+
+\subsubsection{Window Functions}
+\index{fft!window functions}
 Table~\ref{FFT_Window_Funcs} gives the definitions of the window functions
 implemented in \Xyce{}.  For HSPICE compatibility, the {\tt BLACK} window type
 is actually the ``-67 dB Three-Term Blackman-Harris window''~\cite{Doerry2017}
-rather than the ``Conventional Blackman Window'' used by Matlab and scipy.
-The definition of the {\tt BART} window type ~\cite{oppenheimSchafer} was chosen
-to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
+rather than the ``Conventional Blackman Window'' used by Spectre, Matlab and SciPy.
+The Convential Blackman Window can be selected with the {\tt BlACKMAN} window
+type instead.  The definition of the {\tt BART} window type ~\cite{oppenheimSchafer}
+was chosen to match Spectre, Matlab and SciPy.  The \Xyce{} definition may differ
+from HSPICE.
 
-\begin{longtable}[h] {>{\raggedright\small}m{0.75in}|>{\raggedright\let\\\tabularnewline\small}m{1.75in}
+As mentioned in in the previous subsection, the choice of symmetric vs. periodic
+window functions can be selected via the use of \texttt{.OPTIONS FFT FFT\_MODE=<0|1>}.
+If symmetric windows are used then $L = N-1$ in the formulas in
+table~\ref{FFT_Window_Funcs}, where $N$ is the number of points in the FFT.
+If periodic windows are used then $L=N$.
+
+\begin{longtable}[h] {>{\raggedright\small}m{1.15in}|>{\raggedright\let\\\tabularnewline\small}m{1.35in}
   |>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
   \caption{.FFT Window Function Definitions (N = Number of Points).} \\ \hline
   \rowcolor{XyceDarkBlue}
@@ -150,19 +197,29 @@ to match Matlab and scipy.  The \Xyce{} definition may differ from HSPICE.
   RECT & Rectangular &
     $w(i)=1, \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
   BART & Barlett~\cite{oppenheimSchafer} &
-    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{N-1},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\
-                                     2-\frac{2 i}{N-1},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
+    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{L},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\
+                                     2-\frac{2 i}{L},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
+  BARTLETTHANN & Bartlett-Hann~\cite{Doerry2017}&
+    $w(i) = 0.62 - 0.48 \cdot |\frac{i}{L} -0.5| + 0.38 \cdot cos(2 \pi \cdot (\frac{i}{L} -0.5)), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
   HANN & Hanning~\cite{oppenheimSchafer} &
-    $w(i) = sin^2(\frac{\pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+    $w(i) = sin^2(\frac{\pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
   HAMM & Hamming~\cite{oppenheimSchafer} &
-    $w(i) = 0.54 - 0.46 \cdot cos(\frac{2 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+    $w(i) = 0.54 - 0.46 \cdot cos(\frac{2 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+  BLACKMAN & ``Conventional Blackman window''~\cite{Doerry2017} &
+    $w(i) = 0.42-0.5 \cdot cos(\frac{2 \pi i}{L})+0.08 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
   BLACK & -67 dB Three-Term Blackman-Harris window~\cite{Doerry2017} &
-    $w(i) = 0.42323-0.49755 \cdot cos(\frac{2 \pi i}{N-1})+0.07922 \cdot cos(\frac{4 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+    $w(i) = 0.42323-0.49755 \cdot cos(\frac{2 \pi i}{L})+0.07922 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
   HARRIS & -92 dB Four-Term Blackman-Harris window~\cite{Doerry2017} &
-    $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{N-1}) + 0.14128 \cdot cos(\frac{4 \pi i}{N-1}) - 0.01168 \cdot cos(\frac{6 \pi i}{N-1}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+    $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{L}) + 0.14128 \cdot cos(\frac{4 \pi i}{L}) - 0.01168 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+  NUTTALL & Four-Term Nuttall, Minimum Sidelobe (Blackman-Nuttall)~\cite{Doerry2017} &
+    $w(i) = 0.3635819 - 0.4891775 \cdot cos(\frac{2 \pi i}{L}) + 0.1365995 \cdot cos(\frac{4 \pi i}{L}) - 0.0106411 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+   HALFCYCLESINE & Half-cycle sine window & $w(i) = sin(\frac{\pi i}{L}) $ \\ \hline
+   HALFCYCLESINE3 & Half-cycle sine window, with exponent 3 & $w(i) = sin^{3}(\frac{\pi i}{L}) $ \\ \hline
+   HALFCYCLESINE6 & Half-cycle sine window, with exponent 6 & $w(i) = sin^{6}(\frac{\pi i}{L}) $ \\ \hline
 \end{longtable}
 
 \subsubsection{Additional FFT Metrics}
+\index{fft!additional metrics}
 \label{FFT_metrics}
 The following additional metrics will be sent to stdout if \texttt{.OPTIONS FFT FFTOUT=1}
 is used in the netlist.  These definitions are also used by the corresponding measure
@@ -226,7 +283,7 @@ $SFDR = 20 \cdot log10(\frac{mag[f_{0}]}{MAX(mag[i])}), \hspace*{0.1in}\textrm{f
 
 \subsubsection{Re-Measure}
 \label{Measure_FFT_ReMeasure}
-\index{measure fft!re-measure}
+\index{measure fft!re-measure}\index{fft!remeasure}
 \Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
 using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
 this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
@@ -235,6 +292,7 @@ operation.  This should have no impact of the accuracy of the re-measured result
 if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
 
 \subsubsection{Compatibility Between OUTPUT and FFT Options}
+\index{fft!options}
 Some \texttt{.OPTIONS OUTPUT} settings are incompatible with using the default
 setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1}.  The use of
 \texttt{.OPTIONS OUTPUT OUTPUTTIMEPOINTS} is compatible.  However, the use of

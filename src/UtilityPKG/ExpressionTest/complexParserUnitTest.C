@@ -9523,8 +9523,8 @@ TEST ( Complex_Parser_Integral_Test, sdt12)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-  std::vector<std::complex<double> > derivs(2);
-  std::vector<std::complex<double> > refDerivs(2);
+  std::vector<std::complex<double> > derivs(1);
+  std::vector<std::complex<double> > refDerivs(1);
   std::complex<double> result = 0.0, refRes = 0.0;
   double time=0.0, finalTime=1.0;
   int numSteps = NUM_SDT_STEPS2;
@@ -9551,17 +9551,14 @@ TEST ( Complex_Parser_Integral_Test, sdt12)
     testExpression.evaluate(result,derivs);
     ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
     ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
-    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
 
     copyExpression.evaluate(result,derivs);   
     ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
     ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
-    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
 
     assignExpression.evaluate(result,derivs);   
     ASSERT_NEAR(std::real(result), std::real(refRes), std::abs(1.0e-4*std::real(result)));
     ASSERT_NEAR(std::real(derivs[0]), std::real(refDerivs[0]), std::abs(1.0e-4*std::real(derivs[0])));
-    ASSERT_NEAR(std::real(derivs[1]), std::real(refDerivs[1]), std::abs(1.0e-4*std::real(derivs[1])));
 
     time += dt;
     Xyce::Util::newExpression::clearProcessSuccessfulTimeStepMap();
