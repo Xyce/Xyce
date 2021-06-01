@@ -223,7 +223,7 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
               (windowType_ == "BLACK") || (windowType_ == "BLACKMAN") ||
               (windowType_ == "HARRIS") || (windowType_ == "BLACKMANHARRIS") || (windowType_ == "NUTTALL") ||
               (windowType_ == "HALFCYCLESINE") || (windowType_ == "HALFCYCLESINE3") ||
-              (windowType_ == "HALFCYCLESINE6") ) )
+              (windowType_ == "HALFCYCLESINE6")  || (windowType_ == "COSINE2") ) )
       {
 	Report::UserError0() << "Invalid WINDOW type " << windowType_ << " on .FFT line";
       }
@@ -638,6 +638,11 @@ bool FFTAnalysis::applyWindowFunction_()
       factor = sin(M_PI*i/length);
       ftInData_[i] = sampleValues_[i]*std::pow(factor,6);
     }
+  }
+  else if (windowType_ == "COSINE2")
+  {
+    for (int i=0; i< np_; i++)
+      ftInData_[i] = sampleValues_[i]*(0.5 - 0.5*cos(2*M_PI*i/length));
   }
   else if ((windowType_=="GAUSS") || (windowType_=="KAISER"))
   {
