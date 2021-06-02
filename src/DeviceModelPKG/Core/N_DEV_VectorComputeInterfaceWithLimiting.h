@@ -69,21 +69,8 @@ public:
                                   std::vector<double>&Q,
                                   std::vector<double>&B,
                                   std::vector<std::vector<double> > &dFdx,
-                                  std::vector<std::vector<double> > &dQdx) {
+                                  std::vector<std::vector<double> > &dQdx) { return false; }
 
-      bool fake_origFlag = false;
-      return this->computeXyceVectorsWithLimiting(solutionVars, 
-                                      solutionVars /* will not be used */, 
-                                      dFdx /* will not be used */,
-                                      time, 
-                                      false, 0, false, false, /* will not be used */
-                                      false, false, /* will not be used */
-                                      fake_origFlag, /* will not be used */
-                                      F, Q, B, 
-                                      dFdx, dQdx, 
-                                      F, Q /* will not be used */);
-
-  }
 
   /// Call back function for time domain
   ///
@@ -96,13 +83,9 @@ public:
   /// @param[in] solutionVar   Solution variables
   /// @param[in] flagSolutionVars   Flag solution variables
   /// @param[in/out] storeVars   Store variables
-  /// @param[in] time   current value of time
-  /// @param[in] voltageLimiterFlag   Voltage limiter flag
-  /// @param[in] newtonIter   Current Newton iteration
-  /// @param[in] initJctFlag
-  /// @param[in] inputOPFlag
-  /// @param[in] dcopFlag
-  /// @param[in] locaEnabledFlag
+  /// @param[in] time current value of time
+  /// @param[in] deviceOptions   Options for device instance
+  /// @param[in] solverState   Solver state
   /// @param[in/out] origFlag   Flag as to whether limited variable was modified
   /// @param[out] F   F vector
   /// @param[out] Q   Q vector
@@ -112,17 +95,13 @@ public:
   /// @param[out] dFdxdVp   Derivative of F with respect to limited solution
   /// @param[out] dQdxdVp   Derivative of Q with respect to limited solution
   ///
-  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & solutionVars,
-                                  std::vector<double> & flagSolutionVars,
+  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & flagSolutionVars,
+                                  std::vector<std::vector<double> > & solutionVars,
                                   std::vector<std::vector<double> > & storeVars,
-                                  double time,
-                                  bool voltageLimiterFlag,
-                                  int newtonIter,
-                                  bool initJctFlag,
-                                  bool inputOPFlag,
-                                  bool dcopFlag,
-                                  bool locaEnabledFlag,
-                                  bool& origFlag,
+                                  std::vector<std::vector<double> > & stateVars,
+                                  const DeviceOptions & deviceOptions,
+                                  const SolverState & solverState,
+                                  bool & origFlag,
                                   std::vector<double>&F,
                                   std::vector<double>&Q,
                                   std::vector<double>&B,

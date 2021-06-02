@@ -113,9 +113,6 @@ public:
   /// for the variables associated with a named device.
   bool getSolution(const std::string & deviceName, std::vector<double> & sV);
 
-  /// Return whether limiting is enabled for the device.
-  bool getVoltageLimiterFlag(const std::string & deviceName);
-
   /// Associate a vector loader object pointer with the named device
   bool setJacStamp(const std::string & deviceName, std::vector< std::vector<int> > &jS);
 

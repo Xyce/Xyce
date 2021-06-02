@@ -334,27 +334,6 @@ bool GenCouplingSimulator::getSolution(const std::string & deviceName,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : GenCouplingSimulator::getVoltageLimiterFlag
-// Purpose       : Return whether voltage limiting is being used
-// Special Notes :
-// Scope         : public
-// Creator       : Paul Kuberry, SNL
-// Creation Date : 12/13/2020
-//-----------------------------------------------------------------------------
-///
-/// @param[in] deviceName   The name of the device as set in the netlist
-/// @return  True if voltage limiting is being used, false if not
-
-bool GenCouplingSimulator::getVoltageLimiterFlag(const std::string & deviceName)
-{
-  bool limiting=false;
-  Xyce::Device::GeneralExternal::Instance * genExtPtr = getGeneralExternalDeviceInstance_(deviceName);
-  if (genExtPtr)
-    limiting = genExtPtr -> getDeviceOptions().voltageLimiterFlag;
-  return limiting;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : GenCouplingSimulator::setJacStamp
 // Purpose       : Set the Jacobian stamp for a GenExt device
 // Special Notes :

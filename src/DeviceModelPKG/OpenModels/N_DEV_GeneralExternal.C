@@ -761,10 +761,6 @@ bool Instance::updateIntermediateVars ()
   {
     if (solutionVars_.empty())
       solutionVars_.resize(numVars);
-    if (nextStoreVars_.empty())
-      nextStoreVars_.resize(numStoreVars);
-    if (currStoreVars_.empty())
-      currStoreVars_.resize(numStoreVars);
 
     // Copy out the solution variables we need.  The ordering
     // is already correct, because of the way we constructed
@@ -772,71 +768,124 @@ bool Instance::updateIntermediateVars ()
     for (int i=0;i<numVars;i++)
       solutionVars_[i] = solVector[li_Nodes_[i]];
 
-    if( getDeviceOptions().voltageLimiterFlag)
-    {
-      Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
-          dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-      if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-          if (flagSolutionVars_.empty())
-            flagSolutionVars_.resize(numVars);
-          if (dFdXdVpVec_.empty())
-            dFdXdVpVec_.resize(numVars);
-          if (dQdXdVpVec_.empty())
-            dQdXdVpVec_.resize(numVars);
+    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
+    if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
 
-          // Copy out the flag solution variables we need.
-          Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
-          bsuccess = bsuccess && (flagSolVectorPtr != 0);
-          if (!bsuccess)
-          {
-            UserError(*this) << "flagSolVectorPtr is not set.";
-          }
-          for (int i=0;i<numVars;i++)
-            flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
-          double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
-          double * currStoVectorPtr = extData.currStoVectorRawPtr;
-
-          for (int i=0;i<numStoreVars;i++) 
-          {
-            nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
-            currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
-          }
-
-          if (storeVars.empty())
-          {
-            storeVars.resize(2);
-            storeVars[0]=nextStoreVars_;
-            storeVars[1]=currStoreVars_;
-          } 
-
-          // Call back to the computation object and get this devices
-          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-          // VECTORS APPROPRIATELY!
-          bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(solutionVars_, flagSolutionVars_, storeVars,
-                                               getSolverState().currTime_,
-                                               getDeviceOptions().voltageLimiterFlag,
-                                               getSolverState().newtonIter,
-                                               getSolverState().initJctFlag_,
-                                               getSolverState().inputOPFlag,
-                                               getSolverState().dcopFlag,
-                                               getSolverState().locaEnabledFlag,
-                                               origFlag,
-                                               FVec_, QVec_, BVec_,
-                                               dFdXMat_, dQdXMat_,
-                                               dFdXdVpVec_, dQdXdVpVec_);
-        }
-        else // cast failed, so vciPtr_ doesn't have interface supporting limiting
+      // Copy out the flag solution variables we need.
+      Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
+      {
+        if (flagSolutionVars_.empty())
+          flagSolutionVars_.resize(numVars);
+        bsuccess = bsuccess && (flagSolVectorPtr != 0);
+        if (!bsuccess)
         {
-          // Call back to the computation object and get this devices
-          // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
-          // VECTORS APPROPRIATELY!
-          bsuccess=vciPtr_->computeXyceVectors(solutionVars_,
-                                               getSolverState().currTime_,
-                                               FVec_, QVec_, BVec_,
-                                               dFdXMat_, dQdXMat_);
+          UserError(*this) << "flagSolVectorPtr is not set.";
         }
+        for (int i=0;i<numVars;i++)
+          flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
+      }
+
+      // Copy out the solution variables we need.
+      double * currSolVectorPtr = extData.currSolVectorRawPtr;
+      double * lastSolVectorPtr = extData.lastSolVectorRawPtr;
+      {
+        // nextSolutionVars_ already exists as solutionVars_
+        if (currSolutionVars_.empty())
+          currSolutionVars_.resize(numVars);
+        if (lastSolutionVars_.empty())
+          lastSolutionVars_.resize(numVars);
+        for (int i=0;i<numVars;i++) 
+        {
+          currSolutionVars_[i] = currSolVectorPtr[li_Nodes_[i]];
+          lastSolutionVars_[i] = lastSolVectorPtr[li_Nodes_[i]];
+        }
+        if (solVars.empty())
+        {
+          solVars.resize(3);
+        }
+        // copies by value
+        solVars[0]=solutionVars_;
+        solVars[1]=currSolutionVars_;
+        solVars[2]=lastSolutionVars_;
+      }
+
+      // Copy out the storage variables we need.
+      double * currStoVectorPtr = extData.currStoVectorRawPtr;
+      double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
+      {
+        if (nextStoreVars_.empty())
+          nextStoreVars_.resize(numStoreVars);
+        if (currStoreVars_.empty())
+          currStoreVars_.resize(numStoreVars);
+        for (int i=0;i<numStoreVars;i++) 
+        {
+          nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
+          currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
+        }
+        if (storeVars.empty())
+        {
+          storeVars.resize(2);
+        }
+        // copies by value
+        storeVars[0]=nextStoreVars_;
+        storeVars[1]=currStoreVars_;
+      }
+
+      // Copy out the state variables we need.
+      double * nextStaVectorPtr = extData.nextStaVectorRawPtr;
+      double * currStaVectorPtr = extData.currStaVectorRawPtr;
+      double * lastStaVectorPtr = extData.lastStaVectorRawPtr;
+      {
+        if (nextStateVars_.empty())
+          nextStateVars_.resize(numStateVars);
+        if (currStateVars_.empty())
+          currStateVars_.resize(numStateVars);
+        if (lastStateVars_.empty())
+          lastStateVars_.resize(numStateVars);
+        for (int i=0;i<numStateVars;i++) 
+        {
+          nextStateVars_[i] = nextStaVectorPtr[li_States_[i]];
+          currStateVars_[i] = currStaVectorPtr[li_States_[i]];
+          lastStateVars_[i] = lastStaVectorPtr[li_States_[i]];
+        }
+        if (stateVars.empty())
+        {
+          stateVars.resize(3);
+        }
+        // copies by value
+        stateVars[0]=nextStateVars_;
+        stateVars[1]=currStateVars_;
+        stateVars[2]=lastStateVars_;
+      }
+ 
+
+      // Call back to the computation object and get this devices
+      // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
+      // VECTORS APPROPRIATELY!
+      bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(flagSolutionVars_,
+                                           solVars, storeVars, stateVars,
+                                           getDeviceOptions(),
+                                           getSolverState(),
+                                           origFlag,
+                                           FVec_, QVec_, BVec_,
+                                           dFdXMat_, dQdXMat_,
+                                           dFdXdVpVec_, dQdXdVpVec_);
+
+      // update store vars with changes made in Python
+      for (int i=0;i<numStoreVars;i++) 
+      {
+        nextStoVectorPtr[li_Stores_[i]] = storeVars[0][i];
+      }
+
+      // update state vars with changes made in Python
+      for (int i=0;i<numStateVars;i++) 
+      {
+        nextStaVectorPtr[li_States_[i]] = stateVars[0][i];
+      }
+
     }
-    else 
+    else // device doesn't support computeXyceVectorsWithLimiting
     {
       // Call back to the computation object and get this devices
       // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
@@ -1008,7 +1057,7 @@ bool Instance::loadDAEQVector ()
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL) { 
+    if (vciPtrWLimiting!=NULL && !dQdXdVpVec_.empty()) { 
       double * dQdxdVpVector = extData.dQdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dQdxdVpVector[li_Nodes_[i]] += dQdXdVpVec_[i];
@@ -1059,7 +1108,7 @@ bool Instance::loadDAEFVector ()
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL) { 
+    if (vciPtrWLimiting!=NULL && !dFdXdVpVec_.empty()) { 
       double * dFdxdVpVector = extData.dFdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dFdxdVpVector[li_Nodes_[i]] += dFdXdVpVec_[i];
