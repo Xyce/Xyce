@@ -72,6 +72,8 @@ gives their exact definitions:
   \item \texttt{HANN} (or \texttt{HANNING}) = Hanning window
   \item \texttt{HARRIS} (or \texttt{BLACKMANHARRIS}) = Blackman-Harris window
   \item \texttt{NUTTALL} = Nuttall window
+  \item \texttt{COSINE2} = Power-of-cosine window, with exponent 2.
+  \item \texttt{COSINE4} = Power-of-cosine window, with exponent 4.
   \item \texttt{HALFCYCLESINE} = Half-cycle sine window
   \item \texttt{HALFCYCLESINE3} = Half-cycle sine window, with exponent 3.
   \item \texttt{HALFCYCLESINE6} = Half-cycle sine window, with exponent 6.
@@ -145,7 +147,7 @@ packages such as SciPy and Matlab.
 \label{FFT_MODE}
 \index{fft!options}
 The setting for \texttt{.OPTIONS FFT FFT\_MODE} is used to control whether the
-\Xyce{} FFT processing and output format area more compatible with HSPICE (0) or
+\Xyce{} FFT processing and output are more compatible with HSPICE (0) or
 Spectre (1).  This setting affects the format of the window functions, the
 conversion from two-sided to one-sided results, and whether the default output
 for the magnitude values is normalized, or not.  The default setting for
@@ -157,7 +159,7 @@ subsection provides more details on that difference.
 
 If \texttt{FFT\_MODE=0} then the two-sided to one-sided conversion doubles
 the magnitudes of the 1,2,...,NP harmonics. If \texttt{FFT\_MODE=1} then that
-conversion only doubles the magnitudes of 1,2,...,(NP-1) harmonics.
+conversion only doubles the magnitudes of the 1,2,...,(NP-1) harmonics.
 
 The default value for the \texttt{FORMAT} parameter depends on the
 \texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0} then
@@ -213,6 +215,10 @@ If periodic windows are used then $L=N$.
     $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{L}) + 0.14128 \cdot cos(\frac{4 \pi i}{L}) - 0.01168 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
   NUTTALL & Four-Term Nuttall, Minimum Sidelobe (Blackman-Nuttall)~\cite{Doerry2017} &
     $w(i) = 0.3635819 - 0.4891775 \cdot cos(\frac{2 \pi i}{L}) + 0.1365995 \cdot cos(\frac{4 \pi i}{L}) - 0.0106411 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+   COSINE2 & Power-of-cosine window, with exponent 2 &
+   $w(i) = 0.5 - 0.5 \cdot cos(\frac{2 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+   COSINE2 & Power-of-cosine window, with exponent 4 &
+   $w(i) = 0.375-0.5 \cdot cos(\frac{2 \pi i}{L})+0.125 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
    HALFCYCLESINE & Half-cycle sine window & $w(i) = sin(\frac{\pi i}{L}) $ \\ \hline
    HALFCYCLESINE3 & Half-cycle sine window, with exponent 3 & $w(i) = sin^{3}(\frac{\pi i}{L}) $ \\ \hline
    HALFCYCLESINE6 & Half-cycle sine window, with exponent 6 & $w(i) = sin^{6}(\frac{\pi i}{L}) $ \\ \hline
