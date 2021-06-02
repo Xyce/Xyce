@@ -425,7 +425,7 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
-  if ((freqs_.size() == 1) || (method_ == "AFM") )
+  if (freqs_.size() == 1 )
   {
     if (ftInterface_ == Teuchos::null)
     {
@@ -508,6 +508,21 @@ bool HB::doInit()
     HBICStateVectorPtr_->print(std::cout);
     Xyce::dout() << "HB Initial Condition Store Vector!\n";
     HBICStoreVectorPtr_->print(std::cout);
+  }
+
+  if (method_ == "AFM")
+  {
+    if (ftInterface_ == Teuchos::null)
+    {
+      ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
+      ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
+    } 
+    else if (ftInterface_->getFFTInterface()->getSignalLength() != size_)
+    {
+      ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
+      ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
+    }
+    hbLoaderPtr_->registerDFTInterface( ftInterface_->getFFTInterface() );
   }
 
   //Destroy Solvers, etc. from IC phase and prepare for HB
@@ -1078,7 +1093,7 @@ void HB::prepareHBOutput(
     std::vector<std::pair<double, double>> realList, imagList;
     int sizePos = (size_ - 1)/2;
 
-    if ( method_ == "AFM")
+    if (( method_ == "AFM") || (method_ == "HYBRID") )
     { 
 
 //      std::vector<std::pair<double, double>> realList, imagList;
@@ -1113,9 +1128,9 @@ void HB::prepareHBOutput(
         }
      }
 
-      std::sort(realList.begin(),realList.end());
+      std::sort(realList.begin(),realList. end());
 
-      std::sort(imagList.begin(),imagList.end());
+      std::sort(imagList.begin(),imagList. end());
 
 //      if (DEBUG_HB)
       {
@@ -1151,7 +1166,7 @@ void HB::prepareHBOutput(
       if (lid >= 0)
       {
 
-        if (method_ == "AFM" )
+        if ((method_ == "AFM" ) || (method_ == "HYBRID")) 
         {
         realVecRef_neg[lid] = realList[ sizePos - i].second;
         imagVecRef_neg[lid] = imagList[ sizePos - i].second;
@@ -2879,6 +2894,7 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("NUMTPTS", Util::Param("NUMTPTS", 1)));
 
     parameters.insert(Util::ParamMap::value_type("HBOSC", Util::Param("HBOSC", false)));
+//    parameters.insert(Util::ParamMap::value_type("USETIMESOURCES", Util::Param("USETIMESOURCES", 1)));
     parameters.insert(Util::ParamMap::value_type("REFNODE", Util::Param("REFNODE",  "")));
   }
 }
