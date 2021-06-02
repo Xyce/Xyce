@@ -425,7 +425,6 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
-   
   if ((freqs_.size() == 1) || (method_ == "AFM") )
   {
     if (ftInterface_ == Teuchos::null)
@@ -1076,6 +1075,62 @@ void HB::prepareHBOutput(
     int lid = baseMap->globalToLocalIndex( j );
     Linear::Vector& solBlock = blockSolVecPtr.block( j );
 
+    std::vector<std::pair<double, double>> realList, imagList;
+    int sizePos = (size_ - 1)/2;
+
+    if ( method_ == "AFM")
+    { 
+
+//      std::vector<std::pair<double, double>> realList, imagList;
+
+      realList.resize(size_);
+      imagList.resize(size_);
+
+//      int sizePos = (size_ - 1)/2;
+
+      for (int m=0; m<size_; m++)
+      {
+
+        if  ( m <=  sizePos )
+        {
+          realList[m] = std::make_pair( freqPoints_[m+sizePos] , solBlock[2*m]); 
+          imagList[m] = std::make_pair( freqPoints_[m+sizePos] , solBlock[2*m+1]);
+        }
+        else
+        {
+          realList[m] = std::make_pair( freqPoints_[m-sizePos-1] , solBlock[2*m]); 
+          imagList[m] = std::make_pair( freqPoints_[m-sizePos-1] , solBlock[2*m+1]);
+        }
+      }
+
+     {
+        dout() << "solution before sorting" << std::endl;
+        for (int i=0; i< freqPoints_.size(); i++)
+        {
+          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
+//          dout() << "frequency point " << realList[i].first  << " real solution " << realList[i].second << std::endl; 
+//          dout() << "frequency point " << imagList[i].first  << " imag solution " << imagList[i].second << std::endl;
+        }
+     }
+
+      std::sort(realList.begin(),realList.end());
+
+      std::sort(imagList.begin(),imagList.end());
+
+//      if (DEBUG_HB)
+      {
+
+        dout() << "solution after sorting" << std::endl;
+        for (int i=0; i< freqPoints_.size(); i++)
+        {
+          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
+//          dout() << "frequency point " << imagList[i].first  << " imag solution " << imagList[i].second << std::endl;
+          freqPoints[i]  = realList[i].first;
+        }
+      } 
+    }
+
+
     Linear::Vector& realVecRef =  freqDomainSolnVecReal->block((blockCount-1)/2);
     Linear::Vector& imagVecRef =  freqDomainSolnVecImag->block((blockCount-1)/2);
 
@@ -1096,11 +1151,22 @@ void HB::prepareHBOutput(
       if (lid >= 0)
       {
 
+        if (method_ == "AFM" )
+        {
+        realVecRef_neg[lid] = realList[ sizePos - i].second;
+        imagVecRef_neg[lid] = imagList[ sizePos - i].second;
+        realVecRef_pos[lid] = realList[ sizePos + i].second; 
+        imagVecRef_pos[lid] = imagList[ sizePos + i].second;
+           
+        }
+        else
+        {
         realVecRef_neg[lid] = solBlock[ 2*(size_-i) ];
         imagVecRef_neg[lid] = solBlock[ 2*(size_-i) + 1 ];
         realVecRef_pos[lid] = solBlock[ 2*i ];
         imagVecRef_pos[lid] = solBlock[ 2*i+1 ];
-
+       
+        }
       }
     }
   }
