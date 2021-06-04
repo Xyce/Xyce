@@ -66,6 +66,13 @@
 
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
+# Since Trilinos depends on OpenMP, we look for it first, so it is available
+# for some of the Trilinos feature probes.
+list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
+if (OpenMP_IN_Kokkos GREATER -1)
+     find_package(OpenMP REQUIRED)
+endif()
+
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
 list(FIND Trilinos_TPL_LIST MPI MPI_Enabled)
@@ -205,7 +212,7 @@ if (NOT Trilinos_COMPILE_SUCCESS)
      Trilinos was installed. See the CMake log files for more information.")
 endif()
 
-check_include_file_cxx(LOCA.H LOCA_IN_Trilinos)
+check_include_file_cxx(LOCA.H LOCA_IN_Trilinos ${OpenMP_CXX_FLAGS})
 if (NOT LOCA_IN_Trilinos)
      message("Trilinos was not built with LOCA support in NOX.\n"
           "Enable the following in the Trilinos build:\n"
@@ -312,6 +319,7 @@ if (Xyce_AMESOS2)
      # interface was changed.  This check and the Xyce_NEW_BASKER ifdefs can be
      # removed if the minimum required version of Trilinos is raised.
      set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
+     set(CMAKE_REQUIRED_FLAGS ${OpenMP_CXX_FLAGS})
      check_cxx_source_compiles("
           #include \"Amesos2_Basker.hpp\"
           int main(){Basker::Basker<int, double> basker_; return 0;}
@@ -321,6 +329,7 @@ if (Xyce_AMESOS2)
      else()
           set(Xyce_NEW_BASKER TRUE)
      endif()
+     unset(CMAKE_REQUIRED_FLAGS)
      unset(CMAKE_REQUIRED_LIBRARIES)
      unset(CMAKE_REQUIRED_INCLUDES)
 endif()
