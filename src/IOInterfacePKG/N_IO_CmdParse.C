@@ -85,6 +85,47 @@ setSensitivityDebugLevel(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : makeOutputFileName
+// Purpose       : make the output file name
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/28/2021
+//-----------------------------------------------------------------------------
+std::string makeOutputFileName(
+  const CmdParse &      command_line,
+  const std::string&    suffix)
+{
+  std::string netlist_filename = command_line.getArgumentValue("netlist");
+  std::string dasho_filename = command_line.getArgumentValue("-o");
+  std::string base_filename = (!dasho_filename.empty()) ? dasho_filename : netlist_filename;
+
+  std::string file_name = base_filename + suffix;
+  if (file_name == netlist_filename)
+    file_name = file_name + suffix;
+
+  return file_name;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : makeOutputFileNameWithStepNum
+// Purpose       : make the output file mame, when that name includes the step
+//                 number as the trailing part of the file suffix
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 05/28/2021
+//-----------------------------------------------------------------------------
+std::string makeOutputFileNameWithStepNum(
+  const CmdParse &      command_line,
+  const std::string&    suffix,
+  int                   stepNumber)
+{
+  std::ostringstream converterBuff;
+  converterBuff << stepNumber;
+
+  return makeOutputFileName(command_line, suffix + converterBuff.str());
+}
+
+//-----------------------------------------------------------------------------
 // Function      : usage
 // Purpose       :
 // Special Notes :

@@ -408,9 +408,9 @@ bool Simulator::doAllocations_()
   deviceManager_            = new Device::DeviceMgr(comm_, *topology_, *opBuilderManager_, commandLine_);
   outputManager_            = new IO::OutputMgr(commandLine_, *opBuilderManager_, *topology_);
   outputResponse_           = new IO::OutputResponse();
-  measureManager_           = new IO::Measure::Manager(netlist_filename);
-  fourierManager_           = new IO::FourierMgr(netlist_filename);
-  fftManager_               = new IO::FFTMgr(netlist_filename);
+  measureManager_           = new IO::Measure::Manager(commandLine_);
+  fourierManager_           = new IO::FourierMgr(commandLine_);
+  fftManager_               = new IO::FFTMgr(commandLine_);
   loadManager_              = new IO::LoadManager();
   initialConditionsManager_ = new IO::InitialConditionsManager(netlist_filename);
   restartManager_           = new IO::RestartMgr();

@@ -68,7 +68,7 @@ typedef std::vector<FFTAnalysis *> FFTAnalysisVector;
 class FFTMgr : public Util::Listener<Analysis::StepEvent>
 {
 public:
-  FFTMgr(const std::string &netlist_filename);
+  FFTMgr(const CmdParse &cp);
 
   // Destructor
   ~FFTMgr();
@@ -117,7 +117,7 @@ public:
   std::set<std::string> getDevicesNeedingLeadCurrents() { return devicesNeedingLeadCurrents_; }
 
 private:
-  std::string           netlistFilename_;
+  const IO::CmdParse &  commandLine_;        // Command line
   bool                  fftAnalysisEnabled_; // set based on the analysis mode
   bool                  fft_accurate_;  // comes from .OPTIONS FFT line
   bool                  fftout_;        // comes from .OPTIONS FFT line

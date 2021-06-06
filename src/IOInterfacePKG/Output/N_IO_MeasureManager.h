@@ -75,7 +75,7 @@ class Manager : public Util::Listener<Analysis::StepEvent>
   typedef std::vector<Base *> MeasurementVector;
 
 public:
-  Manager(const std::string &netlist_filename);
+  Manager(const CmdParse &cp);
   ~Manager();
 
   void notify(const Analysis::StepEvent &step_event);
@@ -189,7 +189,7 @@ public:
   }
 
 private:
-  std::string           netlistFilename_;
+  const IO::CmdParse &  commandLine_;           // Command line
   std::string           measureOutputFileSuffix_;
 
   // controls where a separate .mt0 file is made for each continuous mode measure

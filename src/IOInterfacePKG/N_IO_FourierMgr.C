@@ -35,6 +35,7 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_IO_FourierMgr.h>
 #include <N_IO_CircuitBlock.h>
+#include <N_IO_CmdParse.h>
 #include <N_IO_NetlistImportTool.h>
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
@@ -77,8 +78,8 @@ enum {
 // Creator       : Heidi Thornquist, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-FourierMgr::FourierMgr(const std::string &   netlist_filename )
-  : netlistFilename_(netlist_filename),
+FourierMgr::FourierMgr(const CmdParse &cp)
+  : commandLine_(cp),
     sensitivityOptions_(0),
     sensitivityRequested (false),
     numFreq_(10),
@@ -655,9 +656,7 @@ void FourierMgr::outputResultsToFourFile(int stepNumber)
 
   if ( numOutVars && !time_.empty() && !calculated_ )
   {
-    std::ostringstream converterBuff;
-    converterBuff << stepNumber;
-    std::string filename = netlistFilename_ + ".four" + converterBuff.str();
+    std::string filename = IO::makeOutputFileNameWithStepNum(commandLine_, ".four", stepNumber);
     std::ofstream outputFileStream;
     outputFileStream.open( filename.c_str() );
     outputResults(outputFileStream);

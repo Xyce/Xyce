@@ -37,6 +37,7 @@
 #include <N_ERH_ErrorMgr.h>
 
 #include <N_IO_CircuitBlock.h>
+#include <N_IO_CmdParse.h>
 #include <N_IO_FFTMgr.h>
 #include <N_IO_FFTAnalysis.h>
 #include <N_IO_NetlistImportTool.h>
@@ -65,8 +66,8 @@ namespace IO {
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-FFTMgr::FFTMgr(const std::string &   netlist_filename )
-  : netlistFilename_(netlist_filename),
+FFTMgr::FFTMgr(const CmdParse &cp)
+  : commandLine_(cp),
     fftAnalysisEnabled_(false),
     fft_accurate_(true),
     fftout_(false),
@@ -280,9 +281,7 @@ void FFTMgr::outputResultsToFFTfile(int stepNumber)
 {
   if (isFFTActive())
   {
-    std::ostringstream converterBuff;
-    converterBuff << stepNumber;
-    std::string filename = netlistFilename_ + ".fft" + converterBuff.str();
+    std::string filename = IO::makeOutputFileNameWithStepNum(commandLine_, ".fft", stepNumber);
     std::ofstream outputFileStream;
     outputFileStream.open( filename.c_str() );
     outputResults(outputFileStream);

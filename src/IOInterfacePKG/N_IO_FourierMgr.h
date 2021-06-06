@@ -65,7 +65,7 @@ namespace IO {
 class FourierMgr : public Util::Listener<Analysis::StepEvent>
 {
 public:
-  FourierMgr(const std::string &netlist_filename);
+  FourierMgr(const CmdParse &cp);
 
   // Destructor
   ~FourierMgr();
@@ -113,7 +113,7 @@ private:
   std::ostream& printResult_( std::ostream& os );
 
 private:
-  std::string           netlistFilename_;
+  const IO::CmdParse &  commandLine_;           // Command line
 
   // these are needed for sensitivities:
   int                   sensitivityOptions_;
