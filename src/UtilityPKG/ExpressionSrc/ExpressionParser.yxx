@@ -441,8 +441,7 @@ void createVoltageOp(
 
   // adjust for complex number variants
   // remove whitespace from the first argument
-  std::string firstArg = (prefix);
-  firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+  const std::string & firstArg = (prefix);
   if (firstArg.size() == 1)
   {
     returnPtr = tmpPtr;
@@ -497,11 +496,9 @@ void createCurrentOp(
     Xyce::Util::newExpression & newExp,
     const std::string & prefix, const std::string & device)
 {
-  std::string firstArg = prefix;
-  firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+  const std::string & firstArg = prefix;
 
-  std::string deviceName = device;
-  deviceName.erase(std::remove_if(deviceName.begin(),deviceName.end(), ::isspace), deviceName.end());
+  std::string deviceName = device; // can't use a non-const reference ...
   std::string originalDeviceName = deviceName;
 
   if ( !(deviceName.empty()) && ( deviceName[0] == 'X' ))// inside a subcircuit.  So, for the logic below, need to strip out everything until the last ":"
@@ -977,8 +974,7 @@ exp:
   | TOK_FUNCTION nonempty_func_arglist 
      {
         // remove whitespace from the function name
-        std::string functionName = (*$1);
-        functionName.erase(std::remove_if(functionName.begin(),functionName.end(), ::isspace), functionName.end());
+        std::string & functionName = (*$1);
 
         Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,*$2));
         newExp.getFuncOpVec().push_back(funcPtr);
@@ -1017,12 +1013,9 @@ exp:
     }
   | TOK_RFPARAM nonempty_rfparam_arg_list
     {
-      std::string firstArg = (*$1);
-      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      std::string & firstArg = (*$1);
 
-      //std::vector<int> sparamIndices = *$2; 
       Teuchos::RCP<astNode<usedType> > tmpPtr;
-      //if (sparamIndices.size() == 2)
       if ((*$2).size() == 2)
       {
         if (firstArg[0] == 'S')
@@ -1126,8 +1119,7 @@ exp:
       newExp.getInternalDevVarOpVec().push_back(internalDevVarPtr);
 
       // adjust for complex number variants
-      std::string firstArg = (*$1);
-      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      std::string & firstArg = (*$1);
       if (firstArg.size() == 1)
       {
         $$ = tmpPtr;
@@ -1174,8 +1166,7 @@ exp:
     }
   | TOK_NOISE nonempty_noise_device_list
     {
-      std::string firstArg = (*$1);
-      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      std::string & firstArg = (*$1);
 
       if ( firstArg == std::string("DNO") )
       {
@@ -1841,7 +1832,6 @@ polypair: TOK_POLYSIZE  polyarg
 
 polyarg: TOK_POLY_VOLTAGE nonempty_voltagenodelist
     {
-      //$$ = createVoltageOp(newExp,*$1,*$2);
       createVoltageOp($$,newExp,*$1,*$2);
       delete $1;
       delete $2;
