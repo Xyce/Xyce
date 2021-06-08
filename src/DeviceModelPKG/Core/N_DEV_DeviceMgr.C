@@ -1236,110 +1236,115 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
       instance_block,
       FactoryBlock(*this, devOptions_, solState_, matrixLoadData_, externData_, commandLine_));
 
-  std::string outputName = (instance->getName()).getEncodedName();
-  std::string deviceName = (instance->getName()).getDeviceName();
-  // Special handling for mutual inductors.  We need to know the names of the
-  // component inductors and then check if those component inductor names are
-  // in the set devicesNeedingLeadCurrentLoads_
-  bool mutualInductorNeedsLeadCurrents = false;
-  if ( deviceName[0] == 'K' )
+  // if the addInstance function fails, it returns instance=0.   
+  // This will (correctly) trigger an error trap upstream from this function
+  if(instance != 0) 
   {
-    std::vector<std::string> inductorNames = instance->getInductorNames();
-    for(int i=0; i < inductorNames.size(); ++i)
+    std::string outputName = (instance->getName()).getEncodedName();
+    std::string deviceName = (instance->getName()).getDeviceName();
+    // Special handling for mutual inductors.  We need to know the names of the
+    // component inductors and then check if those component inductor names are
+    // in the set devicesNeedingLeadCurrentLoads_
+    bool mutualInductorNeedsLeadCurrents = false;
+    if ( deviceName[0] == 'K' )
     {
-      if (devicesNeedingLeadCurrentLoads_.find(inductorNames[i]) != devicesNeedingLeadCurrentLoads_.end())
+      std::vector<std::string> inductorNames = instance->getInductorNames();
+      for(int i=0; i < inductorNames.size(); ++i)
       {
-        mutualInductorNeedsLeadCurrents = true;
-        break;  // break after finding the first match
+        if (devicesNeedingLeadCurrentLoads_.find(inductorNames[i]) != devicesNeedingLeadCurrentLoads_.end())
+        {
+          mutualInductorNeedsLeadCurrents = true;
+          break;  // break after finding the first match
+        }
       }
     }
-  }
-  
-  if ( mutualInductorNeedsLeadCurrents || devOptions_.calculateAllLeadCurrents || 
-       (devicesNeedingLeadCurrentLoads_.find(outputName) != devicesNeedingLeadCurrentLoads_.end()) ||
-       iStarRequested_ )
-  {
-    instance->enableLeadCurrentCalc();
-
-    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+    
+    if ( mutualInductorNeedsLeadCurrents || devOptions_.calculateAllLeadCurrents || 
+         (devicesNeedingLeadCurrentLoads_.find(outputName) != devicesNeedingLeadCurrentLoads_.end()) ||
+         iStarRequested_ )
     {
-      dout() << "DeviceMgr::addDeviceInstance Enabling lead current load for device \""
-        << instance->getName()
-        << "\" ->  \""
-        << outputName
-        << "\"" << std::endl;
+      instance->enableLeadCurrentCalc();
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        dout() << "DeviceMgr::addDeviceInstance Enabling lead current load for device \""
+          << instance->getName()
+          << "\" ->  \""
+          << outputName
+          << "\"" << std::endl;
+      }
     }
-  }
-  else if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-  {
-    dout() << "DeviceMgr::addDeviceInstance Cannot enable lead current load for device \""
-           << instance->getName()
-           << "\" ->  \""
-           << outputName
-           << "\""
-           << std::endl;
-  }
+    else if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+    {
+      dout() << "DeviceMgr::addDeviceInstance Cannot enable lead current load for device \""
+             << instance->getName()
+             << "\" ->  \""
+             << outputName
+             << "\""
+             << std::endl;
+    }
 
-  localDeviceCountMap_[device.getDefaultModelName()]++;
+    localDeviceCountMap_[device.getDefaultModelName()]++;
 
-  isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
+    isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
 
-  solState_.isPDESystem_ = solState_.isPDESystem_ || device.isPDEDevice();
+    solState_.isPDESystem_ = solState_.isPDESystem_ || device.isPDEDevice();
 
-  // Set up the instance vectors.  These are the main containers used in the load procedures.
-  instancePtrVec_.push_back(instance);
+    // Set up the instance vectors.  These are the main containers used in the load procedures.
+    instancePtrVec_.push_back(instance);
 
-  // set up the list of pde device instances
-  // and the list of non-pde devices instances.
-  if (device.isPDEDevice())
-  {
-    pdeInstancePtrVec_.push_back(instance);
-  }
-  else
-  {
-    nonPdeInstancePtrVec_.push_back(instance);
-  }
+    // set up the list of pde device instances
+    // and the list of non-pde devices instances.
+    if (device.isPDEDevice())
+    {
+      pdeInstancePtrVec_.push_back(instance);
+    }
+    else
+    {
+      nonPdeInstancePtrVec_.push_back(instance);
+    }
 
-  modelGroupInstanceVector_[model_group].push_back(instance);
-  modelTypeInstanceVector_[model_type].push_back(instance);
+    modelGroupInstanceVector_[model_group].push_back(instance);
+    modelTypeInstanceVector_[model_type].push_back(instance);
 
-  // set up the independent source map.
-  if (model_type == Vsrc::Traits::modelType() || model_type == ISRC::Traits::modelType())
-  {
-    independentSourceMap_[instance_block.getInstanceName().getEncodedName()] = dynamic_cast<SourceInstance *>(instance);
-    independentSourceVector_.push_back(dynamic_cast<SourceInstance *>(instance));
-  }
+    // set up the independent source map.
+    if (model_type == Vsrc::Traits::modelType() || model_type == ISRC::Traits::modelType())
+    {
+      independentSourceMap_[instance_block.getInstanceName().getEncodedName()] = dynamic_cast<SourceInstance *>(instance);
+      independentSourceVector_.push_back(dynamic_cast<SourceInstance *>(instance));
+    }
 
-  // add to the list of devices that have PAUSE breakpoints, and those that do not
-  if ( model_type == ADC::Traits::modelType() )
-  {
-    pauseBPDeviceVector_.push_back(instance);
-  }
-  else
-  {
-    nonpauseBPDeviceVector_.push_back(instance);
-  }
+    // add to the list of devices that have PAUSE breakpoints, and those that do not
+    if ( model_type == ADC::Traits::modelType() )
+    {
+      pauseBPDeviceVector_.push_back(instance);
+    }
+    else
+    {
+      nonpauseBPDeviceVector_.push_back(instance);
+    }
 
-  // if this is an LTRA device, let the solver state know.
-  if (model_type == LTRA::Traits::modelType())
-  {
-    solState_.ltraDevices_ = true;
-  }
+    // if this is an LTRA device, let the solver state know.
+    if (model_type == LTRA::Traits::modelType())
+    {
+      solState_.ltraDevices_ = true;
+    }
 
-  if (instance->maxTimeStepSupported())
-  {
-    devicesWithMaxTimeStepFuncsPtrVec_.push_back(instance);
-  }
+    if (instance->maxTimeStepSupported())
+    {
+      devicesWithMaxTimeStepFuncsPtrVec_.push_back(instance);
+    }
 
-  if (instance->plotfileFlag ())
-  {
-    plotFileInstancePtrVec_.push_back(instance);
-  }
+    if (instance->plotfileFlag ())
+    {
+      plotFileInstancePtrVec_.push_back(instance);
+    }
 
-  // Set up the vector of devices subject to the jacobian test.
-  if (instance->getName() == devOptions_.testJacDeviceName)
-  {
-    testJacDevicePtrVec_.push_back(instance);
+    // Set up the vector of devices subject to the jacobian test.
+    if (instance->getName() == devOptions_.testJacDeviceName)
+    {
+      testJacDevicePtrVec_.push_back(instance);
+    }
   }
 
   return instance;
