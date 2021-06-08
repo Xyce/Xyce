@@ -1118,28 +1118,15 @@ void HB::prepareHBOutput(
         }
       }
 
-     {
-        dout() << "solution before sorting" << std::endl;
-        for (int i=0; i< freqPoints_.size(); i++)
-        {
-          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
-//          dout() << "frequency point " << realList[i].first  << " real solution " << realList[i].second << std::endl; 
-//          dout() << "frequency point " << imagList[i].first  << " imag solution " << imagList[i].second << std::endl;
-        }
-     }
+      std::sort(realList.begin(),realList.end());
 
-      std::sort(realList.begin(),realList. end());
+      std::sort(imagList.begin(),imagList.end());
 
-      std::sort(imagList.begin(),imagList. end());
-
-//      if (DEBUG_HB)
+      if (j == 0)
       {
-
-        dout() << "solution after sorting" << std::endl;
         for (int i=0; i< freqPoints_.size(); i++)
         {
-          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
-//          dout() << "frequency point " << imagList[i].first  << " imag solution " << imagList[i].second << std::endl;
+//          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
           freqPoints[i]  = realList[i].first;
         }
       } 
@@ -1166,7 +1153,7 @@ void HB::prepareHBOutput(
       if (lid >= 0)
       {
 
-        if ((method_ == "AFM" ) || (method_ == "HYBRID")) 
+        if ((method_ == "AFM" ) || (method_ == "HYBRID"))
         {
         realVecRef_neg[lid] = realList[ sizePos - i].second;
         imagVecRef_neg[lid] = imagList[ sizePos - i].second;
