@@ -1233,9 +1233,26 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
 
   // Add an instance of this type.
   Device &device = getDeviceByModelType(model_type);
-  DeviceInstance *instance = device.addInstance(
-      instance_block,
-      FactoryBlock(*this, devOptions_, solState_, matrixLoadData_, externData_, commandLine_));
+  DeviceInstance *instance=0;
+  if (model_type == Resistor3::Traits::modelType() && !(instance_block.getModelName().empty()) )
+  {
+    // This is designed to handle a zero-valued resistor that refers to a .model.
+    // To avoid "can't find model" errors, the model name is deleted.
+    // The problem is that if a model was logged as a Resistor::Traits::modelType, then
+    // Resistor3::Traits::modelType device won't be able to find it.  And, it doesn't
+    // use it anyway.  Deleting it here is a kludgey way to solve the problem.
+    InstanceBlock instance_block_copy = instance_block;
+    instance_block_copy.setModelName(std::string(""));
+    instance = device.addInstance(
+        instance_block_copy,
+        FactoryBlock(*this, devOptions_, solState_, matrixLoadData_, externData_, commandLine_));
+  }
+  else
+  {
+    instance = device.addInstance(
+        instance_block,
+        FactoryBlock(*this, devOptions_, solState_, matrixLoadData_, externData_, commandLine_));
+  }
 
   // if the addInstance function fails, it returns instance=0.   
   // This will (correctly) trigger an error trap upstream from this function
