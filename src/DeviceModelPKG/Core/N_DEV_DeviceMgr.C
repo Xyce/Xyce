@@ -1088,7 +1088,7 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
   // is supposed to check this stuff as well, and if an expression is non-constant,
   // then it emits a fatal error when getImmutableValue is called.  I've updated
   // that code as well.
-  if (devOptions_.checkForZeroResistance && (model_type == Resistor::Traits::modelType()))
+  if (devOptions_.checkForZeroResistance && ( model_type == Resistor::Traits::modelType()))
   {
     const double zeroResistanceValue = devOptions_.zeroResistanceTol;
     // loop over the parameters
@@ -1100,7 +1100,8 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
       {
         if (currentParam->given())
         {
-          std::vector<std::string> variables, specials;
+          bool isVariablesDependent=false;
+          bool isSpecialsDependent=false;
           bool isRandomDependent=false;
 
           // check if this is a time-dependent, or variable-dependent expression.
@@ -1111,12 +1112,12 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
           if (tmpPar->getType() == Util::EXPR)
           {
             Util::Expression tmpExp = tmpPar->getValue<Util::Expression>();
-            tmpExp.getVariables(variables); 
-            tmpExp.getSpecials(specials);      
+            isVariablesDependent=tmpExp.getVariableDependent(); 
+            isSpecialsDependent=tmpExp.getSpecialsDependent();      
             isRandomDependent = tmpExp.isRandomDependent();
           }
 
-          if (specials.empty() && variables.empty() && !isRandomDependent)
+          if (!isSpecialsDependent && !isVariablesDependent && !isRandomDependent)
           {
             if (fabs(currentParam->getImmutableValue<double>()) < devOptions_.zeroResistanceTol) // call here will change param type from EXPR to DBLE
             {
