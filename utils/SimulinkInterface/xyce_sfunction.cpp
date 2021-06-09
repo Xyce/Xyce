@@ -64,7 +64,7 @@ static void mdlInitializeSizes(SimStruct *S)
   // Parameter mismatch will be reported by Simulink
   if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) 
   {
-  return;
+    return;
   }
   
   // Specify I/O
@@ -73,6 +73,8 @@ static void mdlInitializeSizes(SimStruct *S)
     return;
   }
   ssSetInputPortWidth(S, 0, DYNAMICALLY_SIZED);
+  
+  // input ports are used on calculations of outputs
   ssSetInputPortDirectFeedThrough(S, 0, 1);
   
   if (!ssSetNumOutputPorts(S,1)) 
@@ -233,8 +235,10 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   // Get data addresses of I/O
   InputRealPtrsType  u = ssGetInputPortRealSignalPtrs(S,0);
   //double * u = static_cast<double *>(const_cast<void *>(ssGetInputPortSignal(S,0)));
-  int_T numberOfInputs = ssGetNumInputPorts(S);
-  real_T *y = ssGetOutputPortRealSignal(S, 0);
+  
+  //real_T *y = ssGetOutputPortRealSignal(S, 0);
+  real_T * y = (real_T *)ssGetOutputPortSignal(S,0);
+  
   int_T numberOfOutputs = ssGetNumOutputPorts(S); 
   int_T outputPortWidth = 0;
   if( numberOfOutputs == 1) 
@@ -248,7 +252,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 
   double * XyceSimTime = static_cast<double *>(ssGetPWork(S)[CurrentTimeStepPtr]);  
   Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
-  
+  mexPrintf("==>In mdlOutputs and about to call Xyce\n");
   // There is a concept of system time which is the global time that
   // Simulink is working at and task time which can be different from Simulink's time
   // if a given model is implemented to take a task time step.  I'm not sure 
@@ -319,7 +323,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   
   if( !(xyce->simulationComplete()) )
   {  
-    if( systemTime > *XyceSimTime )
+    if( systemTime >= *XyceSimTime )
     {
       // Simulink system time is ahead of the Xyce time.
       // have Xyce try to integrate forward in time
@@ -332,31 +336,38 @@ static void mdlOutputs(SimStruct *S, int_T tid)
         bool stepStatus = xyce->provisionalStep( maxTimeStepForXyce, timeStepTaken, timeVoltageUpdateMap);
         if( stepStatus )
         {
-          // two cases that need to be handled.  
-          // 1. short step was taken by Xyce but Xyce needs to continue so that it gets to simulink's time 
-          // 2. There was a change in output on Xyce's DAC's and results should be sent to 
+          // three cases that need to be handled.  
+          // 1. Simulink wanted the solution at time=0.  This is just a DC OP for Xyce.
+          // 2. Short step was taken by Xyce but Xyce needs to continue so that it gets to simulink's time 
+          // 3. There was a change in output on Xyce's DAC's and results should be sent to 
           //    Simulink before we get to the end of the simulink step.  Not sure if Simulink 
           //    can handle this case.
-          xyce->acceptProvisionalStep();
-          *XyceSimTime = *XyceSimTime + timeStepTaken;
-          if( *XyceSimTime >= systemTime)
-          {
+          if( (systemTime == 0) && (*XyceSimTime == 0))
+          {   
+            // for the DC OP we don't accept the provisional step or advance time
+            // but time stepping is finished. 
             timeSteppingFinished = true;
+          }
+          else
+          {
+            xyce->acceptProvisionalStep();
+            *XyceSimTime = *XyceSimTime + timeStepTaken;
+            if( *XyceSimTime >= systemTime)
+            {
+              timeSteppingFinished = true;
+              // horrible hack to see if what happens when Simulink forces Xyce to take the steps it needs.
+              if( *XyceSimTime > systemTime)
+              {
+                *XyceSimTime = systemTime;
+              }
+            }
           }
         
         }
-        else
-        {
-          static char errorString[256];
-          sprintf( errorString, "Xyce failed to take a step at time %g\n", systemTime );
-          ssSetLocalErrorStatus(S, errorString);
-          mexPrintf( errorString );
-          xyce->rejectProvisionalStep();
-          timeSteppingFinished = true;
-          ssSetStopRequested( S, 1);
-        }
+
       
       }
+
      
       /*
       double actualXyceTime = 0.0;
@@ -372,11 +383,26 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       }
       */
     }
+    else
+    {
+      mexPrintf( "Xyce jumped past simulink time. Simulink: %g,  Xyce: %g. diff %g\n", systemTime, *XyceSimTime, (*XyceSimTime-systemTime));
+      mexPrintf( "Reusing last time results from Xyce.\n");
+      //bool stepStatus = xyce->getTimeVoltagePairs(timeVoltageUpdateMap);
+      //if( !stepStatus)
+      //{
+      //  mexPrintf( "Within simulation, repeat call to getTimeVoltagePairs failed\n");
+      //}
+    }
   }
   else
   {
     mexPrintf( "Simulink time, %g, is greater than Xyce's simulation time, %g.\n", systemTime, *XyceSimTime);
     mexPrintf( "Xyce will no longer update!  Please update simulation time in the Xyce input file.\n");
+    bool stepStatus = xyce->getTimeVoltagePairs(timeVoltageUpdateMap);
+    if( !stepStatus)
+    {
+      mexPrintf( "Repeat call to getTimeVoltagePairs failed\n");
+    }
   }
   /*
   // update outputs from Xyce to Simulink
