@@ -576,3 +576,7 @@ else()
      message(STATUS "Usage tracking is not enabled")
 endif()
 
+#
+# Look for optional Matlab application to use the mex compiler for Simulink interface
+#
+find_package(Matlab)
