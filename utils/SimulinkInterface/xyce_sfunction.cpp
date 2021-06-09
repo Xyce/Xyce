@@ -252,7 +252,6 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 
   double * XyceSimTime = static_cast<double *>(ssGetPWork(S)[CurrentTimeStepPtr]);  
   Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
-  mexPrintf("==>In mdlOutputs and about to call Xyce\n");
   // There is a concept of system time which is the global time that
   // Simulink is working at and task time which can be different from Simulink's time
   // if a given model is implemented to take a task time step.  I'm not sure 
@@ -362,26 +361,8 @@ static void mdlOutputs(SimStruct *S, int_T tid)
               }
             }
           }
-        
         }
-
-      
       }
-
-     
-      /*
-      double actualXyceTime = 0.0;
-      int retVal = xyce->simulateUntil(systemTime , actualXyceTime);
-      if( retVal != Xyce::Circuit::Simulator::RunStatus::SUCCESS )
-      {
-        mexPrintf("ERROR: Xyce failed to take a time step at %g to %g\n", systemTime, *XyceSimTime);
-      }
-      else
-      {
-        // step was successful, so update last time step variable
-        *XyceSimTime = actualXyceTime;
-      }
-      */
     }
     else
     {
@@ -404,26 +385,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       mexPrintf( "Repeat call to getTimeVoltagePairs failed\n");
     }
   }
-  /*
-  // update outputs from Xyce to Simulink
-  std::map<std::string,std::map<std::string,double> > * adcStrMapPtr = static_cast<std::map<std::string,std::map<std::string,double> > *>(ssGetPWork(S)[ADCMapPtr]);
-  if( !adcStrMapPtr->empty())
-  {
-    // output zeros
-    for( int i=0; i<numberOfOutputs; i++)
-    {
-      y[0] = 0.0;
-    }
-  }
-  else
-  {
-    // output zeros
-    for( int i=0; i<numberOfOutputs; i++)
-    {
-      y[0] = 0.0;
-    }
-  }
-  */
+
   if( timeVoltageUpdateMap.empty())  
   {
     // no results from Xyce (either there are not any ADC's or Xyce didn't update )
