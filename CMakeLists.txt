@@ -89,6 +89,7 @@ if(Xyce_PLUGIN_SUPPORT)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(utils)
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
