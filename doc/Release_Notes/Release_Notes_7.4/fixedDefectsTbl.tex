@@ -56,6 +56,11 @@ was used in a netlist then the results for a successful \texttt{TRIG-TARG} measu
 would be correct in the descriptive information sent to stdout.  However, the measure's
 value would be shown as FAILED in the \texttt{<netlistName>.mt0} file. \\ \hline
 
+  \textbf{Gitlab-ex issue 229}: Parsing error when V() expression contains extraneous trailing spaces &
+The new expression library did not handle whitespace correctly, in certain contexts.  
+  This has been fixed in the expression lexer.
+  \\ \hline
+
   \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work in \texttt{.IC} statements &  
       This has been resolved and global parameters can be used to set the 
       value of an \texttt{.IC} statement.\\ \hline
