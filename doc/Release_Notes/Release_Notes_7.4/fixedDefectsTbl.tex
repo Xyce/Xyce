@@ -61,6 +61,12 @@ The new expression library did not handle whitespace correctly, in certain conte
   This has been fixed in the expression lexer.
   \\ \hline
 
+  \textbf{Gitlab-ex issue 235}: Extend the R=0 capability to allow use of resistor .MODELs & 
+Resistors that have a resistance value of zero are treated different inside of Xyce.  
+  This different handling did not allow for such resistors to refer to \texttt{.MODEL} statements.  
+  That has been fixed and now this use case works.
+  \\ \hline
+
   \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work in \texttt{.IC} statements &  
       This has been resolved and global parameters can be used to set the 
       value of an \texttt{.IC} statement.\\ \hline
