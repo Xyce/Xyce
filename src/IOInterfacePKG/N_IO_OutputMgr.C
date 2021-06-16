@@ -779,7 +779,6 @@ void OutputMgr::prepareOutput(
       // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
       // output is not made.
       addActiveOutputter(PrintType::TRAN, analysis_mode);
-      addActiveOutputter(PrintType::TRAN, analysis_mode);
     }
   }
   else if (enablePCEFlag_)
@@ -790,7 +789,6 @@ void OutputMgr::prepareOutput(
     {
       // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
       // output is not made.
-      addActiveOutputter(PrintType::TRAN, analysis_mode);
       addActiveOutputter(PrintType::TRAN, analysis_mode);
     }
   }
