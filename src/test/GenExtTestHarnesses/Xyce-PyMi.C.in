@@ -37,6 +37,9 @@
 #include <N_CIR_GenCouplingSimulator.h>
 #include <N_DEV_VectorComputeInterfaceWithLimiting.h>
 #include <N_IO_ExtOutInterface.h>
+#include <N_DEV_DeviceOptions.h>
+#include <N_DEV_SolverState.h>
+#include <N_UTL_Expression.h>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -46,6 +49,25 @@
 #include <pybind11/numpy.h>
 namespace py = pybind11;
 using namespace py::literals;
+
+// pybind11 wrapper for DeviceOptions and SolverState
+PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
+    m.attr("__version__") = "7.3";
+    py::class_<Xyce::Device::DeviceOptions>(m, "DeviceOptions")
+    .def_readonly("voltageLimiterFlag", &Xyce::Device::DeviceOptions::voltageLimiterFlag);
+    py::class_<Xyce::Device::SolverState>(m, "SolverState")
+    .def_readonly("pdt_", &Xyce::Device::SolverState::pdt_)
+    .def_readonly("currentOrder_", &Xyce::Device::SolverState::currentOrder_)
+    .def_readonly("usedOrder_", &Xyce::Device::SolverState::usedOrder_)
+    .def_readonly("currTimeStep_", &Xyce::Device::SolverState::currTimeStep_)
+    .def_readonly("lastTimeStep_", &Xyce::Device::SolverState::lastTimeStep_)
+    .def_readonly("currTime_", &Xyce::Device::SolverState::currTime_)
+    .def_readonly("newtonIter", &Xyce::Device::SolverState::newtonIter)
+    .def_readonly("initJctFlag_", &Xyce::Device::SolverState::initJctFlag_)
+    .def_readonly("inputOPFlag", &Xyce::Device::SolverState::inputOPFlag)
+    .def_readonly("dcopFlag", &Xyce::Device::SolverState::dcopFlag)
+    .def_readonly("locaEnabledFlag", &Xyce::Device::SolverState::locaEnabledFlag);
+}
 
 // creates py::list of py::memoryviews to wrap std::vector of std::vector
 template <typename T>
@@ -76,8 +98,7 @@ private:
 
   py::dict F_Q_B_dFdX_dQdX_sizes;
 
-  py::memoryview py_solV;
-  py::memoryview py_fSV;
+  py::memoryview py_flagSolV;
   py::memoryview py_F;
   py::memoryview py_Q;
   py::memoryview py_dFdXdVp;
@@ -85,9 +106,11 @@ private:
   py::memoryview py_B;
   py::memoryview py_origFlag;
 
+  py::list py_solV;
+  py::list py_stoV;
+  py::list py_staV;
   py::list py_dFdX;
   py::list py_dQdX;
-  py::list py_stoV;
   py::list py_jacStamp;
 
   bool s_params_loaded;
@@ -109,8 +132,7 @@ public:
 
   pythonVectorCompute() :       
         // py::memoryview has no default constructor so we initialize from a scalar
-        py_solV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
-        py_fSV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
+        py_flagSolV(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_F(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_Q(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
         py_dFdXdVp(py::memoryview::from_buffer<double>(&nullValue, {1}, {sizeof(double)})),
@@ -122,12 +144,13 @@ public:
         numBranchDataVars(0), numBranchDataVarsIfAllocated(0), origFlag(0), nullValue(0)
   {}
 
-  virtual bool computeXyceVectorsWithLimiting(std::vector<double> & solV, std::vector<double> & fSV, std::vector<std::vector<double> > & stoV,
-                          double t, bool voltageLimiterFlag,
-                          int newtonIter, bool initJctFlag, 
-                          bool inputOPFlag, 
-                          bool dcopFlag, 
-                          bool locaEnabledFlag,
+  virtual bool computeXyceVectorsWithLimiting(
+                          std::vector<double>& flagSolV,
+                          std::vector<std::vector<double> >& solV, 
+                          std::vector<std::vector<double> >& stoV, 
+                          std::vector<std::vector<double> >& staV, 
+                          const Xyce::Device::DeviceOptions & xyceDeviceOptions,
+                          const Xyce::Device::SolverState & xyceSolverState,
                           bool& origFlag_,
                           std::vector<double> & F,
                           std::vector<double> & Q,
@@ -142,10 +165,13 @@ public:
     assert(p_params_loaded);
     assert(jacStampSet);
 
+    auto py_xyceDeviceOptions = const_cast<Xyce::Device::DeviceOptions*>(&xyceDeviceOptions);
+    auto py_xyceSolverState = const_cast<Xyce::Device::SolverState*>(&xyceSolverState);
+
     if (F_Q_B_dFdX_dQdX_sizes.size()==0) {
 
         // get sizes from Python module
-        F_Q_B_dFdX_dQdX_sizes = device.attr("get_F_Q_B_dfDx_dQdx_sizes")(
+        F_Q_B_dFdX_dQdX_sizes = device.attr("getArraySizes")(
             b_params, 
             d_params, 
             i_params, 
@@ -157,42 +183,74 @@ public:
         auto py_str_dFdX = py::str("dFdX");
         auto py_str_dQdX = py::str("dQdX");
 
-        // resize F, Q, B, dFdX, and dQdX, if needed
-        if (F.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>()) {
-            F.resize((F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>());
+        auto F_size = (F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>();
+        auto Q_size = (F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>();
+        auto B_size = (F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>();
+
+        // user can only set F size to numVars, while Q and B can be set to 
+        // either 0 or numVars
+        //
+        // if Q,B sizes !=0, then N_DEV_GeneralExternal.C expects them to be of size
+        // numVars, which is the same size as the length of solV
+        //
+        // check sizes for validity
+        auto numVars = solV[0].size();
+        assert(F_size==numVars);
+        if (Q_size!=0) {
+            assert(Q_size==numVars);
         }
-        if (dFdXdVp.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>()) {
-            dFdXdVp.resize((F_Q_B_dFdX_dQdX_sizes[py_str_F].cast<py::list>())[0].cast<int>());
+        if (B_size!=0) {
+            assert(B_size==numVars);
         }
-        if (Q.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>()) {
-            Q.resize((F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>());
-        }
-        if (dQdXdVp.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>()) {
-            dQdXdVp.resize((F_Q_B_dFdX_dQdX_sizes[py_str_Q].cast<py::list>())[0].cast<int>());
-        }
-        if (B.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>()) {
-            B.resize((F_Q_B_dFdX_dQdX_sizes[py_str_B].cast<py::list>())[0].cast<int>());
-        }
-        if (dFdX.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>()) {
-            dFdX.resize((F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>());
-        }
-        if (dQdX.size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>()) {
-            dQdX.resize((F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>());
-        }
-        for (size_t i=0; i<(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[0].cast<int>(); ++i) {
-            if (dFdX[i].size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[1].cast<int>()) {
-                dFdX[i].resize((F_Q_B_dFdX_dQdX_sizes[py_str_dFdX].cast<py::list>())[1].cast<int>());
+
+        // resize vectors, if needed 
+        {
+            // F
+            if (F.size()!=F_size) {
+                F.resize(F_size);
+            }
+            // limited variable F
+            if (dFdXdVp.size()!=F_size) {
+                dFdXdVp.resize(F_size);
+            }
+
+            // Q
+            if (Q.size()!=Q_size) {
+                Q.resize(Q_size);
+            }
+            // limited Q
+            if (dQdXdVp.size()!=Q_size) {
+                dQdXdVp.resize(Q_size);
+            }
+
+            // B
+            if (B.size()!=B_size) {
+                B.resize(B_size);
             }
         }
-        for (size_t i=0; i<(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[0].cast<int>(); ++i) {
-            if (dQdX[i].size()!=(F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[1].cast<int>()) {
-                dQdX[i].resize((F_Q_B_dFdX_dQdX_sizes[py_str_dQdX].cast<py::list>())[1].cast<int>());
+
+        // resize gradients, if needed
+        {
+            if (dFdX.size()!=F_size) {
+                dFdX.resize(F_size);
+            }
+            if (dQdX.size()!=Q_size) {
+                dQdX.resize(Q_size);
+            }
+            for (size_t i=0; i<F_size; ++i) {
+                if (dFdX[i].size()!=F_size) {
+                    dFdX[i].resize(F_size);
+                }
+            }
+            for (size_t i=0; i<Q_size; ++i) {
+                if (dQdX[i].size()!=Q_size) {
+                    dQdX[i].resize(Q_size);
+                }
             }
         }
 
         double null_value = 0;
-        double* data_solV = (solV.data()) ? solV.data() : &null_value;
-        double* data_fSV = (fSV.data()) ? fSV.data() : &null_value;
+        double* data_flagSolV = (flagSolV.data()) ? flagSolV.data() : &null_value;
         double* data_F  = ( F.data()) ?  F.data() : &null_value;
         double* data_Q  = ( Q.data()) ?  Q.data() : &null_value;
         double* data_dFdXdVp  = ( dFdXdVp.data()) ?  dFdXdVp.data() : &null_value;
@@ -201,13 +259,9 @@ public:
         origFlag = origFlag_;
         int* data_origFlag = &origFlag;
 
-        py_solV = py::memoryview::from_buffer(
-                data_solV,
-                {solV.size()}, 
-                {sizeof(double)});
-        py_fSV = py::memoryview::from_buffer(
-                data_fSV,
-                {fSV.size()}, 
+        py_flagSolV = py::memoryview::from_buffer(
+                data_flagSolV,
+                {flagSolV.size()}, 
                 {sizeof(double)}); 
         py_F = py::memoryview::from_buffer(
                 data_F,
@@ -235,11 +289,15 @@ public:
                 {sizeof(int)}); 
 
         // allocates new buffers for each row from heap
+        py_solV = get_list_of_memoryviews(solV);
+        py_stoV = get_list_of_memoryviews(stoV);
+        py_staV = get_list_of_memoryviews(staV);
         py_dFdX = get_list_of_memoryviews(dFdX);
         py_dQdX = get_list_of_memoryviews(dQdX);
-        py_stoV = get_list_of_memoryviews(stoV);
 
         py::object result = device.attr("initialize")(
+                py_xyceDeviceOptions,
+                py_xyceSolverState,
                 b_params, 
                 d_params, 
                 i_params, 
@@ -247,16 +305,12 @@ public:
     }
 
     py::object result = device.attr("computeXyceVectors")(
+            py_flagSolV,
             py_solV, 
-            py_fSV,
             py_stoV,
-            t, 
-            voltageLimiterFlag,
-            newtonIter,
-            initJctFlag,
-            inputOPFlag, 
-            dcopFlag, 
-            locaEnabledFlag,
+            py_staV,
+            py_xyceDeviceOptions,
+            py_xyceSolverState,
             py_origFlag,
             py_F, 
             py_Q, 
@@ -269,10 +323,7 @@ public:
             d_params, 
             i_params, 
             s_params);
-
     origFlag_ = (bool)(origFlag);
-
-    bool bsuccess = result.cast<int>();
 
     return true;
   };
@@ -409,17 +460,6 @@ public:
 
     // propagate this to python dictionaries
     device.attr("setNumExternalVars")(i_params, numExternalVars); 
-
-  }
-
-  void setVoltageLimiterFlag(const bool limiting)
-  {
-      
-    // parameters should be processed first
-    assert(p_params_loaded);
-
-    // propagate this to python dictionaries
-    device.attr("setVoltageLimiterFlag")(b_params, limiting); 
 
   }
 
@@ -619,8 +659,14 @@ int main(int argc, char **argv)
 
   // We now must query Xyce for any general external devices present in the
   // netlist we just parsed.
+  std::vector<std::string> deviceNames_YGENEXT;
+  std::vector<std::string> deviceNames_YPY;
   std::vector<std::string> deviceNames;
-  bool bsuccess=xyce.getDeviceNames("YGENEXT",deviceNames);
+
+  bool bsuccess=xyce.getDeviceNames("YGENEXT",deviceNames_YGENEXT);
+  // bsuccess|=xyce.getDeviceNames("YPY",deviceNames_YPY);
+  deviceNames.insert( deviceNames.end(), deviceNames_YGENEXT.begin(), deviceNames_YGENEXT.end() );
+  //deviceNames.insert( deviceNames.end(), deviceNames_YPY.begin(), deviceNames_YPY.end() );
   if (!bsuccess && debug)
   {
     std::cout << " No external devices found.. regular xyce netlist." << std::endl;
@@ -638,140 +684,132 @@ int main(int argc, char **argv)
   for (int i =0; i<deviceNames.size(); i++)
   {
     std::cout << "GenExt Device " << i << " name is " << deviceNames[i] << std::endl;
-    if (deviceNames[i].rfind("YGENEXT!PY", 0) == 0)
-    // devicename starts with "YGENEXT!P"
+
+    // Retrieve any double precision parameters that may be on the instance line
+    std::vector<std::string> pNames;
+    std::vector<double> dValues;
+    bsuccess=xyce.getDParams(deviceNames[i],pNames,dValues);
+    if (!bsuccess)
     {
-      printf("matching pvcs[%d] with %s\n", i, deviceNames[i].c_str());
-      // We found a resistor
-      // Retrieve any double precision parameters that may be on the instance line
-      std::vector<std::string> pNames;
-      std::vector<double> dValues;
-      bsuccess=xyce.getDParams(deviceNames[i],pNames,dValues);
+      std::cerr << " getDParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processDoubleParams(pNames,dValues);
+
+    std::vector<int> iValues;
+    bsuccess=xyce.getIParams(deviceNames[i],pNames,iValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getIParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processIntegerParams(pNames,iValues);
+
+    std::vector<bool> bValues;
+    bsuccess=xyce.getBParams(deviceNames[i],pNames,bValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getBParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processBoolParams(pNames,bValues);
+
+    // set filepaths for xyce and the netlist file
+    pvcs[i].setFilePaths(xyce_filepath, netlist_filepath);
+
+    std::vector<std::string> sValues;
+    bsuccess=xyce.getSParams(deviceNames[i],pNames,sValues);
+    if (!bsuccess)
+    {
+      std::cerr << " getSParams failed on " << deviceNames[i] << std::endl;
+      exit(1);
+    }
+    // pass those parameters to our object
+    pvcs[i].processStringParams(pNames,sValues);
+
+    // have our object retrieve python dictionary
+    pvcs[i].processPythonParams();
+
+    // populate number of external variables
+    pvcs[i].setNumExternalVars(xyce.getNumExtVars(deviceNames[i]));
+
+    // populate number of internal variables from python
+    pvcs[i].processVars();
+
+    bsuccess=xyce.setNumInternalVars(deviceNames[i],pvcs[i].numInternalVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set internal vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    bsuccess=xyce.setNumStateVars(deviceNames[i],pvcs[i].numStateVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set state vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    bsuccess=xyce.setNumStoreVars(deviceNames[i],pvcs[i].numStoreVars);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set store vars for" << deviceNames[i]
+                << std::endl;
+      exit(1);
+    }
+
+    // numBranchDataVars and numBranchDataVarsIfAllocated are set during initializeEarly
+    // they can not be set here
+    //
+    // setting numBranches is problematic, because it would likely be set to 0
+    // and then the vars if allocated would give it the amount to increment by
+    // however, the DeviceMgr::addDeviceInstance Enabling lead current load for device
+    // DeviceInstance::enableLeadCurrentCalc() being called much earlier
+    // (won't be recalculated)
+    //bsuccess=xyce.setNumBranchDataVars(deviceNames[i],pvcs[i].numBranchDataVars);
+    //if (!bsuccess)
+    //{
+    //  std::cerr << " Failed to set branch data vars for" << deviceNames[i]
+    //            << std::endl;
+    //  exit(1);
+    //}
+
+    //bsuccess=xyce.setNumBranchDataVarsIfAllocated(deviceNames[i],pvcs[i].numBranchDataVarsIfAllocated);
+    //if (!bsuccess)
+    //{
+    //  std::cerr << " Failed to set branch data vars if allocated for" << deviceNames[i]
+    //            << std::endl;
+    //  exit(1);
+    //}
+
+    // generate jacStamp, if defined
+    pvcs[i].processJacStamp();
+
+    if (pvcs[i].jacStamp.size() > 0) {
+      printf("jacStamp > 0, setting larger for %s\n", deviceNames[i].c_str());
+      // If we have implemented this device so it can use a sparse jacobian stamp, tell
+      // Xyce what that stamp is.
+      bsuccess=xyce.setJacStamp(deviceNames[i],pvcs[i].jacStamp);
       if (!bsuccess)
       {
-        std::cerr << " getDParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processDoubleParams(pNames,dValues);
-
-      std::vector<int> iValues;
-      bsuccess=xyce.getIParams(deviceNames[i],pNames,iValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getIParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processIntegerParams(pNames,iValues);
-
-      std::vector<bool> bValues;
-      bsuccess=xyce.getBParams(deviceNames[i],pNames,bValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getBParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processBoolParams(pNames,bValues);
-
-      // set filepaths for xyce and the netlist file
-      pvcs[i].setFilePaths(xyce_filepath, netlist_filepath);
-
-      std::vector<std::string> sValues;
-      bsuccess=xyce.getSParams(deviceNames[i],pNames,sValues);
-      if (!bsuccess)
-      {
-        std::cerr << " getSParams failed on " << deviceNames[i] << std::endl;
-        exit(1);
-      }
-      // pass those parameters to our object
-      pvcs[i].processStringParams(pNames,sValues);
-
-      // have our object retrieve python dictionary
-      pvcs[i].processPythonParams();
-
-      // populate number of external variables
-      pvcs[i].setNumExternalVars(xyce.getNumExtVars(deviceNames[i]));
-
-      // populate voltage limiter flag
-      pvcs[i].setVoltageLimiterFlag(xyce.getVoltageLimiterFlag(deviceNames[i]));
-
-      // populate number of internal variables from python
-      pvcs[i].processVars();
-
-      bsuccess=xyce.setNumInternalVars(deviceNames[i],pvcs[i].numInternalVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set internal vars for" << deviceNames[i]
+        std::cerr << " Failed to set Jacobian Stamp for " << deviceNames[i]
                   << std::endl;
         exit(1);
       }
+    }
 
-      bsuccess=xyce.setNumStateVars(deviceNames[i],pvcs[i].numStateVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set state vars for" << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
-
-      bsuccess=xyce.setNumStoreVars(deviceNames[i],pvcs[i].numStoreVars);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set store vars for" << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
-
-      // numBranchDataVars and numBranchDataVarsIfAllocated are set during initializeEarly
-      // they can not be set here
-      //
-      // setting numBranches is problematic, because it would likely be set to 0
-      // and then the vars if allocated would give it the amount to increment by
-      // however, the DeviceMgr::addDeviceInstance Enabling lead current load for device
-      // DeviceInstance::enableLeadCurrentCalc() being called much earlier
-      // (won't be recalculated)
-      //bsuccess=xyce.setNumBranchDataVars(deviceNames[i],pvcs[i].numBranchDataVars);
-      //if (!bsuccess)
-      //{
-      //  std::cerr << " Failed to set branch data vars for" << deviceNames[i]
-      //            << std::endl;
-      //  exit(1);
-      //}
-
-      //bsuccess=xyce.setNumBranchDataVarsIfAllocated(deviceNames[i],pvcs[i].numBranchDataVarsIfAllocated);
-      //if (!bsuccess)
-      //{
-      //  std::cerr << " Failed to set branch data vars if allocated for" << deviceNames[i]
-      //            << std::endl;
-      //  exit(1);
-      //}
-
-      // generate jacStamp, if defined
-      pvcs[i].processJacStamp();
-
-      if (pvcs[i].jacStamp.size() > 0) {
-        printf("jacStamp > 0, setting larger for %s\n", deviceNames[i].c_str());
-        // If we have implemented this device so it can use a sparse jacobian stamp, tell
-        // Xyce what that stamp is.
-        bsuccess=xyce.setJacStamp(deviceNames[i],pvcs[i].jacStamp);
-        if (!bsuccess)
-        {
-          std::cerr << " Failed to set Jacobian Stamp for " << deviceNames[i]
-                    << std::endl;
-          exit(1);
-        }
-      }
-
-      // Now tell Xyce to use the vector loader
-      bsuccess=xyce.setVectorLoader(deviceNames[i],&pvcs[i]);
-      if (!bsuccess)
-      {
-        std::cerr << " Failed to set vector loader for " << deviceNames[i]
-                  << std::endl;
-        exit(1);
-      }
+    // Now tell Xyce to use the vector loader
+    bsuccess=xyce.setVectorLoader(deviceNames[i],&pvcs[i]);
+    if (!bsuccess)
+    {
+      std::cerr << " Failed to set vector loader for " << deviceNames[i]
+                << std::endl;
+      exit(1);
     }
 
   }

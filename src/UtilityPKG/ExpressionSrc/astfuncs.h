@@ -43,12 +43,14 @@ template <typename ScalarT>                                                     
 class NAME ## Op : public astNode<ScalarT>                                             \
 {                                                                                      \
   public:                                                                              \
-    NAME ## Op (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};     \
+    NAME ## Op (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {       \
+          leftConst_ = this->leftAst_->numvalType(); };                                \
                                                                                        \
     virtual ScalarT val() { return std::NAME(this->leftAst_->val()); }                 \
                                                                                        \
     virtual ScalarT dx(int i)                                                          \
     {                                                                                  \
+      if(leftConst_) { return 0.0; }                                                   \
       ScalarT leftVal=this->leftAst_->val();                                           \
       ScalarT leftDx =this->leftAst_->dx(i);                                           \
       return DX;                                                                       \
@@ -56,13 +58,22 @@ class NAME ## Op : public astNode<ScalarT>                                      
                                                                                        \
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      result = std::NAME(leftVal);                                                     \
-      int numDerivs=derivs.size();                                                     \
-      for (int i=0;i<numDerivs;i++)                                                    \
+      ScalarT leftVal, leftDx;                                                         \
+      if (leftConst_)                                                                  \
       {                                                                                \
-        ScalarT leftDx =this->leftAst_->dx(i);                                         \
-        derivs[i] = DX; }                                                              \
+        leftVal=this->leftAst_->val();                                                 \
+        result = std::NAME(leftVal);                                                   \
+        std::fill(derivs.begin(),derivs.end(),0.0);                                    \
+        return;                                                                        \
+      }                                                                                \
+      else                                                                             \
+      {                                                                                \
+        int numDerivs=derivs.size();                                                   \
+        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                  \
+        this->leftAst_->dx2(leftVal,lefDerivs_);                                       \
+        result= std::NAME(leftVal);                                                    \
+        for (int i=0;i<numDerivs;i++) { ScalarT leftDx=lefDerivs_[i]; derivs[i]=DX; }  \
+      }                                                                                \
     }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -82,6 +93,8 @@ class NAME ## Op : public astNode<ScalarT>                                      
       this->leftAst_->codeGen(os);                                                     \
       os << ")";                                                                       \
     }                                                                                  \
+    bool leftConst_;                                                                   \
+    std::vector<ScalarT> lefDerivs_;                                                   \
 };
 
 AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))))

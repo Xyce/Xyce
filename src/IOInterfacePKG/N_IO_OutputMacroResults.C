@@ -88,12 +88,7 @@ void outputMacroResults(
     if (Parallel::rank(comm) == 0)
     {
       if (step_number == 0)
-      {
-        std::string filename = netlist_filename + ".fft0";
-        outputFileStream.open( filename.c_str() );
-        fft_manager.outputResults(outputFileStream);
-        outputFileStream.close();
-      }
+        fft_manager.outputResultsToFFTfile(step_number);
     }
     else
     {
@@ -145,12 +140,11 @@ void outputMacroResults(
   {
     if (Parallel::rank(comm) == 0)
     {
-      std::string filename = netlist_filename + ".four";
-      outputFileStream.open( filename.c_str() );
-      fourier_manager.outputResults(outputFileStream);
-      outputFileStream.close();
+      if ( step_number == 0 )
+        fourier_manager.outputResultsToFourFile(step_number);
     }
-    else {
+    else
+    {
       fourier_manager.outputResults( Xyce::lout() );
     }
   }

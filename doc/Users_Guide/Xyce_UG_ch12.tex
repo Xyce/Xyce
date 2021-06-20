@@ -657,7 +657,9 @@ Fourier analysis can be performed on several solution variables for each
 fundamental frequency, \texttt{freq}.
 Multiple \texttt{.FOUR} lines may be used in a netlist.  
 All results from Fourier analysis will be returned to the user in a file 
-with the same name as the netlist file suffixed with \texttt{.four}.
+with the same name as the netlist file suffixed with \texttt{.four\#}, where
+the suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation.
 For this analysis, the phase data is output in degrees.
 
 If \texttt{SENS} is specified as the output, then all the direct sensitivities 

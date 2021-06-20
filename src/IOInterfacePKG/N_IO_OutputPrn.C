@@ -183,6 +183,11 @@ int OutputPrn::getOutputNextVarValuesParallel( Linear::Vector * varValues )
 
   std::string aLine;
   std::getline( *istreamPtr_, aLine );
+
+  // skip over empty lines, to support FORMAT=GNUPLOT
+  while ( !(istreamPtr_->eof()) && (aLine.empty() || ((aLine.size() == 1) && (aLine[0] == '\r'))) )
+    std::getline( *istreamPtr_, aLine );
+
   if( (istreamPtr_->eof()) || (aLine.compare(endMarkerText1)==0) ||
         (aLine.compare(endMarkerText2)==0)    )
   {
@@ -191,7 +196,7 @@ int OutputPrn::getOutputNextVarValuesParallel( Linear::Vector * varValues )
     retVal = 0;
     return retVal;
   }
- 
+
   std::stringstream theLineStream( aLine ); 
   std::stringstream extractedVarValue;
   bool withinWord=false;

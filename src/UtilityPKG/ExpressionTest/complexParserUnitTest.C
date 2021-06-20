@@ -2472,6 +2472,112 @@ TEST ( Complex_Parser_VoltDeriv_Test, test6)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
+TEST ( Complex_Parser_VoltDeriv_Test, test7)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A,gnd)*(-V(gnd,A))+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=6.3;
+  std::complex<double> refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test7)
+}
+
+TEST ( Complex_Parser_VoltDeriv_Test, test8)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*(V(A,gnd)**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=6.3;
+  std::complex<double> refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test8)
+}
+
+TEST ( Complex_Parser_VoltDeriv_Test, test9)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(gnd,A))**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=6.3;
+  std::complex<double> refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
+  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test9)
+}
+
+TEST ( Complex_Parser_VoltDeriv_Test, test10)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.3*V(A)/V(B)-7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=6.3, Bval=2.1;
+  std::complex<double> refRes = 12.3*Aval/Bval-7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(12.3/Bval);
+  refDer.push_back(-12.3*Aval/(Bval*Bval));
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs[0],refDer[0]);
+  EXPECT_EQ( derivs[1],refDer[1]);
+
+  copyExpression.evaluate(result,derivs);
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs[0],refDer[0]);
+  EXPECT_EQ( derivs[1],refDer[1]);
+
+  assignExpression.evaluate(result,derivs);
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs[0],refDer[0]);
+  EXPECT_EQ( derivs[1],refDer[1]);
+
+  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test1)
+}
 
 //-------------------------------------------------------------------------------
 TEST ( Complex_Parser_CurrSoln_Test, test1)

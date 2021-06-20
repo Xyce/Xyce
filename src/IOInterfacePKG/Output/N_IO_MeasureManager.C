@@ -38,6 +38,7 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>
+#include <N_IO_CmdParse.h>
 #include <N_IO_MeasureExtrema.h>
 #include <N_IO_MeasureFFT.h>
 #include <N_IO_MeasureStats.h>
@@ -92,9 +93,8 @@ namespace Measure {
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-Manager::Manager(
-  const std::string &   netlist_filename)
-  : netlistFilename_(netlist_filename),
+Manager::Manager(const CmdParse &cp)
+  : commandLine_(cp),
     measureOutputFileSuffix_(".mt"),
     use_cont_files_(true),
     enableMeasGlobalPrint_(true),
@@ -689,9 +689,7 @@ void Manager::outputResultsToMTFile(int stepNumber) const
   if ( !measureOutputList_.empty() )
   {
     // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
-    std::ostringstream converterBuff;
-    converterBuff << stepNumber;
-    std::string filename = netlistFilename_ + measureOutputFileSuffix_ + converterBuff.str();
+    std::string filename = IO::makeOutputFileNameWithStepNum(commandLine_, measureOutputFileSuffix_, stepNumber);
 
     // open file
     std::ofstream outputFileStream;
@@ -723,9 +721,9 @@ void Manager::outputResultsToMTFile(int stepNumber) const
         // Make file name. The file suffix is mt for TRAN, ma for AC and ms for DC.
         ExtendedString measNameLowerCase((*it)->getMeasureName());
         measNameLowerCase.toLower();
-        std::ostringstream converterBuff;
-        converterBuff << stepNumber;
-        std::string filename = netlistFilename_ + "_" + measNameLowerCase + measureOutputFileSuffix_ + converterBuff.str();
+        std::string filename = IO::makeOutputFileNameWithStepNum(commandLine_,
+                                     "_" + measNameLowerCase + measureOutputFileSuffix_,
+                                     stepNumber);
 
         // open file
         std::ofstream outputFileStream;

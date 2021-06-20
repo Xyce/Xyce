@@ -56,6 +56,15 @@ void setTimeIntegratorDebugLevel(const CmdParse &command_line, int level);
 void setDeviceDebugLevel(const CmdParse &command_line, int level);
 void setSensitivityDebugLevel(const CmdParse &command_line, int level);
 
+std::string makeOutputFileName(
+  const CmdParse &      command_line,
+  const std::string&    suffix);
+
+std::string makeOutputFileNameWithStepNum(
+  const CmdParse &      command_line,
+  const std::string&    suffix,
+  int                   stepNumber);
+
 //-----------------------------------------------------------------------------
 // Class         : CmdParse
 // Purpose       :

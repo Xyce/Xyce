@@ -5542,7 +5542,7 @@ class specialsOp : public astNode<ScalarT>
 };
 
 //-------------------------------------------------------------------------------
-// constants
+// constants.  These are obsolete.
 template <typename ScalarT>
 class piConstOp : public astNode<ScalarT>
 {

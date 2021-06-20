@@ -90,10 +90,21 @@ one result, are now supported for the \texttt{DERIV-AT},
 \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
 \texttt{WHEN} measure types for \texttt{.AC}, \texttt{.DC},
 \texttt{.NOISE} and \texttt{.TRAN} analyses.
+  \item The \texttt{-remeasure} command line option now supports
+\Xyce{} output files made with \texttt{FORMAT=GNUPLOT}.
   \item The full range of negative values (-1,-2,-3,...) are now
 supported for the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS}
 qualifiers for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN} and
 \texttt{WHEN} measure types.
+  \item Additional window functions (\texttt{BARTLETTHANN},
+\texttt{BLACKMAN}, \texttt{NUTTALL}, \texttt{COSINE2}, \texttt{COSINE4},
+\texttt{HALFCYCLESINE}, \texttt{HALFCYCLESINE3} and \texttt{HALFCYCLESINE6})
+have been added for \texttt{.FFT} lines.  In addtional, both ``symmetric''
+and ''periodic'' versions are now supported for all window functions.
+  \item \texttt{.OPTIONS FFT FFT\_MODE=<0|1>} now allows the \Xyce{} user
+to select whether the \Xyce{} \texttt{.FFT} processing and output is more
+compatible with HSPICE (0) or Spectre (1).  The default is HSPICE.
+  \item \texttt{.STEP} analyses now support \texttt{.FOUR} analyses.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

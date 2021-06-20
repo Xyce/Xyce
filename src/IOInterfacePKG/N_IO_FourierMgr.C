@@ -35,6 +35,7 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_IO_FourierMgr.h>
 #include <N_IO_CircuitBlock.h>
+#include <N_IO_CmdParse.h>
 #include <N_IO_NetlistImportTool.h>
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
@@ -77,8 +78,8 @@ enum {
 // Creator       : Heidi Thornquist, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-FourierMgr::FourierMgr(const std::string &   netlist_filename )
-  : netlistFilename_(netlist_filename),
+FourierMgr::FourierMgr(const CmdParse &cp)
+  : commandLine_(cp),
     sensitivityOptions_(0),
     sensitivityRequested (false),
     numFreq_(10),
@@ -105,6 +106,62 @@ FourierMgr::~FourierMgr()
 {
   for (Util::Op::OpList::iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
     delete *it;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FourierMgr::notify
+// Purpose       : Reset the Fourier analyses at the start of a STEP iteration,
+//                 and output the Fourier results at the end of each STEP iteration.
+//                 Output for the non-step case is currently handled by
+//                 outputMacroResults().
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 6/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::notify( const Analysis::StepEvent & step_event)
+{
+  switch (step_event.state_)
+  {
+    case Analysis::StepEvent::INITIALIZE:
+      break;
+
+    case Analysis::StepEvent::STEP_STARTED:
+      reset();
+      break;
+
+    case Analysis::StepEvent::STEP_COMPLETED:
+      outputResultsToFourFile(step_event.count_);
+      break;
+
+    case Analysis::StepEvent::FINISH:
+      break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FourierMgr::reset
+// Purpose       : Resets the object at the start of a .STEP loop
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::reset()
+{
+  calculated_ = false;
+  time_.clear();
+  outputVarsValues_.clear();
+  newTime_.clear();
+  newValues_.clear();
+  prdStart_.clear();
+  lastPrdStart_.clear();
+
+  mag_.clear();
+  phase_.clear();
+  nmag_.clear();
+  nphase_.clear();
+  thd_.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -583,6 +640,28 @@ void FourierMgr::updateFourierData(Parallel::Machine comm, const double circuitT
     vecIndex++;
   }
 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::outputResultsToFourFile
+// Purpose       : Output all of the Fourier results at end of simulation
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/01/2021
+//-----------------------------------------------------------------------------
+void FourierMgr::outputResultsToFourFile(int stepNumber)
+{
+  int numOutVars = outputVars_.size();
+
+  if ( numOutVars && !time_.empty() && !calculated_ )
+  {
+    std::string filename = IO::makeOutputFileNameWithStepNum(commandLine_, ".four", stepNumber);
+    std::ofstream outputFileStream;
+    outputFileStream.open( filename.c_str() );
+    outputResults(outputFileStream);
+    outputFileStream.close();
+  }
 }
 
 //-----------------------------------------------------------------------------

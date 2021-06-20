@@ -42,6 +42,7 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ERH_Message.h>
 #include <N_IO_CircuitBlock.h>
+#include <N_IO_CmdParse.h>
 #include <N_IO_OutputMgr.h>
 #include <N_IO_OutputResults.h>
 #include <N_IO_OptionBlock.h>
@@ -220,7 +221,7 @@ void OutputResults::output(
   {
     if (!os_)
     {
-      std::string resultfilename = analysisManager_.getNetlistFilename() + ".res";
+      std::string resultfilename = IO::makeOutputFileName(analysisManager_.getCommandLine(), ".res");
 
       os_ = new std::ofstream(resultfilename.c_str());
 

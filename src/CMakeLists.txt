@@ -70,6 +70,10 @@ target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
 target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES}
      ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
+if(OpenMP_FOUND)
+     target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 # In the case where CURL has been built with CMake, then CURL_LIBRARIES and
 # CURL_INCLUDE_DIRS are NOT set; instead, there is an import library defined.
 # Check for that here:

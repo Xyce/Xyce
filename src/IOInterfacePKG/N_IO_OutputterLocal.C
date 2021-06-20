@@ -135,7 +135,7 @@ outputFilename(
     }
   }
 
-  std::string::size_type pos = output_filename.find('.');
+  std::string::size_type pos = output_filename.find_last_of('.');
   std::string extension;
 
   // If filename ends with the default extension, rip it off and set the extension to the default extension.

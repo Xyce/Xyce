@@ -50,8 +50,12 @@ output must be specified in the {\tt .FOUR} line.  The available outputs are:
 \end{Arguments}
 
 \comments
-Multiple \texttt{.FOUR} lines may be used in a netlist.  All results from Fourier analysis will be 
-returned to the user in a file with the same name as the netlist file suffixed with a \texttt{.FOUR}. 
+Multiple \texttt{.FOUR} lines may be used in a netlist.
+
+All results from Fourier analysis will be returned to the user in a file with the
+same name as the netlist file suffixed with \texttt{.four\#}, where the suffixed
+number (\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation.
 
 \texttt{<lead abbreviation>} is a single character designator for individual
 leads on a device with three or more leads.  For bipolar transistors these are:

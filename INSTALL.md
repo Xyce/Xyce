@@ -58,7 +58,7 @@ your system:
   + Some package managers bundle Fortran with the C and C++ compilers.
   + Trilinos has Fortran code, but leveraging it is technically
     [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code).
-    Not leveraging the Fortran code, though, could result in slightly lower performance.
+    Not using the Fortran code, though, could result in slightly lower performance.
   + Xyce, itself, does not use Fortran.
 - Build system (e.g., [Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom))
@@ -131,7 +131,8 @@ Building SuiteSparse is not difficult. However, the only part of SuiteSparse
 used by Xyce is AMD. As an alternative building process, we have provided a
 "CMakeLists.txt" file in the `Xyce/cmake/trilinos/AMD/` directory. Using CMake,
 the file will allow you to compile and install _only_ the AMD library. See the
-comment block at the top of the file for instructions on its use.
+comment block at the top of the [file](cmake/trilinos/AMD/CmakeLists.txt) for
+instructions on its use.
 
 ### Building Trilinos
 
@@ -149,13 +150,13 @@ with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 First, download Trilinos version 12.12.1 from the [Trilinos GitHub
 Page](https://github.com/trilinos/trilinos), or use this [direct
 link](https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-12-12-1.tar.gz).
-For a substantially faster git clone, you can obtain just the 12.12.1 files by
-running:
+If you wish to use a git clone, you can obtain just the 12.12.1 files (and a
+faster download) by running:
 ```sh
 git clone --depth 1 --branch trilinos-release-12-12-1 https://github.com/trilinos/Trilinos.git
 ```
-Be sure to compile version 12.12.1. Other versions will not work with this
-process, as they require slightly different build options.
+Again, be sure to compile version 12.12.1. Other versions will not work with
+the following process, as they require slightly different build options.
 
 In order to build Trilinos, first create a "build" directory in a convenient
 location. (The name does not matter, and can be something simple like
@@ -251,8 +252,8 @@ cmake --build . -j 2 -t install
 
 ### Building Xyce
 
-Once Trilinos is built, you can build and install Xyce. By default, Xyce will
-be installed in the `/usr/local/` directory. To specify a different
+Once Trilinos is installed, you can build and install Xyce. By default, Xyce
+will be installed in the `/usr/local/` directory. To specify a different
 installation location, add the following flag to the CMake invocation:
 ```sh
 -D CMAKE_INSTALL_PREFIX=/path/to/install
@@ -280,8 +281,8 @@ Choose an appropriate number for your system.
 
 #### Adding the Xyce/ADMS Verilog-A Model Compiler
 
-Xyce has an Verilog-A model compiler capability, using the "Xyce/ADMS" compiler
-tool.  See the [Xyce/ADMS Users
+Xyce has a Verilog-A model compiler capability, using the "Xyce/ADMS" compiler
+tool. See the [Xyce/ADMS Users
 Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
 information on the capability and for instructions on using Xyce/ADMS.
 
@@ -353,10 +354,11 @@ changed). Then Xyce and/or Trilinos can be uninstalled at any time using the
 
 ## Running the Test Suite
 
-If you wish to test the Xyce installation, run the
-[Xyce Regression Suite](https://github.com/Xyce/Xyce_Regression). See the
-[Running the Xyce Regression Suite](https://xyce.sandia.gov/documentation/RunningTheTests.html)
-documentation on the Xyce home page.
+If you wish to test the Xyce installation, run the [Xyce Regression
+Suite](https://github.com/Xyce/Xyce_Regression). See the [Running the Xyce
+Regression Suite](https://xyce.sandia.gov/documentation/RunningTheTests.html)
+documentation on the Xyce home page. Note that the test suite is controlled
+with Perl and Bash scripts, and some tests require Python with Scipy and Numpy.
 
 ## Configuration Scripts
 
@@ -416,7 +418,7 @@ On Windows, Bison and flex are available via the
 [WinFlexBison](https://github.com/lexxmark/winflexbison) package, leaving
 SuiteSparse as the remaining (non-Trilinos) requirement. For SuiteSparse, see
 the [Building SuiteSparse](#building-suitesparse) section above, under
-[Obtaining the TPLs](obtaining-the-tpls). Once all the TPLs are in place,
+[Obtaining the TPLs](#obtaining-the-tpls). Once all the TPLs are in place,
 continue with the standard Trilinos and Xyce build processes.
 
 The Xyce regression suite must be run in a Unix-like environment with Perl.
@@ -472,8 +474,9 @@ package building system.
 
 If you wish to check whether your system's install of OpenMPI has this issue,
 you can run a small test program from the Xyce source tree. To test your
-OpenMPI package, copy the file `Xyce/src/test/MPITest/testBUG967.c` into a
-temporary directory; then compile and run it using the following commands:
+OpenMPI package, copy the file,
+[Xyce/src/test/MPITest/testBUG967.c](src/test/MPITest/testBUG967.c), into
+temporary directory. Then compile and run it using the following commands:
 ```sh
 mpicc -o testBUG967 testBUG967.c
 mpirun -np 2 ./testBUG967
