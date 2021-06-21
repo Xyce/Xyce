@@ -910,6 +910,7 @@ void combineParamValueFields(
   if (foundEquals) linePosition=equalsIndex-1;
   else linePosition = parsed_line.size();
 
+#if 0
   if (DEBUG_IO)
   {
     for (int ii=0;ii<parsed_line.size();ii++)
@@ -919,6 +920,7 @@ void combineParamValueFields(
     std::cout << "combinedString = " << combinedString << std::endl;
     std::cout << "linePosition = " << linePosition <<std::endl;
   }
+#endif
 }
 
 //-----------------------------------------------------------------------------

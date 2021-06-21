@@ -65,7 +65,6 @@ namespace IO {
 // Creation Date  : 01/21/2003
 //----------------------------------------------------------------------------
 CircuitContext::CircuitContext(
-  //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
   Util::Op::BuilderManager &    op_builder_manager,
   std::list<CircuitContext*> &  context_list,
   CircuitContext *&             current_context_pointer)
@@ -570,7 +569,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
             if (isRandom)
             {
               unresolvedGlobalParams_.insert(parameter);
-              //unresolvedParams_.erase(paramIter++);
               paramIter = unresolvedParams_.erase(paramIter);
               increment=true;
             }
