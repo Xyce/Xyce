@@ -124,6 +124,7 @@ public:
   bool updatePrimaryState ();
   bool updateSecondaryState ();
 
+  bool applyScale ();
   bool processParams ();
   bool updateTemperature(const double & temp_tmp);
 

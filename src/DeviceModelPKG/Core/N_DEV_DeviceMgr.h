@@ -419,6 +419,11 @@ public:
   bool setHBAnalysisParams(const Util::OptionBlock & option_block);
   bool setACAnalysisParams(const Util::OptionBlock & option_block);
   bool setNOISEAnalysisParams(const Util::OptionBlock & option_block);
+
+  bool setSamplingParams (const Util::OptionBlock & option_block);
+  bool setEmbeddedSamplingParams (const Util::OptionBlock & option_block);
+  bool setPCEParams (const Util::OptionBlock & option_block);
+
   bool setSensitivityOptions (const Util::OptionBlock & option_block);
   bool setParserOptions (const Util::OptionBlock & option_block);
 
@@ -639,6 +644,10 @@ private:
   // analysis options  (for now bools that say what type of "." line was present in netlist)
   bool                          ACSpecified_;
   bool                          HBSpecified_;
+
+  bool                          SAMPLINGSpecified_;
+  bool                          ESSpecified_;
+  bool                          PCESpecified_;
 
   // used to enable lead-current calcuations for all devices.  This is set, during
   // netlist importation, when I(*), P(*) or W(*) appears on any .PRINT line.

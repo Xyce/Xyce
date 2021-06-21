@@ -122,6 +122,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Channel length")
+    .setLengthScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -130,6 +131,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Channel width")
+    .setLengthScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -137,6 +139,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER2)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Drain diffusion area")
+    .setAreaScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -144,6 +147,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER2)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Source diffusion area")
+    .setAreaScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -165,6 +169,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Drain diffusion perimeter")
+    .setLengthScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -172,6 +177,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
     .setUnit(U_METER)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Source diffusion perimeter")
+    .setLengthScaling(true)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3InstanceSens);
 
@@ -3056,13 +3062,13 @@ std::vector< std::vector<int> > Instance::jacMap2;
 
 // Class Instance
 //-----------------------------------------------------------------------------
-// Function      : Instance::processParams
+// Function      : Instance::applyScale
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+// Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
 //-----------------------------------------------------------------------------
-bool Instance::processParams ()
+bool Instance::applyScale ()
 {
   // apply scale
   if (getDeviceOptions().lengthScale != 1.0)
@@ -3074,7 +3080,18 @@ bool Instance::processParams ()
     if (given("PD")) { drainPerimeter *= getDeviceOptions().lengthScale; }
     if (given("PS")) { sourcePerimeter *= getDeviceOptions().lengthScale; }
   }
+  return true;
+}
 
+//-----------------------------------------------------------------------------
+// Function      : Instance::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+//-----------------------------------------------------------------------------
+bool Instance::processParams ()
+{
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
     temp = getDeviceOptions().temp.getImmutableValue<double>();
@@ -3741,6 +3758,9 @@ Instance::Instance(
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
+
+  // if options scale has been set in the netlist, apply it.
+  applyScale ();
 
   // calculate dependent (ie computed) params and check for errors:
   processParams ();

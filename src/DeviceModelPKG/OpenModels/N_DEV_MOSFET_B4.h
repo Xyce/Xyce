@@ -350,6 +350,8 @@ public:
 
   void setupPointers ();
 
+  bool applyScale ();
+
   bool processParams ();
 
   void debugJacStampOutput ();

@@ -68,22 +68,26 @@ void Traits::loadInstanceParameters(ParametricData<VDMOS::Instance> &p)
     p.addPar ("L",0.0,&VDMOS::Instance::l)
      .setUnit(U_METER)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Channel length");
+     .setDescription("Channel length")
+     .setLengthScaling(true);
 
     p.addPar ("W",0.0,&VDMOS::Instance::w)
      .setUnit(U_METER)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Channel width");
+     .setDescription("Channel width")
+     .setLengthScaling(true);
 
     p.addPar ("AD",0.0,&VDMOS::Instance::drainArea)
      .setUnit(U_METER2)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Drain diffusion area");
+     .setDescription("Drain diffusion area")
+     .setAreaScaling(true);
 
     p.addPar ("AS",0.0,&VDMOS::Instance::sourceArea)
      .setUnit(U_METER2)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Source diffusion area");
+     .setDescription("Source diffusion area")
+     .setAreaScaling(true);
 
     p.addPar ("NRD",1.0,&VDMOS::Instance::drainSquares)
      .setUnit(U_SQUARES)
@@ -98,12 +102,14 @@ void Traits::loadInstanceParameters(ParametricData<VDMOS::Instance> &p)
     p.addPar ("PD",0.0,&VDMOS::Instance::drainPerimeter)
      .setUnit(U_METER)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Drain diffusion perimeter");
+     .setDescription("Drain diffusion perimeter")
+     .setLengthScaling(true);
 
     p.addPar ("PS",0.0,&VDMOS::Instance::sourcePerimeter)
      .setUnit(U_METER)
      .setCategory(CAT_GEOMETRY)
-     .setDescription("Source diffusion perimeter");
+     .setDescription("Source diffusion perimeter")
+     .setLengthScaling(true);
 
     p.addPar ("M",1.0,&VDMOS::Instance::numberParallel)
      .setUnit(U_NONE)
@@ -1677,6 +1683,9 @@ Instance::Instance(
   updateDependentParameters();
 
   // calculate dependent (ie computed) params and check for errors:
+
+  // if options scale has been set in the netlist, apply it.
+  applyScale ();
 
   // call updateTemp which may change model parameters if
   // temperature effects are present
@@ -4019,16 +4028,15 @@ bool Instance::updateSecondaryState ()
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
-// Function      : Instance::processParams
+// Function      : Instance::applyScale
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 6/03/02
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/21/2021
 //-----------------------------------------------------------------------------
-bool Instance::processParams ()
+bool Instance::applyScale ()
 {
   // apply scale
   if (getDeviceOptions().lengthScale != 1.0)
@@ -4040,7 +4048,19 @@ bool Instance::processParams ()
     if (given("PD")) { drainPerimeter *= getDeviceOptions().lengthScale; } 
     if (given("PS")) { sourcePerimeter *= getDeviceOptions().lengthScale; }
   }
+  return true;
+}
 
+//-----------------------------------------------------------------------------
+// Function      : Instance::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 6/03/02
+//-----------------------------------------------------------------------------
+bool Instance::processParams ()
+{
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
     temp = getDeviceOptions().temp.getImmutableValue<double>();

@@ -205,6 +205,9 @@ DeviceMgr::DeviceMgr(
     dotOpOutputFlag_(false),
     ACSpecified_(false),
     HBSpecified_(false),
+    SAMPLINGSpecified_(false),
+    ESSpecified_(false),
+    PCESpecified_(false),
     iStarRequested_(false),
     expressionBasedSamplingEnabled_(false)
 {
@@ -452,6 +455,48 @@ bool DeviceMgr::setACAnalysisParams (const Util::OptionBlock & OB)
 bool DeviceMgr::setNOISEAnalysisParams (const Util::OptionBlock & OB)
 {
   ACSpecified_ = true;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setSamplingParams 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/11/2021
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setSamplingParams (const Util::OptionBlock & option_block)
+{
+  SAMPLINGSpecified_ = true;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setEmbeddedSamplingParams 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/11/2021
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setEmbeddedSamplingParams (const Util::OptionBlock & option_block)
+{
+  ESSpecified_ = true;
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setPCEParams 
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/11/2021
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setPCEParams (const Util::OptionBlock & option_block)
+{
+  PCESpecified_ = true;
   return true;
 }
 
@@ -4822,6 +4867,10 @@ bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options
   options_manager.addOptionsProcessor("DEVICE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setDeviceOptions));
   options_manager.addOptionsProcessor("SENSITIVITY", IO::createRegistrationOptions(device_manager, &DeviceMgr::setSensitivityOptions));
   options_manager.addOptionsProcessor("PARSER", IO::createRegistrationOptions(device_manager, &DeviceMgr::setParserOptions));
+
+  options_manager.addCommandProcessor("SAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setSamplingParams));
+  options_manager.addCommandProcessor("EMBEDDEDSAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setEmbeddedSamplingParams));
+  options_manager.addCommandProcessor("PCE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setPCEParams));
 
   return true;
 }
