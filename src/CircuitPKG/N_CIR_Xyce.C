@@ -839,6 +839,11 @@ Simulator::RunStatus Simulator::initializeEarly(
     {
       Report::UserError() << "Could not open netlist file " << netlist_filename << " for reading.";
     }
+
+    if ( commandLine_.argExists("-o") && !Util::checkIfValidDashoFileName(commandLine_.getArgumentValue("-o")) )
+    {
+      Report::UserError() << "Invalid basename " << commandLine_.getArgumentValue("-o") << " specified with -o";
+    }
   }
 
   Report::safeBarrier(comm_);

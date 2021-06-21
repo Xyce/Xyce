@@ -93,5 +93,45 @@ bool checkIfValidFile(std::string netlist_filename)
   return isValidFile;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : checkIfValidDashoFileName
+// Purpose       : Verify that the "base file name" specified with the -o
+//                 command line option is usable.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/21/2021
+//-----------------------------------------------------------------------------
+bool checkIfValidDashoFileName(std::string dashoFilename)
+{
+  bool isValidBaseName = true;
+
+  // if the dashoFilename already exists, then the -o output should
+  // be able to open up files like dashoFilename.prn
+  isValidBaseName = checkIfValidFile(dashoFilename);
+
+  if (!isValidBaseName)
+  {
+    // see if the dashoFilename is a valid filename by trying to open
+    // it, if it didn't already exist.
+    std::ofstream *os = new std::ofstream(dashoFilename);
+    if (!os->good())
+    {
+      isValidBaseName = false;
+    }
+    else
+    {
+      // delete the temporary dashoFilename file, since it won't actually
+      // be used for any the -o output files
+      isValidBaseName = true;
+      os->close();
+      std::remove(dashoFilename.c_str());
+    }
+
+    delete os;
+  }
+
+  return isValidBaseName;
+}
+
 } // namespace Util
 } // namespace Xyce

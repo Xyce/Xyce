@@ -119,7 +119,14 @@ outputFilename(
   }
   else if (!dashoFilename.empty())
   {
-    output_filename = dashoFilename;
+    // The dashoFilename is the "base file name" for .PRINT output,
+    // if -o was given on the command line.
+    output_filename = dashoFilename + default_extension;
+
+    if (output_filename == net_list_filename)
+      output_filename = output_filename + default_extension;
+
+    return output_filename;
   }
   else
   {
