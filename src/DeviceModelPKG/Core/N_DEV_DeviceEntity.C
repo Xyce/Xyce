@@ -604,7 +604,15 @@ bool DeviceEntity::setParam(const std::string & paramName, double val, bool over
     val += CONSTCtoK;
 
   if (param.isType<double>())
+  {
+    if (devOptions_.lengthScaleGiven)
+    {
+      double scalar = devOptions_.lengthScale;
+      if (param.getLengthScaling())  { val *= scalar; }
+      else if (param.getAreaScaling()) { val *= scalar*scalar; }
+    }
     param.value<double>(*this) = val;
+  }
   else if (param.isType<int>())
     param.value<int>(*this) = static_cast <int> (val);
   else if (param.isType<long>())
@@ -1194,8 +1202,20 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
         ) 
     { 
       if (dpIter->expr->evaluateFunction (rval)) 
-      { 
+      {
         changed = true; 
+
+        if (devOptions_.lengthScaleGiven)
+        {
+          ParameterMap::const_iterator p_i = getParameterMap().find(dpIter->name);
+          if (p_i != getParameterMap().end())
+          {
+            double scalar = devOptions_.lengthScale;
+            const Descriptor &param = *(*p_i).second;
+            if (param.getLengthScaling())  { rval *= scalar; }
+            else if (param.getAreaScaling()) { rval *= scalar*scalar; }
+          }
+        }
 
         // apply the expression result to parameters, if it has changed.
         if (dpIter->vectorIndex==-1)

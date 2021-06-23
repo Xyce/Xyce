@@ -4433,8 +4433,8 @@ bool Instance::applyScale ()
   // apply scale
   if (getDeviceOptions().lengthScale != 1.0)
   {
-    if (given("L")) { setParam(std::string("L"), l * getDeviceOptions().lengthScale); }
-    if (given("W")) { setParam(std::string("W"), w * getDeviceOptions().lengthScale); }
+    if (given("L")) { l *= getDeviceOptions().lengthScale; }
+    if (given("W")) { w *= getDeviceOptions().lengthScale; }
     if (sourceAreaGiven) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
     if (drainAreaGiven) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
     if (drainPerimeterGiven) { drainPerimeter *= getDeviceOptions().lengthScale; }
@@ -4452,6 +4452,10 @@ bool Instance::applyScale ()
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
+#if 1
+  std::cout << "BSIM4::Instance::processParams l = " << l << std::endl;
+  std::cout << "BSIM4::Instance::processParams w = " << w << std::endl;
+#endif
   double Rtot;
 
   // Set any non-constant parameter defaults:

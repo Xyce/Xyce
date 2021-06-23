@@ -1069,7 +1069,7 @@ public:
     return *this;
   }
 
-  bool getLengthScaling() { return lengthScalingAllowed_; }
+  bool getLengthScaling() const { return lengthScalingAllowed_; } 
 
   Descriptor &setAreaScaling(bool value)
   {
@@ -1077,7 +1077,7 @@ public:
     return *this;
   }
 
-  bool getAreaScaling() { return areaScalingAllowed_; }
+  bool getAreaScaling() const { return areaScalingAllowed_; }
 
   ///
   /// returns a boolean to indicate if analytic sensitivities are available w.r.t. this parameter.
