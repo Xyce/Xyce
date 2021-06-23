@@ -376,13 +376,10 @@ void Topology::generateOrderedNodeList() const
 // Creator       : Richard Schiek, Electrical and Microsystems modeling
 // Creation Date : 2/18/2010
 //-----------------------------------------------------------------------------
-void Topology::verifyNodesAndDevices(
-  Device::DeviceMgr &   device_manager)
+void Topology::verifyNodesAndDevices(Device::DeviceMgr & device_manager)
 {
   if( linearSolverUtility_->supernodeFlag() )
   {
-    int badDeviceCount=0;
-
     const CktGraph::Graph::Data1Map & dataMap = mainGraphPtr_->getNodeList();
     CktGraph::Graph::Data1Map::const_iterator currentCktNodeItr = dataMap.begin();
     CktGraph::Graph::Data1Map::const_iterator endCktNodeItr = dataMap.end();
@@ -397,7 +394,6 @@ void Topology::verifyNodesAndDevices(
           bool deviceInstanceOk = device_manager.verifyDeviceInstance( *deviceInstanceBlockPtr );
           if( !deviceInstanceOk )
           {
-            badDeviceCount++;
             // place the nodes for this device in the superNodeList_
             // collected nodes so that they can be combined (supernoded)
             // It's ok to let the device node get created and inserted into the
@@ -416,7 +412,6 @@ void Topology::verifyNodesAndDevices(
 
             while( nextID != endID )
             {
-              
               if ( (*currentID) != (*nextID) )
               {
                 // these nodes are to be supernoded.  Take the lexically smaller one
@@ -441,17 +436,11 @@ void Topology::verifyNodesAndDevices(
         {
           // issue fatal error as this case shouldn't occur
           Report::DevelFatal().in("Topology::verifyNodesAndDevices") 
-            << "null Device Instance Block pointer";
+            << "null device instance block pointer";
         }
       }
       currentCktNodeItr++;
     }
-
-    Parallel::Communicator * commPtr = pdsManager_.getPDSComm();
-    int totalBadDevices = 0;
-    commPtr->sumAll( &badDeviceCount, &totalBadDevices, 1 );
-
-    Report::UserWarning0() << "Device verification found " << totalBadDevices << " device(s) to remove";
   }
 }
 
@@ -465,8 +454,11 @@ void Topology::verifyNodesAndDevices(
 // Creator       : Richard Schiek, Electrical and Microsystems modeling
 // Creation Date : 2/2/2010
 //-----------------------------------------------------------------------------
-void Topology::removeTaggedNodesAndDevices()
+unordered_map<std::string, std::string> 
+Topology::removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager)
 {
+  unordered_map<std::string, std::string> aliasMap;
+
   if( linearSolverUtility_->supernodeFlag() )
   {
     if (DEBUG_TOPOLOGY)
@@ -574,8 +566,22 @@ void Topology::removeTaggedNodesAndDevices()
     {
       //Stats::StatTop _topoStat("Topology Remove Redundant Devices");
       //Stats::TimeBlock _topoTimer(_topoStat);
-      mainGraphPtr_->removeRedundantDevices(removedDevices);
+      mainGraphPtr_->removeRedundantDevices( badDeviceList_, removedDevices );
     }
+
+    int tNumBadDevices = 0;
+    int numBadDevices = badDeviceList_.size();
+    pdsManager_.getPDSComm()->sumAll( &numBadDevices, &tNumBadDevices, 1 );
+    if (tNumBadDevices)
+    {
+      Xyce::dout() << "Device verification found " << tNumBadDevices << " device(s) to remove" << std::endl;
+    }
+
+    // Communicate the node aliases for the removed nodes, which is held by the superNodeList_
+    std::vector< std::pair<NodeID, NodeID> >::iterator it = superNodeList_.begin();
+    std::vector< std::pair<NodeID, NodeID> >::iterator it_end = superNodeList_.end();
+    for ( ; it != it_end; ++it )
+      aliasMap[ Xyce::get_node_id( it->first ) ] = Xyce::get_node_id( it->second );
 
     // now it's safe to delete the old nodes and device nodes
     for (CktNodeList::iterator it = oldNodeList.begin(), end = oldNodeList.end(); it != end; ++it)
@@ -585,6 +591,8 @@ void Topology::removeTaggedNodesAndDevices()
 
     if (!removedDevices.empty())
     {
+      std::vector< std::string > badDeviceNames;
+
       // delete old devices that were removed
       for (std::vector<CktNode *>::iterator it = removedDevices.begin(), end = removedDevices.end(); it != end; ++it)
       {
@@ -592,14 +600,18 @@ void Topology::removeTaggedNodesAndDevices()
 
         if (cktNodeDevPtr && cktNodeDevPtr->deviceInstanceBlock())
         {
+          // Collect information from the device instance block
+          badDeviceNames.push_back( cktNodeDevPtr->deviceInstanceBlock()->getInstanceName().getEncodedName() );  
           delete cktNodeDevPtr;
         }
       }
+     
+      // Communicate removed devices to the device manager
+      device_manager.registerRemovedDevices( badDeviceNames );
     }
-
-    // Clear supernode storage.
-    superNodeList_.clear();
   }
+
+  return aliasMap;
 }
 
 //-----------------------------------------------------------------------------

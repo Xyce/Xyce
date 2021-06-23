@@ -166,6 +166,8 @@ public:
   DeviceInstance * addDeviceInstance(const InstanceBlock & IB);
 
   bool deleteDeviceInstance (const std::string & name);
+  void registerRemovedDevices( std::vector< std::string >& devices )
+  { removedDevices_ = devices; }
 
   int getHomotopyBlockSize() const;
 
@@ -614,6 +616,8 @@ private:
 
   std::vector<DeviceInstance *> pauseBPDeviceVector_; /// < devices with pause breakpoints
   std::vector<DeviceInstance *> nonpauseBPDeviceVector_; /// < devices w/o pause BP(no BP, or only simple BP)
+
+  std::vector< std::string >    removedDevices_;
 
   // this is used to store the contents of the independentSourceVector_
   // during an mpde initialization where we'll remove slow sources from

@@ -121,8 +121,10 @@ public:
   // parsing from n_cir_xyce
   void verifyNodesAndDevices(Device::DeviceMgr &device_manager);
 
- // remove any nodes and devices that were tagged for removal during parsing
-  void removeTaggedNodesAndDevices();
+  // remove any nodes and devices that were tagged for removal during parsing
+  // this method will return aliases for any nodes that have been removed.  if devices are
+  // removed, the device manager will be notified as it impacts the device count.
+  unordered_map<std::string, std::string> removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager);
 
   // Used for delayed instantiation of devices
   void instantiateDevices();
