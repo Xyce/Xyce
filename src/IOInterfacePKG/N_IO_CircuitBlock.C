@@ -1874,6 +1874,9 @@ bool CircuitBlock::parseIncludeFile(
   // Save current ssfPtr_ and netlistFilename_.
   SpiceSeparatedFieldTool* oldssfPtr = ssfPtr_;
 
+  // get the old context name to compare at the end of this include file
+  std::string old_name = circuitContext_.getCurrentContextPtr()->getName();
+
   // save the old file name (parent file)
   std::string old_netlistFilename(netlistFilename_);
 
@@ -1945,6 +1948,11 @@ bool CircuitBlock::parseIncludeFile(
     else
       break;
   }
+
+  // Check if context is returned to previous context at end of include file.
+  std::string name = circuitContext_.getCurrentContextPtr()->getName();
+  if (old_name != name)
+      Report::UserError0().at(includeFile, ssfPtr_->getLineNumber()) << "Subcircuit " << name << " missing .ENDS";
 
   restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
 
