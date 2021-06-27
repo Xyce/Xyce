@@ -467,6 +467,8 @@ public:
   const std::vector< std::vector<int> > & jacobianStamp() const;
   void registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVec );
 
+  bool applyScale ();
+
   bool processParams ();
 
   bool updateTemperature(const double & temp_tmp);

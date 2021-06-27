@@ -501,7 +501,7 @@ bool Simulator::doRegistrations_()
 // Creation Date : 6/08/00
 //-----------------------------------------------------------------------------
 Simulator::RunStatus
-Simulator::setupTopology()
+Simulator::setupTopology( unordered_map< std::string, std::string >& aliasMap )
 {
   // topology query's device manager to see if any devices are bad (i.e. a resistor with zero resistance)
   // if so, a list of nodes to be supernoded is created
@@ -511,8 +511,8 @@ Simulator::setupTopology()
   topology_->mergeOffProcTaggedNodesAndDevices();
 
   // combine nodes into supernodes and remove now redundant devices (i.e. those only connected to 1 processor )
-  topology_->removeTaggedNodesAndDevices();
-
+  aliasMap = topology_->removeTaggedNodesAndDevices(*deviceManager_);
+  
   return SUCCESS;
 }
 
@@ -839,6 +839,11 @@ Simulator::RunStatus Simulator::initializeEarly(
     {
       Report::UserError() << "Could not open netlist file " << netlist_filename << " for reading.";
     }
+
+    if ( commandLine_.argExists("-o") && !Util::checkIfValidDashoFileName(commandLine_.getArgumentValue("-o")) )
+    {
+      Report::UserError() << "Invalid basename " << commandLine_.getArgumentValue("-o") << " specified with -o";
+    }
   }
 
   Report::safeBarrier(comm_);
@@ -977,22 +982,24 @@ Simulator::RunStatus Simulator::initializeEarly(
       return DONE;
     }
 
+    runState_ = SETUP_TOPOLOGY;
+    Xyce::lout() << "***** Setting up topology...\n" << std::endl;
+
+    unordered_map< std::string, std::string > aliasMap;
+    {
+      Stats::StatTop _verifyStat("Verify Devices");
+      Stats::TimeBlock _verifyTimer(_verifyStat);
+      RunStatus run_status = setupTopology( aliasMap );
+      if (run_status != SUCCESS)
+        return run_status;
+    }
+    netlist_import_tool.addToAliasNodeMap( aliasMap );
+
     mainExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());
     outputManager_->setMainContextGlobalParamMap(netlist_import_tool.getMainContextGlobalParams().begin(), netlist_import_tool.getMainContextGlobalParams().end());
-
-    runState_ = SETUP_TOPOLOGY;
-    Xyce::lout() << "***** Setting up topology...\n" << std::endl;
-
-    {
-      Stats::StatTop _verifyStat("Verify Devices");
-      Stats::TimeBlock _verifyTimer(_verifyStat);
-      RunStatus run_status = setupTopology();
-      if (run_status != SUCCESS)
-        return run_status;
-    }
 
     // if "-remeasure" was on the command line, then we don't need to
     // instantiate the devices.  We do need to partially allocate the

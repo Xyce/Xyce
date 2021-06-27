@@ -697,7 +697,8 @@ CktNode * CktGraphBasic::replaceNode( const NodeID nodeToBeReplaced,
 // Creator       : Richard Schiek, Electrical and Microsystems Modeling
 // Creation Date : 2/10/10
 //-----------------------------------------------------------------------------
-void CktGraphBasic::removeRedundantDevices(std::vector< CktNode * > & removedDevices)
+void CktGraphBasic::removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, 
+                                            std::vector< CktNode * > & removedDevices)
 {
   std::ostringstream outputStringStream;
   // Collect the deviceIDs for all the devices to be removed from the graph
@@ -739,6 +740,7 @@ void CktGraphBasic::removeRedundantDevices(std::vector< CktNode * > & removedDev
         if( removeDevice )
         {
           deviceIDs.push_back((*currentCktNodeItr).first);
+          devicesToBeRemoved.push_back((*currentCktNodeItr).first);
           removedDevices.push_back((*currentCktNodeItr).second);
         }
       }
@@ -761,7 +763,10 @@ void CktGraphBasic::removeRedundantDevices(std::vector< CktNode * > & removedDev
     // NOTE:  This can be a real issue in practice, so don't remove this search.
     std::vector< NodeID> singletonIDs = cktgph_.getSingletons();
     if (singletonIDs.size() > 0)
+    {
       cktgph_.removeKeys( singletonIDs );
+      devicesToBeRemoved.insert(devicesToBeRemoved.end(), singletonIDs.begin(), singletonIDs.end());
+    }
 
     isModified_=true;
   }
@@ -776,7 +781,8 @@ void CktGraphBasic::removeRedundantDevices(std::vector< CktNode * > & removedDev
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 8/10/06
 //-----------------------------------------------------------------------------
-void CktGraphBasic::removeNodes( const std::vector< NodeID > nodesToBeRemoved, std::vector< CktNode * > & removedNodes )
+void CktGraphBasic::removeNodes( const std::vector< NodeID > & nodesToBeRemoved, 
+                                 std::vector< CktNode * > & removedNodes )
 { 
   std::vector< NodeID >::const_iterator it = nodesToBeRemoved.begin();
   for ( ; it != nodesToBeRemoved.end(); ++it )

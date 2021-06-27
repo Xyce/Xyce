@@ -145,6 +145,7 @@ public:
 
   virtual bool updateSource ();
 
+  virtual bool applyScale () { return true; }
   virtual bool processParams () { return true; }
   virtual bool processInstanceParams () { return true; }
 

@@ -176,6 +176,16 @@ public:
     return aliasNodeMap_;
   }
 
+  void addToAliasNodeMap( const unordered_map< std::string, std::string >& aliasMap )
+  {
+    unordered_map< std::string, std::string >::const_iterator it = aliasMap.begin();
+    unordered_map< std::string, std::string >::const_iterator it_end = aliasMap.end();
+    for ( ; it != it_end; ++it )
+    {
+      aliasNodeMap_[ it->first ] = it->second;
+    } 
+  }
+
   const UndefinedNameSet &getDeferredParameterCheck() const
   {
     return deferredUndefinedParameters_;

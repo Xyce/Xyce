@@ -77,6 +77,7 @@ HBLoader::HBLoader(
     period_(0),
     refID_(refID),
     hbOsc_(hbOsc),
+    loadTimeB_(true),
     matrixFreeFlag_(false),
     deviceManager_(device_manager),
     freqLoadAnalysisDone_(false),
@@ -719,7 +720,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
 
 
-  bool  loadTimeB = true;
+//  bool  loadTimeB = true;
 
   if ((int)vecNLAppdQdxPtr_.size() != BlockCount)
   {
@@ -809,8 +810,8 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
     // Load the sources into appB.   
 
-    if (loadTimeB)
-    appLoaderPtr_->loadBVectorsforSources();
+    if (loadTimeB_ )
+      appLoaderPtr_->loadBVectorsforSources();
 
     appB->fillComplete();
 
@@ -934,7 +935,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       Teuchos::rcp_dynamic_cast<CktLoader>(appLoaderPtr_)->loadFreqDAEVectors( freq, &Xf_complex[0], 
                                                            tmpFreqFVector, freqBVector_[i] );
 
-      if (!loadTimeB)
+      if (!loadTimeB_ )
         Teuchos::rcp_dynamic_cast<CktLoader>(appLoaderPtr_)->loadFreqBVectorsforSources( freq,
                                                              freqBVector_[i] );
 

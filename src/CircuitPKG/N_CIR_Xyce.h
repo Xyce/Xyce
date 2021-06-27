@@ -326,7 +326,7 @@ class Simulator
     bool doAllocations_();
     bool doInitializations_();
     bool doRegistrations_();
-    RunStatus setupTopology();
+    RunStatus setupTopology( unordered_map< std::string, std::string >& aliasMap );
     bool setUpMatrixStructure_();
     bool runSolvers_();
 

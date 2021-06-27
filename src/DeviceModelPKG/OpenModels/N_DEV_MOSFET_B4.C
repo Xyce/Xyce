@@ -132,12 +132,14 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
     p.addPar ("L",5.0e-6,&MOSFET_B4::Instance::l)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Length");
+     .setDescription("Length")
+     .setLengthScaling(true);
 
     p.addPar ("W",5.0e-6,&MOSFET_B4::Instance::w)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Width");
+     .setDescription("Width")
+     .setLengthScaling(true);
 
     p.addPar ("NF",1.0,&MOSFET_B4::Instance::nf)
      .setUnit(U_NONE)
@@ -189,26 +191,29 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setGivenMember(&MOSFET_B4::Instance::drainAreaGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Drain area");
+     .setDescription("Drain area")
+     .setAreaScaling(true);
 
     p.addPar ("AS",0.0,&MOSFET_B4::Instance::sourceArea)
      .setGivenMember(&MOSFET_B4::Instance::sourceAreaGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Source area");
+     .setDescription("Source area")
+     .setAreaScaling(true);
 
     p.addPar ("PD",0.0,&MOSFET_B4::Instance::drainPerimeter)
      .setGivenMember(&MOSFET_B4::Instance::drainPerimeterGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Drain perimeter");
-
+     .setDescription("Drain perimeter")
+     .setLengthScaling(true);
 
     p.addPar ("PS",0.0,&MOSFET_B4::Instance::sourcePerimeter)
      .setGivenMember(&MOSFET_B4::Instance::sourcePerimeterGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
-     .setDescription("Source perimeter");
+     .setDescription("Source perimeter")
+     .setLengthScaling(true);
 
     p.addPar ("NRD",1.0,&MOSFET_B4::Instance::drainSquares)
      .setGivenMember(&MOSFET_B4::Instance::drainSquaresGiven)
@@ -4415,6 +4420,29 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
 }
 
 // Class Instance
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::applyScale
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
+//-----------------------------------------------------------------------------
+bool Instance::applyScale ()
+{
+  // apply scale
+  if (getDeviceOptions().lengthScale != 1.0)
+  {
+    if (given("L")) { l *= getDeviceOptions().lengthScale; }
+    if (given("W")) { w *= getDeviceOptions().lengthScale; }
+    if (sourceAreaGiven) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
+    if (drainAreaGiven) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
+    if (drainPerimeterGiven) { drainPerimeter *= getDeviceOptions().lengthScale; }
+    if (sourcePerimeterGiven) { sourcePerimeter *= getDeviceOptions().lengthScale; }
+  }
+  return true;
+}
+
 //-----------------------------------------------------------------------------
 // Function      : Instance::processParams
 // Purpose       :
@@ -4424,46 +4452,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
+#if 1
+  std::cout << "BSIM4::Instance::processParams l = " << l << std::endl;
+  std::cout << "BSIM4::Instance::processParams w = " << w << std::endl;
+#endif
   double Rtot;
-
-  // apply scale
-  if (getDeviceOptions().lengthScale != 1.0)
-  {
-#if 0
-    if (given("L")) { l *= getDeviceOptions().lengthScale; }
-    if (given("W")) { w *= getDeviceOptions().lengthScale; }
-#else
-    if (given("L")) { setParam(std::string("L"), l * getDeviceOptions().lengthScale); }
-    if (given("W")) { setParam(std::string("W"), w * getDeviceOptions().lengthScale); }
-#endif
-    if (sourceAreaGiven) { sourceArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
-    if (drainAreaGiven) { drainArea *= getDeviceOptions().lengthScale * getDeviceOptions().lengthScale ; }
-    if (drainPerimeterGiven) { drainPerimeter *= getDeviceOptions().lengthScale; }
-    if (sourcePerimeterGiven) { sourcePerimeter *= getDeviceOptions().lengthScale; }
-
-#if 0
-    std::cout << "Length Scale given = " << getDeviceOptions().lengthScale <<std::endl;
-    std::cout << "L = " << l <<std::endl;
-    std::cout << "W = " << w <<std::endl;
-    std::cout << "sourceArea = " << sourceArea <<std::endl;
-    std::cout << "drainArea = " << drainArea <<std::endl;
-    std::cout << "drainPerimeter = " << drainPerimeter <<std::endl;
-    std::cout << "sourcePerimeter = " << sourcePerimeter <<std::endl;
-#endif
-  }
-  else
-  {
-#if 0
-    std::cout << "Length Scale not given" << std::endl;
-    std::cout << "L = " << l <<std::endl;
-    std::cout << "W = " << w <<std::endl;
-    std::cout << "sourceArea = " << sourceArea <<std::endl;
-    std::cout << "drainArea = " << drainArea <<std::endl;
-    std::cout << "drainPerimeter = " << drainPerimeter <<std::endl;
-    std::cout << "sourcePerimeter = " << sourcePerimeter <<std::endl;
-#endif
-  }
-
 
   // Set any non-constant parameter defaults:
   if (!RBDBgiven)
@@ -5521,6 +5514,9 @@ Instance::Instance(
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
+
+  // if options scale has been set in the netlist, apply it.
+  applyScale ();
 
   // calculate dependent (ie computed) params and check for errors:
   processParams ();

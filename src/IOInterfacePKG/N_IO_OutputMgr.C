@@ -170,9 +170,8 @@ OutputMgr::OutputMgr(
     defaultPrintParameters_.asciiRaw_ = true;
   }
 
-  // -r takes precedence over -o if both are specified on the command line.
-  // For more info on the behavior of -o, and its precedence over FILE= on 
-  // a .PRINT line, see SON Bug 911.
+  // -r takes precedence over -o, if both are specified on the command line, for the
+  // "primary" .PRINT line types (AC, DC, NOISE and TRAN).
   if (command_line.argExists("-r")) 
   {
     defaultPrintParameters_.overrideRaw_ = true;
@@ -180,7 +179,8 @@ OutputMgr::OutputMgr(
     defaultPrintParameters_.format_ = 
       defaultPrintParameters_.asciiRaw_ ? Format::RAW_ASCII : Format::RAW;
   }
-  else if (command_line.argExists("-o"))
+
+  if (command_line.argExists("-o"))
   {
     defaultPrintParameters_.dashoRequested_ = true;
     defaultPrintParameters_.dashoFilename_ = command_line.getArgumentValue("-o");
@@ -587,32 +587,22 @@ void OutputMgr::earlyPrepareOutput(
     if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 103)))
       Outputter::enableEmbeddedSamplingOutput(comm, *this, analysis_mode);
 
-    if (!defaultPrintParameters_.dashoRequested_)
-    {
-      // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
-      // output is not made.
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
-        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+    if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+      Outputter::enableTransientOutput(comm, *this, analysis_mode);
 
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
-        Outputter::enableDCOutput(comm, *this, analysis_mode);
-    }
+    if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+      Outputter::enableDCOutput(comm, *this, analysis_mode);
   }
   else if (enablePCEFlag_)
   {
     if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 104)))
       Outputter::enablePCEOutput(comm, *this, analysis_mode);
 
-    if (!defaultPrintParameters_.dashoRequested_)
-    {
-      // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
-      // output is not made.
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
-        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+    if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+      Outputter::enableTransientOutput(comm, *this, analysis_mode);
 
-      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
-        Outputter::enableDCOutput(comm, *this, analysis_mode);
-    }
+    if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+      Outputter::enableDCOutput(comm, *this, analysis_mode);
   }
   else
   {
@@ -646,12 +636,7 @@ void OutputMgr::earlyPrepareOutput(
       case Analysis::ANP_MODE_AC:
         if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_AC))
         {
-          // if -o was requested then either SPARAM or AC output is made
-          // depending on whether a .LIN analysis is being done, or not
-          if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
-          {
-            Outputter::enableACOutput(comm, *this, analysis_mode);
-          }
+          Outputter::enableACOutput(comm, *this, analysis_mode);
           Outputter::enableSParamOutput(comm, *this, analysis_mode);
         }
         break;
@@ -773,24 +758,12 @@ void OutputMgr::prepareOutput(
   else if (enableEmbeddedSamplingFlag_)
   {
     addActiveOutputter(PrintType::ES, analysis_mode);
-
-    if (!defaultPrintParameters_.dashoRequested_)
-    {
-      // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
-      // output is not made.
-      addActiveOutputter(PrintType::TRAN, analysis_mode);
-    }
+    addActiveOutputter(PrintType::TRAN, analysis_mode);
   }
   else if (enablePCEFlag_)
   {
     addActiveOutputter(PrintType::PCE, analysis_mode);
-
-    if (!defaultPrintParameters_.dashoRequested_)
-    {
-      // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
-      // output is not made.
-      addActiveOutputter(PrintType::TRAN, analysis_mode);
-    }
+    addActiveOutputter(PrintType::TRAN, analysis_mode);
   }
   else
   {
@@ -823,11 +796,9 @@ void OutputMgr::prepareOutput(
         break;
 
       case Analysis::ANP_MODE_AC:
-        if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
-        {
-          addActiveOutputter(PrintType::AC, analysis_mode);
-          addActiveOutputter(PrintType::AC_IC, analysis_mode);
-        }
+        addActiveOutputter(PrintType::AC, analysis_mode);
+        addActiveOutputter(PrintType::AC_IC, analysis_mode);
+ 
         addActiveOutputter(PrintType::SPARAM, analysis_mode);
         break;
 
@@ -1600,13 +1571,13 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
   // Assemble the apropriate flavors of output variable lists based on the PRINT type
   // and format.  Notes are:
-  // 
+  //
   //   1) Certain print types cause output of columns (e.g., INDEX) that the user
   // has not explicitly requested.  This is where we add those columns to the
   // print parameters objects.
   //
   //   2) Other print types can cause the generation of multiple output files (e.g.,
-  //      frequency domain and time domain output for .PRINT AC).  This is where we 
+  //      frequency domain and time domain output for .PRINT AC).  This is where we
   //      create extra print parameters objects to handle those additional outputs.
   //
   //   3) The first if clause is the simplified processing done when the -o command line
@@ -1614,93 +1585,10 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
   // generation of "fallback print parameters) occurs based on the PrintType.
   if (print_parameters.dashoRequested_)
   {
-    // -o only produces output for .PRINT AC, .PRINT DC, .PRINT HB_FD, .PRINT NOISE and
-    // .PRINT TRAN lines.  It generates a Touchstone 2 file if a .LIN analysis is done.
-    // -o output defaults to Format::STD, with an INDEX column and space as the delimiter_.
-    print_parameters.printIndexColumn_ = true;
-    print_parameters.format_ = Format::STD;
-    if (printStepNumCol_)
-      print_parameters.printStepNumColumn_ = true;
-    print_parameters.delimiter_ = "";
-
-    // Xyce behavior changes request for output file <netlistName>.cir to 
-    // the file <netlistName>.cir.<print_parameters.defaultExtension_>
-    print_parameters.defaultExtension_=".prn";
-
-    // Reset any FILE= specified on an individual .PRINT line back to the default (blank), 
-    // so that .PRINT line concatenation still works correctly in addOutputPrintParameters()
-    print_parameters.filename_ = "";  
-
-    if (print_type == PrintType::AC)
-    {
-      PrintParameters freq_print_parameters = print_parameters;
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
-      freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-      if (freq_print_parameters.printStepNumColumn_)
-        freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
-      freq_print_parameters.expandComplexTypes_ = true;
-      addOutputPrintParameters(OutputType::AC, freq_print_parameters); 
-    }
-    else if (print_type == PrintType::ES)
-    {
-      PrintParameters es_print_parameters = print_parameters;
-      addOutputPrintParameters(OutputType::ES, es_print_parameters);
-    }
-    else if ( (print_type == PrintType::HB) || (print_type == PrintType::HB_FD) )
-    {
-      PrintParameters freq_print_parameters = print_parameters;
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
-      freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-      if (freq_print_parameters.printStepNumColumn_)
-        freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
-      freq_print_parameters.expandComplexTypes_ = true;
-      addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
-    }
-    else if (print_type == PrintType::NOISE)
-    {  
-      PrintParameters noise_print_parameters = print_parameters;
-      noise_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
-      noise_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-      if (noise_print_parameters.printStepNumColumn_)
-        noise_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
-      noise_print_parameters.expandComplexTypes_ = true;
-      std::copy(noiseVariableList_.begin(), noiseVariableList_.end(), std::back_inserter(noise_print_parameters.variableList_));    
-      addOutputPrintParameters(OutputType::NOISE, noise_print_parameters);
-    }
-    else if (print_type == PrintType::PCE)
-    {
-      PrintParameters pce_print_parameters = print_parameters;
-      addOutputPrintParameters(OutputType::PCE, pce_print_parameters);
-    }
-    else if (print_type == PrintType::SPARAM)
-    {
-      // Note: Both SPARAM and AC output print parameters are made.  The function
-      // OutputMgr::prepareOutput() will then control which outputter is actually used,
-      // for the -o case, based on whether a .LIN analysis is being done, or not.
-      PrintParameters sparam_print_parameters = print_parameters;
-      sparam_print_parameters.format_=Format::TS2;
-      addOutputPrintParameters(OutputType::SPARAM, sparam_print_parameters);
-    }
-    else if (print_type == PrintType::TRAN)
-    {
-      // OutputType::ES takes precedence over OutputType::TRAN.  This will be
-      // enforced in OutputMgr:prepareOutput()
-      addOutputPrintParameters(OutputType::TRAN, print_parameters);
-    }
-    else if (print_type == PrintType::DC)
-    {
-      // OutputType::ES takes precedence over OutputType::DC.  This will be
-      // enforced in OutputMgr:prepareOutput()
-      addOutputPrintParameters(OutputType::DC, print_parameters);
-    }
-    else
-    {
-      Report::UserWarning0() << "-o only produces output for .PRINT AC, .PRINT DC, .PRINT ES, "
-                             << ".PRINT NOISE, .PRINT PCE, .PRINT TRAN, .PRINT HB, "
-                             << ".PRINT HB_FD and .LIN lines";
-    }
+    applyDashoSettingsToPrintParameters(print_type, print_parameters);
   }
-  else if (print_type == PrintType::AC)
+
+  if (print_type == PrintType::AC)
   {
     PrintParameters freq_print_parameters = print_parameters;
     if (freq_print_parameters.format_ != Format::PROBE)
@@ -1997,7 +1885,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
     // set parameters based on FORMAT=<val> on .PRINT HB_IC line
     update_HB_IC_printParamsForPrintFormat(hb_ic_print_parameters);
-  
+
     // uncomment this if statement when FORMAT=PROBE is supported
     //if (hb_ic_print_parameters.format_ != Format::PROBE)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
@@ -2013,8 +1901,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
     // set parameters based on FORMAT=<val> on .PRINT HB_STARTUP line
     update_HB_STARTUP_printParamsForPrintFormat(hb_startup_print_parameters);
-        
-    // uncomment this if statement when FORMAT=PROBE is supported  
+
+    // uncomment this if statement when FORMAT=PROBE is supported
     // if (hb_startup_print_parameters.format_ != Format::PROBE)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_startup_print_parameters.printIndexColumn_)
@@ -2030,7 +1918,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     // set parameters based on FORMAT=<val> on .PRINT HB_TD line
     update_HB_TD_printParamsForPrintFormat(time_print_parameters);
 
-    // uncomment this if statement when FORMAT=PROBE is supported  
+    // uncomment this if statement when FORMAT=PROBE is supported
     // if (time_print_parameters.format_ != Format::PROBE)
       time_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (time_print_parameters.printIndexColumn_)
@@ -2045,8 +1933,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
     // set parameters based on FORMAT=<val> on .PRINT HB_FD line
     update_HB_FD_printParamsForPrintFormat(freq_print_parameters);
-        
-    // uncomment this if statement when FORMAT=PROBE is supported  
+
+    // uncomment this if statement when FORMAT=PROBE is supported
     // if (freq_print_parameters.format_ != Format::PROBE)
       freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (freq_print_parameters.printIndexColumn_)
@@ -2062,7 +1950,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     // set parameters based on FORMAT=<val> on .PRINT HB_IC line
     update_HB_IC_printParamsForPrintFormat(hb_ic_print_parameters);
 
-    // uncomment this if statement when FORMAT=PROBE is supported  
+    // uncomment this if statement when FORMAT=PROBE is supported
     //if (hb_ic_print_parameters.format_ != Format::PROBE)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_ic_print_parameters.printIndexColumn_)
@@ -2078,7 +1966,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     // set parameters based on FORMAT=<val> on .PRINT HB_STARTUP line
     update_HB_STARTUP_printParamsForPrintFormat(hb_startup_print_parameters);
 
-    // uncomment this if statement when FORMAT=PROBE is supported    
+    // uncomment this if statement when FORMAT=PROBE is supported
     //if (hb_startup_print_parameters.format_ != Format::PROBE)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_startup_print_parameters.printIndexColumn_)
@@ -2138,7 +2026,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
     // set parameters based on FORMAT=<val> on .PRINT MPDE_STARTUP line
     update_MPDE_STARTUP_printParamsForPrintFormat(mpde_startup_print_parameters);
-      
+
     // uncomment this if statement when FORMAT=PROBE is supported 
     //if (mpde_startup_print_parameters.format_ != Format::PROBE)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
@@ -2153,7 +2041,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     PrintParameters mpde_ic_print_parameters = print_parameters;
     // set parameters based on FORMAT=<val> on .PRINT MPDE_IC line
     update_MPDE_IC_printParamsForPrintFormat(mpde_ic_print_parameters);
-      
+
     // uncomment this if statement when FORMAT=PROBE is supported 
     //if (mpde_ic_print_parameters.format_ != Format::PROBE)
       mpde_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
@@ -2168,7 +2056,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     PrintParameters mpde_startup_print_parameters = print_parameters;
     // set parameters based on FORMAT=<val> on .PRINT MPDE_STARTUP line
     update_MPDE_STARTUP_printParamsForPrintFormat(mpde_startup_print_parameters);
-      
+
     // uncomment this if statement when FORMAT=PROBE is supported 
     //if (mpde_startup_print_parameters.format_ != Format::PROBE)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
@@ -2282,6 +2170,49 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
   pushActiveOutputters();
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgr::applyDashoSettingsToPrintParameters
+// Purpose       : apply the settings for -o output to the PrintParameters
+// Special Notes : -o generates a Touchstone 2 file if a .LIN analysis is done.
+//                 Otherwise, the -o output defaults to Format::STD, with an
+//                 INDEX column and space as the delimiter_.  The file extension
+//                 is then the "default" for the requested PrintType.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 6/16/2021
+//-----------------------------------------------------------------------------
+void OutputMgr::applyDashoSettingsToPrintParameters(PrintType::PrintType print_type,
+                                                    PrintParameters &print_parameters)
+{
+  // Reset any FILE= specified on an individual .PRINT line back to the default (blank),
+  // so that .PRINT line concatenation still works correctly in addOutputPrintParameters()
+  print_parameters.filename_ = "";
+
+  if (print_type == PrintType::SPARAM)
+  {
+    print_parameters.format_=Format::TS2;
+  }
+  else
+  {
+    print_parameters.printIndexColumn_ = true;
+    print_parameters.format_ = Format::STD;
+    if (printStepNumCol_)
+      print_parameters.printStepNumColumn_ = true;
+    print_parameters.delimiter_ = "";
+
+    // the default extension is set for the other print types later in the
+    // parsing sequence in ParsePrintBlock
+    if  ( (print_type == PrintType::TRAN) || (print_type == PrintType::DC))
+      print_parameters.defaultExtension_=".prn";
+    else if (print_type == PrintType::AC)
+      print_parameters.defaultExtension_=".FD.prn";
+  }
+
+  // Reset any FILE= specified on an individual .PRINT line back to the default (blank),
+  // so that .PRINT line concatenation still works correctly in addOutputPrintParameters()
+  print_parameters.filename_ = "";
 }
 
 //-----------------------------------------------------------------------------

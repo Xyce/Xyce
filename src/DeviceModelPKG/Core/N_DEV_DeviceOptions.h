@@ -81,6 +81,7 @@ public:
   double        defw;                                 ///< MOS channel width.
   bool          modelBinningFlag;
   double        lengthScale;
+  bool          lengthScaleGiven;
 
   double        abstol;                               ///< absolute current error tolerance.
   double        reltol;                               ///< relative current error tolerance.

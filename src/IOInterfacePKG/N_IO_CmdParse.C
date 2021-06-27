@@ -158,7 +158,7 @@ void usage(std::ostream &os)
      << "  -quiet                      suppress some of the simulation-progress messages sent to stdout\n"
      << "  -jacobian_test              jacobian matrix diagnostic\n"
      << "  -delim <TAB|COMMA|string>   set the output file field delimiter\n"
-     << "  -o <path>                   place the results into <path>\n"
+     << "  -o <basename>               <basename> for the output file(s)\n"
      << "  -l <path>                   place the log output into <path>, \"cout\" to log to stdout\n"
      << "  -per-processor              create log file for each procesor, add .<n>.<r> to log path\n"
      << "  -remeasure [existing Xyce output file] recompute .measure() results with existing data\n"

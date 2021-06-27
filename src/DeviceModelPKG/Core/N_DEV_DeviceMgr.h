@@ -166,6 +166,8 @@ public:
   DeviceInstance * addDeviceInstance(const InstanceBlock & IB);
 
   bool deleteDeviceInstance (const std::string & name);
+  void registerRemovedDevices( std::vector< std::string >& devices )
+  { removedDevices_ = devices; }
 
   int getHomotopyBlockSize() const;
 
@@ -419,6 +421,11 @@ public:
   bool setHBAnalysisParams(const Util::OptionBlock & option_block);
   bool setACAnalysisParams(const Util::OptionBlock & option_block);
   bool setNOISEAnalysisParams(const Util::OptionBlock & option_block);
+
+  bool setSamplingParams (const Util::OptionBlock & option_block);
+  bool setEmbeddedSamplingParams (const Util::OptionBlock & option_block);
+  bool setPCEParams (const Util::OptionBlock & option_block);
+
   bool setSensitivityOptions (const Util::OptionBlock & option_block);
   bool setParserOptions (const Util::OptionBlock & option_block);
 
@@ -610,6 +617,8 @@ private:
   std::vector<DeviceInstance *> pauseBPDeviceVector_; /// < devices with pause breakpoints
   std::vector<DeviceInstance *> nonpauseBPDeviceVector_; /// < devices w/o pause BP(no BP, or only simple BP)
 
+  std::vector< std::string >    removedDevices_;
+
   // this is used to store the contents of the independentSourceVector_
   // during an mpde initialization where we'll remove slow sources from
   // the that vector so that they don't get updated
@@ -639,6 +648,10 @@ private:
   // analysis options  (for now bools that say what type of "." line was present in netlist)
   bool                          ACSpecified_;
   bool                          HBSpecified_;
+
+  bool                          SAMPLINGSpecified_;
+  bool                          ESSpecified_;
+  bool                          PCESpecified_;
 
   // used to enable lead-current calcuations for all devices.  This is set, during
   // netlist importation, when I(*), P(*) or W(*) appears on any .PRINT line.

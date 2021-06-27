@@ -82,6 +82,7 @@ DeviceOptions::DeviceOptions()
     defw  (1.0e-4),  // MOS channel width.
     modelBinningFlag(false),
     lengthScale(1.0),
+    lengthScaleGiven(false),
     abstol(1.0e-12), // absolute current error tol.
     reltol(1.0e-4),  // relative current error tol.
     chgtol(1.0e-12), // absolute charge error tol.
@@ -371,6 +372,7 @@ bool DeviceOptions::setParserOptions(const Util::OptionBlock & option_block)
     else if (tag == "SCALE")
     {
       lengthScale = (*it).getImmutableValue<double>();
+      lengthScaleGiven = true;
     }
   }
   return true;

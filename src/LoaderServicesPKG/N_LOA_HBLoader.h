@@ -201,6 +201,11 @@ public:
     matrixFreeFlag_ = matrixFreeFlag;
   }
  
+  void setLoadTimeBFlag(bool loadTimeB )
+  {
+    loadTimeB_ = loadTimeB;
+  }
+
   // xf = D*P*xt, xf has the same block format as (P*xt), computation limited to input IDs.
   void permutedFFT(const Linear::BlockVector & xt, Linear::BlockVector * xf, std::vector<int>* lids = 0 ); 
   // xf = D*P*xt, xf has the same block format as (P*xt), computation limited to input IDs.
@@ -262,6 +267,8 @@ private:
  
   const int refID_;
   const bool hbOsc_;
+
+  bool loadTimeB_;
 
   // Matrix free flag, operator is being applied not loaded
   bool matrixFreeFlag_;

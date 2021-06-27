@@ -601,7 +601,9 @@ public:
       sensPtr_(0),
       acSensPtr_(0),
       matSensPtr_(0),
-      autoConvertTemp_(true)
+      autoConvertTemp_(true),
+      lengthScalingAllowed_(false),
+      areaScalingAllowed_(false) 
   {}
 
   ///
@@ -1061,6 +1063,22 @@ public:
     return *this;
   }
 
+  Descriptor &setLengthScaling(bool value)
+  {
+    lengthScalingAllowed_ = value;
+    return *this;
+  }
+
+  bool getLengthScaling() const { return lengthScalingAllowed_; } 
+
+  Descriptor &setAreaScaling(bool value)
+  {
+    areaScalingAllowed_ = value;
+    return *this;
+  }
+
+  bool getAreaScaling() const { return areaScalingAllowed_; }
+
   ///
   /// returns a boolean to indicate if analytic sensitivities are available w.r.t. this parameter.
   //
@@ -1200,6 +1218,8 @@ private:
   const baseACSensitivity *           acSensPtr_;             ///< pointer to the AC sensitivity functor
   const baseMatrixSensitivity *       matSensPtr_;            ///< pointer to the matrix sensitivity functor
   bool                                autoConvertTemp_;  ///< Flag indicating that temperature should be converted to/from Kelvin
+  bool                                lengthScalingAllowed_;  ///< Flag indicating that length scaling should be applied (if .options parser scale is set by netlist)
+  bool                                areaScalingAllowed_;  ///< Flag indicating that area scaling should be applied (if .options parser scale is set by netlist)
 };
 
 ///

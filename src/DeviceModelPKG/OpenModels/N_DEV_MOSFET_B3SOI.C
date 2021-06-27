@@ -3447,14 +3447,14 @@ std::vector< std::vector< std::vector<int> > > Instance::jacMap2_v;
 
 // Class Instance
 //-----------------------------------------------------------------------------
-// Function      : Instance::processParams
+// Function      : Instance::applyScale
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Dave Shirley
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-bool Instance::processParams ()
+bool Instance::applyScale ()
 {
   // apply scale
   if (getDeviceOptions().lengthScale != 1.0)
@@ -3466,7 +3466,19 @@ bool Instance::processParams ()
     if (given("PD")) { drainPerimeter *= getDeviceOptions().lengthScale; } 
     if (given("PS")) { sourcePerimeter *= getDeviceOptions().lengthScale; }
   }
+  return true;
+}
 
+//-----------------------------------------------------------------------------
+// Function      : Instance::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Dave Shirley
+// Creation Date : 05/20/04
+//-----------------------------------------------------------------------------
+bool Instance::processParams ()
+{
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
     temp = getDeviceOptions().temp.getImmutableValue<double>();
@@ -4423,6 +4435,9 @@ Instance::Instance(
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
+
+  // if options scale has been set in the netlist, apply it.
+  applyScale ();
 
   // calculate dependent (ie computed) params and check for errors:
   processParams ();

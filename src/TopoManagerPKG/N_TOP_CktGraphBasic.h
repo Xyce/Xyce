@@ -131,8 +131,8 @@ public:
 
   // supernode given nodes
   CktNode * replaceNode( const NodeID nodeToBeReplaced, const NodeID nodeToKeep );
-  void removeRedundantDevices(std::vector< CktNode * > & removedDevices);
-  void removeNodes( const std::vector< NodeID > nodesToBeRemoved, std::vector< CktNode * > & removedNodes );
+  void removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, std::vector< CktNode * > & removedDevices);
+  void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes );
 
 private:
   Graph                 cktgph_;                ///< Circuit graph pair = <id, node type>, CktNode = data

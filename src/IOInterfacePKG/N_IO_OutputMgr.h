@@ -644,6 +644,7 @@ public:
 private:
   void steppingComplete();
 
+  void applyDashoSettingsToPrintParameters(PrintType::PrintType print_type, PrintParameters &print_parameters);
   void update_HB_FD_printParamsForPrintFormat(PrintParameters &freq_print_parameters);
   void update_HB_TD_printParamsForPrintFormat(PrintParameters &time_print_parameters);
   void update_HB_IC_printParamsForPrintFormat(PrintParameters &hb_ic_print_parameters);

@@ -43,6 +43,7 @@ namespace Xyce {
 namespace Util {
 
   bool checkIfValidFile(std::string netlist_filename);
+  bool checkIfValidDashoFileName(std::string dashoFilename);
 
 } // namespace Util
 } // namespace Xyce
