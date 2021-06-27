@@ -186,7 +186,6 @@ CircuitBlock::CircuitBlock(
   circuitContext_(cc),
   metadata_(md),
   externalNetlistParams_(externalNetlistParams),
-  expressionGroup_(group),
   netlistSave_(true),
   morFlag_(false),
   devProcessedNumber_(0),
@@ -206,7 +205,8 @@ CircuitBlock::CircuitBlock(
   model_binning_flag_(false),
   lengthScale_(1.0),
   topology_(topology),
-  deviceManager_(device_manager)
+  deviceManager_(device_manager),
+  expressionGroup_(group)
 {
   // Get path to top level netlist.  This may be absolute or relative to the
   // execution directory.  It will be empty if the top level netlist is in
