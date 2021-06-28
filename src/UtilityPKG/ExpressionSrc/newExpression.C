@@ -104,6 +104,13 @@ namespace Util {
 // OR is || and ^ is a synonym for exponentiation.  The default is false.
 bool useHspiceMath;
 
+// This value is derived from the -hspice-ext command line option.  It is
+// set, based on that command line option, in the constructor for the
+// IO::ParsingMgr class.  If set to true, then the separator is a period 
+// character.  If false, the it is a colon.
+bool useHspiceSeparator;
+char separator;
+
 //-------------------------------------------------------------------------------
 // Function      : newExpression::lexAndParseExpression
 // Purpose       : Lexes and Parses the expression string

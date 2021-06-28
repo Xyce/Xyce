@@ -69,7 +69,8 @@ struct DistToolFactory
     CircuitBlock &                           circuitBlock,
     std::map<std::string,FileSSFPair>      & ssfMap,
     std::map<std::string, IncludeFileInfo> & iflMap,
-    const std::vector< std::pair< std::string, std::string> > & externalNetlistParams);
+    const std::vector< std::pair< std::string, std::string> > & externalNetlistParams,
+    const ParsingMgr                       & parsing_manager);
 };
 
 } // namespace IO 

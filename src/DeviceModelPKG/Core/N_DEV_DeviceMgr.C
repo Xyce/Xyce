@@ -75,6 +75,7 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OpBuilder.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_HspiceBools.h>
 
 #include <Teuchos_RCP.hpp>
 #include <expressionGroup.h>
@@ -2187,7 +2188,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         std::string entityName = (*(modelVector_[ii])).getName();
         for (int jj=0;jj<depVec.size();jj++) 
         {
-          std::string fullName = entityName + ":" + depVec[jj].name;
+          std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
           populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams ); 
         }
       }
@@ -2283,7 +2284,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         const std::string entityName = instName.getEncodedName(); // ERK. Check this!
         for (int jj=0;jj<depVec.size();jj++) 
         { 
-          std::string fullName = entityName + ":" + depVec[jj].name;
+          std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
           populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams ); 
         }
       }

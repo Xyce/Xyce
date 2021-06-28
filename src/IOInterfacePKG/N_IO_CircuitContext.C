@@ -50,6 +50,7 @@
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_HspiceBools.h>
 
 #include <expressionGroup.h>
 
@@ -2001,7 +2002,7 @@ bool CircuitContext::findModel(
       if (prefix == "")
         modelPrefix = "";
       else
-        modelPrefix = prefix + ":";
+        modelPrefix = prefix + Xyce::Util::separator;
     }
 
     return true;
@@ -2276,7 +2277,7 @@ bool CircuitContext::findBinnedModel(
       if (prefix == "")
         modelPrefix = "";
       else
-        modelPrefix = prefix + ":";
+        modelPrefix = prefix + Xyce::Util::separator;
     }
 
     return true;

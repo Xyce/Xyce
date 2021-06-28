@@ -67,7 +67,9 @@ public:
     Parallel::Communicator *                 pdsCommPtr,
     CircuitBlock &                           circuit_block,
     std::map<std::string,FileSSFPair>      & ssfMap, 
-    std::map<std::string, IncludeFileInfo> & iflMap);
+    std::map<std::string, IncludeFileInfo> & iflMap,
+    const ParsingMgr                       & parsing_manager
+    );
 
   virtual ~DistToolDevBalanced() {}
 

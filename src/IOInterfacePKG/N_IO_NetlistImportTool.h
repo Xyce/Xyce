@@ -219,7 +219,7 @@ public:
 public:
 
 private:
-  const ParsingMgr &                    parsing_manager;
+  const ParsingMgr &                    parsingMgr_;
   unordered_set<std::string>            nodeNames_;
   std::vector<std::string>              stepParams_;
   std::vector<std::string>              samplingParams_;

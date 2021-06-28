@@ -49,6 +49,7 @@
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_OpBuilder.h>
 #include <N_UTL_Param.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Device {
@@ -289,21 +290,21 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
       {
         std::string param_name = Util::paramNameFromFullParamName(param_tag);
         if (device_entity->findParam(param_name))
-	{
+        {
           // the typical case of a fully-specified <deviceName:paramName> pair like R1:R
           new_op = new DeviceEntityParameterOp(param_tag, *device_entity, param_name);
         }
         else
-	{
+        {
           // The less-common case of a device, such as the R device, that has
           // a default instance parameter.  If the device has a default parameter
           // then try to use it to make the op.
-	  std::string default_param_name = device_entity->getDefaultParamName();
-	  if ( !(default_param_name.empty()) && deviceManager_.getDeviceEntity(param_tag + ":" + default_param_name))
+          std::string default_param_name = device_entity->getDefaultParamName();
+          if ( !(default_param_name.empty()) && deviceManager_.getDeviceEntity(param_tag + Xyce::Util::separator + default_param_name))
           {
-	    new_op = new DeviceEntityParameterOp(param_tag, *device_entity, default_param_name);
-	  }
-	}
+            new_op = new DeviceEntityParameterOp(param_tag, *device_entity, default_param_name);
+          }
+        }
       }
     }
 

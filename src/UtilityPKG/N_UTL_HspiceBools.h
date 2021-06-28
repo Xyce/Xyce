@@ -32,7 +32,8 @@ namespace Util {
 // IO::ParsingMgr class.  If set to true then logical AND is &&, logical
 // OR is || and ^ is a synonym for exponentiation.
 extern bool useHspiceMath;
-
+extern bool useHspiceSeparator;
+extern char separator;
 }
 }
 

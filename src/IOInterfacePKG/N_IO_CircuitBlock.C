@@ -62,6 +62,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_HspiceBools.h>
 #include <N_PDS_PackTraits.h>
 
 #include <N_IO_fwd.h>
@@ -902,7 +903,7 @@ void CircuitBlock::addTableData( DeviceBlock & device )
   if (netlistSave_)
   {
     if (DEBUG_IO) {
-      int lastColon = dName.find_last_of( ':' );
+      int lastColon = dName.find_last_of( Xyce::Util::separator );
       Xyce::dout() << "Inserting device: " << dName
                    << " locally named " <<  dName.substr( lastColon + 1 )
                    << " from file: " << device.getDeviceData().getDevBlock().getNetlistLocation().getFilename()
@@ -949,7 +950,7 @@ void CircuitBlock::addModel( const ParameterBlock * modelPtr, std::string const&
   std::string modelName(modelPtr->getName());
   if (modelPrefix != "")
   {
-    modelName = modelPrefix + ":" + modelName;
+    modelName = modelPrefix + Xyce::Util::separator + modelName;
   }
 
   std::pair<unordered_set<std::string>::iterator,bool> ret = modelNames_.insert(modelName);

@@ -56,6 +56,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Misc.h>
+#include <N_UTL_HspiceBools.h>
 
 #include <Teuchos_Utils.hpp>
 
@@ -741,7 +742,7 @@ void SerialLSUtil::extractAllGIDsFromTopology()
       {
         CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it);
         const std::string & id = (*it)->get_id();
-        std::string::size_type col = id.find_first_of(':');
+        std::string::size_type col = id.find_first_of(Xyce::Util::separator);
 
         if ( id[col+1] == 'V' || id[col+1] == 'v' )
         {

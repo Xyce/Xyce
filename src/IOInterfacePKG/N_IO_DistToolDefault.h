@@ -50,6 +50,7 @@
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_DistributionTool.h>
 #include <N_IO_DistToolBase.h>
+#include <N_IO_ParsingMgr.h>
 
 namespace Xyce {
 namespace IO {
@@ -67,7 +68,9 @@ public:
     Parallel::Communicator *                 pdsCommPtr,
     CircuitBlock &                           circuit_block,
     std::map<std::string,FileSSFPair>      & ssfMap, 
-    std::map<std::string, IncludeFileInfo> & iflMap);
+    std::map<std::string, IncludeFileInfo> & iflMap,
+    const ParsingMgr                       & parsing_manager
+    );
 
   virtual ~DistToolDefault() {}
 

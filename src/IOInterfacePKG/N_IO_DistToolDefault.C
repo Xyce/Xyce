@@ -68,8 +68,10 @@ DistToolDefault::DistToolDefault(
   Parallel::Communicator *                 pdsCommPtr,
   CircuitBlock &                           circuit_block,
   std::map<std::string,FileSSFPair>      & ssfMap,
-  std::map<std::string, IncludeFileInfo> & iflMap)
-  : DistToolBase(pdsCommPtr, circuit_block, ssfMap),
+  std::map<std::string, IncludeFileInfo> & iflMap,
+  const ParsingMgr                       & parsing_manager
+  )
+  : DistToolBase(pdsCommPtr, circuit_block, ssfMap,parsing_manager),
     currProc_(0),
     iflMap_(iflMap),
     procDeviceCount_(0),
@@ -936,7 +938,7 @@ bool DistToolDefault::expandSubcircuitInstance(
   if ( circuitContext_->getPrefix() != "" )
   {
     subcircuitPrefix = circuitContext_->getPrefix() +
-      ":" + subcircuitInstance.getInstanceName().getEncodedName();
+      parsingMgr_.getSeparator() + subcircuitInstance.getInstanceName().getEncodedName();
   }
   else
   {

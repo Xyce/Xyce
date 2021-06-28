@@ -53,6 +53,7 @@
 #include <N_UTL_Param.h>
 #include <N_UTL_DeviceNameConverters.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace IO {
@@ -990,8 +991,8 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
       // so we don't have to duplicate solution vars(branch currents) in the
       // store vector, look for each type.
       bool param_func = std::find(func_names, func_names + sizeof(func_names)/sizeof(func_names[0]), param_tag) != func_names + sizeof(func_names)/sizeof(func_names[0]);
-      std::string store_name = modifiedName + ":DEV_" + (param_func ? "I" : param_tag);  // if it is in the state/store vec.
-      std::string leadCurrent_name = modifiedName + ":BRANCH_D";
+      std::string store_name = modifiedName + Xyce::Util::separator + "DEV_" + (param_func ? "I" : param_tag);  // if it is in the state/store vec.
+      std::string leadCurrent_name = modifiedName + Xyce::Util::separator + "BRANCH_D";
       if (!param_func && (param_tag.length() > 1) )
       {
         leadCurrent_name += param_tag[1];
@@ -1005,7 +1006,7 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
       {
         if (space == 4 && store_name.substr(0, 4) == "YPDE")
         {
-          store_name.replace(4, 1, ":");
+          store_name.replace(4, 1, std::string(1,Xyce::Util::separator));
         }
       }
 
@@ -1277,7 +1278,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
       // so we don't have to duplicate solution vars(branch currents) in the
       // store vector, look for each type.
       bool param_func = std::find(func_names, func_names + sizeof(func_names)/sizeof(func_names[0]), "I") != func_names + sizeof(func_names)/sizeof(func_names[0]);
-      std::string store_name = modifiedName + ":BRANCH_D" ; // + (param_func ? "I" : "I");  // if it is in the state/store vec.
+      std::string store_name = modifiedName + Xyce::Util::separator + "BRANCH_D" ; // + (param_func ? "I" : "I");  // if it is in the state/store vec.
       // this if block allows for spaces in YPDE names as in I1(YPDE NAME)
       // we try to find devices based on store_name in the following blocks of code,
       // so do this modification now.
@@ -1286,7 +1287,7 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
       {
         if (space == 4 && store_name.substr(0, 4) == "YPDE")
         {
-          store_name.replace(4, 1, ":");
+          store_name.replace(4, 1, std::string(1,Xyce::Util::separator));
         }
       }
 

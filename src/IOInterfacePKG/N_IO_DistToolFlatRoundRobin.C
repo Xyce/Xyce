@@ -69,8 +69,10 @@ DistToolFlatRoundRobin::DistToolFlatRoundRobin(
   CircuitBlock &                           circuit_block,
   std::map<std::string,FileSSFPair>      & ssfMap,
   std::map<std::string, IncludeFileInfo> & iflMap,
-  const std::vector< std::pair< std::string, std::string> > & externalNetlistParams)
-  : DistToolBase(pdsCommPtr, circuit_block, ssfMap),
+  const std::vector< std::pair< std::string, std::string> > & externalNetlistParams,
+  const ParsingMgr                       & parsing_manager
+  )
+  : DistToolBase(pdsCommPtr, circuit_block, ssfMap, parsing_manager),
     iflMap_(iflMap),
     procDeviceCount_(0),
     blockSize_(0),
