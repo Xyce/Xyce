@@ -44,6 +44,7 @@
 
 #include <N_UTL_DeviceNameConverters.h>
 #include <N_UTL_HspiceBools.h>
+#include <algorithm>
 
 namespace Xyce {
 namespace Util {
