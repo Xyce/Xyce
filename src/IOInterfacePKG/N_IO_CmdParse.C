@@ -39,8 +39,10 @@
 #include <sstream>
 #include <cctype>
 #include <cstring>
+#include <regex>
 
 #include <N_IO_CmdParse.h>
+#include <N_IO_PrintTypes.h>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_Print.h>
@@ -125,6 +127,42 @@ std::string makeOutputFileNameWithStepNum(
   return makeOutputFileName(command_line, suffix + converterBuff.str());
 }
 
+//-----------------------------------------------------------------------------
+// Function      : removeExtensionsFromDashoFilename
+// Purpose       : removes various "well-known .PRINT line extensions" from
+//                the -o filename requested on the command line.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 06/28/2021
+//-----------------------------------------------------------------------------
+std::string removeExtensionsFromDashoFilename(std::string dashoFilename)
+{
+  std::regex e;
+
+  for (int i =0; i<sizeof(dasho_print_extensions_regex)/sizeof(dasho_print_extensions_regex[0]); i++)
+  {
+    std::string regexString(dasho_print_extensions_regex[i]);
+
+    // assume that at least one character must come before the "well-known extension".
+    try
+    {
+      e.assign("(.+)" + regexString);
+    }
+    catch (std::regex_error& regexErr)
+    {
+      Report::DevelFatal().in("removeExtensionsFromDashoFilename") <<
+      "Error converting " << "(.+)" + regexString << " into std::regex object";
+    }
+
+    if (std::regex_match(dashoFilename, e))
+    {
+      dashoFilename = std::regex_replace(dashoFilename, e, "$1");
+      break;
+    }
+  }
+
+  return dashoFilename;
+}
 //-----------------------------------------------------------------------------
 // Function      : usage
 // Purpose       :
@@ -505,6 +543,29 @@ CmdParse::parseCommandLine(
           else
           {
             stArgs[arg] = argv[i];
+          }
+        }
+        else if (arg == "-o")
+        {
+          ++i;
+
+          if ( i >= argc )
+          {
+            // Unexectedly ran out of arguments on the command line.
+            Xyce::lout() << "Did not find required value for option " << arg << std::endl;
+            parse_state = ERROR;
+            continue;
+          }
+          else if (argv[i][0] == '-')
+          {
+            // Error if we ran into another option here.
+            Xyce::lout() << "Expected option value, but found option " << argv[i] << std::endl;
+            parse_state = ERROR;
+            continue;
+          }
+          else
+          {
+            stArgs[arg] = removeExtensionsFromDashoFilename(argv[i]);
           }
         }
         else if (arg == "-param" || 

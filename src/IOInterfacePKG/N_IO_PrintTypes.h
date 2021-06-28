@@ -39,6 +39,19 @@
 namespace Xyce {
 namespace IO {
 
+// Regex strings used in trimming "well-known" extensions for various
+// .PRINT lines from the end of the requested -o file name.  Ordering
+// assumes "longest suffix match".  So, the ".HB.FD.prn" element must
+// come before the ".FD.prn" element.
+static const char *dasho_print_extensions_regex[] =
+  {"(\\.HB\\.FD\\.prn)",   // default extension for .PRINT HB
+   "(\\.FD\\.prn)",        // .PRINT AC
+   "(\\.NOISE\\.prn)",     // .PRINT NOISE
+   "(\\.ES\\.prn)",        // .PRINT ES
+   "(\\.PCE\\.prn)",       // .PRINT PCE
+   "(\\.prn)",             // .PRINT TRAN and .PRINT DC
+   "(\\.s[0-9]+p)"};       // .LIN analysis (Touchstone2 output file)
+
 namespace PrintType {
   enum PrintType {NONE, DC, TRAN, AC, AC_IC, HB, HB_TD, HB_FD, HB_IC, HB_STARTUP, HOMOTOPY, MPDE, MPDE_IC, MPDE_STARTUP, RAW_OVERRIDE, SENS, TRANADJOINT, NOISE, SPARAM, ES, PCE};
 }

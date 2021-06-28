@@ -65,6 +65,8 @@ std::string makeOutputFileNameWithStepNum(
   const std::string&    suffix,
   int                   stepNumber);
 
+std::string removeExtensionsFromDashoFilename(std::string dashoFilename);
+
 //-----------------------------------------------------------------------------
 // Class         : CmdParse
 // Purpose       :
