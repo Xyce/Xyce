@@ -84,7 +84,6 @@ DistToolBase::DistToolBase(
     circuitBlock_(circuit_block),
     circuitContext_(circuit_block.getCircuitContextPtr()),
     ssfMap_(ssfMap),
-    parsingMgr_(parsing_manager),
     options_(circuit_block.getOptionsTable()),
     netlistFilename_(),
     device_(*circuit_block.getCircuitContextPtr(), circuit_block.getMetadata()),
@@ -93,6 +92,7 @@ DistToolBase::DistToolBase(
     currentCircuitPtr_(&circuit_block),
     preprocessFilter_(PreprocessType::NUM_PREPROCESS, false),
     ssfPtr_(0),
+    parsingMgr_(parsing_manager),
     remove_any_redundant_(false)
 {
 }
