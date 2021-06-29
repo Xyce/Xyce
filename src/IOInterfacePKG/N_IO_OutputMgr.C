@@ -2209,10 +2209,6 @@ void OutputMgr::applyDashoSettingsToPrintParameters(PrintType::PrintType print_t
     else if (print_type == PrintType::AC)
       print_parameters.defaultExtension_=".FD.prn";
   }
-
-  // Reset any FILE= specified on an individual .PRINT line back to the default (blank),
-  // so that .PRINT line concatenation still works correctly in addOutputPrintParameters()
-  print_parameters.filename_ = "";
 }
 
 //-----------------------------------------------------------------------------
