@@ -2002,7 +2002,7 @@ bool CircuitContext::findModel(
       if (prefix == "")
         modelPrefix = "";
       else
-        modelPrefix = prefix + Xyce::Util::separator;
+        modelPrefix = prefix;
     }
 
     return true;
