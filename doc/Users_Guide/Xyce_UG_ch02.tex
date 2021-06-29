@@ -112,11 +112,13 @@ to log output to a file named \texttt{sample.log} \index{output!log file}type:
 \end{vquote}
 
 The next example runs parallel \Xyce{} on four processors and places
-the results into a comma separated value file named \index{output!comma
-separated value}\index{output!specifying file name}\texttt{results.csv}
-(assuming a source code install):
+the results into a set of files with the ``basename'' of \texttt{results}
+\index{output!specifying file name}.  So, for example, the output from any
+\texttt{.PRINT TRAN} and/or \texttt{.MEASURE TRAN} lines in the netlist
+would be placed into the files \texttt{results.prn} and \texttt{results.mt0},
+respectively (assuming a source code install):
 \begin{vquote}
-  mpirun -np 4 Xyce -delim COMMA -o results.csv <netlist filename>
+  mpirun -np 4 Xyce -o results <netlist filename>
 \end{vquote}
 
 While \Xyce{} is running, simulation progress is output to the

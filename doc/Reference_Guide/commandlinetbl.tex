@@ -53,9 +53,11 @@ Set the output file field delimiter. &
 - \\ \hline
 
 -o &
-Place the results into specified file. &
-\verb+-o  <file>+ &
-Results output file name based on netlist file name. \\ \hline
+Place the output result(s) into file(s) with the specified basename
+and the appropriate extension (e.g., \verb+<basename>.prn+ or 
+\verb+<basename>.mt0+). &
+\verb+-o  <basename>+ &
+output file name(s) based on netlist file name. \\ \hline
 
 -l &
 Place the log output into specified file. &
@@ -76,12 +78,6 @@ ASCII rawfiles. &
 
 \verb+-a+
 &
-Default rawfile is binary. \\ \hline
-
--a &
-Use without \verb+-r+ to output a readable (ASCII) rawfile
-when FORMAT=RAW was used on a .PRINT line. &
-\verb+-a+ &
 Default rawfile is binary. \\ \hline
 
 -nox &

@@ -35,6 +35,15 @@ Prints the version banner and exits. &
 \verb+-v+ &
 - \\ \hline
 
+-license &
+Prints the license text and exits. &
+\verb+-license+ &
+- \\ \hline
+
+-capabilities &
+Prints a list of compiled-in options and exits. &
+\verb+-capabilities+ &
+- \\ \hline
 
 -delim &
 Set the output file field delimiter. &
@@ -44,19 +53,21 @@ Set the output file field delimiter. &
 - \\ \hline
 
 -o &
-Place the results into specified file. &
-\verb+-o  <file>+ &
-- \\ \hline
+Place the output result(s) into file(s) with the specified basename
+and the appropriate extension (e.g., \verb+<basename>.prn+ or 
+\verb+<basename>.mt0+). &
+\verb+-o  <basename>+ &
+output file name(s) based on netlist file name. \\ \hline
 
 -l &
 Place the log output into specified file. &
 \verb+-l  <file>+ &
-- \\ \hline
+Log output sent to standard out. \\ \hline
 
 -r &
 Output a binary rawfile. &
 \verb+-r  <file>+ &
-- \\ \hline
+No rawfile written. \\ \hline
 
 -a &
 Use with \verb+-r+ to output a readable (ASCII) rawfile.
@@ -66,7 +77,7 @@ ASCII rawfiles. &
 \verb+-r  <file> -a+
 
 \verb+-a+ &
-- \\ \hline
+Default rawfile is binary. \\ \hline
 
 -nox &
 Use the NOX nonlinear solver. &
@@ -85,6 +96,11 @@ klu(serial) and aztecoo(parallel) \\ \hline
 -param &
 Print a terse summary of model parameters, device parameters and default values. &
 \verb+-param+ &
+- \\ \hline
+
+-remeasure &
+Recompute .measure and/or .fft results with existing data. &
+\verb+-remeasure+ &
 - \\ \hline
 
 -syntax &
