@@ -1286,7 +1286,7 @@ bool HB::mapFreqs_()
   {
     mappedFreqs_[i] = numFreqs_[i-1] * mappedFreqs_[i-1];
 
-    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+//    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
     
   }
 
@@ -1602,7 +1602,7 @@ bool HB::setFreqPointsFM_()
     numTotalFrequencies *= numFreqs_[i];
   }
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     for (int i=0; i< numAnalysisFreqs; i++)
     {
@@ -1646,7 +1646,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1654,30 +1654,9 @@ bool HB::setFreqPointsFM_()
     currfreqPoints.print(dout());
   }
 
-/*  std::sort(freqPoints_.begin(), freqPoints_.end() );
-
-//  if (DEBUG_HB)
-  {
-    for (int i=0; i< freqPoints_.size(); i++)
-      dout() << "frequency point " <<  freqPoints_[i] << std::endl;
-  }
-
-  freqPoints_.erase(std::unique(freqPoints_.begin(), freqPoints_.end() ), freqPoints_.end() );
-
-//  if (DEBUG_HB)
-  {
-    for (int i=0; i< freqPoints_.size(); i++)
-      dout() << "frequency point after erase " <<  freqPoints_[i] << std::endl;
-  }        */
-//  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
-//    posfreqPoints_.erase( posfreqPoints_.begin());
-
-//  freqPoints_ = currfreqPoints;
-
   size_ = freqPoints_.size();
 
-
-  Xyce::dout() << "size = " << size_ << std::endl;
+//  Xyce::dout() << "size = " << size_ << std::endl;
 
   return true;
 }
