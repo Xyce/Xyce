@@ -352,6 +352,13 @@ requested with \verb+-o+ is ignored.
    Xyce -o results <netlistName>
 \end{vquote}
 
+There are two limitations on \verb+-o+ output.  First, the \verb+dashoFilename+
+can not be a directory name.  Second, if the \verb+dashoFilename+ contains a
+directory path (e.g., \verb+<path>/filename+) then \verb+<path>+\ must already exist.
+\Xyce{} will not create new directories.  (Note: These two limitations also exist
+for the \verb+-r+, \verb+-l+, \verb+-namesfile+ and \verb+-rsf+ command line
+options.)
+
 \subsubsection{FILE= Qualifier on .PRINT Lines}
 The \texttt{FILE=<fileName>} qualifier on individual \texttt{.PRINT} lines is
 often a preferred option to the \verb+-o+ command line option for output file 
