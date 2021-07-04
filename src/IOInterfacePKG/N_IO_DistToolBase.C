@@ -69,7 +69,8 @@ namespace IO {
 DistToolBase::DistToolBase(
   Parallel::Communicator                 * pdsCommPtr,
   CircuitBlock                           & circuit_block,
-  std::map<std::string,FileSSFPair>      & ssfMap
+  std::map<std::string,FileSSFPair>      & ssfMap,
+  const ParsingMgr &                       parsing_manager
   )
   : pdsCommPtr_(pdsCommPtr),
     numProcs_(pdsCommPtr->numProc()),
@@ -91,6 +92,7 @@ DistToolBase::DistToolBase(
     currentCircuitPtr_(&circuit_block),
     preprocessFilter_(PreprocessType::NUM_PREPROCESS, false),
     ssfPtr_(0),
+    parsingMgr_(parsing_manager),
     remove_any_redundant_(false)
 {
 }
@@ -519,7 +521,7 @@ bool DistToolBase::getLine( TokenVector &line,
             if (tmpName == "")
               tmpName = ES1;
             else
-              tmpName = tmpName + ":" + ES1;
+              tmpName = tmpName + parsingMgr_.getSeparator() + ES1;
 
             if( mainCircuitPtr_->initCondIndex.find( tmpName ) !=
                 mainCircuitPtr_->initCondIndex.end() )
@@ -710,7 +712,7 @@ bool DistToolBase::instantiateDevice(
       {
         // The node is internal, prepend subcircuitPrefix. Note: the
         // ground node and global nodes (0 and $G*) are unchanged.
-        *nodeIter = std::string( prefix + ":" + *nodeIter );
+        *nodeIter = std::string( prefix + parsingMgr_.getSeparator() + *nodeIter );
       }
     }
   }
@@ -735,7 +737,7 @@ bool DistToolBase::instantiateDevice(
 
     // Map device name.
     if (prefix != "")
-      device.setName(prefix + ":" + device.getInstanceName().getEncodedName());
+      device.setName(prefix + parsingMgr_.getSeparator() + device.getInstanceName().getEncodedName());
 
     // If the device has a model, find it and instantiate it (if it has not
     // already been instantiated). Prepend the model name in the device and
@@ -754,7 +756,7 @@ bool DistToolBase::instantiateDevice(
         // Add the model prefix to the device's model name.
         if (modelPrefix != "")
         {
-          device.setModelName(modelPrefix + ":" + device.getModelName());
+          device.setModelName(modelPrefix + parsingMgr_.getSeparator() + device.getModelName());
         }
       }
       else
@@ -851,7 +853,7 @@ bool DistToolBase::instantiateDevice(
             else if (!(i < nodes.size() && ( names[i].substr(0,2) == "$G" ||
                      circuitContext_->globalNode(names[i]))))
             {
-              newName = prefix + ":" + names[i];
+              newName = prefix + parsingMgr_.getSeparator() + names[i];
             }
             else
             {
@@ -952,7 +954,7 @@ bool DistToolBase::handleMutualInductance( DeviceBlock & device )
   std::vector<CircuitContext::MutualInductance> & MIs = circuitContext_->getMutualInductances();
 
   std::string name = device.getInstanceName().getEncodedName();
-  std::string::size_type pos = name.find_last_of(":");
+  std::string::size_type pos = name.find_last_of(parsingMgr_.getSeparator());
   if (pos != std::string::npos)
     name = name.substr( pos + 1, name.length() - (pos + 1));
 
@@ -1001,11 +1003,11 @@ bool DistToolBase::handleMutualInductance( DeviceBlock & device )
             // that might depend on subcircuit parameters are assigned to
             // a unique model for each subcircuit instance.
             if( subcircuitPrefix != "" )
-              modelPrefix = subcircuitPrefix + ":" + modelPrefix;
+              modelPrefix = subcircuitPrefix + parsingMgr_.getSeparator() + modelPrefix;
           }
 
           // Add the model prefix to the device's model name.
-          if( modelPrefix != "" ) modelName = modelPrefix + ":" + modelName;
+          if( modelPrefix != "" ) modelName = modelPrefix + parsingMgr_.getSeparator() + modelName;
 
           device.setModelName( modelName );
         }
@@ -1041,7 +1043,7 @@ bool DistToolBase::handleMutualInductance( DeviceBlock & device )
           param.setTag( "COUPLEDINDUCTOR" );
           if( subcircuitPrefix != "" )
           {
-            ci = subcircuitPrefix + ":" + ci;
+            ci = subcircuitPrefix + parsingMgr_.getSeparator() + ci;
           }
 
           param.setVal( ci );
@@ -1092,7 +1094,7 @@ bool DistToolBase::handleIBISdevice( DeviceBlock & device )
     {
       if ( !subcircuitPrefix.empty() )
       {
-        fullNodeNames.push_back(subcircuitPrefix + ":"+ *nodeIter);
+        fullNodeNames.push_back(subcircuitPrefix + parsingMgr_.getSeparator()+ *nodeIter);
       }
       else
       {
@@ -1159,7 +1161,7 @@ void DistToolBase::find_IC_NODESET_OptionBlock(const std::string& modelName,
                 }
                 else
                 {
-                  newTag = subcircuitPrefix + ":" + iterPar->tag();
+                  newTag = subcircuitPrefix + parsingMgr_.getSeparator() + iterPar->tag();
                 }
                 iterPar->setTag( newTag );
               }

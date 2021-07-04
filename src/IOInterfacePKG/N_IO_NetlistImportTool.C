@@ -282,7 +282,7 @@ NetlistImportTool::NetlistImportTool(
   Util::Op::BuilderManager &    op_builder_manager,
   const ParsingMgr &            parsing_manager,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
-  : parsing_manager(parsing_manager),
+  : parsingMgr_(parsing_manager),
     mainCircuitBlock_(NULL),
     distributionTool_(NULL),
     currentContextPtr_(NULL),
@@ -423,7 +423,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
 
   distributionTool_ = DistToolFactory::create(&pds_comm, distOptions_, 
                                               *mainCircuitBlock_, ssfMap_, 
-                                              iflMap_, externalNetlistParams);
+                                              iflMap_, externalNetlistParams, parsingMgr_);
 
   // Distribute the circuit context and circuit options to all other processors.
   distributionTool_->broadcastGlobalData();
@@ -439,8 +439,8 @@ int NetlistImportTool::constructCircuitFromNetlist(
   // NOTE:  This method does not process distribution options, since they were processed above.
   registerCircuitOptions(options_manager, mainCircuitBlock_->getOptionsTable());
 
-  mainCircuitBlock_->setModelBinningFlag( parsing_manager.getModelBinningFlag() );
-  mainCircuitBlock_->setLengthScale( parsing_manager.getLengthScale() );
+  mainCircuitBlock_->setModelBinningFlag( parsingMgr_.getModelBinningFlag() );
+  mainCircuitBlock_->setLengthScale( parsingMgr_.getLengthScale() );
 
   {
     Stats::StatTop _distributeStat("Distribute Devices");

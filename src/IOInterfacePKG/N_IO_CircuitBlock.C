@@ -62,6 +62,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_HspiceBools.h>
 #include <N_PDS_PackTraits.h>
 
 #include <N_IO_fwd.h>
@@ -186,7 +187,6 @@ CircuitBlock::CircuitBlock(
   circuitContext_(cc),
   metadata_(md),
   externalNetlistParams_(externalNetlistParams),
-  expressionGroup_(group),
   netlistSave_(true),
   morFlag_(false),
   devProcessedNumber_(0),
@@ -206,7 +206,8 @@ CircuitBlock::CircuitBlock(
   model_binning_flag_(false),
   lengthScale_(1.0),
   topology_(topology),
-  deviceManager_(device_manager)
+  deviceManager_(device_manager),
+  expressionGroup_(group)
 {
   // Get path to top level netlist.  This may be absolute or relative to the
   // execution directory.  It will be empty if the top level netlist is in
@@ -902,7 +903,7 @@ void CircuitBlock::addTableData( DeviceBlock & device )
   if (netlistSave_)
   {
     if (DEBUG_IO) {
-      int lastColon = dName.find_last_of( ':' );
+      int lastColon = dName.find_last_of( Xyce::Util::separator );
       Xyce::dout() << "Inserting device: " << dName
                    << " locally named " <<  dName.substr( lastColon + 1 )
                    << " from file: " << device.getDeviceData().getDevBlock().getNetlistLocation().getFilename()
@@ -949,7 +950,7 @@ void CircuitBlock::addModel( const ParameterBlock * modelPtr, std::string const&
   std::string modelName(modelPtr->getName());
   if (modelPrefix != "")
   {
-    modelName = modelPrefix + ":" + modelName;
+    modelName = modelPrefix + Xyce::Util::separator + modelName;
   }
 
   std::pair<unordered_set<std::string>::iterator,bool> ret = modelNames_.insert(modelName);
@@ -2175,6 +2176,14 @@ struct GetNameEqual
   }
 };
 
+struct GetNameEqualButNotOP
+{
+  bool operator()(const Util::OptionBlock &op, const char *name)
+  {
+    return (op.getName() != "OP") && (op.getName() == name);
+  }
+};
+
 } // namespace <unnamed>
 
 //----------------------------------------------------------------------------
@@ -2234,64 +2243,82 @@ bool CircuitBlock::handleAnalysis()
     return true;
   }
 
-  Util::ParamList::const_iterator paramIter;
-  paramIter = std::find_if(op_param_it->begin(), op_param_it->end(), Util::EqualParam("TYPE"));
-
-  // Check for consistency between analysis type and print type.
-  std::string usVal = paramIter->usVal();
   if (analysisName_ == "TR")
   {
     analysisName_ = "TRAN"; // TR is a synonym for TRAN
   }
+
+  // Check for consistency between analysis type and print type.  If the analysis
+  // type is OP then check for a "primary analysis line" (such as TRAN) also.
+  std::string aVal = analysisName_;
+  if (aVal == "OP")
+  {
+    std::list<Util::OptionBlock>::const_iterator op_primary_analysis_it
+      = std::find_first_of(optionsTable_.begin(), optionsTable_.end(),
+			  &analysisOptions_[0], &analysisOptions_[sizeof(analysisOptions_)/sizeof(analysisOptions_[0])], GetNameEqualButNotOP());
+
+    if (op_primary_analysis_it != optionsTable_.end())
+    {
+      aVal = op_primary_analysis_it->getName();
+      if (aVal == "TR")
+        aVal = "TRAN";
+    }
+  }
+
+  // get the .PRINT type
+  Util::ParamList::const_iterator paramIter;
+  paramIter = std::find_if(op_param_it->begin(), op_param_it->end(), Util::EqualParam("TYPE"));
+  std::string usVal = paramIter->usVal();
+
   if (usVal == "TR")
     usVal = "TRAN";
 
-  if (!( (analysisName_ == "TRAN" && usVal == "TRAN") ||
-         (analysisName_ == "OP" && usVal == "TRAN") ||
-         (analysisName_ == "OP" && usVal == "AC") ||
-         (analysisName_ == "OP" && usVal == "AC_IC") ||
-         (analysisName_ == "OP" && usVal == "DC") ||
-         (analysisName_ == "OP" && usVal == "ES") ||
-         (analysisName_ == "OP" && usVal == "HB") ||
-         (analysisName_ == "OP" && usVal == "HB_TD") ||
-         (analysisName_ == "OP" && usVal == "HB_FD") ||
-         (analysisName_ == "OP" && usVal == "HB_IC") ||
-         (analysisName_ == "OP" && usVal == "HB_STARTUP") ||
-         (analysisName_ == "OP" && usVal == "NOISE") ||
-         (analysisName_ == "OP" && usVal == "PCE") ||
-         (analysisName_ == "TRAN" && usVal == "HOMOTOPY") ||
-         (analysisName_ == "OP" && usVal == "HOMOTOPY") ||
-         (analysisName_ == "DC" && usVal == "HOMOTOPY") ||
-         (analysisName_ == "DC" && usVal == "DC") ||
-         (analysisName_ == "DC" && usVal == "ES") ||
-         (analysisName_ == "DC" && usVal == "PCE") ||
-         (analysisName_ == "OP" && usVal == "SENS") ||
-         (analysisName_ == "DC" && usVal == "SENS") ||
-         (analysisName_ == "TRAN" && usVal == "ES") ||
-         (analysisName_ == "TRAN" && usVal == "PCE") ||
-         (analysisName_ == "TRAN" && usVal == "SENS") ||
-         (analysisName_ == "MPDE" && usVal == "TRAN") ||
-         (analysisName_ == "MPDE" && usVal == "MPDE") ||
-         (analysisName_ == "MPDE" && usVal == "MPDE_IC") ||
-         (analysisName_ == "MPDE" && usVal == "MPDE_STARTUP") ||
-         (analysisName_ == "HB" && usVal == "HB") ||
-         (analysisName_ == "HB" && usVal == "HB_TD") ||
-         (analysisName_ == "HB" && usVal == "HB_FD") ||
-         (analysisName_ == "HB" && usVal == "HB_IC") ||
-         (analysisName_ == "HB" && usVal == "HB_STARTUP") ||
-         (analysisName_ == "AC" && usVal == "AC") ||
-         (analysisName_ == "AC" && usVal == "AC_IC") ||
-         (analysisName_ == "AC" && usVal == "SENS") ||
-         (analysisName_ == "AC" && usVal == "SPARAM") ||
-         (analysisName_ == "NOISE" && usVal == "NOISE") ||
-         (analysisName_ == "MOR" && usVal == "MOR")  ||
-         (analysisName_ == "ROL" && usVal == "DC"))) // TT
+  if (!( (aVal == "TRAN" && usVal == "TRAN") ||
+         (aVal == "OP" && usVal == "TRAN") ||
+         (aVal == "OP" && usVal == "AC") ||
+         (aVal == "OP" && usVal == "AC_IC") ||
+         (aVal == "OP" && usVal == "DC") ||
+         (aVal == "OP" && usVal == "ES") ||
+         (aVal == "OP" && usVal == "HB") ||
+         (aVal == "OP" && usVal == "HB_TD") ||
+         (aVal == "OP" && usVal == "HB_FD") ||
+         (aVal == "OP" && usVal == "HB_IC") ||
+         (aVal == "OP" && usVal == "HB_STARTUP") ||
+         (aVal == "OP" && usVal == "NOISE") ||
+         (aVal == "OP" && usVal == "PCE") ||
+         (aVal == "TRAN" && usVal == "HOMOTOPY") ||
+         (aVal == "OP" && usVal == "HOMOTOPY") ||
+         (aVal == "DC" && usVal == "HOMOTOPY") ||
+         (aVal == "DC" && usVal == "DC") ||
+         (aVal == "DC" && usVal == "ES") ||
+         (aVal == "DC" && usVal == "PCE") ||
+         (aVal == "OP" && usVal == "SENS") ||
+         (aVal == "DC" && usVal == "SENS") ||
+         (aVal == "TRAN" && usVal == "ES") ||
+         (aVal == "TRAN" && usVal == "PCE") ||
+         (aVal == "TRAN" && usVal == "SENS") ||
+         (aVal == "MPDE" && usVal == "TRAN") ||
+         (aVal == "MPDE" && usVal == "MPDE") ||
+         (aVal == "MPDE" && usVal == "MPDE_IC") ||
+         (aVal == "MPDE" && usVal == "MPDE_STARTUP") ||
+         (aVal == "HB" && usVal == "HB") ||
+         (aVal == "HB" && usVal == "HB_TD") ||
+         (aVal == "HB" && usVal == "HB_FD") ||
+         (aVal == "HB" && usVal == "HB_IC") ||
+         (aVal == "HB" && usVal == "HB_STARTUP") ||
+         (aVal == "AC" && usVal == "AC") ||
+         (aVal == "AC" && usVal == "AC_IC") ||
+         (aVal == "AC" && usVal == "SENS") ||
+         (aVal == "AC" && usVal == "SPARAM") ||
+         (aVal == "NOISE" && usVal == "NOISE") ||
+         (aVal == "MOR" && usVal == "MOR")  ||
+         (aVal == "ROL" && usVal == "DC"))) // TT
   {
     // Problem, inconsistent analysis type and print type.
-    Report::UserError0() << "Analysis type " << analysisName_ << " and print type " << usVal << " are inconsistent.";
+    Report::UserError0() << "Analysis type " << aVal << " and print type " << usVal << " are inconsistent.";
     return false;
   }
-  
+
   return true;
 }
 

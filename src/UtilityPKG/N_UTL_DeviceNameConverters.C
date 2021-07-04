@@ -43,6 +43,8 @@
 //-------------------------------------------------------------------------
 
 #include <N_UTL_DeviceNameConverters.h>
+#include <N_UTL_HspiceBools.h>
+#include <algorithm>
 
 namespace Xyce {
 namespace Util {
@@ -88,7 +90,7 @@ namespace Util {
 std::string xyceDeviceNameToSpiceName(std::string & xdName)
 {
   std::string modifiedName="";
-  std::string::size_type lastColonInName = xdName.find_last_of(":");
+  std::string::size_type lastColonInName = xdName.find_last_of(Xyce::Util::separator);
   if ((lastColonInName != std::string::npos) && (lastColonInName + 1 < xdName.length()))
   {
     std::string::iterator deviceVarName = xdName.begin() + lastColonInName+1;
@@ -101,6 +103,11 @@ std::string xyceDeviceNameToSpiceName(std::string & xdName)
   else
   {
     modifiedName = xdName;
+  }
+
+  if (Xyce::Util::useHspiceSeparator)
+  {
+    std::replace(modifiedName.begin(),modifiedName.end(),Xyce::Util::separator,':');
   }
 
   return modifiedName;
@@ -167,6 +174,12 @@ std::string spiceDeviceNameToXyceName(std::string & sdName)
   {
     modifiedName=sdName;
   }
+
+  if (Xyce::Util::useHspiceSeparator)
+  {
+    std::replace(modifiedName.begin(),modifiedName.end(), ':', Xyce::Util::separator);
+  }
+
   return modifiedName;
 }
 }

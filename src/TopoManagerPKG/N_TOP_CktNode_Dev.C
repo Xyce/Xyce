@@ -48,6 +48,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Interface_Enum_Types.h>
 #include <N_UTL_Misc.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Topo {
@@ -75,7 +76,7 @@ CktNode_Dev::loadNodeSymbols(
   deviceInstance_->loadNodeSymbols(node_symbols);
 
   const std::string &id = get_id();
-  std::string::size_type col = id.find_first_of(':');
+  std::string::size_type col = id.find_first_of(Xyce::Util::separator);
 
   if (id[col + 1] == 'V' || id[col + 1] == 'v' )
   {

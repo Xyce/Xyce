@@ -56,6 +56,7 @@
 
 #include <N_UTL_Expression.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Device {
@@ -698,7 +699,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, intLIDVec[i], getName(), instanceData[i]->name + "_branch");
     std::string branchInductorName = baseName; 
     if( branchInductorName != "" )
-      branchInductorName += ":";
+      branchInductorName += Xyce::Util::separator;
     branchInductorName += instanceData[i]->name;
     InstanceName bInductorIName = InstanceName( branchInductorName );
     std::string encodedName = spiceInternalName( bInductorIName, "branch");

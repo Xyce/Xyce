@@ -53,6 +53,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Math.h>
+#include <N_UTL_HspiceBools.h>
 
 //This contains important constants like permitivity of free space
 #include <N_DEV_Const.h>
@@ -738,7 +739,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
   for (std::vector<InductorInstanceData *>::const_iterator it = instanceData.begin(), end = instanceData.end(); it != end; ++it ) {
     std::string branchInductorName = baseName;
     if( branchInductorName != "" )
-      branchInductorName += ":";
+      branchInductorName += Xyce::Util::separator;
     branchInductorName += (*it)->name;
     InstanceName bInductorIName = InstanceName( branchInductorName );
     std::string encodedName = spiceInternalName( bInductorIName, "branch");

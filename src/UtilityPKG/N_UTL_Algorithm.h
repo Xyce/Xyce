@@ -45,6 +45,7 @@
 
 #include <N_DEV_fwd.h>
 #include <N_DEV_InstanceName.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Util {
@@ -52,7 +53,7 @@ namespace Util {
 inline
 Device::InstanceName entityNameFromFullParamName(const std::string &full_param_name)
 {
-  std::string::size_type pos = full_param_name.find_last_of(':');
+  std::string::size_type pos = full_param_name.find_last_of(Xyce::Util::separator);
 
   if (pos == std::string::npos)
     return Device::InstanceName(full_param_name);
@@ -69,7 +70,7 @@ Device::InstanceName entityNameFromDefaultParamName(const std::string &def_param
 inline
 std::string paramNameFromFullParamName(const std::string &full_param_name)
 {
-  std::string::size_type pos = full_param_name.find_last_of(':');
+  std::string::size_type pos = full_param_name.find_last_of(Xyce::Util::separator);
 
   if (pos == std::string::npos)
     return std::string();

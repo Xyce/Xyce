@@ -39,6 +39,7 @@
 
 #include <N_DEV_DeviceBlock.h>
 #include <N_UTL_DeviceNameConverters.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Device {
@@ -54,7 +55,7 @@ std::string decodeDeviceName(const InstanceName& instance_name)
 {
   // Skip subcircuit
   const std::string& name_ = instance_name.getEncodedName();
-  std::string::size_type i = name_.find_last_of(':');
+  std::string::size_type i = name_.find_last_of(Xyce::Util::separator);
   i = (i == std::string::npos ? 0 : i + 1);
 
   // For Y return the string following the the type terminating
@@ -81,7 +82,7 @@ std::string decodeDeviceType(const InstanceName& instance_name)
 {
   // Skip subcircuit
   const std::string& name_ = instance_name.getEncodedName();
-  std::string::size_type i = name_.find_last_of(':');
+  std::string::size_type i = name_.find_last_of(Xyce::Util::separator);
   i = (i == std::string::npos ? 0 : i + 1);
 
   // For multiletter (Y or U type), return the device type without the Y
@@ -99,7 +100,7 @@ std::string decodeDeviceType(const InstanceName& instance_name)
 std::string getSubcircuitName(const InstanceName& instance_name)
 {
   const std::string& name_ = instance_name.getEncodedName();
-  std::string::size_type i = name_.find_last_of(':');
+  std::string::size_type i = name_.find_last_of(Xyce::Util::separator);
 
   if (i != std::string::npos)
     return name_.substr(0, i);
@@ -113,7 +114,7 @@ char getDeviceLetter(const InstanceName& instance_name)
   const std::string& name_ = instance_name.getEncodedName();
 
   // Skip subcircuit
-  std::string::size_type i = name_.find_last_of(':');
+  std::string::size_type i = name_.find_last_of(Xyce::Util::separator);
   i = (i == std::string::npos ? 0 : i + 1);
 
   // Return first letter after subcircuit.
@@ -235,7 +236,7 @@ std::string spiceStoreName(const InstanceName &entity_name, const std::string &l
   std::string s = entity_name.getEncodedName();
 
   s = Util::xyceDeviceNameToSpiceName(s);
-  return s + ":" + lead;
+  return s + Xyce::Util::separator + lead;
 }
 
 std::ostream &operator<<(std::ostream &os, const InstanceName &entity_name) {

@@ -56,6 +56,7 @@ using std::unordered_map;
 #include <deviceExpressionGroup.h>
 #include <N_DEV_ExpressionGroupWrapper.h>
 #include <N_UTL_Interface_Enum_Types.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace Device {
@@ -1027,7 +1028,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     int index;
     for (std::vector<std::string>::const_iterator n_i=leads.begin(); n_i != leads.end(); ++n_i)
     {
-      index = n_i->find_last_of(":");
+      index = n_i->find_last_of(Xyce::Util::separator);
       if (index == std::string::npos )
         type = (*n_i)[0];
       else

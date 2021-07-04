@@ -60,6 +60,7 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_fwd.h>
+#include <N_UTL_HspiceBools.h>
 
 #include <Epetra_Util.h>
 #include <Teuchos_Utils.hpp>
@@ -288,7 +289,7 @@ bool ParLSUtil::setupRowCol()
 
     if  (type == _DNODE)
     {
-      std::string::size_type col = id.find_first_of(':');
+      std::string::size_type col = id.find_first_of(Xyce::Util::separator);
       if ( id[col+1] == 'V' || id[col+1] == 'v'
            || id.substr(col+1,col+6) == "yiso2"
            || id.substr(col+1,col+6) == "YISO2"
@@ -1649,7 +1650,7 @@ void ParLSUtil::extractAllGIDsFromTopology()
         }
 
         const std::string & id = (*it)->get_id();
-        std::string::size_type col = id.find_first_of(':');
+        std::string::size_type col = id.find_first_of(Xyce::Util::separator);
 
         if ( id[col+1] == 'V' || id[col+1] == 'v' )
         {

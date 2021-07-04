@@ -46,6 +46,7 @@
 #include <N_IO_FourierMgr.h>
 #include <N_IO_FFTMgr.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_HspiceBools.h>
 
 #include <Teuchos_oblackholestream.hpp>
 
@@ -161,10 +162,10 @@ void outputMacroResults(
          currRespItr != endRespItr; ++currRespItr)
     {
       double respvalue = -1.0;
-      // need to parse name from XXX_X:name So find last ":" and extract
+      // need to parse name from XXX_X:name So find last separator (can be either ":" or ".") and extract
       // remaining string as value that dakota is looking for.
       std::string tempName = currRespItr->first;
-      std::string::size_type beginningOfVarName = tempName.find_last_of(":");
+      std::string::size_type beginningOfVarName = tempName.find_last_of(Xyce::Util::separator);
 
       if (beginningOfVarName != std::string::npos)
       {

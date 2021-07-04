@@ -4452,10 +4452,6 @@ bool Instance::applyScale ()
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
-#if 1
-  std::cout << "BSIM4::Instance::processParams l = " << l << std::endl;
-  std::cout << "BSIM4::Instance::processParams w = " << w << std::endl;
-#endif
   double Rtot;
 
   // Set any non-constant parameter defaults:

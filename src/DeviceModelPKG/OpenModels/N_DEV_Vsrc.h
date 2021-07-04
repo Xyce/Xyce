@@ -421,15 +421,6 @@ public:
   virtual bool loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx)
     { return loadDAEMatrices( dFdx, dQdx, ALL ); }
   virtual bool loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int loadType);
-       
-  virtual bool loadFreqDAEVectors(double frequency,
-                                  std::complex<double>* solVec,
-                                  std::vector<Util::FreqVecEntry>& fVec,
-                                  std::vector<Util::FreqVecEntry>& bVec);
-
-  virtual bool loadFreqDAEMatrices(double frequency,
-                                   std::complex<double>* solVec,
-                                   std::vector<Util::FreqMatEntry>& dFdX);
 
 private:
   bool          HBSpecified_;

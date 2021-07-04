@@ -49,6 +49,7 @@
 #include <N_IO_CircuitContext.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_DistributionTool.h>
+#include <N_IO_ParsingMgr.h>
 
 namespace Xyce {
 namespace IO {
@@ -63,7 +64,9 @@ public:
   DistToolBase(
     Parallel::Communicator *                 pdsCommPtr,
     CircuitBlock &                           circuit_block,
-    std::map<std::string,FileSSFPair>      & ssfMap );
+    std::map<std::string,FileSSFPair>      & ssfMap,
+    const ParsingMgr &                       parsing_manager
+    );
 
   virtual ~DistToolBase(); 
 
@@ -161,6 +164,7 @@ protected:
   CircuitBlock*                 currentCircuitPtr_;
   std::vector<bool>             preprocessFilter_;
   SpiceSeparatedFieldTool*      ssfPtr_;
+  const ParsingMgr &            parsingMgr_;
 
   bool                          remove_any_redundant_;  ///< check device nodes for removal
 };

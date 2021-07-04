@@ -47,6 +47,7 @@
 #include <N_IO_DistToolDevBalanced.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_fwd.h>
+#include <N_IO_ParsingMgr.h>
 
 namespace Xyce {
 namespace IO {
@@ -66,7 +67,9 @@ DistributionTool *
     CircuitBlock &                           circuitBlock,
     std::map<std::string,FileSSFPair>      & ssfMap,
     std::map<std::string, IncludeFileInfo> & iflMap,
-    const std::vector< std::pair< std::string, std::string> > & externalNetlistParams)
+    const std::vector< std::pair< std::string, std::string> > & externalNetlistParams,
+    const ParsingMgr                       & parsing_manager
+    )
 {
   int strategy = Xyce::IO::DistStrategy::DEFAULT;
 
@@ -124,22 +127,22 @@ DistributionTool *
   {
     case DistStrategy::DEFAULT :
     {
-      ret = new DistToolDefault(pdsCommPtr, circuitBlock, ssfMap, iflMap);
+      ret = new DistToolDefault(pdsCommPtr, circuitBlock, ssfMap, iflMap, parsing_manager);
       break;
     }
     case DistStrategy::FLAT_ROUND_ROBIN :
     {
-      ret = new DistToolFlatRoundRobin(pdsCommPtr, circuitBlock, ssfMap, iflMap, externalNetlistParams);
+      ret = new DistToolFlatRoundRobin(pdsCommPtr, circuitBlock, ssfMap, iflMap, externalNetlistParams, parsing_manager);
       break; 
     }
     case DistStrategy::DEVICE_BALANCED:
     {
-      ret = new DistToolDevBalanced(pdsCommPtr, circuitBlock, ssfMap, iflMap);
+      ret = new DistToolDevBalanced(pdsCommPtr, circuitBlock, ssfMap, iflMap, parsing_manager);
       break; 
     }
     default :
     {
-      ret = new DistToolDefault(pdsCommPtr, circuitBlock, ssfMap, iflMap);
+      ret = new DistToolDefault(pdsCommPtr, circuitBlock, ssfMap, iflMap, parsing_manager);
       break;
     }
   }

@@ -62,6 +62,7 @@ ParsingMgr::ParsingMgr(
   : hspiceExtFlag_(command_line.argExists("-hspice-ext")),
     useHspiceUnits_(false),
     useHspiceMath_(false),
+    useHspiceSeparator_(false),
     modelBinningFlag_(true),
     lengthScale_(1.0)
 {
@@ -95,11 +96,14 @@ ParsingMgr::ParsingMgr(
       {
         useHspiceUnits_ = true;
         useHspiceMath_ = true;
+        useHspiceSeparator_ = true;
       }
       else if (*it == "units")
         useHspiceUnits_ = true;
       else if (*it == "math")
         useHspiceMath_ = true;
+      else if (*it == "separator")
+        useHspiceSeparator_ = true;
       else
         Report::UserFatal0() << "Invalid value " << *it << " for -hspice-ext command line option";
     }
@@ -110,6 +114,8 @@ ParsingMgr::ParsingMgr(
   // and ExpressionInternals::tokenize_.  
   Xyce::Util::useHspiceUnits = useHspiceUnits_;
   Xyce::Util::useHspiceMath = useHspiceMath_;
+  Xyce::Util::useHspiceSeparator = useHspiceSeparator_;
+  Xyce::Util::separator = (useHspiceSeparator_)?('.'):(':');
 }
 
 //-----------------------------------------------------------------------------

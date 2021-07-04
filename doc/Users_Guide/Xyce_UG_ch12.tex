@@ -294,16 +294,19 @@ rawfile instead.  The \verb+-r+ command line option is supported for the
 \texttt{.AC}, \texttt{.DC}, \texttt{.NOISE} and \texttt{.TRAN} analysis
 types.  
 
-If the \verb+-r+ and \verb+-o+ command line options are both specified then 
-the \verb+-r+ command line option takes precedence. Also, \Xyce{} does not
-permit the \verb+-r+ output to overwrite the netlist file (\verb+<netlistName>+).
-Instead, the output will be placed into the file \verb+<netlistName>.raw+.
+If the \verb+-r+ and \verb+-o+ command line options are both specified then
+the \verb+-r+ command line option only applies to the output to the binary
+rawfile \verb+<fileName>+.  The \verb+-o+ command line option still applies
+to the other outputs, such as from \texttt{.MEASURE} lines, as described below.
+Finally, \Xyce{} does not permit the \verb+-r+ output to overwrite the netlist
+file (\verb+<netlistName>+). Instead, the output will be placed into the
+file \verb+<netlistName>.raw+.
 
 If \verb+-r+ output is requested for a netlist that has \texttt{.PRINT SENS}
 or \texttt{.PRINT HOMOTOPY} lines in it then the sensitivity and homotopy
-output will use the instructions given by those \texttt{.PRINT} lines.  This
-approach was taken because those two analysis types do not support rawfile 
-output.  However, an attempt to re-direct the sensitivity and homotopy output,
+output will use the instructions given by those \texttt{.PRINT} lines (or by the
+\verb+-o+ command line).  This approach was taken because those two analysis types do not
+support rawfile output.  However, an attempt to re-direct the sensitivity and homotopy output,
 with a \texttt{FILE=} qualifier on their \texttt{.PRINT} lines, to the same file
 as requested with the \verb+-r <fileName>+ command line option will be a
 fatal parsing error.
@@ -311,36 +314,50 @@ fatal parsing error.
 \subsubsection{-o Output}
 The \verb+-o+ command line option is supported for compatibility with other
 circuit simulators such as Spice3f5.  As mentioned above, if the \verb+-r+ and 
-\verb+-o+ command line options are both specified then the \verb+-r+ command 
-line option will take precedence.  Also, \Xyce{} does not permit the \verb+-o+ output 
-to overwrite the netlist file (\verb+<netlistName>+).  Instead, the output will 
-be placed into the file \verb+<netlistName>.prn+. 
+\verb+-o+ command line options are both specified then the \verb+-r+ command
+line option only applies to the binary rawfile \verb+<fileName>+.  \Xyce{}
+does not permit the \verb+-o+ output, from any of the \texttt{.PRINT} lines
+in the netlist, to overwrite the netlist file (\verb+<netlistName>+).  
 
-The \verb+-o <fileName>+ command line option is supported for the \texttt{.AC}, 
-\texttt{.DC}, \texttt{.HB}, \texttt{.NOISE} and \texttt{.TRAN} analysis 
-types.  The output file (\verb+<fileName>+) will be in \texttt{FORMAT=STD} with
-spaces as the delimiter between columns.  So, the \verb+-delim+ command line 
-option and any \texttt{DELIMITER=}, \texttt{FILE=} and \texttt{FORMAT=}
-qualifiers on the relevant \texttt{.PRINT} lines will be silently ignored. 
+The \verb+-o <fileName>+ command line option is supported for all analysis types.
+The output file(s) from the netlist's \texttt{.PRINT} lines
+will be in \texttt{FORMAT=STD} with spaces as the delimiter between columns.
+So, the \verb+-delim+ command line option and any \texttt{DELIMITER=}, \texttt{FILE=}
+and \texttt{FORMAT=} qualifiers on the relevant \texttt{.PRINT} lines will be
+silently ignored.  Those output(s) will be placed into a set of files with the
+``basename'' \verb+<fileName>+.  So, for a \texttt{.TRAN} analysis, this
+command line would produce the output file \verb+<results>.prn+:
+\begin{vquote}
+   Xyce -o results <netlistName>
+\end{vquote}
 
-For the \verb+-o+ command line option, the variable list in the output file 
-(\verb+<fileName>+) will be the ``concatentation'' of the variable lists from
-all of the relevant \texttt{.PRINT} lines in the netlist.  So, for a 
-\texttt{.TRAN} simulation the variable list will come from all of the 
-\texttt{.PRINT TRAN} lines in the netlist.  The behavior for \texttt{.AC} and 
-.\texttt{.HB} analyses is slightly different.  For a \texttt{.AC} analysis, 
-the variable list will come from all of the \texttt{.PRINT AC} lines in the 
-netlist.  Any variables listed on the \texttt{.PRINT AC\_IC} lines will not 
-be included.   For a \texttt{.HB} analysis, the variable list will come from 
-all of the \texttt{.PRINT HB} and \texttt{.PRINT HB\_FD} lines in the netlist.  
-Any variables listed on the \texttt{.PRINT HB\_TD}, \texttt{.PRINT HB\_IC} and
-\texttt{.PRINT HB\_STARTUP} lines will not be included.
+The results from any \texttt{.MEASURE TRAN}, \texttt{.MEASURE TRAN\_CONT},
+\texttt{.FFT} and/or \texttt{.FOUR} lines in the netlist would be placed into
+the files \verb+<results>.mt0+, \verb+<results>_measurename.mt0+,
+\verb+<results>.fft0+, and \verb+<results>.four0+, respectively.  For a
+\texttt{.STEP} analysis, the results file \verb+<results>.res+ would also be
+made.
 
-As mentioned above, the \verb+-o+ command line option will not produce 
-any output from \texttt{.PRINT AC\_IC}, \texttt{.PRINT HB\_TD}, 
-\texttt{.PRINT HB\_IC} and \texttt{.PRINT HB\_STARTUP} lines.  In addition,
-it will not produce any output from \texttt{.PRINT SENS} or 
-\texttt{.PRINT HOMOTOPY} lines.
+For a \texttt{.AC} analysis, that also has a \texttt{.OP} statement in the netlist,
+the previous command line would produce output files with the correct default
+extensions, which are \verb+<results>.FD.prn+ and \verb+<results>.TD.prn+ in this
+case.  Similar rules apply for the \texttt{.PRINT} output for \texttt{.ES},
+\texttt{.HB}, \texttt{.NOISE} and \texttt{.PCE} analyses.
+
+For backward compatibility with \Xyce{} 7.3, and earlier, these two command lines
+are equivalent.  The ``default print extension'' of  \verb+.prn+ on the file name
+requested with \verb+-o+ is ignored.
+\begin{vquote}
+   Xyce -o results.prn <netlistName>
+   Xyce -o results <netlistName>
+\end{vquote}
+
+There are two limitations on \verb+-o+ output.  First, the \verb+dashoFilename+
+can not be a directory name.  Second, if the \verb+dashoFilename+ contains a
+directory path (e.g., \verb+<path>/filename+) then \verb+<path>+\ must already exist.
+\Xyce{} will not create new directories.  (Note: These two limitations also exist
+for the \verb+-r+, \verb+-l+, \verb+-namesfile+ and \verb+-rsf+ command line
+options.)
 
 \subsubsection{FILE= Qualifier on .PRINT Lines}
 The \texttt{FILE=<fileName>} qualifier on individual \texttt{.PRINT} lines is
