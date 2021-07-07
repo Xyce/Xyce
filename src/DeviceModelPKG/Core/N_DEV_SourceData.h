@@ -132,6 +132,18 @@ public:
     fastTimeScaleFlag_ = fastTimeScaleFlag;
   }
 
+
+  void setUseLocalTimeFlag(bool useLocalTime )
+  {
+    useLocalTime_ = useLocalTime;
+  }
+
+
+  void setTime(double time)
+  {
+    localTime_ = time;
+  }
+
 protected:
   double getTime_();
 
@@ -142,6 +154,10 @@ protected:
   std::string sourceName_;
   std::string typeName_;
   std::string defaultParamName_;
+
+
+  bool useLocalTime_;
+  double localTime_;
 
   double time;
   double SourceValue;

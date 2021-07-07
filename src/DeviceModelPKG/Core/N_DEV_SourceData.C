@@ -179,6 +179,8 @@ SourceData::SourceData(const SolverState & ss1,
   : sourceName_(""),
   typeName_(""),
   defaultParamName_(""),
+  useLocalTime_(false),
+  localTime_(0.0),
   time(0.0),
   SourceValue(0.0),
   initializeFlag_(false),
@@ -275,10 +277,16 @@ double   SourceData::getTime_()
 {
   double tmpTime = 0.0;
 
-  if (fastTimeScaleFlag_)
-    tmpTime = solState_.currFastTime_;
+  if (useLocalTime_ )
+    tmpTime = localTime_;
   else
-    tmpTime = solState_.currTime_;
+  {
+    if (fastTimeScaleFlag_)
+      tmpTime = solState_.currFastTime_;
+    else
+      tmpTime = solState_.currTime_;
+  }
+
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && solState_.debugTimeFlag)
   {
