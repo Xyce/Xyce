@@ -2196,9 +2196,11 @@ struct GetNameEqualButNotOP
 //----------------------------------------------------------------------------
 bool CircuitBlock::handleAnalysis()
 {
-  static const char *analysisOptions_[] = {"DC", "TRAN", "TR", "MPDE", "HB", "AC", "OP", "NOISE", "ROL"}; // TT
-  static const char *printOptions_[] = {"PRINT"};
+  bool retval = true;
 
+  static const char *analysisOptions_[] = {"DC", "TRAN", "TR", "MPDE", "HB", "AC", "OP", "NOISE", "ROL"}; // TT
+
+  // find first analysis type in option table
   std::list<Util::OptionBlock>::const_iterator op_analysis_it
     = std::find_first_of(optionsTable_.begin(), optionsTable_.end(),
                          &analysisOptions_[0], &analysisOptions_[sizeof(analysisOptions_)/sizeof(analysisOptions_[0])], GetNameEqual());
@@ -2232,17 +2234,6 @@ bool CircuitBlock::handleAnalysis()
     setAnalysisName( op_analysis_it->getName() );
   }
 
-  // Add the DC sweep parameters to the PRINT options. First, find the
-  // DC PRINT options.
-  std::list<Util::OptionBlock>::const_iterator op_param_it
-    = std::find_first_of(optionsTable_.begin(), optionsTable_.end(),
-                         &printOptions_[0], &printOptions_[sizeof(printOptions_)/sizeof(printOptions_[0])], GetNameEqual());
-  if (op_param_it == optionsTable_.end())
-  {
-    Report::UserWarning0() << "No print specified";
-    return true;
-  }
-
   if (analysisName_ == "TR")
   {
     analysisName_ = "TRAN"; // TR is a synonym for TRAN
@@ -2265,15 +2256,34 @@ bool CircuitBlock::handleAnalysis()
     }
   }
 
-  // get the .PRINT type
-  Util::ParamList::const_iterator paramIter;
-  paramIter = std::find_if(op_param_it->begin(), op_param_it->end(), Util::EqualParam("TYPE"));
-  std::string usVal = paramIter->usVal();
+  // Find all of the PRINT option blocks. 
+  std::vector<std::list<Util::OptionBlock>::const_iterator> print_op_vec;
+  std::list<Util::OptionBlock>::const_iterator op_table_it = optionsTable_.begin();
+  for ( ; op_table_it != optionsTable_.end(); op_table_it++)
+  {
+    if (op_table_it->getName() == "PRINT")
+      print_op_vec.push_back(op_table_it);
+  }
 
-  if (usVal == "TR")
-    usVal = "TRAN";
+  if (print_op_vec.empty())
+  {
+    Report::UserWarning0() << "No print specified";
+    return true;
+  }
 
-  if (!( (aVal == "TRAN" && usVal == "TRAN") ||
+  // compare the print option blocks versus the primary analysis type
+  std::vector<std::list<Util::OptionBlock>::const_iterator>::const_iterator print_op_vec_it = print_op_vec.begin();
+  for ( ; print_op_vec_it != print_op_vec.end(); print_op_vec_it++)
+  {
+    // get the .PRINT type
+    Util::ParamList::const_iterator paramIter;
+    paramIter = std::find_if( (*print_op_vec_it)->begin(), (*print_op_vec_it)->end(), Util::EqualParam("TYPE"));
+    std::string usVal = paramIter->usVal();
+
+    if (usVal == "TR")
+      usVal = "TRAN";
+
+    if (!( (aVal == "TRAN" && usVal == "TRAN") ||
          (aVal == "OP" && usVal == "TRAN") ||
          (aVal == "OP" && usVal == "AC") ||
          (aVal == "OP" && usVal == "AC_IC") ||
@@ -2289,6 +2299,7 @@ bool CircuitBlock::handleAnalysis()
          (aVal == "TRAN" && usVal == "HOMOTOPY") ||
          (aVal == "OP" && usVal == "HOMOTOPY") ||
          (aVal == "DC" && usVal == "HOMOTOPY") ||
+         (aVal == "HB" && usVal == "HOMOTOPY") ||
          (aVal == "DC" && usVal == "DC") ||
          (aVal == "DC" && usVal == "ES") ||
          (aVal == "DC" && usVal == "PCE") ||
@@ -2297,6 +2308,7 @@ bool CircuitBlock::handleAnalysis()
          (aVal == "TRAN" && usVal == "ES") ||
          (aVal == "TRAN" && usVal == "PCE") ||
          (aVal == "TRAN" && usVal == "SENS") ||
+         (aVal == "TRAN" && usVal == "TRANADJOINT") ||
          (aVal == "MPDE" && usVal == "TRAN") ||
          (aVal == "MPDE" && usVal == "MPDE") ||
          (aVal == "MPDE" && usVal == "MPDE_IC") ||
@@ -2313,13 +2325,14 @@ bool CircuitBlock::handleAnalysis()
          (aVal == "NOISE" && usVal == "NOISE") ||
          (aVal == "MOR" && usVal == "MOR")  ||
          (aVal == "ROL" && usVal == "DC"))) // TT
-  {
-    // Problem, inconsistent analysis type and print type.
-    Report::UserError0() << "Analysis type " << aVal << " and print type " << usVal << " are inconsistent.";
-    return false;
+    {
+      // Problem, inconsistent analysis type and print type.
+      Report::UserError0() << "Analysis type " << aVal << " and print type " << usVal << " are inconsistent.";
+      retval = false;;
+    }
   }
 
-  return true;
+  return retval;
 }
 
 //--------------------------------------------------------------------------
