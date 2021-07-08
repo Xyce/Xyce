@@ -57,6 +57,9 @@
 
 #include <N_UTL_Math.h>
 
+#include <Teuchos_RCP.hpp>
+#include <N_UTL_FFTInterface.hpp>
+
 namespace Xyce {
 namespace Device {
 
@@ -869,6 +872,62 @@ bool Instance::loadFreqBVector (double frequency,
 
       if (frequency == freq)
         tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
+
+    }   
+    else if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _PULSE_DATA))
+    {
+
+      Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
+      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_, xt, xf, fpts; 
+
+      dataPtr->setUseLocalTimeFlag(true);
+
+      int size_ = 21;
+
+      double tstep = par6/size_;
+
+      int fIdx;
+
+      double freq = 1/par6;
+
+      ftInData_.resize( size_ );
+      ftOutData_.resize( size_ +1 );
+      iftInData_.resize( size_  +1 );
+      iftOutData_.resize( size_ );
+
+      if (ftInterface_ == Teuchos::null)
+      {
+        ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
+        ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
+      } 
+
+
+      for ( int i=0;  i < size_; ++i )
+      {
+
+         dataPtr->setTime(i * tstep);
+
+          
+
+         dataPtr->updateSource();
+
+         ftInData_[i] = dataPtr->returnSource();
+
+         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
+      }
+
+      ftInterface_->calculateFFT();
+
+      if (frequency == 0.0 )
+        tmpVal = std::complex<double> ( ftOutData_[0]/size_, 0);
+
+
+      fIdx = std::round( frequency/freq);
+
+      if ( fabs(frequency - freq * fIdx) < 1e-15 )  
+        tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
+
+      std::cout << "loaded value is " << tmpVal << std::endl;
 
     }
     else
