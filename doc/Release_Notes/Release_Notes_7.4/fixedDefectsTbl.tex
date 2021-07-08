@@ -70,5 +70,15 @@ Resistors that have a resistance value of zero are treated different inside of X
   \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work in \texttt{.IC} statements &  
       This has been resolved and global parameters can be used to set the 
       value of an \texttt{.IC} statement.\\ \hline
+
+  \textbf{1029-SON}: Improve checking of \texttt{.PRINT} type versus analysis type &  
+The checking of the \texttt{.PRINT} type versus the analysis type had some
+deficiencies. It would falsely report an error if a \texttt{.PRINT TRANADJOINT} line
+preceeded the \texttt{.PRINT TRAN} line.  It could falsely not report an error if
+the \texttt{.OP} statement preceeded the primary analysis statement (e.g., 
+\texttt{.TRAN}), or if a valid \texttt{.PRINT} line was the first \texttt{.PRINT}
+line in the netlist but a subsequent \texttt{.PRINT} line was not allowed
+for the requested primary analysis type. \\ \hline
+
 \end{longtable}
 }
