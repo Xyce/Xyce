@@ -393,6 +393,33 @@ void Error::updateAC(
   }
 }
 
+void Error::updateNoise(
+  Parallel::Machine comm,
+  const double frequency,
+  const double fStart,
+  const double fStop,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const double totalOutputNoiseDens,
+  const double totalInputNoiseDens,
+  const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
+{
+  if( !calculationDone_ )
+  {
+    simulationIndepVarVals_.push_back( frequency );
+
+    // update our outVarValues_ vector
+    for( int i=0; i< numOutVars_; i++ )
+    {
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, 0, 0,
+                                        imaginaryVec, 0, 0, 0,
+                                        totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
+      simulationDataVals_.push_back( outVarValues_[i] );
+    }
+    initialized_ = true;
+  }
+}
+
 //-----------------------------------------------------------------------------
 // Function      : Error::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
