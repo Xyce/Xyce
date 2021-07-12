@@ -55,6 +55,7 @@ namespace Linear {
 QueryUtil::QueryUtil()
   : checkConnectivity_(true),
     supernode_(false),
+    floatingnode_(true),
     isClean_(false),
 #ifdef Xyce_TEST_SOLN_VAR_MAP
     namesFile_(true)
@@ -88,6 +89,10 @@ bool QueryUtil::registerOptions(const Util::OptionBlock & OB)
     {
       supernode_ = static_cast<bool>(it_tpL->getImmutableValue<bool>());
     }
+    else if(it_tpL->uTag()=="FLOATING_NODE")
+    {
+      floatingnode_ = static_cast<bool>(it_tpL->getImmutableValue<bool>());
+    }
     else if(it_tpL->uTag()=="OUTPUTNAMESFILE")
     {
       namesFile_ = static_cast<bool>(it_tpL->getImmutableValue<bool>());
@@ -106,6 +111,7 @@ QueryUtil::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("REPLICATED_CKT", Util::Param("REPLICATED_CKT", 1)));
   parameters.insert(Util::ParamMap::value_type("CHECK_CONNECTIVITY", Util::Param("CHECK_CONNECTIVITY", 0)));
   parameters.insert(Util::ParamMap::value_type("SUPERNODE", Util::Param("SUPERNODE", false)));
+  parameters.insert(Util::ParamMap::value_type("FLOATING_NODE", Util::Param("FLOATING_NODE", true)));
   parameters.insert(Util::ParamMap::value_type("OUTPUTNAMESFILE", Util::Param("OUTPUTNAMESFILE", false)));
 }
 

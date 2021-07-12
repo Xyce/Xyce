@@ -151,16 +151,24 @@ public:
   bool insertNode(const Key1Type &key1, const std::vector<Key1Type> &adj, DataType &data);
 
   int numNodes() const;
+
   bool checkKey(const Key1Type& key) const;
 
   DataType& getData(const Key1Type& key);
   DataType& getData(const Index& idx);
-
   std::vector<DataType>& getData(const std::vector<Key1Type>& keys);
 
   int numAdjacent(const Key1Type& key) const;
 
   std::vector<Key1Type> getAdjacent(const Key1Type& key) const;
+
+  const Key1Type& getKey(const Index& idx) const {
+    typename Key1Map::const_iterator it = keys1_.find( idx );
+    if (it == keys1_.end()) 
+      throw std::runtime_error("Graph index not found");
+    
+    return (*it).second;
+  }
 
   Index getIndex(const Key1Type & key) const {
     typename Index1Map::const_iterator it = rvsKeys1_.find(key);
@@ -183,6 +191,9 @@ public:
   std::vector<Key1Type> getSingletons();
 
   int checkGraphState() const;
+
+  // Give access to the reverse index map 
+  const Index1Map &getIndex1Map() { return rvsKeys1_; }
 
   // Give access to the data map in the event that the nodes need
   // to be traversed without an ordered list (BFT) being generated.
@@ -702,10 +713,11 @@ Graph<Key1Type, DataType, Index>::generateBFT()
     Xyce::dout() << "Graph is in inconsistent state!  checkGraphState returned: " << state << std::endl;
   }
 #endif
-  /*
+ 
+/* 
   // Select the first maximum degree node as the center of the graph
-  AdjacencyGraph::iterator it = adjacencyGraph_.begin();
-  AdjacencyGraph::iterator it_end = adjacencyGraph_.end();
+  typename AdjacencyGraph::iterator it = adjacencyGraph_.begin();
+  typename AdjacencyGraph::iterator it_end = adjacencyGraph_.end();
   int currNode = 0, maxDegNode = 0; 
   int maxDeg = (*it).size();
   for( ; it != it_end; ++it, ++currNode )
@@ -716,18 +728,24 @@ Graph<Key1Type, DataType, Index>::generateBFT()
       maxDeg = (*it).size();
     }
   }
-
-  Index firstIndex = maxDegNode;
-  */
+*/
+ 
+  int level = 0; 
   if (keys1_.size())
   {
     Index firstIndex = (*(keys1_.begin())).first;
-    return generateBFT_(firstIndex);
+    level = generateBFT_(firstIndex);
+/*
+    std::cout << "The degree of the first-key root node is " << adjacencyGraph_[firstIndex].size()
+              << " and the BFT returned a maximum level of " << level << std::endl;
+
+    firstIndex = maxDegNode;
+    level = generateBFT_(firstIndex);
+    std::cout << "The degree of the max-degree root node is " << adjacencyGraph_[firstIndex].size()
+              << " and the BFT returned a maximum level of " << level << std::endl;
+*/
   }
-  else
-  {
-    return 0;
-  }
+  return level;
 }
 
 //-----------------------------------------------------------------------------

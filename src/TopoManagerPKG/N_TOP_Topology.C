@@ -52,7 +52,6 @@
 #include <N_IO_RestartNode.h>
 #include <N_PDS_Comm.h>
 #include <N_PDS_Manager.h>
-#include <N_TOP_CktGraph.h>
 #include <N_TOP_CktGraphBasic.h>
 #include <N_TOP_CktNode.h>
 #include <N_TOP_CktNode_Dev.h>
@@ -363,6 +362,183 @@ void Topology::OutputBFSGraphLists() const
 void Topology::generateOrderedNodeList() const
 {
   orderedNodeListPtr_ = mainGraphPtr_->getBFSNodeList();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Topology::analyzeDeviceBalance
+// Purpose       : Takes a look at the current devices in the graph to detect
+//               : imbalance before completing topology setup
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 7/1/21
+//-----------------------------------------------------------------------------
+void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
+{
+  if( linearSolverUtility_->floatingnodeFlag() )
+  {
+    // First identify any devices (on this processor) that are 
+    // disconnected from the rest of the circuit.
+    std::ostringstream oss;
+    std::vector< Xyce::NodeID > floatingDevs = mainGraphPtr_->outputDeviceNodeGraph( oss );
+    std::vector< int > floatingDevNodes;
+    floatingDevNodes.push_back(0); // For the start pointer
+
+    // Identify the voltage nodes attached to these disconnected devices, 
+    // which are also floating and might need to be removed.
+    std::vector< Xyce::NodeID > floatingNodes;
+    for ( std::vector< Xyce::NodeID >::iterator it = floatingDevs.begin(); it != floatingDevs.end(); ++it )
+    {
+      std::vector< Xyce::NodeID > v_ids; 
+      mainGraphPtr_->returnAdjIDs(*it, v_ids);
+      floatingNodes.insert( floatingNodes.end(), v_ids.begin(), v_ids.end() );
+      floatingDevNodes.push_back( floatingDevNodes.back() + v_ids.size() );
+    }
+ 
+    int tNumFloatingDevs = floatingDevs.size();
+    int tNumFloatingNodes = floatingNodes.size();
+
+    // In parallel, a floating device/node on one processor might be connected to devices 
+    // on other processors.  Communicate the voltage nodes connected to these devices to
+    // find out.
+    if (!pdsManager_.getPDSComm()->isSerial())
+    {
+      int numProcs = pdsManager_.getPDSComm()->numProc();
+      int myProc = pdsManager_.getPDSComm()->procID();
+      std::vector<int> tFNodes( numProcs, 0 ), fNodes( numProcs, 0 ); 
+
+      fNodes[ myProc ] = floatingNodes.size();
+      pdsManager_.getPDSComm()->sumAll( &fNodes[0], &tFNodes[0], numProcs );
+
+      // Count the bytes for packing these strings
+      int byteCount = 0; 
+      for ( std::vector< Xyce::NodeID >::iterator it = floatingNodes.begin(); it != floatingNodes.end(); ++it )
+        byteCount += Xyce::packedByteCount( *it );
+
+      int tFloatingNodes = std::accumulate( fNodes.begin(), fNodes.end(), 0 );
+      std::vector<int> nodeOwned( tFloatingNodes, 0 ), tmpNodeOwned( tFloatingNodes, 0 );  
+
+      for (int proc = 0; proc < numProcs; ++proc)
+      {
+        // Broadcast the buffer size for this processor.
+        int bsize=0;
+        if (proc==myProc) { bsize = byteCount; }
+        pdsManager_.getPDSComm()->bcast( &bsize, 1, proc );
+
+        // Create buffer.
+        int pos = 0;
+        char * floatingNodeBuffer = new char[bsize];
+
+        std::vector< int > nodeCnt( tFNodes[proc], 0 ), tmpNodeCnt( tFNodes[proc], 0 );
+
+        if ( proc == myProc )
+        {
+          // Pack the floating node buffer
+          for (std::vector< Xyce::NodeID >::iterator node = floatingNodes.begin();
+            node != floatingNodes.end(); node++)
+          {
+            // Pack the node
+            Xyce::pack(*node, floatingNodeBuffer, bsize, pos, pdsManager_.getPDSComm());
+          }
+
+          // Broadcast packed buffer.
+          pdsManager_.getPDSComm()->bcast( floatingNodeBuffer, bsize, proc );
+
+          // Wait for a response from the other processors on whether they have 
+          // any of these floating nodes.
+          pdsManager_.getPDSComm()->sumAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+
+          int i=0, removedNodes=0;
+          std::vector< Xyce::NodeID >::iterator it = floatingDevs.begin();
+          while( it != floatingDevs.end() )
+          {
+            bool isOwned = false;
+            for ( int j=floatingDevNodes[i]; j<floatingDevNodes[i+1]; ++j )
+            {
+              if ( nodeCnt[j] )
+              {
+                isOwned = true;
+                break;
+              }
+            }
+            // If one of the voltage nodes attached to devices on other processors,
+            // this device is not floating, neither are the voltage nodes attached.
+            if (isOwned)   
+            {
+              std::vector< Xyce::NodeID >::iterator remove_it = it;
+              it++;
+              floatingDevs.erase( remove_it );
+              for ( int j=floatingDevNodes[i]; j<floatingDevNodes[i+1]; ++j )
+              {
+                floatingNodes.erase( floatingNodes.begin()+j-removedNodes );
+                removedNodes++;
+              }
+              if (it != floatingDevs.end())
+                break;
+            }
+            else
+              it++; 
+       
+            // Increment counter
+            i++;  
+          }
+        }
+        else
+        { 
+          // Unpack buffer.
+          pdsManager_.getPDSComm()->bcast( floatingNodeBuffer, bsize, proc );
+
+          // Extract floating node pairs.
+          std::vector< NodeID > tmpNode( tFNodes[proc] );
+
+          // Unpack each node.
+          for (int i=0; i<tFNodes[proc]; ++i) 
+            Xyce::unpack(tmpNode[i], floatingNodeBuffer, bsize, pos, pdsManager_.getPDSComm());
+
+          // Check if this processor has any of these floating nodes in the graph.
+          for (int i=0; i<tFNodes[proc]; ++i) 
+          {
+            if ( mainGraphPtr_->FindCktNode( tmpNode[i] ) != 0 )
+              tmpNodeCnt[i] = 1;
+          }
+       
+          // Now sum the tmpNodeCnt to see which voltage nodes are on other processors. 
+          pdsManager_.getPDSComm()->sumAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+        }
+        
+        // Clean up.
+        delete [] floatingNodeBuffer;
+      }
+
+      int numFloatingDevs = floatingDevs.size();
+      int numFloatingNodes = floatingNodes.size();
+      pdsManager_.getPDSComm()->sumAll( &numFloatingNodes, &tNumFloatingNodes, 1 ); 
+      pdsManager_.getPDSComm()->sumAll( &numFloatingDevs, &tNumFloatingDevs, 1 ); 
+    } 
+
+    if (tNumFloatingDevs)
+      Xyce::dout() << "Device verification found " << tNumFloatingDevs << " disconnected device(s) to remove" << std::endl;
+  
+    if (tNumFloatingNodes)
+      Xyce::dout() << "Device verification found " << tNumFloatingNodes << " disconnected nodes(s) to remove" << std::endl;
+
+    // First remove floating devices for this processor
+    std::vector< CktNode * > removedDevices;
+    mainGraphPtr_->removeNodes( floatingDevs, removedDevices );
+
+    // now it's safe to delete the device nodes
+    for (std::vector< CktNode * >::iterator it = removedDevices.begin(); it != removedDevices.end(); ++it)
+      delete *it;
+
+    // Now remove floating voltage nodes for this processor
+    std::vector< CktNode * > removedNodes;
+    mainGraphPtr_->removeNodes( floatingNodes, removedNodes );
+
+    // now it's safe to delete the voltage nodes
+    for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
+      delete *it;
+  }
+
 }
 
 //-----------------------------------------------------------------------------

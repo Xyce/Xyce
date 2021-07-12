@@ -503,6 +503,9 @@ bool Simulator::doRegistrations_()
 Simulator::RunStatus
 Simulator::setupTopology( unordered_map< std::string, std::string >& aliasMap )
 {
+  // check topology imbalance before verifying devices and completing setup
+  //topology_->removeFloatingNodes(*deviceManager_);
+
   // topology query's device manager to see if any devices are bad (i.e. a resistor with zero resistance)
   // if so, a list of nodes to be supernoded is created
   topology_->verifyNodesAndDevices(*deviceManager_);
@@ -510,7 +513,7 @@ Simulator::setupTopology( unordered_map< std::string, std::string >& aliasMap )
   // create a union of the supernode list on all processors
   topology_->mergeOffProcTaggedNodesAndDevices();
 
-  // combine nodes into supernodes and remove now redundant devices (i.e. those only connected to 1 processor )
+  // combine nodes into supernodes and remove now redundant devices (i.e. those only connected to 1 node)
   aliasMap = topology_->removeTaggedNodesAndDevices(*deviceManager_);
   
   return SUCCESS;

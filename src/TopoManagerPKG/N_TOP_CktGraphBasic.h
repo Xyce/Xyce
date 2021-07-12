@@ -134,6 +134,9 @@ public:
   void removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, std::vector< CktNode * > & removedDevices);
   void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes );
 
+  // write out device node graph to the ostream, return floating nodes
+  std::vector< Xyce::NodeID > outputDeviceNodeGraph(std::ostream & os);
+
 private:
   Graph                 cktgph_;                ///< Circuit graph pair = <id, node type>, CktNode = data
   CktNodeList           BFSNodeList_;           ///< List of ckt nodes in breadth-first traversal order.
@@ -144,6 +147,7 @@ private:
  
 public:
   std::ostream & put(std::ostream & os) const;
+
 };
 
 } // namespace Topo
