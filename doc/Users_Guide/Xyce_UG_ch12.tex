@@ -486,10 +486,10 @@ The \texttt{AVG}, \texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, 
 \texttt{DC}, \texttt{AC} and \texttt{NOISE}).  The \texttt{TRIG-TARG} measure is only supported for
 \texttt{TRAN} measure mode.  
 
-The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \texttt{TRAN} and
-\texttt{DC} measure modes.  The \texttt{DUTY}, \texttt{FREQ}, \texttt{FOUR}, \texttt{OFF\_TIME}
-and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supported for
-\texttt{TRAN} measure mode.
+The \texttt{ERROR} measure is \Xyce{}-specific, and is supported for all four ``measure modes''
+(\texttt{TRAN}, \texttt{DC}, \texttt{AC} and \texttt{NOISE}). The \texttt{DUTY}, \texttt{FREQ},
+\texttt{FOUR}, \texttt{OFF\_TIME} and \texttt{ON\_TIME} measures are also \Xyce{}-specific,
+and are only supported for \texttt{TRAN} measure mode.
 
 \Xyce{} also supports ``continuous'' measures, that can return more than one value, for
 \texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE} analyses.  The

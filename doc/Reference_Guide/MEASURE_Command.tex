@@ -26,10 +26,10 @@ and \texttt{WHEN} measures are supported for all four ``measure modes'' (\texttt
 twice. This is because only a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and
 \texttt{TO}) may be supported for the \texttt{AC}, \texttt{DC} and \texttt{NOISE} measure modes.
 
-The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \texttt{TRAN} and
-\texttt{DC} measure modes.  The \texttt{DUTY}, \texttt{FREQ}, \texttt{FOUR}, \texttt{OFF\_TIME}
-and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supported for
-\texttt{TRAN} measure mode.
+The \texttt{ERROR} measure is \Xyce{}-specific, and is supported for \texttt{TRAN}, \texttt{AC},
+\texttt{DC} and \texttt{NOISE} measure modes.  The \texttt{DUTY}, \texttt{FREQ}, \texttt{FOUR},
+\texttt{OFF\_TIME} and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only
+supported for \texttt{TRAN} measure mode.
 
 \begin{Command}
 \format
@@ -142,10 +142,6 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 + [FROM=<value>] [TO=<value>] [TD=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE DC <result name> ERROR <variable> FILE=<value>
-+ [DEPVARCOL=<value>] [COMP_FUNCTION=<value>]
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
-
 .MEASURE <AC|DC|NOISE> <result name> AVG <variable>
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
@@ -167,6 +163,10 @@ and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supporte
 .MEASURE <AC|DC|NOISE> <result name> <ERR|ERR1|ERR2>
 + <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC|DC|NOISE> <result name> ERROR <variable>
++ FILE=<value> [DEPVARCOL=<value>] [COMP_FUNCTION=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE <AC|DC|NOISE> <result name> FIND <variable> AT=<value>
@@ -631,9 +631,9 @@ measure.  This qualifier is required for the {\tt ERROR} measure.
 
 \argument{INDEPVARCOL=value}
 The column index, in the ``comparison file'', of the independent
-variable (e.g, the simulation time or frequency) used in an {\tt
-ERROR} measure.  This qualifier is required for the {\tt TRAN} measure
-mode.  For that mode, the {\tt INDEPVARCOL} and {\tt DEPVARCOL}
+variable (e.g, the simulation time or frequency) used in an {\tt ERROR}
+measure.  This qualifier is required for the {\tt TRAN}, {\tt AC} and {\tt NOISE}
+measure modes.  For those modes, the {\tt INDEPVARCOL} and {\tt DEPVARCOL}
 qualifiers must have different values.  The {\tt INDEPVARCOL}
 qualifier is not used for {\tt DC} mode {\tt ERROR} measures, and will
 be ``silently ignored'' in that case.  Finally, note that the column
@@ -642,9 +642,10 @@ indices in Xyce output files start with 0.
 \argument{DEPVARCOL=value}
 The column index, in the ``comparison file'', of the dependent
 variable used in an {\tt ERROR} measure.  This qualifier is required
-for the {\tt ERROR} measure for both measure modes ({\tt DC} and {\tt
-TRAN}).  For the {\tt TRAN} measure mode, the {\tt DEPVARCOL} and {\tt
-INDEPVARCOL} qualifiers must have different values.  Finally, note
+for the {\tt ERROR} measure for all four measure modes ({\tt TRAN},
+{\tt AC}, {\tt DC} and {\tt NOISE}).  For the {\tt TRAN}, {\tt AC} and
+{\tt NOISE} measure modes, the {\tt DEPVARCOL} and {\tt INDEPVARCOL}
+qualifiers must have different values.  Finally, note
 that the column indices in Xyce output files start with 0.
 
 \argument{COMP\_FUNCTION=value} 
@@ -1114,25 +1115,32 @@ caveats with the use of the \texttt{ERROR} measure.
     in the comparison file is assumed to be ``non-step data'', from
     one simulation iteration.  The simulated data can use {\tt .STEP}
     though and the {\tt ERROR} measure values will be re-evaluated for
-    each step.  \item For {\tt TRAN} measures, the values of the
-    measured waveform are interpolated to the simulation times in the
-    comparison waveform.  So, the norm calculation is inherently
-    windowed to the time interval of the comparison waveform.  \item
-    For {\tt DC} measures, interpolation is not used.  So, the values
+    each step.  
+
+  \item For {\tt TRAN} (or {\tt AC} or {\tt NOISE}) measures, the values
+    of the measured waveform are interpolated to the simulation times (or
+    frequencies) in the comparison waveform.  So, the norm calculation is 
+    inherently windowed to the time (or frequency) interval of the comparison
+    waveform.  For the best interpolation results for {\tt AC} or {\tt NOISE}
+    measures, it is recommended that the frequency extent of the comparison
+    waveform be greater than or equal to the frequency extent of the measured
+    waveforms.
+
+  \item For {\tt DC} measures, interpolation is not used.  So, the values
     of the simulated and comparion waveforms are compared at the
     values specified by the {\tt DEPVARCOL} qualifier.  Any value for
     the {\tt INDEPVARCOL} qualifier specified on a {\tt DC} measure
     line will be ``silently ignored''.
 
-  \item The time window constraints ({\tt TO}, {\tt FROM} and {\tt TD}
+  \item The time and frequency window constraints ({\tt TO}, {\tt FROM} and {\tt TD}
     qualifiers) are not supported for the {\tt ERROR} measure.  So, as
     noted above, the effective window for the norm calculation is set
     by the extent of the comparison waveform.
 
   \item The values in the column in the comparison file specified with
     the {\tt INDEPVARCOL} qualifier must be monotonically increasing
-    for a {\tt TRAN} measure.  Otherwise, \Xyce{} will not run the
-    simulation.
+    for a {\tt TRAN}, {\tt AC} or {\tt NOISE} measure.  Otherwise,
+    \Xyce{} will not run the simulation.
 
   \item The {\tt ERROR} measure currently supports the L1, L2 and
     INFNORM, with the default being the L2 norm.  If anything other
