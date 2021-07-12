@@ -7926,15 +7926,15 @@ analog begin : the_module
          end else begin
             if (TNODEOUT && !$port_connected(t)) begin
                if ($port_connected(b)) begin // last terminal is 'b'
-                  $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                  $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=1 and self-heating disabled (either because SHMOD=0 or RTH=0).  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
                   $finish(1);
                   // V(b) <+0;
                end else if ($port_connected(p)) begin // last terminal is 'p'
-                  $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                  $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=1 and self-heating disabled (either because SHMOD=0 or RTH=0).  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
                   $finish(1);
                   // V(p) <+ 0;
                end else begin // 4-terminal mode ('t' is internal)
-                  $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                  $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=1 and self-heating disabled (either because SHMOD=0 or RTH=0).  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
                   $finish(1);
                   // Temp(t) <+ 0;
                end

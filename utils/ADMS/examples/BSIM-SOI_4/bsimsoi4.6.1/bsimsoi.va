@@ -2600,7 +2600,7 @@ analog begin : the_module
                        //V(b) <+ 0;
                     end else begin
                         if ($port_connected(p)) begin
-                           $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                           $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
                            $finish(1);
                            //V(p) <+ 0;
                         end
