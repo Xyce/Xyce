@@ -39,6 +39,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <numeric>
 
 #include <N_UTL_fwd.h>
 
@@ -381,6 +382,16 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
     // disconnected from the rest of the circuit.
     std::ostringstream oss;
     std::vector< Xyce::NodeID > floatingDevs = mainGraphPtr_->outputDeviceNodeGraph( oss );
+/* 
+    // Write out device graph
+    std::string filename = "device_graph.txt";
+    std::ofstream output_stream(filename.c_str(), std::ios_base::out);
+
+    if (output_stream.fail())
+      Report::UserWarning() << "Unable to open names file" <<std::endl;
+
+    output_stream << oss.str() << std::endl;
+*/
     std::vector< int > floatingDevNodes;
     floatingDevNodes.push_back(0); // For the start pointer
 
@@ -429,7 +440,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         int pos = 0;
         char * floatingNodeBuffer = new char[bsize];
 
-        std::vector< int > nodeCnt( tFNodes[proc], 0 ), tmpNodeCnt( tFNodes[proc], 0 );
+        std::vector< int > nodeCnt( tFNodes[proc], -1 ), tmpNodeCnt( tFNodes[proc], -1 );
 
         if ( proc == myProc )
         {
@@ -446,7 +457,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
 
           // Wait for a response from the other processors on whether they have 
           // any of these floating nodes.
-          pdsManager_.getPDSComm()->sumAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+          pdsManager_.getPDSComm()->maxAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
 
           int i=0, removedNodes=0;
           std::vector< Xyce::NodeID >::iterator it = floatingDevs.begin();
@@ -455,8 +466,9 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
             bool isOwned = false;
             for ( int j=floatingDevNodes[i]; j<floatingDevNodes[i+1]; ++j )
             {
-              if ( nodeCnt[j] )
+              if ( nodeCnt[j] > -1 )
               {
+                Xyce::dout() << "Processor " << proc << " should send " << *it << " to processor " << nodeCnt[j] << std::endl;
                 isOwned = true;
                 break;
               }
@@ -499,7 +511,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
           for (int i=0; i<tFNodes[proc]; ++i) 
           {
             if ( mainGraphPtr_->FindCktNode( tmpNode[i] ) != 0 )
-              tmpNodeCnt[i] = 1;
+              tmpNodeCnt[i] = proc;
           }
        
           // Now sum the tmpNodeCnt to see which voltage nodes are on other processors. 
@@ -650,7 +662,6 @@ Topology::removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager)
     // multiple times
     CktNodeList oldNodeList;
 
-    // print out current state of supernode list
     std::vector< std::pair<NodeID, NodeID> >::iterator currentNodePair = superNodeList_.begin();
     std::vector< std::pair<NodeID, NodeID> >::iterator endNodePair = superNodeList_.end();
     unordered_set<NodeID> nodesReplaced;
