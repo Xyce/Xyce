@@ -418,6 +418,9 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
       int myProc = pdsManager_.getPDSComm()->procID();
       std::vector<int> tFNodes( numProcs, 0 ), fNodes( numProcs, 0 ); 
 
+      Xyce::dout() << "Processor " << myProc << " has " << floatingDevs.size() << " floating devices to consider " << std::endl;
+      Xyce::dout() << "Processor " << myProc << " has " << floatingNodes.size() << " floating nodes to consider " << std::endl;
+
       fNodes[ myProc ] = floatingNodes.size();
       pdsManager_.getPDSComm()->sumAll( &fNodes[0], &tFNodes[0], numProcs );
 
@@ -441,6 +444,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         char * floatingNodeBuffer = new char[bsize];
 
         std::vector< int > nodeCnt( tFNodes[proc], -1 ), tmpNodeCnt( tFNodes[proc], -1 );
+        std::vector< Xyce::NodeID > finalFloatingDevs, finalFloatingNodes;
 
         if ( proc == myProc )
         {
@@ -463,37 +467,31 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
           std::vector< Xyce::NodeID >::iterator it = floatingDevs.begin();
           while( it != floatingDevs.end() )
           {
+            i++;
             bool isOwned = false;
-            for ( int j=floatingDevNodes[i]; j<floatingDevNodes[i+1]; ++j )
+            for ( int j=floatingDevNodes[i-1]; j<floatingDevNodes[i]; ++j )
             {
               if ( nodeCnt[j] > -1 )
               {
-                Xyce::dout() << "Processor " << proc << " should send " << *it << " to processor " << nodeCnt[j] << std::endl;
+                Xyce::dout() << "Processor " << myProc << " should send " << *it << " to processor " << nodeCnt[j] << std::endl;
                 isOwned = true;
                 break;
               }
             }
             // If one of the voltage nodes attached to devices on other processors,
             // this device is not floating, neither are the voltage nodes attached.
-            if (isOwned)   
+            if (!isOwned)   
             {
-              std::vector< Xyce::NodeID >::iterator remove_it = it;
-              it++;
-              floatingDevs.erase( remove_it );
-              for ( int j=floatingDevNodes[i]; j<floatingDevNodes[i+1]; ++j )
-              {
-                floatingNodes.erase( floatingNodes.begin()+j-removedNodes );
-                removedNodes++;
-              }
-              if (it != floatingDevs.end())
-                break;
+              finalFloatingDevs.push_back( *it );
+              for ( int j=floatingDevNodes[i-1]; j<floatingDevNodes[i]; ++j )
+                finalFloatingNodes.push_back( *(floatingNodes.begin()+j) );
             }
-            else
-              it++; 
-       
-            // Increment counter
-            i++;  
+
+            it++; 
           }
+
+          floatingDevs = finalFloatingDevs;
+          floatingNodes = finalFloatingNodes;
         }
         else
         { 
@@ -511,11 +509,11 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
           for (int i=0; i<tFNodes[proc]; ++i) 
           {
             if ( mainGraphPtr_->FindCktNode( tmpNode[i] ) != 0 )
-              tmpNodeCnt[i] = proc;
+              tmpNodeCnt[i] = myProc;
           }
        
           // Now sum the tmpNodeCnt to see which voltage nodes are on other processors. 
-          pdsManager_.getPDSComm()->sumAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+          pdsManager_.getPDSComm()->maxAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
         }
         
         // Clean up.
@@ -524,6 +522,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
 
       int numFloatingDevs = floatingDevs.size();
       int numFloatingNodes = floatingNodes.size();
+
       pdsManager_.getPDSComm()->sumAll( &numFloatingNodes, &tNumFloatingNodes, 1 ); 
       pdsManager_.getPDSComm()->sumAll( &numFloatingDevs, &tNumFloatingDevs, 1 ); 
     } 
@@ -549,6 +548,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
     // now it's safe to delete the voltage nodes
     for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
       delete *it;
+
   }
 
 }

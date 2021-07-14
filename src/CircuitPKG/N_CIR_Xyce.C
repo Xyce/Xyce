@@ -504,7 +504,7 @@ Simulator::RunStatus
 Simulator::setupTopology( unordered_map< std::string, std::string >& aliasMap )
 {
   // check topology imbalance before verifying devices and completing setup
-  //topology_->removeFloatingNodes(*deviceManager_);
+  topology_->removeFloatingNodes(*deviceManager_);
 
   // topology query's device manager to see if any devices are bad (i.e. a resistor with zero resistance)
   // if so, a list of nodes to be supernoded is created
