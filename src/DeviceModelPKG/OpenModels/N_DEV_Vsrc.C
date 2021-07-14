@@ -841,16 +841,9 @@ bool Instance::loadFreqBVector (double frequency,
                                 std::vector<Util::FreqVecEntry>& bVec)
 {
 
-//  InstanceVector::const_iterator it, end;
-
-//  it = linearInstances_.begin();
-//  end = linearInstances_.end();
-
   Util::FreqVecEntry tmpEntry;
 
-//  for ( ; it != end; ++it )
   {
-//    Instance & vi = *(*it);
 
     std::complex<double> tmpVal = 0.0;
 
@@ -926,7 +919,7 @@ bool Instance::loadFreqBVector (double frequency,
 
       double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
-    if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
+      if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
         tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
 //      std::cout << "loaded value is " << tmpVal << std::endl;
