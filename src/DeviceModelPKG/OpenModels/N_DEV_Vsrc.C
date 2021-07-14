@@ -926,7 +926,7 @@ bool Instance::loadFreqBVector (double frequency,
 
       double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
-    if ( fabs(frequency - freq * fIdx) < frequency * tol  + tol )  
+    if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
         tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
 //      std::cout << "loaded value is " << tmpVal << std::endl;
