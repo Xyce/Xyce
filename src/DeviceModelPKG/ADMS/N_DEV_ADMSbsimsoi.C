@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sun, 18 Apr 2021 10:09:00
+// Creation Date  : Mon, 12 Jul 2021 10:07:08
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -9451,7 +9451,7 @@ else
 {
 if (portsConnected_[admsNodeID_p])
 {
-UserInfo(*this)  << "Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node." << " " <<  std::endl; 
+UserInfo(*this)  << "Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node." << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -39534,7 +39534,7 @@ else
 {
 if (portsConnected_[admsNodeID_p])
 {
-UserInfo(theInstance)  << "Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This nodes is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node." << " " <<  std::endl; 
+UserInfo(theInstance)  << "Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node." << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }

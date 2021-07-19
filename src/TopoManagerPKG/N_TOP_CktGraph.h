@@ -129,6 +129,8 @@ public:
   virtual void removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, std::vector< CktNode * > & removedDevices) = 0;
   virtual void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes ) = 0;
 
+  virtual std::vector< Xyce::NodeID > outputDeviceNodeGraph(std::ostream & os) = 0;
+
   const std::string& get_id() const { return id_; }
 
 protected:

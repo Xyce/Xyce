@@ -77,6 +77,9 @@ public:
   // Get access to the supernode flag
   virtual bool supernodeFlag() { return supernode_; }
   //
+  // Get access to the floating node flag
+  virtual bool floatingnodeFlag() { return floatingnode_; }
+  //
   // Get access to the names file flag
   virtual bool namesFileFlag() { return namesFile_; }
   
@@ -127,6 +130,7 @@ public:
 protected:
   bool checkConnectivity_;
   bool supernode_;
+  bool floatingnode_;
   bool isClean_;
   bool namesFile_;
 };

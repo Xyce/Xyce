@@ -60,6 +60,9 @@
 #include <Teuchos_RCP.hpp>
 #include <N_UTL_FFTInterface.hpp>
 
+ 
+#include <N_UTL_MachDepParams.h>
+
 namespace Xyce {
 namespace Device {
 
@@ -838,16 +841,9 @@ bool Instance::loadFreqBVector (double frequency,
                                 std::vector<Util::FreqVecEntry>& bVec)
 {
 
-//  InstanceVector::const_iterator it, end;
-
-//  it = linearInstances_.begin();
-//  end = linearInstances_.end();
-
   Util::FreqVecEntry tmpEntry;
 
-//  for ( ; it != end; ++it )
   {
-//    Instance & vi = *(*it);
 
     std::complex<double> tmpVal = 0.0;
 
@@ -882,7 +878,7 @@ bool Instance::loadFreqBVector (double frequency,
 
       dataPtr->setUseLocalTimeFlag(true);
 
-      int size_ = 21;
+      int size_ = 101;
 
       double tstep = par6/size_;
 
@@ -907,13 +903,11 @@ bool Instance::loadFreqBVector (double frequency,
 
          dataPtr->setTime(i * tstep);
 
-          
-
          dataPtr->updateSource();
 
          ftInData_[i] = dataPtr->returnSource();
 
-         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
+//         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
       }
 
       ftInterface_->calculateFFT();
@@ -921,13 +915,14 @@ bool Instance::loadFreqBVector (double frequency,
       if (frequency == 0.0 )
         tmpVal = std::complex<double> ( ftOutData_[0]/size_, 0);
 
-
       fIdx = std::round( frequency/freq);
 
-      if ( fabs(frequency - freq * fIdx) < 1e-15 )  
+      double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
+
+      if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
         tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
-      std::cout << "loaded value is " << tmpVal << std::endl;
+//      std::cout << "loaded value is " << tmpVal << std::endl;
 
     }
     else

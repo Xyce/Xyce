@@ -1538,6 +1538,7 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("AVG") );
   typeSetNoise.insert( std::string("DERIVATIVE") );
   typeSetNoise.insert( std::string("DERIV") );
+  typeSetNoise.insert( std::string("ERROR") );
   typeSetNoise.insert( std::string("EQN") );
   typeSetNoise.insert( std::string("ERR") );
   typeSetNoise.insert( std::string("ERR1") );
@@ -1770,7 +1771,7 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
-	 << "FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for NOISE measure mode";
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for NOISE measure mode";
       return false;
     }
   }

@@ -1028,7 +1028,7 @@ void HB::prepareHBOutput(
   {
     timePoints = fastTimes_;
 
-    if ( method_ == "AFM" )
+    if ( ( method_ == "AFM" ) && (freqs_.size() > 1 ) )
     {
       updateIFT_( timePoints);
 //      iftInData_.resize( size_+1 );

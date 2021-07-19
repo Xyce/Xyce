@@ -293,10 +293,20 @@ int CktGraphBasic::numAdjNodesWithGround( int gid )
 {
   int count = 0;
 
-  unordered_map<int,int>::iterator it = gIDtoIndex_.find( gid );
-  if ( it != gIDtoIndex_.end() )
+  // Return number of adjacent nodes before or after GIDs are determined.
+  int id = gid;
+  if (gIDtoIndex_.size())
   {
-    const std::vector<int>& adjIndices = cktgph_.getAdjacentRow( it->second );
+    unordered_map<int,int>::iterator it = gIDtoIndex_.find( gid );
+    if ( it!= gIDtoIndex_.end() )
+      id = it->second;
+    else
+      id = -1;
+  } 
+
+  if ( id != -1 )
+  {
+    const std::vector<int>& adjIndices = cktgph_.getAdjacentRow( id );
     count = adjIndices.size();
   }
 
@@ -798,7 +808,7 @@ void CktGraphBasic::removeNodes( const std::vector< NodeID > & nodesToBeRemoved,
 
 //-----------------------------------------------------------------------------
 // Function      : CktGraphBasic::put
-// Purpose       : Allows virtual override of operator<<
+// Pureose       : Allows virtual override of operator<<
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
@@ -819,6 +829,73 @@ std::ostream& CktGraphBasic::put(std::ostream& os) const
   cktgph_.print( os );
 
   return os;
+}
+
+std::vector< Xyce::NodeID > CktGraphBasic::outputDeviceNodeGraph(std::ostream & os) 
+{
+  // The device node graph is the distance-2 graph
+  const CktGraph::Graph::Index1Map& indexMap = cktgph_.getIndex1Map();
+  
+  // Get the local ID for the ground node, which we will ignore when generating the device graph.
+  Xyce::NodeID gnd( "0", _VNODE );
+  CktGraph::Graph::Index1Map::const_iterator currentIndexItr = indexMap.find( gnd );
+  int gndIdx = -1;
+  if (currentIndexItr != indexMap.end())
+    gndIdx = currentIndexItr->second; 
+ 
+  unordered_map<int, std::vector<int> > deviceAdj;
+
+  int maxIndex = 0; 
+  currentIndexItr = indexMap.begin();
+  CktGraph::Graph::Index1Map::const_iterator endIndexItr = indexMap.end();
+  while( currentIndexItr != endIndexItr )
+  { 
+    if( Xyce::get_node_type((*currentIndexItr).first) == _DNODE )
+    { 
+      // Get the voltage nodes adjacent to this device
+      const std::vector<int>& vAdj = cktgph_.getAdjacentRow( currentIndexItr->second );
+
+      // Loop over the voltage nodes and get their adjacencies, which are devices
+      std::vector<int>::const_iterator vIdx = vAdj.begin();
+      for ( ; vIdx != vAdj.end(); ++vIdx )
+      {
+        if (*vIdx != gndIdx)
+        {
+          const std::vector<int>& dAdj = cktgph_.getAdjacentRow( *vIdx ); 
+          deviceAdj[ currentIndexItr->second ].insert( deviceAdj[ currentIndexItr->second ].end(),
+                                                       dAdj.begin(), dAdj.end() );
+        }
+      }
+
+      // Get the maximum device index
+      if ( currentIndexItr->second > maxIndex )
+        maxIndex = currentIndexItr->second;
+    }
+    currentIndexItr++;
+  } 
+
+  int totalEntries = 0; 
+  std::vector< Xyce::NodeID > floatingDevs;
+
+  os << "-------------------- Device Graph ----------------------------\n";
+  os << deviceAdj.size() << " " << maxIndex << std::endl;
+  unordered_map<int, std::vector<int> >::iterator dIdx = deviceAdj.begin();
+  for( ; dIdx != deviceAdj.end(); ++dIdx )
+  {
+    // Make sure the entries for this device are unique
+    std::sort( (*dIdx).second.begin(), (*dIdx).second.end() );
+    (*dIdx).second.erase(std::unique((*dIdx).second.begin(), (*dIdx).second.end()), (*dIdx).second.end());
+
+    // Write out the device id and its connected devices to the output stream
+    os << dIdx->first << " : ";
+    for( size_t j = 0; j < (*dIdx).second.size(); ++j )
+      os << " " << ((*dIdx).second)[j]; 
+    os << std::endl;
+    if ((*dIdx).second.size() == 1)
+      floatingDevs.push_back( cktgph_.getKey( dIdx->first ) );
+  }
+
+  return floatingDevs;
 }
 
 } // namespace Topo

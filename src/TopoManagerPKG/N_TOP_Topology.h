@@ -113,13 +113,16 @@ public:
     return *orderedNodeListPtr_;
   }
 
-  // merge the off processor superNodeList_ and communicate the same list
-  // to all procs so topology reduction is the same on all procs
-  void mergeOffProcTaggedNodesAndDevices();
+  // analyze local graph for floating devices and voltage nodes
+  void removeFloatingNodes(Device::DeviceMgr &device_manager);
 
   // this functions builds up the supernode list.  Called at the end of
   // parsing from n_cir_xyce
   void verifyNodesAndDevices(Device::DeviceMgr &device_manager);
+
+  // merge the off processor superNodeList_ and communicate the same list
+  // to all procs so topology reduction is the same on all procs
+  void mergeOffProcTaggedNodesAndDevices();
 
   // remove any nodes and devices that were tagged for removal during parsing
   // this method will return aliases for any nodes that have been removed.  if devices are
