@@ -346,10 +346,10 @@ int NetlistImportTool::constructCircuitFromNetlist(
   Device::DeviceMgr &                                           device_manager,
   Measure::Manager &                                            measure_manager,
   FourierMgr &                                                  fourier_manager,
-  FFTMgr &                                                      fft_manager)
+  FFTMgr &                                                      fft_manager,
+  unordered_set<std::string> &device_names )
 {
   Parallel::Machine comm = pds_comm.comm();
-  unordered_set<std::string> device_names;
 
   // Create a circuitBlock instance to hold netlist circuit data.
   mainCircuitBlock_ = new IO::CircuitBlock(

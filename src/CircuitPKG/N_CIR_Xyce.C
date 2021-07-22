@@ -946,6 +946,9 @@ Simulator::RunStatus Simulator::initializeEarly(
     Stats::StatTop _netlistImportStat("Netlist Import");
     Stats::TimeBlock _netlistImportTimer(_netlistImportStat);
 
+    // Clear out the device_names set, in case it isn't clear yet
+    device_names_.clear();
+
     netlist_import_tool.constructCircuitFromNetlist(
       commandLine_,
       hangingResistor_,
@@ -958,7 +961,8 @@ Simulator::RunStatus Simulator::initializeEarly(
       *deviceManager_,
       *measureManager_,
       *fourierManager_,
-      *fftManager_);
+      *fftManager_,
+      device_names_);
 
     if (netlist_import_tool.getUseMOR())
       return DONE;
@@ -1060,15 +1064,23 @@ Simulator::RunStatus Simulator::initializeLate()
   Stats::StatTop _lateInitStat("Late Initialization");
   Stats::TimeBlock _lateInitTimer(_lateInitStat);
   {
-    // Now is the time to tell devices that they need to enable lead currents
-    // Requests were made in initializeEarly, but it isn't actually done until
-    // now to allow for the case where external outputters have added requests
-    // that weren't available at netlist parsing time.
-    // Setup of indices including global reordering.
+    // Issue243:  These things should be moved to a short subroutine
+    // when you finish!
     {
-      Stats::StatTop _leadCurrentStat("Lead Current Enable");
-      Stats::TimeBlock _leadCurrentTimer(_leadCurrentStat);
-      deviceManager_->finalizeLeadCurrentRequests();
+      // Clear out the device_names set, we don't need it anymore
+      device_names_.clear();
+
+      // Now is the time to tell devices that they need to enable lead
+      // currents Requests were made in initializeEarly, but it isn't
+      // actually done until now to allow for the case where external
+      // outputters have added requests that weren't available at
+      // netlist parsing time.
+      // Setup of indices including global reordering.
+      {
+        Stats::StatTop _leadCurrentStat("Lead Current Enable");
+        Stats::TimeBlock _leadCurrentTimer(_leadCurrentStat);
+        deviceManager_->finalizeLeadCurrentRequests();
+      }
     }
     // Setup of indices including global reordering.
     {

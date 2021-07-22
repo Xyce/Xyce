@@ -366,6 +366,7 @@ class Simulator
   Util::JSON                            auditJSON_;                     ///< Audit JSON structure
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
+  unordered_set<std::string> device_names_;
 
   protected:
   IO::CmdParse                          commandLine_;
