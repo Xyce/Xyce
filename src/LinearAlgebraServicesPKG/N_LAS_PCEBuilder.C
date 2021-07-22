@@ -369,6 +369,8 @@ const std::vector<int> & PCEBuilder::vnodeGIDVec() const
 {
   Report::DevelFatal().in("PCEBuilder::vnodeGIDVec")
   << "This function is not implemented yet.";
+
+  return vnodeVec_;
 }
 
 } // namespace Linear
