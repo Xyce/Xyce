@@ -187,7 +187,6 @@ void Fourier::getLastPeriod_()
     std::string msg = "Error in measure \"" + name_ + "\": The period is greater than the length of the time simulation. Exiting.";
     Report::UserFatal() << msg;
   }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -382,7 +381,7 @@ double Fourier::getMeasureResult()
 //-----------------------------------------------------------------------------
 // Function      : Fourier::printMeasureResult( std::ostream& os )
 // Purpose       : used to print the measurement result to an output stream
-//                 object, which is typically the mt0, ma0 or ms0 file
+//                 object, which is the mt0 file for this measure type.
 // Special Notes :
 // Scope         : public
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
@@ -405,9 +404,9 @@ std::ostream& Fourier::printMeasureResult( std::ostream& os)
     }
 
     // The next statement allows maintains a reasonable column width even if
-    // the user to enter a precision_ value of 0.  All floating point numbers
+    // the user enters a precision_ value of 0.  All floating point numbers
     // are output in scientific notation based on the precision_ variable.  
-    // numFreq and ident are integers and are output as such.
+    // numFreq_ and ident are integers and are output as such.
     int colWidth = (precision_ < 5) ? 15 : 10 + precision_; 
     int ident = 10;
     os << name_ << ":  No. Harmonics: " << numFreq_ << ", THD: " 
