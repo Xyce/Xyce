@@ -275,8 +275,11 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &            device_names,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_parameter_check,
-  bool &                                        iStarRequested);
+  UndefinedNameSet &                            deferred_parameter_check);
+
+void processPrintParamIWildcards(
+   const OutputParameterMap &                    output_parameter_map,
+   bool &                                        iStarRequested);
 
 void deferredParameterDiagnostics(
   Parallel::Machine                             comm,

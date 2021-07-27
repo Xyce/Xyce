@@ -468,33 +468,44 @@ int NetlistImportTool::constructCircuitFromNetlist(
   output_manager.setTitle(mainCircuitBlock_->getTitle());
 
   // Each call to getLeadCurrentDevices() adds any additional devices that need
-  // lead currents to the devicesNeedingLeadCurrents set, based on the 
-  // various I(), P(), W(), or expressions with one of those items, on 
+  // lead currents to the devicesNeedingLeadCurrents set, based on the
+  // various I(), P(), W(), or expressions with one of those items, on
   // the .PRINT, .FOUR or .MEASURE lines.
   std::set<std::string> devicesNeedingLeadCurrents;
   getLeadCurrentDevices(output_manager.getVariableList(), devicesNeedingLeadCurrents);
   getWildCardLeadCurrentDevices(output_manager.getVariableList(), device_names, devicesNeedingLeadCurrents);
 
   // This is the last call before devices are constructed
-  // So it's the last time I can isolate lead currents. However it won't be sufficient
-  // as we haven't parsed expressions in devices yet.  I'll need to rethink
-  // when this call is made to the device manager.  Sometime just after device instance
-  // construction but before the store vector is allocated.
+  // So it's the last time I can isolate lead currents. However it
+  // won't be sufficient as we haven't parsed expressions in devices
+  // yet.  I'll need to rethink when this call is made to the device
+  // manager.  Sometime just after device instance construction but
+  // before the store vector is allocated.
+
   device_manager.setLeadCurrentRequests(devicesNeedingLeadCurrents);
   device_manager.setLeadCurrentRequests(fourier_manager.getDevicesNeedingLeadCurrents());
   device_manager.setLeadCurrentRequests(fft_manager.getDevicesNeedingLeadCurrents());
   device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
 
-  // printLineDiagnostics() is where parsing looks for I(*), P(*) and W(*) on the .PRINT line,
-  // amongst many other things.  If any of those three operators are found then set the
-  // corresponding flag in the device_manager which enables lead current calculations for all devices.
+  // printLineDiagnostics scans all output parameters requested by print lines
+  // and flags any errors or inconsistencies.
+  printLineDiagnostics(comm, output_manager.getOutputParameterMap(),
+                       device_manager, measure_manager, nodeNames_,
+                       stepParams_,
+                       samplingParams_,
+                       embeddedSamplingParams_,
+                       pceParams_,
+                       dcParams_, device_names, aliasNodeMap_,
+                       deferredUndefinedParameters_);
+
+  // processPrintParamIWildcards() is where parsing looks for I(*), P(*),
+  // W(*), DNI(*), and DNO(*)  among the print parameters.  If any of
+  // those operators are found then set the corresponding flag
+  // in the device_manager which enables lead current calculations for
+  // all devices.w
   bool iStarRequested=false;
-  printLineDiagnostics(comm, output_manager.getOutputParameterMap(), device_manager, measure_manager, nodeNames_, 
-      stepParams_, 
-      samplingParams_, 
-      embeddedSamplingParams_, 
-      pceParams_, 
-      dcParams_, device_names, aliasNodeMap_, deferredUndefinedParameters_, iStarRequested);
+  processPrintParamIWildcards(output_manager.getOutputParameterMap(),
+                              iStarRequested);
 
   device_manager.setIStarRequested(iStarRequested);
 
@@ -674,8 +685,7 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &    device_map,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_undefined_parameters,
-  bool &                                        iStarRequested)
+  UndefinedNameSet &                            deferred_undefined_parameters)
 {
   UndefinedNameSet undefined_parameters;
 
@@ -942,8 +952,6 @@ void printLineDiagnostics(
             // request for all R devices nodes that start with "R1".
             instanceStat[name] = (name[0] == '*') || findWildCardMatch(name.substr(0, name.size() - 3),device_map) ||
                                  (device_map.find(name.substr(0, name.size() - 3)) != device_map.end());
-            if (name[0] == '*')
-              iStarRequested=true;
           }
           else
           {
@@ -951,8 +959,6 @@ void printLineDiagnostics(
             // request for all R devices nodes that start with "R1".
             instanceStat[name] = (name == "*") || findWildCardMatch(name,device_map) ||
                                  (device_map.find(name) != device_map.end());
-            if (name == "*")
-              iStarRequested=true;
           }
         }
       }
@@ -1017,6 +1023,73 @@ void printLineDiagnostics(
 
   if (!undefined_parameters.empty())
     errorUndefinedParameters(undefined_parameters);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : processPrintParamIWildcards
+// Purpose       : look through parameter lists and set a flag if any
+//                 request wildcards in an operators that request currents
+// Special Notes :  This used to get done as part of printLineDiagnostics,
+//                 but that function is called too early and misses any
+//                 wildcards that might be requested by external outputters
+//                 which are defined via an API long after netlist parsing.
+//
+//                 It largely mirrors the structure of printLineDiagnostics,
+//                 but ONLY looks for instances that are wildards.
+//
+//                 In this function we do not do all the error checking
+//                 that was done
+//-----------------------------------------------------------------------------
+
+void processPrintParamIWildcards(
+   const OutputParameterMap &                    output_parameter_map,
+   bool &                                        iStarRequested)
+{
+  for (OutputParameterMap::const_iterator it1 = output_parameter_map.begin(), end1 = output_parameter_map.end(); it1 != end1; ++it1)
+  {
+    const OutputParameterMap::mapped_type &parameter_vector = (*it1).second;
+    for (OutputParameterMap::mapped_type::const_iterator it2 = parameter_vector.begin(), end2 = parameter_vector.end(); it2 != end2; ++it2)
+    {
+      const PrintParameters &print_parameters = (*it2);
+      for (Util::ParamList::const_iterator it3 = print_parameters.variableList_.begin(), end3 = print_parameters.variableList_.end(); it3 != end3; ++it3)
+      {
+        const Util::Param &parameter = (*it3);
+        std::vector<std::string> instances;
+        // Unlike printLineDiagnostics, we need not care about expressions,
+        // because you can't use wildcards in expressions
+        // We only care about instances in output operators
+        const std::string &varType = parameter.tag();
+
+        if ((varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I')) && parameter.getImmutableValue<int>() > 0)
+        {
+          ++it3;
+          // unlike printLineDiagnostics, we don't need to distinguish
+          // between the various leads requested (ID, IS, etc.) because
+          // all we care about is if there's a wildcard
+          instances.push_back((*it3).tag());
+        }
+        else if (varType.size() == 3 && varType[0] == 'D' && parameter.getImmutableValue<int>() > 0)
+        {
+          int numIndices = parameter.getImmutableValue<int>();
+          ++it3;
+          instances.push_back((*it3).tag());
+          if (numIndices == 2) ++it3;
+        }
+        else if (((varType == "P") || (varType == "W")) && parameter.getImmutableValue<int>() > 0)
+        {
+          ++it3;
+          instances.push_back((*it3).tag());
+        }
+
+        for (std::vector<std::string>::iterator iter_s= instances.begin(); iter_s != instances.end(); ++iter_s)
+        {
+          const std::string &name = *iter_s;
+          if (name == "*")
+            iStarRequested=true;
+        }
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
