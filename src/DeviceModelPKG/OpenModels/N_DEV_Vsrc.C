@@ -878,7 +878,7 @@ bool Instance::loadFreqBVector (double frequency,
 
       dataPtr->setUseLocalTimeFlag(true);
 
-      int size_ = 101;
+      int size_ = 21;
 
       double tstep = par6/size_;
 
@@ -919,10 +919,10 @@ bool Instance::loadFreqBVector (double frequency,
 
       double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
-      if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
+      if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
         tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
-//      std::cout << "loaded value is " << tmpVal << std::endl;
+      std::cout << "loaded value is " << tmpVal << std::endl;
 
     }
     else
