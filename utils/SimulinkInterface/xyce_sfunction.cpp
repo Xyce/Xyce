@@ -40,6 +40,7 @@
 
 #include <utility>
 #include <fstream>
+#include <sstream>
 
 #define IS_PARAM_DOUBLE(pVal) (mxIsNumeric(pVal) && !mxIsLogical(pVal) &&\
 !mxIsEmpty(pVal) && !mxIsSparse(pVal) && !mxIsComplex(pVal) && mxIsDouble(pVal))
@@ -48,7 +49,37 @@
 // This enum avoids hardcoding indicies 
 // 0 -> pointer to the Xyce object
 // 1 -> pointer to current time step. 
-enum WorkArray:int  {XycePtr, CurrentTimeStepPtr, DACVecPtr, ADCMapPtr, WorkSize};
+enum WorkArray:int  {InputNamesVecPtr, OutputNamesVecPtr, XycePtr, CurrentTimeStepPtr, DACVecPtr, ADCMapPtr, WorkSize};
+
+// 
+// Utility functions.  
+// Matlab and Simulink rely on C character arrays for strings.  These are utility functions
+// to help convert char * [] to strings and to parse up a string into sub-strings
+//
+std::string ConvertMxArrayToString( const mxArray * aSimulinkCharArray)
+{
+  int numElements = mxGetNumberOfElements(aSimulinkCharArray);
+  char * tempBuf = new char[numElements+1];
+  mxGetString(aSimulinkCharArray, tempBuf, numElements+1);
+  std::string fullStringValue( tempBuf );
+  return fullStringValue;
+}
+
+std::vector<std::string> ParseCommaSeparatedString( const std::string inputString)
+{
+  std::vector<std::string> returnVector;
+  std::stringstream inputAsStream( inputString );
+  while( inputAsStream.good())
+  {
+    std::string aSubString;
+    getline( inputAsStream, aSubString, ',' );
+    returnVector.push_back( aSubString);
+  }
+  return returnVector;
+}
+
+
+
 //
 // Function: mdlInitializeSizes ===============================================
 //
@@ -59,7 +90,7 @@ enum WorkArray:int  {XycePtr, CurrentTimeStepPtr, DACVecPtr, ADCMapPtr, WorkSize
 static void mdlInitializeSizes(SimStruct *S)
 {
   // No expected parameters
-  ssSetNumSFcnParams(S, 1);
+  ssSetNumSFcnParams(S, 3);
 
   // Parameter mismatch will be reported by Simulink
   if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) 
@@ -136,17 +167,30 @@ static void mdlStart(SimStruct *S)
 
   // get pointer to first param
   const mxArray * firstParamPtr = ssGetSFcnParam(S, 0);
-  int numElements = mxGetNumberOfElements(firstParamPtr);
-  int numFields = mxGetNumberOfFields(firstParamPtr);
-  // just for debugging to ensure read of circuit name from parameter list worked.
-  //mexPrintf("NumElements = %i\n", numElements);
-  //mexPrintf("NumChars = %i\n", numFields);
-  char * tempBuf = new char[numElements+1];
-
-  mxGetString(firstParamPtr, tempBuf, numElements+1);
-
-  std::string theFilename( tempBuf );
+  std::string theFilename = ConvertMxArrayToString(firstParamPtr); 
   mexPrintf( "Input Filename is \"%s\"\n", theFilename.c_str() );
+  
+  const mxArray * inputNamesParamPtr = ssGetSFcnParam(S, 1);
+  std::string inputNames = ConvertMxArrayToString(inputNamesParamPtr); 
+  std::vector<std::string> inputNamesVec = ParseCommaSeparatedString(inputNames);
+  std::vector<std::string> * inputNamesVecPtr = new std::vector<std::string>(inputNamesVec);
+  ssGetPWork(S)[InputNamesVecPtr] = inputNamesVecPtr;
+  mexPrintf( "Input names num elements %s\n", inputNames.c_str());
+  for( auto i=0; i<inputNamesVecPtr->size(); i++)
+  {
+    mexPrintf("%i, %s\n", i, inputNamesVecPtr->at(i).c_str());
+  }
+  
+  const mxArray * outputNamesParamPtr = ssGetSFcnParam(S, 2);
+  std::string outputNames = ConvertMxArrayToString(outputNamesParamPtr); 
+  std::vector<std::string> outputNamesVec = ParseCommaSeparatedString(outputNames);
+  std::vector<std::string> * outputNamesVecPtr = new std::vector<std::string>(outputNamesVec);
+  ssGetPWork(S)[OutputNamesVecPtr] = outputNamesVecPtr;
+  mexPrintf( "Output names num elements %s\n", outputNames.c_str());
+  for( auto i=0; i<outputNamesVecPtr->size(); i++)
+  {
+    mexPrintf("%i, %s\n", i, outputNamesVecPtr->at(i).c_str());
+  }
   
   // check if file exists because Xyce will exit if it does not.
   std::ifstream theInputFileStream( theFilename.c_str() );
@@ -193,15 +237,52 @@ static void mdlStart(SimStruct *S)
   {
     mexPrintf("No DAC devcies found in the circuit.\n");
   }
-   
+
+  // check that input names match a name from Xyce.
+  for( auto i=0; i<inputNamesVec.size(); i++)
+  {
+    // locate the Xyce device name that matches inputNamesVec[i]
+    bool found=false;
+    for( auto j=0; (j<dacNamesPtr->size() && !found); j++)
+    {
+      if( inputNamesVec[i].compare(dacNamesPtr->at(j) ) )
+      {
+        mexPrintf( "Found matching input name %s\n", inputNamesVec[i].c_str());
+        found=true;
+      }
+    }
+    if( !found )
+    {
+      mexPrintf("Input name %s was not found in the Xyce netlist\n", inputNamesVec[i].c_str());
+    }
+  }
+  
   std::map<std::string,std::map<std::string,double> > * adcStrMapPtr = new  std::map<std::string,std::map<std::string,double> >();
   ssGetPWork(S)[ADCMapPtr] = adcStrMapPtr;
-  
   // populate the ADC map from xyce
   xyce->getADCMap( *adcStrMapPtr );
   if( adcStrMapPtr->empty() )
   {
     mexPrintf("No ADC devices found in the circuit.\n");
+  }
+  // set up a map from the Simulink outputNamesVec index to the names as ordered by Xyce 
+  
+  for( auto i=0; i<outputNamesVec.size(); i++)
+  {
+    // locate the Xyce device name that matches inputNamesVec[i]
+    bool found=false;
+    for( auto mapItr=adcStrMapPtr->begin(); ((mapItr!=adcStrMapPtr->end()) && !found); mapItr++)
+    {
+      if( outputNamesVec[i].compare(mapItr->first ) )
+      {
+        mexPrintf( "Found matching output name %s\n", outputNamesVec[i].c_str());
+        found=true;
+      }
+    }
+    if( !found )
+    {
+      mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVec[i].c_str());
+    }
   }
   
   // Store new C++ object in the pointers vector
@@ -398,6 +479,22 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   else
   {
     int simulinkOutputIndex = 0;
+    
+    // this loop is for debugging only.
+    for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
+    {
+      std::vector< std::pair<double,double> >  timeVoltagePairs = tVUpdateMapItr->second;
+      std::string devName = tVUpdateMapItr->first;
+      // may need better logic here, but for now just grap the last pair 
+      if( ! timeVoltagePairs.empty())
+      {
+        auto lastElementItr = timeVoltagePairs.rbegin();
+        double lastTime = lastElementItr->first;
+        double lastValue = lastElementItr->second;
+        mexPrintf("DEBUG For devcie %s values (%g, %g) in time vec pair\n", devName.c_str(), lastTime, lastValue);
+      }
+    }
+    
     for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
     {
       if( simulinkOutputIndex < outputPortWidth)
