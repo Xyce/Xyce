@@ -467,26 +467,6 @@ int NetlistImportTool::constructCircuitFromNetlist(
 
   output_manager.setTitle(mainCircuitBlock_->getTitle());
 
-  // Each call to getLeadCurrentDevices() adds any additional devices that need
-  // lead currents to the devicesNeedingLeadCurrents set, based on the
-  // various I(), P(), W(), or expressions with one of those items, on
-  // the .PRINT, .FOUR or .MEASURE lines.
-  std::set<std::string> devicesNeedingLeadCurrents;
-  getLeadCurrentDevices(output_manager.getVariableList(), devicesNeedingLeadCurrents);
-  getWildCardLeadCurrentDevices(output_manager.getVariableList(), device_names, devicesNeedingLeadCurrents);
-
-  // This is the last call before devices are constructed
-  // So it's the last time I can isolate lead currents. However it
-  // won't be sufficient as we haven't parsed expressions in devices
-  // yet.  I'll need to rethink when this call is made to the device
-  // manager.  Sometime just after device instance construction but
-  // before the store vector is allocated.
-
-  device_manager.setLeadCurrentRequests(devicesNeedingLeadCurrents);
-  device_manager.setLeadCurrentRequests(fourier_manager.getDevicesNeedingLeadCurrents());
-  device_manager.setLeadCurrentRequests(fft_manager.getDevicesNeedingLeadCurrents());
-  device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
-
   // printLineDiagnostics scans all output parameters requested by print lines
   // and flags any errors or inconsistencies.
   printLineDiagnostics(comm, output_manager.getOutputParameterMap(),
@@ -497,17 +477,6 @@ int NetlistImportTool::constructCircuitFromNetlist(
                        pceParams_,
                        dcParams_, device_names, aliasNodeMap_,
                        deferredUndefinedParameters_);
-
-  // processPrintParamIWildcards() is where parsing looks for I(*), P(*),
-  // W(*), DNI(*), and DNO(*)  among the print parameters.  If any of
-  // those operators are found then set the corresponding flag
-  // in the device_manager which enables lead current calculations for
-  // all devices.w
-  bool iStarRequested=false;
-  processPrintParamIWildcards(output_manager.getOutputParameterMap(),
-                              iStarRequested);
-
-  device_manager.setIStarRequested(iStarRequested);
 
   return 1;
 }

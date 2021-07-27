@@ -1067,8 +1067,38 @@ Simulator::RunStatus Simulator::initializeLate()
     // Issue243:  These things should be moved to a short subroutine
     // when you finish!
     {
+      // Each call to getLeadCurrentDevices() adds any additional
+      // devices that need lead currents to the
+      // devicesNeedingLeadCurrents set, based on the various I(),
+      // P(), W(), or expressions with one of those items, on the
+      // .PRINT, .FOUR or .MEASURE lines.
+      std::set<std::string> devicesNeedingLeadCurrents;
+      Xyce::IO::getLeadCurrentDevices(outputManager_->getVariableList(),
+                                      devicesNeedingLeadCurrents);
+      Xyce::IO::getWildCardLeadCurrentDevices(outputManager_->getVariableList(),
+                                              device_names_,
+                                              devicesNeedingLeadCurrents);
+
+      // This is the last call before devices are finalized
+      // So it's the last time I can isolate lead currents.
+
+      deviceManager_->setLeadCurrentRequests(devicesNeedingLeadCurrents);
+      deviceManager_->setLeadCurrentRequests(fourierManager_->getDevicesNeedingLeadCurrents());
+      deviceManager_->setLeadCurrentRequests(fftManager_->getDevicesNeedingLeadCurrents());
+      deviceManager_->setLeadCurrentRequests(measureManager_->getDevicesNeedingLeadCurrents());
+
       // Clear out the device_names set, we don't need it anymore
       device_names_.clear();
+
+      // processPrintParamIWildcards() is where parsing looks for I(*), P(*),
+      // W(*), DNI(*), and DNO(*)  among the print parameters.  If any of
+      // those operators are found then set the corresponding flag
+      // in the device_manager which enables lead current calculations for
+      // all devices.w
+      bool iStarRequested=false;
+      processPrintParamIWildcards(outputManager_->getOutputParameterMap(),
+                                  iStarRequested);
+      deviceManager_->setIStarRequested(iStarRequested);
 
       // Now is the time to tell devices that they need to enable lead
       // currents Requests were made in initializeEarly, but it isn't

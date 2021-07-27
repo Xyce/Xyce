@@ -1306,8 +1306,6 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
   {
     localDeviceCountMap_[device.getDefaultModelName()]++;
 
-    isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
-
     solState_.isPDESystem_ = solState_.isPDESystem_ || device.isPDEDevice();
 
     // Set up the instance vectors.  These are the main containers used in the load procedures.
@@ -1505,6 +1503,7 @@ void DeviceMgr::finalizeLeadCurrentRequests()
          end = instancePtrVec_.end (); it != end; ++it)
   {
     DeviceInstance *instance=*it;
+
     std::string outputName = (instance->getName()).getEncodedName();
     std::string deviceName = (instance->getName()).getDeviceName();
     // Special handling for mutual inductors.  We need to know the names of the
@@ -1551,6 +1550,10 @@ void DeviceMgr::finalizeLeadCurrentRequests()
              << "\""
              << std::endl;
     }
+
+    // We can't determine this until after lead currents finalized
+    isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
+
   }
 }
 
