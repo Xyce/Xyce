@@ -874,11 +874,20 @@ bool Instance::loadFreqBVector (double frequency,
     {
 
       Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
-      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_, xt, xf, fpts; 
+      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
 
       dataPtr->setUseLocalTimeFlag(true);
 
-      int size_ = 21;
+//      int size_ = 21;
+
+      double dt = std::min( {par3, par4, par5} );
+
+      int overSampleRate = 2;
+
+      int size_ = std::round( par6/dt ) * overSampleRate;
+
+      if ( size_ % 2 == 0)
+        size_ = size_ + 1;
 
       double tstep = par6/size_;
 
