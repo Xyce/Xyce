@@ -113,7 +113,8 @@ public:
   virtual void registerJacLIDswithDevs( Indexor & indexor ) = 0;
 
   // Returns adj IDs to the given ID
-  virtual void returnAdjIDs( const NodeID& id, std::vector<NodeID>& adj_ids ) = 0;
+  virtual void returnAdjIDs( const NodeID& id, std::vector<NodeID>& adj_ids,
+                             bool withGnd = false ) = 0;
 
   // Returns adj GIDs to the given GID, including ground
   virtual void returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids ) = 0;
@@ -129,7 +130,7 @@ public:
   virtual void removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, std::vector< CktNode * > & removedDevices) = 0;
   virtual void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes ) = 0;
 
-  virtual std::vector< Xyce::NodeID > outputDeviceNodeGraph(std::ostream & os) = 0;
+  virtual std::vector< Xyce::NodeID > analyzeDeviceNodeGraph(std::ostream & os) = 0;
 
   const std::string& get_id() const { return id_; }
 
