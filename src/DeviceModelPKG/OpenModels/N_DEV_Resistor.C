@@ -1107,6 +1107,12 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
   if (loadType == LINEAR_FREQ)
     loadType = LINEAR;
 
+  if (!separateInstances_ && ( loadType == LINEAR || loadType == NONLINEAR ))
+  {
+    separateInstanceTypes(linearInstances_, nonlinearInstances_);
+    separateInstances_ = true;
+  }
+
   if (loadType == ALL)
   {
     it = getInstanceBegin();
@@ -1178,6 +1184,12 @@ bool Master::loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int l
 
   if (loadType == LINEAR_FREQ)
     loadType = LINEAR;
+
+  if (!separateInstances_ && ( loadType == LINEAR || loadType == NONLINEAR ))
+  {
+    separateInstanceTypes(linearInstances_, nonlinearInstances_);
+    separateInstances_ = true;
+  }
 
   if (loadType == ALL)
   {
@@ -1292,41 +1304,6 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
 */
   return true;
 }
-
-//-----------------------------------------------------------------------------
-// Function      : Xyce::Device::Resistor::Master::storeInstance
-// Purpose       :
-// Special Notes : The load lead current logic can be removed when lead currents
-//                 are moved out of device loading.
-// Scope         : public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 8/1/17
-//-----------------------------------------------------------------------------
-void Master::storeInstance( const FactoryBlock& factory_block, Instance* instance )
-{
-  Xyce::Device::DeviceMaster<Traits>::storeInstance( factory_block, instance );
-
-  bool loadLeadCurrent = false;
-
-  const std::set<std::string>& leadCurrentSet = factory_block.deviceManager_.getDevicesNeedingLeadCurrentLoads();
-  std::string outputName = (instance->getName()).getEncodedName();
-  if ( factory_block.deviceOptions_.calculateAllLeadCurrents ||
-      leadCurrentSet.find(outputName) != leadCurrentSet.end() ||
-       factory_block.deviceManager_.getIStarRequested() )
-  {
-    loadLeadCurrent = true;
-  }
-
-  if ( instance->isLinearDevice() && !loadLeadCurrent )
-  {
-    linearInstances_.push_back( instance );
-  }
-  else
-  {
-    nonlinearInstances_.push_back( instance );
-  }
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::Resistor::Traits::factory
