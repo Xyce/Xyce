@@ -395,11 +395,9 @@ public:
      const FactoryBlock &      factory_block,
      const SolverState &       solver_state,
      const DeviceOptions &     device_options)
-   : DeviceMaster<Traits>(configuration, factory_block, solver_state, device_options)
+    : DeviceMaster<Traits>(configuration, factory_block, solver_state, device_options),
+      separateInstances_(false)
   {}
-
-  virtual void storeInstance(const FactoryBlock& factory_block,
-                             InstanceType* instance);
 
   virtual bool updateState(double * solVec, double * staVec, double * stoVec)
   {
@@ -443,6 +441,7 @@ public:
   private:
     InstanceVector      linearInstances_;            ///< List of owned linear resistor instances
     InstanceVector      nonlinearInstances_;         ///< List of owned nonlinear resistor instances
+    bool separateInstances_;
 };
 
 void registerDevice(const DeviceCountMap& deviceMap = DeviceCountMap(),

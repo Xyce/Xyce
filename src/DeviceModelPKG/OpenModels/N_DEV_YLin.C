@@ -2144,40 +2144,6 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::Device::YLin::Master::storeInstance
-// Purpose       :
-// Special Notes : The load lead current logic can be removed when lead currents
-//                 are moved out of device loading.
-// Scope         : public
-// Creator       : Heidi Thornquist, SNL
-// Creation Date : 8/1/17
-//-----------------------------------------------------------------------------
-void Master::storeInstance( const FactoryBlock& factory_block, Instance* instance )
-{
-  Xyce::Device::DeviceMaster<Traits>::storeInstance( factory_block, instance );
-
-  bool loadLeadCurrent = false;
-
-  const std::set<std::string>& leadCurrentSet = factory_block.deviceManager_.getDevicesNeedingLeadCurrentLoads();
-  std::string outputName = (instance->getName()).getEncodedName();
-  if ( factory_block.deviceOptions_.calculateAllLeadCurrents ||
-      leadCurrentSet.find(outputName) != leadCurrentSet.end() )
-  {
-    loadLeadCurrent = true;
-  }
-
-  if ( instance->isLinearDevice() && !loadLeadCurrent )
-  {
-    linearInstances_.push_back( instance );
-  }
-  else
-  {
-    nonlinearInstances_.push_back( instance );
-  }
-}
-
-
-//-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Traits::factory
 // Purpose       :
 // Special Notes :

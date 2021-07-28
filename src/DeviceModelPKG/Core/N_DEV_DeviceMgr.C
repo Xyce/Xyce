@@ -1304,53 +1304,7 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
   // This will (correctly) trigger an error trap upstream from this function
   if(instance != 0) 
   {
-    std::string outputName = (instance->getName()).getEncodedName();
-    std::string deviceName = (instance->getName()).getDeviceName();
-    // Special handling for mutual inductors.  We need to know the names of the
-    // component inductors and then check if those component inductor names are
-    // in the set devicesNeedingLeadCurrentLoads_
-    bool mutualInductorNeedsLeadCurrents = false;
-    if ( deviceName[0] == 'K' )
-    {
-      std::vector<std::string> inductorNames = instance->getInductorNames();
-      for(int i=0; i < inductorNames.size(); ++i)
-      {
-        if (devicesNeedingLeadCurrentLoads_.find(inductorNames[i]) != devicesNeedingLeadCurrentLoads_.end())
-        {
-          mutualInductorNeedsLeadCurrents = true;
-          break;  // break after finding the first match
-        }
-      }
-    }
-    
-    if ( mutualInductorNeedsLeadCurrents || devOptions_.calculateAllLeadCurrents || 
-         (devicesNeedingLeadCurrentLoads_.find(outputName) != devicesNeedingLeadCurrentLoads_.end()) ||
-         iStarRequested_ )
-    {
-      instance->enableLeadCurrentCalc();
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-        dout() << "DeviceMgr::addDeviceInstance Enabling lead current load for device \""
-          << instance->getName()
-          << "\" ->  \""
-          << outputName
-          << "\"" << std::endl;
-      }
-    }
-    else if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-    {
-      dout() << "DeviceMgr::addDeviceInstance Cannot enable lead current load for device \""
-             << instance->getName()
-             << "\" ->  \""
-             << outputName
-             << "\""
-             << std::endl;
-    }
-
     localDeviceCountMap_[device.getDefaultModelName()]++;
-
-    isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
 
     solState_.isPDESystem_ = solState_.isPDESystem_ || device.isPDEDevice();
 
@@ -1523,6 +1477,83 @@ void DeviceMgr::debugOutput2()
     {
       outputStepNumber = solState_.timeStepNumber_ + 1;
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::finalizeLeadCurrentRequests
+// Purpose       : Do the actual calls to enable lead currents in devices
+//                 that need them.
+// Special Notes : This must be called after devices have been constructed,
+//                 but before the matrix is set up, when the lead current
+//                 data structures are actually allocated.
+//                 This function used to be performed in addDeviceInstance,
+//                 but that is too early to capture any lead current
+//                 requests that have been made by external outputters (all
+//                 of which happen after initial netlist parsing and
+//                 construction of devices)
+//
+// Scope         : public
+// Creator       : Tom Russo
+// Creation Date : 7/22/2021
+//-----------------------------------------------------------------------------
+void DeviceMgr::finalizeLeadCurrentRequests()
+{
+  for (InstanceVector::iterator it = instancePtrVec_.begin(),
+         end = instancePtrVec_.end (); it != end; ++it)
+  {
+    DeviceInstance *instance=*it;
+
+    std::string outputName = (instance->getName()).getEncodedName();
+    std::string deviceName = (instance->getName()).getDeviceName();
+    // Special handling for mutual inductors.  We need to know the names of the
+    // component inductors and then check if those component inductor names are
+    // in the set devicesNeedingLeadCurrentLoads_
+    bool mutualInductorNeedsLeadCurrents = false;
+    if ( deviceName[0] == 'K' )
+    {
+      std::vector<std::string> inductorNames = instance->getInductorNames();
+      for(int i=0; i < inductorNames.size(); ++i)
+      {
+        if (devicesNeedingLeadCurrentLoads_.find(inductorNames[i])
+            != devicesNeedingLeadCurrentLoads_.end())
+        {
+          mutualInductorNeedsLeadCurrents = true;
+          break;  // break after finding the first match
+        }
+      }
+    }
+
+    if ( mutualInductorNeedsLeadCurrents
+         || devOptions_.calculateAllLeadCurrents
+         || (devicesNeedingLeadCurrentLoads_.find(outputName)
+             != devicesNeedingLeadCurrentLoads_.end())
+         || iStarRequested_ )
+    {
+      instance->enableLeadCurrentCalc();
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        dout() << "DeviceMgr::finalizeLeadCurrentRequests: Enabling lead current load for device \""
+          << instance->getName()
+          << "\" ->  \""
+          << outputName
+          << "\"" << std::endl;
+      }
+    }
+    else if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+    {
+      dout() << "DeviceMgr::finalizeLeadCurrentRequests: Cannot enable lead current load for device \""
+             << instance->getName()
+             << "\" ->  \""
+             << outputName
+             << "\""
+             << std::endl;
+    }
+
+    // We can't determine this until after lead currents finalized
+    isLinearSystem_ = isLinearSystem_ && instance->isLinearDevice();
+
   }
 }
 

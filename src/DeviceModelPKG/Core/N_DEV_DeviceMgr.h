@@ -176,6 +176,9 @@ public:
 
   void  dotOpOutput ();
 
+  // Functions to do late initialization of devices
+  void finalizeLeadCurrentRequests();
+
   // Load functions:
   bool setInitialGuess (Linear::Vector * solVectorPtr);
   bool loadErrorWeightMask(Linear::Vector * deviceMaskPtr);

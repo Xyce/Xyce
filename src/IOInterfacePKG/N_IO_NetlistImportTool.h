@@ -158,7 +158,8 @@ public:
     Device::DeviceMgr &                                         device_manager,
     Measure::Manager &                                          measure_manager,
     FourierMgr &                                                fourier_manager,
-    FFTMgr&                                                     fft_manager);
+    FFTMgr&                                                     fft_manager,
+    unordered_set<std::string> &device_names);
 
   static void populateMetadata(IO::PkgOptionsMgr &   options_manager);
 
@@ -274,8 +275,7 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &            device_names,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_parameter_check,
-  bool &                                        iStarRequested);
+  UndefinedNameSet &                            deferred_parameter_check);
 
 void deferredParameterDiagnostics(
   Parallel::Machine                             comm,
