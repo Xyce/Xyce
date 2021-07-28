@@ -49,7 +49,7 @@
 // This enum avoids hardcoding indicies 
 // 0 -> pointer to the Xyce object
 // 1 -> pointer to current time step. 
-enum WorkArray:int  {InputNamesVecPtr, OutputNamesVecPtr, XycePtr, CurrentTimeStepPtr, DACVecPtr, ADCMapPtr, WorkSize};
+enum WorkArray:int  {InputNamesVecPtr, InputNamesMapPtr, OutputNamesVecPtr, OutputNamesMapPtr, XycePtr, CurrentTimeStepPtr, DACVecPtr, ADCMapPtr, WorkSize};
 
 // 
 // Utility functions.  
@@ -180,6 +180,13 @@ static void mdlStart(SimStruct *S)
   {
     mexPrintf("%i, %s\n", i, inputNamesVecPtr->at(i).c_str());
   }
+  // make a map of the input names for easier lookup during simulation
+  std::map<std::string,int> * inputNamesMapPtr = new std::map<std::string,int>();
+  ssGetPWork(S)[InputNamesMapPtr] = inputNamesMapPtr;
+  for( auto i=0; i<inputNamesVecPtr->size(); i++)
+  {
+    (*inputNamesMapPtr)[inputNamesVecPtr->at(i)] = i;
+  }
   
   const mxArray * outputNamesParamPtr = ssGetSFcnParam(S, 2);
   std::string outputNames = ConvertMxArrayToString(outputNamesParamPtr); 
@@ -191,7 +198,13 @@ static void mdlStart(SimStruct *S)
   {
     mexPrintf("%i, %s\n", i, outputNamesVecPtr->at(i).c_str());
   }
-  
+  // make a map of the output names for easier lookup during simulation
+  std::map<std::string,int> * outputNamesMapPtr = new std::map<std::string,int>();
+  ssGetPWork(S)[OutputNamesMapPtr] = outputNamesMapPtr;
+  for( auto i=0; i<outputNamesVecPtr->size(); i++)
+  {
+    (*outputNamesMapPtr)[outputNamesVecPtr->at(i)] = i;
+  }
   // check if file exists because Xyce will exit if it does not.
   std::ifstream theInputFileStream( theFilename.c_str() );
   if( !theInputFileStream.good())
@@ -561,17 +574,29 @@ static void mdlSetOperatingPoint(SimStruct* S, const mxArray* ma)
 //
 static void mdlTerminate(SimStruct *S)
 {
+  // delete any objects stored in Simuling work space.
+  
+  std::vector<std::string> * inputNamesVecPtr = static_cast<std::vector<std::string> *>(ssGetPWork(S)[InputNamesVecPtr]);
+  delete inputNamesVecPtr;
+  
+  std::map<std::string, int> * inputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[InputNamesMapPtr]);
+  delete inputNamesMapPtr;
+    
+  std::vector<std::string> * outputNamesVecPtr = static_cast<std::vector<std::string> *>(ssGetPWork(S)[OutputNamesVecPtr]); 
+  delete outputNamesVecPtr;
+  
+  std::map<std::string, int> * outputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[OutputNamesMapPtr]);
+  delete outputNamesMapPtr;
+  
   Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
   int retVal = xyce->finalize();
   if( retVal != Xyce::Circuit::Simulator::RunStatus::SUCCESS )
   {
-  mexPrintf("ERROR: Xyce failed to close without error, code=%d\n", retVal);
+    mexPrintf("ERROR: Xyce failed to close without error, code=%d\n", retVal);
   }
-  
   delete xyce;
-  // Retrieve and destroy C++ object
-  //DoubleAdder *da = static_cast<DoubleAdder *>(ssGetPWork(S)[1]);
-  //delete da;
+  
+
   double * XyceSimTime = static_cast<double *>(ssGetPWork(S)[CurrentTimeStepPtr]);
   delete XyceSimTime;
   
@@ -580,8 +605,6 @@ static void mdlTerminate(SimStruct *S)
    
   std::map<std::string,std::map<std::string,double> > * adcStrMapPtr = static_cast<std::map<std::string,std::map<std::string,double> > *>(ssGetPWork(S)[ADCMapPtr]);
   delete adcStrMapPtr;
-  
-  
 }
 
 
