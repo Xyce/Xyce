@@ -529,8 +529,6 @@ bool GenCouplingSimulator::addOutputInterface(Xyce::IO::ExternalOutputInterface 
   
   if (extIntPtr)
   {
-    Xyce::dout() << " addOutputInterface got object of output type "
-                 << extIntPtr->getOutputType() << std::endl;
     getOutputManager().addExternalOutputInterface(extIntPtr);
     return true;
   }
