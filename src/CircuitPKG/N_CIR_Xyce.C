@@ -1281,12 +1281,7 @@ void Simulator::finalizeLeadCurrentSetup_()
   // actually done until now to allow for the case where external
   // outputters have added requests that weren't available at
   // netlist parsing time.
-  // Setup of indices including global reordering.
-  {
-    Stats::StatTop _leadCurrentStat("Lead Current Enable");
-    Stats::TimeBlock _leadCurrentTimer(_leadCurrentStat);
-    deviceManager_->finalizeLeadCurrentRequests();
-  }
+  deviceManager_->finalizeLeadCurrentRequests();
 }
 
 //-----------------------------------------------------------------------------
