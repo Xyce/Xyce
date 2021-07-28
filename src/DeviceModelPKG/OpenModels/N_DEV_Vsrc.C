@@ -921,9 +921,6 @@ bool Instance::loadFreqBVector (double frequency,
 
       ftInterface_->calculateFFT();
 
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( ftOutData_[0]/size_, 0);
-
       fIdx = std::round( frequency/freq);
 
       double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
