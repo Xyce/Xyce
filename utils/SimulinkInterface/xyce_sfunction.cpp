@@ -297,10 +297,6 @@ static void mdlStart(SimStruct *S)
       mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVec[i].c_str());
     }
   }
-  
-  // Store new C++ object in the pointers vector
-  //DoubleAdder *da  = new DoubleAdder();
-  //ssGetPWork(S)[1] = da;
 }
 
 
@@ -343,7 +339,10 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       mexPrintf("OutputPort has a width of %i\n", outputPortWidth);
     }
   }
-
+  
+  // get output name map from workspace storage.
+  std::map<std::string, int> * outputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[OutputNamesMapPtr]);
+  
   double * XyceSimTime = static_cast<double *>(ssGetPWork(S)[CurrentTimeStepPtr]);  
   Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
   // There is a concept of system time which is the global time that
@@ -354,30 +353,29 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   
   // update inputs from Simulink to Xyce
   std::vector< std::string > * dacNamesPtr = static_cast<std::vector< std::string > *>(ssGetPWork(S)[DACVecPtr]);
+  std::map<std::string, int> * inputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[InputNamesMapPtr]);
   
   if( !dacNamesPtr->empty())
   {
     std::map< std::string, std::vector< std::pair<double,double> >* > timeVoltageUpdateMap;
     int numDacs = dacNamesPtr->size();
     
-    int_T simulinkInput = 0;
-    
     for( auto dacNamesItr = dacNamesPtr->begin(); dacNamesItr != dacNamesPtr->end(); dacNamesItr++ )
     {
       std::vector< std::pair<double,double> > *tvpVec = new std::vector< std::pair<double,double> >();  
-      if ( simulinkInput < nPortWidth)
+      auto indexItr = inputNamesMapPtr->find(*dacNamesItr);
+      if( indexItr != inputNamesMapPtr->end())
       {
+        int_T simulinkInput = indexItr->second;
         double val = *(u[simulinkInput++]);
         tvpVec->push_back( std::pair<double,double>(systemTime, val ));
         mexPrintf("DAC %s time %g  value %g\n", (*dacNamesItr).c_str(), systemTime, val );
       }
       else
       {
-        tvpVec->push_back( std::pair<double,double>(systemTime, 0.0 ));
-        mexPrintf("DAC %s time %g  value %g\n", (*dacNamesItr).c_str(), systemTime, 0.0 );
+        mexPrintf("name %s was not found in DAC list.\n", (*dacNamesItr).c_str() );
       }
       timeVoltageUpdateMap.emplace( *dacNamesItr, tvpVec);
-      
     }
     
     bool retVal = xyce->updateTimeVoltagePairs(timeVoltageUpdateMap);  
@@ -491,7 +489,6 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   }
   else
   {
-    int simulinkOutputIndex = 0;
     
     // this loop is for debugging only.
     for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
@@ -510,8 +507,13 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     
     for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
     {
-      if( simulinkOutputIndex < outputPortWidth)
+      std::string devName = tVUpdateMapItr->first;
+      // look for devName in output names map.
+      auto indexItr = outputNamesMapPtr->find( devName );
+      
+      if( indexItr != outputNamesMapPtr->end() )
       {
+        int simulinkOutputIndex = indexItr->second;
         std::vector< std::pair<double,double> >  timeVoltagePairs = tVUpdateMapItr->second;
         // may need better logic here, but for now just grap the last pair 
         if( timeVoltagePairs.empty())
@@ -526,8 +528,9 @@ static void mdlOutputs(SimStruct *S, int_T tid)
           mexPrintf("Found values (%g, %g) in time vec pair\n", lastTime, lastValue);
           y[simulinkOutputIndex] = lastValue;
         }
-        simulinkOutputIndex++;
       }
+      // an else block here would handled case where output isn't found in map.
+      // but it's ok if Simulink isn't using all of the ADC outputs.
     }
   
   }
