@@ -346,9 +346,6 @@ public:
    : DeviceMaster<Traits>(configuration, factory_block, solver_state, device_options)
   {}
 
-  virtual void storeInstance(const FactoryBlock& factory_block,
-                             InstanceType* instance);
-
   virtual bool updateState(double * solVec, double * staVec, double * stoVec)
   {
     return true;
