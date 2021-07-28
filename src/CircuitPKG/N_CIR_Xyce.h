@@ -334,6 +334,7 @@ class Simulator
     Device::DAC::Instance *getDACInstance_(const std::string &deviceName);
     void processParamOrDoc_(std::string & optionName, std::string & deviceName,
                             int modelLevel, bool printModel, bool printInstance);
+    void finalizeLeadCurrentSetup_();
 
  private:
   RunState                              runState_;
