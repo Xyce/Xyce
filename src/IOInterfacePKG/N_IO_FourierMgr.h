@@ -84,7 +84,9 @@ public:
   bool registerSensOptions(const Util::OptionBlock & option_block);
 
   void fixupSensFourierParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
-  void fixupFourierParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
+  void fixupFourierParameters(Parallel::Machine comm,
+                              const Util::Op::BuilderManager &op_builder_manager,
+                              const double endSimTime);
 
   // Called during the simulation to update the fourier objects held by this class
   void updateFourierData(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, 

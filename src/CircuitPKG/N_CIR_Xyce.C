@@ -1156,7 +1156,7 @@ Simulator::RunStatus Simulator::initializeLate()
   topology_->outputNameFile(comm_, "namesMap_" + netlist_filename + ".txt");
 
   outputManager_->checkPrintParameters(comm_, *opBuilderManager_);
-  fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_);
+  fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_, analysisManager_->getFinalTime());
   fftManager_->enableFFTAnalysis(analysisManager_->getAnalysisMode());
   fftManager_->fixupFFTParameters(comm_, *outputManager_, *opBuilderManager_, analysisManager_->getFinalTime(),
                                   analysisManager_->getStepErrorControl());

@@ -105,7 +105,7 @@ class Fourier : public Base
     std::vector<double> outVarValues_, time_, newTime_, newValues_, mag_, phase_, nmag_, nphase_, freq_;
     double period_, lastPrdStart_, thd_;
     bool calculated_;
-
+    bool lastPeriodFound_;
 };
 
 } // namespace Measure
