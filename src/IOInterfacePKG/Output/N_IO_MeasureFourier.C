@@ -353,20 +353,19 @@ void Fourier::calculateFT_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Fourier::getMeasureResult()
+// Function      : Fourier::calculateMeasureResult_()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
 // Creation Date : 6/21/13
 //-----------------------------------------------------------------------------
-double Fourier::getMeasureResult()
+void Fourier::calculateMeasureResult_()
 {
   // Only output results if transient data is available to analyze.
-  //if( initialized_ && !time_.empty() )
-  // change was made to exclude case where (for example) TD = end of simulation time,
-  // and hence the time vector only has one point.  The case will now produce a
-  // failed measure
+  // Exclude case where (for example) TD = end of simulation time,
+  // and hence the time vector only has one point.  That case will
+  // produce a failed measure.
   if ( initialized_ && time_.size() > 1 )
   {
     getLastPeriod_();
@@ -384,10 +383,7 @@ double Fourier::getMeasureResult()
   }
   
   calculated_ = true;
-
-  return calculationResult_;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : Fourier::printMeasureResult( std::ostream& os )
@@ -405,7 +401,7 @@ std::ostream& Fourier::printMeasureResult( std::ostream& os)
   // Compute measure.
   if (!calculated_)
   {
-    this->getMeasureResult();
+    calculateMeasureResult_();
   }
 
   if (lastPeriodFound_)
