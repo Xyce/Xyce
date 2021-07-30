@@ -40,6 +40,14 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
+\textbf{Gitlab-ex issue 257}: Improve error handling for invalid
+FREQ values on .FOUR lines and invalid AT values on FOUR measure
+lines & If a \Xyce{} user entered an invalid \texttt{FREQ} value
+on a \texttt{.FOUR} line or an invalid \texttt{AT} value on a
+\texttt{FOUR} measure line then that would cause the simulation
+to exit before all of the post-processing output files had been
+made at the end of the transient simulation. \\ \hline
+
 \textbf{Gitlab-ex issue 243/Ghub issue 29}: I(*) not expanded in external output &
 The design of the code that handled output wildcards involving
 currents (including I(*), P(*), and W(*)) was such that wildcards
