@@ -412,7 +412,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   // storage for updates from Xyce
   std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
   
-  if( !(xyce->simulationComplete()) )
+  //if( !(xyce->simulationComplete()) )
   {  
     if( systemTime >= *XyceSimTime )
     {
@@ -467,6 +467,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       //}
     }
   }
+  /*
   else
   {
     mexPrintf( "Simulink time, %g, is greater than Xyce's simulation time, %g.\n", systemTime, *XyceSimTime);
@@ -477,6 +478,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       mexPrintf( "Repeat call to getTimeVoltagePairs failed\n");
     }
   }
+  */
 
   if( timeVoltageUpdateMap.empty())  
   {
