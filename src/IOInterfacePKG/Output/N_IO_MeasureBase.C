@@ -1032,15 +1032,6 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
       {
         Xyce::Report::UserWarning() << name_ << " failed. FROM or TD value > sim end time";
       }
-      else if ( atGiven_ && (type_ != "FOUR") && (at_ < 0 || at_ > endSimTime) ) 
-      {
-        // The AT value for a FOUR measure is frequency based.  So, this check doesn't apply.
-        Xyce::Report::UserWarning() << name_ << " failed. AT value outside sim window";
-      }
-      else if ( atGiven_ && (type_ != "FOUR") && (at_ < from_ || at_ > to_) )
-      {
-        Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
-      }
     }
     else if ( (mode_ == "AC") || (mode_ == "AC_CONT") || (mode_ == "NOISE") || (mode_ == "NOISE_CONT") )
     {
@@ -1056,6 +1047,31 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MeasureBase::printMeasureWarningsForAT
+// Purpose       : prints error message related to the AT qualifier.
+// Special Notes : This qualifer gets its own function because the AT value
+//                 can be either a time or frequency value.  This base
+//                 function covers the time-value case.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/1/2021
+//-----------------------------------------------------------------------------
+void Base::printMeasureWarningsForAT(const double endSimTime)
+{
+  if ( atGiven_ && ((mode_ == "TRAN") || (mode_ == "TRAN_CONT")) )
+  {
+    if ( at_ < 0 || at_ > endSimTime ) 
+    {
+      Xyce::Report::UserWarning() << name_ << " failed. AT value outside sim window";
+    }
+    else if ( (fromGiven_ && (at_ < from_)) || (toGiven_ && (at_ > to_)) )
+    {
+      Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
     }
   }
 }

@@ -131,6 +131,7 @@ public:
   bool isOpTypeAllowed();
   double getMeasureResult();
   std::ostream& printVerboseMeasureResult(std::ostream& os);
+  void printMeasureWarningsForAT(const double endSimTime);
 
 private:
   std::string opType_;

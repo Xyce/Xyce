@@ -191,6 +191,7 @@ public:
     // used to print warnings about measurement time window, etc.
     virtual void printMeasureWarnings(const double endSimTime, const double startSweepVal,
                                       const double endSweepVal);
+    virtual void printMeasureWarningsForAT(const double endSimTime);
 
     std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
 

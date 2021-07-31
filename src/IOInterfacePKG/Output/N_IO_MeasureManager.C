@@ -795,9 +795,11 @@ std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double 
       // set to "ALL" or "STDOUT"
       if ( ((*it)->getMeasurePrintOption() == "ALL") || ((*it)->getMeasurePrintOption() == "STDOUT") )
       { 
-        // this function prints out diagnostic information if the measure failed.  An example
-        // is a nonsensical time window.
+        // these two functions print out diagnostic information if the measure failed.  An example
+        // is a nonsensical time window.  AT qualifier can either a time or a frequency.  So, it
+	// gets its own function.
         (*it)->printMeasureWarnings( endSimTime, startSweepValue_, endSweepValue_ );
+        (*it)->printMeasureWarningsForAT(endSimTime);
         // this function prints the measure value, and measure times if appropriate for a given measure such as
         // MIN, MAX, PP, TRIG/TARG
         (*it)->printVerboseMeasureResult(outputStream);
