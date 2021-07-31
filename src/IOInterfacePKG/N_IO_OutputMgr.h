@@ -640,6 +640,10 @@ public:
   {
     return outputParameterMap_;
   }
+  const ExternalOutputWrapperMap &getExternalOutputWrapperMap() const
+  {
+    return externalOutputWrapperMap_;
+  }
 
 private:
   void steppingComplete();
@@ -955,6 +959,12 @@ void removeWildcardVariables(
   const NodeNameMap &   branch_vars);
 
 bool excludeYDeviceFromWildcard(const std::string& tmpStr);
+
+
+void processPrintParamIWildcards(
+   const OutputParameterMap &                    output_parameter_map,
+   const ExternalOutputWrapperMap &              external_output_map,
+   bool &                                        iStarRequested);
 
 //-----------------------------------------------------------------------------
 // Function      : operator<

@@ -874,11 +874,20 @@ bool Instance::loadFreqBVector (double frequency,
     {
 
       Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
-      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_, xt, xf, fpts; 
+      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
 
       dataPtr->setUseLocalTimeFlag(true);
 
-      int size_ = 101;
+//      int size_ = 21;
+
+      double dt = std::min( {par3, par4, par5} );
+
+      int overSampleRate = 2;
+
+      int size_ = std::round( par6/dt ) * overSampleRate;
+
+      if ( size_ % 2 == 0)
+        size_ = size_ + 1;
 
       double tstep = par6/size_;
 
@@ -912,17 +921,14 @@ bool Instance::loadFreqBVector (double frequency,
 
       ftInterface_->calculateFFT();
 
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( ftOutData_[0]/size_, 0);
-
       fIdx = std::round( frequency/freq);
 
       double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
-      if ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) )  
+      if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
         tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
-//      std::cout << "loaded value is " << tmpVal << std::endl;
+      std::cout << "loaded value is " << tmpVal << std::endl;
 
     }
     else

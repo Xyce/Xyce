@@ -258,7 +258,9 @@ void FourierMgr::fixupSensFourierParameters(Parallel::Machine comm, const Util::
 // Creator       : Not Sure (but likely Dave Baur)
 // Creation Date : Not Sure
 //-----------------------------------------------------------------------------
-void FourierMgr::fixupFourierParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager) 
+void FourierMgr::fixupFourierParameters(Parallel::Machine comm,
+  const Util::Op::BuilderManager &op_builder_manager,
+  const double endSimTime) 
 {
   // this copy (from multi-map to vector) is done in order to support multiple .FOUR lines
   // The multi-map allows us to keep a sorted list of which solution variables are associated with
@@ -287,6 +289,20 @@ void FourierMgr::fixupFourierParameters(Parallel::Machine comm, const Util::Op::
   {
     freqVector_.push_back(it->first);
     outputVarsPtr_.push_back( outputVarsPtr_[ovPtrPos] + it->second );
+  }
+
+  // check the AT values
+  double startOfLastPeriod;
+  for (int i=0; i<freqVector_.size(); ++i)
+  {
+    startOfLastPeriod = (freqVector_[i]*endSimTime - 1.0)/freqVector_[i];
+
+    if ( !( (Teuchos::ScalarTraits<double>::magnitude(startOfLastPeriod) < Teuchos::ScalarTraits<double>::eps()) ||
+            (startOfLastPeriod > 0) ) )
+    {
+      Xyce::Report::UserError0() << "The period (1/AT) requested on .FOUR line is greater than the length "
+                                 << "of the time simulation for AT=" << freqVector_[i];
+    }
   }
 
   // The freqNamesMap_ has a listing of "names" for the printResult_() function. 

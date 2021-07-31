@@ -346,10 +346,10 @@ int NetlistImportTool::constructCircuitFromNetlist(
   Device::DeviceMgr &                                           device_manager,
   Measure::Manager &                                            measure_manager,
   FourierMgr &                                                  fourier_manager,
-  FFTMgr &                                                      fft_manager)
+  FFTMgr &                                                      fft_manager,
+  unordered_set<std::string> &device_names )
 {
   Parallel::Machine comm = pds_comm.comm();
-  unordered_set<std::string> device_names;
 
   // Create a circuitBlock instance to hold netlist circuit data.
   mainCircuitBlock_ = new IO::CircuitBlock(
@@ -467,36 +467,16 @@ int NetlistImportTool::constructCircuitFromNetlist(
 
   output_manager.setTitle(mainCircuitBlock_->getTitle());
 
-  // Each call to getLeadCurrentDevices() adds any additional devices that need
-  // lead currents to the devicesNeedingLeadCurrents set, based on the 
-  // various I(), P(), W(), or expressions with one of those items, on 
-  // the .PRINT, .FOUR or .MEASURE lines.
-  std::set<std::string> devicesNeedingLeadCurrents;
-  getLeadCurrentDevices(output_manager.getVariableList(), devicesNeedingLeadCurrents);
-  getWildCardLeadCurrentDevices(output_manager.getVariableList(), device_names, devicesNeedingLeadCurrents);
-
-  // This is the last call before devices are constructed
-  // So it's the last time I can isolate lead currents. However it won't be sufficient
-  // as we haven't parsed expressions in devices yet.  I'll need to rethink
-  // when this call is made to the device manager.  Sometime just after device instance
-  // construction but before the store vector is allocated.
-  device_manager.setLeadCurrentRequests(devicesNeedingLeadCurrents);
-  device_manager.setLeadCurrentRequests(fourier_manager.getDevicesNeedingLeadCurrents());
-  device_manager.setLeadCurrentRequests(fft_manager.getDevicesNeedingLeadCurrents());
-  device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
-
-  // printLineDiagnostics() is where parsing looks for I(*), P(*) and W(*) on the .PRINT line,
-  // amongst many other things.  If any of those three operators are found then set the
-  // corresponding flag in the device_manager which enables lead current calculations for all devices.
-  bool iStarRequested=false;
-  printLineDiagnostics(comm, output_manager.getOutputParameterMap(), device_manager, measure_manager, nodeNames_, 
-      stepParams_, 
-      samplingParams_, 
-      embeddedSamplingParams_, 
-      pceParams_, 
-      dcParams_, device_names, aliasNodeMap_, deferredUndefinedParameters_, iStarRequested);
-
-  device_manager.setIStarRequested(iStarRequested);
+  // printLineDiagnostics scans all output parameters requested by print lines
+  // and flags any errors or inconsistencies.
+  printLineDiagnostics(comm, output_manager.getOutputParameterMap(),
+                       device_manager, measure_manager, nodeNames_,
+                       stepParams_,
+                       samplingParams_,
+                       embeddedSamplingParams_,
+                       pceParams_,
+                       dcParams_, device_names, aliasNodeMap_,
+                       deferredUndefinedParameters_);
 
   return 1;
 }
@@ -674,8 +654,7 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &    device_map,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_undefined_parameters,
-  bool &                                        iStarRequested)
+  UndefinedNameSet &                            deferred_undefined_parameters)
 {
   UndefinedNameSet undefined_parameters;
 
@@ -942,8 +921,6 @@ void printLineDiagnostics(
             // request for all R devices nodes that start with "R1".
             instanceStat[name] = (name[0] == '*') || findWildCardMatch(name.substr(0, name.size() - 3),device_map) ||
                                  (device_map.find(name.substr(0, name.size() - 3)) != device_map.end());
-            if (name[0] == '*')
-              iStarRequested=true;
           }
           else
           {
@@ -951,8 +928,6 @@ void printLineDiagnostics(
             // request for all R devices nodes that start with "R1".
             instanceStat[name] = (name == "*") || findWildCardMatch(name,device_map) ||
                                  (device_map.find(name) != device_map.end());
-            if (name == "*")
-              iStarRequested=true;
           }
         }
       }

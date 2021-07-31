@@ -88,7 +88,6 @@ class Fourier : public Base
       const Linear::Vector *imaginaryVec,
       const Util::Op::RFparamsData *RFparams);
 
-    double getMeasureResult();
     std::ostream& printMeasureResult(std::ostream& os);
     std::ostream& printVerboseMeasureResult(std::ostream& os);
     void printMeasureWarnings(const double endSimTime, const double startSweepVal,
@@ -97,6 +96,7 @@ class Fourier : public Base
 				     const double startSweepVal, const double endSweepVal);
 
   private:
+    void calculateMeasureResult_();
     void getLastPeriod_();
     bool interpolateData_();
     void calculateFT_();
@@ -105,7 +105,7 @@ class Fourier : public Base
     std::vector<double> outVarValues_, time_, newTime_, newValues_, mag_, phase_, nmag_, nphase_, freq_;
     double period_, lastPrdStart_, thd_;
     bool calculated_;
-
+    bool lastPeriodFound_;
 };
 
 } // namespace Measure

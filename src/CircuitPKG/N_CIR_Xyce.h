@@ -334,6 +334,7 @@ class Simulator
     Device::DAC::Instance *getDACInstance_(const std::string &deviceName);
     void processParamOrDoc_(std::string & optionName, std::string & deviceName,
                             int modelLevel, bool printModel, bool printInstance);
+    void finalizeLeadCurrentSetup_();
 
  private:
   RunState                              runState_;
@@ -366,6 +367,7 @@ class Simulator
   Util::JSON                            auditJSON_;                     ///< Audit JSON structure
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
+  unordered_set<std::string> device_names_;
 
   protected:
   IO::CmdParse                          commandLine_;

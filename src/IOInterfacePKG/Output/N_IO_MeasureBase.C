@@ -1028,15 +1028,16 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
     }    
     else if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
     {
-      if ( ( fromGiven_ && from_ >= endSimTime ) || ( tdGiven_ && td_ >= endSimTime ) )
+      if ( ( fromGiven_ && from_ > endSimTime ) || ( tdGiven_ && td_ > endSimTime ) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. FROM or TD value > sim end time";
       }
-      else if ( atGiven_ && (at_ < 0 || at_ > endSimTime) ) 
+      else if ( atGiven_ && (type_ != "FOUR") && (at_ < 0 || at_ > endSimTime) ) 
       {
+        // The AT value for a FOUR measure is frequency based.  So, this check doesn't apply.
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside sim window";
       }
-      else if ( atGiven_ && (at_ < from_ || at_ > to_) )
+      else if ( atGiven_ && (type_ != "FOUR") && (at_ < from_ || at_ > to_) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }

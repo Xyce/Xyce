@@ -85,6 +85,9 @@ target_link_libraries( testGenCoup XyceLib )
 add_executable( TestGH19 EXCLUDE_FROM_ALL TestGH19.C )
 target_link_libraries( TestGH19 XyceLib )
 
+add_executable( TestIssue29 EXCLUDE_FROM_ALL TestIssue29.C )
+target_link_libraries( TestIssue29 XyceLib )
+
 #if( Xyce_ENABLED_SHARED )
 #  target_link_libraries( testGenCoup lib_xyce_shared )
 #else( Xyce_ENABLED_SHARED )

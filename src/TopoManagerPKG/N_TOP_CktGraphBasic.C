@@ -218,7 +218,8 @@ CktGraphBasic::getBFSNodeList()
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 8/10/06
 //-----------------------------------------------------------------------------
-void CktGraphBasic::returnAdjIDs( const NodeID & id, std::vector<NodeID> & adj_ids )
+void CktGraphBasic::returnAdjIDs( const NodeID & id, std::vector<NodeID> & adj_ids,
+                                  bool withGnd )
 {
   adj_ids.clear();
 
@@ -227,7 +228,12 @@ void CktGraphBasic::returnAdjIDs( const NodeID & id, std::vector<NodeID> & adj_i
   std::vector<NodeID>::const_iterator adj_end = adjIDs.end();
 
   for( ; adj_it != adj_end; adj_it++ )
-    if( adj_it->first != "0" ) adj_ids.push_back( *adj_it );
+  {
+    if( withGnd )
+      adj_ids.push_back( *adj_it );
+    else if( adj_it->first != "0" ) 
+      adj_ids.push_back( *adj_it );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -808,7 +814,7 @@ void CktGraphBasic::removeNodes( const std::vector< NodeID > & nodesToBeRemoved,
 
 //-----------------------------------------------------------------------------
 // Function      : CktGraphBasic::put
-// Pureose       : Allows virtual override of operator<<
+// Purpose       : Allows virtual override of operator<<
 // Special Notes :
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
@@ -831,7 +837,15 @@ std::ostream& CktGraphBasic::put(std::ostream& os) const
   return os;
 }
 
-std::vector< Xyce::NodeID > CktGraphBasic::outputDeviceNodeGraph(std::ostream & os) 
+//-----------------------------------------------------------------------------
+// Function      : CktGraphBasic::analyzeDeviceNodeGraph
+// Purpose       : Find floating nodes in device node graph for removal or rebalance
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 7/21/2021
+//-----------------------------------------------------------------------------
+std::vector< Xyce::NodeID > CktGraphBasic::analyzeDeviceNodeGraph(std::ostream & os) 
 {
   // The device node graph is the distance-2 graph
   const CktGraph::Graph::Index1Map& indexMap = cktgph_.getIndex1Map();

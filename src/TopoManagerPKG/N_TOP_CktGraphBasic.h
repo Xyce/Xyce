@@ -115,7 +115,8 @@ public:
   void registerJacLIDswithDevs( Indexor & indexor );
 
   // Returns vector of adj ids
-  void returnAdjIDs( const NodeID & id, std::vector<NodeID> & adj_ids );
+  void returnAdjIDs( const NodeID & id, std::vector<NodeID> & adj_ids,
+                     bool withGnd=false );
 
   // Returns adj GIDs to the given GID, including ground
   void returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids );
@@ -135,7 +136,7 @@ public:
   void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes );
 
   // write out device node graph to the ostream, return floating nodes
-  std::vector< Xyce::NodeID > outputDeviceNodeGraph(std::ostream & os);
+  std::vector< Xyce::NodeID > analyzeDeviceNodeGraph(std::ostream & os);
 
 private:
   Graph                 cktgph_;                ///< Circuit graph pair = <id, node type>, CktNode = data

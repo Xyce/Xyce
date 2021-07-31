@@ -946,6 +946,9 @@ Simulator::RunStatus Simulator::initializeEarly(
     Stats::StatTop _netlistImportStat("Netlist Import");
     Stats::TimeBlock _netlistImportTimer(_netlistImportStat);
 
+    // Clear out the device_names set, in case it isn't clear yet
+    device_names_.clear();
+
     netlist_import_tool.constructCircuitFromNetlist(
       commandLine_,
       hangingResistor_,
@@ -958,7 +961,8 @@ Simulator::RunStatus Simulator::initializeEarly(
       *deviceManager_,
       *measureManager_,
       *fourierManager_,
-      *fftManager_);
+      *fftManager_,
+      device_names_);
 
     if (netlist_import_tool.getUseMOR())
       return DONE;
@@ -1060,6 +1064,7 @@ Simulator::RunStatus Simulator::initializeLate()
   Stats::StatTop _lateInitStat("Late Initialization");
   Stats::TimeBlock _lateInitTimer(_lateInitStat);
   {
+    finalizeLeadCurrentSetup_();
     // Setup of indices including global reordering.
     {
       Stats::StatTop _globalIndexStat("Global Indices");
@@ -1151,7 +1156,7 @@ Simulator::RunStatus Simulator::initializeLate()
   topology_->outputNameFile(comm_, "namesMap_" + netlist_filename + ".txt");
 
   outputManager_->checkPrintParameters(comm_, *opBuilderManager_);
-  fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_);
+  fourierManager_->fixupFourierParameters(comm_, *opBuilderManager_, analysisManager_->getFinalTime());
   fftManager_->enableFFTAnalysis(analysisManager_->getAnalysisMode());
   fftManager_->fixupFFTParameters(comm_, *outputManager_, *opBuilderManager_, analysisManager_->getFinalTime(),
                                   analysisManager_->getStepErrorControl());
@@ -1219,6 +1224,64 @@ Simulator::RunStatus Simulator::initializeLate()
   XyceTimerPtr_ = new Util::Timer();
 
   return SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::finalizeLeadCurrentSetup_
+// Purpose       : Perform final searches of output requests for lead
+//                 currents and wildcards, inform devices of those requests
+//
+// Special Notes : This stuff used to happen in the NetlistImportTool's
+//                 printLineDiagnostics, but that meant it didn't happen
+//                 late enough to handle external outputters.
+//
+// Scope         : private
+// Creator       : Tom Russo
+// Creation Date : 28 Jul 2021
+//-----------------------------------------------------------------------------
+
+void Simulator::finalizeLeadCurrentSetup_()
+{
+  // Each call to getLeadCurrentDevices() adds any additional
+  // devices that need lead currents to the
+  // devicesNeedingLeadCurrents set, based on the various I(),
+  // P(), W(), or expressions with one of those items, on the
+  // .PRINT, .FOUR or .MEASURE lines.
+  std::set<std::string> devicesNeedingLeadCurrents;
+  Util::ParamList theOutputList=outputManager_->getVariableList();
+  Xyce::IO::getLeadCurrentDevices(theOutputList,
+                                  devicesNeedingLeadCurrents);
+  Xyce::IO::getWildCardLeadCurrentDevices(theOutputList,
+                                          device_names_,
+                                          devicesNeedingLeadCurrents);
+
+  // This is the last call before devices are finalized
+  // So it's the last time I can isolate lead currents.
+  deviceManager_->setLeadCurrentRequests(devicesNeedingLeadCurrents);
+  deviceManager_->setLeadCurrentRequests(fourierManager_->getDevicesNeedingLeadCurrents());
+  deviceManager_->setLeadCurrentRequests(fftManager_->getDevicesNeedingLeadCurrents());
+  deviceManager_->setLeadCurrentRequests(measureManager_->getDevicesNeedingLeadCurrents());
+
+  // Clear out the device_names set, we don't need it anymore
+  device_names_.clear();
+
+  // processPrintParamIWildcards() is where parsing looks for I(*), P(*),
+  // W(*), DNI(*), and DNO(*)  among the print parameters.  If any of
+  // those operators are found then set the corresponding flag
+  // in the device_manager which enables lead current calculations for
+  // all devices.w
+  bool iStarRequested=false;
+  processPrintParamIWildcards(outputManager_->getOutputParameterMap(),
+                              outputManager_->getExternalOutputWrapperMap(),
+                              iStarRequested);
+  deviceManager_->setIStarRequested(iStarRequested);
+
+  // Now is the time to tell devices that they need to enable lead
+  // currents Requests were made in initializeEarly, but it isn't
+  // actually done until now to allow for the case where external
+  // outputters have added requests that weren't available at
+  // netlist parsing time.
+  deviceManager_->finalizeLeadCurrentRequests();
 }
 
 //-----------------------------------------------------------------------------

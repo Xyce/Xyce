@@ -53,7 +53,8 @@ namespace Measure {
 //-----------------------------------------------------------------------------
 Fourier::Fourier(const Manager &measureMgr, const Util::OptionBlock & measureBlock)
   : Base(measureMgr, measureBlock),
-  calculated_(false)
+    calculated_(false),
+    lastPeriodFound_(false)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -107,6 +108,7 @@ void Fourier::reset()
   phase_.clear();
   outVarValues_.clear();
   calculated_ = false;
+  lastPeriodFound_ = false;
 }
 
 
@@ -133,7 +135,7 @@ void Fourier::updateTran(
   {
      // we're in the time window, now we need to store the time and output values
     if( !initialized_  )
-    {      
+    {
       initialized_ = true;
     }
 
@@ -156,6 +158,8 @@ void Fourier::updateTran(
 //-----------------------------------------------------------------------------
 void Fourier::getLastPeriod_()
 {
+  lastPeriodFound_ = true;
+
   // We want to do the analysis on only the last period of the transient window. So here we find the indices
   // to access the endpoints of that interval.
   period_ = 1.0/at_;
@@ -184,10 +188,9 @@ void Fourier::getLastPeriod_()
   }
   else
   {
-    std::string msg = "Error in measure \"" + name_ + "\": The period is greater than the length of the time simulation. Exiting.";
-    Report::UserFatal() << msg;
+    // this means that a valid last period was not found
+    lastPeriodFound_ = false;
   }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -350,39 +353,42 @@ void Fourier::calculateFT_()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Fourier::getMeasureResult()
+// Function      : Fourier::calculateMeasureResult_()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
 // Creation Date : 6/21/13
 //-----------------------------------------------------------------------------
-double Fourier::getMeasureResult()
+void Fourier::calculateMeasureResult_()
 {
   // Only output results if transient data is available to analyze.
-  //if( initialized_ && !time_.empty() )
-  // change was made to exclude case where (for example) TD = end of simulation time,
-  // and hence the time vector only has one point.  The case will now produce a
-  // failed measure
+  // Exclude case where (for example) TD = end of simulation time,
+  // and hence the time vector only has one point.  That case will
+  // produce a failed measure.
   if ( initialized_ && time_.size() > 1 )
   {
     getLastPeriod_();
 
-    interpolateData_();
+    if (lastPeriodFound_)
+    {
+      interpolateData_();
 
-    calculateFT_();
+      calculateFT_();
 
-    calculated_ = true;
+      // Total harmonic distortion will be the calculation result.
+      // printMeasureResult() will be overloaded to print out all the harmonic information.
+      calculationResult_ = thd_;
+    }
   }
-  // Total harmonic distortion will be the calculation result.
-  // printMeasureResult will be overloaded to print out all the harmonic information
-  return calculationResult_ = thd_;
+  
+  calculated_ = true;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Fourier::printMeasureResult( std::ostream& os )
 // Purpose       : used to print the measurement result to an output stream
-//                 object, which is typically the mt0, ma0 or ms0 file
+//                 object, which is the mt0 file for this measure type.
 // Special Notes :
 // Scope         : public
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
@@ -390,24 +396,20 @@ double Fourier::getMeasureResult()
 //-----------------------------------------------------------------------------
 std::ostream& Fourier::printMeasureResult( std::ostream& os)
 {
+  basic_ios_all_saver<std::ostream::char_type> save(os);
 
-  // Only output results if transient data is available to analyze.
-  //if ( !time_.empty() )
-  // change was made to exclude case where (for example) TD = end of simulation time,
-  // and hence the time vector only has one point.  The case will now produce a
-  // failed measure
-  if ( initialized_ && time_.size() > 1 )
+  // Compute measure.
+  if (!calculated_)
   {
-    // Compute measure.
-    if (!calculated_)
-    {
-      this->getMeasureResult();
-    }
+    calculateMeasureResult_();
+  }
 
+  if (lastPeriodFound_)
+  {
     // The next statement allows maintains a reasonable column width even if
-    // the user to enter a precision_ value of 0.  All floating point numbers
+    // the user enters a precision_ value of 0.  All floating point numbers
     // are output in scientific notation based on the precision_ variable.  
-    // numFreq and ident are integers and are output as such.
+    // numFreq_ and ident are integers and are output as such.
     int colWidth = (precision_ < 5) ? 15 : 10 + precision_; 
     int ident = 10;
     os << name_ << ":  No. Harmonics: " << numFreq_ << ", THD: " 
@@ -463,7 +465,20 @@ std::ostream& Fourier::printVerboseMeasureResult( std::ostream& os)
 void Fourier::printMeasureWarnings(const double endSimTime, const double startSweepVal,
                                    const double endSweepVal)
 {
-  //no op
+  Base::printMeasureWarnings(endSimTime, startSweepVal, endSweepVal);
+
+  // additional checks, since AT is a frequency (not a time) for the FOUR measure
+  if (initialized_)
+  {
+    if (time_.size() == 1)
+    {
+      Xyce::Report::UserWarning() << name_ << " failed. Only one point found in measurement window.";
+    }
+    else if (!lastPeriodFound_)
+    {
+      Xyce::Report::UserWarning() << name_ << " failed. Period (1/AT) > measurement window length.";
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

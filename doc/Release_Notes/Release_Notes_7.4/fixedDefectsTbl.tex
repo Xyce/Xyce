@@ -39,47 +39,77 @@
      \endhead
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
+
+\textbf{Gitlab-ex issue 257}: Improve error handling for invalid
+FREQ values on .FOUR lines and invalid AT values on FOUR measure
+lines & If a \Xyce{} user entered an invalid \texttt{FREQ} value
+on a \texttt{.FOUR} line or an invalid \texttt{AT} value on a
+\texttt{FOUR} measure line then that would cause the simulation
+to exit before all of the post-processing output files had been
+made at the end of the transient simulation. \\ \hline
+
+\textbf{Gitlab-ex issue 243/Ghub issue 29}: I(*) not expanded in external output &
+The design of the code that handled output wildcards involving
+currents (including I(*), P(*), and W(*)) was such that wildcards
+requested by external output interfaces through the library API would
+not have currents provided unless a \texttt{.PRINT} line in the
+netlist also requested that wildcard.  The handling of this feature
+has been reworked so that wildcards in external output requests
+function correctly irrespective of any \texttt{.PRINT} lines in the
+netlist, and even if there are no \texttt{.PRINT} lines at
+all.\\ \hline
+
 \textbf{Gitlab-ex issue 204/Github issue 24}: Interlibrary dependency problems &
-     For user-compiled and installed Xyce builds beginning with
-     release 6.1 and up to release 7.3, Xyce created and installed
-     multiple, interdependent libraries such as ``libxyce'',
-     ``libADMS'' and ``libNeuronModels'', all of which had to be
-     linked into any user code that used Xyce.  As of release 7.4,
-     only libxyce is installed, and it contains all functions
-     previously placed into the other libraries.  If you are building
-     codes to be linked against Xyce libraries, you must simplify your
-     link line to link in just ``-lxyce''.\\ \hline
+For user-compiled and installed Xyce builds beginning with release 6.1
+and up to release 7.3, Xyce created and installed multiple,
+interdependent libraries such as ``libxyce'', ``libADMS'' and
+``libNeuronModels'', all of which had to be linked into any user code
+that used Xyce.  As of release 7.4, only libxyce is installed, and it
+contains all functions previously placed into the other libraries.  If
+you are building codes to be linked against Xyce libraries, you must
+simplify your link line to link in just ``-lxyce''.\\ \hline
 
-  \textbf{Gitlab-ex issue 204}: \texttt{.OPTIONS MEASURE MEASFAIL=1} does not work
-properly for successful \texttt{TRIG-TARG} measures  & If \texttt{.OPTIONS MEASURE MEASFAIL=1}
-was used in a netlist then the results for a successful \texttt{TRIG-TARG} measure
-would be correct in the descriptive information sent to stdout.  However, the measure's
-value would be shown as FAILED in the \texttt{<netlistName>.mt0} file. \\ \hline
+  \textbf{Gitlab-ex issue 204}: \texttt{.OPTIONS MEASURE MEASFAIL=1}
+does not work properly for successful \texttt{TRIG-TARG} measures &
+If \texttt{.OPTIONS MEASURE MEASFAIL=1} was used in a netlist then the
+results for a successful \texttt{TRIG-TARG} measure would be correct
+in the descriptive information sent to stdout.  However, the measure's
+value would be shown as FAILED in the \texttt{<netlistName>.mt0}
+file. \\ \hline
 
-  \textbf{Gitlab-ex issue 229}: Parsing error when V() expression contains extraneous trailing spaces &
-The new expression library did not handle whitespace correctly, in certain contexts.  
-  This has been fixed in the expression lexer.
-  \\ \hline
+  \textbf{Gitlab-ex issue 229}: Parsing error when V() expression
+contains extraneous trailing spaces & The new expression library did
+not handle whitespace correctly, in certain contexts.  This has been
+fixed in the expression lexer.  \\ \hline
 
-  \textbf{Gitlab-ex issue 235}: Extend the R=0 capability to allow use of resistor .MODELs & 
-Resistors that have a resistance value of zero are treated different inside of Xyce.  
-  This different handling did not allow for such resistors to refer to \texttt{.MODEL} statements.  
-  That has been fixed and now this use case works.
-  \\ \hline
+  \textbf{Gitlab-ex issue 235}: Extend the R=0 capability to allow use
+of resistor .MODELs & Resistors that have a resistance value of zero
+are treated different inside of Xyce.  This different handling did not
+allow for such resistors to refer to \texttt{.MODEL} statements.  That
+has been fixed and now this use case works.  \\ \hline
 
-  \textbf{Gitlab-ex issue 239}: \texttt{.options parser scale} doesn't play nice with dependent parameters & 
-If Xyce was used with a PDK that used \texttt{.option scale} (or Xyce's version \texttt{.options parser scale}), Xyce would apply this scale factor in the Instance::processParams function of the relevant MOSFET devices.  However, if the device instance contained any dependent parameters, then every time those parameters were updated, this function was called again, and thus the scale factor was applied each time. This resulted in the wrong L and W values.  This has been corrected and scale factors are now applied no more than once.
-  \\ \hline
+  \textbf{Gitlab-ex issue 239}: \texttt{.options parser scale} doesn't
+play nice with dependent parameters & If Xyce was used with a PDK that
+used \texttt{.option scale} (or Xyce's version \texttt{.options parser
+scale}), Xyce would apply this scale factor in the
+Instance::processParams function of the relevant MOSFET devices.
+However, if the device instance contained any dependent parameters,
+then every time those parameters were updated, this function was
+called again, and thus the scale factor was applied each time. This
+resulted in the wrong L and W values.  This has been corrected and
+scale factors are now applied no more than once.  \\ \hline
 
-  \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work in \texttt{.IC} statements &  
-      This has been resolved and global parameters can be used to set the 
-      value of an \texttt{.IC} statement.\\ \hline
+  \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work
+in \texttt{.IC} statements & This has been resolved and global
+parameters can be used to set the value of an \texttt{.IC}
+statement.\\ \hline
 
-  \textbf{1029-SON}: Improve checking of \texttt{.PRINT} type versus analysis type &  
-The checking of the \texttt{.PRINT} type versus the analysis type had some
-deficiencies. It would falsely report an error if a \texttt{.PRINT TRANADJOINT} line
-preceeded the \texttt{.PRINT TRAN} line.  It could falsely not report an error if
-the \texttt{.OP} statement preceeded the primary analysis statement (e.g., 
+  \textbf{1029-SON}: Improve checking of \texttt{.PRINT} type versus
+analysis type & The checking of the \texttt{.PRINT} type versus the
+analysis type had some deficiencies. It would falsely report an error
+if a \texttt{.PRINT TRANADJOINT} line preceeded the \texttt{.PRINT
+TRAN} line.  It could falsely not report an error if the \texttt{.OP}
+statement preceeded the primary analysis statement (e.g.,
 \texttt{.TRAN}), or if a valid \texttt{.PRINT} line was the first \texttt{.PRINT}
 line in the netlist but a subsequent \texttt{.PRINT} line was not allowed
 for the requested primary analysis type. \\ \hline
