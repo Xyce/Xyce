@@ -181,7 +181,6 @@ InstanceBlock::InstanceBlock (const std::string &name)
     numExtVars(0),
     numStateVars(0),
     modelFlag(0),
-    sourceFlag(0),
     bsourceFlag(0),
     offFlag(0),
     off(0)
@@ -206,7 +205,6 @@ InstanceBlock::InstanceBlock (const InstanceBlock &right)
     numExtVars(right.numExtVars),
     numStateVars(right.numStateVars),
     modelFlag (right.modelFlag),
-    sourceFlag(right.sourceFlag),
     bsourceFlag(right.bsourceFlag),
     offFlag   (right.offFlag),
     off       (right.off)
@@ -243,7 +241,6 @@ InstanceBlock & InstanceBlock::operator=(const InstanceBlock &right)
     numExtVars= right.numExtVars;
     numStateVars= right.numStateVars;
     modelFlag = right.modelFlag;
-    sourceFlag= right.sourceFlag;
     bsourceFlag= right.bsourceFlag;
     offFlag   = right.offFlag;
     off       = right.off;
@@ -271,7 +268,6 @@ void InstanceBlock::clear ()
   numExtVars = 0;
   numStateVars = 0;
   modelFlag  = 0;
-  sourceFlag = 0;
   bsourceFlag = 0;
   offFlag    = 0;
   off        = 0;
@@ -300,7 +296,6 @@ std::ostream& operator<<(std::ostream & os, const InstanceBlock & ib)
   os << " # Ext Vars: " << ib.numExtVars << std::endl;
   os << " # State Vars: " << ib.numStateVars << std::endl;
   os << " modelFlag: " << ib.modelFlag << std::endl;
-  os << " sourceFlag: " << ib.sourceFlag << std::endl;
   os << " bsourceFlag: " << ib.bsourceFlag << std::endl;
   os << " offFlag: " << ib.offFlag << std::endl;
   os << " off: " << ib.off << std::endl;
@@ -532,9 +527,6 @@ Pack<Device::InstanceBlock>::packedByteCount(const Device::InstanceBlock &instan
   //----- count modelFlag
   byteCount += sizeof(int);
 
-  //----- count sourceFlag
-  byteCount += sizeof(int);
-
   //----- count bsourceFlag
   byteCount += sizeof(int);
 
@@ -604,10 +596,6 @@ Pack<Device::InstanceBlock>::pack(const Device::InstanceBlock &instance_block, c
 
   //----- pack modelFlag
   i = instance_block.modelFlag;
-  comm->pack(&i, 1, buf, bsize, pos );
-
-  //----- pack sourceFlag
-  i = instance_block.sourceFlag;
   comm->pack(&i, 1, buf, bsize, pos );
 
   //----- pack bsourceFlag
@@ -692,10 +680,6 @@ Pack<Device::InstanceBlock>::unpack(Device::InstanceBlock &instance_block, char 
   //----- unpack modelFlag
   comm->unpack( pB, bsize, pos, &i, 1 );
   instance_block.modelFlag = ( i != 0 );
-
-  //----- unpack sourceFlag
-  comm->unpack( pB, bsize, pos, &i, 1 );
-  instance_block.sourceFlag = ( i != 0 );
 
   //----- unpack bsourceFlag
   comm->unpack( pB, bsize, pos, &i, 1 );
