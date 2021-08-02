@@ -148,7 +148,7 @@ public:
   bool parsePRINTBlock(const Util::OptionBlock & print_block);
   bool registerSens(const Util::OptionBlock & option_block);
   bool registerSensOptions(const Util::OptionBlock & option_block);
-
+  
   bool registerNoise(const Util::OptionBlock & option_block);
 
   void notify(const Analysis::StepEvent &step_event);
@@ -627,6 +627,8 @@ public:
     return opBuilderManager_;
   }
 
+  bool isIStarRequested();
+
   std::ostream *openFile(const std::string &path, std::ios_base::openmode mode);
   std::ostream *openFile(const std::string &path);
   std::ostream *openBinaryFile(const std::string &path);
@@ -961,10 +963,6 @@ void removeWildcardVariables(
 bool excludeYDeviceFromWildcard(const std::string& tmpStr);
 
 
-void processPrintParamIWildcards(
-   const OutputParameterMap &                    output_parameter_map,
-   const ExternalOutputWrapperMap &              external_output_map,
-   bool &                                        iStarRequested);
 
 //-----------------------------------------------------------------------------
 // Function      : operator<

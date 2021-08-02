@@ -1270,11 +1270,7 @@ void Simulator::finalizeLeadCurrentSetup_()
   // those operators are found then set the corresponding flag
   // in the device_manager which enables lead current calculations for
   // all devices.w
-  bool iStarRequested=false;
-  processPrintParamIWildcards(outputManager_->getOutputParameterMap(),
-                              outputManager_->getExternalOutputWrapperMap(),
-                              iStarRequested);
-  deviceManager_->setIStarRequested(iStarRequested);
+  deviceManager_->setIStarRequested(outputManager_->isIStarRequested());
 
   // Now is the time to tell devices that they need to enable lead
   // currents Requests were made in initializeEarly, but it isn't
