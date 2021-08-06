@@ -912,5 +912,49 @@ std::vector< Xyce::NodeID > CktGraphBasic::analyzeDeviceNodeGraph(std::ostream &
   return floatingDevs;
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : CktGraphBasic::removeFloatingNodes
+// Purpose       : Find unattached device or voltage nodes in graph for removal.
+// Special Notes : This cleanup is necessary after all graph analyses have been performed.
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 8/3/2021
+//-----------------------------------------------------------------------------
+void CktGraphBasic::removeUnattachedNodes()
+{
+  const CktGraph::Graph::Index1Map& indexMap = cktgph_.getIndex1Map();
+
+  CktGraph::Graph::Index1Map::const_iterator currentIndexItr = indexMap.begin();
+  CktGraph::Graph::Index1Map::const_iterator endIndexItr = indexMap.end();
+  std::vector< Xyce::NodeID > nodesToBeRemoved;
+  std::vector< CktNode * > removedNodes;
+ 
+  while( currentIndexItr != endIndexItr )
+  {
+    // Get the nodes adjacent to this node
+    const std::vector<int>& vAdj = cktgph_.getAdjacentRow( currentIndexItr->second );
+    if (!vAdj.size())
+    {
+      nodesToBeRemoved.push_back( currentIndexItr->first );
+  
+      CktNode * nodeToBeReplacedCktNodePtr = FindCktNode( currentIndexItr->first );
+      if (nodeToBeReplacedCktNodePtr)
+        removedNodes.push_back( nodeToBeReplacedCktNodePtr );
+    }       
+    currentIndexItr++;
+  }    
+
+  Xyce::dout() << "removeUnattachedNodes found " << nodesToBeRemoved.size() << " nodes to remove!" << std::endl;
+  cktgph_.removeKeys( nodesToBeRemoved );
+
+  // now it's safe to delete the device nodes
+  for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
+    delete *it;  
+
+  isModified_=true;
+}
+
+
 } // namespace Topo
 } // namespace Xyce

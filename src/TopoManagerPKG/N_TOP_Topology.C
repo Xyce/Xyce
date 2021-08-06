@@ -380,6 +380,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
   //if( linearSolverUtility_->floatingnodeFlag() || !pdsManager_.getPDSComm()->isSerial() )
   if( linearSolverUtility_->floatingnodeFlag() )
   {
+    int maxBufSize = 250000;
     int numProcs = pdsManager_.getPDSComm()->numProc();
     int myProc = pdsManager_.getPDSComm()->procID();
 
@@ -433,6 +434,9 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
       int byteCount = 0; 
       for ( std::vector< Xyce::NodeID >::iterator it = floatingNodes.begin(); it != floatingNodes.end(); ++it )
         byteCount += Xyce::packedByteCount( *it );
+     
+      // Collect finalFloating nodes and devices for local removal. 
+      std::vector< Xyce::NodeID > finalFloatingDevs, finalFloatingNodes;
 
       for (int proc = 0; proc < numProcs; ++proc)
       {
@@ -452,7 +456,6 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         // If multiple processors have the same floating node, they could be consolidated on one
         // processor to reduce the communication.  
         std::vector< int > nodeCnt( tFNodes[proc], -(numProcs+1) ), tmpNodeCnt( tFNodes[proc], -(numProcs+1) );
-        std::vector< Xyce::NodeID > finalFloatingDevs, finalFloatingNodes;
 
         if ( proc == myProc )
         {
@@ -486,7 +489,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
                 // This node is on another processor too, but is also a floating node.
                 // Leave this device on this processor, if it is the min processor of all
                 // the ones with the same floating node.
-                if ( myProc < -nodeCnt[j] )
+                if ( myProc < -(nodeCnt[j]-1) )
                   keepHere = true;
                 else
                   sendToProc = std::abs(nodeCnt[j]-1);  // Remove the 1-based processor offset and negation
@@ -498,7 +501,6 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
             {
               if (sendToProc > -1)
               {
-                Xyce::dout() << "Processor " << myProc << " needs to send " << *it << " to processor " << sendToProc << std::endl;
                 devicesToSend[ *it ] = sendToProc;
               }
               else
@@ -511,8 +513,6 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
           }
 
           Xyce::dout() << "Processor " << myProc << " needs to send " << devicesToSend.size() << " device(s)!" << std::endl;
-          floatingDevs = finalFloatingDevs;
-          floatingNodes = finalFloatingNodes;
         }
         else
         { 
@@ -536,7 +536,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
               if (std::find( floatingNodes.begin(), floatingNodes.end(), tmpNode[i] ) == floatingNodes.end())
                 tmpNodeCnt[i] = myProc+1;
               else
-                tmpNodeCnt[i] = -(myProc+1);
+                tmpNodeCnt[i] = -(myProc+1); 
             }
           }
        
@@ -547,6 +547,9 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         // Clean up.
         delete [] floatingNodeBuffer;
       }
+
+      floatingDevs = finalFloatingDevs;
+      floatingNodes = finalFloatingNodes;
 
       int numFloatingDevs = floatingDevs.size();
       int numFloatingNodes = floatingNodes.size();
@@ -581,10 +584,14 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         delete *it;
     }
 
+    // Clear the global floating Devs and Nodes, local floating nodes are in devicesToSend
+    floatingDevs.clear();
+    floatingNodes.clear();
+
     // Rebalance local floating nodes that should be owned by another processor.
     if (!pdsManager_.getPDSComm()->isSerial())
     {
-      std::vector< Xyce::NodeID > sentDevNodes;
+      std::vector< Xyce::NodeID > sentDevices;
 
       // Each processor will receive devices from the other processors.
       for (int proc = 0; proc < numProcs; ++proc)
@@ -597,11 +604,13 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
             {
               int count = 0, byteCount = -1;
               pdsManager_.getPDSComm()->recv( &byteCount, 1, fromProc );
+              Xyce::dout() << "Processor " << myProc << " is receiving a buffer of size " << byteCount << " from processor " << fromProc << std::endl;
 
-              if (byteCount)
+              while (byteCount > 0)
               {          
                 // Create buffer.
                 int pos = 0;
+                Xyce::dout() << "Processor " << myProc << " is allocating a buffer to receive devices of size " << byteCount << std::endl;
                 char * buffer = new char[byteCount];
                 pdsManager_.getPDSComm()->recv( buffer, byteCount, fromProc );
                 Xyce::dout() << "Processor " << myProc << " received " << byteCount << " bytes from processor " << fromProc << std::endl;
@@ -626,11 +635,18 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
                     Xyce::unpack(tmpID, buffer, byteCount, pos, pdsManager_.getPDSComm());
                     tmpDevBlock.addNode( Xyce::get_node_id(tmpID) );
                   } 
+                  tmpDevBlock.getDevBlock().numExtVars = numNodes;
 
                   // Call addDevice with NodeDevBlock
                   addDevice( device_manager, tmpDevBlock );
-                  Xyce::dout() << "Processor " << myProc << " received instance with " << numNodes << " nodes: " << std::endl << tmpDevBlock << std::endl;
                 }
+              
+                // Clean up
+                delete [] buffer;
+                
+                // Read in the next buffer size. 
+                pdsManager_.getPDSComm()->recv( &byteCount, 1, fromProc );
+                Xyce::dout() << "Processor " << myProc << " is receiving a buffer of size " << byteCount << " from processor " << fromProc << std::endl;
               } 
             }
           } 
@@ -638,9 +654,10 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
         else
         {
           int count = 0;
+          int bufCount = 0;
           int byteCount = 0;
           std::vector< Xyce::NodeID > nodesToSend;
-          std::vector< int > nodesToSendPtr( 1, 0 );
+          std::vector< int > bufSize( 1, sizeof(int) ), blkCount( 1, 0 ), nodesToSendPtr( 1, 0 );
           unordered_map< Xyce::NodeID, int >::iterator it = devicesToSend.begin();
           unordered_map< Xyce::NodeID, int >::iterator it_end = devicesToSend.end();
           for ( ; it != it_end; ++it )
@@ -654,90 +671,115 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
               {
                 if (!deviceInstanceBlockPtr->bsourceFlag) // Don't move b sources right now.
                 {
-                  Xyce::dout() << "Processor " << myProc << " packing device instance : " << std::endl << *deviceInstanceBlockPtr << std::endl; 
-                  byteCount += Xyce::packedByteCount( *deviceInstanceBlockPtr );
+                  byteCount = Xyce::packedByteCount( *deviceInstanceBlockPtr );
+                  if ((bufSize[bufCount] + byteCount) < maxBufSize)
+                    bufSize[bufCount] += byteCount;
+                  else
+                  {
+                    bufCount++;
+                    bufSize.push_back( sizeof(int) + byteCount );
+                    blkCount.push_back( 0 );
+                  } 
                   count++;
-
-                  byteCount += sizeof(int);
+                  blkCount[ bufCount ]++;
+                  bufSize[ bufCount ] += sizeof(int);
 
                   // Get the adjacent IDs, including the ground node, so that the connectivity is correct on proc.
                   std::vector< Xyce::NodeID > v_ids; 
                   mainGraphPtr_->returnAdjIDs((*it).first, v_ids, true);
                   nodesToSend.insert( nodesToSend.end(), v_ids.begin(), v_ids.end() );
                   nodesToSendPtr.push_back( nodesToSendPtr.back() + v_ids.size() );
-                  Xyce::dout() << "Processor " << myProc << " is counting " << v_ids.size() << " nodes for device " << (*it).first << std::endl; 
 
+                  // Pack the associated voltage nodes, don't split the instance block
                   std::vector< Xyce::NodeID >::iterator it2 = v_ids.begin();
                   std::vector< Xyce::NodeID >::iterator it2_end = v_ids.end();
                   for ( ; it2 != it2_end; ++it2 )
-                    byteCount += Xyce::packedByteCount( *it2 );
+                    bufSize[bufCount] += Xyce::packedByteCount( *it2 );
                 }
               }
             }
           }
 
-          if (count) 
-            byteCount += sizeof(int);
-          Xyce::dout() << "Processor " << myProc << " needs to send " << byteCount << " bytes and " << count << " devices to processor " << proc << std::endl;
-
-          pdsManager_.getPDSComm()->send( &byteCount, 1, proc );
+          Xyce::dout() << "Processor " << myProc << " needs to send " << bufCount+1 << " blocks and " << count << " devices and " << nodesToSend.size() << " nodes to processor " << proc << std::endl;
 
           if (count)
           {
-            // Create buffer.
-            int pos = 0;
-            char * buffer = new char[byteCount];
-
-            // Pack the instance blocks for proc
-            pdsManager_.getPDSComm()->pack( &count, 1, buffer, byteCount, pos );
             it = devicesToSend.begin();
-            for (int i=0 ; it != it_end; ++it)
-            {
-              if ( (*it).second == proc )
-              {
-                CktNode * cnPtr = mainGraphPtr_->FindCktNode( (*it).first );
-                sentDevNodes.push_back( (*it).first );
-                CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>( cnPtr );
-                const Device::InstanceBlock *deviceInstanceBlockPtr = cktNodeDevPtr->deviceInstanceBlock();
-                if (deviceInstanceBlockPtr)
-                {
-                  if (!deviceInstanceBlockPtr->bsourceFlag) // Don't move b sources right now.
-                  {
-                    Xyce::pack( *deviceInstanceBlockPtr, buffer, byteCount, pos, pdsManager_.getPDSComm() );
+            int i=0;
 
-                    // Send the adjacent IDs, including the ground node, so that the connectivity is correct on proc.
-                    int numNodes = nodesToSendPtr[i+1] - nodesToSendPtr[i];
-                    Xyce::dout() << "Processor " << myProc << " is packing " << numNodes << " for device " << (*it).first << std::endl;
-                    pdsManager_.getPDSComm()->pack( &numNodes, 1, buffer, byteCount, pos );
-                    for ( int j=nodesToSendPtr[i]; j<nodesToSendPtr[i+1]; ++j )
+            for (int bufNum = 0; bufNum < blkCount.size(); ++bufNum)
+            {
+              byteCount = bufSize[ bufNum ] + sizeof(char) + sizeof(int);  // Add offset
+              pdsManager_.getPDSComm()->send( &byteCount, 1, proc );
+
+              // Create buffer.
+              int pos = 0;
+              Xyce::dout() << "Processor " << myProc << " is allocating a buffer to send devices of size " << byteCount << std::endl;
+              char * buffer = new char[byteCount];
+
+              // Pack the instance blocks for proc
+              int numDevices = blkCount[ bufNum ];
+              Xyce::dout() << "Processor " << myProc << " packing " << numDevices << " devices for buffer " << bufNum << " of size " << byteCount << std::endl;
+              pdsManager_.getPDSComm()->pack( &numDevices, 1, buffer, byteCount, pos );
+              for (int i_blk=0 ; i_blk < numDevices; )
+              {
+                if ( (*it).second == proc )
+                {
+                  CktNode * cnPtr = mainGraphPtr_->FindCktNode( (*it).first );
+                  sentDevices.push_back( (*it).first );
+                  CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>( cnPtr );
+                  const Device::InstanceBlock *deviceInstanceBlockPtr = cktNodeDevPtr->deviceInstanceBlock();
+                  if (deviceInstanceBlockPtr)
+                  {
+                    if (!deviceInstanceBlockPtr->bsourceFlag) // Don't move b sources right now.
                     {
-                      Xyce::pack( *(nodesToSend.begin()+j), buffer, byteCount, pos, pdsManager_.getPDSComm());
-                      if ( Xyce::get_node_id( *(nodesToSend.begin()+j) ) != "0" )
-                        sentDevNodes.push_back( *(nodesToSend.begin()+j) );
+                      Xyce::pack( *deviceInstanceBlockPtr, buffer, byteCount, pos, pdsManager_.getPDSComm() );
+
+                      // Send the adjacent IDs, including the ground node, so that the connectivity is correct on proc.
+                      int numNodes = nodesToSendPtr[i+1] - nodesToSendPtr[i];
+                      pdsManager_.getPDSComm()->pack( &numNodes, 1, buffer, byteCount, pos );
+                      for ( int j=nodesToSendPtr[i]; j<nodesToSendPtr[i+1]; ++j )
+                      {
+                        Xyce::pack( *(nodesToSend.begin()+j), buffer, byteCount, pos, pdsManager_.getPDSComm());
+                      }
+
+                      // Increment pointers (i = global, i_blk = local to this buffer)
+                      i++;
+                      i_blk++;
                     }
-                    i++;
                   }
                 }
+                ++it;
               }
-            }
     
-            // Send the packed instance blocks to proc
-            pdsManager_.getPDSComm()->send( buffer, byteCount, proc );
+              // Send the packed instance blocks to proc
+              pdsManager_.getPDSComm()->send( buffer, byteCount, proc );
 
-            // Clean up
-            delete [] buffer;
+              // Clean up
+              delete [] buffer;
+            }
           }
+        
+          // Signal that we are done here.  
+          byteCount = -1;
+          pdsManager_.getPDSComm()->send( &byteCount, 1, proc );
         } 
       }
-
-      // Now remove device and voltage nodes that have been sent to another processor
+      
+      Xyce::dout() << "Processor " << myProc << " is removing all sent devices and nodes from topology!" << std::endl;
+      // Now remove device nodes that have been sent to another processor; voltage nodes will be pruned later.
       std::vector< CktNode * > removedNodes;
-      mainGraphPtr_->removeNodes( sentDevNodes, removedNodes );
+      mainGraphPtr_->removeNodes( sentDevices, removedNodes );
 
-      // now it's safe to delete the voltage nodes
+      // now it's safe to delete the device nodes
       for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
         delete *it;   
+
+      // clean up graph, remove any other unattached nodes
+      mainGraphPtr_->removeUnattachedNodes();
     }
+    Xyce::dout() << "Processor " << myProc << " is finished removing floating nodes!" << std::endl;
+
   }
 
 }
