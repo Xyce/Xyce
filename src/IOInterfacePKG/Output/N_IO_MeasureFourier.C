@@ -455,19 +455,18 @@ std::ostream& Fourier::printVerboseMeasureResult( std::ostream& os)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Fourier::printMeasureWarnings
-// Purpose       : prints error message related to invalid time windows, etc.
+// Function      : Fourier::printMeasureWarningsForAT
+// Purpose       : prints error message related to invalid AT values, where
+//                 the AT values are a frequency value for this measure type.
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystem Modeling
-// Creation Date : 02/5/2015
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/1/2021
 //-----------------------------------------------------------------------------
-void Fourier::printMeasureWarnings(const double endSimTime, const double startSweepVal,
-                                   const double endSweepVal)
+void Fourier::printMeasureWarningsForAT(const double endSimTime)
 {
-  Base::printMeasureWarnings(endSimTime, startSweepVal, endSweepVal);
-
-  // additional checks, since AT is a frequency (not a time) for the FOUR measure
+  // Checks specific to this measure, since AT is a frequency (not a time)
+  // for the FOUR measure
   if (initialized_)
   {
     if (time_.size() == 1)

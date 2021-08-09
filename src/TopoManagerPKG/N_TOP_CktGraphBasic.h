@@ -135,6 +135,9 @@ public:
   void removeRedundantDevices( std::vector< NodeID > & devicesToBeRemoved, std::vector< CktNode * > & removedDevices);
   void removeNodes( const std::vector< NodeID > & nodesToBeRemoved, std::vector< CktNode * > & removedNodes );
 
+  // Eliminate any nodes in the graph that are unattached due to graph analysis.
+  void removeUnattachedNodes();
+
   // write out device node graph to the ostream, return floating nodes
   std::vector< Xyce::NodeID > analyzeDeviceNodeGraph(std::ostream & os);
 

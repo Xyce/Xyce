@@ -214,7 +214,6 @@ public:
   int numStateVars;
 
   bool modelFlag;
-  bool sourceFlag;
   bool bsourceFlag;
   bool offFlag;
   bool off;

@@ -1294,6 +1294,64 @@ void OutputMgr::addExternalOutputInterface(ExternalOutputInterface * theOutputIn
 }
 
 //-----------------------------------------------------------------------------
+// Function      : isIStarRequested
+// Purpose       : look through parameter lists and set a flag if any
+//                 request wildcards in an operators that request currents
+// Special Notes :  This used to get done as part of printLineDiagnostics,
+//                 but that function is called too early and misses any
+//                 wildcards that might be requested by external outputters
+//                 which are defined via an API long after netlist parsing.
+//
+//                 It largely mirrors the structure of printLineDiagnostics,
+//                 but ONLY looks for instances that are wildards.
+//
+//                 In this function we do not do all the error checking
+//                 that was done
+//-----------------------------------------------------------------------------
+
+bool OutputMgr::isIStarRequested()
+{
+  bool iStarRequested=false;
+
+  Util::ParamList theVariableList=getVariableList();
+
+  for (Util::ParamList::const_iterator it3 = theVariableList.begin(), end3 = theVariableList.end(); it3 != end3; ++it3)
+  {
+    const Util::Param &parameter = (*it3);
+    // Unlike printLineDiagnostics, we need not care about expressions,
+    // because you can't use wildcards in expressions
+    // We only care about instances in output operators
+    const std::string &varType = parameter.tag();
+
+    if ((varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I')) && parameter.getImmutableValue<int>() > 0)
+    {
+      ++it3;
+      // unlike printLineDiagnostics, we don't need to distinguish
+      // between the various leads requested (ID, IS, etc.) because
+      // all we care about is if there's a wildcard
+      if ( (*it3).tag() == "*")
+        iStarRequested=true;
+    }
+    else if (varType.size() == 3 && varType[0] == 'D' && parameter.getImmutableValue<int>() > 0)
+    {
+      int numIndices = parameter.getImmutableValue<int>();
+      ++it3;
+      if ((*it3).tag() == "*")
+        iStarRequested=true;
+      if (numIndices == 2) ++it3;
+    }
+    else if (((varType == "P") || (varType == "W")) && parameter.getImmutableValue<int>() > 0)
+    {
+      ++it3;
+      if ((*it3).tag() == "*")
+        iStarRequested=true;
+    }
+  }
+  return iStarRequested;
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::parsePRINTBlock
 // Purpose       : Given an OptionBlock for a print statement, construct
 //                 a PrintParameters object and add it to our set of known
@@ -3267,115 +3325,6 @@ void removeWildcardVariables(
   variable_list.splice(pStarPosition, pStarList);
   variable_list.splice(wStarPosition, wStarList);
 }
-
-//-----------------------------------------------------------------------------
-// Function      : processPrintParamIWildcards
-// Purpose       : look through parameter lists and set a flag if any
-//                 request wildcards in an operators that request currents
-// Special Notes :  This used to get done as part of printLineDiagnostics,
-//                 but that function is called too early and misses any
-//                 wildcards that might be requested by external outputters
-//                 which are defined via an API long after netlist parsing.
-//
-//                 It largely mirrors the structure of printLineDiagnostics,
-//                 but ONLY looks for instances that are wildards.
-//
-//                 In this function we do not do all the error checking
-//                 that was done
-//-----------------------------------------------------------------------------
-
-void processPrintParamIWildcards(
-   const OutputParameterMap &                    output_parameter_map,
-   const ExternalOutputWrapperMap &              external_output_map,
-   bool &                                        iStarRequested)
-{
-  for (OutputParameterMap::const_iterator it1 = output_parameter_map.begin(), end1 = output_parameter_map.end(); it1 != end1; ++it1)
-  {
-    const OutputParameterMap::mapped_type &parameter_vector = (*it1).second;
-    for (OutputParameterMap::mapped_type::const_iterator it2 = parameter_vector.begin(), end2 = parameter_vector.end(); it2 != end2; ++it2)
-    {
-      const PrintParameters &print_parameters = (*it2);
-      for (Util::ParamList::const_iterator it3 = print_parameters.variableList_.begin(), end3 = print_parameters.variableList_.end(); it3 != end3; ++it3)
-      {
-        const Util::Param &parameter = (*it3);
-        std::vector<std::string> instances;
-        // Unlike printLineDiagnostics, we need not care about expressions,
-        // because you can't use wildcards in expressions
-        // We only care about instances in output operators
-        const std::string &varType = parameter.tag();
-
-        if ((varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I')) && parameter.getImmutableValue<int>() > 0)
-        {
-          ++it3;
-          // unlike printLineDiagnostics, we don't need to distinguish
-          // between the various leads requested (ID, IS, etc.) because
-          // all we care about is if there's a wildcard
-          instances.push_back((*it3).tag());
-        }
-        else if (varType.size() == 3 && varType[0] == 'D' && parameter.getImmutableValue<int>() > 0)
-        {
-          int numIndices = parameter.getImmutableValue<int>();
-          ++it3;
-          instances.push_back((*it3).tag());
-          if (numIndices == 2) ++it3;
-        }
-        else if (((varType == "P") || (varType == "W")) && parameter.getImmutableValue<int>() > 0)
-        {
-          ++it3;
-          instances.push_back((*it3).tag());
-        }
-
-        for (std::vector<std::string>::iterator iter_s= instances.begin(); iter_s != instances.end(); ++iter_s)
-        {
-          const std::string &name = *iter_s;
-          if (name == "*")
-            iStarRequested=true;
-        }
-      }
-    }
-  }
-  // now do the same for external outputs
-  for (ExternalOutputWrapperMap::const_iterator it1 = external_output_map.begin(), end1 = external_output_map.end(); it1 != end1; ++it1)
-  {
-    for (std::vector<ExternalOutputWrapper *>::const_iterator it2 = (*it1).second.begin(); it2 != (*it1).second.end(); ++it2)
-    {
-      ExternalOutputWrapper * theExtOutWrapper=(*it2);
-      Util::ParamList &theParamList = theExtOutWrapper->getParamList();
-      for (Util::ParamList::const_iterator it3 = theParamList.begin(), end3 = theParamList.end(); it3 != end3; ++it3)
-      {
-        const Util::Param &parameter = (*it3);
-        std::vector<std::string> instances;
-        const std::string &varType = parameter.tag();
-
-        if ((varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I')) && parameter.getImmutableValue<int>() > 0)
-        {
-          ++it3;
-          instances.push_back((*it3).tag());
-        }
-        else if (varType.size() == 3 && varType[0] == 'D' && parameter.getImmutableValue<int>() > 0)
-        {
-          int numIndices = parameter.getImmutableValue<int>();
-          ++it3;
-          instances.push_back((*it3).tag());
-          if (numIndices == 2) ++it3;
-        }
-        else if (((varType == "P") || (varType == "W")) && parameter.getImmutableValue<int>() > 0)
-        {
-          ++it3;
-          instances.push_back((*it3).tag());
-        }
-
-        for (std::vector<std::string>::iterator iter_s= instances.begin(); iter_s != instances.end(); ++iter_s)
-        {
-          const std::string &name = *iter_s;
-          if (name == "*")
-            iStarRequested=true;
-        }
-      }
-    }
-  }
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::IO::excludeYDeviceFromWildcard

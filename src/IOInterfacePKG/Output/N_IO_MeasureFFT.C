@@ -371,6 +371,21 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Fourier::printMeasureWarningsForAT
+// Purpose       : prints error message related to invalid AT values, where
+//                 the AT values are a frequency value for this measure type.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/1/2021
+//-----------------------------------------------------------------------------
+void FFTFind::printMeasureWarningsForAT(const double endSimTime)
+{
+  if ( atIdx_ < 0 || atIdx_ > np_/2 )
+   Xyce::Report::UserWarning() << name_ << " failed. AT value outside FFT frequency bounds";
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ENOB::ENOB()
 // Purpose       : Constructor
 // Special Notes :
