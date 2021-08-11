@@ -2693,13 +2693,16 @@ void CircuitBlock::produceUnflattenedNetlist()
     }
     else
     {
+      addresistbool = false;
       for (unsigned int i = 0; i < separatedLine.size(); ++i)
       {
         addresistarg = separatedLine[i].string_;
         addresistarg.toUpper();
+        std::cout << "Addresistarg = " << addresistarg << std::endl;
         if (addresistarg == "ADDRESISTORS")
         {
           addresistbool = true;
+          break;
         }
       }
 
