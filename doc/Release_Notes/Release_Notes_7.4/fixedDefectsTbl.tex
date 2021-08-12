@@ -99,6 +99,16 @@ called again, and thus the scale factor was applied each time. This
 resulted in the wrong L and W values.  This has been corrected and
 scale factors are now applied no more than once.  \\ \hline
 
+  \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
+In previous \Xyce{} versions, these two \texttt{.PRINT} lines would
+both output the \texttt{V(*)} wildcard results before the \texttt{I(*)}
+wildcard results.
+\begin{verbatim}
+.PRINT TRAN V(*) I(*)
+.PRINT TRAN I(*) V(*)
+\end{verbatim}
+\\ \hline
+
   \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work
 in \texttt{.IC} statements & This has been resolved and global
 parameters can be used to set the value of an \texttt{.IC}
