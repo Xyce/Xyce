@@ -978,7 +978,9 @@ void getPWildcardList(
   const NodeNameMap& branch_vars,
   unordered_set<std::string>& wildcard_list);
 
-bool excludeYDeviceFromWildcard(const std::string& tmpStr);
+std::string getYDeviceBaseName(const std::string& tmpStr);
+bool excludeYDeviceFromCurrWildcard(const std::string& tmpStr);
+bool excludeYDeviceFromPowerWildcard(const std::string& tmpStr);
 
 //-----------------------------------------------------------------------------
 // Function      : operator<

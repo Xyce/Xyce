@@ -2892,7 +2892,7 @@ void getIWildcardList(
       // fake things out here by converting back to Xyce style.
       tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
 
-      if ( (devType == 'Y') && excludeYDeviceFromWildcard(tmpStr) )
+      if ( (devType == 'Y') && excludeYDeviceFromCurrWildcard(tmpStr) )
       {
         //no op
       }
@@ -2933,7 +2933,7 @@ void getPWildcardList(
       // see BUG 982 for the name conversion issues
       tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
 
-      if ( (devType == 'Y') && excludeYDeviceFromWildcard(tmpStr) )
+      if ( (devType == 'Y') && excludeYDeviceFromPowerWildcard(tmpStr) )
       {
         // no op
       }
@@ -2948,9 +2948,9 @@ void getPWildcardList(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::IO::excludeYDeviceFromWildcard
+// Function      : Xyce::IO::excludeYDeviceFromCurrWildcard
 // Purpose       : Determine if a Y device should be excluded from a
-//                 the device list generated from a wildcard specification.
+//                 the device list generated from an I wildcard specification.
 // Special Notes : Per BUG 989 SON:  we are allowing Y device branches to be
 //                 output by I(*) now, but YMIL and YMIN (mutual inductors)
 //                 have two names for each branch/lead current, and one of them
@@ -2959,15 +2959,13 @@ void getPWildcardList(
 //                 for now.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 10/19/2020
+// Creation Date : 8/12/2020
 //-----------------------------------------------------------------------------
-bool excludeYDeviceFromWildcard(const std::string& tmpStr)
+bool excludeYDeviceFromCurrWildcard(const std::string& tmpStr)
 {
   bool retval=false;
 
-  std::string::size_type i=tmpStr.find_last_of(':');
-  i=((i == std::string::npos)?0:i+1);
-  std::string basename=tmpStr.substr(i);
+  std::string basename=getYDeviceBaseName(tmpStr);
   if (startswith_nocase(basename,"YMIL")
       || startswith_nocase(basename,"YMIN")
       || startswith_nocase(basename,"YPDE"))
@@ -2976,6 +2974,48 @@ bool excludeYDeviceFromWildcard(const std::string& tmpStr)
   }
 
   return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::excludeYDeviceFromPowerWildcard
+// Purpose       : Determine if a Y device should be excluded from a
+//                 the device list generated from a P wildcard specification.
+// Special Notes : YGENEXT devices support IN() but not P().  YMIL and YMIN
+//                 are excluded per SON Bug 989.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/12/2020
+//-----------------------------------------------------------------------------
+bool excludeYDeviceFromPowerWildcard(const std::string& tmpStr)
+{
+  bool retval=false;
+
+  std::string basename=getYDeviceBaseName(tmpStr);
+  if (startswith_nocase(basename,"YMIL")
+      || startswith_nocase(basename,"YMIN")
+      || startswith_nocase(basename,"YPDE")
+      || startswith_nocase(basename,"YGENEXT"))
+  {
+    retval=true;
+  }
+
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::getYDeviceBaseName
+// Purpose       : Determine the basename (e.g., YMIL) for a given Y device
+// Special Notes : 
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/12/2020
+//-----------------------------------------------------------------------------
+std::string getYDeviceBaseName(const std::string& tmpStr)
+{
+  std::string::size_type i=tmpStr.find_last_of(':');
+  i=((i == std::string::npos)?0:i+1);
+
+  return tmpStr.substr(i);
 }
 
 //-----------------------------------------------------------------------------
