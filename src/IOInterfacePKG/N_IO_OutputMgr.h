@@ -958,11 +958,29 @@ void removeWildcardVariables(
   Parallel::Machine     comm,
   Util::ParamList &     variable_list,
   const NodeNameMap &   external_nodes,
-  const NodeNameMap &   branch_vars);
+  const NodeNameMap &   branch_vars,
+  const bool            branchCurrOnly);
 
-bool excludeYDeviceFromWildcard(const std::string& tmpStr);
+void getVWildcardList(
+  const std::string& varString,
+  const NodeNameMap& external_nodes,
+  unordered_set<std::string>& wildcard_list);
 
+void getIWildcardList(
+  const std::string& varType,
+  const std::string& varString,
+  const bool  branchCurrOnly,
+  const NodeNameMap& branch_vars,
+  unordered_set<std::string>& wildcard_list);
 
+void getPWildcardList(
+  const std::string& varString,
+  const NodeNameMap& branch_vars,
+  unordered_set<std::string>& wildcard_list);
+
+std::string getYDeviceBaseName(const std::string& tmpStr);
+bool excludeYDeviceFromCurrWildcard(const std::string& tmpStr);
+bool excludeYDeviceFromPowerWildcard(const std::string& tmpStr);
 
 //-----------------------------------------------------------------------------
 // Function      : operator<

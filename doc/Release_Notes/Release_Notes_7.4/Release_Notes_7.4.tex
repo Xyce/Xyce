@@ -113,6 +113,15 @@ please visit the \XyceTM{} web page at
     now these wildcards may be requested using the external output API
     irrespective of whether the netlist being run contains print lines
     outputting the same data.
+  \item More complex \texttt{.PRINT} line wildcards, such as VR(X1*) and
+IR(B1?), are now supported for all voltage and current operators.  So, this
+feature now also supports the VR, VI, VM, VP, VDB, IR, II, IM, IP and IDB
+operators used for \texttt{.AC}, \texttt{.HB} and \texttt{.NOISE} analysis.
+It also now supports the lead current operators IB, IC, ID, IE, IG and IS.
+  \item All valid \texttt{.PRINT} line wildcards are now supported for
+numerical lead-current designators, such as I1 and I2.  (Note: At present,
+those designators are only supported for the T and YGENEXT devices.)
+
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

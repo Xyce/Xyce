@@ -2739,7 +2739,7 @@ void makeParamList(const std::string name, It first, It last, Out out)
 // Special Notes : Replaces v(*), i(*), p(*) and w(*) that appear on the .print line
 //                 with a list of all v(), i(), p() and w() variables as appropriate.
 //                 This works for operators like vr() and ir() also.  It also handles
-//                 the ? wildcard.
+//                 the ? wildcard, and more complex wildcards like V(1*).
 // Scope         :
 // Creator       : David Baur, Raytheon
 // Creation Date : 6/28/2013
@@ -2748,614 +2748,274 @@ void removeWildcardVariables(
   Parallel::Machine     comm,
   Util::ParamList &     variable_list,
   const NodeNameMap &   external_nodes,
-  const NodeNameMap &   branch_vars)
+  const NodeNameMap &   branch_vars,
+  const bool            branchCurrOnly)
 {
-  // whether a V(*), I(*), P(*) or W(*) request was found on the .PRINT line
-  bool vStarFound = false;
-  bool iStarFound = false;
-  bool pStarFound = false;
-  bool wStarFound = false;
-
-  // position of the last V(*), I(*), P(*) or W(*) request found on the .PRINT line
-  Util::ParamList::iterator vStarPosition = variable_list.end();
-  Util::ParamList::iterator iStarPosition = variable_list.end();
-  Util::ParamList::iterator pStarPosition = variable_list.end();
-  Util::ParamList::iterator wStarPosition = variable_list.end();
-
-  // Which types of V or I star-requests (e.g., VR(*)) were
-  // found on the .PRINT line.  Note this doesn't handle mutiple V(*) requests
-  // well yet.
-  std::vector<std::string> vOpsRequested;
-  std::vector<std::string> iOpsRequested;
-
-  // V, I, P or W wildcards like V(X1*)
-  std::vector<std::pair<Util::ParamList::iterator, std::string> > vWildCards;
-  Util::ParamList::iterator vWildCardPosition = variable_list.end();
-  std::vector<std::pair<Util::ParamList::iterator, std::string> > iWildCards;
-  Util::ParamList::iterator iWildCardPosition = variable_list.end();
-  std::vector<std::pair<Util::ParamList::iterator, std::string> > pWildCards;
-  Util::ParamList::iterator pWildCardPosition = variable_list.end();
-  std::vector<std::pair<Util::ParamList::iterator, std::string> > wWildCards;
-  Util::ParamList::iterator wWildCardPosition = variable_list.end();
-
-  // Parse and remove the V(*), I(*), P(*) and W(*) from the .print line.
-  // Must also handle cases like VR(*) and IR(*), as well as wildcards such
-  // V(X1*)
   Util::ParamList::iterator it = variable_list.begin();
+  unordered_set<std::string> wildcard_list;
+
   for ( ; it != variable_list.end(); )
   {
-    // process the * entries
-    if ((*it).tag() == "*")
+    const std::string &varString = (*it).tag();
+    if ( (varString == "*") || 
+         (!Xyce::Util::hasExpressionTag((*it).tag()) && (((*it).tag().find("*") != std::string::npos) ||
+							 ((*it).tag().find("?") != std::string::npos))) )
     {
-      // move to the type
+      // move back to the variable type
       --it;
+      const std::string varType = (*it).tag();
 
-      // Remember the type(s) of replacement (e.g., VR(*)) for V-star and I-star requests,
-      // and the location of the last V-star, I-star and P-star requests.
-      const std::string &varType = (*it).tag();
       if (varType == "V" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'V') )
-      {
-        vStarFound = true;
-        vStarPosition = it;
-        --vStarPosition;
-
-        // keep a vector of the types of V-star requests (e.g., VR(*) and VI(*))
-        vOpsRequested.push_back((*it).tag());
-      }
+	getVWildcardList(varString, external_nodes, wildcard_list);
       else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I') )
-      {
-        if (varType.find_first_of("0123456789") != std::string::npos)
-	{
-          // I1(*) and I2(*) wildcards (e.g., for the T-device) are not supported yet
-          Report::UserWarning() << ".PRINT wildcards not supported for " << varType << "(*)"<< std::endl;
-        }
-        else
-	{
-          iStarFound = true;
-          iStarPosition = it;
-          --iStarPosition;
-
-          // Keep a vector of the types of I-star requests.
-          // Examples are I(*), IR(*), II(*) and IB(*).
-          iOpsRequested.push_back((*it).tag());
-        }
-      }
-      else if (varType == "P")
-      {
-        pStarFound = true;
-        pStarPosition = it;
-        --pStarPosition;
-      }
-      else if (varType == "W")
-      {
-        wStarFound = true;
-        wStarPosition = it;
-        --wStarPosition;
-      }
-
+        getIWildcardList(varType, varString, branchCurrOnly, branch_vars, wildcard_list);
+      else if ( (varType == "P") || (varType == "W") )
+        getPWildcardList(varString, branch_vars, wildcard_list);
+      
       // remove the V, I, P or W
       it = variable_list.erase(it);
-
-      // remove the *
+      // remove the varString
       it = variable_list.erase(it);
+
+      // make wildcardList, so that it is consistent on all processors in parallel
+      Util::Marshal mout;
+      mout << varType << wildcard_list;
+
+      std::vector<std::string> dest;
+      Parallel::AllGatherV(comm, mout.str(), dest);
+
+      Util::ParamList wildcardList;
+      for (int p = 0; p < Parallel::size(comm); ++p)
+      {
+        Util::Marshal min(dest[p]);
+	std::string opType;
+        unordered_set<std::string> x;
+        min >> opType >> x;
+        makeParamList(opType, x.begin(), x.end(), std::back_inserter(wildcardList));
+      }
+
+      // append temporary list to print block, erasing temporary list
+      variable_list.splice(it, wildcardList);
+      wildcard_list.clear();
     }
-    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && (((*it).tag().find("*") != std::string::npos) ||
-							     ((*it).tag().find("?") != std::string::npos)) )
-    {
-      // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*) W(X1*).  Assume that,
-      // for example, V(1*) is a request for all nodes that start with '1'.  It is
-      // NOT an explicit request for the voltage at node 1*, if node 1* exists in
-      // the netlist.
-      Util::ParamList::iterator prevIt = it;
-      --prevIt;
-      const std::string &varType = (*prevIt).tag();
-
-      if (varType == "V" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'V'))
-      {
-        std::string wildCardStr((*it).tag());
-        --it; // rewind to the V tag
-        --prevIt; // rewind to before the V tag
-        if (varType.size() == 1)
-	{
-          vWildCardPosition = prevIt;
-          vWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-      }
-      else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I'))
-      {
-        std::string wildCardStr((*it).tag());
-        --it; // rewind to the I tag
-        --prevIt; // rewind to before the I tag
-        if (varType.size() == 1)
-	{
-          iWildCardPosition = prevIt;
-          iWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-      }
-      else if (varType == "P")
-      {
-        std::string wildCardStr((*it).tag());
-        --it; // rewind to the P tag
-        --prevIt; // rewind to before the P tag
-        pWildCardPosition = prevIt;
-        pWildCards.push_back(make_pair(prevIt,wildCardStr));
-      }
-      else if (varType == "W")
-      {
-        std::string wildCardStr((*it).tag());
-        --it; // rewind to the P tag
-        --prevIt; // rewind to before the P tag
-        wWildCardPosition = prevIt;
-        wWildCards.push_back(make_pair(prevIt,wildCardStr));
-      }
-
-      // remove the V, I, P or W
-      it = variable_list.erase(it);
-
-      // remove the wildcard syntax, that had at least one * in it
-      it = variable_list.erase(it);
-    }
-    // move to next item on .print line
     else
     {
+      // move to next item on .print line
       ++it;
     }
   }
-
-  // Only need one variable list for both P(*) and W(*). Note that p_list is a set
-  // so that P(*) and W(*) work with multi-terminal devices, as are the lists for
-  // the BJT and FET lead currents.
-  std::vector<std::string> v_list;
-  std::vector<std::string> i_list;
-
-  // list for all BJT lead currents, which are IB(*), IC(*) and IE(*)
-  unordered_set<std::string> iBJT_list;
-
-  // list for all MOSFETs, MESFETs and JFETs.  This is used for IS(*),
-  // IG(*) and ID(*) for all FETs.  A future re-factoring might only store
-  // MESFETs and JFETS in this list.
-  unordered_set<std::string> iFET_list;
-  // list for all MOSFETs, which is only used for IB(*).
-  unordered_set<std::string> iMOSFET_list;
-
-  unordered_set<std::string> p_list;
-
-  // Need separate lists for P() and W() wildcards, since they may contain
-  // different requests
-  std::vector<std::string> vWildCard_list;
-  std::vector<std::string> iWildCard_list;
-  unordered_set<std::string> pWildCard_list;
-  unordered_set<std::string> wWildCard_list;
-
-  // V(*) requests
-  if (vStarFound)
-  {
-    NodeNameMap::const_iterator it = external_nodes.begin();
-    for ( ; it != external_nodes.end() ; ++it)
-    {
-      ExtendedString tmpStr((*it).first);
-      tmpStr.toUpper();
-
-      if (tmpStr.rfind("BRANCH") == std::string::npos)
-        v_list.push_back(tmpStr);
-    }
-    ++vStarPosition;
-  }
-
-  // I(*) requests
-  if (iStarFound)
-  {
-    NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-    for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
-    {
-      ExtendedString tmpStr((*iter_bv).first);
-      tmpStr.toUpper();
-      char devType=tmpStr[0];
-
-      size_t pos = tmpStr.rfind("BRANCH");
-      if (pos != std::string::npos)
-      {
-        // assume valid two-terminal lead current found
-        bool addIt=true;
-
-        tmpStr = tmpStr.substr(0, pos - 1);
-        // BUG 982:  The names of devices in the "branch_vars" map
-        // are all in SPICE style because of a poor design decision.
-        // Other code in the IO package assumes that the params we're passing
-        // in print params lists are all in Xyce style.  So we must
-        // fake things out here by converting back to Xyce style.
-        tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-        if (devType == 'Y')
-        {
-          if (excludeYDeviceFromWildcard(tmpStr))
-            addIt=false;
-        }
-        else if (devType == 'Q')
-	{
-          // one list for IB(*) IC(*) IE(*) IS(*) for BJTs
-          iBJT_list.insert(tmpStr);
-          addIt=false;
-        }
-        else if (devType == 'M' || devType == 'J' || devType == 'Z')
-	{
-          // one list for ID(*) IG(*) IS(*) for all FETs
-          iFET_list.insert(tmpStr);
-          addIt=false;
-
-          // only MOSFETs support IB(*) and IE(*)
-          if (devType == 'M')
-            iMOSFET_list.insert(tmpStr);
-        }
-        else if (devType == 'O' || devType == 'T')
-	{
-          // lead current wildcards of the form I1(*) and I2(*) are not
-          // supported yet.  So, omit the O and T devices.
-          addIt=false;
-        }
-
-        // i_list contains names of two-terminal devices with branch
-        // or lead currents.
-        if (addIt)
-        {
-          i_list.push_back(tmpStr);
-        }
-      }
-    }
-
-    ++iStarPosition;
-  }
-
-  // P(*) and W(*) requests
-  if (pStarFound || wStarFound)
-  {
-    // only need to make one variable list for both P(*) and W(*) requests
-    NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-    for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
-    {
-      ExtendedString tmpStr((*iter_bv).first);
-      tmpStr.toUpper();
-      char devType=tmpStr[0];
-
-      size_t pos = tmpStr.rfind("BRANCH");
-      if (pos != std::string::npos)
-      {
-        bool addIt=true;
-        tmpStr = tmpStr.substr(0, pos - 1);
-        tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-        if (devType == 'Y')
-        {
-          if (excludeYDeviceFromWildcard(tmpStr))
-            addIt=false;
-        }
-        else if (devType == 'O')
-        {
-          // other devices for which P() is not supported
-          addIt=false;
-        }
-
-        // There will be multiple entries in branch_vars for each multi-terminal
-        // device. So, only add an entry to p_list for the first entry for each
-        // such device.
-	if (addIt)
-        {
-          p_list.insert(tmpStr);
-        }
-      }
-    }
-
-    // do need to track where both the P(*) and W(*) requests where on the .PRINT line
-    if (pStarFound)
-      ++pStarPosition;
-    if (wStarFound)
-      ++wStarPosition;
-  }
-
-  // Wildcard requests such as V(X1*).  This does not handle VR(X1*) yet.
-  if (vWildCards.size() > 0)
-  {
-    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = vWildCards.begin();
-    for ( ; itWC != vWildCards.end(); ++itWC)
-    {
-      // search through the node names to see if any of them match the
-      // wild card pattern
-      NodeNameMap::const_iterator itEN = external_nodes.begin();
-      for ( ; itEN!=external_nodes.end(); ++itEN)
-      {
-        ExtendedString tmpStr((*itEN).first);
-        tmpStr.toUpper();
-        if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
-          vWildCard_list.push_back(tmpStr);
-      }
-    }
-    ++vWildCardPosition;
-  }
-
-  // Wildcard requests such as I(X1*).  This does not handle IR(X1*) yet.
-  if (iWildCards.size() > 0)
-  {
-    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = iWildCards.begin();
-    for ( ; itWC != iWildCards.end(); ++itWC)
-    {
-      NodeNameMap::const_iterator itBV = branch_vars.begin();
-      for ( ; itBV!=branch_vars.end(); ++itBV)
-      {
-        bool addDevice=false;
-        ExtendedString tmpStr((*itBV).first);
-        tmpStr.toUpper();
-
-        char devType=tmpStr[0];
-        size_t pos = tmpStr.rfind("BRANCH");
-        if (pos != std::string::npos)
-        {
-          addDevice=true;
-          tmpStr = tmpStr.substr(0, pos - 1);
-          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-          if (devType == 'Y')
-          {
-            if (excludeYDeviceFromWildcard(tmpStr))
-              addDevice=false;
-          }
-          else if (devType == 'M' || devType == 'J' || devType == 'O' ||
-                   devType == 'Q' || devType == 'T' || devType == 'Z')
-	  {
-            // multi-terminal devices are now supported yet.
-            addDevice = false;
-          }
-        }
-
-        if (addDevice)
-	{
-          // Use tmpStr here since it is "Xyce Format".
-          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
-            iWildCard_list.push_back(tmpStr);
-        }
-      }
-    }
-    ++iWildCardPosition;
-  }
-
-  // Wildcard requests such as P(X1*)
-  if (pWildCards.size() > 0)
-  {
-    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = pWildCards.begin();
-    for ( ; itWC != pWildCards.end(); ++itWC)
-    {
-      NodeNameMap::const_iterator itBV = branch_vars.begin();
-      for ( ; itBV!=branch_vars.end(); ++itBV)
-      {
-        bool addDevice=false;
-        ExtendedString tmpStr((*itBV).first);
-        tmpStr.toUpper();
-
-        char devType=tmpStr[0];
-        size_t pos = tmpStr.rfind("BRANCH");
-        if (pos != std::string::npos)
-        {
-          addDevice=true;
-          tmpStr = tmpStr.substr(0, pos - 1);
-          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-          if (devType == 'Y')
-          {
-            if (excludeYDeviceFromWildcard(tmpStr))
-              addDevice=false;
-          }
-          else if (devType == 'O')
-          {
-            // other devices for which P() is not supported
-            addDevice=false;
-          }
-        }
-
-        if (addDevice)
-	{
-          // search through the device names to see if any of them match the
-          // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
-	    pWildCard_list.insert(tmpStr);
-        }
-      }
-    }
-    ++pWildCardPosition;
-  }
-
-  // Wildcard requests such as W(X1*)
-  if (wWildCards.size() > 0)
-  {
-    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = wWildCards.begin();
-    for ( ; itWC != wWildCards.end(); ++itWC)
-    {
-      NodeNameMap::const_iterator itBV = branch_vars.begin();
-      for ( ; itBV!=branch_vars.end(); ++itBV)
-      {
-        bool addDevice=false;
-        ExtendedString tmpStr((*itBV).first);
-        tmpStr.toUpper();
-
-        char devType=tmpStr[0];
-        size_t pos = tmpStr.rfind("BRANCH");
-        if (pos != std::string::npos)
-        {
-          addDevice=true;
-          tmpStr = tmpStr.substr(0, pos - 1);
-          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-          if (devType == 'Y')
-          {
-            if (excludeYDeviceFromWildcard(tmpStr))
-              addDevice=false;
-          }
-          else if (devType == 'O')
-          {
-            // other devices for which P() is not supported
-            addDevice=false;
-          }
-        }
-
-        if (addDevice)
-	{
-          // search through the node names to see if any of them match the
-          // wild card pattern. Use tmpStr since it is "Xyce Format".
-          if ( std::regex_match(tmpStr, makeRegexFromString((*itWC).second)) )
-	    wWildCard_list.insert(tmpStr);
-        }
-      }
-    }
-    ++wWildCardPosition;
-  }
-
-  Util::Marshal mout;
-  mout << v_list << i_list << iBJT_list << iFET_list << iMOSFET_list << p_list
-       << vWildCard_list << iWildCard_list << pWildCard_list << wWildCard_list;
-
-  std::vector<std::string> dest;
-  Parallel::AllGatherV(comm, mout.str(), dest);
-
-  // Need separate lists here for P(*), W(*), IB(*), IC(*), IE(*),
-  // ID(*), IG(*) and IS(*) requests since the entries in the ParamList
-  // contain both the operators and the variables.
-  Util::ParamList vStarList;
-
-  Util::ParamList iStarList;   // I(*) for two terminal devices
-  Util::ParamList iBStarBJTList;  // IB (base) for BJTs
-  Util::ParamList iCStarList;     // other BJT lead current
-  Util::ParamList iEStarBJTList;  // IB (emitter) for BJTs
-  Util::ParamList iBStarMOSFETList; // IB (body) for MOSFETs
-  Util::ParamList iEStarMOSFETList; // IE (bulk) for SOI MOSFETS
-  Util::ParamList iDStarList;       // other lead currents for JFET, MESFET and MOSFETs
-  Util::ParamList iGStarList;
-  Util::ParamList iSStarFETList;  // IS (source) for FETs
-  Util::ParamList iSStarBJTList;  // IS (substrate) for BJTs
-
-  Util::ParamList pStarList;  // power
-  Util::ParamList wStarList;
-
-  // Need separate lists here for wildcards like P(X1*) and W(X2*) since the
-  // entries in the ParamList contain both the operators and the variables.
-  Util::ParamList vWildCardList;
-  Util::ParamList iWildCardList;
-  Util::ParamList pWildCardList;
-  Util::ParamList wWildCardList;
-
-  for (int p = 0; p < Parallel::size(comm); ++p)
-  {
-    Util::Marshal min(dest[p]);
-
-    // variables postpended with _all are local to this loop, and
-    // have been "marshalled" in parallel from all processors.
-    std::vector<std::string> v_all;
-    std::vector<std::string> i2T_all; // two-terminal devices
-    unordered_set<std::string> iBJT_all;
-    unordered_set<std::string> iFET_all;
-    unordered_set<std::string> iMOSFET_all;
-    unordered_set<std::string> p_all;
-    std::vector<std::string> vWildCard_all;
-    std::vector<std::string> iWildCard_all;
-    std::vector<std::string> pWildCard_all;
-    std::vector<std::string> wWildCard_all;
-    min >> v_all >> i2T_all >> iBJT_all >> iFET_all >> iMOSFET_all >> p_all
-        >> vWildCard_all >> iWildCard_all >> pWildCard_all >> wWildCard_all;
-
-    // first handle star requests
-    std::vector<std::string>::const_iterator itV=vOpsRequested.begin();
-    std::vector<std::string>::const_iterator itI=iOpsRequested.begin();
-    // handle, for example, VR(*) VI(*)
-    for ( ; itV!=vOpsRequested.end(); ++itV)
-      makeParamList((*itV), v_all.begin(), v_all.end(), std::back_inserter(vStarList));
-
-    // handle, for example, IR(*) II(*)
-    for ( ; itI!=iOpsRequested.end(); ++itI)
-    {
-      if ((*itI) == "IB")
-      {
-	// IB(*) is valid for both BJT and MOSFETs
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iBStarBJTList));
-        makeParamList((*itI), iMOSFET_all.begin(), iMOSFET_all.end(), std::back_inserter(iBStarMOSFETList));
-      }
-      else if ((*itI) == "IC")
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iCStarList));
-      else if ((*itI) == "IE")
-      {
-        // IE(*) is valid for both BJT and SOI MOSFETs
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarBJTList));
-        makeParamList((*itI), iMOSFET_all.begin(), iMOSFET_all.end(), std::back_inserter(iEStarMOSFETList));
-      }
-      else if ((*itI) == "ID")
-        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iDStarList));
-      else if ((*itI) == "IG")
-        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iGStarList));
-      else if ((*itI) == "IS")
-      {
-        // IS(*) is valid for both BJT and all FETs
-        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iSStarBJTList));
-        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarFETList));
-      }
-      else
-        makeParamList((*itI), i2T_all.begin(), i2T_all.end(), std::back_inserter(iStarList));
-    }
-
-    // re-use same variable list for both P(*) and W(*)
-    if (pStarFound)
-      makeParamList("P", p_all.begin(), p_all.end(), std::back_inserter(pStarList));
-    if (wStarFound)
-      makeParamList("W", p_all.begin(), p_all.end(), std::back_inserter(wStarList));
-
-    // now handle wildcard requests like V(X1*)
-    makeParamList("V", vWildCard_all.begin(), vWildCard_all.end(), std::back_inserter(vWildCardList));
-    makeParamList("I", iWildCard_all.begin(), iWildCard_all.end(), std::back_inserter(iWildCardList));
-    makeParamList("P", pWildCard_all.begin(), pWildCard_all.end(), std::back_inserter(pWildCardList));
-    makeParamList("W", wWildCard_all.begin(), wWildCard_all.end(), std::back_inserter(wWildCardList));
-  }
-
-  // append temporary lists to print block, erasing temporary lists
-  variable_list.splice(vWildCardPosition, vWildCardList);
-  variable_list.splice(iWildCardPosition, iWildCardList);
-  variable_list.splice(pWildCardPosition, pWildCardList);
-  variable_list.splice(pWildCardPosition, wWildCardList);
-
-  variable_list.splice(vStarPosition, vStarList);
-  variable_list.splice(iStarPosition, iStarList);
-  variable_list.splice(iStarPosition, iBStarBJTList);
-  variable_list.splice(iStarPosition, iCStarList);
-  variable_list.splice(iStarPosition, iEStarBJTList);
-  variable_list.splice(iStarPosition, iSStarBJTList);
-  variable_list.splice(iStarPosition, iDStarList);
-  variable_list.splice(iStarPosition, iGStarList);
-  variable_list.splice(iStarPosition, iSStarFETList);
-  variable_list.splice(iStarPosition, iEStarMOSFETList);
-  variable_list.splice(iStarPosition, iBStarMOSFETList);
-  variable_list.splice(pStarPosition, pStarList);
-  variable_list.splice(wStarPosition, wStarList);
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::IO::excludeYDeviceFromWildcard
+// Function      : Xyce::IO::getVWildcardList
+// Purpose       : Finds list of all V() variables that corresponds to a given
+//                 V(*) wildcard on the .PRINT line.
+// Special Notes : This works for all V operators, including ones like VR(*).
+//                 It also handles the ? wildcard and more complex wildcards
+//                 such as V(1*) and V(2?) via std::regex.
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/11/2021
+//-----------------------------------------------------------------------------
+void getVWildcardList(
+  const std::string& varString,
+  const NodeNameMap&   external_nodes,
+  unordered_set<std::string>& wildcard_list)
+{
+  NodeNameMap::const_iterator it = external_nodes.begin();
+  for ( ; it != external_nodes.end() ; ++it)
+  {
+    ExtendedString tmpStr((*it).first);
+    tmpStr.toUpper();
+    if ( (tmpStr.rfind("BRANCH") == std::string::npos) && 
+         ((varString == "*") || std::regex_match(tmpStr, makeRegexFromString(varString))) )
+    {
+      wildcard_list.insert(tmpStr);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::getIWildcardList
+// Purpose       : Finds the list of all I() variables that corresponds to a
+//                 given I(*) wildcard on the .PRINT line.
+// Special Notes : This works for all I operators, except ones like I1(*).
+//                 It also handles the ? wildcard and more complex wildcards
+//                 such as I(R*), IR(R?) and IB(Q1*) via std::regex.
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/11/2021
+//-----------------------------------------------------------------------------
+void getIWildcardList(
+  const std::string& varType,
+  const std::string& varString,
+  const bool         branchCurrOnly,
+  const NodeNameMap& branch_vars,
+  unordered_set<std::string> & wildcard_list)
+{
+  // Default assumes that only branch currents exist for the requested analysis type.
+  // This is the format for how the branch current entries end in the solutionNodeNameMap
+  std::string branchStr = "BRANCH";
+  size_t branchStrLen = 6;
+
+  // If both branch currents and lead currents exist then the BranchVarsNodeNameMap is used
+  // instead.  Those entries have the string BRANCH_D in them.
+  if (!branchCurrOnly)
+  {
+    branchStr += "_D";
+    branchStrLen = 8;
+    if ( !((varType=="I" || varType=="IR" || varType=="II" || varType=="IM" || varType=="IP" || varType=="IDB")) )
+    {
+      // Support multi-terminal lead currents, such as I1, IB and IC.  Their entries in the map would
+      // (for example) end in BRANCH_DB1, BRANCH_DB and BRANCH_DC,
+      branchStrLen += varType.size()-1;
+      branchStr += varType.substr(1,varType.size()-1);
+    }   
+  }
+    
+  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
+  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  {
+    ExtendedString tmpStr((*iter_bv).first);
+    tmpStr.toUpper();
+    size_t tmpStrLen = tmpStr.length();
+
+    if ( (tmpStrLen > branchStrLen) && (tmpStr.substr(tmpStrLen-branchStrLen) == branchStr) )
+    {
+      tmpStr = tmpStr.substr(0, tmpStrLen-branchStrLen-1);
+      char devType=tmpStr[0]; 
+
+      // BUG 982:  The names of devices in the "branch_vars" map
+      // are all in SPICE style because of a poor design decision.
+      // Other code in the IO package assumes that the params we're passing
+      // in print params lists are all in Xyce style.  So we must
+      // fake things out here by converting back to Xyce style.
+      tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
+
+      if ( (devType == 'Y') && excludeYDeviceFromCurrWildcard(tmpStr) )
+      {
+        //no op
+      }
+      else if ( (varString == "*") || std::regex_match(tmpStr, makeRegexFromString(varString)) )
+      {
+        wildcard_list.insert(tmpStr);
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::getPWildcardList
+// Purpose       : Finds the list of all P() variables that corresponds to a 
+//                 given P(*) (or W(*), wildcard on the .PRINT line.
+// Special Notes : This handles the ? wildcard and more complex wildcards
+//                 such as P(R*) and P(V?) via std::regex.
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/11/2021
+//-----------------------------------------------------------------------------
+void getPWildcardList(
+  const std::string& varString,
+  const NodeNameMap&   branch_vars,
+  unordered_set<std::string>& wildcard_list)
+{
+  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
+  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  {
+    ExtendedString tmpStr((*iter_bv).first);
+    tmpStr.toUpper();
+
+    size_t pos = tmpStr.rfind("BRANCH");
+    if (pos != std::string::npos)
+    {
+      char devType=tmpStr[0];
+      tmpStr = tmpStr.substr(0, pos - 1);
+      // see BUG 982 for the name conversion issues
+      tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
+
+      if ( (devType == 'Y') && excludeYDeviceFromPowerWildcard(tmpStr) )
+      {
+        // no op
+      }
+      else if ((varString == "*") || std::regex_match(tmpStr, makeRegexFromString(varString))) 
+      {
+        // There will be multiple entries in branch_vars for each multi-terminal
+        // device. So, only add an entry for the first entry for each such device.
+        wildcard_list.insert(tmpStr);
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::excludeYDeviceFromCurrWildcard
 // Purpose       : Determine if a Y device should be excluded from a
-//                 the device list generated from a wildcard specification.
+//                 the device list generated from an I wildcard specification.
 // Special Notes : Per BUG 989 SON:  we are allowing Y device branches to be
 //                 output by I(*) now, but YMIL and YMIN (mutual inductors)
 //                 have two names for each branch/lead current, and one of them
 //                 is already included without the unintuitive "y" device syntax.
-//                 So don't print the second one.  There are also other Y device
-//                 types that don't support lead currents or power.
+//                 So don't print the second one.  Also exclude the YPDE devices,
+//                 for now.
 // Scope         : public
 // Creator       : Pete Sholander, SNL
-// Creation Date : 10/19/2020
+// Creation Date : 8/12/2020
 //-----------------------------------------------------------------------------
-bool excludeYDeviceFromWildcard(const std::string& tmpStr)
+bool excludeYDeviceFromCurrWildcard(const std::string& tmpStr)
 {
   bool retval=false;
 
-  std::string::size_type i=tmpStr.find_last_of(':');
-  i=((i == std::string::npos)?0:i+1);
-  std::string basename=tmpStr.substr(i);
+  std::string basename=getYDeviceBaseName(tmpStr);
   if (startswith_nocase(basename,"YMIL")
       || startswith_nocase(basename,"YMIN")
-      || startswith_nocase(basename,"YGENEXT")
-      || startswith_nocase(basename,"YPG"))
-   {
-     retval=true;
-   }
+      || startswith_nocase(basename,"YPDE"))
+  {
+    retval=true;
+  }
 
   return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::excludeYDeviceFromPowerWildcard
+// Purpose       : Determine if a Y device should be excluded from a
+//                 the device list generated from a P wildcard specification.
+// Special Notes : YGENEXT devices support IN() but not P().  YMIL and YMIN
+//                 are excluded per SON Bug 989.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/12/2020
+//-----------------------------------------------------------------------------
+bool excludeYDeviceFromPowerWildcard(const std::string& tmpStr)
+{
+  bool retval=false;
+
+  std::string basename=getYDeviceBaseName(tmpStr);
+  if (startswith_nocase(basename,"YMIL")
+      || startswith_nocase(basename,"YMIN")
+      || startswith_nocase(basename,"YPDE")
+      || startswith_nocase(basename,"YGENEXT"))
+  {
+    retval=true;
+  }
+
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::getYDeviceBaseName
+// Purpose       : Determine the basename (e.g., YMIL) for a given Y device
+// Special Notes : 
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/12/2020
+//-----------------------------------------------------------------------------
+std::string getYDeviceBaseName(const std::string& tmpStr)
+{
+  std::string::size_type i=tmpStr.find_last_of(':');
+  i=((i == std::string::npos)?0:i+1);
+
+  return tmpStr.substr(i);
 }
 
 //-----------------------------------------------------------------------------
@@ -3442,8 +3102,10 @@ void OutputMgr::fixupPrintParameters(
 
 //-----------------------------------------------------------------------------
 // Function      : OutputMgr::fixupOutputVariables
-// Purpose       : 
-// Special Notes : Just a re-wrapping of removeWildcardVariables
+// Purpose       : Just a re-wrapping of removeWildcardVariables.
+// Special Notes : It does allow us to leverage available information about
+//                 the analysis type to improve the downstream performance
+//                 of I(*) wildcards.
 // Scope         : public
 // Creator       : Tom Russo
 // Creation Date : 21 Feb 2018
@@ -3452,12 +3114,14 @@ void OutputMgr::fixupOutputVariables(
     Parallel::Machine comm, 
     Util::ParamList &outputParamList)
 {
-  // For AC and Noise analysis, only branch currents will be used for I(*) and P(*).
-  // For other analysis types, both branch currents and lead currents will be used.
-  if (dotACSpecified_ || dotNoiseSpecified_)
-    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getSolutionNodeMap());
+  // For AC and Noise analysis, only branch currents will be used for I(*). For
+  // other analysis types, both branch currents and lead currents will be used.
+  bool branchCurrOnly = (dotACSpecified_ || dotNoiseSpecified_);
+
+  if (branchCurrOnly)
+    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getSolutionNodeMap(), branchCurrOnly);
   else
-    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getBranchVarsNodeMap());
+    removeWildcardVariables(comm, outputParamList, getExternalNodeMap(), getBranchVarsNodeMap(), branchCurrOnly);
 }
 
 //-----------------------------------------------------------------------------
