@@ -2051,8 +2051,8 @@ void Instance::varTypes( std::vector<char> & varTypeVec )
     varTypeVec[i] = 'I';
   }
   // I don't know what should be used for non I,V vars.
-  varTypeVec[numInductors] = 'M';
-  varTypeVec[numInductors+1] = 'R';
+  varTypeVec[numInductors] = 'I';
+  varTypeVec[numInductors+1] = 'I';
 }
 
 //-----------------------------------------------------------------------------
