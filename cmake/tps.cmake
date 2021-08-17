@@ -66,13 +66,6 @@
 
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
-# Since Trilinos depends on OpenMP, we look for it first, so it is available
-# for some of the Trilinos feature probes.
-list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
-if (OpenMP_IN_Kokkos GREATER -1)
-     find_package(OpenMP REQUIRED)
-endif()
-
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
 list(FIND Trilinos_TPL_LIST MPI MPI_Enabled)
@@ -129,6 +122,14 @@ endif()
 # Search for required features
 
 set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
+
+# Since Trilinos depends on OpenMP, we look for it first, so it is available
+# for some of the Trilinos feature probes.
+list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
+check_cxx_symbol_exists(EPETRA_HAVE_OMP Epetra_config.h OpenMP_IN_Epetra)
+if ((OpenMP_IN_Kokkos GREATER -1) OR (OpenMP_IN_Epetra GREATER -1))
+     find_package(OpenMP REQUIRED)
+endif()
 
 check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
 if (NOT KLU_IN_Trilinos)
@@ -205,7 +206,7 @@ set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
 
 # Perform an initial check to see if we can compile against Trilinos at all.
 # This could reveal compiler setup problems and/or Trilinos setup problems.
-check_include_file_cxx(Teuchos_SerialDenseMatrix.hpp Trilinos_COMPILE_SUCCESS)
+check_include_file_cxx(Teuchos_SerialDenseMatrix.hpp Trilinos_COMPILE_SUCCESS ${OpenMP_CXX_FLAGS})
 if (NOT Trilinos_COMPILE_SUCCESS)
      message(FATAL_ERROR "Unable to compile against Trilinos. It is possible\
      Trilinos was not properly configured, or the environment has changed since\
@@ -240,12 +241,18 @@ endif()
 
 # Search for optional Trilinos packages
 
-if (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
+if (DEFINED Xyce_SHYLU_DDCore AND NOT Xyce_SHYLU_DDCore)
+     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
+elseif (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
      set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
 else()
      message(STATUS "Looking for ShyLU in Trilinos")
      list(FIND Trilinos_PACKAGE_LIST ShyLU ShyLU_IN_Trilinos)
-     if (ShyLU_IN_Trilinos GREATER -1)
+     list(FIND Trilinos_PACKAGE_LIST ShyLU_DDCore ShyLU_DD_IN_Trilinos)
+     if (ShyLU_DD_IN_Trilinos GREATER -1)
+          message(STATUS "Looking for ShyLU in Trilinos - found")
+          set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
+     elseif (ShyLU_IN_Trilinos GREATER -1)
           message(STATUS "Looking for ShyLU in Trilinos - found")
           set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
      else()
@@ -262,16 +269,16 @@ endif()
 #    to src/Xyce_config.h.cmake
 if (Xyce_SHYLU)
      if (DEFINED Xyce_SHYLU_BASKER AND NOT Xyce_SHYLU_BASKER)
-          set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the mulit-threaded Basker linear solver in ShyLU")
+          set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU")
      else()
           message(STATUS "Looking for multi-threaded Basker in ShyLU")
           list(FIND Trilinos_PACKAGE_LIST ShyLU_NodeBasker ShyLU_Basker_IN_Trilinos)
           if (ShyLU_Basker_IN_Trilinos GREATER -1)
                message(STATUS "Looking for multi-threaded Basker in ShyLU - found")
-               set(Xyce_SHYLU_BASKER TRUE CACHE BOOL "Enables the mulit-threaded Basker linear solver in ShyLU")
+               set(Xyce_SHYLU_BASKER TRUE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU")
           else()
                message(STATUS "Looking for multi-threaded Basker in ShyLU - not found")
-               set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the mulit-threaded Basker linear solver in ShyLU" FORCE)
+               set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU" FORCE)
           endif()
      endif()
 endif()
@@ -320,14 +327,16 @@ if (Xyce_AMESOS2)
      # removed if the minimum required version of Trilinos is raised.
      set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
      set(CMAKE_REQUIRED_FLAGS ${OpenMP_CXX_FLAGS})
-     check_cxx_source_compiles("
-          #include \"Amesos2_Basker.hpp\"
-          int main(){Basker::Basker<int, double> basker_; return 0;}
-          " Trilinos_USING_OLD_BASKER)
-     if (Trilinos_USING_OLD_BASKER)
+     if (Xyce_AMESOS2_BASKER) 
+       check_cxx_source_compiles("
+            #include \"Amesos2_Basker.hpp\"
+            int main(){Basker::Basker<int, double> basker_; return 0;}
+            " Trilinos_USING_OLD_BASKER)
+       if (Trilinos_USING_OLD_BASKER)
           set(Xyce_NEW_BASKER FALSE)
-     else()
+       else()
           set(Xyce_NEW_BASKER TRUE)
+       endif()
      endif()
      unset(CMAKE_REQUIRED_FLAGS)
      unset(CMAKE_REQUIRED_LIBRARIES)
