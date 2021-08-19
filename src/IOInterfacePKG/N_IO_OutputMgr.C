@@ -2839,7 +2839,7 @@ void getVWildcardList(
 // Function      : Xyce::IO::getIWildcardList
 // Purpose       : Finds the list of all I() variables that corresponds to a
 //                 given I(*) wildcard on the .PRINT line.
-// Special Notes : This works for all I operators, except ones like I1(*).
+// Special Notes : This works for all I operators, including ones like I1(*).
 //                 It also handles the ? wildcard and more complex wildcards
 //                 such as I(R*), IR(R?) and IB(Q1*) via std::regex.
 // Scope         :
@@ -2907,7 +2907,7 @@ void getIWildcardList(
 //-----------------------------------------------------------------------------
 // Function      : Xyce::IO::getPWildcardList
 // Purpose       : Finds the list of all P() variables that corresponds to a 
-//                 given P(*) (or W(*), wildcard on the .PRINT line.
+//                 given P(*) (or W(*)), wildcard on the .PRINT line.
 // Special Notes : This handles the ? wildcard and more complex wildcards
 //                 such as P(R*) and P(V?) via std::regex.
 // Scope         :
