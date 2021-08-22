@@ -48,7 +48,7 @@ on a \texttt{.FOUR} line or an invalid \texttt{AT} value on a
 to exit before all of the post-processing output files had been
 made at the end of the transient simulation. \\ \hline
 
-\textbf{Gitlab-ex issue 243/Ghub issue 29}: I(*) not expanded in external output &
+\textbf{Gitlab-ex issue 243/Github issue 29}: I(*) not expanded in external output &
 The design of the code that handled output wildcards involving
 currents (including I(*), P(*), and W(*)) was such that wildcards
 requested by external output interfaces through the library API would
@@ -69,7 +69,7 @@ contains all functions previously placed into the other libraries.  If
 you are building codes to be linked against Xyce libraries, you must
 simplify your link line to link in just ``-lxyce''.\\ \hline
 
-  \textbf{Gitlab-ex issue 204}: \texttt{.OPTIONS MEASURE MEASFAIL=1}
+  \textbf{Gitlab-ex issue 221}: \texttt{.OPTIONS MEASURE MEASFAIL=1}
 does not work properly for successful \texttt{TRIG-TARG} measures &
 If \texttt{.OPTIONS MEASURE MEASFAIL=1} was used in a netlist then the
 results for a successful \texttt{TRIG-TARG} measure would be correct
@@ -98,6 +98,22 @@ then every time those parameters were updated, this function was
 called again, and thus the scale factor was applied each time. This
 resulted in the wrong L and W values.  This has been corrected and
 scale factors are now applied no more than once.  \\ \hline
+
+  \textbf{Gitlab-ex issue 245}: An endless loop in parsing can be caused 
+if a \texttt{.SUBCKT} in an include file is not terminated properly &
+If a subcircuit was defined in an include file that was not terminated
+properly, the Xyce parser would continue parsing without acknowledging
+that the subcircuit had ended.  This would result in an error in the
+parsing later or an endless loop.  This has been corrected. \\ \hline
+ 
+  \textbf{Gitlab-ex issue 262}: Bug in \texttt{.PREPROCESS ADDRESISTORS} 
+logic that generates file output & If \texttt{.PREPROCESS ADDRESISTORS}
+is used in a file to add resistors to one-terminal connections or to
+make DC paths to ground, then all \texttt{.PREPROCESS} calls are 
+commented out in the file outputted that includes those resistors.
+This included \texttt{.PREPROCESS} calls that are executed to replace
+ground synonyms or remove unused devices, which need to be called each
+time the circuit is simulated.  This no longer happens. \\ \hline
 
   \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
 In previous \Xyce{} versions, these two \texttt{.PRINT} lines would

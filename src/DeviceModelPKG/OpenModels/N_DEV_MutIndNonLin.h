@@ -309,17 +309,20 @@ private:
 
   double A;                  // Thermal energy parameter (amp/m)
   double Alpha;              // domain coupling parameter (dimensionless)
+  double AreaInCm2;          // mean magnetic cross-sectional area (cm^2)
   double Area;               // mean magnetic cross-sectional area (m^2)
   double BetaH;              // modeling constant (dimensionless)
   double BetaM;              // modeling constant (dimensionless)
   double C;                  // domain flesing parameter (dimensionless)
   double CLim;               // Value below which domain flesing parameter (dimensionless) will be treated as zero.
   double DeltaVScaling;      // smoothing coefficient for V_1 in tanh
+  double GapInCm;            // effective air gap (cm)
   double Gap;                // effective air gap (m)
   double Kirr;               // domain anisotropy parameter (amp/m)
   double Ms;                 // saturation magnetization (amp/m)
   double LevelIgnored;       // for pspice compatibility -- ignored
   double PackIgnored;        // for pspice compatibility -- ignored
+  double PathInCm;           // total mean magnetic path (cm)
   double Path;               // total mean magnetic path (m)
   double tempCoeff1;         // first order temperature coeff.
   double tempCoeff2;         // second order temperature coeff.
