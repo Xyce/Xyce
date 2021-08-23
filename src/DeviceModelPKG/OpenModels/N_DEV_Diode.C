@@ -68,6 +68,10 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Area scaling value (scales IS, ISR, IKF, RS, CJ0, and IBV)");
 
+  p.addPar ("M",  1.0, &Diode::Instance::multiplicityFactor)
+    .setCategory(CAT_GEOMETRY)
+    .setDescription("multiplicity factor");
+
   p.addPar ("IC",    0.0, &Diode::Instance::InitCond)
     .setGivenMember(&Diode::Instance::InitCondGiven)
     .setCategory(CAT_NONE);
@@ -348,6 +352,7 @@ Instance::Instance(
     model_(model),
     off(0),
     Area(1.0),
+    multiplicityFactor(1.0),
     InitCond(0.0),
     Temp(getDeviceOptions().temp.getImmutableValue<double>()),
     lambertWFlag(0),
@@ -733,11 +738,11 @@ bool Instance::loadDAEQVector ()
 
   // load in the KCL for the negative node:
   double coef = Qd;
-  (extData.daeQVectorRawPtr)[li_Neg] -= coef;
+  (extData.daeQVectorRawPtr)[li_Neg] -= coef*multiplicityFactor;
 
   // load in the KCL for the positive prime node:
   coef *= -1.0; // -Qd
-  (extData.daeQVectorRawPtr)[li_Pri] -= coef;
+  (extData.daeQVectorRawPtr)[li_Pri] -= coef*multiplicityFactor;
 
   // load the voltage limiter vector.
   if( getDeviceOptions().voltageLimiterFlag )
@@ -747,13 +752,13 @@ bool Instance::loadDAEQVector ()
     Cd_Jdxp = -( Cd ) * Vd_diff;
 
     // Load the dQdxdVp vector
-    (extData.dQdxdVpVectorRawPtr)[li_Neg] += Cd_Jdxp;
-    (extData.dQdxdVpVectorRawPtr)[li_Pri] -= Cd_Jdxp;
+    (extData.dQdxdVpVectorRawPtr)[li_Neg] += Cd_Jdxp*multiplicityFactor;
+    (extData.dQdxdVpVectorRawPtr)[li_Pri] -= Cd_Jdxp*multiplicityFactor;
   }
 
   if( loadLeadCurrent && (model_.CJO != 0.0))
   {
-    (extData.nextLeadCurrQCompRawPtr)[li_branch_data] = Qd;
+    (extData.nextLeadCurrQCompRawPtr)[li_branch_data] = Qd*multiplicityFactor;
   }
 
   return true;
@@ -780,16 +785,16 @@ bool Instance::loadDAEFVector ()
 
   // load in the KCL for the positive node:
   double coef = -Ir;
-  (extData.daeFVectorRawPtr)[li_Pos] -= coef;
+  (extData.daeFVectorRawPtr)[li_Pos] -= coef*multiplicityFactor;
 
   // load in the KCL for the negative node:
   coef = Id;
-  (extData.daeFVectorRawPtr)[li_Neg] -= coef;
+  (extData.daeFVectorRawPtr)[li_Neg] -= coef*multiplicityFactor;
 
   // load in the KCL for the positive prime node:
   coef *= -1;
   coef += Ir;
-  (extData.daeFVectorRawPtr)[li_Pri] -= coef;
+  (extData.daeFVectorRawPtr)[li_Pri] -= coef*multiplicityFactor;
 
   // load the voltage limiter vector.
   if( getDeviceOptions().voltageLimiterFlag )
@@ -799,13 +804,13 @@ bool Instance::loadDAEFVector ()
     Gd_Jdxp = -( Gd ) * Vd_diff;
 
     // Load the dFdxdVp vector
-    (extData.dFdxdVpVectorRawPtr)[li_Neg] += Gd_Jdxp;
-    (extData.dFdxdVpVectorRawPtr)[li_Pri] -= Gd_Jdxp;
+    (extData.dFdxdVpVectorRawPtr)[li_Neg] += Gd_Jdxp*multiplicityFactor;
+    (extData.dFdxdVpVectorRawPtr)[li_Pri] -= Gd_Jdxp*multiplicityFactor;
   }
 
   if( loadLeadCurrent )
   {
-    (extData.nextLeadCurrFCompRawPtr)[li_branch_data] = Id;
+    (extData.nextLeadCurrFCompRawPtr)[li_branch_data] = Id*multiplicityFactor;
     (extData.nextJunctionVCompRawPtr)[li_branch_data] = (extData.nextSolVectorRawPtr)[li_Pos] - (extData.nextSolVectorRawPtr)[li_Neg];
   }
 
@@ -837,11 +842,11 @@ bool Instance::loadDAEdQdx ()
 // only part used.
 //---------------------------------------------------------------------
 
-  dQdx[li_Neg][ANegEquNegNodeOffset] += Cd;
-  dQdx[li_Neg][ANegEquPriNodeOffset] -= Cd;
+  dQdx[li_Neg][ANegEquNegNodeOffset] += Cd*multiplicityFactor;
+  dQdx[li_Neg][ANegEquPriNodeOffset] -= Cd*multiplicityFactor;
 
-  dQdx[li_Pri][APriEquNegNodeOffset] -= Cd;
-  dQdx[li_Pri][APriEquPriNodeOffset] += Cd;
+  dQdx[li_Pri][APriEquNegNodeOffset] -= Cd*multiplicityFactor;
+  dQdx[li_Pri][APriEquPriNodeOffset] += Cd*multiplicityFactor;
 
   return true;
 }
@@ -867,15 +872,15 @@ bool Instance::loadDAEdFdx ()
 // For this DAE dFdx load, the capacitance contribution (Gcd) is removed.
 //---------------------------------------------------------------------
 
-  dFdx[li_Pos][APosEquPosNodeOffset] += Gspr;
-  dFdx[li_Pos][APosEquPriNodeOffset] -= Gspr;
+  dFdx[li_Pos][APosEquPosNodeOffset] += Gspr*multiplicityFactor;
+  dFdx[li_Pos][APosEquPriNodeOffset] -= Gspr*multiplicityFactor;
 
-  dFdx[li_Neg][ANegEquNegNodeOffset] += Gd;
-  dFdx[li_Neg][ANegEquPriNodeOffset] -= Gd;
+  dFdx[li_Neg][ANegEquNegNodeOffset] += Gd*multiplicityFactor;
+  dFdx[li_Neg][ANegEquPriNodeOffset] -= Gd*multiplicityFactor;
 
-  dFdx[li_Pri][APriEquPosNodeOffset] -= Gspr;
-  dFdx[li_Pri][APriEquNegNodeOffset] -= Gd;
-  dFdx[li_Pri][APriEquPriNodeOffset] += Gspr + Gd;
+  dFdx[li_Pri][APriEquPosNodeOffset] -= Gspr*multiplicityFactor;
+  dFdx[li_Pri][APriEquNegNodeOffset] -= Gd*multiplicityFactor;
+  dFdx[li_Pri][APriEquPriNodeOffset] += (Gspr + Gd)*multiplicityFactor;
 
   return true;
 }
@@ -958,15 +963,15 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   // thermal noise from RS
   devSupport.noiseSupport(
       noiseData.noiseDens[0], noiseData.lnNoiseDens[0], 
-      THERMNOISE, Gspr, Temp);
+      THERMNOISE, Gspr*multiplicityFactor, Temp);
 
   // shot noise from the diode depletion region
   devSupport.noiseSupport( 
       noiseData.noiseDens[1], noiseData.lnNoiseDens[1], 
-      SHOTNOISE, Id, Temp);
+      SHOTNOISE, Id*multiplicityFactor, Temp);
 
   // flicker noise
-  noiseData.noiseDens[2] = model_.KF * std::exp(model_.AF * std::log(std::max(fabs(Id),N_MINLOG))) / noiseData.freq;
+  noiseData.noiseDens[2] = (model_.KF * std::exp(model_.AF * std::log(std::max(fabs(Id),N_MINLOG))) / noiseData.freq)*multiplicityFactor;
   noiseData.lnNoiseDens[2] = std::log(std::max(noiseData.noiseDens[2],N_MINLOG));
 }
 
@@ -2113,39 +2118,39 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     // load F:
     double Ir = di.Gspr * (di.Vp - di.Vpp);
 
-    fVec[di.li_Pos] -= -Ir;
-    fVec[di.li_Neg] -= di.Id;
-    fVec[di.li_Pri] -= (-di.Id + Ir);
+    fVec[di.li_Pos] -= -Ir*di.multiplicityFactor;
+    fVec[di.li_Neg] -= di.Id*di.multiplicityFactor;
+    fVec[di.li_Pri] -= (-di.Id + Ir)*di.multiplicityFactor;
 
     // load Q:
-    qVec[di.li_Neg] -= di.Qd;
-    qVec[di.li_Pri] -= -di.Qd;
+    qVec[di.li_Neg] -= di.Qd*di.multiplicityFactor;
+    qVec[di.li_Pri] -= -di.Qd*di.multiplicityFactor;
 
     // voltage limiter vectors.
     if( getDeviceOptions().voltageLimiterFlag )
     {
       double Vd_diff = di.Vd - di.Vd_orig;
-      double Cd_Jdxp = -( di.Cd ) * Vd_diff;
-      double Gd_Jdxp = -( di.Gd ) * Vd_diff;
+      double Cd_Jdxp = -( di.Cd ) * Vd_diff*di.multiplicityFactor;
+      double Gd_Jdxp = -( di.Gd ) * Vd_diff*di.multiplicityFactor;
 
       double * dFdxdVp = di.extData.dFdxdVpVectorRawPtr;
       // dFdxdVp vector
-      dFdxdVp[di.li_Neg] += Gd_Jdxp;
-      dFdxdVp[di.li_Pri] -= Gd_Jdxp;
+      dFdxdVp[di.li_Neg] += Gd_Jdxp*di.multiplicityFactor;
+      dFdxdVp[di.li_Pri] -= Gd_Jdxp*di.multiplicityFactor;
 
       double * dQdxdVp = di.extData.dQdxdVpVectorRawPtr;
       // dQdxdVp vector
-      dQdxdVp[di.li_Neg] += Cd_Jdxp;
-      dQdxdVp[di.li_Pri] -= Cd_Jdxp;
+      dQdxdVp[di.li_Neg] += Cd_Jdxp*di.multiplicityFactor;
+      dQdxdVp[di.li_Pri] -= Cd_Jdxp*di.multiplicityFactor;
     }
 
     if( di.loadLeadCurrent )
     {
       if (di.model_.CJO != 0.0)
       {
-        leadQ[di.li_branch_data] = di.Qd;
+        leadQ[di.li_branch_data] = di.Qd*di.multiplicityFactor;
       }
-      leadF[di.li_branch_data] = di.Id;
+      leadF[di.li_branch_data] = di.Id*di.multiplicityFactor;
       junctionV[di.li_branch_data] = solVec[di.li_Pos] - solVec[di.li_Neg];
  
     }
@@ -2169,34 +2174,34 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
     // F-matrix:
-    *di.fPosEquPosNodePtr += di.Gspr;
-    *di.fPosEquPriNodePtr -= di.Gspr;
-    *di.fNegEquNegNodePtr += di.Gd;
-    *di.fNegEquPriNodePtr -= di.Gd;
-    *di.fPriEquPosNodePtr -= di.Gspr;
-    *di.fPriEquNegNodePtr -= di.Gd;
-    *di.fPriEquPriNodePtr += di.Gspr + di.Gd;
+    *di.fPosEquPosNodePtr += di.Gspr*di.multiplicityFactor;
+    *di.fPosEquPriNodePtr -= di.Gspr*di.multiplicityFactor;
+    *di.fNegEquNegNodePtr += di.Gd*di.multiplicityFactor;
+    *di.fNegEquPriNodePtr -= di.Gd*di.multiplicityFactor;
+    *di.fPriEquPosNodePtr -= di.Gspr*di.multiplicityFactor;
+    *di.fPriEquNegNodePtr -= di.Gd*di.multiplicityFactor;
+    *di.fPriEquPriNodePtr += (di.Gspr + di.Gd)*di.multiplicityFactor;
 
     // Q-matrix:
-    *di.qNegEquNegNodePtr += di.Cd;
-    *di.qNegEquPriNodePtr -= di.Cd;
-    *di.qPriEquNegNodePtr -= di.Cd;
-    *di.qPriEquPriNodePtr += di.Cd;
+    *di.qNegEquNegNodePtr += di.Cd*di.multiplicityFactor;
+    *di.qNegEquPriNodePtr -= di.Cd*di.multiplicityFactor;
+    *di.qPriEquNegNodePtr -= di.Cd*di.multiplicityFactor;
+    *di.qPriEquPriNodePtr += di.Cd*di.multiplicityFactor;
 #else
     // F-matrix:
-    dFdx[di.li_Pos][di.APosEquPosNodeOffset] += di.Gspr;
-    dFdx[di.li_Pos][di.APosEquPriNodeOffset] -= di.Gspr;
-    dFdx[di.li_Neg][di.ANegEquNegNodeOffset] += di.Gd;
-    dFdx[di.li_Neg][di.ANegEquPriNodeOffset] -= di.Gd;
-    dFdx[di.li_Pri][di.APriEquPosNodeOffset] -= di.Gspr;
-    dFdx[di.li_Pri][di.APriEquNegNodeOffset] -= di.Gd;
-    dFdx[di.li_Pri][di.APriEquPriNodeOffset] += di.Gspr + di.Gd;
+    dFdx[di.li_Pos][di.APosEquPosNodeOffset] += di.Gspr*di.multiplicityFactor;
+    dFdx[di.li_Pos][di.APosEquPriNodeOffset] -= di.Gspr*di.multiplicityFactor;
+    dFdx[di.li_Neg][di.ANegEquNegNodeOffset] += di.Gd*di.multiplicityFactor;
+    dFdx[di.li_Neg][di.ANegEquPriNodeOffset] -= di.Gd*di.multiplicityFactor;
+    dFdx[di.li_Pri][di.APriEquPosNodeOffset] -= di.Gspr*di.multiplicityFactor;
+    dFdx[di.li_Pri][di.APriEquNegNodeOffset] -= di.Gd*di.multiplicityFactor;
+    dFdx[di.li_Pri][di.APriEquPriNodeOffset] += (di.Gspr + di.Gd)*di.multiplicityFactor;
 
     // Q-matrix:
-    dQdx[di.li_Neg][di.ANegEquNegNodeOffset] += di.Cd;
-    dQdx[di.li_Neg][di.ANegEquPriNodeOffset] -= di.Cd;
-    dQdx[di.li_Pri][di.APriEquNegNodeOffset] -= di.Cd;
-    dQdx[di.li_Pri][di.APriEquPriNodeOffset] += di.Cd;
+    dQdx[di.li_Neg][di.ANegEquNegNodeOffset] += di.Cd*di.multiplicityFactor;
+    dQdx[di.li_Neg][di.ANegEquPriNodeOffset] -= di.Cd*di.multiplicityFactor;
+    dQdx[di.li_Pri][di.APriEquNegNodeOffset] -= di.Cd*di.multiplicityFactor;
+    dQdx[di.li_Pri][di.APriEquPriNodeOffset] += di.Cd*di.multiplicityFactor;
 #endif
   }
   return true;
@@ -2566,6 +2571,7 @@ bool updateIntermediateVars (
 
    // instance variables:
    const ScalarT & Area,
+   const ScalarT & multiplicityFactor,
    const int & lambertWFlag,
    const double & gmin,
 
@@ -3022,6 +3028,7 @@ void diodeSensitivity::operator()(
     // instance parameters:
     fadType Temp = (*in)->Temp;
     fadType Area = (*in)->Area;
+    fadType multiplicityFactor = (*in)->multiplicityFactor;
 
     updateTemperature(
        (*in)->Temp,
@@ -3049,7 +3056,7 @@ void diodeSensitivity::operator()(
       tSatCur, tSatCurR, tVcrit, tRS, tCOND,
       tIRF, tIKF, tBrkdwnV,
       // instance variables:
-      Area, (*in)->lambertWFlag, (*in)->getDeviceOptions().gmin,
+      Area, multiplicityFactor, (*in)->lambertWFlag, (*in)->getDeviceOptions().gmin,
       // model params:
       M, BV, IBV, NBV, IBVL, NBVL, N, NR, TT, F2, F3,
       mod.getLevel(),
@@ -3062,13 +3069,13 @@ void diodeSensitivity::operator()(
      int iPri=2+inst*3;
 
      fadType Ir = Gspr * (Vp - Vpp);
-     dfdp[iPos] -= -Ir.dx(0);
-     dfdp[iNeg] -= Id.dx(0);
-     dfdp[iPri] -= (-Id.dx(0) + Ir.dx(0));
+     dfdp[iPos] -= -Ir.dx(0)*multiplicityFactor.val();
+     dfdp[iNeg] -= Id.dx(0)*multiplicityFactor.val();
+     dfdp[iPri] -= (-Id.dx(0) + Ir.dx(0))*multiplicityFactor.val();
 
      dqdp[iPos] = 0.0;
-     dqdp[iNeg] -= Qd.dx(0);
-     dqdp[iPri] -= -Qd.dx(0);
+     dqdp[iNeg] -= Qd.dx(0)*multiplicityFactor.val();
+     dqdp[iPri] -= -Qd.dx(0)*multiplicityFactor.val();
 
      Findices[iPos] = (*in)->li_Pos;
      Findices[iNeg] = (*in)->li_Neg;
