@@ -1463,7 +1463,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         print_type = PrintType::DC; // TT
       else
       {
-        Report::DevelFatal0() << "Unrecognized analysis type " << s;
+        Report::DevelFatal0() << "Unrecognized print type " << s << " on .PRINT line";
       }
     }
     else if (iterParam->tag() == "PRECISION")
@@ -1519,7 +1519,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       }
       else
       {
-        Report::DevelFatal0() << "Unrecognized print format " << s;
+        Report::DevelFatal0() << "Unrecognized format " << s << " on .PRINT line";
       }
       print_parameters.format_ = format;
     }

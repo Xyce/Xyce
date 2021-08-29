@@ -182,6 +182,7 @@ bool updateIntermediateVars
   
    // instance variables:
    const ScalarT & Area,
+   const ScalarT & multiplicityFactor,
    const int & lambertWFlag,
    const double & gmin,
 
@@ -342,6 +343,7 @@ private:
 
   int  off;
   double Area;
+  double multiplicityFactor;
   double InitCond;
   double Temp;
   int lambertWFlag;
