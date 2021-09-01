@@ -81,9 +81,11 @@ XYCELINK = $(MSLINK)
 
 # build library (static & shared) for linking (w/libtool) into other codes
 lib_LTLIBRARIES = libxyce.la
-libxyce_la_SOURCES = $(XYCESOURCES)
-libxyce_la_LIBADD = $(XYCELINK)
-libxyce_la_LDFLAGS = $(AM_LDFLAGS) @XYCELIBS@
+#There are no sources, we are simply combining a bunch of libraries into one
+libxyce_la_SOURCES =
+libxyce_la_LIBADD = $(XYCELINK) @XYCELIBS@
+libxyce_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined
+libxyce_la_LIBTOOLFLAGS = --tag=CXX
 
 if BUILD_XYCE_BINARY
 
