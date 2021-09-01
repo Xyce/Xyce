@@ -479,13 +479,6 @@ if test "x$F77" = "xg95"; then
   LDFLAGS="-Wl,-framework,Accelerate $LDFLAGS"
 fi
 
-dnl *********************************************************************
-dnl checks for libraries now
-dnl Replace `main' with a function in -lm:
-if test "$FORTRAN_BLAS" != "no"; then
-  AC_F77_LIBRARY_LDFLAGS
-fi
-
 AC_SEARCH_LIBS(sqrt, [m])
 
 dnl find a valid blas and lapack library
