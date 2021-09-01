@@ -5320,7 +5320,7 @@ other variables does not get propagated into a variable's
         <admst:assert test="arguments[1]/adms[datatypename='node']" format="\$port_connected argument must be a node\n"/>
         <admst:variable name="expression" select="portsConnected_[%(xyceNodeConstantName(arguments[1])/[name='nodeConstant']/value)]"/>
       </admst:when>
-      <admst:when test="[name='min' or name='max' and $skipFunctionPrecomp='y']">
+      <admst:when test="[(name='min' or name='max') and $skipFunctionPrecomp='y']">
         <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
       </admst:when>
       <admst:when test="[name='absdelay']">
