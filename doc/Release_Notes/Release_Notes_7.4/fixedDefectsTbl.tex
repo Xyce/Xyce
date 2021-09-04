@@ -39,7 +39,18 @@
      \endhead
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
-
+\textbf{Gitlab-ex issue 263}: Nonlinear mutual inductor parameter handling is incompatible with \texttt{STEP} &
+The nonlinear mutual inductor was performing unit conversion of model parameters within the model
+constructor.  While this works in most cases, it would fail in a \texttt{STEP} analysis where
+a model parameter is changing.  The model parameteres, gap, path and area are now handled
+correctly and are compatible with \texttt{STEP}. \\ \hline
+\textbf{Gitlab-ex issue 274}: Xyce/ADMS generages incorrect code for derivatives of ``min'' function &
+A logic error in the Xyce/ADMS code generation back-end was producing
+incorrect code for derivatives of expressions involving the ``min''
+function whose arguments were dependent on probes.  This had minor
+impact on the convergence behavior some internal models in \Xyce{} due
+to errors in the Jacobians of those models that used this
+function.  \\ \hline
 \textbf{Gitlab-ex issue 264}: Add multiplicity to levels 1 and 2 diodes &
  An instance parameter ``M'' has been added to the level 1 and 2
 diodes to implement multiplicity (number of devices in parallel).

@@ -481,10 +481,19 @@ fi
 
 dnl *********************************************************************
 dnl checks for libraries now
-dnl Replace `main' with a function in -lm:
-if test "$FORTRAN_BLAS" != "no"; then
-  AC_F77_LIBRARY_LDFLAGS
-fi
+
+dnl This check explicitly tests for fortran libraries needed to link C++ with
+dnl fortran source files.  It *might* also be necessary if all Fortran libraries
+dnl we need (LAPACK, BLAS, etc.) are static libraries.  But it turns out
+dnl not to be necessary for all of our own use cases, and harmful for
+dnl attempting to build on Windows with MINGW, so I'm commenting it out.
+dnl If we get a surge of complaints that the autoconf build is suddenly
+dnl throwing undefined reference errors at link time we may have to put it
+dnl back.  In a worst case, we can make it something that one has to request
+dnl explicitly.
+#if test "$FORTRAN_BLAS" != "no"; then
+#  AC_F77_LIBRARY_LDFLAGS
+#fi
 
 AC_SEARCH_LIBS(sqrt, [m])
 

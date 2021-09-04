@@ -129,7 +129,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setCategory(CAT_MATERIAL)
    .setDescription("Thermal energy parameter");
 
-  p.addPar ("AREA",0.1,&MutIndNonLin2::Model::Area)
+  p.addPar ("AREA",0.1,&MutIndNonLin2::Model::AreaInCm2)
  .setUnit(U_CM2)
    .setCategory(CAT_GEOMETRY)
    .setDescription("Mean magnetic cross-sectional area");
@@ -186,7 +186,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
   .setDescription("Flag to include the magnetics in the solution.");
   */
   
-  p.addPar ("GAP",0.0,&MutIndNonLin2::Model::Gap)
+  p.addPar ("GAP",0.0,&MutIndNonLin2::Model::GapInCm)
  .setUnit(U_CM)
    .setCategory(CAT_GEOMETRY)
    .setDescription("Effective air gap");
@@ -216,7 +216,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin2::Model> &p)
    .setCategory(CAT_NONE)
    .setDescription("for pspice compatibility -- ignored");
 
-  p.addPar ("PATH",1.0,&MutIndNonLin2::Model::Path)
+  p.addPar ("PATH",1.0,&MutIndNonLin2::Model::PathInCm)
  .setUnit(U_CM)
    .setCategory(CAT_GEOMETRY)
    .setDescription("Total mean magnetic path");
@@ -1867,6 +1867,27 @@ ScalarT Instance::Pcalc(
 //-----------------------------------------------------------------------------
 bool Model::processParams ()
 {
+  // scale gap, path and area from cm and cm^2 to m and m^2
+  Gap = 1.0e-2 * GapInCm;
+  Path = 1.0e-2 * PathInCm;
+  Area = 1.0e-4 * AreaInCm2;
+  
+  if( BHSiUnits != 0 )
+  {
+    // user requested SI units over the default of CGS units.  Change
+    // conversion factor to unity.
+    BCgsFactor=1.0;
+    HCgsFactor=1.0;
+  }
+  
+  // Set any non-constant parameter defaults:
+
+  if (!given("TNOM"))
+  {
+    tnom = getDeviceOptions().tnom;
+  }
+
+
   return true;
 }
 
@@ -1907,14 +1928,17 @@ Model::Model(
   : DeviceModel(MB, configuration.getModelParameters(), factory_block),
     A(0.0),
     Alpha(0.0),
+    AreaInCm2(0.0),
     Area(0.0),
     BetaH(0.0),
     BetaM(0.0),
     C(0.0),
     DeltaV(0.0),
+    GapInCm(0.0),
     Gap(0.0),
     Kirr(0.0),
     Ms(0.0),
+    PathInCm(0.0),
     Path(0.0),
     Vinf(0.0),
     tempCoeff1(0.0),
@@ -1936,26 +1960,6 @@ Model::Model(
 
   // Set params according to .model line and constant defaults from metadata:
   setModParams (MB.params);
-
-  // scale gap, path and area from cm and cm^2 to m and m^2
-  Gap *= 1.0e-2;
-  Path *= 1.0e-2;
-  Area *= 1.0e-4;
-  
-  if( BHSiUnits != 0 )
-  {
-    // user requested SI units over the default of CGS units.  Change
-    // conversion factor to unity.
-    BCgsFactor=1.0;
-    HCgsFactor=1.0;
-  }
-  
-  // Set any non-constant parameter defaults:
-
-  if (!given("TNOM"))
-  {
-    tnom = getDeviceOptions().tnom;
-  }
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();

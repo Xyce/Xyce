@@ -127,7 +127,12 @@ those designators are only supported for the T and YGENEXT devices.)
 
 \subsubsection*{Xyce/ADMS Improvements}
 \begin{XyceItemize}
-  \item placeholder
+  \item An error in the generation of code for derivatives of the
+    ``min'' function with probe-dependent arguments has been fixed.
+    The error impacted several internal models that had been generated
+    using ADMS, but has not led to significant differences in
+    simulation results.  Minor differences in convergence behavior
+    have been observed.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
