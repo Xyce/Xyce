@@ -736,7 +736,7 @@ void FFTAnalysis::calculateFFT_()
 
   // only sort the harmonicList_, if it will be output
   if (fftout_)
-    std::sort(harmonicList_.begin(), harmonicList_.end(), fftMagCompFunc);
+    std::stable_sort(harmonicList_.begin(), harmonicList_.end(), fftMagCompFunc);
 
   if (DEBUG_IO)
   {
