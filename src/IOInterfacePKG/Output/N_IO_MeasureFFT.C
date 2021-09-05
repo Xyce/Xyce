@@ -645,7 +645,7 @@ double THD::getMeasureResult()
     }
 
     // return measure result in dB, incorporating noise floor from .FFT
-    calculationResult_ = fftAnalysisPtr_->convertTHDtoDB(thd);
+    calculationResult_ = fftAnalysisPtr_->convertValuetoDB(thd);
   }
 
   return calculationResult_;

@@ -1143,15 +1143,18 @@ void Manager::remeasure(
         // output near the end of this function.
 	if ( prevIndepVar > remeasureObj->getIndepVar() )
         {
+          if (fft_manager.isFFTActive() || !allMeasuresList_.empty())
+             Xyce::lout() << "***** Processing Data for Step " << remeasureStepCount << std::endl;
+
           // This also re-calculates all of the .FFT analyses for the current step
           fft_manager.outputResultsToFFTfile(remeasureStepCount);
+          fft_manager.outputVerboseResults(Xyce::lout());
 
           // Output the measure info to both mt file and stdout.
           // At present, .OPTIONS MEASURE MEASPRINT does not apply to -remeasure
           if( !allMeasuresList_.empty() )
           {
             outputResultsToMTFile(remeasureStepCount);
-            Xyce::lout() << "***** Processing Data for Step " << remeasureStepCount << std::endl;
             outputVerboseResults(Xyce::lout(), prevIndepVar);
           }
 
@@ -1198,6 +1201,7 @@ void Manager::remeasure(
 
   // This also re-calculates the FFT analyses
   fft_manager.outputResultsToFFTfile(remeasureStepCount);
+  fft_manager.outputVerboseResults(Xyce::lout());
 
   // Output the Measure results to file.
   if (Parallel::rank(pds_comm.comm()) == 0)

@@ -89,7 +89,10 @@ void outputMacroResults(
     if (Parallel::rank(comm) == 0)
     {
       if (step_number == 0)
+      {
         fft_manager.outputResultsToFFTfile(step_number);
+	fft_manager.outputVerboseResults( Xyce::lout() );
+      }
     }
     else
     {
