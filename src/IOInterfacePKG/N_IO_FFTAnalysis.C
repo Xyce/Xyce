@@ -1050,7 +1050,7 @@ std::ostream& FFTAnalysis::printVerboseResult_( std::ostream& os )
     { 
       os << std::setw(colWidth2_) << ((*it).first)*fundFreq_ << " Hz "
          << std::setw(colWidth2_) << convertValuetoDB((*it).second/normalization_) << " dB  at "
-         << std::setw(colWidth2_) << phase_[(*it).first] << " Deg.  Harmonic #"
+         << std::setw(colWidth2_) << phase_[(*it).first] << " Deg.  Harmonic # "
 	 << std::setw(colWidth1_) << (*it).first << std::endl;
     }
 
