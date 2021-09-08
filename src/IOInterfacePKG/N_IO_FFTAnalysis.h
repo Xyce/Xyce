@@ -124,9 +124,9 @@ public:
   double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
   double getMagVal(const int index) const { return mag_[index];}
   double getPhaseVal(const int index) const { return phase_[index];}
-  double getENOB() const {return enob_;}
-  double getSNDR() const {return sndr_;}
-  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const;
+  double calculateENOBforMeasFFT(int binSize) const;
+  double calculateSNDRforMeasFFT(int binSize) const;
+  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, int binSize) const;
 
   // these functions are used by both FFTAnalysis and Measure FFT
   double calculateSNR(int fmaxIndex) const;

@@ -798,14 +798,15 @@ void FFTAnalysis::calculateSFDR_()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 3/15/2021
 //-----------------------------------------------------------------------------
-double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const
+double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex,
+                                            bool fminGivn, int binSize) const
 {
   double sfdrVal = 0;
   int lowerLim = getLowerLimforSFDR_(fminIndex, fmaxIndex, fminGivn);
 
   for (int i=lowerLim; i<=fmaxIndex; i++)
   {
-    if ( (i!=fhIdx_) && (mag_[i] > sfdrVal) )
+    if ( ((i < fhIdx_ - binSize) || (i > fhIdx_ + binSize)) && (mag_[i] > sfdrVal) )
       sfdrVal = mag_[i];
   }
 
@@ -878,7 +879,7 @@ double FFTAnalysis::calculateSNR(int fmaxIndex) const
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateSNDRandENOB_()
 // Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
-//                 and Effective Number Of Bits (ENOB)(SFDR) based on the
+//                 and Effective Number Of Bits (ENOB) based on the
 //                 "first harmonic".  That is the fundamental frequency,
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
@@ -899,10 +900,58 @@ void FFTAnalysis::calculateSNDRandENOB_()
       noisePlusDist += mag_[i]*mag_[i];
   }
 
-  sndr_ = 20*log10(mag_[fhIdx_] / sqrt(noisePlusDist));  // units are db
+  sndr_ = 20*log10(mag_[fhIdx_] / sqrt(noisePlusDist));  // units are dB
   enob_ = (sndr_ - 1.76)/6.02; // units are bits
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSNDRforMeasFFT()
+// Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
+//                 based on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : This version allows for spectral broadening of the first
+//                 harmonic.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/9/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::calculateSNDRforMeasFFT(int binSize) const
+{
+  double noisePlusDist=0;
+  double signal=0;
+
+  for (int i=1; i<=np_/2; i++)
+  {
+    if ( (i<fhIdx_ - binSize) || (i>fhIdx_ + binSize))
+      noisePlusDist += mag_[i]*mag_[i];
+    else    
+      signal += mag_[i]*mag_[i];
+  }
+
+  // units are dB
+  return 20*log10(sqrt(signal/noisePlusDist));
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateENOBforMeasFFT()
+// Purpose       : Calculate the Effective Number Of Bits (ENOB) based on
+//                 on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : This version allows for spectral broadening of the first
+//                 harmonic.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/9/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::calculateENOBforMeasFFT(int binSize) const
+{
+  return (calculateSNDRforMeasFFT(binSize) - 1.76)/6.02; // units are bits;
 }
 
 //-----------------------------------------------------------------------------
