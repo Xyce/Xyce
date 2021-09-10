@@ -458,8 +458,10 @@ line option is used to recalculate the \texttt{.MEASURE FFT} and/or
 if \texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is used in the netlist
 then \texttt{.OPTIONS FFT FFT\_ACCURATE} will also be set to 0.
 
-If \texttt{FFTOUT} is set to 1 then additional metrics are output for each
-\texttt{.FFT} line.  Those metrics are as follows, where Section \ref{FFT_metrics}
+If \texttt{FFTOUT} is set to 1 then additional metrics are output to both stdout
+and the \verb+<netlistName>.fft0+ file for each \texttt{.FFT} line.  In
+addition a sorted list of the 30 largest harmonics is output to stdout.
+Those additional metrics are as follows, where Section \ref{FFT_metrics}
 provides detailed definitions for these metrics:
 
 \begin{itemize}
