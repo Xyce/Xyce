@@ -112,6 +112,7 @@ public:
 
   void outputResultsToFFTfile(int stepNumber);
   void outputResults( std::ostream& outputStream );
+  void outputVerboseResults(std::ostream& outputStream);
 
   //added to help register lead currents with device manager
   std::set<std::string> getDevicesNeedingLeadCurrents() { return devicesNeedingLeadCurrents_; }

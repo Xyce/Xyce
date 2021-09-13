@@ -94,12 +94,16 @@ FFTAnalysis::FFTAnalysis(const Util::OptionBlock & fftBlock )
     sampleIdx_(0),
     noiseFloor_(1e-10),
     maxMag_(0.0),
+    normalization_(0.0),
     thd_(0.0),
     sndr_(0.0),
     enob_(0.0),
     snr_(0.0),
     sfdr_(0.0),
-    sfdrIndex_(0)
+    sfdrIndex_(0),
+    colWidth1_(12),
+    colWidth2_(16),
+    precision_(6)
 {
   // based on what's in the option block passed in, we create the needed fft instance
   Util::ParamList variableList;   // Used to help register lead current requests with device manager.
@@ -289,6 +293,7 @@ void FFTAnalysis::reset()
   calculated_ = false;
   sampleIdx_ = 0;
   maxMag_ = 0.0;
+  normalization_ = 0.0;
   thd_ = 0.0;
   harmonicList_.clear();
 
@@ -708,13 +713,19 @@ void FFTAnalysis::calculateFFT_()
     mag_[i] = sqrt(fftRealCoeffs_[i]*fftRealCoeffs_[i] + fftImagCoeffs_[i]*fftImagCoeffs_[i]);
     if (mag_[i] > maxMag_)
       maxMag_ = mag_[i];
-    if (fftout_ && (i>1))
+    if (fftout_ && (i>0))
       harmonicList_.push_back(std::make_pair(i,mag_[i])); // only make this vector, if it will be output
 
     // small magnitudes have phase set to 0
     if (mag_[i] > noiseFloor_)
       phase_[i] = convRadDeg * atan2(fftImagCoeffs_[i], fftRealCoeffs_[i]);
   }
+
+  // normalization will be used for outputting
+  if (format_ == "NORM")
+    normalization_ = maxMag_;
+  else
+    normalization_ = 1.0;
 
   // These metrics are output later if fftout is true.  However, they are calculated
   // unconditionally for compatibility with .MEASURE FFT.
@@ -725,7 +736,7 @@ void FFTAnalysis::calculateFFT_()
 
   // only sort the harmonicList_, if it will be output
   if (fftout_)
-    std::sort(harmonicList_.begin(), harmonicList_.end(), fftMagCompFunc);
+    std::stable_sort(harmonicList_.begin(), harmonicList_.end(), fftMagCompFunc);
 
   if (DEBUG_IO)
   {
@@ -787,14 +798,15 @@ void FFTAnalysis::calculateSFDR_()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 3/15/2021
 //-----------------------------------------------------------------------------
-double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const
+double FFTAnalysis::calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex,
+                                            bool fminGivn, int binSize) const
 {
   double sfdrVal = 0;
   int lowerLim = getLowerLimforSFDR_(fminIndex, fmaxIndex, fminGivn);
 
   for (int i=lowerLim; i<=fmaxIndex; i++)
   {
-    if ( (i!=fhIdx_) && (mag_[i] > sfdrVal) )
+    if ( ((i < fhIdx_ - binSize) || (i > fhIdx_ + binSize)) && (mag_[i] > sfdrVal) )
       sfdrVal = mag_[i];
   }
 
@@ -867,7 +879,7 @@ double FFTAnalysis::calculateSNR(int fmaxIndex) const
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::calculateSNDRandENOB_()
 // Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
-//                 and Effective Number Of Bits (ENOB)(SFDR) based on the
+//                 and Effective Number Of Bits (ENOB) based on the
 //                 "first harmonic".  That is the fundamental frequency,
 //                 if the FREQ qualifier is not given.  Otherwise, it is the
 //                 FREQ value rounded to the nearest harmonic of the fundamental
@@ -888,10 +900,58 @@ void FFTAnalysis::calculateSNDRandENOB_()
       noisePlusDist += mag_[i]*mag_[i];
   }
 
-  sndr_ = 20*log10(mag_[fhIdx_] / sqrt(noisePlusDist));  // units are db
+  sndr_ = 20*log10(mag_[fhIdx_] / sqrt(noisePlusDist));  // units are dB
   enob_ = (sndr_ - 1.76)/6.02; // units are bits
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateSNDRforMeasFFT()
+// Purpose       : Calculate the Signal to Noise-plus-Distortion Ratio (SNDR)
+//                 based on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : This version allows for spectral broadening of the first
+//                 harmonic.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/9/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::calculateSNDRforMeasFFT(int binSize) const
+{
+  double noisePlusDist=0;
+  double signal=0;
+
+  for (int i=1; i<=np_/2; i++)
+  {
+    if ( (i<fhIdx_ - binSize) || (i>fhIdx_ + binSize))
+      noisePlusDist += mag_[i]*mag_[i];
+    else    
+      signal += mag_[i]*mag_[i];
+  }
+
+  // units are dB
+  return 20*log10(sqrt(signal/noisePlusDist));
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::calculateENOBforMeasFFT()
+// Purpose       : Calculate the Effective Number Of Bits (ENOB) based on
+//                 on the "first harmonic".  That is the fundamental frequency,
+//                 if the FREQ qualifier is not given.  Otherwise, it is the
+//                 FREQ value rounded to the nearest harmonic of the fundamental
+//                 frequency.
+// Special Notes : This version allows for spectral broadening of the first
+//                 harmonic.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/9/2021
+//-----------------------------------------------------------------------------
+double FFTAnalysis::calculateENOBforMeasFFT(int binSize) const
+{
+  return (calculateSNDRforMeasFFT(binSize) - 1.76)/6.02; // units are bits;
 }
 
 //-----------------------------------------------------------------------------
@@ -920,23 +980,23 @@ double FFTAnalysis::calculateTHD(int fmaxIndex) const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::convertTHDtoDB()
-// Purpose       : Take the "noise floor" into account
+// Function      : FFTAnalysis::convertValuetoDB()
+// Purpose       : Take the "noise floor" into account, when converting to dB
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 3/11/2021
 //-----------------------------------------------------------------------------
-double FFTAnalysis::convertTHDtoDB(double thdVal) const
+double FFTAnalysis::convertValuetoDB(double val) const
 {
-  return 20*log10(std::max(thdVal,noiseFloor_));
+  return 20*log10(std::max(val,noiseFloor_));
 }
 
 //-----------------------------------------------------------------------------
 // Function      : FFTAnalysis::outputResults
 // Purpose       : Output results for this FFT Analysis at end of simulation
 // Special Notes :
-// Scope         : private
+// Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
@@ -949,7 +1009,20 @@ void FFTAnalysis::outputResults( std::ostream& outputStream )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FFTAnalysis::printResult_( std::ostream& os )
+// Function      : FFTAnalysis::outputVerboseResults
+// Purpose       : Output results for this FFT Analysis at end of simulation
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 4/9/2021
+//-----------------------------------------------------------------------------
+void FFTAnalysis::outputVerboseResults( std::ostream& outputStream )
+{
+  printVerboseResult_( outputStream);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::printResult_
 // Purpose       :
 // Special Notes :
 // Scope         : private
@@ -962,57 +1035,126 @@ std::ostream& FFTAnalysis::printResult_( std::ostream& os )
 
   if (calculated_)
   {
-    int colWidth1=12, colWidth2 = 16, precision = 6;
     std::string magString1, magString2;
-    double normalization;
 
     // account for whether the output should be normalized or unnormalized values
     if (format_ == "NORM")
     {
-      normalization = maxMag_;
       magString1 = "Norm. Mag (db)";
       magString2 = "Norm. Mag";
     }
     else
     {
-      normalization = 1.0;
       magString1 = "Mag (db)";
       magString2 = "Mag";
     }
 
-    os << "FFT analysis for " << outputVarName_ << ":" << std::endl
-       << "  Window: " << windowType_ << std::scientific << std::setprecision(precision)
-       << ", First Harmonic: " << fhIdx_*fundFreq_ <<", Start Freq: " << fminIdx_*fundFreq_
-       << ", Stop Freq: " << fmaxIdx_*fundFreq_ << std::endl;
+    os << std::scientific << std::setprecision(precision_);
+    printResultHeader_(os);
 
-    os << "DC component " << "   " << magString2 << "= " << mag_[0]/normalization
+    os << "  DC component " << "   " << magString2 << "= " << mag_[0]/normalization_
        << "   " << "Phase= " << phase_[0] << std::endl;
 
-    os << std::setw(colWidth1) << "Index" << std::setw(colWidth2) << "Frequency"
-       << std::setw(colWidth2) << std::setw(colWidth2) << magString2
-       << std::setw(colWidth2) << "Phase" << std::endl;
+    os << std::setw(colWidth1_) << "Index" << std::setw(colWidth2_) << "Frequency"
+       << std::setw(colWidth2_) << std::setw(colWidth2_) << magString2
+       << std::setw(colWidth2_) << "Phase" << std::endl;
 
-    for (int i=fhIdx_; i<=np_/2; i+=fhIdx_)
+    for (int i=1; i<=np_/2; i++)
     {
-      if ( (i>=fminIdx_) && (i<=fmaxIdx_) )
-      {
-        os << std::setw(colWidth1) << i << std::setw(colWidth2) << i*fundFreq_
-           << std::setw(colWidth2) << mag_[i]/normalization
-           << std::setw(colWidth2) << phase_[i] << std::endl;
-      }
+      os << std::setw(colWidth1_) << i << std::setw(colWidth2_) << i*fundFreq_
+         << std::setw(colWidth2_) << mag_[i]/normalization_
+         << std::setw(colWidth2_) << phase_[i] << std::endl;
     }
 
-    if (fftout_)
-    {
-      os << std::endl
-         << std::setw(colWidth1) << "THD = " << convertTHDtoDB(thd_) << " dB ( " << thd_ << " )" << std::endl
-         << std::setw(colWidth1) << "SNDR = " << sndr_ << " dB" << std::endl
-         << std::setw(colWidth1) << "ENOB = " << enob_ << " bit" << std::endl
-         << std::setw(colWidth1) << "SNR = " << snr_ << " dB" << std::endl
-         << std::setw(colWidth1) << "SFDR = " << sfdr_  << " dB at frequency " << sfdrIndex_*fundFreq_ << std::endl;
+    printMetrics_(os);
+    os << std::endl;
+  }
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::printVerboseResult_
+// Purpose       :
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/30/2021
+//-----------------------------------------------------------------------------
+std::ostream& FFTAnalysis::printVerboseResult_( std::ostream& os )
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+
+  if ( calculated_)
+  {
+    os << std::scientific << std::setprecision(precision_);
+    printResultHeader_(os);
+    printMetrics_(os);
+
+    // output sorted harmonic list, for the first 30 entries
+    os << std::endl;
+    int numHarmOutput = std::min(30,np_/2);
+    std::vector<std::pair<int,double>>::const_iterator it = harmonicList_.begin();
+    for (int i=0; i < numHarmOutput; i++, it++)
+    { 
+      os << std::setw(colWidth2_) << ((*it).first)*fundFreq_ << " Hz "
+         << std::setw(colWidth2_) << convertValuetoDB((*it).second/normalization_) << " dB  at "
+         << std::setw(colWidth2_) << phase_[(*it).first] << " Deg.  Harmonic # "
+	 << std::setw(colWidth1_) << (*it).first << std::endl;
     }
 
     os << std::endl;
+  }
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::printResultHeader_
+// Purpose       : Outputs the descriptive header text
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/19/2021
+//-----------------------------------------------------------------------------
+  std::ostream& FFTAnalysis::printResultHeader_( std::ostream& os)
+{
+  if ( calculated_)
+  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+
+    os << "FFT analysis for " << outputVarName_ << ":" << std::endl
+       << "  Window: " << windowType_  << ", Start Time: " << startTime_
+       << ", Stop Time: " << stopTime_ << std::endl
+       << "  First Harmonic: " << fhIdx_*fundFreq_ <<", Start Freq: " << fminIdx_*fundFreq_
+       << ", Stop Freq: " << fmaxIdx_*fundFreq_ << std::endl;
+  }  
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTAnalysis::printMetrics_
+// Purpose       : Outputs the FFT metrics, like the THD
+// Special Notes :
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/30/2021
+//-----------------------------------------------------------------------------
+std::ostream& FFTAnalysis::printMetrics_( std::ostream& os )
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  if (calculated_ && fftout_)
+  {
+    os << std::endl
+       << std::setw(colWidth1_) << "THD = " << convertValuetoDB(thd_) << " dB ( " << thd_ << " )" << std::endl
+       << std::setw(colWidth1_) << "SNDR = " << sndr_ << " dB" << std::endl
+       << std::setw(colWidth1_) << "ENOB = " << enob_ << " bit" << std::endl
+       << std::setw(colWidth1_) << "SNR = " << snr_ << " dB" << std::endl
+       << std::setw(colWidth1_) << "SFDR = " << sfdr_  << " dB at frequency " << sfdrIndex_*fundFreq_ << std::endl;
   }
 
   return os;

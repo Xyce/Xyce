@@ -766,9 +766,15 @@ optional parameters, as well as additional ones.
 For maximum accuracy of the FFT analysis, it is recommended that the default
 setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1} be used.  This setting instructs
 \Xyce{} to insert breakpoints at the sample times requested by the collection of
-\texttt{.FFT} statements in the netlist.  In addition, the optional metrics for
-each \texttt{.FFT} line can be sent to stdout by setting \texttt{.OPTIONS FFT FFTOUT=1}.
-Those metrics include the Effective Number of Bits (ENOB), Spurious Free Dynamic
+\texttt{.FFT} statements in the netlist.  
+
+By default, the results from each of the \texttt{.FFT} lines in the netlist
+are sent to the \verb+<netlistName>.fft0+ file.  In addition, metrics for
+each \texttt{.FFT} line can be sent to both stdout and the
+\verb+<netlistName>.fft0+ file by setting \texttt{.OPTIONS FFT FFTOUT=1}.
+In that case, a sorted list of the 30 largest harmonics for each
+\texttt{.FFT} line will be also sent to the stdout. Those additional
+metrics include the Effective Number of Bits (ENOB), Spurious Free Dynamic
 Range (SFDR), Signal to Noise Ratio (SNR), Signal to Noise-and-Distortion Ratio (SNDR)
 and Total Harmonic Distorion (THD).  The \Xyce{} Reference Guide\ReferenceGuide{}
 provides detailed definitions for these metrics.  It also discusses the compatibility

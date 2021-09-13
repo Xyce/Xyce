@@ -423,7 +423,7 @@ double ENOB::getMeasureResult()
   if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->getENOB();
+    calculationResult_ = fftAnalysisPtr_->calculateENOBforMeasFFT(binSize_);
   }
   return calculationResult_;
 }
@@ -466,8 +466,8 @@ double SFDR::getMeasureResult()
   if ( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->calculateSFDRforMeasFFT(minFreqIdx_, maxFreqIdx_,
-                                              minFreqGiven_);
+    calculationResult_ = fftAnalysisPtr_->calculateSFDRforMeasFFT(minFreqIdx_,
+                                              maxFreqIdx_, minFreqGiven_, binSize_);
   }
   return calculationResult_;
 }
@@ -510,7 +510,7 @@ double SNDR::getMeasureResult()
   if( fftAnalysisPtr_ && fftAnalysisPtr_->isCalculated() )
   {
     initialized_ = true;
-    calculationResult_ = fftAnalysisPtr_->getSNDR();
+    calculationResult_ = fftAnalysisPtr_->calculateSNDRforMeasFFT(binSize_);
   }
   return calculationResult_;
 }
@@ -645,7 +645,7 @@ double THD::getMeasureResult()
     }
 
     // return measure result in dB, incorporating noise floor from .FFT
-    calculationResult_ = fftAnalysisPtr_->convertTHDtoDB(thd);
+    calculationResult_ = fftAnalysisPtr_->convertValuetoDB(thd);
   }
 
   return calculationResult_;

@@ -112,6 +112,7 @@ void FFTMgr::notify( const Analysis::StepEvent & step_event)
 
     case Analysis::StepEvent::STEP_COMPLETED:
       outputResultsToFFTfile(step_event.count_);
+      outputVerboseResults(Xyce::lout());
       break;
 
     case Analysis::StepEvent::FINISH:
@@ -302,6 +303,30 @@ void FFTMgr::outputResults(std::ostream& outputStream)
   for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
   {
     (*it)->outputResults(outputStream);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FFTMgr::outputVerboseResults
+// Purpose       : Output metrics values and sorted harmonic list to stdout,
+//                 at end of simulation, for .OPTIONS FFT FFTOUT=1
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/29/2021
+//-----------------------------------------------------------------------------
+void FFTMgr::outputVerboseResults(std::ostream& outputStream)
+{
+  if (isFFTActive() && fftout_)
+  {
+    outputStream << std::endl
+                 << " ***** FFT Analyses ***** " << std::endl
+                 << std::endl;
+
+    for (FFTAnalysisVector::iterator it = FFTAnalysisList_.begin(); it != FFTAnalysisList_.end(); ++it)
+    {
+      (*it)->outputVerboseResults(outputStream);
+    }
   }
 }
 

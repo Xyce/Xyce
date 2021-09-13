@@ -37,5 +37,18 @@ Change in output file names produced by \texttt{.FOUR} analyses &
 Results from Fourier analyses are now output to \texttt{<netlistName>.four\#} files,
 where the suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
 iterations (\texttt{.STEP} iterations) of a given simulation. \\ \hline
+
+Changes in the format of \texttt{.FFT} output sent to the
+\texttt{<netlistName>.fft\#} files  & The output in those
+files is no longer filtered based on the \texttt{FREQ}, \texttt{FMIN} and
+\texttt{FMAX} values on each \texttt{.FFT} line.  Instead the data for
+every harmonic is output.  The \texttt{START} and \texttt{STOP} values
+used for each \texttt{.FFT} analysis are now output. \\ \hline
+
+Additional \texttt{.FFT} output to stdout & If \texttt{.OPTION FFT FFTOUT}
+is set to 1 then the additional metrics (ENOB, SFDR, SNR, SNDR and THD)
+and a sorted list of the 30 largest harmonics, for each \texttt{.FFT} line,
+are now output to stdout. \\ \hline
+
 \end{longtable}
 }

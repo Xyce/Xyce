@@ -99,6 +99,7 @@ public:
                      const Linear::Vector *lead_current_dqdt_vector);
 
   void outputResults( std::ostream& outputStream );
+  void outputVerboseResults(std::ostream& outputStream);
 
   const Util::ParamList & getDepSolVarIterVector() const
   {
@@ -123,14 +124,14 @@ public:
   double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
   double getMagVal(const int index) const { return mag_[index];}
   double getPhaseVal(const int index) const { return phase_[index];}
-  double getENOB() const {return enob_;}
-  double getSNDR() const {return sndr_;}
-  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn) const;
+  double calculateENOBforMeasFFT(int binSize) const;
+  double calculateSNDRforMeasFFT(int binSize) const;
+  double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, int binSize) const;
 
   // these functions are used by both FFTAnalysis and Measure FFT
   double calculateSNR(int fmaxIndex) const;
   double calculateTHD(int fmaxIndex) const;
-  double convertTHDtoDB(double thdVal) const;
+  double convertValuetoDB(double val) const;
 
 private:
   void calculateResults_();
@@ -143,6 +144,9 @@ private:
   void calculateSNDRandENOB_();
 
   std::ostream& printResult_( std::ostream& os );
+  std::ostream& printVerboseResult_( std::ostream& os );
+  std::ostream& printResultHeader_( std::ostream& os );
+  std::ostream& printMetrics_( std::ostream& os );
 
   // used to sort a vector (in descending order) based on the double value in the pairs
   static bool fftMagCompFunc(const std::pair<int,double>& a, const std::pair<int,double>& b)
@@ -174,12 +178,16 @@ private:
   int sampleIdx_;
   double noiseFloor_;
   double maxMag_;
+  double normalization_;  // used for outputting in NORM vs. UNORM format
   double thd_;
   double sndr_;
   double enob_;
   double snr_;
   double sfdr_;
   int sfdrIndex_;
+  int colWidth1_;         // used for output formatting 
+  int colWidth2_; 
+  int precision_;
   std::vector<double> mag_;
   std::vector<double> phase_;
   std::vector<std::pair<int,double>> harmonicList_;
