@@ -32,6 +32,7 @@ libLinearAlgebraServices_la_SOURCES = \
   $(amesos2_SOURCES) \
   $(ksparse_SOURCES) \
   N_LAS_SimpleSolver.C \
+  N_LAS_IRSolver.C \
   N_LAS_AmesosSolver.C \
   N_LAS_AztecOOSolver.C \
   N_LAS_Problem.C \
@@ -72,6 +73,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_TrilinosPrecondFactory.C \
   N_LAS_fwd.h \
   N_LAS_SimpleSolver.h \
+  N_LAS_IRSolver.h \
   N_LAS_AmesosSolver.h \
   N_LAS_AztecOOSolver.h \
   N_LAS_Builder.h \

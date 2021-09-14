@@ -31,6 +31,7 @@ target_sources(XyceLib PRIVATE
       ${KSPARSE_SRC}
       N_LAS_BelosSolver.C
       N_LAS_SimpleSolver.C
+      N_LAS_IRSolver.C
       N_LAS_AmesosSolver.C
       N_LAS_AztecOOSolver.C
       N_LAS_BlockSystemHelpers.C
