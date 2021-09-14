@@ -329,7 +329,12 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
     // Perform symbolic factorization and check return value for failure
     linearStatus = solver_->SymbolicFactorization();
     if (linearStatus != 0)
+    {
+      // Update the total solution time
+      solutionTime_ = timer_->elapsedTime();
+
       return linearStatus;
+    }
 
     if (VERBOSE_LINEAR)
     {
@@ -372,6 +377,9 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
         failure_number++;
         Xyce::Linear::writeToFile( *prob, "Failed", failure_number, (failure_number == 1) );
       }
+
+      // Update the total solution time
+      solutionTime_ = timer_->elapsedTime();
 
       return linearStatus;  // return the actual status (see bug 414 SON)
     }
