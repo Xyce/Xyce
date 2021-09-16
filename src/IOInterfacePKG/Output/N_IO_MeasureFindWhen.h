@@ -127,6 +127,7 @@ protected:
   std::vector<double> calculationInstantVec_;
 
 private:
+  void updateMeasureVarsForAT(const double currIndepVarVal);
   void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
   double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);

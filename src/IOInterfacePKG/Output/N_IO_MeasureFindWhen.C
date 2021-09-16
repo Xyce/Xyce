@@ -162,10 +162,7 @@ void FindWhenBase::updateTran(
     {
       if (isATcondition(circuitTime))
       {
-        calculationResult_= outVarValues_[0] - (circuitTime - at_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(circuitTime - lastIndepVarValue_) );
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(circuitTime);
       }
     }
     else if (type_ == "WHEN")
@@ -255,10 +252,7 @@ void FindWhenBase::updateDC(
         // Process AT qualifer.  The AT value must be within the measurement window.
         if (isATcondition(dcSweepVal))
         {
-          calculationResult_= outVarValues_[0] - (dcSweepVal - at_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(dcSweepVal - lastIndepVarValue_) );
-          calculationDone_ = true;
-          resultFound_ = true;
+          updateMeasureVarsForAT(dcSweepVal);
         }
       }
       else if (type_ == "WHEN")
@@ -325,10 +319,7 @@ void FindWhenBase::updateAC(
       // Process AT qualifer.  The AT value must be within the measurement window.
       if (isATcondition(frequency))
       {
-        calculationResult_= outVarValues_[0] - (frequency - at_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(frequency);
       }
     }
     else if (type_ == "WHEN")
@@ -398,10 +389,7 @@ void FindWhenBase::updateNoise(
       // Process AT qualifer.  The AT value must be within the measurement window.
       if (isATcondition(frequency))
       {
-        calculationResult_= outVarValues_[0] - (frequency - at_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(frequency);
       }
     }
     else if (type_ == "WHEN")
@@ -462,6 +450,32 @@ bool FindWhenBase::isATcondition(const double indepVarVal)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FindWhenBase::updateMeasureVarsForAT
+// Purpose       : Updates the calculation result, and associated flags, if
+//                 the AT condition has been met.
+// Special Notes : For AC and NOISE measures, the independent variable is
+//                 frequency.  For DC measures, it is the value of the first
+//                 variable in the DC sweep vector.  For TRAN, it is circuit
+//                 time.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/15/2021
+//-----------------------------------------------------------------------------
+void FindWhenBase::updateMeasureVarsForAT(const double currIndepVarVal)
+{
+  if ( fabs(currIndepVarVal - at_) < minval_)
+    calculationResult_ = outVarValues_[0];
+  else
+    calculationResult_= outVarValues_[0] - (currIndepVarVal - at_)*
+	        ( (outVarValues_[0] - lastOutputVarValue_)/(currIndepVarVal - lastIndepVarValue_) );
+
+  calculationDone_ = true;
+  resultFound_ = true;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FindWhenBase::isWHENcondition
 // Purpose       : Evaluates if the WHEN condition is true for all modes
 // Special Notes : For AC and NOISE measures, the independent variable is
@@ -512,7 +526,8 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenBase::updateMeasureVars()
-// Purpose       : Updates the calculation result and calculation instant vectors.
+// Purpose       : Updates the calculation result and calculation instant vectors,
+//                 and the associated flags, if the WHEN condition has been met.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it
 //                 is the value of the first variable in the DC sweep vector.
