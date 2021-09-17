@@ -39,6 +39,17 @@
      \endhead
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
+
+\textbf{Gitlab-ex issue 283}: FIND-AT measure gives incorrect value if the AT value
+is the first time, frequency or DC sweep value in the simulation & As an example,
+this set of \texttt{.AC} and \texttt{.MEASURE AC} lines would return a measure
+value of -nan.
+\begin{verbatim}
+.ac dec 5 100 1e6
+.MEASURE AC vibat100 FIND vi(b) at=100
+\end{verbatim}
+\\ \hline
+
 \textbf{Gitlab-ex issue 263}: Nonlinear mutual inductor parameter handling is incompatible with \texttt{STEP} &
 The nonlinear mutual inductor was performing unit conversion of model parameters within the model
 constructor.  While this works in most cases, it would fail in a \texttt{STEP} analysis where
