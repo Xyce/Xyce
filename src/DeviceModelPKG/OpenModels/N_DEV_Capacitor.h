@@ -197,6 +197,8 @@ private:
   double Q;    // User specified charge. (Coulomb)
   double multiplicityFactor;    // multiplicity factor (M)
   double IC;   // Optional initial value capacitor voltage (V).
+  double temperatureFactor;    // temperature factor
+  double ageFactor;    // age factor
 
   // These are for the semiconductor capacitor
   double length;    // capacitor length
