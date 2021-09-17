@@ -70,13 +70,6 @@ public:
   virtual void updateCalculationResult(double val)=0;
   virtual void updateCalculationInstant(double val)=0;
 
-  bool isATcondition(const double indepVarVal);
-  bool isWHENcondition(const double indepVarVal, const double targVal);
-
-  void setMeasureState(const double indepVarVal);
-  void updateMeasureState(const double indepVarVal);
-  double updateTargVal();
-
   void updateTran(
     Parallel::Machine comm,
     const double circuitTime,
@@ -127,8 +120,18 @@ protected:
   std::vector<double> calculationInstantVec_;
 
 private:
+  void setMeasureState(const double indepVarVal);
+  void updateMeasureState(const double indepVarVal);
+
+  double updateTargVal();
+  void updateLastTargVal();
+
+  bool isATcondition(const double indepVarVal);
+  bool isWHENcondition(const double indepVarVal, const double targVal);
+
   void updateMeasureVarsForAT(const double currIndepVarVal);
-  void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
+  void updateMeasureVarsForWhen(const double currIndepVarVal, const double targVal, const double whenInstant);
+
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
   double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);
 

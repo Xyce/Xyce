@@ -111,20 +111,24 @@ public:
   virtual void updateCalculationResult(double val)=0;
   virtual void updateCalculationInstant(double val)=0;
 
-  bool isATforACDCNoise(const double indepVarVal);
-  bool isWHENcondition(const double indepVarVal, const double targVal);
-
-  void setMeasureState(const double indepVarVal);
-  void updateMeasureState(const double indepVarVal);
-  double updateTargVal();
-  double getDerivativeValue(const double currIndepVarValue);
-
 protected:
   std::vector<double> calculationResultVec_;
   std::vector<double> calculationInstantVec_;
+  double getDerivativeValue(const double currIndepVarValue);
 
 private:
-  void updateMeasureVars(const double currIndepVarVal, const double targVal, const double whenInstant);
+  void setMeasureState(const double indepVarVal);
+  void updateMeasureState(const double indepVarVal);
+
+  double updateTargVal();
+  void updateLastTargVal();
+
+  bool isATforACDCNoise(const double indepVarVal);
+  bool isWHENcondition(const double indepVarVal, const double targVal);
+
+  void updateMeasureVarsForAT(const double currIndepVarVal);
+  void updateMeasureVarsForWhen(const double currIndepVarVal, const double whenInstant);
+
   double interpolateCalculationInstant(double currIndepVarValue, double targVal);
 
   void updateRFCcountForWhen();

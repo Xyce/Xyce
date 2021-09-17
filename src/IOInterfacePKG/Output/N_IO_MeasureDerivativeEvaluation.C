@@ -176,9 +176,7 @@ void DerivativeEvaluationBase::updateTran(
       if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
 	  (((fabs(backDiff) < minval_) || (fabs(forwardDiff) < minval_)) && circuitTime > 0) )
       {
-        calculationResult_=getDerivativeValue(circuitTime);
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(circuitTime);
       }
     }
     else if ( whenGiven_ && (numPointsFound_ > 1) )
@@ -195,10 +193,7 @@ void DerivativeEvaluationBase::updateTran(
           updateRFCcountForWhen();
           if (withinRFCWindowForWhen())
 	  {
-            updateCalculationInstant(whenTime);
-            updateCalculationResult(circuitTime);
-            calculationDone_ = !measureLastRFC_;
-            resultFound_=true;
+            updateMeasureVarsForWhen(circuitTime, whenTime);
           }
         }
       }
@@ -271,9 +266,7 @@ void DerivativeEvaluationBase::updateDC(
         // process AT qualifer. The AT value must be within the measurement window.
         if (isATforACDCNoise(dcSweepVal))
         {
-          calculationResult_=getDerivativeValue(dcSweepVal);
-          calculationDone_ = true;
-          resultFound_ = true;
+          updateMeasureVarsForAT(dcSweepVal);
         }
       }
       else if (whenGiven_ && (numPointsFound_ > 1))
@@ -291,10 +284,7 @@ void DerivativeEvaluationBase::updateDC(
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
 	    {
-              updateCalculationInstant(whenSweepVal);
-              updateCalculationResult(dcSweepVal);
-              calculationDone_ = !measureLastRFC_;
-              resultFound_=true;
+              updateMeasureVarsForWhen(dcSweepVal, whenSweepVal);
             }
           }
         }
@@ -344,9 +334,7 @@ void DerivativeEvaluationBase::updateAC(
       // Process AT qualifer.  The AT value must be within the measurement window.
       if (isATforACDCNoise(frequency))
       {
-        calculationResult_=getDerivativeValue(frequency);
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(frequency);
       }
     }
     else if (whenGiven_ && (numPointsFound_ > 1))
@@ -364,10 +352,7 @@ void DerivativeEvaluationBase::updateAC(
           updateRFCcountForWhen();
           if (withinRFCWindowForWhen())
 	  {
-            updateCalculationInstant(whenFreq);
-            updateCalculationResult(frequency);
-            calculationDone_ = !measureLastRFC_;
-            resultFound_=true;
+            updateMeasureVarsForWhen(frequency, whenFreq);
           }
         }
       }
@@ -419,9 +404,7 @@ void DerivativeEvaluationBase::updateNoise(
       // Process AT qualifer.  The AT value must be within the measurement window.
       if (isATforACDCNoise(frequency))
       {
-        calculationResult_=getDerivativeValue(frequency);
-        calculationDone_ = true;
-        resultFound_ = true;
+        updateMeasureVarsForAT(frequency);
       }
     }
     else if (whenGiven_ && (numPointsFound_ > 1))
@@ -440,10 +423,7 @@ void DerivativeEvaluationBase::updateNoise(
            updateRFCcountForWhen();
           if (withinRFCWindowForWhen())
 	  {
-            updateCalculationInstant(whenFreq);
-            updateCalculationResult(frequency);
-            calculationDone_ = !measureLastRFC_;
-            resultFound_=true;
+            updateMeasureVarsForWhen(frequency, whenFreq);
           }
         }
       }
@@ -478,6 +458,27 @@ bool DerivativeEvaluationBase::isATforACDCNoise(const double indepVarVal)
   // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
   return ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
 	   (((fabs(backDiff) < minval_) || (fabs(forwardDiff) < minval_))) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluationBase::updateMeasureVarsForAT
+// Purpose       : Updates the calculation result, and associated flags, if
+//                 the AT condition has been met.
+// Special Notes : For AC and NOISE measures, the independent variable is
+//                 frequency.  For DC measures, it is the value of the first
+//                 variable in the DC sweep vector.  For TRAN, it is circuit
+//                 time.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/15/2021
+//-----------------------------------------------------------------------------
+void DerivativeEvaluationBase::updateMeasureVarsForAT(const double currIndepVarVal)
+{
+  calculationResult_=getDerivativeValue(currIndepVarVal);
+  calculationDone_ = true;
+  resultFound_ = true;
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -523,6 +524,28 @@ bool DerivativeEvaluationBase::isWHENcondition(const double indepVarVal, const d
   }
 
   return whenFound;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluationBase::updateMeasureVars()
+// Purpose       : Updates the calculation result and calculation instant vectors,
+//                 and the associated flags, if the WHEN condition has been met.
+// Special Notes : For TRAN measures, the independent variable is time.  For AC
+//                 and NOISE measures, it is frequency.  For DC measures, it
+//                 is the value of the first variable in the DC sweep vector.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/16/2021
+//-----------------------------------------------------------------------------
+void DerivativeEvaluationBase::updateMeasureVarsForWhen(const double currIndepVarVal,
+                                                        const double whenInstance)
+{
+  updateCalculationInstant(whenInstance);
+  updateCalculationResult(currIndepVarVal);
+  calculationDone_ = !measureLastRFC_;
+  resultFound_=true;
+
+  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -589,10 +612,7 @@ void DerivativeEvaluationBase::setMeasureState(const double indepVarVal)
   lastIndepVarValue_=indepVarVal;
   lastDepVarValue_=outVarValues_[whenIdx_];
   lastOutputVarValue_=outVarValues_[0];
-  if (outputValueTargetGiven_)
-    lastTargValue_ = outputValueTarget_;
-  else
-    lastTargValue_ = outVarValues_[whenIdx_+1];
+  updateLastTargVal();
 
   return;
 }
@@ -613,10 +633,7 @@ void DerivativeEvaluationBase::updateMeasureState(const double indepVarVal)
   lastIndepVarValue_ = indepVarVal;
   lastDepVarValue_ = outVarValues_[whenIdx_];
   lastOutputVarValue_=outVarValues_[0];
-  if (outputValueTargetGiven_)
-    lastTargValue_ = outputValueTarget_;
-  else
-    lastTargValue_ = outVarValues_[whenIdx_+1];
+  updateLastTargVal();
 
   return;
 }
@@ -646,6 +663,24 @@ double DerivativeEvaluationBase::updateTargVal()
   }
 
   return targVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluationBase::updateLastTargVal
+// Purpose       : updates the last target value for the WHEN clause
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/16/2020
+//-----------------------------------------------------------------------------
+void DerivativeEvaluationBase::updateLastTargVal()
+{
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
+
+  return;
 }
 
 //-----------------------------------------------------------------------------

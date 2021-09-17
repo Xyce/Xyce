@@ -183,7 +183,7 @@ void FindWhenBase::updateTran(
 	{
           updateRFCcountForWhen();
           if (withinRFCWindowForWhen())
-            updateMeasureVars(circuitTime, targVal, whenTime);
+            updateMeasureVarsForWhen(circuitTime, targVal, whenTime);
         }
       }
     }
@@ -273,7 +273,7 @@ void FindWhenBase::updateDC(
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-              updateMeasureVars(dcSweepVal, targVal, whenSweepVal);
+              updateMeasureVarsForWhen(dcSweepVal, targVal, whenSweepVal);
           }
         }
       }
@@ -340,7 +340,7 @@ void FindWhenBase::updateAC(
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-	      updateMeasureVars(frequency, targVal, whenFreq);
+	      updateMeasureVarsForWhen(frequency, targVal, whenFreq);
           }
       }
     }
@@ -411,7 +411,7 @@ void FindWhenBase::updateNoise(
 	  {
             updateRFCcountForWhen();
             if (withinRFCWindowForWhen())
-              updateMeasureVars(frequency, targVal, whenFreq);
+              updateMeasureVarsForWhen(frequency, targVal, whenFreq);
           }
         }
       }
@@ -525,7 +525,7 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::updateMeasureVars()
+// Function      : FindWhenBase::updateMeasureVarsForWhen()
 // Purpose       : Updates the calculation result and calculation instant vectors,
 //                 and the associated flags, if the WHEN condition has been met.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
@@ -535,7 +535,7 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
-void FindWhenBase::updateMeasureVars(const double currIndepVarVal, const double targVal,
+void FindWhenBase::updateMeasureVarsForWhen(const double currIndepVarVal, const double targVal,
                                      const double whenInstant)
 {
   updateCalculationInstant(whenInstant);
@@ -681,14 +681,10 @@ void FindWhenBase::setMeasureState(const double indepVarVal)
   // assigned last dependent and independent var to current value of the independent
   // varible and outVarValue_[whenIdx_].  While we can't interpolate on this step, it
   // ensures that the initial history is something realistic.
-  lastOutputValue_ = outVarValues_[0]; // used for RFC counting
   lastIndepVarValue_=indepVarVal;
   lastDepVarValue_=outVarValues_[whenIdx_];
   lastOutputVarValue_=outVarValues_[0];
-  if (outputValueTargetGiven_)
-    lastTargValue_ = outputValueTarget_;
-  else
-    lastTargValue_ = outVarValues_[whenIdx_+1];
+  updateLastTargVal();
 
   return;
 }
@@ -709,10 +705,7 @@ void FindWhenBase::updateMeasureState(const double indepVarVal)
   lastIndepVarValue_ = indepVarVal;
   lastDepVarValue_ = outVarValues_[whenIdx_];
   lastOutputVarValue_=outVarValues_[0];
-  if (outputValueTargetGiven_)
-    lastTargValue_ = outputValueTarget_;
-  else
-    lastTargValue_ = outVarValues_[whenIdx_+1];
+  updateLastTargVal();
 
   return;
 }
@@ -744,6 +737,23 @@ double FindWhenBase::updateTargVal()
   return targVal;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : FindWhenBase::updateLastTargVal
+// Purpose       : updates the last target value for the WHEN clause
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/16/2020
+//-----------------------------------------------------------------------------
+void FindWhenBase::updateLastTargVal()
+{
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
+
+  return;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhenBase::printMeasureWindow
