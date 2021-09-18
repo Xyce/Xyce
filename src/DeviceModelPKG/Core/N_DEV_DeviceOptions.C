@@ -105,6 +105,7 @@ DeviceOptions::DeviceOptions()
     testJacDeviceNameGiven( false ),
     testJacDeviceName(""),
     voltageLimiterFlag (true),
+    b3soiVoltageLimiterFlag (true),
     lambertWFlag (0),
     newMeyerFlag(false),
     icMultiplier (10000.0),
@@ -227,6 +228,8 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
     }
     else if (tag == "VOLTLIM")
       voltageLimiterFlag    = static_cast<bool>((*it).getImmutableValue<int>());
+    else if (tag == "B3SOIVOLTLIM")
+      b3soiVoltageLimiterFlag = static_cast<bool>((*it).getImmutableValue<int>());
     else if (tag == "LAMBERTW")
       lambertWFlag = static_cast<int>((*it).getImmutableValue<int>());
     else if (tag == "ICFAC" )
@@ -405,6 +408,7 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("TESTJACWARN", Util::Param("TESTJACWARN", 0)));
   parameters.insert(Util::ParamMap::value_type("TESTJACDEVICENAME", Util::Param("TESTJACDEVICENAME", "")));
   parameters.insert(Util::ParamMap::value_type("VOLTLIM", Util::Param("VOLTLIM", 1)));
+  parameters.insert(Util::ParamMap::value_type("B3SOIVOLTLIM", Util::Param("B3SOIVOLTLIM", 1)));
   parameters.insert(Util::ParamMap::value_type("ICFAC", Util::Param("ICFAC", 10000.0)));
   parameters.insert(Util::ParamMap::value_type("LAMBERTW", Util::Param("LAMBERTW", 0)));
   parameters.insert(Util::ParamMap::value_type("MAXTIMESTEP", Util::Param("MAXTIMESTEP", 1.0e99)));
@@ -481,6 +485,7 @@ std::ostream & operator<<(std::ostream & os, const DeviceOptions & devOp)
      << "\t\tdeviceSens_dp         = " << devOp.deviceSens_dp << "\n"
 
      << "\t\tvoltageLimiterFlag    = " << devOp.voltageLimiterFlag << "\n"
+     << "\t\tb3soiVoltageLimiterFlag    = " << devOp.b3soiVoltageLimiterFlag << "\n"
      << "\t\tlambertWFlag          = " << devOp.lambertWFlag << "\n"
      << "\t\ticMultiplier          = " << devOp.icMultiplier << "\n"
      << "\t\tdefaultMaxTimeStep    = " << devOp.defaultMaxTimeStep << "\n"

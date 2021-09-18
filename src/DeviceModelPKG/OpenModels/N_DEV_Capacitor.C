@@ -229,7 +229,8 @@ bool Instance::processParams ()
   // the age aware capacitor simply modifies the base capacitance.
   if (given("AGE") && age >= 1)
   {
-    baseCap = baseCap*(1-ageCoef*log10(age));
+    ageFactor = (1-ageCoef*log10(age));
+    baseCap *= ageFactor;
   }
  
   // If both C and L are specified then C will be used.  If only L is specified
@@ -294,12 +295,13 @@ bool Instance::processParams ()
 bool Instance::updateTemperature ( const double & temp_tmp)
 {
   bool bsuccess = true;
-  double difference, factor;
+  //double difference, factor;
+  double difference;
 
   difference = temp - model_.tnom;
-  factor = model_.capacitanceMultiplier*(1.0 + tempCoeff1*difference +  
+  temperatureFactor = model_.capacitanceMultiplier*(1.0 + tempCoeff1*difference +  
                                         tempCoeff2*difference*difference);
-  C = baseCap*factor;
+  C = baseCap*temperatureFactor;
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
@@ -314,8 +316,7 @@ bool Instance::updateTemperature ( const double & temp_tmp)
            << "tempCoeff1 = " << tempCoeff1 << std::endl
            << "tempCoeff2 = " << tempCoeff2 << std::endl
            << "baseCap = " << baseCap << std::endl
-           //<< "factor = " << factor  << Util::pop << std::endl;
-           << "factor = " << factor  << std::endl;
+           << "temperatureFactor = " << temperatureFactor  << std::endl;
   }
 
   return bsuccess;
@@ -350,6 +351,8 @@ Instance::Instance(
     expNumVars(0),
     multiplicityFactor(0.0),
     IC(0),
+    temperatureFactor(1.0),
+    ageFactor(1.0),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
     tempCoeff1(0.0),
     tempCoeff2(0.0),
@@ -545,48 +548,50 @@ Instance::Instance(
 
     for (d=begin; d!=end; ++d)
     {
-        expNumVars = d->n_vars;
-        expPtr = d->expr;
+      if (d->expr->getNumDdt() != 0)
+      {
+        UserError(*this) << "Dependent expression " << d->expr->get_expression() << " for parameter " << d->name << " contains time derivatives";
+      }
 
-        if (expNumVars > 0 || expPtr->isTimeDependent())
+      expNumVars = d->n_vars;
+      if (expNumVars > 0)
+      {
+        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
-          if (d->name == "C")
+          dout() << "Capacitor " << getName()
+                 << ": Found solution-dependent parameter " << d->name << " depending on " << expNumVars << " variables" << std::endl;
+          if (d->expr->isTimeDependent())
           {
-            solVarDepC = true;
-            // To do the proper integration of the charge, we need to save the
-            // voltage drop, the old capacitance and
-            // the derivatives of Q and C from the last step.
-            numStateVars += 2+2*expNumVars;
+            dout() << "     " << "Expression is time-dependent."  << std::endl;
           }
-
-          if (d->name == "Q")
-            solVarDepQ = true;
-
-          if (expPtr->getNumDdt() != 0)
+          else
           {
-            UserError(*this) << "Solution-variable-dependent expression contains time derivatives";
+            dout() << "     " << "Expression is not time-dependent."  << std::endl;
           }
+        }
 
-          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-          {
-            dout() << "Capacitor " << getName()
-                   << ": Found solution-dependent parameter " << d->name << " depending on " << expNumVars << " variables" << std::endl;
-            if (expPtr->isTimeDependent())
-            {
-              dout() << "     " << "Expression is time-dependent."  << std::endl;
-            }
-            else
-            {
-              dout() << "     " << "Expression is not time-dependent."  << std::endl;
-            }
-#if 0
-            dout() << "     " << "Expression depends on " << expPtr->num_vars() << " quantity, of which " << expPtr->num_vars()-expNumVars << " are not solution vars. " << std::endl;
-#endif
-          }
+        if (d->name == "C")
+        {
+          solVarDepC = true;
+          // To do the proper integration of the charge, we need to save the
+          // voltage drop, the old capacitance and
+          // the derivatives of Q and C from the last step.
+          numStateVars += 2+2*expNumVars;
+          expPtr = d->expr;
+          dependentParamExcludeMap_[d->name] = 1;
+        }
 
+        if (d->name == "Q")
+        {
+          solVarDepQ = true;
+          expPtr = d->expr;
+          dependentParamExcludeMap_[d->name] = 1;
+        }
+
+        if (solVarDepC || solVarDepQ)
+        {
           // We now need to extend the pos and neg rows of the jacstamps
           // to account for the additional dependencies:
-
           jacStamp[0].resize(2+expNumVars);
           jacStamp[1].resize(2+expNumVars);
           jacStamp_IC[0].resize(3+expNumVars);
@@ -610,6 +615,11 @@ Instance::Instance(
             li_dCdXState.resize(expNumVars);
           }
         }
+        else
+        {
+          UserError(*this) << d->name << " cannot depend on solution variables. This is only allowed for the C and Q parameters" ;
+        }
+      }
     }
   }
 
@@ -1175,23 +1185,21 @@ bool Instance::updatePrimaryState ()
   }
   else if (solVarDepQ)
   {
+    expPtr->evaluate(Q,expVarDerivs);
     q0 = Q;
-    // get the dQ/dX derivatives.  We don't need the value, because the
-    // device package has already updated Q from the expression.
-    double junk;
-    expPtr->evaluate(junk,expVarDerivs);
   }
   else
   {
     // The capacitance depends on solution variables, the work load just
     // went up.
+    expPtr->evaluate(C,expVarDerivs);
 
-    // here, we're just calling evaluate
-    // to get the derivatives of C, and discarding the actual value
-    // of C (which has already been stored)
-    double junk;
-    expPtr->evaluate(junk,expVarDerivs);
-
+    // Redo the age and temperature modifications, if necessary,
+    // and apply to both C and derivatives.
+    // This uses factors previously computed in updateTemperature and processParams.
+    baseCap = C*ageFactor; 
+    C *= ageFactor*temperatureFactor;
+    for (int ii=0;ii<expNumVars; ++ii) { expVarDerivs[ii] *= ageFactor*temperatureFactor; }
 
     // At DC, the charge really still is V*C.
     if (getSolverState().dcopFlag)

@@ -3105,19 +3105,6 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("TR_global_amd", Util::Param("TR_global_amd", 0)));
     parameters.insert(Util::ParamMap::value_type("TR_global_amd_verbose", Util::Param("TR_global_amd_verbose", 0)));
     parameters.insert(Util::ParamMap::value_type("TR_singleton_filter", Util::Param("TR_singleton_filter", 0)));
-    parameters.insert(Util::ParamMap::value_type("SLU_EQUILIBRATE", Util::Param("SLU_EQUILIBRATE", 1)));
-    parameters.insert(Util::ParamMap::value_type("SLU_REFACTOR", Util::Param("SLU_REFACTOR", 1)));
-    parameters.insert(Util::ParamMap::value_type("SLU_PERMUTE", Util::Param("SLU_PERMUTE", 2)));
-    parameters.insert(Util::ParamMap::value_type("SLU_PIVOT_THRESH", Util::Param("SLU_PIVOT_THRESH", -1.0)));
-    parameters.insert(Util::ParamMap::value_type("SLU_FILL_FAC", Util::Param("SLU_FILL_FAC", -1)));
-    parameters.insert(Util::ParamMap::value_type("BTF", Util::Param("BTF", 0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_VERBOSE", Util::Param("BTF_VERBOSE", 0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_ATHRESH", Util::Param("BTF_ATHRESH", 0.0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH", Util::Param("BTF_RTHRESH", 0.0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH_INIT", Util::Param("BTF_RTHRESH_INIT", 0.0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_INIT", Util::Param("BTF_INIT", 0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_THRESHOLDING", Util::Param("BTF_THRESHOLDING", 0)));
-    parameters.insert(Util::ParamMap::value_type("BTF_RNTHRESHFAC", Util::Param("BTF_RNTHRESHFAC", 1.0e-3)));
     parameters.insert(Util::ParamMap::value_type("adaptive_solve", Util::Param("adaptive_solve", 0)));
     parameters.insert(Util::ParamMap::value_type("use_aztec_precond", Util::Param("use_aztec_precond", 1)));
     parameters.insert(Util::ParamMap::value_type("use_ifpack_factory", Util::Param("use_ifpack_factory", 0)));
@@ -3131,6 +3118,8 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("TR_scale_iter", Util::Param("TR_scale_iter", 0)));
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("IR_SOLVER_TYPE", Util::Param("IR_SOLVER_TYPE", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("IR_SOLVER_TOL", Util::Param("IR_SOLVER_TOL", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
     parameters.insert(Util::ParamMap::value_type("KLU_REPIVOT", Util::Param("KLU_REPIVOT", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));

@@ -227,6 +227,8 @@ Instance::Instance(
       }
       expVarDerivs.resize(expNumVars);
       myVarVals.resize(expNumVars);
+
+      dependentParamExcludeMap_[d->name] = 1;
     }
   }
 

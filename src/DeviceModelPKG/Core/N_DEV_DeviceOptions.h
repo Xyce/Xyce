@@ -110,6 +110,7 @@ public:
   bool          testJacDeviceNameGiven;
   std::string   testJacDeviceName;
   bool          voltageLimiterFlag;
+  bool          b3soiVoltageLimiterFlag;
   int           lambertWFlag;
 
   bool          newMeyerFlag;

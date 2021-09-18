@@ -22,11 +22,11 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : Amesos direct solver wrapper
+// Purpose        : Iterative refinement solver wrapper
 //
 // Special Notes  :
 //
-// Creator        : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creator        : Heidi Thornquist, SNL
 //
 // Creation Date  : 05/20/04
 //
@@ -51,7 +51,7 @@
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_AmesosSolver.h>
+#include <N_LAS_IRSolver.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraHelpers.h>
@@ -61,26 +61,31 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Timer.h>
+#include <N_UTL_MachDepParams.h>
 
 #include <Teuchos_Utils.hpp>
 
 namespace Xyce {
 namespace Linear {
 
+//Solver defaults.
+const std::string IRSolver::type_default_ = "KLU";
+const double IRSolver::tol_default_ = 1e-9;
+
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::AmesosSolver
+// Function      : IRSolver::IRSolver
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-AmesosSolver::AmesosSolver(
-  const std::string &   type,
+IRSolver::IRSolver(
   Problem &       problem,
   Util::OptionBlock &   options)
   : Solver(false),
-    type_(type),
+    type_(type_default_),
+    ir_tol_(tol_default_),
     lasProblem_(problem),
     solver_(0),
     repivot_(true),
@@ -98,14 +103,14 @@ AmesosSolver::AmesosSolver(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::~AmesosSolver
+// Function      : IRSolver::~IRSolver
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-AmesosSolver::~AmesosSolver()
+IRSolver::~IRSolver()
 {
   delete solver_;
   delete timer_;
@@ -113,14 +118,14 @@ AmesosSolver::~AmesosSolver()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::setOptions
+// Function      : IRSolver::setOptions
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-bool AmesosSolver::setOptions( const Util::OptionBlock & OB )
+bool IRSolver::setOptions( const Util::OptionBlock & OB )
 {
   bool foundAMD = false, foundPartition = false, foundSingleton = false;
 
@@ -128,6 +133,9 @@ bool AmesosSolver::setOptions( const Util::OptionBlock & OB )
          it_tpL != OB.end(); ++it_tpL )
   {
     std::string tag = it_tpL->uTag();
+    if( tag == "IR_SOLVER_TYPE" ) type_ = it_tpL->usVal();
+
+    if( tag == "IR_SOLVER_TOL" ) ir_tol_ = it_tpL->getImmutableValue<double>();
 
     if( tag == "KLU_REPIVOT" ) repivot_ = static_cast<bool>(it_tpL->getImmutableValue<int>());
     
@@ -166,53 +174,53 @@ bool AmesosSolver::setOptions( const Util::OptionBlock & OB )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::setDefaultOptions
+// Function      : IRSolver::setDefaultOptions
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-bool AmesosSolver::setDefaultOptions()
+bool IRSolver::setDefaultOptions()
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::setParam
+// Function      : IRSolver::setParam
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-bool AmesosSolver::setParam( const Util::Param & param )
+bool IRSolver::setParam( const Util::Param & param )
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::getInfo
+// Function      : IRSolver::getInfo
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-bool AmesosSolver::getInfo( Util::Param & info )
+bool IRSolver::getInfo( Util::Param & info )
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AmesosSolver::doSolve
+// Function      : IRSolver::doSolve
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
-int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
+int IRSolver::doSolve( bool reuse_factors, bool transpose )
 {
   // Start the timer...
   timer_->resetStartTime();
@@ -319,8 +327,8 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
 #endif
 
     if (VERBOSE_LINEAR)
-      Xyce::dout() << "AmesosSolver::solve() setting solver : " << type_ << "\n"
-                   << "AmesosSolver::solve() setting parameters : " << params << std::endl;
+      Xyce::dout() << "IRSolver::solve() setting solver : " << type_ << "\n"
+                   << "IRSolver::solve() setting parameters : " << params << std::endl;
 
     solver_->SetParameters( params );
 
@@ -348,6 +356,126 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
   if ( solver_->UseTranspose() != transpose )
   {
     solver_->SetUseTranspose( transpose );
+  }
+
+  // Try to solve with previous factors
+  solver_->Solve();
+
+  int numrhs = prob->GetLHS()->NumVectors();
+  std::vector<double> resNorm(numrhs,0.0), bNorm(numrhs,0.0);
+  Epetra_MultiVector res( prob->GetLHS()->Map(), prob->GetLHS()->NumVectors() );
+  prob->GetOperator()->Apply( *(prob->GetLHS()), res );
+  res.Update( 1.0, *(prob->GetRHS()), -1.0 );
+  res.Norm2( &resNorm[0] );
+  prob->GetRHS()->Norm2( &bNorm[0] );
+  bool reuse_success = true;
+  double max_residual = 0.0;
+  double min_tol_ = 1e-2;
+  int max_iters = 10;
+  for (int i=0; i<numrhs; i++)
+  {
+    //Xyce::dout() << "IRSolver()::bNorm[" << i << "] = " << bNorm[i] << std::endl;
+    double residual = resNorm[i];
+    if (bNorm[i] > Util::MachineDependentParams::MachineEpsilon())
+      residual /= bNorm[i];
+    if (residual > ir_tol_)
+    {
+      reuse_success = false;
+      //Xyce::dout() << "IRSolver()::Solve() numeric factors did not meet tolerance: " << residual << std::endl;
+    }
+    if (residual > max_residual)
+      max_residual = residual;
+  }
+
+  if (reuse_success)
+  {
+    // Update the total solution time
+    solutionTime_ = timer_->elapsedTime();
+
+    if (VERBOSE_LINEAR)
+      Xyce::dout() << "Total Linear Solution Time (Reused, Amesos " << type_ << "): "
+                   << solutionTime_ << std::endl;
+
+    return linearStatus;
+  }
+  else if (max_residual < min_tol_) 
+  {
+    // Save the original RHS
+    Epetra_MultiVector x( prob->GetLHS()->Map(), numrhs );
+    Epetra_MultiVector bsave( prob->GetLHS()->Map(), numrhs );
+    bsave = *(prob->GetRHS());
+    x = *(prob->GetLHS());
+
+    // Try refinement with current factorization
+    int iter = 0;
+    bool diverging = false;
+    //Xyce::dout() << "Trying iterative refinement " << max_residual << " and min_tol_ = " << min_tol_ << " !" << std::endl;
+    while ((max_residual > ir_tol_)&&(iter < max_iters)&&(!diverging))
+    {
+      // Copy current residual to the right-hand side of the problem
+      *(prob->GetRHS()) = res;
+
+      // Try to solve with previous factors
+      solver_->Solve();
+ 
+      // Now update the soultion and check the residual 
+      x.Update( 1.0, *(prob->GetLHS()), 1.0 );
+      prob->GetOperator()->Apply( x, res );
+      res.Update( 1.0, bsave, -1.0 );
+      res.Norm2( &resNorm[0] );
+ 
+      double new_max_residual = 0.0; 
+      for (int i=0; i<numrhs; i++)
+      {
+        double residual = resNorm[i];
+        if (bNorm[i] > Util::MachineDependentParams::MachineEpsilon())
+          residual /= bNorm[i];
+    
+        if (residual > new_max_residual)
+          new_max_residual = residual;
+      }
+
+      //Xyce::dout() << "IRSolver: Refinement step:  old residual " << max_residual << ", new residual " << new_max_residual << std::endl; 
+      if (new_max_residual > max_residual)
+        diverging = true;
+
+      // Set the max residual to the residual from this refinement step
+      max_residual = new_max_residual;
+
+      iter++;
+    }
+
+    // Set the RHS to the original vector.
+    *(prob->GetRHS()) = bsave;
+
+    if (max_residual < ir_tol_)
+    {
+      // Set the LHS to the refined solution.
+      *(prob->GetLHS()) = x;
+
+      // Update the total solution time
+      solutionTime_ = timer_->elapsedTime();
+
+      prob->GetOperator()->Apply( *(prob->GetLHS()), res );
+      res.Update( 1.0, *(prob->GetRHS()), -1.0 );
+      res.Norm2( &resNorm[0] );
+      prob->GetRHS()->Norm2( &bNorm[0] );
+      Xyce::lout() << "Linear System Residual (AMESOS_" << type_ << "): " << std::endl;
+      for (int i=0; i<numrhs; i++)
+      {
+        //Xyce::dout() << "IRSolver()::bNorm[" << i << "] = " << bNorm[i] << std::endl;
+        if (bNorm[i] > Util::MachineDependentParams::MachineEpsilon())
+          std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << std::endl;
+        else
+          std::cout << "  Problem " << i << " : " << resNorm[i] << std::endl;
+      } 
+      if (VERBOSE_LINEAR)
+        Xyce::dout() << "Total Linear Solution Time (Reused, Amesos " << type_ << "): "
+                     << solutionTime_ << std::endl;
+ 
+
+      return linearStatus;
+    }
   }
 
   // Perform numeric factorization and check return value for failure

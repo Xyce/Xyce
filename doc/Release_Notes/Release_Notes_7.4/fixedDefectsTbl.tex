@@ -39,6 +39,17 @@
      \endhead
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
+
+\textbf{Gitlab-ex issue 283}: FIND-AT measure gives incorrect value if the AT value
+is the first time, frequency or DC sweep value in the simulation & As an example,
+this set of \texttt{.AC} and \texttt{.MEASURE AC} lines would return a measure
+value of -nan.
+\begin{verbatim}
+.ac dec 5 100 1e6
+.MEASURE AC vibat100 FIND vi(b) at=100
+\end{verbatim}
+\\ \hline
+
 \textbf{Gitlab-ex issue 263}: Nonlinear mutual inductor parameter handling is incompatible with \texttt{STEP} &
 The nonlinear mutual inductor was performing unit conversion of model parameters within the model
 constructor.  While this works in most cases, it would fail in a \texttt{STEP} analysis where
@@ -133,6 +144,19 @@ This included \texttt{.PREPROCESS} calls that are executed to replace
 ground synonyms or remove unused devices, which need to be called each
 time the circuit is simulated.  This no longer happens. \\ \hline
 
+  \textbf{Gitlab-ex issue 277}: Measure names that start with an "operator
+letter" do not work in EQN measures & A measure name that started with a
+letter that was valid as the first character in an operator name ('V', 'I',
+'P', 'W', 'D', 'N' or 'S') would work correctly in (for example) a
+\texttt{MAX} measure.  However, that \texttt{MAX} measure could not
+subsequently be used in an \texttt{EQN} measure.  A simple example is
+as follows:
+\begin{verbatim}
+.MEASURE TRAN V1MAX MAX V(1)
+.MEASURE TRAN EQN1 EQN V1MAX
+\end{verbatim}
+\\ \hline
+
   \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
 In previous \Xyce{} versions, these two \texttt{.PRINT} lines would
 both output the \texttt{V(*)} wildcard results before the \texttt{I(*)}
@@ -147,6 +171,16 @@ wildcard results.
 in \texttt{.IC} statements & This has been resolved and global
 parameters can be used to set the value of an \texttt{.IC}
 statement.\\ \hline
+
+  \textbf{1134-SON}: Mismatched (or missing) expression delimiters
+are not flagged as an error on .MEASURE lines & In previous versions
+of \Xyce{}, incorrect use of expression delimiters might not be
+flagged as an error during netlist parsing of \texttt{.MEASURE}
+lines.  A simple example was:
+\begin{verbatim}
+.measure tran noEndCurly eqn {V(1)
+\end{verbatim}
+\\ \hline
 
   \textbf{1029-SON}: Improve checking of \texttt{.PRINT} type versus
 analysis type & The checking of the \texttt{.PRINT} type versus the

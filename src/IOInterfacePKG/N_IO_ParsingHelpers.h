@@ -124,6 +124,14 @@ bool extractGlobalParamData( CircuitBlock &            circuit_block,
                              const std::string &       netlist_filename,
                              const TokenVector &       parsed_line);
 
+// Used to convert text string on .PRINT and .MEASURE lines, for operators
+// like V(), into parameters in an option block
+bool extractOperatorData(const TokenVector&   parsed_line,
+                         int&                 position,      
+                         Util::OptionBlock&   option_block,
+                         std::ostringstream&  msg,
+                         int&                 p_err);
+
 } // namespace IO
 } // namespace Xyce
 

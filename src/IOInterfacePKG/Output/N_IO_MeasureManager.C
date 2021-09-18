@@ -67,6 +67,7 @@
 #include <N_IO_OptionBlock.h>
 #include <N_IO_OutputPrn.h>
 #include <N_IO_OutputCsd.h>
+#include <N_IO_ParsingHelpers.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_PDS_ParHelpers.h>
@@ -1389,27 +1390,42 @@ struct MeasureOptionsReg : public PkgOptionsReg
 };
 
 //-----------------------------------------------------------------------------
-// Function      : Manager::skipVALQualifier
+// Function      : Manager::handleVALQualifier
 // Purpose       : HSPICE allows TRIG and TARG syntax of the form:
 //               :       TRIG {exp} VAL=0.1 
 //               :  
-//               : This function essentially skips past the VAL= part if it exists, 
+//               : This function skips past the VAL= part if it exists, 
 //               : and parsing of the .MEASURE line is in a TRIG or TARG block.
+//               : It also catches the syntax error of VAL, without the = sign,
+//               : for that case. 
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creator       : Pete Sholander, SNL
 // Creation Date : 02/13/2019
 //-----------------------------------------------------------------------------
-bool skipValQualifier(const int startPos, const int endLimit, const std::string & parsedType,
-                      const IO::TokenVector & parsed_line)
+bool handleValQualifier(const std::string& netlist_filename,
+  const int numFields,
+  const std::string & parsedType,
+  const IO::TokenVector & parsed_line,
+  int& position)
 {
-  bool retval = false;
-  if ( (startPos+2) < endLimit && (parsedType=="TRIG" || parsedType=="TARG") &&
-       (parsed_line[startPos+1].string_ == "VAL") &&
-       (parsed_line[startPos+2].string_ == "=") ) 
+
+  bool retval = true;
+  if ( ((position+1) < numFields) && (parsedType=="TRIG" || parsedType=="TARG") &&
+       (parsed_line[position+1].string_ == "VAL") )
   {
-    retval=true;
+    if ( ((position+2) < numFields) && (parsed_line[position+2].string_ == "="))
+    {
+      position +=2;
+    }
+    else
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) <<
+          "Invalid VAL= syntax in TRIG or TARG block on .MEASURE line";
+      retval = false;
+    }
   }
+
   return retval;
 }
 
@@ -1952,10 +1968,8 @@ extractMEASUREData(
         option_block.addParam(parameter);
 
 	// skip over VAL= if this is a TRIG or TARG block 
-        if ( skipValQualifier(position, numFields, parsedType, parsed_line) )
-        {
-          position+=2;
-        } 
+        if (!handleValQualifier(netlist_filename, numFields, parsedType, parsed_line, position))
+          return false;
       }
       else if ( currentWord== "PAR" ) 
       {
@@ -1981,10 +1995,8 @@ extractMEASUREData(
         }
 
         // skip over VAL= if this is a TRIG or TARG block 
-        if ( skipValQualifier(position, numFields, parsedType, parsed_line) )
-       {
-          position+=2;
-        } 
+        if (!handleValQualifier(netlist_filename, numFields, parsedType, parsed_line, position))
+          return false;
       }
       else if ( currentWord== "(" ) 
       {
@@ -2009,10 +2021,8 @@ extractMEASUREData(
         }
 
         // skip over VAL= if this is a TRIG or TARG block
-        if ( skipValQualifier(position, numFields, parsedType, parsed_line) )
-        {
-          position+=2;
-        } 
+        if (!handleValQualifier(netlist_filename, numFields, parsedType, parsed_line, position))
+          return false;
       }                      
       else
       {
@@ -2054,60 +2064,37 @@ extractMEASUREData(
 
         // check for ill-delimited expressions, without a matching '}' character.  
         // Any valid expression would have been processed above.
-        if ( nextWord[0] == '{' && nextWord[nextWord.size()-1] != '}')
+        if ( std::count(nextWord.begin(), nextWord.end(),'{') != std::count(nextWord.begin(), nextWord.end(),'}') )
 	{
           Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Unmatched expression delimiter on .MEASURE line";
           return false;
 	}
 
         // The second part of this if clause is to ensure we don't catch keywords that start
-        // with I, V, N, P or W, and mistake them for Ixxx( ) or Vxxx().  Also need to not
-        // mistake PAR for P(), and to properly handle the INOISE operator.
-        if( ( (nextWord[0] == 'I' && nextWord != "INOISE") || nextWord[0] == 'V' || nextWord[0] == 'N'
-             || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'D' || nextWord[0] == 'S' ||
-	     nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
-            (simpleKeywords.find( nextWord ) == simpleKeywords.end()) )
-        {
-          // need to do a bit of look ahead here to see if this is a V(a) or V(a,b)
-          int numNodes = 1;
-          if( ((position+3) < endPosition) && (parsed_line[position+3].string_ == ",") )
-          {
-            numNodes = 2;
-          }
-          parameter.set(nextWord, numNodes);
-          option_block.addParam( parameter );
+        // with I, V, N, P or W, and mistake them for Ixx( ) or Vxx().  Also need to not
+        // mistake PAR for P(), and to allow for the HSPICE syntax of () around an expression.
+        else if ( (position+1 < numFields && parsed_line[position+1].string_ == "(") &&
+                  !((simpleKeywords.find(nextWord) != simpleKeywords.end()) || (nextWord == "PAR")
+                    || (position+2 < numFields && parsed_line[position+2].string_[0]== '{')) )
+	{
+          // the error location and message returned by extractOperatorData() is currently not used here.
+          int p_err=0;                           
+          std::ostringstream msg;
 
-          if( (position+2) < endPosition )
-          {
-            // now parsing the variable(s)
-            position+=2;
-            nextWord = parsed_line[position].string_;
-            nextWord.toUpper();
-            parameter.set( nextWord, 0.0 );
-            option_block.addParam( parameter );
-
-            if( ((position+2) < endPosition) && (parsed_line[position+1].string_ == ",") )
-            {
-              // may have a voltage difference request
-              position+=2;
-              nextWord = parsed_line[position].string_;
-              nextWord.toUpper();
-              parameter.set( nextWord, 0.0 );
-              option_block.addParam( parameter );
-            }
-
-            // now skip over VAL= if this is a TRIG or TARG block 
-            if ( skipValQualifier(position+1, endPosition, parsedType, parsed_line) )
-	    {
-              position +=3;
-            } 
-          }
-          else
+	  if ( !IO::extractOperatorData(parsed_line, position, option_block, msg, p_err) )
           {
             Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Error in .MEASURE line.  "
-		<< "Could not parse voltage/current variable";
-            return false;
+	      << "Could not parse measured variable";
+            return false;              
           }
+
+          // extractOperatorData() advances to next token beyond the closing ).  Move back one, to
+          // be compatible with the rest of the processing flow in this function.
+          position -= 1;
+
+          // now skip over VAL= if this is a TRIG or TARG block 
+          if ( !handleValQualifier(netlist_filename, numFields, parsedType, parsed_line, position) )
+            return false;
         }
         else if( nextWord.isValue() )
         {

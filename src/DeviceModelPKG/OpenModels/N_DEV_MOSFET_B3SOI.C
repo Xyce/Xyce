@@ -8994,6 +8994,7 @@ bool Instance::updateIntermediateVars ()
   // RightHandSideTerm = current;
   // RightHandSideTerm_Jdxp = conductance*(voltagedrop-voltagedrop_orig);
 
+  if (getDeviceOptions().b3soiVoltageLimiterFlag)
   if (getDeviceOptions().voltageLimiterFlag && !(getSolverState().initJctFlag_)
       && !(getSolverState().initFixFlag && OFF))
   {
@@ -9040,6 +9041,7 @@ bool Instance::updateIntermediateVars ()
   // In spice3F5 version there are additional lines here but they calculate
   // junk that is only used in bypass, which we never do
 
+  if (getDeviceOptions().b3soiVoltageLimiterFlag)
   if (getDeviceOptions().voltageLimiterFlag && !(getSolverState().initJctFlag_))
   {
     if (vds_old >= 0)  // normal mode
@@ -18131,7 +18133,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
         dQdxdVp[mi.li_Temperature] += Coef_q_temp_Jdxp;
       }
     }
-
   }
 
   return true;

@@ -1146,6 +1146,214 @@ bool extractGlobalParamData(
   return true; // Only get here on success.
 }
 
+//-----------------------------------------------------------------------------
+// Function      : extractOperatorData
+// Purpose       : Extract data for operators like V(), I(), N(), P(), DNO(),
+//                 S(), etc, and place them into the option_block as
+//                 Util:Param objects
+// Special Notes : This function return the position variable as the next
+//                 index, in parsed_line, beyond the closing parenthesis of
+//                 the operator.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/09/2021
+//-----------------------------------------------------------------------------
+bool extractOperatorData(const TokenVector &  parsed_line,
+                         int&                 position,
+                         Util::OptionBlock&   option_block,
+                         std::ostringstream&  msg,
+                         int&                 p_err)
+{
+  int numFields = parsed_line.size();
+  ExtendedString field("");
+
+  // Note: the next if statement has to support I, IR, II, IM, IP and IDB.  That is why it
+  // checks for strings of size 2 and 3.  A similar comment applies to the block for
+  // V below.
+  if (toupper(parsed_line[position].string_[0]) == 'I' && parsed_line[position].string_.size() <= 3)
+  {
+    if ((position+3 < numFields && parsed_line[position+3].string_ == ")") ||
+        (position+4 < numFields && parsed_line[position+4].string_ == ")"))
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,1.0));
+
+      if (parsed_line[position+3].string_ == ")")
+      {
+        field = parsed_line[position+2].string_;
+        field.toUpper();
+        option_block.addParam( Util::Param(field, 0.0) );
+
+        position += 4;
+      }
+      else
+      {
+        // Note:  This block is here to handle the case where a user has
+        // asked for I(YSOMETHING NAME) instead of I(YSOMETHING!NAME)
+        field = parsed_line[position+2].string_ + " " + parsed_line[position+3].string_;
+        field.toUpper();
+        option_block.addParam( Util::Param(field,0.0) );
+
+        position += 5;
+      }
+    }
+    else
+    {
+      msg << "Unrecognized current specification";
+      p_err = position;
+    }
+  }
+  else if ( toupper(parsed_line[position].string_[0]) == 'V' && parsed_line[position].string_.size() <= 3 )
+  {
+    // position+3 < numFields test required to prevent a core dump on 
+    // something invalid like .PRINT TRAN V(1
+    if (position+3 < numFields && parsed_line[position+3].string_ == ")")
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,1.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 4;
+    }
+    else if (position+5 < numFields && parsed_line[position+5].string_ == ")")
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,2.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      field = parsed_line[position+4].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+       position += 6;
+    }
+    else
+    {
+      msg << "Unrecognized voltage specification";
+      p_err = position;
+    }
+  }
+  else if ( toupper(parsed_line[position].string_[0]) == 'N'
+            && parsed_line[position].string_.size() == 1 )
+  {
+    if( position+3 < numFields && parsed_line[position+3].string_ == ")" )
+    {
+      option_block.addParam( Util::Param("N",1.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 4;
+    }
+    else
+    {
+      msg << "Unrecognized parenthetical specification";
+      p_err = position;
+    }
+  }
+  else if( (parsed_line[position].string_.size() == 3) &&
+           (parsed_line[position].string_[0] == 'D' || parsed_line[position].string_[0] == 'd') )
+  {
+    if( position+3 < numFields && parsed_line[position+3].string_ == ")" )
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,1.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 4;
+    }
+    else if (position+5 < numFields && parsed_line[position+5].string_ == ")")
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,2.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      field = parsed_line[position+4].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 6;
+    }
+    else
+    {
+      msg << "Unrecognized noise specification";
+      p_err = position;
+    }
+   }
+  else if( parsed_line[position].string_ == "W" || parsed_line[position].string_ == "w" ||
+          parsed_line[position].string_ == "P" || parsed_line[position].string_ == "p")
+  {
+    if( position+3 < numFields && parsed_line[position+3].string_ == ")" )
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,1.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 4;
+    }
+    else
+    {
+      msg << "Unrecognized power specification";
+      p_err = position;
+    }
+  }
+  else if ( ((toupper(parsed_line[position].string_[0]) == 'S') ||
+             (toupper(parsed_line[position].string_[0]) == 'Y') ||
+             (toupper(parsed_line[position].string_[0]) == 'Z'))
+             && parsed_line[position].string_.size() <= 3 )
+  {
+    if (position+5 < numFields && parsed_line[position+5].string_ == ")")
+    {
+      field = parsed_line[position].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,2.0) );
+
+      field = parsed_line[position+2].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      field = parsed_line[position+4].string_;
+      field.toUpper();
+      option_block.addParam( Util::Param(field,0.0) );
+
+      position += 6;
+   }
+   else
+   {
+      msg << "Unrecognized S-parameter specification";
+      p_err = position;
+   }
+  }
+  else
+  {
+    msg << "Unrecognized parenthetical specification";
+    p_err = position;
+  }
+
+  return msg.str().empty();
+}
 
 } // namespace IO
 } // namespace Xyce
