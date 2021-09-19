@@ -77,7 +77,6 @@ void Traits::loadInstanceParameters(ParametricData<Capacitor::Instance> &p)
 {
   p.addPar("C", 1.e-6, &Capacitor::Instance::C)
     .setExpressionAccess(ParameterType::SOLN_DEP)
-    //.setExpressionAccess(ParameterType::TIME_DEP)  // can't do both!
     .setUnit(U_FARAD)
     .setDescription("Capacitance")
     .setAnalyticSensitivityAvailable(true)
@@ -553,8 +552,7 @@ Instance::Instance(
         UserError(*this) << "Dependent expression " << d->expr->get_expression() << " for parameter " << d->name << " contains time derivatives";
       }
 
-      expNumVars = d->n_vars;
-      if (expNumVars > 0)
+      if (d->n_vars > 0)
       {
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
@@ -572,6 +570,7 @@ Instance::Instance(
 
         if (d->name == "C")
         {
+          expNumVars = d->n_vars;
           solVarDepC = true;
           // To do the proper integration of the charge, we need to save the
           // voltage drop, the old capacitance and
@@ -583,6 +582,7 @@ Instance::Instance(
 
         if (d->name == "Q")
         {
+          expNumVars = d->n_vars;
           solVarDepQ = true;
           expPtr = d->expr;
           dependentParamExcludeMap_[d->name] = 1;
