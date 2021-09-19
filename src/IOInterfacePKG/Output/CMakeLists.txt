@@ -9,6 +9,7 @@ target_sources(XyceLib PRIVATE
      N_IO_MeasureStats.C
      N_IO_MeasureTranStats.C
      N_IO_MeasureRiseFallDelay.C
+     N_IO_MeasureTrigTarg.C
      N_IO_MeasureAverage.C
      N_IO_MeasureDuty.C
      N_IO_MeasureErrorFunctions.C

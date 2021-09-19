@@ -61,6 +61,7 @@
 #include <N_IO_MeasureRMS.h>
 #include <N_IO_MeasureError.h>
 #include <N_IO_MeasureRiseFallDelay.h>
+#include <N_IO_MeasureTrigTarg.h>
 #include <N_IO_Remeasure.h>
 #include <N_IO_NetlistImportTool.h>
 #include <N_IO_OpBuilders.h>
@@ -106,6 +107,7 @@ Manager::Manager(const CmdParse &cp)
     measFailGiven_(false),
     measOut_(true),
     measOutGiven_(false),
+    useLTTM_(false),
     measGlobalDefaultVal_(-1),
     measGlobalDefaultValGiven_(false),
     firstSweepValueFound_(false),
@@ -243,7 +245,17 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   // have enough info to make the correct measure class
   if( type=="TRIG" || type=="TARG" )
   {
-    theMeasureObject = new Measure::RiseFallDelay(measureMgr, measureBlock);
+    bool fracMaxFound = false;
+    it = std::find_if(measureBlock.begin(), measureBlock.end(), Util::EqualParam("FRAC_MAX"));
+    if (it != measureBlock.end())
+      fracMaxFound = true;
+
+    if (contMode)
+      theMeasureObject = new Measure::TrigTargCont(measureMgr, measureBlock);
+    else if ( (mode == "TRAN") && (useLTTM_ || fracMaxFound) )
+      theMeasureObject = new Measure::RiseFallDelay(measureMgr, measureBlock);
+    else
+      theMeasureObject = new Measure::TrigTarg(measureMgr, measureBlock);
   }
   else if( type=="AVG" )
   {
@@ -1338,6 +1350,28 @@ bool Manager::registerMeasureOptions(const Util::OptionBlock &option_block)
       // need to point at next parameter
       ++it;
     }
+    else if ((*it).tag() == "USE_LTTM")
+    {
+      // this control the value output to the the .mt0 (or .ma0 or .ms0) file
+      // for a failed measure
+      int lttmVal = (*it).getImmutableValue<int>();
+      if ( lttmVal == 0 )
+      {
+	useLTTM_ = false;
+      }
+      else if ( lttmVal == 1 )
+      {
+	useLTTM_ = true;
+      }
+      else
+      {
+        // default to true, for any other value
+        Report::UserWarning0() << ".OPTIONS MEASURE USE_LTTM value must be 0 or 1. Setting value to 1";
+        useLTTM_ = true;
+      }
+      // need to point at next parameter
+      ++it;
+    }
     else if ((*it).tag() == "DEFAULT_VAL")
     {
       // This sets the default value for all failed measures.  This
@@ -1523,6 +1557,8 @@ extractMEASUREData(
   typeSetAc.insert( std::string("PARAM") );
   typeSetAc.insert( std::string("PP") );
   typeSetAc.insert( std::string("RMS") );
+  typeSetAc.insert( std::string("TRIG") );
+  typeSetAc.insert( std::string("TARG") );
   typeSetAc.insert( std::string("WHEN") );
 
   // allowed types for the DC mode
@@ -1542,6 +1578,8 @@ extractMEASUREData(
   typeSetDc.insert( std::string("PARAM") );
   typeSetDc.insert( std::string("PP") );
   typeSetDc.insert( std::string("RMS") );
+  typeSetDc.insert( std::string("TRIG") );
+  typeSetDc.insert( std::string("TARG") );
   typeSetDc.insert( std::string("WHEN") );
 
   // allowed types for the FFT mode
@@ -1571,12 +1609,16 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("PARAM") );
   typeSetNoise.insert( std::string("PP") );
   typeSetNoise.insert( std::string("RMS") );
+  typeSetNoise.insert( std::string("TRIG") );
+  typeSetNoise.insert( std::string("TARG") );
   typeSetNoise.insert( std::string("WHEN") );
 
   // allowed types for the "continuous" measures
   typeSetCont.insert( std::string("DERIVATIVE") );
   typeSetCont.insert( std::string("DERIV") );
   typeSetCont.insert( std::string("FIND") );
+  typeSetCont.insert( std::string("TRIG") );
+  typeSetCont.insert( std::string("TARG") );
   typeSetCont.insert( std::string("WHEN") );
 
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid
@@ -1746,7 +1788,7 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
-	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for AC measure mode";
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS, TRIG, TARG and WHEN measure types are supported for AC measure mode";
       return false;
     }
   }
@@ -1761,7 +1803,7 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
-	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for DC measure mode";
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS, TRIG, TARG and WHEN measure types are supported for DC measure mode";
       return false;
     }
   }
@@ -1791,7 +1833,7 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
-	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for NOISE measure mode";
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS, TRIG, TARG and WHEN measure types are supported for NOISE measure mode";
       return false;
     }
   }
@@ -1805,7 +1847,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only DERIV, FIND and "
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only DERIV, FIND, TRIG, TARG and "
 	 << "WHEN measure types are supported for continuous (CONT) measure modes";
       return false;
     }
@@ -2188,6 +2230,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
     parameters.insert(Util::ParamMap::value_type("MEASFAIL", Util::Param("MEASFAIL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEFAULT_VAL", Util::Param("DEFAULT_VAL", -1)));
     parameters.insert(Util::ParamMap::value_type("USE_CONT_FILES", Util::Param("USE_CONT_FILES", 1)));
+    parameters.insert(Util::ParamMap::value_type("USE_LTTM_MODE", Util::Param("USE_LTTM", 0)));
   }
 }
 

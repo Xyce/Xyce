@@ -340,15 +340,26 @@ protected:
     // trig and targ
     Util::Param trig_;
     Util::Param targ_;
+    double trigAT_;
+    double trigATgiven_;
+    double targAT_;
+    double targATgiven_;
     double trigOutputValueTarget_;
     bool trigOutputValueTargetGiven_;
     double targOutputValueTarget_;
     bool targOutputValueTargetGiven_;
+
     double trigFracMax_;  // fraction of the maxima for the trigger value
     bool trigFracMaxGiven_;
     double targFracMax_;  // fraction of the maxima for the target value
     bool targFracMaxGiven_;
 
+    // TRIG and TARG can have separate FROM or TD values
+    double trigTD_;
+    bool trigTDgiven_;
+    double targTD_;
+    bool targTDgiven_;
+    
     // separate Rise/Fall/Cross values can be given for TRIG and TARG,
     // so these are separate from the riseGiven_, etc. variables defined above
     bool trigRiseGiven_; 
