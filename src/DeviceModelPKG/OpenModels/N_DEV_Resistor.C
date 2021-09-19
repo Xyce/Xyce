@@ -167,7 +167,7 @@ void Instance::initializeJacobianStamp()
 void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
 {
   p.addPar("R", 1000.0, &Resistor::Instance::R)
-    .setExpressionAccess(ParameterType::TIME_DEP)
+    .setExpressionAccess(ParameterType::SOLN_DEP)
     .setUnit(U_OHM)
     .setDescription("Resistance")
     .setAnalyticSensitivityAvailable(true)
@@ -291,8 +291,12 @@ Instance::Instance(
   const FactoryBlock &  factory_block)
   : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
     model_(model),
+    expPtr(0),
+    expNumVars(0),
+    solVarDep(false),
     R(0.0),
     multiplicityFactor(0.0),
+    factor(1.0),
     length(0.0),
     width(0.0),
     temp(factory_block.deviceOptions_.temp.getImmutableValue<double>()),
@@ -339,6 +343,48 @@ Instance::Instance(
 
   // Set params according to instance line and constant defaults from metadata
   setParams(instance_block.params);
+
+  // Setup solution dependent "R"
+  if (getDependentParams().size()>0)
+  {
+    std::vector<Depend>::const_iterator d;
+    std::vector<Depend>::const_iterator begin=getDependentParams().begin();
+    std::vector<Depend>::const_iterator end=getDependentParams().end();
+
+    for (d=begin; d!=end; ++d)
+    {
+      if (d->expr->getNumDdt() != 0)
+      {
+        UserError(*this) << "Dependent expression " << d->expr->get_expression() << " for parameter " << d->name << " contains time derivatives";
+      }
+
+      expNumVars = d->n_vars;
+      if (expNumVars > 0)
+      {
+        if (d->name == "R")
+        {
+          solVarDep = true;
+          expPtr = d->expr;
+          dependentParamExcludeMap_[d->name] = 1;
+
+          jacStamp_solVarDep = jacStamp;
+
+          jacStamp_solVarDep[0].resize(2+expNumVars);
+          jacStamp_solVarDep[1].resize(2+expNumVars);
+          for( int i = 0; i < expNumVars; ++i )
+          {
+            jacStamp_solVarDep[0][2+i] = 2+i;
+            jacStamp_solVarDep[1][2+i] = 2+i;
+          }
+          expVarDerivs.resize(expNumVars);
+        }
+        else
+        {
+          UserError(*this) << d->name << " cannot depend on solution variables. This is only allowed for the R parameters" ;
+        }
+      }
+    }
+  }
 
   // Calculate any parameters specified as expressions
   updateDependentParameters();
@@ -615,6 +661,14 @@ void Instance::registerJacLIDs(const std::vector< std::vector<int> > & jacLIDVec
   APosEquNegNodeOffset = jacLIDVec[0][1];
   ANegEquPosNodeOffset = jacLIDVec[1][0];
   ANegEquNegNodeOffset = jacLIDVec[1][1];
+
+  APosEquControlNodeOffset.resize( expNumVars );
+  ANegEquControlNodeOffset.resize( expNumVars );
+  for( int i = 0; i < expNumVars; ++i )
+  {
+    APosEquControlNodeOffset[i] = jacLIDVec[0][2+i];
+    ANegEquControlNodeOffset[i] = jacLIDVec[1][2+i];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -658,6 +712,14 @@ void Instance::setupPointers()
   f_PosEquNegNodePtr = &(dFdx[li_Pos][APosEquNegNodeOffset]);
   f_NegEquPosNodePtr = &(dFdx[li_Neg][ANegEquPosNodeOffset]);
   f_NegEquNegNodePtr = &(dFdx[li_Neg][ANegEquNegNodeOffset]);
+
+  fPosEquControlNodePtr.resize( expNumVars );
+  fNegEquControlNodePtr.resize( expNumVars );
+  for( int i = 0; i < expNumVars; ++i )
+  {
+    fPosEquControlNodePtr[i] = &(dFdx[li_Pos][APosEquControlNodeOffset[i]]);
+    fNegEquControlNodePtr[i] = &(dFdx[li_Neg][ANegEquControlNodeOffset[i]]);
+  }
 #endif
 }
 
@@ -724,6 +786,16 @@ bool Instance::loadDAEFVector()
   double * solVec = extData.nextSolVectorRawPtr;
   double * fVec = extData.daeFVectorRawPtr;
 
+  if (solVarDep)
+  {
+    expPtr->evaluate( R, expVarDerivs );
+
+    if (R*factor != 0.0)
+      G = 1.0/(R * factor);
+    else
+      G = 0.0;
+  }
+
   i0 = (solVec[li_Pos]-solVec[li_Neg])*G;
 
   fVec[li_Pos] += i0;
@@ -783,6 +855,21 @@ bool Instance::loadDAEdFdx()
   dFdx[li_Pos][APosEquNegNodeOffset] -= G;
   dFdx[li_Neg][ANegEquPosNodeOffset] -= G;
   dFdx[li_Neg][ANegEquNegNodeOffset] += G;
+
+  if( solVarDep )
+  {
+    double * solVec = extData.nextSolVectorRawPtr;
+    double v_pos = solVec[li_Pos];
+    double v_neg = solVec[li_Neg];
+
+    double dGdR = (R!=0)?(-1.0/(R*R)):1.0;
+    for( int ii = 0; ii < expNumVars; ++ii )
+    {
+      dFdx[li_Pos][APosEquControlNodeOffset[ii]] += (v_pos-v_neg) * dGdR * expVarDerivs[ii];
+      dFdx[li_Neg][ANegEquControlNodeOffset[ii]] -= (v_pos-v_neg) * dGdR * expVarDerivs[ii];
+    }
+  }
+
   return true;
 }
 
@@ -815,7 +902,7 @@ bool Instance::loadDAEdFdx()
 bool Instance::updateTemperature(const double & temp_tmp)
 {
   bool bsuccess = true;
-  double difference, factor, tempCorrFactor;
+  double difference, tempCorrFactor;
 
   if (temp_tmp != -999.0)
     temp = temp_tmp;
@@ -846,7 +933,6 @@ bool Instance::updateTemperature(const double & temp_tmp)
 
   return bsuccess;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::Resistor::Instance::setupNoiseSources
@@ -1138,6 +1224,15 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
   {
     Instance & ri = *(*it);
 
+    if (ri.solVarDep)
+    {
+      ri.expPtr->evaluate( ri.R, ri.expVarDerivs );
+      if (ri.R*ri.factor != 0.0)
+        ri.G = 1.0/(ri.R * ri.factor);
+      else
+        ri.G = 0.0;
+    }
+
     // Load RHS vector element for the positive circuit node KCL equ.
     ri.i0 = (solVec[ri.li_Pos]-solVec[ri.li_Neg])*ri.G;
 
@@ -1228,6 +1323,24 @@ bool Master::loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int l
     dFdx[ri.li_Neg][ri.ANegEquPosNodeOffset] -= ri.G;
     dFdx[ri.li_Neg][ri.ANegEquNegNodeOffset] += ri.G;
 #endif
+
+    if( ri.solVarDep )
+    {
+      double * solVec = ri.extData.nextSolVectorRawPtr;
+      double v_pos = solVec[ri.li_Pos];
+      double v_neg = solVec[ri.li_Neg];
+      double dGdR = (ri.R!=0)?(-1.0/(ri.R*ri.R)):1.0;
+      for( int ii = 0; ii < ri.expNumVars; ++ii )
+      {
+#ifndef Xyce_NONPOINTER_MATRIX_LOAD
+        *ri.fPosEquControlNodePtr[ii] += (v_pos-v_neg) * dGdR * ri.expVarDerivs[ii];
+        *ri.fNegEquControlNodePtr[ii] -= (v_pos-v_neg) * dGdR * ri.expVarDerivs[ii];
+#else
+        dFdx[li_Pos][APosEquControlNodeOffset[ii]] += (v_pos-v_neg) * dGdR * expVarDerivs[ii];
+        dFdx[li_Neg][ANegEquControlNodeOffset[ii]] -= (v_pos-v_neg) * dGdR * expVarDerivs[ii];
+#endif
+      }
+    }
   }
 
   return true;

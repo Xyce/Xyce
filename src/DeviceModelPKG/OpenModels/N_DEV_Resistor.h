@@ -185,8 +185,10 @@ public:
 
   /// Return Jacobian stamp that informs topology of the layout of the
   /// resistor jacobian.
-  virtual const std::vector< std::vector<int> > &jacobianStamp() const  /* override */ {
-    return jacStamp;
+  virtual const std::vector< std::vector<int> > &jacobianStamp() const  /* override */ 
+  {
+    if (solVarDep) { return jacStamp_solVarDep; }
+    else { return jacStamp; }
   }
 
   virtual bool loadDAEFVector() /* override */;
@@ -209,14 +211,23 @@ public:
   virtual void setupPointers() /* override */;
 
 private:
-  static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp
+  static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp, except when solution dependent
   static void initializeJacobianStamp();
+  
+  std::vector< std::vector<int> >  jacStamp_solVarDep; 
 
   Model &     model_;                 ///< Owning model
+
+  // Stuff for handling solution-variable-dependent capacitance
+  Util::Expression * expPtr;
+  int                expNumVars;
+  std::vector<double> expVarDerivs;
+  bool solVarDep;
 
   // User-specified parameters:
   double      R;                      ///< Resistance (ohms)
   double      multiplicityFactor;     ///< multiplicity factor (M)
+  double      factor;                 ///< computed in  updateTemperature
 
   // These are for the semiconductor resistor
   double      length;                 ///< Resistor length.
@@ -251,12 +262,20 @@ private:
   int         ANegEquPosNodeOffset;   ///< Column index into force matrix of Neg/Pos conductance
   int         ANegEquNegNodeOffset;   ///< Column index into force matrix of Neg/Neg conductance
 
+  // Offsets into the control nodes
+  std::vector<int> APosEquControlNodeOffset;
+  std::vector<int> ANegEquControlNodeOffset;
+
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
   // Pointers for Jacobian
   double *    f_PosEquPosNodePtr;
   double *    f_PosEquNegNodePtr;
   double *    f_NegEquPosNodePtr;
   double *    f_NegEquNegNodePtr;
+
+  // Ptrs into the control nodes
+  std::vector<double *> fPosEquControlNodePtr;
+  std::vector<double *> fNegEquControlNodePtr;
 #endif
 
 };
