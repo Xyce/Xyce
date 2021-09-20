@@ -358,11 +358,11 @@ Instance::Instance(
         UserError(*this) << "Dependent expression " << d->expr->get_expression() << " for parameter " << d->name << " contains time derivatives";
       }
 
-      expNumVars = d->n_vars;
-      if (expNumVars > 0)
+      if (d->n_vars > 0)
       {
         if (d->name == "R")
         {
+          expNumVars = d->n_vars;
           solVarDep = true;
           expPtr = d->expr;
           dependentParamExcludeMap_[d->name] = 1;
@@ -788,6 +788,7 @@ bool Instance::loadDAEFVector()
 
   if (solVarDep)
   {
+    std::fill(expVarDerivs.begin(), expVarDerivs.end(), 0.0);
     expPtr->evaluate( R, expVarDerivs );
 
     if (R*factor != 0.0)
@@ -1226,6 +1227,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
 
     if (ri.solVarDep)
     {
+      std::fill(ri.expVarDerivs.begin(), ri.expVarDerivs.end(), 0.0);
       ri.expPtr->evaluate( ri.R, ri.expVarDerivs );
       if (ri.R*ri.factor != 0.0)
         ri.G = 1.0/(ri.R * ri.factor);
