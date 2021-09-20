@@ -7,8 +7,7 @@ add_subdirectory(ExpressionTest)
 string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
 execute_process(
      COMMAND git -C ${CMAKE_SOURCE_DIR} describe --dirty
-     OUTPUT_VARIABLE GITSHA  ERROR_QUIET)
-string(STRIP ${GITSHA} GITSHA)
+     OUTPUT_VARIABLE GITSHA  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (NOT ${GITSHA} STREQUAL "")
      set(GITSTRING "-(${GITSHA})")
 endif ()
