@@ -18,7 +18,7 @@ The syntaxes for the \texttt{.MEASURE FFT} statements are shown below.
 \begin{Command}
 \format
 \begin{alltt}
-.MEASURE FFT <result name> ENOB <variable>
+.MEASURE FFT <result name> ENOB <variable> [BINSIZ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE FFT <result name> EQN <variable>
@@ -28,10 +28,10 @@ The syntaxes for the \texttt{.MEASURE FFT} statements are shown below.
 + [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE FFT <result name> SFDR <variable>
-+ [MINFREQ=<value>] [MAXFREQ=<value>]
++ [MINFREQ=<value>] [MAXFREQ=<value>]  [BINSIZ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE FFT <result name> SNDR <variable>
+.MEASURE FFT <result name> SNDR <variable>  [BINSIZ=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE FFT <result name> SNR <variable> [MAXFREQ=<value>]
@@ -142,8 +142,10 @@ or to more than {\tt NP/2}, will produce a failed measure in \Xyce{}, where
 The behavior of these ''failed'' cases may differ from commercial simulators.
 
 \argument{BINSIZ=value}
-This parameter is not implemented in \Xyce{}, but is included for compatibility
-with HSPICE netlists.
+This parameter is implemented in \Xyce{} for the \texttt{ENOB}, \texttt{SFDR}
+and \texttt{SNDR} measure types. It can be used to account for any ``broadening''
+of the spectral energy in the first harmonic of the signal, as discussed below.
+\texttt{BINSIZ} has a default value of 0.
 
 \argument{DEFAULT\_VAL=value}
 
@@ -208,9 +210,9 @@ types use the same definitions as the metrics produced by \texttt{.FFT} lines.
 Section \ref{FFT_metrics} provides more details on those definitions.  (Note: The
 \texttt{MAXFREQ} and \texttt{MINFREQ} qualifiers from the \texttt{.MEASURE FFT}
 lines are mapped into the \texttt{FMAX} and \texttt{FMIN} parameters used in those
-equations.)
+equations.)  There are two exceptions.
 
-The only exception is the \texttt{THD} measure.  If the optional \texttt{NBHARM}
+The first exception is the \texttt{THD} measure.  If the optional \texttt{NBHARM}
 qualifier is not used then the definition given in Section \ref{FFT_metrics} is
 used.  If the \texttt{NBHARM} qualifier is used then it takes precedence over the
 \texttt{MAXFREQ} qualifier.  The \texttt{THD} measure definition is then as follow.
@@ -218,7 +220,14 @@ Let $f_{0}$ be the integer index of the ``first harmonic'' ($f_{0}$), as defined
 Section \ref{FFT_metrics}, from the associated \texttt{.FFT} line.  Then the
 effective value of the upper frequency limit ($f_{2}$) in the THD calculation
 is \texttt{NBHARM}$\cdot f_{0}$, with the caveat that all of the harmomics will
-be used if \texttt{NBHARM} < 0 or \texttt{NBHARM} > \texttt{NP/2}
+be used if \texttt{NBHARM} < 0 or \texttt{NBHARM} > \texttt{NP/2}.
+
+The second exception is the \texttt{BINSIZ} qualifier for the \texttt{ENOB},
+\texttt{SFDR} and \texttt{SNDR} measures.  For a non-zero value of
+\texttt{BINSIZ}, the ``signal power'' is considered to reside in the harmonic
+indexes between ($f_{0} \pm$ \texttt{BINSIZ}), where the DC value is still
+excluded from the measure calculations. (Note: This definition for 
+\texttt{BINSIZ} may differ from HSPICE.)
 
 \subsubsection{Re-Measure}
 \label{Measure_FFT_ReMeasure}

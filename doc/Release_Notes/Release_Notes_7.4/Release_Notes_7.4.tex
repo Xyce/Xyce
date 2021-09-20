@@ -109,6 +109,10 @@ please visit the \XyceTM{} web page at
     user to select whether the \Xyce{} \texttt{.FFT} processing and
     output is more compatible with HSPICE (0) or Spectre (1).  The
     default is HSPICE.
+  \item The \texttt{BINSIZ} qualifier is now implemented in \Xyce{} for
+    the \texttt{ENOB}, \texttt{SFDR} and \texttt{SNDR} measure types. It
+    can be used to account for any ``broadening'' of the spectral energy
+    in the first harmonic of the signal.
   \item \texttt{.STEP} analyses now support \texttt{.FOUR} analyses.
   \item A bug in the handling of wildcard current output was fixed and
     now these wildcards may be requested using the external output API
