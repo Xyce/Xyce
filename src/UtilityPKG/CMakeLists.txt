@@ -8,6 +8,7 @@ string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
 execute_process(
      COMMAND git -C ${CMAKE_SOURCE_DIR} describe --dirty
      OUTPUT_VARIABLE GITSHA  ERROR_QUIET)
+string(STRIP ${GITSHA} GITSHA)
 if (NOT ${GITSHA} STREQUAL "")
      set(GITSTRING "-(${GITSHA})")
 endif ()
