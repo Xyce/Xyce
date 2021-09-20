@@ -792,9 +792,15 @@ bool Instance::loadDAEFVector()
     expPtr->evaluate( R, expVarDerivs );
 
     if (R*factor != 0.0)
-      G = 1.0/(R * factor);
+    {
+      R *= factor;
+      G = 1.0/R;
+      for (int ii=0;ii<expNumVars; ++ii) { expVarDerivs[ii] *= factor; }
+    }
     else
+    {
       G = 0.0;
+    }
   }
 
   i0 = (solVec[li_Pos]-solVec[li_Neg])*G;
@@ -1230,9 +1236,15 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       std::fill(ri.expVarDerivs.begin(), ri.expVarDerivs.end(), 0.0);
       ri.expPtr->evaluate( ri.R, ri.expVarDerivs );
       if (ri.R*ri.factor != 0.0)
-        ri.G = 1.0/(ri.R * ri.factor);
+      {
+        ri.R *= ri.factor;
+        ri.G = 1.0/ri.R;
+        for (int ii=0;ii<ri.expNumVars; ++ii) { ri.expVarDerivs[ii] *= ri.factor; }
+      }
       else
+      {
         ri.G = 0.0;
+      }
     }
 
     // Load RHS vector element for the positive circuit node KCL equ.
