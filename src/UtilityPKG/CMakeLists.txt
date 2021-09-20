@@ -6,10 +6,10 @@ add_subdirectory(ExpressionTest)
 # generate a timestamp.h
 string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
 execute_process(
-     COMMAND git -C ${CMAKE_SOURCE_DIR} log --pretty=format:%h -1
+     COMMAND git -C ${CMAKE_SOURCE_DIR} describe --dirty
      OUTPUT_VARIABLE GITSHA  ERROR_QUIET)
 if (NOT ${GITSHA} STREQUAL "")
-     set(GITSTRING "-g-${GITSHA}")
+     set(GITSTRING "-(${GITSHA})")
 endif ()
 set(XYCEBUILDTIMESTAMP "${CONFIGURE_TIME}${GITSTRING}")
 configure_file(timestamp.h.cmake timestamp.h)
