@@ -5340,7 +5340,7 @@ class ddxOp : public astNode<ScalarT>
             if (!(tmp2.empty()))
             {
               Xyce::Util::toUpper(tmp2);
-              if (tmp==tmp2) { foundX_ = true; astNodeX_ = paramOpVector[ii]; }
+              if (tmp==tmp2) { foundX_ = true; astNodeX_ = paramOpVector[ii]; break; }
             }
           }
         }
@@ -5358,11 +5358,11 @@ class ddxOp : public astNode<ScalarT>
           Xyce::Util::toUpper(tmp);
           for (int ii=0;ii<voltOpVector.size();ii++)
           {
-            std::string tmp2 = this->rightAst_->getName();
+            std::string tmp2 = voltOpVector[ii]->getName();
             if (!(tmp2.empty()))
             {
               Xyce::Util::toUpper(tmp2);
-              if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; }
+              if (tmp==tmp2) { foundX_ = true; astNodeX_ = voltOpVector[ii]; break; }
             }
           }
         }
@@ -5385,7 +5385,7 @@ class ddxOp : public astNode<ScalarT>
             if (!(tmp2.empty()))
             {
               Xyce::Util::toUpper(tmp2);
-              if (tmp==tmp2) { foundX_ = true; astNodeX_ = currentOpVector[ii]; }
+              if (tmp==tmp2) { foundX_ = true; astNodeX_ = currentOpVector[ii]; break; }
             }
           }
         }

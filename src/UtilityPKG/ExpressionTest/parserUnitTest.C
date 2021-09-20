@@ -5503,6 +5503,77 @@ TEST ( Double_Parser_calculus, simpleDerivs1 )
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
 
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_calculus, simpleDerivs2 )
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression ddxTest(std::string("1.5/(1.0+2.0*V(A)*V(B))"), testGroup); 
+  ddxTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_ddxTest(ddxTest); 
+  Xyce::Util::newExpression assign_ddxTest; 
+  assign_ddxTest = ddxTest; 
+
+  double Aval=2.0;
+  double Bval=0.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+  double result;
+  std::vector<double> derivs;
+  double refRes = 0.5;
+  std::vector<double> refderivs = { -(1.5/9.0), -(6.0/9.0) };
+
+  ddxTest.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
+  copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
+  assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_calculus, ddx13)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression ddxTest1(std::string("ddx(1.5/(1.0+2.0*V(A)*V(B)),V(A))"), testGroup); 
+  Xyce::Util::newExpression ddxTest2(std::string("ddx(1.5/(1.0+2.0*V(A)*V(B)),V(B))"), testGroup); 
+  ddxTest1.lexAndParseExpression();
+  ddxTest2.lexAndParseExpression();
+
+  double Aval=2.0;
+  double Bval=0.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+  double result;
+  double refRes = -1.5/9.0;
+  ddxTest1.evaluateFunction(result);    EXPECT_EQ( result, refRes );
+
+  refRes = -2.0/3.0;
+  ddxTest2.evaluateFunction(result);    EXPECT_EQ( result, refRes );
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_calculus, ddx14)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression ddxTest1(std::string("ddx(1.5/(1.0+2.0*I(VA)*I(VB)),I(VA))"), testGroup); 
+  Xyce::Util::newExpression ddxTest2(std::string("ddx(1.5/(1.0+2.0*I(VA)*I(VB)),I(VB))"), testGroup); 
+  ddxTest1.lexAndParseExpression();
+  ddxTest2.lexAndParseExpression();
+
+  double Aval=2.0;
+  double Bval=0.5;
+  solnGroup->setSoln(std::string("VA"),Aval);
+  solnGroup->setSoln(std::string("VB"),Bval);
+  double result;
+  double refRes = -1.5/9.0;
+  ddxTest1.evaluateFunction(result);    EXPECT_EQ( result, refRes );
+
+  refRes = -2.0/3.0;
+  ddxTest2.evaluateFunction(result);    EXPECT_EQ( result, refRes );
+}
+
 //-------------------------------------------------------------------------------
 // These tests (derivsThruFuncs?) tests if derivatives work thru expression arguments.
 // At the time of test creation (2/21/2020), the answer was NO.
