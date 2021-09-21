@@ -26,6 +26,7 @@ R<name> <(+) node> <(-) node> [model name] [value] [device parameters]
 \begin{alltt}
 R1 1 2 2K TEMP=27
 RM 4 5 R=4e3 M=2
+RSOLDEP 2 0 R=\{1.0+scalar*V(1)\}
 RLOAD 3 6 RTCMOD 4.540 TEMP=85
 .MODEL RTCMOD R (TC1=.01 TC2=-.001)
 RSEMICOND 2 0 RMOD L=1000u W=1u
@@ -178,3 +179,22 @@ $i_{0}$ is the current through the resistor:
 {(\mathbf{A} \cdot \mathbf{L} \cdot \mathbf{HEATCAPACITY}) +
  (\mathbf{THERMAL\_A} \cdot \mathbf{THERMAL\_L} \cdot \mathbf{THERMAL\_HEATCAPACITY})}
 \]
+
+\subparagraph{Solution-Dependent Resistor}
+If the resistance (\texttt{R}) is set equal to an expression then a
+``solution-dependent'' resistor is used, where the resistor is
+a function of other simulation variables.  The formulas for
+temperature-dependence, given above, then use that
+calculated \texttt{R} value.
+
+The restrictions for this solution dependent resistors are:
+\begin{XyceItemize}
+  \item The expression used for \texttt{R} must only use
+    solution variables, which are node voltages and also branch
+    currents for source devices.  It may not use device lead currents,
+    which are post-processed quantities that are not solution variables.
+  \item The expression must not use time derivatives.
+  \item Resistance (\texttt{R}) is the only
+    instance or model parameters that are allowed to be
+    solution-dependent.
+\end{XyceItemize}
