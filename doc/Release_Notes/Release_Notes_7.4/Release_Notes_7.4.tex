@@ -82,6 +82,7 @@ please visit the \XyceTM{} web page at
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
   \item Voltage limiting in the BSIMSOI version 3 device model can now be optionally turned off, while leaving it turned on in other devices.  The implementation of voltage limiting in the BSIM SOI device is unorthodox and has been observed to cause robustness problems.  Turning it off can improve runtimes.
+  \item Behavioral models have been optimized to eliminate redundant calls to the expression library.  For historical reasons, the Bsrc device was calling the expression library more than it needed to.  This has been corrected, and it will improve the runtime of circuits with lots of behavioral models.  This same optimization has also been applied to other expression-dependent models, such as the capacitor and switch devices.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
