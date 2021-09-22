@@ -45,6 +45,18 @@ names'', including the subcircuit hierarchy, for nodes and internal variables fo
 inductors.  The {\tt .PRINT} section \ref{.PRINT} has more information on, and examples for,
 the {\tt -namesfile} command line option.
 
+\section{Hspice extensions}
+\label{hspice_ext_cmd_line}
+
+The command line argument \verb+-hspice-ext+ is more complicated than most, so its explanation is given in this section.
+The second argument to \verb+-hspice-ext+ can either be a single string or can be a comma separated list.
+\begin{itemize}
+\item Using \verb+all+ will enable all the features.   
+\item Using \verb+units+ sets the use of the ``atto'' prefix, designated by ``a'', to mean a mutliplier of ``1E-18''.   Without this setting, the ``a'' prefix means units of amperes.
+\item Using \verb+math+ sets the use of Hspice style math operators.  Most importantly, it forces ``log'' to mean the natural logarithm, rather than the base 10 logarithm.
+\item Using \verb+separator+ sets the use of the period ``.'' for subcircuit name separation.  If this is not set, the colon ``:'' is used instead.
+\end{itemize}
+
 \chapter{Runtime Environment}
 \label{runtime}
 
@@ -171,13 +183,20 @@ Circuit Simulators}
 This chapter describes many of the differences between \Xyce{} and
 other SPICE-like circuit simulaters.  The primary focus is on the difference
 between Orcad PSpice and \Xyce{}, with an eye towards providing the ability for those
-familiar with using PSpice to begin using \Xyce{} quickly.  
+familiar with using PSpice to begin using \Xyce{} quickly.   PSpice compatibility 
+was an early focus for the Xyce project.
+
+The Xyce team also supports a netlist translation tool, XDM (for Xyce Data 
+Model)~\cite{XDMv2.3}.  This tool supports translation of netlists in Pspice, 
+Hspice and Spectre format into Xyce formatted netlist files.  There is also a 
+\Xyce{} command line option (\texttt{--hspice-ext all}) which is designed to 
+assist with a handful of Hspice syntax issues that are particularly 
+difficult to translate.
 
 This chapter is likely not complete, and \Xyce{} users might also consult
 specific sections of this Reference Guide about particular \Xyce{} commands.
 Those sections may have additional information on Xyce's incompatibilities with
 other circuit simulators, and how to work around them.  
-
 \section{Differences Between Xyce and PSpice}
 This section is focused on the differences between \Xyce{} and PSpice.
 However, some of this discussion also applies to other SPICE-like
@@ -185,7 +204,7 @@ circuit simulators.
 
 \subsection{Command Line Options}
 Command line arguments are supported in \Xyce{} but they are different than
-those of PSpice.   For a complete reference, see Chapter~\ref{cmd_line_args}.
+those of PSpice.   For a complete reference, see Chapter~\ref{cmd_line_args}. 
 
 \subsection{Device Support}
 Most, but not all, devices commonly found in other

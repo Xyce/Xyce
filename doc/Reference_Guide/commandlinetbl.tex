@@ -160,7 +160,18 @@ Maximum time integration order. &
 -jacobian\_test &
 Jacobian matrix diagnostic. &
 \verb+-jacobian_test+ &
-- 
+-  \\ \hline
+
+-hspice-ext &
+Hspice parser extensions.  This will override several parser issues that are difficult to translate with scripts. 
+
+&
+\verb+-hspice-ext+
+\verb+<all|separator+
+\verb+|units|math>+ & 
+The second argument will determine which features are enabled.  
+For details see section~\ref{hspice_ext_cmd_line}.
+\\ \hline
 
 \label{cmd_line_arg_list}
 \end{longtable}
