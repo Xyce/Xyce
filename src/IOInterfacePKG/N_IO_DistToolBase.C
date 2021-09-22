@@ -781,7 +781,10 @@ bool DistToolBase::instantiateDevice(
     // "SOLN_DEP" parameters must be hacked in here or they can't be used
     // in a subcircuit!
 
-    if ((device.getNetlistDeviceType() == "B" || device.getNetlistDeviceType() == "S" || device.getNetlistDeviceType() == "C")&& (!nodeMap.empty()))
+    if ((device.getNetlistDeviceType() == "B" || 
+         device.getNetlistDeviceType() == "S" || 
+         device.getNetlistDeviceType() == "R" || 
+         device.getNetlistDeviceType() == "C")&& (!nodeMap.empty()))
     {
       Device::Param* givenParameter = 0;
       if (device.getNetlistDeviceType() == "B")
@@ -814,6 +817,14 @@ bool DistToolBase::instantiateDevice(
             givenParameter = C_parameter;
           else if (Q_parameter->given() )
             givenParameter = Q_parameter;
+          else
+            givenParameter = 0;
+        }
+        else if (device.getNetlistDeviceType() == "R")
+        {
+          C_parameter = device.findInstanceParameter( "R" );
+          if ( C_parameter->given() )
+            givenParameter = C_parameter;
           else
             givenParameter = 0;
         }
