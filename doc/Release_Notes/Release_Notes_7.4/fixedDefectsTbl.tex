@@ -40,6 +40,11 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
+\textbf{Gitlab-ex issue 291}: Incorrect behavior for DERIV measure at first
+simulation step for AC, DC, NOISE and TRAN measure modes & If the user 
+requested the \texttt{DERIV-WHEN} measure value at the first simulation
+step then the measured value could be wrong in some cases. \\ \hline
+
 \textbf{Gitlab-ex issue 283}: FIND-AT measure gives incorrect value if the AT value
 is the first time, frequency or DC sweep value in the simulation & As an example,
 this set of \texttt{.AC} and \texttt{.MEASURE AC} lines would return a measure
