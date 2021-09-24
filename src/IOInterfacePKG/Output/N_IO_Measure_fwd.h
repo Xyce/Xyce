@@ -54,6 +54,7 @@ class EquationEvaluation;
 class ErrorFunctions;
 class Err1;
 class Err2;
+class WhenAT;
 class FindWhenBase;
 class FindWhen;
 class FindWhenCont;

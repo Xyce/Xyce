@@ -25,11 +25,12 @@
 // Purpose        : Find the time when a variable hits a target value (WHEN measure),
 //                  or find the value of a variable at the time that the WHEN
 //                  clause is satisfied (FIND-WHEN measure).
+//
 // Special Notes  :
 //
-// Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 03/10/2009
+// Creation Date  : 09/27/2021
 //
 //
 //-----------------------------------------------------------------------------
@@ -37,7 +38,7 @@
 #ifndef Xyce_N_IO_MeasureFindWhen_h
 #define Xyce_N_IO_MeasureFindWhen_h
 
-#include <N_IO_MeasureBase.h>
+#include <N_IO_MeasureWhenAT.h>
 
 namespace Xyce {
 namespace IO {
@@ -54,18 +55,16 @@ namespace Measure {
 //                 The continuous version (e.g., .MEASURE TRAN_CONT) may
 //                 return multiple values.
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/03/2020
 //-------------------------------------------------------------------------
-class FindWhenBase : public Base
+class FindWhenBase : public WhenAT
 {
 public:
   FindWhenBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
   ~FindWhenBase() {};
 
   void prepareOutputVariables();
-  bool checkMeasureLine() const;
-  void resetFindWhenBase();
 
   void updateTran(
     Parallel::Machine comm,
@@ -108,60 +107,13 @@ public:
     double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
-  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
-				   double startSweepVal, double endSweepVal) const;
-  std::ostream& printRFCWindow(std::ostream& os) const;
-
 protected:
-  virtual void updateCalculationResult(double val)=0;
-  virtual void updateCalculationInstant(double val)=0;
-  std::vector<double> calculationResultVec_;
-  std::vector<double> calculationInstantVec_;
+  bool checkMeasureLine() const;
 
 private:
-  void setMeasureState(double indepVarVal);
-  void updateMeasureState(double indepVarVal);
-
-  double getTargVal() const;
-  void updateLastTargVal();
-
-  bool isATcondition(double indepVarVal) const;
-  bool isWHENcondition(double indepVarVal, double targVal) const;
-
   void updateMeasureVarsForAT(double currIndepVarVal);
   void updateMeasureVarsForWhen(double currIndepVarVal, double targVal, double whenInstant);
-
-  double interpolateCalculationInstant(double currIndepVarValue, double targVal) const;
   double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime) const;
-
-  void updateRFCcountForWhen();
-  bool withinRFCWindowForWhen() const;
-
-  int numOutVars_;
-  std::vector<double> outVarValues_;
-
-  // These are used to interpolate the independent variable (time, frequency or
-  // dcSweepVal) value when the simulation has reported values that bound the target value.
-  // If the WHEN clause is of the form WHEN V(1)=V(2) then the previous V(1) value
-  // is in the lastDepVarValue_ variable. The previous V(2) value is in the
-  // lastTargValue_ variable.
-  double lastIndepVarValue_;
-  double lastDepVarValue_;
-  double lastOutputVarValue_;
-  double lastTargValue_;
-
-  double startDCMeasureWindow_;
-  int numPointsFound_;
-
-  // This variable controls what is tested against in the WHEN clause.  
-  // It refers to an index in the outputVarValues_ array.  Its value 
-  // depends on whether the measure is a FIND-WHEN or a WHEN measure.
-  // For a WHEN measure, whenIdx_ = 0 which is the default.  For a FIND-WHEN 
-  // measure, whenIdx_ = 1  For the syntax WHEN v(a)=v(b), the value of v(a) 
-  // is in outputVarValues_[whenIdx_] and the value of v(b) is in 
-  // outputVarValues_[whenIdx_+1]
-  int whenIdx_;
-
 };
 
 //-------------------------------------------------------------------------

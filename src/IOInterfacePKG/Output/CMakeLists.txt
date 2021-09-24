@@ -19,6 +19,7 @@ target_sources(XyceLib PRIVATE
      N_IO_MeasureOnTime.C
      N_IO_MeasurePeakToPeak.C
      N_IO_MeasureRMS.C
+     N_IO_MeasureWhenAT.C
      N_IO_MeasureFindWhen.C
      N_IO_MeasureEquationEvaluation.C
      N_IO_MeasureDerivativeEvaluation.C

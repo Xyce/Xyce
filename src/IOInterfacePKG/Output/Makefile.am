@@ -39,6 +39,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasurePeakToPeak.h \
   N_IO_MeasureRMS.C \
   N_IO_MeasureRMS.h \
+  N_IO_MeasureWhenAT.C \
+  N_IO_MeasureWhenAT.h \
   N_IO_MeasureFindWhen.C \
   N_IO_MeasureFindWhen.h \
   N_IO_MeasureEquationEvaluation.C \
