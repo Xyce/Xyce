@@ -219,8 +219,8 @@ void RiseFallDelay::reset()
 //-----------------------------------------------------------------------------
 void RiseFallDelay::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -599,9 +599,9 @@ void RiseFallDelay::updateDC(
 //-----------------------------------------------------------------------------
 void RiseFallDelay::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -806,7 +806,7 @@ bool RiseFallDelay::newTargRiseFallCrossWindowforLast()
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/01/2015
 //-----------------------------------------------------------------------------
-bool RiseFallDelay::checkMeasureLine()
+bool RiseFallDelay::checkMeasureLine() const
 {
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in
@@ -836,8 +836,8 @@ bool RiseFallDelay::checkMeasureLine()
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/6/2015
 //-----------------------------------------------------------------------------
-void RiseFallDelay::updateTrigTargRiseFallCrossCounts( const double measureVal, const double crossVal,
-		    const bool riseGiven, const bool fallGiven, const bool crossGiven, 
+void RiseFallDelay::updateTrigTargRiseFallCrossCounts( double measureVal, double crossVal,
+		    bool riseGiven, bool fallGiven, bool crossGiven, 
 		    bool& isRising, bool& isFalling, int& actualRise, int& actualFall,
                     int& actualCross, double& lastOutputValue )
 {

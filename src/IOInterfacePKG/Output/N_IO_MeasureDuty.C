@@ -69,7 +69,7 @@ Duty::Duty(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 //-----------------------------------------------------------------------------
 void Duty::reset() 
 {
-  resetTranStats();
+  resetBase();
   totalAveragingWindow_=0.0;
   totalOnTime_=0.0;
 }
@@ -82,7 +82,7 @@ void Duty::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/4/2020
 //-----------------------------------------------------------------------------
-void Duty::updateMeasureVars(const double circuitTime, const double signalVal)
+void Duty::updateMeasureVars(double circuitTime, double signalVal)
 {
   if( ( (signalVal + minval_) > onValue_ ) || ( inOnState_ && ( (signalVal + minval_) > offValue_ )) )
   {

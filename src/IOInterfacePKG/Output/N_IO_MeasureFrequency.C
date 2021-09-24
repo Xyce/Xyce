@@ -69,7 +69,7 @@ Frequency::Frequency(const Manager &measureMgr, const Util::OptionBlock & measur
 //-----------------------------------------------------------------------------
 void Frequency::reset() 
 {
-  resetTranStats();
+  resetBase();
   totalAveragingWindow_=0.0;
   offToOnCount_=0.0;
   onToOffCount_=0.0;
@@ -83,7 +83,7 @@ void Frequency::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Frequency::updateMeasureVars(const double circuitTime, const double signalVal)
+void Frequency::updateMeasureVars(double circuitTime, double signalVal)
 {
   totalAveragingWindow_ += (circuitTime - lastTimeValue_);
 

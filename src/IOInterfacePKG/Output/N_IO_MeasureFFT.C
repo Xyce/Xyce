@@ -135,7 +135,7 @@ void FFT::fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr)
 //                 FFT measure type.  Multi-terminal lead currents are allowed
 //                 for everything but FIND
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/26/2021
 //-----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ bool FFT::isOpTypeAllowed()
 //-----------------------------------------------------------------------------
 void FFT::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
+  double circuitTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -209,7 +209,7 @@ void FFT::updateDC(
 //-----------------------------------------------------------------------------
 void FFT::updateAC(
   Parallel::Machine comm,
-  const double frequency,
+  double frequency,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -227,11 +227,11 @@ void FFT::updateAC(
 //-----------------------------------------------------------------------------
 void FFT::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
+  double frequency,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
 
@@ -379,7 +379,7 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 8/1/2021
 //-----------------------------------------------------------------------------
-void FFTFind::printMeasureWarningsForAT(const double endSimTime)
+void FFTFind::printMeasureWarningsForAT(double endSimTime) const
 {
   if ( atIdx_ < 0 || atIdx_ > np_/2 )
    Xyce::Report::UserWarning() << name_ << " failed. AT value outside FFT frequency bounds";

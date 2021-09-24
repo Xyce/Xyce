@@ -637,11 +637,11 @@ Base::makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_
 // Special Notes : The minval_ tolerance is used as a fudge factor because of
 //                 numerical errors if the TD, FROM or TO qualifiers are
 //                 expressions.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/8/2014
 //-----------------------------------------------------------------------------
-bool Base::withinTimeWindow( double time )
+bool Base::withinTimeWindow(double time) const
 {
   bool retVal = true;
   if ( (tdGiven_ && (time < td_*(1-minval_))) || (fromGiven_ && (time < from_*(1-minval_))) ||
@@ -658,11 +658,11 @@ bool Base::withinTimeWindow( double time )
 // Special Notes : The minval_ tolerance is used as a fudge factor on the TO
 //                 window because of numerical errors in the sweep values, or
 //                 if the FROM or TO qualifiers are expressions.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2019
 //-----------------------------------------------------------------------------
-bool Base::withinFreqWindow( double freq )
+bool Base::withinFreqWindow(double freq) const
 {
   bool retVal = true;
   if ( (fromGiven_ && (freq < from_*(1-minval_))) || (toGiven_ && (freq > (1+minval_)*to_)) )
@@ -681,11 +681,11 @@ bool Base::withinFreqWindow( double freq )
 // Special Notes : Used just for DC mode, since the first sweep variable (on a .DC
 //                 line) can be either monotonically increasing or monotonically 
 //                 decreasing.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 04/26/2017
 //-----------------------------------------------------------------------------
-bool Base::withinDCsweepFromToWindow(double sweepValue)
+bool Base::withinDCsweepFromToWindow(double sweepValue) const
 {
   // function used for DC mode
   bool retVal = true;
@@ -743,11 +743,11 @@ bool Base::withinDCsweepFromToWindow(double sweepValue)
 // Function      : MeasureBase::withinRiseFallCrossWindow
 // Purpose       : Checks if current value is within measurement window
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-bool Base::withinRiseFallCrossWindow( double measureVal, double crossVal )
+bool Base::withinRiseFallCrossWindow(double measureVal, double crossVal)
 {
   // return true if neither rise, fall or cross is given.
   bool retVal = true;
@@ -845,11 +845,11 @@ bool Base::withinRiseFallCrossWindow( double measureVal, double crossVal )
 //                 Rise, Fall or Cross window.  It is used
 //                 if the LAST keyword was specified.
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 01/19/2016
 //-----------------------------------------------------------------------------
-bool Base::newRiseFallCrossWindowforLast()
+bool Base::newRiseFallCrossWindowforLast() const
 {
   bool retVal=false;
 
@@ -869,11 +869,11 @@ bool Base::newRiseFallCrossWindowforLast()
 // Function      : MeasureBase::withinMinMaxThresh
 // Purpose       : Check if value is within MIN_THRESHOLD and MAX_THRESHOLD
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-bool Base::withinMinMaxThresh( double value)
+bool Base::withinMinMaxThresh(double value) const
 {
   bool returnValue = true;
   if( (minThreshGiven_ && (value < minThresh_)) )
@@ -891,14 +891,14 @@ bool Base::withinMinMaxThresh( double value)
 // Purpose       : Call's the N_UTL_Op's getValue() function to update 
 //                 the objects in Util::ParamList outputVars_;
 // Special Notes : 
-// Scope         : public
+// Scope         : protected
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 11/01/2013
 //-----------------------------------------------------------------------------
 void Base::updateOutputVars(
   Parallel::Machine comm,
   std::vector<double> & outputVarVec,
-  const double circuitTime,
+  double circuitTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector * storeVec,
@@ -906,8 +906,8 @@ void Base::updateOutputVars(
   const Linear::Vector *lead_current_vector,
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
   const Util::Op::RFparamsData *RFparams)
 {
@@ -925,7 +925,7 @@ void Base::updateOutputVars(
 // Purpose       : When a measure is reset during .step, some actions need to
 //                 be done in the base class to.  Put them here.
 // Special Notes : 
-// Scope         : public
+// Scope         : protected
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 09/10/2014
 //-----------------------------------------------------------------------------
@@ -980,8 +980,8 @@ double Base::getOutputValue(
   const Linear::Vector *lead_current_vector,
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
   const Util::Op::RFparamsData *RFparams)
 {
@@ -1000,8 +1000,8 @@ double Base::getOutputValue(
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-void Base::printMeasureWarnings(const double endSimTime, const double startSweepVal,
-                                const double endSweepVal)
+void Base::printMeasureWarnings(double endSimTime, double startSweepVal,
+                                double endSweepVal) const
 {
   if ( (calculationResult_ == calculationDefaultVal_) &&
        ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") || (mode_ == "AC") || (mode_ == "AC_CONT") ||
@@ -1061,7 +1061,7 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
 // Creator       : Pete Sholander, SNL
 // Creation Date : 8/1/2021
 //-----------------------------------------------------------------------------
-void Base::printMeasureWarningsForAT(const double endSimTime)
+void Base::printMeasureWarningsForAT(double endSimTime) const
 {
   if ( atGiven_ && ((mode_ == "TRAN") || (mode_ == "TRAN_CONT")) )
   {
@@ -1083,11 +1083,11 @@ void Base::printMeasureWarningsForAT(const double endSimTime)
 // Special Notes : For TABLE-based sweeps (for .DC data=table), it is the row
 //                 index for that table.  For all other DC sweep types, it
 //                 is the name of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 06/16/2020
 //-----------------------------------------------------------------------------
-std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec)
+std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec) const
 {
   ExtendedString sweepVarName("");
 
@@ -1107,11 +1107,11 @@ std::string Base::getDCSweepVarName(const std::vector<Analysis::SweepParam> & dc
 // Purpose       : Test for equality, while accounting for numerical roundoff
 //                 errors when val1 and/or val2 are derived from expressions.
 // Special Notes : 
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/1/2020
 //-----------------------------------------------------------------------------
-bool Base::isWithinNumTol(const double val1, const double val2)
+bool Base::isWithinNumTol(double val1, double val2) const
 {
   return (fabs(val1 - val2) < fabs(val2*minval_));
 }
@@ -1122,11 +1122,11 @@ bool Base::isWithinNumTol(const double val1, const double val2)
 //                 form a valid measurement window, based on the start/stop
 //                 simulation times.
 // Special Notes : Assumes that all transient simulations start at t=0
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/18/2020
 //-----------------------------------------------------------------------------
-bool Base::isInvalidTimeWindow(double endSimTime)
+bool Base::isInvalidTimeWindow(double endSimTime) const
 {
   return ( (fromGiven_&& toGiven_ && (from_ > to_)) || (tdGiven_&& toGiven_ && (td_ > to_)) ||
            (fromGiven_&& (from_ > endSimTime)) || (toGiven_&& (to_ < 0.0)) ||
@@ -1140,11 +1140,11 @@ bool Base::isInvalidTimeWindow(double endSimTime)
 //                 simulation frequencies.  So, this function can be used by
 //                 AC and NOISE measure modes.
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/06/2020
 //-----------------------------------------------------------------------------
-bool Base::isInvalidFreqWindow(double fStart, double fStop)
+bool Base::isInvalidFreqWindow(double fStart, double fStop) const
 {
   return ( (fromGiven_&& toGiven_ && (from_ > to_)) ||
            (fromGiven_&& (from_ > fStop)) || (toGiven_&& (to_ < fStart)) );
@@ -1157,11 +1157,11 @@ bool Base::isInvalidFreqWindow(double fStart, double fStop)
 //                 (ascending or descending) and the start/end DC sweep values.
 // Special Notes : This can only happen if both FROM and TO are given, and that
 //                 FROM-TO range does not overlap with the DC sweep range.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 08/06/2020
 //-----------------------------------------------------------------------------
-bool Base::isInvalidDCsweepWindow(double startSweepVal, double endSweepVal)
+bool Base::isInvalidDCsweepWindow(double startSweepVal, double endSweepVal) const
 {
   bool retVal =false;
 
@@ -1194,8 +1194,8 @@ bool Base::isInvalidDCsweepWindow(double startSweepVal, double endSweepVal)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime,
-				       const double startSweepVal, const double endSweepVal)
+std::ostream& Base::printMeasureWindow(std::ostream& os, double endSimTime,
+				       double startSweepVal, double endSweepVal) const
 {
   basic_ios_all_saver<std::ostream::char_type> save(os);
   os << std::scientific << std::setprecision(precision_);
@@ -1283,11 +1283,11 @@ std::ostream& Base::printMeasureWindow(std::ostream& os, const double endSimTime
 // Purpose       : set text string used in various printMeasureWindow() functions. 
 // Special Notes : modeStr is "Time" for TRAN or TRAN_CONT mode, "Freq" for AC or
 //                 AC_CONT mode and "<sweep variable> Value" for DC or DC_CONT mode.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
 //-----------------------------------------------------------------------------
-std::string Base::setModeStringForMeasureWindowText()
+std::string Base::setModeStringForMeasureWindowText() const
 {
   std::string modeStr;
   if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
@@ -1313,11 +1313,11 @@ std::string Base::setModeStringForMeasureWindowText()
 // Special Notes : modeStr is "time" for TRAN or TRAN_CONT mode, "freq" for AC
 //                 or AC_CONT mode and "<sweep variable> value" for DC or DC_CONT
 //                 mode.
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
 //-----------------------------------------------------------------------------
-std::string Base::setModeStringForMeasureResultText()
+std::string Base::setModeStringForMeasureResultText() const
 {
   std::string modeStr;
   if ( (mode_ == "TRAN") || (mode_ == "TRAN_CONT") )
@@ -1346,7 +1346,7 @@ std::string Base::setModeStringForMeasureResultText()
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
 //-----------------------------------------------------------------------------
-std::ostream& Base::printRFCWindow(std::ostream& os)
+std::ostream& Base::printRFCWindow(std::ostream& os) const
 {
   basic_ios_all_saver<std::ostream::char_type> save(os);
   os << std::scientific << std::setprecision(precision_);
@@ -1382,11 +1382,11 @@ std::ostream& Base::printRFCWindow(std::ostream& os)
 // Function      : MeasureBase::setRFCValueAndFlag
 // Purpose       : sets the value and given_ flag for a rise, fall, cross count.
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/11/2015
 //-----------------------------------------------------------------------------
-void Base::setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag )
+void Base::setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag ) const
 { 
   if( currentParamIt->getType() == Xyce::Util::STR )
   {
@@ -1414,11 +1414,11 @@ void Base::setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, i
 // Purpose       : check .MEASURE line for errors that will cause cause dumps
 //               : later
 // Special Notes :
-// Scope         : public
+// Scope         : protected
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/01/2015
 //-----------------------------------------------------------------------------
-bool Base::checkMeasureLine()
+bool Base::checkMeasureLine() const
 {
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in

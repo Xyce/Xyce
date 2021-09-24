@@ -68,7 +68,7 @@ OnTime::OnTime(const Manager &measureMgr, const Util::OptionBlock & measureBlock
 //-----------------------------------------------------------------------------
 void OnTime::reset() 
 {
-  resetTranStats();
+  resetBase();
   totalOnTime_ = 0.0;
   numberOfCycles_ = 0.0;
 }
@@ -82,7 +82,7 @@ void OnTime::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void OnTime::updateMeasureVars(const double circuitTime, const double signalVal)
+void OnTime::updateMeasureVars(double circuitTime, double signalVal)
 {
   if( (signalVal + minval_ ) >= onValue_)
   {

@@ -175,10 +175,11 @@ Error::Error(const Manager &measureMgr, const Util::OptionBlock & measureBlock )
 
     if( reading == 1 )
     {
+      int varValuesVecSize = varValuesVec.size();
       if (mode_ == "DC")
       {
         // DC measures only use the DEPVARCOL qualifier
-        if( dependentVarColumn_ >=  varValuesVec.size() )
+        if( dependentVarColumn_ >=  varValuesVecSize )
         {
           Report::UserError0() << "In measure " << name_  << ", using data from file " << dataFileName_ 
                                << ". Requested column for dependent variable " 
@@ -199,7 +200,7 @@ Error::Error(const Manager &measureMgr, const Util::OptionBlock & measureBlock )
         // Throw an error if either of the requested columns do not exist in the data file.
         // This will only report once such error, for each ERROR measure instance line, before exiting.
         int maxVarColumn = ( independentVarColumn_ > dependentVarColumn_ ) ? independentVarColumn_ : dependentVarColumn_;
-        if( maxVarColumn >=  varValuesVec.size() )
+        if( maxVarColumn >=  varValuesVecSize )
         {
           Report::UserError0() << "In measure " << name_  << ", using data from file " << dataFileName_ 
                                << ". Requested column for independent variable " 
@@ -297,8 +298,8 @@ void Error::reset()
 //-----------------------------------------------------------------------------
 void Error::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -371,9 +372,9 @@ void Error::updateDC(
 //-----------------------------------------------------------------------------
 void Error::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -395,13 +396,13 @@ void Error::updateAC(
 
 void Error::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   if( !calculationDone_ )
@@ -495,8 +496,8 @@ std::ostream& Error::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/8/2016
 //-----------------------------------------------------------------------------
-std::ostream& Error::printMeasureWindow(std::ostream& os, const double endSimTime,
-				        const double startSweepVal, const double endSweepVal)
+std::ostream& Error::printMeasureWindow(std::ostream& os, double endSimTime,
+				        double startSweepVal, double endSweepVal) const
 {
   // The measure window info is not printed for DC mode.
   if (mode_ != "DC")

@@ -109,8 +109,8 @@ void EquationEvaluation::reset()
 //-----------------------------------------------------------------------------
 void EquationEvaluation:: updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -193,9 +193,9 @@ void EquationEvaluation::updateDC(
 //-----------------------------------------------------------------------------
 void EquationEvaluation::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -229,13 +229,13 @@ void EquationEvaluation::updateAC(
 //-----------------------------------------------------------------------------
 void EquationEvaluation::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used in descriptive output to stdout

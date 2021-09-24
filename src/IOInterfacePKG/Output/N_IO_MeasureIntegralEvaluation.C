@@ -97,7 +97,7 @@ void IntegralEvaluation::setMeasureVarsForNewWindow()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void IntegralEvaluation::updateMeasureVars(const double indepVarVal, const double signalVal)
+void IntegralEvaluation::updateMeasureVars(double indepVarVal, double signalVal)
 {
   if (fromGiven_ && toGiven_)
   {

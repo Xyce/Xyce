@@ -70,12 +70,12 @@ class Base
     virtual ~Base();
 
     virtual void prepareOutputVariables() = 0;
-    virtual void reset() {initialized_ = false;}
+    virtual void reset()=0;
 
     virtual void updateTran(
               Parallel::Machine comm,
-              const double circuitTime,
-              const double endSimTime,
+              double circuitTime,
+              double endSimTime,
               const Linear::Vector *solnVec,
               const Linear::Vector *stateVec,
               const Linear::Vector *storeVec,
@@ -95,22 +95,22 @@ class Base
 
     virtual void updateAC(
               Parallel::Machine comm,
-              const double frequency,
-              const double fStart,
-              const double fStop,
+              double frequency,
+              double fStart,
+              double fStop,
               const Linear::Vector *solnVec,
               const Linear::Vector *imaginaryVec,
               const Util::Op::RFparamsData *RFparams) {}
 
     virtual void updateNoise(
               Parallel::Machine comm,
-              const double frequency,
-              const double fStart,
-              const double fStop,
+              double frequency,
+              double fStart,
+              double fStop,
               const Linear::Vector *solnVec,
               const Linear::Vector *imaginaryVec,
-              const double totalOutputNoiseDens,
-              const double totalInputNoiseDens,
+              double totalOutputNoiseDens,
+              double totalInputNoiseDens,
               const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec) {}
 
 protected:
@@ -119,7 +119,7 @@ protected:
     void updateOutputVars(
       Parallel::Machine comm,
       std::vector<double> & outputVarVec,
-      const double circuitTime,
+      double circuitTime,
       const Linear::Vector *solnVec,
       const Linear::Vector *stateVec,
       const Linear::Vector *storeVec,
@@ -127,31 +127,42 @@ protected:
       const Linear::Vector *lead_current_vector,
       const Linear::Vector *junction_voltage_vector,
       const Linear::Vector *lead_current_dqdt_vector,
-      const double totalOutputNoiseDens,
-      const double totalInputNoiseDens,
+      double totalOutputNoiseDens,
+      double totalInputNoiseDens,
       const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
       const Util::Op::RFparamsData *RFparams);
 
     void resetBase();
 
-public:
-  bool finishedCalculation() {
-      return calculationDone_;
-    }
-
-    void makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
+    // used to check measure line for errors that will later cause core dumps in updateTran()
+    virtual bool checkMeasureLine() const;
 
     // these functions implement measurement window criteria
     // such as TD (delay time), TO/FROM windows and Rise/Fall/Cross counts.
     // the function withinFromToWindow() is used with both time (.tran) and 
     // frequency (.ac)
-    bool withinTimeWindow( double time ); // used with TRAN
-    bool withinFreqWindow( double freq ); // used with AC
-    bool withinRiseFallCrossWindow( double measureVal, double crossVal  );
-    bool newRiseFallCrossWindowforLast();
-    void setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag ); 
-    bool withinDCsweepFromToWindow( double sweepValue ); //used with DC
-    bool withinMinMaxThresh( double value);
+    bool withinTimeWindow(double time) const; // used with TRAN
+    bool withinFreqWindow( double freq) const; // used with AC
+    bool withinRiseFallCrossWindow(double measureVal,double crossVal);
+    bool newRiseFallCrossWindowforLast() const;
+    void setRFCValueAndFlag( Util::ParamList::const_iterator currentParamIt, int &rfcVal, bool &rfcFlag ) const; 
+    bool withinDCsweepFromToWindow(double sweepValue) const; //used with DC
+    bool withinMinMaxThresh(double value) const;
+
+    std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec) const;
+
+    bool isWithinNumTol(double val1, double val2) const;
+    bool isInvalidTimeWindow(double endSimTime) const;
+    bool isInvalidFreqWindow(double fStart, double fStop) const;
+    bool isInvalidDCsweepWindow(double startSweepVal, double endSweepVal) const;
+
+    std::string setModeStringForMeasureWindowText() const;
+    std::string setModeStringForMeasureResultText() const;
+
+public:
+    bool finishedCalculation() const {return calculationDone_;}
+
+    void makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
 
     // used to call the output manager's getPrgetImmutableValue<int>()
     double getOutputValue(
@@ -164,8 +175,8 @@ public:
       const Linear::Vector *lead_current_vector,
       const Linear::Vector *junction_voltage_vector,
       const Linear::Vector *lead_current_dqdt_vector,
-      const double totalOutputNoiseDens,
-      const double totalInputNoiseDens,
+      double totalOutputNoiseDens,
+      double totalInputNoiseDens,
       const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec,
       const Util::Op::RFparamsData *RFparams);
 
@@ -182,29 +193,20 @@ public:
       return calculationResult_;
     }
 
-    // used to check measure line for errors that will later cause core dumps in updateTran()
-    virtual bool checkMeasureLine(); 
-
     // used to get the variable that controls where the measure output appears
-    std::string getMeasurePrintOption() { return measurePrintOption_; }
+    std::string getMeasurePrintOption() const { return measurePrintOption_; }
 
     // used to print warnings about measurement time window, etc.
-    virtual void printMeasureWarnings(const double endSimTime, const double startSweepVal,
-                                      const double endSweepVal);
-    virtual void printMeasureWarningsForAT(const double endSimTime);
+    virtual void printMeasureWarnings(
+      double endSimTime,
+      double startSweepVal,
+      double endSweepVal) const;
 
-    std::string getDCSweepVarName(const std::vector<Analysis::SweepParam> & dcParamsVec);
-
-    bool isWithinNumTol(const double val1, const double val2);
-    bool isInvalidTimeWindow(double endSimTime);
-    bool isInvalidFreqWindow(double fStart, double fStop);
-    bool isInvalidDCsweepWindow(double startSweepVal, double endSweepVal);
+    virtual void printMeasureWarningsForAT(double endSimTime) const;
 
     // used to print message about measurement time window, etc.
-    virtual std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
-                                             const double startSweepVal, const double endSweepVal);
-    std::string setModeStringForMeasureWindowText();
-    std::string setModeStringForMeasureResultText();
+    virtual std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
+                                             double startSweepVal, double endSweepVal) const;
 
     // used to print the measurement result to an output stream object, which
     // is typically the mt0, ma0 or ms0 file
@@ -241,7 +243,7 @@ public:
     }
 
     // used to print information about RFC window
-    virtual std::ostream& printRFCWindow(std::ostream& os);
+    virtual std::ostream& printRFCWindow(std::ostream& os) const;
 
     // allows measureManager to access an individual measure's name and mode (e.g., AC, DC or TRAN), 
     // mainly for the purposes of error checking and reporting.

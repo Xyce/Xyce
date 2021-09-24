@@ -353,8 +353,6 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
     // Check for previous measure definition with this object's name.  If found then
     // remove the previous definitions, from all of the lists, and issue a warning message.
     int offset=0;
-    int offset1=0;
-    int offset2=0;
     for (MeasurementVector::iterator it = allMeasuresList_.begin(); it!=allMeasuresList_.end(); ++it, ++offset)
     {
       if (theMeasureObject->name_ == (*it)->name_)
@@ -422,7 +420,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
 // Creator       : Pete Sholander, SNL, Electrical and Microsystem Modeling
 // Creation Date : 05/16/2017
 //-----------------------------------------------------------------------------
-bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
+bool Manager::checkMeasureModes(const Analysis::Mode analysisMode) const
 {
   bool bsuccess = true;
   if ( isMeasureActive() )
@@ -561,8 +559,8 @@ void Manager::setMeasureOutputFileSuffix(const Analysis::Mode analysisMode)
 //-----------------------------------------------------------------------------
 void Manager::updateTranMeasures(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -624,9 +622,9 @@ void Manager::updateDCMeasures(
 //-----------------------------------------------------------------------------
 void Manager::updateACMeasures(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *real_solution_vector,
   const Linear::Vector *imaginary_solution_vector,
   const Util::Op::RFparamsData *RFparams)
@@ -652,13 +650,13 @@ void Manager::updateACMeasures(
 //-----------------------------------------------------------------------------
 void Manager::updateNoiseMeasures(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *real_solution_vector,
   const Linear::Vector *imaginary_solution_vector,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec
   )
 {
@@ -827,7 +825,7 @@ std::ostream &Manager::outputVerboseResults( std::ostream& outputStream, double 
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 06/30/2020
 //-----------------------------------------------------------------------------
-void Manager::recordStartEndSweepVals(const double sweepVal)
+void Manager::recordStartEndSweepVals(double sweepVal)
 {
   if (!firstSweepValueFound_)
   {
@@ -1404,7 +1402,7 @@ struct MeasureOptionsReg : public PkgOptionsReg
 // Creation Date : 02/13/2019
 //-----------------------------------------------------------------------------
 bool handleValQualifier(const std::string& netlist_filename,
-  const int numFields,
+  int numFields,
   const std::string & parsedType,
   const IO::TokenVector & parsed_line,
   int& position)
@@ -1837,13 +1835,13 @@ extractMEASUREData(
       // these can be in the form of TAG=value or TAG=keyword where keyword = LAST
       // and potentially the "=" is optional.
       // IF and first ELSE-IF block needed to protect against core dumps from invalid .MEASURE lines.
-      if ( (position+1) >= parsed_line.size() )
+      if ( (position+1) >= numFields )
       {
         // will core dump later if this is true, so error out now
         Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Invalid Measure Line";
         return false;
       } 
-      else if ( (parsed_line[(position+1)].string_ == "=") && ( (position+2) >= parsed_line.size() ) )
+      else if ( (parsed_line[(position+1)].string_ == "=") && ( (position+2) >= numFields ) )
       {
         // will core dump later if this is true, so error out now
         Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Invalid Measure Line";
@@ -1885,13 +1883,13 @@ extractMEASUREData(
     {
       // these are in the form of TAG=value and potentially the "=" is optional.
       // IF and first ELSE-IF block needed to protect against core dumps from invalid lines.
-      if ( (position+1) >= parsed_line.size() )
+      if ( (position+1) >= numFields )
       {
         // will core dump if this is true, so error out now
         Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Invalid Measure Line";
         return false;
       } 
-      else if ( (parsed_line[(position+1)].string_ == "=") && ( (position+2) >= parsed_line.size() ) )
+      else if ( (parsed_line[(position+1)].string_ == "=") && ( (position+2) >= numFields) )
       {
         // will core dump if this is true
         Report::UserError0().at(netlist_filename, parsed_line[position].lineNumber_) << "Invalid Measure Line";
@@ -2204,7 +2202,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 4/14/2021
 //-----------------------------------------------------------------------------
-bool isComplexCurrentOp(const std::string& name, const int parenIdx)
+bool isComplexCurrentOp(const std::string& name, int parenIdx)
 {
   return ( ((parenIdx == 2) && ((name[1] == 'R') || (name[1] == 'I') || (name[1] == 'M') || (name[1] == 'P')))
            || ((parenIdx == 3) && (name.substr(1,2) == "DB")) );

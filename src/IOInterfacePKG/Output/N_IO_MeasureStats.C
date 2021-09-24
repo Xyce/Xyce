@@ -110,8 +110,8 @@ void Stats::resetStats()
 //-----------------------------------------------------------------------------
 void Stats::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -131,7 +131,7 @@ void Stats::updateTran(
       updateMeasureVars(circuitTime, outVarValues_[0]);
     }
 
-    updateMeasureState(circuitTime, outVarValues_[0]);
+    updateMeasureState_(circuitTime, outVarValues_[0]);
   }
 }
 
@@ -177,7 +177,7 @@ void Stats::updateDC(
       if ( initialized_ )
         updateMeasureVars(dcSweepVal, outVarValues_[0]);
 
-      updateMeasureState(dcSweepVal, outVarValues_[0]);
+      updateMeasureState_(dcSweepVal, outVarValues_[0]);
     }
   }
 }
@@ -192,9 +192,9 @@ void Stats::updateDC(
 //-----------------------------------------------------------------------------
 void Stats::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -211,7 +211,7 @@ void Stats::updateAC(
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);
 
-    updateMeasureState(frequency, outVarValues_[0]);
+    updateMeasureState_(frequency, outVarValues_[0]);
   }
 }
 
@@ -225,13 +225,13 @@ void Stats::updateAC(
 //-----------------------------------------------------------------------------
 void Stats::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used in descriptive output to stdout
@@ -247,7 +247,7 @@ void Stats::updateNoise(
     if ( initialized_ )
       updateMeasureVars(frequency, outVarValues_[0]);
 
-    updateMeasureState(frequency, outVarValues_[0]);
+    updateMeasureState_(frequency, outVarValues_[0]);
   }
 }
 
@@ -258,11 +258,11 @@ void Stats::updateNoise(
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it is
 //                 the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Stats::updateMeasureState(const double indepVarVal, const double depVarVal)
+void Stats::updateMeasureState_(double indepVarVal, double depVarVal)
 {
   lastIndepVarValue_ = indepVarVal;
   lastSignalValue_ = depVarVal;

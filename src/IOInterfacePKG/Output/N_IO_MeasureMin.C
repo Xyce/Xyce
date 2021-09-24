@@ -68,7 +68,7 @@ Min::Min(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 //-----------------------------------------------------------------------------
 void Min::reset() 
 {
-  resetExtrema();
+  resetBase();
   minimumValue_ = 0.0;
 }
 
@@ -83,7 +83,7 @@ void Min::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Min::setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)
+void Min::setMeasureVarsForNewWindow(double indepVarVal, double depVarVal)
 {
   minimumValue_ = depVarVal;
   calculationInstant_ = indepVarVal;
@@ -100,7 +100,7 @@ void Min::setMeasureVarsForNewWindow(const double indepVarVal, const double depV
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Min::updateMeasureVars(const double indepVarVal, const double depVarVal)
+void Min::updateMeasureVars(double indepVarVal, double depVarVal)
 {
   // calculation of the minimum value
   if( minimumValue_ > depVarVal )

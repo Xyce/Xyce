@@ -104,20 +104,6 @@ void Extrema::prepareOutputVariables()
   outVarValues_.resize( numOutVars_, 0.0 );
 }
 
-
-//-----------------------------------------------------------------------------
-// Function      : Extrema::resetExtrema()
-// Purpose       : Called when restarting a measure function.  Resets any state
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 8/28/2014
-//-----------------------------------------------------------------------------
-void Extrema::resetExtrema()
-{
-  resetBase();
-}
-
 //-----------------------------------------------------------------------------
 // Function      : Extrema::updateTran()
 // Purpose       :
@@ -128,8 +114,8 @@ void Extrema::resetExtrema()
 //-----------------------------------------------------------------------------
 void Extrema::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -239,9 +225,9 @@ void Extrema::updateDC(
 //-----------------------------------------------------------------------------
 void Extrema::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -272,13 +258,13 @@ void Extrema::updateAC(
 //-----------------------------------------------------------------------------
 void Extrema::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used for descriptive output to stdout

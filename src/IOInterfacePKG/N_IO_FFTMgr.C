@@ -165,7 +165,7 @@ void FFTMgr::fixupFFTParameters(
   Parallel::Machine comm,
   const IO::OutputMgr &output_manager,
   const Util::Op::BuilderManager &op_builder_manager,
-  const double endSimTime,
+  double endSimTime,
   TimeIntg::StepErrorControl & sec)
 {
   if (fftAnalysisEnabled_)
@@ -197,7 +197,7 @@ void FFTMgr::fixupFFTParameters(
 void FFTMgr::fixupFFTParametersForRemeasure(
   Parallel::Machine comm,
   const Util::Op::BuilderManager &op_builder_manager,
-  const double endSimTime,
+  double endSimTime,
   TimeIntg::StepErrorControl & sec)
 {
   if (fftAnalysisEnabled_)
@@ -253,7 +253,7 @@ bool FFTMgr::addFFTAnalysis(const Util::OptionBlock & fftBlock)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTMgr::updateFFTData(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec,
+void FFTMgr::updateFFTData(Parallel::Machine comm, double circuitTime, const Linear::Vector *solnVec,
   const Linear::Vector *stateVec, const Linear::Vector * storeVec,
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
@@ -441,7 +441,6 @@ bool extractFFTData(
   Util::OptionBlock option_block("DOT_FFT_LINE", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
   int numFields = parsed_line.size();
-  int parameterStartPos = 1;
 
   // used to ensure that the output variable is not preceded by any of the allowed qualifiers
   bool outputVarFound=false;
@@ -455,7 +454,7 @@ bool extractFFTData(
   Util::Param parameter;
   ExtendedString nextWord("");
 
-  if(parsed_line.size() < 2)
+  if(numFields < 2)
   {
     Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
       << "Error: .FFT line needs at least 2 arguments '.FFT ov1 '";
@@ -463,7 +462,7 @@ bool extractFFTData(
   }
 
   int position = 1;
-  int endPosition = parsed_line.size();
+  int endPosition = numFields;
   while (position < endPosition)
   {
 

@@ -65,12 +65,11 @@ public:
   ~Extrema() {};
 
   void prepareOutputVariables();
-  void resetExtrema();
 
   void updateTran(
     Parallel::Machine comm,
-    const double circuitTime,
-    const double endSimTime,
+    double circuitTime,
+    double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -90,30 +89,31 @@ public:
 
   void updateAC(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
   void updateNoise(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
-    const double totalOutputNoiseDens,
-    const double totalInputNoiseDens,
+    double totalOutputNoiseDens,
+    double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
   virtual double getMeasureResult()=0;
   virtual std::ostream& printMeasureResult(std::ostream& os)=0;
   virtual std::ostream& printVerboseMeasureResult(std::ostream& os)=0;
 
-  virtual void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)=0;
-  virtual void updateMeasureVars(const double indepVarVal, const double depVarVal)=0;
+protected:
+  virtual void setMeasureVarsForNewWindow(double indepVarVal, double depVarVal)=0;
+  virtual void updateMeasureVars(double indepVarVal, double depVarVal)=0;
 
 private:
   int numOutVars_;

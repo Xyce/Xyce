@@ -67,7 +67,7 @@ OffTime::OffTime(const Manager &measureMgr, const Util::OptionBlock & measureBlo
 //-----------------------------------------------------------------------------
 void OffTime::reset() 
 {
-  resetTranStats();
+  resetBase();
   totalOffTime_ = 0.0;
   numberOfCycles_ = 0.0;
 }
@@ -80,7 +80,7 @@ void OffTime::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void OffTime::updateMeasureVars(const double circuitTime, const double signalVal)
+void OffTime::updateMeasureVars(double circuitTime, double signalVal)
 {
   if( (signalVal - minval_) <= offValue_ )
   {

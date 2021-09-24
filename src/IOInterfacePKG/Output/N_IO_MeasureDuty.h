@@ -58,7 +58,7 @@ public:
 
   void reset();
   double getMeasureResult();
-  void updateMeasureVars(const double circuitTime, const double signalVal);
+  void updateMeasureVars(double circuitTime, double signalVal);
 
 private:
   std::string type_;
