@@ -76,12 +76,13 @@ please visit the \XyceTM{} web page at
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
   \item The levels 1 and 2 diode now support a multiplicity factor.  This is the ``M'' parameter on the instance line, not to be confused with the model parameter of the same name (the p-n junction grading parameter).
-  \item placeholder
+  \item The resistor model now supports solution-dependent expressions, so it is possible to have voltage-dependent resistors in Xyce netlists.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item placeholder
+  \item Voltage limiting in the BSIMSOI version 3 device model can now be optionally turned off, while leaving it turned on in other devices.  The implementation of voltage limiting in the BSIM SOI device is unorthodox and has been observed to cause robustness problems.  Turning it off can improve runtimes.
+  \item Behavioral models have been optimized to eliminate redundant calls to the expression library.  For historical reasons, the Bsrc device was calling the expression library more than it needed to.  This has been corrected, and it will improve the runtime of circuits with lots of behavioral models.  This same optimization has also been applied to other expression-dependent models, such as the capacitor and switch devices.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -109,6 +110,10 @@ please visit the \XyceTM{} web page at
     user to select whether the \Xyce{} \texttt{.FFT} processing and
     output is more compatible with HSPICE (0) or Spectre (1).  The
     default is HSPICE.
+  \item The \texttt{BINSIZ} qualifier is now implemented in \Xyce{} for
+    the \texttt{ENOB}, \texttt{SFDR} and \texttt{SNDR} measure types. It
+    can be used to account for any ``broadening'' of the spectral energy
+    in the first harmonic of the signal.
   \item \texttt{.STEP} analyses now support \texttt{.FOUR} analyses.
   \item A bug in the handling of wildcard current output was fixed and
     now these wildcards may be requested using the external output API
@@ -174,7 +179,7 @@ The following platforms have been subject to certification testing for the
 Though not certified platforms, \Xyce{} has been known to run on the following
 systems.
 \begin{XyceItemize}
-  \item FreeBSD 11.x on Intel x86-64 and AMD64 architectures (serial
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
     and parallel)
   \item Distributions of Linux other than Red Hat Enterprise Linux 6
   \item Microsoft Windows under Cygwin and MinGW.

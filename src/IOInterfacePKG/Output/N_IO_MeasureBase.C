@@ -1035,7 +1035,7 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
     }
     else if ( (mode_ == "AC") || (mode_ == "AC_CONT") || (mode_ == "NOISE") || (mode_ == "NOISE_CONT") )
     {
-      if ( ( fromGiven_ && from_ >= endSweepVal ) || ( tdGiven_ && td_ >= endSweepVal ) )
+      if ( fromGiven_ && from_ > endSweepVal )
       {
         Xyce::Report::UserWarning() << name_ << " failed. FROM value > highest frequency value";
       }
@@ -1043,7 +1043,7 @@ void Base::printMeasureWarnings(const double endSimTime, const double startSweep
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside frequency sweep window";
       }
-      else if ( atGiven_ && (at_ < from_ || at_ > to_) )
+      else if ( atGiven_ && ((fromGiven_ && (at_ < from_)) || (toGiven_ && (at_ > to_))) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. AT value outside measurement window";
       }

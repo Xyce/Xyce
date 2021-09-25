@@ -1002,7 +1002,7 @@ bool DistToolDefault::expandSubcircuitInstance(
   while( ( circuitInstanceNodeIt != endCircuitInstanceNodeIt ) &&
          ( subcircuitNodeInterfaceIt != endSubcircuitNodeInterfaceIt ) )
   {
-    std::string key( subcircuitPrefix + ":" + *subcircuitNodeInterfaceIt );
+    std::string key( subcircuitPrefix + parsingMgr_.getSeparator() + *subcircuitNodeInterfaceIt );
   
     if ( ( mainCircuitPtr_->getAliasNodeMapHelper() ).find( key ) !=
          ( mainCircuitPtr_->getAliasNodeMapHelper() ).end() )

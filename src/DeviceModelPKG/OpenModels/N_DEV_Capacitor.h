@@ -189,7 +189,6 @@ private:
   // Stuff for handling solution-variable-dependent capacitance
   Util::Expression * expPtr;
   int                expNumVars;
-
   std::vector<double> expVarDerivs;
 
   // user-specified parameters:

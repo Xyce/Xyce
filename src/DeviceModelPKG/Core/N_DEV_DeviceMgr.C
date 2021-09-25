@@ -1146,9 +1146,11 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
       {
         if (currentParam->given())
         {
-          bool isVariablesDependent=false;
+          bool isVariablesDependent=false; // this means global parameters
           bool isSpecialsDependent=false;
           bool isRandomDependent=false;
+          bool isVoltageNodeDependent=false;
+          bool isDeviceCurrentDependent=false;
 
           // check if this is a time-dependent, or variable-dependent expression.
           // If it is, then skip.
@@ -1161,9 +1163,12 @@ std::pair<ModelTypeId, ModelTypeId> DeviceMgr::getModelType(const InstanceBlock 
             isVariablesDependent=tmpExp.getVariableDependent(); 
             isSpecialsDependent=tmpExp.getSpecialsDependent();      
             isRandomDependent = tmpExp.isRandomDependent();
+            isVoltageNodeDependent = tmpExp.getVoltageNodeDependent();
+            isDeviceCurrentDependent = tmpExp.getDeviceCurrentDependent();
           }
 
-          if (!isSpecialsDependent && !isVariablesDependent && !isRandomDependent)
+          if (!isSpecialsDependent && !isVariablesDependent && !isRandomDependent &&
+            !isVoltageNodeDependent  && !isDeviceCurrentDependent )
           {
             if (fabs(currentParam->getImmutableValue<double>()) < devOptions_.zeroResistanceTol) // call here will change param type from EXPR to DBLE
             {

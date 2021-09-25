@@ -2698,7 +2698,6 @@ void CircuitBlock::produceUnflattenedNetlist()
       {
         addresistarg = separatedLine[i].string_;
         addresistarg.toUpper();
-        std::cout << "Addresistarg = " << addresistarg << std::endl;
         if (addresistarg == "ADDRESISTORS")
         {
           addresistbool = true;

@@ -498,10 +498,15 @@ bool DerivativeEvaluationBase::isWHENcondition(const double indepVarVal, const d
 
   //if (!resultFound_)
   {
-    // this is the simple case where Xyce output a value within tolerance
-    // of the target value
-    if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
+    if (outVarValues_[whenIdx_] == lastDepVarValue_)
     {
+      // no cross can occur for a constant signal value.
+      return false;
+    }
+    else if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
+    {
+      // this is the simple case where Xyce output a value within tolerance
+      // of the target value
       whenFound=true;
     }
     else
@@ -758,9 +763,18 @@ double DerivativeEvaluationBase::interpolateCalculationInstant(double currIndepV
   double c = outVarValues_[whenIdx_] - a*currIndepVarValue;
   double d = targVal - b*currIndepVarValue;
 
-  // This is the algebra for when the time, frequency or DC sweep value when the two non-parallel
-  // lines associated with WHEN clause intersect.
-  double calcInstant = (d-c)/(a-b);
+  double calcInstant;
+  if (a==b && d==c)
+  {
+    // pathological case of two lines being identical
+    calcInstant = currIndepVarValue;
+  }
+  else
+  {
+    // This is the algebra for when the time, frequency or DC sweep value when the two non-parallel
+    // lines associated with WHEN clause intersect.
+    calcInstant = (d-c)/(a-b);
+  }
 
   return calcInstant;
 }
