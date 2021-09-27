@@ -1296,8 +1296,9 @@ void OutputMgr::addExternalOutputInterface(ExternalOutputInterface * theOutputIn
 
 //-----------------------------------------------------------------------------
 // Function      : isIStarRequested
-// Purpose       : look through parameter lists and set a flag if any
-//                 request wildcards in an operators that request currents
+// Purpose       : look through parameter lists and set a flag if any of those
+//                 parameters request wildcards in an operator that requests
+//                 currents or power calculations.
 // Special Notes :  This used to get done as part of printLineDiagnostics,
 //                 but that function is called too early and misses any
 //                 wildcards that might be requested by external outputters
@@ -1307,7 +1308,7 @@ void OutputMgr::addExternalOutputInterface(ExternalOutputInterface * theOutputIn
 //                 but ONLY looks for instances that are wildards.
 //
 //                 In this function we do not do all the error checking
-//                 that was done
+//                 that was done in printLineDiagnostics.
 //-----------------------------------------------------------------------------
 
 bool OutputMgr::isIStarRequested()
