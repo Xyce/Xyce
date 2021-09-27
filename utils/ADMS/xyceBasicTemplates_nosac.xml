@@ -6674,8 +6674,8 @@ other variables does not get propagated into a variable's
     </admst:when>
     <admst:when test="[name='atan2']">
       <admst:variable name="functionIndex" select="%(index(../function,.))"/>
-      <admst:variable name="dfda1" select="value_atan2_%($functionIndex)_d0"/>
-      <admst:variable name="dfda2" select="value_atan2_%($functionIndex)_d1"/>
+      <admst:variable name="dfda1" select="deriv_atan2_%($functionIndex)_d0"/>
+      <admst:variable name="dfda2" select="deriv_atan2_%($functionIndex)_d1"/>
       <admst:apply-templates select="arguments[1]" match="processTerm">
         <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
       </admst:apply-templates>
