@@ -129,15 +129,12 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     dcSweepAscending_(true),
     findGiven_(false),
     whenGiven_(false),
-    fractionToExtrema_(0.0),
-    fractionToExtremaGiven_(false),
     numFreq_(10),
     gridSize_(200),
     calculationDone_(false),
     resultFound_(false),
     calculationResult_(-1.0),
     calculationInstant_(0.0),
-    gotMeasureResult_(false),
     calculationDefaultVal_(-1.0),
     binSize_(0),
     minFreq_(0.0),
@@ -934,7 +931,6 @@ void Base::resetBase()
   initialized_=false;
   calculationDone_=false;
   resultFound_=false;
-  gotMeasureResult_=false;
 
   // reset any vars that were accumulators.
   actualRise_=0;

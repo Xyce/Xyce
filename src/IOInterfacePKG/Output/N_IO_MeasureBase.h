@@ -250,7 +250,11 @@ public:
     std::string getMeasureName() const { return name_; }
     std::string getMeasureMode() const { return mode_;}
     std::string getMeasureType() const { return mode_;}
+    bool getTypeSupported() const { return typeSupported_;}
 
+    const Util::ParamList& getDepSolVarIterVector() const {return depSolVarIterVector_;}
+
+protected:
     const Manager & measureMgr_;
 
     // this is the user defined name for this measurement
@@ -266,7 +270,7 @@ public:
     // are not supported (i.e. not fully implemented) can warn the user and
     // then the measure manager can based on this flag not add them to the active list.
     bool typeSupported_;
-    
+
     // this is a flag indicating if the measure is set up to start doing it's 
     // calculation.  If it's reset to "false" then the measure should start over 
     bool initialized_;
@@ -392,11 +396,6 @@ public:
     bool findGiven_;
     bool whenGiven_;
 
-    // this is used by max to measure the time when a requested fraction of the
-    // maximum is reached.  as in 90% of max value.  Also applies to min as well.
-    double fractionToExtrema_;
-    bool fractionToExtremaGiven_;
-
     // this is used by fourier to determine how many harmonics to compute and sample grid size.
     int numFreq_;
     int gridSize_;
@@ -413,10 +412,6 @@ public:
     // TRAN mode, a frequency value for AC mode and a Sweep Variable value for DC mode.
     double calculationResult_;
     double calculationInstant_;
-
-    // this flag is used in getMeasureResult(), if the calculations done in that function
-    // (e.g., for the ERROR measure) are complicated.  It is a performance optimization.
-    bool gotMeasureResult_;
 
     // This is the default value of the calculation
     double calculationDefaultVal_;

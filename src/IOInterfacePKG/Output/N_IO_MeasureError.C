@@ -530,7 +530,7 @@ double Error::getMeasureResult()
   // function.  This function will be called twice (once for the output to 
   // the .mtX file and a second time for the output to stdout). This can improve
   // performance if the comparision file has many data points in it.
-  if (!gotMeasureResult_ && initialized_)
+  if (!resultFound_ && initialized_)
   {
     // make a vector to hold difference values
     Teuchos::SerialDenseVector<int,double> differenceVector(dataValues_.size());
@@ -579,7 +579,7 @@ double Error::getMeasureResult()
       calculationResult_ = differenceVector.normFrobenius();
     }
   }
-  gotMeasureResult_=true;
+  resultFound_=true;
 
   return calculationResult_;
 }

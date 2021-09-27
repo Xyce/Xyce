@@ -348,21 +348,21 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
 
   // if the measure object is supported, then add it to the active and all lists
-  if (theMeasureObject && theMeasureObject->typeSupported_ )
+  if (theMeasureObject && theMeasureObject->getTypeSupported() )
   {
     // Check for previous measure definition with this object's name.  If found then
     // remove the previous definitions, from all of the lists, and issue a warning message.
     int offset=0;
     for (MeasurementVector::iterator it = allMeasuresList_.begin(); it!=allMeasuresList_.end(); ++it, ++offset)
     {
-      if (theMeasureObject->name_ == (*it)->name_)
+      if (theMeasureObject->getMeasureName() == (*it)->getMeasureName())
       {
         // check both output lists
 	MeasurementVector::iterator itOL;
         int offsetOL=0;
         for (itOL = measureOutputList_.begin(); itOL!=measureOutputList_.end(); ++itOL, ++offsetOL)
         {
-          if (theMeasureObject->name_ == (*itOL)->name_)
+          if (theMeasureObject->getMeasureName() == (*itOL)->getMeasureName())
 	  {
             measureOutputList_.erase(measureOutputList_.begin()+offsetOL);
 	    break;
@@ -372,7 +372,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
         offsetOL=0;
         for (itOL = contMeasureOutputList_.begin(); itOL!=contMeasureOutputList_.end(); ++itOL, ++offsetOL)
         {
-          if (theMeasureObject->name_ == (*itOL)->name_)
+          if (theMeasureObject->getMeasureName() == (*itOL)->getMeasureName())
 	  {
             contMeasureOutputList_.erase(contMeasureOutputList_.begin()+offsetOL);
             break;
@@ -382,7 +382,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
         delete (*it);
         allMeasuresList_.erase(allMeasuresList_.begin()+offset);
         activeMeasuresList_.erase(activeMeasuresList_.begin()+offset);
-        Report::UserWarning0() << "Measure \"" << theMeasureObject->name_ << "\" redefined, ignoring any previous definitions";
+        Report::UserWarning0() << "Measure \"" << theMeasureObject->getMeasureName() << "\" redefined, ignoring any previous definitions";
 
         break;
       }
@@ -401,7 +401,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
     // Used to help register lead current requests with device manager.
     // Measure manager keeps the combined list, based on parsing of
     // dependent solution variable vector for each measure.
-    getLeadCurrentDevices(theMeasureObject->depSolVarIterVector_, devicesNeedingLeadCurrents_);
+    getLeadCurrentDevices(theMeasureObject->getDepSolVarIterVector(), devicesNeedingLeadCurrents_);
   }
   else
   {
@@ -849,7 +849,7 @@ bool Manager::getMeasureValue(const std::string &name, double &value) const
 {
   for (MeasurementVector::const_iterator it = allMeasuresList_.begin(); it != allMeasuresList_.end(); ++it)
   {
-    if (equal_nocase((*it)->name_, name))
+    if (equal_nocase((*it)->getMeasureName(), name))
     {
       value = (*it)->getMeasureResult();
       return true;
@@ -862,7 +862,7 @@ const Base *Manager::find(const std::string &name) const
 {
   for (MeasurementVector::const_iterator it = allMeasuresList_.begin(); it != allMeasuresList_.end(); ++it)
   {
-    if (equal_nocase((*it)->name_, name))
+    if (equal_nocase((*it)->getMeasureName(), name))
     {
       return *it;
     }
