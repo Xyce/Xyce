@@ -3152,7 +3152,7 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:if>
           </admst:when>
-          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
+          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot' or name='atan2']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:value-of select="returned('returnedExpression')/value"/>
               <admst:variable name="a1" select="%s"/>
@@ -3176,6 +3176,9 @@ other variables does not get propagated into a variable's
                 <admst:when test="[name='hypot']">
                   <admst:text format="%($varType) deriv_hypot_%($functionIndex)_d0 = %($a1)/value_hypot_%($functionIndex);\n"/>
                 </admst:when>
+                <admst:when test="[name='atan2']">
+                  <admst:text format="%($varType) deriv_atan2_%($functionIndex)_d0 = %($a2)/(%($a2)*%($a2) + %($a1)*%($a1));\n"/>
+                </admst:when>
               </admst:choose>
             </admst:if>
             <admst:if test="[arguments[2]/math/dependency!='constant' or ($globalCurrentScope='sensitivity' and exists(arguments[2]/#Pdependent))]">
@@ -3191,6 +3194,9 @@ other variables does not get propagated into a variable's
                 </admst:when>
                 <admst:when test="[name='hypot']">
                   <admst:text format="%($varType) deriv_hypot_%($functionIndex)_d1 = %($a2)/value_hypot_%($functionIndex);\n"/>
+                </admst:when>
+                <admst:when test="[name='atan2']">
+                  <admst:text format="%($varType) deriv_atan2_%($functionIndex)_d1 = -%($a1)/(%($a2)*%($a2) + %($a1)*%($a1));\n"/>
                 </admst:when>
               </admst:choose>
             </admst:if>
@@ -5580,7 +5586,7 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:otherwise>
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max' or name='hypot']">
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max' or name='hypot' or name='atan2']">
             <!-- we must use precomputed function vars -->
             <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
           </admst:when>
@@ -5657,7 +5663,7 @@ other variables does not get propagated into a variable's
             </admst:if>
           </admst:when>
           <!-- two-argument functions -->
-          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
+          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot' or name='atan2']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
@@ -6665,6 +6671,23 @@ other variables does not get propagated into a variable's
       <admst:variable name="d2fdx2" select="(1.0/$hypotval - $a1*$a1/($a1*$a1+$a2*$a2)/$hypotval)"/>
       <admst:variable name="d2fdxdy" select="( - $a1*$a2/($a1*$a1+$a2*$a2)/$hypotval)"/>
       <admst:variable name="d2fdy2" select="(1.0/$hypotval - $a2*$a2/($a1*$a1+$a2*$a2)/$hypotval)"/>
+    </admst:when>
+    <admst:when test="[name='atan2']">
+      <admst:variable name="functionIndex" select="%(index(../function,.))"/>
+      <admst:variable name="dfda1" select="value_atan2_%($functionIndex)_d0"/>
+      <admst:variable name="dfda2" select="value_atan2_%($functionIndex)_d1"/>
+      <admst:apply-templates select="arguments[1]" match="processTerm">
+        <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+      <admst:apply-templates select="arguments[2]" match="processTerm">
+        <admst:variable name="a2" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+      <!-- Note, here, "x" and "y" refer to arguments one and two,
+           respectively, even though atan2() is usually called as "atan2(y,x)"
+           -->
+      <admst:variable name="dfdx2" select="2*$dfda1*$dfda2"/>
+      <admst:variable name="dfdxdy" select="(1.0/($a1*$a1+$a2*$a2) - 2*$dfda1*$dfda1)"/>
+      <admst:variable name="dfdy2" select="-2*$dfda1*$dfda2"/>
     </admst:when>
     <admst:otherwise>
       <admst:variable name="d2fdx2" select="fixme/*second derivs of %(name) unimplemented*/"/>
