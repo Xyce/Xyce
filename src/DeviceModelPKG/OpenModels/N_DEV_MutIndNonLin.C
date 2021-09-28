@@ -259,7 +259,7 @@ void Traits::loadModelParameters(ParametricData<MutIndNonLin::Model> &p)
   .setGivenMember(&MutIndNonLin::Model::factorMSGiven)
   .setUnit(U_NONE)
   .setCategory(CAT_NONE)
-  .setDescription("Flag to save state variables");
+  .setDescription("Flag to factor the saturation magnetization from the magnetics equation.");
 
   p.addPar("BHSIUNITS",0,&MutIndNonLin::Model::BHSiUnits)
   .setUnit(U_NONE)
