@@ -285,7 +285,7 @@ getEntries( KeyList & keys,
     ContainerCIter cit = container_.find( *citKL );
     if( cit == container_.end() )
     {
-      Xyce::Report::DevelFatal().in("Xyce::Parallel::Director::getEntries")
+      Xyce::Report::DevelFatal().in("Xyce::Parallel::Directory::getEntries")
         << "Data not in directory: " << *citKL;
     }
     newEntries[*citKL] = cit->second;
