@@ -520,23 +520,8 @@ bool FindWhenBase::checkMeasureLine() const
 // Creation Date : 08/03/2020
 //-----------------------------------------------------------------------------
 FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  FindWhenBase(measureMgr, measureBlock),
-  RFC_(0)
-{
-  if (riseGiven_)
-    RFC_=rise_;
-  else if (fallGiven_)
-    RFC_=fall_;
-  else if (crossGiven_)
-    RFC_=cross_;
-  else
-  {
-    // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
-    crossGiven_=true;
-    cross_=0;
-    RFC_=0;
-  }
-}
+  FindWhenBase(measureMgr, measureBlock)
+{}
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhen::reset()
@@ -550,7 +535,6 @@ void FindWhen::reset()
 {
   resetWhenAT();
 }
-
 //-----------------------------------------------------------------------------
 // Function      : FindWhen::updateCalculationResult
 // Purpose       : Updates the vector that holds the measure values.  This
@@ -726,39 +710,11 @@ std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
 // Creation Date : 08/03/2020
 //-----------------------------------------------------------------------------
 FindWhenCont::FindWhenCont(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
-  FindWhenBase(measureMgr, measureBlock),
-  contCross_(0),
-  contRise_(0),
-  contFall_(0),
-  contRFC_(0)
+  FindWhenBase(measureMgr, measureBlock)
 {
-  // these settings will find all times at which the WHEN clause is satisfied,
+  // this setting will find all times at which the WHEN clause is satisfied,
   // and may return multiple values.
   measureLastRFC_=true;
-
-  if (riseGiven_)
-  {
-    contRise_=rise_;
-    contRFC_=contRise_;
-  }
-  else if (fallGiven_)
-  {
-    contFall_=fall_;
-    contRFC_=contFall_;
-  }
-  else if (crossGiven_)
-  {
-    contCross_=cross_;
-    contRFC_=contCross_;
-  }
-  else
-  {
-    //  // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
-    cross_=0;
-    contCross_=cross_;
-    contRFC_=contCross_;
-    crossGiven_=true;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -787,12 +743,12 @@ void FindWhenCont::reset()
 //-----------------------------------------------------------------------------
 void FindWhenCont::updateCalculationResult(double val)
 {
-  if (contRFC_ >= 0)
+  if (RFC_ >= 0)
   {
     // store all of the values once the requested number of rises (or falls or crosses)
     // has been found
-    if ( (riseGiven_ && (actualRise_>= contRise_)) || (fallGiven_ && (actualFall_>= contFall_)) ||
-         (crossGiven_ && (actualCross_>= contCross_)) )
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
     {
       calculationResultVec_.push_back(val);
       calculationResult_ = val;
@@ -800,14 +756,14 @@ void FindWhenCont::updateCalculationResult(double val)
   }
   else
   {
-    // For negative values, store at most the requested number of values (contRFC_). If the
-    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
     // the current measure value is in calculationResultVec_[0].
     calculationResultVec_.push_back(val);
-    if (calculationResultVec_.size() > abs(contRFC_))
+    if (calculationResultVec_.size() > abs(RFC_))
       calculationResultVec_.erase(calculationResultVec_.begin());
 
-    if (calculationResultVec_.size() == abs(contRFC_))
+    if (calculationResultVec_.size() == abs(RFC_))
       calculationResult_ = calculationResultVec_[0];
   }
 
@@ -827,23 +783,23 @@ void FindWhenCont::updateCalculationResult(double val)
 //-----------------------------------------------------------------------------
 void FindWhenCont::updateCalculationInstant(double val)
 {
-  if (contRFC_ >= 0)
+  if (RFC_ >= 0)
   {
     // store all of the values once the requested number of rises (or falls or crosses)
     // has been found
-    if ( (riseGiven_ && (actualRise_>= contRise_)) || (fallGiven_ && (actualFall_>= contFall_)) ||
-         (crossGiven_ && (actualCross_>= contCross_)) )
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
     {
       calculationInstantVec_.push_back(val);
     }
   }
   else
   {
-    // For negative values, store at most the requested number of values (contRFC_). If the
-    // size of this vector is less than abs(contRFC_) then the measure is "failed".  Otherwise
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
     // the current instant value is in calculationInstantVec_[0].
     calculationInstantVec_.push_back(val);
-    if (calculationInstantVec_.size() > abs(contRFC_))
+    if (calculationInstantVec_.size() > abs(RFC_))
       calculationInstantVec_.erase(calculationInstantVec_.begin());
   }
 
@@ -868,13 +824,13 @@ std::ostream& FindWhenCont::printMeasureResult(std::ostream& os)
   {
     os << name_ << " = " << this->getMeasureResult() << std::endl;
   }
-  else if (whenGiven_ && (((contRFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
-			  ((contRFC_ < 0) && (calculationResultVec_.size() == abs(contRFC_)))) )
+  else if (whenGiven_ && (((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((RFC_ < 0) && (calculationResultVec_.size() == abs(RFC_)))) )
   {
     // For non-negative RFC values, the calculationResultVec_ will be non-empty for a successful
     // FIND-WHEN or WHEN meaure.  For negative RFC values, the calculationResultVec_ will
     // have the correct number of values in it.
-    if (contRFC_ >=0)
+    if (RFC_ >=0)
     {
       for (size_t i=0; i<calculationResultVec_.size(); i++)
         os << name_ << " = " << calculationResultVec_[i] << std::endl;
@@ -919,13 +875,13 @@ std::ostream& FindWhenCont::printVerboseMeasureResult(std::ostream& os)
   {
     os << name_ << " = " << this->getMeasureResult() << " for AT = " << at_ << std::endl;
   }
-  else if (whenGiven_ && (((contRFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
-			  ((contRFC_ < 0) && (calculationResultVec_.size() == abs(contRFC_)))) )
+  else if (whenGiven_ && (((RFC_ >= 0) && (calculationResultVec_.size() > 0)) ||
+			  ((RFC_ < 0) && (calculationResultVec_.size() == abs(RFC_)))) )
   {
     // modeStr is "time" for TRAN mode, "freq" for AC mode and
     // "<sweep variable> value" for DC mode.
     std::string modeStr = setModeStringForMeasureResultText();
-    if (contRFC_ >=0)
+    if (RFC_ >=0)
     {
       for (size_t i=0; i<calculationResultVec_.size(); i++)
       {

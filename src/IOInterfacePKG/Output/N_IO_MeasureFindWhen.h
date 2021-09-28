@@ -138,11 +138,6 @@ public:
 
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-
-private:
-  // This will be set to the value of whichever qualifer (RISE, FALL or CROSS) is being
-  //  used by the measure.
-  int RFC_;
 };
 
 //-------------------------------------------------------------------------
@@ -162,17 +157,12 @@ public:
   ~FindWhenCont() {};
 
   void reset();
+
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
 
   void updateCalculationResult(double val);
   void updateCalculationInstant(double val);
-
-private:
-  int contCross_;
-  int contRise_;
-  int contFall_;
-  int contRFC_;
 };
 
 } // namespace Measure

@@ -51,6 +51,7 @@ namespace Measure {
   WhenAT::WhenAT(const Manager &measureMgr, const Util::OptionBlock & measureBlock, int whenIdx):
   Base(measureMgr, measureBlock),
   whenIdx_(whenIdx),
+  RFC_(0),
   lastIndepVarValue_(0.0),
   lastDepVarValue_(0.0),
   lastOutputVarValue_(0.0),
@@ -58,14 +59,26 @@ namespace Measure {
   startDCMeasureWindow_(0.0),
   numPointsFound_(0)
 {
-
+  if (riseGiven_)
+    RFC_=rise_;
+  else if (fallGiven_)
+    RFC_=fall_;
+  else if (crossGiven_)
+    RFC_=cross_;
+  else
+  {
+    // default case when RISE, FALL or CROSS is not explicitly given on .MEASURE line
+    crossGiven_=true;
+    cross_=0;
+    RFC_=0;
+  }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : WhenAT::resetWhenAT()
+// Function      : WhenAT::resetWhenAT
 // Purpose       : Called when restarting a measure function.  Resets any state
-// Special Notes :
-// Scope         : protected
+// Special Notes : The child classes did not need reset() functions.
+// Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 9/27/2021
 //-----------------------------------------------------------------------------

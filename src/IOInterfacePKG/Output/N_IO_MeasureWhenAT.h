@@ -86,6 +86,10 @@ protected:
   // v(b) is in outputVarValues_[whenIdx_+1]
   int whenIdx_;
 
+  /// This will be set to the value of whichever qualifer (RISE, FALL or CROSS) is being
+  // used by the measure.
+  int RFC_;
+
   // These are used to interpolate the independent variable (time, frequency or
   // dcSweepVal) value when the simulation has reported values that bound the target value.
   // If the WHEN clause is of the form WHEN V(1)=V(2) then the previous V(1) value
