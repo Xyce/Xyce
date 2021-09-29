@@ -2369,9 +2369,10 @@ void DeviceBlock::getInstanceParameters(
 //                  linear couplings with shared inductors have Knames
 //                  concatenated w/underscores otherwise the Kname is used
 //
-//                  inductor_list :- Lname T1 T2 I
+//                  inductor_list :- Lname T1 T2 I IC
 //                  a list of one or more inductors comprising the name,
-//                  terminals, and inductance
+//                  terminals, inductance, and initial condition (IC=0
+//                  means no IC specified)
 //
 //                  coupling_list :- L1 L2 ... LN C
 //                  a list of inductor names followed by coupling value
