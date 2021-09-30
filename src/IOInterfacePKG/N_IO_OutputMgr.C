@@ -40,6 +40,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_DeviceBlock.h>
@@ -646,6 +647,10 @@ void OutputMgr::earlyPrepareOutput(
         if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_NOISE))
           Outputter::enableNoiseOutput(comm, *this, analysis_mode);
         break;
+
+      default:
+        // no op, since not all analysis types use the OutputMgr for output
+        break;
     }
 
     if (enableHomotopyFlag_)
@@ -805,6 +810,10 @@ void OutputMgr::prepareOutput(
 
       case Analysis::ANP_MODE_NOISE:
         addActiveOutputter(PrintType::NOISE, analysis_mode);
+        break;
+
+      default:
+        // no op, since not all analysis types use the OutputMgr for output
         break;
     }
 
@@ -3930,7 +3939,7 @@ bool extractPrintData(
 
   if (DEBUG_IO) 
   {
-    for (int ieric=0;ieric<parsed_line.size();++ieric)
+    for (size_t ieric=0;ieric<parsed_line.size();++ieric)
     {
       Xyce::dout() << "parsed_line["<<ieric<<"] = " 
         << parsed_line[ieric].string_ << std::endl;
