@@ -1002,44 +1002,33 @@ Util::ParamList OutputMgr::getVariableList() const
 {
   Util::ParamList parameter_list;
 
-  for (OutputParameterMap::const_iterator it1 = outputParameterMap_.begin(), 
-      end1 = outputParameterMap_.end(); it1 != end1; ++it1)
+  for (const auto &outputParameterPair : outputParameterMap_)
   {
-    const OutputParameterMap::mapped_type &parameter_vector = (*it1).second;
+    const auto &parameter_vector = outputParameterPair.second;
 
-    for (OutputParameterMap::mapped_type::const_iterator it2 = parameter_vector.begin(), 
-        end2 = parameter_vector.end(); it2 != end2; ++it2)
+    for (const auto print_parameters : parameter_vector)
     {
-      const PrintParameters &print_parameters = (*it2);
-
-      for (Util::ParamList::const_iterator it3 = print_parameters.variableList_.begin(), 
-          end3 = print_parameters.variableList_.end(); it3 != end3; ++it3)
+      for (const auto &parameter : print_parameters.variableList_)
       {
-        const Util::Param &parameter = (*it3);
         parameter_list.push_back(parameter);
       }
     }
   }
   // Now do the same thing for external output requests, which are done
   // through a wrapped interface object.
-  for (ExternalOutputWrapperMap::const_iterator it = externalOutputWrapperMap_.begin();
-         it != externalOutputWrapperMap_.end(); ++it)
+  for (const auto &wrapperPair : externalOutputWrapperMap_)
   {
-    for (std::vector<ExternalOutputWrapper *>::const_iterator it2=(*it).second.begin();
-         it2 != (*it).second.end(); ++it2)
+    const auto &wrapperVector = wrapperPair.second;
+    for (auto theExtOutWrapper : wrapperVector)
     {
-      ExternalOutputWrapper * theExtOutWrapper=(*it2);
       Util::ParamList &theParamList = theExtOutWrapper->getParamList();
-      for (Util::ParamList::const_iterator it3 = theParamList.begin();
-           it3 != theParamList.end();
-           ++it3)
+      for (const auto parameter : theParamList)
       {
-        const Util::Param &parameter = (*it3);
         parameter_list.push_back(parameter);
       }
     }
   }
-  
+
   return parameter_list;
 }
 
@@ -1066,18 +1055,16 @@ void OutputMgr::checkPrintParameters(
 
   // loop over all output parameter objects of all types, create
   // ops
-  for (OutputParameterMap::const_iterator it = outputParameterMap_.begin(), 
-      end = outputParameterMap_.end(); it != end; ++it)
+  for (const auto &outputParameterPair : outputParameterMap_)
   {
-    for (std::vector<PrintParameters>::const_iterator it2 = (*it).second.begin(), 
-        end2 = (*it).second.end(); it2 != end2; ++it2)
+    const auto &parameter_vector = outputParameterPair.second;
+    for (auto print_parameters : parameter_vector)
     {
-      PrintParameters print_parameters = (*it2);
       fixupPrintParameters(comm, print_parameters);
 
       makeOps(comm, op_builder_manager, print_parameters.netlistLocation_,
-              print_parameters.variableList_.begin(), 
-              print_parameters.variableList_.end(), 
+              print_parameters.variableList_.begin(),
+              print_parameters.variableList_.end(),
               std::back_inserter<Util::Op::OpList>(tempOpList));
 
     }
@@ -1085,13 +1072,11 @@ void OutputMgr::checkPrintParameters(
 
   // Now do the same thing for external output requests, which are done
   // through a wrapped interface object.
-  for (ExternalOutputWrapperMap::const_iterator it = externalOutputWrapperMap_.begin();
-         it != externalOutputWrapperMap_.end(); ++it)
+  for (const auto &wrapperPair : externalOutputWrapperMap_)
   {
-    for (std::vector<ExternalOutputWrapper *>::const_iterator it2=(*it).second.begin();
-         it2 != (*it).second.end(); ++it2)
+    const auto &wrapperVector = wrapperPair.second;
+    for (auto theExtOutWrapper : wrapperVector)
     {
-      ExternalOutputWrapper * theExtOutWrapper=(*it2);
       Util::ParamList &theParamList = theExtOutWrapper->getParamList();
       fixupOutputVariables(comm,theParamList);
       // We don't actually have a netlist line for these output requests,
@@ -1099,8 +1084,8 @@ void OutputMgr::checkPrintParameters(
       // interface object
       makeOps(comm, op_builder_manager,
               NetlistLocation(theExtOutWrapper->getName(),0.0),
-              theParamList.begin(), 
-              theParamList.end(), 
+              theParamList.begin(),
+              theParamList.end(),
               std::back_inserter<Util::Op::OpList>(tempOpList));
     }
   }
@@ -1108,9 +1093,9 @@ void OutputMgr::checkPrintParameters(
   // The sole purpose of having created the ops was to have checked the
   // validity of the output requests.  We don't really need them, so throw
   // them away.
-  for (Util::Op::OpList::iterator it = tempOpList.begin(), end = tempOpList.end(); it != end; ++it)
+  for (auto op : tempOpList)
   {
-    delete *it;
+    delete op;
   }
 
   if (hdf5FileNameGiven_)
