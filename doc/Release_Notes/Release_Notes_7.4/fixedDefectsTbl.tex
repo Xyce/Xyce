@@ -40,10 +40,20 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
+\textbf{Gitlab-ex issue 279/Github issue 41}: Incomplete support for ATAN2 in Xyce/ADMS &
+Xyce/ADMS previously had incomplete support for the standard Verilog-A
+function ``atan2''.  If used in normal module scope, correct code
+would be emitted for the evaluation of the function itself, but place
+holder comments would be emitted instead of the derivatives.  If used
+in analog function context there would be a fatal error stating that
+the feature was not yet implemented.  Correct code for atan2 and its
+derivatives is now generated in both contexts. \\ \hline
+
 \textbf{Gitlab-ex issue 291}: Incorrect behavior for DERIV measure at first
-simulation step for AC, DC, NOISE and TRAN measure modes & If the user 
-requested the \texttt{DERIV-WHEN} measure value at the first simulation
-step then the measured value could be wrong in some cases. \\ \hline
+simulation step for AC, DC, NOISE and TRAN measure modes & If the user
+requested the \texttt{DERIV-WHEN} measure value at the first
+simulation step then the measured value could be wrong in some
+cases. \\ \hline
 
 \textbf{Gitlab-ex issue 283}: FIND-AT measure gives incorrect value if the AT value
 is the first time, frequency or DC sweep value in the simulation & As an example,
