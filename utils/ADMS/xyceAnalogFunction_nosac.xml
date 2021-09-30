@@ -794,7 +794,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:when>
         <admst:when test="[name='atan2']">
           <admst:variable name="d_f_d0" select="%($arg1)/(%($arg0)*%($arg0)+%($arg1)*%($arg1))"/>
-          <admst:variable name="d_f_d1" select="-%($arg0)/(%($arg0)*%($arg0)+%($arg1)*%($arg1)))"/>
+          <admst:variable name="d_f_d1" select="-%($arg0)/(%($arg0)*%($arg0)+%($arg1)*%($arg1))"/>
         </admst:when>
         <admst:otherwise>
           <admst:variable name="d_f_d0" select="0.0"/>
