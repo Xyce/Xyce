@@ -1650,6 +1650,15 @@ bool DeviceMgr::numericalSensitivitiesAvailable(const std::string & name)
   }
   Parallel::AllReduce(comm_, MPI_LOR, &available, 1);
 
+  if (!available)
+  {
+    // handle the special case of inductor instances contained inside mutual inductors.
+    int inductorIndex=-1;
+    DeviceInstance *device_instance=getMutualInductorDeviceInstance(name,inductorIndex);
+    available = (device_instance != 0);
+    Parallel::AllReduce(comm_, MPI_LOR, &available, 1);
+  }
+
   return available != 0;
 }
 
@@ -1727,7 +1736,6 @@ void DeviceMgr::getNumericalSensitivities
   if (device_entity)
   {
     std::string paramName = Util::paramNameFromFullParamName(name);
-
     if (paramName == "")
     {
       found = device_entity->getNumericalSensitivityDefaultParam(
@@ -1736,10 +1744,21 @@ void DeviceMgr::getNumericalSensitivities
     }
     else
     {
-      found = device_entity->getNumericalSensitivity(paramName,
+      found = device_entity->getNumericalSensitivity(name,
                                                     dfdpVec, dqdpVec, dbdpVec,
                                                     FindicesVec, QindicesVec, BindicesVec);
     }
+  }
+  else
+  {
+    // handle the special case of inductor instances contained inside mutual inductors.
+    //std::string paramName = Util::paramNameFromFullParamName(name);
+    int inductorIndex=-1;
+    DeviceInstance *device_instance=getMutualInductorDeviceInstance(name,inductorIndex);
+
+    found = device_instance->getNumericalSensitivity(name,
+                                                     dfdpVec, dqdpVec, dbdpVec,
+                                                     FindicesVec, QindicesVec, BindicesVec);
   }
 
   return;
