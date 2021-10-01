@@ -1752,13 +1752,15 @@ void DeviceMgr::getNumericalSensitivities
   else
   {
     // handle the special case of inductor instances contained inside mutual inductors.
-    //std::string paramName = Util::paramNameFromFullParamName(name);
     int inductorIndex=-1;
     DeviceInstance *device_instance=getMutualInductorDeviceInstance(name,inductorIndex);
 
-    found = device_instance->getNumericalSensitivity(name,
-                                                     dfdpVec, dqdpVec, dbdpVec,
-                                                     FindicesVec, QindicesVec, BindicesVec);
+    if (device_instance)
+    {
+      found = device_instance->getNumericalSensitivity(name,
+                                                       dfdpVec, dqdpVec, dbdpVec,
+                                                       FindicesVec, QindicesVec, BindicesVec);
+    }
   }
 
   return;
