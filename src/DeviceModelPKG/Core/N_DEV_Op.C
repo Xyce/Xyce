@@ -40,6 +40,7 @@
 
 #include <N_DEV_Op.h>
 #include <N_DEV_DeviceEntity.h>
+#include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceMgr.h>
 
 namespace Xyce {
@@ -123,6 +124,21 @@ complex
 DeviceOptionsOp::get(const DeviceOptionsOp &op, const Util::Op::OpData &op_data)
 {
   return op.deviceOptions_.gmin;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : MutualInductorInstancesOp::get
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/30/2021
+//-----------------------------------------------------------------------------
+complex
+MutualInductorInstancesOp::get(const MutualInductorInstancesOp &op, const Util::Op::OpData &op_data)
+{
+  std::vector< double > inductorInductances = op.deviceInstance_.getInductorInductances();
+  return inductorInductances[op.inductorIndex_];
 }
 
 } // namespace Device

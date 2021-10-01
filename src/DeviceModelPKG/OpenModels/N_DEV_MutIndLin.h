@@ -224,6 +224,13 @@ public:
     return inductorNames;
   }
 
+  std::vector< double > getInductorInductances() const  {return inductorInductances;}
+
+  void setInductorInductances(std::vector< double > & set) 
+  {
+    if (set.size() == inductorInductances.size()) { for (int ii=0;ii<set.size();ii++) { inductorInductances[ii] = set[ii]; } }
+  }
+
 private:
 
   Model &       model_;         //< Owning model

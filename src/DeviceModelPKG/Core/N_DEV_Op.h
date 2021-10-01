@@ -139,6 +139,28 @@ public:
   const std::string             optionName_;
 };
 
+class MutualInductorInstancesOp : public Util::Op::Op<MutualInductorInstancesOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
+{
+public:
+    MutualInductorInstancesOp(const std::string &name,
+       const std::string & inductor_name,
+       const DeviceInstance &device_instance, int index)
+    : Base(name),
+      inductorName_(inductor_name),
+      deviceInstance_(device_instance),
+      inductorIndex_(index)
+  {}
+
+  virtual ~MutualInductorInstancesOp()
+  {}
+
+  static complex get(const MutualInductorInstancesOp &op, const Util::Op::OpData &op_data);
+
+  const std::string               inductorName_;
+  const DeviceInstance &          deviceInstance_;
+  const int                       inductorIndex_;
+};
+
 } // namespace Device
 } // namespace Xyce
 

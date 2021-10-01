@@ -476,6 +476,9 @@ public:
 
   DeviceEntity *getDeviceEntity(const std::string &full_param_name) const;
 
+  DeviceInstance * getMutualInductorDeviceInstance (
+      const std::string &full_param_name, int & index) const;
+
   void acceptStep();
 
   bool getInitialQnorm (std::vector<TimeIntg::TwoLevelError> & tleVec );
