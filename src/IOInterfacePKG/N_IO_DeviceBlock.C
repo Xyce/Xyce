@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include <N_DEV_SourceData.h>
 #include <N_ERH_ErrorMgr.h>
@@ -945,7 +946,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     int linePosition = 7;
     if (deviceType == "E" || deviceType == "G")
     {
-      if (parsedInputLine.size() < 7+2*dimension)
+      if (numFields < 7+2*dimension)
       {
         Report::UserError().at(getNetlistFilename(), parsedInputLine[0].lineNumber_)
           << "Not enough fields on input line for device " << getInstanceName();
@@ -972,7 +973,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     else
     {
       // This is an F or an H device.
-      if (parsedInputLine.size() < 7+dimension)
+      if (numFields < 7+dimension)
       {
         Report::UserError().at(getNetlistFilename(), parsedInputLine[0].lineNumber_)
           << "Not enough fields on input line for device " << getInstanceName();
@@ -990,7 +991,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     }
 
     // Add all remaining fields to the expression.
-    for ( ;linePosition < parsedInputLine.size(); ++linePosition)
+    for ( ;linePosition < numFields; ++linePosition)
     {
       expression += " " + parsedInputLine[linePosition].string_;
     }
@@ -1391,7 +1392,6 @@ bool DeviceBlock::extractMutualInductanceData( const TokenVector & parsedInputLi
 //-----------------------------------------------------------------------------
 bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 {
-  bool result;
   int modelLevel, modelNamePosition, controlPosition;
   std::string modelType, expression;
   int numFields = parsedInputLine.size();
@@ -1494,15 +1494,15 @@ bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 bool DeviceBlock::extractNodes(const TokenVector & parsedInputLine,
                                int modelLevel, int modelNamePosition)
 {
-  size_t numFields = parsedInputLine.size();
+  int numFields = parsedInputLine.size();
   int numNodes;
 
   numNodes = metadata_.getNumberOfNodes(getNetlistDeviceType(), modelLevel);
   if (numNodes == -1)
     return false;
 
-  const size_t nodeStartPos = 1;
-  const size_t nodeEndPos = nodeStartPos + numNodes - 1;
+  const int nodeStartPos = 1;
+  const int nodeEndPos = nodeStartPos + numNodes - 1;
 
   if ( modelNamePosition > 0 && modelNamePosition <= nodeEndPos)
   {
@@ -2016,7 +2016,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
         if (DEBUG_IO) {
           Xyce::dout() << " Processing composite for parameter " << parameterPtr->uTag() << std::endl;
 
-          for (int ieric=0; ieric < components.size(); ++ieric)
+          for (size_t ieric=0; ieric < components.size(); ++ieric)
           {
             Xyce::dout() << "tag[" << ieric << "] = " << components[ieric].uTag() << "  val = " << components[ieric].stringValue() << std::endl;
           }
