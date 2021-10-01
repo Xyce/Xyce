@@ -105,6 +105,13 @@ public:
     return emptySet;
   }
 
+  virtual std::vector< double > getInductorInductances() const {
+    std::vector< double > emptySet;
+    return emptySet;
+  }
+
+  virtual void setInductorInductances(std::vector< double > & set) {}
+
   virtual void registerLIDs( const LocalIdVector & intLIDVecRef, const LocalIdVector & extLIDVecRef )
   {}
 

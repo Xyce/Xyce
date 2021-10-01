@@ -278,7 +278,6 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
   virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const {
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
-    const std::string &param_string = (*it).stringValue();
 
     int arg_count = 0;
     if ((*it).getType() == Util::INT)
@@ -315,6 +314,86 @@ private:
   const DeviceMgr &     deviceManager_;
 };
 
+//-----------------------------------------------------------------------------
+// Class         : MutualInductorInstancesOpBuilder
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/30/2021
+//-----------------------------------------------------------------------------
+///
+/// Special Op for inductors that have been merged into mutual inductor devices.
+///
+/// @author Eric Keiter, SNL
+/// @date 09/30/2021
+///
+struct MutualInductorInstancesOpBuilder : public Util::Op::Builder
+{
+  /// Constructor
+  MutualInductorInstancesOpBuilder(const DeviceMgr &device_manager)
+    : deviceManager_(device_manager)
+  {}
+
+  /// Destructor
+  virtual ~MutualInductorInstancesOpBuilder()
+  {}
+
+//-----------------------------------------------------------------------------
+// Function      : MutualInductorInstancesOpBuilder::registerCreateFunctions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/30/2021
+//----------------------------------------------------------------------------
+/// Register ops that this builder can create
+  virtual void registerCreateFunctions(Util::Op::BuilderManager &builder_manager) const
+  {
+    builder_manager.addCreateFunction<DeviceEntityParameterOp>();
+  }
+
+//-----------------------------------------------------------------------------
+// Function      : MutualInductorInstancesOpBuilder::makeOp
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/30/2021
+//----------------------------------------------------------------------------
+///
+/// @author Eric Keiter, SNL
+/// @date 09/30/2021
+///
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const 
+  {
+    Util::Op::Operator *new_op = 0;
+    const std::string &param_tag = (*it).tag();
+
+    const std::string full_inductor_name = Xyce::Util::entityNameFromFullParamName(param_tag).getEncodedName();
+    Xyce::Device::InstanceName foo(full_inductor_name);
+    std::string inductor_name = foo.getDeviceName();
+
+    int arg_count = 0;
+    if ((*it).getType() == Util::INT) // double check; does this part make sense here?
+      arg_count = (*it).getImmutableValue<int>();
+    if (arg_count == 0)
+    {
+      int inductorIndex=-1;
+      DeviceInstance *device_instance=deviceManager_.getMutualInductorDeviceInstance(inductor_name,inductorIndex);
+
+      if (device_instance)
+      {
+        new_op = new MutualInductorInstancesOp(param_tag, inductor_name, *device_instance, inductorIndex);
+      }
+    }
+
+    return new_op;
+  }
+
+private:
+  const DeviceMgr &     deviceManager_;
+};
 
 //-----------------------------------------------------------------------------
 // Class         : ArtificialParameterOpBuilder
@@ -496,6 +575,7 @@ void registerOpBuilders(Util::Op::BuilderManager &builder_manager, Parallel::Mac
 {
   builder_manager.addBuilder(new DeviceGlobalParameterOpBuilder(device_manager));
   builder_manager.addBuilder(new DeviceEntityOpBuilder(device_manager));
+  builder_manager.addBuilder(new MutualInductorInstancesOpBuilder(device_manager));
   builder_manager.addBuilder(new DeviceOptionsOpBuilder(device_manager.getDeviceOptions()));
   builder_manager.addBuilder(new ArtificialParameterOpBuilder(device_manager, device_manager.getArtificialParameterMap(), device_manager.getPassthroughParameterSet()));
 //  builder_manager.addBuilder(new DeviceMgrOpBuilder(device_manager));
