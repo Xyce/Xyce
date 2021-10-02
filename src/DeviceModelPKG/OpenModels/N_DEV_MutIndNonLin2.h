@@ -111,6 +111,8 @@ public:
 
   void loadNodeSymbols(Util::SymbolTable &symbol_table) const; // override
 
+  void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
+
   const std::vector< std::vector<int> > & jacobianStamp() const;
   void registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVec );
 
