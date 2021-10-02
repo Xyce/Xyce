@@ -370,23 +370,38 @@ struct MutualInductorInstancesOpBuilder : public Util::Op::Builder
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    const std::string full_inductor_name = Xyce::Util::entityNameFromFullParamName(param_tag).getEncodedName();
-    Xyce::Device::InstanceName foo(full_inductor_name);
-    std::string inductor_name = foo.getDeviceName();
-
-    int arg_count = 0;
-    if ((*it).getType() == Util::INT) // double check; does this part make sense here?
-      arg_count = (*it).getImmutableValue<int>();
-    if (arg_count == 0)
+    if (!(param_tag.empty()))
     {
-      int inductorIndex=-1;
-      DeviceInstance *device_instance=deviceManager_.getMutualInductorDeviceInstance(inductor_name,inductorIndex);
-
-      if (device_instance)
+      // don't even check for this if the param_tag is an expression.  
+      // Let the expression ops (elsewhere in Xyce) take care of this in that case.
+      // This is necessary b/c this whole makeOps structure is *really* fragile.  
+      // The calling code (N_UTL_Op::makeOps) loops over all the builders until it 
+      // finds one that succeeds.  So, we have to make sure this builder appropriately fails when it should.
+      //
+      // should I check for Util::EXPR instead? that doesn't seem to work.  
+      // Another option: parse param_tag via expression library
+      if ( param_tag[0] != '{') 
       {
-        new_op = new MutualInductorInstancesOp(param_tag, inductor_name, *device_instance, inductorIndex);
+        const std::string full_inductor_name = Xyce::Util::entityNameFromFullParamName(param_tag).getEncodedName();
+        Xyce::Device::InstanceName foo(full_inductor_name);
+        std::string inductor_name = foo.getDeviceName();
+
+        int arg_count = 0;
+        if ((*it).getType() == Util::INT) // double check; does this part make sense here?
+          arg_count = (*it).getImmutableValue<int>();
+        if (arg_count == 0)
+        {
+          int inductorIndex=-1;
+          DeviceInstance *device_instance=deviceManager_.getMutualInductorDeviceInstance(inductor_name,inductorIndex);
+
+          if (device_instance)
+          {
+            new_op = new MutualInductorInstancesOp(param_tag, inductor_name, *device_instance, inductorIndex);
+          }
+        }
       }
     }
+
 
     return new_op;
   }
