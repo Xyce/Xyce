@@ -139,7 +139,7 @@ public:
   const std::string             optionName_;
 };
 
-class MutualInductorInstancesOp : public Util::Op::Op<MutualInductorInstancesOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
+class MutualInductorInstancesOp : public Util::Op::Op<MutualInductorInstancesOp, Util::Op::ReduceSum, Util::Op::EvalNoop>
 {
 public:
     MutualInductorInstancesOp(const std::string &name,

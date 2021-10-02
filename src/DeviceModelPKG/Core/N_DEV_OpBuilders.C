@@ -350,7 +350,7 @@ struct MutualInductorInstancesOpBuilder : public Util::Op::Builder
 /// Register ops that this builder can create
   virtual void registerCreateFunctions(Util::Op::BuilderManager &builder_manager) const
   {
-    builder_manager.addCreateFunction<DeviceEntityParameterOp>();
+    builder_manager.addCreateFunction<MutualInductorInstancesOp>();
   }
 
 //-----------------------------------------------------------------------------
