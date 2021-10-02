@@ -1651,7 +1651,7 @@ extractMEASUREData(
   // option blocks with the name MEASURE come from .OPTIONS MEASURE lines.
   Util::OptionBlock option_block("DOT_MEASURE_LINE", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
   std::string parsedType;  // used later to enable VAL= syntax for TRIG and TARG
 
   if( numFields < 4 )

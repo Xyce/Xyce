@@ -859,7 +859,7 @@ void CircuitBlock::setLinePosition( int const& position )
 bool CircuitBlock::extractSubcircuitData(std::string fileName, 
                                          TokenVector const& parsedLine)
 {
-  int numFields = parsedLine.size();
+  const int numFields = parsedLine.size();
 
   if ( numFields < 3 )
   {

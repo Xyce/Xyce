@@ -39,6 +39,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <cstring>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_ERH_Message.h>
@@ -563,7 +564,7 @@ bool extractICData(
   const std::string& subcktName = circuit_block.getName();
 
   bool addBlock = true;
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   if ( numFields < 2 )
   {
@@ -574,7 +575,7 @@ bool extractICData(
 
   if (DEBUG_IO)
   {
-    for (int ieric=0;ieric<parsed_line.size();++ieric)
+    for (size_t ieric=0;ieric<parsed_line.size();++ieric)
     {
       Xyce::dout() << "parsed_line["<<ieric<<"] = " << parsed_line[ieric].string_ << std::endl;
     }
@@ -780,7 +781,7 @@ extractNodeSetData(
   const std::string& subcktName = circuit_block.getName();
 
   bool addBlock = true;
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   if ( numFields < 2 )
   {
@@ -791,7 +792,7 @@ extractNodeSetData(
 
   if (DEBUG_IO)
   {
-    for (int ieric=0;ieric<parsed_line.size();++ieric)
+    for (size_t ieric=0;ieric<parsed_line.size();++ieric)
     {
       Xyce::dout() << "parsed_line["<<ieric<<"] = " << parsed_line[ieric].string_ << std::endl;
     }
@@ -990,7 +991,7 @@ extractSaveData(
 {
   Util::OptionBlock option_block("SAVE", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
   int linePosition = 0;
 
   Util::Param parameter("", "");

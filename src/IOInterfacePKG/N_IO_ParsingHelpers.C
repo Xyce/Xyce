@@ -153,7 +153,7 @@ std::string getPathFromFileName(const std::string& fileName)
 // Function      : isAbsolutePath
 // Purpose       : Does the includeFile use an absolute path? On Windows,
 //                 this also includes paths that start with C:\ and UNC paths
-//                 that start with \\
+//                 that start with the characters `\\`
 // Special Notes :
 // Creator       : Pete Sholander
 // Creation Date : 03/23/2021
@@ -857,7 +857,7 @@ void combineParamValueFields(
     int & linePosition, 
     std::string & combinedString)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   combinedString = parsed_line[ linePosition ].string_ ;
 
@@ -892,7 +892,7 @@ void combineParamValueFields(
   if (foundEquals) { if ( parsed_line[ equalsIndex-2 ].string_ == ",") { foundComma=true; } }
 
   bool modified=false;
-  if( (linePosition < parsed_line.size()-1) )
+  if( (linePosition < numFields-1) )
   {
     int end = parsed_line.size();
     if(foundEquals)
@@ -937,7 +937,7 @@ bool extractParamData(
   const std::string &       netlist_filename,
   const TokenVector &       parsed_line)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   // Check that the minimum required number of fields are on the line.
   if ( numFields < 4 )
@@ -1044,7 +1044,7 @@ bool extractGlobalParamData(
   const std::string &           netlist_filename,
   const TokenVector &           parsed_line)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   // Check that the minimum required number of fields are on the line.
   if ( numFields < 4 )
@@ -1164,7 +1164,7 @@ bool extractOperatorData(const TokenVector &  parsed_line,
                          std::ostringstream&  msg,
                          int&                 p_err)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
   ExtendedString field("");
 
   // Note: the next if statement has to support I, IR, II, IM, IP and IDB.  That is why it

@@ -197,7 +197,7 @@ bool CircuitContext::beginSubcircuitContext(
   subcircuitContextPtr->setLocation( newSubcktLoc );
 
   // Extract the subcircuit data from subcircuitLine.
-  int numFields = subcircuitLine.size();
+  const int numFields = subcircuitLine.size();
 
   if (numFields < 2)
   {
@@ -1844,21 +1844,21 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
   expression.getFuncNames(funcNames);
   if ( funcNames.size() > 0 )
   {
-    for (int ii = 0; ii < funcNames.size(); ++ii)
+    for (const auto &fn : funcNames)
     {
       // Look for the function in resolvedFunctions_.
-      Util::Param functionParameter(funcNames[ii], "");
+      Util::Param functionParameter(fn, "");
       bool functionfound = getResolvedFunction(functionParameter);
       if (functionfound)
       { // pull out the RHS expression and attach
         if(functionParameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expToBeAttached = functionParameter.getValue<Util::Expression>();
-          expression.attachFunctionNode(funcNames[ii], expToBeAttached);
+          expression.attachFunctionNode(fn, expToBeAttached);
         }
         else 
         { 
-          Report::DevelFatal()<< "functionParameter " <<  funcNames[ii] << " is not EXPR type!!!"; 
+          Report::DevelFatal()<< "functionParameter " <<  fn << " is not EXPR type!!!"; 
         }
       }
       else

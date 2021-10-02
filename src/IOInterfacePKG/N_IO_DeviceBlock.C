@@ -135,7 +135,7 @@ void DeviceBlock::print()
                << "Device Information" << std::endl
                << "------------------" << std::endl
                << "device line:" << std::endl;
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
   int i;
   for ( i = 0; i < numFields; ++i )
   {
@@ -469,7 +469,7 @@ bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , 
   // The device name has been extracted by extractData. The
   // remaining data in parsedLine is extracted here.
 
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Extract the model name from parsedLine if one exists. If
   // a model name was found, find its type.
@@ -801,7 +801,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
 {
   bool result;
 
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Check the device line for a "VALUE", "TABLE", or "POLY" field. If
   // none of these fields are found and the device is an E or G device,
@@ -1104,7 +1104,7 @@ bool DeviceBlock::extractYDeviceData( const TokenVector & parsedInputLine )
   // Copy the parsed line since it will be modified.
   parsedLine_ = parsedInputLine;
 
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
 
   if ( numFields < 2 )
   {
@@ -1176,7 +1176,7 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
   // Copy the parsed line since it will be modified.
   parsedLine_ = parsedInputLine;
 
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
 
   if ( numFields < 2 )
   {
@@ -1276,7 +1276,7 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
 //-----------------------------------------------------------------------------
 bool DeviceBlock::extractMutualInductanceData( const TokenVector & parsedInputLine )
 {
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   bool kequals = false;
 
   // Extract the inductor names.
@@ -1394,7 +1394,7 @@ bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 {
   int modelLevel, modelNamePosition, controlPosition;
   std::string modelType, expression;
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   int i, parameterStartPosition, parameterEndPosition;
   bool is_w=false;
 
@@ -1494,7 +1494,7 @@ bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 bool DeviceBlock::extractNodes(const TokenVector & parsedInputLine,
                                int modelLevel, int modelNamePosition)
 {
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   int numNodes;
 
   numNodes = metadata_.getNumberOfNodes(getNetlistDeviceType(), modelLevel);
@@ -1822,7 +1822,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
   // value in instanceParameters to the value given.
   int linePosition = searchStartPosition;
   bool foundParameters = false;
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   parameterStartPosition = numFields; // Default in case there are no
                                       // parameters on the line.
   parameterEndPosition = numFields; // Default in case there are no
@@ -2392,7 +2392,7 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
 {
   // The device name has been extracted by extractData. The
   // remaining data in parsedLine is extracted here.
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Extract the model name from parsedLine if one exists. If
   // a model name was found, find its type.

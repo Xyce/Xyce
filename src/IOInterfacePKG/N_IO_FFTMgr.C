@@ -440,7 +440,7 @@ bool extractFFTData(
 
   Util::OptionBlock option_block("DOT_FFT_LINE", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   // used to ensure that the output variable is not preceded by any of the allowed qualifiers
   bool outputVarFound=false;

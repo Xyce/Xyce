@@ -2818,10 +2818,9 @@ void getVWildcardList(
   const NodeNameMap&   external_nodes,
   unordered_set<std::string>& wildcard_list)
 {
-  NodeNameMap::const_iterator it = external_nodes.begin();
-  for ( ; it != external_nodes.end() ; ++it)
+  for (const auto &en : external_nodes)
   {
-    ExtendedString tmpStr((*it).first);
+    ExtendedString tmpStr(en.first);
     tmpStr.toUpper();
     if ( (tmpStr.rfind("BRANCH") == std::string::npos) && 
          ((varString == "*") || std::regex_match(tmpStr, makeRegexFromString(varString))) )
@@ -2869,10 +2868,9 @@ void getIWildcardList(
     }   
   }
     
-  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  for (const auto &bv : branch_vars)
   {
-    ExtendedString tmpStr((*iter_bv).first);
+    ExtendedString tmpStr(bv.first);
     tmpStr.toUpper();
     size_t tmpStrLen = tmpStr.length();
 
@@ -2915,10 +2913,9 @@ void getPWildcardList(
   const NodeNameMap&   branch_vars,
   unordered_set<std::string>& wildcard_list)
 {
-  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  for (const auto &bv : branch_vars)
   {
-    ExtendedString tmpStr((*iter_bv).first);
+    ExtendedString tmpStr(bv.first);
     tmpStr.toUpper();
 
     size_t pos = tmpStr.rfind("BRANCH");
@@ -3920,7 +3917,7 @@ bool extractPrintData(
       netlist_filename, 
       parsed_line[0].lineNumber_);
 
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   if (DEBUG_IO) 
   {
@@ -4077,7 +4074,7 @@ bool extractLINData(
   const std::string &           netlist_filename,
   const IO::TokenVector &       parsed_line)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   Util::OptionBlock print_option_block("PRINT", 
       Util::OptionBlock::ALLOW_EXPRESSIONS, 
