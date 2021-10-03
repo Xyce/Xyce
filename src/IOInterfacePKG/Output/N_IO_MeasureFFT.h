@@ -61,7 +61,7 @@ public:
 
   void updateTran(
     Parallel::Machine comm,
-    const double circuitTime,
+    double circuitTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -81,27 +81,28 @@ public:
 
   void updateAC(
     Parallel::Machine comm,
-    const double frequency,
+    double frequency,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
   void updateNoise(
     Parallel::Machine comm,
-    const double frequency,
+    double frequency,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
-    const double totalOutputNoiseDens,
-    const double totalInputNoiseDens,
+    double totalOutputNoiseDens,
+    double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
   virtual double getMeasureResult()=0;
 
   // used to pass info from associated FFTAnalysis object to this measure object
   void fixupFFTMeasure(FFTAnalysis* fftAnalysisPtr);
-  virtual bool isOpTypeAllowed();
 
 protected:
+  virtual bool isOpTypeAllowed();
+
   FFTAnalysis* fftAnalysisPtr_;
   int np_;
   int atIdx_; // versions of AT, MINFREQ, MAXFREQ rounded to nearest harmonic index
@@ -131,7 +132,7 @@ public:
   bool isOpTypeAllowed();
   double getMeasureResult();
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-  void printMeasureWarningsForAT(const double endSimTime);
+  void printMeasureWarningsForAT(double endSimTime) const;
 
 private:
   std::string opType_;

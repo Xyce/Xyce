@@ -67,7 +67,7 @@ Max::Max(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 //-----------------------------------------------------------------------------
 void Max::reset() 
 {
-  resetExtrema();
+  resetBase();
   maximumValue_ = 0.0;
 }
 
@@ -83,7 +83,7 @@ void Max::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Max::setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)
+void Max::setMeasureVarsForNewWindow(double indepVarVal, double depVarVal)
 {
   maximumValue_ = depVarVal;
   calculationInstant_ = indepVarVal;
@@ -100,7 +100,7 @@ void Max::setMeasureVarsForNewWindow(const double indepVarVal, const double depV
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Max::updateMeasureVars(const double indepVarVal, const double depVarVal)
+void Max::updateMeasureVars(double indepVarVal, double depVarVal)
 {
   // calculation of the maximum value
   if( maximumValue_ < depVarVal )

@@ -135,8 +135,8 @@ void FindWhenBase::resetFindWhenBase()
 //-----------------------------------------------------------------------------
 void FindWhenBase::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -167,7 +167,7 @@ void FindWhenBase::updateTran(
     }
     else if (type_ == "WHEN")
     {
-       double targVal=updateTargVal();
+       double targVal=getTargVal();
 
       // The measure will succeed if the interpolated WHEN time is inside of the
       // measurement window, and the RISE/FALL/CROSS condition is then met.
@@ -257,7 +257,7 @@ void FindWhenBase::updateDC(
       }
       else if (type_ == "WHEN")
       {
-        double targVal=updateTargVal();
+        double targVal=getTargVal();
 
         // The measure will succeed if the interpolated WHEN value is inside of the
 	// measurement window, and the RISE/FALL/CROSS condition is then met.
@@ -293,9 +293,9 @@ void FindWhenBase::updateDC(
 //-----------------------------------------------------------------------------
 void FindWhenBase::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -324,7 +324,7 @@ void FindWhenBase::updateAC(
     }
     else if (type_ == "WHEN")
     {
-        double targVal=updateTargVal();
+        double targVal=getTargVal();
 
         // The measure will succeed if the interpolated WHEN frequency is inside of the
 	// measurement window, and the RISE/FALL/CROSS condition is then met.
@@ -359,13 +359,13 @@ void FindWhenBase::updateAC(
 //-----------------------------------------------------------------------------
 void FindWhenBase::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used in descriptive output to stdout
@@ -395,7 +395,7 @@ void FindWhenBase::updateNoise(
     else if (type_ == "WHEN")
     {
       {
-        double targVal=updateTargVal();
+        double targVal=getTargVal();
 
         // The measure will succeed if the interpolated WHEN frequency is inside of the
 	// measurement window, and the RISE/FALL/CROSS condition is then met.
@@ -428,11 +428,11 @@ void FindWhenBase::updateNoise(
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.  For TRAN, it is circuit
 //                 time.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-bool FindWhenBase::isATcondition(const double indepVarVal)
+bool FindWhenBase::isATcondition(double indepVarVal) const
 {
   // check and see if last point and this point bound the target point
   double backDiff    = lastIndepVarValue_ - at_;
@@ -457,11 +457,11 @@ bool FindWhenBase::isATcondition(const double indepVarVal)
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.  For TRAN, it is circuit
 //                 time.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 09/15/2021
 //-----------------------------------------------------------------------------
-void FindWhenBase::updateMeasureVarsForAT(const double currIndepVarVal)
+void FindWhenBase::updateMeasureVarsForAT(double currIndepVarVal)
 {
   if ( fabs(currIndepVarVal - at_) < minval_)
     calculationResult_ = outVarValues_[0];
@@ -482,11 +482,11 @@ void FindWhenBase::updateMeasureVarsForAT(const double currIndepVarVal)
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.  For TRAN measures, it
 //                 is the circuit time.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVal)
+bool FindWhenBase::isWHENcondition(double indepVarVal, double targVal) const
 {
   bool whenFound=false;
 
@@ -525,18 +525,18 @@ bool FindWhenBase::isWHENcondition(const double indepVarVal, const double targVa
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::updateMeasureVarsForWhen()
+// Function      : FindWhenBase::updateMeasureVarsForWhen
 // Purpose       : Updates the calculation result and calculation instant vectors,
 //                 and the associated flags, if the WHEN condition has been met.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it
 //                 is the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
-void FindWhenBase::updateMeasureVarsForWhen(const double currIndepVarVal, const double targVal,
-                                     const double whenInstant)
+void FindWhenBase::updateMeasureVarsForWhen(double currIndepVarVal, double targVal,
+                                            double whenInstant)
 {
   updateCalculationInstant(whenInstant);
   if (findGiven_)
@@ -565,11 +565,11 @@ void FindWhenBase::updateMeasureVarsForWhen(const double currIndepVarVal, const 
 //                 This accounts for case of WHEN V(1)=V(2) where both
 //                 variables may be changing.
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/04/2020
 //-----------------------------------------------------------------------------
-double FindWhenBase::interpolateCalculationInstant(double currIndepVarValue, double targVal)
+double FindWhenBase::interpolateCalculationInstant(double currIndepVarValue, double targVal) const
 {
   // Calculate slopes and y-intercepts of the two lines, to get them into
   // canonical y=ax+c and y=bx+d form.  If the WHEN clause is of the form
@@ -603,12 +603,12 @@ double FindWhenBase::interpolateCalculationInstant(double currIndepVarValue, dou
 //                 on the previously determined WHEN time (or frequency or
 //                 DC sweep value).
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/18/2020
 //-----------------------------------------------------------------------------
 double FindWhenBase::interpolateFindValue(double currIndepVarValue, double targVal,
-                                          double whenInstant)
+                                          double whenInstant) const
 {
   double findVal;
   if (fabs(outVarValues_[whenIdx_] - targVal) < minval_)
@@ -621,12 +621,12 @@ double FindWhenBase::interpolateFindValue(double currIndepVarValue, double targV
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::updateRFCcountForWhen()
+// Function      : FindWhenBase::updateRFCcountForWhen
 // Purpose       : Updates the rise, fall and cross counts.
 // Special Notes : This function is normally only called for a WHEN time that
 //                 falls within the FROM-TO window.  So, the WHEN time is always
 //                 a valid cross.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/06/2020
 //-----------------------------------------------------------------------------
@@ -642,16 +642,16 @@ void FindWhenBase::updateRFCcountForWhen()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::withinRFCWindowForWhen()
+// Function      : FindWhenBase::withinRFCWindowForWhen
 // Purpose       : Determine if the current WHEN time falls within the specified
 //                 RFC value.
 // Special Notes : Assumes that a WHEN measure without RISE, FALL or CROSS given
 //                 on the .MEASURE line defaults to CROSS given.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/06/2020
 //-----------------------------------------------------------------------------
-bool FindWhenBase::withinRFCWindowForWhen()
+bool FindWhenBase::withinRFCWindowForWhen() const
 {
   bool retVal=false;
 
@@ -666,17 +666,17 @@ bool FindWhenBase::withinRFCWindowForWhen()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::setMeasureState()
+// Function      : FindWhenBase::setMeasureState
 // Purpose       : initializes the past values of the independent, dependent
 //                 and measured variables, as well as the past target level.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it is
 //                 the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/04/2020
 //-----------------------------------------------------------------------------
-void FindWhenBase::setMeasureState(const double indepVarVal)
+void FindWhenBase::setMeasureState(double indepVarVal)
 {
   // assigned last dependent and independent var to current value of the independent
   // varible and outVarValue_[whenIdx_].  While we can't interpolate on this step, it
@@ -690,17 +690,17 @@ void FindWhenBase::setMeasureState(const double indepVarVal)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::updateMeasureState()
+// Function      : FindWhenBase::updateMeasureState
 // Purpose       : updates the past values of the independent, dependent
 //                 and measured variables, as well as the past target level.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it is
 //                 the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/04/2020
 //-----------------------------------------------------------------------------
-void FindWhenBase::updateMeasureState(const double indepVarVal)
+void FindWhenBase::updateMeasureState(double indepVarVal)
 {
   lastIndepVarValue_ = indepVarVal;
   lastDepVarValue_ = outVarValues_[whenIdx_];
@@ -711,14 +711,14 @@ void FindWhenBase::updateMeasureState(const double indepVarVal)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : FindWhenBase::updateTargVal
+// Function      : FindWhenBase::getTargVal
 // Purpose       : updates the target value for the WHEN clause
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/04/2020
 //-----------------------------------------------------------------------------
-double FindWhenBase::updateTargVal()
+double FindWhenBase::getTargVal() const
 {
   double targVal = 0.0;
 
@@ -741,7 +741,7 @@ double FindWhenBase::updateTargVal()
 // Function      : FindWhenBase::updateLastTargVal
 // Purpose       : updates the last target value for the WHEN clause
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 09/16/2020
 //-----------------------------------------------------------------------------
@@ -763,8 +763,8 @@ void FindWhenBase::updateLastTargVal()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/8/2020
 //-----------------------------------------------------------------------------
-std::ostream& FindWhenBase::printMeasureWindow(std::ostream& os, const double endSimTime,
-				               const double startSweepVal, const double endSweepVal)
+std::ostream& FindWhenBase::printMeasureWindow(std::ostream& os, double endSimTime,
+				               double startSweepVal, double endSweepVal) const
 {
   if (!atGiven_)
   {
@@ -787,7 +787,7 @@ std::ostream& FindWhenBase::printMeasureWindow(std::ostream& os, const double en
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/01/2015
 //-----------------------------------------------------------------------------
-bool FindWhenBase::checkMeasureLine()
+bool FindWhenBase::checkMeasureLine() const
 {
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in
@@ -817,7 +817,7 @@ bool FindWhenBase::checkMeasureLine()
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
 //-----------------------------------------------------------------------------
-std::ostream& FindWhenBase::printRFCWindow(std::ostream& os)
+std::ostream& FindWhenBase::printRFCWindow(std::ostream& os) const
 {
   // no op, for any measure that supports WHEN
 
@@ -1191,7 +1191,7 @@ std::ostream& FindWhenCont::printMeasureResult(std::ostream& os)
     // have the correct number of values in it.
     if (contRFC_ >=0)
     {
-      for (int i=0; i<calculationResultVec_.size(); i++)
+      for (size_t i=0; i<calculationResultVec_.size(); i++)
         os << name_ << " = " << calculationResultVec_[i] << std::endl;
     }
     else
@@ -1242,7 +1242,7 @@ std::ostream& FindWhenCont::printVerboseMeasureResult(std::ostream& os)
     std::string modeStr = setModeStringForMeasureResultText();
     if (contRFC_ >=0)
     {
-      for (int i=0; i<calculationResultVec_.size(); i++)
+      for (size_t i=0; i<calculationResultVec_.size(); i++)
       {
          os << name_ << " = " << calculationResultVec_[i];
          if (findGiven_)

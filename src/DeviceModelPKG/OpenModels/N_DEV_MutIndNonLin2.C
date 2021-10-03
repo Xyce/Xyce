@@ -412,6 +412,14 @@ Instance::Instance(
   }
   numInductors = instanceData.size();
 
+  // Set-up for power calculations.  We allocate space for all of the
+  // component inductors, if I(), P() or W() was requested for any of them.
+  // This is somewhat inefficent if the mutual inductor has lots of component
+  // inductors, but it was the minimal change to how lead current requests are
+  // tracked for all of the devices.
+  setNumBranchDataVars(0);    // by default don't allocate space in branch vectors   
+  numBranchDataVarsIfAllocated = numInductors;  // space allocation if power is needed
+  
   inductorCurrents.resize( numInductors );
   inductanceVals.resize( numInductors );
   LOI.resize( numInductors );
@@ -739,6 +747,33 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
     Xyce::dout() << "Instance::registerStateLIDs-------------------" << std::endl;
   }
 }
+
+//----------------------------------------------------------------------------- 
+// Function      : Instance::registerBranchDataLIDs 
+// Purpose       : This allows P() and W() to work for the component inductors
+//               : of a mutual inductor.
+// Special Notes : 
+// Scope         : public 
+// Creator       : Pete Sholander, SNL 
+// Creation Date : 3/28/17 
+//----------------------------------------------------------------------------- 
+void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef) 
+{   
+  AssertLIDs(branchLIDVecRef.size() == getNumBranchDataVars());   
+  
+  if (loadLeadCurrent)
+  { 
+    std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();   
+    std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end(); 
+    int j=0;  
+    for ( ; currentInductor != endInductor ; ++currentInductor)   
+    {   
+      (*currentInductor)->li_branch_data = branchLIDVecRef[j];
+      j++;
+    }    
+  } 
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerStoreLIDs
@@ -1552,6 +1587,13 @@ bool Instance::loadDAEFVector ()
     (*daeFVecPtr)[((*currentInductor)->li_Neg)]    += -current;
 
     (*daeFVecPtr)[((*currentInductor)->li_Branch)] += -((vNodePos - vNodeNeg)/mid);
+    if (loadLeadCurrent)
+    {
+      double * leadF = extData.nextLeadCurrFCompRawPtr;     
+      double * junctionV = extData.nextJunctionVCompRawPtr;
+      leadF[(*currentInductor)->li_branch_data] =  current;       
+      junctionV[(*currentInductor)->li_branch_data] = (vNodePos - vNodeNeg);
+    }
 
     currentInductor++;
     i++;
@@ -1567,7 +1609,8 @@ bool Instance::loadDAEFVector ()
     (*daeFVecPtr)[li_deltaMagVar] += solVector[li_deltaMagVar];
     (*daeFVecPtr)[li_deltaMagVar] -= MagVarUpdate;
   }
-
+  
+   
   return bsuccess;
 }
 

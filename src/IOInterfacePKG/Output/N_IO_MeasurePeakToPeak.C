@@ -70,7 +70,7 @@ PeakToPeak::PeakToPeak(const Manager &measureMgr, const Util::OptionBlock & meas
 //-----------------------------------------------------------------------------
 void PeakToPeak::reset() 
 {
-  resetExtrema();
+  resetBase();
   maximumValue_ = 0.0;
   minimumValue_ = 0.0;
   maximumInstant_ = 0.0;
@@ -89,7 +89,7 @@ void PeakToPeak::reset()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void PeakToPeak::setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal)
+void PeakToPeak::setMeasureVarsForNewWindow(double indepVarVal, double depVarVal)
 {
   maximumValue_ = depVarVal;
   minimumValue_ = depVarVal;
@@ -109,7 +109,7 @@ void PeakToPeak::setMeasureVarsForNewWindow(const double indepVarVal, const doub
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void PeakToPeak::updateMeasureVars(const double indepVarVal, const double depVarVal)
+void PeakToPeak::updateMeasureVars(double indepVarVal, double depVarVal)
 {
   // update the maximum and minimum values.  The Peak-to-Peak value
   // is calculated in the PeakToPeak::getMeasureResult() function.

@@ -60,8 +60,8 @@ class Fourier : public Base
 
     void updateTran(
       Parallel::Machine comm,
-      const double circuitTime,
-      const double endSimTime,
+      double circuitTime,
+      double endSimTime,
       const Linear::Vector *solnVec,
       const Linear::Vector *stateVec,
       const Linear::Vector *storeVec,
@@ -81,18 +81,18 @@ class Fourier : public Base
 
     void updateAC(
       Parallel::Machine comm,
-      const double frequency,
-      const double fStart,
-      const double fStop,
+      double frequency,
+      double fStart,
+      double fStop,
       const Linear::Vector *solnVec,
       const Linear::Vector *imaginaryVec,
       const Util::Op::RFparamsData *RFparams);
 
     std::ostream& printMeasureResult(std::ostream& os);
     std::ostream& printVerboseMeasureResult(std::ostream& os);
-    void printMeasureWarningsForAT(const double endSimTime);
-    std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
-				     const double startSweepVal, const double endSweepVal);
+    void printMeasureWarningsForAT(double endSimTime) const;
+    std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
+				     double startSweepVal, double endSweepVal) const;
 
   private:
     void calculateMeasureResult_();

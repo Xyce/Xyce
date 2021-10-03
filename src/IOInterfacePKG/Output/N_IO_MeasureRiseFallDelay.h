@@ -56,13 +56,13 @@ public:
   ~RiseFallDelay() {};
 
   void prepareOutputVariables();
-  bool checkMeasureLine(); 
+  bool checkMeasureLine() const; 
   void reset();
 
   void updateTran(
     Parallel::Machine comm,
-    const double circuitTime,
-    const double endSimTime,
+    double circuitTime,
+    double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -82,9 +82,9 @@ public:
 
   void updateAC(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
@@ -98,8 +98,8 @@ public:
   bool newTargRiseFallCrossWindowforLast();
   void updateTrigRiseFallCrossCounts(double, double);
   void updateTargRiseFallCrossCounts(double, double);
-  void updateTrigTargRiseFallCrossCounts(const double, const double, const bool, const bool, 
-                                         const bool, bool&, bool&, int& , int&, int&, double&);
+  void updateTrigTargRiseFallCrossCounts(double, double, bool, bool, bool,
+                                         bool&, bool&, int& , int&, int&, double&);
 
 private:
   bool trigVariableLengthHistoryNeeded_;

@@ -35,6 +35,7 @@
 //
 //-------------------------------------------------------------------------
 
+#include <cstring>
 #include <string>
 
 #include <Xyce_config.h>
@@ -75,7 +76,7 @@ ParsingMgr::ParsingMgr(
     // so we need to pull it apart.
     std::vector<std::string> hspiceExtVec;
     int tokStart = 0;
-    for (int i=0; i< hspiceExtArgStr.length(); ++i)
+    for (size_t i=0; i< hspiceExtArgStr.length(); ++i)
     {
       if ( hspiceExtArgStr[i] == ',' )
       {

@@ -56,11 +56,11 @@ std::regex makeRegexFromString(const std::string &str)
   replaceAll(tmpStr, '\\', "\\\\");
 
   // escape the other special characters
-  for (int i=0; i<specialChars.size(); i++)
+  for (const auto &sc : specialChars)
   {
     std::string escString = "\\";
-    escString.push_back(specialChars[i]);
-    replaceAll(tmpStr, specialChars[i], escString);
+    escString.push_back(sc);
+    replaceAll(tmpStr, sc, escString);
   }
 
   // turn * and ? into the correct string for std::regex

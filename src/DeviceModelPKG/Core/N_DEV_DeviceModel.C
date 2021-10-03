@@ -62,6 +62,7 @@ using std::unordered_set;
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Vector.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_Algorithm.h>
 #include <N_UTL_MachDepParams.h>
 
 #include <N_ERH_ErrorMgr.h>
@@ -797,7 +798,7 @@ void DeviceModel::setupBaseInstanceContainer()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 10/24/2018
 //-----------------------------------------------------------------------------
-bool DeviceModel::getNumericalSensitivity ( const std::string & paramName,
+bool DeviceModel::getNumericalSensitivity ( const std::string & name,
                                 std::vector<double> & dfdpVec,
                                 std::vector<double> & dqdpVec,
                                 std::vector<double> & dbdpVec,
@@ -805,6 +806,7 @@ bool DeviceModel::getNumericalSensitivity ( const std::string & paramName,
                                 std::vector<int> & QindicesVec,
                                 std::vector<int> & BindicesVec )
 {
+  std::string paramName = Util::paramNameFromFullParamName(name);
   double origParamValue = 0.0;
   bool found = getParam(paramName, origParamValue); // const?
   if (found)
@@ -1152,7 +1154,7 @@ bool DeviceModel::getNumericalMatrixSensitivity (
     if(baseInstanceContainer.empty() ) { setupBaseInstanceContainer(); }
     if(baseInstanceContainer.empty() ) 
     { 
-      UserError(*this) << "DeviceModel::getNumericalSensitivity: Failed to setup baseInstance container!" << std::endl;
+      UserError(*this) << "DeviceModel::getNumericalMatrixSensitivity: Failed to setup baseInstance container!" << std::endl;
     }
 
     std::vector<Xyce::Device::DeviceInstance *>::iterator begin = baseInstanceContainer.begin();

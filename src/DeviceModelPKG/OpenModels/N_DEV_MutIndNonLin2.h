@@ -111,6 +111,8 @@ public:
 
   void loadNodeSymbols(Util::SymbolTable &symbol_table) const; // override
 
+  void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
+
   const std::vector< std::vector<int> > & jacobianStamp() const;
   void registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVec );
 
@@ -145,6 +147,20 @@ public:
   Model &getModel() 
   {
     return model_;
+  }
+
+  // function is used in deviceMgr to help determine if the instance's
+  // loadLeadCurrent variable needs to be set for a given mutual inductor instance.
+  std::vector< std::string > getInductorNames() const
+  {
+    return inductorNames;
+  }
+
+  std::vector< double > getInductorInductances() const  {return inductorInductances;}
+
+  void setInductorInductances(std::vector< double > & set) 
+  {
+    if (set.size() == inductorInductances.size()) { for (int ii=0;ii<set.size();ii++) { inductorInductances[ii] = set[ii]; } }
   }
 
 private:

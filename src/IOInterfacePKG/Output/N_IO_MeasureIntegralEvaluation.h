@@ -63,7 +63,7 @@ class IntegralEvaluation : public Stats
     double getMeasureResult();
 
     void setMeasureVarsForNewWindow();
-    void updateMeasureVars(const double indepVarVal, const double signalVal);
+    void updateMeasureVars(double indepVarVal, double signalVal);
 
   private:
     std::string type_;

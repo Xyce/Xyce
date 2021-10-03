@@ -71,8 +71,8 @@ public:
 
   void updateTran(
     Parallel::Machine comm,
-    const double circuitTime,
-    const double endSimTime,
+    double circuitTime,
+    double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -92,40 +92,40 @@ public:
 
   void updateAC(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
   void updateNoise(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
-    const double totalOutputNoiseDens,
-    const double totalInputNoiseDens,
+    double totalOutputNoiseDens,
+    double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
-
-  void updateMeasureState(const double indepVarVal, const double depVarVal);
 
   virtual double getMeasureResult()=0;
 
+protected:
   // this function is only used for TRAN mode
   virtual void setMeasureVarsForNewWindow()=0;
 
   // this function is defined for AC, DC and TRAN modes
-  virtual void updateMeasureVars(const double indepVarVal, const double depVarVal)=0;
+  virtual void updateMeasureVars(double indepVarVal, double depVarVal)=0;
 
-protected:
   double lastIndepVarValue_;
   double lastSignalValue_;
   int numPointsFound_;
 
 private:
+  void updateMeasureState_(double indepVarVal, double depVarVal);
+
   int numOutVars_;
   std::vector<double> outVarValues_;
 };

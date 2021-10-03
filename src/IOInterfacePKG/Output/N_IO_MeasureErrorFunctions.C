@@ -71,20 +71,6 @@ void ErrorFunctions::prepareOutputVariables()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ErrorFunctions::resetErrorFunctions()
-// Purpose       : Called when restarting a measure function.  Resets any state.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 03/08/2020
-//-----------------------------------------------------------------------------
-void ErrorFunctions::resetErrorFunctions()
-{
-  // Just need to reset the Base object here
-  resetBase();
-}
-
-//-----------------------------------------------------------------------------
 // Function      : ErrorFunctions::updateTran()
 // Purpose       :
 // Special Notes :
@@ -94,8 +80,8 @@ void ErrorFunctions::resetErrorFunctions()
 //-----------------------------------------------------------------------------
 void ErrorFunctions::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -111,7 +97,7 @@ void ErrorFunctions::updateTran(
       junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
     initialized_ = true;
-    if ( withinYLimits(outVarValues_[0]) )
+    if ( withinYLimits_(outVarValues_[0]) )
       updateErrVars(outVarValues_[0], outVarValues_[1]);
   }
 }
@@ -155,7 +141,7 @@ void ErrorFunctions::updateDC(
         junction_voltage_vector, lead_current_dqdt_vector, 0, 0, 0, 0);
 
       initialized_ = true;
-      if ( withinYLimits(outVarValues_[0]) )
+      if ( withinYLimits_(outVarValues_[0]) )
         updateErrVars(outVarValues_[0], outVarValues_[1]);
     }
   }
@@ -171,9 +157,9 @@ void ErrorFunctions::updateDC(
 //-----------------------------------------------------------------------------
 void ErrorFunctions::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -188,7 +174,7 @@ void ErrorFunctions::updateAC(
                      imaginaryVec, 0, 0, 0, 0, 0, 0, RFparams);
 
     initialized_ = true;
-    if ( withinYLimits(outVarValues_[0]) )
+    if ( withinYLimits_(outVarValues_[0]) )
       updateErrVars(outVarValues_[0], outVarValues_[1]);
   }
 }
@@ -203,13 +189,13 @@ void ErrorFunctions::updateAC(
 //-----------------------------------------------------------------------------
 void ErrorFunctions::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used in descriptive output to stdout
@@ -223,7 +209,7 @@ void ErrorFunctions::updateNoise(
                      totalOutputNoiseDens, totalInputNoiseDens, noiseDataVec, 0);
 
     initialized_ = true;
-    if ( withinYLimits(outVarValues_[0]) )
+    if ( withinYLimits_(outVarValues_[0]) )
       updateErrVars(outVarValues_[0], outVarValues_[1]);
   }
 }
@@ -237,7 +223,7 @@ void ErrorFunctions::updateNoise(
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/08/2020
 //-----------------------------------------------------------------------------
-bool ErrorFunctions::checkMeasureLine()
+bool ErrorFunctions::checkMeasureLine() const
 {
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in
@@ -252,15 +238,15 @@ bool ErrorFunctions::checkMeasureLine()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ErrorFunctions::withinYLimits
+// Function      : ErrorFunctions::withinYLimits_
 // Purpose       : use YMAX and YMIN to filter out "too large" and "too small"
 //                 values from measure result
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/08/2020
 //-----------------------------------------------------------------------------
-bool ErrorFunctions::withinYLimits(double mVal)
+bool ErrorFunctions::withinYLimits_(double mVal) const
 {
   return (fabs(mVal) <= ymax_) && (fabs(mVal) >= ymin_);
 }
@@ -289,7 +275,7 @@ Err1::Err1(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 //-----------------------------------------------------------------------------
 void Err1::reset()
 {
-  resetErrorFunctions();
+  resetBase();
   err1SqSum_ = 0.0;
   numPts_ = 0;
 }
@@ -352,7 +338,7 @@ Err2::Err2(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
 //-----------------------------------------------------------------------------
 void Err2::reset()
 {
-  resetErrorFunctions();
+  resetBase();
   err2Sum_ = 0.0;
   numPts_ = 0;
 }

@@ -1650,6 +1650,15 @@ bool DeviceMgr::numericalSensitivitiesAvailable(const std::string & name)
   }
   Parallel::AllReduce(comm_, MPI_LOR, &available, 1);
 
+  if (!available)
+  {
+    // handle the special case of inductor instances contained inside mutual inductors.
+    int inductorIndex=-1;
+    DeviceInstance *device_instance=getMutualInductorDeviceInstance(name,inductorIndex);
+    available = (device_instance != 0);
+    Parallel::AllReduce(comm_, MPI_LOR, &available, 1);
+  }
+
   return available != 0;
 }
 
@@ -1727,7 +1736,6 @@ void DeviceMgr::getNumericalSensitivities
   if (device_entity)
   {
     std::string paramName = Util::paramNameFromFullParamName(name);
-
     if (paramName == "")
     {
       found = device_entity->getNumericalSensitivityDefaultParam(
@@ -1736,9 +1744,22 @@ void DeviceMgr::getNumericalSensitivities
     }
     else
     {
-      found = device_entity->getNumericalSensitivity(paramName,
+      found = device_entity->getNumericalSensitivity(name,
                                                     dfdpVec, dqdpVec, dbdpVec,
                                                     FindicesVec, QindicesVec, BindicesVec);
+    }
+  }
+  else
+  {
+    // handle the special case of inductor instances contained inside mutual inductors.
+    int inductorIndex=-1;
+    DeviceInstance *device_instance=getMutualInductorDeviceInstance(name,inductorIndex);
+
+    if (device_instance)
+    {
+      found = device_instance->getNumericalSensitivity(name,
+                                                       dfdpVec, dqdpVec, dbdpVec,
+                                                       FindicesVec, QindicesVec, BindicesVec);
     }
   }
 
@@ -4861,6 +4882,54 @@ DeviceEntity * DeviceMgr::getDeviceEntity(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getMutualInductorDeviceInstance
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/30/2021
+//-----------------------------------------------------------------------------
+DeviceInstance * DeviceMgr::getMutualInductorDeviceInstance (
+      const std::string &full_param_name, int & index
+      ) const
+{
+  std::string entity_name = Xyce::Util::entityNameFromFullParamName(full_param_name).getEncodedName();
+  std::string param_name  = Xyce::Util::paramNameFromFullParamName(full_param_name);
+  InstanceName foo(entity_name);
+  DeviceInstance * device_instance = 0;
+  index=-1;
+
+  if ( foo.getDeviceName()[0] == 'L')
+  {
+    const InstanceVector &MILdevices = getDevices(MutIndLin::Traits::modelGroup());
+    if (MILdevices.size() > 0)
+    {
+      for (InstanceVector::const_iterator instance_it=MILdevices.begin(); 
+          instance_it!=MILdevices.end(); instance_it++)
+      {
+        std::vector<std::string> inductorNames = (*instance_it)->getInductorNames();
+        std::vector< double > inductorInductances = (*instance_it)->getInductorInductances();
+
+        if (inductorNames.size() == inductorInductances.size())
+        {
+          for (size_t ii=0; ii < inductorNames.size(); ii++)
+          {
+            if(inductorNames[ii] == foo.getDeviceName()) // found it!
+            {
+              device_instance = const_cast<Xyce::Device::DeviceInstance *>(*instance_it);
+              index=ii;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return device_instance;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::addDevicesToCount
 // Purpose       :
 // Special Notes :
@@ -4982,11 +5051,11 @@ double getParamAndReduce(
     if (DEBUG_DEVICE)
     {
       Report::DevelWarning() <<
-        "DeviceMgr::getParamAndReduce.  Unable to find parameter " << name;
+        "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name;
     }
     else
     {
-      Report::UserError() << "Unable to find parameter " << name;
+      Report::UserError() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name;
     }
   }
 
@@ -5031,14 +5100,13 @@ bool setParameter(
     if (global_param_it != global_parameter_map.end())
     {
 
-#if 1
       // find the expression.  ERK.  This should be the "real" place to update.
       std::string tmpName = name; Util::toUpper(tmpName);
       std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), tmpName);
 
       if (name_it == global_exp_names.end())
       {
-        Report::UserError() << "Unable to find parameter " << name;
+        Report::UserError() << "Xyce::Device::setParameter. Unable to find parameter " << name;
       }
       else
       {
@@ -5048,15 +5116,11 @@ bool setParameter(
         expression.evaluateFunction(exprValue);
 
         if ((*global_param_it).second != value || exprValue != value)
-#else
-        if ((*global_param_it).second != value)
-#endif
         {
           (*global_param_it).second = value;
 
-#if 1
           expression.setValue(value);
-#endif
+
           EntityVector::iterator it = dependent_entity_vector.begin();
           EntityVector::iterator end = dependent_entity_vector.end();
           for ( ; it != end; ++it)
@@ -5133,14 +5197,30 @@ bool setParameter(
 
       if (entity_found == 0)
       {
-        //if (DEBUG_DEVICE)
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+        // handle the special case of inductor instances contained inside mutual inductors.
+        int inductorIndex=-1;
+        DeviceInstance *device_instance=device_manager.getMutualInductorDeviceInstance(name,inductorIndex);
+        int instance_found = (device_instance != 0);
+        if (instance_found)
         {
-          Report::DevelWarning() << "DeviceMgr::setParam.  Unable to find parameter " << name;
+          std::vector< double > inductorInductances = device_instance->getInductorInductances();
+          inductorInductances[inductorIndex] = value ;
+          device_instance->setInductorInductances( inductorInductances );
+          device_instance->processParams ();
         }
-        else
+        Parallel::AllReduce(comm, MPI_LOR, &instance_found, 1);
+
+        if (!instance_found)
         {
-          Report::UserError() << "Unable to find parameter " << name;
+          //if (DEBUG_DEVICE)
+          if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+          {
+            Report::DevelWarning() << "Xyce::Device::setParameter.  Unable to find parameter " << name;
+          }
+          else
+          {
+            Report::UserError() << "Xyce::Device::setParameter.  Unable to find parameter " << name;
+          }
         }
       }
     }
@@ -5205,7 +5285,7 @@ bool setParameterRandomExpressionTerms(
 
       if (name_it == global_exp_names.end())
       {
-        Report::UserError() << "Unable to find parameter " << name;
+        Report::UserError() << "Xyce::Device::setParameterRandomExpressionTerms. Unable to find parameter " << name;
       }
       else
       {
@@ -5308,7 +5388,7 @@ bool setParameterRandomExpressionTerms(
         }
         else
         {
-          Report::UserError() << "Unable to find parameter " << name;
+          Report::UserError() << "Xyce::Device::setParameterRandomExpressionTerms.  Unable to find parameter " << name;
         }
       }
     }

@@ -264,8 +264,10 @@ void Topology::resolveDependentVars()
 {
   int solnCount = 0;
   std::vector<int> solnLocVec;
+  std::vector<bool> solnFndGndVec;
   std::vector<NodeID> solnNidVec;
   std::vector<NodeID> idVec;
+  NodeID gndNode( "0", _VNODE );
 
   // Find out if any device nodes have dependent variables that need to be resolved.
   for (CktNodeList::iterator it_cnL = mainGraphPtr_->getBFSNodeList()->begin(),
@@ -277,14 +279,25 @@ void Topology::resolveDependentVars()
 
       // Get dependent solution variables
       cktNodeDevPtr->getDepSolnVars( idVec );
+
+      solnLocVec.push_back( solnCount );
+      solnFndGndVec.push_back( false );
+
       if( !idVec.empty() )
       {
-        solnLocVec.push_back( solnCount );
-        solnNidVec.insert( solnNidVec.end(), idVec.begin(), idVec.end() );
-        solnCount += idVec.size();
+        for (int i=0; i<idVec.size(); ++i)
+        {
+          if ( idVec[i] == gndNode )
+          {
+            (solnFndGndVec.back()) = true;
+          }
+          else
+          {
+            solnNidVec.push_back( idVec[i] );
+            solnCount++;
+          }
+        }
       }
-      else
-        solnLocVec.push_back( solnCount );
     }
   }
   solnLocVec.push_back( solnCount );
@@ -302,6 +315,7 @@ void Topology::resolveDependentVars()
 
     std::vector< std::vector<int> > gidVec, indexVec;
     std::vector<int> procVec;
+    std::vector<int> gndGID( 1, -1 );
 
     directory.getSolnGIDs( solnNidVec, gidVec, procVec );
 
@@ -312,10 +326,26 @@ void Topology::resolveDependentVars()
       if ( (*it_cnL)->type() == _DNODE )
       {
         CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_cnL);
-        indexVec.assign( gidVec.begin()+solnLocVec[count],
-                         gidVec.begin()+solnLocVec[count+1] );
-        if (!indexVec.empty()) 
+
+        if (solnLocVec[count] != solnLocVec[count+1])
         {
+            
+          indexVec.assign( gidVec.begin()+solnLocVec[count],
+                           gidVec.begin()+solnLocVec[count+1] );
+
+          if (solnFndGndVec[count] == true)
+          {
+            // Get dependent solution variables
+            cktNodeDevPtr->getDepSolnVars( idVec );
+
+            for (int i=0; i<idVec.size(); ++i)
+            {
+              if ( idVec[i] == gndNode )
+              {
+                indexVec.insert( indexVec.begin()+i, gndGID );
+              }
+            } 
+          }
           cktNodeDevPtr->set_DepSolnGIDVec( indexVec );
           cktNodeDevPtr->registerDepSolnGIDs( indexVec );
         }
@@ -329,6 +359,7 @@ void Topology::resolveDependentVars()
       for( unsigned int i = 0; i < gidVec.size(); ++i )
         for( unsigned int ii = 0; ii < gidVec[i].size(); ++ii )
           depSolnGIDMap_[ gidVec[i][ii] ] = procVec[i];
+      depSolnGIDMap_[-1] = pdsManager_.getPDSComm()->procID();
     }
   }
 }
@@ -799,6 +830,9 @@ void Topology::verifyNodesAndDevices(Device::DeviceMgr & device_manager)
 {
   if( linearSolverUtility_->supernodeFlag() )
   {
+    unordered_set<NodeID> nodesReplaced, redundantNodes;
+    std::vector< std::pair<NodeID, NodeID> > redundantSupernodes;
+
     const CktGraph::Graph::Data1Map & dataMap = mainGraphPtr_->getNodeList();
     CktGraph::Graph::Data1Map::const_iterator currentCktNodeItr = dataMap.begin();
     CktGraph::Graph::Data1Map::const_iterator endCktNodeItr = dataMap.end();
@@ -837,15 +871,35 @@ void Topology::verifyNodesAndDevices(Device::DeviceMgr & device_manager)
                 // as the node to keep (i.e. A < B )
                 if( (*currentID) < (*nextID) )
                 {
-                  // format of pair is nodeToReplace, nodeToKeep
-                  superNodeList_.push_back( std::make_pair( *nextID, *currentID ) );
+                  std::pair<unordered_set<NodeID>::iterator,bool> ret = nodesReplaced.insert( *nextID );
+                  if (!ret.second)
+                  {
+                    Xyce::dout() << "Voltage node " << *nextID << " is being replaced twice " << std::endl;
+                    redundantSupernodes.push_back( std::make_pair( *nextID, *currentID ) );
+                    redundantNodes.insert( *nextID );
+                  }
+                  else
+                  {
+                    // format of pair is nodeToReplace, nodeToKeep
+                    superNodeList_.push_back( std::make_pair( *nextID, *currentID ) );
+                  }
                 }
                 else
                 {
-                  // format of pair is nodeToReplace, nodeToKeep
-                  superNodeList_.push_back( std::make_pair( *currentID, *nextID ) );
+                  std::pair<unordered_set<NodeID>::iterator,bool> ret = nodesReplaced.insert( *currentID );
+                  if (!ret.second)
+                  {
+                    Xyce::dout() << "Voltage node " << *currentID << " is being replaced again" << std::endl;
+                    redundantSupernodes.push_back( std::make_pair( *currentID, *nextID ) );
+                    redundantNodes.insert( *currentID );
+                  }
+                  else
+                  {
+                    // format of pair is nodeToReplace, nodeToKeep
+                    superNodeList_.push_back( std::make_pair( *currentID, *nextID ) );
+                  }
                 }
-             }
+              }
               currentID++;
               nextID++;
             }
@@ -859,6 +913,52 @@ void Topology::verifyNodesAndDevices(Device::DeviceMgr & device_manager)
         }
       }
       currentCktNodeItr++;
+    }
+
+    Xyce::dout() << "Redundant supernodes: " << redundantSupernodes.size() << std::endl;
+    // Find the redundant supernodes on this processor and collapse them all.
+    unordered_set<Xyce::NodeID>::iterator currNodeID = redundantNodes.begin();
+    unordered_set<Xyce::NodeID>::iterator endNodeID = redundantNodes.end();
+    while( currNodeID != endNodeID )
+    {
+      std::set<Xyce::NodeID> setKeep; // This is an ordered set, so the first is the lexically smallest 
+      Xyce::NodeID replaceNode = *currNodeID;
+
+      // Collect all the kept nodes in setKeep and then replace them with the smallest node.
+      // Additionally, new supernodes need to be added to collapse the redundant nodes.
+      for (int i=0; i < redundantSupernodes.size(); ++i)
+      {
+        if( replaceNode == redundantSupernodes[i].first )
+          setKeep.insert( redundantSupernodes[i].second );
+      }
+      for (int i=0; i < superNodeList_.size(); ++i)
+      {
+        if( replaceNode == superNodeList_[i].first )
+        {
+          setKeep.insert( superNodeList_[i].second );
+          if( superNodeList_[i].second != *(setKeep.begin()) )
+          {
+            superNodeList_.push_back( std::make_pair( superNodeList_[i].second, *(setKeep.begin()) ) );
+            Xyce::dout() << "Adding supernode: " << superNodeList_[i].second << ", " << *(setKeep.begin()) << std::endl;
+            superNodeList_[i].second = *(setKeep.begin());
+          }
+          break;
+        }
+      }
+      // Collapse redundant nodes
+      for (int i=0; i < redundantSupernodes.size(); ++i)
+      {
+        if( replaceNode == redundantSupernodes[i].first )
+        {
+          if( redundantSupernodes[i].second != *(setKeep.begin()) )
+          {
+            superNodeList_.push_back( std::make_pair( redundantSupernodes[i].second, *(setKeep.begin()) ) );
+            Xyce::dout() << "Adding supernode: " << redundantSupernodes[i].second << ", " << *(setKeep.begin()) << std::endl;
+          }
+        }
+      }
+
+      currNodeID++;
     }
   }
 }
@@ -880,6 +980,9 @@ Topology::removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager)
 
   if( linearSolverUtility_->supernodeFlag() )
   {
+    Xyce::dout() << "Graph before supernoding: " << std::endl;
+    Xyce::dout() << *mainGraphPtr_ << std::endl;
+
     if (DEBUG_TOPOLOGY)
       Xyce::dout() << "Topology::removeTaggedNodesAndDevices" << std::endl
                    << *this << std::endl;
@@ -900,6 +1003,7 @@ Topology::removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager)
     {
       NodeID nodeToBeReplaced( currentNodePair->first );
       NodeID replacementNode( currentNodePair->second );
+      Xyce::dout() << "Replacing node " << nodeToBeReplaced << " with " << replacementNode << std::endl;
       if( nodeToBeReplaced != replacementNode)
       {
         unordered_set<NodeID>::iterator nodesReplacedEnd = nodesReplaced.end();
@@ -989,6 +1093,8 @@ Topology::removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager)
 
     int tNumBadDevices = 0;
     int numBadDevices = badDeviceList_.size();
+    for (int i=0; i<numBadDevices; ++i)
+      Xyce::dout() << "Removing device: " << badDeviceList_[i] << std::endl;
     pdsManager_.getPDSComm()->sumAll( &numBadDevices, &tNumBadDevices, 1 );
     if (tNumBadDevices)
     {
@@ -1060,13 +1166,14 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
     byteCount += sizeof(int);
 
     // Now count all the NodeIDs in the list
-    unordered_set<NodeID> nodesReplaced;
-    for (std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = superNodeList_.begin(); 
-        nodePair != superNodeList_.end(); nodePair++) 
-    {
+    unordered_set<NodeID> nodesReplaced, replacementNodes;
+    for (std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = superNodeList_.begin();
+        nodePair != superNodeList_.end(); nodePair++)
+    { 
       byteCount += Xyce::packedByteCount(nodePair->first);
       byteCount += Xyce::packedByteCount(nodePair->second);
       nodesReplaced.insert( nodePair->first );
+      replacementNodes.insert( nodePair->second );
     }
 
     for( int p = 0; p < numProcs; ++p )
@@ -1127,36 +1234,6 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
       delete [] superNodeBuffer;
     }
 
-
-    // Now go through the local superNodeList_ and tack on any boundary cases, where adjacencies may effect device removal.
-    int i = 0, nodeListSize = superNodeList_.size();
-    while( i < nodeListSize )
-    {
-      NodeID nodeToBeReplaced = superNodeList_[i].first;
-      NodeID replacementNode = superNodeList_[i].second;
-      std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = externalSuperNodeList.begin();
-      std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = externalSuperNodeList.end();
-      while ( currentGlobalSN != endGlobalSN )
-      {
-        // Add pair if replacement node is node to be removed by another processor.
-        if (currentGlobalSN->first == replacementNode)
-        {
-          superNodeList_.push_back( *currentGlobalSN );
-          nodesReplaced.insert( currentGlobalSN->first );
-          nodeListSize++;
-        }
-        // Add pair if node to be removed is a replacement node on another processor.
-        else if (currentGlobalSN->second == nodeToBeReplaced)
-        {  
-          superNodeList_.push_back( *currentGlobalSN );
-          nodesReplaced.insert( currentGlobalSN->first );
-          nodeListSize++;
-        }
-        currentGlobalSN++;
-      }
-      i++;
-    }
-
     // Condensing external super node list so that any supernodes found in the next step do not need iteration.
     // Ex.  Processor 2 may have a supernode ( A, 0 ) to ( B, 0 ) that hasn't been accounted for, but Processor 3 has ( B, 0 ) to ( C, 0 ).
     //      This condensing should mean that ( A, 0 ) to ( C, 0 ) is the supernode that is picked out below.
@@ -1193,13 +1270,110 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
       }
     } 
 
-    // There might be a chance that the node to be removed on another processor is a node on this processor, but not a supernode.
+    std::set< NodeID > checkReplacedNodes;
+    unordered_map< NodeID, std::set<NodeID> > redundantSN;
     std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = externalSuperNodeList.begin();
     std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = externalSuperNodeList.end();
-    for ( ; currentGlobalSN != endGlobalSN; ++currentGlobalSN )
-      if ( (nodesReplaced.find( currentGlobalSN->first ) == nodesReplaced.end()) && mainGraphPtr_->FindCktNode( currentGlobalSN->first ) )
+    while ( currentGlobalSN != endGlobalSN )
+    {
+      Xyce::dout() << "Analyzing global supernode " << currentGlobalSN->first << " with " << currentGlobalSN->second << std::endl; 
+      // Add pair if replacement node is node to be removed by another processor.
+      if (replacementNodes.find( currentGlobalSN->first ) != replacementNodes.end())
+      {
+        Xyce::dout() << "Found matching replacement node and external supernode: " << currentGlobalSN->first << std::endl;
         superNodeList_.push_back( *currentGlobalSN );
+      }
+      // Add pair if node to be removed is a replacement node on another processor.
+      else if (nodesReplaced.find( currentGlobalSN->second ) != nodesReplaced.end())
+      {
+        Xyce::dout() << "Found matching node replaced and external supernode: " << currentGlobalSN->second << std::endl;
+        superNodeList_.push_back( *currentGlobalSN );
+      }
+      else if (nodesReplaced.find( currentGlobalSN->first ) != nodesReplaced.end())
+      {
+        Xyce::dout() << "Another processor is replacing node " << currentGlobalSN->first << " with " << currentGlobalSN->second << std::endl;
+        redundantSN[ currentGlobalSN->first ].insert( currentGlobalSN->second );
+      }
+      // There might be a chance that the node to be removed on another processor
+      // is a node on this processor, but not a supernode.
+      else if ( (nodesReplaced.find( currentGlobalSN->first ) == nodesReplaced.end())
+               && mainGraphPtr_->FindCktNode( currentGlobalSN->first ) )
+      {
+        Xyce::dout() << "A non-supernode is being replaced " << currentGlobalSN->first << " with " << currentGlobalSN->second << std::endl;
+        superNodeList_.push_back( *currentGlobalSN );
+      }
+      else if ( (replacementNodes.find( currentGlobalSN->second ) == replacementNodes.end())
+                && mainGraphPtr_->FindCktNode( currentGlobalSN->second ) )
+      {
+        checkReplacedNodes.insert( currentGlobalSN->second );
+        Xyce::dout() << "A local node is a replacement node, might want to check if the node being replaced is collapsed " << currentGlobalSN->first << " with " << currentGlobalSN->second << std::endl;
+      }
+      currentGlobalSN++;
+    }
 
+    // Check if there are redundant supernodes from different processors that changes the replacement node.
+    std::vector< std::pair< NodeID, NodeID > > redSuperNodes;
+    unordered_map< NodeID, std::set<NodeID> >::iterator redSN_iter = redundantSN.begin();
+    unordered_map< NodeID, std::set<NodeID> >::iterator redSN_iter_end = redundantSN.end();
+    while ( redSN_iter != redSN_iter_end )
+    { 
+      currentGlobalSN = superNodeList_.begin();
+      endGlobalSN = superNodeList_.end();
+      while ( currentGlobalSN != endGlobalSN )
+      {
+        if ( currentGlobalSN->first == redSN_iter->first )
+        {
+          std::set<NodeID>::iterator redSN_set_iter = (redSN_iter->second).begin();
+          std::set<NodeID>::iterator redSN_set_iter_end = (redSN_iter->second).end();
+          NodeID replacementNode = *redSN_set_iter;
+          if ( replacementNode < currentGlobalSN->second )
+          {
+            Xyce::dout() << "Creating new supernode " << currentGlobalSN->second << ", " << *((redSN_iter->second).begin()) << std::endl;
+            redSuperNodes.push_back( std::make_pair( currentGlobalSN->second, *((redSN_iter->second).begin()) ) ); 
+          }
+          redSN_set_iter++;
+          while ( redSN_set_iter != redSN_set_iter_end )
+          {
+            if ( (nodesReplaced.find( *redSN_set_iter ) == nodesReplaced.end())
+                 && mainGraphPtr_->FindCktNode( currentGlobalSN->first )
+                 && (replacementNode < *redSN_set_iter) )
+            {
+              Xyce::dout() << "Creating new supernode " << *redSN_set_iter << ", " << replacementNode << std::endl;
+              redSuperNodes.push_back( std::make_pair( *redSN_set_iter, replacementNode ) );
+            }
+            redSN_set_iter++;
+          } 
+        }
+        currentGlobalSN++;
+      }
+
+      redSN_iter++;
+    }
+
+    if (redSuperNodes.size())
+    {
+      currentGlobalSN = superNodeList_.begin();
+      endGlobalSN = superNodeList_.end();
+      while ( currentGlobalSN != endGlobalSN )
+      {
+        std::vector< std::pair<NodeID, NodeID> >::iterator iterSN = redSuperNodes.begin();
+        std::vector< std::pair<NodeID, NodeID> >::iterator iterSN_end = redSuperNodes.end();
+        while ( iterSN != iterSN_end )
+        {
+          if ( currentGlobalSN->second == iterSN->first )
+          {
+            currentGlobalSN->second = iterSN->second;
+            break;
+          }
+          iterSN++;
+        }
+        Xyce::dout() << "Supernode " << currentGlobalSN->first << ", " << currentGlobalSN->second << std::endl;
+        currentGlobalSN++;
+      }
+
+      // Add new supernodes to old supernode list.
+      superNodeList_.insert( superNodeList_.end(), redSuperNodes.begin(), redSuperNodes.end() );
+    }
   }
 }
 

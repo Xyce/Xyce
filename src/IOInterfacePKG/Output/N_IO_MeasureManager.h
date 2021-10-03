@@ -105,7 +105,7 @@ public:
   void makeMeasureOps(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
 
   // used to check agreement between analysis type and measure mode
-  bool checkMeasureModes(const Analysis::Mode analysisMode);
+  bool checkMeasureModes(const Analysis::Mode analysisMode) const;
 
   // used to associate .MEASURE FFT lines with their .FFT line
   void fixupFFTMeasures(Parallel::Machine comm, const FFTMgr& FFTMgr);
@@ -114,8 +114,8 @@ public:
   // To keep things obvious, use separate calls for TRAN, DC and AC
   void updateTranMeasures(
     Parallel::Machine comm,
-    const double circuitTime,
-    const double endSimTime,
+    double circuitTime,
+    double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -135,29 +135,29 @@ public:
 
   void updateACMeasures(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
   void updateNoiseMeasures(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *real_solution_vector,
     const Linear::Vector *imaginary_solution_vector,
-    const double totalOutputNoiseDens_,
-    const double totalInputNoiseDens_,
+    double totalOutputNoiseDens_,
+    double totalInputNoiseDens_,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec_);
 
   void outputResultsToMTFile(int stepNumber) const;
   void outputAllResultsToLogFile() const;
   std::ostream & outputVerboseResults(std::ostream& outputStream, double endSimTime=0) const;
 
-  void recordStartEndSweepVals(const double sweepVal);
+  void recordStartEndSweepVals(double sweepVal);
 
   const Base *find(const std::string &name) const;
 
@@ -230,7 +230,7 @@ private:
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
-bool isComplexCurrentOp(const std::string& name, const int parenIdx);
+bool isComplexCurrentOp(const std::string& name, int parenIdx);
 
 bool registerPkgOptionsMgr(Manager &manager, PkgOptionsMgr &options_manager);
 

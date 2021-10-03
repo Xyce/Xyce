@@ -122,8 +122,8 @@ void Fourier::reset()
 //-----------------------------------------------------------------------------
 void Fourier::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -223,9 +223,9 @@ void Fourier::updateDC(
 //-----------------------------------------------------------------------------
 void Fourier::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -463,7 +463,7 @@ std::ostream& Fourier::printVerboseMeasureResult( std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 8/1/2021
 //-----------------------------------------------------------------------------
-void Fourier::printMeasureWarningsForAT(const double endSimTime)
+void Fourier::printMeasureWarningsForAT(double endSimTime) const
 {
   // Checks specific to this measure, since AT is a frequency (not a time)
   // for the FOUR measure
@@ -488,8 +488,8 @@ void Fourier::printMeasureWarningsForAT(const double endSimTime)
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& Fourier::printMeasureWindow(std::ostream& os, const double endSimTime,
-				          const double startSweepVal, const double endSweepVal)
+std::ostream& Fourier::printMeasureWindow(std::ostream& os, double endSimTime,
+				          double startSweepVal, double endSweepVal) const
 {
   //no op
   return os;

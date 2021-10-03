@@ -100,7 +100,7 @@ void Average::setMeasureVarsForNewWindow()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void Average::updateMeasureVars(const double indepVarVal, const double signalVal)
+void Average::updateMeasureVars(double indepVarVal, double signalVal)
 {
   // the MIN_THRESH and MAX_THRESH qualifiers are only used by the AVG measure
   if ( withinMinMaxThresh(signalVal) )
@@ -194,8 +194,8 @@ std::ostream& Average::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/25/2020
 //-----------------------------------------------------------------------------
-std::ostream& Average::printMeasureWindow(std::ostream& os, const double endSimTime,
-				          const double startSweepVal, const double endSweepVal)
+std::ostream& Average::printMeasureWindow(std::ostream& os, double endSimTime,
+				          double startSweepVal, double endSweepVal) const
 {
   // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
   // This a failed measure, but the FROM-TO window should be printed correctly.

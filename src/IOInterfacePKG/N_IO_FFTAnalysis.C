@@ -328,11 +328,11 @@ void FFTAnalysis::reset()
 //-----------------------------------------------------------------------------
 void FFTAnalysis::fixupFFTParameters(Parallel::Machine comm,
   const Util::Op::BuilderManager &op_builder_manager,
-  const double endSimTime,
+  double endSimTime,
   TimeIntg::StepErrorControl & sec,
-  const bool fft_accurate,
-  const bool fftout,
-  const int fft_mode)
+  bool fft_accurate,
+  bool fftout,
+  int fft_mode)
 {
   secPtr_ = &sec;
 
@@ -431,7 +431,7 @@ void FFTAnalysis::addSampleTimeBreakpoints()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 1/4/2021
 //-----------------------------------------------------------------------------
-void FFTAnalysis::updateFFTData(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec,
+void FFTAnalysis::updateFFTData(Parallel::Machine comm, double circuitTime, const Linear::Vector *solnVec,
   const Linear::Vector *stateVec, const Linear::Vector * storeVec,
   const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
@@ -499,7 +499,7 @@ void FFTAnalysis::calculateResults_()
     {
       Xyce::dout() << std::endl << "Sample times and sampled/interpolated data values for FFT of " << outputVarName_ <<
                                  " are:" << std::endl;
-      for (int i=0; i<sampleTimes_.size(); i++)
+      for (int i=0; i<np_; i++)
       {
         Xyce::dout() << "  " << sampleTimes_[i] << " , " << sampleValues_[i] << std::endl;
       }
@@ -529,7 +529,7 @@ bool FFTAnalysis::interpolateData_()
   {
     Util::akima<double> interp;
     interp.init( time_, outputVarValues_ );
-    for (unsigned int i=0; i < np_; i++)
+    for (int i=0; i < np_; i++)
     {
       interp.eval( time_, outputVarValues_, sampleTimes_[i], sampleValues_[i] );
      }
@@ -663,7 +663,7 @@ bool FFTAnalysis::applyWindowFunction_()
   {
     Xyce::dout() << std::endl << "Sample times and windowed data values for FFT of " << outputVarName_
 		              << " are:" << std::endl;
-    for (int i=0; i<sampleTimes_.size(); i++)
+    for (int i=0; i<np_; i++)
     {
       Xyce::dout() << "  " << sampleTimes_[i] << " , " << ftInData_[i] << std::endl;
     }

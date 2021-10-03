@@ -40,6 +40,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_DeviceBlock.h>
@@ -646,6 +647,10 @@ void OutputMgr::earlyPrepareOutput(
         if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_NOISE))
           Outputter::enableNoiseOutput(comm, *this, analysis_mode);
         break;
+
+      default:
+        // no op, since not all analysis types use the OutputMgr for output
+        break;
     }
 
     if (enableHomotopyFlag_)
@@ -805,6 +810,10 @@ void OutputMgr::prepareOutput(
 
       case Analysis::ANP_MODE_NOISE:
         addActiveOutputter(PrintType::NOISE, analysis_mode);
+        break;
+
+      default:
+        // no op, since not all analysis types use the OutputMgr for output
         break;
     }
 
@@ -993,44 +1002,33 @@ Util::ParamList OutputMgr::getVariableList() const
 {
   Util::ParamList parameter_list;
 
-  for (OutputParameterMap::const_iterator it1 = outputParameterMap_.begin(), 
-      end1 = outputParameterMap_.end(); it1 != end1; ++it1)
+  for (const auto &outputParameterPair : outputParameterMap_)
   {
-    const OutputParameterMap::mapped_type &parameter_vector = (*it1).second;
+    const auto &parameter_vector = outputParameterPair.second;
 
-    for (OutputParameterMap::mapped_type::const_iterator it2 = parameter_vector.begin(), 
-        end2 = parameter_vector.end(); it2 != end2; ++it2)
+    for (const auto print_parameters : parameter_vector)
     {
-      const PrintParameters &print_parameters = (*it2);
-
-      for (Util::ParamList::const_iterator it3 = print_parameters.variableList_.begin(), 
-          end3 = print_parameters.variableList_.end(); it3 != end3; ++it3)
+      for (const auto &parameter : print_parameters.variableList_)
       {
-        const Util::Param &parameter = (*it3);
         parameter_list.push_back(parameter);
       }
     }
   }
   // Now do the same thing for external output requests, which are done
   // through a wrapped interface object.
-  for (ExternalOutputWrapperMap::const_iterator it = externalOutputWrapperMap_.begin();
-         it != externalOutputWrapperMap_.end(); ++it)
+  for (const auto &wrapperPair : externalOutputWrapperMap_)
   {
-    for (std::vector<ExternalOutputWrapper *>::const_iterator it2=(*it).second.begin();
-         it2 != (*it).second.end(); ++it2)
+    const auto &wrapperVector = wrapperPair.second;
+    for (auto theExtOutWrapper : wrapperVector)
     {
-      ExternalOutputWrapper * theExtOutWrapper=(*it2);
       Util::ParamList &theParamList = theExtOutWrapper->getParamList();
-      for (Util::ParamList::const_iterator it3 = theParamList.begin();
-           it3 != theParamList.end();
-           ++it3)
+      for (const auto parameter : theParamList)
       {
-        const Util::Param &parameter = (*it3);
         parameter_list.push_back(parameter);
       }
     }
   }
-  
+
   return parameter_list;
 }
 
@@ -1057,18 +1055,16 @@ void OutputMgr::checkPrintParameters(
 
   // loop over all output parameter objects of all types, create
   // ops
-  for (OutputParameterMap::const_iterator it = outputParameterMap_.begin(), 
-      end = outputParameterMap_.end(); it != end; ++it)
+  for (const auto &outputParameterPair : outputParameterMap_)
   {
-    for (std::vector<PrintParameters>::const_iterator it2 = (*it).second.begin(), 
-        end2 = (*it).second.end(); it2 != end2; ++it2)
+    const auto &parameter_vector = outputParameterPair.second;
+    for (auto print_parameters : parameter_vector)
     {
-      PrintParameters print_parameters = (*it2);
       fixupPrintParameters(comm, print_parameters);
 
       makeOps(comm, op_builder_manager, print_parameters.netlistLocation_,
-              print_parameters.variableList_.begin(), 
-              print_parameters.variableList_.end(), 
+              print_parameters.variableList_.begin(),
+              print_parameters.variableList_.end(),
               std::back_inserter<Util::Op::OpList>(tempOpList));
 
     }
@@ -1076,13 +1072,11 @@ void OutputMgr::checkPrintParameters(
 
   // Now do the same thing for external output requests, which are done
   // through a wrapped interface object.
-  for (ExternalOutputWrapperMap::const_iterator it = externalOutputWrapperMap_.begin();
-         it != externalOutputWrapperMap_.end(); ++it)
+  for (const auto &wrapperPair : externalOutputWrapperMap_)
   {
-    for (std::vector<ExternalOutputWrapper *>::const_iterator it2=(*it).second.begin();
-         it2 != (*it).second.end(); ++it2)
+    const auto &wrapperVector = wrapperPair.second;
+    for (auto theExtOutWrapper : wrapperVector)
     {
-      ExternalOutputWrapper * theExtOutWrapper=(*it2);
       Util::ParamList &theParamList = theExtOutWrapper->getParamList();
       fixupOutputVariables(comm,theParamList);
       // We don't actually have a netlist line for these output requests,
@@ -1090,8 +1084,8 @@ void OutputMgr::checkPrintParameters(
       // interface object
       makeOps(comm, op_builder_manager,
               NetlistLocation(theExtOutWrapper->getName(),0.0),
-              theParamList.begin(), 
-              theParamList.end(), 
+              theParamList.begin(),
+              theParamList.end(),
               std::back_inserter<Util::Op::OpList>(tempOpList));
     }
   }
@@ -1099,9 +1093,9 @@ void OutputMgr::checkPrintParameters(
   // The sole purpose of having created the ops was to have checked the
   // validity of the output requests.  We don't really need them, so throw
   // them away.
-  for (Util::Op::OpList::iterator it = tempOpList.begin(), end = tempOpList.end(); it != end; ++it)
+  for (auto op : tempOpList)
   {
-    delete *it;
+    delete op;
   }
 
   if (hdf5FileNameGiven_)
@@ -1296,8 +1290,9 @@ void OutputMgr::addExternalOutputInterface(ExternalOutputInterface * theOutputIn
 
 //-----------------------------------------------------------------------------
 // Function      : isIStarRequested
-// Purpose       : look through parameter lists and set a flag if any
-//                 request wildcards in an operators that request currents
+// Purpose       : look through parameter lists and set a flag if any of those
+//                 parameters request wildcards in an operator that requests
+//                 currents or power calculations.
 // Special Notes :  This used to get done as part of printLineDiagnostics,
 //                 but that function is called too early and misses any
 //                 wildcards that might be requested by external outputters
@@ -1307,7 +1302,7 @@ void OutputMgr::addExternalOutputInterface(ExternalOutputInterface * theOutputIn
 //                 but ONLY looks for instances that are wildards.
 //
 //                 In this function we do not do all the error checking
-//                 that was done
+//                 that was done in printLineDiagnostics.
 //-----------------------------------------------------------------------------
 
 bool OutputMgr::isIStarRequested()
@@ -2823,10 +2818,9 @@ void getVWildcardList(
   const NodeNameMap&   external_nodes,
   unordered_set<std::string>& wildcard_list)
 {
-  NodeNameMap::const_iterator it = external_nodes.begin();
-  for ( ; it != external_nodes.end() ; ++it)
+  for (const auto &en : external_nodes)
   {
-    ExtendedString tmpStr((*it).first);
+    ExtendedString tmpStr(en.first);
     tmpStr.toUpper();
     if ( (tmpStr.rfind("BRANCH") == std::string::npos) && 
          ((varString == "*") || std::regex_match(tmpStr, makeRegexFromString(varString))) )
@@ -2874,10 +2868,9 @@ void getIWildcardList(
     }   
   }
     
-  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  for (const auto &bv : branch_vars)
   {
-    ExtendedString tmpStr((*iter_bv).first);
+    ExtendedString tmpStr(bv.first);
     tmpStr.toUpper();
     size_t tmpStrLen = tmpStr.length();
 
@@ -2920,10 +2913,9 @@ void getPWildcardList(
   const NodeNameMap&   branch_vars,
   unordered_set<std::string>& wildcard_list)
 {
-  NodeNameMap::const_iterator iter_bv = branch_vars.begin();
-  for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+  for (const auto &bv : branch_vars)
   {
-    ExtendedString tmpStr((*iter_bv).first);
+    ExtendedString tmpStr(bv.first);
     tmpStr.toUpper();
 
     size_t pos = tmpStr.rfind("BRANCH");
@@ -3925,11 +3917,11 @@ bool extractPrintData(
       netlist_filename, 
       parsed_line[0].lineNumber_);
 
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   if (DEBUG_IO) 
   {
-    for (int ieric=0;ieric<parsed_line.size();++ieric)
+    for (size_t ieric=0;ieric<parsed_line.size();++ieric)
     {
       Xyce::dout() << "parsed_line["<<ieric<<"] = " 
         << parsed_line[ieric].string_ << std::endl;
@@ -4082,7 +4074,7 @@ bool extractLINData(
   const std::string &           netlist_filename,
   const IO::TokenVector &       parsed_line)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   Util::OptionBlock print_option_block("PRINT", 
       Util::OptionBlock::ALLOW_EXPRESSIONS, 

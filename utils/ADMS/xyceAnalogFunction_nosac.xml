@@ -773,7 +773,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:otherwise>
       </admst:choose>
     </admst:when>
-    <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
+    <admst:when test="[name='pow' or name='min' or name='max' or name='hypot' or name='atan2']">
       <!-- two-argument functions -->
       <admst:choose>
         <admst:when test="[name='pow']">
@@ -791,6 +791,10 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[name='hypot']">
           <admst:variable name="d_f_d0" select="(%($arg0)/sqrt(%($arg0)*%($arg0)+%($arg1)*%($arg1)))"/>
           <admst:variable name="d_f_d1" select="(%($arg1)/sqrt(%($arg0)*%($arg0)+%($arg1)*%($arg1)))"/>
+        </admst:when>
+        <admst:when test="[name='atan2']">
+          <admst:variable name="d_f_d0" select="%($arg1)/(%($arg0)*%($arg0)+%($arg1)*%($arg1))"/>
+          <admst:variable name="d_f_d1" select="-%($arg0)/(%($arg0)*%($arg0)+%($arg1)*%($arg1))"/>
         </admst:when>
         <admst:otherwise>
           <admst:variable name="d_f_d0" select="0.0"/>

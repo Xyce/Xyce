@@ -62,8 +62,8 @@ public:
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
 
-  void setMeasureVarsForNewWindow(const double indepVarVal, const double depVarVal);
-  void updateMeasureVars(const double indepVarVal, const double depVarVal);
+  void setMeasureVarsForNewWindow(double indepVarVal, double depVarVal);
+  void updateMeasureVars(double indepVarVal, double depVarVal);
 
 private:
   std::string type_;

@@ -434,7 +434,7 @@ double DeviceInstance::getMaxTimeStepSize  ()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-bool DeviceInstance::getNumericalSensitivity ( const std::string & paramName,
+bool DeviceInstance::getNumericalSensitivity ( const std::string & name,
                                 std::vector<double> & dfdpVec,
                                 std::vector<double> & dqdpVec,
                                 std::vector<double> & dbdpVec,
@@ -442,8 +442,41 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & paramName,
                                 std::vector<int> & QindicesVec,
                                 std::vector<int> & BindicesVec )
 {
+  std::string paramName = Util::paramNameFromFullParamName(name);
+
   double origParamValue = 0.0;
-  bool found = getParam(paramName, origParamValue); // const?
+  bool found = getParam(paramName, origParamValue); 
+
+  // handle special case of coupled inductors in mutual inductors
+  bool specialMutualInductorCase=false;
+  int inductorIndex=-1;
+  std::vector<std::string> inductorNames;
+  std::vector< double > inductorInductances;
+  if (!found)
+  {
+    std::string entity_name = Xyce::Util::entityNameFromFullParamName(name).getEncodedName();
+    InstanceName foo1(getName());
+    InstanceName foo2(entity_name);
+    if ( foo1.getDeviceName()[0] == 'K' && foo2.getDeviceName()[0] == 'L' )
+    {
+      inductorNames = getInductorNames();
+      inductorInductances = getInductorInductances();
+      if (inductorNames.size() == inductorInductances.size())
+      {
+        specialMutualInductorCase=true;
+        found=true;
+        for (size_t ii=0; ii < inductorNames.size(); ii++)
+        {
+          if(inductorNames[ii] == foo2.getDeviceName()) 
+          { 
+            inductorIndex=ii; 
+            origParamValue = inductorInductances[ii];
+            break; 
+          }
+        }
+      }
+    }
+  }
 
   if (found)
   {
@@ -585,13 +618,21 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & paramName,
 
       double newParamValue = origParamValue + dP;
 
-      if (paramName == "")
+      if (specialMutualInductorCase)
       {
-        setDefaultParam(newParamValue, false);
+        inductorInductances[inductorIndex] = newParamValue;
+        setInductorInductances( inductorInductances );
       }
       else
       {
-        setParam(paramName, newParamValue, false);
+        if (paramName == "")
+        {
+          setDefaultParam(newParamValue, false);
+        }
+        else
+        {
+          setParam(paramName, newParamValue, false);
+        }
       }
 
       processParams (); // if this "entity" is a model, then need to
@@ -626,13 +667,21 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & paramName,
       }
 
       // restore everything:
-      if (paramName == "")
+      if (specialMutualInductorCase)
       {
-        setDefaultParam(origParamValue, false);
+        inductorInductances[inductorIndex] = origParamValue;
+        setInductorInductances( inductorInductances );
       }
       else
       {
-        setParam(paramName, origParamValue, false);
+        if (paramName == "")
+        {
+          setDefaultParam(origParamValue, false);
+        }
+        else
+        {
+          setParam(paramName, origParamValue, false);
+        }
       }
 
       processParams (); // if this "entity" is a model, then need to

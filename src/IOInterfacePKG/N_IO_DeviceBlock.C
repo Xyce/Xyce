@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include <N_DEV_SourceData.h>
 #include <N_ERH_ErrorMgr.h>
@@ -134,7 +135,7 @@ void DeviceBlock::print()
                << "Device Information" << std::endl
                << "------------------" << std::endl
                << "device line:" << std::endl;
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
   int i;
   for ( i = 0; i < numFields; ++i )
   {
@@ -468,7 +469,7 @@ bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , 
   // The device name has been extracted by extractData. The
   // remaining data in parsedLine is extracted here.
 
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Extract the model name from parsedLine if one exists. If
   // a model name was found, find its type.
@@ -800,7 +801,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
 {
   bool result;
 
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Check the device line for a "VALUE", "TABLE", or "POLY" field. If
   // none of these fields are found and the device is an E or G device,
@@ -945,7 +946,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     int linePosition = 7;
     if (deviceType == "E" || deviceType == "G")
     {
-      if (parsedInputLine.size() < 7+2*dimension)
+      if (numFields < 7+2*dimension)
       {
         Report::UserError().at(getNetlistFilename(), parsedInputLine[0].lineNumber_)
           << "Not enough fields on input line for device " << getInstanceName();
@@ -972,7 +973,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     else
     {
       // This is an F or an H device.
-      if (parsedInputLine.size() < 7+dimension)
+      if (numFields < 7+dimension)
       {
         Report::UserError().at(getNetlistFilename(), parsedInputLine[0].lineNumber_)
           << "Not enough fields on input line for device " << getInstanceName();
@@ -990,7 +991,7 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
     }
 
     // Add all remaining fields to the expression.
-    for ( ;linePosition < parsedInputLine.size(); ++linePosition)
+    for ( ;linePosition < numFields; ++linePosition)
     {
       expression += " " + parsedInputLine[linePosition].string_;
     }
@@ -1103,7 +1104,7 @@ bool DeviceBlock::extractYDeviceData( const TokenVector & parsedInputLine )
   // Copy the parsed line since it will be modified.
   parsedLine_ = parsedInputLine;
 
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
 
   if ( numFields < 2 )
   {
@@ -1175,7 +1176,7 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
   // Copy the parsed line since it will be modified.
   parsedLine_ = parsedInputLine;
 
-  int numFields = parsedLine_.size();
+  const int numFields = parsedLine_.size();
 
   if ( numFields < 2 )
   {
@@ -1275,7 +1276,7 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
 //-----------------------------------------------------------------------------
 bool DeviceBlock::extractMutualInductanceData( const TokenVector & parsedInputLine )
 {
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   bool kequals = false;
 
   // Extract the inductor names.
@@ -1391,10 +1392,9 @@ bool DeviceBlock::extractMutualInductanceData( const TokenVector & parsedInputLi
 //-----------------------------------------------------------------------------
 bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 {
-  bool result;
   int modelLevel, modelNamePosition, controlPosition;
   std::string modelType, expression;
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   int i, parameterStartPosition, parameterEndPosition;
   bool is_w=false;
 
@@ -1494,15 +1494,15 @@ bool DeviceBlock::extractSwitchDeviceData( const TokenVector & parsedInputLine )
 bool DeviceBlock::extractNodes(const TokenVector & parsedInputLine,
                                int modelLevel, int modelNamePosition)
 {
-  size_t numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   int numNodes;
 
   numNodes = metadata_.getNumberOfNodes(getNetlistDeviceType(), modelLevel);
   if (numNodes == -1)
     return false;
 
-  const size_t nodeStartPos = 1;
-  const size_t nodeEndPos = nodeStartPos + numNodes - 1;
+  const int nodeStartPos = 1;
+  const int nodeEndPos = nodeStartPos + numNodes - 1;
 
   if ( modelNamePosition > 0 && modelNamePosition <= nodeEndPos)
   {
@@ -1822,7 +1822,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
   // value in instanceParameters to the value given.
   int linePosition = searchStartPosition;
   bool foundParameters = false;
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
   parameterStartPosition = numFields; // Default in case there are no
                                       // parameters on the line.
   parameterEndPosition = numFields; // Default in case there are no
@@ -2016,7 +2016,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
         if (DEBUG_IO) {
           Xyce::dout() << " Processing composite for parameter " << parameterPtr->uTag() << std::endl;
 
-          for (int ieric=0; ieric < components.size(); ++ieric)
+          for (size_t ieric=0; ieric < components.size(); ++ieric)
           {
             Xyce::dout() << "tag[" << ieric << "] = " << components[ieric].uTag() << "  val = " << components[ieric].stringValue() << std::endl;
           }
@@ -2369,9 +2369,10 @@ void DeviceBlock::getInstanceParameters(
 //                  linear couplings with shared inductors have Knames
 //                  concatenated w/underscores otherwise the Kname is used
 //
-//                  inductor_list :- Lname T1 T2 I
+//                  inductor_list :- Lname T1 T2 I IC
 //                  a list of one or more inductors comprising the name,
-//                  terminals, and inductance
+//                  terminals, inductance, and initial condition (IC=0
+//                  means no IC specified)
 //
 //                  coupling_list :- L1 L2 ... LN C
 //                  a list of inductor names followed by coupling value
@@ -2391,7 +2392,7 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
 {
   // The device name has been extracted by extractData. The
   // remaining data in parsedLine is extracted here.
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Extract the model name from parsedLine if one exists. If
   // a model name was found, find its type.

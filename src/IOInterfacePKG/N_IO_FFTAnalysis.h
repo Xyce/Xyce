@@ -80,17 +80,17 @@ public:
 
   void fixupFFTParameters(Parallel::Machine comm,
                           const Util::Op::BuilderManager &op_builder_manager,
-                          const double endSimTime,
+                          double endSimTime,
                           TimeIntg::StepErrorControl & sec,
-                          const bool fft_accurate,
-                          const bool fftout,
-                          const int fft_mode);
+                          bool fft_accurate,
+                          bool fftout,
+                          int fft_mode);
 
   void addSampleTimeBreakpoints();
 
   // Called during the simulation to update the fft objects held by this class
   void updateFFTData(Parallel::Machine comm,
-                     const double circuitTime,
+                     double circuitTime,
                      const Linear::Vector *solnVec,
                      const Linear::Vector *stateVec,
                      const Linear::Vector * storeVec,
@@ -120,10 +120,10 @@ public:
   double getFirstHarmIdx() const { return fhIdx_;}
   double getNoiseFloor() const {return noiseFloor_;}
   const std::vector<double>& getMagVec() const {return mag_;}
-  double getFFTCoeffRealVal(const int index) const { return fftRealCoeffs_[index];}
-  double getFFTCoeffImagVal(const int index) const { return fftImagCoeffs_[index];}
-  double getMagVal(const int index) const { return mag_[index];}
-  double getPhaseVal(const int index) const { return phase_[index];}
+  double getFFTCoeffRealVal(int index) const { return fftRealCoeffs_[index];}
+  double getFFTCoeffImagVal(int index) const { return fftImagCoeffs_[index];}
+  double getMagVal(int index) const { return mag_[index];}
+  double getPhaseVal(int index) const { return phase_[index];}
   double calculateENOBforMeasFFT(int binSize) const;
   double calculateSNDRforMeasFFT(int binSize) const;
   double calculateSFDRforMeasFFT(int fminIndex, int fmaxIndex, bool fminGivn, int binSize) const;

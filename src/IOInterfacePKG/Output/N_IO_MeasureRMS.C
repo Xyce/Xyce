@@ -102,7 +102,7 @@ void RMS::setMeasureVarsForNewWindow()
 // Creator       : Pete Sholander, SNL
 // Creation Date : 04/28/2020
 //-----------------------------------------------------------------------------
-void RMS::updateMeasureVars(const double indepVarVal, const double signalVal)
+void RMS::updateMeasureVars(double indepVarVal, double signalVal)
 {
   integralXsq_ += 0.5* (indepVarVal - lastIndepVarValue_) * (signalVal*signalVal + lastSignalValue_*lastSignalValue_);
   totalIntegrationWindow_ += (indepVarVal - lastIndepVarValue_);
@@ -189,8 +189,8 @@ std::ostream& RMS::printVerboseMeasureResult(std::ostream& os)
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/25/2020
 //-----------------------------------------------------------------------------
-std::ostream& RMS::printMeasureWindow(std::ostream& os, const double endSimTime,
-				      const double startSweepVal, const double endSweepVal)
+std::ostream& RMS::printMeasureWindow(std::ostream& os, double endSimTime,
+				      double startSweepVal, double endSweepVal) const
 {
   // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
   // This a failed measure, but the FROM-TO window should be printed correctly.

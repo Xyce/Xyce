@@ -86,20 +86,6 @@ void TranStats::prepareOutputVariables()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : TranStats::reset()
-// Purpose       : Called when restarting a measure function.  Resets any state
-// Special Notes :
-// Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 8/28/2014
-//-----------------------------------------------------------------------------
-void TranStats::resetTranStats()
-{
-  resetBase();
-}
-
-
-//-----------------------------------------------------------------------------
 // Function      : TranStats::updateTran()
 // Purpose       :
 // Special Notes :
@@ -109,8 +95,8 @@ void TranStats::resetTranStats()
 //-----------------------------------------------------------------------------
 void TranStats::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -168,9 +154,9 @@ void TranStats::updateDC(
 //-----------------------------------------------------------------------------
 void TranStats::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -188,13 +174,13 @@ void TranStats::updateAC(
 //-----------------------------------------------------------------------------
 void TranStats::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
 

@@ -64,16 +64,13 @@ public:
   ~FindWhenBase() {};
 
   void prepareOutputVariables();
-  bool checkMeasureLine();
+  bool checkMeasureLine() const;
   void resetFindWhenBase();
-
-  virtual void updateCalculationResult(double val)=0;
-  virtual void updateCalculationInstant(double val)=0;
 
   void updateTran(
     Parallel::Machine comm,
-    const double circuitTime,
-    const double endSimTime,
+    double circuitTime,
+    double endSimTime,
     const Linear::Vector *solnVec,
     const Linear::Vector *stateVec,
     const Linear::Vector *storeVec,
@@ -93,50 +90,52 @@ public:
 
   void updateAC(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
   void updateNoise(
     Parallel::Machine comm,
-    const double frequency,
-    const double fStart,
-    const double fStop,
+    double frequency,
+    double fStart,
+    double fStop,
     const Linear::Vector *solnVec,
     const Linear::Vector *imaginaryVec,
-    const double totalOutputNoiseDens,
-    const double totalInputNoiseDens,
+    double totalOutputNoiseDens,
+    double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
-  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
-				   const double startSweepVal, const double endSweepVal);
-  std::ostream& printRFCWindow(std::ostream& os);
+  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
+				   double startSweepVal, double endSweepVal) const;
+  std::ostream& printRFCWindow(std::ostream& os) const;
 
 protected:
+  virtual void updateCalculationResult(double val)=0;
+  virtual void updateCalculationInstant(double val)=0;
   std::vector<double> calculationResultVec_;
   std::vector<double> calculationInstantVec_;
 
 private:
-  void setMeasureState(const double indepVarVal);
-  void updateMeasureState(const double indepVarVal);
+  void setMeasureState(double indepVarVal);
+  void updateMeasureState(double indepVarVal);
 
-  double updateTargVal();
+  double getTargVal() const;
   void updateLastTargVal();
 
-  bool isATcondition(const double indepVarVal);
-  bool isWHENcondition(const double indepVarVal, const double targVal);
+  bool isATcondition(double indepVarVal) const;
+  bool isWHENcondition(double indepVarVal, double targVal) const;
 
-  void updateMeasureVarsForAT(const double currIndepVarVal);
-  void updateMeasureVarsForWhen(const double currIndepVarVal, const double targVal, const double whenInstant);
+  void updateMeasureVarsForAT(double currIndepVarVal);
+  void updateMeasureVarsForWhen(double currIndepVarVal, double targVal, double whenInstant);
 
-  double interpolateCalculationInstant(double currIndepVarValue, double targVal);
-  double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime);
+  double interpolateCalculationInstant(double currIndepVarValue, double targVal) const;
+  double interpolateFindValue(double currIndepVarValue, double targVal, double whenTime) const;
 
   void updateRFCcountForWhen();
-  bool withinRFCWindowForWhen();
+  bool withinRFCWindowForWhen() const;
 
   int numOutVars_;
   std::vector<double> outVarValues_;

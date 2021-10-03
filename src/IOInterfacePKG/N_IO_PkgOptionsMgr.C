@@ -161,7 +161,7 @@ extractOptionsData(
   const std::string &   netlist_filename,
   const TokenVector &   parsed_line)
 {
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
   // catch case where the input line is .OPTIONS, without any further info
   if (numFields == 1)
   {
@@ -293,7 +293,7 @@ extractOptionsData(
     {
       // error out if the next push_back will cause a segfault.  The .OPTIONS line is too
       // short, and is missing a parameter
-      if ( (i+2) > (parsed_line.size()-1) )
+      if ( (i+2) > (numFields-1) )
       {
         Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
           << ".OPTIONS line is missing one or more required parameters";
@@ -432,7 +432,7 @@ bool extractDotDataStatement(
   const IO::TokenVector &       parsed_line)
 {
   // length of the original .DATA line
-  int numFields = parsed_line.size();
+  const int numFields = parsed_line.size();
 
   // .DATA line must have a NAME field and at least one param and value
   if (numFields < 4)

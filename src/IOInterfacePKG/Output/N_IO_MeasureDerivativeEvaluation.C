@@ -135,8 +135,8 @@ void DerivativeEvaluationBase::resetDerivativeEvaluationBase()
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::updateTran(
   Parallel::Machine comm,
-  const double circuitTime,
-  const double endSimTime,
+  double circuitTime,
+  double endSimTime,
   const Linear::Vector *solnVec,
   const Linear::Vector *stateVec,
   const Linear::Vector *storeVec,
@@ -181,7 +181,7 @@ void DerivativeEvaluationBase::updateTran(
     }
     else if ( whenGiven_ && (numPointsFound_ > 1) )
     {
-      double targVal= updateTargVal();
+      double targVal= getTargVal();
 
       // The measure will succeed if the interpolated WHEN time is inside of the
       // measurement window, and the RISE/FALL/CROSS condition is met.
@@ -271,7 +271,7 @@ void DerivativeEvaluationBase::updateDC(
       }
       else if (whenGiven_ && (numPointsFound_ > 1))
       {
-        double targVal=updateTargVal();
+        double targVal=getTargVal();
 
         // The measure will succeed if the interpolated WHEN time is inside of the
         // measurement window, and the RISE/FALL/CROSS condition is then met.
@@ -305,9 +305,9 @@ void DerivativeEvaluationBase::updateDC(
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::updateAC(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
@@ -339,7 +339,7 @@ void DerivativeEvaluationBase::updateAC(
     }
     else if (whenGiven_ && (numPointsFound_ > 1))
     {
-      double targVal=updateTargVal();
+      double targVal=getTargVal();
 
       // Process WHEN qualifer, using the same time interpolation algorithm as FIND-WHEN measure.
       // The measure will succeed if the interpolated WHEN frequency is inside of the
@@ -372,13 +372,13 @@ void DerivativeEvaluationBase::updateAC(
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::updateNoise(
   Parallel::Machine comm,
-  const double frequency,
-  const double fStart,
-  const double fStop,
+  double frequency,
+  double fStart,
+  double fStop,
   const Linear::Vector *solnVec,
   const Linear::Vector *imaginaryVec,
-  const double totalOutputNoiseDens,
-  const double totalInputNoiseDens,
+  double totalOutputNoiseDens,
+  double totalInputNoiseDens,
   const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec)
 {
   // Used in descriptive output to stdout
@@ -409,7 +409,7 @@ void DerivativeEvaluationBase::updateNoise(
     }
     else if (whenGiven_ && (numPointsFound_ > 1))
     {
-      double targVal=updateTargVal();
+      double targVal=getTargVal();
 
       // Process WHEN qualifer, using the same time interpolation algorithm as FIND-WHEN measure.
       // The measure will succeed if the interpolated WHEN frequency is inside of the
@@ -439,11 +439,11 @@ void DerivativeEvaluationBase::updateNoise(
 // Special Notes : For AC and NOISE measures, the independent variable is
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-bool DerivativeEvaluationBase::isATforACDCNoise(const double indepVarVal)
+bool DerivativeEvaluationBase::isATforACDCNoise(double indepVarVal) const
 {
   // check and see if last point and this point bound the target point
   double backDiff    = lastIndepVarValue_ - at_;
@@ -468,11 +468,11 @@ bool DerivativeEvaluationBase::isATforACDCNoise(const double indepVarVal)
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.  For TRAN, it is circuit
 //                 time.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 09/15/2021
 //-----------------------------------------------------------------------------
-void DerivativeEvaluationBase::updateMeasureVarsForAT(const double currIndepVarVal)
+void DerivativeEvaluationBase::updateMeasureVarsForAT(double currIndepVarVal)
 {
   calculationResult_=getDerivativeValue(currIndepVarVal);
   calculationDone_ = true;
@@ -488,11 +488,11 @@ void DerivativeEvaluationBase::updateMeasureVarsForAT(const double currIndepVarV
 //                 frequency.  For DC measures, it is the value of the first
 //                 variable in the DC sweep vector.  For TRAN measures, it
 //                 is the circuit time.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/21/2020
 //-----------------------------------------------------------------------------
-bool DerivativeEvaluationBase::isWHENcondition(const double indepVarVal, const double targVal)
+bool DerivativeEvaluationBase::isWHENcondition(double indepVarVal, double targVal) const
 {
   bool whenFound=false;
 
@@ -532,18 +532,18 @@ bool DerivativeEvaluationBase::isWHENcondition(const double indepVarVal, const d
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationBase::updateMeasureVars()
+// Function      : DerivativeEvaluationBase::updateMeasureVarsForWhen()
 // Purpose       : Updates the calculation result and calculation instant vectors,
 //                 and the associated flags, if the WHEN condition has been met.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it
 //                 is the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 09/16/2021
 //-----------------------------------------------------------------------------
-void DerivativeEvaluationBase::updateMeasureVarsForWhen(const double currIndepVarVal,
-                                                        const double whenInstance)
+void DerivativeEvaluationBase::updateMeasureVarsForWhen(double currIndepVarVal,
+                                                        double whenInstance)
 {
   updateCalculationInstant(whenInstance);
   updateCalculationResult(currIndepVarVal);
@@ -554,12 +554,12 @@ void DerivativeEvaluationBase::updateMeasureVarsForWhen(const double currIndepVa
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluation::updateRFCcountForWhen()
+// Function      : DerivativeEvaluation::updateRFCcountForWhen
 // Purpose       : Updates the rise, fall and cross counts.
 // Special Notes : This function is normally only called for a WHEN time that
 //                 falls within the FROM-TO window.  So, the WHEN time is always
 //                 a valid cross.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
@@ -575,16 +575,16 @@ void DerivativeEvaluationBase::updateRFCcountForWhen()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationBase::withinRFCWindowForWhen()
+// Function      : DerivativeEvaluationBase::withinRFCWindowForWhen
 // Purpose       : Determine if the current WHEN time falls within the specified
 //                 RFC value.
 // Special Notes : Assumes that a WHEN measure without RISE, FALL or CROSS given
 //                 on the .MEASURE line defaults to CROSS given.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
-bool DerivativeEvaluationBase::withinRFCWindowForWhen()
+bool DerivativeEvaluationBase::withinRFCWindowForWhen() const
 {
   bool retVal=false;
 
@@ -599,17 +599,17 @@ bool DerivativeEvaluationBase::withinRFCWindowForWhen()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationBase::setMeasureState()
+// Function      : DerivativeEvaluationBase::setMeasureState
 // Purpose       : initializes the past values of the independent, dependent
 //                 and measured variables, as well as the past target level.
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it is
 //                 the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluationBase::setMeasureState(const double indepVarVal)
+void DerivativeEvaluationBase::setMeasureState(double indepVarVal)
 {
   // assigned last dependent and independent var to current value of the independent
   // varible and outVarValue_[whenIdx_].  While we can't interpolate on this step, it
@@ -629,11 +629,11 @@ void DerivativeEvaluationBase::setMeasureState(const double indepVarVal)
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
 //                 and NOISE measures, it is frequency.  For DC measures, it is
 //                 the value of the first variable in the DC sweep vector.
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
 //-----------------------------------------------------------------------------
-void DerivativeEvaluationBase::updateMeasureState(const double indepVarVal)
+void DerivativeEvaluationBase::updateMeasureState(double indepVarVal)
 {
   lastIndepVarValue_ = indepVarVal;
   lastDepVarValue_ = outVarValues_[whenIdx_];
@@ -644,14 +644,14 @@ void DerivativeEvaluationBase::updateMeasureState(const double indepVarVal)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationBase::updateTargVal
+// Function      : DerivativeEvaluationBase::getTargVal
 // Purpose       : updates the target value for the WHEN clause
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/05/2020
 //-----------------------------------------------------------------------------
-double DerivativeEvaluationBase::updateTargVal()
+double DerivativeEvaluationBase::getTargVal() const
 {
   double targVal = 0.0;
 
@@ -674,7 +674,7 @@ double DerivativeEvaluationBase::updateTargVal()
 // Function      : DerivativeEvaluationBase::updateLastTargVal
 // Purpose       : updates the last target value for the WHEN clause
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 09/16/2020
 //-----------------------------------------------------------------------------
@@ -696,8 +696,8 @@ void DerivativeEvaluationBase::updateLastTargVal()
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 02/5/2015
 //-----------------------------------------------------------------------------
-std::ostream& DerivativeEvaluationBase::printMeasureWindow(std::ostream& os, const double endSimTime,
-				                       const double startSweepVal, const double endSweepVal)
+std::ostream& DerivativeEvaluationBase::printMeasureWindow(std::ostream& os, double endSimTime,
+				                           double startSweepVal, double endSweepVal) const
 {
   //no op
   if (!atGiven_)
@@ -721,7 +721,7 @@ std::ostream& DerivativeEvaluationBase::printMeasureWindow(std::ostream& os, con
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 09/21/2015
 //-----------------------------------------------------------------------------
-std::ostream& DerivativeEvaluationBase::printRFCWindow(std::ostream& os)
+std::ostream& DerivativeEvaluationBase::printRFCWindow(std::ostream& os) const
 {
   // no op, for any measure that supports WHEN
 
@@ -747,11 +747,11 @@ double DerivativeEvaluationBase::getMeasureResult()
 //                 This accounts for case of WHEN V(1)=V(2) where both
 //                 variables may be changing.
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 03/25/2020
 //-----------------------------------------------------------------------------
-double DerivativeEvaluationBase::interpolateCalculationInstant(double currIndepVarValue, double targVal)
+double DerivativeEvaluationBase::interpolateCalculationInstant(double currIndepVarValue, double targVal) const
 {
   // Calculate slopes and y-intercepts of the two lines, to get them into
   // canonical y=ax+c and y=bx+d form.  If the WHEN clause is of the form
@@ -789,7 +789,7 @@ double DerivativeEvaluationBase::interpolateCalculationInstant(double currIndepV
 // Creator       : Pete Sholander, SNL
 // Creation Date : 05/22/2020
 //-----------------------------------------------------------------------------
-double DerivativeEvaluationBase::getDerivativeValue(const double currIndepVarVal)
+double DerivativeEvaluationBase::getDerivativeValue(double currIndepVarVal) const
 {
   // asymmetrical 3-point approximation for first derivative.
   return (outVarValues_[0] - lastOutputVarValue_) / (currIndepVarVal - lastIndepVarValue_);
@@ -1163,7 +1163,7 @@ std::ostream& DerivativeEvaluationCont::printMeasureResult(std::ostream& os)
     // have the correct number of values in it.
     if (contRFC_ >=0)
     {
-      for (int i=0; i<calculationResultVec_.size(); i++)
+      for (size_t i=0; i<calculationResultVec_.size(); i++)
         os << name_ << " = " << calculationResultVec_[i] << std::endl;
     }
     else
@@ -1214,7 +1214,7 @@ std::ostream& DerivativeEvaluationCont::printVerboseMeasureResult(std::ostream& 
     std::string modeStr = setModeStringForMeasureResultText();
     if (contRFC_ >=0)
     {
-      for (int i=0; i<calculationResultVec_.size(); i++)
+      for (size_t i=0; i<calculationResultVec_.size(); i++)
       {
          os << name_ << " = " << calculationResultVec_[i]
             << " at " << modeStr << " = " << calculationInstantVec_[i] << std::endl;

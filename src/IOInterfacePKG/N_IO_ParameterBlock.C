@@ -45,6 +45,7 @@
 // ---------- Standard Includes ----------
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 #include <sstream>
 
@@ -135,7 +136,7 @@ void ParameterBlock::print()
 //-----------------------------------------------------------------------------
 bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
 {
-  int numFields = parsedInputLine.size();
+  const int numFields = parsedInputLine.size();
 
   // Check that the minimum required number of fields are on the line.
   if ( numFields < 3 )
@@ -325,7 +326,7 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
             {
               Xyce::dout() << "paramBase = " << paramBase;
               Xyce::dout() << "  iblock = " << iblock << std::endl;
-              for (int ieric=0;ieric<tmpParamVec.size();++ieric)
+              for (size_t ieric=0;ieric<tmpParamVec.size();++ieric)
               {
                 Xyce::dout() << "par["<<ieric<<"]="<<tmpParamVec[ieric]<<std::endl;
               }
