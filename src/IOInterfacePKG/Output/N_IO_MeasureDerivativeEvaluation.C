@@ -258,7 +258,7 @@ void DerivativeEvaluationBase::updateDC(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creator       : Pete Sholander, SNL
 // Creation Date : 3/25/2020
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::updateAC(
@@ -325,7 +325,7 @@ void DerivativeEvaluationBase::updateAC(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creator       : Pete Sholander, SNL
 // Creation Date : 5/12/2010
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::updateNoise(
@@ -427,7 +427,7 @@ void DerivativeEvaluationBase::updateMeasureVarsForWhen(double currIndepVarVal,
                                                         double whenInstance)
 {
   updateCalculationInstant(whenInstance);
-  updateCalculationResult(currIndepVarVal);
+  updateCalculationResult(getDerivativeValue(currIndepVarVal));
   calculationDone_ = !measureLastRFC_;
   resultFound_=true;
 
@@ -478,93 +478,13 @@ void DerivativeEvaluation::reset()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluation::updateCalculationResult
-// Purpose       : Updates the vector that holds the measure values.  This
-//                 vector may hold multiple values if the RISE, FALL or CROSS
-//                 value is <0.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 08/20/2020
-//-----------------------------------------------------------------------------
-void DerivativeEvaluation::updateCalculationResult(double currentIndepVarVal)
-{
-  double val = getDerivativeValue(currentIndepVarVal);
-  if (RFC_ >= 0)
-  {
-    // store the value once the requested rise (or fall or cross) number has been found
-    // has been found
-    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
-         (crossGiven_ && (actualCross_>= cross_)) )
-    {
-      calculationResultVec_.push_back(val);
-      calculationResult_ = val;
-    }
-  }
-  else
-  {
-    // For negative values, store at most the requested number of values (RFC_). If the
-    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
-    // the current measure value is in calculationResultVec_[0].
-    calculationResultVec_.push_back(val);
-    if (calculationResultVec_.size() > abs(RFC_))
-      calculationResultVec_.erase(calculationResultVec_.begin());
-
-    if (calculationResultVec_.size() == abs(RFC_))
-      calculationResult_ = calculationResultVec_[0];
-  }
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluation::updateCalculationInstant
-// Purpose       : Updates the vector that holds the times (or frequencies or
-//                 DC sweep values) when the measure was satisified.  This
-//                 vector may hold multiple values if the RISE, FALL or CROSS
-//                 value is <0.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 08/20/2020
-//-----------------------------------------------------------------------------
-void DerivativeEvaluation::updateCalculationInstant(double val)
-{
-  if (RFC_ >= 0)
-  {
-    // store the value once the requested rise (or fall or cross) number has been found
-    // has been found
-    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
-         (crossGiven_ && (actualCross_>= cross_)) )
-    {
-      calculationInstantVec_.push_back(val);
-      calculationInstant_ = val;
-    }
-  }
-  else
-  {
-    // For negative values, store at most the requested number of values (RFC_). If the
-    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
-    // the current measure instant is in calculationInstantVec_[0].
-    calculationInstantVec_.push_back(val);
-    if (calculationInstantVec_.size() > abs(RFC_))
-      calculationInstantVec_.erase(calculationInstantVec_.begin());
-
-    if (calculationInstantVec_.size() == abs(RFC_))
-      calculationInstant_ = calculationInstantVec_[0];
-  }
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DerivativeEvaluation::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
 //                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystems Modeling
-// Creation Date : 2/22/2015
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
 std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os)
 {
@@ -606,8 +526,8 @@ std::ostream& DerivativeEvaluation::printMeasureResult(std::ostream& os)
 //                 result to an output stream object, which is typically stdout
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystems Modeling
-// Creation Date : 2/22/2015
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
 //-----------------------------------------------------------------------------
 std::ostream& DerivativeEvaluation::printVerboseMeasureResult(std::ostream& os)
 {
@@ -673,89 +593,12 @@ void DerivativeEvaluationCont::reset()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationCont::updateCalculationResult
-// Purpose       : Updates the vector that holds the measure values.  This
-//                 vector may hold multiple values if the RISE, FALL or CROSS
-//                 value is <0.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 08/20/2020
-//-----------------------------------------------------------------------------
-void DerivativeEvaluationCont::updateCalculationResult(double currentIndepVarVal)
-{
-  double val = getDerivativeValue(currentIndepVarVal);
-
-  if (RFC_ >= 0)
-  {
-    // store all of the values once the requested number of rises (or falls or crosses)
-    // has been found
-    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
-         (crossGiven_ && (actualCross_>= cross_)) )
-    {
-      calculationResultVec_.push_back(val);
-      calculationResult_ = val;
-    }
-  }
-  else
-  {
-    // For negative values, store at most the requested number of values (RFC_). If the
-    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
-    // the current measure value is in calculationResultVec_[0].
-    calculationResultVec_.push_back(val);
-    if (calculationResultVec_.size() > abs(RFC_))
-      calculationResultVec_.erase(calculationResultVec_.begin());
-
-    if (calculationResultVec_.size() == abs(RFC_))
-      calculationResult_ = calculationResultVec_[0];
-  }
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DerivativeEvaluationCont::updateCalculationInstant
-// Purpose       : Updates the vector that holds the times (or frequencies or
-//                 DC sweep values) when the measure was satisified.  This
-//                 vector may hold multiple values if the RISE, FALL or CROSS
-//                 value is <0.
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander, SNL
-// Creation Date : 08/20/2020
-//-----------------------------------------------------------------------------
-void DerivativeEvaluationCont::updateCalculationInstant(double val)
-{
-  if (RFC_ >= 0)
-  {
-    // store all of the values once the requested number of rises (or falls or crosses)
-    // has been found
-    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
-         (crossGiven_ && (actualCross_>= cross_)) )
-    {
-      calculationInstantVec_.push_back(val);
-    }
-  }
-  else
-  {
-    // For negative values, store at most the requested number of values (RFC_). If the
-    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
-    // the current instant value is in calculationInstantVec_[0].
-    calculationInstantVec_.push_back(val);
-    if (calculationInstantVec_.size() > abs(RFC_))
-      calculationInstantVec_.erase(calculationInstantVec_.begin());
-  }
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DerivativeEvaluationCont::printMeasureResult()
 // Purpose       : used to print the measurement result to an output stream
 //                 object, which is typically the mt0, ma0 or ms0 file
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creator       : Pete Sholander, SNL
 // Creation Date : 8/21/2020
 //-----------------------------------------------------------------------------
 std::ostream& DerivativeEvaluationCont::printMeasureResult(std::ostream& os)
@@ -806,7 +649,7 @@ std::ostream& DerivativeEvaluationCont::printMeasureResult(std::ostream& os)
 //                 result to an output stream object, which is typically stdout
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical and Microsystems Modeling
+// Creator       : Pete Sholander, SNL
 // Creation Date : 8/21/2020
 //-----------------------------------------------------------------------------
 std::ostream& DerivativeEvaluationCont::printVerboseMeasureResult(std::ostream& os)

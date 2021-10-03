@@ -133,9 +133,6 @@ public:
 
   void reset();
 
-  void updateCalculationResult(double val);
-  void updateCalculationInstant(double val);
-
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
 };
@@ -160,9 +157,6 @@ public:
 
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-
-  void updateCalculationResult(double val);
-  void updateCalculationInstant(double val);
 };
 
 } // namespace Measure

@@ -76,9 +76,8 @@ namespace Measure {
 
 //-----------------------------------------------------------------------------
 // Function      : WhenAT::resetWhenAT
-// Purpose       : Called when restarting a measure function.  Resets any state
-// Special Notes : The child classes did not need reset() functions.
-// Scope         : public
+// Purpose       : Called when restarting a measure function.
+// Scope         : protected
 // Creator       : Pete Sholander, SNL
 // Creation Date : 9/27/2021
 //-----------------------------------------------------------------------------
@@ -341,6 +340,82 @@ void WhenAT::updateLastTargVal()
     lastTargValue_ = outputValueTarget_;
   else
     lastTargValue_ = outVarValues_[whenIdx_+1];
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : WhenAT::updateCalculationResult
+// Purpose       : Updates the vector that holds the measure values.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is < 0.
+// Special Notes : For compatibility with other measure types, the calculationResult_
+//                 variable is also updated with the current measure value.
+// Scope         : protected
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/03/2020
+//-----------------------------------------------------------------------------
+void WhenAT::updateCalculationResult(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store all of the values once the requested number of rises (or falls or crosses)
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationResultVec_.push_back(val);
+      calculationResult_ = val;
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current measure value is in calculationResultVec_[0].
+    calculationResultVec_.push_back(val);
+    if (calculationResultVec_.size() > abs(RFC_))
+      calculationResultVec_.erase(calculationResultVec_.begin());
+
+    if (calculationResultVec_.size() == abs(RFC_))
+      calculationResult_ = calculationResultVec_[0];
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : WhenAT::updateCalculationInstant
+// Purpose       : Updates the vector that holds the times (or frequencies or
+//                 DC sweep values) when the measure was satisified.  This
+//                 vector may hold multiple values if the RISE, FALL or CROSS
+//                 value is <0.
+// Special Notes :
+// Scope         : protected
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/20/2020
+//-----------------------------------------------------------------------------
+void WhenAT::updateCalculationInstant(double val)
+{
+  if (RFC_ >= 0)
+  {
+    // store all of the values once the requested number of rises (or falls or crosses)
+    // has been found
+    if ( (riseGiven_ && (actualRise_>= rise_)) || (fallGiven_ && (actualFall_>= fall_)) ||
+         (crossGiven_ && (actualCross_>= cross_)) )
+    {
+      calculationInstantVec_.push_back(val);
+    }
+  }
+  else
+  {
+    // For negative values, store at most the requested number of values (RFC_). If the
+    // size of this vector is less than abs(RFC_) then the measure is "failed".  Otherwise
+    // the current instant value is in calculationInstantVec_[0].
+    calculationInstantVec_.push_back(val);
+    if (calculationInstantVec_.size() > abs(RFC_))
+      calculationInstantVec_.erase(calculationInstantVec_.begin());
+  }
 
   return;
 }

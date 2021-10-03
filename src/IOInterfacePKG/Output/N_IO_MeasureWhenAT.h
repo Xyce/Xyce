@@ -48,11 +48,15 @@ public:
   WhenAT(const Manager &measureMgr, const Util::OptionBlock & measureBlock, int whenIdx);
   ~WhenAT() {};
 
+  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
+			          double startSweepVal, double endSweepVal) const;
+  std::ostream& printRFCWindow(std::ostream& os) const;
+
 protected:
   void resetWhenAT();
 
-  virtual void updateCalculationResult(double val)=0;
-  virtual void updateCalculationInstant(double val)=0;
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
   std::vector<double> calculationResultVec_;
   std::vector<double> calculationInstantVec_;
 
@@ -69,10 +73,6 @@ protected:
  
   void updateRFCcountForWhen();
   bool withinRFCWindowForWhen() const;
-
-  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
-			          double startSweepVal, double endSweepVal) const;
-  std::ostream& printRFCWindow(std::ostream& os) const;
 
   int numOutVars_;
   std::vector<double> outVarValues_;
