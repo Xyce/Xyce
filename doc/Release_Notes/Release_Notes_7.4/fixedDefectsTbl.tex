@@ -178,6 +178,14 @@ as follows:
 \end{verbatim}
 \\ \hline
 
+  \textbf{Gitlab-ex issue 296}: Error in Parallel::Directory when dependent 
+variables for devices included the ground node &  A runtime failure was observed
+from the Parallel::Directory when the ground node was a dependent variable
+for a device parameter.  The Parallel::Directory is a class that the Topology package 
+uses to determine ownership of shared voltage nodes in parallel, which cannot 
+include the ground node.  The dependent variable
+resolution has changed to address this issue. \\ \hline
+
   \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
 In previous \Xyce{} versions, these two \texttt{.PRINT} lines would
 both output the \texttt{V(*)} wildcard results before the \texttt{I(*)}
