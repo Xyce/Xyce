@@ -40,6 +40,11 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
+\textbf{Gitlab-ex issue 301}: Level 2, Nonlinear mutual inductor could cause valgrind errors &
+     The level 2, nonliner mutual inductor was using an uninitialized data structure 
+     in the calculation of lead currents.  This was causing valgrind to issue errors for 
+     tests using this device.  The underlying code has been corrected.\\ \hline
+
 \textbf{Gitlab-ex issue 279/Github issue 41}: Incomplete support for ATAN2 in Xyce/ADMS &
 Xyce/ADMS previously had incomplete support for the standard Verilog-A
 function ``atan2''.  If used in normal module scope, correct code
