@@ -45,6 +45,11 @@
      in the calculation of lead currents.  This was causing valgrind to issue errors for 
      tests using this device.  The underlying code has been corrected.\\ \hline
 
+\textbf{Gitlab-ex issue 310}: Modulus operator didn't correctly handle real-numbered inputs &
+   The modulus operator in the expression library was incorrectly casting its inputs to type integer.  
+   This has been corrected and real numbered inputs are handled correctly now.
+     \\ \hline
+
 \textbf{Gitlab-ex issue 279/Github issue 41}: Incomplete support for ATAN2 in Xyce/ADMS &
 Xyce/ADMS previously had incomplete support for the standard Verilog-A
 function ``atan2''.  If used in normal module scope, correct code
