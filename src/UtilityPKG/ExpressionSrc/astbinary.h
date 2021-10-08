@@ -122,13 +122,6 @@ AST_BIN_OP_MACRO(
     (rightConst_)?(leftConst_?(0.0):(leftDx)):(leftConst_?(-rightDx):(leftDx-rightDx))
     )
 AST_BIN_OP_MACRO(
-    binaryModOp,
-    "modulus operator ",
-	  "%",
-	  (static_cast<int>(std::real(leftVal)) % static_cast<int>(std::real(rightVal))),
-	  (0.0)
-    )
-AST_BIN_OP_MACRO(
     binaryMulOp,
     "binary multiply ",
 	  "*",
@@ -142,6 +135,5 @@ AST_BIN_OP_MACRO(
 	  (leftVal / rightVal),
     (rightConst_)?(leftConst_?(0.0):((leftDx*rightVal)/(rightVal*rightVal))):(leftConst_?((-rightDx*leftVal)/(rightVal*rightVal)):((leftDx*rightVal-rightDx*leftVal)/(rightVal*rightVal)))
     )
-
 #endif
 
