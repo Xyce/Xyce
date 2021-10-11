@@ -770,21 +770,22 @@ bool Instance::updateIntermediateVars ()
 
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-    if (vciPtrWLimiting!=NULL) { // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
+
+    if (vciPtrWLimiting!=NULL) // successful cast means that vciPtr_ is of
+                               // type VectorComputeInterfaceWithLimiting
+    {
 
       // Copy out the flag solution variables we need.
       Linear::Vector * flagSolVectorPtr = extData.flagSolVectorPtr;
+      if (flagSolutionVars_.empty())
+        flagSolutionVars_.resize(numVars);
+      bsuccess = bsuccess && (flagSolVectorPtr != 0);
+      if (!bsuccess)
       {
-        if (flagSolutionVars_.empty())
-          flagSolutionVars_.resize(numVars);
-        bsuccess = bsuccess && (flagSolVectorPtr != 0);
-        if (!bsuccess)
-        {
-          UserError(*this) << "flagSolVectorPtr is not set.";
-        }
-        for (int i=0;i<numVars;i++)
-          flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
+        UserError(*this) << "flagSolVectorPtr is not set.";
       }
+      for (int i=0;i<numVars;i++)
+        flagSolutionVars_[i] = (*flagSolVectorPtr)[li_Nodes_[i]];
 
       // Copy out the solution variables we need.
       double * currSolVectorPtr = extData.currSolVectorRawPtr;
@@ -818,7 +819,7 @@ bool Instance::updateIntermediateVars ()
           nextStoreVars_.resize(numStoreVars);
         if (currStoreVars_.empty())
           currStoreVars_.resize(numStoreVars);
-        for (int i=0;i<numStoreVars;i++) 
+        for (int i=0;i<numStoreVars;i++)
         {
           nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
           currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
@@ -836,29 +837,28 @@ bool Instance::updateIntermediateVars ()
       double * nextStaVectorPtr = extData.nextStaVectorRawPtr;
       double * currStaVectorPtr = extData.currStaVectorRawPtr;
       double * lastStaVectorPtr = extData.lastStaVectorRawPtr;
+
+      if (nextStateVars_.empty())
+        nextStateVars_.resize(numStateVars);
+      if (currStateVars_.empty())
+        currStateVars_.resize(numStateVars);
+      if (lastStateVars_.empty())
+        lastStateVars_.resize(numStateVars);
+      for (int i=0;i<numStateVars;i++)
       {
-        if (nextStateVars_.empty())
-          nextStateVars_.resize(numStateVars);
-        if (currStateVars_.empty())
-          currStateVars_.resize(numStateVars);
-        if (lastStateVars_.empty())
-          lastStateVars_.resize(numStateVars);
-        for (int i=0;i<numStateVars;i++) 
-        {
-          nextStateVars_[i] = nextStaVectorPtr[li_States_[i]];
-          currStateVars_[i] = currStaVectorPtr[li_States_[i]];
-          lastStateVars_[i] = lastStaVectorPtr[li_States_[i]];
-        }
-        if (stateVars.empty())
-        {
-          stateVars.resize(3);
-        }
-        // copies by value
-        stateVars[0]=nextStateVars_;
-        stateVars[1]=currStateVars_;
-        stateVars[2]=lastStateVars_;
+        nextStateVars_[i] = nextStaVectorPtr[li_States_[i]];
+        currStateVars_[i] = currStaVectorPtr[li_States_[i]];
+        lastStateVars_[i] = lastStaVectorPtr[li_States_[i]];
       }
- 
+      if (stateVars.empty())
+      {
+        stateVars.resize(3);
+      }
+      // copies by value
+      stateVars[0]=nextStateVars_;
+      stateVars[1]=currStateVars_;
+      stateVars[2]=lastStateVars_;
+
 
       // Call back to the computation object and get this devices
       // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
@@ -872,14 +872,14 @@ bool Instance::updateIntermediateVars ()
                                            dFdXMat_, dQdXMat_,
                                            dFdXdVpVec_, dQdXdVpVec_);
 
-      // update store vars with changes made in Python
-      for (int i=0;i<numStoreVars;i++) 
+      // update store vars with changes made in external code
+      for (int i=0;i<numStoreVars;i++)
       {
         nextStoVectorPtr[li_Stores_[i]] = storeVars[0][i];
       }
 
-      // update state vars with changes made in Python
-      for (int i=0;i<numStateVars;i++) 
+      // update state vars with changes made in external code
+      for (int i=0;i<numStateVars;i++)
       {
         nextStaVectorPtr[li_States_[i]] = stateVars[0][i];
       }
@@ -1054,10 +1054,11 @@ bool Instance::loadDAEQVector ()
 
   if( getDeviceOptions().voltageLimiterFlag )
   {
-    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
+    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting =
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL && !dQdXdVpVec_.empty()) { 
+    if (vciPtrWLimiting!=NULL && !dQdXdVpVec_.empty())
+    {
       double * dQdxdVpVector = extData.dQdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dQdxdVpVector[li_Nodes_[i]] += dQdXdVpVec_[i];
@@ -1108,7 +1109,8 @@ bool Instance::loadDAEFVector ()
     Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
         dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL && !dFdXdVpVec_.empty()) { 
+    if (vciPtrWLimiting!=NULL && !dFdXdVpVec_.empty())
+    {
       double * dFdxdVpVector = extData.dFdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
         dFdxdVpVector[li_Nodes_[i]] += dFdXdVpVec_[i];

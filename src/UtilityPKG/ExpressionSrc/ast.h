@@ -3339,7 +3339,7 @@ class fmodOp : public astNode<ScalarT>
 {
   public:
     fmodOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), bpTol_(0.0)
     {
       rightConst_ = this->rightAst_->numvalType();
       leftConst_ = this->leftAst_->numvalType();
@@ -3347,20 +3347,97 @@ class fmodOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
+#if 0
+      // copied from the stpOp class:  rewrite this for fmod.
+      // stpOp returns a 1 or a 0.
+      Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
+      bpTimes_.clear();
+      computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
+#endif
+
       return std::fmod ( std::real(this->leftAst_->val()) , std::real(this->rightAst_->val()));
     }
 
-    virtual ScalarT dx (int i)
+    virtual ScalarT dx(int i)
     {
-      ScalarT retVal = 0.0;
-      return  retVal;
+      ScalarT leftVal=this->leftAst_->val();
+      ScalarT rightVal=this->rightAst_->val();
+      ScalarT leftDx = 0.0; ScalarT rightDx = 0.0;
+
+      double res = fabs((std::real(leftVal))/(std::real(rightVal)));
+      Xyce::Util::fixNan(res);
+      double floorRes = ((std::real(leftVal))>0)?(std::floor(res)):(-std::floor(res));
+
+      // 𝑎′(𝑥)−𝑏′(𝑥)[𝑎(𝑥)/𝑏(𝑥)] 
+      if (!leftConst_) 
+      {
+        leftDx = this->leftAst_->dx(i);
+      }
+      if (!rightConst_) 
+      {
+        rightDx = this->rightAst_->dx(i);
+      }
+      return leftDx-rightDx*floorRes;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    {
       result = val();
-      if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
+
+      int numDerivs = derivs.size();
+      ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;
+      if (leftConst_) 
+      {
+        leftVal = this->leftAst_->val(); 
+      }
+      else 
+      {
+        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+        this->leftAst_->dx2(leftVal,lefDerivs_); 
+      }
+      if (rightConst_) 
+      {
+        rightVal = this->rightAst_->val(); 
+      }
+      else 
+      {
+        if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+        this->rightAst_->dx2(rightVal,rigDerivs_); 
+      }
+
+      double res = fabs((std::real(leftVal))/(std::real(rightVal)));
+      Xyce::Util::fixNan(res);
+      double floorRes = ((std::real(leftVal))>0)?(std::floor(res)):(-std::floor(res));
+
+      // 𝑎′(𝑥)−𝑏′(𝑥)[𝑎(𝑥)/𝑏(𝑥)] 
+      for (int i=0;i<numDerivs;i++) 
+      {
+        if (!leftConst_) 
+        {
+          leftDx = lefDerivs_[i]; 
+        }
+        if (!rightConst_) 
+        {
+          rightDx = rigDerivs_[i]; 
+        }
+        derivs[i] = leftDx-rightDx*floorRes;
+      }
     }
+
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
+    {
+      if(!(bpTimes_.empty()))
+      {
+        for (int ii=0;ii<bpTimes_.size();ii++)
+        {
+          breakPointTimes.push_back(bpTimes_[ii]);
+        }
+      }
+
+      return true;
+    }
+
+    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3390,6 +3467,11 @@ class fmodOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_; 
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
+    double bpTol_;
+    std::vector<Xyce::Util::BreakPoint> bpTimes_;
 };
 
 //-------------------------------------------------------------------------------

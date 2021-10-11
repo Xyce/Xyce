@@ -882,7 +882,7 @@ exp:
     }
   | exp TOK_MOD exp
     {
-      $$ = Teuchos::RCP<astNode<usedType> >(new binaryModOp<usedType>  ($1,$3));
+      $$ = Teuchos::RCP<astNode<usedType> >(new fmodOp<usedType>  ($1,$3));
     }
   | TOK_FMOD exp TOK_COMMA exp TOK_RIGHTPAREN
     {

@@ -40,6 +40,16 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
+\textbf{Gitlab-ex issue 301}: Level 2, Nonlinear mutual inductor could cause valgrind errors &
+     The level 2, nonliner mutual inductor was using an uninitialized data structure 
+     in the calculation of lead currents.  This was causing valgrind to issue errors for 
+     tests using this device.  The underlying code has been corrected.\\ \hline
+
+\textbf{Gitlab-ex issue 310}: Modulus operator didn't correctly handle real-numbered inputs &
+   The modulus operator in the expression library was incorrectly casting its inputs to type integer.  
+   This has been corrected and real numbered inputs are handled correctly now.
+     \\ \hline
+
 \textbf{Gitlab-ex issue 279/Github issue 41}: Incomplete support for ATAN2 in Xyce/ADMS &
 Xyce/ADMS previously had incomplete support for the standard Verilog-A
 function ``atan2''.  If used in normal module scope, correct code
@@ -177,6 +187,14 @@ as follows:
 .MEASURE TRAN EQN1 EQN V1MAX
 \end{verbatim}
 \\ \hline
+
+  \textbf{Gitlab-ex issue 296}: Error in Parallel::Directory when dependent 
+variables for devices included the ground node &  A runtime failure was observed
+from the Parallel::Directory when the ground node was a dependent variable
+for a device parameter.  The Parallel::Directory is a class that the Topology package 
+uses to determine ownership of shared voltage nodes in parallel, which cannot 
+include the ground node.  The dependent variable
+resolution has changed to address this issue. \\ \hline
 
   \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
 In previous \Xyce{} versions, these two \texttt{.PRINT} lines would

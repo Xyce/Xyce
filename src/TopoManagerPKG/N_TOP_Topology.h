@@ -267,6 +267,7 @@ private:
   // NOTE: this memory is cleared after the nodes are removed from the ordered node list. 
   std::vector< std::pair<NodeID, NodeID> >              superNodeList_;
   std::vector< NodeID >                                 badDeviceList_;
+  unordered_map<std::string, std::string>               aliasMap_;
 
   mutable Util::SymbolTable                             nodeSymbols_;
   mutable std::vector<char>                             variableTypes_;

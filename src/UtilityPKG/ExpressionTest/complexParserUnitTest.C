@@ -4568,6 +4568,165 @@ TEST ( Complex_Parser_modulus, test2)
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, 3.0);
 }
 
+#if 1
+// test for modulus w/real numbers
+TEST ( Complex_Parser_modulus, test3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("15.2%4.1"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refRes=15.2-4.1*std::floor(15.2/4.1);
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refRes);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO2(Complex_Parser_modulus, test3, p1) 
+}
+
+// test for modulus w/real numbers, with problem: second arg is zero.
+TEST ( Complex_Parser_modulus, test4)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
+
+  Xyce::Util::newExpression p1(std::string("15.2%0.0"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> refRes=1e50;
+  p1.evaluateFunction(result);        EXPECT_EQ( result, refRes);
+  copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assign_p1.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO2(Complex_Parser_modulus, test4, p1) 
+}
+
+// test for modulus w/real numbers, and derivatives
+TEST ( Complex_Parser_modulus, test5)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
+
+  Xyce::Util::newExpression p1(std::string("V(A)%4.1"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> Aval=std::complex<double> (15.2,0.0);
+  std::complex<double> refRes=15.2-4.1*std::floor(15.2/4.1);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(1.0);
+  std::vector<std::complex<double> > derivs;
+
+  p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  OUTPUT_MACRO2(Complex_Parser_modulus, test5, p1) 
+}
+
+// test for modulus w/real numbers, and derivatives
+TEST ( Complex_Parser_modulus, test6)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
+
+  Xyce::Util::newExpression p1(std::string("15.2%V(A)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+
+  std::complex<double> result=0.0;
+  std::complex<double> Aval=std::complex<double> (4.1,0.0);
+  std::complex<double> refRes=15.2-4.1*std::floor(15.2/4.1);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(-std::floor(15.2/4.1));
+  std::vector<std::complex<double> > derivs;
+
+  p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  OUTPUT_MACRO2(Complex_Parser_modulus, test6, p1) 
+}
+
+// test for modulus w/real numbers, and derivatives
+TEST ( Complex_Parser_modulus, test7)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
+
+  Xyce::Util::newExpression p1(std::string("V(A)%4.1"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> Aval=std::complex<double> (-15.2,0.0);
+  std::complex<double> refRes=-15.2+4.1*std::floor(15.2/4.1);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(1.0);
+  std::vector<std::complex<double> > derivs;
+
+  p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
+  OUTPUT_MACRO2(Complex_Parser_modulus, test7, p1) 
+}
+
+// test for modulus w/real numbers, and derivatives
+TEST ( Complex_Parser_modulus, test8)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
+
+  Xyce::Util::newExpression p1(std::string("15.2%V(A)"), grp);
+  p1.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_p1(p1); 
+  Xyce::Util::newExpression assign_p1; 
+  assign_p1 = p1; 
+
+  std::complex<double> result=0.0;
+  std::complex<double> Aval=std::complex<double> (-4.1,0.0);
+  std::complex<double> refRes=  std::complex<double>(std::fmod(15.2,std::real(Aval)),0.0);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  double Aval2=std::real(Aval)*1.1;
+  std::complex<double> refResDiff=std::complex<double>(std::fmod(15.2,std::real(Aval2)),0.0);
+  std::complex<double> dr= (refRes-refResDiff)/(0.1*Aval); // doing a numerical deriv b/c I keep confusing myself
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(dr);
+  std::vector<std::complex<double> > derivs;
+
+  p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
+  copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
+  assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
+  OUTPUT_MACRO2(Complex_Parser_modulus, test8, p1) 
+}
+#endif
+
 TEST ( Complex_Parser_fmod, fmod1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );

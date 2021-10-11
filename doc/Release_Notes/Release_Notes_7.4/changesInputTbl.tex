@@ -50,5 +50,25 @@ is set to 1 then the additional metrics (ENOB, SFDR, SNR, SNDR and THD)
 and a sorted list of the 30 largest harmonics, for each \texttt{.FFT} line,
 are now output to stdout. \\ \hline
 
+Changes to output file names produced by the -o command line option &
+In prior releases, the -o filename only applied to the file name
+produced by the primary \texttt{.PRINT} line.  The -o filename is now
+used as the ``basename'' for all of the output files. As an example,
+for a \texttt{.TRAN} analysis, this command line will now produce the
+output file \verb+<results>.prn+, instead of the file \verb+<results>+,
+from the \texttt{.PRINT} line.
+\begin{vquote}
+   Xyce -o results <netlistName>
+\end{vquote}
+
+The results from any \texttt{.MEASURE TRAN}, \texttt{.MEASURE TRAN\_CONT},
+\texttt{.FFT} and/or \texttt{.FOUR} lines in the netlist will now be placed into
+the files \verb+<results>.mt0+, \verb+<results>_measurename.mt0+,
+\verb+<results>.fft0+, and \verb+<results>.four0+, respectively.  For a
+\texttt{.STEP} analysis, the results file \verb+<results>.res+ will also be
+made.
+
+\\ \hline
+
 \end{longtable}
 }
