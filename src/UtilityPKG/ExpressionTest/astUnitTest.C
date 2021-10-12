@@ -62,7 +62,6 @@ AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryAddOp,+,1.0,2.0)
 AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryMinusOp,-,1.0,2.0) 
 AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryMulOp,*,1.0,2.0) 
 AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryDivOp,/,1.0,2.0) 
-AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryModOp,%,15,3)  // must be ints
 
 
 AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryAddOp,+,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
@@ -1458,36 +1457,6 @@ TEST ( Double_Ast_calculus_Test, ddx4)
 
   ddxOp<double> finalExp1(f_of_x, testParamA);
   EXPECT_EQ(finalExp1.val(), std::cos(3.0));
-}
-
-TEST ( Double_Ast_modulus_Test, test1)
-{ 
-  RCP<astNode<double> > valA = rcp(new numval<double> (15));
-  RCP<astNode<double> > valB = rcp(new numval<double> (4));
-  RCP<astNode<double> > floor1 = rcp(new binaryModOp<double> (valA,valB));
-  EXPECT_EQ(floor1->val(), 3);
-}
-
-TEST ( Double_Ast_modulus_Test, test2)
-{ 
-  RCP<astNode<double> > valA = rcp(new numval<double> (30));
-  RCP<astNode<double> > valB = rcp(new numval<double> (7));
-  RCP<astNode<double> > floor1 = rcp(new binaryModOp<double> (valA,valB));
-  EXPECT_EQ(floor1->val(), 2);
-}
-
-TEST ( Double_Ast_modulus_Test, test3)
-{ 
-  RCP<astNode<double> > valA = rcp(new numval<double> (20));
-  RCP<astNode<double> > valB = rcp(new numval<double> (7));
-  RCP<astNode<double> > plus1 = rcp(new binaryAddOp<double> (valA,valB));
-
-  RCP<astNode<double> > valC = rcp(new numval<double> (2));
-  RCP<astNode<double> > valD = rcp(new numval<double> (8));
-  RCP<astNode<double> > mult1 = rcp(new binaryMulOp<double> (valC,valD));
-
-  RCP<astNode<double> > floor1 = rcp(new binaryModOp<double> (plus1,mult1));
-  EXPECT_EQ(floor1->val(), 11);
 }
 
 TEST ( Double_Ast_floor_Test, test1)
