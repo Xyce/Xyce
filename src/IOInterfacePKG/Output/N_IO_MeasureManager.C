@@ -2230,7 +2230,7 @@ void populateMetadata(IO::PkgOptionsMgr &   options_manager)
     parameters.insert(Util::ParamMap::value_type("MEASFAIL", Util::Param("MEASFAIL", 1)));
     parameters.insert(Util::ParamMap::value_type("DEFAULT_VAL", Util::Param("DEFAULT_VAL", -1)));
     parameters.insert(Util::ParamMap::value_type("USE_CONT_FILES", Util::Param("USE_CONT_FILES", 1)));
-    parameters.insert(Util::ParamMap::value_type("USE_LTTM_MODE", Util::Param("USE_LTTM", 0)));
+    parameters.insert(Util::ParamMap::value_type("USE_LTTM", Util::Param("USE_LTTM", 0)));
   }
 }
 
