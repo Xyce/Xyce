@@ -80,6 +80,9 @@ please visit the \XyceTM{} web page at
 \begin{XyceItemize}
   \item Voltage limiting in the BSIMSOI version 3 device model can now be optionally turned off, while leaving it turned on in other devices.  The implementation of voltage limiting in the BSIM SOI device is unorthodox and has been observed to cause robustness problems.  Turning it off can improve runtimes.
   \item Behavioral models have been optimized to eliminate redundant calls to the expression library.  For historical reasons, the Bsrc device was calling the expression library more than it needed to.  This has been corrected, and it will improve the runtime of circuits with lots of behavioral models.  This same optimization has also been applied to other expression-dependent models, such as the capacitor and switch devices.
+   \item The expression library has undergone several optimizations since the last code release.  These optimizations include a reduction in the number of necessary syntax tree traversals, a reduction in the memory footprint, reduction in dynamic memory allocations and deallocations, and many evaluation costs are now amortized in the expression setup.  
+    For circuits with large numbers of expressions, these optimizations produce runtime performance improvements of netlist parsing and overall simulation speed.
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
