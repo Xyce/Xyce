@@ -420,7 +420,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       }
       else if ( (*it).getType() == Xyce::Util::EXPR )
       {
-        if( inTrigBlock || inTargBlock )
+        if ( (inTrigBlock || inTargBlock) && measureMgr_.getUseLTTM() && (mode_=="TRAN"))
         {
           outputValueTarget_ = (*it).getMutableValue<double>();
           outputValueTargetGiven_ = true;
@@ -434,17 +434,20 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         }
       }
 
-      if( inTrigBlock )
+      if ( (measureMgr_.getUseLTTM() && (mode_=="TRAN")) || (!measureMgr_.getUseLTTM() && !((*it).getType() == Xyce::Util::EXPR)) )
       {
-        trigOutputValueTarget_ = outputValueTarget_;
-        trigOutputValueTargetGiven_ = true;
-        outputValueTargetGiven_ = false;
-      }
-      else if( inTargBlock )
-      {
-        targOutputValueTarget_ = outputValueTarget_;
-        targOutputValueTargetGiven_ = true;
-        outputValueTargetGiven_ = false;
+        if( inTrigBlock )
+        {
+          trigOutputValueTarget_ = outputValueTarget_;
+          trigOutputValueTargetGiven_ = true;
+          outputValueTargetGiven_ = false;
+        }
+        else if( inTargBlock )
+        {
+          targOutputValueTarget_ = outputValueTarget_;
+          targOutputValueTargetGiven_ = true;
+          outputValueTargetGiven_ = false;
+        }
       }
     }
     else if( tag == "ON" )
