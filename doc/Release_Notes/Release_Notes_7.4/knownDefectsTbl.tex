@@ -41,6 +41,10 @@
 %
 %
 
+\textbf{Gitlab-ex issue 316}: Model binning and UQ analyses on sizing parameters such as L 
+  and W don't play well together &  Currently, Xyce performs model binning at the parser level, and is unable to subsequently update model bins if the values of L and W are changed after parsing is over.  This means that analyses that modify sizing parameters (such as \texttt{.STEP} or \texttt{.SAMPLING}) may produce incorrect results.
+\\ \hline
+
 \textbf{Gitlab issue 85} Complex-valued parameters are not handed correctly &
 The \Xyce{} expression library was rewritten for the 7.2 release, and
 has added support for complex numbers in expressions.  However, the
