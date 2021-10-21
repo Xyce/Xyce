@@ -493,18 +493,32 @@ bool FindWhenBase::checkMeasureLine() const
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in
   // updateTran() function
-  if (numDepSolVars_ <= 1 && findGiven_ && !atGiven_)
+  if (numDepSolVars_ == 0)
   {
-    // FIND-WHEN
+    // this is wrong for any measure
     bsuccess = false;
-    Report::UserError0() << name_ << " has incomplete MEASURE line";
   }
-  else if (numDepSolVars_ < 1 && !findGiven_)
+  else if (!findGiven_ && atGiven_)
   {
-    // WHEN
+    // WHEN-AT, or just AT is an error
     bsuccess = false;
-    Report::UserError0() << name_ << " has incomplete MEASURE line";
   }
+  else if ( (findGiven_ && atGiven_ && numDepSolVars_ != 1) ||
+            (findGiven_ && !atGiven_ && outputValueTargetGiven_ && numDepSolVars_ != 2) ||
+            (findGiven_ && !outputValueTargetGiven_ && numDepSolVars_ != 3) ||
+            (!findGiven_ && outputValueTargetGiven_ && numDepSolVars_ != 1) ||
+            (!findGiven_ && !outputValueTargetGiven_ && numDepSolVars_ != 2) )
+  {
+    // FIND-AT
+    // FIND-WHEN with fixed target
+    // FIND-WHEN with variable target
+    // WHEN with fixed target
+    // WHEN with variable target
+    bsuccess = false;
+  }
+
+  if (!bsuccess)
+    Report::UserError0() << name_ << " has invalid MEASURE line"; 
 
   return bsuccess;
 }

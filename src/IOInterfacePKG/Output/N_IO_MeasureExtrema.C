@@ -53,12 +53,6 @@ namespace Measure {
 Extrema::Extrema(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock)
 {
-  // indicate that this measure type is supported and should be processed in simulation
-  typeSupported_ = true;
-
-  // updateTran() is likely to segfault if the .MEASURE line was incomplete
-  checkMeasureLine();
-
   // Negative rise/fall/cross values < -1 are not supported for Extrema measures
   if (riseGiven_ && rise_ < -1)
   {

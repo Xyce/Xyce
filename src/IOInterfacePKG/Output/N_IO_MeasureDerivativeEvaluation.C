@@ -85,15 +85,7 @@ DerivativeEvaluationBase::DerivativeEvaluationBase(const Manager &measureMgr, co
 //-----------------------------------------------------------------------------
 void DerivativeEvaluationBase::prepareOutputVariables() 
 {
-  // If AT keyword is given then numOutVars should only have one entry
   numOutVars_ = outputVars_.size();
-
-  if ( (numOutVars_ > 1) && atGiven_ )
-  {
-    std::string msg = "Too many dependent variables for DERIV measure, \"" + name_ + "\"";
-    Report::UserError0() << msg;
-  }
-
   outVarValues_.resize( numOutVars_, 0.0 );
 }
 
@@ -390,6 +382,42 @@ void DerivativeEvaluationBase::updateNoise(
 
   updateMeasureState(frequency);
 }
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluationBase::checkMeasureLine
+// Purpose       : check .MEASURE line for errors that will cause cause dumps
+//               : later
+// Special Notes :
+// Scope         : protected
+// Creator       : Pete Sholander, SNL
+// Creation Date : 10/20/2021
+//-----------------------------------------------------------------------------
+bool DerivativeEvaluationBase::checkMeasureLine() const
+{
+  bool bsuccess = true;
+  // incorrect number of dependent solution variables will cause core dumps in
+  // updateTran() function
+  if (numDepSolVars_ == 0)
+  {
+    // this is wrong for any measure
+    bsuccess = false;
+  }
+  else if ( (atGiven_ && numDepSolVars_ != 1) || 
+            (!atGiven_ && outputValueTargetGiven_ && numDepSolVars_ != 2) ||
+            (!atGiven_ && !outputValueTargetGiven_ && numDepSolVars_ != 3) )
+  {
+    // DERIV-AT
+    // DERIV-WHEN with a fixed target
+    // DERIV-WHEN with a variable target
+    bsuccess = false;
+  }
+
+  if (!bsuccess)
+     Report::UserError0() << name_ << " has invalid MEASURE line";
+
+  return bsuccess;
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : DerivativeEvaluationBase::updateMeasureVarsForAT

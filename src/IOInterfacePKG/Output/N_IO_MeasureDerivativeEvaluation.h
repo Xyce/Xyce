@@ -104,6 +104,7 @@ public:
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
 protected:
+  bool checkMeasureLine() const;
   double getDerivativeValue(double currIndepVarValue) const;
 
 private:
