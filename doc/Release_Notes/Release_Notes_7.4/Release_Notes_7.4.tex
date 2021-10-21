@@ -67,7 +67,26 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+\item General:
+  \begin{XyceItemize}
+  \item Substitutions done by XDM for the special variable
+    TEMP are no longer necessary and are taken out in this release.
+  \end{XyceItemize}
+\item HSPICE:
+  \begin{XyceItemize}
+  \item  Xyce's "-hspice-ext" option, which should be used
+    when running HSPICE netlists translated by XDM, now by default
+    expects the "." for the subcircuit hierarchy separator
+    character. Therefore, XDM translations will leave that character
+    unchanged rather than translating it to Xyce's native ":"
+    subcircuit separator character.
+  \item  Secondary sweep of .DC analyses should now be
+    translated correctly into Xyce.
+  \item  Xyce can now handle resistors with solution dependent
+    expressions for their resistance values. Therefore, XDM will no
+    longer translate solution dependent resistors into behavioral
+    B-element sources.
+  \end{XyceItemize}
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
