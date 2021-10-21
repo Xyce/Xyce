@@ -34,6 +34,7 @@ namespace Util {
 extern bool useHspiceMath;
 extern bool useHspiceSeparator;
 extern char separator;
+extern std::vector<bool> preprocessFilter;
 }
 }
 

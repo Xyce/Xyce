@@ -2569,6 +2569,8 @@ bool CircuitBlock::parsePreprocess()
     eof = ssfPtr_->peekAtNextLine( lineType );
   }
 
+  Xyce::Util::preprocessFilter = preprocessFilter_;
+
   if (DEBUG_IO) {
     Xyce::dout() << std::endl << "Unused components to be removed.  (1 means remove "
                  << "redundancies,"  << std::endl <<" 0 means do not remove redundancies): "

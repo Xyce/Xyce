@@ -148,6 +148,7 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/../
           ${CMAKE_SOURCE_DIR}/../ExpressionSrc/
           ${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/
+          ${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/
           ${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/
           ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS})
 
