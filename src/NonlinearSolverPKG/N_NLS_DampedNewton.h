@@ -136,6 +136,9 @@ private:
   // Flag for whether the algorithm is just a basic Newton algorithm.
   bool basicNewton_;
 
+  // Flag for whether the RHS norm is a NaN.
+  bool isNormRHS_NaN_;
+
   //! Convergence Rate
   double resConvRate_;
 
