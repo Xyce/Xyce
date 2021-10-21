@@ -1151,26 +1151,24 @@ std::ostream& TrigTargBase::printRFCWindow(std::ostream& os) const
 bool TrigTargBase::checkMeasureLine() const
 {
   bool bsuccess = true;
-  // incorrect number of dependent solution variables will cause core dumps in
-  // updateTran() function
-  if (trigATgiven_ && targATgiven_ && numDepSolVars_ > 0)
+  int expectedNumDepSolVars=0;
+
+  if ( !trigATgiven_ && trigOutputValueTargetGiven_ )
+    expectedNumDepSolVars++;
+  else if ( !trigATgiven_ && !trigOutputValueTargetGiven_ )
+    expectedNumDepSolVars +=2;
+
+  if ( !targATgiven_ && targOutputValueTargetGiven_ )
+    expectedNumDepSolVars++;
+  else if ( !targATgiven_ && !targOutputValueTargetGiven_ )
+    expectedNumDepSolVars +=2;
+
+  if ( ((numDepSolVars_ == 0) && !(trigATgiven_ && targATgiven_)) || (numDepSolVars_ > 4) ||
+       (expectedNumDepSolVars != numDepSolVars_) )
+       
   {
     bsuccess = false;
-    Report::UserError0() << name_ << " has incomplete MEASURE line";
-  }
-  else if ( ((trigOutputValueTargetGiven_ && targATgiven_) || (targOutputValueTargetGiven_ && trigATgiven_))
-            && numDepSolVars_ != 1) 
-  {
-    // TRIG or TARG clause uses v(a)=<val> syntax
-    bsuccess = false;
-    Report::UserError0() << name_ << " has incomplete MEASURE line";
-  }
-  else if (numDepSolVars_ < 1 && ((trigATgiven_ && !targATgiven_) ||
-                                  (!trigATgiven_ && targATgiven_)) )
-  {
-    // TRIG clause uses AT=<time> syntax
-    bsuccess = false;
-    Report::UserError0() << name_ << " has incomplete MEASURE line";
+    Report::UserError0() << name_ << " has invalid MEASURE line";
   }
 
   return bsuccess;
