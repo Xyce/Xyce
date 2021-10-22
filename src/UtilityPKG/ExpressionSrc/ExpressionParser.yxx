@@ -59,6 +59,7 @@
 #include "location.hh"
 #include "position.hh"
 #include <N_ERH_Message.h>
+#include <N_IO_fwd.h>
 #include "ExpressionType.h"
 #include "ast.h"
 #include "newExpression.h"
@@ -117,18 +118,33 @@ bool checkGroundNodeName(std::string & name)
   Xyce::Util::toUpper(tmpName);
 
   if (tmpName == std::string("0")) { return true; }
-  if (tmpName == std::string("GND")) { return true; }
 
-  bool thisIsNotGround=true;
+  if (Xyce::Util::preprocessFilter.size() >= Xyce::IO::PreprocessType::NUM_PREPROCESS)
+  {
+  if (Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND])
+  {
+    if (tmpName == std::string("GND")) { return true; }
+    if (tmpName == std::string("GND!")) { return true; }
+    if (tmpName == std::string("GROUND")) { return true; }
+  }
+  }
+
+  bool thisIsGround=false;
   if (tmpName.size() > 1)
   {
-    int last = tmpName.size()-1;
-    std::string endOfName = tmpName.substr(last-1,last);
-    if (endOfName == ":0") { thisIsNotGround=false; }
+    std::size_t lastColonIndex = tmpName.find_last_of(":");
+    std::size_t last = tmpName.size()-1;
+    if (lastColonIndex < last)
+    {
+      std::string endOfName = tmpName.substr(lastColonIndex,last);
+      if (endOfName == ":0") { thisIsGround=true; }
+      else if (endOfName == ":GND") { thisIsGround=true; }
+      else if (endOfName == ":GND!") { thisIsGround=true; }
+      else if (endOfName == ":GROUND") { thisIsGround=true; }
+    }
   }
-  if (!thisIsNotGround) { return true; }
 
-  return false;
+  return thisIsGround;
 }
 
 //-------------------------------------------------------------------------

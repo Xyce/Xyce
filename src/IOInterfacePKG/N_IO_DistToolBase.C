@@ -54,6 +54,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_HspiceBools.h>
 
 namespace Xyce {
 namespace IO {
@@ -271,6 +272,8 @@ DistToolBase::broadcastGlobalData()
   {
     remove_any_redundant_ = true;
   }
+
+  Xyce::Util::preprocessFilter = preprocessFilter_;
 
   // Broadcast analysis type
   int len = mainCircuitPtr_->getAnalysisName().length();

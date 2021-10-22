@@ -111,6 +111,9 @@ bool useHspiceMath;
 bool useHspiceSeparator;
 char separator;
 
+// This comes from the netlist parser.
+ std::vector<bool> preprocessFilter;
+
 //-------------------------------------------------------------------------------
 // Function      : newExpression::lexAndParseExpression
 // Purpose       : Lexes and Parses the expression string
