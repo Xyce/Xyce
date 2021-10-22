@@ -1131,6 +1131,21 @@ double TrigTargBase::getMeasureResult()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : TrigTargBase::printMeasureWindow()
+// Purpose       : print information about the measurement window
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 09/14/2021
+//-----------------------------------------------------------------------------
+std::ostream& TrigTargBase::printMeasureWindow(std::ostream& os, double endSimTime,
+				               double startSweepVal, double endSweepVal) const
+{
+  // no op, for this measure type
+
+  return os;
+}
+//-----------------------------------------------------------------------------
 // Function      : TrigTargBase::printRFCWindow()
 // Purpose       : print information about the start time of the RISE or FALL
 //                 window, if a valid one was found.

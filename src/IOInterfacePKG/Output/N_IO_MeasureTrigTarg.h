@@ -105,6 +105,8 @@ public:
 
   double getMeasureResult();
 
+  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
+				   double startSweepVal, double endSweepVal) const;
   std::ostream& printRFCWindow(std::ostream& os) const;
   virtual void printMeasureWarnings(double endSimTime, double startSweepVal,
                                       double endSweepVal) const;
