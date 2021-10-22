@@ -130,6 +130,13 @@ TrigTargBase::TrigTargBase(const Manager &measureMgr, const Util::OptionBlock & 
     targTD_ = trigTD_;
     targTDgiven_ = true;
   }
+
+  // enforce precedence of AT over TD, for each clause.  This must come after the
+  // preceeding conditional about using the TRIG TD for both, if only TRIG TD is given.
+  if (trigATgiven_)
+    trigTDgiven_ = false;
+  if (targATgiven_)
+    targTDgiven_ = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -223,7 +230,7 @@ void TrigTargBase::updateTran(
     initialized_ = true;
     if ( trigATgiven_ )
     {
-      if ( withinTrigTDwindow(trigAT_) && (circuitTime - minval_ >= trigAT_) )
+      if (circuitTime - minval_ >= trigAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTrigVarsForAT();
@@ -259,7 +266,7 @@ void TrigTargBase::updateTran(
     initialized_ = true;
     if ( targATgiven_)
     {
-      if ( withinTargTDwindow(targAT_) && (circuitTime - minval_ >= targAT_) )
+      if (circuitTime - minval_ >= targAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTargVarsForAT();
@@ -350,8 +357,8 @@ void TrigTargBase::updateDC(
       initialized_ = true;
       if ( trigATgiven_)
       {
-        if ( withinTrigTDwindowForDC(trigAT_) && ( (dcSweepAscending_ && (dcSweepVal - minval_ >= trigAT_)) ||
-						   (!dcSweepAscending_ && (dcSweepVal - minval_ <= trigAT_)) ) )
+        if ( (dcSweepAscending_ && (dcSweepVal - minval_ >= trigAT_)) ||
+             (!dcSweepAscending_ && (dcSweepVal - minval_ <= trigAT_)) )
         {
           // Process AT qualifer.  The AT value must be within the measurement window.
           updateTrigVarsForAT();
@@ -388,8 +395,8 @@ void TrigTargBase::updateDC(
       initialized_ = true;
       if ( targATgiven_)
       {
-        if ( withinTrigTDwindowForDC(trigAT_) && ( (dcSweepAscending_ && (dcSweepVal - minval_ >= targAT_)) ||
-						   (!dcSweepAscending_ && (dcSweepVal - minval_ <= targAT_)) ) )
+        if ( (dcSweepAscending_ && (dcSweepVal - minval_ >= targAT_)) ||
+	     (!dcSweepAscending_ && (dcSweepVal - minval_ <= targAT_)) )
         {
           // Process AT qualifer.  The AT value must be within the measurement window.
           updateTargVarsForAT();
@@ -462,7 +469,7 @@ void TrigTargBase::updateAC(
     initialized_ = true;
     if ( trigATgiven_)
     {
-      if ( withinTrigTDwindow(trigAT_) && (frequency - minval_ >= trigAT_) )
+      if (frequency - minval_ >= trigAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTrigVarsForAT();
@@ -498,7 +505,7 @@ void TrigTargBase::updateAC(
     initialized_ = true;
     if ( targATgiven_)
     {
-      if ( withinTargTDwindow(targAT_) && (frequency - minval_ >= targAT_) )
+      if (frequency - minval_ >= targAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTargVarsForAT();
@@ -574,7 +581,7 @@ void TrigTargBase::updateNoise(
     initialized_ = true;
     if ( trigATgiven_)
     {
-      if ( withinTrigTDwindow(trigAT_) && (frequency - minval_ >= trigAT_) )
+      if (frequency - minval_ >= trigAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTrigVarsForAT();
@@ -610,7 +617,7 @@ void TrigTargBase::updateNoise(
     initialized_ = true;
     if ( targATgiven_)
     {
-      if ( withinTargTDwindow(targAT_) && (frequency - minval_ >= targAT_) )
+      if (frequency - minval_ >= targAT_)
       {
         // Process AT qualifer.  The AT value must be within the measurement window.
         updateTargVarsForAT();
