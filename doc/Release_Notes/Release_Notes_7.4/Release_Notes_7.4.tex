@@ -36,9 +36,6 @@ Version \XyceVersionVar{} Release Notes}
 
 \date{\today}
 
-% Approved April TBD 2021
-% SAND Number SAND2020-TBD
-
 % ---------------------------------------------------------------------------- %
 % Start the document
 
@@ -70,19 +67,63 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+\item General:
+  \begin{XyceItemize}
+  \item Substitutions done by XDM for the special variable
+    TEMP are no longer necessary and are taken out in this release.
+  \end{XyceItemize}
+\item HSPICE:
+  \begin{XyceItemize}
+  \item  Xyce's "-hspice-ext" option, which should be used
+    when running HSPICE netlists translated by XDM, now by default
+    expects the "." for the subcircuit hierarchy separator
+    character. Therefore, XDM translations will leave that character
+    unchanged rather than translating it to Xyce's native ":"
+    subcircuit separator character.
+  \item  Secondary sweep of .DC analyses should now be
+    translated correctly into Xyce.
+  \item  Xyce can now handle resistors with solution dependent
+    expressions for their resistance values. Therefore, XDM will no
+    longer translate solution dependent resistors into behavioral
+    B-element sources.
+  \end{XyceItemize}
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
-  \item The levels 1 and 2 diode now support a multiplicity factor.  This is the ``M'' parameter on the instance line, not to be confused with the model parameter of the same name (the p-n junction grading parameter).
-  \item The resistor model now supports solution-dependent expressions, so it is possible to have voltage-dependent resistors in Xyce netlists.
+  \item The levels 1 and 2 diode now support a multiplicity factor.
+    This is the ``M'' parameter on the instance line, not to be
+    confused with the model parameter of the same name (the p-n
+    junction grading parameter).
+  \item The resistor model now supports solution-dependent
+    expressions, so it is possible to have voltage-dependent resistors
+    in Xyce netlists.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item Voltage limiting in the BSIMSOI version 3 device model can now be optionally turned off, while leaving it turned on in other devices.  The implementation of voltage limiting in the BSIM SOI device is unorthodox and has been observed to cause robustness problems.  Turning it off can improve runtimes.
-  \item Behavioral models have been optimized to eliminate redundant calls to the expression library.  For historical reasons, the Bsrc device was calling the expression library more than it needed to.  This has been corrected, and it will improve the runtime of circuits with lots of behavioral models.  This same optimization has also been applied to other expression-dependent models, such as the capacitor and switch devices.
+  \item Voltage limiting in the BSIMSOI version 3 device model can now
+    be optionally turned off, while leaving it turned on in other
+    devices.  The implementation of voltage limiting in the BSIM SOI
+    device is unorthodox and has been observed to cause robustness
+    problems.  Turning it off can improve runtimes.
+  \item Behavioral models have been optimized to eliminate redundant
+    calls to the expression library.  For historical reasons, the Bsrc
+    device was calling the expression library more than it needed to.
+    This has been corrected, and it will improve the runtime of
+    circuits with lots of behavioral models.  This same optimization
+    has also been applied to other expression-dependent models, such
+    as the capacitor and switch devices.
+  \item The expression library has undergone several optimizations
+    since the last code release.  These optimizations include a
+    reduction in the number of necessary syntax tree traversals, a
+    reduction in the memory footprint, reduction in dynamic memory
+    allocations and deallocations, and many evaluation costs are now
+    amortized in the expression setup.  For circuits with large
+    numbers of expressions, these optimizations produce runtime
+    performance improvements of netlist parsing and overall simulation
+    speed.
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -119,22 +160,24 @@ please visit the \XyceTM{} web page at
     now these wildcards may be requested using the external output API
     irrespective of whether the netlist being run contains print lines
     outputting the same data.
-  \item More complex \texttt{.PRINT} line wildcards, such as VR(X1*) and
-IR(B1?), are now supported for all voltage and current operators.  So, this
-feature now also supports the VR, VI, VM, VP, VDB, IR, II, IM, IP and IDB
-operators used for \texttt{.AC}, \texttt{.HB} and \texttt{.NOISE} analysis.
-It also now supports the lead current operators IB, IC, ID, IE, IG and IS.
+  \item More complex \texttt{.PRINT} line wildcards, such as VR(X1*)
+    and IR(B1?), are now supported for all voltage and current
+    operators.  So, this feature now also supports the VR, VI, VM, VP,
+    VDB, IR, II, IM, IP and IDB operators used for \texttt{.AC},
+    \texttt{.HB} and \texttt{.NOISE} analysis.  It also now supports
+    the lead current operators IB, IC, ID, IE, IG and IS.
   \item All valid \texttt{.PRINT} line wildcards are now supported for
-numerical lead-current designators, such as I1 and I2.  (Note: At present,
-those designators are only supported for the T and YGENEXT devices.)
-  \item The use of a period as the subcircuit name separator is now 
-    supported as a user-specified option.  The default separator in \Xyce{} is 
-    still the colon.  Period separators are enabled by 
-    the \texttt{-hspice-ext} command line option, either 
-    using \texttt{all} or \texttt{separator} as the second argument.
-  \item Inductance values, for coupled mutual inductors are now accessible in the 
-    netlist, for outputs and also parameter-centric analyses such as \texttt{.STEP} 
-    and \texttt{.SENS}.
+    numerical lead-current designators, such as I1 and I2.  (Note: At
+    present, those designators are only supported for the T and
+    YGENEXT devices.)
+  \item The use of a period as the subcircuit name separator is now
+    supported as a user-specified option.  The default separator in
+    \Xyce{} is still the colon.  Period separators are enabled by the
+    \texttt{-hspice-ext} command line option, either using
+    \texttt{all} or \texttt{separator} as the second argument.
+  \item Inductance values, for coupled mutual inductors are now
+    accessible in the netlist, for outputs and also parameter-centric
+    analyses such as \texttt{.STEP} and \texttt{.SENS}.
 
 \end{XyceItemize}
 
@@ -243,6 +286,6 @@ LLC, a wholly owned subsidiary of Honeywell International, Inc., for
 the U.S. Department of Energy's National Nuclear Security
 Administration under contract DE-NA0003525.
 
-SANDXXXX-XXXX O
+SAND2021-13318 O
 \end{document}
 
