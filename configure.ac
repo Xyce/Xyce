@@ -6,7 +6,7 @@ dnl ********************************************************************
 dnl Autoconf boilerplate
 dnl Initialize the macros, define the package name, version number and 
 dnl bug reporting address
-AC_INIT(Xyce,D::8.0,xyce@sandia.gov)
+AC_INIT(Xyce,R::7.4,xyce@sandia.gov)
 
 dnl This is a FILTHY HACK designed to get rid of the troublesome space that
 dnl AC_INIT stuffs into PACKAGE_STRING, and which buggers MPILAM's "hcp" 
@@ -388,7 +388,7 @@ AX_CXX_COMPILE_STDCXX(11,,mandatory)
 # to time.  We therefore enumerate actual versions of Bison our interface
 # is *known* to work with and against which Xyce has been tested. 
 AC_PROG_LEX
-XYCE_CHECK_BISON([3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
+XYCE_CHECK_BISON([3.8, 3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
 if test `basename $LEX` = "flex";
 then
    AC_DEFINE(HAVE_FLEX,1,[define if you have the flex lexical scanner generator])

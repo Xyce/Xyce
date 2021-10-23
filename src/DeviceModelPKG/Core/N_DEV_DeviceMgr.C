@@ -48,6 +48,8 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternDevice.h>
 #include <N_DEV_MutIndLin.h>
+#include <N_DEV_MutIndNonLin.h>
+#include <N_DEV_MutIndNonLin2.h>
 #include <N_DEV_InstanceName.h>
 #include <N_DEV_Op.h>
 #include <N_DEV_Print.h>
@@ -4882,6 +4884,37 @@ DeviceEntity * DeviceMgr::getDeviceEntity(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : getMutualInductor
+// Purpose       : helper function for DeviceMgr::getMutualInductorDeviceInstance
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/12/2021
+//-----------------------------------------------------------------------------
+DeviceInstance * getMutualInductor (
+    const std::string & deviceName,
+      const InstanceVector &MIdevices, int & index
+      ) 
+{
+  DeviceInstance * device_instance = 0;
+  index=-1;
+
+  for (InstanceVector::const_iterator instance_it=MIdevices.begin(); 
+      instance_it!=MIdevices.end(); instance_it++)
+  {
+    std::vector<std::string> inductorNames = (*instance_it)->getInductorNames();
+    std::vector<std::string>::iterator it = std::find(inductorNames.begin(), inductorNames.end(), deviceName);
+    if (it != inductorNames.end())
+    {
+      index = std::distance( inductorNames.begin(), it );
+      device_instance = const_cast<Xyce::Device::DeviceInstance *>(*instance_it);
+    }
+  }
+
+  return device_instance;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getMutualInductorDeviceInstance
 // Purpose       :
 // Special Notes :
@@ -4901,27 +4934,31 @@ DeviceInstance * DeviceMgr::getMutualInductorDeviceInstance (
 
   if ( foo.getDeviceName()[0] == 'L')
   {
-    const InstanceVector &MILdevices = getDevices(MutIndLin::Traits::modelGroup());
+    bool found=false;
+    const InstanceVector &MILdevices = getDevices(MutIndLin::Traits::modelType());
     if (MILdevices.size() > 0)
     {
-      for (InstanceVector::const_iterator instance_it=MILdevices.begin(); 
-          instance_it!=MILdevices.end(); instance_it++)
-      {
-        std::vector<std::string> inductorNames = (*instance_it)->getInductorNames();
-        std::vector< double > inductorInductances = (*instance_it)->getInductorInductances();
+      device_instance = getMutualInductor(foo.getDeviceName(),MILdevices,index);
+      found = (index!=-1);
+    }
 
-        if (inductorNames.size() == inductorInductances.size())
-        {
-          for (size_t ii=0; ii < inductorNames.size(); ii++)
-          {
-            if(inductorNames[ii] == foo.getDeviceName()) // found it!
-            {
-              device_instance = const_cast<Xyce::Device::DeviceInstance *>(*instance_it);
-              index=ii;
-              break;
-            }
-          }
-        }
+    if (!found)
+    {
+      const InstanceVector &MINdevices = getDevices(MutIndNonLin::Traits::modelType());
+      if (MINdevices.size() > 0)
+      {
+        device_instance = getMutualInductor(foo.getDeviceName(),MINdevices,index);
+        found = (index!=-1);
+      }
+    }
+
+    if (!found)
+    {
+      const InstanceVector &MINdevices = getDevices(MutIndNonLin2::Traits::modelType());
+      if (MINdevices.size() > 0)
+      {
+        device_instance = getMutualInductor(foo.getDeviceName(),MINdevices,index);
+        found = (index!=-1);
       }
     }
   }

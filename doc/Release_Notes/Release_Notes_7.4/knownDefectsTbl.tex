@@ -41,6 +41,10 @@
 %
 %
 
+\textbf{Gitlab-ex issue 316}: Model binning and UQ analyses on sizing parameters such as L 
+  and W don't play well together &  Currently, Xyce performs model binning at the parser level, and is unable to subsequently update model bins if the values of L and W are changed after parsing is over.  This means that analyses that modify sizing parameters (such as \texttt{.STEP} or \texttt{.SAMPLING}) may produce incorrect results.
+\\ \hline
+
 \textbf{Gitlab issue 85} Complex-valued parameters are not handed correctly &
 The \Xyce{} expression library was rewritten for the 7.2 release, and
 has added support for complex numbers in expressions.  However, the
@@ -138,22 +142,6 @@ K1 L1 L2 0.75
 
 \textbf{\textit{Workaround}}:
 There is none.
-\\ \hline
-
-
-
-\textbf{1037-SON}: The use of non-constant values in .PARAM
-statements may lead to unexpected results &  This netlist line
-(\texttt{.PARAM PA = \{TEMP\}}) is forbidden in Xyce since
-the special variable \texttt{TEMP} is not constant.  However,
-that netlist line will not produce a \Xyce{} parsing error, and
-the value of \texttt{PA} in the simulation may then be set to 
-zero in some contexts.
-
-\textbf{\textit{Workaround}}: Non-constant values should only
-be used in \texttt{.GLOBAL PARAM} statements in \Xyce{}. This
-restriction may be different than in other Spice-like 
-simulators.
 \\ \hline
 
 \textbf{1031-SON}: .OP output is incomplete in parallel & When \Xyce{}
