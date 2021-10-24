@@ -220,9 +220,10 @@ void TrigTargBase::updateTran(
   if (numPointsFound_ == 1)
     setMeasureState(circuitTime);
 
+  // handle invalid AT times
   if (trigATgiven_ && isInvalidAT(trigAT_, 0, endSimTime))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, 0, endSimTime))
+  if (targATgiven_ && isInvalidAT(targAT_, 0, endSimTime))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > endSimTime)) )
@@ -261,7 +262,7 @@ void TrigTargBase::updateTran(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > endSimTime)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > endSimTime)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -351,8 +352,14 @@ void TrigTargBase::updateDC(
         setMeasureState(dcSweepVal);
     }
 
-    if( !trigCalculationDone_ && !(trigTDgiven_&& !( (dcSweepAscending_ && trigTD_ > dcParamsVec[0].stopVal) ||
-						     (!dcSweepAscending_ && trigTD_ < dcParamsVec[0].stopVal))) )
+    // handle invalid AT frequencies
+    if (trigATgiven_ && isInvalidAT(trigAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
+      trigCalculationDone_ = true;
+    if (targATgiven_ && isInvalidAT(targAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
+      targCalculationDone_ = true;
+
+    if( !trigCalculationDone_ && !(trigTDgiven_&& ( (dcSweepAscending_ && trigTD_ > dcParamsVec[0].stopVal) ||
+						     (!dcSweepAscending_ && trigTD_ > dcParamsVec[0].startVal))) )
     {
       initialized_ = true;
       if ( trigATgiven_)
@@ -390,7 +397,7 @@ void TrigTargBase::updateDC(
     }
 
     if( !targCalculationDone_ && !( targTDgiven_ && ( (dcSweepAscending_ && targTD_ > dcParamsVec[0].stopVal) ||
-				                      (!dcSweepAscending_ && targTD_ < dcParamsVec[0].stopVal))) )
+				                      (!dcSweepAscending_ && targTD_ > dcParamsVec[0].startVal))) )
     {
       initialized_ = true;
       if ( targATgiven_)
@@ -459,9 +466,10 @@ void TrigTargBase::updateAC(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
+  // handle invalid AT frequencies
   if (trigATgiven_ && isInvalidAT(trigAT_, fStart, fStop))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
+  if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > fStop)) )
@@ -500,7 +508,7 @@ void TrigTargBase::updateAC(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > fStop)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > fStop)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -571,9 +579,10 @@ void TrigTargBase::updateNoise(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
+  // handle invalid AT frequencies
   if (trigATgiven_ && isInvalidAT(trigAT_, fStart, fStop))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
+  if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > fStop)) )
@@ -612,7 +621,7 @@ void TrigTargBase::updateNoise(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > fStop)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > fStop)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -1557,7 +1566,7 @@ std::ostream& TrigTargCont::printMeasureResult(std::ostream& os)
     else
     { 
       os << name_ << " = " << targResult_ - trigResult_ << std::setw(colWidth) << " "
-         << " targ = " << targResult_ << std::setw(colWidth) << " "<< "trig = " << trigResult_  << std::endl;
+         << "targ = " << targResult_ << std::setw(colWidth) << " "<< "trig = " << trigResult_  << std::endl;
     }
   }
   else
@@ -1566,11 +1575,27 @@ std::ostream& TrigTargCont::printMeasureResult(std::ostream& os)
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
       // netlist and this is a failed measure.
-      os << name_ << " = FAILED" << std::endl;
+      os << name_ << " = FAILED";
     }
     else
     {
-      os << name_ << " = " << this->getMeasureResult() << std::endl;
+      os << name_ << " = " << this->getMeasureResult();
+    }
+
+    if (!trigResultFound_ && targResultFound_)
+    {
+      os << std::setw(colWidth) << " " << "targ = "  << targResultVec_[0]
+         << std::setw(colWidth) << " " << "trig = not found" << std::endl;
+    }
+    else if (trigResultFound_ && !targResultFound_)
+    {  
+      os << std::setw(colWidth) << " " << "targ = not found" 
+         << std::setw(colWidth) << " " << "trig = " << trigResultVec_[0] << std::endl;
+    }
+    else
+    {
+      os << std::setw(colWidth) << " " << "targ = not found"
+         << std::setw(colWidth) << " " << "trig = not found" << std::endl;
     }
   }
 
@@ -1623,11 +1648,11 @@ std::ostream& TrigTargCont::printVerboseMeasureResult(std::ostream& os)
   }
   else if (!trigResultFound_ && targResultFound_)
   {
-    os << name_ << " = FAILED with trig = not found" << std::endl;
+    os << name_ << " = FAILED with targ = "  << targResultVec_[0] << " and trig = not found" << std::endl;
   }
   else if (trigResultFound_ && !targResultFound_)
   {  
-    os << name_ << " = FAILED with targ = not found" << std::endl;
+    os << name_ << " = FAILED with targ = not found and trig = " << trigResultVec_[0] << std::endl;
   }
   else
   {
