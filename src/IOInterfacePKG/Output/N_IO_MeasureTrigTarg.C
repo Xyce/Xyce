@@ -352,7 +352,7 @@ void TrigTargBase::updateDC(
         setMeasureState(dcSweepVal);
     }
 
-    // handle invalid AT frequencies
+    // handle invalid AT sweep values
     if (trigATgiven_ && isInvalidAT(trigAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
       trigCalculationDone_ = true;
     if (targATgiven_ && isInvalidAT(targAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
@@ -953,7 +953,8 @@ bool TrigTargBase::withinTargRFCWindow() const
 // Function      : TrigTargBase::withinTrigTDwindow
 // Purpose       : Checks if the independent variable is within the TRIG TD window 
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 and NOISE measures, it is frequency.
+//                 and NOISE measures, it is frequency.   For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/12/2021
@@ -967,7 +968,8 @@ bool TrigTargBase::withinTrigTDwindow(double indepVarVal) const
 // Function      : TrigTargBase::withinTargTDwindow
 // Purpose       : Checks if the independent variable is within the TARG TD window 
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 and NOISE measures, it is frequency.
+//                 and NOISE measures, it is frequency.   For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/12/2021
@@ -975,50 +977,6 @@ bool TrigTargBase::withinTrigTDwindow(double indepVarVal) const
 bool TrigTargBase::withinTargTDwindow(double indepVarVal) const
 {
   return !targTDgiven_ || (targTDgiven_ && (indepVarVal > targTD_*(1-minval_)));
-}
-
-//-----------------------------------------------------------------------------
-// Function      : TrigTargBase::withinTrigTDwindowForDC
-// Purpose       : Checks if the independent variable is within the TRiG TD window 
-// Special Notes : For DC measures, the independent variable is the value of the
-//                 first variable in the DC sweep vector.
-// Scope         : private
-// Creator       : Pete Sholander, SNL
-// Creation Date : 10/12/2021
-//-----------------------------------------------------------------------------
-bool TrigTargBase::withinTrigTDwindowForDC(double sweepVal) const
-{
-  if (trigTDgiven_)
-  {
-    if (fabs(sweepVal - trigTD_) < fabs(from_*minval_))
-      return true;
-    else if ( (dcSweepAscending_ && (sweepVal < trigTD_)) || (!dcSweepAscending_ && (sweepVal > trigTD_)) )
-      return false;
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : TrigTargBase::withinTargTDwindowForDC
-// Purpose       : Checks if the independent variable is within the TARG TD window 
-// Special Notes : For DC measures, the independent variable is the value of
-//                 the first variable in the DC sweep vector.
-// Scope         : private
-// Creator       : Pete Sholander, SNL
-// Creation Date : 10/12/2021
-//-----------------------------------------------------------------------------
-bool TrigTargBase::withinTargTDwindowForDC(double sweepVal) const
-{
-  if (targTDgiven_)
-  {
-    if (fabs(sweepVal - targTD_) < fabs(from_*minval_))
-      return true;
-    else if ( (dcSweepAscending_ && (sweepVal < targTD_)) || (!dcSweepAscending_ && (sweepVal > targTD_)) )
-      return false;
-  }
-
-  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1246,6 +1204,14 @@ void TrigTargBase::printMeasureWarnings(double endSimTime, double startSweepVal,
 TrigTarg::TrigTarg(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   TrigTargBase(measureMgr, measureBlock)
 {
+  // RISE, FALL or CROSS values < -1 are not supported yet
+  if ((trigRiseGiven_ && trigRise_ < -1) || (trigFallGiven_ && trigFall_ < -1) || (trigCrossGiven_ && trigCross_ < -1) ||
+      (targRiseGiven_ && targRise_ < -1) || (targFallGiven_ && targFall_ < -1) || (targCrossGiven_ && targCross_ < -1))
+  {
+    Report::UserError0() << " RISE, FALL or CROSS values < -1 not supported for measure " << name_
+                         << " for AC, DC, NOISE or TRAN measures";
+  }
+
   measureTrigLastRFC_ = ((trigRiseGiven_ && trigRise_ < 0) || (trigFallGiven_ && trigFall_ < 0) || 
 	                 (trigCrossGiven_ && trigCross_ < 0)) ? true : false;
 
@@ -1424,6 +1390,13 @@ std::ostream& TrigTarg::printVerboseMeasureResult(std::ostream& os)
 TrigTargCont::TrigTargCont(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   TrigTargBase(measureMgr, measureBlock)
 {
+  if ((trigRiseGiven_ && trigRise_ < 0) || (trigFallGiven_ && trigFall_ < 0) || (trigCrossGiven_ && trigCross_ < 0) ||
+      (targRiseGiven_ && targRise_ < 0) || (targFallGiven_ && targFall_ < 0) || (targCrossGiven_ && targCross_ < 0))
+  {
+    Report::UserError0() << " RISE, FALL or CROSS values < 0 not supported for measure " << name_
+                         << " for AC_CONT, DC_CONT, NOISE_CONT or TRAN_CONT measures";
+  }
+
   // these settings will find all times at which the WHEN clauses are satisfied,
   // and may return multiple values.
   measureTrigLastRFC_=true;
