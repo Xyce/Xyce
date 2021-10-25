@@ -36,7 +36,7 @@
 #ifndef Xyce_N_IO_MeasureDerivativeEvaluation_h
 #define Xyce_N_IO_MeasureDerivativeEvaluation_h
 
-#include <N_IO_MeasureBase.h>
+#include <N_IO_MeasureWhenAT.h>
 
 namespace Xyce {
 namespace IO {
@@ -51,17 +51,17 @@ namespace Measure {
 //                 will only return one measure value.  The continuous version
 //                 (e.g., .MEASURE TRAN_CONT) may return multiple values.
 // Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 03/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/21/2020
 //-------------------------------------------------------------------------
-class DerivativeEvaluationBase : public Base
+class DerivativeEvaluationBase : public WhenAT
 {
 public:
   DerivativeEvaluationBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
   ~DerivativeEvaluationBase() {};
 
   void prepareOutputVariables();
-  void resetDerivativeEvaluationBase();
+
   void updateTran(
     Parallel::Machine comm,
     double circuitTime,
@@ -103,54 +103,13 @@ public:
     double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
-  double getMeasureResult();
-  std::ostream& printMeasureWindow(std::ostream& os, double endSimTime,
-				   double startSweepVal, double endSweepVal) const;
-  std::ostream& printRFCWindow(std::ostream& os) const;
-
 protected:
-  virtual void updateCalculationResult(double val)=0;
-  virtual void updateCalculationInstant(double val)=0;
-
-  std::vector<double> calculationResultVec_;
-  std::vector<double> calculationInstantVec_;
+  bool checkMeasureLine() const;
   double getDerivativeValue(double currIndepVarValue) const;
 
 private:
-  void setMeasureState(double indepVarVal);
-  void updateMeasureState(double indepVarVal);
-
-  double getTargVal() const;
-  void updateLastTargVal();
-
-  bool isATforACDCNoise(double indepVarVal) const;
-  bool isWHENcondition(double indepVarVal, double targVal) const;
-
   void updateMeasureVarsForAT(double currIndepVarVal);
   void updateMeasureVarsForWhen(double currIndepVarVal, double whenInstant);
-
-  double interpolateCalculationInstant(double currIndepVarValue, double targVal) const;
-
-  void updateRFCcountForWhen();
-  bool withinRFCWindowForWhen() const;
-
-  std::string type_;
-  int numOutVars_;
-  std::vector<double> outVarValues_;
-
-  double lastIndepVarValue_;
-  double lastDepVarValue_;
-  double lastOutputVarValue_;
-  double lastTargValue_;
-  double startDCMeasureWindow_;
-  int    numPointsFound_;  // AC and DC calculations need at least two points to be valid
-
-  // This variable controls what is tested against in the WHEN clause.  
-  // It refers to an index in the outputVarValues_ array.  For the syntax
-  // WHEN v(a)=<val> the value of v(a) is in outputVarValues_[whenIdx_]
-  // For the syntax WHEN v(a)=v(b) the value of v(a) is in outputVarValues_[whenIdx_]
-  // and the value of v(b) is in outputVarValues_[whenIdx_+1]
-  int whenIdx_;
 };
 
 //-------------------------------------------------------------------------
@@ -170,16 +129,8 @@ public:
 
   void reset();
 
-  void updateCalculationResult(double val);
-  void updateCalculationInstant(double val);
-
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-
-private:
-  // This will be set to the value of whichever qualifer (RISE, FALL or CROSS) is being
-  // used by the measure.
-  int RFC_;
 };
 
 //-------------------------------------------------------------------------
@@ -201,15 +152,6 @@ public:
   void reset();
   std::ostream& printMeasureResult(std::ostream& os);
   std::ostream& printVerboseMeasureResult(std::ostream& os);
-
-  void updateCalculationResult(double val);
-  void updateCalculationInstant(double val);
-
-private:
-  int contCross_;
-  int contRise_;
-  int contFall_;
-  int contRFC_;
 };
 
 } // namespace Measure

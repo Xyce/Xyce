@@ -19,6 +19,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasureTranStats.h \
   N_IO_MeasureRiseFallDelay.C \
   N_IO_MeasureRiseFallDelay.h \
+  N_IO_MeasureTrigTarg.C \
+  N_IO_MeasureTrigTarg.h \
   N_IO_MeasureAverage.C \
   N_IO_MeasureAverage.h \
   N_IO_MeasureDuty.C \
@@ -39,6 +41,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasurePeakToPeak.h \
   N_IO_MeasureRMS.C \
   N_IO_MeasureRMS.h \
+  N_IO_MeasureWhenAT.C \
+  N_IO_MeasureWhenAT.h \
   N_IO_MeasureFindWhen.C \
   N_IO_MeasureFindWhen.h \
   N_IO_MeasureEquationEvaluation.C \

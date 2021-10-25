@@ -78,7 +78,6 @@ void xyce_close( void** ptr)
   N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
   xycePtr->finalize();
   delete xycePtr;
-  std::cout << "xyce_close after delete xycePtr\n" ;
   *ptr = 0;
 }
 

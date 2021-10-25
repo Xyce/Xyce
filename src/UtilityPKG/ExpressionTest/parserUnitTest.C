@@ -57,6 +57,7 @@
 #include <newExpression.h>
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_IO_fwd.h>
 
 //-------------------------------------------------------------------------------
 // group classes.  To use the new expression library, it must be passed a group
@@ -1709,14 +1710,17 @@ TEST ( Double_Parser_VoltSoln_Test, test4)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test4)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, test5)
 {
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
-  Xyce::Util::newExpression testExpression(std::string("12.0*V(A,gnd)+7.5"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(gnd,A)+7.5"), testGroup);
   testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copyExpression(testExpression); 
@@ -1724,13 +1728,67 @@ TEST ( Double_Parser_VoltSoln_Test, test5)
   assignExpression = testExpression; 
 
   double result=0.0, Aval=6.3;
-  double refRes = 12.0*(Aval)+7.5;
+  double refRes = -12.0*(Aval)+7.5;
   solnGroup->setSoln(std::string("A"),Aval);
   solnGroup->setSoln(std::string("0"),7.0); // this should do nothing
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test5)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltSoln_Test, test5b)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(gnd!,A)+7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = -12.0*(Aval)+7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),7.0); // this should do nothing
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test5b)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltSoln_Test, test5c)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("12.0*V(ground,A)+7.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = -12.0*(Aval)+7.5;
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),7.0); // this should do nothing
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test5c)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 // testing out the complex operators.  As this file tests the use case where the 
@@ -2087,6 +2145,9 @@ TEST ( Double_Parser_VoltDeriv_Test, test6)
 
 TEST ( Double_Parser_VoltDeriv_Test, test7)
 {
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A,gnd)*(-V(gnd,A))+7.5*V(A)"), testGroup);
@@ -2106,10 +2167,70 @@ TEST ( Double_Parser_VoltDeriv_Test, test7)
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test7)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test7b)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A,gnd!)*(-V(gnd!,A))+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test7b)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+TEST ( Double_Parser_VoltDeriv_Test, test7c)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A,ground)*(-V(ground,A))+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test7c)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test8)
 {
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*(V(A,gnd)**3.0)+7.5*V(A)"), testGroup);
@@ -2129,10 +2250,72 @@ TEST ( Double_Parser_VoltDeriv_Test, test8)
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test8)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test8b)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*(V(A,gnd!)**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test8b)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+
+TEST ( Double_Parser_VoltDeriv_Test, test8c)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*(V(A,ground)**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test8c)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test9)
 {
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*((-V(gnd,A))**3.0)+7.5*V(A)"), testGroup);
@@ -2152,6 +2335,64 @@ TEST ( Double_Parser_VoltDeriv_Test, test9)
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test9)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test9b)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(gnd!,A))**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test9b)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test9c)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(ground,A))**3.0)+7.5*V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test9c)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test10)
@@ -2178,6 +2419,91 @@ TEST ( Double_Parser_VoltDeriv_Test, test10)
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test1)
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test11)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(sub1:gnd,sub1:A))**3.0)+7.5*V(sub1:A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("sub1:A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test11)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+
+TEST ( Double_Parser_VoltDeriv_Test, test11b)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(sub0:sub1:ground,sub1:A))**3.0)+7.5*V(sub1:A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("sub1:A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test11b)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
+}
+
+TEST ( Double_Parser_VoltDeriv_Test, test11c)
+{
+  Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
+  Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
+
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("20.0*((-V(sub0:sub1:sub2:gnd!,sub1:A))**3.0)+7.5*V(sub1:A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=6.3;
+  double refRes = 20.0*std::pow(Aval,3.0)+7.5*Aval;
+  solnGroup->setSoln(std::string("sub1:A"),Aval);
+  std::vector<double> refDer;
+  refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
+  std::vector<double> derivs;
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test11c)
+
+  Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 //-------------------------------------------------------------------------------

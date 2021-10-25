@@ -425,6 +425,12 @@ replgndvar)
           noImplicitExpression = true;
           isModel = true;
         }
+        else if (ucFieldString == ".SUBCKT" || ucFieldString == ".INCLUDE" || ucFieldString == ".INCL" ||
+                 ucFieldString == ".INC" || ucFieldString == ".LIB" || ucFieldString == ".ENDL")
+        {
+          // Don't replace the ground variable for the rest of the line
+          replgndvar = false;
+        }
       }
       else  // we are NOT the first field on this line
       {

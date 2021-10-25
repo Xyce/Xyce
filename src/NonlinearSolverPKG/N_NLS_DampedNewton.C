@@ -80,6 +80,7 @@ DampedNewton::DampedNewton(
   : NonLinearSolver (cp),
     nlParams(DC_OP,cp),
     basicNewton_(true),
+    isNormRHS_NaN_(false),
     normRHS_(0.0),
     maxNormRHS_(0.0),
     maxNormRHSindex_(-1),
@@ -836,7 +837,16 @@ bool DampedNewton::rhs_()
     debugOutput3 (*dsPtr_->nextSolutionPtr, *searchDirectionPtr_ );
   }
 
+  isNormRHS_NaN_ = false;
+
   rhsVectorPtr_->lpNorm(2, &normRHS_);
+
+  if (normRHS_ != 0.0 &&
+     !(normRHS_ < 0.0) &&
+     !(normRHS_ > 0.0))
+  {
+    isNormRHS_NaN_ = true;
+  }
 
   return status;
 }
@@ -1195,17 +1205,15 @@ int DampedNewton::converged_()
     return 0;
   }
 
-  // Max RHS norm (maxNormRHS_) is used in converged_() and output by
-  // printStepInfo_().
-  rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
-
-  // If the norm is an NaN, then exit.
-  if (maxNormRHS_ != 0.0 &&
-      !(maxNormRHS_ < 0.0) &&
-      !(maxNormRHS_ > 0.0))
+  // 2-norm of RHS is used in converged_(), check if it's a NaN
+  if (isNormRHS_NaN_)
   {
     return retCodes_.nanFail; // default = -6
   }
+
+  // Max RHS norm (maxNormRHS_) is used in converged_() and output by
+  // printStepInfo_().
+  rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
 
   // This parameter "takes-out" any damping induced in the size of the norm by
   // a line-search or other globalization method.

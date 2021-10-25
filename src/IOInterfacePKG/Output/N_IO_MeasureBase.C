@@ -96,6 +96,10 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     onValueGiven_(false),
     offValue_(0.0),
     offValueGiven_(false),
+    trigAT_(0.0),
+    trigATgiven_(false),
+    targAT_(0.0),
+    targATgiven_(false),
     trigOutputValueTarget_(0.0),
     trigOutputValueTargetGiven_(false),
     targOutputValueTarget_(0.0),
@@ -104,6 +108,10 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     trigFracMaxGiven_(false),
     targFracMax_(0.0),
     targFracMaxGiven_(false),
+    trigTD_(0),
+    trigTDgiven_(false),
+    targTD_(0.0),
+    targTDgiven_(false),
     trigRiseGiven_(false),
     targRiseGiven_(false),
     trigFallGiven_(false),
@@ -235,6 +243,16 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     {
       td_ = (*it).getImmutableValue<double>();
       tdGiven_ = true;
+      if ( inTrigBlock )
+      {
+        trigTD_ = td_;
+	trigTDgiven_ = true;
+      }
+      else if ( inTargBlock )
+      {
+        targTD_ = td_;
+	targTDgiven_ = true;
+      }
     }
     else if( ( tag == "GOAL" ) || ( tag == "VALUE" ) )
     {
@@ -260,12 +278,29 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     }
     else if( tag == "AT" )
     {
-      at_ = (*it).getImmutableValue<double>();
-      atGiven_ = true;
-      outputValueTargetGiven_ = true;
-      if ( inTargBlock )
+      double atVal = (*it).getImmutableValue<double>();
+      if (inTargBlock)
       {
-        Report::UserError0() << "AT keyword not allowed in TARG block for measure " << name_ ;
+        if (measureMgr_.getUseLTTM() && (mode_=="TRAN"))
+	{
+          Report::UserError0() << "AT keyword not allowed in TARG block for measure " << name_ ;
+        }
+        else
+        {
+          targAT_ = atVal;
+          targATgiven_ = true;
+        }
+      }
+      else if ( inTrigBlock && !measureMgr_.getUseLTTM() )
+      {
+        trigAT_ = atVal;
+        trigATgiven_ = true;
+      }
+      else 
+      {
+        at_ = atVal;
+        atGiven_ = true;
+        outputValueTargetGiven_ = true;
       }
     }
     else if( tag == "FROM" )
@@ -385,7 +420,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       }
       else if ( (*it).getType() == Xyce::Util::EXPR )
       {
-        if( inTrigBlock || inTargBlock )
+        if ( (inTrigBlock || inTargBlock) && measureMgr_.getUseLTTM() && (mode_=="TRAN"))
         {
           outputValueTarget_ = (*it).getMutableValue<double>();
           outputValueTargetGiven_ = true;
@@ -399,17 +434,20 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         }
       }
 
-      if( inTrigBlock )
+      if ( (measureMgr_.getUseLTTM() && (mode_=="TRAN")) || (!measureMgr_.getUseLTTM() && !((*it).getType() == Xyce::Util::EXPR)) )
       {
-        trigOutputValueTarget_ = outputValueTarget_;
-        trigOutputValueTargetGiven_ = true;
-        outputValueTargetGiven_ = false;
-      }
-      else if( inTargBlock )
-      {
-        targOutputValueTarget_ = outputValueTarget_;
-        targOutputValueTargetGiven_ = true;
-        outputValueTargetGiven_ = false;
+        if( inTrigBlock )
+        {
+          trigOutputValueTarget_ = outputValueTarget_;
+          trigOutputValueTargetGiven_ = true;
+          outputValueTargetGiven_ = false;
+        }
+        else if( inTargBlock )
+        {
+          targOutputValueTarget_ = outputValueTarget_;
+          targOutputValueTargetGiven_ = true;
+          outputValueTargetGiven_ = false;
+        }
       }
     }
     else if( tag == "ON" )

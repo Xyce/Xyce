@@ -24,6 +24,8 @@
 #ifndef N_UTL_HspiceBools_H
 #define N_UTL_HspiceBools_H
 
+#include <vector>
+
 namespace Xyce {
 namespace Util {
 
@@ -34,6 +36,7 @@ namespace Util {
 extern bool useHspiceMath;
 extern bool useHspiceSeparator;
 extern char separator;
+extern std::vector<bool> preprocessFilter;
 }
 }
 

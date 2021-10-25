@@ -93,6 +93,7 @@ public:
   bool isMeasDgtGiven() const { return measDgtGiven_; }
   bool getMeasFail() const { return measFail_; }
   bool isMeasFailGiven() const { return measFailGiven_; }
+  bool getUseLTTM() const { return useLTTM_; }
   double getMeasGlobalDefaultVal() const { return measGlobalDefaultVal_; }
   bool isMeasGlobalDefaultValGiven() const { return measGlobalDefaultValGiven_; }
 
@@ -208,6 +209,8 @@ private:
   // used for .OPTIONS MEASURE MEASOUT
   bool measOut_;
   bool measOutGiven_;
+  // used to toggle between legacy TRIG-TARG measures (for TRAN mode measures) and post Xyce 7.4 mode
+  bool useLTTM_;
   // used for .OPTIONS MEASURE DEFAULT_VAL
   double measGlobalDefaultVal_;
   bool measGlobalDefaultValGiven_;

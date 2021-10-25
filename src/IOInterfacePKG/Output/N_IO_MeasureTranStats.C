@@ -53,13 +53,7 @@ TranStats::TranStats(const Manager &measureMgr, const Util::OptionBlock & measur
   Base(measureMgr, measureBlock),
   lastTimeValue_(0.0),
   lastSignalValue_(0.0)
-{
-  // indicate that this measure type is supported and should be processed in simulation
-  typeSupported_ = true;
-
-  // updateTran() is likely to segfault if the .MEASURE line was incomplete
-  checkMeasureLine();
-}
+{}
 
 //-----------------------------------------------------------------------------
 // Function      : TranStats::prepareOutputVariables()
