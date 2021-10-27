@@ -61,6 +61,7 @@ namespace IO {
 //-----------------------------------------------------------------------------
 PkgOptionsMgr::PkgOptionsMgr()
 {
+  addCommandParser(".OPTION", extractOptionsData);
   addCommandParser(".OPTIONS", extractOptionsData);
   addCommandParser(".DATA", extractDotDataStatement);
 
@@ -171,7 +172,7 @@ extractOptionsData(
   }
 
   // The type of options is given by the second field on the .options line
-  // UNLESS they are PSPICE style options. Check the second field and set the
+  // UNLESS they are SPICE style options. Check the second field and set the
   // name attribute appropriately.
   ExtendedString optionName ( parsed_line[1].string_ );
   optionName.toUpper();
@@ -180,7 +181,7 @@ extractOptionsData(
 
   if (!options_manager.findOptionsMetadata(optionName))
   {
-    // Check to see if this is PSPICE style option line or if an unrecognized
+    // Check to see if this is a convertable SPICE style option line or if an unrecognized
     // package name was given. Do this by checking for an "=" in either the
     // 3rd or 4th position on the line.
     if (numFields > 2 && parsed_line[2].string_ == "=")
@@ -205,27 +206,45 @@ extractOptionsData(
         }
       }
 
+      // Now do a similar procedure for SCALE.
+      // If SCALE is here by itself, try setting the optionName to PARSER
+      bool foundOnlyScale=true;
+      for (int i = 1; i < numFields; i = i + 3)
+      {
+        ExtendedString tag ( parsed_line[i].string_ );
+        tag.toUpper();
+        if ((tag != "SCALE"))
+        {
+          foundOnlyScale=false;
+        }
+      }
+
       if (foundOnlyTempAndTnom)
       {
         optionName = "DEVICE";
         parameterStartPos = 1;
       }
+      else if (foundOnlyScale)
+      {
+        optionName = "PARSER";
+        parameterStartPos = 1;
+      }
       else
       {
-        optionName = "PSPICE";
+        optionName = "PSPICE";  // labeled as "PSPICE" for historical reasons, but this covers many varieties of SPICE.
         parameterStartPos = 1;
 
-        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-          << "Option name missing, or PSPICE-style options not supported in Xyce";
+        Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+          << "Option name missing, or SPICE-style option not supported in Xyce";
 
         return false;
       }
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-        << "Unrecognized .OPTIONS package " << optionName;
-      return false;
+      Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "Unrecognized .OPTIONS package or parameter " << optionName << " will be ignored";
+      return true;
     }
   }
 
