@@ -961,8 +961,6 @@ bool Instance::calculateFDVars()
 	double tstep = par6/size_;
 	freq = 1/par6;
 
-	std::cout << "size = " << size_ << std::endl;
-
 	ftInData_.resize( size_ );
 	ftOutData_.resize( size_ +1 );
 	iftInData_.resize( size_  +1 );
