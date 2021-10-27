@@ -151,7 +151,7 @@ bool isValue(const std::string & tmpStr)
   int i = 0;
   int stringSize = tmpStr.size();
   
-  static const char *units[] = {"V", "VOLT", "VDC", "A", "AMP", "AMPERE", "F", 
+  static const char *units[] = {"C", "V", "VOLT", "VDC", "A", "AMP", "AMPERE", "F", 
                           "FARAD", "HENRY", "HY", "IL", "EG", "H", "HZ", 
                           "HERTZ", "OHM", "SECOND", "S", "METER", "M",
                           "MEG", "MIL", NULL};
