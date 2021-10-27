@@ -40,6 +40,7 @@
 
 // ----------   Standard Includes   ----------
 #include <vector>
+#include <cmath>
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_AnalysisManager.h>
@@ -840,10 +841,8 @@ bool DampedNewton::rhs_()
   isNormRHS_NaN_ = false;
 
   rhsVectorPtr_->lpNorm(2, &normRHS_);
-
-  if (normRHS_ != 0.0 &&
-     !(normRHS_ < 0.0) &&
-     !(normRHS_ > 0.0))
+  
+  if (std::isnan(normRHS_) || std::isinf(normRHS_))
   {
     isNormRHS_NaN_ = true;
   }
