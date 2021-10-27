@@ -46,6 +46,9 @@
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 
+#include <Teuchos_RCP.hpp>
+#include <N_UTL_FFTInterface.hpp>
+
 namespace Xyce {
 namespace Device {
 namespace Vsrc {
@@ -178,6 +181,7 @@ public:
   bool updateIntermediateVars () { return true; }
   bool updatePrimaryState () { return true; }
 
+  bool calculateFDVars ();
   bool loadFreqBVector(double frequency,
                        std::vector<Util::FreqVecEntry>& bVec);
 
@@ -316,6 +320,17 @@ private:
   bool PORTgiven;
   bool Z0given;
 
+
+  double mag;
+  double freq, v0;
+  double phase;
+
+                   
+  bool freqVarsLoaded;
+  int size_;
+  Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
+  std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
+                   
 };
 
 //-----------------------------------------------------------------------------
