@@ -989,6 +989,8 @@ bool Instance::calculateFDVars()
 
         ftInterface_->calculateFFT();
 
+        dataPtr->setUseLocalTimeFlag(false);
+
       }
       break;
 
