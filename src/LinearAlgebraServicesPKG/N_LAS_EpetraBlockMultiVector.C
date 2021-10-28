@@ -615,27 +615,67 @@ int EpetraBlockMultiVector::wRMSNorm(const MultiVector & weights, double * resul
 // Creator       : Scott A. Hutchinson, SNL, Computational Sciences
 // Creation Date : 03/19/01
 //-----------------------------------------------------------------------------
-int EpetraBlockMultiVector::wMaxNorm(const MultiVector & weights, double * result) const
+int EpetraBlockMultiVector::wMaxNorm(const MultiVector & weights, double * result, int * index) const
 {
-  int length  = aMultiVector_->MyLength();
+  int length  = localLength();
   int numVecs = numVectors();
+  int numProcs = pdsComm_->numProc();
   double tmpVal = 0.0;
 
+  std::vector<int> indexTemp( numVecs, 0 ), indexTempAll( numVecs*numProcs, 0 );
+  std::vector<double> doubleTemp( numVecs, 0.0 ), doubleTempAll( numVecs*numProcs, 0.0 );
+
   for (int i = 0;  i < numVecs; ++i)
-  {
-    double localMax = 0.0;
+  { 
+    indexTemp[i] = -1;
+    doubleTemp[i] = 0.0;
     if (length)
-    {
-      localMax = fabs(*(*this)(0,i)) / (*weights(0,i));
+    { 
+      indexTemp[i] = 0;
+      doubleTemp[i] = fabs(*(*this)(0,i)) / (*weights(0,i));
       for (int j = 1; j < length; ++j)
-      {
+      { 
         tmpVal = fabs(*(*this)(j,i)) / (*weights(j,i));
-        if (tmpVal > localMax)
-          localMax = tmpVal;
+        if (tmpVal > doubleTemp[i])
+        { 
+          doubleTemp[i] = tmpVal;
+          indexTemp[i] = j;
+        }
       }
     }
-    // Determine global maximum.
-    pdsComm_->maxAll( &localMax, &(result[i]), 1 );
+  }
+
+  if (numProcs > 1)
+  {
+    // Use the communicator to gather all the local maximum values and indices
+    Parallel::AllGather( pdsComm_->comm(), indexTemp, indexTempAll );
+    Parallel::AllGather( pdsComm_->comm(), doubleTemp, doubleTempAll );
+
+    // Compute the global infNorm and index
+    for (int i=0; i < numVecs; i++)
+    {
+      result[i] = doubleTempAll[i];
+      if (index)
+        index[i] = indexTempAll[i];
+      for (int j=1; j < numProcs; j++)
+      {
+        if ( doubleTempAll[j*numVecs + i] > result[i] )
+        {
+          result[i] = doubleTempAll[j*numVecs + i];
+          if (index)
+            index[i] = indexTempAll[j*numVecs + i];
+        }
+      }
+    }
+  }
+  else
+  {
+    for (int i=0; i < numVecs; i++)
+    {
+      result[i] = doubleTemp[i];
+      if (index)
+        index[i] = indexTemp[i];
+    }
   }
 
   return 0;

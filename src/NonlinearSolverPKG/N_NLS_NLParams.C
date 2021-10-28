@@ -152,7 +152,9 @@ NLParams::NLParams(const NLParams & right)
     debugMinTimeStep_(right.debugMinTimeStep_),
     debugMaxTimeStep_(right.debugMaxTimeStep_),
     debugMinTime_(right.debugMinTime_),
-    debugMaxTime_(right.debugMaxTime_)
+    debugMaxTime_(right.debugMaxTime_),
+    matrixMarketFormat_(right.matrixMarketFormat_),
+    maskingFlag_(right.maskingFlag_)
 {
 }
 
@@ -317,7 +319,8 @@ void NLParams::printParams(std::ostream &os)
      << "\tdeltaXTol (weighted):\t" << getDeltaXTol() << std::endl
      << "\tRHSTol:\t\t\t" << getRHSTol() << std::endl
      << "\tSmall Update Tol:\t" << getSmallUpdateTol() << std::endl
-     << "\tmax NL Steps:\t\t" << getMaxNewtonStep() << std::endl;
+     << "\tmax NL Steps:\t\t" << getMaxNewtonStep() << std::endl
+     << "\tUse masking:\t\t" << getMaskingFlag() << std::endl;  
 
   if (analysisMode_ == DC_OP)
     os << "\tAnalysis Mode:\t\t" << analysisMode_ << "\t(DC Op)" << std::endl;
@@ -400,11 +403,14 @@ NLParams & NLParams::operator=(const NLParams & right)
     linearOptimization_ = right.linearOptimization_;
 
     // Debug output options:
-    debugLevel_       = right.debugLevel_;
-    debugMinTimeStep_ = right.debugMinTimeStep_;
-    debugMaxTimeStep_ = right.debugMaxTimeStep_;
-    debugMinTime_     = right.debugMinTime_;
-    debugMaxTime_     = right.debugMaxTime_;
+    debugLevel_         = right.debugLevel_;
+    debugMinTimeStep_   = right.debugMinTimeStep_;
+    debugMaxTimeStep_   = right.debugMaxTimeStep_;
+    debugMinTime_       = right.debugMinTime_;
+    debugMaxTime_       = right.debugMaxTime_;
+
+    matrixMarketFormat_ = right.matrixMarketFormat_;
+    maskingFlag_        = right.maskingFlag_;
   }
 
   return *this;

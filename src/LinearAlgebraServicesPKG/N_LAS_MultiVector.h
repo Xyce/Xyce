@@ -103,8 +103,8 @@ public:
   // Weighted root-mean-square norm
   virtual int wRMSNorm(const MultiVector & weights, double * result) const = 0;
 
-  // Weighted max-norm
-  virtual int wMaxNorm(const MultiVector & weights, double * result) const = 0;
+  // Weighted max-norm (with index if allocated by the caller)
+  virtual int wMaxNorm(const MultiVector & weights, double * result, int * index = 0) const = 0;
 
   // Generate random number
   virtual void random() = 0;

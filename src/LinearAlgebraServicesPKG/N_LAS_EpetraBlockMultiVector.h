@@ -122,8 +122,8 @@ class EpetraBlockMultiVector : public BlockMultiVector, public EpetraVectorAcces
   // Weighted root-mean-square norm
   int wRMSNorm(const MultiVector & weights, double * result) const;
 
-  // Weighted max-norm
-  int wMaxNorm(const MultiVector & weights, double * result) const;
+  // Weighted max-norm (with index if allocated by the caller)
+  int wMaxNorm(const MultiVector & weights, double * result, int * index = 0) const;
 
   // Generate random number
   void random()

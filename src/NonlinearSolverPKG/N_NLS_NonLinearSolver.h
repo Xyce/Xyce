@@ -183,6 +183,8 @@ public:
   Teuchos::RCP<Linear::Solver> getLinearSolver();
   void setLinearSolver( const Teuchos::RCP<Linear::Solver>& lasSolver );
 
+  Linear::Vector* getPNormWeights();
+
   // use for debugging:
   void debugOutput1(Linear::Matrix & jacobian, Linear::Vector & rhs);
   void debugOutput3(Linear::Vector & dxVector, Linear::Vector & xVector);
@@ -226,6 +228,7 @@ protected:
   Linear::Vector* NewtonVectorPtr_;
 #endif
   Linear::Vector* solWtVectorPtr_;
+  Linear::Vector* maskPNormWeights_;
   Linear::System* lasSysPtr_;
 #ifndef Xyce_ROL
   Teuchos::RCP<Linear::Solver> lasSolverRCPtr_;
