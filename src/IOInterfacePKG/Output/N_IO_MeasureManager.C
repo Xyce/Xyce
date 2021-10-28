@@ -104,11 +104,10 @@ Manager::Manager(const CmdParse &cp)
     measDgt_(6),
     measDgtGiven_(false),
     measFail_(true),
-    measFailGiven_(false),
     measOut_(true),
     measOutGiven_(false),
     useLTTM_(false),
-    measGlobalDefaultVal_(-1),
+    measGlobalDefaultVal_(0),
     measGlobalDefaultValGiven_(false),
     firstSweepValueFound_(false),
     startSweepValue_(0.0),
@@ -1332,7 +1331,6 @@ bool Manager::registerMeasureOptions(const Util::OptionBlock &option_block)
       // this control the value output to the the .mt0 (or .ma0 or .ms0) file
       // for a failed measure
       int measFailIntVal = (*it).getImmutableValue<int>();
-      measFailGiven_ = true;
       if ( measFailIntVal == 0 )
       {
 	measFail_ = false;

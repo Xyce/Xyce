@@ -95,6 +95,7 @@ public:
     double totalInputNoiseDens,
     const std::vector<Xyce::Analysis::NoiseData*> *noiseDataVec);
 
+  std::ostream& printMeasureResult(std::ostream& os);
   virtual double getMeasureResult()=0;
 
   // used to pass info from associated FFTAnalysis object to this measure object

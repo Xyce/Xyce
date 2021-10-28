@@ -213,7 +213,7 @@ public:
     virtual std::ostream& printMeasureResult(std::ostream& os)
     {
         basic_ios_all_saver<std::ostream::char_type> save(os);
-        if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+        if ( !initialized_ && measureMgr_.getMeasFail() )
 	{
           // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
           // netlist and this is a failed measure.

@@ -238,6 +238,37 @@ void FFT::updateNoise(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : FFT::printMeasureResult()
+// Purpose       : used to print the measurement result to an output stream
+//                 object, which is typically the mt0, ma0 or ms0 file
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 10/26/2021
+//-----------------------------------------------------------------------------
+std::ostream& FFT::printMeasureResult(std::ostream& os)
+{
+  basic_ios_all_saver<std::ostream::char_type> save(os);
+  os << std::scientific << std::setprecision(precision_);
+
+  // this also initializes the measure
+  double measureVal = this->getMeasureResult();
+
+  if ( !initialized_ && measureMgr_.getMeasFail() )
+  {
+    // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
+    // netlist and this is a failed measure.
+    os << name_ << " = FAILED" << std::endl;
+  }
+  else
+  {
+    os << name_ << " = " <<  this->getMeasureResult() << std::endl;
+  }
+
+  return os;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : FFTFind::FFTFind()
 // Purpose       : Constructor
 // Special Notes :
