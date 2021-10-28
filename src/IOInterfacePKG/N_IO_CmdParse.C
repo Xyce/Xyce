@@ -195,6 +195,7 @@ void usage(std::ostream &os)
      << "  -noise_names_file <path>    output noise source names file to <path> and exit\n"
      << "  -quiet                      suppress some of the simulation-progress messages sent to stdout\n"
      << "  -jacobian_test              jacobian matrix diagnostic\n"
+     << "  -redefined_params <option>  set option for redefined .params as ignore (use last), usefirst, warn or error.\n"
      << "  -delim <TAB|COMMA|string>   set the output file field delimiter\n"
      << "  -o <basename>               <basename> for the output file(s)\n"
      << "  -l <path>                   place the log output into <path>, \"cout\" to log to stdout\n"
@@ -330,6 +331,7 @@ CmdParse::setCommandArgs()
   swArgs[ "-jacobian_test" ] = 0;
   swArgs[ "-error-test" ] = 0;
   swArgs[ "-hspice-ext"] = 0;
+  swArgs[ "-redefined_params"] = 0;
 
   stArgs[ "-delim" ] = "";
   stArgs[ "-o" ] = "";
@@ -523,6 +525,29 @@ CmdParse::parseCommandLine(
           }
         }
         else if (arg == "-hspice-ext")
+        {
+          ++i;
+
+          if ( i >= argc )
+          {
+            // Unexectedly ran out of arguments on the command line.
+            Xyce::lout() << "Did not find required value for option " << arg << std::endl;
+            parse_state = ERROR;
+            continue;
+          }
+          else if (argv[i][0] == '-')
+          {
+            // Error if we ran into another option here.
+            Xyce::lout() << "Expected option value, but found option " << argv[i] << std::endl;
+            parse_state = ERROR;
+            continue;
+          }
+          else
+          {
+            stArgs[arg] = argv[i];
+          }
+        }
+        else if (arg == "-redefined_params")
         {
           ++i;
 

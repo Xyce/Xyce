@@ -65,7 +65,9 @@ ParsingMgr::ParsingMgr(
     useHspiceMath_(false),
     useHspiceSeparator_(false),
     modelBinningFlag_(true),
-    lengthScale_(1.0)
+    lengthScale_(1.0),
+    redefinedParamsFlag_( command_line.argExists("-redefined_params") ),
+    redefinedParams_ (RedefinedParamsSetting::IGNORE)
 {
   if (hspiceExtFlag_)
   {
@@ -107,6 +109,44 @@ ParsingMgr::ParsingMgr(
         useHspiceSeparator_ = true;
       else
         Report::UserFatal0() << "Invalid value " << *it << " for -hspice-ext command line option";
+    }
+  }
+
+  if (redefinedParamsFlag_)
+  {
+    std::string redefinedParamsArgStr = command_line.getArgumentValue("-redefined_params");
+    Util::toLower(redefinedParamsArgStr);
+    Util::Param parameter(std::string("REDEFINEDPARAMS"),redefinedParamsArgStr);
+
+    if ( parameter.isInteger() )
+    {
+      redefinedParams_ = parameter.getImmutableValue<int>();
+    }
+    else
+    {
+      ExtendedString stringVal ( parameter.stringValue() );
+      stringVal.toUpper();
+
+      if (stringVal == "ERROR")
+      {
+        redefinedParams_ = RedefinedParamsSetting::ERROR;
+      }
+      else if (stringVal == "IGNORE")
+      {
+        redefinedParams_ = RedefinedParamsSetting::IGNORE;
+      }
+      else if (stringVal == "WARNING" || stringVal == "WARN")
+      {
+        redefinedParams_ = RedefinedParamsSetting::WARNING;
+      }
+      else if (stringVal == "USEFIRST")
+      {
+        redefinedParams_ = RedefinedParamsSetting::USEFIRST;
+      }
+      else if (stringVal == "USEFIRSTWARN")
+      {
+        redefinedParams_ = RedefinedParamsSetting::USEFIRSTWARN;
+      }
     }
   }
 
@@ -152,6 +192,37 @@ bool ParsingMgr::setParserOptions(const Util::OptionBlock & OB)
     {
       lengthScale_ = ((*it).getImmutableValue<double>());
     }
+#if 0
+    // this doesn't work.  The reason it doesn't work is that .OPTIONS 
+    // and .PARAM and .GLOBAL_PARAM statements are all parsed on the 
+    // same pass thru the netlist.  So, this might get set *after* 
+    // .param have been parsed, which is too late.
+    else if (tag == "REDEFINEDPARAMS")
+    {
+      if ( (*it).isInteger() )
+      {
+        redefinedParams_ = (*it).getImmutableValue<int>();
+      }
+      else
+      {
+        ExtendedString stringVal ( (*it).stringValue() );
+        stringVal.toUpper();
+
+        if (stringVal == "ERROR")
+        {
+          redefinedParams_ = RedefinedParamsSetting::ERROR;
+        }
+        else if (stringVal == "IGNORE")
+        {
+          redefinedParams_ = RedefinedParamsSetting::IGNORE;
+        }
+        else if (stringVal == "WARNING" || stringVal == "WARN")
+        {
+          redefinedParams_ = RedefinedParamsSetting::WARNING;
+        }
+      }
+    }
+#endif
   }
 
   return true;
@@ -179,6 +250,11 @@ void populateMetadata(
 {
    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("PARSER");
    parameters.insert(Util::ParamMap::value_type("MODEL_BINNING", Util::Param("MODEL_BINNING", 1)));
+#if 0
+   // this doesn't work
+   int redefineParamsInt = RedefinedParamsSetting::IGNORE;
+   parameters.insert(Util::ParamMap::value_type("REDEFINEDPARAMS", Util::Param("REDEFINEDPARAMS", redefineParamsInt)));
+#endif
    parameters.insert(Util::ParamMap::value_type("SCALE", Util::Param("SCALE", 1.0)));
 }
 

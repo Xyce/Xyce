@@ -397,7 +397,7 @@ private:
   std::vector<bool> preprocessFilter_;
   bool remove_any_redundant_;
 
-  // model binning enable/disable
+  // model binning enable/disable and other parser settings
   bool model_binning_flag_;
   double lengthScale_;
 

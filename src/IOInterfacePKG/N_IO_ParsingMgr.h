@@ -43,6 +43,10 @@
 namespace Xyce {
 namespace IO {
 
+namespace RedefinedParamsSetting {
+  enum RedefinedParamsSetting {ERROR, IGNORE, WARNING, USEFIRST, USEFIRSTWARN};
+}
+
 //-----------------------------------------------------------------------------
 // Class         : ParsingMgr
 // Purpose       :
@@ -83,6 +87,11 @@ public:
     return ((useHspiceSeparator_)?('.'):(':'));
   }
 
+  int getRedefinedParams() const
+  {
+    return redefinedParams_;
+  }
+
 private:
   bool     hspiceExtFlag_;  // was the -hspice-ext command line option specified?
   bool     useHspiceUnits_; // was units or all specified for -hspice-ext ?
@@ -90,6 +99,8 @@ private:
   bool     useHspiceSeparator_;  // was separator or all specified for -hspice-ext ?
   bool     modelBinningFlag_;
   double   lengthScale_;
+  bool     redefinedParamsFlag_;
+  int      redefinedParams_;
 };
 
 bool registerPkgOptionsMgr(ParsingMgr & parsing_manager, PkgOptionsMgr &options_manager);

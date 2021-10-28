@@ -45,6 +45,7 @@
 #include <N_IO_DeviceBlock.h>
 #include <N_IO_Op.h>
 #include <N_IO_ParameterBlock.h>
+#include <N_IO_ParsingMgr.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Expression.h>
@@ -67,10 +68,12 @@ namespace IO {
 //----------------------------------------------------------------------------
 CircuitContext::CircuitContext(
   Util::Op::BuilderManager &    op_builder_manager,
+  const ParsingMgr &            parsing_manager,
   std::list<CircuitContext*> &  context_list,
   CircuitContext *&             current_context_pointer)
   : currentContextPtr_(current_context_pointer),
     opBuilderManager_(op_builder_manager),
+    parsingMgr_(parsing_manager),
     parentContextPtr_(NULL),
     contextList_(context_list),
     name_(""),
@@ -184,7 +187,7 @@ bool CircuitContext::beginSubcircuitContext(
 
   // Create a new circuit context for the subcircuit.
   CircuitContext* subcircuitContextPtr =
-    new CircuitContext(opBuilderManager_, contextList_, currentContextPtr_);
+    new CircuitContext(opBuilderManager_, parsingMgr_, contextList_, currentContextPtr_);
 
   // Set the parent context, save the current context and reset it to the
   // newly created context.
@@ -389,21 +392,89 @@ void CircuitContext::addParams(
   Util::ParamList::const_iterator paramIter, 
   Util::ParamList::const_iterator paramEnd)
 {
-#if 0
-  // experiment
-  if (currentContextPtr_->parentContextPtr_ == NULL)
-  {
-    addGlobalParams(paramIter,paramEnd);
-    return;
-  }
-#endif
   Util::Param parameter;
   for ( ; paramIter != paramEnd; ++paramIter)
   {
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    currentContextPtr_->unresolvedParams_.insert(parameter);
+
+    // if this parameter is already present, there are several options.
+    //
+    // The default is to use the last instance found in the netlist.  
+    // This corresponds to "IGNORE" and in this case will delete it from the set before insertion.  
+    
+    // if USEFIRST, then don't check for the parameter at all.  If it is 
+    // already present, then the insertion call will fail, and Xyce will use 
+    // the first occurance of the parameter, which is already in the set.
+
+    switch (parsingMgr_.getRedefinedParams()) 
+    {
+      case RedefinedParamsSetting::IGNORE:  // this is also default, below
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
+          {
+            currentContextPtr_->unresolvedParams_.erase(urParamIter);
+          }
+          currentContextPtr_->unresolvedParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::WARNING:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
+          {
+            currentContextPtr_->unresolvedParams_.erase(urParamIter);
+            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          currentContextPtr_->unresolvedParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::ERROR:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
+          {
+            Report::UserFatal()<< "parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          currentContextPtr_->unresolvedParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::USEFIRST:
+        currentContextPtr_->unresolvedParams_.insert(parameter);
+        break;
+
+      case  RedefinedParamsSetting::USEFIRSTWARN:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
+          {
+            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          else { currentContextPtr_->unresolvedParams_.insert(parameter); }
+        }
+        break;
+
+      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
+          {
+            currentContextPtr_->unresolvedParams_.erase(urParamIter);
+          }
+          currentContextPtr_->unresolvedParams_.insert(parameter);
+        }
+        break;
+    }
   }
 }
 
@@ -425,7 +496,83 @@ void CircuitContext::addGlobalParams(
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+
+    // if this parameter is already present, there are several options.
+    //
+    // The default is to use the last instance found in the netlist.  
+    // This corresponds to "IGNORE" and in this case will delete it from the set before insertion.  
+    
+    // if USEFIRST, then don't check for the parameter at all.  If it is 
+    // already present, then the insertion call will fail, and Xyce will use 
+    // the first occurance of the parameter, which is already in the set.
+
+    switch (parsingMgr_.getRedefinedParams()) 
+    {
+      case RedefinedParamsSetting::IGNORE:  // this is also default, below
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
+          {
+            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
+          }
+          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::WARNING:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
+          {
+            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
+            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::ERROR:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
+          {
+            Report::UserFatal()<< "parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        }
+        break;
+
+      case RedefinedParamsSetting::USEFIRST:
+        currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        break;
+
+      case  RedefinedParamsSetting::USEFIRSTWARN:
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
+          {
+            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
+          }
+          else { currentContextPtr_->unresolvedGlobalParams_.insert(parameter); }
+        }
+        break;
+
+      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+        {
+          Util::UParamList::const_iterator urParamIter = 
+            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
+          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
+          {
+            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
+          }
+          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        }
+        break;
+    }
   }
 }
 
@@ -3239,7 +3386,11 @@ Pack<IO::CircuitContext>::unpack(
       circuit_context.circuitContextTable_.insert(
         std::pair< std::string, IO::CircuitContext *>(
           tmp,
-          new IO::CircuitContext(circuit_context.opBuilderManager_, circuit_context.contextList_, circuit_context.currentContextPtr_ ) ) );
+          new IO::CircuitContext(
+            circuit_context.opBuilderManager_, 
+            circuit_context.parsingMgr_,
+            circuit_context.contextList_, 
+            circuit_context.currentContextPtr_ ) ) );
 
     // set the parent context of my children to me
     p.first->second->setParentContextPtr( &circuit_context );
