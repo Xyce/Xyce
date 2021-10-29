@@ -363,10 +363,6 @@ bool HB::doInit()
   }
   else
   {
-
-    Stats::StatTop _guessStepStat("set time points ");
-    Stats::TimeBlock _guessStepTimer(_guessStepStat);
-
     setTimePoints_();
   }
 
@@ -445,10 +441,6 @@ bool HB::doInit()
   }
   else
   {
-
-    Stats::StatTop _guessStepStat("create FT");
-    Stats::TimeBlock _guessStepTimer(_guessStepStat);
-
     createFT_();
 
     dftInterface_ = Teuchos::rcp( new N_UTL_APFT<std::vector<double> >( idftMatrix_, dftMatrix_ ) );
