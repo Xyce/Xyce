@@ -90,6 +90,7 @@ NonLinearSolver::NonLinearSolver(const IO::CmdParse &cp)
     gradVectorPtr_(0),
     NewtonVectorPtr_(0),
     solWtVectorPtr_(0),
+    maskPNormWeights_(0),
     lasSysPtr_(0),
     lasSolverFactoryPtr_(0),
     lasPrecFactoryPtr_(0),
@@ -145,6 +146,12 @@ NonLinearSolver::~NonLinearSolver()
   {
     delete solWtVectorPtr_;
     solWtVectorPtr_ = 0;
+  }
+
+  if (maskPNormWeights_)
+  {
+    delete maskPNormWeights_;
+    maskPNormWeights_ = 0;
   }
 
   if (linsolOptionBlockPtr_)
@@ -1001,6 +1008,36 @@ int NonLinearSolver::apply(
     return 0;
   else
     return -1;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::getPNormWeights
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi K. Thornquist, SNL
+// Creation Date : 10/27/21
+//-----------------------------------------------------------------------------
+Linear::Vector* NonLinearSolver::getPNormWeights()
+{
+  // Create the mask if it hasn't been made before.
+  if (!maskPNormWeights_)
+  {
+    std::cout << "Creating masking vector for p-norms!" << std::endl;
+    int length = dsPtr_->nextSolutionPtr->localLength();
+    Linear::Vector& mask = *(lasSysPtr_->getDeviceMaskVector());
+
+    maskPNormWeights_ = lasSysPtr_->builder().createVector();
+    maskPNormWeights_->putScalar( 1.0 );
+
+    for (int i = 0; i < length; ++i)
+    {
+      if (mask[i] == 0.0)
+        (*(maskPNormWeights_))[i] = Util::MachineDependentParams::MachineBig();
+    }
+  }
+
+  return maskPNormWeights_;
 }
 
 

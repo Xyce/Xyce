@@ -351,7 +351,7 @@ bool HB::doInit()
 
   goodTimePoints_.resize(size_);
 
-  if (freqs_.size() == 1)
+  if ((freqs_.size() == 1) || ((taHB_ != 1) && (method_ == "AFM")) )
   {
     double TimeStep = period_/size_;
     timeSteps_.push_back( TimeStep );
@@ -425,7 +425,7 @@ bool HB::doInit()
   ftOutData_.resize( size_ +1 );
   iftInData_.resize( size_  +1 );
   iftOutData_.resize( size_ );
-  if (freqs_.size() == 1 )
+  if ((freqs_.size() == 1 ) || ((taHB_ != 1) && (method_ == "AFM")) )
   {
     if (ftInterface_ == Teuchos::null)
     {
@@ -450,9 +450,6 @@ bool HB::doInit()
 
   if (taHB_==1)
   {
-    Stats::StatTop _guessStepStat("Initial Guess");
-    Stats::TimeBlock _guessStepTimer(_guessStepStat);
-
     // Pick up IC data from the initial transient.
     for (int i=0 ; i<size_ ; ++i)
     {
@@ -512,6 +509,7 @@ bool HB::doInit()
 
   if (method_ == "AFM")
   {
+
     if (ftInterface_ == Teuchos::null)
     {
       ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );

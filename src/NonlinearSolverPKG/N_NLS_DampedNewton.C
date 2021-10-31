@@ -40,6 +40,7 @@
 
 // ----------   Standard Includes   ----------
 #include <vector>
+#include <cmath>
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_AnalysisManager.h>
@@ -320,6 +321,18 @@ void DampedNewton::updateWeights_()
         nlParams.getAbsTol();
     }
   }
+
+  if (nlParams.getMaskingFlag())
+  {
+    int length = dsPtr_->nextSolutionPtr->localLength();
+    Linear::Vector& mask = *(lasSysPtr_->getDeviceMaskVector());
+
+    for (int i = 0; i < length; ++i)
+    {
+      if (mask[i] == 0.0)
+        (*(solWtVectorPtr_))[i] = Util::MachineDependentParams::MachineBig();
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -359,12 +372,12 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
 
   resetCountersAndTimers_();
 
+  // Get the current analysis mode
+  AnalysisMode mode1 = nonlinearParameterManager_->getAnalysisMode();
+
   // Change the nlparams so that they are appropriate for the current
   // time integration mode, if neccessary.
   nonlinearParameterManager_->getCurrentParams(nlParams);
-
-  // Get the current analysis mode
-  AnalysisMode mode1 = nonlinearParameterManager_->getAnalysisMode();
 
 #ifndef Xyce_SPICE_NORMS
   if (firstTime)
@@ -402,7 +415,14 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
   if (VERBOSE_NONLINEAR)
   {
     // Max RHS norm (maxNormRHS_).
-    rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
+    if (nlParams.getMaskingFlag())
+    {
+      rhsVectorPtr_->wMaxNorm(*(getPNormWeights()), &maxNormRHS_, &maxNormRHSindex_);
+    }
+    else
+    { 
+      rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
+    }
 
     // Print out the starting point information.
     printStepInfo_(Xyce::lout(), nlStep_);
@@ -839,11 +859,18 @@ bool DampedNewton::rhs_()
 
   isNormRHS_NaN_ = false;
 
-  rhsVectorPtr_->lpNorm(2, &normRHS_);
-
-  if (normRHS_ != 0.0 &&
-     !(normRHS_ < 0.0) &&
-     !(normRHS_ > 0.0))
+  if (nlParams.getMaskingFlag())
+  {
+    int length = dsPtr_->nextSolutionPtr->globalLength();
+    rhsVectorPtr_->wRMSNorm(*(getPNormWeights()), &normRHS_);
+    normRHS_ *= std::sqrt( length );  // Undo scaling of RMS norm
+  }
+  else
+  {
+    rhsVectorPtr_->lpNorm(2, &normRHS_);
+  }
+ 
+  if (std::isnan(normRHS_) || std::isinf(normRHS_))
   {
     isNormRHS_NaN_ = true;
   }
@@ -981,6 +1008,7 @@ bool DampedNewton::divide_()
 
   // Evaluate the new residual and take its norm:
   rhs_();
+
   if (DEBUG_NONLINEAR && debugTimeFlag_ && isActive(Diag::NONLINEAR_PARAMETERS) )
   {
     Xyce::dout() << "\n\tSearch Step: " << searchStep_ << ", Step Size: " << stepLength_ << std::endl
@@ -1213,7 +1241,14 @@ int DampedNewton::converged_()
 
   // Max RHS norm (maxNormRHS_) is used in converged_() and output by
   // printStepInfo_().
-  rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
+  if (nlParams.getMaskingFlag())
+  {
+    rhsVectorPtr_->wMaxNorm(*(getPNormWeights()), &maxNormRHS_, &maxNormRHSindex_);
+  }
+  else
+  { 
+    rhsVectorPtr_->infNorm(&maxNormRHS_, &maxNormRHSindex_);
+  }
 
   // This parameter "takes-out" any damping induced in the size of the norm by
   // a line-search or other globalization method.

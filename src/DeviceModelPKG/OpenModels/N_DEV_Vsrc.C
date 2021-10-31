@@ -57,8 +57,8 @@
 
 #include <N_UTL_Math.h>
 
-#include <Teuchos_RCP.hpp>
-#include <N_UTL_FFTInterface.hpp>
+//#include <Teuchos_RCP.hpp>
+//#include <N_UTL_FFTInterface.hpp>
 
  
 #include <N_UTL_MachDepParams.h>
@@ -352,11 +352,11 @@ Instance::Instance(
     fNegEquNegNodePtr(0),
     fBraEquBraVarPtr(0),
 #endif
-
     port(0),
     Z0(50.0),
     PORTgiven (false),
-    Z0given (false)
+    Z0given (false),
+    freqVarsLoaded(false)
 {
   numIntVars   = 1;
   numExtVars   = 2;
@@ -840,6 +840,10 @@ bool Instance::loadBVectorsforAC(double * bVecReal, double * bVecImag )
 bool Instance::loadFreqBVector (double frequency,
                                 std::vector<Util::FreqVecEntry>& bVec)
 {
+      
+
+  if ( !freqVarsLoaded )
+    calculateFDVars();
 
   Util::FreqVecEntry tmpEntry;
 
@@ -847,98 +851,49 @@ bool Instance::loadFreqBVector (double frequency,
 
     std::complex<double> tmpVal = 0.0;
 
-    SourceData *dataPtr  = dcSourceData_;
-    if ( HBSpecified_ && tranSourceData_ != 0 )
-    {
-      dataPtr =  tranSourceData_;
-    }
-
-    if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _SIN_DATA))
-    {
-      double v0 = par0;
-
-      double mag = par1;
-
-      double freq = par3;
-
-      double phase = M_PI * par5/180;
-
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( v0, 0);
-
-      if (frequency == freq)
-        tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
-
-    }   
-    else if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _PULSE_DATA))
+    switch (TRANSIENTSOURCETYPE)
     {
 
-      Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
-      std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
-
-      dataPtr->setUseLocalTimeFlag(true);
-
-//      int size_ = 21;
-
-      double dt = std::min( {par3, par4, par5} );
-
-      int overSampleRate = 2;
-
-      int size_ = std::round( par6/dt ) * overSampleRate;
-
-      if ( size_ % 2 == 0)
-        size_ = size_ + 1;
-
-      double tstep = par6/size_;
-
-      int fIdx;
-
-      double freq = 1/par6;
-
-      ftInData_.resize( size_ );
-      ftOutData_.resize( size_ +1 );
-      iftInData_.resize( size_  +1 );
-      iftOutData_.resize( size_ );
-
-      if (ftInterface_ == Teuchos::null)
+      case _SIN_DATA:
       {
-        ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
-        ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
-      } 
+	if (frequency == 0.0 )
+	  tmpVal = std::complex<double> ( v0, 0);
 
+	if (frequency == freq)
+	  tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
 
-      for ( int i=0;  i < size_; ++i )
-      {
-
-         dataPtr->setTime(i * tstep);
-
-         dataPtr->updateSource();
-
-         ftInData_[i] = dataPtr->returnSource();
-
-//         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
       }
+      break;
 
-      ftInterface_->calculateFFT();
+      case _PULSE_DATA:
+      {
 
-      fIdx = std::round( frequency/freq);
+	int fIdx;
 
-      double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
+	fIdx = std::round( frequency/freq);
 
-      if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
-        tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
+	double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
-      std::cout << "loaded value is " << tmpVal << std::endl;
+	if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
+	  tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
 
+//	std::cout << "loaded value is " << tmpVal << std::endl;
+      }
+      break;
+
+      case _DC_DATA:
+      {
+	if (frequency == 0.0 )
+	  tmpVal = std::complex<double> ( v0, 0 );
+
+ //  	std::cout << "loaded DC value is " << tmpVal << std::endl;
+      }
+      break;
+
+      default:
+        UserFatal(*this) << "Cannot identify source data type for " << getName();
+        break;
     }
-    else
-    {
-
-      double v0 = DCV0;
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( v0, 0 );
-    }
-
      // Add RHS vector element for the positive circuit node KCL equ.
     tmpEntry.val = tmpVal;
     tmpEntry.lid = li_Bra;
@@ -950,6 +905,110 @@ bool Instance::loadFreqBVector (double frequency,
 }
 
 
+//-----------------------------------------------------------------------------
+// Function      : Instance::loadFreqBVector
+//
+// Purpose       : Loads the B-vector contributions for a single
+//                 vsrc instance.
+//
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool Instance::calculateFDVars()
+{
+
+  SourceData *dataPtr  = dcSourceData_;
+  if ( HBSpecified_ && tranSourceData_ != 0 )
+  {
+    dataPtr =  tranSourceData_;
+  }
+
+  if ( (dataPtr != 0)  )
+  {
+
+    switch (TRANSIENTSOURCETYPE)
+    {
+
+      case _SIN_DATA:
+      {
+        v0 = par0;
+
+        mag = par1;
+
+        freq = par3;
+
+        phase = M_PI * par5/180;
+      }
+      break;
+
+      case _PULSE_DATA:
+      {
+
+	dataPtr->setUseLocalTimeFlag(true);
+
+	double dt = std::min( {par3, par4, par5} );
+
+	int overSampleRate = 2;
+
+	size_ = std::round( par6/dt ) * overSampleRate;
+
+	if ( size_ % 2 == 0)
+	  size_ = size_ + 1;
+
+	double tstep = par6/size_;
+	freq = 1/par6;
+
+	ftInData_.resize( size_ );
+	ftOutData_.resize( size_ +1 );
+	iftInData_.resize( size_  +1 );
+	iftOutData_.resize( size_ );
+
+	if (ftInterface_ == Teuchos::null)
+	{
+	  ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
+	  ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
+	} 
+
+
+	for ( int i=0;  i < size_; ++i )
+	{
+
+	   dataPtr->setTime(i * tstep);
+
+	   dataPtr->updateSource();
+
+	   ftInData_[i] = dataPtr->returnSource();
+
+  //         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
+	}
+
+        ftInterface_->calculateFFT();
+
+        dataPtr->setUseLocalTimeFlag(false);
+
+      }
+      break;
+
+      case _DC_DATA:
+      {
+        v0 = DCV0;
+      }
+      break;
+
+      default:
+        UserFatal(*this) << "Cannot identify source data type for " << getName();
+        break;
+    }
+
+  }        
+     
+  freqVarsLoaded =true;  
+
+  return true;
+}
 //-----------------------------------------------------------------------------
 // Function      : Instance::loadDAEdFdx ()
 //

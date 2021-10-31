@@ -220,9 +220,10 @@ void TrigTargBase::updateTran(
   if (numPointsFound_ == 1)
     setMeasureState(circuitTime);
 
+  // handle invalid AT times
   if (trigATgiven_ && isInvalidAT(trigAT_, 0, endSimTime))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, 0, endSimTime))
+  if (targATgiven_ && isInvalidAT(targAT_, 0, endSimTime))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > endSimTime)) )
@@ -261,7 +262,7 @@ void TrigTargBase::updateTran(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > endSimTime)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > endSimTime)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -351,8 +352,14 @@ void TrigTargBase::updateDC(
         setMeasureState(dcSweepVal);
     }
 
-    if( !trigCalculationDone_ && !(trigTDgiven_&& !( (dcSweepAscending_ && trigTD_ > dcParamsVec[0].stopVal) ||
-						     (!dcSweepAscending_ && trigTD_ < dcParamsVec[0].stopVal))) )
+    // handle invalid AT sweep values
+    if (trigATgiven_ && isInvalidAT(trigAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
+      trigCalculationDone_ = true;
+    if (targATgiven_ && isInvalidAT(targAT_, dcParamsVec[0].startVal, dcParamsVec[0].stopVal))
+      targCalculationDone_ = true;
+
+    if( !trigCalculationDone_ && !(trigTDgiven_&& ( (dcSweepAscending_ && trigTD_ > dcParamsVec[0].stopVal) ||
+						     (!dcSweepAscending_ && trigTD_ > dcParamsVec[0].startVal))) )
     {
       initialized_ = true;
       if ( trigATgiven_)
@@ -390,7 +397,7 @@ void TrigTargBase::updateDC(
     }
 
     if( !targCalculationDone_ && !( targTDgiven_ && ( (dcSweepAscending_ && targTD_ > dcParamsVec[0].stopVal) ||
-				                      (!dcSweepAscending_ && targTD_ < dcParamsVec[0].stopVal))) )
+				                      (!dcSweepAscending_ && targTD_ > dcParamsVec[0].startVal))) )
     {
       initialized_ = true;
       if ( targATgiven_)
@@ -459,9 +466,10 @@ void TrigTargBase::updateAC(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
+  // handle invalid AT frequencies
   if (trigATgiven_ && isInvalidAT(trigAT_, fStart, fStop))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
+  if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > fStop)) )
@@ -500,7 +508,7 @@ void TrigTargBase::updateAC(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > fStop)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > fStop)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -571,9 +579,10 @@ void TrigTargBase::updateNoise(
   if (numPointsFound_ == 1)
     setMeasureState(frequency);
 
+  // handle invalid AT frequencies
   if (trigATgiven_ && isInvalidAT(trigAT_, fStart, fStop))
     trigCalculationDone_ = true;
-  else if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
+  if (targATgiven_ && isInvalidAT(targAT_, fStart, fStop))
     targCalculationDone_ = true;
 
   if( !trigCalculationDone_ && !(trigTDgiven_&& (trigTD_ > fStop)) )
@@ -612,7 +621,7 @@ void TrigTargBase::updateNoise(
     }
   }
 
-  if( !targCalculationDone_ && !(targTDgiven_&& (trigTD_ > fStop)) )
+  if( !targCalculationDone_ && !(targTDgiven_&& (targTD_ > fStop)) )
   {
     initialized_ = true;
     if ( targATgiven_)
@@ -944,7 +953,8 @@ bool TrigTargBase::withinTargRFCWindow() const
 // Function      : TrigTargBase::withinTrigTDwindow
 // Purpose       : Checks if the independent variable is within the TRIG TD window 
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 and NOISE measures, it is frequency.
+//                 and NOISE measures, it is frequency.   For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/12/2021
@@ -958,7 +968,8 @@ bool TrigTargBase::withinTrigTDwindow(double indepVarVal) const
 // Function      : TrigTargBase::withinTargTDwindow
 // Purpose       : Checks if the independent variable is within the TARG TD window 
 // Special Notes : For TRAN measures, the independent variable is time.  For AC
-//                 and NOISE measures, it is frequency.
+//                 and NOISE measures, it is frequency.   For DC measures, it is
+//                 the value of the first variable in the DC sweep vector.
 // Scope         : private
 // Creator       : Pete Sholander, SNL
 // Creation Date : 10/12/2021
@@ -966,50 +977,6 @@ bool TrigTargBase::withinTrigTDwindow(double indepVarVal) const
 bool TrigTargBase::withinTargTDwindow(double indepVarVal) const
 {
   return !targTDgiven_ || (targTDgiven_ && (indepVarVal > targTD_*(1-minval_)));
-}
-
-//-----------------------------------------------------------------------------
-// Function      : TrigTargBase::withinTrigTDwindowForDC
-// Purpose       : Checks if the independent variable is within the TRiG TD window 
-// Special Notes : For DC measures, the independent variable is the value of the
-//                 first variable in the DC sweep vector.
-// Scope         : private
-// Creator       : Pete Sholander, SNL
-// Creation Date : 10/12/2021
-//-----------------------------------------------------------------------------
-bool TrigTargBase::withinTrigTDwindowForDC(double sweepVal) const
-{
-  if (trigTDgiven_)
-  {
-    if (fabs(sweepVal - trigTD_) < fabs(from_*minval_))
-      return true;
-    else if ( (dcSweepAscending_ && (sweepVal < trigTD_)) || (!dcSweepAscending_ && (sweepVal > trigTD_)) )
-      return false;
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : TrigTargBase::withinTargTDwindowForDC
-// Purpose       : Checks if the independent variable is within the TARG TD window 
-// Special Notes : For DC measures, the independent variable is the value of
-//                 the first variable in the DC sweep vector.
-// Scope         : private
-// Creator       : Pete Sholander, SNL
-// Creation Date : 10/12/2021
-//-----------------------------------------------------------------------------
-bool TrigTargBase::withinTargTDwindowForDC(double sweepVal) const
-{
-  if (targTDgiven_)
-  {
-    if (fabs(sweepVal - targTD_) < fabs(from_*minval_))
-      return true;
-    else if ( (dcSweepAscending_ && (sweepVal < targTD_)) || (!dcSweepAscending_ && (sweepVal > targTD_)) )
-      return false;
-  }
-
-  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1237,6 +1204,14 @@ void TrigTargBase::printMeasureWarnings(double endSimTime, double startSweepVal,
 TrigTarg::TrigTarg(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   TrigTargBase(measureMgr, measureBlock)
 {
+  // RISE, FALL or CROSS values < -1 are not supported yet
+  if ((trigRiseGiven_ && trigRise_ < -1) || (trigFallGiven_ && trigFall_ < -1) || (trigCrossGiven_ && trigCross_ < -1) ||
+      (targRiseGiven_ && targRise_ < -1) || (targFallGiven_ && targFall_ < -1) || (targCrossGiven_ && targCross_ < -1))
+  {
+    Report::UserError0() << " RISE, FALL or CROSS values < -1 not supported for measure " << name_
+                         << " for AC, DC, NOISE or TRAN measures";
+  }
+
   measureTrigLastRFC_ = ((trigRiseGiven_ && trigRise_ < 0) || (trigFallGiven_ && trigFall_ < 0) || 
 	                 (trigCrossGiven_ && trigCross_ < 0)) ? true : false;
 
@@ -1415,6 +1390,13 @@ std::ostream& TrigTarg::printVerboseMeasureResult(std::ostream& os)
 TrigTargCont::TrigTargCont(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   TrigTargBase(measureMgr, measureBlock)
 {
+  if ((trigRiseGiven_ && trigRise_ < 0) || (trigFallGiven_ && trigFall_ < 0) || (trigCrossGiven_ && trigCross_ < 0) ||
+      (targRiseGiven_ && targRise_ < 0) || (targFallGiven_ && targFall_ < 0) || (targCrossGiven_ && targCross_ < 0))
+  {
+    Report::UserError0() << " RISE, FALL or CROSS values < 0 not supported for measure " << name_
+                         << " for AC_CONT, DC_CONT, NOISE_CONT or TRAN_CONT measures";
+  }
+
   // these settings will find all times at which the WHEN clauses are satisfied,
   // and may return multiple values.
   measureTrigLastRFC_=true;
@@ -1557,7 +1539,7 @@ std::ostream& TrigTargCont::printMeasureResult(std::ostream& os)
     else
     { 
       os << name_ << " = " << targResult_ - trigResult_ << std::setw(colWidth) << " "
-         << " targ = " << targResult_ << std::setw(colWidth) << " "<< "trig = " << trigResult_  << std::endl;
+         << "targ = " << targResult_ << std::setw(colWidth) << " "<< "trig = " << trigResult_  << std::endl;
     }
   }
   else
@@ -1566,11 +1548,27 @@ std::ostream& TrigTargCont::printMeasureResult(std::ostream& os)
     {
       // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
       // netlist and this is a failed measure.
-      os << name_ << " = FAILED" << std::endl;
+      os << name_ << " = FAILED";
     }
     else
     {
-      os << name_ << " = " << this->getMeasureResult() << std::endl;
+      os << name_ << " = " << this->getMeasureResult();
+    }
+
+    if (!trigResultFound_ && targResultFound_)
+    {
+      os << std::setw(colWidth) << " " << "targ = "  << targResultVec_[0]
+         << std::setw(colWidth) << " " << "trig = not found" << std::endl;
+    }
+    else if (trigResultFound_ && !targResultFound_)
+    {  
+      os << std::setw(colWidth) << " " << "targ = not found" 
+         << std::setw(colWidth) << " " << "trig = " << trigResultVec_[0] << std::endl;
+    }
+    else
+    {
+      os << std::setw(colWidth) << " " << "targ = not found"
+         << std::setw(colWidth) << " " << "trig = not found" << std::endl;
     }
   }
 
@@ -1623,11 +1621,11 @@ std::ostream& TrigTargCont::printVerboseMeasureResult(std::ostream& os)
   }
   else if (!trigResultFound_ && targResultFound_)
   {
-    os << name_ << " = FAILED with trig = not found" << std::endl;
+    os << name_ << " = FAILED with targ = "  << targResultVec_[0] << " and trig = not found" << std::endl;
   }
   else if (trigResultFound_ && !targResultFound_)
   {  
-    os << name_ << " = FAILED with targ = not found" << std::endl;
+    os << name_ << " = FAILED with targ = not found and trig = " << trigResultVec_[0] << std::endl;
   }
   else
   {

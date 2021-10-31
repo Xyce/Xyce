@@ -180,9 +180,6 @@ private:
   bool withinTrigTDwindow(double indepVarVal) const;
   bool withinTargTDwindow(double indepVarVal) const;
 
-  bool withinTrigTDwindowForDC(double sweepVal) const;
-  bool withinTargTDwindowForDC(double sweepVal) const;
-
   int numOutVars_;
   std::vector<double> outVarValues_;
 
