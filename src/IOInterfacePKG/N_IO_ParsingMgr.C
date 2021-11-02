@@ -135,9 +135,17 @@ ParsingMgr::ParsingMgr(
       {
         redefinedParams_ = RedefinedParamsSetting::IGNORE;
       }
+      else if (stringVal == "USELAST")
+      {
+        redefinedParams_ = RedefinedParamsSetting::USELAST;
+      }
       else if (stringVal == "WARNING" || stringVal == "WARN")
       {
         redefinedParams_ = RedefinedParamsSetting::WARNING;
+      }
+      else if (stringVal == "USELASTWARN")
+      {
+        redefinedParams_ = RedefinedParamsSetting::USELASTWARN;
       }
       else if (stringVal == "USEFIRST")
       {

@@ -44,7 +44,7 @@ namespace Xyce {
 namespace IO {
 
 namespace RedefinedParamsSetting {
-  enum RedefinedParamsSetting {ERROR, IGNORE, WARNING, USEFIRST, USEFIRSTWARN};
+  enum RedefinedParamsSetting {ERROR, IGNORE, WARNING, USELAST, USELASTWARN, USEFIRST, USEFIRSTWARN};
 }
 
 //-----------------------------------------------------------------------------

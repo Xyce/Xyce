@@ -381,6 +381,96 @@ void CircuitContext::addModel(ParameterBlock * modelPtr)
 }
 
 //----------------------------------------------------------------------------
+// Function       : addParamUseFirst
+// Purpose        : Add pararmeter, but
+//                  use the first parameter if duplicate, silently
+// Special Notes  : This was Xyce's default behavior for years.
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseFirst(Util::Param & parameter, Util::UParamList & unresolved)
+{
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseFirstWarn
+// Purpose        : Add pararmeter, but
+//                  use the first parameter if duplicate, but emit a warning.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseFirstWarn(Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    Report::UserWarning0() << "Parameter " <<  parameter.uTag() 
+      << " defined more than once. Using first one."; 
+  }
+  else { unresolved.insert(parameter); }
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseLast
+// Purpose        : Add pararmeter, but
+//                  use the last parameter if duplicate, silently
+// Special Notes  : This is the behavior of most simulators.
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseLast (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() ) { unresolved.erase(urParamIter); }
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseLastWarn
+// Purpose        : Add pararmeter, but
+//                  use the last parameter if duplicate, but emit a warning.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseLastWarn (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    unresolved.erase(urParamIter);
+    Report::UserWarning0() << "Parameter " <<  parameter.uTag() 
+      << " defined more than once. Using last one."; 
+  }
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseError
+// Purpose        : Add pararmeter, but
+//                  flag a fatal error if it is a duplicate.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseError (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    Report::UserFatal()<< "parameter " <<  parameter.uTag() << " defined more than once"; 
+  }
+  unresolved.insert(parameter);
+ }
+
+//----------------------------------------------------------------------------
 // Function       : CircuitContext::addParams
 // Purpose        : Add a set of .PARAM parameters to the current context.
 // Special Notes  :
@@ -411,68 +501,35 @@ void CircuitContext::addParams(
     switch (parsingMgr_.getRedefinedParams()) 
     {
       case RedefinedParamsSetting::IGNORE:  // this is also default, below
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
-          {
-            currentContextPtr_->unresolvedParams_.erase(urParamIter);
-          }
-          currentContextPtr_->unresolvedParams_.insert(parameter);
-        }
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedParams_);
         break;
 
       case RedefinedParamsSetting::WARNING:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
-          {
-            currentContextPtr_->unresolvedParams_.erase(urParamIter);
-            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          currentContextPtr_->unresolvedParams_.insert(parameter);
-        }
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedParams_);
         break;
 
       case RedefinedParamsSetting::ERROR:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
-          {
-            Report::UserFatal()<< "parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          currentContextPtr_->unresolvedParams_.insert(parameter);
-        }
+        addParamUseError (parameter, currentContextPtr_->unresolvedParams_);
         break;
 
       case RedefinedParamsSetting::USEFIRST:
-        currentContextPtr_->unresolvedParams_.insert(parameter);
+        addParamUseFirst (parameter, currentContextPtr_->unresolvedParams_);
         break;
 
       case  RedefinedParamsSetting::USEFIRSTWARN:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
-          {
-            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          else { currentContextPtr_->unresolvedParams_.insert(parameter); }
-        }
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::USELAST:
+        addParamUseLast (parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case  RedefinedParamsSetting::USELASTWARN:
+        addParamUseLastWarn(parameter, currentContextPtr_->unresolvedParams_);
         break;
 
       default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedParams_.end() )
-          {
-            currentContextPtr_->unresolvedParams_.erase(urParamIter);
-          }
-          currentContextPtr_->unresolvedParams_.insert(parameter);
-        }
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedParams_);
         break;
     }
   }
@@ -509,68 +566,35 @@ void CircuitContext::addGlobalParams(
     switch (parsingMgr_.getRedefinedParams()) 
     {
       case RedefinedParamsSetting::IGNORE:  // this is also default, below
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
-          {
-            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
-          }
-          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
-        }
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
 
       case RedefinedParamsSetting::WARNING:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
-          {
-            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
-            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
-        }
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
 
       case RedefinedParamsSetting::ERROR:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
-          {
-            Report::UserFatal()<< "parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
-        }
+        addParamUseError (parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
 
       case RedefinedParamsSetting::USEFIRST:
-        currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+        addParamUseFirst (parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
 
       case  RedefinedParamsSetting::USEFIRSTWARN:
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
-          {
-            Report::UserWarning0() << "Parameter " <<  parameter.uTag() << " is defined more than once"; 
-          }
-          else { currentContextPtr_->unresolvedGlobalParams_.insert(parameter); }
-        }
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case RedefinedParamsSetting::USELAST:
+        addParamUseLast (parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case  RedefinedParamsSetting::USELASTWARN:
+        addParamUseLastWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
 
       default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
-        {
-          Util::UParamList::const_iterator urParamIter = 
-            currentContextPtr_->unresolvedGlobalParams_.find( parameter );
-          if ( urParamIter != currentContextPtr_->unresolvedGlobalParams_.end() )
-          {
-            currentContextPtr_->unresolvedGlobalParams_.erase(urParamIter);
-          }
-          currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
-        }
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedGlobalParams_);
         break;
     }
   }
