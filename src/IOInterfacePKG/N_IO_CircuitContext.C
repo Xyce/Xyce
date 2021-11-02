@@ -465,7 +465,7 @@ void addParamUseError (Util::Param & parameter, Util::UParamList & unresolved)
   Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
   if ( urParamIter != unresolved.end() )
   {
-    Report::UserFatal()<< "parameter " <<  parameter.uTag() << " defined more than once"; 
+    Report::UserError0() << "Parameter " <<  parameter.uTag() << " defined more than once"; 
   }
   unresolved.insert(parameter);
  }
