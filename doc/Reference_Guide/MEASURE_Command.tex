@@ -19,10 +19,10 @@ be used with {\tt .STEP}  in all four cases.  For HSPICE compatibility,
 
 The syntaxes for the \texttt{.MEASURE} statements are shown below.  The \texttt{AVG},
 \texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, \texttt{ERR2}, \texttt{FIND-AT},
-\texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS}
-and \texttt{WHEN} measures are supported for all four ``measure modes'' (\texttt{TRAN}, 
-\texttt{AC}, \texttt{DC} and \texttt{NOISE}).  The \texttt{TRIG-TARG} measure is only supported for
-\texttt{TRAN} measure mode.  Note that each measure type (e.g., \texttt{MAX}) may be listed
+\texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS},
+\texttt{WHEN} and \texttt{TRIG-TARG} measures are supported for all four ``measure modes''
+(\texttt{TRAN}, \texttt{AC}, \texttt{DC} and \texttt{NOISE}).  Note that each measure
+type (e.g., \texttt{MAX}) may be listed
 twice. This is because only a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and
 \texttt{TO}) may be supported for the \texttt{AC}, \texttt{DC} and \texttt{NOISE} measure modes.
 
@@ -129,18 +129,28 @@ supported for \texttt{TRAN} measure mode.
 + [MINVAL=<value>] [DEFAULT_VAL=<value>] 
 + [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE TRAN <result name> TRIG <variable>=<variable\(\sb{2}\)>|<value>
-+ [RISE=r1|LAST] [FALL=f1|LAST] [CROSS=c1|LAST]
+.MEASURE <AC|DC|NOISE|TRAN> <result name>
++ TRIG <variable\(\sb{1}\)>=<variable\(\sb{2}\)>|<value> 
++ [TD=<val>] [RISE=r] [FALL=f] [CROSS=c]
 + TARG <variable\(\sb{3}\)>=<variable\(\sb{4}\)>|<value> 
-+ [RISE=r2|LAST] [FALL=f2|LAST] [CROSS=c2|LAST]
-+ [FROM=<value>] [TO=<value>] [TD=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
++ [TD=<val>] [RISE=r] [FALL=f] [CROSS=c]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
-.MEASURE TRAN <result name> TRIG AT=<value>
-+ TARG <variable\(\sb{2}\)>=<variable\(\sb{3}\)>|<value> 
-+ [RISE=r2|LAST] [FALL=f2|LAST] [CROSS=c2|LAST]
+.MEASURE <AC|DC|NOISE|TRAN> <result name>
++ TRIG AT=<value> TARG AT=<value> 
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN <result name>
++ TRIG <variable\(\sb{1}\)> FRAC\_MAX=<value> 
++ [RISE=r] [FALL=f] [CROSS=c]
 + [FROM=<value>] [TO=<value>] [TD=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
++ TARG <variable\(\sb{2}\)> FRAC\_MAX=<value> 
++ [RISE=r] [FALL=f] [CROSS=c]
++ [FROM=<value>] [TO=<value>] [TD=<value>] 
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE <AC|DC|NOISE> <result name> AVG <variable>
 + [FROM=<value>] [TO=<value>]
@@ -387,11 +397,11 @@ The supported measure types and their definitions are:
 
   \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
     time between a trigger event and a target event.  The trigger is
-    specified with {\tt TRIG <variable>=<variable\(\sb{2}\)>} or {\tt
-    TRIG <variable>=<value>} or {\tt TRIG AT=<value>}.  Likewise, the
-    the target is specified as {\tt TARG
-    <variable\(\sb{3}\)>=<variable\(\sb{4}\)>} or {\tt TRIG
-    <variable\(\sb{3}\)>=<value>}.  It is also possible to use this
+    specified with {\tt TRIG <variable\(\sb{1}\)>=<variable\(\sb{2}\)>} or {\tt
+    TRIG <variable\(\sb{1}\)>=<value>} or {\tt TRIG AT=<value>}.  The
+    target is then specified as {\tt TARG
+    <variable\(\sb{3}\)>=<variable\(\sb{4}\)>} or {\tt TARG <variable\(\sb{3}\)>=<value>}.
+    or {\tt TARG AT=<value>}.  It is also possible to use this
     measure to find a rise time for variable when the rise time is
     defined as the time to go from some small fraction of the maxima
     to some other fraction of the maxima.  For example, the syntax for
@@ -530,7 +540,7 @@ If the absolute value of {\tt <variable\(\sb{1}\)>} in {\tt ERR1} or
 A fractional value of the maximum value of \texttt{<variable>}.  This
 is useful for ensemble runs where the maximum value of a waveform is
 not known in advance.  {\tt FRAC\_MAX} is used by the {\tt TRIG} and
-{\tt TARG} measures.
+{\tt TARG} measures for {\tt TRAN} measure mode, only.
 
 \argument{ON=value}
 
@@ -870,26 +880,32 @@ The first mode is ``level-crossing'', where
 the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS} counts are
 incremented each time the measured signal (e.g,
 \texttt{ V(a)}) crosses the user-specified level (termed
-\texttt{crossVal} here).  If we define \texttt{currentVal} and \texttt{lastVal}
-as the current and previous values of \texttt{V(a)}, and \texttt{riseCount},
+\texttt{crossVal} here).  This mode should work identically to HSPICE
+for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN}, \texttt{WHEN} and
+\texttt{TRIG-TARG} measures.
+
+If we define \texttt{currentVal} and \texttt{lastVal} as the current and previous
+values of \texttt{V(a)}, and \texttt{riseCount},
 \texttt{fallCount} and \texttt{crossCount} as the number of rises, falls and
-crosses that have occurred, then the pseudo-code for this mode is:
+crosses that have occurred, then the pseudo-code for the ``level-crossing'' mode is:
 \begin{alltt}
 if ( (currentVal-crossVal >= 0.0) AND (lastVal-crossVal < 0.0) )
 \{
   riseCount++;
+  crossCount++;
 \}
 else if( (currentVal-crossVal) <= 0.0) AND (lastVal-crossVal > 0.0) )
 \{
   fallCount++;
+  crossCount++;
 \}
 \end{alltt}
 
-For this mode, the \texttt{crossCount} is then incremented if either
-the
-\texttt{riseCount}  or the \texttt{fallCount} was incremented.  This mode
-should work identically to HSPICE for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN},
-\texttt{WHEN} and \texttt{TRIG-TARG} measures.
+For \texttt{DERIV-WHEN}, \texttt{FIND-WHEN}, \texttt{WHEN},
+measures, the cross value is set by the value (or second variable) in the
+\texttt{WHEN} clause. For \texttt{TRIG-TARG} measures, the cross values are
+set separately by the the values (or second variables) in the \texttt{TRIG}
+and \texttt{TARG} clauses.
 
 The second mode is termed ``absolute''. In this mode, \Xyce{} attempts
 to auto-detect whether the measured waveform has started a new rise or
@@ -897,8 +913,10 @@ fall. However, the \texttt{crossCount} is still evaluated against a
 fixed \texttt{crossVal} of 0.  This mode may be useful for pulse
 waveforms with sharp rises and falls, where the waveform's maximum (or
 minimum) level is not exactly known in advance.  It may not work well
-with noisy waveforms.  If we define two Boolean variables
-\texttt{isRising} and \texttt{isFalling} then the pseudo-code for this mode is:
+with noisy waveforms.  
+
+If we define two Boolean variables \texttt{isRising} and \texttt{isFalling} then
+the pseudo-code for the ``absolute'' mode is:
 \begin{alltt}
 if( (currentVal > lastVal) AND !isRising )
 \{
@@ -919,7 +937,7 @@ if ( ( (currentVal >= 0.0) AND (lastVal < 0.0) ) OR
 \}
 \end{alltt}
 The following table shows which of these two modes are supported for which
-\Xyce{} measures.
+\Xyce{} measure types.
 \input{MEASURE_RiseFallCrossTbl}
 As simple examples of these two modes for the \texttt{MAX} measure, consider
 the following netlist:
@@ -981,7 +999,8 @@ measure statement, but may not always work with noisy waveforms.
 .measure tran 50width EQN\{rise50FracMax + fall50FracMax\}
 
 * pulse-width measurement example 2
-.measure tran 50widthFracMax trig v(1) frac_max=0.50 targ v(1) frac_max=0.50 FALL=1
+.measure tran 50widthFracMax trig v(1) frac_max=0.50
++ targ v(1) frac_max=0.50 FALL=1
 \end{alltt}
 
 In some cases, the user may wish to print out both the measure value
@@ -1253,8 +1272,15 @@ of {\tt .MEASURE}.  They include the following:
   \item Several of the \Xyce{} measure types ({\tt DUTY}, {\tt EQN},
          {\tt FREQ}, {\tt FOUR}, {\tt ON\_TIME}, and {\tt OFF\_TIME})
          and qualifers (e.g., {\tt FRAC\_MAX}) are not found in
-         HSPICE.  Several HSPICE measures are not supported
+         HSPICE.  Several HSPICE measure types are not supported
          in \Xyce{}.
+
+  \item The default, in both HSPICE and \Xyce{}. for {\tt DERIV-WHEN}, {\tt FIND-WHEN},
+        {\tt WHEN} and {\tt TRIG-TARG} measures is to use {\tt CROSS=0} if a {\tt RISE},
+        {\tt FALL} or {\tt CROSS} value is not explicitly given in the {\tt WHEN}, {\tt TRIG}
+        or {\tt TARG} clause,   However, the \Xyce{} and HSPICE results may differ in those
+        cases if the measured signal is either a constant value or meets the measure criteria
+        at the first simulation step (e.g., t=0).
 
   \item The HSPICE qualifers of {\tt REVERSE} and {\tt PREVIOUS} are
   not supported in \Xyce{}.
@@ -1267,11 +1293,6 @@ of {\tt .MEASURE}.  They include the following:
         TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}) for the
         measurement windows for a given measure-type.  So, some
         legal \Xyce{} syntaxes may not be legal in HSPICE.
-
-  \item For {\tt TRIG} and {\tt TARG} clauses in \Xyce{}, the {\tt TD}
-        qualifier applies to both the {\tt TRIG} and {\tt TARG}
-        qualifiers.  HSPICE allows the specification of separate
-        time-delays for the {\tt TRIG} and {\tt TARG} clauses.
 
   \item The Xyce {\tt EQN} measure can calculate an expression based
         on other measure values.  So, one of its usages is similar to
@@ -1300,15 +1321,6 @@ of {\tt .MEASURE}.  They include the following:
         the netlist.  Otherwise, the \Xyce{} defaults will be used.
 \end{XyceItemize}
 
-Additional syntax differences between {\tt TRIG} and {\tt TARG}
-clauses in \Xyce{} and HSPICE are as follows.  In HSPICE, a {\tt
-RISE}, {\tt FALL} or {\tt CROSS} keyword must be specified in the
-following measure statement.  Those {\tt RISE} keywords are optional
-with this particular syntax example in \Xyce{}.  If they are omitted,
-then \Xyce{} uses a default value of 1.
-\begin{alltt}
-.measure tran riseSine trig v(1)=0.01 RISE=1 targ v(1)=0.99 RISE=1
-\end{alltt}
 The following HSPICE syntax ({\tt VAL=0.9}) is supported in \Xyce{}
 for {\tt TRIG} and {\tt TARG} measures. However, the preferred \Xyce{}
 syntax would use {\tt targ v(1)=0.9} instead.
@@ -1349,5 +1361,44 @@ is not allowed in \Xyce{}, since it uses an undelimited expression.
 .measure tran PLUS PP PAR(`V(1)+V(2)')
 .measure tran notLegalInXyce PARAM PLUS+2.0 ; not legal
 \end{alltt}
+
+\subsubsection{Legacy Trig-Targ Mode (LTTM)}
+For the \Xyce{} 7.5 release, the code for the \texttt{TRIG-TARG} measure
+was extensively re-written to provide better HSPICE (and ngspice)
+compatibility.  However, mostly for backwards compatibility for
+internal Sandia users, the previous behavior can be recovered by
+using \texttt{.OPTION MEASURE USE\_LTTM=1} in the netlist.  It is
+anticipated that this feature will be removed in a future release.
+However, support for the \texttt{FRAC\_MAX} qualifier, which is not
+in either HSPICE or ngspice, will likely be continued.
+
+The allowed syntaxes for this mode are shown below.  Note that this
+mode lacks several features.  In particular:
+
+\begin{XyceItemize}
+  \item The \texttt{AT} qualifer is only allowed in the \texttt{TRIG} clause.
+  \item The \texttt{FROM}, \texttt{TO} and \texttt{TD} qualifiers apply to
+both the \texttt{TRIG} and \texttt{TARG} clauses.
+  \item Expression support, especially in the \texttt{TARG} clause, was less
+available.
+\end{XyceItemize}
+
+\begin{Command}
+\format
+\begin{alltt}
+.MEASURE TRAN <result name> TRIG <variable>=<variable\(\sb{2}\)>|<value>
++ [RISE=r1|LAST] [FALL=f1|LAST] [CROSS=c1|LAST]
++ TARG <variable\(\sb{3}\)>=<variable\(\sb{4}\)>|<value> 
++ [RISE=r2|LAST] [FALL=f2|LAST] [CROSS=c2|LAST]
++ [FROM=<value>] [TO=<value>] [TD=<value>] 
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN <result name> TRIG AT=<value>
++ TARG <variable\(\sb{2}\)>=<variable\(\sb{3}\)>|<value> 
++ [RISE=r2|LAST] [FALL=f2|LAST] [CROSS=c2|LAST]
++ [FROM=<value>] [TO=<value>] [TD=<value>] 
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+\end{alltt}
+\end{Command}
 
 
