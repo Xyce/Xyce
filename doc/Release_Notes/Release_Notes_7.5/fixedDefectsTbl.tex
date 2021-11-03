@@ -85,5 +85,12 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
 \end{verbatim}
  \\ \hline
 
+\textbf{Gitlab-ex issue 328}:  Support C for temperature units & 
+  When specifying temperature, \Xyce{} would inappropriately exit 
+  with error if the units of Celsius were explicitly used in the netlist.  
+  This has been corrected, and now a line such as \texttt{.options device temp=25C} 
+  will work correctly.   The units for temperature in \Xyce{} have always been 
+  Celsius, so this was only a parsing issue. \\ \hline
+
 \end{longtable}
 }
