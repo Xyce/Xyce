@@ -288,13 +288,13 @@ The SFDR is then calculated as:
 $SFDR = 20 \cdot log10(\frac{mag[f_{0}]}{MAX(mag[i])}), \hspace*{0.1in}\textrm{for}~f_{1} \leq i \leq f_{2}~\textrm{, and}~i \neq f_{0}$
 
 \subsubsection{Re-Measure}
-\label{Measure_FFT_ReMeasure}
-\index{measure fft!re-measure}\index{fft!remeasure}
+\label{FFT_ReMeasure}
+\index{fft!remeasure}
 \Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
 using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
 this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
 additional caveat is that \texttt{FFT\_ACCURATE} is set to 0 during the re-measure
-operation.  This should have no impact of the accuracy of the re-measured results
+operation.  This should have no impact on the accuracy of the re-measured results
 if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
 
 \subsubsection{Compatibility Between OUTPUT and FFT Options}

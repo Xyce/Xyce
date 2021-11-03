@@ -9,12 +9,11 @@
 
 \label{Measure_CONT_section}
 
-``Continuous'' measure results are supported for \texttt{DERIV-AT},
-\texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and \texttt{WHEN}
-measures, for \texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE}
+``Continuous'' measure results are supported for \texttt{DERIV-AT}, \texttt{DERIV-WHEN},
+\texttt{FIND-AT}, \texttt{FIND-WHEN}, \texttt{WHEN} and \texttt{TRIG-TARG} measures
+for \texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE}
 analyses.  They are identical to the ``non-continuous'' versions, except that
-they can return more than one measured value in some cases.  Continuous
-measure mode is not supported for \texttt{TRIG} or \texttt{TARG} measures.
+they can return more than one measured value in some cases.
 
 \begin{Command}
 \format
@@ -62,10 +61,23 @@ measure mode is not supported for \texttt{TRIG} or \texttt{TARG} measures.
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
-MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT|TRAN_CONT> <result name>
++ TRIG <variable\(\sb{1}\)>=<variable\(\sb{2}\)>|<value> 
++ [TD=<val>] [RISE=r] [FALL=f] [CROSS=c]
++ TARG <variable\(\sb{3}\)>=<variable\(\sb{4}\)>|<value> 
++ [TD=<val>] [RISE=r] [FALL=f] [CROSS=c]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE <AC_CONT|DC_CONT|NOISE_CONT|TRAN_CONT> <result name>
++ TRIG AT=<value> TARG AT=<value> 
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
 
@@ -79,6 +91,13 @@ MEASURE <AC_CONT|DC_CONT|NOISE_CONT> <result name>
 .MEASURE AC_CONT find1at5 FIND V(1) AT=5
 .MEASURE NOISE_CONT find1 FIND V(1) WHEN V(2)=1 RISE=2
 .MEASURE TRAN_CONT whenv1 WHEN V(1)=5
+.MEASURE TRAN_CONT TrigTargAT TRIG AT=2ms TARG AT=8ms
+.MEASURE TRAN_CONT TrigTargAT1 TRIG V(1)=0.2 CROSS=1
++ TARG AT=8ms
+.MEASURE TRAN_CONT TrigTargAT2 TRIG AT=2ms
++ TARG V(1)=0.2 CROSS=1
+.MEASURE TRAN_CONT TrigTarg TRIG V(1)=0.2 CROSS=1
++ TARG V(1)=0.3 CROSS=1 TD=8ms
 \end{alltt}
 
 \arguments
@@ -98,7 +117,7 @@ If multiple measures are defined with the same \texttt{<result name>} then
 
 \argument{measure type}
 
-\texttt{DERIV, FIND, WHEN}
+\texttt{DERIV, FIND, WHEN, TRIG, TARG}
 
 The third argument specifies the type of measurement or calculation to
 be done.
@@ -147,6 +166,23 @@ The supported ``continuous'' measure types and their definitions are:
     the default value of {\tt -1}.  The user may change this default
     value with the {\tt DEFAULT\_VAL} qualifier.  Note: The use of
     {\tt FIND} and {\tt WHEN} in one measure statement is also supported.
+
+  \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
+    time between a trigger event and a target event.  The trigger is
+    specified with {\tt TRIG <variable\(\sb{1}\)>=<variable\(\sb{2}\)>} or {\tt
+    TRIG <variable\(\sb{1}\)>=<value>} or {\tt TRIG AT=<value>}.  The target
+     is specified as {\tt TARG <variable\(\sb{3}\)>=<variable\(\sb{4}\)>}
+    or {\tt TARG <variable\(\sb{3}\)>=<value>} or {\tt TARG AT=<value>}.  The
+    measurement window can be limited with the qualifiers {\tt TD}, {\tt RISE},
+    {\tt FALL} and {\tt CROSS} for all measure modes.  The qualifier {\tt MINVAL}
+     acts as a tolerance for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
+    is specified, the comparison used is when {\tt <variable\(\sb{1}\)>} $=$
+    {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
+    {\tt value} is given: {\tt <variable\(\sb{1}\)>} $=$ {\tt value} $\pm$ {\tt
+    MINVAL}.  If the conditions specified for finding a given value
+    were not found during the simulation then the measure will return
+    the default value of {\tt -1}.  The user may change this default
+    value with the {\tt DEFAULT\_VAL} qualifier.  
 \end{description}
 
 \argument{\vbox{\hbox{variable\hfil}\hbox{variable\(\sb{n}\)\hfil}\hbox{value}}}
@@ -234,8 +270,11 @@ qualifiers can used to return only a subset of those four crossings.
 \subsubsection{RISE, FALL and CROSS Qualifiers}
 \label{Measure_CONT_RFC}
 \index{measure continuous!rise, fall and cross qualifiers}
-\Xyce{} supports both positive and negative values for the \texttt{RISE}, \texttt{FALL}
-and \texttt{CROSS} qualifiers.  However, their interpretation is slightly different for
+\Xyce{} supports non-negative values for the \texttt{RISE}, \texttt{FALL}
+and \texttt{CROSS} qualifiers for all continuous measure types.  It supports
+negative values for the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS} qualifiers
+for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN} and \texttt{WHEN} measure types.
+However, their interpretation is slightly different for
 \texttt{TRAN} and \texttt{TRAN\_CONT} measure modes, as illustrated by the following
 netlist for the \texttt{TRAN\_CONT} measure mode and \texttt{WHEN} measure. The rules
 are then the same for the other continuous measures modes and the \texttt{RISE} and
@@ -288,13 +327,40 @@ produce failed measures in this example.
 FINDV1_CONT_CROSS_NEG3 = 3.750000e-03
 \end{alltt}
 
+\subsubsection{AT and TD Qualifiers for TRIG-TARG}
+\index{measure continuous!AT and TD qualifiers for TRIG-TARG}
+The following rules apply to the \texttt{AT} and \texttt{TD} qualifiers
+for \texttt{TRIG-TARG} measures:
+
+\begin{XyceItemize}
+  \item Separate \texttt{AT} values can be given for the \texttt{TRIG} and
+\texttt{TARG} clauses.
+  \item Separate \texttt{TD} values can be given for the \texttt{TRIG} and
+\texttt{TARG} clauses.
+  \item The \texttt{AT} value takes precedence over the \texttt{TD} qualifier if
+both are given in a \texttt{TRIG} or \texttt{TARG} clause.
+  \item If the \texttt{TD} value is only given for the \texttt{TRIG} clause then
+that value will be used for both the \texttt{TRIG} and \texttt{TARG} clauses.
+  \item An \texttt{AT} value that is outside of the simulation window, or a 
+\texttt{TD} value that is greater than the end simulation time or the largest
+\texttt{AC}, \texttt{DC} or \texttt{NOISE} sweep value, will produce a failed
+measure.
+  \item A \texttt{TD} value that is less than 0,  or the smallest \texttt{AC},
+\texttt{DC} or \texttt{NOISE} sweep value, is essentially ignored.
+\end{XyceItemize}
+
 \subsubsection{HSPICE Compatibility}
 \label{Measure_CONT__HSpice_Compatibility}
 \index{measure continuous!HSPICE compatibility}
 There are known incompatibilities between the \Xyce{} and HSPICE implementation
-of {\tt .MEASURE}.  They include the following:
+of continuous measures.  They include the following:
 
 \begin{XyceItemize}
-  \item TBD
+  \item \Xyce{} will not return a trig or targ value that is outside of the simulation
+bounds.  In some case, HSPICE will return a trig or targ value that is earlier than
+the start of the simulation window.
+  \item \Xyce{} does not support negative values for the \texttt{RISE}, \texttt{FALL} or
+\texttt{CROSS} qualifiers for the continuous version of the \texttt{TRIG-TARG} measure.
+
 \end{XyceItemize}
 

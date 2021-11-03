@@ -202,13 +202,12 @@ supported for \texttt{TRAN} measure mode.
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
-MEASURE <AC|DC|NOISE> <result name>
+.MEASURE <AC|DC|NOISE> <result name>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [RISE=r|LAST] [FALL=f|LAST] [CROSS=c|LAST]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
-
 \end{alltt}
 \index{\texttt{.MEASURE}}
 \index{results!measure}
@@ -1172,8 +1171,8 @@ measure \texttt{VR(a)}. The same caveat applies to the use of \texttt{S(1,1)}.
 An AC mode measure would measure \texttt{SR(1,1)} instead.
 
 \subsubsection{Operator Support for NOISE Mode Measures}
-\label{Measure_AC_Op_Support}
-\index{measure!supported operators for AC measures}
+\label{Measure_Noise_Op_Support}
+\index{measure!supported operators for Noise measures}
 All of the operators supported on \texttt{.PRINT NOISE} lines are supported
 for NOISE measure mode.  One caveat is that NOISE mode measures that use
 \texttt{V(a)} will actually measure \texttt{VR(a)}.
