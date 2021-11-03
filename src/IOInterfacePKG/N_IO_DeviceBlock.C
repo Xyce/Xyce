@@ -2026,7 +2026,6 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
         // find the right curly brace, if it exists.
         // This is not a perfect test.  It just finds the first one.
         bool foundRightB = false;
-        int rightBracePosition = linePosition;
         int ipos1;
 
         if (DEBUG_IO)
@@ -2041,7 +2040,6 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
           if (parsedInputLine[ipos1].string_ == "}")
           {
             foundRightB = true;
-            rightBracePosition = ipos1;
             if (DEBUG_IO)
               Xyce::dout() << "    found right brace!" ;
           }

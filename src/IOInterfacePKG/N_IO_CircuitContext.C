@@ -671,7 +671,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
   {
   std::list<Util::OptionBlock>::iterator  iter = optionsTable.begin();
   std::list<Util::OptionBlock>::iterator  end = optionsTable.end();
-  bool sortingNeeded=false;
   for ( ; iter != end; ++iter)
   {
     if ( (iter->getName() == "STEP") || (iter->getName() == "DC") || (iter->getName() == "DATA") )
@@ -726,7 +725,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
       // random operators (like AGAUSS) inside of .param parameters.  It was a use 
       // case that fell thru the cracks in the first implementation of this function.
       Util::UParamList::const_iterator paramIter = unresolvedParams_.begin();
-      Util::UParamList::const_iterator end = unresolvedParams_.end();
       while (paramIter != unresolvedParams_.end())
       {
         Util::Param parameter = *paramIter;
@@ -951,7 +949,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
     // Add subcircuitParameters_ to the set of resolved parameters.
     // currentContextPtr_->resolvedParams_.addParameters( currentContextPtr_->subcircuitParameters_ );
-    Util::Param* paramPtr;
     Util::Param parameter;
     Util::UParamList::iterator ustart, uend, uparamIter;
     Util::ParamList::iterator paramIter;
@@ -1554,7 +1551,6 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
   bool isVarDep = expression.getVariableDependent();
   bool isLeadCurDep= expression.getLeadCurrentDependent();
   bool isSpecialsDep = expression.getSpecialsDependent();
-  bool isRandom = expression.isRandomDependent();
 
   bool success=true;
 

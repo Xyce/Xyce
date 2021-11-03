@@ -891,7 +891,6 @@ void combineParamValueFields(
   }
   if (foundEquals) { if ( parsed_line[ equalsIndex-2 ].string_ == ",") { foundComma=true; } }
 
-  bool modified=false;
   if( (linePosition < numFields-1) )
   {
     int end = parsed_line.size();
@@ -901,7 +900,7 @@ void combineParamValueFields(
       else { end = equalsIndex-1; }
     }
     
-    for (int lp1 = linePosition+1;lp1<end;lp1++) { modified=true; combinedString += parsed_line[lp1].string_; }
+    for (int lp1 = linePosition+1;lp1<end;lp1++) { combinedString += parsed_line[lp1].string_; }
 
     //if (modified) combinedString = std::string("{" + combinedString + "}");
   }
