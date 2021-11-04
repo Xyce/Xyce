@@ -348,6 +348,7 @@ bool N_MPDE_Loader::updateState
   Xyce::Linear::Vector * lastStaVectorPtr,
   Xyce::Linear::Vector * nextStoVectorPtr,
   Xyce::Linear::Vector * currStoVectorPtr,
+  Xyce::Linear::Vector * lastStoVectorPtr,
   int loadType )
 {
   bool bsuccess = true;
@@ -374,6 +375,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
                                     Xyce::Linear::Vector * dSdt,
                                     Xyce::Linear::Vector * Store,
                                     Xyce::Linear::Vector * currStore,
+                                    Xyce::Linear::Vector * lastStore,
                                     Xyce::Linear::Vector * nextLeadFVectorPtr,
                                     Xyce::Linear::Vector * nextLeadQVectorPtr,
                                     Xyce::Linear::Vector * nextJunctionVVectorPtr,
@@ -403,6 +405,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   Xyce::Linear::Vector* appdSdt = appNextStaVecPtr_->cloneVector();
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
+  appLastStoVecPtr_->putScalar(0.0);
 
   Xyce::Linear::Vector * appQ = appNextVecPtr_->cloneVector();
   Xyce::Linear::Vector * appF = appNextVecPtr_->cloneVector();
@@ -423,6 +426,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   Xyce::Linear::BlockVector & bdSdt = *dynamic_cast<Xyce::Linear::BlockVector*>(dSdt);
   Xyce::Linear::BlockVector & bStore = *dynamic_cast<Xyce::Linear::BlockVector*>(Store);
   Xyce::Linear::BlockVector & bcurrStore = *dynamic_cast<Xyce::Linear::BlockVector*>(currStore);
+  Xyce::Linear::BlockVector & blastStore = *dynamic_cast<Xyce::Linear::BlockVector*>(lastStore);
  
   Xyce::Linear::BlockVector & bNextLeadF = *dynamic_cast<Xyce::Linear::BlockVector*>(nextLeadFVectorPtr);
   Xyce::Linear::BlockVector & bLeadQ = *dynamic_cast<Xyce::Linear::BlockVector*>(nextLeadQVectorPtr);
@@ -471,6 +475,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     *appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
+    *appLastStoVecPtr_ = blastStore.block(i);
     
     *appNextLeadFVecPtr_  = bNextLeadF.block(i);
     *appLeadQVecPtr_      =  bLeadQ.block(i);
@@ -487,13 +492,14 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     loader_.updateState 
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_,
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_ , &*appLastStaVecPtr_ ,
-        &*appNextStoVecPtr_, &*appCurrStoVecPtr_ );
+        &*appNextStoVecPtr_, &*appCurrStoVecPtr_ , &*appLastStoVecPtr_ );
 
     bS.block(i) = *appNextStaVecPtr_;
     bcurrS.block(i) = *appCurrStaVecPtr_;
     blastS.block(i) = *appLastStaVecPtr_;
     bStore.block(i) = *appNextStoVecPtr_;
     bcurrStore.block(i) = *appCurrStoVecPtr_;
+    blastStore.block(i) = *appLastStoVecPtr_;
 
     if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
     {
@@ -511,7 +517,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
     loader_.loadDAEVectors
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_, 
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, 
-        &*appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
+        &*appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, &*appLastStoVecPtr_, 
         &*appNextLeadFVecPtr_, &*appLeadQVecPtr_, 
         &*appNextJunctionVVecPtr_, 
         &*appQ, &*appF, &*appB,

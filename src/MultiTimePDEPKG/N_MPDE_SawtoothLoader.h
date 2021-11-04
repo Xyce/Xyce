@@ -96,6 +96,7 @@ public:
                        Xyce::Linear::Vector * dSdt,
                        Xyce::Linear::Vector * nextStore,
                        Xyce::Linear::Vector * currStore,
+                       Xyce::Linear::Vector * lastStore,
                        Xyce::Linear::Vector * nextLeadFVectorPtr,
                        Xyce::Linear::Vector * nextLeadQVectorPtr,
                        Xyce::Linear::Vector * nextJunctionVVectorPtr,
@@ -112,7 +113,8 @@ public:
                          Xyce::Linear::Vector * currStaVectorPtr,
                          Xyce::Linear::Vector * lastStaVectorPtr,
                          Xyce::Linear::Vector * nextStoVectorPtr,
-                         Xyce::Linear::Vector * currStoVectorPtr
+                         Xyce::Linear::Vector * currStoVectorPtr,
+                         Xyce::Linear::Vector * lastStoVectorPtr
                          );
 
   // Virtual method which initializes the nonlinear problem.
@@ -125,6 +127,7 @@ public:
                           Xyce::Linear::Vector * StateDerivVectorPtr,
                           Xyce::Linear::Vector * nextStoVectorPtr,
                           Xyce::Linear::Vector * currStoVectorPtr,
+                          Xyce::Linear::Vector * lastStoVectorPtr,
                           Xyce::Linear::Vector * QVectorPtr,
                           Xyce::Linear::Vector * FVectorPtr,
                           Xyce::Linear::Vector * BVectorPtr,

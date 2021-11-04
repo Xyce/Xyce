@@ -865,6 +865,7 @@ bool DeviceMgr::initializeAll(Linear::System &linear_system)
   externData_.nextStaDerivVectorPtr = 0;
   externData_.nextStoVectorPtr = 0;
   externData_.currStoVectorPtr = 0;
+  externData_.lastStoVectorPtr = 0;
   externData_.nextLeadCurrFCompPtr = 0;
   externData_.nextLeadCurrQCompPtr = 0;
   externData_.nextJunctionVCompPtr = 0;
@@ -2493,6 +2494,7 @@ bool DeviceMgr::updateState(
   Linear::Vector * lastStaVectorPtr,
   Linear::Vector * nextStoVectorPtr,
   Linear::Vector * currStoVectorPtr,
+  Linear::Vector * lastStoVectorPtr,
   int loadType)
 {
   bool bsuccess = true;
@@ -2512,6 +2514,7 @@ bool DeviceMgr::updateState(
   externData_.lastStaVectorPtr = lastStaVectorPtr;
   externData_.nextStoVectorPtr = nextStoVectorPtr;
   externData_.currStoVectorPtr = currStoVectorPtr;
+  externData_.lastStoVectorPtr = lastStoVectorPtr;
 
 #ifdef Xyce_PARALLEL_MPI
   externData_.nextSolVectorPtr->importOverlap();
@@ -2526,6 +2529,7 @@ bool DeviceMgr::updateState(
   externData_.lastStaVectorRawPtr = &((*externData_.lastStaVectorPtr)[0]);
   externData_.nextStoVectorRawPtr = &((*externData_.nextStoVectorPtr)[0]);
   externData_.currStoVectorRawPtr = &((*externData_.currStoVectorPtr)[0]);
+  externData_.lastStoVectorRawPtr = &((*externData_.lastStoVectorPtr)[0]);
 
   updateDependentParameters_();
 
@@ -2791,6 +2795,7 @@ bool DeviceMgr::loadDAEVectors(
   Linear::Vector * tmpStaDerivVectorPtr,
   Linear::Vector * tmpStoVectorPtr,
   Linear::Vector * tmpCurrStoVectorPtr,
+  Linear::Vector * tmpLastStoVectorPtr,
   Linear::Vector * tmpLeadFCompVectorPtr,
   Linear::Vector * tmpLeadQCompVectorPtr,
   Linear::Vector * tmpJunctionVCompVectorPtr,
@@ -2819,6 +2824,7 @@ bool DeviceMgr::loadDAEVectors(
   externData_.nextStaDerivVectorPtr = tmpStaDerivVectorPtr;
   externData_.nextStoVectorPtr = tmpStoVectorPtr;
   externData_.currStoVectorPtr = tmpCurrStoVectorPtr;
+  externData_.lastStoVectorPtr = tmpLastStoVectorPtr;
   externData_.nextLeadCurrFCompPtr = tmpLeadFCompVectorPtr;
   externData_.nextLeadCurrQCompPtr = tmpLeadQCompVectorPtr;
   externData_.nextJunctionVCompPtr = tmpJunctionVCompVectorPtr;
@@ -3546,6 +3552,7 @@ bool DeviceMgr::setICs(
   Linear::Vector * tmpStaDerivVectorPtr,
   Linear::Vector * tmpStoVectorPtr,
   Linear::Vector * tmpCurrStoVectorPtr,
+  Linear::Vector * tmpLastStoVectorPtr,
   Linear::Vector * tmpQVectorPtr,
   Linear::Vector * tmpFVectorPtr,
   Linear::Vector * tmpBVectorPtr,
@@ -3569,6 +3576,7 @@ bool DeviceMgr::setICs(
   externData_.nextStaDerivVectorPtr = tmpStaDerivVectorPtr;
   externData_.nextStoVectorPtr = tmpStoVectorPtr;
   externData_.currStoVectorPtr = tmpCurrStoVectorPtr;
+  externData_.lastStoVectorPtr = tmpLastStoVectorPtr;
 
   // Make sure all boundary data is valid in the solution vector
 #ifdef Xyce_PARALLEL_MPI
@@ -3900,6 +3908,11 @@ bool DeviceMgr::setupRawVectorPointers_ ()
   if (externData_.currStoVectorPtr != 0)
   {
     externData_.currStoVectorRawPtr = &((*externData_.currStoVectorPtr)[0]);
+  }
+
+  if (externData_.lastStoVectorPtr != 0)
+  {
+    externData_.lastStoVectorRawPtr = &((*externData_.lastStoVectorPtr)[0]);
   }
 
   // lead current and junction voltage vectors

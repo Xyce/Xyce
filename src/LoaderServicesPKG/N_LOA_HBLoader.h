@@ -107,6 +107,7 @@ public:
                        Linear::Vector * dSdt,
                        Linear::Vector * Store,
                        Linear::Vector * currStore,
+                       Linear::Vector * lastStore,
                        Linear::Vector * nextLeadFVectorPtr,
                        Linear::Vector * nextLeadQVectorPtr,
                        Linear::Vector * nextJunctionVVectorPtr,
@@ -125,6 +126,7 @@ public:
                        Linear::Vector * lastStaVectorPtr,
                        Linear::Vector * nextStoVectorPtr,
                        Linear::Vector * currStoVectorPtr,
+                       Linear::Vector * lastStoVectorPtr,
                        int loadType = Xyce::Device::ALL
                        );
 
@@ -138,6 +140,7 @@ public:
                           Linear::Vector * StateDerivVectorPtr,
                           Linear::Vector * nextStoVectorPtr,
                           Linear::Vector * currStoVectorPtr,
+                          Linear::Vector * lastStoVectorPtr,
                           Linear::Vector * QVectorPtr,
                           Linear::Vector * FVectorPtr,
                           Linear::Vector * BVectorPtr,
@@ -309,6 +312,7 @@ private:
   // Time domain vectors for loading.  
   Teuchos::RCP<Linear::Vector> appNextStoVecPtr_;
   Teuchos::RCP<Linear::Vector> appCurrStoVecPtr_;
+  Teuchos::RCP<Linear::Vector> appLastStoVecPtr_;
   
   Teuchos::RCP<Linear::Vector> appNextLeadFVecPtr_;
   Teuchos::RCP<Linear::Vector> appCurrLeadFVecPtr_;

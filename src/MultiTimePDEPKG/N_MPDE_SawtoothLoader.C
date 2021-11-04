@@ -89,6 +89,7 @@ bool N_MPDE_SawtoothLoader::loadDAEVectors( Xyce::Linear::Vector * X,
                                             Xyce::Linear::Vector * dSdt,
                                             Xyce::Linear::Vector * nextStore,
                                             Xyce::Linear::Vector * currStore,
+                                            Xyce::Linear::Vector * lastStore,
                                             Xyce::Linear::Vector * nextLeadFVectorPtr,
                                             Xyce::Linear::Vector * nextLeadQVectorPtr,
                                             Xyce::Linear::Vector * nextJunctionVVectorPtr,
@@ -107,7 +108,7 @@ bool N_MPDE_SawtoothLoader::loadDAEVectors( Xyce::Linear::Vector * X,
 
   return loader_.loadDAEVectors
     ( X, currX, lastX, nextS, currS, lastS, dSdt, 
-      nextStore, currStore, 
+      nextStore, currStore, lastStore, 
       nextLeadFVectorPtr, nextLeadQVectorPtr, 
       nextJunctionVVectorPtr, 
       Q, F, B, 
@@ -129,12 +130,13 @@ bool N_MPDE_SawtoothLoader::updateState (Xyce::Linear::Vector * nextSolVectorPtr
                                          Xyce::Linear::Vector * currStaVectorPtr,
                                          Xyce::Linear::Vector * lastStaVectorPtr,
                                          Xyce::Linear::Vector * nextStoVectorPtr,
-                                         Xyce::Linear::Vector * currStoVectorPtr
+                                         Xyce::Linear::Vector * currStoVectorPtr,
+                                         Xyce::Linear::Vector * lastStoVectorPtr
                                          )
 {
   return loader_.updateState
     ( nextSolVectorPtr, currSolVectorPtr, lastSolVectorPtr,
       nextStaVectorPtr, currStaVectorPtr, lastStaVectorPtr,
-      nextStoVectorPtr, currStoVectorPtr );
+      nextStoVectorPtr, currStoVectorPtr, lastStoVectorPtr );
 }
 

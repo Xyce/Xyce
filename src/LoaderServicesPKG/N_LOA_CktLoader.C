@@ -392,6 +392,7 @@ bool CktLoader::initializeProblem(
   Linear::Vector * StateDerivVectorPtr,
   Linear::Vector * nextStoVectorPtr,
   Linear::Vector * currStoVectorPtr,
+  Linear::Vector * lastStoVectorPtr,
   Linear::Vector * QVectorPtr,
   Linear::Vector * FVectorPtr,
   Linear::Vector * BVectorPtr,
@@ -408,6 +409,7 @@ bool CktLoader::initializeProblem(
     StateDerivVectorPtr,
     nextStoVectorPtr,
     currStoVectorPtr,
+    lastStoVectorPtr,
     QVectorPtr,
     FVectorPtr,
     BVectorPtr,
@@ -605,6 +607,7 @@ bool CktLoader::loadDAEVectors   (
   Linear::Vector * StateDerivVectorPtr,
   Linear::Vector * nextStoVectorPtr,
   Linear::Vector * currStoVectorPtr,
+  Linear::Vector * lastStoVectorPtr,
   Linear::Vector * nextLeadFVectorPtr,
   Linear::Vector * nextLeadQVectorPtr,
   Linear::Vector * nextJunctionVVectorPtr,
@@ -637,6 +640,7 @@ bool CktLoader::loadDAEVectors   (
       StateDerivVectorPtr,
       nextStoVectorPtr,
       currStoVectorPtr,
+      lastStoVectorPtr,
       nextLeadFVectorPtr,
       nextLeadQVectorPtr,
       nextJunctionVVectorPtr,
@@ -665,6 +669,7 @@ bool CktLoader::loadDAEVectors   (
         StateDerivVectorPtr,
         nextStoVectorPtr,
         currStoVectorPtr,
+        lastStoVectorPtr,
         nextLeadFVectorPtr,
         nextLeadQVectorPtr,
         nextJunctionVVectorPtr,
@@ -705,6 +710,7 @@ bool CktLoader::loadDAEVectors   (
             StateDerivVectorPtr,
             nextStoVectorPtr,
             currStoVectorPtr,
+            lastStoVectorPtr,
             nextLeadFVectorPtr,
             nextLeadQVectorPtr,
             nextJunctionVVectorPtr,
@@ -732,6 +738,7 @@ bool CktLoader::loadDAEVectors   (
             StateDerivVectorPtr,
             nextStoVectorPtr,
             currStoVectorPtr,
+            lastStoVectorPtr,
             nextLeadFVectorPtr,
             nextLeadQVectorPtr,
             nextJunctionVVectorPtr,
@@ -776,6 +783,7 @@ bool CktLoader::loadDAEVectors   (
           StateDerivVectorPtr,
           nextStoVectorPtr,
           currStoVectorPtr,
+          lastStoVectorPtr,
           nextLeadFVectorPtr,
           nextLeadQVectorPtr,
           nextJunctionVVectorPtr,
@@ -896,6 +904,7 @@ bool CktLoader::updateState(
   Linear::Vector * lastStaVectorPtr,
   Linear::Vector * nextStoVectorPtr,
   Linear::Vector * currStoVectorPtr,
+  Linear::Vector * lastStoVectorPtr,
   int loadType)
 {
       //Stats::StatTop _timeUpdateStat("Update State");
@@ -912,6 +921,7 @@ bool CktLoader::updateState(
       lastStaVectorPtr,
       nextStoVectorPtr,
       currStoVectorPtr,
+      lastStoVectorPtr,
       loadType);
   }
   else
@@ -931,6 +941,7 @@ bool CktLoader::updateState(
         lastStaVectorPtr,
         nextStoVectorPtr,
         currStoVectorPtr,
+        lastStoVectorPtr,
         Xyce::Device::PDE);
     }
     else
@@ -953,6 +964,7 @@ bool CktLoader::updateState(
           lastStaVectorPtr,
           nextStoVectorPtr,
           currStoVectorPtr,
+          lastStoVectorPtr,
           Xyce::Device::ALL);
       } 
       else
@@ -966,6 +978,7 @@ bool CktLoader::updateState(
           lastStaVectorPtr,
           nextStoVectorPtr,
           currStoVectorPtr,
+          lastStoVectorPtr,
           Xyce::Device::NONLINEAR);
       }
     }

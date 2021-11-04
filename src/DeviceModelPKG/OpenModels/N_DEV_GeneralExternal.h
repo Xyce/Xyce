@@ -333,6 +333,7 @@ private:
 
   std::vector<double> nextStoreVars_;
   std::vector<double> currStoreVars_;
+  std::vector<double> lastStoreVars_;
 
   std::vector<double> nextStateVars_;
   std::vector<double> currStateVars_;

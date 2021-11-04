@@ -169,6 +169,7 @@ class DataStore
 
     // Storage:
     Linear::Vector * currStorePtr;
+    Linear::Vector * lastStorePtr;
     Linear::Vector * nextStorePtr;
     
     // Lead current and power vectors 

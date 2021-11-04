@@ -812,6 +812,7 @@ bool Instance::updateIntermediateVars ()
       }
 
       // Copy out the storage variables we need.
+      double * lastStoVectorPtr = extData.lastStoVectorRawPtr;
       double * currStoVectorPtr = extData.currStoVectorRawPtr;
       double * nextStoVectorPtr = extData.nextStoVectorRawPtr;
       {
@@ -819,18 +820,22 @@ bool Instance::updateIntermediateVars ()
           nextStoreVars_.resize(numStoreVars);
         if (currStoreVars_.empty())
           currStoreVars_.resize(numStoreVars);
+        if (lastStoreVars_.empty())
+          lastStoreVars_.resize(numStoreVars);
         for (int i=0;i<numStoreVars;i++)
         {
           nextStoreVars_[i] = nextStoVectorPtr[li_Stores_[i]];
           currStoreVars_[i] = currStoVectorPtr[li_Stores_[i]];
+          lastStoreVars_[i] = lastStoVectorPtr[li_Stores_[i]];
         }
         if (storeVars.empty())
         {
-          storeVars.resize(2);
+          storeVars.resize(3);
         }
         // copies by value
         storeVars[0]=nextStoreVars_;
         storeVars[1]=currStoreVars_;
+        storeVars[1]=lastStoreVars_;
       }
 
       // Copy out the state variables we need.

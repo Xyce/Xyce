@@ -367,10 +367,14 @@ bool updateIntermediateVars
   const int  level,
 
   // these are here b/c of the excess phase old-DAE form
+#if 0
   double * nextStaVec,
   double * currStaVec,
   double * lastStaVec,
   const int li_istateCEXBC,
+#else
+  const int li_istoreCEXBC,
+#endif
   const double dt0, //  getSolverState().currTimeStep, 
   const double dt1, //  getSolverState().lastTimeStep, 
 
@@ -686,7 +690,11 @@ private:
   int li_qstateBX;
 
   // for the "old" excess phase calculation.
+#if 0 
   int li_istateCEXBC;
+#else
+  int li_istoreCEXBC;
+#endif
 
   // stored data for limiting 
   int li_storevBE;

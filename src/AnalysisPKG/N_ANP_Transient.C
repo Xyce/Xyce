@@ -898,6 +898,7 @@ bool Transient::doInit()
            (analysisManager_.getDataStore()->nextStateDerivPtr),
            (analysisManager_.getDataStore()->nextStorePtr),
            (analysisManager_.getDataStore()->currStorePtr),
+           (analysisManager_.getDataStore()->lastStorePtr),
            (analysisManager_.getDataStore()->daeQVectorPtr),
            (analysisManager_.getDataStore()->daeFVectorPtr),
            (analysisManager_.getDataStore()->daeBVectorPtr),
