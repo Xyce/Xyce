@@ -117,7 +117,7 @@ class DataStore
 
     int getNumSolnVarData() const { return 11; }
     int getNumStateVarData() const { return 7; }
-    int getNumStoreVarData() const { return 3; }
+    int getNumStoreVarData() const { return 4; }
   
     bool setNextSolVectorPtr (Linear::Vector * solVecPtr);
     bool setNextSolVectorPtr (Linear::Vector & solVecPtr);// TT: added
