@@ -219,10 +219,14 @@ static void mdlStart(SimStruct *S)
   }
 
   // initialize Xyce with this circuit 
+  const std::string Xyce("Xyce");
   char ** tempCBuf = new char *[2];
-  tempCBuf[0] = const_cast<char *>(std::string("Xyce").c_str());
-  tempCBuf[1] = const_cast<char *>(theFilename.c_str());
+  tempCBuf[0] = new char[ Xyce.length() + 1 ];
+  strcpy( tempCBuf[0], Xyce.c_str());
+  tempCBuf[1] = new char[ (theFilename.length() + 1)];
+  strcpy( tempCBuf[1], theFilename.c_str());
   int retVal = xyce->initialize(2, tempCBuf);
+  
   if ( retVal != Xyce::Circuit::Simulator::RunStatus::SUCCESS )
   {
     static char errorString[256];
@@ -233,12 +237,15 @@ static void mdlStart(SimStruct *S)
   }
 
   // clean up temporary allocated storage.
+  delete [] tempCBuf[0];
+  delete [] tempCBuf[1];
   delete [] tempCBuf;
 
   // Store Xyce simulaiton time so we can tell if we need 
   // to advance time
   double * XyceSimTime = new double;
   *XyceSimTime = 0.0;
+  *XyceSimTime = xyce->getTime();
   ssGetPWork(S)[CurrentTimeStepPtr] = XyceSimTime;
   
   std::vector< std::string > * dacNamesPtr = new std::vector< std::string >();
@@ -409,8 +416,15 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   // 1. use take provisional step in the MixedSignalSimulator interface
   // 2. use output from that step to set values on Simulink output
   
-  // storage for updates from Xyce
+  // storage for ADC updates from Xyce
   std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
+  std::map<std::string,std::map<std::string,double> > * adcStrMapPtr = static_cast<std::map<std::string,std::map<std::string,double> > *>(ssGetPWork(S)[ADCMapPtr]);
+  for( auto currentADCitr=adcStrMapPtr->begin(); currentADCitr != adcStrMapPtr->end(); currentADCitr++ )
+  {
+    std::vector<std::pair<double,double> > fillVec;
+    fillVec.push_back( std::make_pair<double,double>(0.0, 0.0) );
+    timeVoltageUpdateMap[ currentADCitr->first ] = fillVec;
+  }
   
   //if( !(xyce->simulationComplete()) )
   {  
@@ -421,8 +435,11 @@ static void mdlOutputs(SimStruct *S, int_T tid)
  
       bool timeSteppingFinished = false;
       double maxTimeStepForXyce = (0.1*(systemTime - (*XyceSimTime)) > 1e-6) ?  0.1*(systemTime - (*XyceSimTime)): 1e-6;
+      maxTimeStepForXyce =  0.0 ; //0.1*(xyce->getFinalTime());
       double timeStepTaken = 0;
-      while(!timeSteppingFinished)
+      unsigned long stepNumber  = 0;
+      unsigned long maxStepNumber = 10000;
+      while(!timeSteppingFinished && (stepNumber < maxStepNumber))
       {
         bool stepStatus = xyce->provisionalStep( maxTimeStepForXyce, timeStepTaken, timeVoltageUpdateMap);
         if( stepStatus )
@@ -454,6 +471,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
             }
           }
         }
+      stepNumber++;
       }
     }
     else
