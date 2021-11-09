@@ -2935,10 +2935,6 @@ void Transient::logQueuedData()
       {
         lout() << "F:max s";
       }
-      else if( nlStatus == nlReturnCodes.tooManyTranSteps )
-      {
-        lout() << "F:max s";
-      }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
         lout() << "F:big u";
@@ -2946,10 +2942,6 @@ void Transient::logQueuedData()
       else if( nlStatus == nlReturnCodes.stalled )
       {
         lout() << "F:stall";
-      }
-      else if( nlStatus == nlReturnCodes.wrmsExactZero )
-      {
-        lout() << "F:n zro";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
@@ -3058,10 +3050,6 @@ void Transient::outputFailedStepData()
       {
         lout() << "F:max s";
       }
-      else if( nlStatus == nlReturnCodes.tooManyTranSteps )
-      {
-        lout() << "F:max s";
-      }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
         lout() << "F:big u";
@@ -3069,10 +3057,6 @@ void Transient::outputFailedStepData()
       else if( nlStatus == nlReturnCodes.stalled )
       {
         lout() << "F:stall";
-      }
-      else if( nlStatus == nlReturnCodes.wrmsExactZero )
-      {
-        lout() << "F:n zro";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
