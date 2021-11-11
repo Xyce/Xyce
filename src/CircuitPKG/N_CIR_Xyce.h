@@ -249,6 +249,16 @@ class Simulator
   bool getTimeVoltagePairs(
         std::map< std::string, std::vector< std::pair<double,double> > > &
         timeVoltageUpdateMap);
+  
+  //---------------------------------------------------------------------------
+  // Function      : getTimeVoltagePairsSz
+  // Purpose       : Returns the largest size of the TV Pairs data in the ADCs
+  // Special Notes :
+  // Scope         : public
+  // Creator       : 
+  // Creation Date : 11/11/2021
+  //---------------------------------------------------------------------------
+  bool getTimeVoltagePairsSz(int &maximumSize);
 
   //---------------------------------------------------------------------------
   // Function      : getTimeStatePairs

@@ -63,6 +63,7 @@ int xyce_getAdjGIDsForDevice(void **ptr, char* deviceName, int* numAdjNodes, int
 int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, double * timeArray, double * voltageArray);
                 
 int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames, int * numPoints, double ** timeArray, double ** voltageArray );
+int xyce_getTimeVoltagePairsADCsz( void** ptr, int * maxPoints );
 /* 
    Note: ADCnames, numPoints, timeArray and voltageArray must be preallocated!  this function cannot 
    allocate that storage or the ctypes layer breaks 

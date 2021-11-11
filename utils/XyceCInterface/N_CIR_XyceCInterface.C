@@ -556,6 +556,27 @@ int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames
 }
 
 //-----------------------------------------------------------------------------
+// Function      : xyce_getTimeVoltagePairsADCsz 
+// Purpose       : Call the Xyce::Circuit::Simulator::getTimeVoltagePairsSz()
+//                 function via a pointer to an N_CIR_Xyce object.
+// Scope         : public
+// Creator       : 
+// Creation Date : 11/11/2021
+//-----------------------------------------------------------------------------
+int xyce_getTimeVoltagePairsADCsz( void** ptr, int *maxPoints )
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+
+  int maxPts;
+  
+  int status = xycePtr->getTimeVoltagePairsSz( maxPts );
+
+  *maxPoints = maxPts;
+
+  return status;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : xyce_getTimeStatePairsADC 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeStatePairs
 //                 function via a pointer to an N_CIR_Xyce object. A typical 

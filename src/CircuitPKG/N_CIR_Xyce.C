@@ -207,6 +207,40 @@ struct TimeVoltagePairsOp: public Device::DeviceInstanceOp
   std::map<std::string, std::vector< std::pair<double,double> > > &      TimeVoltageMap_;
 };
 
+
+//
+// This simple class is used as an operator to accumulate the 
+// largest size of a given time voltage pair vector 
+//
+struct TimeVoltagePairsSzOp: public Device::DeviceInstanceOp
+{
+  TimeVoltagePairsSzOp() 
+  { 
+    maxpts_ = 0; 
+  }
+
+  virtual bool operator()(Device::DeviceInstance *instance) 
+  {
+    Device::ADC::Instance &adc_instance = static_cast<Device::ADC::Instance &>(*instance);
+
+    std::vector<std::pair <double,double> > TmpVec;
+    adc_instance.getTVVEC(TmpVec);
+
+    if ((TmpVec.size () + 1) > maxpts_) 
+    {
+       maxpts_ = TmpVec.size() + 1;
+    }
+    return true;
+  }
+
+  int getMax() 
+  { 
+    return maxpts_;
+  }
+
+  int maxpts_;
+};
+
 struct TimeStatePairsOp: public Device::DeviceInstanceOp
 {
   TimeStatePairsOp(std::map<std::string, std::vector< std::pair<double,int> > >&time_state_map)
@@ -1596,6 +1630,32 @@ bool Simulator::getTimeVoltagePairs(std::map< std::string, std::vector< std::pai
 
   return success;
 }
+
+//----------------------------------------------------------------------------
+// Function       : getTimeVoltagePairsSz
+// Purpose        : Returns the largest size of the TV Pairs data in the ADCs
+//
+// Special Notes  : 
+// Creator        : 
+// Creation Date  : 11/11/2021
+//----------------------------------------------------------------------------
+bool Simulator::getTimeVoltagePairsSz(int &maximumSize)
+{
+  bool success = false;
+
+  Device::Device *device = deviceManager_->getDevice(Device::ADC::Traits::modelGroup());
+  if (device != NULL) 
+  {
+    TimeVoltagePairsSzOp op;
+    
+    device->forEachInstance(op);
+    maximumSize = op.getMax();
+    success = true;
+  }
+
+  return success;
+}
+
 
 //----------------------------------------------------------------------------
 // Function       : getTimeStatePairs
