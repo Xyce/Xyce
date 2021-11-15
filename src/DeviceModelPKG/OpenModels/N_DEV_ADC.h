@@ -108,7 +108,8 @@ public:
   bool updateIntermediateVars () { return true; }
   bool updatePrimaryState () { return true; }
 
-  void getTVVEC(std::vector< std::pair<double, double> > & TVVVEC_Out);
+  void getTVVEC(std::vector< std::pair<double, double> > & TVVEC_Out);
+  void getAndDontClearTVVEC(std::vector< std::pair<double, double> > & TVVEC_Out);
   void trimTVVEC(double earliestTime);
   bool getInstanceBreakPoints (std::vector<Util::BreakPoint> &breakPointTimes);
   int deltaVToStateVal(double deltaV);

@@ -241,7 +241,8 @@ class Simulator
   // Function      : getTimeVoltagePairs
   // Purpose       : query the DAC devices in a circuit for the set
   //                 of time and voltage pairs
-  // Special Notes :
+  // Special Notes : Calling this function clears the ADC devices time-voltage
+  //                 pair vector.  
   // Scope         : public
   // Creator       : Tom Russo, SNL ComponentInformation and Models
   // Creation Date : 05/10/2004

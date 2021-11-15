@@ -198,7 +198,6 @@ struct TimeVoltagePairsOp: public Device::DeviceInstanceOp
     double vPos = solVector[adc_instance.getLIPos()];
     double vNeg = solVector[adc_instance.getLINeg()];
     TmpVec.push_back(std::pair<double,double>(current_time, vPos - vNeg));
-
     TimeVoltageMap_[instance->getName().getEncodedName()] = TmpVec;
 
     return true;
@@ -224,8 +223,7 @@ struct TimeVoltagePairsSzOp: public Device::DeviceInstanceOp
     Device::ADC::Instance &adc_instance = static_cast<Device::ADC::Instance &>(*instance);
 
     std::vector<std::pair <double,double> > TmpVec;
-    adc_instance.getTVVEC(TmpVec);
-
+    adc_instance.getAndDontClearTVVEC(TmpVec);
     if ((TmpVec.size () + 1) > maxpts_) 
     {
        maxpts_ = TmpVec.size() + 1;
@@ -252,7 +250,7 @@ struct TimeStatePairsOp: public Device::DeviceInstanceOp
 
     std::vector<std::pair <double,double> > TmpVec;
     std::vector<std::pair <double,int> > stateVec;
-    adc_instance.getTVVEC(TmpVec);
+    adc_instance.getAndDontClearTVVEC(TmpVec);
     for (std::vector<std::pair <double,double> >::iterator it=TmpVec.begin(); it!=TmpVec.end();it++)
     {
       stateVec.push_back(std::pair<double,int>(it->first,adc_instance.deltaVToStateVal(it->second)));

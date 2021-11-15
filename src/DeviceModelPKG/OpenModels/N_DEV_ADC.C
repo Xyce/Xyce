@@ -311,7 +311,10 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 //----------------------------------------------------------------------------
 // Function       : Instance::getTVVec
 // Purpose        :
-// Special Notes  :
+// Special Notes  : WARNING -- Calling this function has the side effect of 
+//                  automatically clearing the time-voltage pair vector.
+//                  Use the function getAndDontClearTVVEC() if one does not
+//                  need the history cleared.
 // Scope          :
 // Creator        : Lon Waters
 // Creation Date  : 08/28/2003
@@ -327,6 +330,22 @@ void Instance::getTVVEC(std::vector< std::pair<double, double> > & TVVEC_Out)
   TVVEC.clear();
 }
 
+
+
+//----------------------------------------------------------------------------
+// Function       : Instance::getAndDontClearTVVEC
+// Purpose        :
+// Special Notes  :
+// Scope          :
+// Creator        : Rich Schiek
+// Creation Date  : 11/15/2021
+//----------------------------------------------------------------------------
+void Instance::getAndDontClearTVVEC(std::vector< std::pair<double, double> > & TVVEC_Out)
+{
+  TVVEC_Out.clear();
+
+  TVVEC_Out.insert(TVVEC_Out.end(), TVVEC.begin(), TVVEC.end());
+}
 
 //----------------------------------------------------------------------------
 // Function      : Instance::trimTVVEC
