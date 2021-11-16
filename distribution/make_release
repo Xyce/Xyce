@@ -190,17 +190,14 @@ case $PLAT in
   ;;
 
   Intel64_OSX*icc* )
-    cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib     $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_avx.dylib     $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_avx2.dylib     $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_avx512.dylib     $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_intel_thread.dylib   $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_core.dylib           $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_mc.dylib             $BUILDIR/lib/
-    cp -v $MKLROOT/lib/libmkl_mc3.dylib     $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib    $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_intel_thread.dylib  $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_core.dylib          $BUILDIR/lib/
 
-    cp -v /opt/intel/lib/libiomp5.dylib     $BUILDIR/lib/
-    cp -v /opt/intel/lib/libirc.dylib     $BUILDIR/lib/
+    cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $BUILDIR/lib/
+    cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $BUILDIR/lib/
+    cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libsvml.dylib   $BUILDIR/lib/
+    cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libirc.dylib    $BUILDIR/lib/
   ;;
 
   Intel_Windows*icc*)
