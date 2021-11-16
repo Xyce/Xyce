@@ -1217,12 +1217,12 @@ int DampedNewton::converged_()
   if (nlParams.getEnforceDeviceConvFlag ()) 
   {
     bool allDevicesConverged_ = nonlinearEquationLoader_->allDevicesConverged(pdsMgrPtr_->getPDSComm()->comm());
-    if (!allDevicesConverged_ && (nlStep_ <= nlParams.getMaxNewtonStep() ))
+    if (!allDevicesConverged_ && (nlStep_ < nlParams.getMaxNewtonStep() ))
     {
       return 0;
     }
     
-    if (!allDevicesConverged_ && (nlStep_ > nlParams.getMaxNewtonStep() ))
+    if (!allDevicesConverged_ && (nlStep_ >= nlParams.getMaxNewtonStep() ))
       return retCodes_.tooManySteps;
   }
 
@@ -1305,7 +1305,7 @@ int DampedNewton::converged_()
     return retCodes_.normalConvergence; // 2;
 
   // Transient "Near Converged"...
-  if (nlStep_ > nlParams.getMaxNewtonStep() &&
+  if (nlStep_ >= nlParams.getMaxNewtonStep() &&
       mode1 == TRANSIENT)
   {
     // Check for "near" convergence and let the time integrator handle the
@@ -1319,7 +1319,7 @@ int DampedNewton::converged_()
     return retCodes_.smallUpdate; // 4;
 
   // Next check the number of steps
-  if (nlStep_ > nlParams.getMaxNewtonStep())
+  if (nlStep_ >= nlParams.getMaxNewtonStep())
     return retCodes_.tooManySteps; // -1;
 
   // Make sure that we haven't had too big an update
