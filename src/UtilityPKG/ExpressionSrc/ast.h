@@ -703,19 +703,21 @@ inline void computeBreakPoint(
     ScalarT dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
 
     // The Newton iterate is:  -(F(t)-A)/F'(t)
-    double delta_bpTime =  0.0;
-    if (std::real(dfdt) != 0.0) { delta_bpTime =  -std::real(f)/std::real(dfdt); }
     double time = std::real(timeOpVec_[0]->val());
-    double bpTime = time+delta_bpTime;
-
-    // test
-    for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
-    f = f_Ast_->val();        Xyce::Util::fixNan(f);  Xyce::Util::fixInf(f);
-    dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
-
-    int iteration = 1;
-    while (std::abs(std::real(f)) > bpTol_ && iteration < 20)  // iterate
+    double delta_bpTime =  0.0;
+    if (std::real(dfdt) != 0.0)  // if initial dfdt==0, then algorithm has no hope of succeeding
     {
+      delta_bpTime =  -std::real(f)/std::real(dfdt);
+      double bpTime = time+delta_bpTime;
+
+      // test
+      for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(bpTime); }
+      f = f_Ast_->val();        Xyce::Util::fixNan(f);  Xyce::Util::fixInf(f);
+      dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
+
+      int iteration = 1;
+      while (std::abs(std::real(f)) > bpTol_ && iteration < 20)  // iterate
+      {
       delta_bpTime =  0.0;
       if (std::real(dfdt) != 0.0) { delta_bpTime =  -std::real(f)/std::real(dfdt); }
       bpTime +=delta_bpTime;
@@ -725,13 +727,14 @@ inline void computeBreakPoint(
       dfdt = f_Ast_->dx(index); Xyce::Util::fixNan(dfdt);  Xyce::Util::fixInf(dfdt);
 
       ++iteration;
+      }
+
+      if (std::abs(std::real(f)) <= bpTol_) { bpTimes_.push_back( bpTime ); }// save this breakpoint if we converged
     }
 
-    // cleanup, restore
+    // unset the index, restore time
     for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->unsetDerivIndex(); }
     for (int ii=0; ii< timeOpVec_.size(); ii++) { timeOpVec_[ii]->setValue(time); }
-
-    if (std::abs(std::real(f)) <= bpTol_) { bpTimes_.push_back( bpTime ); }// save this breakpoint if we converged
   }
 }
 
@@ -4415,9 +4418,7 @@ class tableOp : public astNode<ScalarT>
     ScalarT dx_linear(int i)
     {
       ScalarT dydx = 0.0;
-
       ScalarT dinput_dx = std::real(this->input_->dx(i));
-
       if (std::real(dinput_dx) != 0.0)
       {
         // derivative w.r.t. input

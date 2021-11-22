@@ -79,10 +79,8 @@ public:
       smallUpdate       (4),
       nanFail           (-6),
       tooManySteps      (-1),
-      tooManyTranSteps  (3),
       updateTooBig      (-2),
       stalled           (-3),  // (near convergence, but fail anyway)
-      wrmsExactZero     (-4),
       innerSolveFailed  (-5),
       linearSolverFailed (-9)
   {}
@@ -94,10 +92,8 @@ public:
   int smallUpdate;         // default = 4
   int nanFail;             // default = -6
   int tooManySteps;        // default = -1 
-  int tooManyTranSteps;    // default = 3
   int updateTooBig;        // default = -2
   int stalled;             // default = -3;
-  int wrmsExactZero;       // default = -4;
   int innerSolveFailed;    // default = -5;
   int linearSolverFailed;  // default = -9;
 };

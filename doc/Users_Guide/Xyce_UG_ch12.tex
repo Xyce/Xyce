@@ -482,9 +482,8 @@ of the waveform during the simulation.
 
 The \texttt{AVG}, \texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, \texttt{ERR2},
 \texttt{FIND-AT}, \texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP},
-\texttt{RMS} and \texttt{WHEN} measures are supported for all four ``measure modes'' (\texttt{TRAN},
-\texttt{DC}, \texttt{AC} and \texttt{NOISE}).  The \texttt{TRIG-TARG} measure is only supported for
-\texttt{TRAN} measure mode.  
+\texttt{RMS}, \texttt{TRIG-TARG} and \texttt{WHEN} measures are supported for all four ``measure
+modes'' (\texttt{TRAN}, \texttt{DC}, \texttt{AC} and \texttt{NOISE}).
 
 The \texttt{ERROR} measure is \Xyce{}-specific, and is supported for all four ``measure modes''
 (\texttt{TRAN}, \texttt{DC}, \texttt{AC} and \texttt{NOISE}). The \texttt{DUTY}, \texttt{FREQ},
@@ -495,9 +494,8 @@ and are only supported for \texttt{TRAN} measure mode.
 \texttt{.TRAN}, \texttt{.DC}, \texttt{.AC} and \texttt{.NOISE} analyses.  The
  corresponding measure modes are \texttt{TRAN\_CONT}, \texttt{DC\_CONT},
 \texttt{AC\_CONT} and \texttt{NOISE\_CONT}.  The supported measure types for continuous
-measures are \texttt{DERIV-AT}, \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN}
-and \texttt{WHEN} measures.  Continuous measure modes are not supported for \texttt{TRIG}
-or \texttt{TARG} measures.
+measures are \texttt{DERIV-AT}, \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN}, 
+\texttt{WHEN} and \texttt{TRIG-TARG} measures.
 
 For transient analyses, that also have \texttt{.FFT} analysis statements, \Xyce{} also
 supports \texttt{FFT} measure mode.  In that case, the following additional measure

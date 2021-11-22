@@ -113,6 +113,7 @@ public:
                        Xyce::Linear::Vector * dSdt,
                        Xyce::Linear::Vector * Store,
                        Xyce::Linear::Vector * currStore,
+                       Xyce::Linear::Vector * lastStore,
                        Xyce::Linear::Vector * nextLeadFVectorPtr,
                        Xyce::Linear::Vector * nextLeadQVectorPtr,
                        Xyce::Linear::Vector * nextJunctionVVectorPtr,
@@ -132,6 +133,7 @@ public:
                        Xyce::Linear::Vector * lastStaVectorPtr,
                        Xyce::Linear::Vector * nextStoVectorPtr,
                        Xyce::Linear::Vector * currStoVectorPtr,
+                       Xyce::Linear::Vector * lastStoVectorPtr,
                        int loadType = Xyce::Device::ALL );
 
   // Virtual method which initializes the nonlinear problem.
@@ -144,6 +146,7 @@ public:
                           Xyce::Linear::Vector * StateDerivVectorPtr,
                           Xyce::Linear::Vector * nextStoVectorPtr,
                           Xyce::Linear::Vector * currStoVectorPtr,
+                          Xyce::Linear::Vector * lastStoVectorPtr,
                           Xyce::Linear::Vector * QVectorPtr,
                           Xyce::Linear::Vector * FVectorPtr,
                           Xyce::Linear::Vector * BVectorPtr,
@@ -181,6 +184,9 @@ public:
 
   // Registration method for the curr Application Store Vector
   void registerAppCurrStoVec( RCP<Xyce::Linear::Vector> appCurrStoVecPtr );
+
+  // Registration method for the curr Application Store Vector
+  void registerAppLastStoVec( RCP<Xyce::Linear::Vector> appLastStoVecPtr );
 
   // Registration method for the Application Store Vector Lead Current Q Component 
   void registerAppNextLeadCurrentVec( RCP<Xyce::Linear::Vector> aVec );
@@ -253,6 +259,7 @@ private :
   RCP<Xyce::Linear::Matrix> appdFdxPtr_;
   RCP<Xyce::Linear::Vector> appNextStoVecPtr_;
   RCP<Xyce::Linear::Vector> appCurrStoVecPtr_;
+  RCP<Xyce::Linear::Vector> appLastStoVecPtr_;
   
   Teuchos::RCP<Xyce::Linear::Vector> appNextLeadFVecPtr_;
   Teuchos::RCP<Xyce::Linear::Vector> appLeadQVecPtr_;
@@ -406,6 +413,18 @@ inline void N_MPDE_Loader::registerAppCurrStoVec( RCP<Xyce::Linear::Vector> appC
   appCurrStoVecPtr_ = appCurrStoVecPtr; 
 }
 
+//-----------------------------------------------------------------------------
+// Function      : N_MPDE_Loader::registerAppCurrStoVec
+// Purpose       : Registration method for the Application Store Vector
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 
+//-----------------------------------------------------------------------------
+inline void N_MPDE_Loader::registerAppLastStoVec( RCP<Xyce::Linear::Vector> appLastStoVecPtr )
+{ 
+  appLastStoVecPtr_ = appLastStoVecPtr; 
+}
 
 inline  void N_MPDE_Loader::registerAppNextLeadCurrentVec( RCP<Xyce::Linear::Vector> aVec )
 { 

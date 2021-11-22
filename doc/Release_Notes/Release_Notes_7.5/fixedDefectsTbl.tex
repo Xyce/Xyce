@@ -48,20 +48,49 @@
 lines that would previously be reported as ``FAILED'' are now
 correctly reported as parsing errors. \\ \hline
 
+\textbf{Gitlab-ex issue 289} Improvements to TRIG-TARG measure &
+Separate \texttt{TD} (time delay) and/or \texttt{AT} qualifiers
+are now allowed for both the \texttt{TRIG} and \texttt{TARG} 
+clauses.  Expression support has also been improved.  Previously,
+expressions did not work correctly in the \texttt{TARG} clause.
+Examples are as follows:
+
+\begin{verbatim}
+.TRAN 0 1
+.MEASURE TRAN M1 TRIG V(1)=0.5 CROSS=1 TD=0.3
++ TARG V(1)=0.5 CROSS=1 TD=0.8
+.MEASURE TRAN M2 TRIG AT=0.05 
++ TARG V(1)=0.5 CROSS=1
+.MEASURE TRAN M3 TRIG V(1)=0.5
++ CROSS=1 TARG AT=0.8
+\end{verbatim}
+
+Xyce will now properly report M1 = 0.5 with targ = 0.875 and
+trig = 0.375, M2 = 0.075 with targ = 0.125 and trig = 0.05, and
+M3 = 0.675 with targ = 0.8 and trig = 0.125.
+\\ \hline 
+
 \textbf{Gitlab-ex issue 220}:  .MEASURE trig/targ doesn't match ngspice
 when there is negative setup time. & Previous \Xyce{} versions would
 not return a negative value from a \texttt{TRIG-TARG} measure. The 
 \texttt{TARG} clause would only be evaluated if the \texttt{TRIG} clause
 was satisfied.  A measure line such as this will now properly return 
-M1 = -0.5 with targ = 0.25 and trig = 0.75, instead of
+M4 = -0.5 with targ = 0.25 and trig = 0.75, instead of
 failing to find the targ time.
 
 \begin{verbatim}
-VPWL1 1 0 pwl(0 0 0.5 1 1 0)
-.MEASURE TRAN M1 TRIG V(1)=0.5 CROSS=2
-+ TARG V(1)=0.5 CROSS=1
+VPWL2 2 0 pwl(0 0 0.5 1 1 0)
+.MEASURE TRAN M4 TRIG V(2)=0.5 CROSS=2
++ TARG V(2)=0.5 CROSS=1
 \end{verbatim}
  \\ \hline
+
+\textbf{Gitlab-ex issue 328}:  Support C for temperature units & 
+  When specifying temperature, \Xyce{} would inappropriately exit 
+  with error if the units of Celsius were explicitly used in the netlist.  
+  This has been corrected, and now a line such as \texttt{.options device temp=25C} 
+  will work correctly.   The units for temperature in \Xyce{} have always been 
+  Celsius, so this was only a parsing issue. \\ \hline
 
 \end{longtable}
 }

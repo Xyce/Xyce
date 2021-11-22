@@ -109,6 +109,7 @@ public:
   CircuitContext(
     //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
     Util::Op::BuilderManager &          op_builder_manager,
+    const ParsingMgr &                  parsing_manager,
     std::list<CircuitContext*> &        context_list,
     CircuitContext *&                   current_circuit_context);
 
@@ -394,6 +395,8 @@ private:
   CircuitContext*& currentContextPtr_;
 
   Util::Op::BuilderManager &            opBuilderManager_;
+
+  const ParsingMgr &                    parsingMgr_;
 
   mutable CircuitContext * parentContextPtr_;
 

@@ -98,6 +98,7 @@ DataStore::DataStore(
     lastStatePtr(0),
     nextStatePtr(0),
     currStorePtr(0),
+    lastStorePtr(0),
     nextStorePtr(0),
     currLeadCurrentPtr(0),
     nextLeadCurrentPtr(0),
@@ -181,6 +182,7 @@ DataStore::DataStore(
 
   // store vectors:
   currStorePtr    = builder_.createStoreVector();
+  lastStorePtr    = builder_.createStoreVector();
   nextStorePtr    = builder_.createStoreVector();
   storeSize = nextStorePtr->globalLength();
 
@@ -274,6 +276,7 @@ DataStore::~DataStore()
   delete nextStatePtr;
 
   delete currStorePtr;
+  delete lastStorePtr;
   delete nextStorePtr;
 
   // Lead current and power vectors
@@ -585,6 +588,7 @@ void DataStore::setConstantHistory()
   if (storeSize)
   { 
     // Stores:
+    *(lastStorePtr) = *(nextStorePtr);
     *(currStorePtr) = *(nextStorePtr);
   }
 
@@ -662,6 +666,7 @@ void DataStore::setConstantHistoryAdjoint ()
   { 
     // Stores:
     *(nextStorePtr) = *(storeHistory[finalPoint] );
+    *(lastStorePtr) = *(nextStorePtr);
     *(currStorePtr) = *(nextStorePtr);
   }
 
@@ -782,7 +787,8 @@ void DataStore::updateSolDataArrays()
   if (storeSize)
   {
     // Stores:
-    tmpPtr = currStorePtr;
+    tmpPtr = lastStorePtr;
+    lastStorePtr = currStorePtr;
     currStorePtr = nextStorePtr;
     nextStorePtr = tmpPtr;
   }
@@ -891,7 +897,8 @@ bool DataStore::updateStateDataArrays()
   if (storeSize)
   {
     // Stores:
-    tmpPtr = currStorePtr;
+    tmpPtr = lastStorePtr;
+    lastStorePtr = currStorePtr;
     currStorePtr = nextStorePtr;
     nextStorePtr = tmpPtr;
   }
@@ -1034,6 +1041,15 @@ void DataStore::updateSolDataArraysAdjoint(int timeIndex)
     else
     {
       *(currStorePtr) = *(nextStorePtr);
+    }
+
+    if (timeIndex < size-2)
+    {
+      *(lastStorePtr) = *(storeHistory[timeIndex+2]);
+    }
+    else
+    {
+      *(lastStorePtr) = *(currStorePtr);
     }
   }
 }
@@ -1825,6 +1841,7 @@ bool DataStore::getStoreVarData( const int & gid,
   varData.resize(getNumStoreVarData());
   varData[i++] = tmpStoVectorPtr->getElementByGlobalIndex( gid );
   varData[i++] = currStorePtr->getElementByGlobalIndex( gid );
+  varData[i++] = lastStorePtr->getElementByGlobalIndex( gid );
   varData[i++] = nextStorePtr->getElementByGlobalIndex( gid );
   return true;
 }
@@ -1892,6 +1909,7 @@ bool DataStore::setStoreVarData( const int & gid,
   int i=0;
   tmpStoVectorPtr->setElementByGlobalIndex    ( gid, varData[i++] );
   currStorePtr->setElementByGlobalIndex       ( gid, varData[i++] );
+  lastStorePtr->setElementByGlobalIndex       ( gid, varData[i++] );
   nextStorePtr->setElementByGlobalIndex       ( gid, varData[i++] );
   return true;
 }

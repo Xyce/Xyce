@@ -936,7 +936,7 @@ Instance::Instance(
     li_qstateBCdiff(-1),
     li_qstateBCdep(-1),
     li_qstateBX(-1),
-    li_istateCEXBC(-1),
+    li_istoreCEXBC(-1),
 
     li_storevBE(-1),
     li_storevBC(-1),
@@ -1097,8 +1097,8 @@ Instance::Instance(
   // by the user on the netlist instance line.
   numExtVars   = IB.numExtVars;
 
-  numStateVars = 7;
-  setNumStoreVars(3);  
+  numStateVars = 6;
+  setNumStoreVars(4);  
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 4;    // this is the space to allocate if lead current or power is needed.
 
@@ -1485,7 +1485,6 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
   li_qstateBCdiff = staLIDVec[i++];
   li_qstateBCdep = staLIDVec[i++];
   li_qstateBX = staLIDVec[i++];
-  li_istateCEXBC = staLIDVec[i++];
 }
 
 
@@ -1508,6 +1507,7 @@ void Instance::registerStoreLIDs( const std::vector<int> & stoLIDVecRef )
   li_storevBE =  stoLIDVec[i++];
   li_storevBC =  stoLIDVec[i++];
   li_store_capeqCB =  stoLIDVec[i++];
+  li_istoreCEXBC = stoLIDVec[i++];
 
 }
 
@@ -2724,8 +2724,8 @@ void Instance::oldDAEExcessPhaseCalculation1 ()
     if (getSolverState().beginIntegrationFlag_)
     {
       currCexbc = lastCexbc = iBE/qB;
-      (*extData.currStaVectorPtr)[li_istateCEXBC] = currCexbc;
-      (*extData.lastStaVectorPtr)[li_istateCEXBC] = lastCexbc;
+      (*extData.currStoVectorPtr)[li_istoreCEXBC] = currCexbc;
+      (*extData.lastStoVectorPtr)[li_istoreCEXBC] = lastCexbc;
     }
   }
 
@@ -2792,8 +2792,8 @@ void Instance::oldDAEExcessPhaseCalculation2
     // Secondary state stuff:
     if (!getSolverState().beginIntegrationFlag_)
     {
-      currCexbc = (*extData.currStaVectorPtr)[li_istateCEXBC];
-      lastCexbc = (*extData.lastStaVectorPtr)[li_istateCEXBC];
+      currCexbc = (*extData.currStoVectorPtr)[li_istoreCEXBC];
+      lastCexbc = (*extData.lastStoVectorPtr)[li_istoreCEXBC];
     }
 
     iC_local = ((currCexbc) * (1 + dt0 / dt1 + arg2) - (lastCexbc) * dt0 / dt1) / denom;
@@ -2801,7 +2801,7 @@ void Instance::oldDAEExcessPhaseCalculation2
     gEX = gBE * phaseScalar;
 
     nextCexbc = iC_local + iEX / qB;
-    (*extData.nextStaVectorPtr)[li_istateCEXBC] = nextCexbc;
+    (*extData.nextStoVectorPtr)[li_istoreCEXBC] = nextCexbc;
   }
 
   return;
@@ -4983,7 +4983,7 @@ bool processParams (
 
 
 //-----------------------------------------------------------------------------
-// Function      : oldDAEExcessPhaseCalculation1
+// Function      : oldDAEExcessPhaseCalculation1, fad version
 //-----------------------------------------------------------------------------
 void oldDAEExcessPhaseCalculation1 (
     const fadType & td,
@@ -4993,10 +4993,9 @@ void oldDAEExcessPhaseCalculation1 (
     bool dcopFlag,
     bool beginIntegrationFlag,
 
-    double * currStaVec, // raw pointers fine here
-    double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC
+    double * currStoVec, // raw pointers fine here
+    double * lastStoVec, // raw pointers fine here
+    const int li_istoreCEXBC
     )
 {
   // do excess phase stuff if we are in transient mode and td is nonzero.
@@ -5008,14 +5007,17 @@ void oldDAEExcessPhaseCalculation1 (
     if (beginIntegrationFlag)
     {
       fadType  tmp = iBE/qB;
-      currStaVec[li_istateCEXBC] = tmp.val();
-      lastStaVec[li_istateCEXBC] = tmp.val();
+      currStoVec[li_istoreCEXBC] = tmp.val();
+      lastStoVec[li_istoreCEXBC] = tmp.val();
     }
   }
 
   return;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : oldDAEExcessPhaseCalculation1, double version
+//-----------------------------------------------------------------------------
 void oldDAEExcessPhaseCalculation1 (
     const double & td,
     const double & qB,
@@ -5024,10 +5026,9 @@ void oldDAEExcessPhaseCalculation1 (
     bool dcopFlag,
     bool beginIntegrationFlag,
 
-    double * currStaVec, // raw pointers fine here
-    double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC
+    double * currStoVec, // raw pointers fine here
+    double * lastStoVec, // raw pointers fine here
+    const int li_istoreCEXBC
     )
 {
   // do excess phase stuff if we are in transient mode and td is nonzero.
@@ -5039,8 +5040,8 @@ void oldDAEExcessPhaseCalculation1 (
     if (beginIntegrationFlag)
     {
       double  tmp = iBE/qB;
-      currStaVec[li_istateCEXBC] = tmp;
-      lastStaVec[li_istateCEXBC] = tmp;
+      currStoVec[li_istoreCEXBC] = tmp;
+      lastStoVec[li_istoreCEXBC] = tmp;
     }
   }
 
@@ -5048,7 +5049,7 @@ void oldDAEExcessPhaseCalculation1 (
 }
 
 //-----------------------------------------------------------------------------
-// Function      : oldDAEExcessPhaseCalculation2
+// Function      : oldDAEExcessPhaseCalculation2, fad version
 //-----------------------------------------------------------------------------
 void oldDAEExcessPhaseCalculation2
    (const fadType & td,
@@ -5062,11 +5063,10 @@ void oldDAEExcessPhaseCalculation2
     bool dcopFlag,
     bool beginIntegrationFlag,
 
-    double * nextStaVec, // raw pointers fine here
-    const double * currStaVec, // raw pointers fine here
-    const double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC,
+    double * nextStoVec, // raw pointers fine here
+    const double * currStoVec, // raw pointers fine here
+    const double * lastStoVec, // raw pointers fine here
+    const int li_istoreCEXBC,
 
     fadType & iEX, 
     fadType & gEX, 
@@ -5107,8 +5107,8 @@ void oldDAEExcessPhaseCalculation2
     // Secondary state stuff:
     if (!beginIntegrationFlag)
     {
-      currCexbc = (currStaVec)[li_istateCEXBC];
-      lastCexbc = (lastStaVec)[li_istateCEXBC];
+      currCexbc = (currStoVec)[li_istoreCEXBC];
+      lastCexbc = (lastStoVec)[li_istoreCEXBC];
     }
     else
     {
@@ -5121,14 +5121,14 @@ void oldDAEExcessPhaseCalculation2
     gEX = gBE * phaseScalar;
 
     fadType nextCexbc = iC_local + iEX / qB;
-    nextStaVec[li_istateCEXBC] = nextCexbc.val();
+    nextStoVec[li_istoreCEXBC] = nextCexbc.val();
   }
 
   return;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : oldDAEExcessPhaseCalculation2
+// Function      : oldDAEExcessPhaseCalculation2, double version
 //-----------------------------------------------------------------------------
 void oldDAEExcessPhaseCalculation2
    (const double & td,
@@ -5142,11 +5142,10 @@ void oldDAEExcessPhaseCalculation2
     bool dcopFlag,
     bool beginIntegrationFlag,
 
-    double * nextStaVec, // raw pointers fine here
-    const double * currStaVec, // raw pointers fine here
-    const double * lastStaVec, // raw pointers fine here
-
-    const int li_istateCEXBC,
+    double * nextStoVec, // raw pointers fine here
+    const double * currStoVec, // raw pointers fine here
+    const double * lastStoVec, // raw pointers fine here
+    const int li_istoreCEXBC,
 
     double & iEX, 
     double & gEX, 
@@ -5187,8 +5186,8 @@ void oldDAEExcessPhaseCalculation2
     // Secondary state stuff:
     if (!beginIntegrationFlag)
     {
-      currCexbc = (currStaVec)[li_istateCEXBC];
-      lastCexbc = (lastStaVec)[li_istateCEXBC];
+      currCexbc = (currStoVec)[li_istoreCEXBC];
+      lastCexbc = (lastStoVec)[li_istoreCEXBC];
     }
     else
     {
@@ -5201,7 +5200,7 @@ void oldDAEExcessPhaseCalculation2
     gEX = gBE * phaseScalar;
 
     double nextCexbc = iC_local + iEX / qB;
-    nextStaVec[li_istateCEXBC] = nextCexbc;
+    nextStoVec[li_istoreCEXBC] = nextCexbc;
   }
 
   return;
@@ -5261,7 +5260,7 @@ void auxDAECalculations (
   iB  = iBE / tBetaF + iBEleak + iBC / tBetaR + iBCleak;
   iE = -iC-iB;
 
-#if 1
+#if 0
   std::cout << "auxDAECalculations:  tBetaR = " << tBetaR << std::endl;
   std::cout << "auxDAECalculations:  tBetaF = " << tBetaF << std::endl;
   std::cout << "auxDAECalculations:  iCE = " << iCE << std::endl;
@@ -5391,10 +5390,10 @@ bool updateIntermediateVars (
   const int  level,
 
   // these are here b/c of the excess phase old-DAE form
-  double * nextStaVec,
-  double * currStaVec,
-  double * lastStaVec,
-  const int li_istateCEXBC,
+  double * nextStoVec,
+  double * currStoVec,
+  double * lastStoVec,
+  const int li_istoreCEXBC,
   const double dt0, //  getSolverState().currTimeStep, 
   const double dt1, //  getSolverState().lastTimeStep, 
 
@@ -5825,9 +5824,9 @@ bool updateIntermediateVars (
     excessPhaseFac, //td,
     qB, iBE,
     dcopFlag, beginIntegrationFlag,
-    currStaVec, // raw pointers fine here
-    lastStaVec, // raw pointers fine here
-    li_istateCEXBC
+    currStoVec, // raw pointers fine here
+    lastStoVec, // raw pointers fine here
+    li_istoreCEXBC
     );
 
   oldDAEExcessPhaseCalculation2 
@@ -5838,10 +5837,10 @@ bool updateIntermediateVars (
     dt1, //dt1 = getSolverState().lastTimeStep;
     dcopFlag,
     beginIntegrationFlag,
-    nextStaVec, // raw pointers fine here
-    currStaVec, // raw pointers fine here
-    lastStaVec, // raw pointers fine here
-    li_istateCEXBC,
+    nextStoVec, // raw pointers fine here
+    currStoVec, // raw pointers fine here
+    lastStoVec, // raw pointers fine here
+    li_istoreCEXBC,
     iEX_tmp,gEX_tmp,iC_tmp);
 
   //if (getDeviceOptions().newExcessPhase)
@@ -6284,10 +6283,10 @@ void bjtInstanceSensitivity::operator()(
     f2, f3, f6, f7,
     inst.model_.getLevel(),
     // these are here b/c of the excess phase old-DAE form
-    inst.extData.nextStaVectorRawPtr,
-    inst.extData.currStaVectorRawPtr,
-    inst.extData.lastStaVectorRawPtr,
-    inst.li_istateCEXBC,
+    inst.extData.nextStoVectorRawPtr,
+    inst.extData.currStoVectorRawPtr,
+    inst.extData.lastStoVectorRawPtr,
+    inst.li_istoreCEXBC,
     inst.getSolverState().currTimeStep_, // dt0
     inst.getSolverState().lastTimeStep_, // dt1
 
@@ -6868,10 +6867,10 @@ void bjtModelSensitivity::operator()(
       inst.model_.getLevel(),
 
       // these are here b/c of the excess phase old-DAE form
-      inst.extData.nextStaVectorRawPtr,
-      inst.extData.currStaVectorRawPtr,
-      inst.extData.lastStaVectorRawPtr,
-      inst.li_istateCEXBC,
+      inst.extData.nextStoVectorRawPtr,
+      inst.extData.currStoVectorRawPtr,
+      inst.extData.lastStoVectorRawPtr,
+      inst.li_istoreCEXBC,
       inst.getSolverState().currTimeStep_, // dt0
       inst.getSolverState().lastTimeStep_, // dt1
 

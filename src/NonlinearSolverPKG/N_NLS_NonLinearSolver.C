@@ -1023,7 +1023,6 @@ Linear::Vector* NonLinearSolver::getPNormWeights()
   // Create the mask if it hasn't been made before.
   if (!maskPNormWeights_)
   {
-    std::cout << "Creating masking vector for p-norms!" << std::endl;
     int length = dsPtr_->nextSolutionPtr->localLength();
     Linear::Vector& mask = *(lasSysPtr_->getDeviceMaskVector());
 

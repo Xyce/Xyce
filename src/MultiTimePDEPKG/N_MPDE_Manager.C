@@ -1926,6 +1926,7 @@ bool N_MPDE_Manager::setupMPDEProblem_()
 
   mpdeLoaderPtr_->registerAppNextStoVec ( rcp(appBuilder_.createStoreVector()) );
   mpdeLoaderPtr_->registerAppCurrStoVec ( rcp(appBuilder_.createStoreVector()) );
+  mpdeLoaderPtr_->registerAppLastStoVec ( rcp(appBuilder_.createStoreVector()) );
   
   mpdeLoaderPtr_->registerAppNextLeadCurrentVec ( rcp(appBuilder_.createLeadCurrentVector()) );
   mpdeLoaderPtr_->registerAppLeadCurrentQVec ( rcp(appBuilder_.createLeadCurrentVector()) );
@@ -2097,6 +2098,7 @@ bool N_MPDE_Manager::runTests_()
   Xyce::Linear::Vector *dSdt(mpdeBuilderPtr_->createStateVector());
   Xyce::Linear::Vector *nextStore(mpdeBuilderPtr_->createStoreVector());
   Xyce::Linear::Vector *currStore(mpdeBuilderPtr_->createStoreVector());
+  Xyce::Linear::Vector *lastStore(mpdeBuilderPtr_->createStoreVector());
 
   Xyce::Linear::Vector *nextLeadCurrent(mpdeBuilderPtr_->createLeadCurrentVector());
   Xyce::Linear::Vector *nextLeadCurrentQ(mpdeBuilderPtr_->createLeadCurrentVector());
@@ -2128,7 +2130,7 @@ bool N_MPDE_Manager::runTests_()
   mpdeLoaderPtr_->loadDAEVectors(
       nextX, currX, lastX,
       nextS, currS, lastS, dSdt,
-      nextStore, currStore, 
+      nextStore, currStore, lastStore,
       nextLeadCurrent, nextLeadCurrentQ, 
       nextJunctionV, 
       Q, F, B,
@@ -2166,6 +2168,7 @@ bool N_MPDE_Manager::runTests_()
   delete dSdt;
   delete nextStore;
   delete currStore;
+  delete lastStore;
   delete nextLeadCurrent;
   delete nextLeadCurrentQ;
   delete nextJunctionV;

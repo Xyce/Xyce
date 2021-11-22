@@ -116,6 +116,7 @@ ESLoader::ESLoader(
 
   appNextStoVecPtr_ = rcp(builder_.createStoreVector());
   appCurrStoVecPtr_ = rcp(builder_.createStoreVector());
+  appLastStoVecPtr_ = rcp(builder_.createStoreVector());
   
   appNextLeadFVecPtr_ = rcp(builder.createLeadCurrentVector());
   appLeadQVecPtr_     = rcp(builder.createLeadCurrentVector());
@@ -304,6 +305,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
                                Linear::Vector * dSdt,
                                Linear::Vector * Store,
                                Linear::Vector * currStore,
+                               Linear::Vector * lastStore,
                                Linear::Vector * nextLeadFVectorPtr,
                                Linear::Vector * nextLeadQVectorPtr,
                                Linear::Vector * nextJunctionVVectorPtr,
@@ -331,6 +333,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   appLastStaVecPtr_->putScalar(0.0);
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
+  appLastStoVecPtr_->putScalar(0.0);
 
   appdSdtPtr_->putScalar(0.0);
   Xyce::Linear::Vector & appdSdt = *appdSdtPtr_;
@@ -357,6 +360,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::BlockVector & bdSdt = *dynamic_cast<Xyce::Linear::BlockVector*>(dSdt);
   Xyce::Linear::BlockVector & bStore = *dynamic_cast<Xyce::Linear::BlockVector*>(Store);
   Xyce::Linear::BlockVector & bcurrStore = *dynamic_cast<Xyce::Linear::BlockVector*>(currStore);
+  Xyce::Linear::BlockVector & blastStore = *dynamic_cast<Xyce::Linear::BlockVector*>(lastStore);
  
   Xyce::Linear::BlockVector & bNextLeadF = *dynamic_cast<Xyce::Linear::BlockVector*>(nextLeadFVectorPtr);
   Xyce::Linear::BlockVector & bLeadQ = *dynamic_cast<Xyce::Linear::BlockVector*>(nextLeadQVectorPtr);
@@ -410,6 +414,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
     appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
+    *appLastStoVecPtr_ = blastStore.block(i);
     
     *appNextLeadFVecPtr_  = bNextLeadF.block(i);
     *appLeadQVecPtr_      =  bLeadQ.block(i);
@@ -426,13 +431,14 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
     appLoaderPtr_->updateState 
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_,
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_ , &*appLastStaVecPtr_ ,
-        &*appNextStoVecPtr_, &*appCurrStoVecPtr_ );
+        &*appNextStoVecPtr_, &*appCurrStoVecPtr_ , &*appLastStoVecPtr_ );
 
     bS.block(i) = *appNextStaVecPtr_;
     bcurrS.block(i) = *appCurrStaVecPtr_;
     blastS.block(i) = *appLastStaVecPtr_;
     bStore.block(i) = *appNextStoVecPtr_;
     bcurrStore.block(i) = *appCurrStoVecPtr_;
+    blastStore.block(i) = *appLastStoVecPtr_;
 
     if (DEBUG_ES)
     {
@@ -450,7 +456,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
     appLoaderPtr_->loadDAEVectors
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_, 
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, 
-        &appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
+        &appdSdt, &*appNextStoVecPtr_, &*appCurrStoVecPtr_, &*appLastStoVecPtr_, 
         &*appNextLeadFVecPtr_, &*appLeadQVecPtr_, 
         &*appNextJunctionVVecPtr_, 
         &appQ, &appF, &appB,

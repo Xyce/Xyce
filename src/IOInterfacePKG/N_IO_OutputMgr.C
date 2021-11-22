@@ -1395,7 +1395,7 @@ bool OutputMgr::isIStarRequested()
 bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 {
   PrintParameters        print_parameters = defaultPrintParameters_;
-  PrintType::PrintType   print_type;
+  PrintType::PrintType   print_type = PrintType::NONE;
   Format::Format         format = Format::STD;
   DataFormat::DataFormat dataFormat = DataFormat::RI;
   bool                   no_index = false;

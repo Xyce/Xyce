@@ -94,6 +94,7 @@ public:
 
       currStoVectorPtr(0),
       nextStoVectorPtr(0),
+      lastStoVectorPtr(0),
       
       nextLeadCurrFCompPtr(0),
       nextLeadCurrQCompPtr(0),
@@ -118,6 +119,7 @@ public:
       lastStaVectorRawPtr(0),
       nextStoVectorRawPtr(0),
       currStoVectorRawPtr(0),
+      lastStoVectorRawPtr(0),
       nextLeadCurrFCompRawPtr(0),
       nextLeadCurrQCompRawPtr(0),
       nextJunctionVCompRawPtr(0),
@@ -154,6 +156,7 @@ public:
 
   Linear::Vector * currStoVectorPtr;
   Linear::Vector * nextStoVectorPtr;
+  Linear::Vector * lastStoVectorPtr;
   
   Linear::Vector * nextLeadCurrFCompPtr;
   Linear::Vector * nextLeadCurrQCompPtr;
@@ -182,6 +185,7 @@ public:
 
   double * nextStoVectorRawPtr;
   double * currStoVectorRawPtr;
+  double * lastStoVectorRawPtr;
   
   double * nextLeadCurrFCompRawPtr;
   double * nextLeadCurrQCompRawPtr;

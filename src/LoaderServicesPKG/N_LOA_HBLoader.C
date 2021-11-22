@@ -97,6 +97,7 @@ HBLoader::HBLoader(
 
   appNextStoVecPtr_ = rcp(builder_.createStoreVector());
   appCurrStoVecPtr_ = rcp(builder_.createStoreVector());
+  appLastStoVecPtr_ = rcp(builder_.createStoreVector());
   
   appNextLeadFVecPtr_ = rcp(builder.createLeadCurrentVector());
   appLeadQVecPtr_     = rcp(builder.createLeadCurrentVector());
@@ -458,6 +459,7 @@ bool HBLoader::updateState
   Linear::Vector * lastStaVectorPtr,
   Linear::Vector * nextStoVectorPtr,
   Linear::Vector * currStoVectorPtr,
+  Linear::Vector * lastStoVectorPtr,
   int loadType
   )
 {
@@ -630,6 +632,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
                                Linear::Vector * dSdt,
                                Linear::Vector * Store,
                                Linear::Vector * currStore,
+                               Linear::Vector * lastStore,
                                Linear::Vector * nextLeadFVectorPtr,
                                Linear::Vector * nextLeadQVectorPtr,
                                Linear::Vector * nextJunctionVVectorPtr,
@@ -656,6 +659,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
   appNextStoVecPtr_->putScalar(0.0);
   appCurrStoVecPtr_->putScalar(0.0);
+  appLastStoVecPtr_->putScalar(0.0);
 
   Linear::Vector * appQ = builder_.createVector();
   Linear::Vector * appF = builder_.createVector();
@@ -697,6 +701,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
   Linear::BlockVector & bdSdt = *dynamic_cast<Linear::BlockVector*>(dSdt);
   Linear::BlockVector & bStore = *dynamic_cast<Linear::BlockVector*>(Store);
   Linear::BlockVector & bcurrStore = *dynamic_cast<Linear::BlockVector*>(currStore);
+  Linear::BlockVector & blastStore = *dynamic_cast<Linear::BlockVector*>(lastStore);
   
   Linear::BlockVector & bNextLeadF = *dynamic_cast<Linear::BlockVector*>(nextLeadFVectorPtr);
   Linear::BlockVector & bLeadQ = *dynamic_cast<Linear::BlockVector*>(nextLeadQVectorPtr);
@@ -758,6 +763,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     *appdSdt = bdSdt.block(i);
     *appNextStoVecPtr_ = bStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
+    *appLastStoVecPtr_ = blastStore.block(i);
     *appNextLeadFVecPtr_  = bNextLeadF.block(i);
     *appLeadQVecPtr_      =  bLeadQ.block(i);
     *appNextJunctionVVecPtr_  =  bNextJunctionV.block(i);
@@ -775,7 +781,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
         &*appVecPtr_,  // note, this is a placeholder! ERK
         &*appVecPtr_,  // note, this is a placeholder! ERK
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_ , &*appLastStaVecPtr_,
-        &*appNextStoVecPtr_, &*appCurrStoVecPtr_,
+        &*appNextStoVecPtr_, &*appCurrStoVecPtr_, &*appLastStoVecPtr_,
         Xyce::Device::NONLINEAR_FREQ );
 
     bS.block(i) = *appNextStaVecPtr_;
@@ -783,6 +789,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
     blastS.block(i) = *appLastStaVecPtr_;
     bStore.block(i) = *appNextStoVecPtr_;
     bcurrStore.block(i) = *appCurrStoVecPtr_;
+    blastStore.block(i) = *appLastStoVecPtr_;
 
     if (DEBUG_HB)
     {
@@ -801,7 +808,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
         &*appVecPtr_,  // note, this is a placeholder! ERK
         &*appVecPtr_,  // note, this is a placeholder! ERK
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_, &*appLastStaVecPtr_, &*appdSdt,
-        &*appNextStoVecPtr_, &*appCurrStoVecPtr_, 
+        &*appNextStoVecPtr_, &*appCurrStoVecPtr_, &*appLastStoVecPtr_, 
         &*appNextLeadFVecPtr_, &*appLeadQVecPtr_, 
         &*appNextJunctionVVecPtr_, 
         appQ, appF, appB,

@@ -33,6 +33,13 @@
   \color{white}\textbf{Change} &
   \color{white}\textbf{Detail} \\ \hline \endhead
 
-placeholder & placeholder \\ \hline
+Continued support for FRAC\_MAX qualifier on TRIG-TARG measure lines &
+For backwards compatibility with previous \Xyce{} versions for internal
+users, \texttt{.OPTIONS MEASURE USE\_LTTM=<value>} has been added.  This
+option defaults to 0, which uses the new version of the TRIG-TARG measure;
+while setting it to 1 will use the old version of the TRIG-TARG measure
+for all TRIG-TARG measures in the netlist.  If the FRAC\_MAX qualifier is
+used on a TRIG-TARG line then \Xyce{} will automatically default to
+\texttt{USE\_LTTM=1} for that particular measure line.  \\ \hline
 \end{longtable}
 }

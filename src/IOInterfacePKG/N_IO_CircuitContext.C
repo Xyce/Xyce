@@ -45,6 +45,7 @@
 #include <N_IO_DeviceBlock.h>
 #include <N_IO_Op.h>
 #include <N_IO_ParameterBlock.h>
+#include <N_IO_ParsingMgr.h>
 #include <N_PDS_Comm.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Expression.h>
@@ -67,10 +68,12 @@ namespace IO {
 //----------------------------------------------------------------------------
 CircuitContext::CircuitContext(
   Util::Op::BuilderManager &    op_builder_manager,
+  const ParsingMgr &            parsing_manager,
   std::list<CircuitContext*> &  context_list,
   CircuitContext *&             current_context_pointer)
   : currentContextPtr_(current_context_pointer),
     opBuilderManager_(op_builder_manager),
+    parsingMgr_(parsing_manager),
     parentContextPtr_(NULL),
     contextList_(context_list),
     name_(""),
@@ -184,7 +187,7 @@ bool CircuitContext::beginSubcircuitContext(
 
   // Create a new circuit context for the subcircuit.
   CircuitContext* subcircuitContextPtr =
-    new CircuitContext(opBuilderManager_, contextList_, currentContextPtr_);
+    new CircuitContext(opBuilderManager_, parsingMgr_, contextList_, currentContextPtr_);
 
   // Set the parent context, save the current context and reset it to the
   // newly created context.
@@ -378,6 +381,96 @@ void CircuitContext::addModel(ParameterBlock * modelPtr)
 }
 
 //----------------------------------------------------------------------------
+// Function       : addParamUseFirst
+// Purpose        : Add pararmeter, but
+//                  use the first parameter if duplicate, silently
+// Special Notes  : This was Xyce's default behavior for years.
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseFirst(Util::Param & parameter, Util::UParamList & unresolved)
+{
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseFirstWarn
+// Purpose        : Add pararmeter, but
+//                  use the first parameter if duplicate, but emit a warning.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseFirstWarn(Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    Report::UserWarning0() << "Parameter " <<  parameter.uTag() 
+      << " defined more than once. Using first one."; 
+  }
+  else { unresolved.insert(parameter); }
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseLast
+// Purpose        : Add pararmeter, but
+//                  use the last parameter if duplicate, silently
+// Special Notes  : This is the behavior of most simulators.
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseLast (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() ) { unresolved.erase(urParamIter); }
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseLastWarn
+// Purpose        : Add pararmeter, but
+//                  use the last parameter if duplicate, but emit a warning.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseLastWarn (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    unresolved.erase(urParamIter);
+    Report::UserWarning0() << "Parameter " <<  parameter.uTag() 
+      << " defined more than once. Using last one."; 
+  }
+  unresolved.insert(parameter);
+}
+
+//----------------------------------------------------------------------------
+// Function       : addParamUseError
+// Purpose        : Add pararmeter, but
+//                  flag a fatal error if it is a duplicate.
+// Special Notes  :
+// Scope          :
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 11/2/2021
+//----------------------------------------------------------------------------
+void addParamUseError (Util::Param & parameter, Util::UParamList & unresolved)
+{
+  Util::UParamList::const_iterator urParamIter = unresolved.find( parameter );
+  if ( urParamIter != unresolved.end() )
+  {
+    Report::UserError0() << "Parameter " <<  parameter.uTag() << " defined more than once"; 
+  }
+  unresolved.insert(parameter);
+ }
+
+//----------------------------------------------------------------------------
 // Function       : CircuitContext::addParams
 // Purpose        : Add a set of .PARAM parameters to the current context.
 // Special Notes  :
@@ -389,21 +482,56 @@ void CircuitContext::addParams(
   Util::ParamList::const_iterator paramIter, 
   Util::ParamList::const_iterator paramEnd)
 {
-#if 0
-  // experiment
-  if (currentContextPtr_->parentContextPtr_ == NULL)
-  {
-    addGlobalParams(paramIter,paramEnd);
-    return;
-  }
-#endif
   Util::Param parameter;
   for ( ; paramIter != paramEnd; ++paramIter)
   {
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    currentContextPtr_->unresolvedParams_.insert(parameter);
+
+    // if this parameter is already present, there are several options.
+    //
+    // The default is to use the last instance found in the netlist.  
+    // This corresponds to "IGNORE" and in this case will delete it from the set before insertion.  
+    
+    // if USEFIRST, then don't check for the parameter at all.  If it is 
+    // already present, then the insertion call will fail, and Xyce will use 
+    // the first occurance of the parameter, which is already in the set.
+
+    switch (parsingMgr_.getRedefinedParams()) 
+    {
+      case RedefinedParamsSetting::IGNORE:  // this is also default, below
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::WARNING:
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::ERROR:
+        addParamUseError (parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::USEFIRST:
+        addParamUseFirst (parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case  RedefinedParamsSetting::USEFIRSTWARN:
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::USELAST:
+        addParamUseLast (parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      case  RedefinedParamsSetting::USELASTWARN:
+        addParamUseLastWarn(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+
+      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedParams_);
+        break;
+    }
   }
 }
 
@@ -425,7 +553,50 @@ void CircuitContext::addGlobalParams(
     parameter = *paramIter;
     resolveQuote(parameter);
     resolveTableFileType(parameter);
-    currentContextPtr_->unresolvedGlobalParams_.insert(parameter);
+
+    // if this parameter is already present, there are several options.
+    //
+    // The default is to use the last instance found in the netlist.  
+    // This corresponds to "IGNORE" and in this case will delete it from the set before insertion.  
+    
+    // if USEFIRST, then don't check for the parameter at all.  If it is 
+    // already present, then the insertion call will fail, and Xyce will use 
+    // the first occurance of the parameter, which is already in the set.
+
+    switch (parsingMgr_.getRedefinedParams()) 
+    {
+      case RedefinedParamsSetting::IGNORE:  // this is also default, below
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case RedefinedParamsSetting::WARNING:
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case RedefinedParamsSetting::ERROR:
+        addParamUseError (parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case RedefinedParamsSetting::USEFIRST:
+        addParamUseFirst (parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case  RedefinedParamsSetting::USEFIRSTWARN:
+        addParamUseFirstWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case RedefinedParamsSetting::USELAST:
+        addParamUseLast (parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      case  RedefinedParamsSetting::USELASTWARN:
+        addParamUseLastWarn(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+
+      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+        addParamUseFirst(parameter, currentContextPtr_->unresolvedGlobalParams_);
+        break;
+    }
   }
 }
 
@@ -500,7 +671,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
   {
   std::list<Util::OptionBlock>::iterator  iter = optionsTable.begin();
   std::list<Util::OptionBlock>::iterator  end = optionsTable.end();
-  bool sortingNeeded=false;
   for ( ; iter != end; ++iter)
   {
     if ( (iter->getName() == "STEP") || (iter->getName() == "DC") || (iter->getName() == "DATA") )
@@ -555,7 +725,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
       // random operators (like AGAUSS) inside of .param parameters.  It was a use 
       // case that fell thru the cracks in the first implementation of this function.
       Util::UParamList::const_iterator paramIter = unresolvedParams_.begin();
-      Util::UParamList::const_iterator end = unresolvedParams_.end();
       while (paramIter != unresolvedParams_.end())
       {
         Util::Param parameter = *paramIter;
@@ -780,7 +949,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
     // Add subcircuitParameters_ to the set of resolved parameters.
     // currentContextPtr_->resolvedParams_.addParameters( currentContextPtr_->subcircuitParameters_ );
-    Util::Param* paramPtr;
     Util::Param parameter;
     Util::UParamList::iterator ustart, uend, uparamIter;
     Util::ParamList::iterator paramIter;
@@ -1383,7 +1551,6 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
   bool isVarDep = expression.getVariableDependent();
   bool isLeadCurDep= expression.getLeadCurrentDependent();
   bool isSpecialsDep = expression.getSpecialsDependent();
-  bool isRandom = expression.isRandomDependent();
 
   bool success=true;
 
@@ -3239,7 +3406,11 @@ Pack<IO::CircuitContext>::unpack(
       circuit_context.circuitContextTable_.insert(
         std::pair< std::string, IO::CircuitContext *>(
           tmp,
-          new IO::CircuitContext(circuit_context.opBuilderManager_, circuit_context.contextList_, circuit_context.currentContextPtr_ ) ) );
+          new IO::CircuitContext(
+            circuit_context.opBuilderManager_, 
+            circuit_context.parsingMgr_,
+            circuit_context.contextList_, 
+            circuit_context.currentContextPtr_ ) ) );
 
     // set the parent context of my children to me
     p.first->second->setParentContextPtr( &circuit_context );

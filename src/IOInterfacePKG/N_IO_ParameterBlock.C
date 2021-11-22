@@ -336,12 +336,11 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
           linePosition = savedLinePosition;
 
           // fill in the allocated data structure
-          int componentIndex=-1;
+          size_t componentIndex=0;
           while (validLinePosition_(linePosition,numFields,paramBase) && (parsedInputLine[linePosition].string_ != "}") )
           {
             ExtendedString component ( parsedInputLine[linePosition].string_ );
             component.toUpper();
-            ++componentIndex;
 
             // In the instance version of vector-composite processing, there is
             // an error check at this point to see if the specified component
@@ -355,7 +354,7 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
             // not given.
             //paramIter->setGiven(true);
 
-            int blockIndex=0;
+            size_t blockIndex=0;
             bool startVC = true;
             while ( validLinePosition_(linePosition,numFields,paramBase) &&
                     (startVC || parsedInputLine[linePosition].string_ == ",") )
@@ -397,6 +396,7 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
               ++blockIndex;
             } // end of while loop.
 
+            ++componentIndex;
             //numComponents = blockIndex;
           } // end of while loop.
 
@@ -407,7 +407,7 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
           {
             Xyce::dout() << "User-input .MODEL statement vector-composite for param = "<< paramBase << std::endl;
             std::vector<std::vector<Device::Param> > & tmpParamVecVec = inputCompositeParamVecMap[paramBase];
-            for (int ivec=0;ivec<tmpParamVecVec.size();++ivec)
+            for (size_t ivec=0;ivec<tmpParamVecVec.size();++ivec)
             {
 
               Xyce::dout() << "Composite for column (block) "<< ivec<< ":" <<std::endl;
@@ -581,7 +581,6 @@ bool ParameterBlock::validLinePosition_(int pos, int lineLength, ExtendedString 
 //-----------------------------------------------------------------------------
 void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
 {
-  int i(0);
   std::map<std::string,bool> paramMetadataExistMap;
 
   if (defaultApplied_)
@@ -594,16 +593,15 @@ void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
   if (DEBUG_IO)
   {
     Xyce::dout() << "BEFORE adding final params:"<<std::endl;
-    for (int itmp3=0;itmp3<modelData.params.size();++itmp3)
+    for (const auto &modelDataParam : modelData.params)
     {
-      Xyce::dout() << modelData.params[itmp3];
+      Xyce::dout() << modelDataParam;
     }
     Xyce::dout() << "End of BEFORE parameter List"<<std::endl;
   }
 
-  for (i = 0; i < modelParameterPtr.size(); ++i)
+  for (const auto &param : modelParameterPtr)
   {
-    const Device::Param & param = modelParameterPtr[i];
     std::string paramSVal(param.stringValue());
 
     paramMetadataExistMap[param.tag()] = true;
@@ -627,9 +625,9 @@ void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
   if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
   {
     Xyce::dout() << " ParameterBlock::addDefaultModelParameters: metadata modelParameterPtr[] (list of defaults):"<<std::endl;
-    for (i=0; i< modelParameterPtr.size(); ++i)
+    for (const auto &param : modelParameterPtr)
     {
-      Xyce::dout() << modelParameterPtr[i];
+      Xyce::dout() << param;
     }
   }
 
@@ -703,9 +701,9 @@ void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
   if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
   {
     Xyce::dout() << "AFTER adding final default params:"<<std::endl;
-    for (int itmp2=0;itmp2<modelData.params.size();++itmp2)
+    for (const auto &modelDataParam : modelData.params)
     {
-      Xyce::dout() << modelData.params[itmp2];
+      Xyce::dout() << modelDataParam;
     }
     Xyce::dout() << "End of AFTER parameter List"<<std::endl;
   }
@@ -727,7 +725,7 @@ ParameterBlock::addDefaultCompositeModelParameters_(
   const Device::Param &         baseParam ,
   std::map<std::string,bool> &  paramMetadataExistMap)
 {
-  int icomp(0), ic(0), iNumCols(0);
+  size_t icomp(0), ic(0), iNumCols(0);
   std::string typ(getType());
   int lev(getLevel());
 
@@ -737,7 +735,7 @@ ParameterBlock::addDefaultCompositeModelParameters_(
   //metadata.getModelCompositeComponents(string(""),
   metadata.getModelCompositeComponents(getType(), baseTag, lev, defaultComponents);
 
-  int iDefaultCompSize=defaultComponents.size();
+  size_t iDefaultCompSize=defaultComponents.size();
 
   if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
   {
@@ -795,9 +793,8 @@ ParameterBlock::addDefaultCompositeModelParameters_(
       std::string utag1(defaultComponents[icomp].uTag());
 
       bool found=false;
-      int itmp=0;
-      int iInputCompSize =  inputCompositeParamVecMap[baseTag][0].size();
-      for (itmp=0;itmp<iInputCompSize;++itmp)
+      size_t iInputCompSize =  inputCompositeParamVecMap[baseTag][0].size();
+      for (size_t itmp=0;itmp<iInputCompSize;++itmp)
       {
         std::string utag2(inputCompositeParamVecMap[baseTag][0][itmp].uTag());
         if (utag1 == utag2)
@@ -820,7 +817,7 @@ ParameterBlock::addDefaultCompositeModelParameters_(
       }
     }
 
-    int iInputCompSize =  inputCompositeParamVecMap[baseTag][0].size();
+    size_t iInputCompSize =  inputCompositeParamVecMap[baseTag][0].size();
     if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
     {
       Xyce::dout() << "ParameterBlock::addDefaultCompositeModelParameters_: input composite for " << baseTag << ": " <<std::endl;
@@ -888,9 +885,9 @@ ParameterBlock::addDefaultCompositeModelParameters_(
     if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
     {
       Xyce::dout() << "After adding composite params:"<<std::endl;
-      for (int itmp2=0;itmp2<modelData.params.size();++itmp2)
+      for (const auto &modelDataParam : modelData.params)
       {
-        Xyce::dout() << modelData.params[itmp2];
+        Xyce::dout() << modelDataParam;
       }
     }
   }
@@ -1103,7 +1100,7 @@ template<>
 void
 Pack<IO::ParameterBlock>::pack(const IO::ParameterBlock &parameter_block, char * buf, int bsize, int & pos, Parallel::Communicator* comm )
 {
-  int size, length, j;
+  int size, j;
   int def;
 #ifdef Xyce_COUNT_PACKED_BYTES
   int predictedPos = pos+Pack<IO::ParameterBlock>::packedByteCount( parameter_block );

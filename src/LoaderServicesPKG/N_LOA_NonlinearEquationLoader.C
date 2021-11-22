@@ -363,7 +363,9 @@ bool NonlinearEquationLoader::loadRHS ()
       ds_.currStatePtr,
       ds_.lastStatePtr,
       ds_.nextStorePtr,
-      ds_.currStorePtr);
+      ds_.currStorePtr,
+      ds_.lastStorePtr
+      );
 
     bsuccess = bsuccess && tmpBool;
 
@@ -383,6 +385,7 @@ bool NonlinearEquationLoader::loadRHS ()
       ds_.nextStateDerivPtr,
       ds_.nextStorePtr,
       ds_.currStorePtr,
+      ds_.lastStorePtr,
       ds_.nextLeadCurrentPtr,
       ds_.nextLeadCurrentQPtr,
       ds_.nextLeadDeltaVPtr,

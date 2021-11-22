@@ -70,7 +70,8 @@ namespace Nonlinear {
 //-----------------------------------------------------------------------------
 std::ostream & operator<<(std::ostream & os, const ReturnCodes & rc)
 {
-  os << "\n\n-----------------------------------------" << std::endl
+  os << std::endl << std::endl
+     << section_divider << std::endl
      << "\tNonlinear Solver Return Codes:\n"
      << "\t\tnormTooSmall      = " << rc.normTooSmall << "\n"
      << "\t\tnormalConvergence = " << rc.normalConvergence << "\n"
@@ -78,10 +79,9 @@ std::ostream & operator<<(std::ostream & os, const ReturnCodes & rc)
      << "\t\tsmallUpdate       = " << rc.smallUpdate << "\n"
      << "\t\tnanFail           = " << rc.nanFail << "\n"
      << "\t\ttooManySteps      = " << rc.tooManySteps << "\n"
-     << "\t\ttooManyTranSteps  = " << rc.tooManyTranSteps << "\n"
      << "\t\tupdateTooBig      = " << rc.updateTooBig << "\n"
      << "\t\tstalled           = " << rc.stalled << "\n"
-     << "\t\twrmsExactZero     = " << rc.wrmsExactZero << "\n"
+     << "\t\tlinearSolverFailed= " << rc.linearSolverFailed << "\n"
      << section_divider << std::endl
      << std::endl;
 

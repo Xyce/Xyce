@@ -1025,7 +1025,8 @@ bool NOISE::updateACLinearSystem_C_and_G_()
                (analysisManager_.getDataStore()->currStatePtr),
                (analysisManager_.getDataStore()->lastStatePtr),
                (analysisManager_.getDataStore()->nextStorePtr),
-               (analysisManager_.getDataStore()->currStorePtr)
+               (analysisManager_.getDataStore()->currStorePtr),
+               (analysisManager_.getDataStore()->lastStorePtr)
                );
 
   loader_.loadDAEVectors
@@ -1038,6 +1039,7 @@ bool NOISE::updateACLinearSystem_C_and_G_()
                (analysisManager_.getDataStore()->nextStateDerivPtr),
                (analysisManager_.getDataStore()->nextStorePtr),
                (analysisManager_.getDataStore()->currStorePtr),
+               (analysisManager_.getDataStore()->lastStorePtr),
                (analysisManager_.getDataStore()->nextLeadCurrentPtr),
                (analysisManager_.getDataStore()->nextLeadCurrentQPtr),
                (analysisManager_.getDataStore()->nextLeadDeltaVPtr),

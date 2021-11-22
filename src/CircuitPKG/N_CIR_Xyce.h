@@ -241,7 +241,8 @@ class Simulator
   // Function      : getTimeVoltagePairs
   // Purpose       : query the DAC devices in a circuit for the set
   //                 of time and voltage pairs
-  // Special Notes :
+  // Special Notes : Calling this function clears the ADC devices time-voltage
+  //                 pair vector.  
   // Scope         : public
   // Creator       : Tom Russo, SNL ComponentInformation and Models
   // Creation Date : 05/10/2004
@@ -249,6 +250,16 @@ class Simulator
   bool getTimeVoltagePairs(
         std::map< std::string, std::vector< std::pair<double,double> > > &
         timeVoltageUpdateMap);
+  
+  //---------------------------------------------------------------------------
+  // Function      : getTimeVoltagePairsSz
+  // Purpose       : Returns the largest size of the TV Pairs data in the ADCs
+  // Special Notes :
+  // Scope         : public
+  // Creator       : 
+  // Creation Date : 11/11/2021
+  //---------------------------------------------------------------------------
+  bool getTimeVoltagePairsSz(int &maximumSize);
 
   //---------------------------------------------------------------------------
   // Function      : getTimeStatePairs

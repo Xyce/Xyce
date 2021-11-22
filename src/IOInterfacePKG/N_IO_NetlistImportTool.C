@@ -287,7 +287,7 @@ NetlistImportTool::NetlistImportTool(
     distributionTool_(NULL),
     currentContextPtr_(NULL),
     metadata_(),
-    circuitContext_(op_builder_manager, contextList_, currentContextPtr_),
+    circuitContext_(op_builder_manager, parsing_manager, contextList_, currentContextPtr_),
     useMOR_(false),
     expressionGroup_(group)
 {}

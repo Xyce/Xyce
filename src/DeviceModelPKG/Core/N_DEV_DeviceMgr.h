@@ -312,6 +312,7 @@ public:
                Linear::Vector * tmpStaDerivVectorPtr,
                Linear::Vector * tmpStoVectorPtr,
                Linear::Vector * tmpCurrStoVectorPtr,
+               Linear::Vector * tmpLastStoVectorPtr,
                Linear::Vector * tmpQVectorPtr,
                Linear::Vector * tmpFVectorPtr,
                Linear::Vector * tmpBVectorPtr,
@@ -354,6 +355,7 @@ public:
                          Linear::Vector * tmpStaDerivVectorPtr,
                          Linear::Vector * tmpNextStoVectorPtr,
                          Linear::Vector * tmpCurrStoVectorPtr,
+                         Linear::Vector * tmpLastStoVectorPtr,
                          Linear::Vector * tmpLeadFCompVectorPtr,
                          Linear::Vector * tmpLeadQCompVectorPtr,
                          Linear::Vector * tmpJunctionVCompVectorPtr,
@@ -392,6 +394,7 @@ public:
     Linear::Vector * lastStaVectorPtr,
     Linear::Vector * nextStoVectorPtr,
     Linear::Vector * currStoVectorPtr,
+    Linear::Vector * lastStoVectorPtr,
     int loadType = Xyce::Device::ALL);
 
   bool loadBVectorsforAC (Linear::Vector * bVecRealPtr,
