@@ -41,5 +41,18 @@ while setting it to 1 will use the old version of the TRIG-TARG measure
 for all TRIG-TARG measures in the netlist.  If the FRAC\_MAX qualifier is
 used on a TRIG-TARG line then \Xyce{} will automatically default to
 \texttt{USE\_LTTM=1} for that particular measure line.  \\ \hline
+
+\textbf{Gitlab-ex issue 338}: Added the function \texttt{Simulator:: getTimeVoltagePairsSz} & The function
+\texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun 
+number of time, voltage or state values for an ADC in a subsequent call to 
+\texttt{Simulator::getTimeVoltagePairs} or \texttt{Simulator::getTimeStatePairs}.
+Also, calling \texttt{Simulator::getTimeStatePairs} no longer clears the voltage
+history of an ADC, so a calling program that needs both state and voltage history
+can first call \texttt{Simulator::getTimeStatePairs} and then call 
+\texttt{Simulator::getTimeVoltagePairs} to get both.  Calling 
+\texttt{Simulator::getTimeVoltagePairs} still clears the ADC history.
+See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further 
+details.
+
 \end{longtable}
 }

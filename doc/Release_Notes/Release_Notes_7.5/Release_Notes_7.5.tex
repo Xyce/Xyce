@@ -95,6 +95,11 @@ analyses.
   \item The scale parameter, which is used to automatically scale device sizing parameters 
     is supported and can be specified using either \texttt{.option scale=number} 
     or \texttt{.options device scale=number}.
+  \item Added the mixed signal interface function
+  \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun number of time,
+  voltage or state values for an ADC in a subsequent call to \texttt{Simulator::
+  getTimeVoltagePairs} or \texttt{Simulator::getTimeStatePairs}.
+  
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
