@@ -244,6 +244,12 @@ class xyce_interface:
     status = self.lib.xyce_obtainResponse( byref(self.xycePtr), cvarName, byref(cValue) )
     return (status, (cValue.value))
 
+  def getTimeVoltagePairsADCsz( self ):
+    cNumPoints = c_int(0)
+    status = self.lib.xyce_getTimeVoltagePairsADCsz( byref(self.xycePtr), byref(cNumPoints) )
+    numPoints = (cNumPoints.value)
+    return (status, numPoints)
+
   def getTimeVoltagePairsADC( self ):
     cNumADCnames = c_int(0)
     cNumPoints = c_int(0)
