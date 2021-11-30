@@ -1102,8 +1102,6 @@ void HB::prepareHBOutput(
       realList.resize(size_);
       imagList.resize(size_);
 
-//      int sizePos = (size_ - 1)/2;
-
       for (int m=0; m<size_; m++)
       {
 
@@ -1127,7 +1125,6 @@ void HB::prepareHBOutput(
       {
         for (int i=0; i< freqPoints_.size(); i++)
         {
-//          dout() << "frequency point " << realList[i].first  << " solution " <<  std::complex<double>(realList[i].second, imagList[i].second) << std::endl; 
           freqPoints[i]  = realList[i].first;
         }
       } 
