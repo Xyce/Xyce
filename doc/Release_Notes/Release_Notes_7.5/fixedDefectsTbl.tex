@@ -133,6 +133,26 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
   Under rare circumstances, if an expression combined a ternary operator and
   a time-dependent table, an error in breakpointing could cause the time integrator 
   to get stuck in a near-infinite loop.  This has been fixed.  \\ \hline
+  
+ \textbf{Gitlab-ex issue 270}: Inconsistency in column headers for .PRINT SENS for TRAN/DC and AC &
+  The format of the column headers in the sensitivity output files is different
+  between AC and DC/TRAN analysis. An example of a sensitivity data column name
+  in a DC analysis output file might look like this:\begin{verbatim}
+  d{V(B)}/d(R1:R)_Dir\end{verbatim}
+  while in an AC analysis output file the title of the sensitivity data might be
+  \begin{verbatim}
+  d_VR(B)/d_R1:R_dir\end{verbatim}
+  Additionally, the complex and polar notation in the AC output implies that the
+  objective is a voltage (using VR, VI, VM, VP). This change tries to make all
+  the sensitivity column headers follow the same convention:
+  \begin{verbatim}d_{expression}/d_parameter_dir\end{verbatim}
+  (the suffix may be either {\_}dir or {\_}adj). The component notaion on the AC
+  output has been updated to use Re({exp}), Im({exp}), Mag({exp}) and Ph({exp}).
+  In working this issue, the processing logic for AC .SENS lines was also
+  refactored. The objvars and acobjfunc components of a .SENS line are now
+  handled by the same processing functions. With this change, the restriction
+  against using both objective function specifiers on the same .SENS line was
+  removed. \\ \hline
 
 \end{longtable}
 }

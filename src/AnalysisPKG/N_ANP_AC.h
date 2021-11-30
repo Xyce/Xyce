@@ -79,7 +79,7 @@ std::ostream& sensStdOutput (
        const std::vector<std::string> & paramNameVec,
        const std::vector<double> & param_dP,
        const std::vector<int> & numericalDiff,
-       const std::vector<std::string> & objFuncVars,
+       const std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> & objFuncDataVec,
        const std::vector<double> & objectiveVec,
        OutputMgrAdapter & outputManagerAdapter,
        std::ostream& os
@@ -119,14 +119,6 @@ class ACExpressionGroup : public Xyce::Util::mainXyceExpressionGroup
     const Linear::BlockVector & X_;
 
 };
-
-void evaluateSimpleObjFuncs (
-  Parallel::Communicator & comm,
-  const Linear::BlockVector & X,
-  const std::vector<int> & outputVarGIDs,
-  std::vector<double> & objectiveVec,
-  const OutputMgrAdapter & outputManagerAdapter
-    );
 
 //-------------------------------------------------------------------------
 // Class         : AC
@@ -222,9 +214,7 @@ private:
   bool loadSensitivityRHS_(int ipar);
   bool computeNumerical_dJdp(int ipar);
   bool outputSensitivity_();
-  bool setupObjectiveFuncGIDs_();
 
-  bool setup_dOdX_(int iobj);
   void solve_mag_phase_Sensitivities_(
       const double dxdpReal,
       const double dxdpImag,
@@ -351,11 +341,6 @@ private:
   bool objFuncGIDsetup_;
   std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> objFuncDataVec_;
   std::vector<std::string> objFuncStrings_; // needed for output
-
-  // these are for the "old" style of specifying objective functions
-  bool objVarGiven_;
-  std::vector<std::string> objFuncVars_;
-  std::vector<int>    outputVarGIDs_;
 
   std::vector<std::string> paramNameVec_;
   std::vector<double> param_dP_;
