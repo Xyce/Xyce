@@ -1094,7 +1094,7 @@ void HB::prepareHBOutput(
     std::vector<std::pair<double, double>> realList, imagList;
     int sizePos = (size_ - 1)/2;
 
-    if (( method_ == "AFM") || (method_ == "HYBRID") )
+    if ( (( method_ == "AFM") || (method_ == "HYBRID") ) && ( lid >= 0 ) )
     { 
 
 //      std::vector<std::pair<double, double>> realList, imagList;
