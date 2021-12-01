@@ -576,6 +576,89 @@ int xyce_getTimeVoltagePairsADCsz( void** ptr, int *maxPoints )
   return status;
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getTimeVoltagePairsADCLimitData
+// Purpose       : Call the Xyce::Circuit::Simulator::getTimeVoltagePairs
+//                 function via a pointer to an N_CIR_Xyce object but limit the
+//                 returned data assuming the maximum dimensions of the arras are:
+//                 ADCnamesArray[maxNumADCnames][maxNameLength]
+//                 timeArray[maxNumADCnames][maxNumPoints]
+//                 voltageArray[maxNumADCnames][maxNumPoints]
+//                 numPointsArray[maxNumADCnames]
+//
+//                 numPointsArray[i] is the number of time and voltage points 
+//                 for the i'th ADC in the timeArray[i][] and voltageArray[i][]
+//
+//                 Using numPointsArray allows the calling program to know the 
+//                 number of valid points in the time and voltage arrays. 
+//                 A typical use case is to create that pointer with the 
+//                 xyce_open() function, and to then initialize the N_CIR_Xyce 
+//                 object with the xyce_initialize() function before using this 
+//                 function.  Also, precallocation of the arrays ADCnamesArray,
+//                 timeArray, voltageArray and numPointsArray is REQUIRED.
+//
+//                 See the "Application Note: Mixed Signal Simulation with 
+//                 Xyce" for a discussion of how to use this function. This 
+//                 function returns 1 if any ADC devices were found in the
+//                 simulation.  It returns 0, otherwise.
+//
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 3/01/2018
+//-----------------------------------------------------------------------------
+int xyce_getTimeVoltagePairsADCLimitData( void** ptr, 
+  const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
+  int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, double ** voltageArray )
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  
+  std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
+  int status = xycePtr->getTimeVoltagePairs( timeVoltageUpdateMap );
+  
+  std::map< std::string, std::vector< std::pair<double,double> > >::iterator cMap = timeVoltageUpdateMap.begin();
+  std::map< std::string, std::vector< std::pair<double,double> > >::iterator eMap = timeVoltageUpdateMap.end();
+  int ADCnum = 0;
+  while( (cMap != eMap) && (ADCnum <maxNumADCnames) )
+  {
+    strncpy( ADCnamesArray[ADCnum], (cMap->first).c_str(), maxNameLength );
+    std::vector< std::pair<double,double> > dataVec = cMap->second;
+    // return the size of the array or maxNumPoints whichever is smaller.
+    if(dataVec.size() < maxNumPoints)
+    {
+      numPointsArray[ADCnum]= dataVec.size();
+      int j=0;
+      while((j<dataVec.size()))
+      {
+        timeArray[ADCnum][j] = dataVec[j].first;
+        voltageArray[ADCnum][j] = dataVec[j].second;
+        j++;
+      }
+    }
+    else
+    {
+      // number of points is greater than allocated space.  
+      // just return the LAST points as they include the end time 
+      // step and steps closest to that time. 
+      numPointsArray[ADCnum]= maxNumPoints;
+      int j=dataVec.size()-1;
+      int k= maxNumPoints-1;
+      while(k>=0)
+      {
+        timeArray[ADCnum][k] = dataVec[j].first;
+        voltageArray[ADCnum][k] = dataVec[j].second;
+        j--;
+        k--;
+      }
+    }    
+    ADCnum++;
+    ++cMap;
+  }
+  
+  *numADCnames=ADCnum;
+  return status;
+}
+
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeStatePairsADC 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeStatePairs
