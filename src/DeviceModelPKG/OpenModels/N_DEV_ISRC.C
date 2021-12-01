@@ -56,6 +56,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_Matrix.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_MachDepParams.h>
 
 
 #include <N_UTL_Math.h>
@@ -260,7 +261,8 @@ Instance::Instance(
     DCSOURCETYPEgiven(false),
     gotParams(false),
     ACMAG(1.0),
-    ACPHASE(0.0)
+    ACPHASE(0.0),
+    freqVarsLoaded(false)
 {
   numIntVars = 0;
   numExtVars = 2;
@@ -538,7 +540,6 @@ const std::vector< std::vector<int> > & Instance::jacobianStamp() const
   return jacStamp;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Instance::loadFreqBVector
 //
@@ -555,50 +556,59 @@ bool Instance::loadFreqBVector (double frequency,
                                 std::vector<Util::FreqVecEntry>& bVec)
 {
 
-//  InstanceVector::const_iterator it, end;
 
-//  it = linearInstances_.begin();
-//  end = linearInstances_.end();
+  if ( !freqVarsLoaded )
+    calculateFDVars();
 
   Util::FreqVecEntry tmpEntry;
 
-//  for ( ; it != end; ++it )
   {
-//    Instance & vi = *(*it);
 
     std::complex<double> tmpVal = 0.0;
 
-    SourceData *dataPtr  = dcSourceData_;
-    if ( HBSpecified_ && tranSourceData_ != 0 )
-    {
-      dataPtr =  tranSourceData_;
-    }
-
-    if  ( (dataPtr != 0)  && (TRANSIENTSOURCETYPE == _SIN_DATA))
-    {
-      double v0 = par0;
-
-      double mag = par1;
-
-      double freq = par3;
-
-      double phase = M_PI * par5/180;
-
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( v0, 0);
-
-      if (frequency == freq)
-        tmpVal = std::complex<double> ( 0.5 * mag *sin(phase), -0.5*mag*cos(phase) );
-
-    }
-    else
+    switch (TRANSIENTSOURCETYPE)
     {
 
-      double v0 = DCV0;
-      if (frequency == 0.0 )
-        tmpVal = std::complex<double> ( v0, 0 );
-    }
+      case _SIN_DATA:
+      {
+	if (frequency == 0.0 )
+	  tmpVal = std::complex<double> ( v0, 0);
 
+	if (frequency == freq)
+	  tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
+
+      }
+      break;
+
+      case _PULSE_DATA:
+      {
+
+	int fIdx;
+
+	fIdx = std::round( frequency/freq);
+
+	double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
+
+	if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
+	  tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
+
+//	std::cout << "loaded value is " << tmpVal << std::endl;
+      }
+      break;
+
+      case _DC_DATA:
+      {
+	if (frequency == 0.0 )
+	  tmpVal = std::complex<double> ( v0, 0 );
+
+ //  	std::cout << "loaded DC value is " << tmpVal << std::endl;
+      }
+      break;
+
+      default:
+        UserFatal(*this) << "Cannot identify source data type for " << getName();
+        break;
+    }
      // Add RHS vector element for the positive circuit node KCL equ.
     tmpEntry.val = -tmpVal;
     tmpEntry.lid = li_Pos;
