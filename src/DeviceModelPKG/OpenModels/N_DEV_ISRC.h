@@ -47,6 +47,9 @@
 #include <N_DEV_Param.h>
 #include <N_DEV_Source.h>
 
+#include <Teuchos_RCP.hpp>
+#include <N_UTL_FFTInterface.hpp>
+
 namespace Xyce {
 namespace Device {
 namespace ISRC {
@@ -127,6 +130,8 @@ public:
 
   bool loadFreqBVector(double frequency,
                        std::vector<Util::FreqVecEntry>& bVec);
+ 
+  bool calculateFDVars ();
 
 protected:
 private:
@@ -181,6 +186,17 @@ private:
 
   double ACMAG;
   double ACPHASE;
+
+  double mag;
+  double freq, v0;
+  double phase;
+
+                   
+  bool freqVarsLoaded;
+  int size_;
+  Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
+  std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_;
+                   
 };
 
 //-----------------------------------------------------------------------------

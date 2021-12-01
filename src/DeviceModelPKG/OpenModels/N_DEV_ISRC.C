@@ -612,6 +612,111 @@ bool Instance::loadFreqBVector (double frequency,
   return true;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Instance::loadFreqBVector
+//
+// Purpose       : Loads the B-vector contributions for a single
+//                 vsrc instance.
+//
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Ting Mei, SNL
+// Creation Date :
+//-----------------------------------------------------------------------------
+bool Instance::calculateFDVars()
+{
+
+  SourceData *dataPtr  = dcSourceData_;
+  if ( HBSpecified_ && tranSourceData_ != 0 )
+  {
+    dataPtr =  tranSourceData_;
+  }
+
+  if ( (dataPtr != 0)  )
+  {
+
+    switch (TRANSIENTSOURCETYPE)
+    {
+
+      case _SIN_DATA:
+      {
+        v0 = par0;
+
+        mag = par1;
+
+        freq = par3;
+
+        phase = M_PI * par5/180;
+      }
+      break;
+
+      case _PULSE_DATA:
+      {
+
+	dataPtr->setUseLocalTimeFlag(true);
+
+	double dt = std::min( {par3, par4, par5} );
+
+	int overSampleRate = 2;
+
+	size_ = std::round( par6/dt ) * overSampleRate;
+
+	if ( size_ % 2 == 0)
+	  size_ = size_ + 1;
+
+	double tstep = par6/size_;
+	freq = 1/par6;
+
+	ftInData_.resize( size_ );
+	ftOutData_.resize( size_ +1 );
+	iftInData_.resize( size_  +1 );
+	iftOutData_.resize( size_ );
+
+	if (ftInterface_ == Teuchos::null)
+	{
+	  ftInterface_ = Teuchos::rcp( new N_UTL_FFTInterface<std::vector<double> >( size_ ) );
+	  ftInterface_->registerVectors( ftInData_, &ftOutData_, iftInData_, &iftOutData_ );
+	} 
+
+
+	for ( int i=0;  i < size_; ++i )
+	{
+
+	   dataPtr->setTime(i * tstep);
+
+	   dataPtr->updateSource();
+
+	   ftInData_[i] = dataPtr->returnSource();
+
+  //         std::cout <<  "ftIndata " << i << " is " << ftInData_[i] << std::endl;
+	}
+
+        ftInterface_->calculateFFT();
+
+        dataPtr->setUseLocalTimeFlag(false);
+
+      }
+      break;
+
+      case _DC_DATA:
+      {
+        v0 = DCV0;
+      }
+      break;
+
+      default:
+        UserFatal(*this) << "Cannot identify source data type for " << getName();
+        break;
+    }
+
+  }        
+     
+  freqVarsLoaded =true;  
+
+  return true;
+}
+
 
 
 //-----------------------------------------------------------------------------
