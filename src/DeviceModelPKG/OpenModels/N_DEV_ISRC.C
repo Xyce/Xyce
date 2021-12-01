@@ -623,7 +623,7 @@ bool Instance::loadFreqBVector (double frequency,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::loadFreqBVector
+// Function      : Instance::calculateFDVars
 //
 // Purpose       : Loads the B-vector contributions for a single
 //                 vsrc instance.
