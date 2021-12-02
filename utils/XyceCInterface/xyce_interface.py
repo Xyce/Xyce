@@ -147,7 +147,7 @@ class xyce_interface:
     return status
 
   def checkDeviceParamName(self , paramName):
-    cvarName = c_char_p(paramName)
+    cvarName = c_char_p(paramName.encode('utf-8'))
     status = self.lib.xyce_checkDeviceParamName( byref(self.xycePtr), cvarName )
     return status
 
@@ -221,7 +221,7 @@ class xyce_interface:
     return (status, ADCnames, widths, resistances, upperVLimits, lowerVLimits, settlingTimes)
 
   def updateTimeVoltagePairs( self, basename,  time, voltage):
-    cBaseName = c_char_p(basename)
+    cBaseName = c_char_p(basename.encode('utf-8'))
     if( len( time ) != len( voltage ) ):
       print( "Time and Voltage arrays passed to updateTimeVoltagePairs are not of the same length.")
       return -1
@@ -234,7 +234,7 @@ class xyce_interface:
     return status
 
   def checkResponseVarName(self , varName):
-    cvarName = c_char_p(varName)
+    cvarName = c_char_p(varName.encode('utf-8'))
     status = self.lib.xyce_checkResponseVar( byref(self.xycePtr), cvarName )
     return status
 

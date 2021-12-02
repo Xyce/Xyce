@@ -360,6 +360,12 @@ int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
   double pVal;
   int result = xycePtr->getDeviceParamVal( full_param_nameStr, pVal );
   *value = pVal;
+  if( result == 0)
+  {
+    // device or parameter wasn't found.  Need to set the return parameter 
+    // value to zero as that is the expected behavior of this function.
+    *value = 0.0;
+  }
   return result;
 }
 
