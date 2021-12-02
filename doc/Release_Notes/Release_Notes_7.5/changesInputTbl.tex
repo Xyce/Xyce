@@ -52,7 +52,15 @@ can first call \texttt{Simulator::getTimeStatePairs} and then call
 \texttt{Simulator::getTimeVoltagePairs} to get both.  Calling 
 \texttt{Simulator::getTimeVoltagePairs} still clears the ADC history.
 See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further 
-details.
+details. \\ \hline
+
+\textbf{Gitlab-ex issue 348}:  Added the function \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()}  &
+  A new function has been added to the \texttt{XyceCInterface} called 
+  \texttt{xyce\_getTimeVoltagePairsADCLimitData()} which limits the data copied 
+  to the caller allocated space to whatever maximum 
+  allocation length is provided.  This avoids potential memory overwriting that
+  could occur with the general access function \texttt{xyce\_getTimeVoltagePairsADC()}.
+  See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
 
 \end{longtable}
 }

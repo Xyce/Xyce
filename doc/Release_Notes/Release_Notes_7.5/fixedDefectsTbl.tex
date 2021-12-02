@@ -92,5 +92,19 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
   will work correctly.   The units for temperature in \Xyce{} have always been 
   Celsius, so this was only a parsing issue. \\ \hline
 
+\textbf{Gitlab-ex issue 348}: \texttt{xyce\_getTimeVoltagePairsADC()} could overwrite memory &
+  The general access function \texttt{xyce\_getTimeVoltagePairsADC()} could overwrite
+  memory if the caller did not preallocate sufficient space.  A new function has been
+  added to the \texttt{XyceCInterface} called \texttt{xyce\_getTimeVoltagePairsADCLimitData()}
+  which limits the data copied to the caller allocated space to whatever maximum 
+  allocation length is provided.  See the Application note, 
+  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 351}: Support Python 3 in Xyce &
+  The Python interface to Xyce in \texttt{xyce\_interface.py}
+  has been updated to support Python 3.x.  See the Application note, 
+  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
+  
+
 \end{longtable}
 }
