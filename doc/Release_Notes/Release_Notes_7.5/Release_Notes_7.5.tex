@@ -95,6 +95,21 @@ analyses.
   \item The scale parameter, which is used to automatically scale device sizing parameters 
     is supported and can be specified using either \texttt{.option scale=number} 
     or \texttt{.options device scale=number}.
+  \item Added the mixed signal interface function
+  \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun number of time,
+  voltage or state values for an ADC in a subsequent call to \texttt{Simulator::
+  getTimeVoltagePairs} or \texttt{Simulator::getTimeStatePairs}.
+  \item Added the mixed signal interface function
+  \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} to allow the calling program 
+  to specify the maximum size of the allocated memory that can be used for copying
+  ADC time-voltage history data.  This allows the caller to allocate only the 
+  required amount of memory and ensure that Xyce cannot overwrite the memory area.
+  See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further details.
+  \item The Xyce Python interface file \texttt{xyce\-interface.py} is now 
+  compatible with Python 3.x.  The interface file is still backwards compatible 
+  with Python 2.7. The Mixed Signal Simulation with \Xyce{} 7.5 Application Note 
+  has examples of using Xyce from Python.
+  
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

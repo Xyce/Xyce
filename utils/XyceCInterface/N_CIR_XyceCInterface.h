@@ -64,6 +64,9 @@ int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, doub
                 
 int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames, int * numPoints, double ** timeArray, double ** voltageArray );
 int xyce_getTimeVoltagePairsADCsz( void** ptr, int * maxPoints );
+
+int xyce_getTimeVoltagePairsADCLimitData( void** ptr, const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
+  int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, double ** voltageArray );
 /* 
    Note: ADCnames, numPoints, timeArray and voltageArray must be preallocated!  this function cannot 
    allocate that storage or the ctypes layer breaks 

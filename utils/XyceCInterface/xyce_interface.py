@@ -104,7 +104,7 @@ class xyce_interface:
     status = self.lib.xyce_getDeviceNames( byref(self.xycePtr), cBaseName, byref(cNumDeviceNames), cDeviceNameArray)
     #print( cNumDeviceNames.value, cDeviceNameArray[0],  cDeviceNameArray[1])
     for i in range(0, cNumDeviceNames.value):
-      names.insert(i, cDeviceNameArray[i] )
+      names.insert(i, str(cDeviceNameArray[i].decode('utf-8')) )
     return (status, names)
 
   def getAllDeviceNames( self):
@@ -121,7 +121,7 @@ class xyce_interface:
     cDeviceNameArray = (c_char_p*cNumDeviceNames.value)(*map(addressof, deviceNameBuff))
     status = self.lib.xyce_getAllDeviceNames( byref(self.xycePtr), byref(cNumDeviceNames), cDeviceNameArray)
     for i in range(0, cNumDeviceNames.value):
-      names.insert(i, cDeviceNameArray[i] )
+      names.insert(i, str(cDeviceNameArray[i].decode('utf-8')) )
     return (status, names)
 
   def getDACDeviceNames( self ):
@@ -142,12 +142,12 @@ class xyce_interface:
     status = self.lib.xyce_getDACDeviceNames( byref(self.xycePtr), byref(cNumDeviceNames), cDeviceNameArray)
     #print( cNumDeviceNames.value, cDeviceNameArray[0],  cDeviceNameArray[1])
     for i in range(0, cNumDeviceNames.value):
-      DACnames.insert(i, cDeviceNameArray[i] )
+      DACnames.insert(i, str(cDeviceNameArray[i].decode('utf-8')) )
     return (status, DACnames)
     return status
 
   def checkDeviceParamName(self , paramName):
-    cvarName = c_char_p(paramName)
+    cvarName = c_char_p(paramName.encode('utf-8'))
     status = self.lib.xyce_checkDeviceParamName( byref(self.xycePtr), cvarName )
     return status
 
@@ -211,7 +211,7 @@ class xyce_interface:
                                       byref(cSettlingTimes) )
 
     for i in range(0, cNumDeviceNames.value):
-      ADCnames.insert(i,cADCNames[i])
+      ADCnames.insert(i,str(cADCNames[i].decode('utf-8')))
       widths.insert(i,cWidths[i])
       resistances.insert(i,cResistances[i])
       upperVLimits.insert(i,cUpperVLimits[i])
@@ -221,7 +221,7 @@ class xyce_interface:
     return (status, ADCnames, widths, resistances, upperVLimits, lowerVLimits, settlingTimes)
 
   def updateTimeVoltagePairs( self, basename,  time, voltage):
-    cBaseName = c_char_p(basename)
+    cBaseName = c_char_p(basename.encode('utf-8'))
     if( len( time ) != len( voltage ) ):
       print( "Time and Voltage arrays passed to updateTimeVoltagePairs are not of the same length.")
       return -1
@@ -234,7 +234,7 @@ class xyce_interface:
     return status
 
   def checkResponseVarName(self , varName):
-    cvarName = c_char_p(varName)
+    cvarName = c_char_p(varName.encode('utf-8'))
     status = self.lib.xyce_checkResponseVar( byref(self.xycePtr), cvarName )
     return status
 
@@ -244,6 +244,12 @@ class xyce_interface:
     status = self.lib.xyce_obtainResponse( byref(self.xycePtr), cvarName, byref(cValue) )
     return (status, (cValue.value))
 
+  def getTimeVoltagePairsADCsz( self ):
+    cNumPoints = c_int(0)
+    status = self.lib.xyce_getTimeVoltagePairsADCsz( byref(self.xycePtr), byref(cNumPoints) )
+    numPoints = (cNumPoints.value)
+    return (status, numPoints)
+
   def getTimeVoltagePairsADC( self ):
     cNumADCnames = c_int(0)
     cNumPoints = c_int(0)
@@ -252,7 +258,7 @@ class xyce_interface:
     maxNumTimeVoltagePairs=1000
     ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
     cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
-
+    
     #make the two double** arrays
     double_ctime = POINTER(c_double)
     inner_ctime_array = (c_double * maxNumTimeVoltagePairs)
@@ -276,7 +282,7 @@ class xyce_interface:
     # the return statement
     ADCnames = []
     for i in range(0, numADCnames):
-      ADCnames.insert(i, cADCDeviceNameArray[i] ) 
+      ADCnames.insert(i, str(cADCDeviceNameArray[i].decode('utf-8')) ) 
 
     # make the returned timeArray
     double_time = POINTER(c_double)
@@ -304,6 +310,77 @@ class xyce_interface:
 
     return (status, ADCnames, numADCnames, numPoints, timeArray, voltageArray)
 
+  def getTimeVoltagePairsADCLimitData( self ):
+    cNumADCnames = c_int(0)
+    maxNumDevices=1000
+    maxDeviceNameLength=1000
+    maxNumTimeVoltagePairs=1000
+    ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
+    cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
+    
+    # make an int array for the number of points per ADC 
+    cNumPointsArray = (c_int * maxNumDevices)()
+    
+    #make the two double** arrays
+    double_ctime = POINTER(c_double)
+    inner_ctime_array = (c_double * maxNumTimeVoltagePairs)
+    cTimeArray = (double_ctime * maxNumDevices) ()
+    for i in range(maxNumDevices):
+       cTimeArray[i] = inner_ctime_array()
+
+    double_cvoltage = POINTER(c_double)
+    inner_cvoltage_array = (c_double * maxNumTimeVoltagePairs)
+    cVoltageArray = (double_cvoltage * maxNumDevices) ()
+    for i in range(maxNumDevices):
+       cVoltageArray[i] = inner_cvoltage_array()
+    
+    #int xyce_getTimeVoltagePairsADCLimitData( void** ptr, const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
+    #     int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, double ** voltageArray );
+
+    status = self.lib.xyce_getTimeVoltagePairsADCLimitData( byref(self.xycePtr), 
+      maxNumDevices, maxDeviceNameLength, maxNumTimeVoltagePairs,
+      byref(cNumADCnames), cADCDeviceNameArray, cNumPointsArray, byref(cTimeArray), byref(cVoltageArray) )
+
+    # make the integer return values
+    numADCnames = (cNumADCnames.value)
+    
+    # make and populate the arrays that will be used in
+    # the return statement
+    ADCnames = []
+    for i in range(0, numADCnames):
+      ADCnames.insert(i, str(cADCDeviceNameArray[i].decode('utf-8')) ) 
+
+    # number of datapoints per ADC 
+    numPointsArray = []
+    for i in range(0, numADCnames):
+      numPointsArray.insert(i, cNumPointsArray[i])
+      
+    # make the returned timeArray
+    double_time = POINTER(c_double)
+    timeArray = (double_time * numADCnames) ()
+    for i in range(numADCnames):
+       inner_time_array = (c_double * numPointsArray[i])
+       timeArray[i] = inner_time_array()
+
+    # copy over the elements from cTimeArray to timeArray
+    for i in range(numADCnames):
+      for j in range(numPointsArray[i]):
+       timeArray[i][j] = cTimeArray[i][j]
+
+    # make the returned voltageArray
+    double_voltage = POINTER(c_double)
+    voltageArray = (double_voltage * numADCnames) ()
+    for i in range((cNumADCnames.value)):
+       inner_voltage_array = (c_double *  numPointsArray[i])
+       voltageArray[i] = inner_voltage_array()
+
+    # copy over the elements from cVoltageArray to voltageArray
+    for i in range(numADCnames):
+      for j in range(numPointsArray[i]):
+       voltageArray[i][j] = cVoltageArray[i][j]
+
+    return (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray) 
+    
   def getTimeStatePairsADC( self ):
     cNumADCnames = c_int(0)
     cNumPoints = c_int(0)
@@ -372,7 +449,7 @@ class xyce_interface:
     nADCs = len(ADCnames)
     cADCnames = (c_char_p*nADCs)()
     for i in range(0,nADCs):
-      cADCnames[i] = ADCnames[i].encode('utf-8')
+      cADCnames[i] = str(ADCnames[i]).encode('utf-8')
 
     cADCwidths = (c_int*nADCs)()
     for i in range(0,nADCs):
@@ -385,7 +462,7 @@ class xyce_interface:
     nADCs = len(ADCnames)
     cADCnames = (c_char_p*nADCs)()
     for i in range(0,nADCs):
-      cADCnames[i] = ADCnames[i].encode('utf-8')
+      cADCnames[i] = str(ADCnames[i]).encode('utf-8')
 
     cADCwidths = (c_int*nADCs)()
 
