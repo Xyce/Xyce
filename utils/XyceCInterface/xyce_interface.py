@@ -250,12 +250,10 @@ class xyce_interface:
     numPoints = (cNumPoints.value)
     return (status, numPoints)
 
-  def getTimeVoltagePairsADC( self ):
+  def getTimeVoltagePairsADC( self, maxNumDevices=1000, maxDeviceNameLength=1000, maxNumTimeVoltagePairs=1000 ):
     cNumADCnames = c_int(0)
     cNumPoints = c_int(0)
-    maxNumDevices=1000
-    maxDeviceNameLength=1000
-    maxNumTimeVoltagePairs=1000
+    
     ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
     cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
     
@@ -310,11 +308,9 @@ class xyce_interface:
 
     return (status, ADCnames, numADCnames, numPoints, timeArray, voltageArray)
 
-  def getTimeVoltagePairsADCLimitData( self ):
+  def getTimeVoltagePairsADCLimitData( self, maxNumDevices=1000, maxDeviceNameLength=1000, maxNumTimeVoltagePairs=1000 ):
     cNumADCnames = c_int(0)
-    maxNumDevices=1000
-    maxDeviceNameLength=1000
-    maxNumTimeVoltagePairs=1000
+    
     ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
     cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
     
@@ -381,12 +377,10 @@ class xyce_interface:
 
     return (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray) 
     
-  def getTimeStatePairsADC( self ):
+  def getTimeStatePairsADC( self, maxNumDevices=1000, maxDeviceNameLength=1000, maxNumTimeStatePairs=1000 ):
     cNumADCnames = c_int(0)
     cNumPoints = c_int(0)
-    maxNumDevices=1000
-    maxDeviceNameLength=1000
-    maxNumTimeStatePairs=1000
+    
     ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
     cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
 
@@ -440,6 +434,77 @@ class xyce_interface:
        stateArray[i][j] = cStateArray[i][j]
 
     return (status, ADCnames, numADCnames, numPoints, timeArray, stateArray)
+
+
+  def getTimeStatePairsADCLimitData( self, maxNumDevices=1000, maxDeviceNameLength=1000, maxNumTimeStatePairs=1000 ):
+    cNumADCnames = c_int(0)
+    
+    ADCDeviceNameBuff = [create_string_buffer(maxDeviceNameLength) for i in range(maxNumDevices)]
+    cADCDeviceNameArray = (c_char_p*maxNumDevices)(*map(addressof, ADCDeviceNameBuff))
+    
+    # make an int array for the number of points per ADC 
+    cNumPointsArray = (c_int * maxNumDevices)()
+    
+    #make the two double** arrays
+    double_ctime = POINTER(c_double)
+    inner_ctime_array = (c_double * maxNumTimeStatePairs)
+    cTimeArray = (double_ctime * maxNumDevices) ()
+    for i in range(maxNumDevices):
+       cTimeArray[i] = inner_ctime_array()
+
+    int_cstate = POINTER(c_int)
+    inner_cstate_array = (c_int * maxNumTimeStatePairs)
+    cStateArray = (int_cstate * maxNumDevices) ()
+    for i in range(maxNumDevices):
+       cStateArray[i] = inner_cstate_array()
+    
+    #int xyce_getTimeVoltagePairsADCLimitData( void** ptr, const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
+    #     int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, double ** stateArray );
+
+    status = self.lib.xyce_getTimeStatePairsADCLimitData( byref(self.xycePtr), 
+      maxNumDevices, maxDeviceNameLength, maxNumTimeStatePairs,
+      byref(cNumADCnames), cADCDeviceNameArray, cNumPointsArray, byref(cTimeArray), byref(cStateArray) )
+
+    # make the integer return values
+    numADCnames = (cNumADCnames.value)
+    
+    # make and populate the arrays that will be used in
+    # the return statement
+    ADCnames = []
+    for i in range(0, numADCnames):
+      ADCnames.insert(i, str(cADCDeviceNameArray[i].decode('utf-8')) ) 
+
+    # number of datapoints per ADC 
+    numPointsArray = []
+    for i in range(0, numADCnames):
+      numPointsArray.insert(i, cNumPointsArray[i])
+      
+    # make the returned timeArray
+    double_time = POINTER(c_double)
+    timeArray = (double_time * numADCnames) ()
+    for i in range(numADCnames):
+       inner_time_array = (c_double * numPointsArray[i])
+       timeArray[i] = inner_time_array()
+
+    # copy over the elements from cTimeArray to timeArray
+    for i in range(numADCnames):
+      for j in range(numPointsArray[i]):
+       timeArray[i][j] = cTimeArray[i][j]
+
+    # make the returned stateArray
+    double_state = POINTER(c_int)
+    stateArray = (double_state * numADCnames) ()
+    for i in range((cNumADCnames.value)):
+      inner_state_array = (c_int *  numPointsArray[i])
+      stateArray[i] = inner_state_array()
+
+    # copy over the elements from cStateArray to stateArray
+    for i in range(numADCnames):
+      for j in range(numPointsArray[i]):
+       stateArray[i][j] = cStateArray[i][j]
+
+    return (status, ADCnames, numADCnames, numPointsArray, timeArray, stateArray) 
+
 
   def setADCWidths( self, ADCnames, ADCwidths ):
     # make a char ** structure for ADCnames and an int[] for ADCwidths
