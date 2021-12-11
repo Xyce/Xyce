@@ -705,7 +705,10 @@ inline void computeBreakPoint(
     // The Newton iterate is:  -(F(t)-A)/F'(t)
     double time = std::real(timeOpVec_[0]->val());
     double delta_bpTime =  0.0;
-    if (std::real(dfdt) != 0.0)  // if initial dfdt==0, then algorithm has no hope of succeeding
+
+    // if initial dfdt==0, then algorithm has no hope of succeeding
+    // if initial f==0, then we already at a BP, and we shouldn't set it again.
+    if ( std::abs(std::real(f)) > bpTol_ && std::real(dfdt) != 0.0)  
     {
       delta_bpTime =  -std::real(f)/std::real(dfdt);
       double bpTime = time+delta_bpTime;
