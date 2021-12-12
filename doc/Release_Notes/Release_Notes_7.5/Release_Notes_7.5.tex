@@ -99,11 +99,15 @@ analyses.
   \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun number of time,
   voltage or state values for an ADC in a subsequent call to \texttt{Simulator::
   getTimeVoltagePairs} or \texttt{Simulator::getTimeStatePairs}.
-  \item Added the mixed signal interface function
-  \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} to allow the calling program 
+  \item Added the mixed signal interface functions
+  \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} and 
+  \texttt{xyce\-\_getTimeStatePairs\-ADCLimitData()} to allow the calling program 
   to specify the maximum size of the allocated memory that can be used for copying
-  ADC time-voltage history data.  This allows the caller to allocate only the 
+  ADC time-voltage and time-state history data.  This allows the caller to allocate only the 
   required amount of memory and ensure that Xyce cannot overwrite the memory area.
+  The existing c-interface functions, \texttt{xyce\_getTimeVoltagePairs()} and 
+  \texttt{xyce\_getTimeStatePairs()} are now deprecated. They work in this version 
+  of \Xyce{} as they did in the past but they will be removed from a future version of \Xyce{}.
   See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further details.
   \item The Xyce Python interface file \texttt{xyce\-interface.py} is now 
   compatible with Python 3.x.  The interface file is still backwards compatible 
