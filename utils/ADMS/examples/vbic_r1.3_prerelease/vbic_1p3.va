@@ -251,6 +251,7 @@ end
 `IPRnb( trise     ,   0.0     ,"degC"                    , "local temperature delta to ambient (before self-heating)")
 `IPIsw( sw_noise  ,   1       ,""                        , "switch for including noise:   0=no and 1=yes")
 `IPIsw( sw_et     ,   1       ,""                        , "switch for self-heating:      0=no and 1=yes")
+`IPIsw( OFF       ,   0       ,""                        , "Set to 1 to initialize device to OFF instead of normally")
 
 //
 //  Special model parameters, some may be simulator global parameters

@@ -155,6 +155,8 @@ int instancePar_sw_noise;
 bool instancePar_given_sw_noise;
 int instancePar_sw_et;
 bool instancePar_given_sw_et;
+int instancePar_OFF;
+bool instancePar_given_OFF;
 // instance variables
 // reals
 double instanceVar_is_t;
@@ -823,6 +825,7 @@ public:
     double trise;
     int sw_noise;
     int sw_et;
+    int OFF;
     //  Variables of global_instance scope
     double is_t;
      double d_is_t_dTemp_dt_GND;

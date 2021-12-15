@@ -284,6 +284,9 @@ Traits::loadInstanceParameters(ParametricData<ADMSvbic13::Instance> &p)
   p.addPar("SW_ET", static_cast<int>(1), &ADMSvbic13::Instance::sw_et)
     .setUnit(U_UNKNOWN)
     .setDescription("switch for self-heating:      0=no and 1=yes");
+  p.addPar("OFF", static_cast<int>(0), &ADMSvbic13::Instance::OFF)
+    .setUnit(U_UNKNOWN)
+    .setDescription("Set to 1 to initialize device to OFF instead of normally");
 
 
 }
@@ -1378,6 +1381,12 @@ bool Instance::processParams()
     UserWarning(*this) << "ADMSvbic13: Parameter sw_et value " << sw_et << " out of range [ 0, 1 ]";
   }
 
+//    Parameter OFF : [ 0, 1 ]
+  if ( (!((OFF >=0 && OFF <=1 ))) )
+  {
+    UserWarning(*this) << "ADMSvbic13: Parameter OFF value " << OFF << " out of range [ 0, 1 ]";
+  }
+
 
   // this seems a little stupid, but verilog models that use $temperature
   // don't also use a defined parameter "Temp", and count on $temperature
@@ -1709,6 +1718,7 @@ Instance::Instance(
     trise(0.0),
     sw_noise(1),
     sw_et(1),
+    OFF(0),
     is_t(0.0),
 d_is_t_dTemp_dt_GND(0.0),
     isrr_t(0.0),
@@ -3530,7 +3540,7 @@ d_probeVars[admsProbeID_V_bi_ei][admsProbeID_V_bi_ei] *= (model_.VBICtype);
 // -- code converted from analog/code block
 
 // Manually inserted code for voltage drop initialization
-if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
+if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag && OFF!=1)
 {
   Vbci_limited = Vbcx_limited = Vbxcx_limited = Vbep_limited = 0;
   Vbe_limited = Vbei_limited = Vbex_limited = tVCrit;
@@ -9087,6 +9097,7 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
       os << "TRISE  =  " << (*iter)->trise << std::endl;
       os << "SW_NOISE  =  " << (*iter)->sw_noise << std::endl;
       os << "SW_ET  =  " << (*iter)->sw_et << std::endl;
+      os << "OFF  =  " << (*iter)->OFF << std::endl;
     os << std::endl;
   }
 
@@ -12501,6 +12512,8 @@ instanceStruct.instancePar_sw_noise=in.sw_noise;
 instanceStruct.instancePar_given_sw_noise=in.given("sw_noise");
 instanceStruct.instancePar_sw_et=in.sw_et;
 instanceStruct.instancePar_given_sw_et=in.given("sw_et");
+instanceStruct.instancePar_OFF=in.OFF;
+instanceStruct.instancePar_given_OFF=in.given("OFF");
 
 
 // Set the one parameter whose name was passed in to be the independent
@@ -13423,6 +13436,8 @@ instanceStruct.instancePar_sw_noise=in.sw_noise;
 instanceStruct.instancePar_given_sw_noise=in.given("sw_noise");
 instanceStruct.instancePar_sw_et=in.sw_et;
 instanceStruct.instancePar_given_sw_et=in.given("sw_et");
+instanceStruct.instancePar_OFF=in.OFF;
+instanceStruct.instancePar_given_OFF=in.given("OFF");
 
 
 
