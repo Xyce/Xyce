@@ -57,6 +57,25 @@ The second argument to \verb+-hspice-ext+ can either be a single string or can b
 \item Using \verb+separator+ sets the use of the period ``.'' for subcircuit name separation.  If this is not set, the colon ``:'' is used instead.
 \end{itemize}
 
+\section{Redefined parameters}
+\label{redefined_params_cmd_line}
+
+\Xyce{}, like most circuit simulators, permits multiple parameters of the same name in a netlist.  
+However, when multiple parameters have the same name, the default behavior of \Xyce{} may different from other codes.
+The \texttt{-redefined\_params} command line option can be used to ensure compatibility.  The available options are the following:
+\begin{itemize}
+  \item \verb+ignore+ is the default behavior, and will result in \Xyce{} using the last parameter found in the netlist, while emitting no warnings.
+  \item \verb+uselast+ is synonymous with \verb+ignore+.
+  \item \verb+error+ will result in \Xyce{} exiting with a fatal error if multiple parameters have the same name.
+  \item \verb+warn+ will result in \Xyce{} behaving the same as the default behavior (using the last parameter) but will emit a warning for every duplicate parameter to the terminal.
+  \item \verb+warning+ is synonymous with \verb+warn+.
+  \item \verb+uselastwarn+ is synonymous with \verb+warn+.
+  \item \verb+usefirst+ will result in \Xyce{} using the first paramter of a given name in the netlist, without warnings or errors.  This is the behavior of some other simulators.
+  \item \verb+usefirstwarn+ is the same as \verb+usefirst+, except that it will emit a warning for every duplicate parameter to the terminal.
+\end{itemize}
+The options that emit warnings or error messages to terminal output can result in very verbose output for large circuits.  
+For that reason warnings are not enabled as the default behavior.  However, these options can be useful for debugging netlists.
+
 \chapter{Runtime Environment}
 \label{runtime}
 

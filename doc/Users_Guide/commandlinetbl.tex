@@ -11,19 +11,17 @@
 %% Command line arguments table.
 %%
 \small
-\begin{longtable}[htbp]
-{|>{\setlength{\hsize}{0.5\hsize}}Y|
->{\setlength{\hsize}{1.0\hsize}}Y|
->{\setlength{\hsize}{0.75\hsize}}Y|
->{\setlength{\hsize}{0.55\hsize}}Y|} 
-
-\caption [List of \Xyce{} command line arguments.]{List of \Xyce{} command line arguments. \label{cmd_line_arg_list}} \index{command line} \\
-\hline
-
-\rowcolor{XyceDarkBlue}{\color{white}\bf Argument} &
-{\color{white}\bf Description} &
-{\color{white}\bf Usage} &
-{\color{white}\bf Default} \endhead \hline
+\begin{longtable}[h] {>{\raggedright\small}m{1.1in}|>{\raggedright\small}m{2in}|>{\raggedright\small}m{1.5in}|>{\raggedright\let\\\tabularnewline\small}m{1in}}
+  \caption{List of \Xyce{} command line arguments.} \label{cmd_line_arg_list} \\ \hline
+  \rowcolor{XyceDarkBlue}{\color{white}\bf Argument} &
+  \color{white}\bf Description &
+  \color{white}\bf Usage &
+  \color{white}\bf Default \\ \hline \endfirsthead
+  \caption[]{List of \Xyce{} command line arguments.} \\ \hline
+  \rowcolor{XyceDarkBlue}{\color{white}\bf Argument} &
+  \color{white}\bf Description &
+  \color{white}\bf Usage &
+  \color{white}\bf Default \\ \hline \endhead
 
 -h &
 Help option. Prints usage and exits. &
@@ -150,5 +148,24 @@ Maximum time integration order. &
 Jacobian matrix diagnostic. &
 \verb+-jacobian_test+ &
 - \\ \hline
+
+-redefined\_params & 
+Set precendence for multiply defined parameters. Can be set to \texttt{ignore} (use last), \texttt{usefirst}, \texttt{warn} or \texttt{error}. &
+\verb+-redefined_params+
+\verb+<option>+ & \texttt{ignore}, which means use the last duplicate parameter in the netlist without warning or error.
+  \\ \hline
+
+-hspice-ext &
+Hspice parser extensions.  This will override several parser issues that are difficult to translate with scripts. 
+
+&
+\verb+-hspice-ext+
+\verb+<all|separator+
+\verb+|units|math>+ & 
+The second argument will determine which features are enabled.  
+For details see the \Xyce{} Reference Guide\ReferenceGuide{}.
+\\ \hline
+
+
 \end{longtable}
 

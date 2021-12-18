@@ -28,11 +28,17 @@ User defined parameter that can be used in expressions throughout the netlist.
 \arguments
 
 \begin{Arguments}
-\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
 
-The name of a parameter and its value.  The value may be an expression.
-\medskip
+\argument{name}
 
+Parameter name.  Parameters may be redefined.  
+If the same parameter name is used on multiple parameters, \Xyce{} by default will use the last parameter of that name.  By default, no warning will be emitted.
+To change this behavior, one can use the \texttt{-redefined\_param} command line option, described in section~\ref{cmd_line_arg_list}.
+
+\argument{value}
+
+The value may be a number or an expression.
+%\medskip
 \end{Arguments}
 
 \comments
