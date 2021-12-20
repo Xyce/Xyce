@@ -368,6 +368,9 @@ public:
       success = nEqLoader_.loadJacobian();
       
       // save rhs and Newton vectors
+      // NOTE (HKT): this doesn't save a COPY of the vector, just copies the pointer.
+      // When the vector is overwritten by vp[i], the saved vectors will be overwritten as well.
+      // Restoring them below will have no impact, the vectors were never saved to begin with.
       Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_;
       Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_;
       //savedRHSVectorPtr_->update(1.0, *(nls_.rhsVectorPtr_),0.0);
@@ -378,7 +381,7 @@ public:
       *(nls_.rhsVectorPtr_) = *(*vp)[i];
       nls_.rhsVectorPtr_->scale(-1.0); // solver expects negative rhs
 
-      int status = nls_.lasSolverPtr_->solve(false);
+      int status = nls_.getLinearSolver()->solve(false);
       if (status!=0)
       {
         std::string msg("Sensitivity::solveAdjoint.  Solver failed\n");
@@ -438,7 +441,7 @@ public:
       *(nls_.rhsVectorPtr_) = *(*vp)[i];
       nls_.rhsVectorPtr_->scale(-1.0);
 
-      int status = nls_.lasSolverPtr_->solveTranspose(false);// some reusefactors
+      int status = nls_.getLinearSolver()->solveTranspose(false);// some reusefactors
       if (status!=0)
       {
         std::string msg("Sensitivity::solveAdjoint.  Solver failed\n");

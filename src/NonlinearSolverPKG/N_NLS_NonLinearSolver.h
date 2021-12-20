@@ -203,7 +203,6 @@ public:
 #ifdef Xyce_ROL
   Linear::Vector* rhsVectorPtr_;
   Linear::Vector* NewtonVectorPtr_;
-  Teuchos::RCP<Linear::Solver> lasSolverRCPtr_;
 #endif
   
 protected:
@@ -230,9 +229,7 @@ protected:
   Linear::Vector* solWtVectorPtr_;
   Linear::Vector* maskPNormWeights_;
   Linear::System* lasSysPtr_;
-#ifndef Xyce_ROL
   Teuchos::RCP<Linear::Solver> lasSolverRCPtr_;
-#endif
   Linear::Problem * lasProblemPtr_;
   const Linear::SolverFactory *        lasSolverFactoryPtr_;
   const Linear::PrecondFactory *        lasPrecFactoryPtr_;
