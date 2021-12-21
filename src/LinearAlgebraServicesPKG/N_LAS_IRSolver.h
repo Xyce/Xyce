@@ -103,7 +103,6 @@ private:
   static const double tol_default_;
 
   //Primary problem access
-  Problem & lasProblem_;
   Epetra_LinearProblem * problem_;
 
   //Wrapped solver object

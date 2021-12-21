@@ -79,9 +79,8 @@ AmesosSolver::AmesosSolver(
   const std::string &   type,
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(false),
+  : Solver(problem, false),
     type_(type),
-    lasProblem_(problem),
     solver_(0),
     repivot_(true),
     outputLS_(0),

@@ -90,9 +90,8 @@ HBDirectSolver::HBDirectSolver(
   Builder &       builder,
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(false),
+  : Solver(problem, false),
     builder_(builder),
-    lasProblem_(problem),
     isInit_(false),
     hbOsc_(false),
     N_(0),

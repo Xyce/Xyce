@@ -72,8 +72,7 @@ namespace Linear {
 SimpleSolver::SimpleSolver(
   Problem &       prob,
   Util::OptionBlock &   options)
-  : Solver(false),
-   lasProblem_(prob),
+  : Solver(prob, false),
    options_( new Util::OptionBlock( options ) ),
    timer_( new Util::Timer())
 {

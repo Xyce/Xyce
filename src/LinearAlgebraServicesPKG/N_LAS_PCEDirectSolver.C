@@ -86,9 +86,8 @@ PCEDirectSolver::PCEDirectSolver(
   Builder &       builder,
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(false),
+  : Solver(problem, false),
     builder_(builder),
-    lasProblem_(problem),
     isInit_(false),
     N_(0),
     n_(0),

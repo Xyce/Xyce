@@ -176,7 +176,6 @@ private:
   int outputBaseLS_;
 
   // Linear Problem
-  Problem & lasProblem_;
   Epetra_LinearProblem * problem_;
   Teuchos::RCP<Belos::LinearProblem<double,Epetra_MultiVector,Epetra_Operator> > belosProblem_;
 

@@ -138,9 +138,6 @@ private:
   // Time-domain builder
   Builder & builder_;
 
-  //Primary problem access
-  Problem & lasProblem_;
-
   bool isInit_;
 
   // N_ is the number of samples

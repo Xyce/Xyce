@@ -83,8 +83,7 @@ namespace Linear {
 // Creation Date : 05/20/04
 //-----------------------------------------------------------------------------
 KSparseSolver::KSparseSolver(Problem & prob, Util::OptionBlock & options)
- : Solver(false),
-   lasProblem_(prob),
+ : Solver(prob, false),
    outputLS_(0),
    outputBaseLS_(0),
    outputFailedLS_(0),

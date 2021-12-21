@@ -89,7 +89,6 @@ public:
 private:
 
   //Primary problem access
-  Problem & lasProblem_;
   Epetra_LinearProblem * problem_;
 
   //Repivot every time or use static pivoting

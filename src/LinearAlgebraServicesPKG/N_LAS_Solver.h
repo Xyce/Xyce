@@ -60,8 +60,9 @@ class Solver
 
 public:
   //Constructors
-  Solver( bool isIterative)
+  Solver(Problem& prob, bool isIterative)
   : solutionTime_(0.0),
+    lasProblem_(prob),
     isIterative_(isIterative)
   {}
 
@@ -104,6 +105,8 @@ public:
 
     return doSolve(reuse_factors, true);
   }
+  
+  const Problem& getProblem() { return lasProblem_; }
 
   double solutionTime() { return solutionTime_; }
 
@@ -111,6 +114,9 @@ public:
 
 protected:
   double solutionTime_;
+
+  // Linear Problem
+  Problem & lasProblem_;
 
 private:
   const bool isIterative_;
