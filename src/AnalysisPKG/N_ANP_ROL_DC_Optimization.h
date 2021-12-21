@@ -304,7 +304,6 @@ public:
     bool success;    
     setControlParams(z);
     setUncertainParams();
-    
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
@@ -350,7 +349,11 @@ public:
 
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
-    
+
+    // save rhs and Newton vectors
+    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+
     for (int i=0;i<nc_;i++)
     {
       // Set next solution vector pointer to the values given in vector u[i] 
@@ -371,15 +374,16 @@ public:
       // NOTE (HKT): this doesn't save a COPY of the vector, just copies the pointer.
       // When the vector is overwritten by vp[i], the saved vectors will be overwritten as well.
       // Restoring them below will have no impact, the vectors were never saved to begin with.
-      Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_;
-      Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_;
+      // NOTE 2 (HKT): this save and restore vector work has been moved outside the loop.
+      //Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_;
+      //Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_;
       //savedRHSVectorPtr_->update(1.0, *(nls_.rhsVectorPtr_),0.0);
       //savedNewtonVectorPtr_->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
 
       // Linear::Vector * temp1 = (*vp)[i].getRawPtr();
       // nls_.rhsVectorPtr_->update(-1.0, *temp1, 0.0);
       *(nls_.rhsVectorPtr_) = *(*vp)[i];
-      nls_.rhsVectorPtr_->scale(-1.0); // solver expects negative rhs
+      nls_.rhsVectorPtr_->scale(-1.0); // solver expects negative rhs; consolidate two previous lines.
 
       int status = nls_.getLinearSolver()->solve(false);
       if (status!=0)
@@ -391,11 +395,16 @@ public:
       //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
       *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
 
-      // Restore the RHS and Newton vectors.
-      nls_.rhsVectorPtr_->update(1.0, *(savedRHSVectorPtr_),0.0);
-      nls_.NewtonVectorPtr_->update(1.0, *(savedNewtonVectorPtr_),0.0);
-            
     }
+
+    // Restore the RHS and Newton vectors.
+    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
+    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+   
+    // Delete saved vectors.        
+    delete savedRHSVectorPtr_;
+    delete savedNewtonVectorPtr_;
+ 
     nEqLoader_.setVoltageLimiterStatus(vstatus);
     
   }
@@ -413,7 +422,12 @@ public:
 
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
-    
+
+    // save rhs and Newton vectors
+    // [see notes in applyInverseJacobian_1]    
+    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+
     for (int i=0;i<nc_;i++)
     {
       // Set next solution vector pointer to the values given in vector u[i] 
@@ -431,8 +445,9 @@ public:
       success = nEqLoader_.loadJacobian();
       
       // save rhs and Newton vectors
-      Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_;
-      Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_;
+      // [see notes in applyInverseJacobian_1]    
+      //Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_;
+      //Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_;
       //savedRHSVectorPtr_->update(1.0, *(nls_.rhsVectorPtr_),0.0);
       //savedNewtonVectorPtr_->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
 
@@ -450,12 +465,16 @@ public:
       
       //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
       *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
-
-      // Restore the RHS and Newton vectors.
-      nls_.rhsVectorPtr_->update(1.0, *(savedRHSVectorPtr_),0.0);
-      nls_.NewtonVectorPtr_->update(1.0, *(savedNewtonVectorPtr_),0.0);      
-      
     }
+
+    // Restore the RHS and Newton vectors.
+    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
+    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+   
+    // Delete saved vectors.        
+    delete savedRHSVectorPtr_;
+    delete savedNewtonVectorPtr_;
+ 
     nEqLoader_.setVoltageLimiterStatus(true);
     
   }
@@ -467,7 +486,6 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
   Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
   Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
   Teuchos::RCP<const std::vector<Real> > vp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(v))).getVector();
-  
   bool success;    
   jv.zero();
   setControlParams(z);
@@ -513,7 +531,7 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
           iterParam!=lastParam; ++iterParam, ++iparam )
     {
       std::string paramName(*iterParam);
-      // std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
+      //std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
       // get the original value of this parameter, to be used for scaling and/or 
       // numerical derivatives later.
       double paramOrig = 0.0;
@@ -594,7 +612,7 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
       }
       else
       {
-        // Xyce::dout() << "Analytical derivatives NOT available" << std::endl;
+        //Xyce::dout() << "Analytical derivatives NOT available" << std::endl;
         
         if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
         {
@@ -603,17 +621,17 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
         }
 
         // save a copy of the DAE vectors
-        origFVectorPtr_ = linearSystem_.builder().createVector();
+        delete origFVectorPtr_;
+        origFVectorPtr_ = analysisManager_.getDataStore()->daeFVectorPtr->cloneCopyVector();
         pertFVectorPtr_ = linearSystem_.builder().createVector();
 
-        origQVectorPtr_ = linearSystem_.builder().createVector();
+        delete origQVectorPtr_;
+        origQVectorPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector();
         pertQVectorPtr_ = linearSystem_.builder().createVector();
 
-        origBVectorPtr_ = linearSystem_.builder().createVector();
+        delete origBVectorPtr_;
+        origBVectorPtr_ = analysisManager_.getDataStore()->daeBVectorPtr->cloneCopyVector();
         pertBVectorPtr_ = linearSystem_.builder().createVector();
-        origFVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeFVectorPtr), 0.0);
-        origQVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeQVectorPtr), 0.0);
-        origBVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeBVectorPtr), 0.0);
         
         // now perturb the value of this parameter.
         double sqrtEta_ = pow(10,int(log10(fabs(paramOrig))));; // TT: this should be parameter specific (see Sensitivity class)
@@ -660,9 +678,9 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
         nEqLoader_.loadRHS();
 
         // save the perturbed DAE vectors
-        pertFVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeFVectorPtr), 0.0);
-        pertQVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeQVectorPtr), 0.0);
-        pertBVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeBVectorPtr), 0.0);
+        (*pertFVectorPtr_) = *(analysisManager_.getDataStore()->daeFVectorPtr);
+        (*pertQVectorPtr_) = *(analysisManager_.getDataStore()->daeQVectorPtr);
+        (*pertBVectorPtr_) = *(analysisManager_.getDataStore()->daeBVectorPtr);
 
         // calculate the df/dp vector.  
         double rdp=1/dp;
@@ -1078,9 +1096,9 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
           // now reset the parameter and rhs to previous values.
           nEqLoader_.setParam (paramName, paramOrig);
 
-          analysisManager_.getDataStore()->daeFVectorPtr->update(1.0, *(origFVectorPtr_), 0.0);
-          analysisManager_.getDataStore()->daeQVectorPtr->update(1.0, *(origQVectorPtr_), 0.0);
-          analysisManager_.getDataStore()->daeBVectorPtr->update(1.0, *(origBVectorPtr_), 0.0);
+          (*analysisManager_.getDataStore()->daeFVectorPtr) = *(origFVectorPtr_);
+          (*analysisManager_.getDataStore()->daeQVectorPtr) = *(origQVectorPtr_);
+          (*analysisManager_.getDataStore()->daeBVectorPtr) = *(origBVectorPtr_);
         }
 
         // Now collect dfdp, dqdp, dbdp into dFdp (as done in obtainSensitivityResiduals in NoTimeIntegration, that is we ignore dqdp)
@@ -1089,12 +1107,14 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
         Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
         Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
 
+        // Compute sensRHS = dfdpRef - dbdpRef 
+        sensRHS.update(+1.0, dfdpRef, -1.0, dbdpRef, 0.0);
         //sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef); saving old code
-        sensRHS.update(+1.0,dfdpRef,0.0);
+        //sensRHS.update(+1.0,dfdpRef,0.0);
         //sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef); saving old code
-        sensRHS.update(-1.0,dbdpRef);
+        //sensRHS.update(-1.0,dbdpRef);
 
-        sensRHS.scale(-1.0);
+        sensRHS.scale(-1.0);  // Why not integrate scaling in update above?
 
         // Take dot product with k-th vector in v
         Real dot = sensRHS.dotProduct(*((*vp)[k]));
