@@ -566,7 +566,7 @@ bool HB::doInit()
     // Let the HB loader know that the application of the operator is matrix free
     hbLoaderPtr_->setMatrixFreeFlag( true );
 
-    if (method_ == "AFM")
+    if ( (method_ == "AFM") || !loadTimeB_ )  
       hbLoaderPtr_->setLoadTimeBFlag( false );
 
     if (!solverFactory_)
