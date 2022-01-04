@@ -215,39 +215,6 @@ static ModelSensitivity modSens;
 // thermal voltage at kelvin temperature temp)
 template &lt;typename T&gt; static inline T adms_vt(const T temp) {return(CONSTKoverQ*temp);};
 
-// Figure out how to template this shiznit!
-//-----------------------------------------------------------------------------
-
-
-template&lt;typename Tin&gt;
-static Tin adms_ternary_op(const bool cond, const Tin &amp;ifTrue, const Tin &amp;ifFalse)
-{
-if (cond)
-return ifTrue;
-else
-return ifFalse;
-}
-
-template&lt;typename Tin&gt;
-static Tin adms_ternary_op(const bool cond, const Tin &amp;ifTrue, const double &amp;ifFalse)
-{
-if (cond)
-return ifTrue;
-else
-return Tin(ifFalse);
-}
-
-template&lt;typename Tin&gt;
-static Tin adms_ternary_op(const bool cond, const double &amp;ifTrue, const Tin &amp;ifFalse)
-{
-if (cond)
-return Tin(ifTrue);
-else
-return ifFalse;
-}
-
-
-
 
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
