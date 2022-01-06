@@ -1,14 +1,13 @@
 #
 
 CXX = /opt/local/bin/g++-mp-8
-
 FLEX = /opt/local/bin/flex
 BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib  $(LIBDIRTRI)
 LIBPATH_AST = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/
 CXXFLAGS_AST =  -O0 -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  $(INCLUDE)
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/ -I../../IOInterfacePKG/
 CXXFLAGS     =  -O0 -fno-inline -DUSE_TYPE_DOUBLE -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
@@ -78,7 +77,7 @@ N_UTL_ReportHandler.o: ../N_UTL_ReportHandler.C ../N_UTL_ReportHandler.h
 N_UTL_CheckIfValidFile.o: ../N_UTL_CheckIfValidFile.C ../N_UTL_CheckIfValidFile.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h  ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o ../N_UTL_Interpolators.h ../N_UTL_CheckIfValidFile.h
+newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o ../N_UTL_Interpolators.h ../N_UTL_CheckIfValidFile.h
 	$(CXX) $(CXXFLAGS) -c $<
 
 parserUnitTest: parserUnitTest.C ast.o  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ast_random.h ../ExpressionSrc/astRandEnum.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o N_UTL_CheckIfValidFile.o  ../N_UTL_Interpolators.h ../N_UTL_CheckIfValidFile.h
