@@ -721,6 +721,7 @@ void createCurrentOp(
 %token TOK_SPICE_EXP "spice_exp"
 %token TOK_SPICE_SFFM "spice_sffm"
 
+%token TOK_DT "dt"
 %token TOK_TIME  "time"
 %token TOK_TEMP  "temp"
 %token TOK_VT    "vt"
@@ -804,6 +805,11 @@ exp:
       {
         createParamOp($$,newExp,*$1);
         delete $1;
+    }
+  | TOK_DT
+    {
+      $$ = newExp.getDtNode();
+      newExp.setTimeDependent(true);
     }
   | TOK_TIME
     {
