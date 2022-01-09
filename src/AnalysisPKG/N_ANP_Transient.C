@@ -155,7 +155,6 @@ Transient::Transient(
     hbAnalysis_(hb_analysis),
     mpdeManager_(mpde_manager),
     numSensParams_(0),
-    //maxParamStringSize_(0),
     difference_(Nonlinear::SENS_FWD),
     sqrtEta_(1.0e-8),
     sqrtEtaGiven_(false),
@@ -632,13 +631,6 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
       // set up the initial skeleton of the maps:
       ++numSensParams_;
       paramNameVec_.push_back(tag);
-#if 0
-      int sz = tag.size();
-      if (sz > maxParamStringSize_)
-      {
-        maxParamStringSize_ = sz;
-      }
-#endif
     }
 
     else
@@ -1611,6 +1603,20 @@ bool Transient::processSuccessfulDCOP()
 
   loader_.stepSuccess(analysisManager_.getTwoLevelMode());
 
+  // Communicate down to the device level that the step has been accepted.
+  // This must be done before the "times" get rotated, and certainly before
+  // the vectors get rotated.  Device targets for this call include the
+  // transmission line device, and the ADC/DAC devices, which need to 
+  // know when it has a valid solution so it can save history.  
+  //
+  // This needs to happen before dcopFlag_ is set to false.
+  //
+  // This call also lets expressions know if they need to update their ddt/sdt arrays, 
+  // including expressions for parameters.  The device manager is
+  // the "owner" of all the params and global param expressions.
+  // For this reason, this call needs to happen prior to sensitivity calculations.
+  loader_.acceptStep();
+
   if (sensFlag_ && !firstDoubleDCOPStep() && solveDirectSensitivityFlag_)
   {
     nonlinearManager_.calcSensitivity(objectiveVec_, dOdpVec_, dOdpAdjVec_, 
@@ -1623,36 +1629,6 @@ bool Transient::processSuccessfulDCOP()
   }
 
   stats_.successfulStepsTaken_ += 1;
-
-  // Communicate down to the device level that the step has been accepted.
-  // This must be done before the "times" get rotated, and certainly before
-  // the vectors get rotated.  The primary target for this call is the
-  // transmission line device, which needs to know when it has a valid
-  // solution so it can save history.  (And now the ADC/DAC devices too)
-  // needs to happen before dcopFlag_ is set to false.
-  loader_.acceptStep();
-
-#if 0
-  // ERK.  with the new expression library, this call shouldn't be necessary.   
-  // This call to "set_accepted_time" can be performed on a random expression 
-  // like this b/c it operates on static data.  Therefore, it affects all 
-  // expressions.
-  //
-  // The new expression library will use a singleton "mainXyceExpressionGroup" 
-  // class to get its information from Xyce.  The correct thing to do will be to
-  // call a "set accepted time" (or equivalent) on that group.
-  //
-  // But in reality, that group will probably just have access to the 
-  // stepErrorControl class directly, so it can just pull the "nextTime" value.
-  //
-  // So, then, no need for this.
-  //
-  // ERK: Old way.
-  // communicate to the expression library that a new step has been accepted.
-  // Like with the device notification, needs to happen before anything is updated.
-  Util::Expression expr(std::string("0"));
-  expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
-#endif
 
   // Reset some settings (to switch from DCOP to transient, if not the
   // first step of a "double" DCOP.
@@ -1763,17 +1739,6 @@ bool Transient::doProcessSuccessfulStep()
     nonlinearSolverMaxNormIndexQueue_.push_back( nonlinearManager_.getNonlinearSolver().getMaxNormFindex () );
   }
 
-  if (sensFlag_ && solveDirectSensitivityFlag_)
-  {
-    nonlinearManager_.calcSensitivity(objectiveVec_,
-                                      dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
-  }
-
-  if (sensFlag_ && solveAdjointSensitivityFlag_)
-  {
-    saveTransientAdjointSensitivityInfo ();
-  }
-
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
     dout() << "  Transient::doProcessSuccessfulStep()" << std::endl
@@ -1795,33 +1760,26 @@ bool Transient::doProcessSuccessfulStep()
 
   // Communicate down to the device level that the step has been accepted.
   // This must be done before the "times" get rotated, and certainly before
-  // the vectors get rotated.  The primary target for this call is the
-  // transmission line device, which needs to know when it has a valid
-  // solution so it can save history.
+  // the vectors get rotated.  Device targets for this call include the
+  // transmission line device, and the ADC/DAC devices, which need to 
+  // know when it has a valid solution so it can save history.  
+  //
+  // This call also lets expressions know if they need to update their ddt/sdt arrays, 
+  // including expressions for parameters.  The device manager is
+  // the "owner" of all the params and global param expressions.
+  // For this reason, this call needs to happen prior to sensitivity calculations.
   loader_.acceptStep();
 
-#if 0
-  // ERK.  with the new expression library, this call shouldn't be necessary.   
-  // This call to "set_accepted_time" can be performed on a random expression 
-  // like this b/c it operates on static data.  Therefore, it affects all 
-  // expressions.
-  //
-  // The new expression library will use a singleton "mainXyceExpressionGroup" 
-  // class to get its information from Xyce.  The correct thing to do will be to
-  // call a "set accepted time" (or equivalent) on that group.
-  //
-  // But in reality, that group will probably just have access to the 
-  // stepErrorControl class directly, so it can just pull the "nextTime" value.
-  //
-  // So, then, no need for this.
-  //
-  // ERK: Old way.
+  if (sensFlag_ && solveDirectSensitivityFlag_)
+  {
+    nonlinearManager_.calcSensitivity(objectiveVec_,
+                                      dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
+  }
 
-  // communicate to the expression library that a new step has been accepted.
-  // Like with the device notification, needs to happen before anything is updated.
-  Util::Expression expr(std::string("0"));
-  expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
-#endif
+  if (sensFlag_ && solveAdjointSensitivityFlag_)
+  {
+    saveTransientAdjointSensitivityInfo ();
+  }
 
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the

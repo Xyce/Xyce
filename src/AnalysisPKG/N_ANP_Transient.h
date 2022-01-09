@@ -282,7 +282,6 @@ private:
   std::vector<double>   scaled_dOdpVec_;
   std::vector<double>   scaled_dOdpAdjVec_;
 
-  //int maxParamStringSize_;
   std::vector<std::string> paramNameVec_;
 
   // finite difference variables
