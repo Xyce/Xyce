@@ -11,9 +11,12 @@
 \index{parser!options}
 \begin{OptionTable}{Options for Parsing.}
 \label{parserPKG}
+\index{model binning}
+\index{scale}
 MODEL\_BINNING & Enable model binning during netlist parsing.  See 
 Section \ref{modelCommand} for more details on how model binning 
 works in \Xyce{}. & TRUE \\ \hline
+  SCALE & Scale factor for geometric parameters such as MOSFET length and width.  This can also be specified as \texttt{.option scale} (singular \texttt{.OPTION} and omitting the keyword \texttt{PARSER}) for compatibility with other simulators. See section~\ref{modelCommand} for an example usage.  & 1.0 \\ \hline
 \end{OptionTable}
 
 %%% Local Variables:

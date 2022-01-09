@@ -28,12 +28,14 @@
 #include "Xyce_config.h"
 #include "N_UTL_fwd.h"
 #include "N_ERH_ErrorMgr.h"
+#include "N_LAS_SystemHelpers.h"
 #include "N_LAS_MultiVector.h"
 #include "N_LAS_Vector.h"
 #include "N_PDS_Comm.h"
 #include "N_PDS_ParMap.h"
 #include "N_UTL_FeatureTest.h"
 
+/*
 // Epetra includes
 #include "Epetra_MultiVector.h"
 #include "Epetra_Vector.h"
@@ -43,6 +45,7 @@
 #include "Epetra_Import.h"
 #include "Epetra_Export.h"
 #include "Epetra_Comm.h"
+*/
 
 #include "ROL_Vector.hpp"
 
@@ -69,11 +72,10 @@ public:
 
   // constructor
   ROL_XyceVector( const int size, const MultiVector & xyce_multi_vec ){
-    MultiVector & xmv = const_cast<MultiVector &>(xyce_multi_vec);
     size_ = size;
     xyce_multi_vec_ = Teuchos::rcp( new std::vector< Teuchos::RCP<Vector> >(size_));
     for (int i=0;i<size_;i++){
-      (*xyce_multi_vec_)[i] = Teuchos::rcp( new Vector( *xmv.pmap(), *xmv.omap() ));
+      (*xyce_multi_vec_)[i] = Teuchos::rcp( createVector( *xyce_multi_vec.pmap(), *xyce_multi_vec.omap() ));
     }
   }
 
@@ -154,13 +156,13 @@ public:
 
     Teuchos::RCP< std::vector<Teuchos::RCP<Vector> > > x = Teuchos::rcp( new std::vector<Teuchos::RCP<Vector> >(size_));
 
-    //Teuchos::RCP< std::vector< MultiVector * > > x = Teuchos::rcp( new std::vector< MultiVector * >(size_, &*Teuchos::rcp(new Vector( *((*xyce_multi_vec_)[0]->pmap()), *((*xyce_multi_vec_)[0]->omap()) ) )  ));
+    //Teuchos::RCP< std::vector< MultiVector * > > x = Teuchos::rcp( new std::vector< MultiVector * >(size_, &*Teuchos::rcp(new EpetraVector( *((*xyce_multi_vec_)[0]->pmap()), *((*xyce_multi_vec_)[0]->omap()) ) )  ));
 
     //Teuchos::RCP< std::vector< MultiVector * > > x = Teuchos::rcp( new std::vector< MultiVector * >(size_, dynamic_cast< MultiVector* >(&*newMV(0)) ));
     
     //Teuchos::RCP< Vector > temp; 
     for (int i=0;i<size_;i++){
-      (*x)[i] = Teuchos::rcp( new Vector( *((*xyce_multi_vec_)[i]->pmap()), *((*xyce_multi_vec_)[i]->omap()) ) );
+      (*x)[i] = Teuchos::rcp( (*xyce_multi_vec_)[i]->cloneVector() );
 
       // Using copy constructor (segfault)
       //*((*x)[i]) = MultiVector(*((*xyce_multi_vec_)[i])); 

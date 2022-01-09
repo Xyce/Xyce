@@ -349,7 +349,6 @@ private:
   int outputBaseLS_;
 
   // Linear Problem
-  Problem & lasProblem_;
   Epetra_LinearProblem * problem_;
 
   // Option block pointer

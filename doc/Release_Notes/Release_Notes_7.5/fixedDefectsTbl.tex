@@ -40,7 +40,11 @@
 
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
-
+\textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
+analog function context & There were some use cases in which Xyce/ADMS
+would emit bad code for ternary operator expressions in analog
+function context.  Correct code is now emitted in all
+cases.  \\ \hline
 \textbf{Gitlab-ex issue 319}:  Improve error checking for invalid
 .MEASURE lines & The error checking for invalid \texttt{DERIV-AT},
 \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
@@ -104,7 +108,11 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
   The Python interface to Xyce in \texttt{xyce\_interface.py}
   has been updated to support Python 3.x.  See the Application note, 
   Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
-  
+
+\textbf{Gitlab-ex issue 340}: Bug in breakpointing, when an expression combines a ternary and a table &
+  Under rare circumstances, if an expression combined a ternary operator and
+  a time-dependent table, an error in breakpointing could cause the time integrator 
+  to get stuck in a near-infinite loop.  This has been fixed.  \\ \hline
 
 \end{longtable}
 }

@@ -113,7 +113,16 @@ analyses.
   compatible with Python 3.x.  The interface file is still backwards compatible 
   with Python 2.7. The Mixed Signal Simulation with \Xyce{} 7.5 Application Note 
   has examples of using Xyce from Python.
-  
+\item The syntax for \texttt{.options parser scale} has been expanded to also 
+      support \texttt{.option scale}.  The new syntax is compatible with most 
+      other SPICE-style simulators.
+\item When a parameter of a given name is defined multiple times in the netlist, \Xyce{} 
+  now has several options for how this is handled.  Before, \Xyce{} would silently 
+  allow multiply-defined parameters, and use the last one encountered during 
+  parsing.   There is now a command line option (\texttt{-redefined\_params}), 
+  which can be used to make this a fatal error, or to use the first, rather than 
+  last multiply-defined parameter.
+
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

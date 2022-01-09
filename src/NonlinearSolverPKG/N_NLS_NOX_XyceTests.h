@@ -161,8 +161,10 @@ protected:
   //****************************************
   int maxNormFindex_;
   double maxNormF_;
+  double normF_curr_;
   double requestedMaxNormF_;
   double requestedMachPrecTol_;
+  Xyce::Linear::Vector* pWeightsVectorPtr_;
 
   // Test #2
   //****************************************

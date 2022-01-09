@@ -135,6 +135,46 @@ Vb b 0 0.0
 \end{centering}
 \end{figure}
 
+\subsubsection{Length Scaling}
+\index{model!scale}
+\index{scale}
+
+It can be convenient to specify the lengths and widths for MOSFET instances in scaled units.  
+To enable this, the netlist should include \texttt{.options parser scale} or \texttt{.option scale}.
+This feature is only supported in MOSFET compact models.  An example usage is given in figure~\ref{scaleExample}.
+In this example, the scaled length and width for transistor \texttt{mn1} is \texttt{l=5.0e-6} and \texttt{w=175e-6}.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}mos level 1 model cmos inverter using scale]\color{black}
+.tran 20ns 6us
+.print tran v(vout) v(in) v(1)
+vdddev 	vdd	0	5v
+rin	in	1	1k
+vin1  1	0  5v pulse (5v 0v 1.5us 5ns 5ns 1.5us 3us)
+r1    vout  0  10k  
+c2    vout  0  0.1p 
+mn1   vout  in 0 0 cd4012\_nmos l=5 w=175 
+mp1   vout in vdd vdd cd4012\_pmos l=5 w=270 
+
+.options parser scale=1.0e-6
+
+\color{blue}* also valid:
+*.option scale=1.0e-6\color{black}
+
+.model cd4012\_pmos pmos (level=1 uo=310  vto=-1.6 tox=6e-08)
+.model cd4012\_nmos nmos (level=1 uo=190 vto=1.679 tox=6e-08)
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Scale Example]
+{Scale Example\label{scaleExample} }
+\end{centering}
+\end{figure}
+
 \subsubsection{Model Interpolation}
 \label{Model_Interpolation}
 \index{model!model interpolation}

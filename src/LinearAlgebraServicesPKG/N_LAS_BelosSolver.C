@@ -82,7 +82,7 @@ namespace Linear {
 BelosSolver::BelosSolver(
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(true),
+  : Solver(problem, true),
   trivialLS_(false),
   outputDefault_(VERBOSE_LINEAR ? Belos::Errors + Belos::Warnings + Belos::StatusTestDetails : 0),
   maxIterDefault_(200),
@@ -92,7 +92,6 @@ BelosSolver::BelosSolver(
   belosSolverDefault_("Block GMRES"),
   outputLS_(0),
   outputBaseLS_(0),
-  lasProblem_(problem),
   updatedParams_(false),
   linearResidual_(1.0),
   tProblem_(0),

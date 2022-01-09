@@ -46,10 +46,10 @@ plugin: libADMSrlc.la
 install-plugin: install
 
 N_DEV_ADMSrlc.C N_DEV_ADMSrlc.h: $(srcdir)/rlc.va
-	admsXml -e $(top_srcdir)/utils/ADMS/xyceVersion.xml -e $(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml -e $(top_srcdir)/utils/ADMS/xyceHeaderFile.xml -e $(top_srcdir)/utils/ADMS/xyceImplementationFile.xml $(srcdir)/rlc.va
+	admsXml -x -e $(top_srcdir)/utils/ADMS/adms.implicit.xml -e $(top_srcdir)/utils/ADMS/xyceVersion_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceAnalogFunction_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceHeaderFile_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceImplementationFile_nosac.xml $(srcdir)/rlc.va
 
 N_DEV_ADMSrlc_bootstrap.C: $(srcdir)/rlc.va
-	admsXml -e $(top_srcdir)/utils/ADMS/xyceVersion.xml -e $(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml -e $(top_srcdir)/utils/ADMS/xyceBootstrapFile.xml $(srcdir)/rlc.va
+	admsXml -x -e $(top_srcdir)/utils/ADMS/adms.implicit.xml -e $(top_srcdir)/utils/ADMS/xyceVersion_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml -e $(top_srcdir)/utils/ADMS/xyceBootstrapFile.xml $(srcdir)/rlc.va
 
 N_DEV_ADMSrlc_bootstrap.lo: N_DEV_ADMSrlc.h
 

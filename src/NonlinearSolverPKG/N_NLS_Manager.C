@@ -365,9 +365,15 @@ void Manager::usingNox()
   // overrides the netlist.
   if( commandLine_.getArgumentValue( "-nox" ) == "off" )
   {
-    noxFlag_ = false;
+    noxFlag_ = true;  // Need to use NOX for DC solve
     noxFlagInner_ = false;
     noxFlagTransient_ = false;
+  }
+  else if( commandLine_.getArgumentValue( "-nox" ) == "on" )
+  {
+    noxFlag_ = true;
+    noxFlagInner_ = true;
+    noxFlagTransient_ = true;
   }
 
   if (DEBUG_NONLINEAR)
@@ -609,8 +615,8 @@ void Manager::allocateTranSolver(
   bool bsuccess = true;
   bool bs1 = true;
 
-  // only do a reallocation if the the solver type is changing from dcop to transient
-  if ((noxFlag_ && !noxFlagTransient_) || (!noxFlag_&& noxFlagTransient_))
+  // Always perform the reallocation of the nonlinear solver.
+  // if ((noxFlag_ && !noxFlagTransient_) || (!noxFlag_&& noxFlagTransient_))
   {
     // Save the linear solver from the DCOP solve and pass it to the transient NLS
     Teuchos::RCP<Linear::Solver> lasSolverRCPtr = nonlinearSolver_->getLinearSolver();

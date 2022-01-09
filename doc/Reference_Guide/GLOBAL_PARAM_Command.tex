@@ -17,10 +17,16 @@ User-defined global parameter that can be used in expressions throughout the net
 .GLOBAL\_PARAM T=\{27+100*time\}
 
 \begin{Arguments}
-\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
+\argument{name}
 
-The name of a global parameter and its value.  The value may be an expression.
-\medskip
+Global parameter name.  Global parameters may be redefined.  
+If the same name is used on multiple parameters, \Xyce{} by default will use the last parameter of that name.  
+  By default, no warning will be emitted.
+To change this behavior, one can use the \texttt{-redefined\_param} command line option, described in section~\ref{cmd_line_arg_list}.
+
+\argument{value}
+
+The value may be a number or an expression.
 
 \end{Arguments}
 

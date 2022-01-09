@@ -94,8 +94,10 @@ XyceTests::XyceTests(
     niters_(-1),
     maxNormFindex_(-1),
     maxNormF_(0.0),
+    normF_curr_(0.0),
     requestedMaxNormF_(normF),
     requestedMachPrecTol_(machPrec),
+    pWeightsVectorPtr_(0),
     dsPtr_(data_store),
     weightsVectorPtr_(0),
     updateVectorPtr_(0),
@@ -124,7 +126,6 @@ XyceTests::XyceTests(
     allDevicesConverged_(false),
     innerDevicesConverged_(false)
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -137,6 +138,11 @@ XyceTests::XyceTests(
 //-----------------------------------------------------------------------------
 XyceTests::~XyceTests()
 {
+  if ( pWeightsVectorPtr_ != 0 )
+  {
+    delete pWeightsVectorPtr_;
+  }
+
   if( weightsVectorPtr_ != 0 )
   {
     delete weightsVectorPtr_;
@@ -164,6 +170,8 @@ XyceTests::checkStatus(
 
   returnTest_ = 0;
 
+  const double machineEpsilon = Util::MachineDependentParams::MachineEpsilon();
+
   // Get the current and previous solutions
   const Linear::Vector& x = (dynamic_cast<const Vector&>
     (problem.getSolutionGroup().getX())).getNativeVectorRef();
@@ -177,18 +185,6 @@ XyceTests::checkStatus(
     status_ = check;
     returnTest_ = 0;
     xyceReturnCode_ = retCodes_.nanFail; // default: -6
-    return status_;
-  }
-
-  // This test is for 2-level solves only.  
-  // If the inner solve failed, then the whole thing needs to fail.
-  // If 2-level is not being used, this test doesn't do anything.
-  innerDevicesConverged_ = loaderPtr_->innerDevicesConverged(comm_);
-  if (!innerDevicesConverged_)
-  {
-    status_ = NOX::StatusTest::Failed;
-    returnTest_ = 9;
-    xyceReturnCode_ = retCodes_.innerSolveFailed; // default: -5
     return status_;
   }
 
@@ -209,20 +205,112 @@ XyceTests::checkStatus(
   if (checkDeviceConvergence_) 
   {
     allDevicesConverged_ = loaderPtr_->allDevicesConverged(comm_);
-    if (!allDevicesConverged_ && (niters_ < maxIters_)) 
+    if (!allDevicesConverged_)
     {
-      status_ = NOX::StatusTest::Unconverged;
-      returnTest_ = 8;
-      xyceReturnCode_ = 0;
-      return status_;
+      if (niters_ < maxIters_) 
+      {
+        status_ = NOX::StatusTest::Unconverged;
+        returnTest_ = 8;
+        xyceReturnCode_ = 0;
+        return status_;
+      }
+      else
+      {
+        status_ = NOX::StatusTest::Failed;
+        returnTest_ = 8;
+        xyceReturnCode_ = retCodes_.tooManySteps;
+        return status_;
+      }
     }
+  }
+
+  // This test is for 2-level solves ONLY.
+  innerDevicesConverged_ = loaderPtr_->innerDevicesConverged(comm_);
+  if (!innerDevicesConverged_ )
+  {
+    status_ = NOX::StatusTest::Unconverged;
+    returnTest_ = 8;
+    xyceReturnCode_ = 0;
+    return status_;
   }
 
   // Compute a few norms needed by various tests.
   const Linear::Vector& F = (dynamic_cast<const Vector&>
     (problem.getSolutionGroup().getF())).getNativeVectorRef();
 
-  F.infNorm( &maxNormF_, &maxNormFindex_ );
+  // Max F norm (maxNormF_).
+  if (maskingFlag_)
+  {
+    if (pWeightsVectorPtr_ == 0)
+    {
+      pWeightsVectorPtr_ = x.cloneVector();
+      pWeightsVectorPtr_->putScalar( 1.0 );
+
+      for (int i = 0; i < x.localLength(); ++i ) 
+      {
+        if ( ((*weightMaskVectorPtr_)[i] == 0.0) )
+        {
+          (*pWeightsVectorPtr_)[i] = Util::MachineDependentParams::MachineBig();
+        }
+      }
+    }
+    F.wMaxNorm( *pWeightsVectorPtr_, &maxNormF_, &maxNormFindex_ );
+  }
+  else
+  {
+    F.infNorm( &maxNormF_, &maxNormFindex_ );
+  }
+
+  // Compute 2-norms of residual
+  double normF_prev = 0.0;
+
+  if (maskingFlag_)
+  {
+    int length = F.globalLength();
+    F.wRMSNorm(*pWeightsVectorPtr_, &normF_curr_);
+    normF_curr_ *= std::sqrt( length );  // Undo scaling of RMS norm
+
+    const Linear::Vector& prevF = (dynamic_cast<const Vector&>
+    (problem.getPreviousSolutionGroup().getF())).getNativeVectorRef();
+    prevF.wRMSNorm(*pWeightsVectorPtr_, &normF_prev);
+    normF_prev *= std::sqrt( length );  // Undo scaling of RMS norm
+  }
+  else
+  {
+    normF_curr_ = (problem.getSolutionGroup().getNormF());
+    normF_prev = (problem.getPreviousSolutionGroup().getNormF());
+  }
+
+  // Test 1 - Residual (2-)norm too small 
+  // If the RHS norm is so small already, just say we're converged,
+  // and move on.  If we don't do this, we may wind up dividing by a
+  // zero later.  Only perform this test in transient, not valid for DC.
+  if (isTransient_ && (normF_curr_ < machineEpsilon))
+  { 
+    currentConvRate_ = normF_curr_ / normF_prev;
+
+    if (normF_prev < machineEpsilon)
+    { 
+      currentConvRate_ = 1.0;
+    }
+    else
+    { 
+      currentConvRate_ = 0.0;
+    }
+    if (normResidualInit_ < machineEpsilon)
+    { 
+      currentRelativeConvRate_ = 1.0;
+    }
+    else
+    { 
+      currentRelativeConvRate_ = 0.0;
+    }
+   
+    status_ = NOX::StatusTest::Converged;
+    returnTest_ = 1;
+    xyceReturnCode_ = retCodes_.normTooSmall; // default: 1
+    return status_;
+  }
 
   // Test 2 - Normal convergence based on rhs residual (2a) and 
   // update norm (2b).
@@ -308,12 +396,10 @@ XyceTests::checkStatus(
   if (niters_ > 0) 
   {
     // ||F(x_current)|| / ||F(x_previous)||
-    currentConvRate_ = (problem.getSolutionGroup().getNormF()) / 
-      (problem.getPreviousSolutionGroup().getNormF());
+    currentConvRate_ = normF_curr_ / normF_prev;
 
     //  ||F(x)|| / ||F(x_init)||
-    currentRelativeConvRate_ = (problem.getSolutionGroup().getNormF()) / 
-    normResidualInit_;
+    currentRelativeConvRate_ = normF_curr_ / normResidualInit_;
   }    
   else 
   {
@@ -325,7 +411,14 @@ XyceTests::checkStatus(
   {
     if (niters_ == 0) 
     {
-      normResidualInit_ = problem.getSolutionGroup().getNormF();
+      if (maskingFlag_)
+      {
+        int length = F.globalLength();
+        F.wRMSNorm(*pWeightsVectorPtr_, &normResidualInit_);
+        normResidualInit_ *= std::sqrt( length );  // Undo scaling of RMS norm
+      }
+      else
+        normResidualInit_ = problem.getSolutionGroup().getNormF();
     }
  
     // Test only if we hit the max number of iterations
@@ -494,17 +587,12 @@ std::ostream& XyceTests::print(std::ostream& stream, int indent) const
 
   for (int j = 0; j < indent; ++j )
     stream << ' ';
-  stream << "1. Inf-Norm F too small" << "\n";
+  stream << "1. Two-Norm F too small" << "\n";
 
   for (int j = 0; j < indent; ++j )
     stream << ' ';
-  stream << "   Machine Precision: " << NOX::Utils::sciformat(maxNormF_, p)
+  stream << "   Machine Precision: " << NOX::Utils::sciformat(normF_curr_, p)
 	 << " < " << NOX::Utils::sciformat(requestedMachPrecTol_, p) << "\n";
-
-  for (int j = 0; j < indent; ++j )
-    stream << ' ';
-  stream << "   Requested Tolerance: " << NOX::Utils::sciformat(maxNormF_, p)
-	 << " < " << NOX::Utils::sciformat(requestedMaxNormF_, p) << "\n";
 
   for (int j = 0; j < indent; ++j )
     stream << ' ';

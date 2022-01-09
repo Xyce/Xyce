@@ -84,9 +84,8 @@ Amesos2Solver::Amesos2Solver(
   const std::string &   type,
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(false),
+  : Solver(problem, false),
     type_(type),
-    lasProblem_(problem),
     outputLS_(0),
     outputBaseLS_(0),
     outputFailedLS_(0),

@@ -138,6 +138,7 @@ HB::HB(
     numTimePts_(0),
     voltLimFlag_(1),
     intmodMax_(0),
+    loadTimeB_(1),
     method_("APFT"),
     intmodMaxGiven_(false),
     solverFactory_(0),
@@ -565,7 +566,7 @@ bool HB::doInit()
     // Let the HB loader know that the application of the operator is matrix free
     hbLoaderPtr_->setMatrixFreeFlag( true );
 
-    if (method_ == "AFM")
+    if ( (method_ == "AFM") || !loadTimeB_ )  
       hbLoaderPtr_->setLoadTimeBFlag( false );
 
     if (!solverFactory_)
@@ -862,6 +863,10 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
 
       if ( intmodMax_  > 0)
         intmodMaxGiven_ = true;
+    }
+    else if ( tag == "LOADTIMESOURCES") 
+    {
+      loadTimeB_ = static_cast<bool> (iterPL->getImmutableValue<int>());
     }
     else if ( tag == "METHOD" )
     {
@@ -2858,7 +2863,7 @@ populateMetadata(
     parameters.insert(Util::ParamMap::value_type("NUMTPTS", Util::Param("NUMTPTS", 1)));
 
     parameters.insert(Util::ParamMap::value_type("HBOSC", Util::Param("HBOSC", false)));
-//    parameters.insert(Util::ParamMap::value_type("USETIMESOURCES", Util::Param("USETIMESOURCES", 1)));
+    parameters.insert(Util::ParamMap::value_type("LOADTIMESOURCES", Util::Param("LOADTIMESOURCES", 1)));
     parameters.insert(Util::ParamMap::value_type("REFNODE", Util::Param("REFNODE",  "")));
   }
 }

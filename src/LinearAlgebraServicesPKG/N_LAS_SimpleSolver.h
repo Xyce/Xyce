@@ -73,9 +73,6 @@ public:
 
 private:
 
-  //Primary problem access
-  Problem & lasProblem_;
-
   //Options
   Util::OptionBlock * options_;
 

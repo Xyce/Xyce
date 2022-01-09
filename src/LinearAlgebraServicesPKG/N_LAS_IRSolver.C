@@ -83,10 +83,9 @@ const double IRSolver::tol_default_ = 1e-9;
 IRSolver::IRSolver(
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(false),
+  : Solver(problem, false),
     type_(type_default_),
     ir_tol_(tol_default_),
-    lasProblem_(problem),
     solver_(0),
     repivot_(true),
     outputLS_(0),

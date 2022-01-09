@@ -1405,7 +1405,8 @@ bool Sensitivity::setSensitivityOptions(const Util::OptionBlock &OB)
 //-----------------------------------------------------------------------------
 bool Sensitivity::doAllocations()
 {
-  dsPtr_->allocateSensitivityArrays(numSensParams_, solveDirectFlag_, solveAdjointFlag_);
+  if (numSensParams_)
+    dsPtr_->allocateSensitivityArrays(numSensParams_, solveDirectFlag_, solveAdjointFlag_);
   return true;
 }
 

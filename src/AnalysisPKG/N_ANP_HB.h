@@ -243,6 +243,7 @@ private:
   bool          voltLimFlag_;
   int           intmodMax_;
 
+  bool loadTimeB_;
   std::string   method_;
 
   bool intmodMaxGiven_;

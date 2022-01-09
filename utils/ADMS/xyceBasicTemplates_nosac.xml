@@ -4609,14 +4609,7 @@ other variables does not get propagated into a variable's
         <admst:variable name="expressionDeriv" select=""/>
       </admst:when>
       <admst:otherwise>
-        <admst:choose>
-          <admst:when test="[$globalCurrentScope='AF']">
-            <admst:variable name="expression" select="adms_ternary_op($a1,$a2,$a3)"/>
-          </admst:when>
-          <admst:otherwise>
-            <admst:variable name="expression" select="($a1?$a2:$a3)"/>
-          </admst:otherwise>
-        </admst:choose>
+        <admst:variable name="expression" select="($a1?$a2:$a3)"/>
         <admst:variable name="expressionDeriv" select="($a1?$a2Deriv:$a3Deriv)"/>
         <admst:variable name="expressionDeriv2" select="($a1?$a2Deriv2:$a3Deriv2)"/>
         <admst:variable name="expressionDeriv12" select="($a1?$a2Deriv12:$a3Deriv12)"/>

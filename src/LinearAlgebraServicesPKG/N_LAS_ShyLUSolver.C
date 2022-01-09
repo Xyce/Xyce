@@ -92,7 +92,7 @@ ShyLUSolver::~ShyLUSolver()
 //-----------------------------------------------------------------------------
 ShyLUSolver::ShyLUSolver( Problem & problem,
                           Util::OptionBlock & options )
-: Solver(true),
+: Solver(problem, true),
   symmetryDefault_(1),
   innerMaxIterDefault_(30),
   innerTolDefault_(1.0e-12),
@@ -104,7 +104,6 @@ ShyLUSolver::ShyLUSolver( Problem & problem,
   schurApproxTypeDefault_("Threshold"),
   outputLS_(0),
   outputBaseLS_(0),
-  lasProblem_(problem),
   updatedParams_(false),
   linearResidual_(1.0),
   tProblem_(0)

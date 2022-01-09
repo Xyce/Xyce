@@ -110,7 +110,7 @@ AztecOOSolver::~AztecOOSolver()
 AztecOOSolver::AztecOOSolver(
   Problem &       problem,
   Util::OptionBlock &   options)
-  : Solver(true),
+  : Solver(problem, true),
   reduceKSpace_(false),
   maxKSpace_(50),
   preCondDefault_(14),
@@ -136,7 +136,6 @@ AztecOOSolver::AztecOOSolver(
   numLinearIters_(0),
   outputLS_(0),
   outputBaseLS_(0),
-  lasProblem_(problem),
   options_( new Util::OptionBlock( options ) ),
   useAztecPrecond_(false),
   isPrecSet_(false),
