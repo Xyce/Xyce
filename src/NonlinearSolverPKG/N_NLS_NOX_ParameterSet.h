@@ -88,6 +88,7 @@ public:
     Parallel::Machine                           comm,
     Xyce::TimeIntg::DataStore*                  data_store,
     Xyce::Loader::NonlinearEquationLoader&      nonlinear_equation_loader,
+    Xyce::Linear::Solver &                      linear_solver, 
     Xyce::Linear::Vector *                      maskVectorPtr = 0);             
 
   Teuchos::RCP<NOX::StatusTest::Generic> getStatusTests();

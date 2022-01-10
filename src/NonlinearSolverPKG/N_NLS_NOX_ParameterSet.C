@@ -250,6 +250,7 @@ bool ParameterSet::createStatusTests(
   Parallel::Machine                     comm,
   TimeIntg::DataStore*                  data_store,
   Loader::NonlinearEquationLoader &     loader, 
+  Linear::Solver &                      lsolver, 
   Linear::Vector *                      maskVectorPtr)          
 {
   // Tests All - replaces tests 1-7
@@ -279,6 +280,7 @@ bool ParameterSet::createStatusTests(
                                         statusTestParams_.get("ENFORCEDEVICECONV", 1),
                                         statusTestParams_.get("SMALLUPDATETOL", 1.0e-6),
                                         &loader,
+                                        &lsolver, 
                                         maskingFlag_,
                                         maskVectorPtr));
 

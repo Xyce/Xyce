@@ -132,7 +132,6 @@ public:
   bool isGradient() const;
   bool isNewton() const;
   bool linearSolverStatus () const;
-  void setLinearSolverStatus (bool status) { linearStatus_ = status; }
 
   const NOX::Abstract::Vector& getX() const;
   const NOX::Abstract::Vector& getF() const;

@@ -270,10 +270,10 @@ bool Interface::initializeAll()
   // Set up the status tests
   bool testsok = false;
   testsok =
-    dcParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), lasSysPtr_->getDeviceMaskVector()) &&
-    transientParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), lasSysPtr_->getDeviceMaskVector()) &&
-    hbParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), lasSysPtr_->getDeviceMaskVector());
-    nlpParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), lasSysPtr_->getDeviceMaskVector());
+    dcParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), *getLinearSolver(), lasSysPtr_->getDeviceMaskVector()) &&
+    transientParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), *getLinearSolver(), lasSysPtr_->getDeviceMaskVector()) &&
+    hbParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), *getLinearSolver(), lasSysPtr_->getDeviceMaskVector());
+    nlpParams_.createStatusTests(pdsMgrPtr_->getPDSComm()->comm(), dsPtr_, getLoader(), *getLinearSolver(), lasSysPtr_->getDeviceMaskVector());
 
   if (!testsok)
     return false;
