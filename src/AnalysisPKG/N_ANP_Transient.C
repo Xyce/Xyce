@@ -33,7 +33,6 @@
 #include <sstream>
 #include <iomanip>
 
-//#include <N_ANP_HB.h>
 #include <N_ANP_Transient.h>
 
 #include <N_ANP_AnalysisManager.h>
@@ -48,7 +47,9 @@
 #include <N_IO_RestartMgr.h>
 #include <N_IO_ActiveOutput.h>
 #include <N_LAS_System.h>
+#include <N_LAS_Builder.h>
 #include <N_LAS_FilteredMultiVector.h>
+#include <N_PDS_ParMap.h>
 #include <N_LOA_Loader.h>
 
 #include <N_LOA_NonlinearEquationLoader.h>
@@ -96,7 +97,6 @@ void writeConductanceFile(const std::vector<std::string> &device_names,
 //-----------------------------------------------------------------------------
 Transient::Transient(
   AnalysisManager &                     analysis_manager,
-  //Linear::System &                      linear_system,
   Linear::System *                      linear_system_ptr,
   Nonlinear::Manager &                  nonlinear_manager,
   Loader::Loader &                      loader,
@@ -111,7 +111,6 @@ Transient::Transient(
     comm_(analysis_manager.getPDSManager()->getPDSComm()->comm()),
     analysisManager_(analysis_manager),
     loader_(loader),
-    //linearSystem_(linear_system),
     linearSystemPtr_(linear_system_ptr),
     nonlinearManager_(nonlinear_manager),
     topology_(topology),
@@ -2879,8 +2878,8 @@ void Transient::logQueuedData()
     }
     else
     {
-      lout() << "Time        Time      Step   EstErr      Non-Linear Solver      node     node" << std::endl;
-      lout() << "(sec)       Step     Status  OverTol   Status  Iters   ||F||    index    name" << std::endl;
+      lout() << "Time        Time      Step   EstErr       Non-Linear Solver       node     node" << std::endl;
+      lout() << "(sec)       Step     Status  OverTol    Status    Iters  ||F||    index    name" << std::endl;
     }
 
     for (int i = 0; i < timeQueue_.get_size(); i++ )
@@ -2913,39 +2912,43 @@ void Transient::logQueuedData()
       lout() << std::setw(7) << std::right;
       if( nlStatus == nlReturnCodes.normTooSmall )
       {
-        lout() << "P:s nrm";
+        lout() << "P:sm nrm";
       }
       else if( nlStatus == nlReturnCodes.normalConvergence)
       {
-        lout() << "pass   ";
+        lout() << "P:normal";
       }
       else if( nlStatus == nlReturnCodes.nearConvergence )
       {
-        lout() << "P:near ";
+        lout() << "P:near  ";
       }
       else if( nlStatus == nlReturnCodes.smallUpdate )
       {
-        lout() << "P:s up ";
+        lout() << "P:sm up ";
       }
       else if( nlStatus == nlReturnCodes.nanFail )
       {
-        lout() << "F:NaN  ";
+        lout() << "F:NaN   ";
       }
       else if( nlStatus == nlReturnCodes.tooManySteps )
       {
-        lout() << "F:max s";
+        lout() << "F:max s ";
       }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
-        lout() << "F:big u";
+        lout() << "F:big u ";
       }
       else if( nlStatus == nlReturnCodes.stalled )
       {
-        lout() << "F:stall";
+        lout() << "F:stall ";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
-        lout() << "F:in Fl";
+        lout() << "F:in Fl ";
+      }
+      else if( nlStatus == nlReturnCodes.linearSolverFailed )
+      {
+        lout() << "F:linsol ";
       }
       else
       {
@@ -2961,8 +2964,44 @@ void Transient::logQueuedData()
       lout() << std::right << std::fixed << std::setw( 7 ) << outIndex;
 
       const std::vector<const std::string *> &name_vec = topology_.getSolutionNodeNames();
+      std::string node_name;
 
-      lout() << "    " << std::left << ((outIndex < name_vec.size() && outIndex >= 0) ? *name_vec[outIndex] : "N/A") << std::endl;
+      Parallel::Communicator& pdsComm = *analysisManager_.getPDSManager()->getPDSComm();
+
+      // Get the node name, communicate it in parallel.
+      if ( pdsComm.isSerial() )
+      {
+        node_name = *name_vec[outIndex];
+      }
+      else
+      {
+        // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
+        int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
+
+        // Now determine which processor owns this solution node
+        int proc, tmp_proc = -1;
+        if (outIndex_LID > -1)
+        {
+          tmp_proc = Parallel::rank(comm_);
+          node_name = *name_vec[outIndex];
+        }
+        pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+        // Communicate the node name length and character string from the processor that owns it
+        int length = node_name.length();
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (outIndex_LID > -1)
+          strcpy( buffer, node_name.c_str() );
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_name = std::string( buffer );
+        free( buffer );
+      } 
+
+      lout() << "    " << std::left << node_name << std::endl;
     }
   }
 }
@@ -2994,8 +3033,8 @@ void Transient::outputFailedStepData()
     }
     else
     {
-      lout() << "Time        Time      Step   EstErr      Non-Linear Solver      node     node" << std::endl;
-      lout() << "(sec)       Step     Status  OverTol   Status  Iters   ||F||    index    name" << std::endl;
+      lout() << "Time        Time      Step   EstErr       Non-Linear Solver       node     node" << std::endl;
+      lout() << "(sec)       Step     Status  OverTol    Status    Iters  ||F||    index    name" << std::endl;
     }
 
     {
@@ -3028,39 +3067,43 @@ void Transient::outputFailedStepData()
       lout() << std::setw(7) << std::right;
       if( nlStatus == nlReturnCodes.normTooSmall )
       {
-        lout() << "P:s nrm";
+        lout() << "P:sm nrm";
       }
       else if( nlStatus == nlReturnCodes.normalConvergence)
       {
-        lout() << "pass   ";
+        lout() << "P:normal";
       }
       else if( nlStatus == nlReturnCodes.nearConvergence )
       {
-        lout() << "P:near ";
+        lout() << "P:near  ";
       }
       else if( nlStatus == nlReturnCodes.smallUpdate )
       {
-        lout() << "P:s up ";
+        lout() << "P:sm up ";
       }
       else if( nlStatus == nlReturnCodes.nanFail )
       {
-        lout() << "F:NaN  ";
+        lout() << "F:NaN   ";
       }
       else if( nlStatus == nlReturnCodes.tooManySteps )
       {
-        lout() << "F:max s";
+        lout() << "F:max s ";
       }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
-        lout() << "F:big u";
+        lout() << "F:big u ";
       }
       else if( nlStatus == nlReturnCodes.stalled )
       {
-        lout() << "F:stall";
+        lout() << "F:stall ";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
-        lout() << "F:in Fl";
+        lout() << "F:in Fl ";
+      }
+      else if( nlStatus == nlReturnCodes.linearSolverFailed )
+      {
+        lout() << "F:linsol ";
       }
       else
       {
@@ -3076,8 +3119,44 @@ void Transient::outputFailedStepData()
       lout() << std::right << std::fixed << std::setw( 7 ) << outIndex;
 
       const std::vector<const std::string *> &name_vec = topology_.getSolutionNodeNames();
+      std::string node_name;
 
-      lout() << "    " << std::left << ((outIndex < name_vec.size() && outIndex >= 0) ? *name_vec[outIndex] : "N/A") << std::endl;
+      Parallel::Communicator& pdsComm = *analysisManager_.getPDSManager()->getPDSComm();
+
+      // Get the node name, communicate it in parallel.
+      if ( pdsComm.isSerial() )
+      {
+        node_name = *name_vec[outIndex];
+      }
+      else
+      {
+        // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
+        int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
+
+        // Now determine which processor owns this solution node
+        int proc, tmp_proc = -1;
+        if (outIndex_LID > -1)
+        {
+          tmp_proc = Parallel::rank(comm_);
+          node_name = *name_vec[outIndex];
+        }
+        pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+        // Communicate the node name length and character string from the processor that owns it
+        int length = node_name.length();
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (outIndex_LID > -1)
+          strcpy( buffer, node_name.c_str() );
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_name = std::string( buffer );
+        free( buffer );
+      } 
+
+      lout() << "    " << std::left << node_name << std::endl;
     }
     lout() << "************" << std::endl;
   }
@@ -4111,7 +4190,6 @@ public:
     IO::RestartMgr &                    restart_manager)
     : TransientFactoryBase(),
       analysisManager_(analysis_manager),
-      //linearSystem_(linear_system),
       linearSystemPtr_(linear_system_ptr),
       nonlinearManager_(nonlinear_manager),
       loader_(loader),
@@ -4257,7 +4335,6 @@ public:
 
 public:
   AnalysisManager &                     analysisManager_;
-  //Linear::System &                      linearSystem_;
   Linear::System *                      linearSystemPtr_;
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;
