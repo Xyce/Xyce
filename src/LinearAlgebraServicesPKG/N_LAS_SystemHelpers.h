@@ -101,6 +101,9 @@ void setInitialConditions( const System& system, Vector& vector,
 void extractValues( const Matrix& inputMatrix, 
                     std::vector< Teuchos::RCP<Matrix> >& outputMatrices );
 
+bool checkProblemForNaNs( const Linear::Problem& problem,
+                          std::vector< std::pair<int, int> >& nanEntries );
+
 } // namespace Linear
 } // namespace Xyce
 

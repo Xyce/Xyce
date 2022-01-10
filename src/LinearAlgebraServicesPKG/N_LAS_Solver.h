@@ -45,6 +45,9 @@
 
 #include <Teuchos_RCP.hpp>
 
+#include <vector>
+#include <utility>
+
 namespace Xyce {
 namespace Linear {
 
@@ -112,8 +115,13 @@ public:
 
   bool isIterative() { return isIterative_; }
 
+  std::vector< std::pair<int, int> >& getNaNEntries() { return nanEntries_; }
+
 protected:
+
   double solutionTime_;
+
+  std::vector< std::pair<int, int> > nanEntries_;
 
   // Linear Problem
   Problem & lasProblem_;

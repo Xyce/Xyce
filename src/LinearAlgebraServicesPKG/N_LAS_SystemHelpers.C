@@ -35,6 +35,10 @@
 
 #include <Xyce_config.h>
 
+#include <cmath>
+#include <utility>
+#include <numeric>
+
 #include <N_LAS_SystemHelpers.h>
 
 #include <N_PDS_ParMap.h>
@@ -49,6 +53,7 @@
 
 #include <N_LAS_Graph.h>
 
+#include <N_LAS_Problem.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_QueryUtil.h>
@@ -198,6 +203,123 @@ void extractValues( const Matrix& inputMatrix,
     }
   }
 }
+
+bool checkProblemForNaNs( const Linear::Problem& problem, 
+                          std::vector< std::pair<int, int> >& nanEntries )
+{
+  Linear::Problem& prob = const_cast<Linear::Problem &>( problem );
+
+  int numrhs = prob.getLHS()->numVectors();
+  bool foundNaN = false;
+  nanEntries.clear();
+  std::vector< std::pair<int, int> > tmp_nanEntries;
+  std::vector<double> resNorm(numrhs,0.0);
+
+  // Check the solution vector for NaNs (using 2-norm calculation)
+  prob.getLHS()->lpNorm( 2, &resNorm[0] );
+  for (int i=0; i<numrhs; ++i)
+  { 
+    if (std::isnan(resNorm[i]) || std::isinf(resNorm[i]))
+      foundNaN = true;
+  }
+
+  // If a NaN has been found, it's likely in the RHS or Matrix.
+  // Otherwise, the linear solver introduced a NaN.
+  if (foundNaN)
+  {
+    bool foundRHSNaN = false;
+    int numrows = prob.getLHS()->localLength();
+    prob.getRHS()->lpNorm( 2, &resNorm[0] );
+
+    for (int i=0; i<numrhs; ++i)
+    {
+      if (std::isnan(resNorm[i]) || std::isinf(resNorm[i]))
+        foundRHSNaN = true;
+    }
+
+    // If foundRHSNaN, look for which entries have NaNs in the RHS vector.
+    std::vector< std::pair< int, int > > entriesNaN;
+    if (foundRHSNaN)
+    {
+      const Parallel::ParMap& map = *(prob.getRHS()->pmap());
+
+      for (int j=0; j<numrhs; ++j)
+      {
+        const Vector& mvCol_j = *(prob.getRHS()->getVectorView(j));
+        for (int i=0; i<numrows; ++i)
+        {
+          const double & val = mvCol_j[ i ];
+          if (std::isnan(val) || std::isinf(val))
+            tmp_nanEntries.push_back( std::make_pair( map.localToGlobalIndex(i), -1 ) );
+        }
+      }
+    }
+    else // look in the Jacobian matrix entries for NaNs
+    {
+      if (!prob.matrixFree())
+      {
+        Matrix & A = *prob.getMatrix();
+        const Graph & Agraph = *A.getGraph();
+        int* indices;
+        double* values;
+        int numIndices;
+
+        for( int i=0; i<numrows; ++i )
+        {
+          A.getLocalRowView( i, numIndices, values, indices );
+          for ( int j=0; j<numIndices; ++j)
+          {
+            if (std::isnan(values[j]) || std::isinf(values[j]))
+              tmp_nanEntries.push_back( std::make_pair( Agraph.localToGlobalRowIndex(i), 
+                                                    Agraph.localToGlobalColIndex(indices[j]) ) );
+          }
+        }
+      }
+    }
+  }
+
+  // Now synchronize the data, if executing in parallel.
+  const Parallel::Communicator& comm = *(prob.getRHS()->pdsComm());
+  if (!comm.isSerial())
+  {
+    int numProc = comm.numProc();
+    std::vector<int> totProcNaNs( numProc, 0 ), procNaNs( numProc, 0 );
+    procNaNs[comm.procID()] = tmp_nanEntries.size();
+    comm.sumAll( &procNaNs[0], &totProcNaNs[0], numProc );
+    int totNumNaNs = std::accumulate( totProcNaNs.begin(), totProcNaNs.end(), 0 );
+
+    if (totNumNaNs)
+    {
+      foundNaN = true;
+      nanEntries.resize( totNumNaNs );
+      std::vector<int> totNaNGIDs( 2*totNumNaNs, 0 ), NaNGIDs( 2*totNumNaNs, 0 );
+
+      // Compute the starting pointer where the NaN pairs should be inserted
+      int startPtr = 0;
+      for ( int i=0; i<comm.procID(); ++i )
+        startPtr += totProcNaNs[ i ];
+
+      for ( int i=0; i<tmp_nanEntries.size(); ++i )
+      {
+        NaNGIDs[ 2*(startPtr+i) ] = tmp_nanEntries[i].first;
+        NaNGIDs[ 2*(startPtr+i)+1 ] = tmp_nanEntries[i].second;
+      }
+     
+      // Communicate the NaN GIDs through a global sum 
+      comm.sumAll( &totNaNGIDs[0], &NaNGIDs[0], 2*totNumNaNs );
+
+      // Reconstruct the global list of NaNs from totNaNGIDs
+      for ( int i=0; i<totNumNaNs; ++i )
+        nanEntries[i] = std::make_pair( totNaNGIDs[ 2*i ], totNaNGIDs[ 2*i+1 ] );
+    }
+  }
+  else
+  {
+    nanEntries = tmp_nanEntries;
+  } 
+
+  return foundNaN; 
+} 
                     
 } // namespace Linear
 } // namespace Xyce
