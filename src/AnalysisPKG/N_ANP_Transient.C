@@ -3077,14 +3077,15 @@ void Transient::outputFailedStepData()
       lout() << std::right << std::fixed << std::setw( 7 ) << outIndex;
 
       const std::vector<const std::string *> &name_vec = topology_.getSolutionNodeNames();
-      std::string node_name;
+      std::string node_name = "N/A";
 
       Parallel::Communicator& pdsComm = *analysisManager_.getPDSManager()->getPDSComm();
 
       // Get the node name, communicate it in parallel.
       if ( pdsComm.isSerial() )
       {
-        node_name = *name_vec[outIndex];
+        if (outIndex > -1)
+          node_name = *name_vec[outIndex];
       }
       else
       {
@@ -3101,19 +3102,22 @@ void Transient::outputFailedStepData()
         }
         pdsComm.maxAll( &tmp_proc, &proc, 1 );
 
-        // Communicate the node name length and character string from the processor that owns it
-        int length = node_name.length();
-        pdsComm.bcast( &length, 1, proc ); 
-        char *buffer = (char *)malloc( length+1 );
+        // Make sure someone owns this GID, otherwise proc will be -1.
+        if (proc != -1)
+        {
+          // Communicate the node name length and character string from the processor that owns it
+          int length = node_name.length();
+          pdsComm.bcast( &length, 1, proc ); 
+          char *buffer = (char *)malloc( length+1 );
 
-        if (outIndex_LID > -1)
-          strcpy( buffer, node_name.c_str() );
+          if (outIndex_LID > -1)
+            strcpy( buffer, node_name.c_str() );
 
-        pdsComm.bcast( buffer, length+1, proc );
-        node_name = std::string( buffer );
-        free( buffer );
-      } 
-
+          pdsComm.bcast( buffer, length+1, proc );
+          node_name = std::string( buffer );
+          free( buffer );
+        } 
+      }
       lout() << "    " << std::left << node_name << std::endl;
     }
     lout() << "************" << std::endl;
