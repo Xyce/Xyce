@@ -279,7 +279,7 @@ XyceTests::checkStatus(
 
       for (int i = 0; i < x.localLength(); ++i ) 
       {
-        if ( ((*weightMaskVectorPtr_)[i] == 0.0) )
+        if ( (*weightMaskVectorPtr_)[i] == 0.0 )
         {
           (*pWeightsVectorPtr_)[i] = Util::MachineDependentParams::MachineBig();
         }
