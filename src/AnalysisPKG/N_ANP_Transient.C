@@ -2929,18 +2929,20 @@ void Transient::logQueuedData()
       // Get the node name, communicate it in parallel.
       if ( pdsComm.isSerial() )
       {
-        if (outIndex > -1)
+        if ((outIndex > -1) && (outIndex < name_vec.size()))
           node_name = *name_vec[outIndex];
       }
       else
       {
         // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        // Also, if this failure is being printed for a block analysis type, there isn't a
+        // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
         Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
         int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
 
         // Now determine which processor owns this solution node
         int proc, tmp_proc = -1;
-        if (outIndex_LID > -1)
+        if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
         {
           tmp_proc = Parallel::rank(comm_);
           node_name = *name_vec[outIndex];
@@ -3088,18 +3090,20 @@ void Transient::outputFailedStepData()
       // Get the node name, communicate it in parallel.
       if ( pdsComm.isSerial() )
       {
-        if (outIndex > -1)
+        if ((outIndex > -1) && (outIndex < name_vec.size()))
           node_name = *name_vec[outIndex];
       }
       else
       {
         // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        // Also, if this failure is being printed for a block analysis type, there isn't a
+        // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
         Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
         int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
 
         // Now determine which processor owns this solution node
         int proc, tmp_proc = -1;
-        if (outIndex_LID > -1)
+        if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
         {
           tmp_proc = Parallel::rank(comm_);
           node_name = *name_vec[outIndex];
