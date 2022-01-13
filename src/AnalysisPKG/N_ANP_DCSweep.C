@@ -49,7 +49,7 @@
 #include <N_NLS_Manager.h>
 #include <N_NLS_fwd.h>
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TOP_Topology.h>
@@ -295,7 +295,7 @@ bool DCSweep::doInit()
   }
 
   //setup for operating pt calculation
-  baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+  baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
 
   stepNumber = 0;

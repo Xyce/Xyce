@@ -63,7 +63,7 @@ namespace TimeIntg {
 class Gear12 : public TimeIntegrationMethod
 {
 public:
-  static const int type = 8;
+  static const int type = Xyce::TimeIntg::methodsEnum::GEAR;
   static const char *name;
 
   static TimeIntegrationMethod *factory(const TIAParams &tia_params, StepErrorControl &step_error_control, DataStore &data_store);
@@ -144,6 +144,11 @@ public:
   int getUsedOrder() const
   {
     return sec.usedOrder_;
+  }
+
+  int getMethod() const
+  {
+    return type;
   }
   
   int getNumberOfSteps() const

@@ -62,7 +62,7 @@
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h>
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_TIAParams.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
@@ -1114,7 +1114,7 @@ bool AnalysisManager::getDCOPFlag() const
 bool AnalysisManager::getTranOPFlag() const
 {
   return ((analysisMode_ == ANP_MODE_TRANSIENT || primaryAnalysisObject_->isAnalysis(ANP_MODE_TRANSIENT))
-          && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::NoTimeIntegration::type);
+          && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::methodsEnum::NO_TIME_INTEGRATION);
 }
 
 //-----------------------------------------------------------------------------
@@ -1129,12 +1129,12 @@ bool AnalysisManager::getTranOPFlag() const
 bool AnalysisManager::getACOPFlag() const
 {
   bool return1 = (analysisMode_ == ANP_MODE_AC || primaryAnalysisObject_->isAnalysis(ANP_MODE_AC))
-      && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::NoTimeIntegration::type;
+      && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
 
   // if the analysis type is noise, this flag must also be set, as it is based on an 
   // AC-style calculation.
   bool return2 = (analysisMode_ == ANP_MODE_NOISE || primaryAnalysisObject_->isAnalysis(ANP_MODE_NOISE))
-      && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::NoTimeIntegration::type;
+      && (primaryAnalysisObject_->getIntegrationMethod()) == TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
 
   return (return1 || return2);
 }
@@ -1205,7 +1205,7 @@ bool AnalysisManager::getDCSweepFlag() const
 bool AnalysisManager::getTransientFlag () const
 {
   return (((analysisMode_ == ANP_MODE_TRANSIENT || primaryAnalysisObject_->isAnalysis(ANP_MODE_TRANSIENT))
-     && (primaryAnalysisObject_->getIntegrationMethod()) != TimeIntg::NoTimeIntegration::type));
+     && (primaryAnalysisObject_->getIntegrationMethod()) != TimeIntg::methodsEnum::NO_TIME_INTEGRATION));
 }
 
 //-----------------------------------------------------------------------------

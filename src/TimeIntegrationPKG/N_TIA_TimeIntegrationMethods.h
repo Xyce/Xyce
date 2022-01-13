@@ -139,6 +139,7 @@ public:
   virtual int getOrder() const = 0;
   virtual int getNumberOfSteps() const = 0;
   virtual int getUsedOrder() const = 0;
+  virtual int getMethod() const = 0;
   virtual int getNscsco() const = 0;
   virtual int getMaxOrder() const = 0;                  ///< Return max order of method (this should obey user option maxorder)
 

@@ -67,7 +67,7 @@ namespace TimeIntg {
 class NoTimeIntegration : public TimeIntegrationMethod
 {
 public:
-  static const int type = 0;
+  static const int type = Xyce::TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   static const char *name;
 
   static TimeIntegrationMethod *factory(const TIAParams &tia_params, StepErrorControl &step_error_control, DataStore &data_store);
@@ -133,6 +133,11 @@ public:
   int getUsedOrder() const
   {
     return 0;
+  }
+
+  int getMethod() const
+  {
+    return type;
   }
 
   int getNumberOfSteps() const

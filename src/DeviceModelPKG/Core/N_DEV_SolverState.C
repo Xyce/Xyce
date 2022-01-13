@@ -313,6 +313,7 @@ bool setupSolverInfo(
   solver_state.pdt_                 = analysis_manager.getWorkingIntegrationMethod().partialTimeDeriv();        // system_state.pdt;
   solver_state.currentOrder_        = analysis_manager.getWorkingIntegrationMethod().getOrder();                // system_state.currentOrder;
   solver_state.usedOrder_           = analysis_manager.getWorkingIntegrationMethod().getUsedOrder();            // system_state.usedOrder;
+  solver_state.integrationMethod_   = analysis_manager.getWorkingIntegrationMethod().getMethod(); 
 
   // Time step error control information
   solver_state.currTimeStep_        = analysis_manager.getStepErrorControl().currentTimeStep;                   // system_state.nextTimeStep;

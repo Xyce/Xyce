@@ -63,8 +63,7 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
-#include <N_TIA_OneStep.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TOP_Topology.h>
@@ -126,7 +125,7 @@ Transient::Transient(
     outputTransientLambda_(false),
     outputAdjointSensitivity_(false),
 
-    initialIntegrationMethod_(TimeIntg::OneStep::type),
+    initialIntegrationMethod_(TimeIntg::methodsEnum::ONESTEP),
     firstTranOutput_(true),
     fullAdjointTimeRange_(false),
     isPaused(false),
@@ -146,7 +145,7 @@ Transient::Transient(
     tranStats(0),
     exitTime(0.0),
     exitStep(-1),
-    integrationMethod(7),
+    integrationMethod( Xyce::TimeIntg::methodsEnum::ONESTEP ),
     historyTrackingDepth(25),
     passNLStall(false),
     saveTimeStepsFlag(false),
@@ -356,9 +355,9 @@ bool Transient::setTimeIntegratorOptions(
         stringVal.toUpper();
 
         if (stringVal == "TRAP" || stringVal == "TRAPEZOIDAL")
-          integrationMethod = 7;
+          integrationMethod = Xyce::TimeIntg::methodsEnum::ONESTEP;
         else if (stringVal == "GEAR")
-          integrationMethod = 8;
+          integrationMethod = Xyce::TimeIntg::methodsEnum::GEAR;
         else
         {
           IO::ParamError(option_block, param) << "Unsupported time integration method: " << stringVal;
@@ -709,7 +708,7 @@ bool Transient::resuming()
 {
   bool bsuccess = true;
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   if (analysisManager_.getTwoLevelMode() == TWO_LEVEL_MODE_TRANSIENT)
   {
@@ -813,7 +812,7 @@ bool Transient::doInit()
     }
   }
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   dcopFlag_ = !getNOOP();
 
@@ -841,7 +840,7 @@ bool Transient::doInit()
     if (dcopFlag_)
     {
       // Get set to do the operating point.
-      baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+      baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
       analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
     }
     else // otherwise NOOP/UIC
@@ -1636,7 +1635,7 @@ bool Transient::processSuccessfulDCOP()
   {
     dcopFlag_          = true;
     analysisManager_.setTwoLevelMode(Analysis::TWO_LEVEL_MODE_TRANSIENT_DCOP);
-    baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+    baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   }
   else
   {
@@ -2273,7 +2272,7 @@ bool Transient::doTransientAdjointSensitivity ()
   TimeIntg::DataStore & ds = * ( analysisManager_.getDataStore() );
   TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   // solve adjoint equation for each transient point of interest (by default 
   // all of them).

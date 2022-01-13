@@ -111,6 +111,7 @@ public:
 
   int getOrder() const;
   int getUsedOrder() const;
+  int getMethod() const;
   int getNumberOfSteps() const;
   int getNscsco() const;
   void getInitialQnorm (TwoLevelError & tle) const;

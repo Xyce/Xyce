@@ -63,7 +63,7 @@ namespace TimeIntg {
 class OneStep : public TimeIntegrationMethod
 {
 public:
-  static const int type = 7;
+  static const int type = Xyce::TimeIntg::methodsEnum::ONESTEP;
   static const char *name;
 
   static TimeIntegrationMethod *factory(const TIAParams &tia_params, StepErrorControl &step_error_control, DataStore &data_store);
@@ -149,6 +149,11 @@ public:
   int getUsedOrder() const
   {
     return sec.usedOrder_;
+  }
+
+  int getMethod() const
+  {
+    return type;
   }
 
   int getNscsco() const

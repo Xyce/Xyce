@@ -103,6 +103,7 @@ public:
   double                pdt_;                   ///< Previous delta time alpha/dt (Many devices)
   int                   currentOrder_;          ///< ROM
   int                   usedOrder_;             ///< ROM
+  int                   integrationMethod_;
 
   // Time step error control information
   double                currTimeStep_;          ///< Region, BJT, Digital, ThermalResistor, ROM, Charon, Others

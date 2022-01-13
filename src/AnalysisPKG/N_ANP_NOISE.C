@@ -68,7 +68,7 @@
 #include <N_TIA_DataStore.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TIA_StepErrorControl.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_FeatureTest.h>
@@ -535,7 +535,7 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 //-----------------------------------------------------------------------------
 bool NOISE::getDCOPFlag() const
 {
-  return getIntegrationMethod() == TimeIntg::NoTimeIntegration::type;
+  return getIntegrationMethod() == TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
 }
 
 //-----------------------------------------------------------------------------
@@ -619,7 +619,7 @@ bool NOISE::doInit()
   }
 
   // Get set to do the operating point.
-  baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+  baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
 
   stepNumber = 0;
