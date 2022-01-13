@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 04 Jan 2022 09:27:40
+// Creation Date  : Thu, 13 Jan 2022 12:13:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -304,6 +304,9 @@ void Traits::loadModelParameters(ParametricData<ADMSvbic13::Model> &p)
     .setUnit(U_DEGK)
     .setCategory(CAT_TEMP)
     .setDescription("Internal-use parameter for setting device model temperature");
+  p.addPar("OFF", static_cast<int>(0), &ADMSvbic13::Model::OFF)
+    .setUnit(U_UNKNOWN)
+    .setDescription("Set to 1 to initialize device to OFF instead of normally");
   p.addPar("NPN", static_cast<double>(0.0), &ADMSvbic13::Model::npn)
     .setUnit(U_UNKNOWN)
     .setDescription("npn transistor type")
@@ -1353,6 +1356,10 @@ bool Instance::processParams()
 
   // copy any model variables that have associated instance variables, but
   // are only given in the model card:
+   if (!(given("OFF")))
+   {
+      OFF = model_.OFF;
+   }
 
 
 
@@ -8237,6 +8244,12 @@ if (getType() == "pnp" || getType() == "PNP")
   // Now we need to check that any parameters are within their ranges as
   // specified in the verilog:
 
+//    Parameter OFF : [ 0, 1 ]
+  if ( (!((OFF >=0 && OFF <=1 ))) )
+  {
+    UserWarning(*this) << "ADMSvbic13: Parameter OFF value " << OFF << " out of range [ 0, 1 ]";
+  }
+
 //    Parameter type : [ (-1), 1 ]] 0, 0 [
   if ( (!((type >=(-1) && type <=1 )) || (type >0 && type <0 )) )
   {
@@ -8890,6 +8903,7 @@ Model::Model(
   const ModelBlock &    model_block,
   const FactoryBlock &  factory_block)
   : DeviceModel(model_block, configuration.getModelParameters(), factory_block),
+    OFF(0),
     npn(0.0),
     pnp(0.0),
     type((-1)),
@@ -12478,6 +12492,8 @@ modelStruct.modelPar_given_tcrth=mod.given("tcrth");
 
 
 // non-reals (including hiddens)
+modelStruct.modelPar_OFF=mod.OFF;
+modelStruct.modelPar_given_OFF=mod.given("OFF");
 modelStruct.modelPar_type=mod.type;
 modelStruct.modelPar_given_type=mod.given("type");
 modelStruct.modelPar_VBICtype=mod.VBICtype;
@@ -13360,6 +13376,8 @@ modParamMap["tcrth"] = &(modelStruct.d_modelPar_tcrth_dX);
 
 
 // non-reals (including hiddens)
+modelStruct.modelPar_OFF=mod.OFF;
+modelStruct.modelPar_given_OFF=mod.given("OFF");
 modelStruct.modelPar_type=mod.type;
 modelStruct.modelPar_given_type=mod.given("type");
 modelStruct.modelPar_VBICtype=mod.VBICtype;
@@ -13447,6 +13465,10 @@ instanceStruct.instancePar_given_OFF=in.given("OFF");
   // This was already done by the instance constructor, but we do it again
   // because now we're propagating derivatives, and the user could be trying
   // to get sensitivity to the model parameter.
+   if (!(in.given("OFF")))
+   {
+      instanceStruct.instancePar_OFF = modelStruct.modelPar_OFF;
+   }
 
 
   //make local copies of all instance vars

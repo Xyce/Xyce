@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 04 Jan 2022 09:27:35
+// Creation Date  : Thu, 13 Jan 2022 12:13:53
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSvbic13_4t_h
@@ -641,6 +641,8 @@ double modelPar_tcrth;
 double d_modelPar_tcrth_dX;
 bool modelPar_given_tcrth;
 // non-reals (including hidden)
+int modelPar_OFF;
+bool modelPar_given_OFF;
 int modelPar_type;
 bool modelPar_given_type;
 int modelPar_VBICtype;
@@ -1519,6 +1521,7 @@ public:
     double admsModTemp;
 // Begin verilog Model Variables
 //   Model Parameters
+    int OFF;
     double npn;
     double pnp;
     int type;
