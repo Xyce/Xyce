@@ -72,6 +72,7 @@ SolverState::SolverState ()
     //lastTimeStep_(0.0),
     currTimeStep_(1.0e-10),
     lastTimeStep_(1.0e-10),
+    oldeTimeStep_(1.0e-10),
     currTime_(0.0),
     finalTime_(0.0),
     startingTimeStep_(0.0),
@@ -160,6 +161,7 @@ std::ostream& operator<<(std::ostream & os, const SolverState & ss)
   os << "  pdt = " << ss.pdt_ << std::endl;
   os << "  currTimeStep = " << ss.currTimeStep_ << std::endl;
   os << "  lastTimeStep = " << ss.lastTimeStep_ << std::endl;
+  os << "  oldeTimeStep = " << ss.oldeTimeStep_ << std::endl;
   os << "  currTime = " << ss.currTime_ << std::endl;
   os << "  finalTime = " << ss.finalTime_ << std::endl;
   os << "  startingTimeStep = " << ss.startingTimeStep_ << std::endl;
@@ -318,6 +320,7 @@ bool setupSolverInfo(
   // Time step error control information
   solver_state.currTimeStep_        = analysis_manager.getStepErrorControl().currentTimeStep;                   // system_state.nextTimeStep;
   solver_state.lastTimeStep_        = analysis_manager.getStepErrorControl().lastTimeStep;                      // system_state.currTimeStep;
+  solver_state.oldeTimeStep_        = analysis_manager.getStepErrorControl().oldeTimeStep;                      // 
   solver_state.currTime_            = analysis_manager.getStepErrorControl().nextTime;                          // system_state.nextTime;
   solver_state.finalTime_           = analysis_manager.getStepErrorControl().finalTime;                         // system_state.finalTime;
   solver_state.startingTimeStep_    = analysis_manager.getStepErrorControl().startingTimeStep;                  // system_state.startingTimeStep;

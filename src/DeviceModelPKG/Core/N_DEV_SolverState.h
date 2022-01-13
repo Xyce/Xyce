@@ -108,6 +108,7 @@ public:
   // Time step error control information
   double                currTimeStep_;          ///< Region, BJT, Digital, ThermalResistor, ROM, Charon, Others
   double                lastTimeStep_;          ///< BJT, Others
+  double                oldeTimeStep_;          ///< BJT, Others
   double                currTime_;              ///< DeviceEntity for expression time, breakpoints
                                                 ///< DeviceMgr for dependent parameters, breakpoints, extern device
                                                 ///< SourceData devices, ADC, DAC LTRA, TRA, Region, NumericalJacobian, RxnSet, Digital

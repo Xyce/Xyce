@@ -206,7 +206,7 @@ class StepErrorControl
   double currentTimeStep;
   double lastAttemptedTimeStep;
   double lastTimeStep;
-  double oldeTimeStep; // only used in a form of adjoint sens.
+  double oldeTimeStep;
   double minTimeStep;
   double maxTimeStep;
   double maxTimeStepUser;
