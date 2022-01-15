@@ -78,52 +78,24 @@
 #define OBJTYPE 1 // 0 - L2Norm, 1 - amplifier circuit
 #endif
 
-#ifndef UQ
-#define UQ 0
-#endif
-
+#include "ROL_BoundConstraint.hpp"
+#include "ROL_Constraint.hpp"
+#include "ROL_Constraint_SimOpt.hpp"
+#include "ROL_Objective_SimOpt.hpp"
+#include "ROL_ParameterList.hpp"
+#include "ROL_Problem.hpp"
+#include "ROL_Ptr.hpp"
+#include "ROL_Reduced_Objective_SimOpt.hpp"
+#include "ROL_Solver.hpp"
 #include "ROL_StdVector.hpp"
 #include "ROL_Vector.hpp"
 
-#include "ROL_Algorithm.hpp"
-#include "ROL_CompositeStep.hpp"
-#include "ROL_LineSearchStep.hpp"
 #include "Teuchos_oblackholestream.hpp"
 #include "Teuchos_GlobalMPISession.hpp"
-#include "ROL_BoundConstraint.hpp"
-#include "Teuchos_XMLParameterListHelpers.hpp"
-#include "ROL_TrustRegionStep.hpp"
-#include "ROL_StatusTest.hpp"
-#include "ROL_Types.hpp"
-#include "ROL_BundleStep.hpp"
-#include "ROL_BundleStatusTest.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "ROL_XyceVector.hpp"
-
 #include <N_ANP_ROL_DC_Optimization.h>
-#include "ROL_Reduced_Objective_SimOpt.hpp"
-#include "ROL_ParametrizedObjective_SimOpt.hpp"
-#include "ROL_Reduced_ParametrizedObjective_SimOpt.hpp"
-
-#if UQ==1
-#include "Teuchos_Comm.hpp"
-#include "Teuchos_DefaultComm.hpp"
-#include "Teuchos_CommHelpers.hpp"
-
-#include "ROL_RiskNeutralObjective.hpp"
-#include "ROL_RiskAverseObjective.hpp"
-// ROL sample generators
-#include "ROL_MonteCarloGenerator.hpp"
-#include "ROL_QuasiMonteCarloGenerator.hpp"
-#include "ROL_StdTeuchosBatchManager.hpp"
-#include "ROL_UserInputGenerator.hpp"
-// ROL CVaR definitions
-#include "ROL_PlusFunction.hpp"
-#include "ROL_CVaR.hpp"
-#include "ROL_CVaRVector.hpp"
-#include "ROL_CVaRBoundConstraint.hpp"
-
-#endif
 
 #endif
 
@@ -747,7 +719,7 @@ bool ROL::twoLevelStep()
   return analysisManager_.getStepErrorControl().stepAttemptStatus;
 }
 
-#if Xyce_ROL
+#ifdef Xyce_ROL
 typedef double RealT;
 //-----------------------------------------------------------------------------
 // Function      : ROL::runROLAnalysis
@@ -761,938 +733,179 @@ bool ROL::runROLAnalysis()
 {
 
   // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_STARTED, stepSweepVector_, currentStep)); 
-  
-#if UQ==1
-  //Teuchos::GlobalMPISession mpiSession(&argc, &argv);
-  Teuchos::RCP<const Teuchos::Comm<int> > comm = Teuchos::DefaultComm<int>::getComm();
-#endif
-  
+    
   std::string msg;
   bool status = true;
   int errorFlag = 0;
 
   try
-  {    
+  { 
 
-    int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength(); // number of solution variables
-    int nc = stepLoopSize_; // number of constraint equations
-    int nz = numParams_; // number of optimization parameters
-
-    status = doAllocations(nc,nz); // allocate solution and sensitivity arrays
-
-    std::string filename = "input.xml";
-    Teuchos::RCP<Teuchos::ParameterList> parlist = Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile( filename, Teuchos::Ptr<Teuchos::ParameterList>(&*parlist) );
-
-    std::string outputname     = parlist->get("Output File","rol_output.txt");
-    std::ofstream out(outputname.c_str());
-    Teuchos::RCP<std::ostream> outStream = Teuchos::rcp(&out,false);
-
-    out << "nu = " << nu << " nc = " << nc << " nz = " << nz << std::endl;    
-    out << "Entering ROL loop" << std::endl;
-
-    bool do_checks      = parlist->get("Do Checks",true);
-    bool use_scale      = parlist->get("Use Scaling For Epsilon-Active Sets",true);
-    bool use_sqp        = parlist->get("Use SQP", true);
-    bool use_lsearch    = parlist->get("Use Line Search", true);    
-    bool use_TR         = parlist->get("Use Trust Region", true);
-    bool use_bundle     = parlist->get("Use Bundle Method", true);
-    bool use_bcon       = parlist->get("Use Bound Constraints", true);
-    RealT alpha         = parlist->get("Penalty Parameter", 1.e-4);
-    // amplifier problem parameters
-    RealT ampl          = parlist->get("Amplifier Gain", 4.0);
-    int ptype           = parlist->get("Penalty Type", 1);
-
-#if UQ==1
-    int nSamp           = parlist->get("Number of Samples (UQ)", 10);
-    int samplertype     = parlist->get("Sampler Type", 1); // 1 - MC, 2 - QMC
-    RealT gamma         = parlist->get("CVaR: gamma", 1.e-4);
-    RealT prob          = parlist->get("CVaR: prob", 0.99);
-    RealT coeff         = parlist->get("CVaR: coeff", 1.0);
-#endif
-
-    //************ Equality constraint ***************//
-    //Teuchos::RCP< ::ROL::EqualityConstraint_SimOpt<RealT> > con;
-    Teuchos::RCP< ::ROL::ParametrizedEqualityConstraint_SimOpt<RealT> > con;
-    con = Teuchos::rcp(new EqualityConstraint_ROL_DC<RealT>(nu,nc,nz,analysisManager_,analysisManager_.getNonlinearEquationLoader(),nonlinearManager_.getNonlinearSolver(),linearSystem_,*this));
-    
-    //************ Optimization-space vectors ***************//
-    Teuchos::RCP<std::vector<RealT> > z_rcp     = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > z1_rcp     = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > z2_rcp     = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > z3_rcp     = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > yz_rcp    = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    Teuchos::RCP<std::vector<RealT> > ajvz_rcp  = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    ::ROL::StdVector<RealT> z(z_rcp);
-    ::ROL::StdVector<RealT> z1(z1_rcp);
-    ::ROL::StdVector<RealT> z2(z2_rcp);
-    ::ROL::StdVector<RealT> z3(z3_rcp);
-    ::ROL::StdVector<RealT> yz(yz_rcp);
-    ::ROL::StdVector<RealT> ajvz(ajvz_rcp);
-    
-    // Simulation and constraint space vectors
-
-    // Using default constructor
-    // Linear::ROL_XyceVector<RealT> u(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-    // Linear::ROL_XyceVector<RealT> yu(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-    // Linear::ROL_XyceVector<RealT> c(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-    // Linear::ROL_XyceVector<RealT> jv(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-
-    // Using copy constructor
-    Linear::ROL_XyceVector<RealT> u(statePtrVector_);
-    Linear::ROL_XyceVector<RealT> yu(testPtrVector_);
-    Linear::ROL_XyceVector<RealT> c(constraintPtrVector_);
-    Linear::ROL_XyceVector<RealT> jv(jvecPtrVector_);
-
-    u.randomize();
-    yu.randomize();
-    c.randomize();
-    jv.randomize();
-
-    // // Testing cloning
-    // Teuchos::RCP< ::ROL::Vector<RealT> > copy = u.clone();
-    // // assert (!is_null(copy));
-    // Linear::ROL_XyceVector<RealT> cop = dynamic_cast< Linear::ROL_XyceVector<RealT> &>(*copy);
-    // cop.randomize();
-    // cop.print(*outStream);
-
-    // *outStream << "Checking linear algebra" << std::endl;
-    // std::vector<RealT> consistency = jv.checkVector(u,c,true,*outStream);
-    
-    // Get Initial Guess and bounds from file
-    std::ifstream param_file;
-    param_file.open("parameters.txt");
-    RealT temp;
-    std::string parName, dummy;
-    std::vector<RealT> up_bounds(nz,0.0);
-    std::vector<RealT> lo_bounds(nz,0.0);
-    getline(param_file,dummy); // skip the first line
-    for(int i=0;i<nz;i++)
-    {
-      param_file >> parName;
-      param_file >> parName;
-      param_file >> temp; // init guess
-      (*z_rcp)[i] = temp;
-      (*yz_rcp)[i] = temp;
-      param_file >> temp; // lo bound
-      lo_bounds[i] = temp;
-      param_file >> temp; // up bound
-      up_bounds[i] = temp;
-    }
-    param_file.close();
-    
-#if UQ==1
-    // Get uncertain parameters and their bounds
-    param_file.open("uncertain_parameters.txt");
-    std::vector<std::vector<RealT> > ubounds;
-    std::vector<RealT> tempv(2,0);
-    std::string deviceName,paramName;
-    getline(param_file,dummy);
-    while(true)
-    {
-      if(!(param_file >> deviceName))
-        break;
-      if(deviceName[0]=='*')
-      {
-        getline(param_file,dummy);
-        continue;
-      }
-      if(!(param_file >> paramName))
-        break;
-      paramName = deviceName+":"+paramName;
-      std::cout << "Uncertain parameter " << paramName << std::endl;
-      uncertainParams_.push_back(paramName);
-      if(!(param_file >> temp)) break;
-      tempv[0] = temp;
-      if(!(param_file >> temp)) break;
-      tempv[1] = temp;
-      ubounds.push_back(tempv);
-    }
-    param_file.close();
-#endif
+    int nz = numParams_;     // Number of optimization variables                                           
+    // Number of simulation variables
+    int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
+    int nc = stepLoopSize_;  // Number of constraints.
 
     RealT tol = 1.e-12;
+   
+    // STEP 1A: Initialize vectors.  //////////////////////////////////////////
 
-    Teuchos::RCP< ::ROL::Vector<RealT> > up = Teuchos::rcp(&u,false);
-    Teuchos::RCP< ::ROL::Vector<RealT> > yup = Teuchos::rcp(&yu,false);
-    Teuchos::RCP< ::ROL::Vector<RealT> > cp = Teuchos::rcp(&c,false);
-    Teuchos::RCP< ::ROL::Vector<RealT> > jvp = Teuchos::rcp(&jv,false);
+    // Configure the optimization vector.
+    auto p = ::ROL::makePtr<  std::vector   <RealT>>(nz, 0.0);
+    auto z = ::ROL::makePtr<::ROL::StdVector<RealT>>(p);
+    // p := pointer to a standard vector representing z
 
-    Teuchos::RCP< ::ROL::Vector<RealT> > zp = Teuchos::rcp(&z,false);
-    Teuchos::RCP< ::ROL::Vector<RealT> > z3p = Teuchos::rcp(&z3,false);
-    Teuchos::RCP< ::ROL::Vector<RealT> > yzp = Teuchos::rcp(&yz,false); 
-    Teuchos::RCP< ::ROL::Vector<RealT> > ajvzp = Teuchos::rcp(&ajvz,false); 
-
-    // SimOpt vectors
-    ::ROL::Vector_SimOpt<RealT> x(up,zp);
-    ::ROL::Vector_SimOpt<RealT> y(yup,yzp);
-    ::ROL::Vector_SimOpt<RealT> ajv(jvp,ajvzp);
-
-#if UQ==1
-    /**********************************************************************************************/
-    /************************* CONSTRUCT SOL COMPONENTS *******************************************/
-    /**********************************************************************************************/
-    // Build samplers
-    Teuchos::RCP< ::ROL::BatchManager<double> > bman = Teuchos::rcp(new ::ROL::StdTeuchosBatchManager<double,int>(comm));
-    Teuchos::RCP< ::ROL::SampleGenerator<double> > sampler;
-    std::ifstream dirNums("new-joe-kuo-6.21201");
-    if(samplertype==1)
-      sampler = Teuchos::rcp(new ::ROL::MonteCarloGenerator<double>(50*nSamp,ubounds,bman,false,false,100));
-    else if(samplertype==2)
+    // Read in z's initial guess and upper and lower bounds.
+    std::ifstream file;  file.open("parameters.txt");
+    std::vector<RealT> zUpperBoundVector(nz, 0.0);
+    std::vector<RealT> zLowerBoundVector(nz ,0.0);
+    std::string strStreamIn;
+    RealT       numStreamIn;
+    getline(file, strStreamIn);  // Skips the first line
+    for(int i = 0; i < nz; i++)
     {
-      if(!dirNums)
-        out << "DirNums file not found!" << std::endl;
-      int skip = 0;
-      sampler = Teuchos::rcp(new ::ROL::QuasiMonteCarloGenerator<double>(nSamp,ubounds,bman,dirNums,skip,false,false,100));
+      file                 >> strStreamIn;
+      file                 >> strStreamIn;
+      file                 >> numStreamIn;  // Initial guess
+      (*p)[i]              =  numStreamIn;
+      file                 >> numStreamIn;  // Lower bound
+      zLowerBoundVector[i] =  numStreamIn;
+      file                 >> numStreamIn;  // Upper bound
+      zUpperBoundVector[i] =  numStreamIn;
     }
-    con->setParameter(sampler->getMyPoint(0));
+    file.close();
+
+    // Configure the state and constraint vectors.
+    status = doAllocations(nc, nz);
+    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(statePtrVector_);
+    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(constraintPtrVector_);
+
+    // STEP 1B: Initialize parameters.  ///////////////////////////////////////
+
+    // Load parameters.
+    ::ROL::Ptr<::ROL::ParameterList> parlist 
+      = ::ROL::getParametersFromXmlFile("input.xml");
+    std::string outName     = parlist->get("Output File", "rol_output.txt");
+    bool useBoundConstraint = parlist->get("Use Bound Constraints", true);
+    bool useScale           = parlist->get("Use Scaling For Epsilon-Active Sets", true);
+    // TODO (asjavee): Remove hardwired code. Eventually we shouldn't need the 
+    //                 subsequent lines in this code block.
+    // bool doChecks           = parlist->get("Do Checks",true);
+    // bool useSQP             = parlist->get("Use SQP", true);
+    // bool useLineSearch      = parlist->get("Use Line Search", true);    
+    // bool useTrustRegion     = parlist->get("Use Trust Region", true);
+    // bool useBundleMethod    = parlist->get("Use Bundle Method", true);
+    // Parameters for the amplifier problem. 
+    int ptype               = parlist->get("Penalty Type", 1);
+    RealT alpha             = parlist->get("Penalty Parameter", 1.0e-4);
+    RealT ampl              = parlist->get("Amplifier Gain", 4.0);
+
+    // Configure the output stream.
+    std::ofstream out(outName.c_str());
+    // TODO (asjavee): I don't think we need the line below; ofstream inherits 
+    //                 from ostream.
+    // Teuchos::RCP<std::ostream> outStream = Teuchos::rcp(&out,false);
+
+    // STEP 2: Create the SimOpt equality constraint.  ////////////////////////
+
+    auto con = ::ROL::makePtr<EqualityConstraint_ROL_DC<RealT>>
+               (
+                 nu, nc, nz, analysisManager_, 
+                             analysisManager_.getNonlinearEquationLoader(),
+                             nonlinearManager_.getNonlinearSolver(),
+                             linearSystem_,
+                             *this
+               );
+    // Here, con is the constraint c(u, z) = 0. Its solve member function 
+    // specifies u as a function of z (u = S(z)); see slide 26 of
+    //   <https://trilinos.github.io/pdfs/ROL.pdf>.
+
+    con->solve(*l, *u, *z, tol);
+
+    // STEP 3: Build our objective.  /////////////////////////////////////////
+
+    // Create a full space objective (as well as a penalty when solving the
+    // amplifier problem).
+#if OBJTYPE==0
+    auto obj = ::ROL::makePtr<Objective_DC_L2Norm<RealT>>(1.0e-4, nc, nz);
+#elif OBJTYPE==1
+    auto obj = ::ROL::makePtr<Objective_DC_AMP<RealT>>(nc, nz);
+    auto pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
 #endif
    
-    con->solve(u,z,tol);
-#if UQ==1
-    std::ofstream allsamples("all_samples.txt");
-    std::ofstream samples("good_samples.txt");
-    int nGSamp = 0; // number of "good" samples
-    out << "Generating good samples..." << std::endl;
-    for (int k=0;k<50*nSamp;k++)
-    {
-      con->setParameter(sampler->getMyPoint(k));
+    // Create a reduced objective (and penalty) from the full space counterpart.
+    auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l);
+#if OBJTYPE==1
+    auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
 #endif
-      //======================= Separate testing of Jacobian_1 and 2 ==============================//
-      
-      out << "Checking Jacobian_1" << std::endl;
-      int numSteps = 13;
-      std::vector<RealT> steps(numSteps);
-      for(int i=0;i<numSteps;++i)
-      {
-        steps[i] = pow(10,-i);
-      }
-      
-      using ::ROL::Finite_Difference_Arrays::shifts;
-      using ::ROL::Finite_Difference_Arrays::weights;
-      
-      int numVals = 4;
-      std::vector<RealT> tmp(numVals);
-      std::vector<std::vector<RealT> > jvCheck(numSteps, tmp);
-      
-      // Compute constraint value at x.
-      Teuchos::RCP< ::ROL::Vector<RealT> > cc = c.clone();
-      con->value(*cc,*(x.get_1()),*(x.get_2()),tol);
-      
-      // Compute (Jacobian at x) times (vector v).
-      Teuchos::RCP< ::ROL::Vector<RealT> > Jv = jv.clone();
-      RealT normJv;
-      con->applyJacobian_1(*Jv, *(y.get_1()), *(x.get_1()), *(x.get_2()), tol);
-      normJv = Jv->norm();
-      
-      // Temporary vectors.
-      Teuchos::RCP< ::ROL::Vector<RealT> > cdif = c.clone();
-      Teuchos::RCP< ::ROL::Vector<RealT> > cnew = c.clone();
-      Teuchos::RCP< ::ROL::Vector<RealT> > xnew = x.clone();
-      
-      // FD order
-      int order = 1;
-      RealT minGradError = 1.e+10; // for "good" samples
-      
-      for (int i=0; i<numSteps; i++)
-      {
-        RealT eta = steps[i];
-        
-        xnew->set(x);
-        
-        cdif->set(*cc);
-        cdif->scale(weights[order-1][0]);
-        
-        for(int j=0; j<order; ++j)
-              {
-          
-          xnew->axpy(eta*shifts[order-1][j], y);
-          
-          if( weights[order-1][j+1] != 0 )
-                {
-            //this->update(*xnew);
-            ::ROL::Vector_SimOpt<RealT> &xnews = Teuchos::dyn_cast< ::ROL::Vector_SimOpt<RealT> >(*xnew);
-            con->value(*cnew,*(xnews.get_1()),z,tol);
-            cdif->axpy(weights[order-1][j+1],*cnew);    
-          }
-          
-        }
-        
-        cdif->scale(1.0/eta);    
-        
-        // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
-        jvCheck[i][0] = eta;
-        jvCheck[i][1] = normJv;
-        jvCheck[i][2] = cdif->norm();
-        cdif->axpy(-1.0, *Jv);
-        jvCheck[i][3] = cdif->norm();
-        
-        //if (printToStream)
-              //{
-        std::stringstream hist;
-        if (i==0)
-        {
-          hist << std::right
-               << std::setw(20) << "Step size"
-               << std::setw(20) << "norm(Jac*vec)"
-               << std::setw(20) << "norm(FD approx)"
-               << std::setw(20) << "norm(abs error)"
-               << "\n"
-               << std::setw(20) << "---------"
-               << std::setw(20) << "-------------"
-               << std::setw(20) << "---------------"
-               << std::setw(20) << "---------------"
-               << "\n";
-        }
-        hist << std::scientific << std::setprecision(11) << std::right
-             << std::setw(20) << jvCheck[i][0]
-             << std::setw(20) << jvCheck[i][1]
-             << std::setw(20) << jvCheck[i][2]
-             << std::setw(20) << jvCheck[i][3]
-             << "\n";
-        out << hist.str();
-        
-        minGradError = std::min(jvCheck[i][3],minGradError);
-      }
-      out << "\n" << std::endl;
-      
-#if UQ==1
-      std::cout << "minGradError = " << minGradError << std::endl;
-      for(int j=0;j<ubounds.size();j++)
-        allsamples << std::scientific << std::setprecision(8) << (sampler->getMyPoint(k))[j] << ' ';
-      allsamples << '\n';
-      if( minGradError < 2.e-6 )
-      {
-        for(int j=0;j<ubounds.size();j++)
-          samples << std::scientific << std::setprecision(8) << (sampler->getMyPoint(k))[j] << ' ';
-        samples << '\n';
-        nGSamp++;
-      }
+
+    // Create the (possibly penalized) objective that we wish to optimize.
+    std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
+#if OBJTYPE==1
+    objVec.push_back(rpen);
 #endif
-      
-      out << "Checking Jacobian_2" << std::endl;
-        
-      // Compute constraint value at x.
-      con->value(*cc,*(x.get_1()),*(x.get_2()),tol);
-      
-      // Compute (Jacobian at x) times (vector v).
-      con->applyJacobian_2(*Jv, *(y.get_2()), *(x.get_1()), *(x.get_2()), tol);
-      normJv = Jv->norm();
-      
-      for (int i=0; i<numSteps; i++)
-      {
-        RealT eta = steps[i];
+    std::vector<bool> types(objVec.size(), true);
+    auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
 
-        xnew->set(x);
-
-        cdif->set(*cc);
-        cdif->scale(weights[order-1][0]);
-
-        for(int j=0; j<order; ++j)
-        {
-          xnew->axpy(eta*shifts[order-1][j], y);
-          
-          if( weights[order-1][j+1] != 0 )
-          {
-            //this->update(*xnew);
-            ::ROL::Vector_SimOpt<RealT> &xnews = Teuchos::dyn_cast< ::ROL::Vector_SimOpt<RealT> >(*xnew);
-            con->value(*cnew,u,*(xnews.get_2()),tol);
-            cdif->axpy(weights[order-1][j+1],*cnew);    
-          }
-        }
-        cdif->scale(1.0/eta);    
-          
-        // Compute norms of Jacobian-vector products, finite-difference approximations, and error.
-        jvCheck[i][0] = eta;
-        jvCheck[i][1] = normJv;
-        jvCheck[i][2] = cdif->norm();
-        cdif->axpy(-1.0, *Jv);
-        jvCheck[i][3] = cdif->norm();
-
-        //if (printToStream)
-              //{
-        std::stringstream hist;
-        if (i==0)
-        {
-          hist << std::right
-               << std::setw(20) << "Step size"
-               << std::setw(20) << "norm(Jac*vec)"
-               << std::setw(20) << "norm(FD approx)"
-               << std::setw(20) << "norm(abs error)"
-               << "\n"
-               << std::setw(20) << "---------"
-               << std::setw(20) << "-------------"
-               << std::setw(20) << "---------------"
-               << std::setw(20) << "---------------"
-               << "\n";
-        }
-        hist << std::scientific << std::setprecision(11) << std::right
-             << std::setw(20) << jvCheck[i][0]
-             << std::setw(20) << jvCheck[i][1]
-             << std::setw(20) << jvCheck[i][2]
-             << std::setw(20) << jvCheck[i][3]
-             << "\n";
-        out << hist.str();
-      }
-      out << "\n" << std::endl;
-            
-            
-      //===================== end of checking Jacobian ========================//
-#if UQ==1
-    }// end (loop over random params)
-    out << "Generated " << nGSamp << " good samples." << std::endl;
-    samples.close();
-    allsamples.close();
-#endif
+    // STEP 4: Create z's BoundConstraint.  ///////////////////////////////////
     
-    if(do_checks)
+    RealT scale = 1.0;
+    if(useScale)
     {
-      out << "Checking full Jacobian" << std::endl;
-      con->checkApplyJacobian(x,y,jv,true,*outStream);
-      
-      // // TT: the following requires implementing basis for ROL_XyceVector
-      // std::cout << "Checking full adjoint Jacobian" << std::endl;
-      // con->applyAdjointJacobian_1(const_cast< ::ROL::Vector<RealT> &>(*(ajv.get_1())),yu,u,z,tol);
-      // std::cout << "norm ajvu = " << ajv.get_1()->norm() << std::endl;
-      // con->applyAdjointJacobian_2(const_cast< ::ROL::Vector<RealT> &>(*(ajv.get_2())),yu,u,z,tol);
-      // std::cout << "norm ajvz = " << ajv.get_2()->norm() << std::endl;
-      // std::cout << "norm ajv = " << std::sqrt(ajv.get_1()->norm()*ajv.get_1()->norm() + ajv.get_2()->norm()*ajv.get_2()->norm()) << std::endl;
-      // con->checkApplyAdjointJacobian(x,yu,c,ajv);
-      
-      out << "Checking Jacobian consistency" << std::endl;
-      con->checkAdjointConsistencyJacobian_1(jv,yu,u,z,true,*outStream);
-      con->checkAdjointConsistencyJacobian_2(jv,yz,u,z,true,*outStream);
-      
-      out << "Checking consistency of solves" << std::endl;
-      con->checkSolve(u,z,c,true,*outStream);
-      con->checkInverseJacobian_1(jv,yu,u,z,true,*outStream);
-      con->checkInverseAdjointJacobian_1(yu,jv,u,z,true,*outStream);
-      
-    } // end(do_checks)
+      // Evaluate the reduced objective gradient at the initial value of z.
+      auto g0P = ::ROL::makePtr<  std::vector   <RealT>>(nz, 0.0);
+      auto g0  = ::ROL::makePtr<::ROL::StdVector<RealT>>(g0P);
+      robj->gradient(*g0, *z, tol);
+
+      // *out << std::scientific << "Norm of initial gradient = " << g0p.norm() << "\n";
     
-    //*********************** Initialize objective and penalty functions ***************************//
-    Teuchos::RCP< ::ROL::ParametrizedObjective_SimOpt<RealT> > obj;
-    Teuchos::RCP< ::ROL::ParametrizedObjective_SimOpt<RealT> > pen;
+      scale = 1.0e-2/(g0->norm());
+    }
+
+    // *out << std::scientific << "Scaling: " << scale << "\n";
     
-#if OBJTYPE==0
-    // L2-norm objective
-    obj = Teuchos::rcp(new Objective_DC_L2Norm<RealT>(1.e-4,nc,nz));
-#elif OBJTYPE==1
-    // AMPlifier circuit objective
-    std::cout << "Amplifier circuit problem" << std::endl;
-    obj = Teuchos::rcp(new Objective_DC_AMP<RealT>(nc,nz));
-    pen = Teuchos::rcp(new Penalty_DC_AMP<RealT>(ptype,alpha,ampl,nc,nz));
-#endif
-    std::vector< Teuchos::RCP< ::ROL::Objective<RealT> > > objVec;
-    std::vector<bool> types(1,true);
+    auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector, zUpperBoundVector);
     
-    con->checkSolve(u,z,c,true,*outStream);
-    if(do_checks)
-    {
-      out << "Checking objective" << std::endl;
-      obj->checkGradient(x,x,y,true,*outStream);
-      obj->checkHessVec(x,x,y,true,*outStream);
-#if OBJTYPE==1
-      out << "Checking penalty" << std::endl;
-      pen->checkGradient(x,x,y,true,*outStream);
-      pen->checkHessVec(x,x,y,true,*outStream);
-#endif
-    }
+    // STEP 5A: Define the optimization problem.  /////////////////////////////
+
+    auto problem = ::ROL::makePtr<::ROL::Problem<RealT>>(pobj, z);
+    if (useBoundConstraint)
+      problem->addBoundConstraint(bnd);
+    // problem->check(true);
+
+    // STEP 5B: Define the optimization solver.  //////////////////////////////
     
-    //********************* Initialize reduced objective and penalty functions **********************//
-    Teuchos::RCP< ::ROL::ParametrizedObjective<RealT> > robj = Teuchos::rcp(new ::ROL::Reduced_ParametrizedObjective_SimOpt<RealT>(obj,con,up,cp));
-#if OBJTYPE==1
-    Teuchos::RCP< ::ROL::ParametrizedObjective<RealT> > rpen = Teuchos::rcp(new ::ROL::Reduced_ParametrizedObjective_SimOpt<RealT>(pen,con,up,cp));
-#endif
+    parlist->sublist("General").set("Output Level", 1);    
+    ::ROL::Solver<RealT> solver(problem, *parlist);
 
-    if(do_checks)
-    {
-      *outStream << "Derivatives of reduced objective" << std::endl; 
-      robj->checkGradient(z,z,yz,true,*outStream);
-      robj->checkHessVec(z,z,yz,true,*outStream);
-#if OBJTYPE==1
-      *outStream << "Derivatives of reduced penalty" << std::endl; 
-      rpen->checkGradient(z,z,yz,true,*outStream);
-      rpen->checkHessVec(z,z,yz,true,*outStream);
-#endif
-    }
-
-    //****************************** Bound constraints ****************************************//
-    Teuchos::RCP<std::vector< RealT > > g0_rcp = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-    ::ROL::StdVector<RealT> g0p(g0_rcp);
-    robj->gradient(g0p,z,tol);
-    *outStream << std::scientific << "Norm of initial gradient = " << g0p.norm() << "\n";
-    // Define scaling for epsilon-active sets (used in inequality constraints)
-    RealT scale;
-    if(use_scale) 
-      scale = 1.0e-2/g0p.norm();
-    else
-      scale = 1.0;
-    *outStream << std::scientific << "Scaling: " << scale << "\n";
-    Teuchos::RCP<::ROL::BoundConstraint<RealT> > bcon = Teuchos::rcp(new BoundConstraint_ROL_DC<RealT>(scale,lo_bounds,up_bounds));
-    if(!use_bcon)
-      bcon->deactivate();
+    // STEP 6: Solve.  ////////////////////////////////////////////////////////
     
-    /**********************************************************************************************/    
-    //***************************** Optimization ************************************************//
-    /**********************************************************************************************/
-    *outStream << "\n Initial guess " << std::endl;
-    for (int i=0;i<nz;i++)
-      *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-    RealT gtol = parlist->get("Gradient Tolerance",1.e-14); // norm of gradient tolerance
-    RealT stol = parlist->get("Step Tolerance",1.e-16); // norm of step tolerance
-    int maxit  = parlist->get("Maximum Number of Iterations",100);// maximum number of iterations
+    // Print initial guess.
+    out << "\nInitial guess " << std::endl;
+    for (int i = 0; i < nz; i++)
+      out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
 
-    con->solve(u,z,tol); // start feasible
-
-#if UQ==1
-    //*************** Initial objective values and initial states (UQ) ***************//
-    std::ofstream sampleWeights("weights.txt");
-    for(int i=0;i<nSamp;i++)
-    {
-      sampleWeights << 1./(RealT)nSamp << '\n';
-    }
-    sampleWeights.close();
-    std::string input_samples = "good_samples.txt";
-    std::string input_weights = "weights.txt";
-    // This sampler used to solve problem (with nSamp samples)
-    Teuchos::RCP< ::ROL::SampleGenerator<double> > samplerSolve = Teuchos::rcp(new ::ROL::UserInputGenerator<RealT>(input_samples,input_weights,nSamp,ubounds.size(),bman));
-    std::vector<RealT> sampleMean(ubounds.size(),0);
-    // This sampler used to test solution (with nGSamp samples)
-    Teuchos::RCP< ::ROL::SampleGenerator<double> > samplerTest  = Teuchos::rcp(new ::ROL::UserInputGenerator<RealT>(input_samples,input_weights,nGSamp,ubounds.size(),bman));
-    std::ofstream data_IG_UQ("data_IG_UQ.txt");
-    std::ofstream plot_IG_UQ("plot_IG_UQ.txt");
-    RealT sumlin = 0, sumlin2 = 0, sumgain = 0, sumgain2 = 0, gain, oval, param;
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > uup = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<RealT> >(u)).getVector());
-    for(int i=0;i<nSamp;i++)
-    {
-      con->setParameter(samplerSolve->getMyPoint(i));
-      con->solve(u,z,tol);
-      oval = obj.value(u,z,tol);
-      for(int j=0;j<nc;j++)
-      {
-        plot_IG_UQ << std::scientific << std::setprecision(8) << (*(*uup)[j])[3] << ' ';
-      }
-      plot_IG_UQ << '\n';
-      gain = ((*(*uup)[nc-1])[3]-(*(*uup)[0])[3])/2.0;
-      sumgain += gain;
-      sumgain2 += gain*gain;
-      for(int j=0;j<uncertainParams_.size();j++)
-      {
-        param = (samplerSolve->getMyPoint(i))[j];
-        data_IG_UQ << std::scientific << std::setprecision(8) << param << ' ';
-        sampleMean[j] += param/nSamp;
-      }
-      data_IG_UQ << oval << ' ' << gain << '\n';
-      sumlin += oval;
-      sumlin2 += oval*oval;
-    }
-    plot_IG_UQ.close();
-    RealT meanlin = sumlin/nSamp;
-    RealT meangain = sumgain/nSamp;
-    RealT varlin = (sumlin2 - nSamp*meanlin*meanlin)/(RealT)(nSamp-1);
-    RealT vargain = (sumgain2 - nSamp*meangain*meangain)/(RealT)(nSamp-1);
-    data_IG_UQ << '\n' << "------------------------------------------" << '\n';
-    data_IG_UQ << "mean(lin) = " << meanlin << " " << '\n';
-    data_IG_UQ << "sqrt(sample variance)(lin) = " << std::sqrt(varlin) << '\n';
-    data_IG_UQ << "mean(gain) = " << meangain << " " << '\n';
-    data_IG_UQ << "sqrt(sample variance)(gain) = " << std::sqrt(vargain) << '\n';
-    data_IG_UQ.close();
-
-    /**********************************************************************************************/
-    //************************* Build risk-averse objective function *****************************//
-    /**********************************************************************************************/
-    Teuchos::RCP< ::ROL::Distribution<double> > dist;
-    Teuchos::RCP< ::ROL::PlusFunction<double> > pf;
-    Teuchos::RCP< ::ROL::RiskMeasure<RealT> > rmobj;
-    bool storage = true;
-    Teuchos::RCP< ::ROL::RiskNeutralObjective<RealT> > neutobj;
-    Teuchos::RCP< ::ROL::RiskAverseObjective<RealT> > riskobj;
-    Teuchos::RCP< ::ROL::RiskNeutralObjective<RealT> > neutpen;
-    Teuchos::RCP< ::ROL::RiskAverseObjective<RealT> > riskpen;    
-    Teuchos::RCP< ::ROL::BoundConstraint<RealT> >bconcvar = Teuchos::rcp(new ::ROL::CVaRBoundConstraint<RealT>(bcon));
-    if(!use_bcon)
-      bconcvar->deactivate();    
-
-    //****************************** Trust Region ********************************************//
-    if (use_TR)
-    {
-      Teuchos::RCP< ::ROL::StatusTest<double> > status_tr;
-      Teuchos::RCP< ::ROL::Step<double> > step_tr;
-      Teuchos::RCP< ::ROL::Algorithm<double> > algo_tr;
-      std::clock_t timer_tr = std::clock();
-      
-      *outStream << "\nSOLVE DETERMINISTIC MEAN-VALUE PROBLEM\n";
-      z1.set(z);
-      con->setParameter(sampleMean);
-      objVec.clear();
-      objVec.push_back(robj);
-#if OBJTYPE==1
-      objVec.push_back(rpen);
-      types.push_back(1);
-#endif
-      SumObjective<RealT> fullobjDET(objVec,types);
-      con->checkSolve(u,z,c,true,*outStream);
-      if(do_checks)
-      {
-        *outStream << "Derivatives of reduced objective" << std::endl; 
-        robj->checkGradient(z1,z1,yz,true,*outStream);
-        robj->checkHessVec(z1,z1,yz,true,*outStream);
-#if OBJTYPE==1
-        *outStream << "Derivatives of reduced penalty" << std::endl; 
-        rpen->checkGradient(z1,z1,yz,true,*outStream);
-        rpen->checkHessVec(z1,z1,yz,true,*outStream);
-#endif
-      }
-      status_tr = Teuchos::rcp(new ::ROL::StatusTest<RealT>(gtol, stol, maxit));    
-      step_tr = Teuchos::rcp(new ::ROL::TrustRegionStep<RealT>(*parlist));
-      algo_tr = Teuchos::rcp(new ::ROL::Algorithm<RealT>(step_tr,status_tr,false));
-      algo_tr->run(z1,fullobjDET,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z1_rcp)[i] << std::endl;
-      }
-
-      *outStream << "\nSOLVE EXPECTED VALUE WITH TRUST REGION\n";
-      out << "Using " << nSamp << " samples" << std::endl;
-      z2.set(z1);
-      *outStream << "\n Initial guess " << std::endl;
-      for (int i=0;i<nz;i++)
-        *outStream << paramNameVec_[i] << " = " << (*z2_rcp)[i] << std::endl;
-      neutobj = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(robj,samplerSolve,storage));
-      objVec.clear();
-      objVec.push_back(neutobj);
-      neutpen = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(rpen,samplerSolve,storage));
-      objVec.push_back(neutpen);
-      SumObjective<RealT> fullobjEXP(objVec,types);
-      if(do_checks)
-      {
-        out << "Derivatives of risk neutral objective" << std::endl;
-        neutobj->checkGradient(z2,z2,yz,true,*outStream);
-        neutobj->checkHessVec(z2,z2,yz,true,*outStream);
-#if OBJTYPE==1
-        out << "Derivatives of risk neutral penalty" << std::endl;
-        neutpen->checkGradient(z2,z2,yz,true,*outStream);
-        neutpen->checkHessVec(z2,z2,yz,true,*outStream);
-#endif
-      }
-      status_tr = Teuchos::rcp(new ::ROL::StatusTest<RealT>(gtol, stol, maxit));    
-      step_tr = Teuchos::rcp(new ::ROL::TrustRegionStep<RealT>(*parlist));
-      algo_tr = Teuchos::rcp(new ::ROL::Algorithm<RealT>(step_tr,status_tr,false));
-      algo_tr->run(z2,fullobjEXP,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z2_rcp)[i] << std::endl;
-      }
-
-      *outStream << "\nSOLVE SMOOTHED CONDITIONAL VALUE AT RISK WITH TRUST REGION\n";
-      *outStream << "prob = " << prob << ", coeff = " << coeff << ", gamma = " << gamma << std::endl;  
-      out << "Using " << nSamp << " samples" << std::endl;
-      z3.set(z2);
-      *outStream << "\n Initial guess " << std::endl;
-      for (int i=0;i<nz;i++)
-        *outStream << paramNameVec_[i] << " = " << (*z3_rcp)[i] << std::endl;
-      // Build CVaR objective function
-      std::vector<RealT> data(2,0.0);
-      data[0] = -0.5; data[1] = 0.5;
-      dist = Teuchos::rcp( new ::ROL::Distribution<RealT>(::ROL::DISTRIBUTION_PARABOLIC,data) );
-      pf   = Teuchos::rcp( new ::ROL::PlusFunction<RealT>(dist,gamma) );
-      rmobj  = Teuchos::rcp( new ::ROL::CVaR<RealT>(prob,coeff,pf) );
-#if 1
-      neutobj = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(robj,samplerSolve,storage));
-      objVec.clear();
-      objVec.push_back(neutobj);
-      if(coeff > 0)
-        types[0] = 0; // if riskpen
-#endif
-#if 0
-      riskobj = Teuchos::rcp(new ::ROL::RiskAverseObjective<RealT>(robj,rmobj,samplerSolve,storage));
-      objVec.clear();
-      objVec.push_back(riskobj);
-#endif
-#if OBJTYPE==1
-      if(coeff == 0)
-      {
-        neutpen = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(rpen,samplerSolve,storage));
-        objVec.push_back(neutpen);
-        //types.push_back(0); // if riskobj
-        types.push_back(1); // if neutobj
-      }
-      else
-      {
-        riskpen = Teuchos::rcp(new ::ROL::RiskAverseObjective<RealT>(rpen,rmobj,samplerSolve,storage));
-        objVec.push_back(riskpen);
-        //types.push_back(1);
-        types[1] = 1;
-      }
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      status_tr = Teuchos::rcp(new ::ROL::StatusTest<RealT>(gtol, stol, maxit));    
-      step_tr = Teuchos::rcp(new ::ROL::TrustRegionStep<RealT>(*parlist));
-      algo_tr = Teuchos::rcp(new ::ROL::Algorithm<RealT>(step_tr,status_tr,false));
-      // Build CVaR vectors
-      RealT z3v = (RealT)rand()/(RealT)RAND_MAX;
-      RealT yzv = (RealT)rand()/(RealT)RAND_MAX;
-      ::ROL::CVaRVector<RealT> z3c(z3v,z3p);
-      ::ROL::CVaRVector<RealT> yzc(yzv,yzp);
-      if(do_checks)
-      {
-        out << "Derivatives of risk neutral objective" << std::endl;
-        neutobj->checkGradient(z3,z3,yz,true,*outStream);
-        neutobj->checkHessVec(z3,z3,yz,true,*outStream);
-        // out << "Derivatives of risk averse objective" << std::endl;
-        // riskobj->checkGradient(zc,zc,yzc,true,*outStream);
-        // riskobj->checkHessVec(zc,zc,yzc,true,*outStream);
-#if OBJTYPE==1
-        if(coeff == 0)
-        {
-          out << "Derivatives of risk neutral penalty" << std::endl;
-          neutpen->checkGradient(z3,z3,yz,true,*outStream);
-          neutpen->checkHessVec(z3,z3,yz,true,*outStream);
-        }
-        else
-        {
-          out << "Derivatives of risk averse penalty" << std::endl;
-          riskpen->checkGradient(z3c,z3c,yzc,true,*outStream);
-          riskpen->checkHessVec(z3c,z3c,yzc,true,*outStream);
-        }
-#endif
-      }
-      // Run ROL algorithm
-      if(coeff > 0)
-        algo_tr->run(z3c,fullobj,*bconcvar,true,*outStream);
-      else
-        algo_tr->run(z3,fullobj,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z3_rcp)[i] << std::endl;
-      }
-      *outStream << "var = " << z3v << std::endl;
-      *outStream << "Trust-Region required " << (std::clock()-timer_tr)/(RealT)CLOCKS_PER_SEC
-                 << " seconds.\n";
-    }
-
-    //***************************** Bundle Method *********************************//
-    if(use_bundle)
-    {
-      *outStream << "\nSOLVE NONSMOOTH CVAR PROBLEM WITH BUNDLE TRUST REGION\n";
-      // Build CVaR objective function
-      *outStream << "prob = " << prob << ", coeff = " << coeff << std::endl;
-      dist = Teuchos::rcp( new ::ROL::Distribution<RealT>(::ROL::DISTRIBUTION_DIRAC) );
-      pf   = Teuchos::rcp( new ::ROL::PlusFunction<RealT>(dist,1.0) );
-      rmobj  = Teuchos::rcp( new ::ROL::CVaR<RealT>(prob,coeff,pf) );
-      neutobj = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(robj,samplerSolve,storage));
-      objVec.clear();
-      objVec.push_back(neutobj);
-      if(coeff > 0)
-        types[0] = 0; // if riskpen
-#if OBJTYPE==1
-      if(coeff == 0)
-      {
-        neutpen = Teuchos::rcp(new ::ROL::RiskNeutralObjective<RealT>(rpen,samplerSolve,storage));
-        objVec.push_back(neutpen);
-        //types.push_back(0); // if riskobj
-        types.push_back(1); // if neutobj
-      }
-      else
-      {
-        riskpen = Teuchos::rcp(new ::ROL::RiskAverseObjective<RealT>(rpen,rmobj,samplerSolve,storage));
-        objVec.push_back(riskpen);
-        types.push_back(1);
-      }
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      // Build CVaR vectors
-      RealT zv = (RealT)rand()/(RealT)RAND_MAX;
-      ::ROL::CVaRVector<RealT> zc(zv,zp);
-      // Run ROL algorithm
-      parlist->set("Bundle Step: Epsilon Solution Tolerance",gtol);
-      ::ROL::BundleStatusTest<RealT> status_bm(gtol, maxit);    
-      ::ROL::BundleStep<RealT> step_bm(*parlist);
-      ::ROL::Algorithm<RealT> algo_bm(Teuchos::rcp(&step_bm,false),Teuchos::rcp(&status_bm,false),false);
-      std::clock_t timer_bm = std::clock();
-      if(coeff > 0)
-        algo_bm.run(zc,fullobj,*bconcvar,true,*outStream);
-      else
-        algo_bm.run(z,fullobj,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-      }
-      *outStream << "var = " << zv << std::endl;
-      *outStream << "Bundle Method required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
-                 << " seconds.\n";
-    }
-
-    // Post-processing (UQ)
-    //****************************** Final objective values and final states (UQ) *******************//
-    std::vector<std::string> output_data_UQ;
-    output_data_UQ.push_back("data_UQ_DET.txt");
-    output_data_UQ.push_back("data_UQ_EV.txt");    
-    output_data_UQ.push_back("data_UQ_CVaR.txt");
-    std::vector<std::string> output_plot_UQ;
-    output_plot_UQ.push_back("plot_UQ_DET.txt");
-    output_plot_UQ.push_back("plot_UQ_EV.txt");    
-    output_plot_UQ.push_back("plot_UQ_CVaR.txt");
-    std::vector< ::ROL::StdVector<RealT> > solutions;
-    solutions.push_back(z1);
-    solutions.push_back(z2);
-    solutions.push_back(z3);
-    // Test with the rest of "good" samples
-    int nTestSamp = nGSamp - nSamp;
-    out << "Using " << nTestSamp << " to approximate densities" << std::endl;
-    for(int k=0;k<solutions.size();k++)
-    {
-      std::ofstream data_UQ(output_data_UQ[k].c_str());
-      std::ofstream plot_UQ(output_plot_UQ[k].c_str());
-      sumlin = 0; sumlin2 = 0;
-      sumgain = 0; sumgain2 = 0;
-      for(int i=nSamp;i<nGSamp;i++)
-      {
-        con->setParameter(samplerTest->getMyPoint(i));
-        con->solve(u,solutions[k],tol);
-        oval = obj.value(u,solutions[k],tol);
-        for(int j=0;j<nc;j++)
-          plot_UQ << std::scientific << std::setprecision(8) << (*(*uup)[j])[3] << ' ';
-        plot_UQ << '\n';
-        gain = ((*(*uup)[nc-1])[3]-(*(*uup)[0])[3])/2.0;
-        sumgain += gain;
-        sumgain2 += gain*gain;
-        for(int j=0;j<uncertainParams_.size();j++)
-        {
-          data_UQ << std::scientific << std::setprecision(8) << (samplerTest->getMyPoint(i))[j] << ' ';
-        }
-        data_UQ << oval << ' ' << gain << '\n';
-        sumlin += oval;
-        sumlin2 += oval*oval;
-      }
-      plot_UQ.close();
-      meanlin  = sumlin/nTestSamp;
-      meangain = sumgain/nTestSamp;
-      varlin  = (sumlin2  - nTestSamp*meanlin*meanlin)/(RealT)(nTestSamp-1);
-      vargain = (sumgain2 - nTestSamp*meangain*meangain)/(RealT)(nTestSamp-1);
-      data_UQ << "\n ------------------------------------------ \n";
-      data_UQ << "mean(lin) = " << meanlin << " " << '\n';
-      data_UQ << "sqrt(sample variance)(lin) = " << std::sqrt(varlin) << '\n';
-      data_UQ << "mean(gain) = " << meangain << '\n';
-      data_UQ << "sqrt(sample variance)(gain) = " << std::sqrt(vargain) << '\n';
-      data_UQ.close();
-    }
-
-    //********************************************************************************************// 
+    // TODO (asjavee): Manage the defaults below by setting them in parlist.
+    // RealT gtol = parlist->get("Gradient Tolerance", 1.0e-14);
+    // RealT stol = parlist->get("Step Tolerance", 1.0e-16);
+    // int maxit  = parlist->get("Maximum Number of Iterations", 100);
     
-#else 
-    //**********************************************************************************************// 
-    //******************************** Deterministic problem **************************************//
-    //********************************************************************************************// 
-    if(use_bundle)
-    {
-      parlist->set("Bundle Step: Epsilon Solution Tolerance",gtol);
-      ::ROL::BundleStatusTest<RealT> status_bm(gtol, maxit);    
-      ::ROL::BundleStep<RealT> step_bm(*parlist);
-      ::ROL::Algorithm<RealT> algo_bm(Teuchos::rcp(&step_bm,false),Teuchos::rcp(&status_bm,false),false);
-      std::clock_t timer_bm = std::clock();
-      objVec.clear();
-      objVec.push_back(robj);
-#if OBJTYPE==1
-      objVec.push_back(rpen);
-      types.push_back(1);
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      algo_bm.run(z,fullobj,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-      }
-      *outStream << "Bundle Method required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
-                 << " seconds.\n";
-    }
-    if (use_TR)
-    {
-      // Trust Region
-      ::ROL::StatusTest<RealT> status_tr(gtol, stol, maxit);    
-      ::ROL::TrustRegionStep<RealT> step_tr(*parlist);
-      ::ROL::Algorithm<RealT> algo_tr(Teuchos::rcp(&step_tr,false),Teuchos::rcp(&status_tr,false),false);
-      std::clock_t timer_tr = std::clock();
-      objVec.clear();
-      objVec.push_back(robj);
-#if OBJTYPE==1
-      objVec.push_back(rpen);
-      types.push_back(1);
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      algo_tr.run(z,fullobj,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-      }
-      *outStream << "Trust-Region required " << (std::clock()-timer_tr)/(RealT)CLOCKS_PER_SEC
-                 << " seconds.\n";
-    }
-    if (use_lsearch)
-    {
-      // Line Search
-      ::ROL::StatusTest<RealT> status_ls(gtol, stol, maxit);    
-      ::ROL::LineSearchStep<RealT> step_ls(*parlist);
-      ::ROL::Algorithm<RealT> algo_ls(Teuchos::rcp(&step_ls,false),Teuchos::rcp(&status_ls,false),false);
-      std::clock_t timer_ls = std::clock();
-      objVec.clear();
-      objVec.push_back(robj);
-#if OBJTYPE==1
-      objVec.push_back(rpen);
-      types.push_back(1);
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      algo_ls.run(z,fullobj,*bcon,true,*outStream);
-      *outStream << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-      }
-      *outStream << "Line-Search required " << (std::clock()-timer_ls)/(RealT)CLOCKS_PER_SEC
-                 << " seconds.\n";
-    }
-    if (use_sqp)
-    {
-      // SQP.
-      Teuchos::RCP<std::vector<RealT> > gz_rcp = Teuchos::rcp( new std::vector<RealT> (nz, 0.0) );
-      ::ROL::StdVector<RealT> gz(gz_rcp);
-      Teuchos::RCP< ::ROL::Vector<RealT> > gzp = Teuchos::rcp(&gz,false);
-      Linear::ROL_XyceVector<RealT> gu(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-      Teuchos::RCP< ::ROL::Vector<RealT> > gup = Teuchos::rcp(&gu,false);
-      ::ROL::Vector_SimOpt<RealT> g(gup,gzp);
-      Linear::ROL_XyceVector<RealT> cc(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-      Linear::ROL_XyceVector<RealT> l(nc,*analysisManager_.getDataStore()->nextSolutionPtr);
-      RealT ctol = 1.e-16;
-      ::ROL::ConstraintStatusTest<RealT> status_sqp(gtol,ctol,stol,maxit);
-      ::ROL::CompositeStep<RealT> step_sqp(*parlist);
-      ::ROL::Algorithm<RealT> algo_sqp(Teuchos::rcp(&step_sqp,false),Teuchos::rcp(&status_sqp, false),false);
-      std::clock_t timer_sqp = std::clock();
-      objVec.clear();
-      objVec.push_back(obj);
-#if OBJTYPE==1
-      objVec.push_back(pen);
-      types.push_back(1);
-#endif
-      SumObjective<RealT> fullobj(objVec,types);
-      algo_sqp.run(x,g,l,cc,fullobj,*con,true,*outStream);
-      out << "\n Solution " << std::endl;
-      for (int i=0;i<nz;i++)
-      {
-        *outStream << paramNameVec_[i] << " = " << (*z_rcp)[i] << std::endl;
-      }
-      out << "Composite-Step SQP required " << (std::clock()-timer_sqp)/(RealT)CLOCKS_PER_SEC
-          << " seconds.\n";
-    }
-#endif
+    std::clock_t timer_bm = std::clock();
+    
+    solver.solve(std::cout);
+    con->solve(*l, *u, *z, tol);
 
-  }  
+    // Print results.
+    out << "\nSolution " << std::endl;
+    for (int i = 0; i < nz; i++)
+    {
+      out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
+    }
+    out << "Solve required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
+         << " seconds.\n";
+
+  } 
+
   catch (std::logic_error err) 
   {
     //out << err.what() << "\n";

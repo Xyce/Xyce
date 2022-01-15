@@ -178,7 +178,7 @@ public:
     }
   }
 
-  void print(std::ostream & outStream=std::cout) {
+  void print(std::ostream & outStream=std::cout) const {
     for (int i=0;i<size_;i++){
       (*xyce_multi_vec_)[i]->print(outStream);
     }
