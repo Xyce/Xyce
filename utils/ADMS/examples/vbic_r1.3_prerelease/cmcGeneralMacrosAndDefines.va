@@ -180,6 +180,7 @@
     `define IPIoo(nam,def,uni,lwr,upr,des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def from(lwr:upr);
     `define IPInb(nam,def,uni,        des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def;
     `define IPIsw(nam,def,uni,        des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def from[  0:  1];
+    `define IPIsw_BOTH(nam,def,uni,        des) `IPIsw(nam,def,uni,des);
     `ifdef insideADMS
         `define IPM                        (*units="" , type="instance", ask="yes", desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf);
     `else // notInsideADMS
@@ -255,6 +256,7 @@
     `define IPIoo(nam,def,uni,lwr,upr,des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def from(lwr:upr);
     `define IPInb(nam,def,uni,        des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def;
     `define IPIsw(nam,def,uni,        des) (*units=uni, type="instance", ask="yes", desc=des*) parameter integer nam=def from[  0:  1];
+    `define IPIsw_BOTH(nam,def,uni,        des) (*units=uni, type="instance", ask="yes", xyceAlsoModel="yes", desc=des*) parameter integer nam=def from[  0:  1];
     `define IPM                        (*units="" , type="instance", ask="yes", desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf);
     `define TESTGIVEN(paramName) $param_given(paramName)
     `define GIVEN(paramName,variable,true,false) \
