@@ -38,7 +38,7 @@
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h> 
 #include <N_PDS_Comm.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_TIAParams.h>
 #include <N_UTL_FeatureTest.h>
@@ -123,7 +123,7 @@ AnalysisBase::AnalysisBase(AnalysisManager &analysis_manager, const char *name )
     firstDCOPStep_(-1),
     lastDCOPStep_(-1),
     beginningIntegration(true),
-    baseIntegrationMethod_(TimeIntg::NoTimeIntegration::type),
+    baseIntegrationMethod_(TimeIntg::methodsEnum::NO_TIME_INTEGRATION),
     stepNumber(0),
     tranStepNumber(0),
     dataSpecification_(false),

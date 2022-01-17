@@ -23,12 +23,11 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : Foward declarations
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  : 
 //
-// Creator        : Ting Mei   
+// Creator        : 
 //
 // Creation Date  : 01/11
 //
@@ -49,6 +48,14 @@ class OneStep;
 class TIAParams;
 class TwoLevelError;
 class WorkingIntegrationMethod;
+
+// For historical reasons, onestep is indexed to 7, and gear is indexed to 8.  
+// All the other choices are for methods that no longer exist in the source code.
+// For now they must be kept at 7 and 8 b/c there are still test cases that have 
+// statements like ".options timeint method=7".
+enum methodsEnum {
+  NO_TIME_INTEGRATION, OBSOLETE1, OBSOLETE2, OBSOLETE3, OBSOLETE4, OBSOLETE5, OBSOLETE6,
+  ONESTEP, GEAR};
 
 } // namespace TimeIntg
 } // namespace Xyce

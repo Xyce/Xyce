@@ -201,6 +201,11 @@ int WorkingIntegrationMethod::getUsedOrder() const
   return timeIntegrationMethod_->getUsedOrder();
 }
 
+int WorkingIntegrationMethod::getMethod() const
+{
+  return timeIntegrationMethod_->getMethod();
+}
+
 int WorkingIntegrationMethod::getNumberOfSteps() const
 {
   return timeIntegrationMethod_->getNumberOfSteps();

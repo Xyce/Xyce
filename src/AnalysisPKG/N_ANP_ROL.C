@@ -45,7 +45,7 @@
 #include <N_NLS_Manager.h> // TT: was not included
 #include <N_NLS_fwd.h> // TT: was not included
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h> // TT: was not included
+#include <N_TIA_fwd.h> // TT: was not included
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h> // TT: was not included
 
@@ -325,7 +325,7 @@ bool ROL::doInit()
   
   // TT: copied from DCSweep
   //setup for operating pt calculation
-  baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+  baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
 
   // analysisManager_.setAnalysisMode(ANP_MODE_ROL); // TT: sets analysis mode; added ANP_MODE_ROL to N_ANP_AnalysisManager.C and N_ANP_fwd.C 

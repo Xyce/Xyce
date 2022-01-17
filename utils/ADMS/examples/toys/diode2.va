@@ -4,12 +4,13 @@
 `define attr(txt) (*txt*)
 `define CONSTroot2 1.41421356237309504880
 
-module diode2(anode,cathode) `attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D" xyceLevelNumber="1002002") ;
+`attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D" xyceLevelNumber="1002002")
+module diode2(anode,cathode);
    inout anode,cathode;
    electrical anode,cathode;
    electrical cathode_internal;
    
-   parameter real area = 1 from (0:inf) (* type="instance" *);
+   (* type="instance" *) parameter real area = 1 from (0:inf);
    parameter real is=1e-14 from (0:inf);
    parameter real n=1 from (0:inf);
    parameter real cjo=0 from [0:inf);

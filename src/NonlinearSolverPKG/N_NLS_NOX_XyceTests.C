@@ -45,6 +45,7 @@
 #include "N_NLS_NOX_XyceTests.h"
 #include "N_NLS_NOX_Vector.h"
 #include "N_LAS_Vector.h"
+#include "N_LAS_Solver.h"
 #include "N_LOA_NonlinearEquationLoader.h"
 #include "NOX.H"
 #include "NOX_Solver_LineSearchBased.H"
@@ -85,6 +86,7 @@ XyceTests::XyceTests(
   int                                   checkDeviceConvergence,
   double                                smallUpdateTol,
   Loader::NonlinearEquationLoader *     loader, 
+  Linear::Solver *                      lsolver,
   bool                                  maskingFlag,
   Linear::Vector *                      maskVectorPtr)
   : comm_(comm),
@@ -121,6 +123,7 @@ XyceTests::XyceTests(
     xyceReturnCode_(0),
     checkDeviceConvergence_(checkDeviceConvergence),
     loaderPtr_(loader),
+    lasSolverPtr_(lsolver),
     maskingFlag_( maskingFlag ),
     weightMaskVectorPtr_( maskVectorPtr),
     allDevicesConverged_(false),
@@ -178,17 +181,8 @@ XyceTests::checkStatus(
   const Linear::Vector& oldX = (dynamic_cast<const Vector&>
     (problem.getPreviousSolutionGroup().getX())).getNativeVectorRef();
 
-  // Test0 - NaN/Inf checker
-  NOX::StatusTest::StatusType check = finiteTest_.checkStatus(problem, checkType);
-  if (check == NOX::StatusTest::Failed) 
-  {
-    status_ = check;
-    returnTest_ = 0;
-    xyceReturnCode_ = retCodes_.nanFail; // default: -6
-    return status_;
-  }
-
   // Test #9 (-9):  if linear solver failed, reject.
+  // Need to check if the reason for the failure is NaNs in the linear system.
   const N_NLS_NOX::Group & grp = 
       (dynamic_cast<const N_NLS_NOX::Group &>(problem.getSolutionGroup()));
 
@@ -196,8 +190,45 @@ XyceTests::checkStatus(
   if (!linearSolverStatus)
   {
     status_ = NOX::StatusTest::Failed;
-    returnTest_ = 9;
-    xyceReturnCode_ = retCodes_.linearSolverFailed; // default: -9
+
+    // Check if NaNs were detected
+    std::vector< std::pair<int, int> >& nanEntries = lasSolverPtr_->getNaNEntries();
+    if ( VERBOSE_NONLINEAR )
+    {
+      if ( nanEntries.size() )
+      {
+        Xyce::lout() << "NaN check found " << nanEntries.size() << " entries in the residual or Jacobian!" << std::endl;
+        for (int i=0; i<nanEntries.size(); ++i)
+        {
+          if (nanEntries[i].second >= 0)
+            Xyce::lout() << "Jacobian entry: [" << nanEntries[i].first << ", " << nanEntries[i].second << "]" << std::endl;
+          else
+            Xyce::lout() << "Residual entry: [" << nanEntries[i].first << "]" << std::endl;
+        }
+      }
+    }
+
+    // If NaNs were found in the residual or Jacobian, it is not a linear solver failure.
+    if ( nanEntries.size() )
+    {
+      xyceReturnCode_ = retCodes_.nanFail; // default: -6
+      returnTest_ = 0;
+    }
+    else
+    {
+      xyceReturnCode_ = retCodes_.linearSolverFailed; // default: -9
+      returnTest_ = 9;
+    }
+    return status_;
+  }
+
+  // Test0 - NaN/Inf checker
+  NOX::StatusTest::StatusType check = finiteTest_.checkStatus(problem, checkType);
+  if (check == NOX::StatusTest::Failed) 
+  {
+    status_ = check;
+    returnTest_ = 0;
+    xyceReturnCode_ = retCodes_.nanFail; // default: -6
     return status_;
   }
 
@@ -248,7 +279,7 @@ XyceTests::checkStatus(
 
       for (int i = 0; i < x.localLength(); ++i ) 
       {
-        if ( ((*weightMaskVectorPtr_)[i] == 0.0) )
+        if ( (*weightMaskVectorPtr_)[i] == 0.0 )
         {
           (*pWeightsVectorPtr_)[i] = Util::MachineDependentParams::MachineBig();
         }

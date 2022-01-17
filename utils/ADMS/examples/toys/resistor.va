@@ -5,11 +5,12 @@
 
 `define attr(txt) (*txt*)
 
-module resistor (p,n) `attr(xyceModelGroup="Resistor" xyceSpiceDeviceName="R" xyceLevelNumber="6") ;
+`attr(xyceModelGroup="Resistor" xyceSpiceDeviceName="R" xyceLevelNumber="6") 
+module resistor (p,n);
    electrical p,n;
    inout p,n;
    
-   parameter real R=1 from (0:inf) `attr(info="Resistance" type="instance");
+   `attr(info="Resistance" type="instance") parameter real R=1 from (0:inf);
    
    real           Ir;
    real           tdevK;

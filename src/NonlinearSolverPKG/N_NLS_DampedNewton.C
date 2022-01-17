@@ -1210,7 +1210,28 @@ int DampedNewton::converged_()
   // check if the linear solver failed (-9 return code)
   if (!linearStatus_)
   {
-    return retCodes_.linearSolverFailed; // default: -9
+    // Check if NaNs were detected
+    std::vector< std::pair<int, int> >& nanEntries = lasSolverRCPtr_->getNaNEntries();
+    if ( VERBOSE_NONLINEAR )
+    {
+      if ( nanEntries.size() )
+      {
+        Xyce::lout() << "NaN check found " << nanEntries.size() << " entries in the residual or Jacobian!" << std::endl;
+        for (int i=0; i<nanEntries.size(); ++i)
+        {
+          if (nanEntries[i].second >= 0)
+            Xyce::lout() << "Jacobian entry: [" << nanEntries[i].first << ", " << nanEntries[i].second << "]" << std::endl;
+          else
+            Xyce::lout() << "Residual entry: [" << nanEntries[i].first << "]" << std::endl;
+        }
+      }
+    }
+
+    // If NaNs were found in the residual or Jacobian, it is not a linear solver failure.
+    if ( nanEntries.size() )
+      return retCodes_.nanFail; // default = -6
+    else
+      return retCodes_.linearSolverFailed; // default: -9
   }
 
   // Devices need to satisfy their own convergence criteria

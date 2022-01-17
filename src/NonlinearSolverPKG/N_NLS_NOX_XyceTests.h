@@ -101,6 +101,7 @@ public:
     int checkDeviceConvergence,
     double smallUpdateTol,
     Xyce::Loader::NonlinearEquationLoader* loader, 
+    Xyce::Linear::Solver *                 lsolver,
     bool maskingFlag,
     Xyce::Linear::Vector * maskVectorPtr);
   
@@ -211,6 +212,7 @@ protected:
   // For Device Specific Convergence cirteria
   int checkDeviceConvergence_;
   Xyce::Loader::NonlinearEquationLoader* loaderPtr_;
+  Xyce::Linear::Solver * lasSolverPtr_; 
 
   bool maskingFlag_;
   Xyce::Linear::Vector* weightMaskVectorPtr_;

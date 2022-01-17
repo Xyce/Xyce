@@ -55,6 +55,7 @@
 #include <N_LAS_Problem.h>
 #include <N_LAS_EpetraProblem.h>
 #include <N_LAS_EpetraHelpers.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_MultiVector.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_TransformTool.h>
@@ -387,13 +388,35 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
 
-  solver_->Solve();
+  linearStatus = solver_->Solve();
 
   if (VERBOSE_LINEAR)
   {
     double endSolveTime = timer_->elapsedTime();
     Xyce::dout() << "  Amesos (" << type_ << ") Solve Time: "
                  << (endSolveTime - begSolveTime) << std::endl;
+  }
+
+  // If the linear solver returned with an error, return it.  Otherwise, check the solution for NaNs.
+  if (linearStatus != 0)
+  {
+    // Update the total solution time
+    solutionTime_ = timer_->elapsedTime();
+
+    return linearStatus;
+  }
+  else
+  {
+    bool foundNaN = Linear::checkProblemForNaNs( lasProblem_, nanEntries_ );
+    if (foundNaN)
+    {  
+      // Update the total solution time
+      solutionTime_ = timer_->elapsedTime();
+
+      // Linear solver found NaN
+      linearStatus = -99; 
+      return linearStatus;
+    }
   }
 
   if (DEBUG_LINEAR) 

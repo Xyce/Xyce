@@ -55,7 +55,7 @@
 #include <N_NLS_Manager.h>
 #include <N_PDS_ParMap.h>
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_UTL_APFT.h>

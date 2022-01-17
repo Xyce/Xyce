@@ -5,8 +5,9 @@ FLEX = /opt/local/bin/flex
 BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/opt/local/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/ -I../../IOInterfacePKG/
+
 CXXFLAGS_AST =  -std=c++11  -g  -I/opt/local/include/ $(INCLUDE)
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/ -I../../IOInterfacePKG/
 CXXFLAGS =  -std=c++11 -DUSE_TYPE_DOUBLE  -g -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread

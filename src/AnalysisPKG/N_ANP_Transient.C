@@ -33,7 +33,6 @@
 #include <sstream>
 #include <iomanip>
 
-//#include <N_ANP_HB.h>
 #include <N_ANP_Transient.h>
 
 #include <N_ANP_AnalysisManager.h>
@@ -48,7 +47,9 @@
 #include <N_IO_RestartMgr.h>
 #include <N_IO_ActiveOutput.h>
 #include <N_LAS_System.h>
+#include <N_LAS_Builder.h>
 #include <N_LAS_FilteredMultiVector.h>
+#include <N_PDS_ParMap.h>
 #include <N_LOA_Loader.h>
 
 #include <N_LOA_NonlinearEquationLoader.h>
@@ -62,8 +63,7 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
-#include <N_TIA_OneStep.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TOP_Topology.h>
@@ -96,7 +96,6 @@ void writeConductanceFile(const std::vector<std::string> &device_names,
 //-----------------------------------------------------------------------------
 Transient::Transient(
   AnalysisManager &                     analysis_manager,
-  //Linear::System &                      linear_system,
   Linear::System *                      linear_system_ptr,
   Nonlinear::Manager &                  nonlinear_manager,
   Loader::Loader &                      loader,
@@ -111,7 +110,6 @@ Transient::Transient(
     comm_(analysis_manager.getPDSManager()->getPDSComm()->comm()),
     analysisManager_(analysis_manager),
     loader_(loader),
-    //linearSystem_(linear_system),
     linearSystemPtr_(linear_system_ptr),
     nonlinearManager_(nonlinear_manager),
     topology_(topology),
@@ -127,7 +125,7 @@ Transient::Transient(
     outputTransientLambda_(false),
     outputAdjointSensitivity_(false),
 
-    initialIntegrationMethod_(TimeIntg::OneStep::type),
+    initialIntegrationMethod_(TimeIntg::methodsEnum::ONESTEP),
     firstTranOutput_(true),
     fullAdjointTimeRange_(false),
     isPaused(false),
@@ -147,7 +145,7 @@ Transient::Transient(
     tranStats(0),
     exitTime(0.0),
     exitStep(-1),
-    integrationMethod(7),
+    integrationMethod( Xyce::TimeIntg::methodsEnum::ONESTEP ),
     historyTrackingDepth(25),
     passNLStall(false),
     saveTimeStepsFlag(false),
@@ -156,7 +154,6 @@ Transient::Transient(
     hbAnalysis_(hb_analysis),
     mpdeManager_(mpde_manager),
     numSensParams_(0),
-    //maxParamStringSize_(0),
     difference_(Nonlinear::SENS_FWD),
     sqrtEta_(1.0e-8),
     sqrtEtaGiven_(false),
@@ -358,9 +355,9 @@ bool Transient::setTimeIntegratorOptions(
         stringVal.toUpper();
 
         if (stringVal == "TRAP" || stringVal == "TRAPEZOIDAL")
-          integrationMethod = 7;
+          integrationMethod = Xyce::TimeIntg::methodsEnum::ONESTEP;
         else if (stringVal == "GEAR")
-          integrationMethod = 8;
+          integrationMethod = Xyce::TimeIntg::methodsEnum::GEAR;
         else
         {
           IO::ParamError(option_block, param) << "Unsupported time integration method: " << stringVal;
@@ -633,13 +630,6 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
       // set up the initial skeleton of the maps:
       ++numSensParams_;
       paramNameVec_.push_back(tag);
-#if 0
-      int sz = tag.size();
-      if (sz > maxParamStringSize_)
-      {
-        maxParamStringSize_ = sz;
-      }
-#endif
     }
 
     else
@@ -718,7 +708,7 @@ bool Transient::resuming()
 {
   bool bsuccess = true;
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   if (analysisManager_.getTwoLevelMode() == TWO_LEVEL_MODE_TRANSIENT)
   {
@@ -822,7 +812,7 @@ bool Transient::doInit()
     }
   }
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   dcopFlag_ = !getNOOP();
 
@@ -850,7 +840,7 @@ bool Transient::doInit()
     if (dcopFlag_)
     {
       // Get set to do the operating point.
-      baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+      baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
       analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
     }
     else // otherwise NOOP/UIC
@@ -1612,6 +1602,20 @@ bool Transient::processSuccessfulDCOP()
 
   loader_.stepSuccess(analysisManager_.getTwoLevelMode());
 
+  // Communicate down to the device level that the step has been accepted.
+  // This must be done before the "times" get rotated, and certainly before
+  // the vectors get rotated.  Device targets for this call include the
+  // transmission line device, and the ADC/DAC devices, which need to 
+  // know when it has a valid solution so it can save history.  
+  //
+  // This needs to happen before dcopFlag_ is set to false.
+  //
+  // This call also lets expressions know if they need to update their ddt/sdt arrays, 
+  // including expressions for parameters.  The device manager is
+  // the "owner" of all the params and global param expressions.
+  // For this reason, this call needs to happen prior to sensitivity calculations.
+  loader_.acceptStep();
+
   if (sensFlag_ && !firstDoubleDCOPStep() && solveDirectSensitivityFlag_)
   {
     nonlinearManager_.calcSensitivity(objectiveVec_, dOdpVec_, dOdpAdjVec_, 
@@ -1625,43 +1629,13 @@ bool Transient::processSuccessfulDCOP()
 
   stats_.successfulStepsTaken_ += 1;
 
-  // Communicate down to the device level that the step has been accepted.
-  // This must be done before the "times" get rotated, and certainly before
-  // the vectors get rotated.  The primary target for this call is the
-  // transmission line device, which needs to know when it has a valid
-  // solution so it can save history.  (And now the ADC/DAC devices too)
-  // needs to happen before dcopFlag_ is set to false.
-  loader_.acceptStep();
-
-#if 0
-  // ERK.  with the new expression library, this call shouldn't be necessary.   
-  // This call to "set_accepted_time" can be performed on a random expression 
-  // like this b/c it operates on static data.  Therefore, it affects all 
-  // expressions.
-  //
-  // The new expression library will use a singleton "mainXyceExpressionGroup" 
-  // class to get its information from Xyce.  The correct thing to do will be to
-  // call a "set accepted time" (or equivalent) on that group.
-  //
-  // But in reality, that group will probably just have access to the 
-  // stepErrorControl class directly, so it can just pull the "nextTime" value.
-  //
-  // So, then, no need for this.
-  //
-  // ERK: Old way.
-  // communicate to the expression library that a new step has been accepted.
-  // Like with the device notification, needs to happen before anything is updated.
-  Util::Expression expr(std::string("0"));
-  expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
-#endif
-
   // Reset some settings (to switch from DCOP to transient, if not the
   // first step of a "double" DCOP.
   if ( firstDoubleDCOPStep() )  // (pde-only)
   {
     dcopFlag_          = true;
     analysisManager_.setTwoLevelMode(Analysis::TWO_LEVEL_MODE_TRANSIENT_DCOP);
-    baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+    baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   }
   else
   {
@@ -1764,17 +1738,6 @@ bool Transient::doProcessSuccessfulStep()
     nonlinearSolverMaxNormIndexQueue_.push_back( nonlinearManager_.getNonlinearSolver().getMaxNormFindex () );
   }
 
-  if (sensFlag_ && solveDirectSensitivityFlag_)
-  {
-    nonlinearManager_.calcSensitivity(objectiveVec_,
-                                      dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
-  }
-
-  if (sensFlag_ && solveAdjointSensitivityFlag_)
-  {
-    saveTransientAdjointSensitivityInfo ();
-  }
-
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
     dout() << "  Transient::doProcessSuccessfulStep()" << std::endl
@@ -1796,33 +1759,26 @@ bool Transient::doProcessSuccessfulStep()
 
   // Communicate down to the device level that the step has been accepted.
   // This must be done before the "times" get rotated, and certainly before
-  // the vectors get rotated.  The primary target for this call is the
-  // transmission line device, which needs to know when it has a valid
-  // solution so it can save history.
+  // the vectors get rotated.  Device targets for this call include the
+  // transmission line device, and the ADC/DAC devices, which need to 
+  // know when it has a valid solution so it can save history.  
+  //
+  // This call also lets expressions know if they need to update their ddt/sdt arrays, 
+  // including expressions for parameters.  The device manager is
+  // the "owner" of all the params and global param expressions.
+  // For this reason, this call needs to happen prior to sensitivity calculations.
   loader_.acceptStep();
 
-#if 0
-  // ERK.  with the new expression library, this call shouldn't be necessary.   
-  // This call to "set_accepted_time" can be performed on a random expression 
-  // like this b/c it operates on static data.  Therefore, it affects all 
-  // expressions.
-  //
-  // The new expression library will use a singleton "mainXyceExpressionGroup" 
-  // class to get its information from Xyce.  The correct thing to do will be to
-  // call a "set accepted time" (or equivalent) on that group.
-  //
-  // But in reality, that group will probably just have access to the 
-  // stepErrorControl class directly, so it can just pull the "nextTime" value.
-  //
-  // So, then, no need for this.
-  //
-  // ERK: Old way.
+  if (sensFlag_ && solveDirectSensitivityFlag_)
+  {
+    nonlinearManager_.calcSensitivity(objectiveVec_,
+                                      dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
+  }
 
-  // communicate to the expression library that a new step has been accepted.
-  // Like with the device notification, needs to happen before anything is updated.
-  Util::Expression expr(std::string("0"));
-  expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
-#endif
+  if (sensFlag_ && solveAdjointSensitivityFlag_)
+  {
+    saveTransientAdjointSensitivityInfo ();
+  }
 
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the
@@ -2316,7 +2272,7 @@ bool Transient::doTransientAdjointSensitivity ()
   TimeIntg::DataStore & ds = * ( analysisManager_.getDataStore() );
   TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
 
-  initialIntegrationMethod_ = integrationMethod != TimeIntg::OneStep::type ? integrationMethod : TimeIntg::OneStep::type;
+  initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
 
   // solve adjoint equation for each transient point of interest (by default 
   // all of them).
@@ -2879,8 +2835,8 @@ void Transient::logQueuedData()
     }
     else
     {
-      lout() << "Time        Time      Step   EstErr      Non-Linear Solver      node     node" << std::endl;
-      lout() << "(sec)       Step     Status  OverTol   Status  Iters   ||F||    index    name" << std::endl;
+      lout() << "Time        Time      Step   EstErr       Non-Linear Solver       node     node" << std::endl;
+      lout() << "(sec)       Step     Status  OverTol    Status    Iters  ||F||    index    name" << std::endl;
     }
 
     for (int i = 0; i < timeQueue_.get_size(); i++ )
@@ -2913,39 +2869,43 @@ void Transient::logQueuedData()
       lout() << std::setw(7) << std::right;
       if( nlStatus == nlReturnCodes.normTooSmall )
       {
-        lout() << "P:s nrm";
+        lout() << "P:sm nrm";
       }
       else if( nlStatus == nlReturnCodes.normalConvergence)
       {
-        lout() << "pass   ";
+        lout() << "P:normal";
       }
       else if( nlStatus == nlReturnCodes.nearConvergence )
       {
-        lout() << "P:near ";
+        lout() << "P:near  ";
       }
       else if( nlStatus == nlReturnCodes.smallUpdate )
       {
-        lout() << "P:s up ";
+        lout() << "P:sm up ";
       }
       else if( nlStatus == nlReturnCodes.nanFail )
       {
-        lout() << "F:NaN  ";
+        lout() << "F:NaN   ";
       }
       else if( nlStatus == nlReturnCodes.tooManySteps )
       {
-        lout() << "F:max s";
+        lout() << "F:max s ";
       }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
-        lout() << "F:big u";
+        lout() << "F:big u ";
       }
       else if( nlStatus == nlReturnCodes.stalled )
       {
-        lout() << "F:stall";
+        lout() << "F:stall ";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
-        lout() << "F:in Fl";
+        lout() << "F:in Fl ";
+      }
+      else if( nlStatus == nlReturnCodes.linearSolverFailed )
+      {
+        lout() << "F:linsol ";
       }
       else
       {
@@ -2961,8 +2921,50 @@ void Transient::logQueuedData()
       lout() << std::right << std::fixed << std::setw( 7 ) << outIndex;
 
       const std::vector<const std::string *> &name_vec = topology_.getSolutionNodeNames();
+      std::string node_name = "N/A";
 
-      lout() << "    " << std::left << ((outIndex < name_vec.size() && outIndex >= 0) ? *name_vec[outIndex] : "N/A") << std::endl;
+      Parallel::Communicator& pdsComm = *analysisManager_.getPDSManager()->getPDSComm();
+
+      // Get the node name, communicate it in parallel.
+      if ( pdsComm.isSerial() )
+      {
+        if ((outIndex > -1) && (outIndex < name_vec.size()))
+          node_name = *name_vec[outIndex];
+      }
+      else
+      {
+        // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        // Also, if this failure is being printed for a block analysis type, there isn't a
+        // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+        Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
+        int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
+
+        // Now determine which processor owns this solution node
+        int proc, tmp_proc = -1;
+        if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
+        {
+          tmp_proc = Parallel::rank(comm_);
+          node_name = *name_vec[outIndex];
+        }
+        pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+        // Make sure someone owns this GID, otherwise proc will be -1.
+        if (proc != -1)
+        {
+          // Communicate the node name length and character string from the processor that owns it
+          int length = node_name.length();
+          pdsComm.bcast( &length, 1, proc ); 
+          char *buffer = (char *)malloc( length+1 );
+
+          if (outIndex_LID > -1)
+            strcpy( buffer, node_name.c_str() );
+
+          pdsComm.bcast( buffer, length+1, proc );
+          node_name = std::string( buffer );
+         free( buffer );
+        }
+      } 
+      lout() << "    " << std::left << node_name << std::endl;
     }
   }
 }
@@ -2994,8 +2996,8 @@ void Transient::outputFailedStepData()
     }
     else
     {
-      lout() << "Time        Time      Step   EstErr      Non-Linear Solver      node     node" << std::endl;
-      lout() << "(sec)       Step     Status  OverTol   Status  Iters   ||F||    index    name" << std::endl;
+      lout() << "Time        Time      Step   EstErr       Non-Linear Solver       node     node" << std::endl;
+      lout() << "(sec)       Step     Status  OverTol    Status    Iters  ||F||    index    name" << std::endl;
     }
 
     {
@@ -3028,39 +3030,43 @@ void Transient::outputFailedStepData()
       lout() << std::setw(7) << std::right;
       if( nlStatus == nlReturnCodes.normTooSmall )
       {
-        lout() << "P:s nrm";
+        lout() << "P:sm nrm";
       }
       else if( nlStatus == nlReturnCodes.normalConvergence)
       {
-        lout() << "pass   ";
+        lout() << "P:normal";
       }
       else if( nlStatus == nlReturnCodes.nearConvergence )
       {
-        lout() << "P:near ";
+        lout() << "P:near  ";
       }
       else if( nlStatus == nlReturnCodes.smallUpdate )
       {
-        lout() << "P:s up ";
+        lout() << "P:sm up ";
       }
       else if( nlStatus == nlReturnCodes.nanFail )
       {
-        lout() << "F:NaN  ";
+        lout() << "F:NaN   ";
       }
       else if( nlStatus == nlReturnCodes.tooManySteps )
       {
-        lout() << "F:max s";
+        lout() << "F:max s ";
       }
       else if( nlStatus == nlReturnCodes.updateTooBig )
       {
-        lout() << "F:big u";
+        lout() << "F:big u ";
       }
       else if( nlStatus == nlReturnCodes.stalled )
       {
-        lout() << "F:stall";
+        lout() << "F:stall ";
       }
       else if( nlStatus == nlReturnCodes.innerSolveFailed )
       {
-        lout() << "F:in Fl";
+        lout() << "F:in Fl ";
+      }
+      else if( nlStatus == nlReturnCodes.linearSolverFailed )
+      {
+        lout() << "F:linsol ";
       }
       else
       {
@@ -3076,8 +3082,50 @@ void Transient::outputFailedStepData()
       lout() << std::right << std::fixed << std::setw( 7 ) << outIndex;
 
       const std::vector<const std::string *> &name_vec = topology_.getSolutionNodeNames();
+      std::string node_name = "N/A";
 
-      lout() << "    " << std::left << ((outIndex < name_vec.size() && outIndex >= 0) ? *name_vec[outIndex] : "N/A") << std::endl;
+      Parallel::Communicator& pdsComm = *analysisManager_.getPDSManager()->getPDSComm();
+
+      // Get the node name, communicate it in parallel.
+      if ( pdsComm.isSerial() )
+      {
+        if ((outIndex > -1) && (outIndex < name_vec.size()))
+          node_name = *name_vec[outIndex];
+      }
+      else
+      {
+        // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+        // Also, if this failure is being printed for a block analysis type, there isn't a
+        // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+        Teuchos::RCP<Parallel::ParMap> solnMap = (linearSystemPtr_->builder()).getSolutionMap();
+        int outIndex_LID = solnMap->globalToLocalIndex( outIndex ); 
+
+        // Now determine which processor owns this solution node
+        int proc, tmp_proc = -1;
+        if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
+        {
+          tmp_proc = Parallel::rank(comm_);
+          node_name = *name_vec[outIndex];
+        }
+        pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+        // Make sure someone owns this GID, otherwise proc will be -1.
+        if (proc != -1)
+        {
+          // Communicate the node name length and character string from the processor that owns it
+          int length = node_name.length();
+          pdsComm.bcast( &length, 1, proc ); 
+          char *buffer = (char *)malloc( length+1 );
+
+          if (outIndex_LID > -1)
+            strcpy( buffer, node_name.c_str() );
+
+          pdsComm.bcast( buffer, length+1, proc );
+          node_name = std::string( buffer );
+          free( buffer );
+        } 
+      }
+      lout() << "    " << std::left << node_name << std::endl;
     }
     lout() << "************" << std::endl;
   }
@@ -4111,7 +4159,6 @@ public:
     IO::RestartMgr &                    restart_manager)
     : TransientFactoryBase(),
       analysisManager_(analysis_manager),
-      //linearSystem_(linear_system),
       linearSystemPtr_(linear_system_ptr),
       nonlinearManager_(nonlinear_manager),
       loader_(loader),
@@ -4257,7 +4304,6 @@ public:
 
 public:
   AnalysisManager &                     analysisManager_;
-  //Linear::System &                      linearSystem_;
   Linear::System *                      linearSystemPtr_;
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;

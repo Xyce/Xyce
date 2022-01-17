@@ -43,7 +43,7 @@
 #include <N_MPDE_Manager.h>
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_UTL_Factory.h>
 #include <N_UTL_FeatureTest.h>
 

@@ -588,6 +588,7 @@ LEAD I[SDGBEC1-9]
   /* <INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_POW; } */ /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
 <INITIAL>"pwrs"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_POWSFUNC; }
 
+<INITIAL>"dt" {return XyceExpression::ExpressionParser::token::TOK_DT; }
 <INITIAL>"time" {return XyceExpression::ExpressionParser::token::TOK_TIME; }
 <INITIAL>"temp" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }
 <INITIAL>"temper" {return XyceExpression::ExpressionParser::token::TOK_TEMP; }

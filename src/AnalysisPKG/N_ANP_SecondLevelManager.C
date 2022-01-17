@@ -44,7 +44,7 @@
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Diagnostic.h>
 
@@ -390,7 +390,7 @@ SecondLevelManager::startSecondLevelTimeStep(
   // ------------------------------------------------------------------------
   // Set the step size, current time and next time.
 #ifndef Xyce_CHARON
-  if ( twoLevelAnalysisObject_->getIntegrationMethod() != TimeIntg::NoTimeIntegration::type)
+  if ( twoLevelAnalysisObject_->getIntegrationMethod() != TimeIntg::methodsEnum::NO_TIME_INTEGRATION)
 #endif
   {
     getStepErrorControl().updateTwoLevelTimeInfo(

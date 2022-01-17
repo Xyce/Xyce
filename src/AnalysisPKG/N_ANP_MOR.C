@@ -76,7 +76,7 @@
 #include <N_PDS_EpetraParMap.h>
 
 #include <N_TIA_DataStore.h>
-#include <N_TIA_NoTimeIntegration.h>
+#include <N_TIA_fwd.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_TIA_StepErrorControl.h>
 
@@ -313,7 +313,7 @@ bool MOR::doInit()
   }
 
   // Get set to do the operating point.
-  baseIntegrationMethod_ = TimeIntg::NoTimeIntegration::type;
+  baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
 
   stepNumber            = 0;
