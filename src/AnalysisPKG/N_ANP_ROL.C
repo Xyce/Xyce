@@ -75,7 +75,7 @@
 #ifdef Xyce_ROL
 
 #ifndef OBJTYPE
-#define OBJTYPE 1 // 0 - L2Norm, 1 - amplifier circuit
+#define OBJTYPE 0 // 0 - L2Norm, 1 - amplifier circuit
 #endif
 
 #include "ROL_BoundConstraint.hpp"
@@ -857,18 +857,18 @@ bool ROL::runROLAnalysis()
       auto g0  = ::ROL::makePtr<::ROL::StdVector<RealT>>(g0P);
       robj->gradient(*g0, *z, tol);
 
-      // *out << std::scientific << "Norm of initial gradient = " << g0p.norm() << "\n";
+      // std::cout << std::scientific << "Norm of initial gradient = " << g0->norm() << "\n";
     
       scale = 1.0e-2/(g0->norm());
     }
 
-    // *out << std::scientific << "Scaling: " << scale << "\n";
+    // std::cout << std::scientific << "Scaling: " << scale << "\n";
     
     auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector, zUpperBoundVector);
     
     // STEP 5A: Define the optimization problem.  /////////////////////////////
 
-    auto problem = ::ROL::makePtr<::ROL::Problem<RealT>>(pobj, z);
+    auto problem = ::ROL::makePtr<::ROL::Problem<RealT>>(robj, z);
     if (useBoundConstraint)
       problem->addBoundConstraint(bnd);
     // problem->check(true);
@@ -876,6 +876,9 @@ bool ROL::runROLAnalysis()
     // STEP 5B: Define the optimization solver.  //////////////////////////////
     
     parlist->sublist("General").set("Output Level", 1);    
+    parlist->sublist("Status Test").set("Gradient Tolerance", 1.e-10);
+    parlist->sublist("Status Test").set("Step Tolerance", 1.e-30); 
+ 
     ::ROL::Solver<RealT> solver(problem, *parlist);
 
     // STEP 6: Solve.  ////////////////////////////////////////////////////////
@@ -885,9 +888,7 @@ bool ROL::runROLAnalysis()
     for (int i = 0; i < nz; i++)
       out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
 
-    // TODO (asjavee): Manage the defaults below by setting them in parlist.
-    // RealT gtol = parlist->get("Gradient Tolerance", 1.0e-14);
-    // RealT stol = parlist->get("Step Tolerance", 1.0e-16);
+    // TODO (asjavee): Manage the default below by setting them in parlist.
     // int maxit  = parlist->get("Maximum Number of Iterations", 100);
     
     std::clock_t timer_bm = std::clock();

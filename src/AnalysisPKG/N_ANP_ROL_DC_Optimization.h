@@ -1693,6 +1693,7 @@ public:
       }
       else if(types_[i]==1)
       {
+        objVec_[i]->update(x,true,-1);
         val += objVec_[i]->value(x,tol);
       }
     }
@@ -1741,6 +1742,7 @@ public:
       }
       else if(types_[i]==1)
       {
+        objVec_[i]->update(x,true,-1);
         objVec_[i]->hessVec(*temp,v,x,tol);
         hv.plus(*temp);
       }
