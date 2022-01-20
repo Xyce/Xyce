@@ -49,6 +49,8 @@
 namespace Xyce {
 namespace Device {
 
+enum photoForm {ORIGINAL,REDUCED,TVR,NUMFORMS}; 
+
 //-----------------------------------------------------------------------------
 // Class         : DeviceOptions
 // Purpose       :
@@ -150,6 +152,12 @@ public:
 
   double        excessPhaseScalar1;
   double        excessPhaseScalar2;
+
+  int   photocurrentFormulation;
+  double photocurrent_dx_reltol;
+  double photocurrent_reltol;
+  double photocurrent_abstol;
+  bool maskPhotocurrentDelayVars;
 
   long  randomSeed;                           ///< seed for random number generator used by some devices.
   ///< note: each device gets its own random number generator so
