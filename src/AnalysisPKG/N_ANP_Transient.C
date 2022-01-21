@@ -3105,7 +3105,7 @@ void Transient::outputFailedStepData()
         if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
         {
           tmp_proc = Parallel::rank(comm_);
-          node_name = *name_vec[outIndex];
+          node_name = *name_vec[outIndex_LID];
         }
         pdsComm.maxAll( &tmp_proc, &proc, 1 );
 
