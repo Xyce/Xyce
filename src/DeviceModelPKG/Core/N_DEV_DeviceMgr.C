@@ -791,6 +791,19 @@ void DeviceMgr::setSPAnalysisFlag(bool flagVal)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setSPAnalysisFlag
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/20/2021
+//-----------------------------------------------------------------------------
+void DeviceMgr::setDisableInitJctFlags(bool flag)
+{
+  devOptions_.disableInitJctFlag = flag;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setMPDEFlag
 // Purpose       :
 // Special Notes :

@@ -151,6 +151,8 @@ public:
 
   void setSPAnalysisFlag(bool flagVal);
 
+  void setDisableInitJctFlags(bool flag);
+
   // Initialization function, to be called after all registrations are
   // finished, and the linear system class is completely set up.
   bool initializeAll(Linear::System &linear_system);

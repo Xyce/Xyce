@@ -125,6 +125,9 @@ public:
   // Get convergence info from inner-solves
   bool innerDevicesConverged(Parallel::Machine comm);
 
+  // toggle if the initial junction voltages are applied to devices or not
+  void setDisableInitJctFlags(bool flag);
+
   // Function for determining if an analytic sensitivity (df/dp, dq/dp, db/dp) is available.
   bool analyticSensitivitiesAvailable (const std::string & name);
   bool numericalSensitivitiesAvailable (const std::string & name);

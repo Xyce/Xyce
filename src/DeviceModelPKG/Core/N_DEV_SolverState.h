@@ -167,6 +167,7 @@ public:
   bool                  externalStateFlag_;
   bool                  initJctFlag_;           ///< true if on the first newton step of the first dcop solve of the first .STEP iteration. BJT, JFET, Diode, MOSFET, SW, Extern
 
+
   bool                  initFixFlag;            // true if DCOP solve, not first iteration *AND* any device not converged.  Allows "OFF" to be applied.
 
   bool sweepSourceResetFlag;

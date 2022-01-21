@@ -829,6 +829,19 @@ bool NonlinearEquationLoader::innerDevicesConverged(Parallel::Machine comm)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::setDisableInitJctFlags
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 01/20/2022
+//-----------------------------------------------------------------------------
+void NonlinearEquationLoader::setDisableInitJctFlags(bool flag)
+{
+  return deviceManager_.setDisableInitJctFlags(flag);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::getVoltageLimiterStatus
 // Purpose       : voltage limiter toggle functions
 // Special Notes :

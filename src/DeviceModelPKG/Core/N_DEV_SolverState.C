@@ -395,23 +395,30 @@ bool setupSolverInfo(
     resetFlag = resetFlag && (solver_state.continuationStepNumber==0);
   }
 
-  solver_state.initJctFlag_ = ((solver_state.dcopFlag) &&
-                            (solver_state.newtonIter==0) &&
-                             solver_state.firstContinuationParam &&
-                             !solver_state.firstSolveComplete && resetFlag);
-
-  // One final check.  See if the "external state" has been set.  If so,
-  // check to see if it has the initJctFlag set.  If not, then we probably
-  // shouldn't either.  The external state comes from a higher up level
-  // in a multi-level newton solve.
-  //
-  // This should be made more detailed later.
-  if (solver_state.externalStateFlag_)
+  if (!device_options.disableInitJctFlag)
   {
-    if (solver_state.newtonIter==0 && solver_state.dcopFlag)
+    solver_state.initJctFlag_ = ((solver_state.dcopFlag) &&
+                              (solver_state.newtonIter==0) &&
+                               solver_state.firstContinuationParam &&
+                               !solver_state.firstSolveComplete && resetFlag);
+
+    // One final check.  See if the "external state" has been set.  If so,
+    // check to see if it has the initJctFlag set.  If not, then we probably
+    // shouldn't either.  The external state comes from a higher up level
+    // in a multi-level newton solve.
+    //
+    // This should be made more detailed later.
+    if (solver_state.externalStateFlag_)
     {
-      solver_state.initJctFlag_ = solver_state.externalInitJctFlag_;
+      if (solver_state.newtonIter==0 && solver_state.dcopFlag)
+      {
+        solver_state.initJctFlag_ = solver_state.externalInitJctFlag_;
+      }
     }
+  }
+  else
+  {
+    solver_state.initJctFlag_ = false;
   }
 
 

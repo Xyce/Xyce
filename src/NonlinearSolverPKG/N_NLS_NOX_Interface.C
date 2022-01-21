@@ -1626,6 +1626,8 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   }
   nonlinearEquationLoader_->resetScaledParams();
 
+  nonlinearEquationLoader_->setDisableInitJctFlags(true);
+
   // Do the continuation run
   resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
   LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
@@ -1633,6 +1635,8 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
 
   nonlinearEquationLoader_->resetScaledParams();
+
+  nonlinearEquationLoader_->setDisableInitJctFlags(false);
 
   // Kick out if continuation failed
   if (locaStatus != LOCA::Abstract::Iterator::Finished)

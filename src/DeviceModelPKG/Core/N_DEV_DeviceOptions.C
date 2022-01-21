@@ -141,6 +141,7 @@ DeviceOptions::DeviceOptions()
     photocurrent_reltol(1.0e-8),
     photocurrent_abstol(1.0e-8),
     maskPhotocurrentDelayVars(false),
+    disableInitJctFlag(false),
     randomSeed (0),
     tryToCompact (false),
     calculateAllLeadCurrents (false),
@@ -391,6 +392,10 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
       maskPhotocurrentDelayVars = ((*it).getImmutableValue<bool>());
     }
 #endif
+    else if (tag == "ALL_OFF")
+    {
+      disableInitJctFlag = ((*it).getImmutableValue<bool>());
+    }
     else
     {
       Report::UserError0() << tag << " is not a recognized device package option.";
@@ -491,6 +496,7 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_RELTOL", Util::Param("PHOTOCURRENT_RELTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_ABSTOL", Util::Param("PHOTOCURRENT_ABSTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_MASKING", Util::Param("PHOTOCURRENT_MASKING", 0)));
+  parameters.insert(Util::ParamMap::value_type("ALL_OFF", Util::Param("ALL_OFF", 0)));
   parameters.insert(Util::ParamMap::value_type("RANDOMSEED", Util::Param("RANDOMSEED", 0)));
   parameters.insert(Util::ParamMap::value_type("TRYTOCOMPACT", Util::Param("TRYTOCOMPACT", false)));
   parameters.insert(Util::ParamMap::value_type("CALCULATEALLLEADCURRENTS", Util::Param("CALCULATEALLLEADCURRENTS", false)));

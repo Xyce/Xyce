@@ -159,6 +159,8 @@ public:
   double photocurrent_abstol;
   bool maskPhotocurrentDelayVars;
 
+  bool disableInitJctFlag;    ///< if this is true, then unconditionally ALWAYS make initJctFlag false.
+
   long  randomSeed;                           ///< seed for random number generator used by some devices.
   ///< note: each device gets its own random number generator so
   ///< it must initialize thing correctly. (See N_DEV_Synapse3 for an
