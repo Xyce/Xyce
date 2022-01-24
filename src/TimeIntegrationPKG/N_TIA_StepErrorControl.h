@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -206,7 +206,7 @@ class StepErrorControl
   double currentTimeStep;
   double lastAttemptedTimeStep;
   double lastTimeStep;
-  double oldeTimeStep; // only used in a form of adjoint sens.
+  double oldeTimeStep;
   double minTimeStep;
   double maxTimeStep;
   double maxTimeStepUser;

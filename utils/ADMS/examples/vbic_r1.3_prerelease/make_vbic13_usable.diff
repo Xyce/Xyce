@@ -1,6 +1,6 @@
---- N_DEV_ADMSvbic13_4t.C	2018-08-29 14:40:58.063222942 -0600
-+++ N_DEV_ADMSvbic13_4t.C	2018-08-29 14:41:10.871632820 -0600
-@@ -1800,7 +1800,13 @@
+--- N_DEV_ADMSvbic13_4t.C.orig	2021-12-15 08:16:09.443203524 -0700
++++ N_DEV_ADMSvbic13_4t.C	2021-12-15 08:16:29.384169447 -0700
+@@ -2158,7 +2158,13 @@
      li_store_admsProbeID_V_bx_cx(-1),
      li_store_admsProbeID_V_bx_bp(-1),
      li_store_admsProbeID_V_b_e(-1),
@@ -14,10 +14,10 @@
 +    eiExternalNodeMode(false)
  
  {
-   numIntVars = 10 + 0;
-@@ -1810,6 +1816,55 @@
-   // Right now, we only have store for limited probes...
-   setNumStoreVars(8);
+     numIntVars = 10 + 0;
+@@ -2167,6 +2173,55 @@
+   // Right now, we only have store for limited probes and output vars...
+   setNumStoreVars(8+0);
  
 +  // Manually inserted code:  detect extra nodes given on instance line,
 +  // set external node mode for those normally-internal nodes.
@@ -71,38 +71,31 @@
    // Do not allocate "branch" (lead current) vectors by default
    setNumBranchDataVars(0);
    numBranchDataVarsIfAllocated = 4;
-@@ -2055,12 +2110,18 @@
+@@ -2412,11 +2467,17 @@
  //-----------------------------------------------------------------------------
  void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
  {
--  addInternalNode(symbol_table, li_dt, getName(), "dt");
--  addInternalNode(symbol_table, li_cx, getName(), "cx");
--  addInternalNode(symbol_table, li_ci, getName(), "ci");
--  addInternalNode(symbol_table, li_bx, getName(), "bx");
--  addInternalNode(symbol_table, li_bi, getName(), "bi");
--  addInternalNode(symbol_table, li_ei, getName(), "ei");
 +  if (!dtExternalNodeMode)
-+    addInternalNode(symbol_table, li_dt, getName(), "dt");
+     addInternalNode(symbol_table, li_dt, getName(), "dt");
 +  if (!cxExternalNodeMode)
-+    addInternalNode(symbol_table, li_cx, getName(), "cx");
+     addInternalNode(symbol_table, li_cx, getName(), "cx");
 +  if (!ciExternalNodeMode)
-+    addInternalNode(symbol_table, li_ci, getName(), "ci");
+     addInternalNode(symbol_table, li_ci, getName(), "ci");
 +  if (!bxExternalNodeMode)
-+    addInternalNode(symbol_table, li_bx, getName(), "bx");
+     addInternalNode(symbol_table, li_bx, getName(), "bx");
 +  if (!biExternalNodeMode)
-+    addInternalNode(symbol_table, li_bi, getName(), "bi");
+     addInternalNode(symbol_table, li_bi, getName(), "bi");
 +  if (!eiExternalNodeMode)
-+    addInternalNode(symbol_table, li_ei, getName(), "ei");
-   addInternalNode(symbol_table, li_bp, getName(), "bp");
-   addInternalNode(symbol_table, li_si, getName(), "si");
-   addInternalNode(symbol_table, li_xf1, getName(), "xf1");
-@@ -3044,6 +3105,16 @@
+     addInternalNode(symbol_table, li_ei, getName(), "ei");
+     addInternalNode(symbol_table, li_bp, getName(), "bp");
+     addInternalNode(symbol_table, li_si, getName(), "si");
+@@ -3723,6 +3784,16 @@
       dt_et_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_Temp_dt_GND];
  }
  // -- code converted from analog/code block
 +
 +// Manually inserted code for voltage drop initialization
-+if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
++if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag && OFF!=1)
 +{
 +  Vbci_limited = Vbcx_limited = Vbxcx_limited = Vbep_limited = 0;
 +  Vbe_limited = Vbei_limited = Vbex_limited = tVCrit;

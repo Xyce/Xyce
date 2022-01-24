@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -22,13 +22,13 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : Implement the MOSFET Level 1 static model
+// Purpose        : 
 //
 // Special Notes  :
 //
-// Creator        : Eric R. Keiter, SNL, Parallel Computational Sciences
+// Creator        : Dave Baur
 //
-// Creation Date  : 02/28/00
+// Creation Date  : 
 //
 //
 //
@@ -45,6 +45,7 @@
 #include <N_DEV_BJT.h>
 #include <N_DEV_Diode.h>
 #include <N_DEV_Vsrc.h>
+#include <N_DEV_ISRC.h>
 
 namespace Xyce {
 namespace Device {
@@ -330,12 +331,25 @@ bool VsrcScaleParam::setValue(DeviceMgr &device_manager, double value)
 {
   bool success = true;
 
-  DeviceMgr::ModelTypeInstanceVectorMap::const_iterator model_group_it = getModelTypeInstanceVectorMap(device_manager).find(Vsrc::Traits::modelGroup());
-  if (model_group_it != getModelTypeInstanceVectorMap(device_manager).end()) {
-    for (InstanceVector::const_iterator it = (*model_group_it).second.begin(); it != (*model_group_it).second.end(); ++it)
-    {
-      success = (*it)->scaleDefaultParam(value);
-      success = (*it)->processParams();
+  {
+    DeviceMgr::ModelTypeInstanceVectorMap::const_iterator model_group_it = getModelTypeInstanceVectorMap(device_manager).find(Vsrc::Traits::modelGroup());
+    if (model_group_it != getModelTypeInstanceVectorMap(device_manager).end()) {
+      for (InstanceVector::const_iterator it = (*model_group_it).second.begin(); it != (*model_group_it).second.end(); ++it)
+      {
+        success = (*it)->scaleDefaultParam(value);
+        success = (*it)->processParams();
+      }
+    }
+  }
+
+  {
+    DeviceMgr::ModelTypeInstanceVectorMap::const_iterator model_group_it = getModelTypeInstanceVectorMap(device_manager).find(ISRC::Traits::modelGroup());
+    if (model_group_it != getModelTypeInstanceVectorMap(device_manager).end()) {
+      for (InstanceVector::const_iterator it = (*model_group_it).second.begin(); it != (*model_group_it).second.end(); ++it)
+      {
+        success = (*it)->scaleDefaultParam(value);
+        success = (*it)->processParams();
+      }
     }
   }
 

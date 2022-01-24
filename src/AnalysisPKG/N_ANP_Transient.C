@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -3105,7 +3105,7 @@ void Transient::outputFailedStepData()
         if ((outIndex_LID > -1) && (outIndex_LID < name_vec.size()))
         {
           tmp_proc = Parallel::rank(comm_);
-          node_name = *name_vec[outIndex];
+          node_name = *name_vec[outIndex_LID];
         }
         pdsComm.maxAll( &tmp_proc, &proc, 1 );
 

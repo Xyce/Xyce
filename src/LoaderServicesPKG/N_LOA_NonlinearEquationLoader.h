@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -124,6 +124,9 @@ public:
 
   // Get convergence info from inner-solves
   bool innerDevicesConverged(Parallel::Machine comm);
+
+  // toggle if the initial junction voltages are applied to devices or not
+  void setDisableInitJctFlags(bool flag);
 
   // Function for determining if an analytic sensitivity (df/dp, dq/dp, db/dp) is available.
   bool analyticSensitivitiesAvailable (const std::string & name);

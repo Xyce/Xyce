@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -150,6 +150,8 @@ public:
   void setFastTime( double timeVal );
 
   void setSPAnalysisFlag(bool flagVal);
+
+  void setDisableInitJctFlags(bool flag);
 
   // Initialization function, to be called after all registrations are
   // finished, and the linear system class is completely set up.

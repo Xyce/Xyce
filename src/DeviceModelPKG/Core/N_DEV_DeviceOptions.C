@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -50,6 +50,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_MachDepParams.h>
+#include <N_UTL_ExtendedString.h>
 
 #ifndef Xyce_NEW_EXCESS_PHASE
 static const bool EXCESS_PHASE = false;
@@ -134,6 +135,13 @@ DeviceOptions::DeviceOptions()
     defaultNewExcessPhase(EXCESS_PHASE),
     excessPhaseScalar1 (1.0),
     excessPhaseScalar2 (1.0),
+    photocurrentFormulation(Xyce::Device::photoForm::ORIGINAL),
+    //photocurrentFormulation(Xyce::Device::photoForm::REDUCED),
+    photocurrent_dx_reltol(1.0e-8),
+    photocurrent_reltol(1.0e-8),
+    photocurrent_abstol(1.0e-8),
+    maskPhotocurrentDelayVars(false),
+    disableInitJctFlag(false),
     randomSeed (0),
     tryToCompact (false),
     calculateAllLeadCurrents (false),
@@ -339,6 +347,55 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
     {
       pwl_BP_off = static_cast<bool> ((*it).getImmutableValue<int>());
     }
+#ifdef Xyce_RAD_MODELS
+    else if (tag == "PHOTOCURRENT_FORMULATION")
+    {
+      if ((*it).isNumeric())
+      {
+        photocurrentFormulation = ((*it).getImmutableValue<int>());
+      }
+      else
+      {
+        ExtendedString p((*it).stringValue()); p.toUpper();
+        if (p == "ORIGINAL")
+        {
+          photocurrentFormulation = Xyce::Device::photoForm::ORIGINAL;
+        }
+        else if (p == "REDUCED")
+        {
+          photocurrentFormulation = Xyce::Device::photoForm::REDUCED;
+        }
+        else if (p == "TVR")
+        {
+          photocurrentFormulation = Xyce::Device::photoForm::TVR;
+        }
+        else
+        {
+           Report::UserError() << "Unrecognized photocurrent formulation " << p;
+        }
+      }
+    }
+    else if (tag == "PHOTOCURRENT_DX_RELTOL")
+    {
+      photocurrent_dx_reltol = ((*it).getImmutableValue<double>());
+    }
+    else if (tag == "PHOTOCURRENT_RELTOL")
+    {
+      photocurrent_reltol = ((*it).getImmutableValue<double>());
+    }
+    else if (tag == "PHOTOCURRENT_ABSTOL")
+    {
+      photocurrent_abstol = ((*it).getImmutableValue<double>());
+    }
+    else if (tag == "PHOTOCURRENT_MASKING")
+    {
+      maskPhotocurrentDelayVars = ((*it).getImmutableValue<bool>());
+    }
+#endif
+    else if (tag == "ALL_OFF")
+    {
+      disableInitJctFlag = ((*it).getImmutableValue<bool>());
+    }
     else
     {
       Report::UserError0() << tag << " is not a recognized device package option.";
@@ -434,6 +491,12 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("NEWEXCESSPHASE", Util::Param("NEWEXCESSPHASE", 1)));
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR1", Util::Param("EXCESSPHASESCALAR1", 1.0)));
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR2", Util::Param("EXCESSPHASESCALAR2", 1.0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FORMULATION", Util::Param("PHOTOCURRENT_FORMULATION", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_DX_RELTOL", Util::Param("PHOTOCURRENT_DX_RELTOL", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_RELTOL", Util::Param("PHOTOCURRENT_RELTOL", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_ABSTOL", Util::Param("PHOTOCURRENT_ABSTOL", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_MASKING", Util::Param("PHOTOCURRENT_MASKING", 0)));
+  parameters.insert(Util::ParamMap::value_type("ALL_OFF", Util::Param("ALL_OFF", 0)));
   parameters.insert(Util::ParamMap::value_type("RANDOMSEED", Util::Param("RANDOMSEED", 0)));
   parameters.insert(Util::ParamMap::value_type("TRYTOCOMPACT", Util::Param("TRYTOCOMPACT", false)));
   parameters.insert(Util::ParamMap::value_type("CALCULATEALLLEADCURRENTS", Util::Param("CALCULATEALLLEADCURRENTS", false)));

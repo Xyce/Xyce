@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -826,6 +826,19 @@ bool NonlinearEquationLoader::allDevicesConverged(Parallel::Machine comm)
 bool NonlinearEquationLoader::innerDevicesConverged(Parallel::Machine comm)
 {
   return Device::devicesConverged(comm, deviceManager_.getDevices(Device::ExternDevice::Traits::modelType()));
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::setDisableInitJctFlags
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 01/20/2022
+//-----------------------------------------------------------------------------
+void NonlinearEquationLoader::setDisableInitJctFlags(bool flag)
+{
+  return deviceManager_.setDisableInitJctFlags(flag);
 }
 
 //-----------------------------------------------------------------------------

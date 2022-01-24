@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -108,6 +108,7 @@ public:
   // Time step error control information
   double                currTimeStep_;          ///< Region, BJT, Digital, ThermalResistor, ROM, Charon, Others
   double                lastTimeStep_;          ///< BJT, Others
+  double                oldeTimeStep_;          ///< BJT, Others
   double                currTime_;              ///< DeviceEntity for expression time, breakpoints
                                                 ///< DeviceMgr for dependent parameters, breakpoints, extern device
                                                 ///< SourceData devices, ADC, DAC LTRA, TRA, Region, NumericalJacobian, RxnSet, Digital
@@ -165,6 +166,7 @@ public:
   bool                  externalInitJctFlag_;
   bool                  externalStateFlag_;
   bool                  initJctFlag_;           ///< true if on the first newton step of the first dcop solve of the first .STEP iteration. BJT, JFET, Diode, MOSFET, SW, Extern
+
 
   bool                  initFixFlag;            // true if DCOP solve, not first iteration *AND* any device not converged.  Allows "OFF" to be applied.
 

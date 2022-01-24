@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1661,6 +1661,7 @@ void Gear12::completeStep(const TIAParams &tia_params)
   double rr = 1.0; // step size ratio = new step / old step
   // 03/11/04 tscoffe:  Here is the block for choosing order & step-size when
   // the local error test PASSES (and Newton succeeded). 
+  sec.oldeTimeStep = sec.lastTimeStep;
   sec.lastTimeStep = sec.currentTimeStep;
   sec.lastTimeStepRatio = sec.currentTimeStepRatio; // copied from calcTStep1
   sec.lastTimeStepSum   = sec.currentTimeStepSum; // copied from calcTStep1

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -48,6 +48,8 @@
 
 namespace Xyce {
 namespace Device {
+
+enum photoForm {ORIGINAL,REDUCED,TVR,NUMFORMS}; 
 
 //-----------------------------------------------------------------------------
 // Class         : DeviceOptions
@@ -150,6 +152,14 @@ public:
 
   double        excessPhaseScalar1;
   double        excessPhaseScalar2;
+
+  int   photocurrentFormulation;
+  double photocurrent_dx_reltol;
+  double photocurrent_reltol;
+  double photocurrent_abstol;
+  bool maskPhotocurrentDelayVars;
+
+  bool disableInitJctFlag;    ///< if this is true, then unconditionally ALWAYS make initJctFlag false.
 
   long  randomSeed;                           ///< seed for random number generator used by some devices.
   ///< note: each device gets its own random number generator so

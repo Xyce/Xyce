@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2021 National Technology & Engineering Solutions of
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -1626,6 +1626,8 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   }
   nonlinearEquationLoader_->resetScaledParams();
 
+  nonlinearEquationLoader_->setDisableInitJctFlags(true);
+
   // Do the continuation run
   resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
   LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
@@ -1633,6 +1635,8 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
 
   nonlinearEquationLoader_->resetScaledParams();
+
+  nonlinearEquationLoader_->setDisableInitJctFlags(false);
 
   // Kick out if continuation failed
   if (locaStatus != LOCA::Abstract::Iterator::Finished)
