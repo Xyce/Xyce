@@ -2300,6 +2300,7 @@ bool CircuitBlock::handleAnalysis()
          (aVal == "OP" && usVal == "HOMOTOPY") ||
          (aVal == "DC" && usVal == "HOMOTOPY") ||
          (aVal == "HB" && usVal == "HOMOTOPY") ||
+         (aVal == "AC" && usVal == "HOMOTOPY") ||
          (aVal == "DC" && usVal == "DC") ||
          (aVal == "DC" && usVal == "ES") ||
          (aVal == "DC" && usVal == "PCE") ||
