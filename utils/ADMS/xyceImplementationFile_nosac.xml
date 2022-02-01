@@ -951,6 +951,9 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
                 <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='e']">
                   <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DE&quot;);\n"/>
                 </admst:when>
+                <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='b']">
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DB&quot;);\n"/>
+                </admst:when>
                 <admst:otherwise>
                   <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
                 </admst:otherwise>
