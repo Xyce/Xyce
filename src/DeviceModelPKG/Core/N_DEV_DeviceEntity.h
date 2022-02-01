@@ -76,6 +76,7 @@ struct Depend
   Util::Expression *          expr;      ///< expression used comput value
   union resUnion
   {
+    int *                  iresult;
     double *                result;
     std::vector<double> *   resVec;
   } resultU;                            ///< Holds a pointer to where the
@@ -254,7 +255,11 @@ public:
 
   double setDependentParameter(Util::Param &, double *, ParameterType::ExprAccess);
   double setDependentParameter(Util::Param &, std::vector<double> *, int , ParameterType::ExprAccess);
+  int setDependentParameter(Util::Param &, int *, ParameterType::ExprAccess);
+
+
   void setDependentParameter(Util::Param & par, Depend & dependentParam, ParameterType::ExprAccess depend);
+
 
   void setDefaultParams() 
   {
