@@ -50,6 +50,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Problem.h>
 #include <N_LAS_Solver.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>
 #include <N_LOA_NonlinearEquationLoader.h>
@@ -840,7 +841,7 @@ void DampedNewton::updateX_()
 
 //-----------------------------------------------------------------------------
 // Function      : DampedNewton::rhs_()
-// Purpose       : Updates the RHS based on nextSolVectorPtrPtr_ and
+// Purpose       : Updates the RHS based on nextSolVectorPtr_ and
 //                 calculates normRHS_ based on 2-norm.
 // Special Notes : The rhsVectorPtr_ is really the NEGATIVE of F(x).
 // Scope         : private
@@ -850,6 +851,7 @@ void DampedNewton::updateX_()
 //-----------------------------------------------------------------------------
 bool DampedNewton::rhs_()
 {
+  Teuchos::RCP<Linear::Vector> rhsCopy = Teuchos::rcp( rhsVectorPtr_->cloneCopyVector() );
   bool status = NonLinearSolver::rhs_();
 
   if (DEBUG_NONLINEAR)
@@ -872,6 +874,20 @@ bool DampedNewton::rhs_()
  
   if (std::isnan(normRHS_) || std::isinf(normRHS_))
   {
+    if ( VERBOSE_NONLINEAR )
+    {
+      std::vector<int> nanEntries;
+      Linear::checkVectorForNaNs( *rhsVectorPtr_, nanEntries );
+      if ( nanEntries.size() )
+      {
+        Xyce::lout() << "NaN/Inf check found " << nanEntries.size() << " entries in the residual vector!" << std::endl;
+        for (int i=0; i<nanEntries.size(); ++i)
+        {
+          Xyce::lout() << "Residual entry: [" << nanEntries[i] << "]" << std::endl;
+        }
+      }
+    }
+
     isNormRHS_NaN_ = true;
   }
 
