@@ -72,7 +72,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // Xyce:  we set device type and level here in attributes
-module DIODE_CMC(A,K) `P(xyceModelGroup="Diode" xyceLevelNumber="2002");
+module DIODE_CMC(A,K) `P(xyceDeviceName="DIODE_CMC 2.0.0" xyceModelGroup="Diode" xyceLevelNumber="2002");
 
 //
 //  Node definitions
