@@ -88,19 +88,19 @@ electrical charge_A, charge_K, depl_A;  //internal node -- Diode_cmc recovery an
 
 //XYCE: we don't do level by having a model param in the device, it's part
 // of higher level code.  Use module attributes instead
-//    parameter real LEVEL      = 2002                              `P(info="Model level must be 2002" unit="");
-    parameter real VERSION    = 2                                 `P(info="Model version" unit="");
-    parameter real SUBVERSION = 0                                 `P(info="Model subversion" unit="");
-    parameter real REVISION   = 0                                 `P(info="Model revision" unit="");
-    parameter real TYPE       = 1      `from(-1.0         , 1.0 ) `P(info="Type parameter, in output value 1 reflects n-type, -1 reflects p-type" unit="");
-    parameter real DTA        = 0                                 `P(info="Temperature offset with respect to ambient temperature" unit="C");
+//    parameter real LEVEL      = 2002                              `P(info="Model level must be 2002" units="");
+    parameter real VERSION    = 2                                 `P(info="Model version" units="");
+    parameter real SUBVERSION = 0                                 `P(info="Model subversion" units="");
+    parameter real REVISION   = 0                                 `P(info="Model revision" units="");
+    parameter real TYPE       = 1      `from(-1.0         , 1.0 ) `P(info="Type parameter, in output value 1 reflects n-type, -1 reflects p-type" units="");
+    parameter real DTA        = 0                                 `P(info="Temperature offset with respect to ambient temperature" units="C");
     `include "DIODE_CMC_parlist.include"
 
     //  Instance parameters
-    parameter real AB         = 1E-12  `from(`AB_cliplow  , inf ) `P(type="instance" info="Junction area" unit="m^2" );
-    parameter real LS         = 1e-6   `from(`LS_cliplow  , inf ) `P(type="instance" info="STI-edge part of junction perimeter" unit="m" );
-    parameter real LG         = 0      `from(`LG_cliplow  , inf ) `P(type="instance" info="Gate-edge part of junction perimeter" unit="m" );
-    parameter real MULT       = 1      `from(`MULT_cliplow, inf ) `P(type="instance" info="Number of devices in parallel" unit="" );
+    parameter real AB         = 1E-12  `from(`AB_cliplow  , inf ) `P(type="instance" info="Junction area" units="m^2" );
+    parameter real LS         = 1e-6   `from(`LS_cliplow  , inf ) `P(type="instance" info="STI-edge part of junction perimeter" units="m" );
+    parameter real LG         = 0      `from(`LG_cliplow  , inf ) `P(type="instance" info="Gate-edge part of junction perimeter" units="m" );
+    parameter real MULT       = 1      `from(`MULT_cliplow, inf ) `P(type="instance" info="Number of devices in parallel" units="" );
 
     // Diode_cmc code
     aliasparam   AREA         = AB;
