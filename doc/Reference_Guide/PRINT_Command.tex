@@ -271,14 +271,17 @@ via the \texttt{.PRINT NOISE} line for devices that support stationary noise.
 \item \texttt{<lead abbreviation>} is a single character designator for
   individual leads on a device with three or more leads.  For bipolar
   transistors these are: c (collector), b (base), e (emitter), and s
-  (substrate).  For mosfets, lead abbreviations are: d (drain), g
-  (gate), s (source), and b (bulk).  SOI transistors have: d, g, s, e
-  (bulk), and b (body).  For PDE devices, the nodes are numbered
-  according to the order they appear, so lead currents are referenced
-  like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.  In \Xyce{},
-  a \texttt{.PRINT} line request like \texttt{I(Q1)} is a parsing error
-  for a multi-terminal  device.  Instead, an explicit lead current
-  designator like \texttt{IC(Q1)} must be used.
+  (substrate).  For MOSFETs, JFETs, and MESFETs, lead abbreviations
+  are: d (drain), g (gate), s (source), and for MOSFETS and JFETs,
+  b (bulk).  In addition to these standard leads, SOI
+  and CMG MOSFETs have e (bulk) nodes and SOI transistors have
+  optional b (body) nodes whose lead currents may also be printed in
+  this manner.  For PDE devices, the nodes are numbered according to
+  the order they appear, so lead currents are referenced like
+  I1(\texttt{<device>}), I2(\texttt{<device>}), etc.  In \Xyce{},
+  a \texttt{.PRINT} line request like \texttt{I(Q1)} is a parsing
+  error for a multi-terminal device.  Instead, an explicit lead
+  current designator like \texttt{IC(Q1)} must be used.
 
 \item The "lead current" method of printing from devices in Xyce is done
   at a low level with special code added to each device; the method is
@@ -461,7 +464,7 @@ lead currents for the multi-terminal J, M and Z devices via
 \texttt{IB(*)}, \texttt{ID(*)}, \texttt{IG(*)} and \texttt{IS(*)}, and 
 for the multi-terminal Q device via \texttt{IB(*)}, \texttt{IC(*)}, \texttt{IE(*)}
 and \texttt{IS(*)}.  The \texttt{IE(*)} wildcard is also supported for SOI
-devices.  A  request for \texttt{I(*)} will not return any of the lead currents
+and CMG devices.  A  request for \texttt{I(*)} will not return any of the lead currents
 for  J, M, Q or Z devices.  Wildcards of the form \texttt{I1(*)},
 that use numerical designators, are only supported for the T and YGENEXT devices.
 Finally, as an example, a request for IC(*) in a netlist that does not contain

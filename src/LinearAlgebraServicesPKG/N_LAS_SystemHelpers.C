@@ -320,6 +320,77 @@ bool checkProblemForNaNs( const Linear::Problem& problem,
 
   return foundNaN; 
 } 
-                    
+
+bool checkVectorForNaNs( const Linear::MultiVector& vector,
+                         std::vector< int >& nanEntries )
+{
+  int numrhs = vector.numVectors();
+  bool foundNaN = false;
+  nanEntries.clear();
+  std::vector<int> tmp_nanEntries;
+  std::vector<double> resNorm(numrhs,0.0);
+
+  // Check the vector for NaNs (using 2-norm calculation)
+  vector.lpNorm( 2, &resNorm[0] );
+  for (int i=0; i<numrhs; ++i)
+  {
+    if (std::isnan(resNorm[i]) || std::isinf(resNorm[i]))
+      foundNaN = true;
+  }
+  // If a NaN has been found, it's likely in the RHS or Matrix.
+  // Otherwise, the linear solver introduced a NaN.
+  if (foundNaN)
+  {
+    std::vector<int> entriesNaN;
+    int numrows = vector.localLength();
+    const Parallel::ParMap& map = *(vector.pmap());
+
+    for (int j=0; j<numrhs; ++j)
+    {
+      const Vector& mvCol_j = *(vector.getVectorView(j));
+      for (int i=0; i<numrows; ++i)
+      {
+        const double & val = mvCol_j[ i ];
+        if (std::isnan(val) || std::isinf(val))
+          tmp_nanEntries.push_back( map.localToGlobalIndex(i) );
+      }
+    }
+    // Now synchronize the data, if executing in parallel.
+    const Parallel::Communicator& comm = *(vector.pdsComm());
+    if (!comm.isSerial())
+    {
+      int numProc = comm.numProc();
+      std::vector<int> totProcNaNs( numProc, 0 ), procNaNs( numProc, 0 );
+      procNaNs[comm.procID()] = tmp_nanEntries.size();
+      comm.sumAll( &procNaNs[0], &totProcNaNs[0], numProc );
+      int totNumNaNs = std::accumulate( totProcNaNs.begin(), totProcNaNs.end(), 0 );
+
+      if (totNumNaNs)
+      {
+        foundNaN = true;
+        nanEntries.resize( totNumNaNs );
+        std::vector<int> totNaNGIDs( totNumNaNs, 0 );
+
+        // Compute the starting pointer where the NaN pairs should be inserted
+        int startPtr = 0;
+        for ( int i=0; i<comm.procID(); ++i )
+          startPtr += totProcNaNs[ i ];
+
+        for ( int i=0; i<tmp_nanEntries.size(); ++i )
+          nanEntries[ startPtr+i ] = tmp_nanEntries[i];
+    
+        // Communicate the NaN GIDs through a global sum
+        comm.sumAll( &totNaNGIDs[0], &nanEntries[0], totNumNaNs );
+      }
+    }
+    else
+    {
+      nanEntries = tmp_nanEntries;
+    }
+  }
+
+  return foundNaN;
+}
+                   
 } // namespace Linear
 } // namespace Xyce

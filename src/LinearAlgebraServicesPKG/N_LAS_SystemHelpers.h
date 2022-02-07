@@ -104,6 +104,9 @@ void extractValues( const Matrix& inputMatrix,
 bool checkProblemForNaNs( const Linear::Problem& problem,
                           std::vector< std::pair<int, int> >& nanEntries );
 
+bool checkVectorForNaNs( const Linear::MultiVector& vector,
+                         std::vector<int>& nanEntries );
+
 } // namespace Linear
 } // namespace Xyce
 

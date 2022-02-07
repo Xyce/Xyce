@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 04 Jan 2022 09:27:35
+// Creation Date  : Tue, 01 Feb 2022 13:10:17
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -14555,7 +14555,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");
     addBranchDataNode( symbol_table, li_branch_ig, getName(), "BRANCH_DG");
     addBranchDataNode( symbol_table, li_branch_is, getName(), "BRANCH_DS");
-    addBranchDataNode( symbol_table, li_branch_ib, getName(), "BRANCH_D4");
+    addBranchDataNode( symbol_table, li_branch_ib, getName(), "BRANCH_DB");
     if (portsConnected_[admsNodeID_t])
     {
     addBranchDataNode( symbol_table, li_branch_it, getName(), "BRANCH_D5");

@@ -40,6 +40,26 @@
 
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
+\textbf{Gitlab-ex issue 366}: IB() does not work for MOSFETs derived from Verilog-A
+& Most MOSFET devices have ``B'' nodes (either bulk or body, depending
+on which model is under consideration).  None of the devices generated
+from Verilog-A supported printing of the lead current associated with
+this node via the ``IB()'' print accessor, and required instead that
+one use ``In'' (where ``n'' is the position of the node on the
+instance line).  Now they are correctly accessible using ``IB()''. \\
+\hline
+
+\textbf{Gitlab-ex issue 365}: IE() does not work for BSIM-SOI 4.x
+& The BSIM-SOI 3 (level 10) and BSIM-SOI 4.x (levels 70 and 70450)
+devices all support a fourth node named ``E'', but until now the
+``IE()'' print operator only worked for printing lead currents through
+this node for the BSIM-SOI 3.  Prior versions of Xyce required use of
+``I4()'' to output this lead current.
+
+Now, BSIM-SOI 4 and all BSIM-CMG models support ``IE()'' lead current
+operators.  Wildcards for IE will now print lead currents for all
+devices that have an ``E'' node. \\ \hline
+
 \textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
 analog function context & There were some use cases in which Xyce/ADMS
 would emit bad code for ternary operator expressions in analog

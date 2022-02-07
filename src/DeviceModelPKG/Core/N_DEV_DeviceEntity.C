@@ -934,6 +934,44 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::setDependentParameter
+// Purpose       : integer type version
+// Special Notes : 
+// Scope         : protected
+// Creator       : Eric Keiter, SNL
+// Creation Date : 01/30/2022
+//-----------------------------------------------------------------------------
+int DeviceEntity::setDependentParameter (Util::Param & par,
+                                            int *res,
+                                            ParameterType::ExprAccess depend)
+{
+  Depend dependentParam;
+  setDependentParameter(par, dependentParam, depend);
+
+  dependentParam.resultU.iresult = res;
+  dependentParam.vectorIndex = -2;
+  dependentParams_.push_back(dependentParam);
+
+  // needed for new expression
+  {
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
+
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
+  dependentParam.expr->setGroup( newGroup );
+  }
+
+  double dval;
+  dependentParam.expr->evaluateFunction (dval);
+  dependentParam.expr->clearOldResult();
+
+  return static_cast<int>(dval);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceEntity::setDependentParameter
 // Purpose       : Add expression, param pairs for future updates
 // Special Notes :  This is a utility version, used by overloaded methods.
 // Scope         : public
@@ -1219,10 +1257,18 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
         }
 
         // apply the expression result to parameters, if it has changed.
-        if (dpIter->vectorIndex==-1)
+        if (dpIter->vectorIndex==-2)
+        {
+          *(dpIter->resultU.iresult) = static_cast<int>(rval);
+        }
+        else if (dpIter->vectorIndex==-1)
+        {
           *(dpIter->resultU.result) = rval;
+        }
         else
+        {
           (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+        }
 
         if (dpIter->storeOriginal)
           Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
@@ -1287,7 +1333,11 @@ bool DeviceEntity::updateDependentParameters()
   {
     if (dpIter->expr->evaluateFunction (rval)) { changed = true; }
 
-    if (dpIter->vectorIndex == -1)
+    if (dpIter->vectorIndex == -2)
+    {
+      *(dpIter->resultU.iresult) = static_cast<int>(rval);
+    }
+    else if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
     }
@@ -1325,7 +1375,11 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
 
     if (dpIter->expr->evaluateFunction (rval)) { changed = true; }
 
-    if (dpIter->vectorIndex == -1)
+    if (dpIter->vectorIndex == -2)
+    {
+      *(dpIter->resultU.iresult) = static_cast<int>(rval);
+    }
+    else if (dpIter->vectorIndex == -1)
     {
       *(dpIter->resultU.result) = rval;
     }
@@ -1570,9 +1624,23 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
             double val = setDependentParameter (param, &(descriptor.value<std::vector<double> >(*this)), ind, descriptor.getExpressionAccess());
             (descriptor.value<std::vector<double> >(*this)).push_back(val);
           }
+          else if (descriptor.isType<int>())
+          {
+            if (descriptor.getMutableInteger()) // only *some* integer parameters can be modified in this manner
+            {
+              int val = setDependentParameter(param, &(descriptor.value<int>(*this)), descriptor.getExpressionAccess());
+              param.setVal(val);
+              if (descriptor.hasOriginalValueStored())
+                Xyce::Device::setOriginalValue(*this,descriptor.getSerialNumber(), val);
+            }
+            else
+            {
+              UserError(*this) << "This param " <<  tag << " cannot be set to expression.  It is an integer parameter, but has not been tagged as mutable in the model.";
+            }
+          }
           else
           {
-            DevelFatal(*this).in("DeviceEntity::setParams") << "Non double param " <<  tag << " cannot be set to expression";
+            UserError(*this) << "This param " <<  tag << " cannot be set to expression.  Only real valued and some integer valued parameters can be set as expressions";
           }
         }
         else

@@ -947,7 +947,17 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
               <admst:if test="[exists(#optional)]">
                 <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
               </admst:if>
-              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+              <admst:choose>
+                <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='e']">
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DE&quot;);\n"/>
+                </admst:when>
+                <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='b']">
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DB&quot;);\n"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+                </admst:otherwise>
+              </admst:choose>
               <admst:if test="[exists(#optional)]">
                 <admst:text format="    }\n"/>
               </admst:if>

@@ -603,7 +603,8 @@ public:
       matSensPtr_(0),
       autoConvertTemp_(true),
       lengthScalingAllowed_(false),
-      areaScalingAllowed_(false) 
+      areaScalingAllowed_(false),
+      mutableInteger_(false)
   {}
 
   ///
@@ -1076,8 +1077,15 @@ public:
     areaScalingAllowed_ = value;
     return *this;
   }
-
   bool getAreaScaling() const { return areaScalingAllowed_; }
+
+  Descriptor &setMutableInteger (bool value)
+  {
+    mutableInteger_ = value;
+    return *this;
+  }
+  bool getMutableInteger () const { return mutableInteger_; }
+
 
   ///
   /// returns a boolean to indicate if analytic sensitivities are available w.r.t. this parameter.
@@ -1220,6 +1228,7 @@ private:
   bool                                autoConvertTemp_;  ///< Flag indicating that temperature should be converted to/from Kelvin
   bool                                lengthScalingAllowed_;  ///< Flag indicating that length scaling should be applied (if .options parser scale is set by netlist)
   bool                                areaScalingAllowed_;  ///< Flag indicating that area scaling should be applied (if .options parser scale is set by netlist)
+  bool                                mutableInteger_;      ///< Flag indicating that an integer parameter can be modified via setParam
 };
 
 ///

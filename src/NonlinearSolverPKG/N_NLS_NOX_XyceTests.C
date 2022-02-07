@@ -46,6 +46,7 @@
 #include "N_NLS_NOX_Vector.h"
 #include "N_LAS_Vector.h"
 #include "N_LAS_Solver.h"
+#include "N_LAS_SystemHelpers.h"
 #include "N_LOA_NonlinearEquationLoader.h"
 #include "NOX.H"
 #include "NOX_Solver_LineSearchBased.H"
@@ -186,6 +187,9 @@ XyceTests::checkStatus(
   const N_NLS_NOX::Group & grp = 
       (dynamic_cast<const N_NLS_NOX::Group &>(problem.getSolutionGroup()));
 
+  const Linear::Vector& F = (dynamic_cast<const Vector&>
+    (problem.getSolutionGroup().getF())).getNativeVectorRef();
+
   bool linearSolverStatus = grp.linearSolverStatus();
   if (!linearSolverStatus)
   {
@@ -197,7 +201,7 @@ XyceTests::checkStatus(
     {
       if ( nanEntries.size() )
       {
-        Xyce::lout() << "NaN check found " << nanEntries.size() << " entries in the residual or Jacobian!" << std::endl;
+        Xyce::lout() << "NaN/Inf check found " << nanEntries.size() << " entries in the residual or Jacobian!" << std::endl;
         for (int i=0; i<nanEntries.size(); ++i)
         {
           if (nanEntries[i].second >= 0)
@@ -229,6 +233,21 @@ XyceTests::checkStatus(
     status_ = check;
     returnTest_ = 0;
     xyceReturnCode_ = retCodes_.nanFail; // default: -6
+
+    if ( VERBOSE_NONLINEAR )
+    {
+      std::vector<int> nanEntries;
+      Linear::checkVectorForNaNs( F, nanEntries );
+      if ( nanEntries.size() )
+      {
+        Xyce::lout() << "NaN/Inf check found " << nanEntries.size() << " entries in the residual vector!" << std::endl;
+        for (int i=0; i<nanEntries.size(); ++i)
+        {
+          Xyce::lout() << "Residual entry: [" << nanEntries[i] << "]" << std::endl;
+        }
+      }
+    }
+
     return status_;
   }
 
@@ -266,9 +285,6 @@ XyceTests::checkStatus(
   }
 
   // Compute a few norms needed by various tests.
-  const Linear::Vector& F = (dynamic_cast<const Vector&>
-    (problem.getSolutionGroup().getF())).getNativeVectorRef();
-
   // Max F norm (maxNormF_).
   if (maskingFlag_)
   {
