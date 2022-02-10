@@ -65,14 +65,16 @@ class NAME : public astNode<ScalarT>                                            
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
     {                                                                                  \
       int numDerivs = derivs.size();                                                   \
+      std::vector<ScalarT> lefDerivs_;                                                 \
+      std::vector<ScalarT> rigDerivs_;                                                 \
       ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;                              \
       if (leftConst_) { leftVal = this->leftAst_->val(); }                             \
       else {                                                                           \
-        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                  \
+        lefDerivs_.resize(numDerivs,0.0);                                              \
         this->leftAst_->dx2(leftVal,lefDerivs_); }                                     \
       if (rightConst_) { rightVal = this->rightAst_->val(); }                          \
       else {                                                                           \
-        if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }                  \
+        rigDerivs_.resize(numDerivs,0.0);                                              \
         this->rightAst_->dx2(rightVal,rigDerivs_); }                                   \
       result=VAL;                                                                      \
       for (int i=0;i<numDerivs;i++) {                                                  \
@@ -103,8 +105,6 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                  \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
-    std::vector<ScalarT> lefDerivs_;                                                   \
-    std::vector<ScalarT> rigDerivs_;                                                   \
 };
 
 AST_BIN_OP_MACRO(
