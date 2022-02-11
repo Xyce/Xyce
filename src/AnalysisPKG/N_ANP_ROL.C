@@ -40,7 +40,6 @@
 #include <N_IO_InitialConditions.h>
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
-#include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_LOA_Loader.h>
 #include <N_NLS_Manager.h> // TT: was not included
 #include <N_NLS_fwd.h> // TT: was not included
@@ -60,23 +59,14 @@
 #include <N_LAS_System.h>
 #include <N_LAS_Builder.h>
 
-
 #include <N_ANP_StepEvent.h>
-//#include <N_ANP_ROLEvent.h>
 #include <N_PDS_Manager.h>
 #include <N_UTL_Timer.h>
 
 #include <N_LOA_NonlinearEquationLoader.h>
 
-// ROL includes
-// Trilinos ROL includes
-#include <N_ANP_DCSweep.h>
-
 #ifdef Xyce_ROL
 
-#ifndef OBJTYPE
-#define OBJTYPE 0 // 0 - L2Norm, 1 - amplifier circuit
-#endif
 
 #include "ROL_BoundConstraint.hpp"
 #include "ROL_Constraint.hpp"
@@ -100,7 +90,6 @@
 #endif
 
 // std includes
-#include <assert.h>
 #include <fstream>
 
 namespace Xyce {
@@ -121,8 +110,6 @@ ROL::ROL(
     solutionPtrVector_(0),
     statePtrVector_(0),
     constraintPtrVector_(0),
-    jvecPtrVector_(0),
-    testPtrVector_(0),
     mydfdpPtrVector_(0),
     mydqdpPtrVector_(0),
     mydbdpPtrVector_(0),
@@ -135,29 +122,14 @@ ROL::ROL(
     linearSystem_(linear_system),
     outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
     stepLoopSize_(0),
+    sensFlag_(analysis_manager.getSensFlag()),
     rolLoopInitialized_(false),
     numParams_(0),
-    numSensParams_(0)
+    numSensParams_(0),
+    paramFile_("parameters.txt"),
+    outputFile_("rol_output.txt"),
+    objType_(-1)
 {
-  // For testing purposes get parameters from txt file
-  std::ifstream param_file;
-  std::string deviceName,paramName,dummy;
-  RealT temp;
-  numParams_ = 0;
-  param_file.open("parameters.txt");
-  getline(param_file,dummy); // skip the first line
-  while (true)
-  {
-    if(!(param_file >> deviceName)) break;
-    if(!(param_file >> paramName)) break;
-    paramName = deviceName+":"+paramName;
-    paramNameVec_.push_back(paramName);
-    if(!(param_file >> temp)) break; // init guess
-    if(!(param_file >> temp)) break; // lo bound
-    if(!(param_file >> temp)) break; // up bound
-    numParams_ += 1;
-  }
-  param_file.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +167,7 @@ bool ROL::setTimeIntegratorOptions(
     else if (param.uTag() == "METHOD")
       ;
     else
-      Report::UserError() << param.uTag() << " is not a recognized time integration option";
+      Report::UserError0() << param.uTag() << " is not a recognized time integration option";
   }
 
   return true;
@@ -217,16 +189,37 @@ bool ROL::setAnalysisParams(const Util::OptionBlock & paramsBlock)
   return true;
 }
 
-const TimeIntg::TIAParams &
-ROL::getTIAParams() const
-{
-  return tiaParams_; // TT
-}
+//-----------------------------------------------------------------------------
+// Function      : ROL::setROLOptions
+// Purpose       :
+// Special Notes : These are from '.options rol_opts'
+// Scope         : public
+// Creator       : 
+// Creation Date : 2/4/2022 
+//-----------------------------------------------------------------------------
+bool ROL::setROLOptions( const Util::OptionBlock & option_block)
+{ 
+  for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
+  { 
+    ExtendedString tag = it->tag();
+    tag.toUpper();
 
-TimeIntg::TIAParams &
-ROL::getTIAParams()
-{
-  return tiaParams_; // TT
+    if ( tag == "FILENAME" )
+    {
+      ExtendedString stringVal ( it->stringValue() );
+      paramFile_ = stringVal;
+    }
+    else if ( tag == "OBJTYPE" )
+    {
+      objType_ = it->getImmutableValue<int>();
+    }
+    else
+    { 
+      Report::UserError0() << tag << " is not a recognized ROL option.";
+    }
+  }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -244,7 +237,6 @@ bool ROL::doRun()
 {
   // Instead of running DCSweep type analysis, we will run ROL analysis; the following will be only used in solve() function in the EqualityConstraint class: doInit() && doLoopProcess() && doFinish();
   return doInit() && runROLAnalysis() && doFinish();
-  // return doInit() && doLoopProcess() && doFinish();
 }
 
 //-----------------------------------------------------------------------------
@@ -258,14 +250,20 @@ bool ROL::doRun()
 bool ROL::doInit()
 {
   bool status;
-  
-  nonlinearManager_.enableSensitivity(
-      *analysisManager_.getDataStore(), 
-      analysisManager_.getStepErrorControl(),
-      *analysisManager_.getPDSManager(), topology_, 
-      outputManagerAdapter_.getOutputManager(),
-      numSensParams_); // this only needs to be called once
+ 
+  if (sensFlag_)
+  {
+    Stats::StatTop _sensitivityStat("Sensitivity");
 
+    nonlinearManager_.enableSensitivity(
+        *analysisManager_.getDataStore(),
+        analysisManager_.getStepErrorControl(),
+        *analysisManager_.getPDSManager(),
+        topology_,
+        outputManagerAdapter_.getOutputManager(),
+        numSensParams_);
+  }
+ 
   if ( !rolLoopInitialized_ )
   {
     if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
@@ -279,9 +277,6 @@ bool ROL::doInit()
     stepLoopSize_ = setupSweepLoop(analysisManager_.getComm(), loader_, stepSweepVector_.begin(), stepSweepVector_.end());
 
     // status = doAllocations(stepLoopSize_,numParams_); // TT: call here if runROLAnalysis is not called
-
-    // TT: created ROLEvent, but this still doesn't work, probably needs be included in a bunch of places
-    //Util::publish<ROLEvent>(analysisManager_, ROLEvent(ROLEvent::INITIALIZE, stepSweepVector_, stepLoopSize_));
 
     // TT: two lines from DCSweep, changed to Step instead of DC
     //outputManagerAdapter_.setStepAnalysisMaxSteps( stepLoopSize_ );
@@ -300,8 +295,6 @@ bool ROL::doInit()
   baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
   analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
 
-  // analysisManager_.setAnalysisMode(ANP_MODE_ROL); // TT: sets analysis mode; added ANP_MODE_ROL to N_ANP_AnalysisManager.C and N_ANP_fwd.C 
-
   // TT: copied from DCSweep;
   stepNumber = 0;
   setDoubleDCOPEnabled(loader_.isPDESystem());
@@ -309,7 +302,6 @@ bool ROL::doInit()
   {
     nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_DC_NLPOISSON));
   }
-
 
   initializeSolution_(); // TT: this function is copied from DCSweep
 
@@ -368,7 +360,6 @@ bool ROL::doLoopProcess()
   bool integration_status = true;
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore()); // TT
   
-  //Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::INITIALIZE, stepSweepVector_, stepLoopSize_)); // TT: moved here from doInit();
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::DC));
   
   // StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, currentStep);
@@ -427,12 +418,6 @@ bool ROL::doLoopProcess()
   } // end of sweep loop
 
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::DC));
-
-  // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_COMPLETED, stepSweepVector_, currentStep));
-  
-  // step_event.state_ = StepEvent::STEP_COMPLETED;
-  // step_event.finalSimTime_ = getTIAParams().finalTime;
-  // Util::publish<StepEvent>(analysisManager_, step_event);
 
   return integration_status;
 }
@@ -504,16 +489,12 @@ bool ROL::doAllocations(int nc, int nz)
   solutionPtrVector_.resize(nc);
   statePtrVector_.resize(nc);
   constraintPtrVector_.resize(nc);
-  jvecPtrVector_.resize(nc);
-  testPtrVector_.resize(nc);
 
   for (int i=0;i<nc;i++)
   {
     solutionPtrVector_[i]   = linearSystem_.builder().createVector();
     statePtrVector_[i]      = linearSystem_.builder().createVector();
     constraintPtrVector_[i] = linearSystem_.builder().createVector();
-    jvecPtrVector_[i]       = linearSystem_.builder().createVector();
-    testPtrVector_[i]       = linearSystem_.builder().createVector();
   }
   // Allocate space for sensitivity vectors
   mydfdpPtrVector_.resize(nz);
@@ -544,16 +525,10 @@ bool ROL::doFree()
     statePtrVector_[i] = 0;
     delete constraintPtrVector_[i];
     constraintPtrVector_[i] = 0;
-    delete jvecPtrVector_[i];
-    jvecPtrVector_[i] = 0;
-    delete testPtrVector_[i];
-    testPtrVector_[i] = 0;
   }
   solutionPtrVector_.clear();
   statePtrVector_.clear();
   constraintPtrVector_.clear();
-  jvecPtrVector_.clear();
-  testPtrVector_.clear();
 
   for (int i=0;i<numParams_;i++)
   {
@@ -591,10 +566,10 @@ bool ROL::doProcessSuccessfulStep()
   loader_.outputPlotFiles();
 
   // TT : not using
-  // if (sensFlag_ && !firstDoubleDCOPStep() )
-  // {
-  //   nonlinearManager_.calcSensitivity(objectiveVec_, dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
-  // }
+  if (sensFlag_ && !firstDoubleDCOPStep() )
+  {
+    nonlinearManager_.calcSensitivity(objectiveVec_, dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
+  }
 
   // Do some statistics, as long as this isn't the first "double"
   // DCOP step. (that one doesn't count)
@@ -603,7 +578,6 @@ bool ROL::doProcessSuccessfulStep()
     stepNumber += 1; // TT: this is inherited from AnalysisBase
     stats_.successStepsThisParameter_ += 1;
     stats_.successfulStepsTaken_ += 1;
-      
   }
     
   // update the data arrays, output:
@@ -643,8 +617,6 @@ bool ROL::doProcessSuccessfulStep()
     }
   }
     
-  //dcSweepOutput(); // TT: need something else here
-  
   // now that output has been called, update the doubleDCOP step
   // if neccessary. (pde-only)
   nextDCOPStep();
@@ -720,7 +692,6 @@ bool ROL::twoLevelStep()
 }
 
 #ifdef Xyce_ROL
-typedef double RealT;
 //-----------------------------------------------------------------------------
 // Function      : ROL::runROLAnalysis
 // Purpose       :
@@ -740,8 +711,6 @@ bool ROL::runROLAnalysis()
 
   try
   { 
-
-    int nz = numParams_;     // Number of optimization variables                                           
     // Number of simulation variables
     int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
     int nc = stepLoopSize_;  // Number of constraints.
@@ -750,30 +719,45 @@ bool ROL::runROLAnalysis()
    
     // STEP 1A: Initialize vectors.  //////////////////////////////////////////
 
+    // Read in z's param names, initial guess and upper and lower bounds.
+    std::ifstream param_file;
+    std::string deviceName,paramName,dummy;
+    std::vector<RealT> zInitValue, zLowerBoundVector, zUpperBoundVector;
+    RealT temp;
+    numParams_ = 0; 
+    paramNameVec_.clear();
+    param_file.open(paramFile_.c_str(), std::ifstream::in);
+    if ( param_file.fail() )
+    {
+      Report::UserError0() << "Cannot open the ROL parameter file: " << paramFile_;
+      return false;
+    }
+    else
+    {
+      getline(param_file,dummy); // skip the first line
+      while (true)
+      {
+        if(!(param_file >> deviceName)) break;
+        if(!(param_file >> paramName)) break;
+        paramName = deviceName+":"+paramName;
+        paramNameVec_.push_back(paramName);
+        if(!(param_file >> temp)) break; // init guess
+        zInitValue.push_back(temp);
+        if(!(param_file >> temp)) break; // lo bound
+        zLowerBoundVector.push_back(temp);
+        if(!(param_file >> temp)) break; // up bound
+        zUpperBoundVector.push_back(temp);
+
+        numParams_ += 1;
+      }
+      param_file.close();
+    }
+
     // Configure the optimization vector.
-    auto p = ::ROL::makePtr<  std::vector   <RealT>>(nz, 0.0);
+    int nz = numParams_;     // Number of optimization variables                                           
+    auto p = ::ROL::makePtr<  std::vector   <RealT>>(zInitValue);
     auto z = ::ROL::makePtr<::ROL::StdVector<RealT>>(p);
     // p := pointer to a standard vector representing z
-
-    // Read in z's initial guess and upper and lower bounds.
-    std::ifstream file;  file.open("parameters.txt");
-    std::vector<RealT> zUpperBoundVector(nz, 0.0);
-    std::vector<RealT> zLowerBoundVector(nz ,0.0);
-    std::string strStreamIn;
-    RealT       numStreamIn;
-    getline(file, strStreamIn);  // Skips the first line
-    for(int i = 0; i < nz; i++)
-    {
-      file                 >> strStreamIn;
-      file                 >> strStreamIn;
-      file                 >> numStreamIn;  // Initial guess
-      (*p)[i]              =  numStreamIn;
-      file                 >> numStreamIn;  // Lower bound
-      zLowerBoundVector[i] =  numStreamIn;
-      file                 >> numStreamIn;  // Upper bound
-      zUpperBoundVector[i] =  numStreamIn;
-    }
-    file.close();
 
     // Configure the state and constraint vectors.
     status = doAllocations(nc, nz);
@@ -785,7 +769,7 @@ bool ROL::runROLAnalysis()
     // Load parameters.
     ::ROL::Ptr<::ROL::ParameterList> parlist 
       = ::ROL::getParametersFromXmlFile("input.xml");
-    std::string outName     = parlist->get("Output File", "rol_output.txt");
+    std::string outName     = parlist->get("Output File", outputFile_);
     bool useBoundConstraint = parlist->get("Use Bound Constraints", true);
     bool useScale           = parlist->get("Use Scaling For Epsilon-Active Sets", true);
     // TODO (asjavee): Remove hardwired code. Eventually we shouldn't need the 
@@ -826,24 +810,26 @@ bool ROL::runROLAnalysis()
 
     // Create a full space objective (as well as a penalty when solving the
     // amplifier problem).
-#if OBJTYPE==0
-    auto obj = ::ROL::makePtr<Objective_DC_L2Norm<RealT>>(1.0e-4, nc, nz);
-#elif OBJTYPE==1
-    auto obj = ::ROL::makePtr<Objective_DC_AMP<RealT>>(nc, nz);
-    auto pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
-#endif
+    // 0 - L2Norm, 1 - amplifier circuit
+    Teuchos::RCP<::ROL::Objective_SimOpt<RealT> > obj, pen;
+    if (objType_ == 0)
+      obj = ::ROL::makePtr<Objective_DC_L2Norm<RealT>>(1.0e-4, nc, nz);
+    else if (objType_ == 1)
+      obj = ::ROL::makePtr<Objective_DC_AMP<RealT>>(nc, nz);
+    else
+      Report::UserError0() << "ROL: Objective type " << objType_ << " is not recognized";
    
     // Create a reduced objective (and penalty) from the full space counterpart.
     auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l);
-#if OBJTYPE==1
-    auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
-#endif
 
     // Create the (possibly penalized) objective that we wish to optimize.
     std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
-#if OBJTYPE==1
-    objVec.push_back(rpen);
-#endif
+    if (objType_ == 1)
+    {
+      pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
+      auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
+      objVec.push_back(rpen);
+    }
     std::vector<bool> types(objVec.size(), true);
     auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
 
@@ -906,17 +892,11 @@ bool ROL::runROLAnalysis()
          << " seconds.\n";
 
   } 
-
   catch (std::logic_error err) 
   {
     //out << err.what() << "\n";
     errorFlag = -1000;
   }; // end try       
-  
-  // if (errorFlag != 0)
-  //   out << "End Result: TEST FAILED\n";
-  // else
-  //   out << "End Result: TEST PASSED\n";
   
   doFree(); // deallocate solution and sensitivity arrays
   
@@ -931,7 +911,6 @@ bool ROL::runROLAnalysis()
   bool integration_status = true;
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore()); // TT
   
-  //Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::INITIALIZE, stepSweepVector_, stepLoopSize_)); // TT: moved here from doInit();
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::DC));
   
   // StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, currentStep);
@@ -990,12 +969,6 @@ bool ROL::runROLAnalysis()
   } // end of sweep loop
 
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::DC));
-
-  // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_COMPLETED, stepSweepVector_, currentStep));
-  
-  // step_event.state_ = StepEvent::STEP_COMPLETED;
-  // step_event.finalSimTime_ = getTIAParams().finalTime;
-  // Util::publish<StepEvent>(analysisManager_, step_event);
 
   return integration_status;
 }
@@ -1076,12 +1049,12 @@ public:
   ///
   ROL *create() const
   {
-    // analysisManager_.setAnalysisMode(ANP_MODE_ROL); // TT: 
     analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP); // TT: 
     ROL *step = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
     for (std::vector<Util::OptionBlock>::const_iterator it = stepSweepAnalysisOptionBlock_.begin(), end = stepSweepAnalysisOptionBlock_.end(); it != end; ++it)
       step->setAnalysisParams(*it);
     step->setTimeIntegratorOptions(timeIntegratorOptionBlock_);// TT
+    step->setROLOptions(rolOptionBlock_);
 
     return step;
   }
@@ -1147,18 +1120,26 @@ public:
       
     return true;
   }
-    
+   
+  bool setROLOptionBlock(const Util::OptionBlock &option_block)
+  {
+    rolOptionBlock_ = option_block;
+
+    return true;
+  }
+ 
 public:
-  AnalysisManager &             analysisManager_;
-  Linear::System &              linearSystem_;
-  Nonlinear::Manager &          nonlinearManager_;
-  Loader::Loader &              loader_;
-  Topo::Topology &              topology_;
+  AnalysisManager &                     analysisManager_;
+  Linear::System &                      linearSystem_;
+  Nonlinear::Manager &                  nonlinearManager_;
+  Loader::Loader &                      loader_;
+  Topo::Topology &                      topology_;
   IO::InitialConditionsManager &        initialConditionsManager_;
 
 private:
   std::vector<Util::OptionBlock>        stepSweepAnalysisOptionBlock_;
-  Util::OptionBlock                     timeIntegratorOptionBlock_; // TT
+  Util::OptionBlock                     timeIntegratorOptionBlock_; 
+  Util::OptionBlock                     rolOptionBlock_; 
 };
   
 // .ROL
@@ -1274,7 +1255,7 @@ bool extractROLData(
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
 
-      parameter.setTag( "ROL" );
+      parameter.setTag( "STEP" );
       parameter.setVal( parsed_line[linePosition].string_ );
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
@@ -1301,7 +1282,7 @@ bool extractROLData(
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
 
-      parameter.setTag( "NUMROLS" );
+      parameter.setTag( "NUMSTEPS" );
       parameter.setVal( parsed_line[linePosition].string_ );
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
@@ -1328,7 +1309,7 @@ bool extractROLData(
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
 
-      parameter.setTag( "NUMROLS" );
+      parameter.setTag( "NUMSTEPS" );
       parameter.setVal( parsed_line[linePosition].string_ );
       option_block.addParam( parameter );
       ++linePosition;     // Advance to next parameter.
@@ -1361,6 +1342,16 @@ bool extractROLData(
   return true;
 }
 
+void
+populateMetadata(
+  IO::PkgOptionsMgr &   options_manager)
+{
+  Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("ROL_OPTS");
+
+  parameters.insert(Util::ParamMap::value_type("FILENAME", Util::Param("FILENAME", "parameters.txt")));
+  parameters.insert(Util::ParamMap::value_type("OBJTYPE", Util::Param("OBJTYPE", -1)));
+}
+
 } // namespace <unnamed>
 
 
@@ -1371,9 +1362,13 @@ bool registerROLFactory(
 
   addAnalysisFactory(factory_block, factory);
 
+  populateMetadata(factory_block.optionsManager_);
+
   factory_block.optionsManager_.addCommandParser(".ROL", extractROLData);
 
   factory_block.optionsManager_.addCommandProcessor("ROL", new ROLAnalysisReg(*factory));
+
+  factory_block.optionsManager_.addOptionsProcessor("ROL_OPTS", IO::createRegistrationOptions(*factory, &ROLFactory::setROLOptionBlock));
 
   factory_block.optionsManager_.addOptionsProcessor("TIMEINT", IO::createRegistrationOptions(*factory, &ROLFactory::setTimeIntegratorOptionBlock));
 

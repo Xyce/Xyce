@@ -41,7 +41,7 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_AnalysisManager.h> 
 #include <N_ANP_RegisterAnalysis.h>
-#include <N_ANP_SweepParam.h>
+#include <N_ANP_DCSweep.h>
 
 namespace Xyce {
 namespace Analysis {
@@ -58,11 +58,12 @@ typedef double RealT;
 //
 class ROL : public AnalysisBase
 {
+
   template <class RealT> 
   friend class EqualityConstraint_ROL_DC;
   template <class RealT> 
   friend class EqualityConstraint_ROL_DC_UQ; 
-  
+ 
 public:
   ROL(
       AnalysisManager &analysis_manager, 
@@ -74,6 +75,9 @@ public:
    
   virtual ~ROL();
 
+  // Method to set ROL options
+  bool setROLOptions(const Util::OptionBlock & option_block);
+
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
 
@@ -81,15 +85,21 @@ public:
   {
     tiaParams_ = tia_params;
   } 
-  const TimeIntg::TIAParams &getTIAParams() const; // override
-  TimeIntg::TIAParams &getTIAParams(); // override
+
+  const TimeIntg::TIAParams &getTIAParams() const
+  {
+    return tiaParams_;
+  }
+
+  TimeIntg::TIAParams &getTIAParams()
+  {
+    return tiaParams_;
+  }
 
   bool getDCOPFlag() const // override
   {
     return true;
   }
-
-
 
 protected:
   void finalExpressionBasedSetup() {};
@@ -115,8 +125,6 @@ protected:
   std::vector<Linear::Vector *> solutionPtrVector_;
   std::vector<Linear::Vector *> statePtrVector_;
   std::vector<Linear::Vector *> constraintPtrVector_;
-  std::vector<Linear::Vector *> jvecPtrVector_;
-  std::vector<Linear::Vector *> testPtrVector_;
   std::vector<Linear::Vector *> mydfdpPtrVector_;
   std::vector<Linear::Vector *> mydqdpPtrVector_;
   std::vector<Linear::Vector *> mydbdpPtrVector_;
@@ -144,14 +152,21 @@ private:
   TimeIntg::TIAParams                   tiaParams_;
   SweepVector                           stepSweepVector_;
   int                                   stepLoopSize_;
+  bool                                  sensFlag_;
   bool                                  rolLoopInitialized_; // TT
   std::vector<std::string>              paramNameVec_; // TT: vector of optimization parameters
   int                                   numParams_; // TT: number of optimization parameters
-  std::vector<std::string>              uncertainParams_; // TT: vector of parameters with uncertainty
   int                                   numSensParams_;  // number of sensitivity parameters returned from enableSensitivity function call
+  std::string                           paramFile_;  // Name of file with parameters and bounds
+  std::string                           outputFile_;  // Name of file containing ROL output
+  int                                   objType_;   // Objective type
 
+  std::vector<double>                   objectiveVec_;
+  std::vector<double>                   dOdpVec_;
+  std::vector<double>                   dOdpAdjVec_;
+  std::vector<double>                   scaled_dOdpVec_;
+  std::vector<double>                   scaled_dOdpAdjVec_;
 };
-
 
 bool registerROLFactory(FactoryBlock &factory_block);
 

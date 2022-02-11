@@ -151,10 +151,6 @@ Nonlinear::AnalysisMode nonlinearAnalysisMode(Mode mode)
   {
     outMode = Nonlinear::HB_MODE;
   }
-  // else if (mode == ANP_MODE_ROL) // TT
-  // {
-  //   outMode = Nonlinear::ROL;
-  // }
   else
   {
     outMode = Nonlinear::NUM_MODES; // Should be this be TRANSIENT?
@@ -632,32 +628,16 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
       pushActiveAnalysis(analysisObject_);
     }
 #endif
-  }
 
 #ifdef Xyce_ROL
-  // ANOTHER CRAZY HACK UNTIL PRIORITY QUEUE OR SOMETHING CLEVER ON ANALYSIS TYPES
-  it = analysisCreatorVector_.begin(); 
-  end = analysisCreatorVector_.end();
-  for ( ; it != end; ++it) 
-  {
-    if (!(*it)->isType<ROL>()) // TT: this part is probably not even needed 
-    {
-      primaryAnalysisObject_ = (*it)->create();
-      analysisVector_.push_back(primaryAnalysisObject_);
-    }
-  }
-  it = analysisCreatorVector_.begin(); 
-  end = analysisCreatorVector_.end();
-  for ( ; it != end; ++it) 
-  {
     if ((*it)->isType<ROL>()) 
     {
       primaryAnalysisObject_ = (*it)->create(); // TT: We want ROL analysis to by primary analysis (unlike STEP), hence call it primaryAnalysisObject
       analysisVector_.push_back(primaryAnalysisObject_);
       //pushActiveAnalysis(primaryAnalysisObject_);
     }
-  }
 #endif
+  }
 
   // ERK "processors" are basically .RESULT statements AFAIK.
   // I have no idea why someone thought it was a good idea to add

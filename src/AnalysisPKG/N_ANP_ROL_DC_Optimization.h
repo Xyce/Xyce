@@ -68,7 +68,6 @@
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
-#include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Solver.h>
@@ -80,9 +79,7 @@
 #include <N_NLS_fwd.h>
 #include <N_NLS_NonLinearSolver.h>
 #include <N_PDS_Comm.h>
-#include <N_PDS_MPI.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
 #include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
@@ -273,19 +270,16 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       // Load rhs: appears to be necessary
       nEqLoader_.loadRHS();
       
-      // Apply Jacobian: not working (HB analysis?)
-      // success = nls_.applyJacobian( dynamic_cast< const Linear::Vector& > (const_cast< const Linear::MultiVector& >( *((*vp)[i]) ) ), dynamic_cast< Linear::Vector &>( *((*jvp)[i]) ) );
-      
       // Load Jacobian
       success = nEqLoader_.loadJacobian();
-      
+     
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
-      Jac.scale(-1.0);
       
       // Apply Jacobian
       Jac.matvec(false, const_cast< const Linear::Vector& >( *((*vp)[i]) ), *((*jvp)[i]) );
-      
+      (*jvp)[i]->scale( -1.0 );
+     
       // // Test
       // std::cout << "Jac_1 Success = " << success << std::endl;
       // (*jvp)[i]->print(Xyce::dout());
@@ -326,11 +320,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
-      Jac.scale(-1.0);
 
       // Apply Jacobian transpose
-      // Jac.setUseTranspose(true);
       Jac.matvec(true, const_cast< const Linear::Vector& >( *((*vp)[i]) ), *((*jvp)[i]) );
+      (*jvp)[i]->scale( -1.0 );
       
     }
     nEqLoader_.setVoltageLimiterStatus(vstatus);
