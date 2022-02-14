@@ -63,12 +63,7 @@
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_OutputMgrAdapter.h>
 
-// TT: perhaps not all of the following are needed
 #include <N_ERH_ErrorMgr.h>
-#include <N_IO_CircuitBlock.h>
-#include <N_IO_OptionBlock.h>
-#include <N_IO_PkgOptionsMgr.h>
-#include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
@@ -81,14 +76,11 @@
 #include <N_PDS_Comm.h>
 #include <N_PDS_Manager.h>
 #include <N_TIA_DataStore.h>
-#include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
-#include <N_UTL_OptionBlock.h>
-
 
 namespace Xyce {
 namespace Analysis {
@@ -346,8 +338,8 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
     // save rhs and Newton vectors
-    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
-    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedRHSVectorPtr_ = nls_.getRHSVector().cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.getNewtonVector().cloneCopyVector();
 
     for (int i=0;i<nc_;i++)
     {
@@ -376,9 +368,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       //savedNewtonVectorPtr_->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
 
       // Linear::Vector * temp1 = (*vp)[i].getRawPtr();
-      // nls_.rhsVectorPtr_->update(-1.0, *temp1, 0.0);
-      *(nls_.rhsVectorPtr_) = *(*vp)[i];
-      nls_.rhsVectorPtr_->scale(-1.0); // solver expects negative rhs; consolidate two previous lines.
+      nls_.setRHSVector( *(*vp)[i], -1.0 );  // solver expects negative rhs
 
       int status = nls_.getLinearSolver()->solve(false);
       if (status!=0)
@@ -387,14 +377,13 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
         Report::DevelFatal() << msg;
       }
 
-      //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
-      *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
+      *((*jvp)[i]) = nls_.getNewtonVector();
 
     }
 
     // Restore the RHS and Newton vectors.
-    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
-    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+    nls_.setRHSVector( *savedRHSVectorPtr_ );
+    nls_.setNewtonVector( *savedNewtonVectorPtr_ );
    
     // Delete saved vectors.        
     delete savedRHSVectorPtr_;
@@ -422,8 +411,8 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
     // save rhs and Newton vectors
     // [see notes in applyInverseJacobian_1]    
-    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
-    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedRHSVectorPtr_ = nls_.getRHSVector().cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.getNewtonVector().cloneCopyVector();
 
     for (int i=0;i<nc_;i++)
     {
@@ -450,8 +439,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
       // Linear::Vector * temp1 = (*vp)[i].getRawPtr();
       // nls_.rhsVectorPtr_->update(-1.0, *temp1, 0.0);
-      *(nls_.rhsVectorPtr_) = *(*vp)[i];
-      nls_.rhsVectorPtr_->scale(-1.0);
+      nls_.setRHSVector( *(*vp)[i], -1.0 );
 
       int status = nls_.getLinearSolver()->solveTranspose(false);// some reusefactors
       if (status!=0)
@@ -460,13 +448,12 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
         Report::DevelFatal() << msg;
       }
       
-      //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
-      *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
+      *((*jvp)[i]) = nls_.getNewtonVector();
     }
 
     // Restore the RHS and Newton vectors.
-    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
-    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+    nls_.setRHSVector( *savedRHSVectorPtr_ );
+    nls_.setNewtonVector( *savedNewtonVectorPtr_ );
    
     // Delete saved vectors.        
     delete savedRHSVectorPtr_;

@@ -61,6 +61,8 @@ using Teuchos::rcp;
 #include <N_UTL_Stats.h>
 
 #include <N_LAS_Operator.h>
+#include <N_LAS_Vector.h>
+
 #include <expressionGroup.h>
 
 // ---------- Using Declarations ----------
@@ -180,8 +182,14 @@ public:
   virtual double getMaxNormF() const = 0;
   virtual int getMaxNormFindex () const = 0;
 
-  Teuchos::RCP<Linear::Solver> getLinearSolver();
+  Teuchos::RCP<Linear::Solver> getLinearSolver() { return lasSolverRCPtr_; }
   void setLinearSolver( const Teuchos::RCP<Linear::Solver>& lasSolver );
+
+  const Linear::Vector& getRHSVector() { return *rhsVectorPtr_; }
+  void setRHSVector( const Linear::Vector& rhsVector, const double alpha = 1.0 );
+
+  const Linear::Vector& getNewtonVector() { return *NewtonVectorPtr_; }
+  void setNewtonVector( const Linear::Vector& newtonVector, const double alpha = 1.0 );
 
   Linear::Vector* getPNormWeights();
 
@@ -199,11 +207,6 @@ public:
                     Teuchos::ETransp mode = Teuchos::NO_TRANS) const;
 
 public:
-  // for now.
-#ifdef Xyce_ROL
-  Linear::Vector* rhsVectorPtr_;
-  Linear::Vector* NewtonVectorPtr_;
-#endif
   
 protected:
 
@@ -217,15 +220,11 @@ protected:
 protected:
   const IO::CmdParse & commandLine_;
   std::string netlistFilename_;
-#ifndef Xyce_ROL
   Linear::Vector* rhsVectorPtr_;
-#endif
 
   Linear::Matrix* jacobianMatrixPtr_;
   Linear::Vector* gradVectorPtr_;
-#ifndef Xyce_ROL
   Linear::Vector* NewtonVectorPtr_;
-#endif
   Linear::Vector* solWtVectorPtr_;
   Linear::Vector* maskPNormWeights_;
   Linear::System* lasSysPtr_;
@@ -424,19 +423,6 @@ inline bool NonLinearSolver::getLocaFlag ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : NonLinearSolver::getLinearSolver
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Heidi K. Thornquist, SNL
-// Creation Date : 10/4/16
-//-----------------------------------------------------------------------------
-inline Teuchos::RCP<Linear::Solver> NonLinearSolver::getLinearSolver()
-{
-  return lasSolverRCPtr_;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : NonLinearSolver::setLinearSolver
 // Purpose       :
 // Special Notes :
@@ -447,6 +433,32 @@ inline Teuchos::RCP<Linear::Solver> NonLinearSolver::getLinearSolver()
 inline void NonLinearSolver::setLinearSolver( const Teuchos::RCP<Linear::Solver>& lasSolver )
 {
   lasSolverRCPtr_ = lasSolver;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::setRHSVector
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi K. Thornquist, SNL
+// Creation Date : 10/4/16
+//-----------------------------------------------------------------------------
+inline void NonLinearSolver::setRHSVector( const Linear::Vector& rhsVector, const double alpha )
+{
+  rhsVectorPtr_->update( alpha, rhsVector, 0.0 );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::setNewtonVector
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi K. Thornquist, SNL
+// Creation Date : 10/4/16
+//-----------------------------------------------------------------------------
+inline void NonLinearSolver::setNewtonVector( const Linear::Vector& newtonVector, const double alpha )
+{
+  NewtonVectorPtr_->update( alpha, newtonVector, 0.0 );
 }
 
 } // namespace Nonlinear
