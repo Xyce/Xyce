@@ -69,7 +69,8 @@ class NAME ## Op : public astNode<ScalarT>                                      
       else                                                                             \
       {                                                                                \
         int numDerivs=derivs.size();                                                   \
-        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }                  \
+        std::vector<ScalarT> lefDerivs_;                                               \
+        lefDerivs_.resize(numDerivs,0.0);                                              \
         this->leftAst_->dx2(leftVal,lefDerivs_);                                       \
         result= std::NAME(leftVal);                                                    \
         for (int i=0;i<numDerivs;i++) { ScalarT leftDx=lefDerivs_[i]; derivs[i]=DX; }  \
@@ -94,7 +95,6 @@ class NAME ## Op : public astNode<ScalarT>                                      
       os << ")";                                                                       \
     }                                                                                  \
     bool leftConst_;                                                                   \
-    std::vector<ScalarT> lefDerivs_;                                                   \
 };
 
 AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))))
@@ -144,7 +144,8 @@ class tanhOp : public astNode<ScalarT>
   virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
   {
     int numDerivs = derivs.size();
-    if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+    std::vector<ScalarT> lefDerivs_;
+    lefDerivs_.resize(numDerivs,0.0);
 
     ScalarT arg;
     this->leftAst_->dx2(arg,lefDerivs_);
@@ -186,7 +187,6 @@ class tanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
-  std::vector<ScalarT> lefDerivs_;
 };
 
 template <typename ScalarT> 
@@ -224,10 +224,10 @@ class atanhOp : public astNode<ScalarT>
   {
     ScalarT Epsilon = 1.e-12;
 
-
     // derivs
     int numDerivs = derivs.size();
-    if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+    std::vector<ScalarT> lefDerivs_;
+    lefDerivs_.resize(numDerivs,0.0);
 
     ScalarT arg;
     this->leftAst_->dx2(arg,lefDerivs_);
@@ -264,7 +264,6 @@ class atanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
-  std::vector<ScalarT> lefDerivs_;
 };
 
 #endif

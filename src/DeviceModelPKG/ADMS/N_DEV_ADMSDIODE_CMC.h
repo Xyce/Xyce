@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Mon, 07 Feb 2022 08:24:25
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSDIODE_CMC_h
@@ -776,7 +776,7 @@ T limexp(const T &x)
 
 struct Traits: public DeviceTraits<Model, Instance, Diode::Traits>
 {
-  static const char *name() {return "ADMS DIODE_CMC";}
+  static const char *name() {return "DIODE_CMC 2.0.0";}
   static const char *deviceTypeName() {return "D level 2002";}
 
   static int numNodes() {return 2;}

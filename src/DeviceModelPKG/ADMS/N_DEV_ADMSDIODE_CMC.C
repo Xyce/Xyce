@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Mon, 07 Feb 2022 08:24:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -102,6 +102,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
     .setCategory(CAT_TEMP)
     .setDescription("Internal-use parameter for setting device instance temperature");
   p.addPar("AB", static_cast<double>(1E-12), &ADMSDIODE_CMC::Instance::AB)
+    .setUnit(U_METER2)
     .setDescription("Junction area")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -109,6 +110,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("AREA", static_cast<double>(1E-12), &ADMSDIODE_CMC::Instance::AB)
+    .setUnit(U_METER2)
     .setDescription(" Alias for AB")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -116,6 +118,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LS", static_cast<double>(1e-6), &ADMSDIODE_CMC::Instance::LS)
+    .setUnit(U_METER)
     .setDescription("STI-edge part of junction perimeter")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -123,6 +126,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PJ", static_cast<double>(1e-6), &ADMSDIODE_CMC::Instance::LS)
+    .setUnit(U_METER)
     .setDescription(" Alias for LS")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -130,6 +134,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PERIM", static_cast<double>(1e-6), &ADMSDIODE_CMC::Instance::LS)
+    .setUnit(U_METER)
     .setDescription(" Alias for LS")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -137,6 +142,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LG", static_cast<double>(0), &ADMSDIODE_CMC::Instance::LG)
+    .setUnit(U_METER)
     .setDescription("Gate-edge part of junction perimeter")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -144,6 +150,7 @@ Traits::loadInstanceParameters(ParametricData<ADMSDIODE_CMC::Instance> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("MULT", static_cast<double>(1), &ADMSDIODE_CMC::Instance::MULT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Number of devices in parallel")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -168,6 +175,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
     .setCategory(CAT_TEMP)
     .setDescription("Internal-use parameter for setting device model temperature");
   p.addPar("VERSION", static_cast<double>(2), &ADMSDIODE_CMC::Model::VERSION)
+    .setUnit(U_UNKNOWN)
     .setDescription("Model version")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -175,6 +183,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("SUBVERSION", static_cast<double>(0), &ADMSDIODE_CMC::Model::SUBVERSION)
+    .setUnit(U_UNKNOWN)
     .setDescription("Model subversion")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -182,6 +191,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("REVISION", static_cast<double>(0), &ADMSDIODE_CMC::Model::REVISION)
+    .setUnit(U_UNKNOWN)
     .setDescription("Model revision")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -189,6 +199,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TYPE", static_cast<double>(1), &ADMSDIODE_CMC::Model::TYPE)
+    .setUnit(U_UNKNOWN)
     .setDescription("Type parameter, in output value 1 reflects n-type, -1 reflects p-type")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -196,6 +207,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("DTA", static_cast<double>(0), &ADMSDIODE_CMC::Model::DTA)
+    .setUnit(U_COULOMB)
     .setDescription("Temperature offset with respect to ambient temperature")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -203,6 +215,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("IMAX", static_cast<double>(1000), &ADMSDIODE_CMC::Model::IMAX)
+    .setUnit(U_AMP)
     .setDescription("Maximum current up to which forward current behaves exponentially")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -210,6 +223,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TRJ", static_cast<double>(21), &ADMSDIODE_CMC::Model::TRJ)
+    .setUnit(U_COULOMB)
     .setDescription("Reference temperature")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -217,6 +231,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CJORBOT", static_cast<double>(1E-3), &ADMSDIODE_CMC::Model::CJORBOT)
+    .setUnit(U_FARADMM2)
     .setDescription("Zero-bias capacitance per unit-of-area of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -224,6 +239,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CJORSTI", static_cast<double>(1E-9), &ADMSDIODE_CMC::Model::CJORSTI)
+    .setUnit(U_FARADMM1)
     .setDescription("Zero-bias capacitance per unit-of-length of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -231,6 +247,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CJORGAT", static_cast<double>(1E-9), &ADMSDIODE_CMC::Model::CJORGAT)
+    .setUnit(U_FARADMM1)
     .setDescription("Zero-bias capacitance per unit-of-length of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -238,6 +255,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBIRBOT", static_cast<double>(1), &ADMSDIODE_CMC::Model::VBIRBOT)
+    .setUnit(U_VOLT)
     .setDescription("Built-in voltage at the reference temperature of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -245,6 +263,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBIRSTI", static_cast<double>(1), &ADMSDIODE_CMC::Model::VBIRSTI)
+    .setUnit(U_VOLT)
     .setDescription("Built-in voltage at the reference temperature of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -252,6 +271,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBIRGAT", static_cast<double>(1), &ADMSDIODE_CMC::Model::VBIRGAT)
+    .setUnit(U_VOLT)
     .setDescription("Built-in voltage at the reference temperature of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -259,6 +279,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PBOT", static_cast<double>(0.5), &ADMSDIODE_CMC::Model::PBOT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Grading coefficient of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -266,6 +287,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PSTI", static_cast<double>(0.5), &ADMSDIODE_CMC::Model::PSTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("Grading coefficient of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -273,6 +295,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PGAT", static_cast<double>(0.5), &ADMSDIODE_CMC::Model::PGAT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Grading coefficient of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -280,6 +303,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PHIGBOT", static_cast<double>(1.16), &ADMSDIODE_CMC::Model::PHIGBOT)
+    .setUnit(U_VOLT)
     .setDescription("Zero-temperature bandgap voltage of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -287,6 +311,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PHIGSTI", static_cast<double>(1.16), &ADMSDIODE_CMC::Model::PHIGSTI)
+    .setUnit(U_VOLT)
     .setDescription("Zero-temperature bandgap voltage of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -294,6 +319,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PHIGGAT", static_cast<double>(1.16), &ADMSDIODE_CMC::Model::PHIGGAT)
+    .setUnit(U_VOLT)
     .setDescription("Zero-temperature bandgap voltage of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -301,6 +327,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("IDSATRBOT", static_cast<double>(1E-12), &ADMSDIODE_CMC::Model::IDSATRBOT)
+    .setUnit(U_AMPMM2)
     .setDescription("Saturation current density at the reference temperature of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -308,6 +335,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("IDSATRSTI", static_cast<double>(1E-18), &ADMSDIODE_CMC::Model::IDSATRSTI)
+    .setUnit(U_AMPMM1)
     .setDescription("Saturation current density at the reference temperature of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -315,6 +343,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("IDSATRGAT", static_cast<double>(1E-18), &ADMSDIODE_CMC::Model::IDSATRGAT)
+    .setUnit(U_AMPMM1)
     .setDescription("Saturation current density at the reference temperature of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -322,6 +351,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CSRHBOT", static_cast<double>(1E2), &ADMSDIODE_CMC::Model::CSRHBOT)
+    .setUnit(U_AMPMM3)
     .setDescription("Shockley-Read-Hall prefactor of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -329,6 +359,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CSRHSTI", static_cast<double>(1E-4), &ADMSDIODE_CMC::Model::CSRHSTI)
+    .setUnit(U_AMPMM2)
     .setDescription("Shockley-Read-Hall prefactor of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -336,6 +367,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CSRHGAT", static_cast<double>(1E-4), &ADMSDIODE_CMC::Model::CSRHGAT)
+    .setUnit(U_AMPMM2)
     .setDescription("Shockley-Read-Hall prefactor of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -343,6 +375,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("XJUNSTI", static_cast<double>(100E-9), &ADMSDIODE_CMC::Model::XJUNSTI)
+    .setUnit(U_METER)
     .setDescription("Junction depth of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -350,6 +383,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("XJUNGAT", static_cast<double>(100E-9), &ADMSDIODE_CMC::Model::XJUNGAT)
+    .setUnit(U_METER)
     .setDescription("Junction depth of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -357,6 +391,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CTATBOT", static_cast<double>(1E2), &ADMSDIODE_CMC::Model::CTATBOT)
+    .setUnit(U_AMPMM3)
     .setDescription("Trap-assisted tunneling prefactor of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -364,6 +399,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CTATSTI", static_cast<double>(1E-4), &ADMSDIODE_CMC::Model::CTATSTI)
+    .setUnit(U_AMPMM2)
     .setDescription("Trap-assisted tunneling prefactor of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -371,6 +407,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CTATGAT", static_cast<double>(1E-4), &ADMSDIODE_CMC::Model::CTATGAT)
+    .setUnit(U_AMPMM2)
     .setDescription("Trap-assisted tunneling prefactor of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -378,6 +415,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("MEFFTATBOT", static_cast<double>(0.25), &ADMSDIODE_CMC::Model::MEFFTATBOT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Effective mass (in units of m0) for trap-assisted tunneling of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -385,6 +423,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("MEFFTATSTI", static_cast<double>(0.25), &ADMSDIODE_CMC::Model::MEFFTATSTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("Effective mass (in units of m0) for trap-assisted tunneling of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -392,6 +431,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("MEFFTATGAT", static_cast<double>(0.25), &ADMSDIODE_CMC::Model::MEFFTATGAT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Effective mass (in units of m0) for trap-assisted tunneling of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -399,6 +439,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CBBTBOT", static_cast<double>(1E-12), &ADMSDIODE_CMC::Model::CBBTBOT)
+    .setUnit(U_AMPVM3)
     .setDescription("Band-to-band tunneling prefactor of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -406,6 +447,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CBBTSTI", static_cast<double>(1E-18), &ADMSDIODE_CMC::Model::CBBTSTI)
+    .setUnit(U_AMPVM3M)
     .setDescription("Band-to-band tunneling prefactor of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -413,6 +455,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CBBTGAT", static_cast<double>(1E-18), &ADMSDIODE_CMC::Model::CBBTGAT)
+    .setUnit(U_AMPVM3M)
     .setDescription("Band-to-band tunneling prefactor of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -420,6 +463,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("FBBTRBOT", static_cast<double>(1E9), &ADMSDIODE_CMC::Model::FBBTRBOT)
+    .setUnit(U_VMM1)
     .setDescription("Normalization field at the reference temperature for band-to-band tunneling of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -427,6 +471,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("FBBTRSTI", static_cast<double>(1E9), &ADMSDIODE_CMC::Model::FBBTRSTI)
+    .setUnit(U_VMM1)
     .setDescription("Normalization field at the reference temperature for band-to-band tunneling of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -434,6 +479,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("FBBTRGAT", static_cast<double>(1E9), &ADMSDIODE_CMC::Model::FBBTRGAT)
+    .setUnit(U_VMM1)
     .setDescription("Normalization field at the reference temperature for band-to-band tunneling of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -441,6 +487,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STFBBTBOT", static_cast<double>((-1E-3)), &ADMSDIODE_CMC::Model::STFBBTBOT)
+    .setUnit(U_DEGKM1)
     .setDescription("Temperature scaling parameter for band-to-band tunneling of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -448,6 +495,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STFBBTSTI", static_cast<double>((-1E-3)), &ADMSDIODE_CMC::Model::STFBBTSTI)
+    .setUnit(U_DEGKM1)
     .setDescription("Temperature scaling parameter for band-to-band tunneling of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -455,6 +503,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STFBBTGAT", static_cast<double>((-1E-3)), &ADMSDIODE_CMC::Model::STFBBTGAT)
+    .setUnit(U_DEGKM1)
     .setDescription("Temperature scaling parameter for band-to-band tunneling of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -462,6 +511,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBRBOT", static_cast<double>(10), &ADMSDIODE_CMC::Model::VBRBOT)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown voltage of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -469,6 +519,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBRSTI", static_cast<double>(10), &ADMSDIODE_CMC::Model::VBRSTI)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown voltage of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -476,6 +527,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VBRGAT", static_cast<double>(10), &ADMSDIODE_CMC::Model::VBRGAT)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown voltage of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -483,6 +535,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PBRBOT", static_cast<double>(4), &ADMSDIODE_CMC::Model::PBRBOT)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown onset tuning parameter of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -490,6 +543,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PBRSTI", static_cast<double>(4), &ADMSDIODE_CMC::Model::PBRSTI)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown onset tuning parameter of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -497,6 +551,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PBRGAT", static_cast<double>(4), &ADMSDIODE_CMC::Model::PBRGAT)
+    .setUnit(U_VOLT)
     .setDescription("Breakdown onset tuning parameter of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -504,6 +559,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("FREV", static_cast<double>(1E3), &ADMSDIODE_CMC::Model::FREV)
+    .setUnit(U_UNKNOWN)
     .setDescription("Additional parameter for current after breakdown")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -511,6 +567,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("RSBOT", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::RSBOT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Series resistance per unit-of-area of bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -518,6 +575,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("RSSTI", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::RSSTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("Series resistance per unit-of-length of STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -525,6 +583,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("RSGAT", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::RSGAT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Series resistance per unit-of-length of gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -532,6 +591,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("RSCOM", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::RSCOM)
+    .setUnit(U_UNKNOWN)
     .setDescription("Common series resistance, no scaling ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -539,6 +599,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STRS", static_cast<double>(0), &ADMSDIODE_CMC::Model::STRS)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temperature scaling parameter for series resistance")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -546,6 +607,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("KF", static_cast<double>(0), &ADMSDIODE_CMC::Model::KF)
+    .setUnit(U_UNKNOWN)
     .setDescription("KF parameter for flicker noise")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -553,6 +615,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("AF", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::AF)
+    .setUnit(U_UNKNOWN)
     .setDescription("AF parameter for flicker noise")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -560,6 +623,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TT", static_cast<double>(0), &ADMSDIODE_CMC::Model::TT)
+    .setUnit(U_SECOND)
     .setDescription("Transit time")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -567,6 +631,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRBOT1", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRBOT1)
+    .setUnit(U_DEGKM1)
     .setDescription("Temp. co of breakdown voltage bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -574,6 +639,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRBOT2", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRBOT2)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of breakdown voltage bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -581,6 +647,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRSTI1", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRSTI1)
+    .setUnit(U_DEGKM1)
     .setDescription("Temp. co of breakdown voltage STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -588,6 +655,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRSTI2", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRSTI2)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of breakdown voltage STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -595,6 +663,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRGAT1", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRGAT1)
+    .setUnit(U_DEGKM1)
     .setDescription("Temp. co of breakdown voltage gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -602,6 +671,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("STVBRGAT2", static_cast<double>(0), &ADMSDIODE_CMC::Model::STVBRGAT2)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of breakdown voltage gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -609,6 +679,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NFABOT", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::NFABOT)
+    .setUnit(U_UNKNOWN)
     .setDescription("ideality factor bottom component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -616,6 +687,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NFASTI", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::NFASTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("ideality factor STI-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -623,6 +695,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NFAGAT", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::NFAGAT)
+    .setUnit(U_UNKNOWN)
     .setDescription("ideality factor gate-edge component")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -630,6 +703,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("ABMIN", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::ABMIN)
+    .setUnit(U_METER2)
     .setDescription("minimum allowed junction area")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -637,6 +711,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("ABMAX", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::ABMAX)
+    .setUnit(U_METER2)
     .setDescription("maximum allowed junction area")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -644,6 +719,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LSMIN", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::LSMIN)
+    .setUnit(U_METER)
     .setDescription("minimum allowed junction STI-edge")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -651,6 +727,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LSMAX", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::LSMAX)
+    .setUnit(U_METER)
     .setDescription("maximum allowed junction STI-edge")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -658,6 +735,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LGMIN", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::LGMIN)
+    .setUnit(U_METER)
     .setDescription("minimum allowed junction gate-edge")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -665,6 +743,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("LGMAX", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::LGMAX)
+    .setUnit(U_METER)
     .setDescription("maximum allowed junction gate-edge")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -672,6 +751,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TEMPMIN", static_cast<double>((-55)), &ADMSDIODE_CMC::Model::TEMPMIN)
+    .setUnit(U_COULOMB)
     .setDescription("minimum allowed junction temp")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -679,6 +759,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TEMPMAX", static_cast<double>(155), &ADMSDIODE_CMC::Model::TEMPMAX)
+    .setUnit(U_COULOMB)
     .setDescription("maximum allowed junction temp")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -686,6 +767,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VFMAX", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::VFMAX)
+    .setUnit(U_VOLT)
     .setDescription("maximum allowed forward junction bias")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -693,6 +775,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VRMAX", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::VRMAX)
+    .setUnit(U_VOLT)
     .setDescription("maximum allowed reverse junction bias")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -700,6 +783,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("XTI", static_cast<double>(3), &ADMSDIODE_CMC::Model::XTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of saturation current")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -707,6 +791,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PT", static_cast<double>(3), &ADMSDIODE_CMC::Model::XTI)
+    .setUnit(U_UNKNOWN)
     .setDescription(" Alias for XTI")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -714,6 +799,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("SCALE", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::SCALE)
+    .setUnit(U_UNKNOWN)
     .setDescription("Scale parameter")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -721,6 +807,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("SHRINK", static_cast<double>(0), &ADMSDIODE_CMC::Model::SHRINK)
+    .setUnit(U_UNKNOWN)
     .setDescription("Scale parameter")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -728,6 +815,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("SWJUNEXP", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::SWJUNEXP)
+    .setUnit(U_UNKNOWN)
     .setDescription("Flag for JUNCAP-express; 0=full model, 1=express model")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -735,6 +823,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("VJUNREF", static_cast<double>(2.5), &ADMSDIODE_CMC::Model::VJUNREF)
+    .setUnit(U_UNKNOWN)
     .setDescription("Typical maximum junction voltage; usually about 2*VSUP")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -742,6 +831,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("FJUNQ", static_cast<double>(0.03), &ADMSDIODE_CMC::Model::FJUNQ)
+    .setUnit(U_UNKNOWN)
     .setDescription("Fraction below which junction capacitance components are considered negligible")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -749,6 +839,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CORECOVERY", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::CORECOVERY)
+    .setUnit(U_UNKNOWN)
     .setDescription("Flag for recovery equations; 0=original, 1=Hiroshima")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -756,6 +847,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NJH", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::NJH)
+    .setUnit(U_UNKNOWN)
     .setDescription("High-injection emission coefficient")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -763,6 +855,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NJDV", static_cast<double>(0.1), &ADMSDIODE_CMC::Model::NJDV)
+    .setUnit(U_UNKNOWN)
     .setDescription("Transition slope of emission coefficient")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -770,6 +863,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NDIBOT", static_cast<double>(1e16), &ADMSDIODE_CMC::Model::NDIBOT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Doping concentration of drift region")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -777,6 +871,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NDIGAT", static_cast<double>(1e16), &ADMSDIODE_CMC::Model::NDIGAT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Doping concentration of drift region")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -784,6 +879,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NDISTI", static_cast<double>(1e16), &ADMSDIODE_CMC::Model::NDISTI)
+    .setUnit(U_UNKNOWN)
     .setDescription("Doping concentration of drift region")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -791,6 +887,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("INJ1", static_cast<double>(1.0), &ADMSDIODE_CMC::Model::INJ1)
+    .setUnit(U_UNKNOWN)
     .setDescription("For carrier density")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -798,6 +895,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("INJ2", static_cast<double>(10.0), &ADMSDIODE_CMC::Model::INJ2)
+    .setUnit(U_UNKNOWN)
     .setDescription("For carrier density in high-injection condition")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -805,6 +903,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NQS", static_cast<double>(5e-9), &ADMSDIODE_CMC::Model::NQS)
+    .setUnit(U_UNKNOWN)
     .setDescription("Carrier delay time")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -812,6 +911,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TAU", static_cast<double>(2e-7), &ADMSDIODE_CMC::Model::TAU)
+    .setUnit(U_UNKNOWN)
     .setDescription("Carrier lifetime")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -819,6 +919,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("WI", static_cast<double>(5e-6), &ADMSDIODE_CMC::Model::WI)
+    .setUnit(U_METER)
     .setDescription("Length of drift region")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -826,6 +927,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("DEPNQS", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::DEPNQS)
+    .setUnit(U_UNKNOWN)
     .setDescription("Depletion delay time")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -833,6 +935,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TNOM", static_cast<double>(21), &ADMSDIODE_CMC::Model::TNOM)
+    .setUnit(U_COULOMB)
     .setDescription("Alias reference temperature")
    .setAutoConvertTemperature(false)
 #ifdef Xyce_ADMS_SENSITIVITIES
@@ -841,6 +944,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TAUT", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::TAUT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of carrier lifetime")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
@@ -848,6 +952,7 @@ void Traits::loadModelParameters(ParametricData<ADMSDIODE_CMC::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("INJT", static_cast<double>(0.0), &ADMSDIODE_CMC::Model::INJT)
+    .setUnit(U_UNKNOWN)
     .setDescription("Temp. co of carrier density in high-injection condition")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)

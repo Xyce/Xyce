@@ -782,8 +782,10 @@ class powOp : public astNode<ScalarT>
       std::vector<ScalarT> & retVal = derivs;
 
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_;
+      lefDerivs_.resize(numDerivs,0.0);
+      rigDerivs_.resize(numDerivs,0.0);
 
       ScalarT leftVal, righVal;
       lef->dx2(leftVal,lefDerivs_);
@@ -848,9 +850,6 @@ class powOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
-
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -891,8 +890,10 @@ class atan2Op : public astNode<ScalarT>
       std::vector<ScalarT> & retVal = derivs;
 
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_;
+      lefDerivs_.resize(numDerivs,0.0);
+      rigDerivs_.resize(numDerivs,0.0);
 
       ScalarT leftVal;
       ScalarT righVal;
@@ -950,9 +951,6 @@ class atan2Op : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
-
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -1140,8 +1138,10 @@ class maxOp : public astNode<ScalarT>
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
     {
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_;
+      lefDerivs_.resize(numDerivs,0.0);
+      rigDerivs_.resize(numDerivs,0.0);
 
       ScalarT leftVal, rightVal;
       this->leftAst_->dx2(leftVal,lefDerivs_);
@@ -1178,8 +1178,6 @@ class maxOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -1201,8 +1199,10 @@ class minOp : public astNode<ScalarT>
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
     {
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_;
+      lefDerivs_.resize(numDerivs,0.0);
+      rigDerivs_.resize(numDerivs,0.0);
       ScalarT leftVal, rightVal;
       this->leftAst_->dx2(leftVal,lefDerivs_);
       this->rightAst_->dx2(rightVal,rigDerivs_);
@@ -1237,9 +1237,6 @@ class minOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
-
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -1299,7 +1296,8 @@ class unaryMinusOp : public astNode<ScalarT>
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
     {
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> lefDerivs_;
+      lefDerivs_.resize(numDerivs,0.0);
       this->leftAst_->dx2(result,lefDerivs_);
       result *=  -1.0;
       for (int i=0;i<numDerivs;i++) { derivs[i] = (-(lefDerivs_[i])); }
@@ -1326,7 +1324,6 @@ class unaryMinusOp : public astNode<ScalarT>
     }
 
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
-    std::vector<ScalarT> lefDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -1714,6 +1711,13 @@ class voltageOp: public astNode<ScalarT>
       if ( !(derivs.empty() ) ) 
       {
         std::fill(derivs.begin(),derivs.end(),0.0);
+#if 1
+        if (derivIndex_ >= derivs.size())
+        {
+          std::cout << "Ack!  voltageOp::dx2 error.  derivsIndex = " << derivIndex_ << "  derivs.size = " << derivs.size() << std::endl;
+          exit(0);
+        }
+#endif
         if(derivIndex_>-1) { derivs[derivIndex_] = 1.0; }
       }
     }
@@ -2773,7 +2777,8 @@ class funcOp: public astNode<ScalarT>
             int index=-ii-1;
 
             ScalarT pval;
-            if (dpdx_.empty()) { dpdx_.resize(numDerivs,0.0); }
+            std::vector<ScalarT> dpdx_;
+            dpdx_.resize(numDerivs,0.0);
             funcArgs_[ii]->dx2(pval,dpdx_); // usually zero ...
 
             for (int jj=0;jj<numDerivs;jj++)
@@ -3009,8 +3014,6 @@ AST_GET_TIME_OPS(functionNode_)
     bool argsResolved_;
     bool sdtNodesResolved_;
     bool ddtNodesResolved_;
-
-    std::vector<ScalarT> dpdx_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3101,10 +3104,12 @@ class pwrsOp : public astNode<ScalarT>
 
       ScalarT leftVal;
       ScalarT righVal;
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_;
 
       int numDerivs=derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
-      if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+      lefDerivs_.resize(numDerivs,0.0); 
+      rigDerivs_.resize(numDerivs,0.0);
       lef->dx2(leftVal,lefDerivs_);
       rig->dx2(righVal,rigDerivs_);
 
@@ -3198,8 +3203,6 @@ class pwrsOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3292,8 +3295,9 @@ class signOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
 
       ScalarT righVal=rig->val();
+      std::vector<ScalarT> lefDerivs_;
       int numDerivs = derivs.size();
-      if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+      lefDerivs_.resize(numDerivs,0.0);
       ScalarT leftVal;
       lef->dx2(leftVal,lefDerivs_);
 
@@ -3334,7 +3338,6 @@ class signOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
-    std::vector<ScalarT> lefDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3392,13 +3395,15 @@ class fmodOp : public astNode<ScalarT>
 
       int numDerivs = derivs.size();
       ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;
+      std::vector<ScalarT> lefDerivs_;
+      std::vector<ScalarT> rigDerivs_; 
       if (leftConst_) 
       {
         leftVal = this->leftAst_->val(); 
       }
       else 
       {
-        if (lefDerivs_.empty()) { lefDerivs_.resize(numDerivs,0.0); }
+        lefDerivs_.resize(numDerivs,0.0);
         this->leftAst_->dx2(leftVal,lefDerivs_); 
       }
       if (rightConst_) 
@@ -3407,7 +3412,7 @@ class fmodOp : public astNode<ScalarT>
       }
       else 
       {
-        if (rigDerivs_.empty()) { rigDerivs_.resize(numDerivs,0.0); }
+        rigDerivs_.resize(numDerivs,0.0);
         this->rightAst_->dx2(rightVal,rigDerivs_); 
       }
 
@@ -3473,8 +3478,6 @@ class fmodOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
-    std::vector<ScalarT> lefDerivs_;
-    std::vector<ScalarT> rigDerivs_; 
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
     double bpTol_;
     std::vector<Xyce::Util::BreakPoint> bpTimes_;
@@ -3684,8 +3687,10 @@ class ifStatementOp : public astNode<ScalarT>
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
     {
       int numDerivs=derivs.size();
-      if (yDerivs_.empty()) { yDerivs_.resize(numDerivs,0.0); }
-      if (zDerivs_.empty()) { zDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> yDerivs_;
+      std::vector<ScalarT> zDerivs_;
+      yDerivs_.resize(numDerivs,0.0);
+      zDerivs_.resize(numDerivs,0.0);
 
       ScalarT xVal = this->leftAst_->val();
       ScalarT yFixed, zFixed;
@@ -3775,8 +3780,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > zAst_;
-    std::vector<ScalarT> yDerivs_;
-    std::vector<ScalarT> zDerivs_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3832,7 +3835,8 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
 
       int numDerivs = derivs.size();
-      if (xDerivs_.empty()) { xDerivs_.resize(numDerivs,0.0); }
+      std::vector<ScalarT> xDerivs_;
+      xDerivs_.resize(numDerivs,0.0);
 
       ScalarT xFixed;
       x->dx2(xFixed, xDerivs_);
@@ -3939,8 +3943,6 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
     double bpTol_;
     std::vector<Xyce::Util::BreakPoint> bpTimes_;
-
-    std::vector<ScalarT> xDerivs_;
 };
 
 //-------------------------------------------------------------------------------
