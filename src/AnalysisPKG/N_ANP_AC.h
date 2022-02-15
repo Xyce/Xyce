@@ -201,6 +201,7 @@ private:
   bool updateCurrentFreq_(int stepNumber);
   bool createLinearSystem_();
 
+
   bool updateLinearSystem_C_and_G_();
   bool updateLinearSystemFreq_();
   bool updateLinearSystemMagAndPhase_();
@@ -208,11 +209,13 @@ private:
   bool solveLinearSystem_();
 
   // sensitivity functions
+  bool precomputeDCsensitivities_ ();
   bool solveSensitivity_();
   bool solveDirectSensitivity_();
   bool solveAdjointSensitivity_();
   bool loadSensitivityRHS_(int ipar);
-  bool computeNumerical_dJdp(int ipar);
+  bool applyOmega_dJdp(int ipar);
+  bool unapplyOmega_dJdp(int ipar);
   bool outputSensitivity_();
 
   void solve_mag_phase_Sensitivities_(
@@ -250,6 +253,7 @@ private:
   std::vector<int>      acSweepFailures_;
 
   bool                          stepFlag_;
+  std::vector<int>     dcSensitivityDone_;
   std::string                   type_;
   double                        np_;
   double                        fStart_;
@@ -293,8 +297,16 @@ private:
   Linear::Vector *      dbdpVecImagPtr;
   Linear::Vector *      dOdxVecRealPtr;
   Linear::Vector *      dOdxVecImagPtr;
+
+  std::vector<Linear::Vector *> dcDXdpVector_;
+  std::vector<Linear::BlockMatrix *>  dJdpVector_;
+
   Linear::Matrix *                dCdp_;
   Linear::Matrix *                dGdp_;
+
+  Linear::Matrix *                origC_;
+  Linear::Matrix *                origG_;
+
   Linear::BlockMatrix *           dJdp_;
   Linear::BlockVector *           dBdp_;
   Linear::BlockVector *           dXdp_;
@@ -325,7 +337,6 @@ private:
   bool outputUnscaledFlag_; // include unscaled sensitivities in IO
   int maxParamStringSize_;
   bool stdOutputFlag_;
-  bool acCorrectionFlag_;
 
   int numSensParams_;
   std::vector<double>   objectiveVec_;
