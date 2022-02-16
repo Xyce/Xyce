@@ -253,7 +253,6 @@ private:
   std::vector<int>      acSweepFailures_;
 
   bool                          stepFlag_;
-  std::vector<int>     dcSensitivityDone_;
   std::string                   type_;
   double                        np_;
   double                        fStart_;
@@ -298,7 +297,6 @@ private:
   Linear::Vector *      dOdxVecRealPtr;
   Linear::Vector *      dOdxVecImagPtr;
 
-  std::vector<Linear::Vector *> dcDXdpVector_;
   std::vector<Linear::BlockMatrix *>  dJdpVector_;
 
   Linear::Matrix *                dCdp_;
@@ -307,7 +305,6 @@ private:
   Linear::Matrix *                origC_;
   Linear::Matrix *                origG_;
 
-  Linear::BlockMatrix *           dJdp_;
   Linear::BlockVector *           dBdp_;
   Linear::BlockVector *           dXdp_;
   Linear::BlockVector *           lambda_;

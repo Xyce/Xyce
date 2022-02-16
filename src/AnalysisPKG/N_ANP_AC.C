@@ -281,8 +281,6 @@ bool AC::setSensAnalysisParams(const Util::OptionBlock & OB)
          objFuncDataVec_, output_manager, linearSystem_, analysisManager_.getCommandLine() );
   }
 
-  dcSensitivityDone_.resize(numSensParams_,0);
-
   return true;
 }
 
@@ -408,7 +406,8 @@ AC::AC(
     dOdxVecImagPtr(0),
     dCdp_(0),
     dGdp_(0),
-    dJdp_(0),
+    origC_(0),
+    origG_(0),
     dBdp_(0),
     dXdp_(0),
     lambda_(0),
@@ -474,11 +473,6 @@ AC::~AC()
     delete dbdpVecImagPtr;
     delete dOdxVecRealPtr;
     delete dOdxVecImagPtr;
-    delete dCdp_;
-    delete dGdp_;
-    delete origC_;
-    delete origG_;
-    delete dJdp_;
     delete dBdp_;
     delete dXdp_;
     delete sensRhs_;
@@ -502,7 +496,6 @@ AC::~AC()
       objFuncDataVec_[iobj] = 0;
     } 
 
-    for (int ii=0;ii<numSensParams_;++ii) { delete dcDXdpVector_[ii]; }
     for (int ii=0;ii<numSensParams_;++ii) { delete dJdpVector_[ii]; }
   }
 }
@@ -522,8 +515,6 @@ void AC::notify(const StepEvent &event)
     AnalysisBase::resetForStepAnalysis();
 
     stepFlag_ = true;
-
-    for (int ip=0;ip<numSensParams_;++ip) { dcSensitivityDone_[ip] = 0; }
 
     analysisManager_.getStepErrorControl().resetAll(tiaParams_);
 
@@ -1076,8 +1067,6 @@ bool AC::createLinearSystem_()
     origC_ = linearSystem_.builder().createMatrix ();
     origG_ = linearSystem_.builder().createMatrix ();
 
-    dJdp_ = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph);
-
     dBdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dXdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     sensRhs_  = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
@@ -1101,9 +1090,6 @@ bool AC::createLinearSystem_()
         objFuncDataVec_[iobj]->expPtr->setGroup( newGroup );
       }
     }
-
-    dcDXdpVector_.resize(numSensParams_);
-    for (int ii=0;ii<numSensParams_;++ii) { dcDXdpVector_[ii] = linearSystem_.builder().createVector(); }
 
     dJdpVector_.resize(numSensParams_);
     for (int ii=0;ii<numSensParams_;++ii) { dJdpVector_[ii] = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph); }
@@ -1409,100 +1395,180 @@ bool AC::precomputeDCsensitivities_ ()
   analysisManager_.getNonlinearEquationLoader().loadSensitivityResiduals();
   }
 
-  // save copies of the original C and G DCOP matrices.  
-  origC_->put(0.0);
-  origC_->add(*C_);
-  origG_->put(0.0);
-  origG_->add(*G_);
+  // compute dJdp for each p, but leave out the omega scalar from the C-blocks.
+  //
+  // If the analytical matrix sensitivities are available (unlikely), then use those.
+  // otherwise compute a numerical dJdp.
 
-  // compute dxdp for each p, and scale by dP to get dx
+  // Attempt to compute J' analytically first.   
+  // Check if parameter is a B-term.  
+  // If so we don't have to do anything.
+  bool numerical_dJdp_Needed=false;
   for (int ipar=0;ipar<numSensParams_;++ipar)
   {
-    Linear::Vector *dcDXdp = linearSystem_.getNewtonVector();
-    Linear::Vector* rhsVectorPtr_ = linearSystem_.getRHSVector();
-    Linear::MultiVector * sensRHSPtrVector = ds.sensRHSPtrVector;
-
-    *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(ipar));
-
-    Teuchos::RCP<Linear::Solver> sensSolver = nonlinearManager_.getNonlinearSolver().getLinearSolver();
-    bool reuseFactors=true;
-    sensSolver->solve(reuseFactors);
-
-    // Use dxdp to get dx = dxdp*dP 
-    dcDXdp->scale(param_dP_[ipar]);
-
-    // store dx
-    *(dcDXdpVector_[ipar]) = *dcDXdp;
-  }
-
-  // perturb parameter to get updated C and G, take the numerical derivative 
-  // and store it.  
-  for (int ipar=0;ipar<numSensParams_;++ipar)
-  {
-    // save next solution
-    analysisManager_.getDataStore()->tmpSolVectorPtr->update(1.0, *(analysisManager_.getDataStore()->nextSolutionPtr), 0.0);
-    // update next Solution to the perturbed value of x+dx
-    analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(dcDXdpVector_[ipar]), 1.0);
-
-    // perturb p to p+dP
     const std::string name = paramNameVec_[ipar];
-    double origParamValue = ds.paramOrigVals_[ipar];
-    double dP = param_dP_[ipar];
-    double newParamValue = origParamValue + dP;
-    std::string tmpName = name; // remove const
-    loader_.setParam(tmpName, newParamValue, true);
+    bool analyticBVecSensAvailable = loader_.analyticBVecSensAvailable (name);
+    bool deviceLevelBVecSensNumericalAvailable = loader_.numericalBVecSensAvailable (name);
 
-    // reload C and G, with updated x and p
-    updateLinearSystem_C_and_G_();
+    // check for B' sensitivities:
+    std::vector< std::complex<double> > dbdp;
+    if (analyticBVecSensAvailable && !forceDeviceFD_) { numericalDiff_[ipar] = 0; }
+    else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_) { numericalDiff_[ipar] = 1; }
 
-#if 0
-    // not quite right.  There might be a bug in the linearCombo function.
-    dGdp_->linearCombo(-1.0/dP, *origG_, 1.0/dP, *G_);
-    dCdp_->linearCombo(-1.0/dP, *origC_, 1.0/dP, *C_);
-#else
-    // compute numerical dGdp 
-    // dGdp = (perturbG - origG)/dP
-    dGdp_->put(0.0);
-    dGdp_->add(*origG_);
-    dGdp_->scale(-1.0);
-    dGdp_->add(*G_);
-    dGdp_->scale(1.0/dP);
-    dGdp_->fillComplete();
+    if (!analyticBVecSensAvailable && !deviceLevelBVecSensNumericalAvailable)
+    {
+      bool analyticMatrixAvailable = loader_.analyticMatrixSensitivitiesAvailable (name);
+      bool deviceLevelMatrixNumericalAvailable = loader_.numericalMatrixSensitivitiesAvailable (name);
 
-    // compute numerical dCdp 
-    // dCdp = (perturbC - origC)/dP
-    dCdp_->put(0.0);
-    dCdp_->add(*origC_);
-    dCdp_->scale(-1.0);
-    dCdp_->add(*C_);
-    dCdp_->scale(1.0/dP);
-    dCdp_->fillComplete();
-#endif
+      std::vector< std::vector<double> > d_dfdx_dp, d_dqdx_dp;
+      std::vector< std::vector<int> > F_jacLIDs, Q_jacLIDs;
+      std::vector<int> F_lids, Q_lids;
 
-    // put together the whole thing and save.
-    // This is an incomplete dJdp.  It (intentionally) lacks the omega scalar on the C blocks.
-    dJdpVector_[ipar]->put(0.0);// Zero out whole matrix
-    dJdpVector_[ipar]->block(0, 0).add(*dGdp_);
-    dJdpVector_[ipar]->block(1, 1).add(*dGdp_);
-    dJdpVector_[ipar]->block(0, 1).add(*dCdp_);
-    dJdpVector_[ipar]->block(1, 0).add(*dCdp_);
-    dJdpVector_[ipar]->assembleGlobalMatrix();
+      if (analyticMatrixAvailable && !forceDeviceFD_)
+      {
+        numericalDiff_[ipar] = 0;
 
-    // restore original p and x.
-    loader_.setParam(tmpName, origParamValue, true);
-    analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(analysisManager_.getDataStore()->tmpSolVectorPtr), 0.0);
+        loader_.getAnalyticMatrixSensitivities(name,
+                      d_dfdx_dp, d_dqdx_dp, F_lids, Q_lids, F_jacLIDs, Q_jacLIDs);
 
-    dcSensitivityDone_[ipar] = 1; // do we need this now?
+        dGdp_->put(0.0);
+        for (int ii=0;ii<F_lids.size();++ii)
+        {
+          for (int jj=0;jj<F_jacLIDs[ii].size();++jj)
+          {
+            // NOTE: this used to be a sum, ie, "+=".  
+            // Now it is not, as we are doing one param at a time, so there 
+            // shouldn't be more than one legitimate contribution to the 
+            // dGdp matrix.  However, the d_dfdx_dp object may have some
+            // duplicates in it.  So, should not sum 2x.
+            (*dGdp_)[F_lids[ii]][F_jacLIDs[ii][jj]] = d_dfdx_dp[ii][jj];
+          }
+        }
+        dGdp_->fillComplete();
+
+        dCdp_->put(0.0);
+        for (int ii=0;ii<Q_lids.size();++ii)
+        {
+          for (int jj=0;jj<Q_jacLIDs[ii].size();++jj)
+          {
+            // NOTE: this used to be a sum, ie, "+=".  
+            // Now it is not, as we are doing one param at a time, so there 
+            // shouldn't be more than one legitimate contribution to the 
+            // dCdp matrix.  However, the d_dqdx_dp object may have some
+            // duplicates in it.  So, should not sum 2x.
+            (*dCdp_)[Q_lids[ii]][Q_jacLIDs[ii][jj]] = d_dqdx_dp[ii][jj];
+          }
+        }
+        dCdp_->fillComplete();
+
+        dJdpVector_[ipar]->put(0.0);// Zero out whole matrix
+        dJdpVector_[ipar]->block(0, 0).add(*dGdp_);
+        dJdpVector_[ipar]->block(1, 1).add(*dGdp_);
+        dJdpVector_[ipar]->block(0, 1).add(*dCdp_);
+        dJdpVector_[ipar]->block(1, 0).add(*dCdp_);
+        dJdpVector_[ipar]->assembleGlobalMatrix();
+
+        numericalDiff_[ipar] = 0;
+      }
+      else
+      {
+        numericalDiff_[ipar] = 1;
+        numerical_dJdp_Needed=true;
+      }
+    }
   }
 
-  // restore the original pre-sensitivity C and G
-  C_->put(0.0);
-  C_->add(*origC_);
-  G_->put(0.0);
-  G_->add(*origG_);
+  if (numerical_dJdp_Needed)
+  {
+    // save copies of the original C and G DCOP matrices.  
+    origC_->put(0.0);
+    origC_->add(*C_);
+    origG_->put(0.0);
+    origG_->add(*G_);
+
+    // compute dxdp for each p, and scale by dP to get dx
+    for (int ipar=0;ipar<numSensParams_;++ipar)
+    {
+      if (numericalDiff_[ipar] == 0) continue;
+
+      Linear::Vector *dcDXdp = linearSystem_.getNewtonVector();
+      Linear::Vector* rhsVectorPtr_ = linearSystem_.getRHSVector();
+      Linear::MultiVector * sensRHSPtrVector = ds.sensRHSPtrVector;
+
+      *rhsVectorPtr_ = *Teuchos::rcp(sensRHSPtrVector->getNonConstVectorView(ipar));
+
+      Teuchos::RCP<Linear::Solver> sensSolver = nonlinearManager_.getNonlinearSolver().getLinearSolver();
+      bool reuseFactors=true;
+      sensSolver->solve(reuseFactors);
+
+      // Use dxdp to get dx = dxdp*dP 
+      dcDXdp->scale(param_dP_[ipar]);
+
+      // save next solution
+      analysisManager_.getDataStore()->tmpSolVectorPtr->update(1.0, *(analysisManager_.getDataStore()->nextSolutionPtr), 0.0);
+      // update next Solution to the perturbed value of x+dx
+      analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(dcDXdp), 1.0);
+
+      // perturb p to p+dP
+      const std::string name = paramNameVec_[ipar];
+      double origParamValue = ds.paramOrigVals_[ipar];
+      double dP = param_dP_[ipar];
+      double newParamValue = origParamValue + dP;
+      std::string tmpName = name; // remove const
+      loader_.setParam(tmpName, newParamValue, true);
+
+      // reload C and G, with updated x and p
+      updateLinearSystem_C_and_G_();
+
+      // compute numerical dGdp 
+      // dGdp = (perturbG - origG)/dP
+      dGdp_->put(0.0);
+      dGdp_->add(*origG_);
+      dGdp_->scale(-1.0);
+      dGdp_->add(*G_);
+      dGdp_->scale(1.0/dP);
+      dGdp_->fillComplete();
+
+      // compute numerical dCdp 
+      // dCdp = (perturbC - origC)/dP
+      dCdp_->put(0.0);
+      dCdp_->add(*origC_);
+      dCdp_->scale(-1.0);
+      dCdp_->add(*C_);
+      dCdp_->scale(1.0/dP);
+      dCdp_->fillComplete();
+
+      // put together the whole thing and save.
+      // This is an incomplete dJdp.  It (intentionally) lacks the omega scalar on the C blocks.
+      dJdpVector_[ipar]->put(0.0);// Zero out whole matrix
+      dJdpVector_[ipar]->block(0, 0).add(*dGdp_);
+      dJdpVector_[ipar]->block(1, 1).add(*dGdp_);
+      dJdpVector_[ipar]->block(0, 1).add(*dCdp_);
+      dJdpVector_[ipar]->block(1, 0).add(*dCdp_);
+      dJdpVector_[ipar]->assembleGlobalMatrix();
+
+      // restore original p and x.
+      loader_.setParam(tmpName, origParamValue, true);
+      analysisManager_.getDataStore()->nextSolutionPtr->update(1.0, *(analysisManager_.getDataStore()->tmpSolVectorPtr), 0.0);
+    }
+
+    // restore the original pre-sensitivity C and G
+    C_->put(0.0);
+    C_->add(*origC_);
+    G_->put(0.0);
+    G_->add(*origG_);
+  }
 
   // at this point everything should be restored.   Not sure if this call is necessary.  check later
   updateLinearSystem_C_and_G_();
+
+  // these are not needed anymore.  But if we ever upate AC .sens to work with 
+  // model parameter sweeps, then this function could be called multiple times, 
+  // and then they would be needed throughout the calculation.
+  delete dCdp_;
+  delete dGdp_;
+  delete origC_;
+  delete origG_;
 
   return true;
 }
@@ -2059,89 +2125,19 @@ bool AC::loadSensitivityRHS_(int ipar)
     sensRhs_->importOverlap();
 #endif
   }
-  else // If couldn't obtain B', then try J'.  
+  else 
+  // If couldn't obtain B', then try J'.   
+  // Most stuff related to J' was pre-computed in the 
+  // "AC::precomputeDCsensitivities_ ()" function. so not much work to be done here.
+  // Just scale the C-block of the dJdp matrix by omega and then do a matvec.
   {
-    // J'*X sensitivities
-    bool analyticMatrixAvailable = loader_.analyticMatrixSensitivitiesAvailable (name);
-    bool deviceLevelMatrixNumericalAvailable = loader_.numericalMatrixSensitivitiesAvailable (name);
+    applyOmega_dJdp(ipar);
 
-    std::vector< std::vector<double> > d_dfdx_dp, d_dqdx_dp;
-    std::vector< std::vector<int> > F_jacLIDs, Q_jacLIDs;
-    std::vector<int> F_lids, Q_lids;
+    // compute the matvec and then sum into the rhs vector.
+    bool Transpose = false;
+    dJdpVector_[ipar]->matvec( Transpose , *X_, *sensRhs_ );
 
-    if (analyticMatrixAvailable && !forceDeviceFD_)
-    {
-      numericalDiff_[ipar] = 0;
-
-      loader_.getAnalyticMatrixSensitivities(name,
-                    d_dfdx_dp, d_dqdx_dp, F_lids, Q_lids, F_jacLIDs, Q_jacLIDs);
-
-      dGdp_->put(0.0);
-      for (int ii=0;ii<F_lids.size();++ii)
-      {
-        // FIX this for parallel
-        for (int jj=0;jj<F_jacLIDs[ii].size();++jj)
-        {
-          // NOTE: this used to be a sum, ie, "+=".  
-          // Now it is not, as we are doing one param at a time, so there 
-          // shouldn't be more than one legitimate contribution to the 
-          // dGdp matrix.  However, the d_dfdx_dp object may have some
-          // duplicates in it.  So, should not sum 2x.
-          (*dGdp_)[F_lids[ii]][F_jacLIDs[ii][jj]] = d_dfdx_dp[ii][jj];
-        }
-      }
-      dGdp_->fillComplete();
-
-      dCdp_->put(0.0);
-      for (int ii=0;ii<Q_lids.size();++ii)
-      {
-        // FIX this for parallel
-        for (int jj=0;jj<Q_jacLIDs[ii].size();++jj)
-        {
-          // NOTE: this used to be a sum, ie, "+=".  
-          // Now it is not, as we are doing one param at a time, so there 
-          // shouldn't be more than one legitimate contribution to the 
-          // dCdp matrix.  However, the d_dqdx_dp object may have some
-          // duplicates in it.  So, should not sum 2x.
-          (*dCdp_)[Q_lids[ii]][Q_jacLIDs[ii][jj]] = d_dqdx_dp[ii][jj];
-        }
-      }
-      dCdp_->fillComplete();
-
-      dJdp_->put(0.0);
-      dJdp_->block( 0, 0 ).add(*dGdp_);
-
-      // Second diagonal block
-      dJdp_->block( 1, 1 ).add(*dGdp_);
-
-      double omega =  2.0 * M_PI * currentFreq_;
-
-      dJdp_->block( 0, 1).put( 0.0);
-      dJdp_->block( 0, 1).add(*dCdp_);
-      dJdp_->block( 0, 1).scale(-omega);
-
-      dJdp_->block(1, 0).put( 0.0);
-      dJdp_->block(1, 0).add(*dCdp_);
-      dJdp_->block(1, 0).scale(omega);
-
-      // Copy the values loaded into the blocks into the global matrix for the solve.
-      dJdp_->assembleGlobalMatrix();
-
-      // compute the matvec and then sum into the rhs vector.
-      bool Transpose = false;
-      dJdp_->matvec( Transpose , *X_, *sensRhs_ );
-    }
-    else
-    {
-      numericalDiff_[ipar] = 1;
-      applyOmega_dJdp(ipar);
-
-      // compute the matvec and then sum into the rhs vector.
-      bool Transpose = false;
-      dJdpVector_[ipar]->matvec( Transpose , *X_, *sensRhs_ );
-
-      unapplyOmega_dJdp(ipar);
-    }
+    unapplyOmega_dJdp(ipar);
 
     sensRhs_->scale(-1.0);
 #ifdef Xyce_PARALLEL_MPI
