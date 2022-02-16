@@ -1111,6 +1111,7 @@ bool AC::updateLinearSystem_C_and_G_()
 {
   analysisManager_.getDataStore()->daeQVectorPtr->putScalar(0.0);
   analysisManager_.getDataStore()->daeFVectorPtr->putScalar(0.0);
+  analysisManager_.getDataStore()->daeBVectorPtr->putScalar(0.0);
 
   analysisManager_.getDataStore()->dFdxdVpVectorPtr->putScalar(0.0);
   analysisManager_.getDataStore()->dQdxdVpVectorPtr->putScalar(0.0);
