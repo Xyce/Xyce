@@ -1483,8 +1483,10 @@ bool AC::precomputeDCsensitivities_ ()
     // save copies of the original C and G DCOP matrices.  
     origC_->put(0.0);
     origC_->add(*C_);
+    origC_->fillComplete();
     origG_->put(0.0);
     origG_->add(*G_);
+    origG_->fillComplete();
 
     // compute dxdp for each p, and scale by dP to get dx
     for (int ipar=0;ipar<numSensParams_;++ipar)
@@ -1555,8 +1557,10 @@ bool AC::precomputeDCsensitivities_ ()
     // restore the original pre-sensitivity C and G
     C_->put(0.0);
     C_->add(*origC_);
+    C_->fillComplete();
     G_->put(0.0);
     G_->add(*origG_);
+    G_->fillComplete();
   }
 
   // at this point everything should be restored.   Not sure if this call is necessary.  check later
@@ -2034,6 +2038,7 @@ bool AC::applyOmega_dJdp(int ipar)
   double omega =  2.0 * M_PI * currentFreq_;
   dJdpVector_[ipar]->block(0, 1).scale(-omega);
   dJdpVector_[ipar]->block(1, 0).scale(omega);
+  dJdpVector_[ipar]->assembleGlobalMatrix();
   return true;
 }
 
@@ -2052,6 +2057,7 @@ bool AC::unapplyOmega_dJdp(int ipar)
   double omega =  2.0 * M_PI * currentFreq_;
   dJdpVector_[ipar]->block(0, 1).scale(-1.0/omega);
   dJdpVector_[ipar]->block(1, 0).scale(1.0/omega);
+  dJdpVector_[ipar]->assembleGlobalMatrix();
   return true;
 }
 
