@@ -1482,10 +1482,10 @@ bool AC::precomputeDCsensitivities_ ()
   {
     // save copies of the original C and G DCOP matrices.  
     origC_->put(0.0);
-    origC_->add(*C_);
+    origC_->addOverlap(*C_);
     origC_->fillComplete();
     origG_->put(0.0);
-    origG_->add(*G_);
+    origG_->addOverlap(*G_);
     origG_->fillComplete();
 
     // compute dxdp for each p, and scale by dP to get dx
@@ -1525,18 +1525,18 @@ bool AC::precomputeDCsensitivities_ ()
       // compute numerical dGdp 
       // dGdp = (perturbG - origG)/dP
       dGdp_->put(0.0);
-      dGdp_->add(*origG_);
+      dGdp_->addOverlap(*origG_);
       dGdp_->scale(-1.0);
-      dGdp_->add(*G_);
+      dGdp_->addOverlap(*G_);
       dGdp_->scale(1.0/dP);
       dGdp_->fillComplete();
 
       // compute numerical dCdp 
       // dCdp = (perturbC - origC)/dP
       dCdp_->put(0.0);
-      dCdp_->add(*origC_);
+      dCdp_->addOverlap(*origC_);
       dCdp_->scale(-1.0);
-      dCdp_->add(*C_);
+      dCdp_->addOverlap(*C_);
       dCdp_->scale(1.0/dP);
       dCdp_->fillComplete();
 
@@ -1556,10 +1556,10 @@ bool AC::precomputeDCsensitivities_ ()
 
     // restore the original pre-sensitivity C and G
     C_->put(0.0);
-    C_->add(*origC_);
+    C_->addOverlap(*origC_);
     C_->fillComplete();
     G_->put(0.0);
-    G_->add(*origG_);
+    G_->addOverlap(*origG_);
     G_->fillComplete();
   }
 
