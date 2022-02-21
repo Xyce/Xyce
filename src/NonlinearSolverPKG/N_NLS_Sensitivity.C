@@ -1513,7 +1513,8 @@ bool extractSENSData(
         return false;
       }
 
-      parameter.set(paramName.str(), parsed_line[i].string_);
+      std::string paramValue = ExtendedString(parsed_line[i].string_).toUpper();
+      parameter.set(paramName.str(), paramValue);
       option_block.addParam(parameter);
 
       // The nominal format is param=value,value,value   
@@ -1532,12 +1533,13 @@ bool extractSENSData(
         paramName << paramBaseName << j;
         i += 2;
         if ( (i <= testSize) && (parsed_line[i].string_ != ",") )
-	{ 
-          parameter.set(paramName.str(), parsed_line[i].string_);
+	      { 
+          paramValue = ExtendedString(parsed_line[i].string_).toUpper();
+          parameter.set(paramName.str(), paramValue);
           option_block.addParam(parameter);
         }
         else
-	{
+	      {
           Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
             << ".SENS line is mis-formatted. Error parsing vector parameter";
           return false;

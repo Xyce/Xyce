@@ -79,7 +79,7 @@ std::ostream& sensStdOutput (
        const std::vector<std::string> & paramNameVec,
        const std::vector<double> & param_dP,
        const std::vector<int> & numericalDiff,
-       const std::vector<std::string> & objFuncVars,
+       const std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> & objFuncDataVec,
        const std::vector<double> & objectiveVec,
        OutputMgrAdapter & outputManagerAdapter,
        std::ostream& os
@@ -119,14 +119,6 @@ class ACExpressionGroup : public Xyce::Util::mainXyceExpressionGroup
     const Linear::BlockVector & X_;
 
 };
-
-void evaluateSimpleObjFuncs (
-  Parallel::Communicator & comm,
-  const Linear::BlockVector & X,
-  const std::vector<int> & outputVarGIDs,
-  std::vector<double> & objectiveVec,
-  const OutputMgrAdapter & outputManagerAdapter
-    );
 
 //-------------------------------------------------------------------------
 // Class         : AC
@@ -209,6 +201,7 @@ private:
   bool updateCurrentFreq_(int stepNumber);
   bool createLinearSystem_();
 
+
   bool updateLinearSystem_C_and_G_();
   bool updateLinearSystemFreq_();
   bool updateLinearSystemMagAndPhase_();
@@ -216,15 +209,15 @@ private:
   bool solveLinearSystem_();
 
   // sensitivity functions
+  bool precomputeDCsensitivities_ ();
   bool solveSensitivity_();
   bool solveDirectSensitivity_();
   bool solveAdjointSensitivity_();
   bool loadSensitivityRHS_(int ipar);
-  bool computeNumerical_dJdp(int ipar);
+  bool applyOmega_dJdp(int ipar);
+  bool unapplyOmega_dJdp(int ipar);
   bool outputSensitivity_();
-  bool setupObjectiveFuncGIDs_();
 
-  bool setup_dOdX_(int iobj);
   void solve_mag_phase_Sensitivities_(
       const double dxdpReal,
       const double dxdpImag,
@@ -303,9 +296,15 @@ private:
   Linear::Vector *      dbdpVecImagPtr;
   Linear::Vector *      dOdxVecRealPtr;
   Linear::Vector *      dOdxVecImagPtr;
+
+  std::vector<Linear::BlockMatrix *>  dJdpVector_;
+
   Linear::Matrix *                dCdp_;
   Linear::Matrix *                dGdp_;
-  Linear::BlockMatrix *           dJdp_;
+
+  Linear::Matrix *                origC_;
+  Linear::Matrix *                origG_;
+
   Linear::BlockVector *           dBdp_;
   Linear::BlockVector *           dXdp_;
   Linear::BlockVector *           lambda_;
@@ -335,7 +334,6 @@ private:
   bool outputUnscaledFlag_; // include unscaled sensitivities in IO
   int maxParamStringSize_;
   bool stdOutputFlag_;
-  bool acCorrectionFlag_;
 
   int numSensParams_;
   std::vector<double>   objectiveVec_;
@@ -351,11 +349,6 @@ private:
   bool objFuncGIDsetup_;
   std::vector<Xyce::Nonlinear::objectiveFunctionData<std::complex<double> > *> objFuncDataVec_;
   std::vector<std::string> objFuncStrings_; // needed for output
-
-  // these are for the "old" style of specifying objective functions
-  bool objVarGiven_;
-  std::vector<std::string> objFuncVars_;
-  std::vector<int>    outputVarGIDs_;
 
   std::vector<std::string> paramNameVec_;
   std::vector<double> param_dP_;

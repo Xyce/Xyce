@@ -4,7 +4,7 @@ This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).
 (For instructions on building Xyce with the Autotools system, see the
-[Xyce Building Guide](https://xyce.sandia.gov/documentation/BuildingGuide.html).)
+[Xyce Building Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).)
 
 If you do not want to build from source, binary installers for Windows, Mac and
 Red Hat Linux are made available for every release of Xyce on the
@@ -283,8 +283,8 @@ Choose an appropriate number for your system.
 
 Xyce has a Verilog-A model compiler capability, using the "Xyce/ADMS" compiler
 tool. See the [Xyce/ADMS Users
-Guide](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) for more
-information on the capability and for instructions on using Xyce/ADMS.
+Guide](https://xyce.sandia.gov/documentation-tutorials/xyce-adms-users-guide/)
+for more information on the capability and for instructions on using Xyce/ADMS.
 
 To enable the feature, install [ADMS](https://github.com/Qucs/ADMS) prior to
 building Xyce. Then, to enable the capability in the Xyce build, add the
@@ -316,9 +316,9 @@ the following components:
 - Trilinos
 
 Then CMake will compile a serial build of Xyce that enables the (optional)
-[Xyce/ADMS](https://xyce.sandia.gov/documentation/XyceADMSGuide.html) model
-plugin capability. Note that, since CMake is building several packages, the
-process could take a long time.
+[Xyce/ADMS](https://xyce.sandia.gov/documentation-tutorials/xyce-adms-users-guide/)
+model plugin capability. Note that, since CMake is building several packages,
+the process could take a long time.
 
 To perform a superbuild, follow this procedure:
 - Create a "build" directory somewhere on your system (the location and
@@ -355,8 +355,8 @@ changed). Then Xyce and/or Trilinos can be uninstalled at any time using the
 ## Running the Test Suite
 
 If you wish to test the Xyce installation, run the [Xyce Regression
-Suite](https://github.com/Xyce/Xyce_Regression). See the [Running the Xyce
-Regression Suite](https://xyce.sandia.gov/documentation/RunningTheTests.html)
+Suite](https://github.com/Xyce/Xyce_Regression). See the [Running the Xyce Regression
+Suite](https://xyce.sandia.gov/documentation-tutorials/running-the-xyce-regression-suite/)
 documentation on the Xyce home page. Note that the test suite is controlled
 with Perl and Bash scripts, and some tests require Python with Scipy and Numpy.
 

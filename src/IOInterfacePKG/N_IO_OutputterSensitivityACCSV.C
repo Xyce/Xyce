@@ -159,19 +159,19 @@ void SensitivityACCSV::doOutputSensitivityAC(
     std::vector<std::string> colNames;
     for (int i=0; i< objFuncVars.size(); ++i)
     {
-      colNames.push_back("VR(" + objFuncVars[i] +")");
-      colNames.push_back("VI(" + objFuncVars[i] +")");
-      colNames.push_back("VM(" + objFuncVars[i] +")");
-      colNames.push_back("VP(" + objFuncVars[i] +")");
+      colNames.push_back("Re(" + objFuncVars[i] +")");
+      colNames.push_back("Im(" + objFuncVars[i] +")");
+      colNames.push_back("Mag(" + objFuncVars[i] +")");
+      colNames.push_back("Ph(" + objFuncVars[i] +")");
 
       if (dOdpVec.size() > 0)
       {
         for (int j=0; j< paramNameVec.size(); ++j)
         {
-          colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-          colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-          colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-          colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_Re(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_Im(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_Mag(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_Ph(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
         }
       }
 
@@ -179,10 +179,10 @@ void SensitivityACCSV::doOutputSensitivityAC(
       {
         for (int j=0; j< paramNameVec.size(); ++j)
         {
-          colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-          colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-          colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-          colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_Re(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_Im(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_Mag(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_Ph(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
         }
       }
     }

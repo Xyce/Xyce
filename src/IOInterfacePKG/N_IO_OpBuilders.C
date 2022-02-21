@@ -1685,26 +1685,26 @@ struct SensitivityOpBuilder : public Util::Op::Builder
 
       min >> function >> parameter >> type >> index;
 
-      std::string name = "d" + function + "/d(" + parameter + ")";
+      std::string name = "d_" + function + "/d_" + parameter;
       if (type == Util::Op::identifier<SensitivityObjFunctionOp>())
       {
         new_op = new SensitivityObjFunctionOp(function, index);
       }
       else if (type == Util::Op::identifier<SensitivitydOdpDirectOp>())
       {
-        new_op = new SensitivitydOdpDirectOp(name + "_Dir", index);
+        new_op = new SensitivitydOdpDirectOp(name + "_dir", index);
       }
       else if (type == Util::Op::identifier<SensitivitydOdpDirectScaledOp>())
       {
-        new_op = new SensitivitydOdpDirectScaledOp(name + "_Dir_scaled", index);
+        new_op = new SensitivitydOdpDirectScaledOp(name + "_dir_scaled", index);
       }
       else if (type == Util::Op::identifier<SensitivitydOdpAdjointOp>())
       {
-        new_op = new SensitivitydOdpAdjointOp(name + "_Adj", index);
+        new_op = new SensitivitydOdpAdjointOp(name + "_adj", index);
       }
       if (type == Util::Op::identifier<SensitivitydOdpAdjointScaledOp>())
       {
-        new_op = new SensitivitydOdpAdjointScaledOp(name + "_Adj_scaled", index);
+        new_op = new SensitivitydOdpAdjointScaledOp(name + "_adj_scaled", index);
       }
     }
 

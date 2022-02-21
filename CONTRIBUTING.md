@@ -7,17 +7,15 @@ Thank you for your interest in contributing to Xyce.
 Do not open a GitHub Issue to ask a use question. Support for Open Source
 Community users is available primarily through our [Google
 Groups](https://groups.google.com/forum/#!forum/xyce-users) web forum, which is
-actively monitored by the Xyce developers. Other ways to contact the Xyce
-team can be found on the [Xyce
-Homepage](https://xyce.sandia.gov/contact_us.html).
+actively monitored by the Xyce developers. Other ways to contact the Xyce team
+can be found on the [Xyce Homepage](https://xyce.sandia.gov/contact-us/).
 
 ## Contributing
 
 We welcome bug reports and enhancement requests. Due to internal restrictions,
-however, it is difficult for us to accept external contributions at this
-time (e.g., via pull requests). Nevertheless, if you would like to discuss the
-possibility of a contribution, please [contact
-us](https://xyce.sandia.gov/contact_us.html).
+however, it is difficult for us to accept external contributions at this time
+(e.g., via pull requests). Nevertheless, if you would like to discuss the
+possibility of a contribution, please [contact us](https://xyce.sandia.gov/contact-us/).
 
 ## Bug reports 
 
@@ -29,7 +27,7 @@ Groups](https://groups.google.com/forum/#!forum/xyce-users) web forum.
 Participants in the forum could illuminate a mistake in your netlist; or if you
 found a known defect, they may be able to supply a workaround. If there are
 concerns about using public venues, [other
-methods](https://xyce.sandia.gov/contact_us.html) for reporting are available.
+methods](https://xyce.sandia.gov/contact-us/) for reporting are available.
 
 ### Submitting a good bug report
 
