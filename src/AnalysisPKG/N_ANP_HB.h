@@ -248,6 +248,10 @@ private:
 
   bool intmodMaxGiven_;
 
+  std::string selectHarm_;
+
+  bool selectHarmGiven_;
+
   Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
   std::vector<double> ftInData_, ftOutData_, iftInData_, iftOutData_; 
 

@@ -141,6 +141,8 @@ HB::HB(
     loadTimeB_(1),
     method_("APFT"),
     intmodMaxGiven_(false),
+    selectHarm_("BOX"),
+    selectHarmGiven_(false),
     solverFactory_(0),
     precFactory_(0),
     resetForStepCalledBefore_(false)
@@ -874,7 +876,6 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
       stringVal.toUpper();
       method_ = stringVal;
     }
-
     else if ( tag == "NUMTPTS") 
     {
       numTimePts_ = iterPL->getImmutableValue<int>();
@@ -882,6 +883,15 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
     else if ( tag == "HBOSC") 
     {
       hbOsc_ = static_cast<bool> (iterPL->getImmutableValue<int>());
+    }
+    else if ( tag == "SELECTHARMS" )
+    {
+      ExtendedString stringVal ( iterPL->stringValue() );
+      stringVal.toUpper();
+      selectHarm_ = stringVal;
+
+      if ( selectHarm_ != "" )
+        selectHarmGiven_ = true;
     }
     else if ( tag == "REFNODE") 
     {
@@ -1550,6 +1560,26 @@ bool HB::setFreqPointsAPFT_()
 //-----------------------------------------------------------------------------
 bool HB::setFreqPoints_()
 {
+
+  if (  !selectHarmGiven_ )
+  {
+    if ( method_ == "APFT" )
+    {
+
+      selectHarm_ =  "HYBRID";
+    }
+    else if ( method_ == "AFM" )
+    {
+      selectHarm_ = "BOX";
+    }
+    else
+    {
+      Report::UserError() << "Unsupported method for HB";
+      return false;
+    }
+  }
+
+
   if ( method_ == "APFT" )
   {
 
@@ -2864,6 +2894,7 @@ populateMetadata(
 
     parameters.insert(Util::ParamMap::value_type("HBOSC", Util::Param("HBOSC", false)));
     parameters.insert(Util::ParamMap::value_type("LOADTIMESOURCES", Util::Param("LOADTIMESOURCES", 1)));
+    parameters.insert(Util::ParamMap::value_type("SELECTHARMS", Util::Param("SELECTHARMS", "BOX")));
     parameters.insert(Util::ParamMap::value_type("REFNODE", Util::Param("REFNODE",  "")));
   }
 }
