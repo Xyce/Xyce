@@ -33,6 +33,7 @@
 #include <N_ANP_ROL.h>
 
 #include <N_ANP_OutputMgrAdapter.h>
+#include <N_ANP_DCSweep.h>
 #include <N_ANP_SweepParam.h>
 #include <N_ANP_SweepParamFreeFunctions.h>
 #include <N_IO_CircuitBlock.h>
@@ -42,9 +43,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_LOA_Loader.h>
 #include <N_NLS_Manager.h> // TT: was not included
-#include <N_NLS_fwd.h> // TT: was not included
 #include <N_TIA_DataStore.h>
-#include <N_TIA_fwd.h> // TT: was not included
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h> // TT: was not included
 
@@ -516,7 +515,6 @@ bool ROL::doAllocations(int nc, int nz)
 //-----------------------------------------------------------------------------
 bool ROL::doFree()
 {
-  paramNameVec_.clear();
   for (int i=0;i<stepLoopSize_;i++)
   {
     delete solutionPtrVector_[i];
@@ -691,7 +689,6 @@ bool ROL::twoLevelStep()
   return analysisManager_.getStepErrorControl().stepAttemptStatus;
 }
 
-#ifdef Xyce_ROL
 //-----------------------------------------------------------------------------
 // Function      : ROL::runROLAnalysis
 // Purpose       :
@@ -709,6 +706,7 @@ bool ROL::runROLAnalysis()
   bool status = true;
   int errorFlag = 0;
 
+#ifdef Xyce_ROL
   try
   { 
     // Number of simulation variables
@@ -899,82 +897,62 @@ bool ROL::runROLAnalysis()
   }; // end try       
   
   doFree(); // deallocate solution and sensitivity arrays
+
+#else
+
+  Report::UserError0() << "ROL was not enabled in the Xyce build";
+
+#endif
   
   return status;
 }
-#else
+
 //-----------------------------------------------------------------------------
-//TT: do the same as doLoopProcess
+// Function      : ROL::setROLDCSweep
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
 //-----------------------------------------------------------------------------
-bool ROL::runROLAnalysis()
+bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 {
-  bool integration_status = true;
-  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore()); // TT
-  
-  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::DC));
-  
-  // StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, currentStep);
+  saved_sweepOB_ = OB;
 
-  //for (int currentStep = 0; currentStep < stepLoopSize_; ++i)
-  int currentStep = 0;
-  int finalStep = stepLoopSize_;
-  while (currentStep < finalStep) // TT: I suspect that this might be necessary
-  {
-    outputManagerAdapter_.setDCAnalysisStepNumber(currentStep);
-      
-    // Tell the manager if any of our sweeps are being reset in this loop iteration.
-    bool reset = updateSweepParams(loader_, currentStep, stepSweepVector_.begin(), stepSweepVector_.end(), false);// TT: update sweep parameters; location N_ANP_SweepParam.C
-      
-    analysisManager_.setSweepSourceResetFlag(reset);// TT: sets sweep source flag to reset in AnalysisManager
-          
-    outputManagerAdapter_.setStepSweepVector(stepSweepVector_);// TT: not sure what this is for
-      
-    // if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
-    for (SweepVector::const_iterator it = stepSweepVector_.begin(), end = stepSweepVector_.end(); it != end; ++it)
-      Xyce::dout() << "ROL DC Sweep # " << currentStep <<"\t" << (*it);
-
-    // TT
-    if (currentStep != 0 && reset)
-    {
-      analysisManager_.getDataStore()->setZeroHistory();
-      initializeSolution_();
-    }
-    
-          
-    // TT: the following line causes currSol and nextSol reset to zero
-    // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_STARTED, stepSweepVector_, currentStep)); 
-
-    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::DC, 0.0, currentStep));
-    //step_event.state = StepEvent::STEP_STARTED;
-    //Util::publish<StepEvent>(analysisManager_, step_event);
-  
-    takeStep_(); // TT: take integration step
-
-    // Set things up for the next time step, based on if this one was
-    // successful.
-    if (analysisManager_.getStepErrorControl().stepAttemptStatus)
-    {
-      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_SUCCESSFUL, AnalysisEvent::DC, 0.0, currentStep));
-      doProcessSuccessfulStep();
-      // collect solutions here
-      *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
-    }
-    else // stepAttemptStatus  (ie do this if the step FAILED)
-    {
-      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_FAILED, AnalysisEvent::DC, 0.0, currentStep));
-      doProcessFailedStep();
-    }
-      
-    currentStep = stepNumber;
-  } // end of sweep loop
-
-  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::DC));
-
-  return integration_status;
+  return true;
 }
 
-#endif
+//-----------------------------------------------------------------------------
+// Function      : ROL::setLinSol
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setLinSol(const Util::OptionBlock & OB)
+{
+  // Save the linear solver option block
+  saved_lsOB_ = OB;
 
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ROL::setTimeInt
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setTimeInt(const Util::OptionBlock & OB)
+{
+  // Save the time integrator option block
+  saved_timeIntOB_ = OB;
+
+  return true;
+}
 
 namespace {
 
@@ -1026,9 +1004,7 @@ public:
     nonlinearManager_(nonlinear_manager),
     loader_(loader),
     topology_(topology),
-    initialConditionsManager_(initial_conditions_manager),
-    stepSweepAnalysisOptionBlock_(), // TT
-    timeIntegratorOptionBlock_() // TT
+    initialConditionsManager_(initial_conditions_manager)
   {}
 
   virtual ~ROLFactory()
@@ -1050,81 +1026,62 @@ public:
   ROL *create() const
   {
     analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP); // TT: 
-    ROL *step = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
-    for (std::vector<Util::OptionBlock>::const_iterator it = stepSweepAnalysisOptionBlock_.begin(), end = stepSweepAnalysisOptionBlock_.end(); it != end; ++it)
-      step->setAnalysisParams(*it);
-    step->setTimeIntegratorOptions(timeIntegratorOptionBlock_);// TT
-    step->setROLOptions(rolOptionBlock_);
+    ROL *rol = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
+    std::vector<Util::OptionBlock>::const_iterator it = rolDCSweepBlock_.begin();
+    std::vector<Util::OptionBlock>::const_iterator end = rolDCSweepBlock_.end();
+    for ( ; it != end; ++it )
+      rol->setAnalysisParams(*it);
 
-    return step;
+    rol->setTimeInt(timeIntegratorOptionBlock_);
+    rol->setLinSol(linSolOptionBlock_);
+
+    rol->setROLOptions(rolOptionBlock_);
+    rol->setROLDCSweep(rolDCSweepBlock_);
+
+    rol->setTimeIntegratorOptions(timeIntegratorOptionBlock_);// TT
+
+    return rol;
   }
 
-  //-----------------------------------------------------------------------------
-  // Function      : setROLAnalysisOptionBlock
-  // Purpose       :
-  // Special Notes :
-  // Scope         : public
-  // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-  // Creation Date : Thu Jan 29 13:00:14 2015
-  //-----------------------------------------------------------------------------
-  ///
-  /// Saves the analysis parsed options block in the factory.
-  ///
-  /// @invariant Appends to any previously specified analysis option block.
-  ///
-  /// @param option_block parsed option block
-  ///
-  void setROLAnalysisOptionBlock(const Util::OptionBlock &option_block)
+  bool setROLDCBlock(const Util::OptionBlock &option_block)
   {
-    for (std::vector<Util::OptionBlock>::iterator it = stepSweepAnalysisOptionBlock_.begin(), end = stepSweepAnalysisOptionBlock_.end(); it != end; ++it)
-    {
+    bool found = false; 
+    std::vector<Util::OptionBlock>::iterator it = rolDCSweepBlock_.begin();
+    std::vector<Util::OptionBlock>::iterator end = rolDCSweepBlock_.end();
+    for ( ; it != end; ++it )
+    { 
       if (Util::compareParamLists(option_block, *it))
-      {
-        (*it) = option_block;
-        return;
-      }
+        found = true;
     }
-
+    
     // save the new one.
-    stepSweepAnalysisOptionBlock_.push_back(option_block); // save a copy for later.
-
-    //TT
-    std::string param_name;
-    for (std::vector<Util::OptionBlock>::iterator it = stepSweepAnalysisOptionBlock_.begin(), end = stepSweepAnalysisOptionBlock_.end(); it != end; ++it)
-    {
-      param_name = (*it).getName();
-      std::cout << "parameter = " << param_name << std::endl; 
-    }
+    if (!found)
+      rolDCSweepBlock_.push_back( option_block );
+    
+    return true;
   }
-  
 
-  // TT: blindly copied from DCSweep
-  //-----------------------------------------------------------------------------
-  // Function      : setTimeIntegratorOptionBlock
-  // Purpose       :
-  // Special Notes :
-  // Scope         : public
-  // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-  // Creation Date : Thu Jan 29 13:01:27 2015
-  //-----------------------------------------------------------------------------
-  ///
-  /// Saves the time integrator parsed option block.
-  ///
-  /// @invariant Overwrites any previously specified time integrator option block.
-  ///
-  /// @param option_block parsed option block
-  ///
   bool setTimeIntegratorOptionBlock(const Util::OptionBlock &option_block)
   {
     timeIntegratorOptionBlock_ = option_block;
-      
     return true;
   }
-   
+  
+  bool setLinSolOptionBlock(const Util::OptionBlock &option_block)
+  {
+    linSolOptionBlock_ = option_block;
+    return true;
+  }
+
   bool setROLOptionBlock(const Util::OptionBlock &option_block)
   {
     rolOptionBlock_ = option_block;
+    return true;
+  }
 
+  bool setDotDataBlock(const Util::OptionBlock &option_block)
+  {
+    dataOptionBlockVec_.push_back(option_block);
     return true;
   }
  
@@ -1138,7 +1095,10 @@ public:
 
 private:
   std::vector<Util::OptionBlock>        stepSweepAnalysisOptionBlock_;
+  std::vector<Util::OptionBlock>        rolDCSweepBlock_;
+  std::vector<Util::OptionBlock>        dataOptionBlockVec_;
   Util::OptionBlock                     timeIntegratorOptionBlock_; 
+  Util::OptionBlock                     linSolOptionBlock_;
   Util::OptionBlock                     rolOptionBlock_; 
 };
   
@@ -1152,7 +1112,7 @@ struct ROLAnalysisReg : public IO::PkgOptionsReg
 
   bool operator()(const Util::OptionBlock &option_block)
   {
-    factory_.setROLAnalysisOptionBlock(option_block);
+    factory_.setROLOptionBlock(option_block);
 
     factory_.analysisManager_.addAnalysis(&factory_);
 
@@ -1171,188 +1131,171 @@ struct ROLAnalysisReg : public IO::PkgOptionsReg
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 10/30/2003
 //-----------------------------------------------------------------------------
-// TT: this function is copied from STEP, the parameters need to be modified
-// TT: I will want here a way to extract optimization parameters
 bool extractROLData(
    IO::PkgOptionsMgr &           options_manager,
    IO::CircuitBlock &            circuit_block,
    const std::string &           netlist_filename,
    const IO::TokenVector &       parsed_line)
 {
-  Util::OptionBlock option_block("ROL", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
-
+  // length of the original .ROL line
   int numFields = parsed_line.size();
 
-  // First check if the type has been explicitly set.
-  // If not, set it to the default, LIN.
-  int pos1=1;
+  // start of parameters (skip over the ".ROL")
+  int linePosition = 1;
 
-  bool typeExplicitSetLinDecOct = false;
-  bool typeExplicitSetList = false;
-  std::string type("LIN");
-  while ( pos1 < numFields )
+  Util::OptionBlock option_block("ROL", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
+
+  while( linePosition < numFields )
   {
-    ExtendedString stringVal ( parsed_line[pos1].string_ );
-    stringVal.toUpper ();
-    if (stringVal == "LIN" ||
-        stringVal == "DEC" ||
-        stringVal == "OCT")
+    std::string curr = parsed_line[linePosition].string_;
+    Util::toUpper(curr);
+
+    if (curr == "FILENAME")
     {
-      typeExplicitSetLinDecOct = true;
-      type = stringVal;
+      if (parsed_line[linePosition + 1].string_ == "=")
+        linePosition ++;
+      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
     }
-    else if (stringVal == "LIST")
+    else if (curr == "OBJTYPE")
     {
-      typeExplicitSetList = true;
-      type = stringVal;
+      if (parsed_line[linePosition + 1].string_ == "=")
+        linePosition ++;
+      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
     }
-
-    ++pos1;
-  }
-
-  // Check that the minimum required number of fields are on the line.
-  int offset = 1;
-  if (typeExplicitSetLinDecOct)
-  {
-    offset = 2;
-  }
-
-  if (!typeExplicitSetList)// if this is a list, number of fields is arbitrary.
-  {
-    if ( (numFields-offset)%4 != 0 )
+    else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-        << ".ROL line not formatted correctly.";
-      return false;
-    }
-  }
-
-  int linePosition = 1;   // Start of parameters on .param line.
-  Util::Param parameter("", "");
-
-  // Add the type (which was determined above) to the parameter list.
-  parameter.setTag( "TYPE" );
-  parameter.setVal( type );
-  option_block.addParam( parameter );
-
-  if (type=="LIN")
-  {
-    if (typeExplicitSetLinDecOct) linePosition=2;
-    while ( linePosition < numFields )
-    {
-      parameter.setTag( "PARAM" );
-      parameter.setVal(std::string(ExtendedString(parsed_line[linePosition].string_).toUpper()));
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "START" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "STOP" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "STEP" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-    }
-  }
-  else if (type=="DEC")
-  {
-    if (typeExplicitSetLinDecOct) linePosition=2;
-
-    while ( linePosition < numFields )
-    {
-      parameter.setTag( "PARAM" );
-      parameter.setVal(std::string(ExtendedString(parsed_line[linePosition].string_).toUpper()));
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "START" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "STOP" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "NUMSTEPS" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-    }
-  }
-  else if (type=="OCT")
-  {
-    if (typeExplicitSetLinDecOct) linePosition=2;
-
-    while ( linePosition < numFields )
-    {
-      parameter.setTag( "PARAM" );
-      parameter.setVal(std::string(ExtendedString(parsed_line[linePosition].string_).toUpper()));
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "START" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "STOP" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
-
-      parameter.setTag( "NUMSTEPS" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;     // Advance to next parameter.
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Unrecognized value '" << curr << "' on .ROL line";
+      break;
     }
 
-  }
-  else if (type=="LIST")
-  {
-    parameter.setTag( "PARAM" );
-    parameter.setVal(std::string(ExtendedString(parsed_line[1].string_).toUpper()));
-    option_block.addParam( parameter );
-
-    int linePosition=3;
-    while (linePosition<numFields)
-    {
-      parameter.setTag( "VAL" );
-      parameter.setVal( parsed_line[linePosition].string_ );
-      option_block.addParam( parameter );
-      ++linePosition;
-    }
-  }
-  else
-  {
-    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-      << ".ROL line contains an unrecognized type";
-  }
+    linePosition++;
+  } 
 
   circuit_block.addOptions(option_block);
 
   return true;
 }
 
-void
-populateMetadata(
-  IO::PkgOptionsMgr &   options_manager)
+//-----------------------------------------------------------------------------
+// Function      : extractROLDCData
+// Purpose       : Extract the parameters from a netlist .ROL_DC line held in
+//                 parsedLine.
+// Special Notes : This calls the extractDCData method to avoid duplication of
+//                 line parsing for .DC lines
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 10/30/2003
+//-----------------------------------------------------------------------------
+bool extractROLDCData(
+   IO::PkgOptionsMgr &           options_manager,
+   IO::CircuitBlock &            circuit_block,
+   const std::string &           netlist_filename,
+   const IO::TokenVector &       parsed_line)
 {
-  Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("ROL_OPTS");
+  std::vector<Util::OptionBlock> option_block_vec = 
+    Xyce::Analysis::extractDCDataInternals("ROL_DC", options_manager, netlist_filename, parsed_line);
 
-  parameters.insert(Util::ParamMap::value_type("FILENAME", Util::Param("FILENAME", "parameters.txt")));
-  parameters.insert(Util::ParamMap::value_type("OBJTYPE", Util::Param("OBJTYPE", -1)));
+  if (option_block_vec.size())
+  {
+    std::vector<Util::OptionBlock>::iterator it = option_block_vec.begin();
+    std::vector<Util::OptionBlock>::const_iterator it_end = option_block_vec.end();
+    for ( ; it != it_end; ++it )
+      circuit_block.addOptions( *it );
+  }
+  else
+   return false;
+
+  return true;
 }
 
 } // namespace <unnamed>
+
+//-----------------------------------------------------------------------------
+// TT: this function gets called by the value() function in EqualityConstraint class; 
+//     it updates sweep parameter so that correct source term is loaded into RHS vector
+//-----------------------------------------------------------------------------
+void ROL_DC::setSweepValue(int step)
+{
+  bool reset = updateSweepParams(loader_, step, stepSweepVector_.begin(), stepSweepVector_.end(), false);
+}
+
+bool ROL_DC::doProcessSuccessfulStep()
+{
+  int currentStep = outputManagerAdapter_.getDCAnalysisStepNumber();
+
+  bool ret = this->doProcessSuccessfulStep();
+
+  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
+  *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
+
+  return ret;
+}
+
+bool ROL_DC::doAllocations(int nc, int nz)
+{
+  stepLoopSize_ = nc;
+  numParams_ = nz;
+
+  // Allocate space for solution and simulation space vectors
+  solutionPtrVector_.resize(nc);
+  statePtrVector_.resize(nc);
+  constraintPtrVector_.resize(nc);
+
+  for (int i=0;i<nc;i++)
+  {
+    solutionPtrVector_[i]   = linearSystem_.builder().createVector();
+    statePtrVector_[i]      = linearSystem_.builder().createVector();
+    constraintPtrVector_[i] = linearSystem_.builder().createVector();
+  }
+  // Allocate space for sensitivity vectors
+  mydfdpPtrVector_.resize(nz);
+  mydqdpPtrVector_.resize(nz);
+  mydbdpPtrVector_.resize(nz);
+  mysensRHSPtrVector_.resize(nz);
+  for (int i=0;i<nz;i++)
+  {
+    mydfdpPtrVector_[i] = linearSystem_.builder().createVector();
+    mydqdpPtrVector_[i] = linearSystem_.builder().createVector();
+    mydbdpPtrVector_[i] = linearSystem_.builder().createVector();
+    mysensRHSPtrVector_[i] = linearSystem_.builder().createVector();
+  }
+
+  return true;
+}
+
+bool ROL_DC::doFree()
+{
+  for (int i=0;i<stepLoopSize_;i++)
+  {
+    delete solutionPtrVector_[i];
+    solutionPtrVector_[i] = 0;
+    delete statePtrVector_[i];
+    statePtrVector_[i] = 0;
+    delete constraintPtrVector_[i];
+    constraintPtrVector_[i] = 0;
+  }
+  solutionPtrVector_.clear();
+  statePtrVector_.clear();
+  constraintPtrVector_.clear();
+
+  for (int i=0;i<numParams_;i++)
+  {
+    delete mydfdpPtrVector_[i];
+    mydfdpPtrVector_[i] = 0;
+    delete mydqdpPtrVector_[i];
+    mydqdpPtrVector_[i] = 0;
+    delete mydbdpPtrVector_[i];
+    mydbdpPtrVector_[i] = 0;
+    delete mysensRHSPtrVector_[i];
+    mysensRHSPtrVector_[i] = 0;
+  }
+  mydfdpPtrVector_.clear();
+  mydqdpPtrVector_.clear();
+  mydbdpPtrVector_.clear();
+  mysensRHSPtrVector_.clear();
+
+  return true;
+}
 
 
 bool registerROLFactory(
@@ -1362,15 +1305,19 @@ bool registerROLFactory(
 
   addAnalysisFactory(factory_block, factory);
 
-  populateMetadata(factory_block.optionsManager_);
-
   factory_block.optionsManager_.addCommandParser(".ROL", extractROLData);
 
   factory_block.optionsManager_.addCommandProcessor("ROL", new ROLAnalysisReg(*factory));
 
-  factory_block.optionsManager_.addOptionsProcessor("ROL_OPTS", IO::createRegistrationOptions(*factory, &ROLFactory::setROLOptionBlock));
+  factory_block.optionsManager_.addCommandParser(".ROL_DC", extractROLDCData);
+
+  factory_block.optionsManager_.addCommandProcessor("ROL_DC", IO::createRegistrationOptions(*factory, &ROLFactory::setROLDCBlock));
 
   factory_block.optionsManager_.addOptionsProcessor("TIMEINT", IO::createRegistrationOptions(*factory, &ROLFactory::setTimeIntegratorOptionBlock));
+
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions(*factory, &ROLFactory::setLinSolOptionBlock));
+
+  factory_block.optionsManager_.addCommandProcessor("DATA", IO::createRegistrationOptions(*factory, &ROLFactory::setDotDataBlock) );
 
   return true;
 }

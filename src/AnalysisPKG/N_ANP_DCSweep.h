@@ -167,6 +167,13 @@ private:
 
 bool registerDCSweepFactory(FactoryBlock &factory_block);
 
+std::vector<Util::OptionBlock> 
+extractDCDataInternals(
+  const std::string &           name,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line);
+
 } // namespace Analysis
 } // namespace Xyce
 

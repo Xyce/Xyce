@@ -55,7 +55,8 @@ enum Mode
   ANP_MODE_HB,
   ANP_MODE_AC,
   ANP_MODE_NOISE,
-  ANP_MODE_MOR
+  ANP_MODE_MOR,
+  ANP_MODE_ROL
 };
 
 enum DCOPType {

@@ -46,6 +46,8 @@
 namespace Xyce {
 namespace Analysis {
 
+class ROL_DC;
+
 typedef double RealT;
 //-------------------------------------------------------------------------
 // Class         : ROL
@@ -76,9 +78,7 @@ public:
   virtual ~ROL();
 
   // Method to set ROL options
-  bool setROLOptions(const Util::OptionBlock & option_block);
 
-  bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
 
   void setTIAParams(const TimeIntg::TIAParams &tia_params)
@@ -95,6 +95,19 @@ public:
   {
     return tiaParams_;
   }
+
+  // Method to set ROL options
+  bool setAnalysisParams(const Util::OptionBlock & option_block);
+  bool setROLOptions(const Util::OptionBlock & option_block);
+
+  // Method to set ROL DC description
+  bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
+
+  // Method to set non-HB linear solver / preconditioning options (needed for .STEP)
+  bool setLinSol(const Util::OptionBlock & option_block);
+
+  // Method to set time integrator options (needed for initial condition / startup periods)
+  bool setTimeInt(const Util::OptionBlock & option_block);
 
   bool getDCOPFlag() const // override
   {
@@ -161,14 +174,75 @@ private:
   std::string                           outputFile_;  // Name of file containing ROL output
   int                                   objType_;   // Objective type
 
+  ROL_DC *                              dcAnalysis_;
+
   std::vector<double>                   objectiveVec_;
   std::vector<double>                   dOdpVec_;
   std::vector<double>                   dOdpAdjVec_;
   std::vector<double>                   scaled_dOdpVec_;
   std::vector<double>                   scaled_dOdpAdjVec_;
+
+  Util::OptionBlock                     saved_lsOB_;  // Linear solver options
+  Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
+  std::vector<Util::OptionBlock>        saved_sweepOB_;  // DCSweep options
 };
 
 bool registerROLFactory(FactoryBlock &factory_block);
+
+class ROL_DC: public DCSweep
+{
+public:
+
+  ROL_DC(
+      AnalysisManager &analysis_manager, 
+      Nonlinear::Manager &nonlinear_manager,
+      Loader::Loader &loader, 
+      Linear::System & linear_system,
+      Topo::Topology & topology,
+      IO::InitialConditionsManager & initial_conditions_manager)
+  : DCSweep( analysis_manager, &linear_system, nonlinear_manager, loader, topology, initial_conditions_manager ),
+    analysisManager_( analysis_manager ),
+    nonlinearManager_( nonlinear_manager ),
+    loader_( loader ),
+    topology_( topology ),
+    initialConditionsManager_( initial_conditions_manager ),
+    linearSystem_( linear_system ),
+    outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
+    stepLoopSize_(0),
+    numParams_(0)
+  {} 
+   
+  virtual ~ROL_DC() { doFree(); }
+
+  void setSweepValue(int step);
+  bool doAllocations(int nc, int nz);
+
+  std::vector<Linear::Vector *>         solutionPtrVector_;
+  std::vector<Linear::Vector *>         statePtrVector_;
+  std::vector<Linear::Vector *>         constraintPtrVector_;
+  std::vector<Linear::Vector *>         mydfdpPtrVector_;
+  std::vector<Linear::Vector *>         mydqdpPtrVector_;
+  std::vector<Linear::Vector *>         mydbdpPtrVector_;
+  std::vector<Linear::Vector *>         mysensRHSPtrVector_;
+
+protected:
+  bool doProcessSuccessfulStep();
+  bool doProcessFailedStep() { return true; }
+
+private:
+  bool doFree();
+
+  AnalysisManager &                     analysisManager_;
+  Nonlinear::Manager &                  nonlinearManager_; // TT
+  Loader::Loader &                      loader_;
+  Topo::Topology &                      topology_;
+  IO::InitialConditionsManager &        initialConditionsManager_;
+  Linear::System &                      linearSystem_;
+  OutputMgrAdapter &                    outputManagerAdapter_;
+  SweepVector                           stepSweepVector_;
+  int                                   stepLoopSize_;
+  int                                   numParams_;
+};
 
 } // namespace Analysis
 } // namespace Xyce
