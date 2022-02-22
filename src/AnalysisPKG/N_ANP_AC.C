@@ -469,6 +469,7 @@ AC::~AC()
 
   if (sensFlag_)
   {
+    delete origB_;
     delete dbdpVecRealPtr;
     delete dbdpVecImagPtr;
     delete dOdxVecRealPtr;
@@ -497,6 +498,7 @@ AC::~AC()
     } 
 
     for (int ii=0;ii<numSensParams_;++ii) { delete dJdpVector_[ii]; }
+    for (int ii=0;ii<numSensParams_;++ii) { delete dBdpVector_[ii]; }
   }
 }
 
@@ -1067,6 +1069,7 @@ bool AC::createLinearSystem_()
     origC_ = linearSystem_.builder().createMatrix ();
     origG_ = linearSystem_.builder().createMatrix ();
 
+    origB_    = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dBdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dXdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     sensRhs_  = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
@@ -1090,6 +1093,9 @@ bool AC::createLinearSystem_()
         objFuncDataVec_[iobj]->expPtr->setGroup( newGroup );
       }
     }
+
+    dBdpVector_.resize(numSensParams_);
+    for (int ii=0;ii<numSensParams_;++ii) { dBdpVector_[ii] = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap); }
 
     dJdpVector_.resize(numSensParams_);
     for (int ii=0;ii<numSensParams_;++ii) { dJdpVector_[ii] = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph); }
@@ -1412,8 +1418,8 @@ bool AC::precomputeDCsensitivities_ ()
 
     // check for B' sensitivities:
     std::vector< std::complex<double> > dbdp;
-    if (analyticBVecSensAvailable && !forceDeviceFD_) { numericalDiff_[ipar] = 0; }
-    else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_) { numericalDiff_[ipar] = 1; }
+    if (analyticBVecSensAvailable && !forceDeviceFD_) { numericalDiff_[ipar] = 0; dBdpVector_[ipar]->putScalar(0.0); }
+    else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_) { numericalDiff_[ipar] = 1;  dBdpVector_[ipar]->putScalar(0.0); }
 
     if (!analyticBVecSensAvailable && !deviceLevelBVecSensNumericalAvailable)
     {
@@ -1488,6 +1494,9 @@ bool AC::precomputeDCsensitivities_ ()
     origG_->addOverlap(*G_);
     origG_->fillComplete();
 
+    // save original B vector:
+    *origB_ = *B_;
+
     // compute dxdp for each p, and scale by dP to get dx
     for (int ipar=0;ipar<numSensParams_;++ipar)
     {
@@ -1521,6 +1530,18 @@ bool AC::precomputeDCsensitivities_ ()
 
       // reload C and G, with updated x and p
       updateLinearSystem_C_and_G_();
+
+      // compute numerical B' = dBdp = (perturbB - origB)/dP
+      // reload B vector, sett up perturbed B
+      bVecRealPtr->putScalar(0.0);
+      bVecImagPtr->putScalar(0.0);
+      loader_.loadBVectorsforAC (bVecRealPtr, bVecImagPtr);
+      B_->putScalar( 0.0 );
+      B_->block( 0 ).update( 1.0, *bVecRealPtr);
+      B_->block( 1 ).update( 1.0, *bVecImagPtr);
+
+      dBdpVector_[ipar]->update(1.0, *B_, -1.0, *origB_, 0.0 );
+      dBdpVector_[ipar]->scale(1.0/dP);
 
       // compute numerical dGdp 
       // dGdp = (perturbG - origG)/dP
@@ -1561,6 +1582,10 @@ bool AC::precomputeDCsensitivities_ ()
     G_->put(0.0);
     G_->addOverlap(*origG_);
     G_->fillComplete();
+
+    // restore original B vector:
+    *B_ = *origB_;
+
   }
 
   // at this point everything should be restored.   Not sure if this call is necessary.  check later
@@ -2104,10 +2129,9 @@ bool AC::loadSensitivityRHS_(int ipar)
     numericalDiff_[ipar] = 1;
   }
 
-  dBdp_->putScalar( 0.0 );
-
   if (analyticBVecSensAvailable || deviceLevelBVecSensNumericalAvailable)
   {
+    dBdp_->putScalar( 0.0 );
     dbdpVecRealPtr->putScalar(0.0);
     dbdpVecImagPtr->putScalar(0.0);
 
@@ -2146,6 +2170,8 @@ bool AC::loadSensitivityRHS_(int ipar)
     unapplyOmega_dJdp(ipar);
 
     sensRhs_->scale(-1.0);
+    sensRhs_->update( 1.0, *dBdpVector_[ipar] );  
+
 #ifdef Xyce_PARALLEL_MPI
     sensRhs_->importOverlap();
 #endif

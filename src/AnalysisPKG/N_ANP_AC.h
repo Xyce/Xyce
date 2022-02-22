@@ -289,6 +289,7 @@ private:
   Linear::Matrix *                G_;
   Linear::BlockMatrix *           ACMatrix_;
   Linear::BlockVector *           B_;
+  Linear::BlockVector *           origB_;
   Linear::BlockVector *           X_;
 
   // sensitivity vectors
@@ -298,6 +299,7 @@ private:
   Linear::Vector *      dOdxVecImagPtr;
 
   std::vector<Linear::BlockMatrix *>  dJdpVector_;
+  std::vector<Linear::BlockVector *>  dBdpVector_;
 
   Linear::Matrix *                dCdp_;
   Linear::Matrix *                dGdp_;
