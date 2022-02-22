@@ -114,11 +114,11 @@ public:
   void finalExpressionBasedSetup();
 
 protected:
-  bool doRun(); 
-  bool doInit(); 
-  bool doLoopProcess(); 
-  bool doProcessSuccessfulStep(); 
-  bool doProcessFailedStep();
+  virtual bool doRun(); 
+  virtual bool doInit(); 
+  virtual bool doLoopProcess(); 
+  virtual bool doProcessSuccessfulStep(); 
+  virtual bool doProcessFailedStep();
   bool doFinish();
   bool doHandlePredictor();
 
@@ -149,10 +149,8 @@ private:
   TimeIntg::TIAParams                   tiaParams_;
   bool                                  sensFlag_;
   bool                                  dcLoopInitialized_;
-  int                                   dcLoopSize_;
   int                                   numSensParams_;
   std::vector<int>                      dcSweepFailures_;
-  SweepVector                           dcSweepVector_;
   std::vector<double>                   objectiveVec_;
   std::vector<double>                   dOdpVec_;
   std::vector<double>                   dOdpAdjVec_;
@@ -163,6 +161,11 @@ private:
   std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;
 
   std::vector < AnalysisBase * > parentAnalysisPtrVec_;
+
+protected:
+  int                                   dcLoopSize_;
+  SweepVector                           dcSweepVector_;
+
 };
 
 bool registerDCSweepFactory(FactoryBlock &factory_block);

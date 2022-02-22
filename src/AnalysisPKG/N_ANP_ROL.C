@@ -106,13 +106,6 @@ ROL::ROL(
    Topo::Topology & topology,
    IO::InitialConditionsManager & initial_conditions_manager)
   : AnalysisBase(analysis_manager, "ROL"),
-    solutionPtrVector_(0),
-    statePtrVector_(0),
-    constraintPtrVector_(0),
-    mydfdpPtrVector_(0),
-    mydqdpPtrVector_(0),
-    mydbdpPtrVector_(0),
-    mysensRHSPtrVector_(0),
     analysisManager_(analysis_manager),
     nonlinearManager_(nonlinear_manager), // TT
     loader_(loader),
@@ -122,72 +115,27 @@ ROL::ROL(
     outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
     stepLoopSize_(0),
     sensFlag_(analysis_manager.getSensFlag()),
-    rolLoopInitialized_(false),
     numParams_(0),
     numSensParams_(0),
     paramFile_("parameters.txt"),
     outputFile_("rol_output.txt"),
     objType_(-1)
 {
+    analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP);
+
+    // Create ROL_DC analysis object.
+    dcAnalysis_ = new ROL_DC(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
 }
 
 //-----------------------------------------------------------------------------
 // Function      : ROL::~ROL
 // Purpose       :
 //-----------------------------------------------------------------------------
-ROL::~ROL(){}
+ROL::~ROL()
+{
+  delete dcAnalysis_;
+}
   
-//TT : copied from DCSweep;
-//-----------------------------------------------------------------------------
-// Function      : ROL::setTranOptions
-// Purpose       :
-// Special Notes : These are from '.options timeint'
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 04/18/02
-//-----------------------------------------------------------------------------
-bool ROL::setTimeIntegratorOptions(
-   const Util::OptionBlock &     option_block)
-{
-  for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
-  {
-    const Util::Param &param = (*it);
-
-    if (param.uTag() == "DAESTATEDERIV")
-      analysisManager_.setDAEStateDerivFlag(static_cast<bool> (param.getImmutableValue<int>()));
-    else if (param.uTag() == "DEBUGLEVEL")
-      IO::setTimeIntegratorDebugLevel(analysisManager_.getCommandLine(), param.getImmutableValue<int>());
-    else if (nonlinearManager_.setReturnCodeOption(param))
-      ;
-    else if (tiaParams_.setTimeIntegratorOption(param))
-      ;
-    else if (setDCOPOption(param))
-      ;
-    else if (param.uTag() == "METHOD")
-      ;
-    else
-      Report::UserError0() << param.uTag() << " is not a recognized time integration option";
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ROL::setAnalysisParams
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 6/22/10
-//-----------------------------------------------------------------------------
-bool ROL::setAnalysisParams(const Util::OptionBlock & paramsBlock)
-{
-  stepSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
-  outputManagerAdapter_.setStepSweepVector(stepSweepVector_);
-
-  return true;
-}
-
 //-----------------------------------------------------------------------------
 // Function      : ROL::setROLOptions
 // Purpose       :
@@ -230,12 +178,11 @@ bool ROL::setROLOptions( const Util::OptionBlock & option_block)
 // Creator       : Eric Keiter, SNL
 // Creation Date : 10/04/00
 //-----------------------------------------------------------------------------
-// Revised: Timur Takhtaganov, 06/03/2015
-//         
 bool ROL::doRun()
 {
-  // Instead of running DCSweep type analysis, we will run ROL analysis; the following will be only used in solve() function in the EqualityConstraint class: doInit() && doLoopProcess() && doFinish();
-  return doInit() && runROLAnalysis() && doFinish();
+  // The doLoopProcess() will execute the ROL optimization algorithm on necessary
+  // subordinate analysis objects, like AC / DC / Transient.
+  return doInit() && doLoopProcess() && doFinish();
 }
 
 //-----------------------------------------------------------------------------
@@ -249,6 +196,14 @@ bool ROL::doRun()
 bool ROL::doInit()
 {
   bool status;
+
+  if (dcAnalysis_)
+  { 
+    dcAnalysis_->setAnalysisParams(saved_sweepOB_);
+    dcAnalysis_->setTimeIntegratorOptions(saved_timeIntOB_);
+    dcAnalysis_->doInit();
+    stepLoopSize_ = dcAnalysis_->getLoopSize();
+  }
  
   if (sensFlag_)
   {
@@ -262,366 +217,59 @@ bool ROL::doInit()
         outputManagerAdapter_.getOutputManager(),
         numSensParams_);
   }
- 
-  if ( !rolLoopInitialized_ )
+
+
+  if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
-    if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
-    {
-      Xyce::dout() << std::endl << std::endl;
-      Xyce::dout() << section_divider << std::endl;
-      Xyce::dout() << "ROL Sweep::init" << std::endl;
-    }
-
-    // TT: processes sweep parameters; location N_ANP_SweepParam.C
-    stepLoopSize_ = setupSweepLoop(analysisManager_.getComm(), loader_, stepSweepVector_.begin(), stepSweepVector_.end());
-
-    // status = doAllocations(stepLoopSize_,numParams_); // TT: call here if runROLAnalysis is not called
-
-    // TT: two lines from DCSweep, changed to Step instead of DC
-    //outputManagerAdapter_.setStepAnalysisMaxSteps( stepLoopSize_ );
-    outputManagerAdapter_.setStepSweepVector(stepSweepVector_);
-    
-    rolLoopInitialized_ = true;
-
-    Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::INITIALIZE, stepSweepVector_, stepLoopSize_)); // TT
-    
+    Xyce::dout() << std::endl << std::endl;
+    Xyce::dout() << section_divider << std::endl;
+    Xyce::dout() << "ROL Sweep::init" << std::endl;
   }
-
-  // analysisManager_.setStepLoopInitialized(true);
-  
-  // TT: copied from DCSweep
-  //setup for operating pt calculation
-  baseIntegrationMethod_ = TimeIntg::methodsEnum::NO_TIME_INTEGRATION;
-  analysisManager_.createTimeIntegratorMethod(tiaParams_, baseIntegrationMethod_);
-
-  // TT: copied from DCSweep;
-  stepNumber = 0;
-  setDoubleDCOPEnabled(loader_.isPDESystem());
-  if (getDoubleDCOPEnabled() && getDoubleDCOPStep() == 0)
-  {
-    nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_DC_NLPOISSON));
-  }
-
-  initializeSolution_(); // TT: this function is copied from DCSweep
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ROL::initializeSolution()
-// Purpose       : Imitate the behavior of DCSweep
-//                 
-// Special Notes : Copied from DCSweep
-// Scope         : public
-// Creator       : Timur Takhtaganov
-// Creation Date : 06/02/2015
-//-----------------------------------------------------------------------------
-void ROL::initializeSolution_()
-{
-  // set initial guess, if there is one to be set.
-  // this setInitialGuess call is to up an initial guess in the
-  // devices that have them (usually PDE devices).  This is different than
-  // the "intializeProblem" call, which sets IC's.  (initial conditions are
-  // different than initial guesses.
-  loader_.setInitialGuess(analysisManager_.getDataStore()->nextSolutionPtr); //TT: this function calls a function by the same name in DeviceManager; sets initial guess for devices that have one (PDE?)
-
-  // If available, set initial solution (.IC, .NODESET, etc).
-  setInputOPFlag(
-     initialConditionsManager_.setupInitialConditions(outputManagerAdapter_.getComm(),
-                                                      topology_.getSolutionNodeNameMap(),
-                                                      outputManagerAdapter_.getAliasNodeMap(),
-                                                      *analysisManager_.getDataStore()->nextSolutionPtr,
-                                                      linearSystem_));
-
-  // Set a constant history for operating point calculation
-  analysisManager_.getDataStore()->setConstantHistory();
-  analysisManager_.getWorkingIntegrationMethod().obtainCorrectorDeriv();
-}
-
-//-----------------------------------------------------------------------------
-// TT: this function gets called by the value() function in EqualityConstraint class; it updates sweep parameter so that correct source term is loaded into RHS vector
-//-----------------------------------------------------------------------------
-void ROL::setSweepValue(int step)
-{
-  bool reset = updateSweepParams(loader_, step, stepSweepVector_.begin(), stepSweepVector_.end(), false);// TT: update sweep parameters; location N_ANP_SweepParam.C
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ROL::loopProcess()
+// Function      : ROL::getDCOPFlag
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/10/06
+// Creator       : Eric Keiter
+// Creation Date : 3/24/2014
 //-----------------------------------------------------------------------------
-bool ROL::doLoopProcess()
+bool ROL::getDCOPFlag() const
 {
-  bool integration_status = true;
-  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore()); // TT
-  
-  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::DC));
-  
-  // StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, currentStep);
-
-  int currentStep = 0;
-  int finalStep = stepLoopSize_;
-  while (currentStep < finalStep)
-  {
-    outputManagerAdapter_.setDCAnalysisStepNumber(currentStep);
-      
-    // Tell the manager if any of our sweeps are being reset in this loop iteration.
-    bool reset = updateSweepParams(loader_, currentStep, stepSweepVector_.begin(), stepSweepVector_.end(), false);// TT: update sweep parameters; location N_ANP_SweepParam.C
-      
-    analysisManager_.setSweepSourceResetFlag(reset);// TT: sets sweep source flag to reset in AnalysisManager
-          
-    outputManagerAdapter_.setStepSweepVector(stepSweepVector_);
-      
-    if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
-      for (SweepVector::const_iterator it = stepSweepVector_.begin(), end = stepSweepVector_.end(); it != end; ++it)
-        Xyce::dout() << "ROL DC Sweep # " << currentStep <<"\t" << (*it);
-      
-    // TT
-    if (currentStep != 0 && reset)
-    {
-      analysisManager_.getDataStore()->setZeroHistory();
-      initializeSolution_();
-    }
-    
-          
-    // TT: the following line causes currSol and nextSol reset to zero
-    // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_STARTED, stepSweepVector_, currentStep)); 
-
-    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::DC, 0.0, currentStep));
-    //step_event.state = StepEvent::STEP_STARTED;
-    //Util::publish<StepEvent>(analysisManager_, step_event);
-  
-    takeStep_(); // TT: take integration step
-
-    // Set things up for the next time step, based on if this one was
-    // successful.
-    if (analysisManager_.getStepErrorControl().stepAttemptStatus)
-    {
-      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_SUCCESSFUL, AnalysisEvent::DC, 0.0, currentStep));
-      doProcessSuccessfulStep();
-      // collect solutions here
-      *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
-      // solutionPtrVector_[currentStep]->print(Xyce::dout());
-    }
-    else // stepAttemptStatus  (ie do this if the step FAILED)
-    {
-      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_FAILED, AnalysisEvent::DC, 0.0, currentStep));
-      doProcessFailedStep();
-    }
-      
-    currentStep = stepNumber;
-  } // end of sweep loop
-
-  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::DC));
-
-  return integration_status;
+  if (dcAnalysis_)
+    return dcAnalysis_->getDCOPFlag();
+  else
+    return false;
 }
 
-//-----------------------------------------------------------------------------
-// TT: copied from DCSweep
-//-----------------------------------------------------------------------------
 bool ROL::doHandlePredictor()
 {
-  analysisManager_.getDataStore()->setErrorWtVector(tiaParams_, topology_.getVarTypes());
-  analysisManager_.getWorkingIntegrationMethod().obtainPredictor();
-  analysisManager_.getWorkingIntegrationMethod().obtainPredictorDeriv();
-  
-  // In case this is the upper level of a 2-level sim, tell the
-  // inner solve to do its prediction:
-  bool        beginIntegrationFlag = analysisManager_.getBeginningIntegrationFlag();           // system_state.beginIntegrationFlag;
-  double      nextTimeStep = analysisManager_.getStepErrorControl().currentTimeStep;           // system_state.nextTimeStep;
-  double      nextTime = analysisManager_.getStepErrorControl().nextTime;                      // system_state.nextTime;
-  int         currentOrder = analysisManager_.getWorkingIntegrationMethod().getOrder();        // system_state.currentOrder;
-
-  loader_.startTimeStep(beginIntegrationFlag, nextTimeStep, nextTime, currentOrder);
-
-  return true;
+  if (dcAnalysis_)
+    return dcAnalysis_->doHandlePredictor();
+  else
+    return false;
 }
 
 //-----------------------------------------------------------------------------
-// TT: copied from DCSweep
-//-----------------------------------------------------------------------------
-void ROL::takeStep_()
-{
-  { // Integration step predictor
-    Stats::StatTop _predictorStat("Predictor");
-    Stats::TimeBlock _predictorTimer(_predictorStat);
-
-    doHandlePredictor();
-  }
-  
-  { // Load B/V source devices with time data
-    Stats::StatTop _updateDeviceSourceStat("Update Device Sources");
-    Stats::TimeBlock _updateDeviceSourceTimer(_updateDeviceSourceStat);
-
-    loader_.updateSources();
-  }
-  
-  { // Nonlinear solve
-    Stats::StatTop _nonlinearSolveStat("Solve");
-    Stats::TimeBlock _nonlinearSolveTimer(_nonlinearSolveStat);
-
-    analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
-  }
-
-  { // Add change to solution
-    Stats::StatTop _errorStat("Error Estimation");
-    Stats::TimeBlock _errorTimer(_errorStat);
-
-    analysisManager_.getWorkingIntegrationMethod().stepLinearCombo();
-
-    gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
-
-    analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
-  }
-}
-  
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-bool ROL::doAllocations(int nc, int nz)
-{
-  // Allocate space for solution and simulation space vectors
-  solutionPtrVector_.resize(nc);
-  statePtrVector_.resize(nc);
-  constraintPtrVector_.resize(nc);
-
-  for (int i=0;i<nc;i++)
-  {
-    solutionPtrVector_[i]   = linearSystem_.builder().createVector();
-    statePtrVector_[i]      = linearSystem_.builder().createVector();
-    constraintPtrVector_[i] = linearSystem_.builder().createVector();
-  }
-  // Allocate space for sensitivity vectors
-  mydfdpPtrVector_.resize(nz);
-  mydqdpPtrVector_.resize(nz);
-  mydbdpPtrVector_.resize(nz);
-  mysensRHSPtrVector_.resize(nz);
-  for (int i=0;i<nz;i++)
-  {
-    mydfdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mydqdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mydbdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mysensRHSPtrVector_[i] = linearSystem_.builder().createVector();
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-bool ROL::doFree()
-{
-  for (int i=0;i<stepLoopSize_;i++)
-  {
-    delete solutionPtrVector_[i];
-    solutionPtrVector_[i] = 0;
-    delete statePtrVector_[i];
-    statePtrVector_[i] = 0;
-    delete constraintPtrVector_[i];
-    constraintPtrVector_[i] = 0;
-  }
-  solutionPtrVector_.clear();
-  statePtrVector_.clear();
-  constraintPtrVector_.clear();
-
-  for (int i=0;i<numParams_;i++)
-  {
-    delete mydfdpPtrVector_[i];
-    mydfdpPtrVector_[i] = 0;
-    delete mydqdpPtrVector_[i];
-    mydqdpPtrVector_[i] = 0;
-    delete mydbdpPtrVector_[i];
-    mydbdpPtrVector_[i] = 0;
-    delete mysensRHSPtrVector_[i];
-    mysensRHSPtrVector_[i] = 0;
-  }
-  mydfdpPtrVector_.clear();
-  mydqdpPtrVector_.clear();
-  mydbdpPtrVector_.clear();
-  mysensRHSPtrVector_.clear();
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// TT: copied from DCSweep
+// Function      : ROL::processSuccessfulStep()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Todd Coffey, SNL
+// Creation Date : 09/18/2008
 //-----------------------------------------------------------------------------
 bool ROL::doProcessSuccessfulStep()
 {
-  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-
   Stats::StatTop _processSuccessfulStepStat("Successful Step");
   Stats::TimeBlock _processSuccessfulStepTimer(_processSuccessfulStepStat);
 
-  loader_.stepSuccess(TWO_LEVEL_MODE_DC_SWEEP); // analysisManager_.getTwoLevelMode());
-
-  // This output call is for device-specific output, such as .OP,
-  // or internal plot output from PDE(TCAD) devices.
-  loader_.outputPlotFiles();
-
-  // TT : not using
-  if (sensFlag_ && !firstDoubleDCOPStep() )
-  {
-    nonlinearManager_.calcSensitivity(objectiveVec_, dOdpVec_, dOdpAdjVec_, scaled_dOdpVec_, scaled_dOdpAdjVec_);
-  }
-
-  // Do some statistics, as long as this isn't the first "double"
-  // DCOP step. (that one doesn't count)
-  if ( !firstDoubleDCOPStep() )
-  {
-    stepNumber += 1; // TT: this is inherited from AnalysisBase
-    stats_.successStepsThisParameter_ += 1;
-    stats_.successfulStepsTaken_ += 1;
-  }
-    
-  // update the data arrays, output:
-  analysisManager_.getDataStore()->updateSolDataArrays();
-
-  //TT: print out current solution and rhs
-  if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
-  {
-    if ( !firstDoubleDCOPStep() )
-    {
-      std::cout << "Current solution" << std::endl;
-      for (unsigned int k = 0; k < ds.solutionSize; k++)
-      {
-        std::cout << (*(ds.currSolutionPtr))[k] << std::endl;
-      }
-
-      for (int i=0;i<3;i++)
-      {
-        std::cout << (*(ds.dFdxdVpVectorPtr))[i] << std::endl;
-      }
-
-      std::cout << "Current f vector" << std::endl;
-      for (unsigned int k = 0; k < ds.daeFVectorPtr->globalLength(); k++)
-      {
-        std::cout << (*ds.daeFVectorPtr)[k] << std::endl;
-      }
-      std::cout << "Current q vector" << std::endl;
-      for (unsigned int k = 0; k < ds.daeQVectorPtr->globalLength(); k++)
-      {
-        std::cout << (*ds.daeQVectorPtr)[k] << std::endl;
-      }
-      std::cout << "Current b vector" << std::endl;
-      for (unsigned int k = 0; k < ds.daeBVectorPtr->globalLength(); k++)
-      {
-        std::cout << (*ds.daeBVectorPtr)[k] << std::endl;
-      }
-    }
-  }
-    
-  // now that output has been called, update the doubleDCOP step
-  // if neccessary. (pde-only)
-  nextDCOPStep();
-  // std::cout << "Setting analysis mode to DC_SWEEP" << std::endl;
-  nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_DC_SWEEP));
-
-  return true;
+  if (dcAnalysis_)
+    return dcAnalysis_->doProcessSuccessfulStep();
+  else
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -637,14 +285,10 @@ bool ROL::doProcessFailedStep()
   Stats::StatTop _processFailedStat("Failed Steps");
   Stats::TimeBlock _processFailedTimer(_processFailedStat);
 
-  loader_.stepFailure(analysisManager_.getTwoLevelMode());
-
-  stepNumber += 1;
-  rolSweepFailures_.push_back(stepNumber);
-  stats_.failedStepsAttempted_  += 1;
-  analysisManager_.getStepErrorControl().numberSuccessiveFailures += 1;
-
-  return true;
+  if (dcAnalysis_)
+    return dcAnalysis_->doProcessFailedStep();
+  else
+    return false;
 }
 
 
@@ -658,9 +302,10 @@ bool ROL::doProcessFailedStep()
 //-----------------------------------------------------------------------------
 bool ROL::doFinish()
 {
-  Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::FINISH, stepSweepVector_, stepLoopSize_));
-
-  return true;
+  if (dcAnalysis_)
+   return dcAnalysis_->doFinish();
+  else
+   return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -677,31 +322,24 @@ bool ROL::doFinish()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/10/06
 //-----------------------------------------------------------------------------
-// TT: moved from DCSweep; I think its needed for pde devices
 bool ROL::twoLevelStep()
 {
-  loader_.updateSources();
-  analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
-  analysisManager_.getDataStore()->stepLinearCombo();
-  gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
-  analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
-
-  return analysisManager_.getStepErrorControl().stepAttemptStatus;
+  if (dcAnalysis_)
+    return dcAnalysis_->twoLevelStep();
+  else
+    return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ROL::runROLAnalysis
-// Purpose       :
+// Function      : ROL::doLoopProcess
+// Purpose       : Where the ROL analysis is performed
 // Special Notes :
 // Scope         : public
 // Creator       : Timur Takhtaganov
 // Creation Date : 06/02/2015
 //-----------------------------------------------------------------------------
-bool ROL::runROLAnalysis()
+bool ROL::doLoopProcess()
 {
-
-  // Util::publish<StepEvent>(analysisManager_, StepEvent(StepEvent::STEP_STARTED, stepSweepVector_, currentStep)); 
-    
   std::string msg;
   bool status = true;
   int errorFlag = 0;
@@ -758,9 +396,9 @@ bool ROL::runROLAnalysis()
     // p := pointer to a standard vector representing z
 
     // Configure the state and constraint vectors.
-    status = doAllocations(nc, nz);
-    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(statePtrVector_);
-    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(constraintPtrVector_);
+    status = dcAnalysis_->doAllocations(nc, nz);
+    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dcAnalysis_->statePtrVector_);
+    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dcAnalysis_->constraintPtrVector_);
 
     // STEP 1B: Initialize parameters.  ///////////////////////////////////////
 
@@ -792,11 +430,12 @@ bool ROL::runROLAnalysis()
 
     auto con = ::ROL::makePtr<EqualityConstraint_ROL_DC<RealT>>
                (
-                 nu, nc, nz, analysisManager_, 
-                             analysisManager_.getNonlinearEquationLoader(),
-                             nonlinearManager_.getNonlinearSolver(),
-                             linearSystem_,
-                             *this
+                 nu, nc, nz, 
+                 analysisManager_, 
+                 nonlinearManager_.getNonlinearSolver(),
+                 linearSystem_,
+                 paramNameVec_,
+                 *dcAnalysis_ 
                );
     // Here, con is the constraint c(u, z) = 0. Its solve member function 
     // specifies u as a function of z (u = S(z)); see slide 26 of
@@ -896,8 +535,6 @@ bool ROL::runROLAnalysis()
     errorFlag = -1000;
   }; // end try       
   
-  doFree(); // deallocate solution and sensitivity arrays
-
 #else
 
   Report::UserError0() << "ROL was not enabled in the Xyce build";
@@ -1025,20 +662,13 @@ public:
   ///
   ROL *create() const
   {
-    analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP); // TT: 
     ROL *rol = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
-    std::vector<Util::OptionBlock>::const_iterator it = rolDCSweepBlock_.begin();
-    std::vector<Util::OptionBlock>::const_iterator end = rolDCSweepBlock_.end();
-    for ( ; it != end; ++it )
-      rol->setAnalysisParams(*it);
 
     rol->setTimeInt(timeIntegratorOptionBlock_);
     rol->setLinSol(linSolOptionBlock_);
 
     rol->setROLOptions(rolOptionBlock_);
     rol->setROLDCSweep(rolDCSweepBlock_);
-
-    rol->setTimeIntegratorOptions(timeIntegratorOptionBlock_);// TT
 
     return rol;
   }
@@ -1216,14 +846,14 @@ bool extractROLDCData(
 //-----------------------------------------------------------------------------
 void ROL_DC::setSweepValue(int step)
 {
-  bool reset = updateSweepParams(loader_, step, stepSweepVector_.begin(), stepSweepVector_.end(), false);
+  bool reset = updateSweepParams(loader_, step, dcSweepVector_.begin(), dcSweepVector_.end(), false);
 }
 
 bool ROL_DC::doProcessSuccessfulStep()
 {
   int currentStep = outputManagerAdapter_.getDCAnalysisStepNumber();
 
-  bool ret = this->doProcessSuccessfulStep();
+  bool ret = DCSweep::doProcessSuccessfulStep();
 
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
   *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
@@ -1259,6 +889,16 @@ bool ROL_DC::doAllocations(int nc, int nz)
     mydbdpPtrVector_[i] = linearSystem_.builder().createVector();
     mysensRHSPtrVector_[i] = linearSystem_.builder().createVector();
   }
+
+  return true;
+}
+
+bool ROL_DC::setAnalysisParams(const std::vector<Util::OptionBlock>& OB)
+{
+  std::vector<Util::OptionBlock>::const_iterator it = OB.begin();
+  std::vector<Util::OptionBlock>::const_iterator end = OB.end();
+  for( ; it != end; ++it )
+    DCSweep::setAnalysisParams( *it );
 
   return true;
 }

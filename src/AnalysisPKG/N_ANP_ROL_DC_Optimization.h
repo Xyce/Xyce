@@ -107,6 +107,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   Linear::System &                      linearSystem_;
   Loader::NonlinearEquationLoader &     nEqLoader_;
   bool                                  forceFD_;
+  std::vector<std::string>              paramNameVec_;
   Linear::Vector *                      origFVectorPtr_;
   Linear::Vector *                      pertFVectorPtr_;
   Linear::Vector *                      origQVectorPtr_;
@@ -143,14 +144,14 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     // for (int i = 0; i < rolSweep_.numParams_; i++)
     for (int i = 0; i < nz_; i++)
     {
-      parameterName = rolSweep_.paramNameVec_[i];
+      parameterName = paramNameVec_[i];
       parameterValue = (*zp)[i];
       nEqLoader_.setParam(parameterName, parameterValue);
     }
   }
 
  protected:
-  ROL &                                 rolSweep_;
+  ROL_DC &                              rolSweep_;
   AnalysisManager &                     analysisManager_;
       
  public:
@@ -159,19 +160,20 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     Real                                nc, // # of constraint equations
     Real                                nz, // # of optimization variables
     AnalysisManager &                   analysisManager,
-    Loader::NonlinearEquationLoader &   loader,
     Nonlinear::NonLinearSolver &        nls,
     Linear::System &                    linearSystem,
-    ROL &                               rolSweep)
+    std::vector<std::string>            paramNameVec,
+    ROL_DC &                            rolSweep)
     : nu_(nu),
       nc_(nc),
       nz_(nz),
       forceFD_(false),
       analysisManager_(analysisManager),
-      nEqLoader_(loader),
+      nEqLoader_(analysisManager.getNonlinearEquationLoader()),
       rolSweep_(rolSweep),
       nls_(nls),
       linearSystem_(linearSystem),
+      paramNameVec_(paramNameVec),
       origFVectorPtr_(0),
       pertFVectorPtr_(0),
       origQVectorPtr_(0),
@@ -508,14 +510,14 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       // Loop over the vector of parameters.  For each parameter, find the
       // device entity (a model or an instance) which corresponds to it, and
       // perform the finite difference calculation.
-      std::vector<std::string>::iterator firstParam = rolSweep_.paramNameVec_.begin ();
-      std::vector<std::string>::iterator lastParam  = rolSweep_.paramNameVec_.end ();
+      std::vector<std::string>::iterator firstParam = paramNameVec_.begin ();
+      std::vector<std::string>::iterator lastParam  = paramNameVec_.end ();
       std::vector<std::string>::iterator iterParam;
       for ( iterParam=firstParam, iparam=0;
             iterParam!=lastParam; ++iterParam, ++iparam )
       {
         std::string paramName(*iterParam);
-        //std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
+        //std::cout << "Computing derivative wrt " << paramNameVec_[iparam] << std::endl;  
         // get the original value of this parameter, to be used for scaling and/or 
         // numerical derivatives later.
         double paramOrig = 0.0;
@@ -837,14 +839,14 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       // Loop over the vector of parameters.  For each parameter, find the
       // device entity (a model or an instance) which corresponds to it, and
       // perform the finite difference calculation.
-      std::vector<std::string>::iterator firstParam = rolSweep_.paramNameVec_.begin ();
-      std::vector<std::string>::iterator lastParam  = rolSweep_.paramNameVec_.end ();
+      std::vector<std::string>::iterator firstParam = paramNameVec_.begin ();
+      std::vector<std::string>::iterator lastParam  = paramNameVec_.end ();
       std::vector<std::string>::iterator iterParam;
       for ( iterParam=firstParam, iparam=0;
             iterParam!=lastParam; ++iterParam, ++iparam )
       {
         std::string paramName(*iterParam);
-        // std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
+        // std::cout << "Computing derivative wrt " << paramNameVec_[iparam] << std::endl;  
         // get the original value of this parameter, to be used for scaling and/or 
         // numerical derivatives later.
         double paramOrig = 0.0;

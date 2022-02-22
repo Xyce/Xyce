@@ -57,15 +57,10 @@ typedef double RealT;
 // Creation Date : 01/24/08
 //-------------------------------------------------------------------------
 // Revised: Timur Takhtaganov, 06/03/2015
+// Revised: Heidi Thornquist, 02/22/2022
 //
 class ROL : public AnalysisBase
 {
-
-  template <class RealT> 
-  friend class EqualityConstraint_ROL_DC;
-  template <class RealT> 
-  friend class EqualityConstraint_ROL_DC_UQ; 
- 
 public:
   ROL(
       AnalysisManager &analysis_manager, 
@@ -76,10 +71,6 @@ public:
       IO::InitialConditionsManager & initial_conditions_manager); 
    
   virtual ~ROL();
-
-  // Method to set ROL options
-
-  bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
 
   void setTIAParams(const TimeIntg::TIAParams &tia_params)
   {
@@ -97,7 +88,6 @@ public:
   }
 
   // Method to set ROL options
-  bool setAnalysisParams(const Util::OptionBlock & option_block);
   bool setROLOptions(const Util::OptionBlock & option_block);
 
   // Method to set ROL DC description
@@ -109,51 +99,22 @@ public:
   // Method to set time integrator options (needed for initial condition / startup periods)
   bool setTimeInt(const Util::OptionBlock & option_block);
 
-  bool getDCOPFlag() const // override
-  {
-    return true;
-  }
+  bool getDCOPFlag() const; 
 
 protected:
   void finalExpressionBasedSetup() {};
   bool doRun();
   bool doInit();
   bool doLoopProcess();
-  bool runROLAnalysis(); 
   bool doProcessSuccessfulStep();
   bool doProcessFailedStep();
   bool doHandlePredictor();
   bool doFinish();
 
-  // virtual bool doProcessSuccessfulDCOPStep() { // override
-  //   return true;
-  // }
-
-  // virtual bool doProcessFailedDCOPStep() { // override
-  //   return true;
-  // }
-
-  bool doAllocations(int nc, int nz);
-  bool doFree();
-  std::vector<Linear::Vector *> solutionPtrVector_;
-  std::vector<Linear::Vector *> statePtrVector_;
-  std::vector<Linear::Vector *> constraintPtrVector_;
-  std::vector<Linear::Vector *> mydfdpPtrVector_;
-  std::vector<Linear::Vector *> mydqdpPtrVector_;
-  std::vector<Linear::Vector *> mydbdpPtrVector_;
-  std::vector<Linear::Vector *> mysensRHSPtrVector_;
-
 public:
   // Two Level specific
   bool twoLevelStep(); 
-  void setSweepValue(int step); 
 
-private:
-  void initializeSolution_();
-  void takeStep_();
-
-  std::vector<int>      rolSweepFailures_; // TT
-  
 private:
   AnalysisManager &                     analysisManager_;
   Nonlinear::Manager &                  nonlinearManager_; // TT
@@ -163,10 +124,8 @@ private:
   Linear::System &                      linearSystem_;
   OutputMgrAdapter &                    outputManagerAdapter_;
   TimeIntg::TIAParams                   tiaParams_;
-  SweepVector                           stepSweepVector_;
   int                                   stepLoopSize_;
   bool                                  sensFlag_;
-  bool                                  rolLoopInitialized_; // TT
   std::vector<std::string>              paramNameVec_; // TT: vector of optimization parameters
   int                                   numParams_; // TT: number of optimization parameters
   int                                   numSensParams_;  // number of sensitivity parameters returned from enableSensitivity function call
@@ -216,6 +175,19 @@ public:
 
   void setSweepValue(int step);
   bool doAllocations(int nc, int nz);
+  int  getLoopSize() { return dcLoopSize_; }
+
+  bool setAnalysisParams(const std::vector<Util::OptionBlock>& paramsBlock);
+
+  using DCSweep::setTimeIntegratorOptions;
+
+  using DCSweep::doInit;
+  using DCSweep::doFinish;
+  using DCSweep::doLoopProcess;
+  using DCSweep::doProcessFailedStep;
+  using DCSweep::doHandlePredictor;
+  
+  bool doProcessSuccessfulStep();
 
   std::vector<Linear::Vector *>         solutionPtrVector_;
   std::vector<Linear::Vector *>         statePtrVector_;
@@ -226,8 +198,7 @@ public:
   std::vector<Linear::Vector *>         mysensRHSPtrVector_;
 
 protected:
-  bool doProcessSuccessfulStep();
-  bool doProcessFailedStep() { return true; }
+  using DCSweep::doRun;
 
 private:
   bool doFree();
@@ -239,7 +210,6 @@ private:
   IO::InitialConditionsManager &        initialConditionsManager_;
   Linear::System &                      linearSystem_;
   OutputMgrAdapter &                    outputManagerAdapter_;
-  SweepVector                           stepSweepVector_;
   int                                   stepLoopSize_;
   int                                   numParams_;
 };

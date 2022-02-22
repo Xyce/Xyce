@@ -95,8 +95,8 @@ DCSweep::DCSweep(
     tiaParams_(),
     sensFlag_(analysis_manager.getSensFlag()),
     dcLoopInitialized_(false),
-    dcLoopSize_(0),
-    numSensParams_(0)
+    numSensParams_(0),
+    dcLoopSize_(0)
 {}
 
 //-----------------------------------------------------------------------------
