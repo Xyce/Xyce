@@ -154,5 +154,16 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
   against using both objective function specifiers on the same .SENS line was
   removed. \\ \hline
 
+\textbf{Gitlab-ex issue 364}:  AC sensitivities for nonlinear parameters are very slow & 
+ The AC sensitivity calculation had an inefficiency in it which made it really 
+ slow for large numbers of parameters, particularly for parameters from nonlinear 
+ devices, which had to rely on a finite differenced matrix derivative.   Most 
+ of the work required could be performed  a single time, rather than every time 
+ through the main loop.  \\ \hline
+ 
+\textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters & 
+When performing AC sensitivities with respect to .param parameters, there was an arithmetic mistake
+in the setup of the right-hand-side vector.  This has been corrected.  \\ \hline
+
 \end{longtable}
 }
