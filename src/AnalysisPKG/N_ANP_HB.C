@@ -1580,18 +1580,18 @@ bool HB::setFreqPoints_()
   }
 
 
-  if ( method_ == "APFT" )
+  if (  selectHarm_ == "HYBRID" )
   {
 
     setFreqPointsAPFT_();
   }
-  else if ( ( method_ == "AFM"   ) || (method_ == "HYBRID") )
+  else if (  selectHarm_  == "BOX" )
   {
     setFreqPointsFM_();
   }
   else
   {
-    Report::UserError() << "Unsupported method for HB";
+    Report::UserError() << "Unsupported frequency truncation method for HB";
     return false;
   }
 
