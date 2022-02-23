@@ -1330,10 +1330,9 @@ std::ostream& TrigTarg::printMeasureResult(std::ostream& os)
   }
   else
   {
-    if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+    if ( measureMgr_.getMeasFail() )
     {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
-      // netlist and this is a failed measure.
+      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 and this is a failed measure.
       os << name_ << " = FAILED" << std::endl;
     }
     else
@@ -1544,10 +1543,9 @@ std::ostream& TrigTargCont::printMeasureResult(std::ostream& os)
   }
   else
   {
-    if (measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+    if ( measureMgr_.getMeasFail() )
     {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
-      // netlist and this is a failed measure.
+      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 and this is a failed measure.
       os << name_ << " = FAILED";
     }
     else

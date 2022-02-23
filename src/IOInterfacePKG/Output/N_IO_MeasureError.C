@@ -436,10 +436,9 @@ std::ostream& Error::printMeasureResult(std::ostream& os)
     basic_ios_all_saver<std::ostream::char_type> save(os);
     os << std::scientific << std::setprecision(precision_);
 
-    if ( !initialized_ && measureMgr_.isMeasFailGiven() && measureMgr_.getMeasFail() )
+    if ( !initialized_ && measureMgr_.getMeasFail() )
     {
-      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 is given in the
-      // netlist and this is a failed measure.
+      // output FAILED to .mt file if .OPTIONS MEASURE MEASFAIL=1 and this is a failed measure.
       os << name_ << " = FAILED" << std::endl;
     }
     else 
