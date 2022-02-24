@@ -85,44 +85,58 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-  \item TRIG-TARG measures are now supported for .AC, .DC and .NOISE analyses.
-In addition, the TRIG-TARG measure is now more compatible with both ngspice and
-HSPICE.  See gitlab-ex issues 220 and 289 in the Fixed Defects Table
-for more details.
-  \item “Continuous mode” measures, that may return more than one result, are
-now supported for the TRIG-TARG measure type for .AC, .DC, .NOISE and .TRAN
-analyses.
-  \item The scale parameter, which is used to automatically scale device sizing parameters 
-    is supported and can be specified using either \texttt{.option scale=number} 
-    or \texttt{.options device scale=number}.
+  \item TRIG-TARG measures are now supported for .AC, .DC and .NOISE
+    analyses.  In addition, the TRIG-TARG measure is now more
+    compatible with both ngspice and HSPICE.  See gitlab-ex issues 220
+    and 289 in the Fixed Defects Table for more details.
+  \item ``Continuous mode'' measures that may return more than one
+    result are now supported for the TRIG-TARG measure type for .AC,
+    .DC, .NOISE and .TRAN analyses.
+  \item The scale parameter, which is used to automatically scale
+    device sizing parameters is supported and can be specified using
+    either \texttt{.option scale=number} or \texttt{.options device
+      scale=number}.
   \item Added the mixed signal interface function
-  \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun number of time,
-  voltage or state values for an ADC in a subsequent call to \texttt{Simulator::
-  getTimeVoltagePairs} or \texttt{Simulator::getTimeStatePairs}.
+    \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun
+    number of time, voltage or state values for an ADC in a subsequent
+    call to \texttt{Simulator:: getTimeVoltagePairs} or
+    \texttt{Simulator::getTimeStatePairs}.
   \item Added the mixed signal interface functions
-  \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} and 
-  \texttt{xyce\-\_getTimeStatePairs\-ADCLimitData()} to allow the calling program 
-  to specify the maximum size of the allocated memory that can be used for copying
-  ADC time-voltage and time-state history data.  This allows the caller to allocate only the 
-  required amount of memory and ensure that Xyce cannot overwrite the memory area.
-  The existing c-interface functions, \texttt{xyce\_getTimeVoltagePairs()} and 
-  \texttt{xyce\_getTimeStatePairs()} are now deprecated. They work in this version 
-  of \Xyce{} as they did in the past but they will be removed from a future version of \Xyce{}.
-  See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further details.
-  \item The Xyce Python interface file \texttt{xyce\-interface.py} is now 
-  compatible with Python 3.x.  The interface file is still backwards compatible 
-  with Python 2.7. The Mixed Signal Simulation with \Xyce{} 7.5 Application Note 
-  has examples of using Xyce from Python.
-\item The syntax for \texttt{.options parser scale} has been expanded to also 
-      support \texttt{.option scale}.  The new syntax is compatible with most 
-      other SPICE-style simulators.
-\item When a parameter of a given name is defined multiple times in the netlist, \Xyce{} 
-  now has several options for how this is handled.  Before, \Xyce{} would silently 
-  allow multiply-defined parameters, and use the last one encountered during 
-  parsing.   There is now a command line option (\texttt{-redefined\_params}), 
-  which can be used to make this a fatal error, or to use the first, rather than 
-  last multiply-defined parameter.
-
+    \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} and
+    \texttt{xyce\-\_getTimeStatePairs\-ADCLimitData()} to allow the
+    calling program to specify the maximum size of the allocated
+    memory that can be used for copying ADC time-voltage and
+    time-state history data.  This allows the caller to allocate only
+    the required amount of memory and ensure that Xyce cannot
+    overwrite the memory area.  The existing c-interface functions,
+    \texttt{xyce\_getTimeVoltagePairs()} and
+    \texttt{xyce\_getTimeStatePairs()} are now deprecated. They work
+    in this version of \Xyce{} as they did in the past but they will
+    be removed from a future version of \Xyce{}.  See the Application
+    note, Mixed Signal Simulation with \Xyce{} 7.5 for further
+    details.
+  \item The Xyce Python interface file \texttt{xyce\-interface.py} is
+    now compatible with Python 3.x.  The interface file is still
+    backwards compatible with Python 2.7. The Mixed Signal Simulation
+    with \Xyce{} 7.5 Application Note has examples of using Xyce from
+    Python.
+ \item The syntax for \texttt{.options parser scale} has been expanded
+   to also support \texttt{.option scale}.  The new syntax is
+   compatible with most other SPICE-style simulators.
+ \item When a parameter of a given name is defined multiple times in
+   the netlist, \Xyce{} now has several options for how this is
+   handled.  Before, \Xyce{} would silently allow multiply-defined
+   parameters, and use the last one encountered during parsing.  There
+   is now a command line option (\texttt{-redefined\_params}), which
+   can be used to make this a fatal error, or to use the first, rather
+   than last multiply-defined parameter.
+ \item When any measure fails, Xyce now reports ``FAILED'' in both the
+   console output and ``.mt\#'' files by default.  This new behavior is
+   the same as what Xyce 7.4 would have done with the ``.options
+   MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
+   would have output ``-1'' for the failed measure in the ``.mt\#''
+   file by default.  The old behavior may be forced by specifying
+   ``.options MEASURE MEASFAILE=0 DEFAULT\_VAL=-1'' if desired.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
