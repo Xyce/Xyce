@@ -133,7 +133,7 @@ private:
   std::string                           outputFile_;  // Name of file containing ROL output
   int                                   objType_;   // Objective type
 
-  ROL_DC *                              dcAnalysis_;
+  AnalysisBase *                        currentAnalysisObject_;
 
   std::vector<double>                   objectiveVec_;
   std::vector<double>                   dOdpVec_;
@@ -181,12 +181,12 @@ public:
 
   using DCSweep::setTimeIntegratorOptions;
 
-  using DCSweep::doInit;
   using DCSweep::doFinish;
   using DCSweep::doLoopProcess;
   using DCSweep::doProcessFailedStep;
   using DCSweep::doHandlePredictor;
-  
+
+  bool doInit();
   bool doProcessSuccessfulStep();
 
   std::vector<Linear::Vector *>         solutionPtrVector_;

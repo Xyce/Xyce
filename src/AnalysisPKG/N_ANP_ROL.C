@@ -66,7 +66,6 @@
 
 #ifdef Xyce_ROL
 
-
 #include "ROL_BoundConstraint.hpp"
 #include "ROL_Constraint.hpp"
 #include "ROL_Constraint_SimOpt.hpp"
@@ -119,22 +118,16 @@ ROL::ROL(
     numSensParams_(0),
     paramFile_("parameters.txt"),
     outputFile_("rol_output.txt"),
-    objType_(-1)
-{
-    analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP);
-
-    // Create ROL_DC analysis object.
-    dcAnalysis_ = new ROL_DC(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
-}
+    objType_(-1),
+    currentAnalysisObject_(0)
+{}
 
 //-----------------------------------------------------------------------------
 // Function      : ROL::~ROL
 // Purpose       :
 //-----------------------------------------------------------------------------
 ROL::~ROL()
-{
-  delete dcAnalysis_;
-}
+{}
   
 //-----------------------------------------------------------------------------
 // Function      : ROL::setROLOptions
@@ -197,14 +190,6 @@ bool ROL::doInit()
 {
   bool status;
 
-  if (dcAnalysis_)
-  { 
-    dcAnalysis_->setAnalysisParams(saved_sweepOB_);
-    dcAnalysis_->setTimeIntegratorOptions(saved_timeIntOB_);
-    dcAnalysis_->doInit();
-    stepLoopSize_ = dcAnalysis_->getLoopSize();
-  }
- 
   if (sensFlag_)
   {
     Stats::StatTop _sensitivityStat("Sensitivity");
@@ -239,18 +224,15 @@ bool ROL::doInit()
 //-----------------------------------------------------------------------------
 bool ROL::getDCOPFlag() const
 {
-  if (dcAnalysis_)
-    return dcAnalysis_->getDCOPFlag();
+  if (currentAnalysisObject_)
+    return currentAnalysisObject_->getDCOPFlag();
   else
     return false;
 }
 
 bool ROL::doHandlePredictor()
 {
-  if (dcAnalysis_)
-    return dcAnalysis_->doHandlePredictor();
-  else
-    return false;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -263,13 +245,7 @@ bool ROL::doHandlePredictor()
 //-----------------------------------------------------------------------------
 bool ROL::doProcessSuccessfulStep()
 {
-  Stats::StatTop _processSuccessfulStepStat("Successful Step");
-  Stats::TimeBlock _processSuccessfulStepTimer(_processSuccessfulStepStat);
-
-  if (dcAnalysis_)
-    return dcAnalysis_->doProcessSuccessfulStep();
-  else
-    return false;
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,15 +258,8 @@ bool ROL::doProcessSuccessfulStep()
 //-----------------------------------------------------------------------------
 bool ROL::doProcessFailedStep()
 {
-  Stats::StatTop _processFailedStat("Failed Steps");
-  Stats::TimeBlock _processFailedTimer(_processFailedStat);
-
-  if (dcAnalysis_)
-    return dcAnalysis_->doProcessFailedStep();
-  else
-    return false;
+  return false;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : ROL::doFinish()
@@ -302,10 +271,7 @@ bool ROL::doProcessFailedStep()
 //-----------------------------------------------------------------------------
 bool ROL::doFinish()
 {
-  if (dcAnalysis_)
-   return dcAnalysis_->doFinish();
-  else
-   return true;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -324,8 +290,8 @@ bool ROL::doFinish()
 //-----------------------------------------------------------------------------
 bool ROL::twoLevelStep()
 {
-  if (dcAnalysis_)
-    return dcAnalysis_->twoLevelStep();
+  if (currentAnalysisObject_)
+    return currentAnalysisObject_->twoLevelStep();
   else
     return true;
 }
@@ -347,6 +313,16 @@ bool ROL::doLoopProcess()
 #ifdef Xyce_ROL
   try
   { 
+    // Create ROL_DC analysis object.
+    ROL_DC dc_sweep(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
+    currentAnalysisObject_ = &dc_sweep;
+    analysisManager_.pushActiveAnalysis(&dc_sweep);
+
+    dc_sweep.setAnalysisParams(saved_sweepOB_);
+    dc_sweep.setTimeIntegratorOptions(saved_timeIntOB_);
+    dc_sweep.doInit();
+    stepLoopSize_ = dc_sweep.getLoopSize();
+ 
     // Number of simulation variables
     int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
     int nc = stepLoopSize_;  // Number of constraints.
@@ -396,9 +372,9 @@ bool ROL::doLoopProcess()
     // p := pointer to a standard vector representing z
 
     // Configure the state and constraint vectors.
-    status = dcAnalysis_->doAllocations(nc, nz);
-    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dcAnalysis_->statePtrVector_);
-    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dcAnalysis_->constraintPtrVector_);
+    status = dc_sweep.doAllocations(nc, nz);
+    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep.statePtrVector_);
+    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep.constraintPtrVector_);
 
     // STEP 1B: Initialize parameters.  ///////////////////////////////////////
 
@@ -435,7 +411,7 @@ bool ROL::doLoopProcess()
                  nonlinearManager_.getNonlinearSolver(),
                  linearSystem_,
                  paramNameVec_,
-                 *dcAnalysis_ 
+                 dc_sweep
                );
     // Here, con is the constraint c(u, z) = 0. Its solve member function 
     // specifies u as a function of z (u = S(z)); see slide 26 of
@@ -515,7 +491,7 @@ bool ROL::doLoopProcess()
     // int maxit  = parlist->get("Maximum Number of Iterations", 100);
     
     std::clock_t timer_bm = std::clock();
-    
+   
     solver.solve(std::cout);
     con->solve(*l, *u, *z, tol);
 
@@ -528,6 +504,11 @@ bool ROL::doLoopProcess()
     out << "Solve required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
          << " seconds.\n";
 
+
+    // Remove DC analysis object from active analysis stack.
+    stats_ += currentAnalysisObject_->stats_;
+    analysisManager_.popActiveAnalysis();
+    currentAnalysisObject_ = 0;
   } 
   catch (std::logic_error err) 
   {
@@ -849,11 +830,20 @@ void ROL_DC::setSweepValue(int step)
   bool reset = updateSweepParams(loader_, step, dcSweepVector_.begin(), dcSweepVector_.end(), false);
 }
 
+bool ROL_DC::doInit()
+{
+  bool ret = DCSweep::doInit();
+  
+  nonlinearManager_.resetAll(Nonlinear::DC_OP);
+
+  return ret;
+}
+
 bool ROL_DC::doProcessSuccessfulStep()
 {
-  int currentStep = outputManagerAdapter_.getDCAnalysisStepNumber();
-
   bool ret = DCSweep::doProcessSuccessfulStep();
+
+  int currentStep = outputManagerAdapter_.getDCAnalysisStepNumber();
 
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
   *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 

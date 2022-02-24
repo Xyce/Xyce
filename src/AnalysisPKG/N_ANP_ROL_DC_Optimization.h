@@ -55,6 +55,7 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <map>
 
 // ------------ Xyce Includes -----------//
 
@@ -114,6 +115,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   Linear::Vector *                      pertQVectorPtr_;
   Linear::Vector *                      origBVectorPtr_;
   Linear::Vector *                      pertBVectorPtr_;
+  std::vector<Real>                     paramValue_;
 
   // AJ: PSVR := pointer to a std::vector of reals.
   Teuchos::RCP<const std::vector<Real>> getPSVR(const ::ROL::Vector<Real>& x)
@@ -133,21 +135,27 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
   // AJ: Sets the parameters in the nonlinear equation loader (nEqLoader_) to the 
   //     elements of z (the vector of controls).
-  void setControlParams(const ::ROL::Vector<Real>& z) {
+  // HKT: Limit the parameter changes to when the parameters are actually changing.
+  bool setControlParams(const ::ROL::Vector<Real>& z) {
     // Teuchos::RCP<::ROL::Vector<Real>> nonConstZ = const_cast<::ROL::Vector<Real>&>(z);
     // Teuchos::RCP<const std::vector<Real>> zp = getPSVR(nonConstZ);
     Teuchos::RCP<const std::vector<Real>> zp = (Teuchos::dyn_cast<::ROL::StdVector<Real>>(const_cast<::ROL::Vector<Real>&>(z))).getVector();
 
-
+    bool ret = false;
     std::string parameterName; 
-    Real parameterValue;
-    // for (int i = 0; i < rolSweep_.numParams_; i++)
     for (int i = 0; i < nz_; i++)
     {
-      parameterName = paramNameVec_[i];
-      parameterValue = (*zp)[i];
-      nEqLoader_.setParam(parameterName, parameterValue);
+      if ( paramValue_[i] != (*zp)[i] )
+      {
+        parameterName = paramNameVec_[i];
+        paramValue_[i] = (*zp)[i];
+        nEqLoader_.setParam(parameterName, paramValue_[i]);
+        //std::cout << "setControlParams: " << parameterName << " " << paramValue_[i] << std::endl;
+        ret = true;
+      }
     }
+
+    return ret;
   }
 
  protected:
@@ -179,7 +187,8 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       origQVectorPtr_(0),
       pertQVectorPtr_(0),
       origBVectorPtr_(0),
-      pertBVectorPtr_(0)
+      pertBVectorPtr_(0),
+      paramValue_(nz, 0.0)
   {}
 
   void value(::ROL::Vector<Real> &c, 
@@ -219,11 +228,11 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   {
     auto up = Teuchos::rcp_const_cast<std::vector<P>>(getPSVP(u));  // Strips const-ness from getPSVP.
     
-    setControlParams(z);
+    bool haveChanged = setControlParams(z);
     
     // Sweep to obtain the vector of solutions.
     bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
-    
+   
     // Write the vector of solutions into u.
     for (int i = 0; i < nc_ ; i++) {
       *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
@@ -293,6 +302,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
     bool success;    
     setControlParams(z);
+
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
