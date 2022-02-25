@@ -647,13 +647,18 @@ bool NOISE::doInit()
   analysisManager_.getDataStore()->setConstantHistory();
   analysisManager_.getWorkingIntegrationMethod().obtainCorrectorDeriv();
 
-  // solving for DC op
-  doHandlePredictor();
-  loader_.updateSources();
-  analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
-  analysisManager_.getWorkingIntegrationMethod().stepLinearCombo ();
-  gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
-  analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
+  {
+    Stats::StatTop _nonlinearStat("DC Nonlinear Solve");
+    Stats::TimeBlock _nonlinearTimer(_nonlinearStat);
+
+    // solving for DC op
+    doHandlePredictor();
+    loader_.updateSources();
+    analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
+    analysisManager_.getWorkingIntegrationMethod().stepLinearCombo ();
+    gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
+    analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
+  }
 
   if ( analysisManager_.getStepErrorControl().newtonConvergenceStatus <= 0)
   {
@@ -751,8 +756,8 @@ bool NOISE::doLoopProcess()
 
     bool stepAttemptStatus;
     {
-      Stats::StatTop _nonlinearStat("Nonlinear Solve");
-      Stats::TimeBlock _nonlinearTimer(_nonlinearStat);
+      Stats::StatTop _ACsolveStat("AC Linear Solve");
+      Stats::TimeBlock _AC_Timer(_ACsolveStat);
 
       stepAttemptStatus = solveACLinearSystem_();
     }
