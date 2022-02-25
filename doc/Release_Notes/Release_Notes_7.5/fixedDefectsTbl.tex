@@ -197,6 +197,15 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
  of the work required could be performed  a single time, rather than every time 
  through the main loop.  \\ \hline
  
+\textbf{Gitlab-ex issue 369}:  Out-of-bounds data storage in dx2 capability of expression library  &
+The expression library, when  used to support a behavioral model, computes an array of 
+one or more derivatives when it is evaluated.  The expression library was 
+incorrectly written to assume that the size of this array would never change.  
+However, this was incorrect for the use case of \texttt{.func}, which might be 
+called multiple times, with arguments containing differing numbers differentiable 
+variables.  This was a use case that didn't come up very often, but when it did 
+caused a memory error.\\ \hline
+
 \textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters & 
 When performing AC sensitivities with respect to .param parameters, there was an arithmetic mistake
 in the setup of the right-hand-side vector.  This has been corrected.  \\ \hline
