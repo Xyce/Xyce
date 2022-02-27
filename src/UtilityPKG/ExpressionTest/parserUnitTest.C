@@ -11624,7 +11624,10 @@ TEST ( Double_Parsing_Syntax, bug28_2)
 #endif
 
 //-------------------------------------------------------------------------------
-// tests for random operators
+// tests for random operators.  As of this writing (2/27/2022) these only test
+// these operators for the non-sampling (nominal) case.  So, they should return
+// the mean and/or nominal value.  These tests do not look random sampling 
+// behavior, which is handled outside the expression library.
 //-------------------------------------------------------------------------------
 TEST ( Double_Parser_Random, agauss0)
 {
@@ -11650,7 +11653,7 @@ TEST ( Double_Parser_Random, agauss1)
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
-  EXPECT_DOUBLE_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+  EXPECT_DOUBLE_EQ( result1, result2);
 
   OUTPUT_MACRO(Double_Parser_Random, agauss1)
 }
@@ -11676,7 +11679,7 @@ TEST ( Double_Parser_Random, agauss1_func)
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
-  EXPECT_DOUBLE_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+  EXPECT_DOUBLE_EQ( result1, result2); 
 
   OUTPUT_MACRO(Double_Parser_Random, agauss_func)
 }
@@ -11715,6 +11718,30 @@ TEST ( Double_Parser_Random, unif0)
   EXPECT_DOUBLE_EQ( result, 1.0);
 
   OUTPUT_MACRO(Double_Parser_Random, unif0)
+}
+
+TEST ( Double_Parser_Random, rand0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("rand()"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 0.5);
+
+  OUTPUT_MACRO(Double_Parser_Random, rand0)
+}
+
+TEST ( Double_Parser_Random, limit0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("limit(1.0,0.5)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Double_Parser_Random, limit0)
 }
 
 //-------------------------------------------------------------------------------

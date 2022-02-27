@@ -1444,10 +1444,13 @@ void Expression::getLimitData(std::vector<Xyce::Analysis::SweepParam> & sampleVe
     sampling_param.opName     = "LIMIT";
     sampling_param.astOpIndex = ii;
     sampling_param.astType    = Util::AST_LIMIT;
-    sampling_param.type       = "UNIFORM";
+    sampling_param.type       = "LIMIT";
 
-    sampling_param.startVal = 0.0;
-    sampling_param.stopVal  = 1.0;
+    usedType nominal        = auOp->getNominal();
+    usedType abs_variation  = auOp->getVariation();
+
+    sampling_param.startVal = std::real(nominal)-std::real(abs_variation);
+    sampling_param.stopVal  = std::real(nominal)+std::real(abs_variation);
 
     sampleVec.push_back(sampling_param);
   }

@@ -514,7 +514,6 @@ class randOp : public astNode<ScalarT>
       value_(0.0),
       setValueCalledBefore_(false)
     {
-      // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = 0.5;
     };    
     
@@ -558,9 +557,23 @@ class randOp : public astNode<ScalarT>
 };
 
 //-------------------------------------------------------------------------------
-// Hspice version of limit, which is used to specify a probability distribution.
+// Hspice version of limit
+//
 // The old expression library didn't support that, but returned limit(x,y)=x+y.
-// That is what is implemented here.
+// That was incorrect for the non sampling case.
+//
+// This is specified in an expression as: LIMIT(nominal_val, abs_variation)
+//
+// If running sampling, it will return either 
+// (nominal_val + abs_variation) or (nominal_val - abs_variation).  
+//
+// Which of those two values are returned depends on a random number 
+// between -1 and +1.  If that random number is > 0 then it returns 
+// (nominal_val + abs_variation).  
+// Otherwise it returns (nominal_val - abs_variation).
+//
+// If not running sampling, it returns the nominal value.
+//
 template <typename ScalarT>
 class twoArgLimitOp : public astNode<ScalarT>
 {
@@ -570,19 +583,18 @@ class twoArgLimitOp : public astNode<ScalarT>
       value_(0.0)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      value_ = (x->val()+y->val());
+      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->rightAst_);
+      value_ = (nominal->val());
     };    
 
     virtual ScalarT val() { return value_; };
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-
-      return (x->dx (i) + y->dx (i));
+      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->leftAst_);
+      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->rightAst_);
+      return (nominal->dx (i));
     };
 
     // ERK check this
@@ -595,7 +607,7 @@ class twoArgLimitOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "twoArgLimit operator id = " << this->id_ << std::endl;
+      os << "Hpsice limit operator id = " << this->id_ << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
       this->rightAst_->output(os,indent+1);
@@ -616,6 +628,9 @@ class twoArgLimitOp : public astNode<ScalarT>
 
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; }
+
+    ScalarT getNominal()   { return (this->leftAst_->val());  }
+    ScalarT getVariation() { return (this->rightAst_->val()); }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {

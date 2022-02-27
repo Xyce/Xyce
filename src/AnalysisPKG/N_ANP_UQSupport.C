@@ -747,6 +747,12 @@ void setupMonteCarloSampleValues(
           val = gammaDistribution(mt);
         }
       }
+      else if (sp.type == "LIMIT")
+      {
+        double prob = uniformDistribution(mt);
+        double tmp = setupUniform(prob, -1.0, +1.0);
+        val = (tmp>0.0)?sp.stopVal:sp.startVal;
+      }
 
       X[numSamples * ip + is] = val;
     }
@@ -809,6 +815,11 @@ void setupLHSSampleValues(
           prob = (bin-val)/numSamples;
           finalVal = setupNormal(prob,sp.mean,sp.stdDev);
         }
+      }
+      else if (sp.type == "LIMIT")
+      {
+        double tmp = setupUniform(prob, -1.0, +1.0);
+        finalVal = (tmp>0.0)?sp.stopVal:sp.startVal;
       }
       else
       {
