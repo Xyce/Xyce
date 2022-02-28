@@ -2007,6 +2007,47 @@ bool Simulator::obtainResponse(
   return measureManager_->getMeasureValue(variable_name, result);
 }
 
+
+//
+// sets the given parameter through the device manager.
+// returns false if the parameter did not exist (and thus was not set)
+//
+bool Simulator::setCircuitParameter(std::string paramName, double paramValue)
+{
+  bool returnValue = false;
+  
+  return returnValue;
+}
+
+//
+// gets a value from the current simulation based on the name passed it
+// The name can be parameter name, voltage node or current (ie. solution variable)
+// or a measure name.  return false if the value was not found.
+//
+bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
+{
+  bool returnValue = false;
+  
+  return returnValue;
+}
+
+//
+// accessor to AnalysisManger funciton
+//
+double Simulator::getTime()
+{
+  return analysisManager_->getTime();
+}
+
+//
+// accessor to AnalysisManger funciton
+//
+double Simulator::getFinalTime()
+{
+  return analysisManager_->getFinalTime();
+}
+  
+
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getDACInstancePtr_
 // Purpose       : Returns the pointer to a named DAC device instance

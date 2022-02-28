@@ -1,0 +1,323 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+//
+// Purpose        : Unit tests for top-level Xyce::Simulator class
+//
+// Special Notes  :
+//
+// Creator        : Richard Schiek, SNL, Parallel Computational Sciences
+//
+// Creation Date  : 2024/2022
+//
+//
+//
+//
+//-------------------------------------------------------------------------
+
+#include <gtest/gtest.h>
+#include "Xyce_config.h"
+#include <N_CIR_Xyce.h>
+
+//
+// Xyce::Circuit::Simulator functions that need to be tested
+//
+// x constructor
+// x initialize()
+// x finalize()
+// x getTime()
+// getDACDeviceNames()
+// getADCMap()
+// getTimeVoltagePairs()
+// updateTimeVoltagePairs()
+// x simulationComplete()
+// x getFinalTime()
+// setCircuitParameter()
+// getCircuitValue()
+// x simulateUntil() in stead of provisionalStep() & acceptProvisionalStep()
+// 
+
+TEST ( XyceSimulator, create)
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, InitializeTestNetlist1 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 4;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist1.cir";
+  std::string logOption = "-l";
+  std::string logFile = netlist + ".log";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(logOption.c_str());
+  cmdLineArgs[2] = const_cast<char *>(logFile.c_str());
+  cmdLineArgs[3] = const_cast<char *>(netlist.c_str());
+  
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, InitializeTestNetlist2 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, InitializeTestNetlist3 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist3.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, RunTestNetlist1 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist1.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  status = xycePtr->runSimulation();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+
+TEST ( XyceSimulator, FinalizeTestNetlist1 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist1.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  status = xycePtr->runSimulation();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, GetTimeTestNetlist1 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist1.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  status = xycePtr->runSimulation();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double simTime = xycePtr->getTime();
+  EXPECT_EQ( simTime, 1.0 );
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+
+TEST ( XyceSimulator, MultiTimeStepTestNetlist1 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist1.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 1.0 );
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, MultiTimeStepTestNetlist2 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 1.0 );
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, MultiTimeStepTestNetlist3 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist3.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 20.0e-4 );
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+//-------------------------------------------------------------------------------
+int main (int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+
+  return RUN_ALL_TESTS();
+}
+
