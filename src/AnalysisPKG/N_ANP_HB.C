@@ -1109,7 +1109,7 @@ void HB::prepareHBOutput(
     std::vector<std::pair<double, double>> realList, imagList;
     int sizePos = (size_ - 1)/2;
 
-    if ( (( method_ == "AFM") || (method_ == "HYBRID") ) && ( lid >= 0 ) )
+    if ( ( selectHarm_ == "BOX") && ( lid >= 0 ) )
     { 
 
 //      std::vector<std::pair<double, double>> realList, imagList;
@@ -1166,7 +1166,7 @@ void HB::prepareHBOutput(
       if (lid >= 0)
       {
 
-        if ((method_ == "AFM" ) || (method_ == "HYBRID"))
+        if ( selectHarm_ ==  "BOX" )
         {
         realVecRef_neg[lid] = realList[ sizePos - i].second;
         imagVecRef_neg[lid] = imagList[ sizePos - i].second;
