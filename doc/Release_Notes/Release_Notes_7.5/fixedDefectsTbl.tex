@@ -41,100 +41,11 @@
 \textbf{placeholder issue number}: placeholder description &
      placeholder explanation \\ \hline
 
-\textbf{Gitlab-ex issue 304}: Change \Xyce{} behavior for failed measures &
-\Xyce{} was using ``-1'' as the output value when any measure (from a
-\texttt{.MEASURE} statement) failed.  This was inappropriate, because -1 is a
-legal value for many measures, making it difficult to tell whether the
-measure worked or not.  In \Xyce{} 7.4 an option \texttt{.options
-measure MEASFAIL=1} that allowed a user to request that Xyce output
-``FAILED'' for failed measures instead.  In \Xyce{} 7.5 this style of
-output has been made the default.  The old behavior can be forced by
-using \texttt{.options measure MEASFAIL=0 DEFAULT\_VAL=-1} if
-desired. \\ \hline
-
-\textbf{Gitlab-ex issue 338}: Added the function \texttt{Simulator:: getTimeVoltagePairsSz} &
-The function \texttt{Simulator::getTimeVoltagePairsSz} supplies the
-maximum number of time, voltage or state values for an ADC in a
-subsequent call to \texttt{Simulator::getTimeVoltagePairs}
-or \texttt{Simulator::getTimeStatePairs}.  Also,
-calling \texttt{Simulator::getTimeStatePairs} no longer clears the
-voltage history of an ADC, so a calling program that needs both state
-and voltage history can first
-call \texttt{Simulator::getTimeStatePairs} and then call
-\texttt{Simulator::getTimeVoltagePairs} to get both.  Calling
-\texttt{Simulator::getTimeVoltagePairs} still clears the ADC history.
-See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further
-details. \\ \hline
-
-\textbf{Gitlab-ex issue 348}:  Added the function \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()}  &
-  A new function has been added to the \texttt{XyceCInterface}
-  called \texttt{xyce\_getTimeVoltagePairsADCLimitData()} which limits
-  the data copied to the caller allocated space to whatever maximum
-  allocation length is provided.  This avoids potential memory
-  overwriting that could occur with the general access
-  function \texttt{xyce\_getTimeVoltagePairsADC()}.  See the
-  Application note, Mixed Signal Simulation with \Xyce{} 7.5 for
-  further details.  \\ \hline
-
-\textbf{Gitlab-ex issue 366}: IB() does not work for MOSFETs derived from Verilog-A
-& Most MOSFET devices have ``B'' nodes (either bulk or body, depending
-on which model is under consideration).  None of the devices generated
-from Verilog-A supported printing of the lead current associated with
-this node via the ``IB()'' print accessor, and required instead that
-one use ``In'' (where ``n'' is the position of the node on the
-instance line).  Now they are correctly accessible using ``IB()''. \\
-\hline
-
-\textbf{Gitlab-ex issue 365}: IE() does not work for BSIM-SOI 4.x
-& The BSIM-SOI 3 (level 10) and BSIM-SOI 4.x (levels 70 and 70450)
-devices all support a fourth node named ``E'', but until now the
-``IE()'' print operator only worked for printing lead currents through
-this node for the BSIM-SOI 3.  Prior versions of Xyce required use of
-``I4()'' to output this lead current.
-
-Now, BSIM-SOI 4 and all BSIM-CMG models support ``IE()'' lead current
-operators.  Wildcards for IE will now print lead currents for all
-devices that have an ``E'' node. \\ \hline
-
-\textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
-analog function context & There were some use cases in which Xyce/ADMS
-would emit bad code for ternary operator expressions in analog
-function context.  Correct code is now emitted in all
-cases.  \\ \hline
-\textbf{Gitlab-ex issue 319}:  Improve error checking for invalid
-.MEASURE lines & The error checking for invalid \texttt{DERIV-AT},
-\texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
-\texttt{WHEN} measures has been improved.  Some invalid measure
-lines that would previously be reported as ``FAILED'' are now
-correctly reported as parsing errors. \\ \hline
-
-\textbf{Gitlab-ex issue 289} Improvements to TRIG-TARG measure &
-Separate \texttt{TD} (time delay) and/or \texttt{AT} qualifiers
-are now allowed for both the \texttt{TRIG} and \texttt{TARG} 
-clauses.  Expression support has also been improved.  Previously,
-expressions did not work correctly in the \texttt{TARG} clause.
-Examples are as follows:
-
-\begin{verbatim}
-.TRAN 0 1
-.MEASURE TRAN M1 TRIG V(1)=0.5 CROSS=1 TD=0.3
-+ TARG V(1)=0.5 CROSS=1 TD=0.8
-.MEASURE TRAN M2 TRIG AT=0.05 
-+ TARG V(1)=0.5 CROSS=1
-.MEASURE TRAN M3 TRIG V(1)=0.5
-+ CROSS=1 TARG AT=0.8
-\end{verbatim}
-
-Xyce will now properly report M1 = 0.5 with targ = 0.875 and
-trig = 0.375, M2 = 0.075 with targ = 0.125 and trig = 0.05, and
-M3 = 0.675 with targ = 0.8 and trig = 0.125.
-\\ \hline 
-
 \textbf{Gitlab-ex issue 220}:  .MEASURE trig/targ doesn't match ngspice
 when there is negative setup time. & Previous \Xyce{} versions would
-not return a negative value from a \texttt{TRIG-TARG} measure. The 
+not return a negative value from a \texttt{TRIG-TARG} measure. The
 \texttt{TARG} clause would only be evaluated if the \texttt{TRIG} clause
-was satisfied.  A measure line such as this will now properly return 
+was satisfied.  A measure line such as this will now properly return
 M4 = -0.5 with targ = 0.25 and trig = 0.75, instead of
 failing to find the targ time.
 
@@ -145,31 +56,6 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
 \end{verbatim}
  \\ \hline
 
-\textbf{Gitlab-ex issue 328}:  Support C for temperature units & 
-  When specifying temperature, \Xyce{} would inappropriately exit 
-  with error if the units of Celsius were explicitly used in the netlist.  
-  This has been corrected, and now a line such as \texttt{.options device temp=25C} 
-  will work correctly.   The units for temperature in \Xyce{} have always been 
-  Celsius, so this was only a parsing issue. \\ \hline
-
-\textbf{Gitlab-ex issue 348}: \texttt{xyce\_getTimeVoltagePairsADC()} could overwrite memory &
-  The general access function \texttt{xyce\_getTimeVoltagePairsADC()} could overwrite
-  memory if the caller did not preallocate sufficient space.  A new function has been
-  added to the \texttt{XyceCInterface} called \texttt{xyce\_getTimeVoltagePairsADCLimitData()}
-  which limits the data copied to the caller allocated space to whatever maximum 
-  allocation length is provided.  See the Application note, 
-  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
-
-\textbf{Gitlab-ex issue 351}: Support Python 3 in Xyce &
-  The Python interface to Xyce in \texttt{xyce\_interface.py}
-  has been updated to support Python 3.x.  See the Application note, 
-  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
-
-\textbf{Gitlab-ex issue 340}: Bug in breakpointing, when an expression combines a ternary and a table &
-  Under rare circumstances, if an expression combined a ternary operator and
-  a time-dependent table, an error in breakpointing could cause the time integrator 
-  to get stuck in a near-infinite loop.  This has been fixed.  \\ \hline
-  
  \textbf{Gitlab-ex issue 270}: Inconsistency in column headers for .PRINT SENS for TRAN/DC and AC &
   The format of the column headers in the sensitivity output files is different
   between AC and DC/TRAN analysis. An example of a sensitivity data column name
@@ -190,25 +76,137 @@ VPWL2 2 0 pwl(0 0 0.5 1 1 0)
   against using both objective function specifiers on the same .SENS line was
   removed. \\ \hline
 
-\textbf{Gitlab-ex issue 364}:  AC sensitivities for nonlinear parameters are very slow & 
- The AC sensitivity calculation had an inefficiency in it which made it really 
- slow for large numbers of parameters, particularly for parameters from nonlinear 
- devices, which had to rely on a finite differenced matrix derivative.   Most 
- of the work required could be performed  a single time, rather than every time 
- through the main loop.  \\ \hline
- 
-\textbf{Gitlab-ex issue 369}:  Out-of-bounds data storage in dx2 capability of expression library  &
-The expression library, when  used to support a behavioral model, computes an array of 
-one or more derivatives when it is evaluated.  The expression library was 
-incorrectly written to assume that the size of this array would never change.  
-However, this was incorrect for the use case of \texttt{.func}, which might be 
-called multiple times, with arguments containing differing numbers differentiable 
-variables.  This was a use case that didn't come up very often, but when it did 
-caused a memory error.\\ \hline
+\textbf{Gitlab-ex issue 289} Improvements to TRIG-TARG measure &
+Separate \texttt{TD} (time delay) and/or \texttt{AT} qualifiers
+are now allowed for both the \texttt{TRIG} and \texttt{TARG}
+clauses.  Expression support has also been improved.  Previously,
+expressions did not work correctly in the \texttt{TARG} clause.
+Examples are as follows:
 
-\textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters & 
-When performing AC sensitivities with respect to .param parameters, there was an arithmetic mistake
-in the setup of the right-hand-side vector.  This has been corrected.  \\ \hline
+\begin{verbatim}
+.TRAN 0 1
+.MEASURE TRAN M1 TRIG V(1)=0.5 CROSS=1 TD=0.3
++ TARG V(1)=0.5 CROSS=1 TD=0.8
+.MEASURE TRAN M2 TRIG AT=0.05
++ TARG V(1)=0.5 CROSS=1
+.MEASURE TRAN M3 TRIG V(1)=0.5
++ CROSS=1 TARG AT=0.8
+\end{verbatim}
+
+Xyce will now properly report M1 = 0.5 with targ = 0.875 and
+trig = 0.375, M2 = 0.075 with targ = 0.125 and trig = 0.05, and
+M3 = 0.675 with targ = 0.8 and trig = 0.125.
+\\ \hline
+
+\textbf{Gitlab-ex issue 304}: Change \Xyce{} behavior for failed measures &
+\Xyce{} was using ``-1'' as the output value when any measure (from a
+\texttt{.MEASURE} statement) failed.  This was inappropriate, because -1 is a
+legal value for many measures, making it difficult to tell whether the
+measure worked or not.  In \Xyce{} 7.4 an option \texttt{.options
+measure MEASFAIL=1} that allowed a user to request that Xyce output
+``FAILED'' for failed measures instead.  In \Xyce{} 7.5 this style of
+output has been made the default.  The old behavior can be forced by
+using \texttt{.options measure MEASFAIL=0 DEFAULT\_VAL=-1} if
+desired. \\ \hline
+
+\textbf{Gitlab-ex issue 319}:  Improve error checking for invalid
+.MEASURE lines & The error checking for invalid \texttt{DERIV-AT},
+\texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
+\texttt{WHEN} measures has been improved.  Some invalid measure
+lines that would previously be reported as ``FAILED'' are now
+correctly reported as parsing errors. \\ \hline
+
+\textbf{Gitlab-ex issue 328}:  Support C for temperature units &
+  When specifying temperature, \Xyce{} would inappropriately exit with
+  error if the units of Celsius were explicitly used in the netlist.
+  This has been corrected, and now a line such as \texttt{.options
+  device temp=25C} will work correctly.  The units for temperature
+  in \Xyce{} have always been Celsius, so this was only a parsing
+  issue. \\ \hline
+
+\textbf{Gitlab-ex issue 338}: Added the function \texttt{Simulator:: getTimeVoltagePairsSz} &
+The function \texttt{Simulator::getTimeVoltagePairsSz} supplies the
+maximum number of time, voltage or state values for an ADC in a
+subsequent call to \texttt{Simulator::getTimeVoltagePairs}
+or \texttt{Simulator::getTimeStatePairs}.  Also,
+calling \texttt{Simulator::getTimeStatePairs} no longer clears the
+voltage history of an ADC, so a calling program that needs both state
+and voltage history can first
+call \texttt{Simulator::getTimeStatePairs} and then call
+\texttt{Simulator::getTimeVoltagePairs} to get both.  Calling
+\texttt{Simulator::getTimeVoltagePairs} still clears the ADC history.
+See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further
+details. \\ \hline
+
+\textbf{Gitlab-ex issue 340}: Bug in breakpointing, when an expression combines a ternary and a table &
+  Under rare circumstances, if an expression combined a ternary
+  operator and a time-dependent table, an error in breakpointing could
+  cause the time integrator to get stuck in a near-infinite loop.
+  This has been fixed.  \\ \hline
+
+\textbf{Gitlab-ex issue 348}:  Added the function \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()}  &
+  A new function has been added to the \texttt{XyceCInterface}
+  called \texttt{xyce\_getTimeVoltagePairsADCLimitData()} which limits
+  the data copied to the caller allocated space to whatever maximum
+  allocation length is provided.  This avoids potential memory
+  overwriting that could occur with the general access
+  function \texttt{xyce\_getTimeVoltagePairsADC()}.  See the
+  Application note, Mixed Signal Simulation with \Xyce{} 7.5 for
+  further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 351}: Support Python 3 in Xyce &
+  The Python interface to Xyce in \texttt{xyce\_interface.py}
+  has been updated to support Python 3.x.  See the Application note,
+  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
+analog function context & There were some use cases in which Xyce/ADMS
+would emit bad code for ternary operator expressions in analog
+function context.  Correct code is now emitted in all
+cases.  \\ \hline
+
+\textbf{Gitlab-ex issue 364}:  AC sensitivities for nonlinear parameters are very slow &
+ The AC sensitivity calculation had an inefficiency in it which made
+ it really slow for large numbers of parameters, particularly for
+ parameters from nonlinear devices, which had to rely on a finite
+ differenced matrix derivative.  Most of the work required could be
+ performed a single time, rather than every time through the main
+ loop.  \\ \hline
+
+\textbf{Gitlab-ex issue 365}: IE() does not work for BSIM-SOI 4.x
+& The BSIM-SOI 3 (level 10) and BSIM-SOI 4.x (levels 70 and 70450)
+devices all support a fourth node named ``E'', but until now the
+``IE()'' print operator only worked for printing lead currents through
+this node for the BSIM-SOI 3.  Prior versions of Xyce required use of
+``I4()'' to output this lead current.
+
+Now, BSIM-SOI 4 and all BSIM-CMG models support ``IE()'' lead current
+operators.  Wildcards for IE will now print lead currents for all
+devices that have an ``E'' node. \\ \hline
+
+\textbf{Gitlab-ex issue 366}: IB() does not work for MOSFETs derived from Verilog-A
+& Most MOSFET devices have ``B'' nodes (either bulk or body, depending
+on which model is under consideration).  None of the devices generated
+from Verilog-A supported printing of the lead current associated with
+this node via the ``IB()'' print accessor, and required instead that
+one use ``In'' (where ``n'' is the position of the node on the
+instance line).  Now they are correctly accessible using ``IB()''. \\
+\hline
+
+\textbf{Gitlab-ex issue 369}:  Out-of-bounds data storage in dx2 capability of expression library  &
+The expression library, when used to support a behavioral model,
+computes an array of one or more derivatives when it is evaluated.
+The expression library was incorrectly written to assume that the size
+of this array would never change.  However, this was incorrect for the
+use case of \texttt{.func}, which might be called multiple times, with
+arguments containing differing numbers differentiable variables.  This
+was a use case that didn't come up very often, but when it did caused
+a memory error.\\ \hline
+
+\textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters &
+When performing AC sensitivities with respect to .param parameters,
+there was an arithmetic mistake in the setup of the right-hand-side
+vector.  This has been corrected.  \\ \hline
 
 \end{longtable}
 }
