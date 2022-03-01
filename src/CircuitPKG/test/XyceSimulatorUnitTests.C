@@ -524,6 +524,71 @@ TEST ( XyceSimulator, ADCMapTestNetlist3 )
   delete xycePtr;
 }
 
+TEST ( XyceSimulator, SetDeviceParamTestNetlist2 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 1.0 );
+  
+  // this should fail as TOMP is not a simulation parameter in this netlist 
+  bool setParamResult = xycePtr->setCircuitParameter( "TOMP", 10.0);
+  EXPECT_FALSE( setParamResult );
+  
+  // this should pass 
+  setParamResult = xycePtr->setCircuitParameter( "TEMP", 10.0);
+  EXPECT_TRUE( setParamResult );
+  
+  // this should passs
+  setParamResult = xycePtr->setCircuitParameter( "R1:R", 10.0);
+  EXPECT_TRUE( setParamResult );
+  
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    if( i==(numSteps/2))
+    {
+      // in the middle of the run change the resistance on resistor R1
+      setParamResult = xycePtr->setCircuitParameter( "R1:R", 1000.0);
+      EXPECT_TRUE( setParamResult );
+      setParamResult = xycePtr->setCircuitParameter( "TEMP", -50.0);
+      EXPECT_TRUE( setParamResult );
+    }
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {

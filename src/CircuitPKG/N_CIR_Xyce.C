@@ -2015,6 +2015,16 @@ bool Simulator::obtainResponse(
 bool Simulator::setCircuitParameter(std::string paramName, double paramValue)
 {
   bool returnValue = false;
+  // try to set the parameter through the device manager.
+  // May need to set it via the main expression group too, mainExprGroup_
+  //
+  // Need to check that the parameter exists first.  Trying to set a nonexistent 
+  // parameter with setParam() causes Xyce to exit.
+  returnValue = deviceManager_->parameterExists(comm_, paramName);
+  if(returnValue)
+  {
+    returnValue = deviceManager_->setParam( paramName, paramValue, true);
+  }
   
   return returnValue;
 }
