@@ -2056,37 +2056,47 @@ bool AC::solveAdjointSensitivity_()
 //
 // Purpose       : scales the C-blocks by omega=2*pi*freq
 //
-// Special Notes :
+// Special Notes : applies matvec without matrix assembly
 // Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 2/15/2022
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 3/02/2022
 //-----------------------------------------------------------------------------
-bool AC::applyOmega_dJdp(int ipar)
+void AC::applyOmega_dJdp(bool transA, const Linear::BlockMatrix * A, 
+                         const Linear::BlockVector& x, Linear::BlockVector& y)
 {
   double omega =  2.0 * M_PI * currentFreq_;
-  dJdpVector_[ipar]->block(0, 1).scale(-omega);
-  dJdpVector_[ipar]->block(1, 0).scale(omega);
-  dJdpVector_[ipar]->assembleGlobalMatrix();
-  return true;
-}
+  Linear::Vector* tmpVec = y.block(0).cloneVector(); 
 
-//-----------------------------------------------------------------------------
-// Function      : AC::unapplyOmega_dJdp
-//
-// Purpose       : unscales the C-blocks by omega=2*pi*freq
-//
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 2/15/2022
-//-----------------------------------------------------------------------------
-bool AC::unapplyOmega_dJdp(int ipar)
-{
-  double omega =  2.0 * M_PI * currentFreq_;
-  dJdpVector_[ipar]->block(0, 1).scale(-1.0/omega);
-  dJdpVector_[ipar]->block(1, 0).scale(1.0/omega);
-  dJdpVector_[ipar]->assembleGlobalMatrix();
-  return true;
+  // A is scaled by omega in the off-diagonal blocks
+  // block(0, 1).scale(-omega);
+  // block(1, 0).scale(omega);
+
+  if (transA)
+  {
+    // y[0] = A[0,0]'*x[0] + omega*A[1,0]'*x[1];
+    (*A).block(0, 0).matvec( transA, x.block(0), *tmpVec );
+    (*A).block(1, 0).matvec( transA, x.block(1), y.block(0) );
+    y.block(0).update( 1.0, *tmpVec, omega );
+
+    // y[1] = A[1,1]'*x[1] - omega*A[0,1]'*x[0]
+    (*A).block(1, 1).matvec( transA, x.block(1), *tmpVec );
+    (*A).block(0, 1).matvec( transA, x.block(0), y.block(1) );
+    y.block(1).update( 1.0, *tmpVec, -omega );
+  }
+  else
+  {
+    // y[0] = A[0,0]*x[0] - omega*A[0,1]*x[1];
+    (*A).block(0, 0).matvec( transA, x.block(0), *tmpVec );
+    (*A).block(0, 1).matvec( transA, x.block(1), y.block(0) );
+    y.block(0).update( 1.0, *tmpVec, -omega );
+
+    // y[1] = A[1,1]*x[1] + omega*A[1,0]*x[0];
+    (*A).block(1, 1).matvec( transA, x.block(1), *tmpVec );
+    (*A).block(1, 0).matvec( transA, x.block(0), y.block(1));
+    y.block(1).update( 1.0, *tmpVec, omega );
+  }
+
+  delete tmpVec;
 }
 
 //-----------------------------------------------------------------------------
@@ -2113,8 +2123,6 @@ bool AC::loadSensitivityRHS_(int ipar)
 {
   const std::string name = paramNameVec_[ipar];
 
-  sensRhs_->putScalar(0.0);
-
   bool analyticBVecSensAvailable = loader_.analyticBVecSensAvailable (name);
   bool deviceLevelBVecSensNumericalAvailable = loader_.numericalBVecSensAvailable (name);
 
@@ -2134,7 +2142,6 @@ bool AC::loadSensitivityRHS_(int ipar)
 
   if (analyticBVecSensAvailable || deviceLevelBVecSensNumericalAvailable)
   {
-    dBdp_->putScalar( 0.0 );
     dbdpVecRealPtr->putScalar(0.0);
     dbdpVecImagPtr->putScalar(0.0);
 
@@ -2149,14 +2156,10 @@ bool AC::loadSensitivityRHS_(int ipar)
     dbdpVecImagPtr->importOverlap();
 #endif
 
-    dBdp_->block( 0 ).update( 1.0, *dbdpVecRealPtr);
-    dBdp_->block( 1 ).update( 1.0, *dbdpVecImagPtr);
+    dBdp_->block( 0 ).update( 1.0, *dbdpVecRealPtr, 0.0 );
+    dBdp_->block( 1 ).update( 1.0, *dbdpVecImagPtr, 0.0 );
 
-    sensRhs_->update( 1.0, *dBdp_ );  
-
-#ifdef Xyce_PARALLEL_MPI
-    sensRhs_->importOverlap();
-#endif
+    sensRhs_->update( 1.0, *dBdp_, 0.0 );  
   }
   else 
   // If couldn't obtain B', then try J'.   
@@ -2164,20 +2167,11 @@ bool AC::loadSensitivityRHS_(int ipar)
   // "AC::precomputeDCsensitivities_ ()" function. so not much work to be done here.
   // Just scale the C-block of the dJdp matrix by omega and then do a matvec.
   {
-    applyOmega_dJdp(ipar);
-
     // compute the matvec and then sum into the rhs vector.
     bool Transpose = false;
-    dJdpVector_[ipar]->matvec( Transpose , *X_, *sensRhs_ );
+    applyOmega_dJdp( Transpose, dJdpVector_[ipar], *X_, *sensRhs_ );
 
-    unapplyOmega_dJdp(ipar);
-
-    sensRhs_->scale(-1.0);
-    sensRhs_->update( 1.0, *dBdpVector_[ipar] );  
-
-#ifdef Xyce_PARALLEL_MPI
-    sensRhs_->importOverlap();
-#endif
+    sensRhs_->update( 1.0, *dBdpVector_[ipar], -1.0 );  
   }
 
   return true;
