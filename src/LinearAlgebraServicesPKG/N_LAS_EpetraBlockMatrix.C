@@ -219,6 +219,26 @@ Matrix & EpetraBlockMatrix::block( int row, int col )
 }
 
 //-----------------------------------------------------------------------------
+// Function      : EpetraBlockMatrix::block
+// Purpose       : Block Accessor
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 03/13/04
+//-----------------------------------------------------------------------------
+const Matrix & EpetraBlockMatrix::block( int row, int col ) const
+{
+  for( int i = 0; i < (int)(cols_[row].size()); ++i )
+  {
+    if( cols_[row][i] == col )
+      return *blocks_[row][i];
+  }
+
+  Report::UserFatal0() << " EpetraBlockMatrix::block( "<<row<<", "<<col<<" ):  This block does not exist!";
+  return *blocks_[row][0];  // We shouldn't get here.
+}
+
+//-----------------------------------------------------------------------------
 // Function      : EpetraBlockMatrix::put
 // Purpose       : Put function for the sparse-matrix.
 // Special Notes :
@@ -424,7 +444,7 @@ void EpetraBlockMatrix::linearCombo( const double a, const Matrix & A,
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
 void EpetraBlockMatrix::matvec(bool transA, const MultiVector &x,
-                          MultiVector &y)
+                          MultiVector &y) const
 {
   const EpetraVectorAccess* e_x= dynamic_cast<const EpetraVectorAccess *>( &x );
   EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );

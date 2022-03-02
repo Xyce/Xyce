@@ -61,6 +61,7 @@
 #include <Epetra_Vector.h>
 #include <Epetra_Import.h>
 #include <Epetra_Export.h>
+#include <Epetra_LocalMap.h>
 #include <Epetra_Map.h>
 
 #include <EpetraExt_View_MultiVector.h>
@@ -364,23 +365,30 @@ void EpetraMultiVector::dotProduct(const MultiVector & y, std::vector<double>& d
 
   int xnum = numVectors();
   int ynum = y.numVectors();
-  if (xnum == 1 || ynum == 1)
+
+  if (xnum == ynum)
   {
-    for (int i=0; i<xnum; ++i)
-    {
-      for (int j=0; j<ynum; ++j)
-      {
-        (*aMultiVector_)(i)->Dot(*(e_y->epetraObj())(j), &d[i*ynum + j]);
-      }
-    }
-  }
-  else
-  {    
     // Let Epetra handle this.
     int PetraError = aMultiVector_->Dot(e_y->epetraObj(), &d[0]);
-  
+
     if (DEBUG_LINEAR)
-      processError( "EpetraMultiVector::dotProduct - ", PetraError );
+      processError( "EpetraBlockMultiVector::dotProduct - ", PetraError );
+  }
+  else if (xnum == 1 || ynum == 1)
+  {
+    int maxDim = ( xnum > ynum ) ? xnum : ynum;
+
+    Epetra_LocalMap LocalMap(maxDim, 0, (e_y->epetraObj()).Map().Comm());
+    Epetra_MultiVector tmpVec(View, LocalMap, &d[0], maxDim, 1 );
+    if (maxDim == xnum)
+      tmpVec.Multiply('T', 'N', 1.0, *aMultiVector_, e_y->epetraObj(), 0.0 );
+    else
+      tmpVec.Multiply('T', 'N', 1.0, e_y->epetraObj(), *aMultiVector_, 0.0 );
+  }
+  else
+  {
+    Xyce::Report::DevelFatal().in("dotProduct")
+      << "Cannot perform dot product with vectors of dimension " << xnum << " and " << ynum;
   }
 }
 

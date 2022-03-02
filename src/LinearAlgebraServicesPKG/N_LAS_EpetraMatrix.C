@@ -219,7 +219,7 @@ void EpetraMatrix::fillComplete()
 // Creation Date : 06/04/00
 //-----------------------------------------------------------------------------
 void EpetraMatrix::matvec(bool transA, const MultiVector &x,
-                          MultiVector &y)
+                          MultiVector &y) const
 {
   const EpetraVectorAccess* e_x = dynamic_cast<const EpetraVectorAccess *>( &x );
   EpetraVectorAccess* e_y = dynamic_cast<EpetraVectorAccess *>( &y );

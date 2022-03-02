@@ -92,7 +92,7 @@ class EpetraBlockMatrix : public BlockMatrix, public EpetraMatrixAccess
 
   // Sparse-matrix vector multiply - multivector version.  If transA is true,
   // multiply by the transpose of matrix, otherwise just use matrix.
-  void matvec(bool transA, const MultiVector & x, MultiVector & y);
+  void matvec(bool transA, const MultiVector & x, MultiVector & y) const;
 
   // Performs the operation this <- a*A + b*B
   void linearCombo ( const double a, const Matrix & A,
@@ -175,6 +175,7 @@ class EpetraBlockMatrix : public BlockMatrix, public EpetraMatrixAccess
 
   // Block Access
   Matrix & block( int row, int col );
+  const Matrix & block( int row, int col ) const;
 
   int blockSize() const
   { return blockSize_; }

@@ -68,6 +68,7 @@ class BlockMatrix : public Matrix
 
   //Block Access
   virtual Matrix & block( int row, int col ) = 0;
+  virtual const Matrix & block( int row, int col ) const = 0;
 
   virtual int blockSize() const = 0;
   
