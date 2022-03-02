@@ -642,6 +642,12 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
       getParamResult = xycePtr->getCircuitValue( "TEMP", circuitParamValue);
       EXPECT_EQ( circuitParamValue, -50.0 );
     }
+    // set this to value out of the range of V(1) during this simulation 
+    // V(1) goes from -1.0 to +1.0
+    circuitParamValue = -1.001;
+    getParamResult = xycePtr->getCircuitValue( "V(1)",circuitParamValue);
+    EXPECT_TRUE( getParamResult );
+    EXPECT_TRUE( (circuitParamValue > -1.0) && (circuitParamValue < -1.0));
     
     bool isSimComplete = xycePtr->simulationComplete();
     // should be false on all but the last step

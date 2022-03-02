@@ -117,6 +117,7 @@
 #include <N_ANP_OpBuilders.h>
 #include <N_ANP_RegisterAnalysis.h>
 
+#include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 
@@ -2049,6 +2050,24 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
     returnValue = measureManager_->getMeasureValue(paramName, paramValue);
   }
   
+  if( !returnValue)
+  {
+    // haven't found it yet.  Try the Op builder manager 
+    Xyce::Util::Op::Operator * anOp = opBuilderManager_->createOp(paramName);
+    if( !anOp )
+    {
+      // the operator found a value in the various symbol tables.  
+      returnValue = true;
+      // Try and get a numeric, real value.
+      // this may be making assumptions that the analysis mode is transient 
+      Util::Op::OpData opDataTmp(0, analysisManager_->getDataStore()->currSolutionPtr, 0,
+                                    analysisManager_->getDataStore()->currStatePtr,
+                                    analysisManager_->getDataStore()->currStorePtr, 0);
+      paramValue = getValue( comm_, *anOp, opDataTmp).real();
+      
+    }
+  
+  }
   return returnValue;
 }
 
