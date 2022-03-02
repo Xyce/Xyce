@@ -53,8 +53,8 @@
 // updateTimeVoltagePairs()
 // x simulationComplete()
 // x getFinalTime()
-// setCircuitParameter()
-// getCircuitValue()
+// x setCircuitParameter()
+// x getCircuitValue()
 // x simulateUntil() in stead of provisionalStep() & acceptProvisionalStep()
 // 
 
