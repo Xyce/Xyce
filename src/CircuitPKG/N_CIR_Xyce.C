@@ -2038,6 +2038,17 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
 {
   bool returnValue = false;
   
+  // if the param exist in the device params then query the device manager.
+  if (deviceManager_->parameterExists(comm_, paramName))
+  {
+    returnValue = Xyce::Device::getParamAndReduce(comm_, *deviceManager_, paramName, paramValue);
+  }
+  // if the paramName hasn't been found yet, check if it's a measure
+  if( measureManager_ &&  (!returnValue ))
+  {
+    returnValue = measureManager_->getMeasureValue(paramName, paramValue);
+  }
+  
   return returnValue;
 }
 

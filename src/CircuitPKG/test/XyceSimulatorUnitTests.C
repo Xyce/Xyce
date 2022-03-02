@@ -589,6 +589,83 @@ TEST ( XyceSimulator, SetDeviceParamTestNetlist2 )
   delete xycePtr;
 }
 
+
+TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 1.0 );
+
+  double circuitParamValue = 0.0;
+  bool getParamResult = xycePtr->getCircuitValue( "R1:R",circuitParamValue);
+  EXPECT_EQ( circuitParamValue, 50.0 );
+  getParamResult = xycePtr->getCircuitValue( "TEMP", circuitParamValue);
+  EXPECT_EQ( circuitParamValue, 27.0 );
+  
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    if( i==(numSteps/2))
+    {
+      // in the middle of the run change the resistance on resistor R1
+      bool setParamResult = xycePtr->setCircuitParameter( "R1:R", 1000.0);
+      EXPECT_TRUE( setParamResult );
+      setParamResult = xycePtr->setCircuitParameter( "TEMP", -50.0);
+      EXPECT_TRUE( setParamResult );
+    }
+    if( i==((numSteps/2)+1))
+    {
+      // in the middle of the run change the resistance on resistor R1
+      circuitParamValue = 0.0;
+      getParamResult = xycePtr->getCircuitValue( "R1:R",circuitParamValue);
+      EXPECT_EQ( circuitParamValue, 1000.0 );
+      getParamResult = xycePtr->getCircuitValue( "TEMP", circuitParamValue);
+      EXPECT_EQ( circuitParamValue, -50.0 );
+    }
+    
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  
+  // try to get values that were in measure functions.
+  getParamResult = xycePtr->getCircuitValue( "MAXV2",circuitParamValue);
+  EXPECT_NEAR( circuitParamValue, 6.666667e-01, 1.0e-7 );
+  getParamResult = xycePtr->getCircuitValue( "MINV2",circuitParamValue);
+  EXPECT_NEAR( circuitParamValue, -6.666667e-01,  1.0e-7 );
+  
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
