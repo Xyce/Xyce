@@ -2064,7 +2064,7 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
                                     analysisManager_->getDataStore()->currStatePtr,
                                     analysisManager_->getDataStore()->currStorePtr, 0);
       paramValue = getValue( comm_, *anOp, opDataTmp).real();
-      
+      delete anOp;
     }
   
   }
