@@ -58,6 +58,7 @@
 // x simulateUntil() in stead of provisionalStep() & acceptProvisionalStep()
 // 
 
+
 TEST ( XyceSimulator, create)
 {
   Xyce::Circuit::Simulator * xycePtr = NULL;
@@ -180,7 +181,6 @@ TEST ( XyceSimulator, GetTimeTestNetlist1 )
   delete xycePtr;
 }
 
-
 TEST ( XyceSimulator, MultiTimeStepTestNetlist1 )
 {
   Xyce::Circuit::Simulator * xycePtr = NULL;
@@ -198,10 +198,10 @@ TEST ( XyceSimulator, MultiTimeStepTestNetlist1 )
   EXPECT_EQ( finalSimTime, 1.0 );
   // run this simulation in several sub-stesps
   const int numSteps=100;
-  for(auto i = 0; i<numSteps; i++)
+  for(auto i = 0; i<(numSteps+1); i++)
   {
     // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
-    double simToTime = (i+1)*finalSimTime/numSteps;
+    double simToTime = (i)*finalSimTime/numSteps;
     double actualTime=0.0;
     bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
     EXPECT_TRUE(stepResult);
@@ -211,7 +211,7 @@ TEST ( XyceSimulator, MultiTimeStepTestNetlist1 )
     EXPECT_EQ( reportedTime, actualTime );
     bool isSimComplete = xycePtr->simulationComplete();
     // should be false on all but the last step
-    if( i==(numSteps-1))
+    if( i==numSteps )
     {
       EXPECT_TRUE( isSimComplete );
     }
@@ -671,6 +671,7 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
   EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
   delete xycePtr;
 }
+
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)

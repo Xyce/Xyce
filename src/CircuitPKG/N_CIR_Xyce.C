@@ -1804,7 +1804,8 @@ bool Simulator::simulateUntil(
   double finalTime = analysisManager_->getFinalTime();
   double initialTime = analysisManager_->getInitialTime();
 
-  if (requestedUntilTime <= currentTimeBeforeSim)
+  // calling with requestedUntilTime = 0 should just have Xyce calculate the DC Op.
+  if ((requestedUntilTime != 0.0) && (requestedUntilTime <= currentTimeBeforeSim))
     Report::UserError0() << "requestedUntilTime <= current simulation time in simulateUntil() call.  Simulation will abort.";
 
   // Silence the "Percent Complete" noise, we don't want it when using this
