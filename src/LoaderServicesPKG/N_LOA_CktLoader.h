@@ -196,6 +196,10 @@ public:
       int astType,
       double val, bool overrideOriginal = false);
 
+  virtual bool setParamRandomExpressionTerms2(
+      const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+      bool overrideOriginal = false);
+
   // Function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const;
 

@@ -110,6 +110,7 @@ public:
 
   typedef unordered_map<std::string, Util::Op::Operator *> OpMap;
   
+
   DeviceMgr(Parallel::Machine comm, Topo::Topology &topology, Util::Op::BuilderManager &op_builder_manager, const IO::CmdParse &command_line);
   ~DeviceMgr();
 
@@ -249,6 +250,10 @@ public:
       const std::string & opName, 
       int opIndex, int astType,
       double val, bool overrideOriginal = false);
+
+  bool setParamRandomExpressionTerms2(
+      const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+      bool overrideOriginal = false);
 
   void setSeparateLoadFlag (bool flag) { devOptions_.separateLoad = flag; }
   bool getSeparateLoadFlag ()          { return devOptions_.separateLoad; }
@@ -669,6 +674,8 @@ private:
   bool                          iStarRequested_;
 
   bool                          expressionBasedSamplingEnabled_;
+
+  std::unordered_map<DeviceEntity *, std::vector<Depend> > masterGlobalParamDependencies;
 };
 
 //-----------------------------------------------------------------------------

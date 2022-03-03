@@ -624,13 +624,6 @@ bool Sampling::doInit()
   }
 
   // check that all the specified params exist
-#if 0
-  std::cout << "Sampling::doInit.  Size of samplingVector = " << samplingVector_.size() <<std::endl;
-  for (int ii=0;ii<samplingVector_.size();ii++)
-  {
-    std::cout << "samplingVector_["<<ii<<"].name = " << samplingVector_[ii].name << std::endl;
-  }
-#endif
   UQ::checkParameterList(
       analysisManager_.getComm(), 
       loader_, 
@@ -813,7 +806,7 @@ bool Sampling::doLoopProcess()
     bool reset = false;
     if (useExpressionSamples_)
     {
-      reset = UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+      reset = UQ::updateExpressionSamplingTerms2(loader_, i, samplingVector_, Y_, numSamples_, false);
     }
     else
     {

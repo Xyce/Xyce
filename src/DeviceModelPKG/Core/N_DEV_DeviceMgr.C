@@ -124,7 +124,10 @@ bool setParameter(
   bool                          override_original);
 
 //-----------------------------------------------------------------------------
-//                 AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+// Function to set: AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT inside of 
+// expressions/params/etc.  This version of the function sets them one 
+// parameter at a time, and is thus very slow for complex PDKs.
+//-----------------------------------------------------------------------------
 bool setParameterRandomExpressionTerms(
   Parallel::Machine             comm,
   ArtificialParameterMap &      artificial_parameter_map,
@@ -138,6 +141,24 @@ bool setParameterRandomExpressionTerms(
   int opIndex,
   int astType,
   double                        value,
+  bool                          override_original);
+
+//-----------------------------------------------------------------------------
+// Function to set: AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT inside of 
+// expressions/params/etc.  This version of the function sets all the parameters
+// in a single function call, and is much faster than the original version of
+// this function (above).
+//-----------------------------------------------------------------------------
+bool setParameterRandomExpressionTerms2(
+  Parallel::Machine             comm,
+  ArtificialParameterMap &      artificial_parameter_map,
+  PassthroughParameterSet &     passthrough_parameter_map,
+  UserDefinedParams &           globals,
+  DeviceMgr &                   device_manager,
+  EntityVector &                dependent_entity_vector,
+  const InstanceVector &        extern_device_vector,
+  const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+  std::unordered_map<DeviceEntity *, std::vector<Depend> > & masterGlobalParamDependencies,
   bool                          override_original);
 
 } // namespace <unnamed>
@@ -2109,6 +2130,19 @@ bool DeviceMgr::setParamRandomExpressionTerms(
   return true;
 }
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setParamRandomExpressionTerms2(
+      const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+      bool overrideOriginal)
+{
+  return setParameterRandomExpressionTerms2(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
+      dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), 
+      SamplingParams,
+      masterGlobalParamDependencies,
+      overrideOriginal);
+  return true;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::findParam
@@ -2145,12 +2179,16 @@ bool DeviceMgr::parameterExists(
 
 // this macro is to support the populateSweepParam function.
 // The OP argument is only used for the debug output part of this.  The functional part only needs FUNC
-#define GET_RANDOM_OP_DATA(FUNC,OP) \
+      // std::cout << "Parameter " << paramName << " = " << expr.get_expression() << " contains "<< #OP << std::endl;  \
+
+#define GET_RANDOM_OP_DATA(FUNC,OP,INDEX,GPITER) \
   { \
     std::vector<Xyce::Analysis::SweepParam> tmpParams; expr.FUNC(tmpParams);  \
     if ( !(tmpParams.empty()) )  {\
       if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
       for(int jj=0;jj<tmpParams.size();jj++) {  \
+        tmpParams[jj].globalIndex = INDEX; \
+        tmpParams[jj].gpIter = GPITER; \
         tmpParams[jj].baseName = paramName; \
         tmpParams[jj].name = paramName ; } \
       SamplingParams.insert( SamplingParams.end(), tmpParams.begin(), tmpParams.end() );\
@@ -2177,14 +2215,17 @@ bool DeviceMgr::parameterExists(
 void populateSweepParam (  
     Util::Expression & expr, 
     const std::string & paramName, 
-    std::vector<Xyce::Analysis::SweepParam> & SamplingParams)
+    std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+    int globalIndex,
+    GlobalParameterMap::iterator global_param_it
+    )
 {
-  GET_RANDOM_OP_DATA(getAgaussData,Agauss)
-  GET_RANDOM_OP_DATA(getGaussData,Gauss)
-  GET_RANDOM_OP_DATA(getAunifData,Aunif)
-  GET_RANDOM_OP_DATA(getUnifData,Unif)
-  GET_RANDOM_OP_DATA(getRandData,Rand)
-  GET_RANDOM_OP_DATA(getLimitData,Limit)
+  GET_RANDOM_OP_DATA(getAgaussData,Agauss,globalIndex,global_param_it)
+  GET_RANDOM_OP_DATA(getGaussData,Gauss,globalIndex,global_param_it)
+  GET_RANDOM_OP_DATA(getAunifData,Aunif,globalIndex,global_param_it)
+  GET_RANDOM_OP_DATA(getUnifData,Unif,globalIndex,global_param_it)
+  GET_RANDOM_OP_DATA(getRandData,Rand,globalIndex,global_param_it)
+  GET_RANDOM_OP_DATA(getLimitData,Limit,globalIndex,global_param_it)
 }
 
 struct SweepParam_lesser
@@ -2228,21 +2269,133 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 {
   std::vector<Util::Expression> & expressionVec  = globals_.expressionVec;
   std::vector<std::string> & expNameVec = globals_.expNameVec;
+  GlobalParameterMap & global_parameter_map = globals_.paramMap;
+  std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
 
   // get random expressions from global parameters first.
-  if (! (expressionVec.empty()) ) 
+  // Sort the globals.  This is absolutely necessary in parallel, and not necessary for serial. 
+  // But it is convenient for testing comparisons to do it for both serial and parallel.
+  //if (Parallel::is_parallel_run(parallel_comm.comm())) 
+  {
+    // Perform sort operations on the std::vectors 
+    // associated with global parameters to ensure the same order 
+    // on each processor.   Ideally these 3 things would be in a struct 
+    // together and thus sorted once, rather than 3 separate sorts.  
+
+    // sort indices based on name vector
+    std::vector<std::size_t> indices(expNameVec.size(),0);
+    std::iota(indices.begin(), indices.end(),0);
+    std::sort(indices.begin(), indices.end(), 
+        [&](const int& a, const int& b) { return (expNameVec[a] < expNameVec[b]); } ) ;
+
+    // sort the the global expression vector, using permutation based on name vector
+    {
+      std::vector<Util::Expression> sortedExpressionVec = expressionVec;
+      std::transform(indices.begin(), indices.end(), sortedExpressionVec.begin(),
+          [&](std::size_t i){ return expressionVec[i]; });
+      expressionVec = sortedExpressionVec;
+    }
+
+    // sort the the global depend vector, using permutation based on name vector
+    {
+      std::vector< std::vector<entityDepend> > sortedDeviceEntityDependVec(deviceEntityDependVec.size());
+      std::transform(indices.begin(), indices.end(), sortedDeviceEntityDependVec.begin(),
+          [&](std::size_t i){ return deviceEntityDependVec[i]; });
+      deviceEntityDependVec = sortedDeviceEntityDependVec;
+    }
+
+    // sort the global name vector.  Do this last.
+    std::sort(expNameVec.begin(), expNameVec.end(), 
+        [&](const std::string & a, const std::string & b) { return (a < b); } ) ;
+  }
+ 
+  //  this minAll should not be necessary, but just being extra-safe.
+  bool emptyExprVec = expressionVec.empty();
+  if (Parallel::is_parallel_run(parallel_comm.comm()))
+  {
+    int tmpEmpty = emptyExprVec?1:0; int globalEmpty = 0;
+    parallel_comm.minAll(&tmpEmpty, &globalEmpty, 1);
+    emptyExprVec = (globalEmpty==0)?false:true;
+  } 
+
+  if (! ( emptyExprVec) ) 
   {
     for (int ii=0;ii<expressionVec.size();ii++)
-    {
-      populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams );
+   {
+      // ERK. Issue #306 work led to adding this if-statement.  Some of the params
+      // being sampled had zero dependencies in large PDK test circuit.  
+      // This if-statement ensures that they are excluded from the sampling study.
+      bool empty = globals_.deviceEntityDependVec[ii].empty();
+      if (Parallel::is_parallel_run(parallel_comm.comm()))
+      {
+        int tmpEmpty = empty?1:0; int globalEmpty = 0;
+        parallel_comm.minAll(&tmpEmpty, &globalEmpty, 1);
+        empty = (globalEmpty==0)?false:true;
+      }
+
+      if ( !empty )
+      {
+        GlobalParameterMap::iterator global_param_it = global_parameter_map.find(expNameVec[ii]);
+        populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams, ii, global_param_it);
+
+        {
+          // new code to set up the "master" global parameter dependency map.
+          // May need to separate this code when refactoring the above code for parallel.
+          //
+          // The goal for the masterGlobalParamDependencies container is 
+          // to only contain unique objects.
+          //
+          // So in this container, each entity is unique, ie only appears once.
+          // This is enforced by having the container be a std::unordered_map, 
+          // and using the entityPtr as the key, or "first" part of the pair.
+          //
+          // The parameter vector is the value, or "second" part of the pair.
+          // So each parameterVec is associated with a specific entity (model or instance).
+          //
+          // The elements of this parameter vector are also unique.  So, 
+          // each parameter in the vector will appear at most once. This uniqueness
+          // is enforced by the code below.
+          //
+          // The params in the parameterVec ONLY include parameters that 
+          // have one or more .param/.global_param dependencies.  Any params 
+          // that lack these dependencies have been excluded.  This screening 
+          // happened upstream, in the device entity, during the DeviceEntity::setParams 
+          // and subordinate  DeviceEntity::setDependentParameter functions,
+          // when the globals_.deviceEntityDependVec object was set up.
+          std::vector<entityDepend> & edVec = globals_.deviceEntityDependVec[ii];
+          for (int ie=0;ie< edVec.size(); ie++)
+          {
+            entityDepend & ed = edVec[ie];
+
+            std::unordered_map<DeviceEntity *, std::vector<Depend> >::iterator mgpDepIter = 
+              masterGlobalParamDependencies.find(ed.entityPtr);
+
+            if(mgpDepIter!=masterGlobalParamDependencies.end())
+            {
+              std::vector<Depend> & oldParamVec = mgpDepIter->second;
+              oldParamVec.insert(oldParamVec.end(), ed.parameterVec.begin(), ed.parameterVec.end());
+
+              // sort and remove duplicates, if any:
+              std::sort(oldParamVec.begin(), oldParamVec.end(), Depend_greater());
+              std::vector<Depend>::iterator it = std::unique(oldParamVec.begin(), oldParamVec.end(), Depend_equal());
+              oldParamVec.resize( std::distance (oldParamVec.begin(), it ));
+            }
+            else
+            {
+              masterGlobalParamDependencies[ed.entityPtr] = ed.parameterVec;
+            }
+          }
+        }
+      }
     }
 
     // in parallel, the order is not guaranteed from processor to processor
-    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    // do in serial as well, for testing purposes.
+    //if (Parallel::is_parallel_run(parallel_comm.comm()))
     {
       if ( !(SamplingParams.empty()) )
       {
-        std::sort(SamplingParams.begin(), SamplingParams.end(), SweepParam_greater());
+        std::sort(SamplingParams.begin(), SamplingParams.end(), SweepParam_lesser());
       }
     }
   }
@@ -2262,12 +2415,13 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         for (int jj=0;jj<depVec.size();jj++) 
         {
           std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
-          populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams ); 
+          GlobalParameterMap::iterator global_param_it = global_parameter_map.end();
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams, -1, global_param_it); 
         }
       }
     }
 
-    std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
+    std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_lesser());
 
     // if parallel, get a combined vector of random model params from all processors.
     // ERK Note: this parallel reduction may be unneccessary.  As of this writing,
@@ -2342,7 +2496,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         (deviceModelSamplingParams.end(), externalDeviceSamplingParams.begin(), externalDeviceSamplingParams.end());
 
       // sort the new vector and then eliminate duplicates.
-      std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_greater());
+      std::sort(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_lesser());
       std::vector<Xyce::Analysis::SweepParam>::iterator it = std::unique(deviceModelSamplingParams.begin(), deviceModelSamplingParams.end(), SweepParam_equal());
       deviceModelSamplingParams.resize( std::distance (deviceModelSamplingParams.begin(), it ));
     }
@@ -2358,7 +2512,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         for (int jj=0;jj<depVec.size();jj++) 
         { 
           std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
-          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams ); 
+          GlobalParameterMap::iterator global_param_it = global_parameter_map.end();
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams, -2, global_param_it); 
         }
       }
     }
@@ -2429,7 +2584,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         (deviceSamplingParams.end(), externalDeviceSamplingParams.begin(), externalDeviceSamplingParams.end());
 
       // sort the new vector, so they match on each proc.
-      std::sort(deviceSamplingParams.begin(), deviceSamplingParams.end(), SweepParam_greater());
+      std::sort(deviceSamplingParams.begin(), deviceSamplingParams.end(), SweepParam_lesser());
     }
 
     // now insert the model/instance parameters into the master vector.
@@ -5312,6 +5467,10 @@ bool setParameter(
 // Function      : setParameterRandomExpressionTerms
 // Purpose       : Update params that depend on random ops such as
 // Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+//
+//  Note: this function is now obsolete.  See the new function, 
+//  setParameterRandomExpressionTerms2
+//
 // Scope         : public
 // Creator       : Eric Keiter
 // Creation Date : 7/30/2020
@@ -5336,6 +5495,7 @@ bool setParameterRandomExpressionTerms(
   GlobalParameterMap &          global_parameter_map = globals.paramMap;
   std::vector<Util::Expression> & global_expressions = globals.expressionVec;
   std::vector<std::string> & global_exp_names = globals.expNameVec;
+  std::vector< std::vector<entityDepend> > & device_entities = globals.deviceEntityDependVec;
 
   {
     GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
@@ -5385,17 +5545,27 @@ bool setParameterRandomExpressionTerms(
         if ((*global_param_it).second != value)
         {
           (*global_param_it).second = value;
-          EntityVector::iterator it = dependent_entity_vector.begin();
-          EntityVector::iterator end = dependent_entity_vector.end();
-          for ( ; it != end; ++it)
+
+          if ( !(globals.deviceEntityDependVec[globalIndex].empty()) )
           {
-            bool globalParamChangedLocal=true;
-            bool timeChangedLocal=false;
-            bool freqChangedLocal=false;
-            if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+            std::vector<entityDepend>::iterator it = globals.deviceEntityDependVec[globalIndex].begin();
+            std::vector<entityDepend>::iterator end = globals.deviceEntityDependVec[globalIndex].end();
+            for ( ; it != end; ++it)
             {
-              (*it)->processParams();
-              (*it)->processInstanceParams();
+              entityDepend & ed = (*it);
+              bool globalParamChangedLocal=true;
+              bool timeChangedLocal=false;
+              bool freqChangedLocal=false;
+
+              if (ed.entityPtr->updateGlobalAndDependentParameters(
+                    globalParamChangedLocal,
+                    timeChangedLocal,
+                    freqChangedLocal,
+                    ed.parameterVec))
+              {
+                ed.entityPtr->processParams();
+                ed.entityPtr->processInstanceParams();
+              }
             }
           }
         }
@@ -5409,18 +5579,11 @@ bool setParameterRandomExpressionTerms(
           }
           Xyce::dout() << std::endl;
         }
-
       }
     }
     else
     {
-
-      // ERK.  This needs to be update/fixed.  Using a setDefaultParam or setParam, below is incorrect.
-      //
-      // The correct thing to do is pull out the expression, and then do a setAgauss, setAunif, or whichever
-      // is appropriate.
-
-      // If not artificial, then search for the appropriate natural param(s).
+      // If not .param/.global_param, then search for the appropriate device param(s).
       DeviceEntity * device_entity = device_manager.getDeviceEntity(name);
 
       int entity_found = (device_entity != 0);
@@ -5432,8 +5595,7 @@ bool setParameterRandomExpressionTerms(
 
         if (found)
         {
-          device_entity->processParams (); // if this "entity" is a model, then need to
-          // also do a  "processParams" on the related instances.
+          device_entity->processParams (); 
           device_entity->processInstanceParams();
         }
 
@@ -5444,7 +5606,6 @@ bool setParameterRandomExpressionTerms(
 
       if (entity_found == 0)
       {
-        //if (DEBUG_DEVICE)
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
           Report::DevelWarning() << "DeviceMgr.C:  setParameterRandomExpressionTerms.  Unable to find parameter " << name;
@@ -5455,6 +5616,200 @@ bool setParameterRandomExpressionTerms(
         }
       }
     }
+  }
+
+#if 0
+  // ERK. This will need to be set up later.  Currently, the random operators 
+  // cannot be applied thru the extern device interface.  This code below is just
+  // copied from the original setParameter function, and won't work correctly
+  // for this use case.  Leaving in place as a reminder.
+
+  // Certain parameters should be passed through to the inner solve,
+  // if there is an inner circuit problem.  The names of parameters
+  // that should be passed through are stored in the map.
+  if (passthrough_parameter_map.find(name) != passthrough_parameter_map.end())
+  {
+    InstanceVector::const_iterator it = extern_device_vector.begin();
+    InstanceVector::const_iterator end = extern_device_vector.end();
+    for ( ; it != end; ++it)
+    {
+      ExternDevice::Instance &extern_device = static_cast<ExternDevice::Instance &>(*(*it));
+
+      bool bs1 = extern_device.setInternalParam(name, value);
+    }
+  }
+#endif
+
+  return bsuccess;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : setParameterRandomExpressionTerms2
+// Purpose       : Update params that depend on random ops such as
+//
+// Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT.
+//                 This version does all the params in one call.
+//
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 3/3/2022
+//-----------------------------------------------------------------------------
+bool setParameterRandomExpressionTerms2(
+  Parallel::Machine             comm,
+  ArtificialParameterMap &      artificial_parameter_map,
+  PassthroughParameterSet &     passthrough_parameter_map,
+  UserDefinedParams &           globals,               ///< global variables
+  DeviceMgr &                   device_manager,
+  EntityVector &                dependent_entity_vector,   // dependentPtrVec_, if called from DeviceMgr::setParam
+  const InstanceVector &        extern_device_vector,
+  const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+  std::unordered_map<DeviceEntity *, std::vector<Depend> > & masterGlobalParamDependencies, // should be const
+  bool                          override_original)
+{
+  bool bsuccess = true, success = true;
+
+  GlobalParameterMap &          global_parameter_map = globals.paramMap;
+  std::vector<Util::Expression> & global_expressions = globals.expressionVec;
+  std::vector<std::string> & global_exp_names = globals.expNameVec;
+  std::vector< std::vector<entityDepend> > & device_entities = globals.deviceEntityDependVec;
+
+  for(int isamp=0;isamp<SamplingParams.size();isamp++)
+  {
+    std::string name   = SamplingParams[isamp].setParamName;
+    std::string opName = SamplingParams[isamp].opName;
+    int opIndex        = SamplingParams[isamp].astOpIndex;
+    int astType        = SamplingParams[isamp].astType;
+    int globalIndex    = SamplingParams[isamp].globalIndex;
+    double value       = SamplingParams[isamp].currentVal;
+    GlobalParameterMap::iterator global_param_it = SamplingParams[isamp].gpIter;
+
+    if (globalIndex >= 0)
+    {
+      Util::Expression &expression = global_expressions[globalIndex];
+
+      // set value .  The variable "value" was determined in one of the UQ classes.  
+      // It represents the value of a particular operator within the expression.  
+      // Use the opIndex to identify exactly which operator receives this value.
+      switch(astType)
+      {
+        case Util::AST_AGAUSS:
+          expression.setAgaussValue(opIndex,value);
+          break;
+        case Util::AST_GAUSS:
+          expression.setGaussValue(opIndex,value);
+          break;
+        case Util::AST_AUNIF:
+          expression.setAunifValue(opIndex,value);
+          break;
+        case Util::AST_UNIF:
+          expression.setUnifValue(opIndex,value);
+          break;
+        case Util::AST_RAND:
+          expression.setRandValue(opIndex,value);
+          break;
+        case Util::AST_LIMIT:
+          expression.setLimitValue(opIndex,value);
+          break;
+      }
+      double paramValue=0.0;
+      expression.evaluateFunction(paramValue);
+
+      if (global_param_it != global_parameter_map.end())
+      {
+        if ((*global_param_it).second != value)
+        {
+          (*global_param_it).second = value;
+        }
+      }
+      else
+      {
+        Report::DevelFatal().in("Xyce::Device::setParameterRandomExpressionTerms2")
+          << "Cannot find global parameter";
+      }
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
+        if (override_original)
+        {
+          Xyce::dout()  << " overriding original";
+        }
+        Xyce::dout() << std::endl;
+      }
+    }
+    else
+    {
+      // If not .param/.global_param, then search for the appropriate device param(s).
+      DeviceEntity * device_entity = device_manager.getDeviceEntity(name);
+
+      int entity_found = (device_entity != 0);
+      if (entity_found)
+      {
+        bool found;
+        std::string paramName = Util::paramNameFromFullParamName(name);
+        found = device_entity->setParameterRandomExpressionTerms(paramName,opIndex,astType,value,override_original);
+
+        if (found)
+        {
+          device_entity->processParams (); 
+          device_entity->processInstanceParams();
+        }
+
+        entity_found = found;
+      }
+
+      Parallel::AllReduce(comm, MPI_LOR, &entity_found, 1);
+
+      if (entity_found == 0)
+      {
+        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+        {
+          Report::DevelWarning() << "DeviceMgr.C:  setParameterRandomExpressionTerms.  Unable to find parameter " << name;
+        }
+        else
+        {
+          Report::UserError() << "Xyce::Device::setParameterRandomExpressionTerms.  Unable to find parameter " << name;
+        }
+      }
+    }
+  }
+
+  // loop over the "master" list of global param dependencies 
+  // and perform updates.  In this list, each entity is unique, ie only appears once.
+  // The parameter vector for each entity is also unique.  So, 
+  // within each unique entity, each param only appears, at most, once.
+  //
+  // The params in the parameterVec ONLY include parameters that 
+  // have one or more .param/.global_param dependencies.  Any params 
+  // that lack these dependencies have been excluded.
+  {
+  std::unordered_map<DeviceEntity *, std::vector<Depend> >::iterator mgpIter = 
+              masterGlobalParamDependencies.begin();
+  std::unordered_map<DeviceEntity *, std::vector<Depend> >::iterator mgpEnd = 
+              masterGlobalParamDependencies.end();
+
+  for ( ; mgpIter != mgpEnd; mgpIter++)
+  {
+    DeviceEntity * entityPtr = mgpIter->first;
+    std::vector<Depend> & parameterVec = mgpIter->second;
+
+    if (!(parameterVec.empty()))
+    {
+      bool globalParamChangedLocal=true;
+      bool timeChangedLocal=false;
+      bool freqChangedLocal=false;
+      if (entityPtr->updateGlobalAndDependentParameters(
+              globalParamChangedLocal,
+              timeChangedLocal,
+              freqChangedLocal,
+              parameterVec))
+      {
+        entityPtr->processParams();
+        entityPtr->processInstanceParams();
+      }
+    }
+  }
   }
 
 #if 0
@@ -5504,7 +5859,11 @@ void addGlobalParameter(
   {
     globals.expressionVec.push_back(param.getValue<Util::Expression>());
     Util::Expression &expression = globals.expressionVec.back();
+
     globals.expNameVec.push_back(param.uTag());
+
+    globals.deviceEntityDependVec.push_back(std::vector<entityDepend>(0));
+
     globals.paramMap[param.uTag()] = 0.0; 
     // this value will get set properly later in a 
     // updateDependentParameters_ function call.  

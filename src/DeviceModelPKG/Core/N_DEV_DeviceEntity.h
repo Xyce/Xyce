@@ -49,6 +49,8 @@
 #include <N_LAS_fwd.h>
 #include <N_UTL_fwd.h>
 
+#include <N_DEV_Depend.h>
+
 #include <N_UTL_NetlistLocation.h>
 #include <N_DEV_Pars.h>
 #include <N_DEV_InstanceName.h>
@@ -59,52 +61,6 @@ namespace Device {
 typedef std::map<std::string, std::vector<Param>, LessNoCase> CompositeParamMap;
 
 void populateParams(const ParameterMap &parameter_map, std::vector<Param> &param_list, CompositeParamMap &composite_param_map);
-
-//-----------------------------------------------------------------------------
-// Class         : Depend
-// Purpose       : Used to record information about dependent parameters
-// Special Notes :
-// Creator       : Dave Shirley
-// Creation Date : 
-//-----------------------------------------------------------------------------
-///
-///  The Depend struct is used to keep track of dependent parameters
-///
-struct Depend
-{
-  std::string                 name;      ///< parameter name
-  Util::Expression *          expr;      ///< expression used comput value
-  union resUnion
-  {
-    int *                  iresult;
-    double *                result;
-    std::vector<double> *   resVec;
-  } resultU;                            ///< Holds a pointer to where the
-                                        ///< parameter is stored.
-  int                         vectorIndex; ///< Used if parameter is in a vector
-
-  int                         n_vars, lo_var, n_global; 
-  bool                     storeOriginal;    ///< true if original value stored
-  int                      serialNumber;     ///< used if original value stored
-
-  // Constructor
-  Depend()
-    : vectorIndex(-1), n_vars(0), lo_var(0), n_global(0)
-  {};
-
-};
-
-// ERK.  this could be replaced by a lambda
-struct MatchDependName
-{
-  MatchDependName(const std::string& name) : matchName_(name) {}
-  bool operator()(const Depend & dep) const
-  {
-    return dep.name == matchName_;
-  }
-  private:
-    const std::string& matchName_;
-};
 
 //-----------------------------------------------------------------------------
 // Class         : DeviceEntity
@@ -249,6 +205,14 @@ public:
       bool timeChanged, 
       bool freqChanged);
 
+  bool updateGlobalAndDependentParameters (
+      bool globalParameterChanged,
+      bool timeChanged, 
+      bool freqChanged,
+      std::vector<Depend> & parameter_vec
+      );
+
+
   bool updateDependentParameters(double temp_tmp);
   bool updateDependentParameters();
   void applyDepSolnLIDs();
@@ -346,6 +310,8 @@ protected:
   std::vector<std::string>    expVarNames;
   std::vector<double>         expVarVals;
   std::vector<double>         eVarVals;
+
+  std::unordered_map <std::string, std::vector <Depend> > tmpGlobalParams_; 
 };
 
 } // namespace Device

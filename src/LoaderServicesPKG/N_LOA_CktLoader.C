@@ -151,6 +151,29 @@ bool CktLoader::setParamRandomExpressionTerms(
   return deviceManager_.setParamRandomExpressionTerms(name, opName, opIndex, astType, val, overrideOriginal);
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : CktLoader::setParamRandomExpressionTerms
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool CktLoader::setParamRandomExpressionTerms2(
+  const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+  bool overrideOriginal) 
+{
+  // Delete the current linear matrices, just in case the parameter affects
+  // any linear devices and their Jacobian entries.
+  delete lindQdxMatrixPtr_; lindQdxMatrixPtr_=0;
+  delete lindFdxMatrixPtr_; lindFdxMatrixPtr_=0;
+  delete filtered_lindQdxMatrixPtr_; filtered_lindQdxMatrixPtr_=0;
+  delete filtered_lindFdxMatrixPtr_; filtered_lindFdxMatrixPtr_=0;
+
+  return deviceManager_.setParamRandomExpressionTerms2(SamplingParams, overrideOriginal);
+}
+
 //-----------------------------------------------------------------------------
 // Function      : CktLoader::analyticSensitivitiesAvailable
 // Purpose       : 

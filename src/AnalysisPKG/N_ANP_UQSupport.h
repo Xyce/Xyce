@@ -242,6 +242,15 @@ bool updateExpressionSamplingTerms(
     int numSamples,
     bool overrideOriginal);
 
+
+bool updateExpressionSamplingTerms2(
+    Loader::Loader &loader, 
+    int sample, 
+    std::vector<SweepParam> & samplingVec,
+    const std::vector<double> & Y,
+    int numSamples,
+    bool overrideOriginal);
+
 long getTheSeed(
     Parallel::Machine comm, 
     const Xyce::IO::CmdParse & commandLine, 

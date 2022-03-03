@@ -71,6 +71,7 @@ libDeviceCore_la_SOURCES = \
   N_DEV_CompositeParam.h \
   N_DEV_Configuration.h \
   N_DEV_Const.h \
+  N_DEV_Depend.h \
   N_DEV_Device.h \
   N_DEV_DeviceBlock.h \
   N_DEV_DeviceEntity.h \

@@ -177,7 +177,9 @@ Operator * makeOp(
 
   if (op_identifier == 0) // Defined inconsistently
   {
-    Report::UserError().at(netlist_location) << "Function or variable is defined differently on different processors";
+    std::string param_tag_error = (*param_it).tag();
+    Report::UserError().at(netlist_location) 
+      << "makeOp: Function or variable " << param_tag_error << " is defined differently on different processors.";
   }
   else if (new_op->id() == identifier<UndefinedOp>()) // not defined on this processor
   {
@@ -293,7 +295,9 @@ void makeOps(
 #endif
     if ((*op_identifier_it) == 0) // Defined inconsistently
     {
-      Report::UserError().at(netlist_location) << "Function or variable is defined differently on different processors";
+      std::string op_name_error = (*it)->getName();
+      Report::UserError().at(netlist_location) 
+      << "makeOps: Function or variable " << op_name_error << " is defined differently on different processors.";
     }
     else if ((*it)->id() == identifier<UndefinedOp>()) // not defined on this processor
     {

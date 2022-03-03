@@ -46,6 +46,7 @@
 #include <random>
 
 #include <N_ANP_fwd.h>
+#include <N_DEV_fwd.h>
 #include <N_LOA_fwd.h>
 #include <N_PDS_fwd.h>
 #include <N_UTL_fwd.h>
@@ -81,6 +82,7 @@ public:
   // Default constructor
   SweepParam () : 
    name(""),
+   setParamName(""),
    opName(""),
    baseName(""),
    type("LIN"),
@@ -108,6 +110,7 @@ public:
    dataSetName(""),
    astOpIndex(-1),
    astType(Util::AST_AGAUSS),
+   globalIndex(-1),
    sweepResetFlag_(false),
    lastLocalStepNumber_(-1)
    {}
@@ -120,6 +123,7 @@ public:
   bool getSweepResetFlag() {return sweepResetFlag_;}
 
   std::string name;
+  std::string setParamName;
   std::string opName; // only used with expression-based operators
   std::string baseName; // only used with expression-based operators
   std::string type;
@@ -158,6 +162,9 @@ public:
 
   int astOpIndex;
   int astType;
+  int globalIndex;
+
+  Device::GlobalParameterMap::iterator gpIter;
 
  private:
   bool sweepResetFlag_;
