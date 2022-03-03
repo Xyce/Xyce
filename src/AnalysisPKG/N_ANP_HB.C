@@ -1584,6 +1584,13 @@ bool HB::setFreqPoints_()
   {
 
     setFreqPointsAPFT_();
+
+    if ( method_ == "AFM" )
+    {
+      Report::UserError() << "Unsupported frequency truncation method for FM based HB";
+      return false;
+    }
+
   }
   else if (  selectHarm_  == "BOX" )
   {
