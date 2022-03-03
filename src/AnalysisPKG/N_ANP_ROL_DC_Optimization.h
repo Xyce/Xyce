@@ -158,11 +158,38 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     return ret;
   }
 
+  bool rhs_()
+  {
+    Stats::StatTop _residualStat("Residual");
+    Stats::TimeBlock _residualTimer(_residualStat);
+
+    nEqLoader_.loadRHS();
+    ++numResidualLoads_;
+    totalResidualLoadTime_ += nEqLoader_.getResidualTime();
+
+    return true;
+  }
+
+  bool jacobian_()
+  {
+    Stats::StatTop _jacobianStat("Jacobian");
+    Stats::TimeBlock _jacobianTimer(_jacobianStat);
+
+    nEqLoader_.loadJacobian();
+    ++numJacobianLoads_;
+    totalJacobianLoadTime_ += nEqLoader_.getJacobianTime();
+ 
+    return true;
+  }
+
  protected:
   ROL_DC &                              rolSweep_;
   AnalysisManager &                     analysisManager_;
       
  public:
+  int numResidualLoads_, numJacobianLoads_;
+  double totalResidualLoadTime_, totalJacobianLoadTime_;
+
   EqualityConstraint_ROL_DC(
     Real                                nu, // # of solution variables
     Real                                nc, // # of constraint equations
@@ -188,8 +215,14 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       pertQVectorPtr_(0),
       origBVectorPtr_(0),
       pertBVectorPtr_(0),
-      paramValue_(nz, 0.0)
+      paramValue_(nz, 0.0),
+      numResidualLoads_(0),
+      numJacobianLoads_(0),
+      totalResidualLoadTime_(0.0),
+      totalJacobianLoadTime_(0.0)
   {}
+
+  ~EqualityConstraint_ROL_DC() {}
 
   void value(::ROL::Vector<Real> &c, 
              const ::ROL::Vector<Real> &u,
@@ -213,12 +246,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     {
       rolSweep_.setSweepValue(i);  // TT: Updates source term. Note: A more direct approach is to use setParam.
       success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[i]);
-      nEqLoader_.loadRHS();
+      rhs_();
       *((*cp)[i]) = *(linearSystem_.getRHSVector());
       // (*cp)[i]->print(Xyce::dout());
     }
-
-    nEqLoader_.setVoltageLimiterStatus(vstatus);
   }
 
   void solve(::ROL::Vector<Real> &c, 
@@ -231,12 +262,15 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
     bool haveChanged = setControlParams(z);
     
     // Sweep to obtain the vector of solutions.
-    bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
+    if (haveChanged)
+    {
+      bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
    
-    // Write the vector of solutions into u.
-    for (int i = 0; i < nc_ ; i++) {
-      *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
-      // (*up)[i]->print(Xyce::dout());
+      // Write the vector of solutions into u.
+      for (int i = 0; i < nc_ ; i++) {
+        *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
+        // (*up)[i]->print(Xyce::dout());
+      }
     }
 
     value(c, u, z, tol);
@@ -271,10 +305,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
+      success = rhs_(); 
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
      
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
@@ -317,10 +351,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
+      success = rhs_(); 
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
@@ -364,10 +398,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
+      success = rhs_();
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // save rhs and Newton vectors
       // NOTE (HKT): this doesn't save a COPY of the vector, just copies the pointer.
@@ -437,10 +471,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
-      
+      success = rhs_();
+
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // save rhs and Newton vectors
       // [see notes in applyInverseJacobian_1]    
@@ -505,7 +539,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[k]);
       
       // Load rhs
-      success = nEqLoader_.loadRHS();
+      rhs_();
       
       int iparam;
       std::string msg;
@@ -515,7 +549,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       // it is necessary to load the Jacobian here to make sure we have the most
       // up-to-date matrix.  The Jacobian is not loaded for the final 
       // evaluation of the residual in the Newton solve.
-      success = nEqLoader_.loadJacobian ();
+      success = jacobian_();
       
       // Loop over the vector of parameters.  For each parameter, find the
       // device entity (a model or an instance) which corresponds to it, and
@@ -671,7 +705,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
           rolSweep_.setSweepValue(k);// needed?
           // Load F,Q and B.
-          nEqLoader_.loadRHS();
+          rhs_();
 
           // save the perturbed DAE vectors
           (*pertFVectorPtr_) = *(analysisManager_.getDataStore()->daeFVectorPtr);
@@ -834,7 +868,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[k]);
 
       // Load rhs
-      success = nEqLoader_.loadRHS();
+      success = rhs_();
       
       int iparam;
       std::string msg;
@@ -844,7 +878,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       // it is necessary to load the Jacobian here to make sure we have the most
       // up-to-date matrix.  The Jacobian is not loaded for the final 
       // evaluation of the residual in the Newton solve.
-      nEqLoader_.loadJacobian ();
+      jacobian_();
 
       // Loop over the vector of parameters.  For each parameter, find the
       // device entity (a model or an instance) which corresponds to it, and
@@ -991,7 +1025,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
           rolSweep_.setSweepValue(k);// needed?
           // Load F,Q and B.
-          nEqLoader_.loadRHS();
+          rhs_();
 
           // save the perturbed DAE vectors
           pertFVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeFVectorPtr), 0.0);

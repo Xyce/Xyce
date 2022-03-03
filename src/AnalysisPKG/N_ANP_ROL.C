@@ -117,6 +117,7 @@ ROL::ROL(
     numParams_(0),
     numSensParams_(0),
     paramFile_("parameters.txt"),
+    rolParamFile_("input.xml"),
     outputFile_("rol_output.txt"),
     objType_(-1),
     currentAnalysisObject_(0)
@@ -132,7 +133,7 @@ ROL::~ROL()
 //-----------------------------------------------------------------------------
 // Function      : ROL::setROLOptions
 // Purpose       :
-// Special Notes : These are from '.options rol_opts'
+// Special Notes : These are from '.rol'
 // Scope         : public
 // Creator       : 
 // Creation Date : 2/4/2022 
@@ -144,14 +145,15 @@ bool ROL::setROLOptions( const Util::OptionBlock & option_block)
     ExtendedString tag = it->tag();
     tag.toUpper();
 
-    if ( tag == "FILENAME" )
+    if ( tag == "PARAM_FILENAME" )
     {
       ExtendedString stringVal ( it->stringValue() );
       paramFile_ = stringVal;
     }
-    else if ( tag == "OBJTYPE" )
+    else if ( tag == "ROL_FILENAME" )
     {
-      objType_ = it->getImmutableValue<int>();
+      ExtendedString stringVal ( it->stringValue() );
+      rolParamFile_ = stringVal;
     }
     else
     { 
@@ -203,6 +205,8 @@ bool ROL::doInit()
         numSensParams_);
   }
 
+  std::cout << "DC objectives: " << rolDCObjVec_.size() << std::endl;
+  objType_ = rolDCObjVec_[0].objType_; 
 
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
@@ -228,50 +232,6 @@ bool ROL::getDCOPFlag() const
     return currentAnalysisObject_->getDCOPFlag();
   else
     return false;
-}
-
-bool ROL::doHandlePredictor()
-{
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ROL::processSuccessfulStep()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Todd Coffey, SNL
-// Creation Date : 09/18/2008
-//-----------------------------------------------------------------------------
-bool ROL::doProcessSuccessfulStep()
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ROL::processFailedStep()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 1/28/08
-//-----------------------------------------------------------------------------
-bool ROL::doProcessFailedStep()
-{
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ROL::doFinish()
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/10/06
-//-----------------------------------------------------------------------------
-bool ROL::doFinish()
-{
-  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -380,7 +340,7 @@ bool ROL::doLoopProcess()
 
     // Load parameters.
     ::ROL::Ptr<::ROL::ParameterList> parlist 
-      = ::ROL::getParametersFromXmlFile("input.xml");
+      = ::ROL::getParametersFromXmlFile(rolParamFile_);
     std::string outName     = parlist->get("Output File", outputFile_);
     bool useBoundConstraint = parlist->get("Use Bound Constraints", true);
     bool useScale           = parlist->get("Use Scaling For Epsilon-Active Sets", true);
@@ -541,6 +501,63 @@ bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ROL::setROLObjectives
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setROLObjectives(const std::vector<Util::OptionBlock>& OB)
+{
+  saved_rolObjOB_ = OB;
+
+  std::vector<Util::OptionBlock>::const_iterator it_OB = OB.begin(), end_OB = OB.end();
+
+  for ( ; it_OB != end_OB; ++it_OB )
+  {
+    ROL_Objective new_obj;
+    ExtendedString analysisType( "" );
+
+    Util::ParamList::const_iterator it = (*it_OB).begin(), it_end = (*it_OB).end(); 
+    for ( ; it != it_end; ++it )
+    {
+      ExtendedString tag = it->tag();
+      tag.toUpper();
+
+      if ( tag == "ANALYSIS" )
+      {
+        analysisType = ExtendedString( it->stringValue() );
+      }   
+      else if ( tag == "OBJ_TYPE" )
+      {
+        new_obj.objType_ = it->getImmutableValue<int>();
+      }
+      else if ( tag == "SENS_TAG" )
+      {
+        new_obj.sensTag_ = it->getImmutableValue<int>();
+      }
+      else if ( tag == "OBJ_TAG" )
+      {
+        new_obj.objTag_ = it->getImmutableValue<int>();
+      }
+      else
+      { 
+        Report::UserError0() << tag << " is not a recognized ROL option.";
+      }
+    }
+
+    // Associate objective with respective analysis
+    if (analysisType == "DC")
+      rolDCObjVec_.push_back( new_obj );
+    else
+      Report::UserError0() << "ROL does not recognize objectives for " << analysisType << " analysis.";
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ROL::setLinSol
 // Purpose       : this is needed for ROL
 // Special Notes :
@@ -650,6 +667,7 @@ public:
 
     rol->setROLOptions(rolOptionBlock_);
     rol->setROLDCSweep(rolDCSweepBlock_);
+    rol->setROLObjectives(rolObjBlock_);
 
     return rol;
   }
@@ -668,6 +686,24 @@ public:
     // save the new one.
     if (!found)
       rolDCSweepBlock_.push_back( option_block );
+    
+    return true;
+  }
+
+  bool setROLObjBlock(const Util::OptionBlock &option_block)
+  {
+    bool found = false; 
+    std::vector<Util::OptionBlock>::iterator it = rolObjBlock_.begin();
+    std::vector<Util::OptionBlock>::iterator end = rolObjBlock_.end();
+    for ( ; it != end; ++it )
+    { 
+      if (Util::compareParamLists(option_block, *it))
+        found = true;
+    }
+    
+    // save the new one.
+    if (!found)
+      rolObjBlock_.push_back( option_block );
     
     return true;
   }
@@ -707,6 +743,7 @@ public:
 private:
   std::vector<Util::OptionBlock>        stepSweepAnalysisOptionBlock_;
   std::vector<Util::OptionBlock>        rolDCSweepBlock_;
+  std::vector<Util::OptionBlock>        rolObjBlock_;
   std::vector<Util::OptionBlock>        dataOptionBlockVec_;
   Util::OptionBlock                     timeIntegratorOptionBlock_; 
   Util::OptionBlock                     linSolOptionBlock_;
@@ -761,13 +798,13 @@ bool extractROLData(
     std::string curr = parsed_line[linePosition].string_;
     Util::toUpper(curr);
 
-    if (curr == "FILENAME")
+    if (curr == "PARAM_FILENAME")
     {
       if (parsed_line[linePosition + 1].string_ == "=")
         linePosition ++;
       option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
     }
-    else if (curr == "OBJTYPE")
+    else if (curr == "ROL_FILENAME")
     {
       if (parsed_line[linePosition + 1].string_ == "=")
         linePosition ++;
@@ -815,6 +852,78 @@ bool extractROLDCData(
   }
   else
    return false;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : extractROLObjData
+// Purpose       : Extract the objective parameters from a .ROL_OBJ line held in
+//                 parsedLine.
+// Special Notes : This calls the extractObjData method 
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 10/30/2003
+//-----------------------------------------------------------------------------
+bool extractROLObjData(
+   IO::PkgOptionsMgr &           options_manager,
+   IO::CircuitBlock &            circuit_block,
+   const std::string &           netlist_filename,
+   const IO::TokenVector &       parsed_line)
+{
+  std::vector< std::string > validAnalysisTypes = {"DC", "AC", "TRAN"};
+
+  // length of the original .ROL line
+  int numFields = parsed_line.size();
+
+  // start of parameters (skip over the ".ROL_OBJ")
+  int linePosition = 1;
+
+  Util::OptionBlock option_block("ROL_OBJ", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
+
+  // collect analysis type for objective
+  std::string curr = parsed_line[linePosition].string_;
+  Util::toUpper(curr);
+  if (std::find(validAnalysisTypes.begin(), validAnalysisTypes.end(), curr) != validAnalysisTypes.end())
+    option_block.addParam(Util::Param("ANALYSIS", curr )); 
+  else  
+    Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Unrecognized analysis type '" << curr << "' on .ROL_OBJ line";
+
+  linePosition++;
+
+  while( linePosition < numFields )
+  {
+    std::string curr = parsed_line[linePosition].string_;
+    Util::toUpper(curr);
+
+    if (curr == "OBJ_TAG")
+    {
+      if (parsed_line[linePosition + 1].string_ == "=")
+        linePosition ++;
+      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
+    }
+    else if (curr == "SENS_TAG")
+    {
+      if (parsed_line[linePosition + 1].string_ == "=")
+        linePosition ++;
+      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
+    }
+    else if (curr == "OBJ_TYPE")
+    {
+      if (parsed_line[linePosition + 1].string_ == "=")
+        linePosition ++;
+      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
+    }
+    else
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Unrecognized value '" << curr << "' on .ROL_OBJ line";
+      break;
+    }
+
+    linePosition++;
+  } 
+
+  circuit_block.addOptions(option_block);
 
   return true;
 }
@@ -942,6 +1051,10 @@ bool registerROLFactory(
   factory_block.optionsManager_.addCommandParser(".ROL_DC", extractROLDCData);
 
   factory_block.optionsManager_.addCommandProcessor("ROL_DC", IO::createRegistrationOptions(*factory, &ROLFactory::setROLDCBlock));
+
+  factory_block.optionsManager_.addCommandParser(".ROL_OBJ", extractROLObjData);
+
+  factory_block.optionsManager_.addCommandProcessor("ROL_OBJ", IO::createRegistrationOptions(*factory, &ROLFactory::setROLObjBlock));
 
   factory_block.optionsManager_.addOptionsProcessor("TIMEINT", IO::createRegistrationOptions(*factory, &ROLFactory::setTimeIntegratorOptionBlock));
 

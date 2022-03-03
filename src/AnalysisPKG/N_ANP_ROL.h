@@ -47,6 +47,7 @@ namespace Xyce {
 namespace Analysis {
 
 class ROL_DC;
+class ROL_Objective;
 
 typedef double RealT;
 //-------------------------------------------------------------------------
@@ -89,6 +90,7 @@ public:
 
   // Method to set ROL options
   bool setROLOptions(const Util::OptionBlock & option_block);
+  bool setROLObjectives(const std::vector<Util::OptionBlock>& option_block);
 
   // Method to set ROL DC description
   bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
@@ -102,14 +104,14 @@ public:
   bool getDCOPFlag() const; 
 
 protected:
-  void finalExpressionBasedSetup() {};
+  void finalExpressionBasedSetup() {}
   bool doRun();
   bool doInit();
   bool doLoopProcess();
-  bool doProcessSuccessfulStep();
-  bool doProcessFailedStep();
-  bool doHandlePredictor();
-  bool doFinish();
+  bool doProcessSuccessfulStep() { return false; }
+  bool doProcessFailedStep() { return false; }
+  bool doHandlePredictor() { return true; }
+  bool doFinish() { return true; }
 
 public:
   // Two Level specific
@@ -130,10 +132,13 @@ private:
   int                                   numParams_; // TT: number of optimization parameters
   int                                   numSensParams_;  // number of sensitivity parameters returned from enableSensitivity function call
   std::string                           paramFile_;  // Name of file with parameters and bounds
+  std::string                           rolParamFile_;  // Name of file with parameters and bounds
   std::string                           outputFile_;  // Name of file containing ROL output
   int                                   objType_;   // Objective type
 
   AnalysisBase *                        currentAnalysisObject_;
+
+  std::vector<ROL_Objective>            rolDCObjVec_;
 
   std::vector<double>                   objectiveVec_;
   std::vector<double>                   dOdpVec_;
@@ -144,6 +149,31 @@ private:
   Util::OptionBlock                     saved_lsOB_;  // Linear solver options
   Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
   std::vector<Util::OptionBlock>        saved_sweepOB_;  // DCSweep options
+  std::vector<Util::OptionBlock>        saved_rolObjOB_;  // ROL objectives
+};
+
+
+//-------------------------------------------------------------------------
+// Class         : ROL_Objective
+// Purpose       : Describe ROL objective
+// Special Notes :
+// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creation Date : 01/24/08
+//-------------------------------------------------------------------------
+class ROL_Objective
+{
+  public:
+    int objType_;              // Internal objective type, not supported by SENS (ex. data fitting)
+    int sensTag_;              // Objective is tied to a .SENS statement, with same tag
+    int objTag_;               // ROL objective tag, useful for combining objectives
+
+  ROL_Objective()
+  : objType_(-1),
+    sensTag_(-1),
+    objTag_(-1)
+  {}
+
+  virtual ~ROL_Objective() {}
 };
 
 bool registerROLFactory(FactoryBlock &factory_block);
