@@ -24,7 +24,7 @@
 #include "xyce_sfunction.h"
 
 #include "Xyce_config.h"
-#include "N_CIR_MixedSignalSimulator.h"
+#include "N_CIR_Xyce.h"
 
 
 #define S_FUNCTION_LEVEL 2
@@ -162,7 +162,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 static void mdlStart(SimStruct *S)
 {
   // Store an N_CIR_Xyce object in the workspace
-  Xyce::Circuit::MixedSignalSimulator *xyce = new Xyce::Circuit::MixedSignalSimulator();
+  Xyce::Circuit::Simulator *xyce = new Xyce::Circuit::Simulator();
   ssGetPWork(S)[XycePtr] = xyce;
 
   // get pointer to first param
@@ -351,7 +351,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   std::map<std::string, int> * outputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[OutputNamesMapPtr]);
   
   double * XyceSimTime = static_cast<double *>(ssGetPWork(S)[CurrentTimeStepPtr]);  
-  Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
+  Xyce::Circuit::Simulator *xyce = static_cast<Xyce::Circuit::Simulator *>(ssGetPWork(S)[XycePtr]);
   // There is a concept of system time which is the global time that
   // Simulink is working at and task time which can be different from Simulink's time
   // if a given model is implemented to take a task time step.  I'm not sure 
@@ -413,7 +413,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   
   
   // needs two corrections
-  // 1. use take provisional step in the MixedSignalSimulator interface
+  // 1. use take step with Xyce::Simulator::SimulateUntil
   // 2. use output from that step to set values on Simulink output
   
   // storage for ADC updates from Xyce
@@ -441,7 +441,8 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       unsigned long maxStepNumber = 10000;
       while(!timeSteppingFinished && (stepNumber < maxStepNumber))
       {
-        bool stepStatus = xyce->provisionalStep( maxTimeStepForXyce, timeStepTaken, timeVoltageUpdateMap);
+        // bool stepStatus = xyce->provisionalStep( maxTimeStepForXyce, timeStepTaken, timeVoltageUpdateMap);
+        bool stepStatus = xyce->simulateUntil(systemTime, timeStepTaken);
         if( stepStatus )
         {
           // three cases that need to be handled.  
@@ -458,7 +459,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
           }
           else
           {
-            xyce->acceptProvisionalStep();
+            //xyce->acceptProvisionalStep();
             *XyceSimTime = *XyceSimTime + timeStepTaken;
             if( *XyceSimTime >= systemTime)
             {
@@ -497,7 +498,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     }
   }
   */
-
+  bool getTVPRequest = xyce->getTimeVoltagePairs(timeVoltageUpdateMap);
   if( timeVoltageUpdateMap.empty())  
   {
     // no results from Xyce (either there are not any ADC's or Xyce didn't update )
@@ -509,7 +510,6 @@ static void mdlOutputs(SimStruct *S, int_T tid)
   }
   else
   {
-    
     // this loop is for debugging only.
     for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
     {
@@ -611,7 +611,7 @@ static void mdlTerminate(SimStruct *S)
   std::map<std::string, int> * outputNamesMapPtr = static_cast<std::map<std::string, int> *>(ssGetPWork(S)[OutputNamesMapPtr]);
   delete outputNamesMapPtr;
   
-  Xyce::Circuit::MixedSignalSimulator *xyce = static_cast<Xyce::Circuit::MixedSignalSimulator *>(ssGetPWork(S)[XycePtr]);
+  Xyce::Circuit::Simulator *xyce = static_cast<Xyce::Circuit::Simulator *>(ssGetPWork(S)[XycePtr]);
   int retVal = xyce->finalize();
   if( retVal != Xyce::Circuit::Simulator::RunStatus::SUCCESS )
   {
