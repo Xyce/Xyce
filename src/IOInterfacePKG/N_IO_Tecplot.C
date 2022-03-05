@@ -129,27 +129,32 @@ void tecplotTimeHeader(std::ostream &os, bool print_title, const std::string tit
 
   os << "ZONE F=POINT ";
 
-
-  if (output_manager.getStepSweepVector().empty())
+  if ( output_manager.getStepSweepVector().empty())
   {
     os << "T=\"Xyce data\" ";
   }
   else
   {
     os << "T= \" ";
-    for (std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin(); it != output_manager.getStepSweepVector().end(); ++it)
+    int maxParams=10;
+    if (maxParams > output_manager.getStepSweepVector().size()) { maxParams = output_manager.getStepSweepVector().size(); }
+    for (int ip=0;ip<maxParams;ip++)
     {
+      std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin() + ip;
       os << " " << it->name << " = " << it->currentVal;
     }
     os << "\" ";
   }
   os << std::endl;
 
-  // put in the various sweep parameters as auxdata:
+  // put in the various sweep parameters as auxdata, as long as there are not too many of them:
   if (!output_manager.getStepSweepVector().empty())
   {
-    for (std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin(); it != output_manager.getStepSweepVector().end(); ++it)
+    int maxParams=10;
+    if (maxParams > output_manager.getStepSweepVector().size()) { maxParams = output_manager.getStepSweepVector().size(); }
+    for (int ip=0;ip<maxParams;ip++)
     {
+      std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin() + ip;
       // convert any ":", "%" or "!" in the name to a "_", so as not to confuse tecplot.
       std::string name(it->name);
       std::replace(name.begin(), name.end(), '%', '_');
@@ -219,15 +224,18 @@ void tecplotFreqHeader(std::ostream &os, bool print_title, const std::string tit
   // output some AUXDATA
   os << "ZONE F=POINT  ";
 
-  if (output_manager.getStepSweepVector().empty())
+  if ( output_manager.getStepSweepVector().empty())
   {
     os << " T=\"Xyce data\" ";
   }
   else
   {
     os << " T= \" ";
-    for (std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin(); it != output_manager.getStepSweepVector().end(); ++it)
+    int maxParams=10;
+    if (maxParams > output_manager.getStepSweepVector().size()) { maxParams = output_manager.getStepSweepVector().size(); }
+    for (int ip=0;ip<maxParams;ip++)
     {
+      std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin() + ip;
       os << " " << it->name << " = " << it->currentVal;
     }
     os << "\" ";
@@ -235,19 +243,20 @@ void tecplotFreqHeader(std::ostream &os, bool print_title, const std::string tit
 
   os << std::endl;
 
-  // put in the various sweep parameters as auxdata:
+  // put in the various sweep parameters as auxdata, as long as there are not too many of them:
   if (!output_manager.getStepSweepVector().empty())
   {
-    for (std::vector<Analysis::SweepParam>::const_iterator iterParam = output_manager.getStepSweepVector().begin();
-    iterParam != output_manager.getStepSweepVector().end();
-    ++iterParam)
+    int maxParams=10;
+    if (maxParams > output_manager.getStepSweepVector().size()) { maxParams = output_manager.getStepSweepVector().size(); }
+    for (int ip=0;ip<maxParams;ip++)
     {
+      std::vector<Analysis::SweepParam>::const_iterator it = output_manager.getStepSweepVector().begin() + ip;
       // convert any ":", "%" or "!" in the name to a "_", so as not to confuse tecplot.
-      std::string tmpName(iterParam->name);
+      std::string tmpName(it->name);
       replace(tmpName.begin(), tmpName.end(), '%', '_');
       replace(tmpName.begin(), tmpName.end(), ':', '_');
       replace(tmpName.begin(), tmpName.end(), '!', '_');
-      os << "AUXDATA " << tmpName << " = " << "\" " << iterParam->currentVal << "\" ";
+      os << "AUXDATA " << tmpName << " = " << "\" " << it->currentVal << "\" ";
     }
     os << std::endl;
   }
