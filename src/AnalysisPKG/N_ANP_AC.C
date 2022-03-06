@@ -1789,7 +1789,7 @@ std::ostream& sensStdOutput (
       if (!outputManagerAdapter.getPhaseOutputUsesRadians())
         xp *= 180.0/M_PI;
 
-      os << "\n"<<idString << " Sensitivities for {"<< objFuncDataVec[iobj]->objFuncString << "}" <<std::endl;
+      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
 
       os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
