@@ -216,7 +216,7 @@ bool ESLoader::loadDAEMatrices( Linear::Vector * X,
     bool reset = false;
     if (useExpressionSamples_)
     {
-      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms2(loader_, i, samplingVector_, Y_, numSamples_, false);
     }
     else
     {
@@ -386,7 +386,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
     bool reset = false;
     if (useExpressionSamples_)
     {
-      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms2(loader_, i, samplingVector_, Y_, numSamples_, false);
     }
     else
     {

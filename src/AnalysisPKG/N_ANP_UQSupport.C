@@ -1191,52 +1191,8 @@ bool updateSamplingParams(
 //                 and the other is rand.  To handle this properly, each
 //                 operator will get a separate "set" call to the loader 
 //
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 7/30/2020
-//-----------------------------------------------------------------------------
-bool updateExpressionSamplingTerms(
-    Loader::Loader &loader, 
-    int sample, 
-    std::vector<SweepParam>::iterator begin, 
-    std::vector<SweepParam>::iterator end, 
-    const std::vector<double> & Y,
-    int numSamples,
-    bool overrideOriginal)
-{
-  Stats::StatTop _samplingStat("Update Sampling Params");
-  Stats::TimeBlock _samplingTimer(_samplingStat);
-
-  bool reset = false;
-
-  // set parameter(s)
-  int ip=0;
-  for (std::vector<SweepParam>::iterator it = begin; it != end; ++it,++ip)
-  {
-    (*it).currentVal = Y[numSamples * ip + sample];
-
-    std::string setParamName;
-    getSetParamName( (*it).name, setParamName); // strips off the curly braces
-
-    loader.setParamRandomExpressionTerms(
-        setParamName, 
-        (*it).opName,
-        (*it).astOpIndex,
-        (*it).astType,
-        (*it).currentVal, 
-        overrideOriginal);
-  }
-
-  return reset;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : updateExpressionSamplingParams
-//
-// Purpose       : This is to update terms inside of expressions such as 
-//                 AGAUSS, GAUSS, etc.
-//
-// Special Notes : This version of the function sets all params at once.
+// This version of the function sets all params at once.  A previous version 
+// did it one at a time.
 //
 // Scope         : public
 // Creator       : Eric Keiter, SNL
