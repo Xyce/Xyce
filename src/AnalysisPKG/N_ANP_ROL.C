@@ -393,18 +393,21 @@ bool ROL::doLoopProcess()
       Report::UserError0() << "ROL: Objective type " << objType_ << " is not recognized";
    
     // Create a reduced objective (and penalty) from the full space counterpart.
-    auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l);
+    auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l, false);
 
-    // Create the (possibly penalized) objective that we wish to optimize.
-    std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
-    if (objType_ == 1)
-    {
-      pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
-      auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
-      objVec.push_back(rpen);
-    }
-    std::vector<bool> types(objVec.size(), true);
-    auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
+    // TODO (asjavee): Once ROL is modified, remove "false" in the 
+    //   initialization of robj above.
+
+    // // Create the (possibly penalized) objective that we wish to optimize.
+    // std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
+    // if (objType_ == 1)
+    // {
+    //   pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
+    //   auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
+    //   objVec.push_back(rpen);
+    // }
+    // std::vector<bool> types(objVec.size(), true);
+    // auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
 
     // STEP 4: Create z's BoundConstraint.  ///////////////////////////////////
     

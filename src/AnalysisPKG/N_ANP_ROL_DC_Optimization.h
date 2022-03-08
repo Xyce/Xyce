@@ -116,15 +116,16 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   Linear::Vector *                      origBVectorPtr_;
   Linear::Vector *                      pertBVectorPtr_;
   std::vector<Real>                     paramValue_;
+  // TODO (asjavee): areParamsChanged saves us from unnecessary solves. It 
+  //   should be obsolete once we remove "false" from the initialization of our
+  //   reduced objective (currently line 396 of N_ANP_ROL.C).
+  bool                                  areParamsChanged_;
 
   // HKT: Limit the parameter changes to when the parameters are actually changing.
-  bool setControlsAndStates(const ::ROL::Vector<Real>& z, 
-                            Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector>>> up) 
+  void update_2( const ::ROL::Vector<Real> &z, ::ROL::UpdateType type, int iter = -1 ) 
   {
-
     Teuchos::RCP<const std::vector<Real>> zp = (Teuchos::dyn_cast<::ROL::StdVector<Real>>(const_cast<::ROL::Vector<Real>&>(z))).getVector();
 
-    bool haveChanged = false;
     std::string parameterName; 
     for (int i = 0; i < nz_; i++)
     {
@@ -134,23 +135,9 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
         paramValue_[i] = (*zp)[i];
         nEqLoader_.setParam(parameterName, paramValue_[i]);
         //std::cout << "setControlParams: " << parameterName << " " << paramValue_[i] << std::endl;
-        haveChanged = true;
+        areParamsChanged_ = true;
       }
     }
-    
-    if (haveChanged)
-    {
-      // Sweep to obtain the vector of solutions.
-      bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
-   
-      // Write the vector of solutions into u.
-      for (int i = 0; i < nc_ ; i++) {
-        *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
-        // (*up)[i]->print(Xyce::dout());
-      }
-    }
-
-    return haveChanged;
   }
 
   bool rhs_()
@@ -214,7 +201,8 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       numResidualLoads_(0),
       numJacobianLoads_(0),
       totalResidualLoadTime_(0.0),
-      totalJacobianLoadTime_(0.0)
+      totalJacobianLoadTime_(0.0),
+      areParamsChanged_(true)
   {}
 
   ~EqualityConstraint_ROL_DC() {}
@@ -225,9 +213,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
              Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > cp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(c)).getVector());
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
-    
-    setControlsAndStates(z, up);
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);  // Turns off voltage limiting
@@ -249,7 +235,19 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
              Real &tol)
   { 
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(u)).getVector();
-    setControlsAndStates(z, up);
+
+    if (areParamsChanged_)
+    {
+      // Sweep to obtain the vector of solutions.
+      bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
+   
+      // Write the vector of solutions into u.
+      for (int i = 0; i < nc_ ; i++) {
+        *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
+        // (*up)[i]->print(Xyce::dout());
+      }
+    }
+    areParamsChanged_ = false;
     
     value(c, u, z, tol);
   }
@@ -262,9 +260,7 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
-  
-    setControlsAndStates(z, up);
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -308,10 +304,9 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
 
     bool success;
-    setControlsAndStates(z, up);
 
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -351,10 +346,9 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
 
     bool success;
-    setControlsAndStates(z, up);
 
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -422,11 +416,10 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(z))).getVector();
 
     bool success;
-    setControlsAndStates(z, up);
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -491,12 +484,11 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
                        Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > vp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(v))).getVector();
     
     bool success;    
     jv.zero();
-    setControlsAndStates(z, up);
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -822,12 +814,11 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
                               Real &tol)
   {
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<std::vector<Real> > jvp = Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<::ROL::StdVector<Real> >(jv)).getVector());
 
     bool success;    
     jv.zero();
-    setControlsAndStates(z, up);
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
