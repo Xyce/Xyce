@@ -152,6 +152,7 @@ install(FILES
     CircuitPKG/N_CIR_GenCouplingSimulator.h
     DeviceModelPKG/Core/N_DEV_Configuration.h
     DeviceModelPKG/Core/N_DEV_Const.h
+    DeviceModelPKG/Core/N_DEV_Depend.h
     DeviceModelPKG/Core/N_DEV_Device.h
     DeviceModelPKG/Core/N_DEV_DeviceBlock.h
     DeviceModelPKG/Core/N_DEV_DeviceEntity.h
