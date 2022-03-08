@@ -2014,6 +2014,19 @@ bool Simulator::obtainResponse(
 // sets the given parameter through the device manager.
 // returns false if the parameter did not exist (and thus was not set)
 //
+bool Simulator::checkCircuitParameterExists(std::string paramName)
+{
+  bool returnValue = false;
+  // check through the device manager
+  returnValue = deviceManager_->parameterExists(comm_, paramName);
+  
+  return returnValue;
+}
+
+//
+// sets the given parameter through the device manager.
+// returns false if the parameter did not exist (and thus was not set)
+//
 bool Simulator::setCircuitParameter(std::string paramName, double paramValue)
 {
   bool returnValue = false;

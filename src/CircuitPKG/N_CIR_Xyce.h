@@ -339,6 +339,11 @@ class Simulator
   bool obtainResponse(const std::string& variable_name, double &result) const;
   
   //
+  // checks that the given parameter exists. 
+  // return true if it does and false otherwise.
+  bool checkCircuitParameterExists(std::string paramName);
+  
+  //
   // sets the given parameter through the device manager.
   // returns false if the parameter did not exist (and thus was not set)
   bool setCircuitParameter(std::string paramName, double paramValue);

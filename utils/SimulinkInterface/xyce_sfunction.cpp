@@ -251,6 +251,15 @@ static void mdlStart(SimStruct *S)
   std::vector< std::string > * dacNamesPtr = new std::vector< std::string >();
   ssGetPWork(S)[DACVecPtr] = dacNamesPtr;
   
+  // used to collect input and output names that could not be connected to a 
+  // circuit component in Xyce.  These will be reported back to the user
+  // and the Simulink simulation aborted so that the error is really obvious
+  // to the user.
+  std::vector< std::string > inputNamesNotFoundInXyce;
+  std::vector< std::string > outputNamesNotFoundInXyce;
+  inputNamesNotFoundInXyce.clear();
+  outputNamesNotFoundInXyce.clear();
+  
   // populate the map from Xyce 
   xyce->getDACDeviceNames(*dacNamesPtr);
   if( dacNamesPtr->empty())
@@ -265,15 +274,23 @@ static void mdlStart(SimStruct *S)
     bool found=false;
     for( auto j=0; (j<dacNamesPtr->size() && !found); j++)
     {
-      if( inputNamesVec[i].compare(dacNamesPtr->at(j) ) )
+      if( inputNamesVec[i].compare(dacNamesPtr->at(j) ) == 0)
       {
-        mexPrintf( "Found matching input name %s\n", inputNamesVec[i].c_str());
+        mexPrintf( "Found matching input name %s, %s\n", inputNamesVec[i].c_str(), dacNamesPtr->at(j).c_str());
         found=true;
       }
     }
     if( !found )
     {
-      mexPrintf("Input name %s was not found in the Xyce netlist\n", inputNamesVec[i].c_str());
+      // check if this is a parameter that can be set.
+      found = xyce->checkCircuitParameterExists(inputNamesVec[i]);
+      if (!found )
+      {
+        // this should raise a dialog box error report for the user.  
+        // maybe consolidate all of the non-found name to one error report.
+        mexPrintf("Input name %s was not found in the Xyce netlist\n", inputNamesVec[i].c_str());
+        inputNamesNotFoundInXyce.push_back( inputNamesVec[i] );
+      }
     }
   }
   
@@ -293,7 +310,7 @@ static void mdlStart(SimStruct *S)
     bool found=false;
     for( auto mapItr=adcStrMapPtr->begin(); ((mapItr!=adcStrMapPtr->end()) && !found); mapItr++)
     {
-      if( outputNamesVec[i].compare(mapItr->first ) )
+      if( outputNamesVec[i].compare(mapItr->first ) == 0 )
       {
         mexPrintf( "Found matching output name %s\n", outputNamesVec[i].c_str());
         found=true;
@@ -301,8 +318,59 @@ static void mdlStart(SimStruct *S)
     }
     if( !found )
     {
-      mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVec[i].c_str());
+      // check if this is an output that can be gotten from Xyce's general output routine
+      double paramValue = 0.0;
+      found = xyce->getCircuitValue(outputNamesVec[i], paramValue);
+      if( !found )
+      {
+        // should raise a user visible error dialog box here.  Maybe collect all names 
+        // that were not found into one error report.
+        mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVec[i].c_str());
+        outputNamesNotFoundInXyce.push_back(outputNamesVec[i]);
+      }
     }
+  }
+  
+  // if inputNamesNotFoundInXyce or outputNamesNotFoundInXyce is not empty 
+  // the report to the user the names that were not found and exit in a way 
+  // that simulink will know is an error.
+  if( (!inputNamesNotFoundInXyce.empty()) || (!outputNamesNotFoundInXyce.empty()))
+  {
+    // the error message itself must reside in memory outside of this function.
+    // thus the static char array below.  Not sure how to allow for this to be
+    // of a variable length.
+    static char errorMessage[5000];
+    std::stringstream errorMessageAsStream;
+    errorMessageAsStream << "Error ";
+    if( !inputNamesNotFoundInXyce.empty())
+    {
+      errorMessageAsStream << " Following input names could not be found in the circuit: ";
+      for(auto i=0; i<inputNamesNotFoundInXyce.size(); i++)
+      {
+        errorMessageAsStream << inputNamesNotFoundInXyce[i];
+        if( i != (inputNamesNotFoundInXyce.size()-1)) 
+        {
+          errorMessageAsStream << ", ";
+        }
+      }
+    }
+  
+    if( !outputNamesNotFoundInXyce.empty())
+    {
+      errorMessageAsStream << " Following output names could not be found in the circuit: ";
+      for(auto i=0; i<outputNamesNotFoundInXyce.size(); i++)
+      {
+        errorMessageAsStream << outputNamesNotFoundInXyce[i];
+        if( i != (outputNamesNotFoundInXyce.size()-1)) 
+        {
+          errorMessageAsStream << ", ";
+        }
+      }
+    }
+    
+    errorMessageAsStream.getline( errorMessage, (5000-1));
+    ssSetErrorStatus(S, errorMessage);
+    return;
   }
 }
 
@@ -380,7 +448,17 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       }
       else
       {
-        mexPrintf("name %s was not found in DAC list.\n", (*dacNamesItr).c_str() );
+        int_T simulinkInput = indexItr->second;
+        double val = *(u[simulinkInput++]);
+        auto found = xyce->setCircuitParameter(*dacNamesItr, val );
+        if( !found )
+        {
+          mexPrintf("name %s was not found in DAC or parameter list.\n", (*dacNamesItr).c_str() );
+        }
+        else
+        {
+          mexPrintf("Param %s time %g  value %g\n", (*dacNamesItr).c_str(), systemTime, val );
+        }
       }
       timeVoltageUpdateMap.emplace( *dacNamesItr, tvpVec);
     }
@@ -524,7 +602,8 @@ static void mdlOutputs(SimStruct *S, int_T tid)
         mexPrintf("DEBUG For devcie %s values (%g, %g) in time vec pair\n", devName.c_str(), lastTime, lastValue);
       }
     }
-    
+#if 0
+    // this traverses over all of the ADC's output from Xyce. It doesn't look at each output simulink is requesting.
     for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
     {
       std::string devName = tVUpdateMapItr->first;
@@ -552,9 +631,55 @@ static void mdlOutputs(SimStruct *S, int_T tid)
       // an else block here would handled case where output isn't found in map.
       // but it's ok if Simulink isn't using all of the ADC outputs.
     }
+#endif
+
+    // loop over the outputNamesMapPtr to catch ADC's and non-ADC's 
+    for( auto outputMapIt = outputNamesMapPtr->begin(); outputMapIt != outputNamesMapPtr->end(); outputMapIt++)
+    {
+      int simulinkOutputIndex = outputMapIt->second;
+      bool outputMatched = false;
+      // check ADC map from Xyce first 
+      for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
+      {
+        std::string devName = tVUpdateMapItr->first;
+        if( outputMapIt->first.compare( devName ) == 0)
+        {
+          // names match
+           std::vector< std::pair<double,double> >  timeVoltagePairs = tVUpdateMapItr->second;
+          // may need better logic here, but for now just grap the last pair 
+          if( timeVoltagePairs.empty())
+          {
+            y[simulinkOutputIndex] = 0.0;
+          }
+          else
+          {
+            auto lastElementItr = timeVoltagePairs.rbegin();
+            double lastTime = lastElementItr->first;
+            double lastValue = lastElementItr->second;
+            mexPrintf("Found values (%g, %g) in time vec pair\n", lastTime, lastValue);
+            y[simulinkOutputIndex] = lastValue;
+          }
+          outputMatched = true;
+        }
+      }
+      if( !outputMatched)
+      {
+        double circuitVal = 0.0;
+        outputMatched = xyce->getCircuitValue( outputMapIt->first, circuitVal );
+        if( !outputMatched )
+        {
+          mexPrintf("Did not find the output %s in Xyce's simulation results\n", (outputMapIt->first).c_str());
+        }
+        else
+        {
+          mexPrintf("Found value for %s = %g\n", (outputMapIt->first).c_str(), circuitVal);
+        }
+        y[simulinkOutputIndex] = circuitVal;
+      
+      }
   
+    }
   }
-  
 }
 
 #ifdef MATLAB_MEX_FILE

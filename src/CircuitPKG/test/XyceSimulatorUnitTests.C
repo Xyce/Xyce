@@ -524,6 +524,38 @@ TEST ( XyceSimulator, ADCMapTestNetlist3 )
   delete xycePtr;
 }
 
+TEST ( XyceSimulator, CheckDeviceParamTestNetlist2 )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "TestNetlist2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 1.0 );
+  
+  // this should fail as TOMP is not a simulation parameter in this netlist 
+  bool setParamResult = xycePtr->checkCircuitParameterExists( "TOMP");
+  EXPECT_FALSE( setParamResult );
+  
+  // this should pass 
+  setParamResult = xycePtr->checkCircuitParameterExists( "TEMP");
+  EXPECT_TRUE( setParamResult );
+  
+  // this should passs
+  setParamResult = xycePtr->checkCircuitParameterExists( "R1:R");
+  EXPECT_TRUE( setParamResult );
+  
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
 TEST ( XyceSimulator, SetDeviceParamTestNetlist2 )
 {
   Xyce::Circuit::Simulator * xycePtr = NULL;
