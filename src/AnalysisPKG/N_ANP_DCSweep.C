@@ -95,8 +95,8 @@ DCSweep::DCSweep(
     tiaParams_(),
     sensFlag_(analysis_manager.getSensFlag()),
     dcLoopInitialized_(false),
-    dcLoopSize_(0),
-    numSensParams_(0)
+    numSensParams_(0),
+    dcLoopSize_(0)
 {}
 
 //-----------------------------------------------------------------------------
@@ -936,6 +936,70 @@ bool extractDCData(
   const std::string &           netlist_filename,
   const IO::TokenVector &       parsed_line)
 {
+  std::vector<Util::OptionBlock> option_block_vec = 
+    extractDCDataInternals("DC", options_manager, netlist_filename, parsed_line); 
+
+  if (option_block_vec.size())
+  {
+    std::vector<Util::OptionBlock>::iterator it = option_block_vec.begin();
+    std::vector<Util::OptionBlock>::const_iterator it_end = option_block_vec.end();
+    for ( ; it != it_end; ++it ) 
+      circuit_block.addOptions(*it);
+  }
+  else
+   return false;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : extractOPData
+// Purpose       : Extract the parameters from a netlist .OP line held in
+//                 parsed_line.
+// Special Notes :
+// Scope         : public
+// Creator       : Lon Waters, SNL
+// Creation Date : 10/05/2001
+//-----------------------------------------------------------------------------
+bool
+extractOPData(
+  IO::PkgOptionsMgr &           options_manager,
+  IO::CircuitBlock &            circuit_block,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line)
+{
+  Util::OptionBlock option_block("OP", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+
+  int numFields = parsed_line.size();
+
+  // Check that the minimum required number of fields are on the line.
+  if ( numFields > 1 )
+  {
+    Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_) << "Ignoring extra fields on .OP line";
+  }
+
+  circuit_block.addOptions(option_block);
+
+  return true;
+}
+
+} // namespace <unnamed>
+
+//-----------------------------------------------------------------------------
+// Function      : extractDCDataInternals
+// Purpose       : Determine number of sweep variables on this DC line
+//                : and create option blocks for each, storing the blocks
+//                : in the referenced vector.
+//-----------------------------------------------------------------------------
+std::vector<Util::OptionBlock>
+extractDCDataInternals(
+  const std::string &           name,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line)
+{
+  std::vector<Util::OptionBlock> option_block_vec;
+ 
   // length of the original .DC line
   int numFields = parsed_line.size();
 
@@ -943,7 +1007,7 @@ bool extractDCData(
   {
     Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
       << ".DC line has an unexpected number of fields";
-    return false;
+    return option_block_vec;
   }
 
   // number of sweep sources on this line, and index to current source
@@ -976,10 +1040,10 @@ bool extractDCData(
     {
       Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
         << ".DC line not formatted correctly.  numFields = " << numFields;
-      return false;
+      return option_block_vec;
     }
 
-    Util::OptionBlock option_block("DC", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
+    Util::OptionBlock option_block(name, Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
     Util::Param parameter("", "");
     parameter.setTag( "TYPE" );
     parameter.setVal( "DATA" );
@@ -989,9 +1053,9 @@ bool extractDCData(
     parameter.setVal( parsed_line[ dataPos+2 ].string_ );
     option_block.addParam( parameter );
 
-    circuit_block.addOptions(option_block);
+    option_block_vec.push_back( option_block );
 
-    return true;
+    return option_block_vec;
   }
   // End of the DATA block
 
@@ -999,7 +1063,7 @@ bool extractDCData(
   linePosition = 1;
   while( linePosition < numFields )
   {
-    Util::OptionBlock option_block("DC", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
+    Util::OptionBlock option_block(name, Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
 
     if (linePosition + 1 == numFields) {
       Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Extraneous values on .DC line";
@@ -1063,47 +1127,14 @@ bool extractDCData(
       }
     }
 
-    circuit_block.addOptions(option_block);
+    option_block_vec.push_back( option_block );
 
     // record this source (and move on to the next)
     ++sourcesFound;
   }
 
-  return sourcesFound;
+  return option_block_vec;
 }
-
-//-----------------------------------------------------------------------------
-// Function      : extractOPData
-// Purpose       : Extract the parameters from a netlist .OP line held in
-//                 parsed_line.
-// Special Notes :
-// Scope         : public
-// Creator       : Lon Waters, SNL
-// Creation Date : 10/05/2001
-//-----------------------------------------------------------------------------
-bool
-extractOPData(
-  IO::PkgOptionsMgr &           options_manager,
-  IO::CircuitBlock &            circuit_block,
-  const std::string &           netlist_filename,
-  const IO::TokenVector &       parsed_line)
-{
-  Util::OptionBlock option_block("OP", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
-
-  int numFields = parsed_line.size();
-
-  // Check that the minimum required number of fields are on the line.
-  if ( numFields > 1 )
-  {
-    Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_) << "Ignoring extra fields on .OP line";
-  }
-
-  circuit_block.addOptions(option_block);
-
-  return true;
-}
-
-} // namespace <unnamed>
 
 bool registerDCSweepFactory(FactoryBlock & factory_block)
 {
