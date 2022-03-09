@@ -208,5 +208,17 @@ When performing AC sensitivities with respect to .param parameters,
 there was an arithmetic mistake in the setup of the right-hand-side
 vector.  This has been corrected.  \\ \hline
 
+\textbf{Gitlab-ex issue 318}:  Fix .PREPROCESS REPLACEGROUND to avoid 
+unnecessary replacement of ground synonyms &  When using ‘.PREPROCESS REPLACEGROUND TRUE’
+to replace ground synonyms, character strings were being replaced
+on lines where it was not necessary, like subcircuit definition lines.
+This has been corrected. \\ \hline
+
+\textbf{Gitlab-ex issue 321}:  Fix Inf/NaN trap in DampedNewton nonlinear solver &
+The convergence check in the DampedNewton nonlinear solver was not correctly trapping
+NaNs in the residual vector.  Thus, the nonlinear solver failure logic would not
+be correct, allowing the nonlinear solver to continue when it should stop.
+This has been corrected. \\ \hline
+
 \end{longtable}
 }
