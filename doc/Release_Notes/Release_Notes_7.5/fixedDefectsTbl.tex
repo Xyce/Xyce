@@ -220,5 +220,13 @@ NaNs in the residual vector.  Thus, the nonlinear solver failure logic would not
 be correct, allowing the nonlinear solver to continue when it should stop.
 This has been corrected. \\ \hline
 
+\textbf{Gitlab-ex issue 377}:  The limit random operator (2-argument version) is not correct in the expression library &
+\Xyce{} has supported two versions of limit, one with two arguments and one 
+with three.  The version with two arguments was not correct, in multiple ways. 
+When used without UQ (or sampling) it was supposed to return the mean, but 
+instead returned the sum of the two arguments.  When used with sampling, it 
+incorrectly behaved the same as \texttt{rand()}.
+Both problems have been corrected.  \\ \hline
+
 \end{longtable}
 }
