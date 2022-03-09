@@ -643,6 +643,8 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
   EXPECT_EQ( circuitParamValue, 50.0 );
   getParamResult = xycePtr->getCircuitValue( "TEMP", circuitParamValue);
   EXPECT_EQ( circuitParamValue, 27.0 );
+  getParamResult = xycePtr->getCircuitValue( "V(1)",circuitParamValue);
+  EXPECT_TRUE( getParamResult );
   
   // run this simulation in several sub-stesps
   const int numSteps=100;
@@ -679,7 +681,7 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
     circuitParamValue = -1.001;
     getParamResult = xycePtr->getCircuitValue( "V(1)",circuitParamValue);
     EXPECT_TRUE( getParamResult );
-    EXPECT_TRUE( (circuitParamValue > -1.0) && (circuitParamValue < -1.0));
+    EXPECT_TRUE( (circuitParamValue >= -1.0) && (circuitParamValue <= 1.0));
     
     bool isSimComplete = xycePtr->simulationComplete();
     // should be false on all but the last step

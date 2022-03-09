@@ -132,6 +132,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
+#include <N_UTL_Param.h>
 #include <N_UTL_PrintStats.h>
 #include <N_UTL_Platform.h>
 #include <N_UTL_JSON.h>
@@ -139,6 +140,7 @@
 
 #include <N_UTL_Version.h>
 #include <N_UTL_BreakPoint.h>
+#include <N_UTL_DeleteList.h>
 
 #include <N_DEV_DeviceSupport.h>
 #include <mainXyceExpressionGroup.h>
@@ -361,6 +363,8 @@ Simulator::~Simulator()
   delete topology_;
   delete restartManager_;
   delete optionsManager_;
+  // delete any operators that were created in getCircuitValue()
+  deleteList(opList_.begin(), opList_.end());
 
   set_report_handler(previousReportHandler_);
 
@@ -2064,23 +2068,68 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
     returnValue = measureManager_->getMeasureValue(paramName, paramValue);
   }
   
-  if( !returnValue)
+  if( !returnValue )
   {
     // haven't found it yet.  Try the Op builder manager 
-    Xyce::Util::Op::Operator * anOp = opBuilderManager_->createOp(paramName);
-    if( !anOp )
+    // first search the opList_ for this paramName 
+    auto opListItr = opList_.begin();
+    bool found = false;
+    Xyce::Util::Op::Operator * anOp = 0;
+    while( !found && (opListItr!=opList_.end()))
     {
-      // the operator found a value in the various symbol tables.  
-      returnValue = true;
-      // Try and get a numeric, real value.
-      // this may be making assumptions that the analysis mode is transient 
-      Util::Op::OpData opDataTmp(0, analysisManager_->getDataStore()->currSolutionPtr, 0,
-                                    analysisManager_->getDataStore()->currStatePtr,
-                                    analysisManager_->getDataStore()->currStorePtr, 0);
-      paramValue = getValue( comm_, *anOp, opDataTmp).real();
-      delete anOp;
+      if( (*opListItr)->getName().compare(paramName) == 0)
+      {
+        found = true;
+        returnValue = true;
+        anOp = *opListItr;
+      }
+      else
+      {
+        opListItr++;
+      }
     }
-  
+    if( !found )
+    {
+      // problem: createOp(string) only works with simple, one word 
+      // values like TEMP.  Things like v(nodea) which turn into a parameter list 
+      // like: tag V, value 1, tag nodea value 0 can't be made from the createOp(string)
+      // 
+      // Note this assumes there is only one argument as in v(node1) or ib(aDevice)
+      // it won't work for V(node1,node2)
+      // 
+      
+      auto openParenPos = paramName.find_first_of('(');
+      auto closeParenPos = paramName.find_last_of(')');
+      if( (openParenPos != std::string::npos) && (closeParenPos != std::string::npos))
+      {
+        std::string firstPart = paramName.substr(0, openParenPos);
+        std::string secondPart = paramName.substr((openParenPos+1), closeParenPos - (openParenPos+1));
+        Xyce::Util::Param * paramPtr = new Xyce::Util::Param( firstPart, 1 );
+        Xyce::Util::ParamList paramList;
+        paramList.push_back( *paramPtr );
+        Xyce::Util::Param * paramPtr2 = new Xyce::Util::Param( secondPart, 0 );
+        paramList.push_back( *paramPtr2 );
+        Xyce::Util::ParamList::const_iterator pListIt = paramList.begin();
+        anOp = opBuilderManager_->createOp(pListIt);
+        if( anOp != NULL )
+        {
+          // the operator found a value in the various symbol tables.  
+          found = true;
+          returnValue = true;
+          opList_.push_back(anOp);
+        }
+        //delete anOp;
+        delete paramPtr;
+        delete paramPtr2;
+      }
+    }
+    if( found )
+    {
+      Util::Op::OpData opDataTmp(0, analysisManager_->getDataStore()->currSolutionPtr, 0,
+                                  analysisManager_->getDataStore()->currStatePtr,
+                                  analysisManager_->getDataStore()->currStorePtr, 0);
+      paramValue = (*anOp)(comm_,opDataTmp).real();
+    }
   }
   return returnValue;
 }

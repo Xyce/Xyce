@@ -304,15 +304,15 @@ static void mdlStart(SimStruct *S)
   }
   // set up a map from the Simulink outputNamesVec index to the names as ordered by Xyce 
   
-  for( auto i=0; i<outputNamesVec.size(); i++)
+  for( auto i=0; i<outputNamesVecPtr->size(); i++)
   {
     // locate the Xyce device name that matches inputNamesVec[i]
     bool found=false;
     for( auto mapItr=adcStrMapPtr->begin(); ((mapItr!=adcStrMapPtr->end()) && !found); mapItr++)
     {
-      if( outputNamesVec[i].compare(mapItr->first ) == 0 )
+      if( outputNamesVecPtr->at(i).compare(mapItr->first ) == 0 )
       {
-        mexPrintf( "Found matching output name %s\n", outputNamesVec[i].c_str());
+        mexPrintf( "Found matching output name %s\n", outputNamesVecPtr->at(i).c_str());
         found=true;
       }
     }
@@ -320,13 +320,13 @@ static void mdlStart(SimStruct *S)
     {
       // check if this is an output that can be gotten from Xyce's general output routine
       double paramValue = 0.0;
-      found = xyce->getCircuitValue(outputNamesVec[i], paramValue);
+      found = xyce->getCircuitValue(outputNamesVecPtr->at(i), paramValue);
       if( !found )
       {
         // should raise a user visible error dialog box here.  Maybe collect all names 
         // that were not found into one error report.
-        mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVec[i].c_str());
-        outputNamesNotFoundInXyce.push_back(outputNamesVec[i]);
+        mexPrintf("Output name %s was not found in the Xyce netlist\n", outputNamesVecPtr->at(i).c_str());
+        outputNamesNotFoundInXyce.push_back(outputNamesVecPtr->at(i));
       }
     }
   }
@@ -372,6 +372,7 @@ static void mdlStart(SimStruct *S)
     ssSetErrorStatus(S, errorMessage);
     return;
   }
+  mexPrintf("Returning from mdlStart\n");
 }
 
 
@@ -637,47 +638,53 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     for( auto outputMapIt = outputNamesMapPtr->begin(); outputMapIt != outputNamesMapPtr->end(); outputMapIt++)
     {
       int simulinkOutputIndex = outputMapIt->second;
-      bool outputMatched = false;
-      // check ADC map from Xyce first 
-      for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
+      
+      // the user can ask for more output than will fit in the output port width 
+      // if that is the case then there is no where to write output without corrupting
+      // the output port.  So don't write to indicies greater than the outputWidth
+      if( simulinkOutputIndex < outputPortWidth)
       {
-        std::string devName = tVUpdateMapItr->first;
-        if( outputMapIt->first.compare( devName ) == 0)
+        bool outputMatched = false;
+        // check ADC map from Xyce first 
+        for(auto tVUpdateMapItr = timeVoltageUpdateMap.begin(); tVUpdateMapItr != timeVoltageUpdateMap.end(); tVUpdateMapItr++ )
         {
-          // names match
-           std::vector< std::pair<double,double> >  timeVoltagePairs = tVUpdateMapItr->second;
-          // may need better logic here, but for now just grap the last pair 
-          if( timeVoltagePairs.empty())
+          std::string devName = tVUpdateMapItr->first;
+          if( outputMapIt->first.compare( devName ) == 0)
           {
-            y[simulinkOutputIndex] = 0.0;
+            // names match
+             std::vector< std::pair<double,double> >  timeVoltagePairs = tVUpdateMapItr->second;
+            // may need better logic here, but for now just grap the last pair 
+            if( timeVoltagePairs.empty())
+            {
+              y[simulinkOutputIndex] = 0.0;
+            }
+            else
+            {
+              auto lastElementItr = timeVoltagePairs.rbegin();
+              double lastTime = lastElementItr->first;
+              double lastValue = lastElementItr->second;
+              mexPrintf("Found values (%g, %g) in time vec pair\n", lastTime, lastValue);
+              y[simulinkOutputIndex] = lastValue;
+            }
+            outputMatched = true;
+          }
+        }
+        if( !outputMatched)
+        {
+          double circuitVal = 0.0;
+          outputMatched = xyce->getCircuitValue( outputMapIt->first, circuitVal );
+          if( !outputMatched )
+          {
+            mexPrintf("Did not find the output %s in Xyce's simulation results\n", (outputMapIt->first).c_str());
           }
           else
           {
-            auto lastElementItr = timeVoltagePairs.rbegin();
-            double lastTime = lastElementItr->first;
-            double lastValue = lastElementItr->second;
-            mexPrintf("Found values (%g, %g) in time vec pair\n", lastTime, lastValue);
-            y[simulinkOutputIndex] = lastValue;
+            mexPrintf("Found value for %s = %g\n", (outputMapIt->first).c_str(), circuitVal);
           }
-          outputMatched = true;
-        }
-      }
-      if( !outputMatched)
-      {
-        double circuitVal = 0.0;
-        outputMatched = xyce->getCircuitValue( outputMapIt->first, circuitVal );
-        if( !outputMatched )
-        {
-          mexPrintf("Did not find the output %s in Xyce's simulation results\n", (outputMapIt->first).c_str());
-        }
-        else
-        {
-          mexPrintf("Found value for %s = %g\n", (outputMapIt->first).c_str(), circuitVal);
-        }
-        y[simulinkOutputIndex] = circuitVal;
+          y[simulinkOutputIndex] = circuitVal;
       
+        }
       }
-  
     }
   }
 }
