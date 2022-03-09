@@ -185,28 +185,33 @@ the most aggressive.  In practice, try starting with this set to 1.0.
 If the solver fails, then reset to a smaller number.
 \end{XyceItemize}
 
-\subsection{Voltage Source Scaling Continuation}
+\subsection{Source Scaling Continuation}
 \label{continuation_scaling}
-\index{continuation!natural!Voltage Source Scaling}
-\index{continuation!natural!Voltage Source Scalaing}
+\index{continuation!natural!Source Scaling}
+\index{continuation!natural!Source Scalaing}
 
 Figure~\ref{Continuation_Netlist_sourceStepping2} shows a natural
 parameter continuation netlist with parameters pertinent to the
 continuation algorithm highlighted in red.  For this example, a
 special parameter \texttt{VSRCSCALE} is being swept from zero to one.
-This parameter is applied as a scaling factor for all DC voltage
+This parameter is applied as a scaling factor for all DC 
 sources in the netlist.  As a result, this example demonstrates an
 explicit invocation of ``source stepping'' like the one that both
 \Xyce{} and SPICE apply automatically as part of their DC operating
 point solution strategies if Newton's method and GMIN stepping both
 fail.
 
+Note that while the special parameter has the name \texttt{VSRCSCALE}, 
+it would be applied in the same manner to current sources if they were
+present in the circuit.  The name is an artifact of an earlier 
+implementation.
+
 \begin{figure}[htbp]
 \begin{centering}
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
 \begin{vquote}
-\color{blue}*Simple netlist demonstrating source-stepping continuation
+\color{blue}*Simple netlist demonstrating source-stepping 
 *This source will be swept with .DC \color{black}
 V1 1 0 DC 1
 R1 1 0 100
@@ -222,7 +227,8 @@ R2 2 0 100
 .options loca stepper=0 predictor=0 stepcontrol=0
 + conparam=vsrcscale
 + initialvalue=0.0 minvalue=-1.0 maxvalue=1.0
-+ initialstepsize=0.2 minstepsize=1.0e-4 maxstepsize=0.2
++ initialstepsize=0.2 minstepsize=1.0e-4 
++ maxstepsize=0.2
 + aggressiveness=1.0
 + maxsteps=5000 maxnliters=200
 \color{black}
@@ -230,7 +236,7 @@ R2 2 0 100
 \end{vquote}
 \end{minipage}
 }
-\caption[Example natural parameter continuation netlist]{Example natural parameter continuation netlist implementing source stepping over all DC voltage sources. This example of source stepping shows a circuit that does not require continuation to run. Most circuits complex enough to require source stepping would not fit on a single page.\label{Continuation_Netlist_sourceStepping2}}
+\caption[Example natural parameter continuation netlist]{Example natural parameter continuation netlist implementing source stepping over all DC vsources. This particular example of source stepping shows a circuit that does not require continuation to run.\label{Continuation_Netlist_sourceStepping2}}
 \end{centering}
 \end{figure}
 

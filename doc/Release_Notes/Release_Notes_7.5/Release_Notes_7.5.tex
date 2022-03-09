@@ -80,7 +80,10 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-  \item place holder
+\item Source stepping, which is one of the solver techniques that \Xyce{} automatically 
+attempts when trying to solve the DCOP, now includes current sources as well as 
+  voltage sources.  As a result circuits using current sources are much more 
+  robust for the DCOP calculation.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
