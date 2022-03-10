@@ -132,6 +132,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_Param.h>
 #include <N_UTL_PrintStats.h>
 #include <N_UTL_Platform.h>
@@ -315,6 +316,7 @@ Simulator::Simulator(Parallel::Machine comm)
     auditJSON_(),
     XyceTimerPtr_(0),
     ElapsedTimerPtr_(0),
+    opListPtr_(0),
     commandLine_(),
     hangingResistor_(),
     externalNetlistParams_(),
@@ -364,7 +366,11 @@ Simulator::~Simulator()
   delete restartManager_;
   delete optionsManager_;
   // delete any operators that were created in getCircuitValue()
-  deleteList(opList_.begin(), opList_.end());
+  if( opListPtr_ != 0)
+  {
+    deleteList(opListPtr_->begin(), opListPtr_->end());
+    delete opListPtr_;
+  }
 
   set_report_handler(previousReportHandler_);
 
@@ -2071,11 +2077,15 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
   if( !returnValue )
   {
     // haven't found it yet.  Try the Op builder manager 
-    // first search the opList_ for this paramName 
-    auto opListItr = opList_.begin();
+    // first search the opListPtr_ for this paramName 
+    if( opListPtr_ == 0 )
+    {
+      opListPtr_ = new Util::Op::OpList();
+    }
+    auto opListItr = opListPtr_->begin();
     bool found = false;
     Xyce::Util::Op::Operator * anOp = 0;
-    while( !found && (opListItr!=opList_.end()))
+    while( !found && (opListItr!=opListPtr_->end()))
     {
       if( (*opListItr)->getName().compare(paramName) == 0)
       {
@@ -2116,7 +2126,7 @@ bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
           // the operator found a value in the various symbol tables.  
           found = true;
           returnValue = true;
-          opList_.push_back(anOp);
+          opListPtr_->push_back(anOp);
         }
         //delete anOp;
         delete paramPtr;

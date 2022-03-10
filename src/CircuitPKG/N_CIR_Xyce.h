@@ -57,7 +57,6 @@
 #include <N_UTL_ReportHandler.h>
 #include <N_UTL_Stats.h>
 #include <N_UTL_JSON.h>
-#include <N_UTL_Op.h>
 #include <N_DEV_ADC.h>
 #include <N_DEV_DAC.h>
 
@@ -416,7 +415,7 @@ class Simulator
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
   unordered_set<std::string> device_names_;
-  Util::Op::OpList                      opList_;                        ///List of operators created in getCircuitValue() if needed
+  Util::Op::OpList *                    opListPtr_;                        ///List of operators created in getCircuitValue() if needed
 
   protected:
   IO::CmdParse                          commandLine_;
