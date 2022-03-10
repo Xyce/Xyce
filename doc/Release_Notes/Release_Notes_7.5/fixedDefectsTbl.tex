@@ -228,5 +228,11 @@ instead returned the sum of the two arguments.  When used with sampling, it
 incorrectly behaved the same as \texttt{rand()}.
 Both problems have been corrected.  \\ \hline
 
+
+\textbf{Gitlab-ex issue 306}:  Using expression random operators with sampling is too slow for large numbers of parameters &
+For complicated netlists and PDKs, \Xyce{} was inefficient in processing large numbers of uncertain parameters, 
+when specified using expression-based random operators such as \texttt{AGAUSS}.  There were several compounding issues
+that caused this to happen, and they have been corrected.  \\ \hline
+
 \end{longtable}
 }
