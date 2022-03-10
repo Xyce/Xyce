@@ -15,20 +15,52 @@ endif()
 # the compilers and call project again.
 project(Xyce NONE)
 
-message(STATUS "Looking for Trilinos\n"
-  "   Required packages:\n"
-  "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
-  "        Triutils AztecOO Belos TrilinosCouplings\n"
-  "   Optional packages:\n"
-  "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
-find_package(Trilinos CONFIG
-  REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-       AztecOO Belos TrilinosCouplings
-  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
-message(STATUS "Looking for Trilinos - found")
-if(Trilinos_VERSION VERSION_LESS "12.12")
-  message(FATAL_ERROR
-    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+# The following is needed because Charon is a TriBITS project that is compiled
+# with Trilinos, so it affects the way Trilinos is brought into Xyce.
+# Therefore, we have to jump through a bunch of hoops to make it work.
+set(TB_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
+
+if(TB_prefix STREQUAL "Trilinos")
+  message(STATUS "Looking for Trilinos\n"
+    "   Required packages:\n"
+    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
+    "        Triutils AztecOO Belos TrilinosCouplings\n"
+    "   Optional packages:\n"
+    "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
+  find_package(Trilinos CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings
+    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
+  message(STATUS "Looking for Trilinos - found")
+  if(Trilinos_VERSION VERSION_LESS "12.12")
+    message(FATAL_ERROR
+      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+  endif()
+
+elseif(TB_prefix STREQUAL "tcad-charon")
+  message(STATUS "Looking for tcad-charon\n"
+    "   Required packages:\n"
+    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
+    "        Triutils AztecOO Belos TrilinosCouplings Isorropia Zoltan \n")
+  find_package(tcad-charon CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
+  message(STATUS "Looking for tcad-charon - found")
+
+  # A TriBITS project that performs a coupled build with Trilinos, like Charon,
+  # changes the names of all the Trilinos variables. Here, we change them back
+  # to the original names so we minimize pollution of the rest of the configure
+  # process.
+  set( Trilinos_CXX_COMPILER_FLAGS ${${TB_prefix}_CXX_COMPILER_FLAGS} )
+  set( Trilinos_PACKAGE_LIST ${${TB_prefix}_PACKAGE_LIST} )
+  set( Trilinos_INCLUDE_DIRS ${${TB_prefix}_INCLUDE_DIRS} )
+  set( Trilinos_LIBRARIES ${${TB_prefix}_LIBRARIES} )
+  set( Trilinos_TPL_LIST ${${TB_prefix}_TPL_LIST} )
+  set( Trilinos_TPL_INCLUDE_DIRS ${${TB_prefix}_TPL_INCLUDE_DIRS} )
+  set( Trilinos_TPL_LIBRARIES ${${TB_prefix}_TPL_LIBRARIES} )
+
+else()
+  message(FATAL_ERROR "TB_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
 endif()
 
 # If the user explicitly set the compilers, use those; otherwise use the same
@@ -36,15 +68,15 @@ endif()
 if( DEFINED CMAKE_C_COMPILER )
   message( "Using the user-defined C compiler: ${CMAKE_C_COMPILER}" )
 else()
-  message( STATUS "Using the Trilinos C compiler: ${Trilinos_C_COMPILER}" )
-  set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+  message( STATUS "Using the ${TB_prefix} C compiler: ${${TB_prefix}_C_COMPILER}" )
+  set( CMAKE_C_COMPILER ${${TB_prefix}_C_COMPILER} )
 endif()
 
 if( DEFINED CMAKE_CXX_COMPILER )
   message( "Using the user-defined C++ compiler: ${CMAKE_CXX_COMPILER}" )
 else()
-  message( STATUS "Using the Trilinos C++ compiler: ${Trilinos_CXX_COMPILER}" )
-  set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
+  message( STATUS "Using the ${TB_prefix} C++ compiler: ${${TB_prefix}_CXX_COMPILER}" )
+  set( CMAKE_CXX_COMPILER ${${TB_prefix}_CXX_COMPILER} )
 endif()
 
 enable_language(C)
@@ -89,7 +121,6 @@ if(Xyce_PLUGIN_SUPPORT)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(utils)
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)

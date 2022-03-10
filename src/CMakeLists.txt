@@ -230,3 +230,42 @@ install(FILES
     UtilityPKG/N_UTL_Xyce.h
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
   DESTINATION include)
+  
+if(TB_prefix STREQUAL "tcad-charon")
+  install(FILES 
+    DeviceModelPKG/SandiaModels/N_DEV_1D_QASPR.h
+    CircuitPKG/N_CIR_SecondLevelSimulator.h
+    ErrorHandlingPKG/N_ERH_ErrorMgr.h
+    AnalysisPKG/N_ANP_SecondLevelManager.h
+    DeviceModelPKG/Core/N_DEV_CompositeParam.h
+    AnalysisPKG/N_ANP_AnalysisManager.h
+    DeviceModelPKG/TCADModels/N_DEV_DevicePDEInstance.h
+    AnalysisPKG/N_ANP_AnalysisBase.h
+    DeviceModelPKG/TCADModels/N_DEV_MaterialSupport.h
+    AnalysisPKG/N_ANP_AnalysisEvent.h
+    UtilityPKG/N_UTL_ExtendedString.h
+    UtilityPKG/N_UTL_Dump.h
+    DeviceModelPKG/TCADModels/N_DEV_BernouliSupport.h
+    AnalysisPKG/N_ANP_RegisterAnalysis.h
+    DeviceModelPKG/TCADModels/N_DEV_DopeInfo.h
+    UtilityPKG/N_UTL_Factory.h
+    UtilityPKG/N_UTL_Interpolators.h
+    AnalysisPKG/N_ANP_StepEvent.h
+    DeviceModelPKG/Core/N_DEV_ScalingVars.h
+    TimeIntegrationPKG/N_TIA_TIAParams.h
+    DeviceModelPKG/TCADModels/N_DEV_FermiIntegrals.h
+    UtilityPKG/N_UTL_Listener.h
+    DeviceModelPKG/TCADModels/N_DEV_DevicePDEModel.h
+    UtilityPKG/N_UTL_Timer.h
+    DeviceModelPKG/TCADModels/N_DEV_DiodePDE.h
+    UtilityPKG/N_UTL_WallTime.h
+    DeviceModelPKG/TCADModels/N_DEV_MaterialLayer.h
+    DeviceModelPKG/TCADModels/N_DEV_PDE_Electrode.h
+    DeviceModelPKG/TCADModels/N_DEV_bcData.h
+    DeviceModelPKG/Core/N_DEV_SpecieSource.h
+    DeviceModelPKG/Core/N_DEV_TransportHelper.h
+    UtilityPKG/ExpressionSrc/expressionParamTypes.h
+    AnalysisPKG/N_ANP_SweepParam.h
+    UtilityPKG/ExpressionSrc/astRandEnum.h
+  DESTINATION include)
+endif()
