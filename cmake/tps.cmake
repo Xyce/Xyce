@@ -139,7 +139,7 @@ if (NOT KLU_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
+if (TB_prefix STREQUAL "Trilinos")
 
      check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
      if (NOT Epetra_BTF_IN_Trilinos)
@@ -165,10 +165,11 @@ if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
           set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
 
-else()
+elseif(TB_prefix STREQUAL "tcad-charon")
      message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
           "This build of Xyce might not be functional for any other purpose.\n")
-     set(Xyce_AS_SPECIAL_CHARON_TPL TRUE CACHE BOOL "Disable checks to enable a limited Xyce build for Charon")
+else()
+     message(FATAL_ERROR "TB_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
 endif()
 
 # When updating to a new version of Trilinos, the following message will need
