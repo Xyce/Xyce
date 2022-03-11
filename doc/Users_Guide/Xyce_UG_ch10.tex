@@ -206,6 +206,9 @@ it would be applied in the same manner to current sources if they were
 present in the circuit.  The name is an artifact of an earlier 
 implementation.
 
+Note also that a more convenient method to accomplish source stepping is described in 
+section~\ref{continuation_source}.
+
 \begin{figure}[htbp]
 \begin{centering}
 \shadowbox{
@@ -392,6 +395,9 @@ is manually specified,\Xyce{} will \emph{not} attempt to find a DC operating
 point using any other method; it will attempt source stepping, and if that fails 
 it will exit with error, not attempting any other method. 
 Figure~\ref{sourceStep_netlist} provides a netlist example of source stepping.
+
+Note that a less convenient method to accomplish source stepping is described in 
+section~\ref{continuation_scaling}.
 
 \begin{figure}[htbp]
 \begin{centering}

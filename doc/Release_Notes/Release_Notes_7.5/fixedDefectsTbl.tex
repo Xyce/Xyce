@@ -234,5 +234,14 @@ For complicated netlists and PDKs, \Xyce{} was inefficient in processing large n
 when specified using expression-based random operators such as \texttt{AGAUSS}.  There were several compounding issues
 that caused this to happen, and they have been corrected.  \\ \hline
 
+\textbf{Gitlab-ex issue 355}:  Make it possible to turn off initial junction voltages globally in device package w/o turning off voltlim &
+Most semiconductor device models apply a initial junction voltages during the initial iterations of a DCOP solve.
+However, when applying source stepping to obtain the solution, it doesn't make 
+sense to apply these initial junction voltages, as the intent of source stepping 
+is to initially start with all sources set to zero.  This has been fixed, and 
+is automatically applied when Xyce performs source stepping.  It is also 
+possible to manually disable initial junction voltages from then netlist 
+via \texttt{.options device all\_off=true}.  \\ \hline
+
 \end{longtable}
 }
