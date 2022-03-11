@@ -64,6 +64,7 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
+# The following does not appear to be used anywhere. Assuming it's not, it should be removed.
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # MPI check
@@ -139,7 +140,7 @@ if (NOT KLU_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-if (TB_prefix STREQUAL "Trilinos")
+if (TriBITS_prefix STREQUAL "Trilinos")
 
      check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
      if (NOT Epetra_BTF_IN_Trilinos)
@@ -165,11 +166,11 @@ if (TB_prefix STREQUAL "Trilinos")
           set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
 
-elseif(TB_prefix STREQUAL "tcad-charon")
+elseif(TriBITS_prefix STREQUAL "tcad-charon")
      message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
           "This build of Xyce might not be functional for any other purpose.\n")
 else()
-     message(FATAL_ERROR "TB_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
+     message(FATAL_ERROR "TriBITS_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
 endif()
 
 # When updating to a new version of Trilinos, the following message will need

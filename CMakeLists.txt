@@ -18,9 +18,9 @@ project(Xyce NONE)
 # The following is needed because Charon is a TriBITS project that is compiled
 # with Trilinos, so it affects the way Trilinos is brought into Xyce.
 # Therefore, we have to jump through a bunch of hoops to make it work.
-set(TB_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
+set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
 
-if(TB_prefix STREQUAL "Trilinos")
+if(TriBITS_prefix STREQUAL "Trilinos")
   message(STATUS "Looking for Trilinos\n"
     "   Required packages:\n"
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
@@ -37,7 +37,7 @@ if(TB_prefix STREQUAL "Trilinos")
       "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
   endif()
 
-elseif(TB_prefix STREQUAL "tcad-charon")
+elseif(TriBITS_prefix STREQUAL "tcad-charon")
   message(STATUS "Looking for tcad-charon\n"
     "   Required packages:\n"
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
@@ -51,16 +51,16 @@ elseif(TB_prefix STREQUAL "tcad-charon")
   # changes the names of all the Trilinos variables. Here, we change them back
   # to the original names so we minimize pollution of the rest of the configure
   # process.
-  set( Trilinos_CXX_COMPILER_FLAGS ${${TB_prefix}_CXX_COMPILER_FLAGS} )
-  set( Trilinos_PACKAGE_LIST ${${TB_prefix}_PACKAGE_LIST} )
-  set( Trilinos_INCLUDE_DIRS ${${TB_prefix}_INCLUDE_DIRS} )
-  set( Trilinos_LIBRARIES ${${TB_prefix}_LIBRARIES} )
-  set( Trilinos_TPL_LIST ${${TB_prefix}_TPL_LIST} )
-  set( Trilinos_TPL_INCLUDE_DIRS ${${TB_prefix}_TPL_INCLUDE_DIRS} )
-  set( Trilinos_TPL_LIBRARIES ${${TB_prefix}_TPL_LIBRARIES} )
+  set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
+  set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
+  set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
+  set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
+  set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
+  set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
+  set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
 
 else()
-  message(FATAL_ERROR "TB_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
+  message(FATAL_ERROR "TriBITS_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
 endif()
 
 # If the user explicitly set the compilers, use those; otherwise use the same
@@ -68,15 +68,15 @@ endif()
 if( DEFINED CMAKE_C_COMPILER )
   message( "Using the user-defined C compiler: ${CMAKE_C_COMPILER}" )
 else()
-  message( STATUS "Using the ${TB_prefix} C compiler: ${${TB_prefix}_C_COMPILER}" )
-  set( CMAKE_C_COMPILER ${${TB_prefix}_C_COMPILER} )
+  message( STATUS "Using the ${TriBITS_prefix} C compiler: ${${TriBITS_prefix}_C_COMPILER}" )
+  set( CMAKE_C_COMPILER ${${TriBITS_prefix}_C_COMPILER} )
 endif()
 
 if( DEFINED CMAKE_CXX_COMPILER )
   message( "Using the user-defined C++ compiler: ${CMAKE_CXX_COMPILER}" )
 else()
-  message( STATUS "Using the ${TB_prefix} C++ compiler: ${${TB_prefix}_CXX_COMPILER}" )
-  set( CMAKE_CXX_COMPILER ${${TB_prefix}_CXX_COMPILER} )
+  message( STATUS "Using the ${TriBITS_prefix} C++ compiler: ${${TriBITS_prefix}_CXX_COMPILER}" )
+  set( CMAKE_CXX_COMPILER ${${TriBITS_prefix}_CXX_COMPILER} )
 endif()
 
 enable_language(C)
