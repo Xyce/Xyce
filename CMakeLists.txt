@@ -18,9 +18,16 @@ project(Xyce NONE)
 # The following is needed because Charon is a TriBITS project that is compiled
 # with Trilinos, so it affects the way Trilinos is brought into Xyce.
 # Therefore, we have to jump through a bunch of hoops to make it work.
-set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
+if(NOT DEFINED TriBITS_prefix)
+  set(TriBITS_prefix "Trilinos")
+endif()
 
-if(TriBITS_prefix STREQUAL "Trilinos")
+if(Xyce_AS_SPECIAL_CHARON_TPL)
+  find_package(Trilinos CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
+
+elseif(TriBITS_prefix STREQUAL "Trilinos")
   message(STATUS "Looking for Trilinos\n"
     "   Required packages:\n"
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
@@ -58,6 +65,7 @@ elseif(TriBITS_prefix STREQUAL "tcad-charon")
   set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
   set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
   set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
+  set( Xyce_AS_SPECIAL_CHARON_TPL TRUE)
 
 else()
   message(FATAL_ERROR "TriBITS_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")

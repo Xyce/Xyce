@@ -231,7 +231,7 @@ install(FILES
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
 DESTINATION include)
 
-if(TriBITS_prefix STREQUAL "tcad-charon")
+if(Xyce_AS_SPECIAL_CHARON_TPL)
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
     AnalysisPKG/N_ANP_AnalysisEvent.h
