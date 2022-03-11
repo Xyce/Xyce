@@ -80,14 +80,16 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item Source stepping, which is one of the solver techniques that \Xyce{} automatically 
-attempts when trying to solve the DCOP, now includes current sources as well as 
-  voltage sources.  As a result circuits using current sources are much more 
-  robust for the DCOP calculation.
-\item The new harmonics selection method based on box truncation is added
- for HB analysis
-\item Parameter handling for \texttt{.SAMPLING} and other UQ methods is now much more efficient 
-  (see issue 306 in the fixed defects table).
+\item Source stepping, which is one of the solver techniques that
+  \Xyce{} automatically attempts when trying to solve the DCOP, now
+  includes current sources as well as voltage sources.  As a result
+  circuits using current sources are much more robust for the DCOP
+  calculation.
+\item The new harmonics selection method based on box truncation has
+  been added for HB analysis
+\item Parameter handling for \texttt{.SAMPLING} and other UQ methods
+  is now much more efficient (see issue 306 in the fixed defects
+  table).
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
