@@ -168,7 +168,7 @@ if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
 
 else()
      message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
-          "This build of Xyce might not be functional for any other purpose.\n")
+          "This build of Xyce is not functional for any other purpose.\n")
 endif()
 
 # When updating to a new version of Trilinos, the following message will need

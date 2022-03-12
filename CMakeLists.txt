@@ -15,60 +15,53 @@ endif()
 # the compilers and call project again.
 project(Xyce NONE)
 
-# The following is needed because Charon is a TriBITS project that is compiled
-# with Trilinos, so it affects the way Trilinos is brought into Xyce.
-# Therefore, we have to jump through a bunch of hoops to make it work.
-if(NOT DEFINED TriBITS_prefix)
-  set(TriBITS_prefix "Trilinos")
-endif()
+# A TriBITS project that performs a coupled build with Trilinos, like Charon,
+# changes the names of all the Trilinos variables.  Therefore, we have to jump
+# through a bunch of hoops to take that use case into account.  Here we set a
+# cache variable to handle that name "mangling."
+set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
 
+# Charon can use a specific part of Xyce as a TPL.  However, that use case
+# results in a build of Xyce that is unusable for any other purpose.
+# Therefore, we need to make a special build of Xyce that skips some checks.
 if(Xyce_AS_SPECIAL_CHARON_TPL)
-  find_package(Trilinos CONFIG
+  find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
          AztecOO Belos TrilinosCouplings Isorropia Zoltan)
-
-elseif(TriBITS_prefix STREQUAL "Trilinos")
+else()
   message(STATUS "Looking for Trilinos\n"
     "   Required packages:\n"
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
     "        Triutils AztecOO Belos TrilinosCouplings\n"
     "   Optional packages:\n"
     "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
-  find_package(Trilinos CONFIG
+  find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
          AztecOO Belos TrilinosCouplings
     OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
   message(STATUS "Looking for Trilinos - found")
-  if(Trilinos_VERSION VERSION_LESS "12.12")
-    message(FATAL_ERROR
-      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+
+  # This is behind an if() statement due to the TriBITS name "mangling" issue.
+  # From what I tell, there is no way to probe the version of Trilinos when it
+  # is built as part of a different Tribits project.
+  if(${TriBITS_prefix} STREQUAL "Trilinos" )
+    if(Trilinos_VERSION VERSION_LESS "12.12")
+      message(FATAL_ERROR
+        "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+    endif()
+  else()
+    # This is where we mitigate the TriBITS name mangling.  We change the
+    # variable names to the "correct" names so we minimize pollution of the
+    # rest of the configure process.
+    set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
+    set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
+    set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
+    set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
+    set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
+    set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
+    set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
   endif()
 
-elseif(TriBITS_prefix STREQUAL "tcad-charon")
-  message(STATUS "Looking for tcad-charon\n"
-    "   Required packages:\n"
-    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
-    "        Triutils AztecOO Belos TrilinosCouplings Isorropia Zoltan \n")
-  find_package(tcad-charon CONFIG
-    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
-  message(STATUS "Looking for tcad-charon - found")
-
-  # A TriBITS project that performs a coupled build with Trilinos, like Charon,
-  # changes the names of all the Trilinos variables. Here, we change them back
-  # to the original names so we minimize pollution of the rest of the configure
-  # process.
-  set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
-  set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
-  set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
-  set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
-  set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
-  set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
-  set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
-  set( Xyce_AS_SPECIAL_CHARON_TPL TRUE)
-
-else()
-  message(FATAL_ERROR "TriBITS_prefix not \"Trilinos\" or \"tcad-charon\" - unable to continue")
 endif()
 
 # If the user explicitly set the compilers, use those; otherwise use the same

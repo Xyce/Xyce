@@ -231,7 +231,11 @@ install(FILES
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
 DESTINATION include)
 
-if(Xyce_AS_SPECIAL_CHARON_TPL)
+# When Charon uses a specific part Xyce as a TPL, it links to code deep in
+# Xyce.  Therefore, it requires a lot more headers to be installed for proper
+# linking.  We're installing the headers for all Charon builds, because it is
+# not worth dealing with yet another special use case.
+if(${TriBITS_prefix} STREQUAL "tcad-charon")
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
     AnalysisPKG/N_ANP_AnalysisEvent.h
